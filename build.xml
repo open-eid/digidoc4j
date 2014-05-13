@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="digidoc4j builder" basedir="." default="javadoc">
+
+    <target name="javadoc">
+        <javadoc sourcepath="src" packagenames="ee.sk.digidoc" destdir="javadoc">
+        </javadoc>
+    </target>
+
+</project>
