@@ -69,7 +69,7 @@ public class Container {
    * @param path container file name with path
    * @throws Exception is thrown when wasn't possible to find file
    */
-  Container(final String path) throws Exception {
+  Container(final String path) throws NotYetImplementedException {
     throw new NotYetImplementedException();
   }
 
@@ -102,7 +102,8 @@ public class Container {
    * @throws Exception thrown if the data file path is incorrect or a data file with same file name already exists.
    *                   Also, no data file can be added if the container already has one or more signatures
    */
-  public final void addDataFile(final InputStream is, final String fileName, final String mimeType) throws Exception {
+  public final void addDataFile(final InputStream is, final String fileName, final String mimeType)
+      throws Exception {
     throw new NotYetImplementedException();
   }
 
@@ -114,6 +115,7 @@ public class Container {
    * @throws Exception thrown if there are no data files in the container
    */
   public void addRawSignature(final byte[] signature) throws Exception {
+    throw new NotYetImplementedException();
   }
 
   /**
@@ -123,6 +125,7 @@ public class Container {
    * @throws Exception thrown if there are no data files in the container
    */
   public void addRawSignature(final InputStream signatureStream) throws Exception {
+    throw new NotYetImplementedException();
   }
 
   /**
@@ -151,6 +154,7 @@ public class Container {
    * @throws Exception thrown if the signature id is incorrect
    */
   public void removeSignature(final int signatureId) throws Exception {
+    throw new NotYetImplementedException();
   }
 
   /**
@@ -161,6 +165,7 @@ public class Container {
    *                   For example if the added data file does not exist.
    */
   public void save(final String path) throws Exception {
+    throw new NotYetImplementedException();
   }
 
   /**
@@ -171,7 +176,7 @@ public class Container {
    * @throws Exception thrown if signing the container failed
    */
   public final Signature sign(final Signer signer) throws Exception {
-    return new Signature();
+    throw new NotYetImplementedException();
   }
 
   /**
@@ -183,7 +188,7 @@ public class Container {
    * @throws Exception thrown if signing the container failed
    */
   public final Signature sign(final Signer signer, final SignatureProfile profile) throws Exception {
-    return null;
+    throw new NotYetImplementedException();
   }
 
   /**
@@ -208,14 +213,15 @@ public class Container {
   public final Signature sign(final String city, final String stateOrProvince, final String postalCode,
                               final String countryName, final List<String> signerRoles, final String pin,
                               final boolean useFirstCertificate) throws Exception {
-    return null;
+    throw new NotYetImplementedException();
   }
 
   /**
    * @return list of all signatures in the container
+   * @throws NotYetImplementedException if method is not implemented
    */
-  public final List<Signature> getSignatures() {
-    return null;
+  public final List<Signature> getSignatures() throws NotYetImplementedException {
+    throw new NotYetImplementedException();
   }
 
 }
