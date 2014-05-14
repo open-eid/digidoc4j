@@ -7,7 +7,7 @@ import eu.europa.ec.markt.dss.signature.token.Pkcs12SignatureToken;
 public class PKCS12Signer {
   private DSSPrivateKeyEntry privateKey;
 
-  public PKCS12Signer(String password, String pkcs12Keystore) {
+  public PKCS12Signer(final String password, final String pkcs12Keystore) {
     AbstractSignatureTokenConnection token = new Pkcs12SignatureToken(password, pkcs12Keystore);
     privateKey = token.getKeys().get(0);
   }

@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface Signer {
   /**
-   * Returns the signer certificate. Must be reimplemented when subclassing
+   * Returns the signer certificate. Must be reimplemented when subclassing.
    */
   public X509Cert getCertificate();
 

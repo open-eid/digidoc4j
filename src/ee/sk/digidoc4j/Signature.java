@@ -13,7 +13,7 @@ public class Signature {
   }
 
   /**
-   * Returns signature production city
+   * @return signature production city
    */
   public String getCity() {
     return null;
@@ -134,7 +134,6 @@ public class Signature {
 
   /**
    * Validates signature using Validate.VALIDATE_FULL method
-   *
    */
   public void validate() {
   }

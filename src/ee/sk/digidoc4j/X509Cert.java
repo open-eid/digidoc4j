@@ -6,7 +6,7 @@ import java.util.List;
 
 
 /**
- * Wrapper for OpenSSL X509 certificate structure
+ * Wrapper for OpenSSL X509 certificate structure.
  */
 public class X509Cert {
   /**

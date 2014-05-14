@@ -1,23 +1,56 @@
 package ee.sk.digidoc4j;
 
+import eu.europa.ec.markt.dss.DSSUtils;
+import eu.europa.ec.markt.dss.Digest;
+import eu.europa.ec.markt.dss.DigestAlgorithm;
+import eu.europa.ec.markt.dss.exception.DSSException;
+import eu.europa.ec.markt.dss.signature.DSSDocument;
+import eu.europa.ec.markt.dss.signature.FileDocument;
+import eu.europa.ec.markt.dss.signature.MimeType;
+
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 
 /**
- * Data file wrapper providing methods for handling signed files or files to be signed in Container
+ * Data file wrapper providing methods for handling signed files or files to be signed in Container.
  */
 public class DataFile {
-  /**
-   * Calculates digest http://www.w3.org/2001/04/xmlenc#sha256 for the data file. If the digest has already been calculated it will return it, otherwise it calculates the digest
 
-   * <p>In case of DDoc http://www.w3.org/2000/09/xmldsig#sha1 is used</p>
+  private DSSDocument document = null;
+  private Digest digest = null;
+
+  /**
+   * Creates container.
+   * <p/>
+   *
+   * @param path     file name with path
+   * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
+   * @throws Exception is thrown when file not exists
+   */
+  public DataFile(final String path, final String mimeType) throws Exception {
+    try {
+      document = new FileDocument(path);
+      document.setMimeType(MimeType.fromCode(mimeType));
+    } catch (DSSException e) {
+      if (e.getMessage().toLowerCase().contains("file not found")) {
+        throw new FileNotFoundException(e.getMessage());
+      }
+      throw new Exception(e.getMessage());
+    }
+  }
+
+  /**
+   * Calculates digest http://www.w3.org/2001/04/xmlenc#sha256 for the data file.
+   * If the digest has already been calculated it will return it, otherwise it calculates the digest.
+   * <p/>
    *
    * @return calculated digest
    * @throws Exception thrown if the file does not exist or the digest calculation fails.
    */
-  public byte[] calculateDigest() throws Exception {
-    return null;
+  public final byte[] calculateDigest() throws Exception {
+    return calculateDigest(new URL("http://www.w3.org/2001/04/xmlenc#sha256"));
   }
 
   /**
@@ -34,55 +67,58 @@ public class DataFile {
    * @return calculated digest
    * @throws Exception thrown if the file does not exist or the digest calculation fails.
    */
-  public byte[] calculateDigest(URL method) throws Exception {
-    return null;
+  public final byte[] calculateDigest(final URL method) throws Exception {
+    if (digest == null) {
+      DigestAlgorithm digestAlgorithm = DigestAlgorithm.forXML(method.toString());
+      digest = new Digest(digestAlgorithm, DSSUtils.digest(digestAlgorithm, document.getBytes()));
+    }
+    return digest.getValue();
   }
 
   /**
-   * Returns the data file name
+   * Returns the data file name.
+   *
+   * @return file name
    */
-  public String getFileName() {
-    return null;
+  public final String getFileName() {
+    return document.getName();
   }
 
   /**
-   * Returns the data file size
+   * @return the data file size
    */
-  public Long getFileSize() {
-    return null;
+  public final long getFileSize() {
+    return document.getBytes().length;
   }
 
   /**
-   * Returns the data file getFileId
+   * Returns file media type.
+   *
+   * @return media type
    */
-  public String getFileId() {
-    return null;
+  public final String getMediaType() {
+    return document.getMimeType().getCode();
   }
 
   /**
-   * Returns the data file's media type
-   */
-  public String getMediaType() {
-    return null;
-  }
-
-  /**
-   * Saves a copy of the data file as file specified by the stream
+   * Saves a copy of the data file as file specified by the stream.
    *
    * @param out stream where data is written
-   * @throws java.io.IOException
+   * @throws java.io.IOException is thrown when not possible to write to stream
    */
-  public void saveAs(OutputStream out) throws IOException{
+  public final void saveAs(final OutputStream out) throws IOException {
+    out.write(document.getBytes());
   }
 
   /**
-   * Saves a copy of the data file as file specified by the path
+   * Saves a copy of the data file as file specified by the path.
    *
    * @param path full file path where the data file should be saved to. If the file exists it will be overwritten
-   * @throws java.io.IOException thrown if part of the path does not exist or the path is an existing directory (without file name)
+   * @throws java.io.IOException thrown if part of the path does not exist
+   *                             or the path is an existing directory (without file name)
    */
-  public void saveAs(String path) throws IOException {
+  public final void saveAs(final String path) throws IOException {
+    document.save(path);
   }
-
 
 }

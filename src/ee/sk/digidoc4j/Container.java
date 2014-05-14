@@ -1,7 +1,18 @@
 package ee.sk.digidoc4j;
 
+import ee.sk.digidoc4j.exceptions.NotYetImplementedException;
+import eu.europa.ec.markt.dss.DigestAlgorithm;
+import eu.europa.ec.markt.dss.parameter.SignatureParameters;
+import eu.europa.ec.markt.dss.signature.SignatureLevel;
+import eu.europa.ec.markt.dss.signature.SignaturePackaging;
+import eu.europa.ec.markt.dss.signature.asic.ASiCEService;
+import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
+
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Offers functionality for handling data files and signatures in a container
@@ -10,79 +21,72 @@ import java.util.List;
  * all those files can be signed using signing certificates.
  * Container can only be signed if it contains data files.
  * Data files can be added and removed from a container only if the container is not signed.
- * To modify the data list of a signed container by adding or removing datafiles you must first remove all the signatures
+ * To modify the data list of a signed container by adding or removing datafiles you must first
+ * remove all the signatures
  * </p>
  */
 public class Container {
 
-  /**
-   * Binary encoding format
-   */
-  public enum DocumentType {
-    /**
-     * creates a new BDOC 2.1 container with mime-type 'application/vnd.etsi.asic-e+zip'
-     */
-    ASIC,
-    /**
-     * creates a new BDOC 1.0 container with mime-type 'application/vnd.bdoc-1.0'
-     *
-     * @deprecated Defaults to AsicType
-     *             <p>Note: the functionality of creating new files in DigiDoc file format BDOC 1.0 is not supported</p>
-     */
-    BDOC;
-  }
+  private CommonCertificateVerifier commonCertificateVerifier;
+  private ASiCEService aSiCEService;
+  Map<String, DataFile> dataFiles = new HashMap<String, DataFile>();
 
   /**
-   * Signature profile format
+   * Signature profile format.
    */
   public enum SignatureProfile {
     /**
-     * time-mark
+     * Time-mark.
      */
     TM,
     /**
-     * time-stamp
+     * Time-stamp.
      */
     TS;
-    //TMA //time-mark-archive
-    //TSA //time-stamp-archive
   }
 
   /**
-   * Create a new container object of type Container.ASIC
+   * Create a new container object of type Container.
    */
   Container() {
+//    AbstractSignatureTokenConnection token = new Pkcs12SignatureToken("test", "signout.p12");
+//    DSSPrivateKeyEntry privateKey = token.getKeys().get(0);
+
+    SignatureParameters parameters = new SignatureParameters();
+    parameters.setSignatureLevel(SignatureLevel.ASiC_S_BASELINE_LT);
+    parameters.setSignaturePackaging(SignaturePackaging.DETACHED);
+    parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
+//    parameters.setPrivateKeyEntry(privateKey);
+    commonCertificateVerifier = new CommonCertificateVerifier();
+
+    aSiCEService = new ASiCEService(commonCertificateVerifier);
+
   }
 
   /**
-   * Create a new container object and specify the DigiDoc container type
+   * Opens the container from a file.
    *
-   * @param type digidoc type
+   * @param path container file name with path
+   * @throws Exception is thrown when wasn't possible to find file
    */
-  Container(DocumentType type) {
+  Container(final String path) throws Exception {
+    throw new NotYetImplementedException();
   }
 
   /**
-   * Opens the container from a file
-   *
-   * @param path
-   * @throws Exception
-   */
-  Container(String path) throws Exception {
-  }
-
-  /**
-   * Adds a data file from the file system to the container
+   * Adds a data file from the file system to the container.
    * <p>
    * Note:
    * Data files can be removed from a container only after all signatures have been removed
    * </p>
    *
-   * @param path      data file to be added to the container
-   * @param mediaType MIME type of the data file, for example 'text/plain' or 'application/msword'
-   * @throws Exception thrown if the data file path is incorrect or a data file with same file name already exists. Also, no data file can be added if the container already has one or more signatures
+   * @param path     data file to be added to the container
+   * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
+   * @throws Exception thrown if the data file path is incorrect or a data file with same file name already exists.
+   *                   Also, no data file can be added if the container already has one or more signatures
    */
-  public void addDataFile(String path, String mediaType) throws Exception {
+  public final void addDataFile(final String path, final String mimeType) throws Exception {
+    dataFiles.put(path, new DataFile(path, mimeType));
   }
 
   /**
@@ -92,116 +96,125 @@ public class Container {
    * Data files can be removed from a container only after all signatures have been removed
    * </p>
    *
-   * @param is        input stream from where data is read
-   * @param fileName  data file name in the container
-   * @param mediaType MIME type of the data file, for example 'text/plain' or 'application/msword'
-   * @throws Exception thrown if the data file path is incorrect or a data file with same file name already exists. Also, no data file can be added if the container already has one or more signatures
+   * @param is       input stream from where data is read
+   * @param fileName data file name in the container
+   * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
+   * @throws Exception thrown if the data file path is incorrect or a data file with same file name already exists.
+   *                   Also, no data file can be added if the container already has one or more signatures
    */
-  public void addDataFile(InputStream is, String fileName, String mediaType) throws Exception {
+  public final void addDataFile(final InputStream is, final String fileName, final String mimeType) throws Exception {
+    throw new NotYetImplementedException();
   }
 
 
   /**
-   * Adds a signature to the container
+   * Adds a signature to the container.
    *
    * @param signature signature, which is added to the container
    * @throws Exception thrown if there are no data files in the container
    */
-  public void addRawSignature(byte[] signature) throws Exception {
+  public void addRawSignature(final byte[] signature) throws Exception {
   }
 
   /**
-   * Adds signature from input stream to the container
+   * Adds signature from input stream to the container.
    *
    * @param signatureStream signature, which is added to the container.
    * @throws Exception thrown if there are no data files in the container
    */
-  public void addRawSignature(InputStream signatureStream) throws Exception {
+  public void addRawSignature(final InputStream signatureStream) throws Exception {
   }
 
   /**
-   * Returns a list of all the data files in the container
+   * @return list of all the data files in the container.
    */
-  public List<DataFile> getDataFiles() {
-    return null;
+  public final List<DataFile> getDataFiles() {
+    return new ArrayList<DataFile>(dataFiles.values());
   }
 
 
   /**
-   * Returns current data file format
-   */
-  String getMediaType() {
-    return null;
-  }
-
-  /**
-   * Removes a data file from the container by data file id. Data files can be removed from the container only after all signatures have been removed
+   * Removes a data file from the container by data file name. If there is corresponding signature(s) then these
+   * signatures will be deleted
    *
-   * @param fileId id of the data file to be removed
-   * @throws Exception thrown if the data file id is incorrect or there are one or more signatures
+   * @param fileName name of the data file to be removed
+   * @throws Exception thrown if the data file name is incorrect
    */
-  public void removeDataFile(int fileId) throws Exception {
+  public final void removeDataFile(final String fileName) throws Exception {
+    dataFiles.remove(fileName);
   }
 
   /**
-   * Removes a signature from the container by signature id
+   * Removes a signature from the container by signature id.
    *
    * @param signatureId id of the signature to be removed
    * @throws Exception thrown if the signature id is incorrect
    */
-  public void removeSignature(int signatureId) throws Exception {
+  public void removeSignature(final int signatureId) throws Exception {
   }
 
   /**
-   * Saves the container
+   * Saves the container.
    *
-   * @param path
-   * @throws Exception thrown if there was a failure saving the BDOC container. For example if the added data file does not exist
+   * @param path file name and path.
+   * @throws Exception thrown if there was a failure saving the BDOC container.
+   *                   For example if the added data file does not exist.
    */
-  public void save(String path) throws Exception {
+  public void save(final String path) throws Exception {
   }
 
   /**
-   * Signs all data files in the container with SignatureProfile.TS profile
+   * Signs all data files in the container with SignatureProfile.TS profile.
    *
    * @param signer signer implementation
+   * @return signature
    * @throws Exception thrown if signing the container failed
    */
-  public Signature sign(Signer signer) throws Exception {
-    return null;
+  public final Signature sign(final Signer signer) throws Exception {
+    return new Signature();
   }
 
   /**
-   * Signs all data files in the container
+   * Signs all data files in the container.
    *
    * @param signer  signer implementation
-   * @param profile specifies the signature profile.
+   * @param profile specifies the signature profile
+   * @return signature
    * @throws Exception thrown if signing the container failed
    */
-  public Signature sign(Signer signer, SignatureProfile profile) throws Exception {
+  public final Signature sign(final Signer signer, final SignatureProfile profile) throws Exception {
     return null;
   }
 
   /**
-   * Signs all data files in the container
+   * Signs all data files in the container.
    *
    * @param city                signature production place signed property (optional)
    * @param stateOrProvince     signature production place signed property (optional)
    * @param postalCode          signature production place signed property (optional)
    * @param countryName         signature production place signed property (optional)
-   * @param signerRoles         the parameter may contain the signer's role and optionally the signer's resolution. Note that only one signer role value (i.e. one <ClaimedRole> XML element) should be used. If the signer role contains both role and resolution then they must be separated with a slash mark, e.g. 'role / resolution'. Note that when setting the resolution value then the role must also be specified
-   * @param pin                 PIN code for accessing the private key
-   * @param useFirstCertificate if set to 'true' the first signing certificate that is found from the certificate store is chosen for signature creation and the certificate selection's dialog window is not displayed to the user
+   * @param signerRoles         the parameter may contain the signer's role and optionally the signer's resolution.
+   *                            Note that only one signer role value (i.e. one <ClaimedRole> XML element)
+   *                            should be used. If the signer role contains both role and resolution then they must be
+   *                            separated with a slash mark, e.g. 'role / resolution'. Note that when setting the
+   *                            resolution value then the role must also be specified.
+   * @param pin                 PIN code for accessing the private key.
+   * @param useFirstCertificate if set to 'true' the first signing certificate that is found from the certificate store
+   *                            is chosen for signature creation and the certificate selection's dialog window is not
+   *                            displayed to the user.
+   * @return signature
    * @throws Exception thrown if signing the container failed
    */
-  public Signature sign(String city, String stateOrProvince, String postalCode, String countryName, List<String> signerRoles, String pin, boolean useFirstCertificate) throws Exception {
+  public final Signature sign(final String city, final String stateOrProvince, final String postalCode,
+                              final String countryName, final List<String> signerRoles, final String pin,
+                              final boolean useFirstCertificate) throws Exception {
     return null;
   }
 
   /**
-   * Returns a list of all signatures in the container
+   * @return list of all signatures in the container
    */
-  public List<Signature> signatures() {
+  public final List<Signature> getSignatures() {
     return null;
   }
 
