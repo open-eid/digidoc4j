@@ -21,7 +21,7 @@ import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 
 import java.security.cert.X509Certificate;
 
-public class Test {
+public class Prototype {
   public static void main(String[] args) {
     sign();
     //validate();
@@ -102,5 +102,5 @@ public class Test {
 //    DiagnosticData diagnosticData = validator.getDiagnosticData();
 //    System.out.println(diagnosticData);
 
-      }
+  }
 }
