@@ -1,26 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="digidoc4j builder" basedir="." default="javadoc">
-    <property name="build" value="build"/>
-    <property name="version" value="0.2"/>
+<project name="digidoc4j builder" basedir="." default="all">
+  <property name="build" value="build"/>
+  <property name="version" value="0.2"/>
 
-    <target name="javadoc">
-        <javadoc sourcepath="src" packagenames="ee.sk.digidoc4j" destdir="javadoc"/>
-        <jar destfile="${build}/digidoc4j-${version}-javadoc.jar" basedir="javadoc"/>
-    </target>
+  <path id="javac.classpath">
+    <pathelement location="sd-dss/apps/dss/core/dss-common/target/classes"/>
+    <pathelement location="sd-dss/apps/dss/core/dss-document/target/classes"/>
+    <pathelement location="sd-dss/apps/dss/core/dss-service/target/classes"/>
+    <pathelement location="sd-dss/apps/dss/core/dss-spi/target/classes"/>
+    <fileset dir="lib">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>
 
-    <target name="compile">
-        <!--<javac srcdir="src"-->
-        <!--destdir="${build}"-->
-        <!--classpath="xyz.jar"-->
-        <!--debug="on"-->
-        <!--source="1.4"-->
-        <!--/>-->
-    </target>
+  <target name="javadoc">
+    <javadoc packagenames="ee.sk.digidoc4j" destdir="javadoc">
+      <sourcepath path="src"/>
+      <sourcepath path="sd-dss/apps/dss/core/dss-common/src"/>
+      <sourcepath path="sd-dss/apps/dss/core/dss-document/src"/>
+      <sourcepath path="sd-dss/apps/dss/core/dss-service/src"/>
+      <sourcepath path="sd-dss/apps/dss/core/dss-spi/src"/>
+    </javadoc>
+    <jar destfile="${build}/digidoc4j-${version}-javadoc.jar" basedir="javadoc"/>
+  </target>
 
-    <target name="source">
-        <jar destfile="${build}/digidoc4j-${version}-sources.jar" basedir="src"/>
-    </target>
+  <target name="compile">
+    <javac destdir="${build}" includeantruntime="false" debug="on" source="1.7">
+      <src path="src"/>
+      <src path="test"/>
+      <classpath refid="javac.classpath"/>
+      <!--<src path="sd-dss/apps/dss/core/dss-common/src"/>-->
+      <!--<src path="sd-dss/apps/dss/core/dss-common/target/generated-sources/xjc"/>-->
+      <!--<src path="sd-dss/apps/dss/core/dss-document/src"/>-->
+      <!--<src path="sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc"/>-->
+      <!--<src path="sd-dss/apps/dss/core/dss-service/src"/>-->
+      <!--<src path="sd-dss/apps/dss/core/dss-spi/src"/>-->
+    </javac>
+  </target>
 
-    <target name="all" depends="javadoc, source, compile"/>
+  <target name="source">
+    <jar destfile="${build}/digidoc4j-${version}-sources.jar" basedir="src"/>
+  </target>
+
+  <target name="all" depends="javadoc, source, compile, test"/>
+
+  <target name="test" depends="compile">
+    <junit>
+      <classpath refid="javac.classpath"/>
+      <classpath>
+        <pathelement location="build"/>
+      </classpath>
+      <batchtest>
+        <fileset dir="${build}" includes="**/*Test*.class"/>
+      </batchtest>
+      <formatter type="brief" usefile="false"/>
+      <formatter type="xml"/>
+    </junit>
+    <junitreport todir="${build}">
+      <fileset dir=".">
+        <include name="TEST-*.xml"/>
+      </fileset>
+      <report format="noframes" todir="${build}/html"/>
+    </junitreport>
+  </target>
 
 </project>
