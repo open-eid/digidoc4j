@@ -60,7 +60,6 @@ public class Container {
     commonCertificateVerifier = new CommonCertificateVerifier();
 
     aSiCEService = new ASiCEService(commonCertificateVerifier);
-
   }
 
   /**
@@ -69,7 +68,7 @@ public class Container {
    * @param path container file name with path
    * @throws Exception is thrown when wasn't possible to find file
    */
-  Container(final String path) throws NotYetImplementedException {
+  Container(final String path) throws Exception {
     throw new NotYetImplementedException();
   }
 
@@ -103,7 +102,7 @@ public class Container {
    *                   Also, no data file can be added if the container already has one or more signatures
    */
   public final void addDataFile(final InputStream is, final String fileName, final String mimeType)
-      throws Exception {
+    throws Exception {
     throw new NotYetImplementedException();
   }
 
@@ -114,7 +113,7 @@ public class Container {
    * @param signature signature, which is added to the container
    * @throws Exception thrown if there are no data files in the container
    */
-  public void addRawSignature(final byte[] signature) throws Exception {
+  public final void addRawSignature(final byte[] signature) throws Exception {
     throw new NotYetImplementedException();
   }
 
@@ -124,7 +123,7 @@ public class Container {
    * @param signatureStream signature, which is added to the container.
    * @throws Exception thrown if there are no data files in the container
    */
-  public void addRawSignature(final InputStream signatureStream) throws Exception {
+  public final void addRawSignature(final InputStream signatureStream) throws Exception {
     throw new NotYetImplementedException();
   }
 
@@ -153,7 +152,7 @@ public class Container {
    * @param signatureId id of the signature to be removed
    * @throws Exception thrown if the signature id is incorrect
    */
-  public void removeSignature(final int signatureId) throws Exception {
+  public final void removeSignature(final int signatureId) throws Exception {
     throw new NotYetImplementedException();
   }
 
@@ -164,7 +163,7 @@ public class Container {
    * @throws Exception thrown if there was a failure saving the BDOC container.
    *                   For example if the added data file does not exist.
    */
-  public void save(final String path) throws Exception {
+  public final void save(final String path) throws Exception {
     throw new NotYetImplementedException();
   }
 
@@ -223,7 +222,6 @@ public class Container {
   public final List<Signature> getSignatures() throws NotYetImplementedException {
     throw new NotYetImplementedException();
   }
-
 }
 
 
