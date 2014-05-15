@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="231d0052-c425-43c6-acab-fc208a3191a3" name="Default" comment="">
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/prototype/Test.java" afterPath="$PROJECT_DIR$/src/prototype/Prototype.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/jacocoagent.jar" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/jacocoant.jar" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="digidoc4j.iws" />
@@ -52,15 +53,15 @@
     <file path="/AlwaysValidOCSPSource.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399975253812" ignored="false" />
     <file path="/MockTSLCertificateSource.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399975128148" ignored="false" />
     <file path="/MockServiceInfo.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399975149505" ignored="false" />
-    <file path="/Dummy.txt" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400168696036" ignored="false" />
+    <file path="/Dummy.txt" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400178141849" ignored="false" />
     <file path="/PKCS12Signer.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400053343986" ignored="false" />
     <file path="/checkstyle.xml" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400053060115" ignored="false" />
     <file path="/package-info.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400064540756" ignored="false" />
     <file path="/DataFile.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400071225387" ignored="false" />
     <file path="/Signature.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400053913221" ignored="false" />
     <file path="/Container.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400134696130" ignored="false" />
-    <file path="/build.xml" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400141908882" ignored="false" />
-    <file path="/fragment.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400070172523" ignored="false" />
+    <file path="/build.xml" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400178154484" ignored="false" />
+    <file path="/fragment.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400177602387" ignored="false" />
     <file path="/ContainerTest.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400070026797" ignored="false" />
     <file path="/Test.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400068984819" ignored="false" />
     <file path="/DataFileTest.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400071056207" ignored="false" />
@@ -100,7 +101,7 @@
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/digidoc4j$All_Tests_in_digidoc4j.coverage" NAME="All Tests in digidoc4j Coverage Results" MODIFIED="1400168804029" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="true">
+    <SUITE FILE_PATH="coverage/digidoc4j$All_Tests_in_digidoc4j.coverage" NAME="All Tests in digidoc4j Coverage Results" MODIFIED="1400177611131" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="jacoco" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
       <FILTER>ee.sk.digidoc4j.*</FILTER>
     </SUITE>
   </component>
@@ -172,7 +173,7 @@
       <file leaf-file-name="build.xml" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/build.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="10" column="4" selection-start="547" selection-end="547" vertical-scroll-proportion="0.198939">
+            <state line="89" column="38" selection-start="3000" selection-end="3000" vertical-scroll-proportion="0.92509365">
               <folding />
             </state>
           </provider>
@@ -280,6 +281,11 @@
   <component name="ProjectReloadState">
     <option name="STATE" value="0" />
   </component>
+  <component name="ProjectStructureProblems">
+    <ignored-problems>
+      <problem id="unused-library(library:project:emma:emma_ant:2.1.5320)" />
+    </ignored-problems>
+  </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1" splitterProportion="0.5">
       <flattenPackages />
@@ -344,13 +350,67 @@
               <option name="myItemId" value="src" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sk" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="digidoc4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="digidoc4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sk" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="digidoc4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="digidoc4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="digidoc4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="lib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="digidoc4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="digidoc4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="build" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.last.edited" value="Libraries" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary" value="JUnit4" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="OverrideImplement.combined" value="true" />
@@ -385,11 +445,11 @@
     </option>
   </component>
   <component name="RecentsManager">
-    <key name="CreateTestDialog.Recents.Supers">
-      <recent name="" />
-    </key>
     <key name="CreateTestDialog.RecentsKey">
       <recent name="ee.sk.digidoc4j" />
+    </key>
+    <key name="CreateTestDialog.Recents.Supers">
+      <recent name="" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/ee/sk/digidoc4j/exceptions" />
@@ -600,7 +660,7 @@
       <method />
     </configuration>
     <configuration default="false" name="All Tests in digidoc4j" type="JUnit" factoryName="JUnit" temporary="true">
-      <extension name="coverage" enabled="false" merge="false" track_test_folders="true" runner="idea">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" track_test_folders="true" runner="jacoco">
         <pattern>
           <option name="PATTERN" value="ee.sk.digidoc4j.*" />
           <option name="ENABLED" value="true" />
@@ -739,6 +799,13 @@
       <envs />
       <method />
     </configuration>
+    <configuration default="true" type="JavascriptDebugSession" factoryName="Local" singleton="true">
+      <JSDebuggerConfigurationSettings>
+        <option name="engineId" />
+        <option name="fileUrl" />
+      </JSDebuggerConfigurationSettings>
+      <method />
+    </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <module name="" />
@@ -864,18 +931,18 @@
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="CheckStyle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2373899" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" x="-301" y="520" width="2322" height="298" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24939951" sideWeight="0.3160873" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24939951" sideWeight="0.6701698" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2193755" sideWeight="0.28652138" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32983023" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32983023" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Coverage" active="true" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24939951" sideWeight="0.3160873" order="9" side_tool="true" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32983023" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24939951" sideWeight="0.6321746" order="9" side_tool="true" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2193755" sideWeight="0.6321746" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3678254" sideWeight="0.6168623" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2193755" sideWeight="0.6701698" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3678254" sideWeight="0.6168623" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="CDI" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
@@ -931,7 +998,7 @@
     <option name="WRAP_WHEN_TYPING_REACHES_RIGHT_MARGIN" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="renames bad class name" />
+    <option name="LAST_COMMIT_MESSAGE" value="adds jacoco coverage report" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="false" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -952,6 +1019,8 @@
     <MESSAGE value="adds idea project file" />
     <MESSAGE value="adds ant compile and test tasks" />
     <MESSAGE value="renames bad class name" />
+    <MESSAGE value="cleans workspace before new build" />
+    <MESSAGE value="adds jacoco coverage report" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -971,13 +1040,6 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/ee/sk/digidoc4j/exceptions/NotYetImplementedException.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="6" column="13" selection-start="127" selection-end="127" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/ee/sk/digidoc4j/ContainerTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="34" column="3" selection-start="1229" selection-end="1229" vertical-scroll-proportion="0.0">
@@ -1000,13 +1062,6 @@
     <entry file="file://$PROJECT_DIR$/test/ee/sk/digidoc4j/DataFileTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="64" column="46" selection-start="1876" selection-end="1876" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ee/sk/digidoc4j/DataFile.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="7" selection-start="1281" selection-end="1281" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -1079,9 +1134,16 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/ee/sk/digidoc4j/DataFile.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="38" column="7" selection-start="1281" selection-end="1281" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/build.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="4" selection-start="547" selection-end="547" vertical-scroll-proportion="0.198939">
+        <state line="89" column="38" selection-start="3000" selection-end="3000" vertical-scroll-proportion="0.92509365">
           <folding />
         </state>
       </provider>
