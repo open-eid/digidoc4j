@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/digidoc4j.iml" filepath="$PROJECT_DIR$/digidoc4j.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dss-common.iml" filepath="$PROJECT_DIR$/dss-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dss-core.iml" filepath="$PROJECT_DIR$/dss-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dss-document.iml" filepath="$PROJECT_DIR$/dss-document.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dss-service.iml" filepath="$PROJECT_DIR$/dss-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dss-spi.iml" filepath="$PROJECT_DIR$/dss-spi.iml" />
+    </modules>
+  </component>
+</project>
+
