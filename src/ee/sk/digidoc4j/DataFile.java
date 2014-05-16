@@ -3,7 +3,6 @@ package ee.sk.digidoc4j;
 import eu.europa.ec.markt.dss.DSSUtils;
 import eu.europa.ec.markt.dss.Digest;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
-import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
 import eu.europa.ec.markt.dss.signature.FileDocument;
 import eu.europa.ec.markt.dss.signature.MimeType;
@@ -33,11 +32,11 @@ public class DataFile {
     try {
       document = new FileDocument(path);
       document.setMimeType(MimeType.fromCode(mimeType));
-    } catch (DSSException e) {
+    } catch (Exception e) {
       if (e.getMessage().toLowerCase().contains("file not found")) {
         throw new FileNotFoundException(e.getMessage());
       }
-      throw new Exception(e.getMessage());
+      throw e;
     }
   }
 
@@ -70,9 +69,13 @@ public class DataFile {
   public final byte[] calculateDigest(final URL method) throws Exception {
     if (digest == null) {
       DigestAlgorithm digestAlgorithm = DigestAlgorithm.forXML(method.toString());
-      digest = new Digest(digestAlgorithm, DSSUtils.digest(digestAlgorithm, document.getBytes()));
+      digest = new Digest(digestAlgorithm, calculateDigestInternal(digestAlgorithm));
     }
     return digest.getValue();
+  }
+
+  protected final byte[] calculateDigestInternal(final DigestAlgorithm digestAlgorithm) {
+    return DSSUtils.digest(digestAlgorithm, document.getBytes());
   }
 
   /**
