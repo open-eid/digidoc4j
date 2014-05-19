@@ -1,6 +1,6 @@
 package ee.sk.digidoc4j.utils;
 
-import com.sun.org.apache.xml.internal.security.utils.Base64;
+import org.apache.commons.codec.binary.Base64;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -38,7 +38,7 @@ public class PKCS12SignerTest {
         "maECgYALiEqtS4gfy0t4iydbAGxzvAZPwlifgqqjYsm9XoI7U8wJItw5NgWV+c28yuibZd6tKolN\n" +
         "vLV5ywqxQ8t3IoMO/mwXFOgHCUErlefeL7y1SOGqTp2OtJnKSoF9y1GLmXiYi2A0i46EEOR6Hapj\n" +
         "qRRMT9z0gtZJviW0dhr/VUZXrA==",
-        Base64.encode(pkcs12Signer.getPrivateKey().getEncoded()));
+        Base64.encodeBase64(pkcs12Signer.getPrivateKey().getEncoded()));
   }
 
 }
