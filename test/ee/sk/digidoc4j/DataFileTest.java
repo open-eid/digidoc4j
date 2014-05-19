@@ -62,6 +62,16 @@ public class DataFileTest {
 
   @Test(expected = FileNotFoundException.class)
   public void testThrowsFileNotFoundExceptionIfFileDoesNotExists() throws Exception {
-    DataFile dataFile = new DataFile("NOT_EXISTS.TXT", "text/plain");
+    new DataFile("NOT_EXISTS.TXT", "text/plain");
   }
+
+  @Test(expected = Exception.class)
+  public void testThrowsExceptionOnUnknownError() throws Exception {
+    new DataFile(null, "none/none");
+  }
+
+  @Test
+  public void testDigestIsCalculatedOnlyOnce() throws Exception {
+  }
+
 }
