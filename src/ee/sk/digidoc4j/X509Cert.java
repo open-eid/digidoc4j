@@ -9,6 +9,8 @@ import java.util.List;
  * Wrapper for OpenSSL X509 certificate structure.
  */
 public class X509Cert {
+  private X509Certificate originalCert;
+
   /**
    * Binary encoding format
    */
@@ -44,6 +46,7 @@ public class X509Cert {
    * @param cert X509 certificate to be wrapped
    */
   public X509Cert(X509Certificate cert) {
+    originalCert = cert;
   }
 
   /**
@@ -87,7 +90,7 @@ public class X509Cert {
    * Returns the internal getX509Certificate of the certificate
    */
   public X509Certificate getX509Certificate() {
-    return null;
+    return originalCert;
   }
 
 

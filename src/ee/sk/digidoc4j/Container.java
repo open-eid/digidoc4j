@@ -1,12 +1,18 @@
 package ee.sk.digidoc4j;
 
 import ee.sk.digidoc4j.exceptions.NotYetImplementedException;
+import ee.sk.utils.SKOnlineOCSPSource;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
+import eu.europa.ec.markt.dss.signature.DSSDocument;
+import eu.europa.ec.markt.dss.signature.FileDocument;
 import eu.europa.ec.markt.dss.signature.SignatureLevel;
 import eu.europa.ec.markt.dss.signature.SignaturePackaging;
 import eu.europa.ec.markt.dss.signature.asic.ASiCEService;
 import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
+import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
+import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
+import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -30,6 +36,8 @@ public class Container {
   private CommonCertificateVerifier commonCertificateVerifier;
   private ASiCEService aSiCEService;
   Map<String, DataFile> dataFiles = new HashMap<String, DataFile>();
+  private SignatureParameters signatureParameters;
+  private DSSDocument signedDocument;
 
   /**
    * Signature profile format.
@@ -48,15 +56,14 @@ public class Container {
   /**
    * Create a new container object of type Container.
    */
-  Container() {
+  public Container() {
 //    AbstractSignatureTokenConnection token = new Pkcs12SignatureToken("test", "signout.p12");
 //    DSSPrivateKeyEntry privateKey = token.getKeys().get(0);
 
-    SignatureParameters parameters = new SignatureParameters();
-    parameters.setSignatureLevel(SignatureLevel.ASiC_S_BASELINE_LT);
-    parameters.setSignaturePackaging(SignaturePackaging.DETACHED);
-    parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
-//    parameters.setPrivateKeyEntry(privateKey);
+    signatureParameters = new SignatureParameters();
+    signatureParameters.setSignatureLevel(SignatureLevel.ASiC_S_BASELINE_LT);
+    signatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
+    signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
     commonCertificateVerifier = new CommonCertificateVerifier();
 
     aSiCEService = new ASiCEService(commonCertificateVerifier);
@@ -68,7 +75,7 @@ public class Container {
    * @param path container file name with path
    * @throws Exception is thrown when wasn't possible to find file
    */
-  Container(final String path) throws Exception {
+  public Container(String path) throws Exception {
     throw new NotYetImplementedException();
   }
 
@@ -84,7 +91,7 @@ public class Container {
    * @throws Exception thrown if the data file path is incorrect or a data file with same file name already exists.
    *                   Also, no data file can be added if the container already has one or more signatures
    */
-  public final void addDataFile(final String path, final String mimeType) throws Exception {
+  public void addDataFile(String path, String mimeType) throws Exception {
     dataFiles.put(path, new DataFile(path, mimeType));
   }
 
@@ -101,8 +108,8 @@ public class Container {
    * @throws Exception thrown if the data file path is incorrect or a data file with same file name already exists.
    *                   Also, no data file can be added if the container already has one or more signatures
    */
-  public final void addDataFile(final InputStream is, final String fileName, final String mimeType)
-    throws Exception {
+  public void addDataFile(InputStream is, String fileName, String mimeType)
+      throws Exception {
     throw new NotYetImplementedException();
   }
 
@@ -113,7 +120,7 @@ public class Container {
    * @param signature signature, which is added to the container
    * @throws Exception thrown if there are no data files in the container
    */
-  public final void addRawSignature(final byte[] signature) throws Exception {
+  public void addRawSignature(byte[] signature) throws Exception {
     throw new NotYetImplementedException();
   }
 
@@ -123,14 +130,14 @@ public class Container {
    * @param signatureStream signature, which is added to the container.
    * @throws Exception thrown if there are no data files in the container
    */
-  public final void addRawSignature(final InputStream signatureStream) throws Exception {
+  public void addRawSignature(InputStream signatureStream) throws Exception {
     throw new NotYetImplementedException();
   }
 
   /**
    * @return list of all the data files in the container.
    */
-  public final List<DataFile> getDataFiles() {
+  public List<DataFile> getDataFiles() {
     return new ArrayList<DataFile>(dataFiles.values());
   }
 
@@ -142,7 +149,7 @@ public class Container {
    * @param fileName name of the data file to be removed
    * @throws Exception thrown if the data file name is incorrect
    */
-  public final void removeDataFile(final String fileName) throws Exception {
+  public void removeDataFile(String fileName) throws Exception {
     dataFiles.remove(fileName);
   }
 
@@ -152,7 +159,7 @@ public class Container {
    * @param signatureId id of the signature to be removed
    * @throws Exception thrown if the signature id is incorrect
    */
-  public final void removeSignature(final int signatureId) throws Exception {
+  public void removeSignature(int signatureId) throws Exception {
     throw new NotYetImplementedException();
   }
 
@@ -163,8 +170,8 @@ public class Container {
    * @throws Exception thrown if there was a failure saving the BDOC container.
    *                   For example if the added data file does not exist.
    */
-  public final void save(final String path) throws Exception {
-    throw new NotYetImplementedException();
+  public void save(String path) throws Exception {
+    signedDocument.save(path);
   }
 
   /**
@@ -174,8 +181,39 @@ public class Container {
    * @return signature
    * @throws Exception thrown if signing the container failed
    */
-  public final Signature sign(final Signer signer) throws Exception {
-    throw new NotYetImplementedException();
+  public Signature sign(Signer signer) throws Exception {
+    CommonsDataLoader dataLoader = new CommonsDataLoader();
+
+    final String lotlUrl = "file:trusted-test-tsl.xml";
+    TrustedListsCertificateSource tslCertificateSource = new TrustedListsCertificateSource();
+    tslCertificateSource.setDataLoader(dataLoader);
+    tslCertificateSource.setLotlUrl(lotlUrl);
+    tslCertificateSource.setCheckSignature(false);
+    tslCertificateSource.init();
+    commonCertificateVerifier.setTrustedCertSource(tslCertificateSource);
+
+    SKOnlineOCSPSource onlineOCSPSource = new SKOnlineOCSPSource();
+    commonCertificateVerifier.setOcspSource(onlineOCSPSource);
+
+    ASiCEService service = new ASiCEService(commonCertificateVerifier);
+
+    service.setTspSource(new OnlineTSPSource("http://tsa01.quovadisglobal.com/TSS/HttpTspServer"));
+
+    signatureParameters.setSigningCertificate(signer.getCertificate().getX509Certificate());
+
+    //TODO:throw error if no file exists
+    DSSDocument toSignDocument = new FileDocument(getFirstDataFile().getFileName());
+
+    byte[] dataToSign = service.getDataToSign(toSignDocument, signatureParameters);
+
+    byte[] signatureValue = signer.sign(dataToSign, signatureParameters.getDigestAlgorithm().getXmlId());
+    signedDocument = service.signDocument(toSignDocument, signatureParameters, signatureValue);
+
+    return new Signature();
+  }
+
+  private DataFile getFirstDataFile() {
+    return (DataFile) dataFiles.values().toArray()[0];
   }
 
   /**
@@ -186,32 +224,7 @@ public class Container {
    * @return signature
    * @throws Exception thrown if signing the container failed
    */
-  public final Signature sign(final Signer signer, final SignatureProfile profile) throws Exception {
-    throw new NotYetImplementedException();
-  }
-
-  /**
-   * Signs all data files in the container.
-   *
-   * @param city                signature production place signed property (optional)
-   * @param stateOrProvince     signature production place signed property (optional)
-   * @param postalCode          signature production place signed property (optional)
-   * @param countryName         signature production place signed property (optional)
-   * @param signerRoles         the parameter may contain the signer's role and optionally the signer's resolution.
-   *                            Note that only one signer role value (i.e. one <ClaimedRole> XML element)
-   *                            should be used. If the signer role contains both role and resolution then they must be
-   *                            separated with a slash mark, e.g. 'role / resolution'. Note that when setting the
-   *                            resolution value then the role must also be specified.
-   * @param pin                 PIN code for accessing the private key.
-   * @param useFirstCertificate if set to 'true' the first signing certificate that is found from the certificate store
-   *                            is chosen for signature creation and the certificate selection's dialog window is not
-   *                            displayed to the user.
-   * @return signature
-   * @throws Exception thrown if signing the container failed
-   */
-  public final Signature sign(final String city, final String stateOrProvince, final String postalCode,
-                              final String countryName, final List<String> signerRoles, final String pin,
-                              final boolean useFirstCertificate) throws Exception {
+  public Signature sign(Signer signer, SignatureProfile profile) throws Exception {
     throw new NotYetImplementedException();
   }
 
@@ -219,7 +232,7 @@ public class Container {
    * @return list of all signatures in the container
    * @throws NotYetImplementedException if method is not implemented
    */
-  public final List<Signature> getSignatures() throws NotYetImplementedException {
+  public List<Signature> getSignatures() throws NotYetImplementedException {
     throw new NotYetImplementedException();
   }
 }

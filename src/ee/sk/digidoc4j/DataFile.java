@@ -28,7 +28,7 @@ public class DataFile {
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
    * @throws Exception is thrown when file not exists
    */
-  public DataFile(final String path, final String mimeType) throws Exception {
+  public DataFile(String path, String mimeType) throws Exception {
     try {
       document = new FileDocument(path);
       document.setMimeType(MimeType.fromCode(mimeType));
@@ -48,7 +48,7 @@ public class DataFile {
    * @return calculated digest
    * @throws Exception thrown if the file does not exist or the digest calculation fails.
    */
-  public final byte[] calculateDigest() throws Exception {
+  public byte[] calculateDigest() throws Exception {
     return calculateDigest(new URL("http://www.w3.org/2001/04/xmlenc#sha256"));
   }
 
@@ -66,7 +66,7 @@ public class DataFile {
    * @return calculated digest
    * @throws Exception thrown if the file does not exist or the digest calculation fails.
    */
-  public final byte[] calculateDigest(final URL method) throws Exception {
+  public byte[] calculateDigest(URL method) throws Exception {
     if (digest == null) {
       DigestAlgorithm digestAlgorithm = DigestAlgorithm.forXML(method.toString());
       digest = new Digest(digestAlgorithm, calculateDigestInternal(digestAlgorithm));
@@ -74,7 +74,7 @@ public class DataFile {
     return digest.getValue();
   }
 
-  protected final byte[] calculateDigestInternal(final DigestAlgorithm digestAlgorithm) {
+  protected byte[] calculateDigestInternal(DigestAlgorithm digestAlgorithm) {
     return DSSUtils.digest(digestAlgorithm, document.getBytes());
   }
 
@@ -83,14 +83,14 @@ public class DataFile {
    *
    * @return file name
    */
-  public final String getFileName() {
+  public String getFileName() {
     return document.getName();
   }
 
   /**
    * @return the data file size
    */
-  public final long getFileSize() {
+  public long getFileSize() {
     return document.getBytes().length;
   }
 
@@ -99,7 +99,7 @@ public class DataFile {
    *
    * @return media type
    */
-  public final String getMediaType() {
+  public String getMediaType() {
     return document.getMimeType().getCode();
   }
 
@@ -109,7 +109,7 @@ public class DataFile {
    * @param out stream where data is written
    * @throws java.io.IOException is thrown when not possible to write to stream
    */
-  public final void saveAs(final OutputStream out) throws IOException {
+  public void saveAs(OutputStream out) throws IOException {
     out.write(document.getBytes());
   }
 
@@ -120,8 +120,7 @@ public class DataFile {
    * @throws java.io.IOException thrown if part of the path does not exist
    *                             or the path is an existing directory (without file name)
    */
-  public final void saveAs(final String path) throws IOException {
+  public void saveAs(String path) throws IOException {
     document.save(path);
   }
-
 }

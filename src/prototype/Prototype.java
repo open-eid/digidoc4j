@@ -19,16 +19,20 @@ import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 public class Prototype {
-  public static void main(String[] args) {
+  public static void main(String[] args) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
     sign();
     //validate();
   }
   //rm -rf test.bdoc, META-INF/.DS_Store && zip -0 -X test.bdoc mimetype && zip -r -D test.bdoc * -x mimetype && unzip -l test.bdoc
 
-  private static void sign() {
+  private static void sign() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
     DSSDocument toSignDocument = new FileDocument("test.txt");
     AbstractSignatureTokenConnection token = new Pkcs12SignatureToken("test", "signout.p12");
     DSSPrivateKeyEntry privateKey = token.getKeys().get(0);
@@ -37,7 +41,6 @@ public class Prototype {
     parameters.setSignatureLevel(SignatureLevel.ASiC_S_BASELINE_LT);
     parameters.setSignaturePackaging(SignaturePackaging.DETACHED);
     parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
-    parameters.setPrivateKeyEntry(privateKey);
 
     CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier(); // Create XAdES service for signature
 
@@ -62,7 +65,17 @@ public class Prototype {
     ASiCEService service = new ASiCEService(commonCertificateVerifier);
 
     service.setTspSource(new OnlineTSPSource("http://tsa01.quovadisglobal.com/TSS/HttpTspServer"));
+
+
+    //parameters.setPrivateKeyEntry(privateKey);
+//    InputStream inStream = new FileInputStream("signout.p12");
+//    KeyStore ks = KeyStore.getInstance("PKCS12");
+//    ks.load(inStream, "test".toCharArray());
+//    String alias = ks.aliases().nextElement();
+    parameters.setSigningCertificate(privateKey.getCertificate());
+
     byte[] dataToSign = service.getDataToSign(toSignDocument, parameters);
+
     byte[] signatureValue = token.sign(dataToSign, parameters.getDigestAlgorithm(), privateKey);
 
     DSSDocument signedDocument = service.signDocument(toSignDocument, parameters, signatureValue);

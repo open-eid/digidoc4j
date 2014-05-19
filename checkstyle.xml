@@ -43,7 +43,9 @@
         <module name="JavadocType">
             <property name="scope" value="public"/>
         </module>
-        <module name="JavadocStyle"/>
+        <module name="JavadocStyle">
+            <property name="checkFirstSentence" value="false"/>
+        </module>
 
 
         <!-- Checks for Naming Conventions.                  -->
@@ -117,14 +119,12 @@
 
         <!-- Checks for class design                         -->
         <!-- See http://checkstyle.sf.net/config_design.html -->
-        <module name="DesignForExtension"/>
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
 
         <!-- Miscellaneous other checks.                   -->
         <!-- See http://checkstyle.sf.net/config_misc.html -->
-        <module name="FinalParameters"/>
         <module name="TodoComment"/>
         <module name="UpperEll"/>
 
