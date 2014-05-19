@@ -1,5 +1,8 @@
 package ee.sk.digidoc4j;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.List;
@@ -62,11 +65,12 @@ public class X509Cert {
   /**
    * Creates an X509 certificate from a path
    *
-   * @param path   X509 certificate path
-   * @param format input bytes format
+   * @param path X509 certificate path
    * @throws Exception throws an exception if the X509 certificate parsing fails
    */
-  X509Cert(String path, Format format) throws Exception {
+  X509Cert(String path) throws Exception {
+    CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+    originalCert = (X509Certificate) certificateFactory.generateCertificate(new FileInputStream(new File(path)));
   }
 
   /**
@@ -75,6 +79,7 @@ public class X509Cert {
    * @param sourceCertificate instance of the X509Cert class to be copied
    */
   public X509Cert(X509Cert sourceCertificate) {
+    originalCert = sourceCertificate.getX509Certificate();
   }
 
 
