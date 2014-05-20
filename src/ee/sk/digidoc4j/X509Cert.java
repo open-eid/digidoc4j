@@ -1,11 +1,16 @@
 package ee.sk.digidoc4j;
 
+import org.apache.commons.lang.StringUtils;
+import org.bouncycastle.util.encoders.Hex;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -13,6 +18,7 @@ import java.util.List;
  */
 public class X509Cert {
   private X509Certificate originalCert;
+  private Map<String, String> partMap;
 
   /**
    * Binary encoding format
@@ -28,6 +34,9 @@ public class X509Cert {
     PEM;
   }
 
+  /**
+   * Key usage
+   */
   public enum KeyUsage {
     DIGITAL_SIGNATURE,
     /**
@@ -85,6 +94,8 @@ public class X509Cert {
 
   /**
    * Returns current certificate policies
+   *
+   * @return list of policies
    */
   public List<String> getCertificatePolicies() {
     return null;
@@ -100,22 +111,32 @@ public class X509Cert {
 
 
   /**
-   * Returns part of the issuer name (for example if set to CN it returns the Common Name part)
+   * Retrieves part of the issuer name (for example if set to CN it returns the Common Name part)
    *
    * @param part sets part of issuer name to return
-   * @throws Exception thrown if the conversion failed
+   * @return part of issuer name
    */
-  public String issuerName(String part) throws Exception {
-    return null;
+  public String issuerName(Issuer part) {
+    if (partMap == null) loadIssuerParts();
+    return partMap.get(part.name());
+  }
+
+  private void loadIssuerParts() {
+    String[] parts = StringUtils.split(issuerName(), ',');
+    partMap = new HashMap<String, String>();
+    for (int i = 0; i < parts.length; i++) {
+      String[] strings = StringUtils.split(parts[i], "=");
+      partMap.put(strings[0].trim(), strings[1].trim());
+    }
   }
 
   /**
-   * Returns the the whole issuer name
+   * Reads the the whole issuer name from X.509 certificate
    *
-   * @throws Exception thrown if the conversion failed
+   * @return issuerName
    */
-  public String issuerName() throws Exception {
-    return null;
+  public String issuerName() {
+    return originalCert.getIssuerDN().getName();
   }
 
   /**
@@ -142,12 +163,12 @@ public class X509Cert {
   }
 
   /**
-   * Returns the getSerial number of the X.509 certificate
+   * Reads serial number from X.509 certificate
    *
-   * @throws Exception thrown if the serial is incorrect
+   * @returns serial number of the X.509 certificate
    */
-  public String getSerial() throws Exception {
-    return null;
+  public String getSerial() {
+    return Hex.toHexString(originalCert.getSerialNumber().toByteArray());
   }
 
   /**
@@ -170,4 +191,10 @@ public class X509Cert {
   }
 
 
+  public enum Issuer {
+    EMAILADDRESS,
+    C,
+    O,
+    CN;
+  }
 }

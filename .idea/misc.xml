@@ -25,6 +25,13 @@
             </SvnBranchConfiguration>
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sd-dss/apps/dss/core">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="trunkUrl" value="" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
       </map>
     </option>
     <option name="mySupportsUserInfoFilter" value="true" />
