@@ -3,6 +3,7 @@ package ee.sk.digidoc4j;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.security.cert.X509Certificate;
 
 import static org.junit.Assert.assertEquals;
@@ -41,5 +42,10 @@ public class X509CertTest {
     assertEquals("as sertifitseerimiskeskus", cert.issuerName(X509Cert.Issuer.O).toLowerCase());
     assertEquals("test of esteid-sk 2011", cert.issuerName(X509Cert.Issuer.CN).toLowerCase());
     assertEquals("ee", cert.issuerName(X509Cert.Issuer.C).toLowerCase());
+  }
+
+  @Test
+  public void testGetPolicies() throws IOException {
+    assertEquals(1, cert.getCertificatePolicies().size());
   }
 }

@@ -1,16 +1,18 @@
 package ee.sk.digidoc4j;
 
 import org.apache.commons.lang.StringUtils;
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.DLSequence;
 import org.bouncycastle.util.encoders.Hex;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -53,6 +55,17 @@ public class X509Cert {
   }
 
   /**
+   * Issuer parts
+   */
+  public enum Issuer {
+    EMAILADDRESS,
+    C,
+    O,
+    CN;
+  }
+
+
+  /**
    * Creates a copy of the X509Certificate
    *
    * @param cert X509 certificate to be wrapped
@@ -61,15 +74,15 @@ public class X509Cert {
     originalCert = cert;
   }
 
-  /**
-   * Creates an X509 certificate from bytes
-   *
-   * @param bytes  X509 certificate in bytes
-   * @param format input bytes format
-   * @throws Exception throws an exception if the X509 certificate parsing fails
-   */
-  public X509Cert(byte[] bytes, Format format) throws Exception {
-  }
+//  /**
+//   * Creates an X509 certificate from bytes
+//   *
+//   * @param bytes  X509 certificate in bytes
+//   * @param format input bytes format
+//   * @throws Exception throws an exception if the X509 certificate parsing fails
+//   */
+//  public X509Cert(byte[] bytes, Format format) throws Exception {
+//  }
 
   /**
    * Creates an X509 certificate from a path
@@ -93,12 +106,28 @@ public class X509Cert {
 
 
   /**
-   * Returns current certificate policies
+   * Returns current certificate policies or null if no policies has found
    *
    * @return list of policies
+   * @throws IOException when policy parsing fails
    */
-  public List<String> getCertificatePolicies() {
-    return null;
+  public List<String> getCertificatePolicies() throws IOException {
+    byte[] extensionValue = originalCert.getExtensionValue("2.5.29.32");
+    List<String> policies = new ArrayList<String>();
+
+    byte[] octets = ((DEROctetString) DEROctetString.fromByteArray(extensionValue)).getOctets();
+    ASN1Sequence sequence = (ASN1Sequence) ASN1Sequence.fromByteArray(octets);
+    System.out.println(octets);
+
+    Enumeration sequenceObjects = sequence.getObjects();
+    while (sequenceObjects.hasMoreElements()) {
+      DLSequence next = (DLSequence) sequenceObjects.nextElement();
+      Object objectAt = next.getObjectAt(0);
+      if (objectAt instanceof ASN1Encodable) {
+        policies.add(objectAt.toString());
+      }
+    }
+    return policies;
   }
 
 
@@ -188,13 +217,5 @@ public class X509Cert {
    */
   public String getSubjectName() throws Exception {
     return null;
-  }
-
-
-  public enum Issuer {
-    EMAILADDRESS,
-    C,
-    O,
-    CN;
   }
 }
