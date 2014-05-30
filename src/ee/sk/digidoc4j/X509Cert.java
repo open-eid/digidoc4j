@@ -23,7 +23,7 @@ public class X509Cert {
   private Map<String, String> partMap;
 
   /**
-   * Binary encoding format
+   * Binary encoding format.
    */
   public enum Format {
     /**
@@ -37,7 +37,7 @@ public class X509Cert {
   }
 
   /**
-   * Key usage
+   * Key usage.
    */
   public enum KeyUsage {
     DIGITAL_SIGNATURE,
@@ -55,7 +55,7 @@ public class X509Cert {
   }
 
   /**
-   * Issuer parts
+   * Issuer parts.
    */
   public enum Issuer {
     EMAILADDRESS,
@@ -66,7 +66,7 @@ public class X509Cert {
 
 
   /**
-   * Creates a copy of the X509Certificate
+   * Creates a copy of the X509Certificate.
    *
    * @param cert X509 certificate to be wrapped
    */
@@ -75,7 +75,7 @@ public class X509Cert {
   }
 
 //  /**
-//   * Creates an X509 certificate from bytes
+//   * Creates an X509 certificate from bytes.
 //   *
 //   * @param bytes  X509 certificate in bytes
 //   * @param format input bytes format
@@ -85,7 +85,7 @@ public class X509Cert {
 //  }
 
   /**
-   * Creates an X509 certificate from a path
+   * Creates an X509 certificate from a path.
    *
    * @param path X509 certificate path
    * @throws Exception throws an exception if the X509 certificate parsing fails
@@ -96,9 +96,9 @@ public class X509Cert {
   }
 
   /**
-   * Copy constructor
+   * Copy constructor.
    *
-   * @param sourceCertificate instance of the X509Cert class to be copied
+   * @param sourceCertificate instance of the X509 certificate to be copied
    */
   public X509Cert(X509Cert sourceCertificate) {
     originalCert = sourceCertificate.getX509Certificate();
@@ -106,7 +106,7 @@ public class X509Cert {
 
 
   /**
-   * Returns current certificate policies or null if no policies has found
+   * Returns current certificate policies or null if no policies was found.
    *
    * @return list of policies
    * @throws IOException when policy parsing fails
@@ -132,7 +132,9 @@ public class X509Cert {
 
 
   /**
-   * Returns the internal getX509Certificate of the certificate
+   * Returns the internal X509 Certificate of the certificate.
+   *
+   * @return X509Certificate
    */
   public X509Certificate getX509Certificate() {
     return originalCert;
@@ -140,13 +142,15 @@ public class X509Cert {
 
 
   /**
-   * Retrieves part of the issuer name (for example if set to CN it returns the Common Name part)
+   * Retrieves part of the issuer name (for example if set to CN it returns the Common Name part).
    *
    * @param part sets part of issuer name to return
    * @return part of issuer name
    */
   public String issuerName(Issuer part) {
-    if (partMap == null) loadIssuerParts();
+    if (partMap == null) {
+      loadIssuerParts();
+    }
     return partMap.get(part.name());
   }
 
@@ -160,50 +164,56 @@ public class X509Cert {
   }
 
   /**
-   * Reads the the whole issuer name from X.509 certificate
+   * Reads the the whole issuer name from the X.509 certificate.
    *
-   * @return issuerName
+   * @return issuer name
    */
   public String issuerName() {
     return originalCert.getIssuerDN().getName();
   }
 
   /**
-   * Validates if the certificate is in a valid time slot
+   * Validates if the certificate is in a valid time slot.
    *
    * @param date sets date to compare
+   * @return boolean indicating if the certificate is in a valid time slot
    */
   public boolean isValid(Date date) {
     return false;
   }
 
   /**
-   * Validates if the certificate is valid now
+   * Validates if the certificate is currently valid.
+   *
+   * @return boolean indicating if the certificate is currently valid
    */
   public boolean isValid() {
     return false;
   }
 
   /**
-   * Returns the current certificate key usage bits
+   * Returns the current certificate key usage bits.
+   *
+   * @return list of X509 certificates
    */
   public List<X509Cert> getKeyUsages() {
     return null;
   }
 
   /**
-   * Reads serial number from X.509 certificate
+   * Reads serial number from X.509 certificate.
    *
-   * @returns serial number of the X.509 certificate
+   * @return serial number of the X.509 certificate
    */
   public String getSerial() {
     return Hex.toHexString(originalCert.getSerialNumber().toByteArray());
   }
 
   /**
-   * Returns part of the subject name (for example if set to CN it returns the Common Name part)
+   * Returns part of the subject name (for example if set to CN it returns the Common Name part).
    *
    * @param part sets part of subject name to return
+   * @return subject name
    * @throws Exception thrown if the conversion failed
    */
   public String getSubjectName(String part) throws Exception {
@@ -211,8 +221,9 @@ public class X509Cert {
   }
 
   /**
-   * Returns the whole subject name as a string
+   * Returns the whole subject name.
    *
+   * @return subject name
    * @throws Exception thrown if the conversion failed
    */
   public String getSubjectName() throws Exception {

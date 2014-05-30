@@ -25,8 +25,19 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+/**
+ * Prototype for testing purposes
+ */
 public class Prototype {
-  public static void main(String[] args) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+  /**
+   * @param args List of arguments for main method. No arguments expected
+   * @throws CertificateException     if there is a problem with the certificate
+   * @throws NoSuchAlgorithmException if the cryptographic algorithm is unknown
+   * @throws KeyStoreException        if there is a generic KeyStore exception
+   * @throws IOException              if there is any IO failure
+   */
+  public static void main(String[] args) throws CertificateException, NoSuchAlgorithmException,
+      KeyStoreException, IOException {
     sign();
     //validate();
   }
@@ -34,6 +45,9 @@ public class Prototype {
 
   private static void sign() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
     DSSDocument toSignDocument = new FileDocument("test.txt");
+    // File file = new File("209MBFile.tmp");
+    // File file = new File("test.txt");
+    // DSSDocument toSignDocument = new FileDocument(file);
     AbstractSignatureTokenConnection token = new Pkcs12SignatureToken("test", "signout.p12");
     DSSPrivateKeyEntry privateKey = token.getKeys().get(0);
 
@@ -42,7 +56,8 @@ public class Prototype {
     parameters.setSignaturePackaging(SignaturePackaging.DETACHED);
     parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
 
-    CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier(); // Create XAdES service for signature
+    // Create XAdES service for signature
+    CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
 
     CommonsDataLoader dataLoader = new CommonsDataLoader();
 
@@ -92,8 +107,8 @@ public class Prototype {
 //    DSSDocument detachedDocument = new FileDocument("test.txt");
 
 // / Already signed document
-//    String toValidateFilePath = "documentTS/test.bdoc";
-    String toValidateFilePath = "cpp_teek_document.bdoc";
+    String toValidateFilePath = "documentTS/test.bdoc";
+//    String toValidateFilePath = "cpp_teek_document.bdoc";
     DSSDocument document = new FileDocument(toValidateFilePath);
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
 

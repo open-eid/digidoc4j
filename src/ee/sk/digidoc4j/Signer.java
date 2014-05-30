@@ -18,7 +18,7 @@ public interface Signer {
 
 
   /**
-   * Returns city from signature production place
+   * Returns the signature production city.
    *
    * @return city
    */
@@ -26,7 +26,7 @@ public interface Signer {
 
 
   /**
-   * Returns country from signature production place
+   * Returns the signature production country.
    *
    * @return country
    */
@@ -34,7 +34,7 @@ public interface Signer {
 
 
   /**
-   * Returns postal code from signature production place
+   * Returns the signature production postal code.
    *
    * @return postal code
    */
@@ -42,8 +42,8 @@ public interface Signer {
 
 
   /**
-   * Sets signature production place according XAdES standard.
-   * Note that setting the signature production place is optional
+   * Sets the signature production place according to the XAdES standard.
+   * Note that setting the signature production place is optional.
    *
    * @param city            city
    * @param stateOrProvince state
@@ -54,7 +54,7 @@ public interface Signer {
 
 
   /**
-   * Returns state from signature production place
+   * Returns the signature production state.
    *
    * @return state
    */
@@ -62,7 +62,7 @@ public interface Signer {
 
 
   /**
-   * Returns signer roles
+   * Returns the roles of the signer.
    *
    * @return signer roles
    */
@@ -70,10 +70,10 @@ public interface Signer {
 
 
   /**
-   * Sets signature roles according XAdES standard.
+   * Sets signature roles according to the XAdES standard.
    * The parameter may contain the signer's role and optionally the signer's resolution.
    * Note that only one signer role value (i.e. one <ClaimedRole> XML element) should be used. If the signer role
-   * contains both role and resolution then they must be separated with a slash mark, e.g. 'role / resolution'
+   * contains both role and resolution then they must be separated with a slash mark, e.g. 'role / resolution'.
    *
    * @param signerRoles signer roles
    */
@@ -81,7 +81,7 @@ public interface Signer {
 
 
   /**
-   * Signs message digest. Must be reimplemented when subclassing
+   * Signs the message digest. Must be reimplemented when subclassing.
    *
    * @param method digest method to be used
    * @param digest digest to sign
@@ -91,13 +91,15 @@ public interface Signer {
   byte[] sign(String method, byte[] digest) throws Exception;
 
   /**
-   * Returns private key if it is possible.
+   * Returns the private key if possible.
    *
    * @return private key
    */
   PrivateKey getPrivateKey();
 
   /**
+   * Signs the data.
+   *
    * @param dataToSign      data to sign
    * @param digestAlgorithm digest algorithm
    * @return signature

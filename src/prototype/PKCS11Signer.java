@@ -1,3 +1,5 @@
+package prototype;
+
 import ee.sk.digidoc4j.X509Cert;
 
 import java.util.List;
@@ -20,17 +22,19 @@ public class PKCS11Signer {
    * @param driver full path to the PKCS#11 driver (e.g. /usr/lib/opensc-pkcs11.so)
    * @throws Exception thrown if the provided PKCS#11 driver loading failed
    */
-  PKCS11Signer(String driver) {
+  PKCS11Signer(String driver) throws Exception {
   }
 
   /**
-   * Returns the PIN code for the selected signing certificate. If no PIN code is required then this method is never called. To cancel the login this method should throw an exception
+   * Returns the PIN code for the selected signing certificate
+   * If no PIN code is required then this method is never called
+   * To cancel the login this method should throw an exception
    *
    * @param certificate certificate that is used for signing and needs a PIN for login
    * @return the PIN code to login
    * @throws Exception should throw an exception if the login operation should be canceled
    */
-  protected String getPin(X509Cert certificate) {
+  protected String getPin(X509Cert certificate) throws Exception {
     return null;
   }
 
@@ -41,16 +45,16 @@ public class PKCS11Signer {
    *
    * @param certificates available certificates to choose from
    * @return the certificate used for signing
-   * @throws Exception should throw an exception if no suitable certificate is in the list or the operation should be cancelled
+   * @throws Exception if no suitable certificate is in the list or the operation should be cancelled
    */
-  protected X509Cert selectSigningCertificate(List<X509Cert> certificates) {
+  protected X509Cert selectSigningCertificate(List<X509Cert> certificates) throws Exception {
     return null;
   }
 
   /**
-   * If sub class does not want to reimplement the pin method then it is possible set default pin
+   * If sub class does not want to reimplement the pin method then it is possible to set a default pin
    *
-   * @param pin
+   * @param pin pin code to set as default pin
    */
   public void setPin(String pin) {
   }

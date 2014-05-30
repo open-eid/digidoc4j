@@ -14,6 +14,7 @@ import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,14 +22,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Offers functionality for handling data files and signatures in a container
+ * Offers functionality for handling data files and signatures in a container.
  * <p>
- * Container can contain several files and
- * all those files can be signed using signing certificates.
- * Container can only be signed if it contains data files.
+ * A container can contain several files and all those files can be signed using signing certificates.
+ * A container can only be signed if it contains data files.
+ * </p><p>
  * Data files can be added and removed from a container only if the container is not signed.
  * To modify the data list of a signed container by adding or removing datafiles you must first
- * remove all the signatures
+ * remove all the signatures.
  * </p>
  */
 public class Container {
@@ -73,7 +74,7 @@ public class Container {
    * Opens the container from a file.
    *
    * @param path container file name with path
-   * @throws Exception is thrown when wasn't possible to find file
+   * @throws Exception is thrown when the file was not found.
    */
   public Container(String path) throws Exception {
     throw new NotYetImplementedException();
@@ -83,23 +84,23 @@ public class Container {
    * Adds a data file from the file system to the container.
    * <p>
    * Note:
-   * Data files can be removed from a container only after all signatures have been removed
+   * Data files can be removed from a container only after all signatures have been removed.
    * </p>
    *
    * @param path     data file to be added to the container
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
-   * @throws Exception thrown if the data file path is incorrect or a data file with same file name already exists.
-   *                   Also, no data file can be added if the container already has one or more signatures
+   * @throws Exception thrown if the data file path is incorrect or a data file with the same filename already exists.
+   *                   Also, no data file can be added if the container already has one or more signatures.
    */
   public void addDataFile(String path, String mimeType) throws Exception {
     dataFiles.put(path, new DataFile(path, mimeType));
   }
 
   /**
-   * Adds a data file from the input stream (i.e. the date file content can be read from the internal memory buffer)
+   * Adds a data file from the input stream (i.e. the date file content can be read from the internal memory buffer).
    * <p>
    * Note:
-   * Data files can be removed from a container only after all signatures have been removed
+   * Data files can be added to a container only after all signatures have been removed.
    * </p>
    *
    * @param is       input stream from where data is read
@@ -117,7 +118,7 @@ public class Container {
   /**
    * Adds a signature to the container.
    *
-   * @param signature signature, which is added to the container
+   * @param signature signature to be added to the container
    * @throws Exception thrown if there are no data files in the container
    */
   public void addRawSignature(byte[] signature) throws Exception {
@@ -125,9 +126,9 @@ public class Container {
   }
 
   /**
-   * Adds signature from input stream to the container.
+   * Adds signature from the input stream to the container.
    *
-   * @param signatureStream signature, which is added to the container.
+   * @param signatureStream signature to be added to the container
    * @throws Exception thrown if there are no data files in the container
    */
   public void addRawSignature(InputStream signatureStream) throws Exception {
@@ -135,6 +136,8 @@ public class Container {
   }
 
   /**
+   * Returns all data files in the container.
+   *
    * @return list of all the data files in the container.
    */
   public List<DataFile> getDataFiles() {
@@ -143,18 +146,17 @@ public class Container {
 
 
   /**
-   * Removes a data file from the container by data file name. If there is corresponding signature(s) then these
-   * signatures will be deleted
+   * Removes a data file from the container by data file name. Any corresponding signatures will be deleted.
    *
    * @param fileName name of the data file to be removed
    * @throws Exception thrown if the data file name is incorrect
    */
   public void removeDataFile(String fileName) throws Exception {
-    dataFiles.remove(fileName);
+    if (dataFiles.remove(fileName) == null) throw new FileNotFoundException();  //TODO which Exception to throw
   }
 
   /**
-   * Removes a signature from the container by signature id.
+   * Removes the signature with the given signature id from the container.
    *
    * @param signatureId id of the signature to be removed
    * @throws Exception thrown if the signature id is incorrect
@@ -164,18 +166,18 @@ public class Container {
   }
 
   /**
-   * Saves the container.
+   * Saves the container to the specified location.
    *
    * @param path file name and path.
    * @throws Exception thrown if there was a failure saving the BDOC container.
    *                   For example if the added data file does not exist.
    */
   public void save(String path) throws Exception {
-    signedDocument.save(path);
+    signedDocument.save(path);                                                   //TODO which exception and when
   }
 
   /**
-   * Signs all data files in the container with SignatureProfile.TS profile.
+   * Signs all data files in the container with the SignatureProfile.TS profile.
    *
    * @param signer signer implementation
    * @return signature
@@ -229,7 +231,9 @@ public class Container {
   }
 
   /**
-   * @return list of all signatures in the container
+   * Returns a list of all signatures in the container.
+   *
+   * @return list of all signatures
    * @throws NotYetImplementedException if method is not implemented
    */
   public List<Signature> getSignatures() throws NotYetImplementedException {

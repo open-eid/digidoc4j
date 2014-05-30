@@ -22,11 +22,10 @@ public class DataFile {
 
   /**
    * Creates container.
-   * <p/>
    *
    * @param path     file name with path
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
-   * @throws Exception is thrown when file not exists
+   * @throws Exception is thrown when the file does not exist
    */
   public DataFile(String path, String mimeType) throws Exception {
     try {
@@ -55,7 +54,7 @@ public class DataFile {
   /**
    * Calculates digest for data file. If digest is already calculated returns it, otherwise calculates the digest.
    * <p>Supported uris for BDoc:</p>
-   * <br></br>http://www.w3.org/2000/09/xmldsig#sha1
+   * <br>http://www.w3.org/2000/09/xmldsig#sha1
    * <br>http://www.w3.org/2001/04/xmldsig-more#sha224
    * <br>http://www.w3.org/2001/04/xmlenc#sha256
    * <br>http://www.w3.org/2001/04/xmldsig-more#sha384
@@ -66,7 +65,7 @@ public class DataFile {
    * @return calculated digest
    * @throws Exception thrown if the file does not exist or the digest calculation fails.
    */
-  public byte[] calculateDigest(URL method) throws Exception {
+  public byte[] calculateDigest(URL method) throws Exception {        // TODO exceptions to throw
     if (digest == null) {
       DigestAlgorithm digestAlgorithm = DigestAlgorithm.forXML(method.toString());
       digest = new Digest(digestAlgorithm, calculateDigestInternal(digestAlgorithm));
@@ -81,21 +80,23 @@ public class DataFile {
   /**
    * Returns the data file name.
    *
-   * @return file name
+   * @return filename
    */
   public String getFileName() {
     return document.getName();
   }
 
   /**
-   * @return the data file size
+   * Returns the data file size.
+   *
+   * @return file size
    */
   public long getFileSize() {
     return document.getBytes().length;
   }
 
   /**
-   * Returns file media type.
+   * Returns the file media type.
    *
    * @return media type
    */
@@ -104,22 +105,23 @@ public class DataFile {
   }
 
   /**
-   * Saves a copy of the data file as file specified by the stream.
+   * Saves a copy of the data file as a file to the specified stream.
    *
-   * @param out stream where data is written
-   * @throws java.io.IOException is thrown when not possible to write to stream
+   * @param out stream where data is written to
+   * @throws java.io.IOException is thrown when it's not possible to write to the stream
    */
   public void saveAs(OutputStream out) throws IOException {
     out.write(document.getBytes());
   }
 
   /**
-   * Saves a copy of the data file as file specified by the path.
+   * Saves a copy of the data file as a file with the specified file name.
    *
    * @param path full file path where the data file should be saved to. If the file exists it will be overwritten
    * @throws java.io.IOException thrown if part of the path does not exist
    *                             or the path is an existing directory (without file name)
    */
+  //TODO exception - method throws DSSException which can be caused by other exceptions
   public void saveAs(String path) throws IOException {
     document.save(path);
   }

@@ -31,7 +31,9 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
-
+/**
+ *
+ */
 public class AlwaysValidOCSPSource implements OCSPSource {
 
   private static final Logger LOG = LoggerFactory.getLogger(AlwaysValidOCSPSource.class);
@@ -54,7 +56,8 @@ public class AlwaysValidOCSPSource implements OCSPSource {
   }
 
   /**
-   * The default constructor for MockConfigurableOCSPSource using "src/test/resources/ocsp.p12" file as OCSP responses source.
+   * The default constructor for MockConfigurableOCSPSource
+   * using "src/test/resources/ocsp.p12" file as OCSP responses source.
    */
   public AlwaysValidOCSPSource() {
 
@@ -64,9 +67,8 @@ public class AlwaysValidOCSPSource implements OCSPSource {
   /**
    * The default constructor for MockOCSPSource.
    *
-   * @param signerPkcs12Name
-   * @param password
-   * @throws Exception
+   * @param signerPkcs12Name name of the file input stream to use
+   * @param password         password
    */
   public AlwaysValidOCSPSource(final String signerPkcs12Name, final String password) {
 
@@ -90,6 +92,11 @@ public class AlwaysValidOCSPSource implements OCSPSource {
     }
   }
 
+  /**
+   * Returns the certificate status
+   *
+   * @return certificate status
+   */
   public CertificateStatus getExpectedResponse() {
 
     return expectedResponse;
@@ -117,8 +124,8 @@ public class AlwaysValidOCSPSource implements OCSPSource {
    * unspecified = 0; keyCompromise = 1; cACompromise = 2; affiliationChanged = 3; superseded = 4; cessationOfOperation
    * = 5; certificateHold = 6; // 7 -> unknown removeFromCRL = 8; privilegeWithdrawn = 9; aACompromise = 10;
    *
-   * @param revocationDate
-   * @param revocationReasonId
+   * @param revocationDate     Date of revocation
+   * @param revocationReasonId revocation reason id
    */
   public void setRevokedStatus(final Date revocationDate, final int revocationReasonId) {
 
@@ -133,7 +140,8 @@ public class AlwaysValidOCSPSource implements OCSPSource {
       final OCSPReq ocspReq = generateOCSPRequest(issuerCert, serialNumber);
 
       final DigestCalculator digestCalculator = DSSUtils.getSHA1DigestCalculator();
-      final BasicOCSPRespBuilder basicOCSPRespBuilder = new JcaBasicOCSPRespBuilder(issuerCert.getPublicKey(), digestCalculator);
+      final BasicOCSPRespBuilder basicOCSPRespBuilder =
+          new JcaBasicOCSPRespBuilder(issuerCert.getPublicKey(), digestCalculator);
       final Extension extension = ocspReq.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
       if (extension != null) {
 
@@ -157,7 +165,8 @@ public class AlwaysValidOCSPSource implements OCSPSource {
         }
       }
 
-      final ContentSigner contentSigner = new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(privateKey);
+      final ContentSigner contentSigner =
+          new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(privateKey);
       final X509CertificateHolder x509CertificateHolder = new X509CertificateHolder(issuerCert.getEncoded());
       final X509CertificateHolder[] chain = {x509CertificateHolder};
       BasicOCSPResp basicResp = basicOCSPRespBuilder.build(contentSigner, chain, ocspDate);
@@ -174,13 +183,22 @@ public class AlwaysValidOCSPSource implements OCSPSource {
     }
   }
 
+  /**
+   * Returns generated OCSP Request
+   *
+   * @param issuerCert   Certificate issuer
+   * @param serialNumber serial number
+   * @return OCSP request
+   * @throws DSSException for any DSS related issues
+   */
   public OCSPReq generateOCSPRequest(X509Certificate issuerCert, BigInteger serialNumber) throws DSSException {
 
     try {
 
       final DigestCalculator digestCalculator = DSSUtils.getSHA1DigestCalculator();
       // Generate the getFileId for the certificate we are looking for
-      CertificateID id = new CertificateID(digestCalculator, new X509CertificateHolder(issuerCert.getEncoded()), serialNumber);
+      CertificateID id =
+          new CertificateID(digestCalculator, new X509CertificateHolder(issuerCert.getEncoded()), serialNumber);
 
       // basic request generation with nonce
       OCSPReqBuilder ocspGen = new OCSPReqBuilder();
@@ -190,7 +208,8 @@ public class AlwaysValidOCSPSource implements OCSPSource {
       // create details for nonce extension
       BigInteger nonce = BigInteger.valueOf(ocspDate.getTime());
 
-      Extension ext = new Extension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, true, new DEROctetString(nonce.toByteArray()));
+      Extension ext =
+          new Extension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, true, new DEROctetString(nonce.toByteArray()));
       ocspGen.setRequestExtensions(new Extensions(new Extension[]{ext}));
 
       return ocspGen.build();
@@ -203,7 +222,12 @@ public class AlwaysValidOCSPSource implements OCSPSource {
     }
   }
 
-  public void setOcspDate(Date ocspDate) {
-    this.ocspDate = ocspDate;
+  /**
+   * Sets the OCSP Date
+   *
+   * @param date set OCSP to this date
+   */
+  public void setOCSPDate(Date date) {
+    this.ocspDate = date;
   }
 }
