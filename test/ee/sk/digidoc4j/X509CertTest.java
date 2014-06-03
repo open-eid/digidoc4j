@@ -5,8 +5,13 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
-import static org.junit.Assert.assertEquals;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.*;
 
 public class X509CertTest {
 
@@ -47,5 +52,50 @@ public class X509CertTest {
   @Test
   public void testGetPolicies() throws IOException {
     assertEquals(1, cert.getCertificatePolicies().size());
+  }
+
+  @Test
+  public void testIsValidAtSpecifiedDate() {
+    assertTrue(cert.isValid(new Date()));
+  }
+
+  @Test
+  public void testIsNotValidYet() throws ParseException {
+    Date certValidFrom = new SimpleDateFormat("yyyy-MMMM-dd", Locale.ENGLISH).parse("2014-Apr-17");
+    int OneDayInMilliSec = 1000 * 60 * 60 * 24;
+    assertFalse(cert.isValid(new Date(certValidFrom.getTime() - OneDayInMilliSec)));
+  }
+
+  @Test
+  public void testIsNoLongerValid() throws ParseException {
+    Date certValidFrom = new SimpleDateFormat("yyyy-MMMM-dd", Locale.ENGLISH).parse("2016-Apr-12");
+    int OneDayInMilliSec = 1000 * 60 * 60 * 24;
+    assertFalse(cert.isValid(new Date(certValidFrom.getTime() + OneDayInMilliSec)));
+  }
+
+  @Test
+  public void testIsCurrentlyValid() {
+    assertTrue(cert.isValid());
+  }
+
+  @Test
+  public void testKeyUsage() {
+    assertEquals(asList(X509Cert.KeyUsage.NON_REPUDIATION), cert.getKeyUsages());
+  }
+
+  @Test
+  public void testGetPartOfSubjectName() throws Exception {
+    assertEquals("11404176865", cert.getSubjectName(X509Cert.SubjectName.SERIALNUMBER));
+    assertEquals("märü-lööz", cert.getSubjectName(X509Cert.SubjectName.GIVENNAME).toLowerCase());
+    assertEquals("žõrinüwšky", cert.getSubjectName(X509Cert.SubjectName.SURNAME).toLowerCase());
+    assertEquals("\"žõrinüwšky,märü-lööz,11404176865\"", cert.getSubjectName(X509Cert.SubjectName.CN).toLowerCase());
+    assertEquals("digital signature", cert.getSubjectName(X509Cert.SubjectName.OU).toLowerCase());
+    assertEquals("esteid", cert.getSubjectName(X509Cert.SubjectName.O).toLowerCase());
+    assertEquals("ee", cert.getSubjectName(X509Cert.SubjectName.C).toLowerCase());
+  }
+
+  @Test
+  public void testGetSubjectName() throws Exception {
+    assertEquals("SERIALNUMBER=11404176865, GIVENNAME=MÄRÜ-LÖÖZ, SURNAME=ŽÕRINÜWŠKY, CN=\"ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865\", OU=digital signature, O=ESTEID, C=EE", cert.getSubjectName());
   }
 }

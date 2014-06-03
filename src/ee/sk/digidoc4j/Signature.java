@@ -1,11 +1,27 @@
 package ee.sk.digidoc4j;
 
+import ee.sk.digidoc4j.utils.SignerInformation;
+import eu.europa.ec.markt.dss.parameter.SignatureParameters;
+
 import java.util.List;
 
 /**
  * Signature interface. Provides an interface for handling a signature and the corresponding OCSP response properties.
  */
 public class Signature {
+  private SignerInformation signerInformation;
+  private byte[] signatureValue;
+  private SignatureParameters signatureParameters;
+
+  /**
+   * Signature default constructor
+   */
+  public Signature(SignerInformation signerInformation, byte[] signatureValue, SignatureParameters signatureParameters) {
+    this.signerInformation = signerInformation;
+    this.signatureValue = signatureValue;
+    this.signatureParameters = signatureParameters;
+  }
+
   /**
    * Signature validation types.
    */
@@ -21,7 +37,7 @@ public class Signature {
    * @return production city
    */
   public String getCity() {
-    return null;
+    return signerInformation.city;
   }
 
   /**

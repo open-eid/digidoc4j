@@ -1,8 +1,10 @@
 package ee.sk.digidoc4j;
 
 import ee.sk.digidoc4j.exceptions.NotYetImplementedException;
+import ee.sk.digidoc4j.utils.SignerInformation;
 import ee.sk.utils.SKOnlineOCSPSource;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
+import eu.europa.ec.markt.dss.parameter.BLevelParameters;
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
 import eu.europa.ec.markt.dss.signature.FileDocument;
@@ -20,6 +22,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * Offers functionality for handling data files and signatures in a container.
@@ -177,13 +181,29 @@ public class Container {
   }
 
   /**
-   * Signs all data files in the container with the SignatureProfile.TS profile.
+   * Signs all data files in the container.
    *
-   * @param signer signer implementation
+   * @param signer            signer implementation
+   * @param signerInformation Production place, signer's role and signer's resolution
    * @return signature
    * @throws Exception thrown if signing the container failed
    */
-  public Signature sign(Signer signer) throws Exception {
+  public Signature sign(Signer signer, SignerInformation signerInformation) throws Exception {
+
+    if (signerInformation != null) {                                                                                        //TODO signerInformation can be just empty
+      BLevelParameters bLevelParameters = signatureParameters.bLevel();
+      BLevelParameters.SignerLocation signerLocation = new BLevelParameters.SignerLocation();
+
+      if (!isEmpty(signerInformation.city)) signerLocation.setCity(signerInformation.city);
+      if (!isEmpty(signerInformation.stateOrProvince))
+        signerLocation.setStateOrProvince(signerInformation.stateOrProvince);
+      if (!isEmpty(signerInformation.postalCode)) signerLocation.setPostalCode(signerInformation.postalCode);
+      if (!isEmpty(signerInformation.countryName)) signerLocation.setCountry(signerInformation.countryName);
+      bLevelParameters.setSignerLocation(signerLocation);
+      if (!isEmpty(signerInformation.signerRoles))
+        bLevelParameters.addClaimedSignerRole(signerInformation.signerRoles);  //TODO Is resolution part of the signerRole or does it have to be saved separately?
+    }
+
     CommonsDataLoader dataLoader = new CommonsDataLoader();
 
     final String lotlUrl = "file:trusted-test-tsl.xml";
@@ -211,7 +231,18 @@ public class Container {
     byte[] signatureValue = signer.sign(dataToSign, signatureParameters.getDigestAlgorithm().getXmlId());
     signedDocument = service.signDocument(toSignDocument, signatureParameters, signatureValue);
 
-    return new Signature();
+    return (new Signature(signerInformation, signatureValue, signatureParameters));
+  }
+
+  /**
+   * Signs all data files in the container with the SignatureProfile.TS profile.
+   *
+   * @param signer signer implementation
+   * @return signature
+   * @throws Exception thrown if signing the container failed
+   */
+  public Signature sign(Signer signer) throws Exception {
+    return sign(signer, new SignerInformation());
   }
 
   private DataFile getFirstDataFile() {
@@ -229,6 +260,32 @@ public class Container {
   public Signature sign(Signer signer, SignatureProfile profile) throws Exception {
     throw new NotYetImplementedException();
   }
+
+//  /**
+//   * Signs all data files in the container.
+//   *
+//   * @param city                production city of the signature (optional)
+//   * @param stateOrProvince     production state or province of the signature (optional)
+//   * @param postalCode          production postal code of the signature (optional)
+//   * @param countryName         production country of the signature (optional)
+//   * @param signerRoles         the parameter may contain the signer’s role and optionally the signer’s resolution
+//   *                            Note that only one signer role value (i.e. one <ClaimedRole> XML element) should be used
+//   *                            If the signer role contains both role and resolution then they must be separated
+//   *                            with a slash mark, e.g. “role / resolution”
+//   *                            Note that when setting the resolution value then role must also be specified
+//   * @param pin                 PIN code for accessing the private key
+//   * @param useFirstCertificate if set to “true” it will use the first signing certificate from the certificate store
+//   *                            for signature creation and the certificate selection dialog window is not displayed
+//   *                            to the user<p>
+//   *                            if set to "false", the certificate selection's dialog window is displayed</p>
+//   * @return signature
+//   * @throws Exception thrown if signing the container failed
+//   */
+//  public Signature sign(String city, String stateOrProvince, String postalCode, String countryName,
+//                        String signerRoles, String pin, boolean useFirstCertificate) throws Exception {
+//
+//    throw new NotYetImplementedException();
+//  }
 
   /**
    * Returns a list of all signatures in the container.

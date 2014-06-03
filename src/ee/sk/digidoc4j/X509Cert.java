@@ -10,7 +10,9 @@ import org.bouncycastle.util.encoders.Hex;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
@@ -20,7 +22,8 @@ import java.util.*;
  */
 public class X509Cert {
   private X509Certificate originalCert;
-  private Map<String, String> partMap;
+  private Map<String, String> issuerPartMap;
+  private Map<String, String> subjectNamePartMap;
 
   /**
    * Binary encoding format.
@@ -62,6 +65,19 @@ public class X509Cert {
     C,
     O,
     CN;
+  }
+
+  /**
+   * Subject Name parts.
+   */
+  public enum SubjectName {
+    SERIALNUMBER,
+    GIVENNAME,
+    SURNAME,
+    CN,
+    OU,
+    O,
+    C;
   }
 
 
@@ -148,18 +164,18 @@ public class X509Cert {
    * @return part of issuer name
    */
   public String issuerName(Issuer part) {
-    if (partMap == null) {
+    if (issuerPartMap == null) {
       loadIssuerParts();
     }
-    return partMap.get(part.name());
+    return issuerPartMap.get(part.name());
   }
 
   private void loadIssuerParts() {
     String[] parts = StringUtils.split(issuerName(), ',');
-    partMap = new HashMap<String, String>();
+    issuerPartMap = new HashMap<String, String>();
     for (int i = 0; i < parts.length; i++) {
       String[] strings = StringUtils.split(parts[i], "=");
-      partMap.put(strings[0].trim(), strings[1].trim());
+      issuerPartMap.put(strings[0].trim(), strings[1].trim());
     }
   }
 
@@ -179,25 +195,46 @@ public class X509Cert {
    * @return boolean indicating if the certificate is in a valid time slot
    */
   public boolean isValid(Date date) {
-    return false;
+    try {
+      originalCert.checkValidity(date);
+    } catch (CertificateExpiredException e) {
+      return false;
+    } catch (CertificateNotYetValidException e) {
+      return false;
+    }
+    return true;
   }
 
   /**
-   * Validates if the certificate is currently valid.
+   * Validates if the current time is between the certificate's validity start date and expiration date.
    *
-   * @return boolean indicating if the certificate is currently valid
+   * @return boolean indicating if the current time is between the certificate's validity start and expiration date
    */
   public boolean isValid() {
-    return false;
+    try {
+      originalCert.checkValidity();
+    } catch (CertificateExpiredException e) {
+      return false;
+    } catch (CertificateNotYetValidException e) {
+      return false;
+    }
+    return true;
   }
 
   /**
-   * Returns the current certificate key usage bits.
+   * Returns the current certificate key usage.
    *
-   * @return list of X509 certificates
+   * @return list of key usages
    */
-  public List<X509Cert> getKeyUsages() {
-    return null;
+  public List<KeyUsage> getKeyUsages() {
+    List<KeyUsage> keyUsages = new ArrayList<KeyUsage>();
+    boolean[] keyUsagesBits = originalCert.getKeyUsage();
+    for (int i = 0; i < keyUsagesBits.length; i++) {
+      if (keyUsagesBits[i]) {
+        keyUsages.add(KeyUsage.values()[i]);
+      }
+    }
+    return keyUsages;
   }
 
   /**
@@ -214,19 +251,29 @@ public class X509Cert {
    *
    * @param part sets part of subject name to return
    * @return subject name
-   * @throws Exception thrown if the conversion failed
    */
-  public String getSubjectName(String part) throws Exception {
-    return null;
+  public String getSubjectName(SubjectName part) {
+    if (subjectNamePartMap == null) {
+      loadSubjectNameParts();
+    }
+    return subjectNamePartMap.get(part.name());
+  }
+
+  private void loadSubjectNameParts() {
+    String[] parts = originalCert.getSubjectDN().toString().split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+    subjectNamePartMap = new HashMap<String, String>();
+    for (int i = 0; i < parts.length; i++) {
+      String[] strings = parts[i].split("=(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+      subjectNamePartMap.put(strings[0].trim(), strings[1].trim());
+    }
   }
 
   /**
    * Returns the whole subject name.
    *
    * @return subject name
-   * @throws Exception thrown if the conversion failed
    */
-  public String getSubjectName() throws Exception {
-    return null;
+  public String getSubjectName() {
+    return originalCert.getSubjectDN().toString();
   }
 }
