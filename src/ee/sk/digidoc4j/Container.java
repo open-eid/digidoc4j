@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
@@ -199,7 +200,7 @@ public class Container {
     DSSDocument toSignDocument = new FileDocument(getFirstDataFile().getFileName());
 
     byte[] dataToSign = aSiCEService.getDataToSign(toSignDocument, signatureParameters);
-    byte[] signatureValue = signer.sign(dataToSign, signatureParameters.getDigestAlgorithm().getXmlId());
+    byte[] signatureValue = signer.sign(signatureParameters.getDigestAlgorithm().getXmlId(), dataToSign);
     signedDocument = aSiCEService.signDocument(toSignDocument, signatureParameters, signatureValue);
 
     return (new Signature(signatureValue, signatureParameters));
@@ -217,7 +218,7 @@ public class Container {
 
   private void addSignerInformation(Signer signer) {
     BLevelParameters bLevelParameters = signatureParameters.bLevel();
-    BLevelParameters.SignerLocation signerLocation = new BLevelParameters.SignerLocation();
+    SignerLocation signerLocation = new SignerLocation();
 
     if (!isEmpty(signer.getCity())) signerLocation.setCity(signer.getCity());
     if (!isEmpty(signer.getStateOrProvince()))
