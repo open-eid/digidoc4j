@@ -8,14 +8,16 @@ import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
+import static ee.sk.digidoc4j.X509Cert.SubjectName.*;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.*;
 
 public class X509CertTest {
 
   private static X509Cert cert;
+  private final int ONE_DAY = 1000 * 60 * 60 * 24;
+  private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
 
   @BeforeClass
   public static void setUp() throws Exception {
@@ -61,20 +63,18 @@ public class X509CertTest {
 
   @Test
   public void testIsNotValidYet() throws ParseException {
-    Date certValidFrom = new SimpleDateFormat("yyyy-MMMM-dd", Locale.ENGLISH).parse("2014-Apr-17");
-    int OneDayInMilliSec = 1000 * 60 * 60 * 24;
-    assertFalse(cert.isValid(new Date(certValidFrom.getTime() - OneDayInMilliSec)));
+    Date certValidFrom = dateFormat.parse("17.04.2014");
+    assertFalse(cert.isValid(new Date(certValidFrom.getTime() - ONE_DAY)));
   }
 
   @Test
   public void testIsNoLongerValid() throws ParseException {
-    Date certValidFrom = new SimpleDateFormat("yyyy-MMMM-dd", Locale.ENGLISH).parse("2016-Apr-12");
-    int OneDayInMilliSec = 1000 * 60 * 60 * 24;
-    assertFalse(cert.isValid(new Date(certValidFrom.getTime() + OneDayInMilliSec)));
+    Date certValidFrom = dateFormat.parse("12.04.2016");
+    assertFalse(cert.isValid(new Date(certValidFrom.getTime() + ONE_DAY)));
   }
 
   @Test
-  public void testIsCurrentlyValid() {
+  public void testIsCertValidToday() {
     assertTrue(cert.isValid());
   }
 
@@ -85,13 +85,13 @@ public class X509CertTest {
 
   @Test
   public void testGetPartOfSubjectName() throws Exception {
-    assertEquals("11404176865", cert.getSubjectName(X509Cert.SubjectName.SERIALNUMBER));
-    assertEquals("märü-lööz", cert.getSubjectName(X509Cert.SubjectName.GIVENNAME).toLowerCase());
-    assertEquals("žõrinüwšky", cert.getSubjectName(X509Cert.SubjectName.SURNAME).toLowerCase());
-    assertEquals("\"žõrinüwšky,märü-lööz,11404176865\"", cert.getSubjectName(X509Cert.SubjectName.CN).toLowerCase());
-    assertEquals("digital signature", cert.getSubjectName(X509Cert.SubjectName.OU).toLowerCase());
-    assertEquals("esteid", cert.getSubjectName(X509Cert.SubjectName.O).toLowerCase());
-    assertEquals("ee", cert.getSubjectName(X509Cert.SubjectName.C).toLowerCase());
+    assertEquals("11404176865", cert.getSubjectName(SERIALNUMBER));
+    assertEquals("märü-lööz", cert.getSubjectName(GIVENNAME).toLowerCase());
+    assertEquals("žõrinüwšky", cert.getSubjectName(SURNAME).toLowerCase());
+    assertEquals("\"žõrinüwšky,märü-lööz,11404176865\"", cert.getSubjectName(CN).toLowerCase());
+    assertEquals("digital signature", cert.getSubjectName(OU).toLowerCase());
+    assertEquals("esteid", cert.getSubjectName(O).toLowerCase());
+    assertEquals("ee", cert.getSubjectName(C).toLowerCase());
   }
 
   @Test
