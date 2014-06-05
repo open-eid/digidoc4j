@@ -109,7 +109,6 @@ public class X509Cert {
 
     byte[] octets = ((DEROctetString) DEROctetString.fromByteArray(extensionValue)).getOctets();
     ASN1Sequence sequence = (ASN1Sequence) ASN1Sequence.fromByteArray(octets);
-    System.out.println(octets);
 
     Enumeration sequenceObjects = sequence.getObjects();
     while (sequenceObjects.hasMoreElements()) {
