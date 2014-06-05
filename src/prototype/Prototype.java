@@ -38,8 +38,8 @@ public class Prototype {
    */
   public static void main(String[] args) throws CertificateException, NoSuchAlgorithmException,
       KeyStoreException, IOException {
-    sign();
-    //validate();
+    //sign();
+    validate();
   }
   //rm -rf test.bdoc, META-INF/.DS_Store && zip -0 -X test.bdoc mimetype && zip -r -D test.bdoc * -x mimetype && unzip -l test.bdoc
 
@@ -107,14 +107,17 @@ public class Prototype {
 //    DSSDocument detachedDocument = new FileDocument("test.txt");
 
 // / Already signed document
-    String toValidateFilePath = "documentTS/test.bdoc";
+//    String toValidateFilePath = "documentTS/test.bdoc";
+    String toValidateFilePath = "document.bdoc";
 //    String toValidateFilePath = "cpp_teek_document.bdoc";
     DSSDocument document = new FileDocument(toValidateFilePath);
+
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
 
     CommonCertificateVerifier verifier = new CommonCertificateVerifier();
-    AlwaysValidOCSPSource ocspSource = new AlwaysValidOCSPSource();
-    verifier.setOcspSource(ocspSource);
+
+    SKOnlineOCSPSource onlineOCSPSource = new SKOnlineOCSPSource();
+    verifier.setOcspSource(onlineOCSPSource);
 
     final MockTSLCertificateSource trustedCertSource = new MockTSLCertificateSource();
     ServiceInfo mockServiceInfo = new MockServiceInfo();
