@@ -30,7 +30,7 @@ public interface Signer {
    *
    * @return country
    */
-  String getCountryName();
+  String getCountry();
 
 
   /**
@@ -79,17 +79,6 @@ public interface Signer {
    */
   void setSignerRoles(List<String> signerRoles);
 
-
-  /**
-   * Signs the message digest. Must be reimplemented when subclassing.
-   *
-   * @param method digest method to be used
-   * @param digest digest to sign
-   * @return signed result
-   * @throws Exception throws exception on error
-   */
-  byte[] sign(String method, byte[] digest) throws Exception;
-
   /**
    * Returns the private key if possible.
    *
@@ -100,9 +89,9 @@ public interface Signer {
   /**
    * Signs the data.
    *
-   * @param dataToSign      data to sign
    * @param digestAlgorithm digest algorithm
+   * @param dataToSign      data to sign
    * @return signature
    */
-  byte[] sign(byte[] dataToSign, String digestAlgorithm);
+  byte[] sign(String digestAlgorithm, byte[] dataToSign);
 }
