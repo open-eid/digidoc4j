@@ -236,7 +236,7 @@ public class X509Cert {
   }
 
   private void loadSubjectNameParts() {
-    String[] parts = originalCert.getSubjectDN().toString().split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+    String[] parts = getSubjectName().split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
     subjectNamePartMap = new HashMap<String, String>();
     for (int i = 0; i < parts.length; i++) {
       String[] strings = parts[i].split("=(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
