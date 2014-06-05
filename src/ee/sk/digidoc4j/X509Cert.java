@@ -26,20 +26,6 @@ public class X509Cert {
   private Map<String, String> subjectNamePartMap;
 
   /**
-   * Binary encoding format.
-   */
-  public enum Format {
-    /**
-     * ASN.1 syntax
-     */
-    DER,
-    /**
-     * Base64 encoded ASN.1 syntax
-     */
-    PEM;
-  }
-
-  /**
    * Key usage.
    */
   public enum KeyUsage {
@@ -110,16 +96,6 @@ public class X509Cert {
     CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
     originalCert = (X509Certificate) certificateFactory.generateCertificate(new FileInputStream(new File(path)));
   }
-
-  /**
-   * Copy constructor.
-   *
-   * @param sourceCertificate instance of the X509 certificate to be copied
-   */
-  public X509Cert(X509Cert sourceCertificate) {
-    originalCert = sourceCertificate.getX509Certificate();
-  }
-
 
   /**
    * Returns current certificate policies or null if no policies was found.
