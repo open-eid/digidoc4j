@@ -1,23 +1,25 @@
 package ee.sk.digidoc4j;
 
-import ee.sk.digidoc4j.utils.SignerInformation;
+import ee.sk.digidoc4j.exceptions.NotYetImplementedException;
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 
+import java.util.Date;
 import java.util.List;
 
 /**
  * Signature interface. Provides an interface for handling a signature and the corresponding OCSP response properties.
  */
 public class Signature {
-  private SignerInformation signerInformation;
   private byte[] signatureValue;
   private SignatureParameters signatureParameters;
 
   /**
    * Signature default constructor
+   *
+   * @param signatureValue      aa
+   * @param signatureParameters ss
    */
-  public Signature(SignerInformation signerInformation, byte[] signatureValue, SignatureParameters signatureParameters) {
-    this.signerInformation = signerInformation;
+  public Signature(byte[] signatureValue, SignatureParameters signatureParameters) {
     this.signatureValue = signatureValue;
     this.signatureParameters = signatureParameters;
   }
@@ -37,7 +39,7 @@ public class Signature {
    * @return production city
    */
   public String getCity() {
-    return signerInformation.city;
+    return signatureParameters.bLevel().getSignerLocation().getCity();
   }
 
   /**
@@ -46,16 +48,17 @@ public class Signature {
    * @return production country
    */
   public String getCountryName() {
-    return null;
+    return signatureParameters.bLevel().getSignerLocation().getCountry();
   }
 
   /**
    * Returns the signature id.
    *
    * @return id
+   * @throws Exception when method is not implemented
    */
-  public String getId() {
-    return null;
+  public String getId() throws Exception {
+    throw new NotYetImplementedException();
   }
 
   /**
@@ -91,16 +94,17 @@ public class Signature {
    * @return postal code
    */
   public String getPostalCode() {
-    return null;
+    return signatureParameters.bLevel().getSignerLocation().getPostalCode();
   }
 
   /**
    * Returns the signature OCSP producedAt timestamp.
    *
    * @return producedAt timestamp
+   * @throws Exception when not yet implemented
    */
-  public String getProducedAt() {
-    return null;
+  public Date getProducedAt() throws Exception {
+    throw new NotYetImplementedException();
   }
 
   /**
@@ -124,10 +128,11 @@ public class Signature {
   /**
    * Returns the signer's roles.
    *
-   * @return signer role
+   * @return signer roles
    */
   public List<String> getSignerRoles() {
-    return null;
+    return signatureParameters.bLevel().getClaimedSignerRoles();
+
   }
 
   /**
@@ -136,7 +141,7 @@ public class Signature {
    * @return signature certificate
    */
   public X509Cert getSigningCertificate() {
-    return null;
+    return new X509Cert(signatureParameters.getSigningCertificate());
   }
 
   /**
@@ -144,8 +149,8 @@ public class Signature {
    *
    * @return signing time
    */
-  public X509Cert getSigningTime() {
-    return null;
+  public Date getSigningTime() {
+    return signatureParameters.bLevel().getSigningDate();
   }
 
   /**
@@ -163,7 +168,7 @@ public class Signature {
    * @return production state or province
    */
   public String getStateOrProvince() {
-    return null;
+    return signatureParameters.bLevel().getSignerLocation().getStateOrProvince();
   }
 
   /**
@@ -187,6 +192,15 @@ public class Signature {
    * Validates the signature using Validate.VALIDATE_FULL method.
    */
   public void validate() {
+  }
+
+  /**
+   * Returns raw signature
+   *
+   * @return signature value as byte array
+   */
+  public byte[] getRawSignature() {
+    return signatureValue;
   }
 
 
