@@ -8,6 +8,7 @@ import eu.europa.ec.markt.dss.signature.token.DSSPrivateKeyEntry;
 import eu.europa.ec.markt.dss.signature.token.Pkcs12SignatureToken;
 
 import java.security.PrivateKey;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,6 +19,8 @@ public class PKCS12Signer implements Signer {
 
   private final AbstractSignatureTokenConnection pkcs12SignatureToken;
   private DSSPrivateKeyEntry keyEntry;
+  private SignerInformation signerInformation = new SignerInformation();
+  private List<String> signerRoles = new ArrayList<String>();
 
   /**
    * Constructs PKCS12 signer object. If more than one key is provided only first is used
@@ -37,41 +40,41 @@ public class PKCS12Signer implements Signer {
 
   @Override
   public final String getCity() {
-    return null;
+    return signerInformation.city;
   }
 
   @Override
-  public final String getCountryName() {
-    return null;
+  public final String getCountry() {
+    return signerInformation.country;
   }
 
   @Override
   public final String getPostalCode() {
-    return null;
+    return signerInformation.postalCode;
   }
 
-  @Override
+  @Override //TODO this is not good way to pass so many parameters discuss it with SK
   public void setSignatureProductionPlace(final String city, final String stateOrProvince, final String postalCode,
-                                          final String countryName) {
+                                          final String country) {
+    signerInformation.city = city;
+    signerInformation.stateOrProvince = stateOrProvince;
+    signerInformation.postalCode = postalCode;
+    signerInformation.country = country;
   }
 
   @Override
   public final String getStateOrProvince() {
-    return null;
+    return signerInformation.stateOrProvince;
   }
 
   @Override
   public final List<String> getSignerRoles() {
-    return null;
+    return signerRoles;
   }
 
   @Override
-  public void setSignerRoles(final List<String> signerRoles) {
-  }
-
-  @Override
-  public final byte[] sign(final String method, final byte[] digest) throws Exception {
-    return new byte[0];
+  public void setSignerRoles(final List<String> signerRolesToSet) {
+    signerRoles = signerRolesToSet;
   }
 
   @Override
@@ -80,9 +83,7 @@ public class PKCS12Signer implements Signer {
   }
 
   @Override
-  public byte[] sign(byte[] dataToSign, String digestAlgorithm) {
+  public byte[] sign(String digestAlgorithm, byte[] dataToSign) {
     return pkcs12SignatureToken.sign(dataToSign, DigestAlgorithm.forXML(digestAlgorithm), keyEntry);
   }
-
-
 }
