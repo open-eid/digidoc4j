@@ -1,7 +1,6 @@
 package ee.sk.digidoc4j;
 
 import ee.sk.digidoc4j.exceptions.NotYetImplementedException;
-import ee.sk.digidoc4j.utils.SignerInformation;
 import ee.sk.utils.SKOnlineOCSPSource;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.parameter.BLevelParameters;
@@ -183,13 +182,12 @@ public class Container {
   /**
    * Signs all data files in the container.
    *
-   * @param signer            signer implementation
-   * @param signerInformation Production place, signer's role and signer's resolution
+   * @param signer signer implementation
    * @return signature
    * @throws Exception thrown if signing the container failed
    */
-  public Signature sign(Signer signer, SignerInformation signerInformation) throws Exception {
-    addSignerInformation(signerInformation);
+  public Signature sign(Signer signer) throws Exception {
+    addSignerInformation(signer);
     setTSL();
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource());
 
@@ -217,31 +215,19 @@ public class Container {
     commonCertificateVerifier.setTrustedCertSource(tslCertificateSource);
   }
 
-  private void addSignerInformation(SignerInformation signerInformation) {
-    if (signerInformation != null) {
-      BLevelParameters bLevelParameters = signatureParameters.bLevel();
-      BLevelParameters.SignerLocation signerLocation = new BLevelParameters.SignerLocation();
+  private void addSignerInformation(Signer signer) {
+    BLevelParameters bLevelParameters = signatureParameters.bLevel();
+    BLevelParameters.SignerLocation signerLocation = new BLevelParameters.SignerLocation();
 
-      if (!isEmpty(signerInformation.city)) signerLocation.setCity(signerInformation.city);
-      if (!isEmpty(signerInformation.stateOrProvince))
-        signerLocation.setStateOrProvince(signerInformation.stateOrProvince);
-      if (!isEmpty(signerInformation.postalCode)) signerLocation.setPostalCode(signerInformation.postalCode);
-      if (!isEmpty(signerInformation.country)) signerLocation.setCountry(signerInformation.country);
-      bLevelParameters.setSignerLocation(signerLocation);
-      if (!isEmpty(signerInformation.signerRole))
-        bLevelParameters.addClaimedSignerRole(signerInformation.signerRole);
+    if (!isEmpty(signer.getCity())) signerLocation.setCity(signer.getCity());
+    if (!isEmpty(signer.getStateOrProvince()))
+      signerLocation.setStateOrProvince(signer.getStateOrProvince());
+    if (!isEmpty(signer.getPostalCode())) signerLocation.setPostalCode(signer.getPostalCode());
+    if (!isEmpty(signer.getCountry())) signerLocation.setCountry(signer.getCountry());
+    bLevelParameters.setSignerLocation(signerLocation);
+    for (String signerRole : signer.getSignerRoles()) {
+      bLevelParameters.addClaimedSignerRole(signerRole);
     }
-  }
-
-  /**
-   * Signs all data files in the container with the SignatureProfile.TS profile.
-   *
-   * @param signer signer implementation
-   * @return signature
-   * @throws Exception thrown if signing the container failed
-   */
-  public Signature sign(Signer signer) throws Exception {
-    return sign(signer, null);
   }
 
   private DataFile getFirstDataFile() {

@@ -2,12 +2,12 @@ package ee.sk.digidoc4j;
 
 import ee.sk.digidoc4j.exceptions.NotYetImplementedException;
 import ee.sk.digidoc4j.utils.PKCS12Signer;
-import ee.sk.digidoc4j.utils.SignerInformation;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
 public class ContainerTest {
@@ -43,11 +43,13 @@ public class ContainerTest {
     String country = "myCountry";
     String signerRoles = "myRole / myResolution";
 
-    SignerInformation signerInformation = new SignerInformation(city, stateOrProvince, postalCode, country, signerRoles);
+    PKCS12Signer signer = new PKCS12Signer("signout.p12", "test");
+    signer.setSignatureProductionPlace(city, stateOrProvince, postalCode, country);
+    signer.setSignerRoles(asList(signerRoles));
+
     Container bDocContainer = new Container();
     bDocContainer.addDataFile("test.txt", "text/plain");
-    PKCS12Signer signer = new PKCS12Signer("signout.p12", "test");
-    Signature signature = bDocContainer.sign(signer, signerInformation);
+    Signature signature = bDocContainer.sign(signer);
   }
 
   public void testSigningWithOnlyLocationInfo() throws Exception {
