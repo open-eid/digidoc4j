@@ -189,8 +189,36 @@ public class Container {
    * @throws Exception thrown if signing the container failed
    */
   public Signature sign(Signer signer, SignerInformation signerInformation) throws Exception {
+    addSignerInformation(signerInformation);
+    setTSL();
+    commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource());
 
-    if (signerInformation != null) {                                                                                        //TODO signerInformation can be just empty
+    aSiCEService = new ASiCEService(commonCertificateVerifier);
+    aSiCEService.setTspSource(new OnlineTSPSource("http://tsa01.quovadisglobal.com/TSS/HttpTspServer"));
+    signatureParameters.setSigningCertificate(signer.getCertificate().getX509Certificate());
+
+    //TODO throw error if no file exists
+    DSSDocument toSignDocument = new FileDocument(getFirstDataFile().getFileName());
+
+    byte[] dataToSign = aSiCEService.getDataToSign(toSignDocument, signatureParameters);
+    byte[] signatureValue = signer.sign(dataToSign, signatureParameters.getDigestAlgorithm().getXmlId());
+    signedDocument = aSiCEService.signDocument(toSignDocument, signatureParameters, signatureValue);
+
+    return (new Signature(signatureValue, signatureParameters));
+  }
+
+  private void setTSL() {
+    final String lotlUrl = "file:trusted-test-tsl.xml";
+    TrustedListsCertificateSource tslCertificateSource = new TrustedListsCertificateSource();
+    tslCertificateSource.setDataLoader(new CommonsDataLoader());
+    tslCertificateSource.setLotlUrl(lotlUrl);
+    tslCertificateSource.setCheckSignature(false);
+    tslCertificateSource.init();
+    commonCertificateVerifier.setTrustedCertSource(tslCertificateSource);
+  }
+
+  private void addSignerInformation(SignerInformation signerInformation) {
+    if (signerInformation != null) {
       BLevelParameters bLevelParameters = signatureParameters.bLevel();
       BLevelParameters.SignerLocation signerLocation = new BLevelParameters.SignerLocation();
 
@@ -198,40 +226,11 @@ public class Container {
       if (!isEmpty(signerInformation.stateOrProvince))
         signerLocation.setStateOrProvince(signerInformation.stateOrProvince);
       if (!isEmpty(signerInformation.postalCode)) signerLocation.setPostalCode(signerInformation.postalCode);
-      if (!isEmpty(signerInformation.countryName)) signerLocation.setCountry(signerInformation.countryName);
+      if (!isEmpty(signerInformation.country)) signerLocation.setCountry(signerInformation.country);
       bLevelParameters.setSignerLocation(signerLocation);
-      if (!isEmpty(signerInformation.signerRoles))
-        bLevelParameters.addClaimedSignerRole(signerInformation.signerRoles);  //TODO Is resolution part of the signerRole or does it have to be saved separately?
+      if (!isEmpty(signerInformation.signerRole))
+        bLevelParameters.addClaimedSignerRole(signerInformation.signerRole);
     }
-
-    CommonsDataLoader dataLoader = new CommonsDataLoader();
-
-    final String lotlUrl = "file:trusted-test-tsl.xml";
-    TrustedListsCertificateSource tslCertificateSource = new TrustedListsCertificateSource();
-    tslCertificateSource.setDataLoader(dataLoader);
-    tslCertificateSource.setLotlUrl(lotlUrl);
-    tslCertificateSource.setCheckSignature(false);
-    tslCertificateSource.init();
-    commonCertificateVerifier.setTrustedCertSource(tslCertificateSource);
-
-    SKOnlineOCSPSource onlineOCSPSource = new SKOnlineOCSPSource();
-    commonCertificateVerifier.setOcspSource(onlineOCSPSource);
-
-    ASiCEService service = new ASiCEService(commonCertificateVerifier);
-
-    service.setTspSource(new OnlineTSPSource("http://tsa01.quovadisglobal.com/TSS/HttpTspServer"));
-
-    signatureParameters.setSigningCertificate(signer.getCertificate().getX509Certificate());
-
-    //TODO:throw error if no file exists
-    DSSDocument toSignDocument = new FileDocument(getFirstDataFile().getFileName());
-
-    byte[] dataToSign = service.getDataToSign(toSignDocument, signatureParameters);
-
-    byte[] signatureValue = signer.sign(dataToSign, signatureParameters.getDigestAlgorithm().getXmlId());
-    signedDocument = service.signDocument(toSignDocument, signatureParameters, signatureValue);
-
-    return (new Signature(signerInformation, signatureValue, signatureParameters));
   }
 
   /**
@@ -242,24 +241,24 @@ public class Container {
    * @throws Exception thrown if signing the container failed
    */
   public Signature sign(Signer signer) throws Exception {
-    return sign(signer, new SignerInformation());
+    return sign(signer, null);
   }
 
   private DataFile getFirstDataFile() {
     return (DataFile) dataFiles.values().toArray()[0];
   }
 
-  /**
-   * Signs all data files in the container.
-   *
-   * @param signer  signer implementation
-   * @param profile specifies the signature profile
-   * @return signature
-   * @throws Exception thrown if signing the container failed
-   */
-  public Signature sign(Signer signer, SignatureProfile profile) throws Exception {
-    throw new NotYetImplementedException();
-  }
+//  /**
+//   * Signs all data files in the container.
+//   *
+//   * @param signer  signer implementation
+//   * @param profile specifies the signature profile
+//   * @return signature
+//   * @throws Exception thrown if signing the container failed
+//   */
+//  public Signature sign(Signer signer, SignatureProfile profile) throws Exception {
+//    throw new NotYetImplementedException();
+//  }
 
 //  /**
 //   * Signs all data files in the container.
@@ -267,9 +266,10 @@ public class Container {
 //   * @param city                production city of the signature (optional)
 //   * @param stateOrProvince     production state or province of the signature (optional)
 //   * @param postalCode          production postal code of the signature (optional)
-//   * @param countryName         production country of the signature (optional)
-//   * @param signerRoles         the parameter may contain the signer’s role and optionally the signer’s resolution
-//   *                            Note that only one signer role value (i.e. one <ClaimedRole> XML element) should be used
+//   * @param country         production country of the signature (optional)
+//   * @param signerRole         the parameter may contain the signer’s role and optionally the signer’s resolution
+//   *                            Note that only one signer role value (i.e. one <ClaimedRole> XML element) should
+//   *                            be used
 //   *                            If the signer role contains both role and resolution then they must be separated
 //   *                            with a slash mark, e.g. “role / resolution”
 //   *                            Note that when setting the resolution value then role must also be specified
@@ -281,8 +281,8 @@ public class Container {
 //   * @return signature
 //   * @throws Exception thrown if signing the container failed
 //   */
-//  public Signature sign(String city, String stateOrProvince, String postalCode, String countryName,
-//                        String signerRoles, String pin, boolean useFirstCertificate) throws Exception {
+//  public Signature sign(String city, String stateOrProvince, String postalCode, String country,
+//                        String signerRole, String pin, boolean useFirstCertificate) throws Exception {
 //
 //    throw new NotYetImplementedException();
 //  }

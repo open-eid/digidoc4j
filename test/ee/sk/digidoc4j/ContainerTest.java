@@ -36,8 +36,7 @@ public class ContainerTest {
     assertEquals(0, bDocContainer.getDataFiles().size());
   }
 
-  @Test
-  public void testSigningWithSignerInfo() throws Exception {                //TODO MJB currently fails if a parameter is missing. Parameters are optional
+  public void testSigningWithSignerInfo() throws Exception {
     String city = "myCity";
     String stateOrProvince = "myStateOrProvince";
     String postalCode = "myPostalCode";
@@ -49,8 +48,15 @@ public class ContainerTest {
     bDocContainer.addDataFile("test.txt", "text/plain");
     PKCS12Signer signer = new PKCS12Signer("signout.p12", "test");
     Signature signature = bDocContainer.sign(signer, signerInformation);
-//    assertEquals(city, bDocContainer.getSignatures());                     //TODO MJB after Signature implementation and testing add tests here to ensure right values
-    System.out.println();
+  }
+
+  public void testSigningWithOnlyLocationInfo() throws Exception {
+  }
+
+  public void testSigningWithPartialSignerInfo() throws Exception {
+  }
+
+  public void testSigningWithOnlySignerRole() throws Exception {
   }
 }
 
