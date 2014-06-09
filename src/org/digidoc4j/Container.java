@@ -46,6 +46,20 @@ public class Container {
   private DSSDocument signedDocument;
 
   /**
+   * Document types
+   */
+  public enum DocumentType {
+    /**
+     * BDOC 2.1 container with mime-type "application/vnd.etsi.asic-e+zip"
+     */
+    ASIC,
+    /**
+     * DIGIDOC-XML 1.3 container
+     */
+    DDOC
+  }
+
+  /**
    * Signature profile format.
    */
   public enum SignatureProfile {
@@ -60,12 +74,28 @@ public class Container {
   }
 
   /**
-   * Create a new container object of type Container.
+   * Creates Conatainer specified by DocumentType
+   *
+   * @param documentType container type
+   */
+  public Container(DocumentType documentType) {
+    if (documentType == DocumentType.ASIC)
+      createAsicContainer();
+    else
+      createDDocContainer();
+  }
+
+  /**
+   * Create a new container object of ASIC type Container.
    */
   public Container() {
 //    AbstractSignatureTokenConnection token = new Pkcs12SignatureToken("test", "signout.p12");
 //    DSSPrivateKeyEntry privateKey = token.getKeys().get(0);
 
+    createAsicContainer();
+  }
+
+  private void createAsicContainer() {
     signatureParameters = new SignatureParameters();
     signatureParameters.setSignatureLevel(SignatureLevel.ASiC_S_BASELINE_LT);
     signatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
@@ -73,6 +103,10 @@ public class Container {
     commonCertificateVerifier = new CommonCertificateVerifier();
 
     aSiCEService = new ASiCEService(commonCertificateVerifier);
+  }
+
+  private void createDDocContainer() {
+    throw new NotYetImplementedException();
   }
 
   /**
@@ -178,6 +212,8 @@ public class Container {
    *                   For example if the added data file does not exist.
    */
   public void save(String path) throws Exception {
+    if (signedDocument == null)
+      throw new NotYetImplementedException();
     signedDocument.save(path);                                                   //TODO which exception and when
   }
 
@@ -189,7 +225,7 @@ public class Container {
    * @throws Exception thrown if signing the container failed
    */
   public Signature sign(Signer signer) throws Exception {
-    addSignerInformation(signer);
+    //addSignerInformation(signer);
     setTSL();
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource());
 
@@ -279,9 +315,8 @@ public class Container {
    * Returns a list of all signatures in the container.
    *
    * @return list of all signatures
-   * @throws NotYetImplementedException if method is not implemented
    */
-  public List<Signature> getSignatures() throws NotYetImplementedException {
+  public List<Signature> getSignatures() {
     throw new NotYetImplementedException();
   }
 }

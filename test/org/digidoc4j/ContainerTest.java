@@ -1,6 +1,6 @@
 package org.digidoc4j;
 
-import java.io.ByteArrayInputStream;
+import java.io.*;
 import java.util.List;
 
 import org.digidoc4j.exceptions.NotYetImplementedException;
@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ContainerTest {
   @Test
@@ -36,6 +37,15 @@ public class ContainerTest {
     assertEquals(0, bDocContainer.getDataFiles().size());
   }
 
+  @Test
+  public void testCreateAsicContainerSpecifiedByDocumentType() throws Exception {
+    Container asicContainer = new Container(Container.DocumentType.ASIC);
+    asicContainer.addDataFile("test.txt", "text/plain");
+    asicContainer.sign(new PKCS12Signer("signout.p12", "test"));
+    asicContainer.save("test.zip");
+    assertTrue(isZipFile(new File("test.zip")));
+  }
+
   public void testSigningWithSignerInfo() throws Exception {
     String city = "myCity";
     String stateOrProvince = "myStateOrProvince";
@@ -59,6 +69,13 @@ public class ContainerTest {
   }
 
   public void testSigningWithOnlySignerRole() throws Exception {
+  }
+
+  private boolean isZipFile(File file) throws IOException {
+    DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
+    int test = in.readInt();
+    in.close();
+    return test == 0x504b0304;
   }
 }
 
