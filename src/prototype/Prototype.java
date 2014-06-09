@@ -1,6 +1,5 @@
 package prototype;
 
-import ee.sk.utils.SKOnlineOCSPSource;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
@@ -37,7 +36,7 @@ public class Prototype {
    * @throws IOException              if there is any IO failure
    */
   public static void main(String[] args) throws CertificateException, NoSuchAlgorithmException,
-      KeyStoreException, IOException {
+                                                KeyStoreException, IOException {
     //sign();
     validate();
   }
@@ -80,7 +79,6 @@ public class Prototype {
     ASiCEService service = new ASiCEService(commonCertificateVerifier);
 
     service.setTspSource(new OnlineTSPSource("http://tsa01.quovadisglobal.com/TSS/HttpTspServer"));
-
 
     //parameters.setPrivateKeyEntry(privateKey);
 //    InputStream inStream = new FileInputStream("signout.p12");

@@ -4,112 +4,51 @@
     <option name="SCOPE_TYPE" value="4" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" readonly="true" id="231d0052-c425-43c6-acab-fc208a3191a3" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/ee/sk/digidoc4j/utils" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/ee/sk/digidoc4j/utils" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/ee/sk/utils/DigiDoc4J.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/ee/sk/digidoc4j/utils/PKCS12Signer.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/ee/sk/digidoc4j/utils/PKCS12SignerTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/ee/sk/digidoc4j/utils/package-info.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/utils/PKCS12Signer.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/Container.java" afterPath="$PROJECT_DIR$/src/ee/sk/digidoc4j/Container.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/src/main/java/eu/europa/ec/markt/dss/DSSUtils.java" afterPath="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/src/main/java/eu/europa/ec/markt/dss/DSSUtils.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/DataFile.java" afterPath="$PROJECT_DIR$/src/ee/sk/digidoc4j/DataFile.java" />
+    <list default="true" readonly="true" id="231d0052-c425-43c6-acab-fc208a3191a3" name="Default" comment="changed package structure">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/org" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/org" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/Container.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/DataFile.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/Signature.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/Signer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/X509Cert.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/exceptions/NotYetImplementedException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/exceptions/package-info.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/package-info.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/utils/PKCS12Signer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/utils/SignerInformation.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/utils/package-info.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/utils/DigiDoc4J.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/utils/SKOnlineOCSPSource.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/utils/package-info.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee/sk/digidoc4j/ContainerTest.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee/sk/digidoc4j/DataFileTest.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee/sk/digidoc4j/SignatureTest.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee/sk/digidoc4j/X509CertTest.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee/sk/digidoc4j/utils/PKCS12SignerTest.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee/sk/digidoc4j" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/exceptions" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee/sk" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/utils" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/utils" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee/sk/digidoc4j/utils" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/prototype/PKCS11Signer.java" afterPath="$PROJECT_DIR$/src/prototype/PKCS11Signer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/prototype/Prototype.java" afterPath="$PROJECT_DIR$/src/prototype/Prototype.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/Signer.java" afterPath="$PROJECT_DIR$/src/ee/sk/digidoc4j/Signer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/X509Cert.java" afterPath="$PROJECT_DIR$/src/ee/sk/digidoc4j/X509Cert.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/checkstyle.xml" afterPath="$PROJECT_DIR$/checkstyle.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/digidoc4j.iml" afterPath="$PROJECT_DIR$/digidoc4j.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dss-common.iml" afterPath="$PROJECT_DIR$/dss-common.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dss-core.iml" afterPath="$PROJECT_DIR$/dss-core.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="digidoc4j.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/classes/binding.xml" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696273" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/target/classes/119612v010101XMLSchemas/ts_119612v010101_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696273" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/classes/DiagnosticData.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696273" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/target/classes/119612v010101XMLSchemas/ts_119612v010101_xsd-2013-10.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696273" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/target/classes/119612v010101XMLSchemas/ts_119612v010101_additionaltypes_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696273" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/src/main/resources/102853/policy/constraint.xml" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696273" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/target/classes/119612v010101XMLSchemas/ts_119612v010101_sie_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/src/main/resources/119612v010101XMLSchemas/ts_119612v010101_sie_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/target/classes/102231v030102XMLSchemas/ts_102231v030102_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/target/classes/bindings.xjb.xml" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/src/main/resources/102231v030102XMLSchemas/ts_102231v030102_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/target/classes/102231v030102XMLSchemas/ts_102231v030102_sie_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/src/main/resources/102231v030102XMLSchemas/ts_102231v030102_sie_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/target/classes/102231v030102XMLSchemas/ts_102231v030102_additionaltypes_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/src/main/resources/102231v030102XMLSchemas/ts_102231v030102_additionaltypes_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/target/classes/xmldsig-core-schema.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/src/main/resources/ts_additionaltypes_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/target/classes/XAdESv141.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/src/main/resources/xml.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/target/classes/ts_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/target/classes/XAdES.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/src/main/resources/ts_sie_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/target/classes/xml.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/src/main/resources/XAdESv141.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/src/main/resources/bindings.xjb.xml" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/classes/102853/policy/constraint.xml" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/classes/102853/policy/constraints_MODEL.xml" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/src/main/resources/102853/policy/constraints_MODEL.xml" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/src/main/resources/119612v010101XMLSchemas/ts_119612v010101_additionaltypes_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/src/main/resources/119612v010101XMLSchemas/ts_119612v010101_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/src/main/resources/ts_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/src/main/resources/binding.xml" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/src/main/resources/DiagnosticData.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/target/classes/ts_additionaltypes_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/target/classes/ts_sie_xsd.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/src/main/resources/119612v010101XMLSchemas/ts_119612v010101_xsd-2013-10.xsd" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399972696274" ignored="false" />
-    <file path="$PROJECT_DIR$/../jesteidlib/src/Test.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399974761203" ignored="false" />
-    <file path="$PROJECT_DIR$/src/ee/sk/digidoc4j/prototype/PKCS11Signer.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399974954298" ignored="false" />
-    <file path="/AlwaysValidOCSPSource.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399975253812" ignored="false" />
-    <file path="/MockTSLCertificateSource.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399975128148" ignored="false" />
-    <file path="/MockServiceInfo.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1399975149505" ignored="false" />
-    <file path="/Dummy.txt" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400487069993" ignored="false" />
-    <file path="/PKCS12Signer.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400504417734" ignored="false" />
-    <file path="/checkstyle.xml" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400244089793" ignored="false" />
-    <file path="/package-info.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400492006529" ignored="false" />
-    <file path="/DataFile.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400503465788" ignored="false" />
-    <file path="/Signature.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400053913221" ignored="false" />
-    <file path="/Container.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400504995792" ignored="false" />
-    <file path="/build.xml" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400161705104" ignored="false" />
-    <file path="/fragment.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400504784323" ignored="false" />
-    <file path="/ContainerTest.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400070026797" ignored="false" />
-    <file path="/Test.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400068984819" ignored="false" />
-    <file path="/DataFileTest.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400486446091" ignored="false" />
-    <file path="/a.dummy" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400063931843" ignored="false" />
-    <file path="$PROJECT_DIR$/../jesteidlib/signature.xml" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400063218801" ignored="false" />
-    <file path="/NotYetImplementedException.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400064617121" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlPolicy.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031459" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlChainCertificate.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031459" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlDigestAlgAndValueType.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031459" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlMessage.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031459" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlQualifiers.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031459" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlQCStatement.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031459" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlBasicSignatureType.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031459" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlInfoType.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031460" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlCertificate.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031460" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlCertifiedRolesType.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031460" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlUsedCertificates.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031460" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlClaimedRoles.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031460" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlSignatureProductionPlace.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031460" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlRevocationType.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031460" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlSignedObjectsType.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031460" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlCertificateChainType.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031460" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlSignature.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031460" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlSignedSignature.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031460" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlDistinguishedName.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031460" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/DiagnosticData.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031460" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlTrustedServiceProviderType.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031461" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlTimestampType.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031461" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlSigningCertificateType.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031461" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlCommitmentTypeIndication.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031461" ignored="false" />
-    <file path="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc/eu/europa/ec/markt/dss/validation102853/data/diagnostic/XmlTimestamps.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400142031461" ignored="false" />
-    <file path="/Prototype.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400497282412" ignored="false" />
-    <file path="/DSSUtils.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400489073489" ignored="false" />
-    <file path="/Signer.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400504283834" ignored="false" />
-    <file path="/PKCS12SignerTest.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400501581770" ignored="false" />
-    <file path="/X509Cert.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400500151273" ignored="false" />
-    <file path="/DigiDoc4J.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1400502791878" ignored="false" />
+    <file path="/Dummy.txt" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1402316709944" ignored="false" />
+    <file path="/fragment.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1402315451837" ignored="false" />
+    <file path="/X509CertTest.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1402316203023" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,8 +77,8 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
-    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
-    <breakpoint_any default_suspend_policy="SuspendAll" default_condition_enabled="true">
+    <line_breakpoints default_suspend_policy="SuspendAll" default_condition_enabled="true" />
+    <breakpoint_any>
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
         <option name="NOTIFY_UNCAUGHT" value="true" />
@@ -175,23 +114,6 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
     </breakpoint_any>
-    <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/src/ee/sk/digidoc4j/Container.java" line="204" class="ee.sk.digidoc4j.Container" package="ee.sk.digidoc4j">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="REMOVE_AFTER_HIT" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="SUSPEND" value="true" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="true" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-    </line_breakpoints>
     <breakpoint_rules />
     <ui_properties />
   </component>
@@ -201,62 +123,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="DataFile.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ee/sk/digidoc4j/DataFile.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="125" column="0" selection-start="4027" selection-end="4027" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="PKCS12Signer.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ee/sk/digidoc4j/utils/PKCS12Signer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="3" column="116" selection-start="95" selection-end="95" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Container.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/ee/sk/digidoc4j/Container.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="211" column="0" selection-start="7770" selection-end="7770" vertical-scroll-proportion="0.75605816">
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#1597#1615#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Signer.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ee/sk/digidoc4j/Signer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="100" column="58" selection-start="2394" selection-end="2394" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="FileDocument.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/src/main/java/eu/europa/ec/markt/dss/signature/FileDocument.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="50" column="11" selection-start="1793" selection-end="1793" vertical-scroll-proportion="0.0">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Signature.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ee/sk/digidoc4j/Signature.java">
+      <file leaf-file-name="package-info.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/main/package-info.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="7" column="13" selection-start="189" selection-end="189" vertical-scroll-proportion="0.0">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -265,7 +144,54 @@
       <file leaf-file-name="Prototype.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/prototype/Prototype.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="85" column="37" selection-start="4252" selection-end="4252" vertical-scroll-proportion="0.0">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PKCS11Signer.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/prototype/PKCS11Signer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DataFileTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/DataFileTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="51" column="30" selection-start="1358" selection-end="1358" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="X509CertTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/X509CertTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="53" column="16" selection-start="1863" selection-end="1863" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="build.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/build.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="47" column="71" selection-start="1815" selection-end="1815" vertical-scroll-proportion="0.8549223">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="X509Cert.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/X509Cert.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="162" column="47" selection-start="4220" selection-end="4256" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -274,10 +200,8 @@
       <file leaf-file-name="Pkcs12SignatureToken.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/src/main/java/eu/europa/ec/markt/dss/signature/token/Pkcs12SignatureToken.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="155" column="69" selection-start="5258" selection-end="5258" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="e#4427#4447#0" expanded="true" />
-              </folding>
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -285,19 +209,8 @@
       <file leaf-file-name="KSPrivateKeyEntry.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/src/main/java/eu/europa/ec/markt/dss/signature/token/KSPrivateKeyEntry.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="51" column="11" selection-start="2023" selection-end="2023" vertical-scroll-proportion="0.0">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DigiDoc4J.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ee/sk/utils/DigiDoc4J.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="12" column="18" selection-start="337" selection-end="337" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -312,22 +225,22 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/prototype/Test.java" />
-        <option value="$PROJECT_DIR$/src/ee/sk/digidoc4j/exceptions/package-info.java" />
-        <option value="$PROJECT_DIR$/build.xml" />
-        <option value="$PROJECT_DIR$/test/ee/sk/digidoc4j/DataFileTest.java" />
-        <option value="$PROJECT_DIR$/test/ee/sk/digidoc4j/ContainerTest.java" />
-        <option value="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/src/main/java/eu/europa/ec/markt/dss/DSSUtils.java" />
-        <option value="$PROJECT_DIR$/src/ee/sk/digidoc4j/utils/package-info.java" />
-        <option value="$PROJECT_DIR$/checkstyle.xml" />
-        <option value="$PROJECT_DIR$/src/prototype/Prototype.java" />
         <option value="$PROJECT_DIR$/src/ee/sk/digidoc4j/X509Cert.java" />
         <option value="$PROJECT_DIR$/test/ee/sk/digidoc4j/utils/PKCS12SignerTest.java" />
         <option value="$PROJECT_DIR$/src/ee/sk/utils/DigiDoc4J.java" />
-        <option value="$PROJECT_DIR$/src/ee/sk/digidoc4j/DataFile.java" />
         <option value="$PROJECT_DIR$/src/ee/sk/digidoc4j/Signer.java" />
         <option value="$PROJECT_DIR$/src/ee/sk/digidoc4j/utils/PKCS12Signer.java" />
         <option value="$PROJECT_DIR$/src/ee/sk/digidoc4j/Container.java" />
+        <option value="$PROJECT_DIR$/src/ee/sk/digidoc4j/DataFile.java" />
+        <option value="$PROJECT_DIR$/TEST-ee.sk.digidoc4j.ContainerTest.xml" />
+        <option value="$PROJECT_DIR$/src/ee/org/digidoc4j/DataFile.java" />
+        <option value="$PROJECT_DIR$/src/org/org/digidoc4j/DataFile.java" />
+        <option value="$PROJECT_DIR$/src/org/digidoc4j/main/package-info.java" />
+        <option value="$PROJECT_DIR$/src/prototype/Prototype.java" />
+        <option value="$PROJECT_DIR$/src/prototype/PKCS11Signer.java" />
+        <option value="$PROJECT_DIR$/test/org/digidoc4j/DataFileTest.java" />
+        <option value="$PROJECT_DIR$/test/org/digidoc4j/X509CertTest.java" />
+        <option value="$PROJECT_DIR$/build.xml" />
       </list>
     </option>
   </component>
@@ -349,9 +262,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="y" value="22" />
+    <option name="x" value="1" />
+    <option name="y" value="25" />
     <option name="width" value="1920" />
-    <option name="height" value="1120" />
+    <option name="height" value="1117" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -368,6 +282,11 @@
   <component name="ProjectReloadState">
     <option name="STATE" value="0" />
   </component>
+  <component name="ProjectStructureProblems">
+    <ignored-problems>
+      <problem id="invalid-module-dependency(module:digidoc4j,org.apache.directory.studio:org.apache.commons.io:2.4)" />
+    </ignored-problems>
+  </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1" splitterProportion="0.5">
       <flattenPackages />
@@ -381,6 +300,7 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
@@ -390,135 +310,8 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="test" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="prototype" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="sk" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="utils" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="sk" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="sk" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="exceptions" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="core" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -530,7 +323,7 @@
     <property name="Repository.Attach.JavaDocs" value="true" />
     <property name="recentsLimit" value="5" />
     <property name="MemberChooser.sorted" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/ee/sk/digidoc4j/exceptions" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
@@ -540,7 +333,7 @@
     <property name="Downloaded.Files.Path" value="$PROJECT_DIR$/lib" />
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="GoToFile.includeJavaFiles" value="false" />
-    <property name="options.lastSelected" value="com.advancedtools.cpp.CppSupportLoader" />
+    <property name="options.lastSelected" value="project.propVCSSupport.Mappings" />
     <property name="project.structure.side.proportion" value="0.2535047" />
     <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.includeInheritedMembers" value="false" />
@@ -569,12 +362,75 @@
       <recent name="$PROJECT_DIR$/src/ee/sk/digidoc4j/exceptions" />
       <recent name="$PROJECT_DIR$/src/ee/sk/utils" />
     </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/org/digidoc4j/main" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="prototype" />
+      <recent name="org" />
+    </key>
   </component>
   <component name="RunManager" selected="JUnit.All Tests in digidoc4j">
+    <configuration default="false" name="Prototype" type="Application" factoryName="Application" temporary="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="prototype.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="MAIN_CLASS_NAME" value="prototype.Prototype" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="digidoc4j" />
+      <envs />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Debug" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="DigiDoc4J" type="Application" factoryName="Application" temporary="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="ee.sk.utils.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="MAIN_CLASS_NAME" value="org.org.utils.DigiDoc4J" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="digidoc4j" />
+      <envs />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Debug" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
     <configuration default="false" name="All Tests in digidoc4j" type="JUnit" factoryName="JUnit" temporary="true">
       <extension name="coverage" enabled="false" merge="false" track_test_folders="true" runner="idea">
         <pattern>
-          <option name="PATTERN" value="ee.sk.digidoc4j.*" />
+          <option name="PATTERN" value="org.digidoc4j.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -617,8 +473,8 @@
       <module name="digidoc4j" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="ee.sk.digidoc4j" />
-      <option name="MAIN_CLASS_NAME" value="ee.sk.digidoc4j.DataFileTest" />
+      <option name="PACKAGE_NAME" value="org.org.digidoc4j" />
+      <option name="MAIN_CLASS_NAME" value="org.org.digidoc4j.DataFileTest" />
       <option name="METHOD_NAME" value="testThrowsExceptionOnUnknownError" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="-ea" />
@@ -651,8 +507,8 @@
       <module name="digidoc4j" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="ee.sk.digidoc4j" />
-      <option name="MAIN_CLASS_NAME" value="ee.sk.digidoc4j.DataFileTest" />
+      <option name="PACKAGE_NAME" value="org.org.digidoc4j" />
+      <option name="MAIN_CLASS_NAME" value="org.org.digidoc4j.DataFileTest" />
       <option name="METHOD_NAME" value="testDigestIsCalculatedOnlyOnce" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="-ea" />
@@ -673,62 +529,6 @@
       </RunnerSettings>
       <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Cover" />
-      <ConfigurationWrapper RunnerId="Debug" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
-    <configuration default="false" name="Prototype" type="Application" factoryName="Application" temporary="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
-        <pattern>
-          <option name="PATTERN" value="prototype.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="MAIN_CLASS_NAME" value="prototype.Prototype" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="digidoc4j" />
-      <envs />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="true" />
-      </RunnerSettings>
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Debug" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
-    <configuration default="false" name="DigiDoc4J" type="Application" factoryName="Application" temporary="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
-        <pattern>
-          <option name="PATTERN" value="ee.sk.utils.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="MAIN_CLASS_NAME" value="ee.sk.utils.DigiDoc4J" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="digidoc4j" />
-      <envs />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="true" />
-      </RunnerSettings>
-      <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Debug" />
       <ConfigurationWrapper RunnerId="Run" />
       <method />
@@ -819,11 +619,11 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="JUnit.All Tests in digidoc4j" />
-      <item index="1" class="java.lang.String" itemvalue="JUnit.DataFileTest.testThrowsExceptionOnUnknownError" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.DataFileTest.testDigestIsCalculatedOnlyOnce" />
-      <item index="3" class="java.lang.String" itemvalue="Application.Prototype" />
-      <item index="4" class="java.lang.String" itemvalue="Application.DigiDoc4J" />
+      <item index="0" class="java.lang.String" itemvalue="Application.Prototype" />
+      <item index="1" class="java.lang.String" itemvalue="Application.DigiDoc4J" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.All Tests in digidoc4j" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.DataFileTest.testThrowsExceptionOnUnknownError" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.DataFileTest.testDigestIsCalculatedOnlyOnce" />
     </list>
     <recent_temporary>
       <list size="5">
@@ -919,37 +719,48 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="22" width="1920" height="1120" extended-state="6" />
-    <editor active="false" />
+    <frame x="1" y="25" width="1920" height="1117" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="CheckStyle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23692636" sideWeight="0.276" order="10" side_tool="false" content_ui="tabs" x="-301" y="520" width="2322" height="298" />
-      <window_info id="Find" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="CheckStyle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.23692636" sideWeight="0.276" order="10" side_tool="false" content_ui="tabs" x="-301" y="520" width="2322" height="298" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24939951" sideWeight="0.6701698" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24919957" sideWeight="0.63189566" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2193755" sideWeight="0.28652138" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.329" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23692636" sideWeight="0.393" order="9" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32919848" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32898697" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25506938" sideWeight="0.67" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.369" sideWeight="0.6168623" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25400212" sideWeight="0.63189566" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3681043" sideWeight="0.6168623" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="CDI" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23692636" sideWeight="0.393" order="9" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32919848" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
+  </component>
+  <component name="Vcs.Log.UiProperties">
+    <option name="RECENTLY_FILTERED_USER_GROUPS">
+      <collection />
+    </option>
+    <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+      <collection />
+    </option>
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
@@ -993,7 +804,7 @@
     <option name="WRAP_WHEN_TYPING_REACHES_RIGHT_MARGIN" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="adds tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed package structure" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="false" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -1016,12 +827,14 @@
     <MESSAGE value="refactoring" />
     <MESSAGE value="changed checkstyle rules" />
     <MESSAGE value="adds tests" />
+    <MESSAGE value="changed package structure" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
+      <option name="time" value="1" />
     </breakpoint-manager>
   </component>
   <component name="antWorkspaceConfiguration">
@@ -1039,128 +852,113 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.11/junit-4.11-sources.jar!/org/junit/internal/ComparisonCriteria.java">
+    <entry file="file://$PROJECT_DIR$/src/prototype/Prototype.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="70" column="0" selection-start="2589" selection-end="2589" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ee/sk/digidoc4j/X509Cert.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="92" column="23" selection-start="1915" selection-end="1915" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.7.0_21.jdk/Contents/Home/src.zip!/com/sun/org/apache/xml/internal/security/utils/Base64.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="264" column="0" selection-start="7985" selection-end="7985" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/ee/sk/digidoc4j/utils/PKCS12SignerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="37" selection-start="2400" selection-end="2400" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ee/sk/utils/SKOnlineOCSPSource.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="13" selection-start="204" selection-end="204" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ee/sk/utils/DigiDoc4J.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="18" selection-start="337" selection-end="337" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/src/main/java/eu/europa/ec/markt/dss/signature/FileDocument.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="50" column="11" selection-start="1793" selection-end="1793" vertical-scroll-proportion="0.0">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/src/main/java/eu/europa/ec/markt/dss/signature/token/Pkcs12SignatureToken.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="155" column="69" selection-start="5258" selection-end="5258" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#4427#4447#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/src/main/java/eu/europa/ec/markt/dss/signature/token/DSSPrivateKeyEntry.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="33" column="17" selection-start="1448" selection-end="1448" vertical-scroll-proportion="0.1724138">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/src/main/java/eu/europa/ec/markt/dss/signature/token/KSPrivateKeyEntry.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="51" column="11" selection-start="2023" selection-end="2023" vertical-scroll-proportion="0.0">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ee/sk/digidoc4j/Signer.java">
+    <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.11/junit-4.11-sources.jar!/org/junit/internal/ComparisonCriteria.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="100" column="58" selection-start="2394" selection-end="2394" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ee/sk/digidoc4j/utils/PKCS12Signer.java">
+    <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/src/main/java/eu/europa/ec/markt/dss/signature/token/DSSPrivateKeyEntry.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="116" selection-start="95" selection-end="95" vertical-scroll-proportion="0.0">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/src/main/java/eu/europa/ec/markt/dss/signature/FileDocument.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ee/sk/digidoc4j/Signature.java">
+    <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/src/main/java/eu/europa/ec/markt/dss/signature/token/Pkcs12SignatureToken.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="13" selection-start="189" selection-end="189" vertical-scroll-proportion="0.0">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/src/main/java/eu/europa/ec/markt/dss/signature/token/KSPrivateKeyEntry.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TEST-ee.sk.digidoc4j.ContainerTest.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/main/package-info.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/prototype/Prototype.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="85" column="37" selection-start="4252" selection-end="4252" vertical-scroll-proportion="0.0">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ee/sk/digidoc4j/DataFile.java">
+    <entry file="file://$PROJECT_DIR$/src/prototype/PKCS11Signer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="125" column="0" selection-start="4027" selection-end="4027" vertical-scroll-proportion="0.0">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/DataFileTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="51" column="30" selection-start="1358" selection-end="1358" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ee/sk/digidoc4j/Container.java">
+    <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/X509Cert.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="211" column="0" selection-start="7770" selection-end="7770" vertical-scroll-proportion="0.75605816">
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1597#1615#0" expanded="true" />
-          </folding>
+        <state line="162" column="47" selection-start="4220" selection-end="4256" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/X509CertTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="53" column="16" selection-start="1863" selection-end="1863" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="47" column="71" selection-start="1815" selection-end="1815" vertical-scroll-proportion="0.8549223">
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1193,7 +991,7 @@
       </state>
       <state key="GlobalLibrariesConfigurable.UI">
         <settings>
-          <last-edited>org.apache.directory.studio:org.apache.commons.io:2.4</last-edited>
+          <last-edited>bcprov-jdk15on-147</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
@@ -1222,6 +1020,7 @@
             <option name="proportions">
               <list>
                 <option value="0.2535047" />
+                <option value="0.6" />
               </list>
             </option>
           </splitter-proportions>

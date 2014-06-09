@@ -1,8 +1,8 @@
 package prototype;
 
-import ee.sk.digidoc4j.X509Cert;
-
 import java.util.List;
+
+import org.digidoc4j.X509Cert;
 
 /**
  * Implements the Signer interface for ID-Cards, which support PKCS#11 protocol
