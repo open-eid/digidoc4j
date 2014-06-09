@@ -4,12 +4,10 @@
     <output url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-common/target/classes" />
     <output-test url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-common/target/test-classes" />
     <content url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-common">
+      <sourceFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-common/target/generated-sources/xjc" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-common/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-common/src/main/resources" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-common/target/generated-sources/xjc" isTestSource="false" />
-      <excludeFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-common/target/classes" />
-      <excludeFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-common/target/maven-archiver" />
-      <excludeFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-common/target/surefire" />
+      <excludeFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-common/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

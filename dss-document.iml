@@ -7,9 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-document/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-document/src/main/resources" isTestSource="false" />
-      <excludeFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-document/target/classes" />
-      <excludeFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-document/target/maven-archiver" />
-      <excludeFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-document/target/surefire" />
+      <excludeFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-document/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
