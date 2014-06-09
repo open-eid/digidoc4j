@@ -5,50 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="231d0052-c425-43c6-acab-fc208a3191a3" name="Default" comment="changed package structure">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/org" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/org" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/Container.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/DataFile.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/Signature.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/Signer.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/X509Cert.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/exceptions/NotYetImplementedException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/exceptions/package-info.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/package-info.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/utils/PKCS12Signer.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/utils/SignerInformation.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/utils/package-info.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/utils/DigiDoc4J.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/utils/SKOnlineOCSPSource.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/utils/package-info.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee/sk/digidoc4j/ContainerTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee/sk/digidoc4j/DataFileTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee/sk/digidoc4j/SignatureTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee/sk/digidoc4j/X509CertTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee/sk/digidoc4j/utils/PKCS12SignerTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee/sk/digidoc4j" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/exceptions" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee/sk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/utils" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/ee/sk/digidoc4j/utils" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/ee/sk/digidoc4j/utils" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/prototype/PKCS11Signer.java" afterPath="$PROJECT_DIR$/src/prototype/PKCS11Signer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/prototype/Prototype.java" afterPath="$PROJECT_DIR$/src/prototype/Prototype.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/digidoc4j.iml" afterPath="$PROJECT_DIR$/digidoc4j.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dss-common.iml" afterPath="$PROJECT_DIR$/dss-common.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dss-core.iml" afterPath="$PROJECT_DIR$/dss-core.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="digidoc4j.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Dummy.txt" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1402316709944" ignored="false" />
+    <file path="/Dummy.txt" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1402318004508" ignored="false" />
     <file path="/fragment.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1402315451837" ignored="false" />
     <file path="/X509CertTest.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1402316203023" ignored="false" />
+    <file path="$PROJECT_DIR$/src/org/digidoc4j/utils/PKCS12Signer.java" changelist="231d0052-c425-43c6-acab-fc208a3191a3" time="1402317784485" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -182,7 +146,7 @@
       <file leaf-file-name="build.xml" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/build.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="47" column="71" selection-start="1815" selection-end="1815" vertical-scroll-proportion="0.8549223">
+            <state line="47" column="71" selection-start="1815" selection-end="1815" vertical-scroll-proportion="1.1407768">
               <folding />
             </state>
           </provider>
@@ -191,8 +155,10 @@
       <file leaf-file-name="X509Cert.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/X509Cert.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="162" column="47" selection-start="4220" selection-end="4256" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="162" column="47" selection-start="4216" selection-end="4252" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="imports" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -308,6 +274,52 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="digidoc4j" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="digidoc4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="digidoc4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="digidoc4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="digidoc4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="prototype" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="digidoc4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="digidoc4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="digidoc4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
@@ -720,23 +732,23 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="1" y="25" width="1920" height="1117" extended-state="0" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="CheckStyle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.23692636" sideWeight="0.276" order="10" side_tool="false" content_ui="tabs" x="-301" y="520" width="2322" height="298" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24919957" sideWeight="0.63189566" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24919957" sideWeight="0.67101306" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2193755" sideWeight="0.28652138" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32919848" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32898697" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32898697" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25400212" sideWeight="0.63189566" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3681043" sideWeight="0.6168623" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25400212" sideWeight="0.67101306" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3681043" sideWeight="0.6168623" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -804,7 +816,7 @@
     <option name="WRAP_WHEN_TYPING_REACHES_RIGHT_MARGIN" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="changed package structure" />
+    <option name="LAST_COMMIT_MESSAGE" value="DSS project files" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="false" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -828,6 +840,7 @@
     <MESSAGE value="changed checkstyle rules" />
     <MESSAGE value="adds tests" />
     <MESSAGE value="changed package structure" />
+    <MESSAGE value="DSS project files" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -904,13 +917,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TEST-ee.sk.digidoc4j.ContainerTest.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/main/package-info.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
@@ -943,8 +949,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/X509Cert.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="162" column="47" selection-start="4220" selection-end="4256" vertical-scroll-proportion="0.0">
-          <folding />
+        <state line="162" column="47" selection-start="4216" selection-end="4252" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -957,7 +965,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="47" column="71" selection-start="1815" selection-end="1815" vertical-scroll-proportion="0.8549223">
+        <state line="47" column="71" selection-start="1815" selection-end="1815" vertical-scroll-proportion="1.1407768">
           <folding />
         </state>
       </provider>
