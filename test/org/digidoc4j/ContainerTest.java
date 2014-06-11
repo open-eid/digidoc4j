@@ -3,9 +3,14 @@ package org.digidoc4j;
 import java.io.*;
 import java.util.List;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.utils.PKCS12Signer;
 import org.junit.Test;
+import org.w3c.dom.Document;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
@@ -13,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 
 public class ContainerTest {
   @Test
-  public void testAddOneFileToContainer() throws Exception {
+  public void testAddOneFileToContainerForBDoc() throws Exception {
     Container bDocContainer = new Container();
     bDocContainer.addDataFile("test.txt", "text/plain");
     List<DataFile> dataFiles = bDocContainer.getDataFiles();
@@ -23,13 +28,13 @@ public class ContainerTest {
   }
 
   @Test(expected = NotYetImplementedException.class)
-  public void testAddDataFileFromInputStreamToContainer() throws Exception {
+  public void testAddDataFileFromInputStreamToContainerForBDoc() throws Exception {
     Container container = new Container();
     container.addDataFile(new ByteArrayInputStream(new byte[]{0x41}), "test.txt", "text/plain");
   }
 
   @Test
-  public void testRemovesOneFileFromContainerWhenFileExists() throws Exception {
+  public void testRemovesOneFileFromContainerWhenFileExistsForBDoc() throws Exception {
     Container bDocContainer = new Container();
     bDocContainer.addDataFile("test.txt", "text/plain");
     bDocContainer.removeDataFile("test.txt");
@@ -37,7 +42,7 @@ public class ContainerTest {
   }
 
   @Test
-  public void testCreateAsicContainerSpecifiedByDocumentType() throws Exception {
+  public void testCreateAsicContainerSpecifiedByDocumentTypeForBDoc() throws Exception {
     Container asicContainer = new Container(Container.DocumentType.ASIC);
     asicContainer.addDataFile("test.txt", "text/plain");
     asicContainer.sign(new PKCS12Signer("signout.p12", "test"));
@@ -51,8 +56,9 @@ public class ContainerTest {
     dDocContainer.addDataFile("test.txt", "text/plain");
     dDocContainer.sign(new PKCS12Signer("signout.p12", "test"));
     dDocContainer.save("test.ddoc");
-    assertTrue(true);
+    assertTrue(isXMLFile(new File("test.ddoc")));
   }
+
 
   public void testSigningWithSignerInfo() throws Exception {
     String city = "myCity";
@@ -84,6 +90,17 @@ public class ContainerTest {
     int test = in.readInt();
     in.close();
     return test == 0x504b0304;
+  }
+
+  private boolean isXMLFile(File file) throws ParserConfigurationException {
+    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+    try {
+      Document doc = dBuilder.parse(file);
+    } catch (Exception e) {
+      return false;
+    }
+    return true;
   }
 }
 
