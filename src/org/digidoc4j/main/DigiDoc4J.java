@@ -5,9 +5,14 @@ import org.digidoc4j.Signer;
 import org.digidoc4j.utils.PKCS12Signer;
 
 /**
- * Client commandline utility for DigiDoc4J library.
+ * Client commandline tool for DigiDoc4J library.
  */
-public class DigiDoc4J {
+public final class DigiDoc4J {
+
+  private DigiDoc4J() {
+
+  }
+
   /**
    * @param args args for main method. No arguments are actually used
    * @throws Exception throws exception if the command cannot be executed successfully
