@@ -33,7 +33,6 @@ public class ContainerTest {
     Container bDocContainer = new Container();
     bDocContainer.addDataFile("test.txt", "text/plain");
     bDocContainer.removeDataFile("test.txt");
-
     assertEquals(0, bDocContainer.getDataFiles().size());
   }
 
@@ -42,8 +41,17 @@ public class ContainerTest {
     Container asicContainer = new Container(Container.DocumentType.ASIC);
     asicContainer.addDataFile("test.txt", "text/plain");
     asicContainer.sign(new PKCS12Signer("signout.p12", "test"));
-    asicContainer.save("test.zip");
-    assertTrue(isZipFile(new File("test.zip")));
+    asicContainer.save("test.bdoc");
+    assertTrue(isZipFile(new File("test.bdoc")));
+  }
+
+  @Test
+  public void testCreateDDocContainer() throws Exception {
+    Container dDocContainer = new Container(Container.DocumentType.DDOC);
+    dDocContainer.addDataFile("test.txt", "text/plain");
+    dDocContainer.sign(new PKCS12Signer("signout.p12", "test"));
+    dDocContainer.save("test.ddoc");
+    assertTrue(true);
   }
 
   public void testSigningWithSignerInfo() throws Exception {
