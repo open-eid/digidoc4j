@@ -4,11 +4,11 @@ package org.digidoc4j.utils;
  * Optional additional information about the signer
  */
 public class SignerInformation {
-  public String city;
-  public String stateOrProvince;
-  public String postalCode;
-  public String country;
-  public String signerRole;
+  private String city;
+  private String stateOrProvince;
+  private String postalCode;
+  private String country;
+  private String signerRole;
 
   /**
    * empty constructor
@@ -34,6 +34,46 @@ public class SignerInformation {
     this.stateOrProvince = stateOrProvince;
     this.postalCode = postalCode;
     this.country = country;
+    this.signerRole = signerRole;
+  }
+
+  public String getCity() {
+    return city;
+  }
+
+  public void setCity(String city) {
+    this.city = city;
+  }
+
+  public String getStateOrProvince() {
+    return stateOrProvince;
+  }
+
+  public void setStateOrProvince(String stateOrProvince) {
+    this.stateOrProvince = stateOrProvince;
+  }
+
+  public String getPostalCode() {
+    return postalCode;
+  }
+
+  public void setPostalCode(String postalCode) {
+    this.postalCode = postalCode;
+  }
+
+  public String getCountry() {
+    return country;
+  }
+
+  public void setCountry(String country) {
+    this.country = country;
+  }
+
+  public String getSignerRole() {
+    return signerRole;
+  }
+
+  public void setSignerRole(String signerRole) {
     this.signerRole = signerRole;
   }
 }

@@ -41,31 +41,31 @@ public class PKCS12Signer implements Signer {
 
   @Override
   public final String getCity() {
-    return signerInformation.city;
+    return signerInformation.getCity();
   }
 
   @Override
   public final String getCountry() {
-    return signerInformation.country;
+    return signerInformation.getCountry();
   }
 
   @Override
   public final String getPostalCode() {
-    return signerInformation.postalCode;
+    return signerInformation.getPostalCode();
   }
 
   @Override //TODO this is not good way to pass so many parameters discuss it with SK
   public void setSignatureProductionPlace(final String city, final String stateOrProvince, final String postalCode,
                                           final String country) {
-    signerInformation.city = city;
-    signerInformation.stateOrProvince = stateOrProvince;
-    signerInformation.postalCode = postalCode;
-    signerInformation.country = country;
+    signerInformation.setCity(city);
+    signerInformation.setStateOrProvince(stateOrProvince);
+    signerInformation.setPostalCode(postalCode);
+    signerInformation.setCountry(country);
   }
 
   @Override
   public final String getStateOrProvince() {
-    return signerInformation.stateOrProvince;
+    return signerInformation.getStateOrProvince();
   }
 
   @Override
@@ -86,5 +86,9 @@ public class PKCS12Signer implements Signer {
   @Override
   public byte[] sign(String digestAlgorithm, byte[] dataToSign) {
     return pkcs12SignatureToken.sign(dataToSign, DigestAlgorithm.forXML(digestAlgorithm), keyEntry);
+  }
+
+  @Override public SignerInformation getSignerInformation() {
+    return signerInformation;
   }
 }

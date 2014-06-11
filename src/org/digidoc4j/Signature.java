@@ -1,28 +1,37 @@
 package org.digidoc4j;
 
-import eu.europa.ec.markt.dss.parameter.SignatureParameters;
-
 import java.util.Date;
 import java.util.List;
 
 import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.utils.SignerInformation;
 
 /**
  * Signature interface. Provides an interface for handling a signature and the corresponding OCSP response properties.
  */
 public class Signature {
   private byte[] signatureValue;
-  private SignatureParameters signatureParameters;
+  private SignerInformation signerInformation;
+  private Date signingTime;
+  private Signer signer;
 
   /**
    * Signature default constructor
    *
-   * @param signatureValue      aa
-   * @param signatureParameters ss
+   * @param signatureValue aa
+   * @param signer         ss
    */
-  public Signature(byte[] signatureValue, SignatureParameters signatureParameters) {
+  public Signature(byte[] signatureValue, Signer signer) {
     this.signatureValue = signatureValue;
-    this.signatureParameters = signatureParameters;
+    this.signerInformation = signer.getSignerInformation();
+    this.signer = signer;
+  }
+
+  /**
+   * @param signingTime signing time
+   */
+  public void setSigningTime(Date signingTime) {
+    this.signingTime = signingTime;
   }
 
   /**
@@ -40,7 +49,7 @@ public class Signature {
    * @return production city
    */
   public String getCity() {
-    return signatureParameters.bLevel().getSignerLocation().getCity();
+    return signerInformation.getCity();
   }
 
   /**
@@ -49,7 +58,7 @@ public class Signature {
    * @return production country
    */
   public String getCountryName() {
-    return signatureParameters.bLevel().getSignerLocation().getCountry();
+    return signerInformation.getCountry();
   }
 
   /**
@@ -95,7 +104,7 @@ public class Signature {
    * @return postal code
    */
   public String getPostalCode() {
-    return signatureParameters.bLevel().getSignerLocation().getPostalCode();
+    return signerInformation.getPostalCode();
   }
 
   /**
@@ -132,7 +141,7 @@ public class Signature {
    * @return signer roles
    */
   public List<String> getSignerRoles() {
-    return signatureParameters.bLevel().getClaimedSignerRoles();
+    return signer.getSignerRoles();
   }
 
   /**
@@ -141,7 +150,7 @@ public class Signature {
    * @return signature certificate
    */
   public X509Cert getSigningCertificate() {
-    return new X509Cert(signatureParameters.getSigningCertificate());
+    return signer.getCertificate();
   }
 
   /**
@@ -150,7 +159,7 @@ public class Signature {
    * @return signing time
    */
   public Date getSigningTime() {
-    return signatureParameters.bLevel().getSigningDate();
+    return signingTime;
   }
 
   /**
@@ -168,7 +177,7 @@ public class Signature {
    * @return production state or province
    */
   public String getStateOrProvince() {
-    return signatureParameters.bLevel().getSignerLocation().getStateOrProvince();
+    return signerInformation.getStateOrProvince();
   }
 
   /**

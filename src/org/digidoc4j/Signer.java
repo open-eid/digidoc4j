@@ -3,6 +3,8 @@ package org.digidoc4j;
 import java.security.PrivateKey;
 import java.util.List;
 
+import org.digidoc4j.utils.SignerInformation;
+
 /**
  * Provides interface for signing documents.
  * Digidoc LIB implements PKCS11, PKCS12, CNG signer class that allows signing with EstId chip card.
@@ -94,4 +96,11 @@ public interface Signer {
    * @return signature
    */
   byte[] sign(String digestAlgorithm, byte[] dataToSign);
+
+  /**
+   * TODO description
+   *
+   * @return SignerInformation returns signer information
+   */
+  public SignerInformation getSignerInformation();
 }
