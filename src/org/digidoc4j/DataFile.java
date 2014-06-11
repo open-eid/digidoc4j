@@ -7,10 +7,11 @@ import eu.europa.ec.markt.dss.signature.DSSDocument;
 import eu.europa.ec.markt.dss.signature.FileDocument;
 import eu.europa.ec.markt.dss.signature.MimeType;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
+
+import org.digidoc4j.exceptions.DigiDoc4JException;
 
 /**
  * Data file wrapper providing methods for handling signed files or files to be signed in Container.
@@ -25,18 +26,13 @@ public class DataFile {
    *
    * @param path     file name with path
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
-   * @throws Exception is thrown when the file does not exist
    */
-  public DataFile(String path, String mimeType) throws Exception {
+  public DataFile(String path, String mimeType) {
     try {
       document = new FileDocument(path);
       document.setMimeType(MimeType.fromCode(mimeType));
-    }
-    catch (Exception e) {
-      if (e.getMessage().toLowerCase().contains("file not found")) {
-        throw new FileNotFoundException(e.getMessage());
-      }
-      throw e;
+    } catch (Exception e) {
+      throw new DigiDoc4JException(e);
     }
   }
 

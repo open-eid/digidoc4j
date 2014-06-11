@@ -4,10 +4,10 @@ import eu.europa.ec.markt.dss.DSSUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -63,7 +63,7 @@ public class DataFileTest {
     assertEquals("see on testfail\n", out.toString());
   }
 
-  @Test(expected = FileNotFoundException.class)
+  @Test(expected = DigiDoc4JException.class)
   public void testThrowsFileNotFoundExceptionIfFileDoesNotExists() throws Exception {
     new DataFile("NOT_EXISTS.TXT", "text/plain");
   }
