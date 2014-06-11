@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
 
 /**
  * Offers functionality for handling data files and signatures in a container.
@@ -71,7 +70,7 @@ public class Container implements ContainerInterface {
    */
   public void addDataFile(InputStream is, String fileName, String mimeType)
     throws Exception {
-    throw new NotYetImplementedException();
+    containerImplementation.addDataFile(is, fileName, mimeType);
   }
 
 
@@ -82,7 +81,7 @@ public class Container implements ContainerInterface {
    * @throws Exception thrown if there are no data files in the container
    */
   public void addRawSignature(byte[] signature) throws Exception {
-    throw new NotYetImplementedException();
+    containerImplementation.addRawSignature(signature);
   }
 
   /**
@@ -92,7 +91,7 @@ public class Container implements ContainerInterface {
    * @throws Exception thrown if there are no data files in the container
    */
   public void addRawSignature(InputStream signatureStream) throws Exception {
-    throw new NotYetImplementedException();
+    containerImplementation.addRawSignature(signatureStream);
   }
 
   /**
@@ -122,7 +121,7 @@ public class Container implements ContainerInterface {
    * @throws Exception thrown if the signature id is incorrect
    */
   public void removeSignature(int signatureId) throws Exception {
-    throw new NotYetImplementedException();
+    containerImplementation.removeSignature(signatureId);
   }
 
   /**
@@ -153,7 +152,7 @@ public class Container implements ContainerInterface {
    * @return list of all signatures
    */
   public List<Signature> getSignatures() {
-    throw new NotYetImplementedException();
+    return containerImplementation.getSignatures();
   }
 }
 
