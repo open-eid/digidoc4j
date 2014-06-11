@@ -159,11 +159,8 @@ public class DDocContainer implements ContainerInterface {
    * Saves the container to the specified location.
    *
    * @param path file name and path.
-   * @throws org.digidoc4j.exceptions.DigiDoc4JException
-   *          thrown if there was a failure saving the BDOC container.
-   *          For example if the added data file does not exist.
    */
-  public void save(String path) throws DigiDoc4JException {
+  public void save(String path) {
     if (ddoc == null)
       throw new NotYetImplementedException();
     try {
