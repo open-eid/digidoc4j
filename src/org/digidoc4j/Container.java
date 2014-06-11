@@ -1,5 +1,10 @@
 package org.digidoc4j;
 
+import ee.sk.digidoc.DigiDocException;
+import ee.sk.digidoc.SignatureProductionPlace;
+import ee.sk.digidoc.SignedDoc;
+import ee.sk.digidoc.factory.Pkcs12SignatureFactory;
+import ee.sk.utils.ConfigManager;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.parameter.BLevelParameters;
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
@@ -14,6 +19,7 @@ import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 import prototype.SKOnlineOCSPSource;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -21,8 +27,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 
+import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
 import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -44,6 +52,8 @@ public class Container {
   Map<String, DataFile> dataFiles = new HashMap<String, DataFile>();
   private SignatureParameters signatureParameters;
   private DSSDocument signedDocument;
+  private SignedDoc ddoc;
+  private DocumentType documentType;
 
   /**
    * Document types
@@ -74,12 +84,13 @@ public class Container {
   }
 
   /**
-   * Creates Conatainer specified by DocumentType
+   * Creates Container specified by DocumentType
    *
    * @param documentType container type
    */
   public Container(DocumentType documentType) {
-    if (documentType == DocumentType.ASIC)
+    this.documentType = documentType;
+    if (this.documentType == DocumentType.ASIC)
       createAsicContainer();
     else
       createDDocContainer();
@@ -97,7 +108,7 @@ public class Container {
 
   private void createAsicContainer() {
     signatureParameters = new SignatureParameters();
-    signatureParameters.setSignatureLevel(SignatureLevel.ASiC_S_BASELINE_LT);
+    signatureParameters.setSignatureLevel(SignatureLevel.ASiC_E_BASELINE_B);
     signatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
     signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
     commonCertificateVerifier = new CommonCertificateVerifier();
@@ -106,7 +117,12 @@ public class Container {
   }
 
   private void createDDocContainer() {
-    throw new NotYetImplementedException();
+    ConfigManager.init("jdigidoc.cfg");
+    try {
+      ddoc = new SignedDoc("DIGIDOC-XML", "1.3");
+    } catch (DigiDocException e) {
+      throw new DigiDoc4JException(e);
+    }
   }
 
   /**
@@ -208,13 +224,24 @@ public class Container {
    * Saves the container to the specified location.
    *
    * @param path file name and path.
-   * @throws Exception thrown if there was a failure saving the BDOC container.
-   *                   For example if the added data file does not exist.
+   * @throws DigiDoc4JException thrown if there was a failure saving the BDOC container.
+   *                            For example if the added data file does not exist.
    */
-  public void save(String path) throws Exception {
-    if (signedDocument == null)
-      throw new NotYetImplementedException();
-    signedDocument.save(path);                                                   //TODO which exception and when
+  public void save(String path) throws DigiDoc4JException {
+    if (documentType == DocumentType.ASIC) {
+      if (signedDocument == null)
+        throw new NotYetImplementedException();
+      signedDocument.save(path);
+    }
+    else {
+      if (ddoc == null)
+        throw new NotYetImplementedException();
+      try {
+        ddoc.writeToFile(new File(path));
+      } catch (DigiDocException e) {
+        throw new DigiDoc4JException(e);
+      }
+    }
   }
 
   /**
@@ -225,6 +252,36 @@ public class Container {
    * @throws Exception thrown if signing the container failed
    */
   public Signature sign(Signer signer) throws Exception {
+    if (documentType == DocumentType.ASIC)
+      return signBDoc(signer);
+    return signDDoc(signer);
+  }
+
+  private Signature signDDoc(Signer signer) {
+    ee.sk.digidoc.Signature signature;
+    try {
+      ddoc.addDataFile(new File(getFirstDataFile().getFileName()), getFirstDataFile().getMediaType(), CONTENT_EMBEDDED_BASE64);
+      List<String> signerRoles = signer.getSignerRoles();
+      signature = ddoc.prepareSignature(signer.getCertificate().getX509Certificate(),
+                                        signerRoles.toArray(new String[signerRoles.size()]),
+                                        new SignatureProductionPlace(signer.getCity(), signer.getStateOrProvince(),
+                                                                     signer.getCountry(), signer.getPostalCode()));
+
+      Pkcs12SignatureFactory sf = new Pkcs12SignatureFactory();
+      sf.load("signout.p12", "PKCS12", "test");
+      signature.setSignatureValue(sf.sign(signature.calculateSignedInfoDigest(), 0, "test", signature));
+      signature.getConfirmation();
+    } catch (DigiDocException e) {
+      throw new DigiDoc4JException(e.getMessage());
+    }
+
+    Signature finalSignature = new Signature(signature.getSignatureValue().getValue(), signer);
+    finalSignature.setSigningTime(signature.getSignatureProducedAtTime());
+
+    return finalSignature;
+  }
+
+  private Signature signBDoc(Signer signer) {
     //addSignerInformation(signer);
     setTSL();
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource());
@@ -237,10 +294,14 @@ public class Container {
     DSSDocument toSignDocument = new FileDocument(getFirstDataFile().getFileName());
 
     byte[] dataToSign = aSiCEService.getDataToSign(toSignDocument, signatureParameters);
+
     byte[] signatureValue = signer.sign(signatureParameters.getDigestAlgorithm().getXmlId(), dataToSign);
     signedDocument = aSiCEService.signDocument(toSignDocument, signatureParameters, signatureValue);
 
-    return (new Signature(signatureValue, signatureParameters));
+    Signature signature = new Signature(signatureValue, signer);
+    signature.setSigningTime(signatureParameters.bLevel().getSigningDate());
+
+    return signature;
   }
 
   private void setTSL() {
@@ -271,45 +332,6 @@ public class Container {
   private DataFile getFirstDataFile() {
     return (DataFile)dataFiles.values().toArray()[0];
   }
-
-//  /**
-//   * Signs all data files in the container.
-//   *
-//   * @param signer  signer implementation
-//   * @param profile specifies the signature profile
-//   * @return signature
-//   * @throws Exception thrown if signing the container failed
-//   */
-//  public Signature sign(Signer signer, SignatureProfile profile) throws Exception {
-//    throw new NotYetImplementedException();
-//  }
-
-//  /**
-//   * Signs all data files in the container.
-//   *
-//   * @param city                production city of the signature (optional)
-//   * @param stateOrProvince     production state or province of the signature (optional)
-//   * @param postalCode          production postal code of the signature (optional)
-//   * @param country         production country of the signature (optional)
-//   * @param signerRole         the parameter may contain the signer’s role and optionally the signer’s resolution
-//   *                            Note that only one signer role value (i.e. one <ClaimedRole> XML element) should
-//   *                            be used
-//   *                            If the signer role contains both role and resolution then they must be separated
-//   *                            with a slash mark, e.g. “role / resolution”
-//   *                            Note that when setting the resolution value then role must also be specified
-//   * @param pin                 PIN code for accessing the private key
-//   * @param useFirstCertificate if set to “true” it will use the first signing certificate from the certificate store
-//   *                            for signature creation and the certificate selection dialog window is not displayed
-//   *                            to the user<p>
-//   *                            if set to "false", the certificate selection's dialog window is displayed</p>
-//   * @return signature
-//   * @throws Exception thrown if signing the container failed
-//   */
-//  public Signature sign(String city, String stateOrProvince, String postalCode, String country,
-//                        String signerRole, String pin, boolean useFirstCertificate) throws Exception {
-//
-//    throw new NotYetImplementedException();
-//  }
 
   /**
    * Returns a list of all signatures in the container.
