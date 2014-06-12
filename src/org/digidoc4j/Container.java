@@ -59,7 +59,7 @@ public class Container implements ContainerInterface {
   }
 
   @Override
-  public void addDataFile(String path, String mimeType) throws Exception {
+  public void addDataFile(String path, String mimeType) {
     containerImplementation.addDataFile(path, mimeType);
   }
 
@@ -69,12 +69,12 @@ public class Container implements ContainerInterface {
   }
 
   @Override
-  public void addRawSignature(byte[] signature) throws Exception {
+  public void addRawSignature(byte[] signature) {
     containerImplementation.addRawSignature(signature);
   }
 
   @Override
-  public void addRawSignature(InputStream signatureStream) throws Exception {
+  public void addRawSignature(InputStream signatureStream) {
     containerImplementation.addRawSignature(signatureStream);
   }
 
@@ -84,12 +84,12 @@ public class Container implements ContainerInterface {
   }
 
   @Override
-  public void removeDataFile(String fileName) throws Exception {
+  public void removeDataFile(String fileName) {
     containerImplementation.removeDataFile(fileName);
   }
 
   @Override
-  public void removeSignature(int signatureId) throws Exception {
+  public void removeSignature(int signatureId) {
     containerImplementation.removeSignature(signatureId);
   }
 
@@ -99,7 +99,7 @@ public class Container implements ContainerInterface {
   }
 
   @Override
-  public Signature sign(Signer signer) throws Exception {
+  public Signature sign(Signer signer) {
     return containerImplementation.sign(signer);
   }
 

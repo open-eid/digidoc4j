@@ -14,7 +14,6 @@ import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 import prototype.SKOnlineOCSPSource;
 
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +44,6 @@ public class BDocContainer implements ContainerInterface {
   Map<String, DataFile> dataFiles = new HashMap<String, DataFile>();
   private SignatureParameters signatureParameters;
   private DSSDocument signedDocument;
-  private DocumentType documentType;
 
   /**
    * Create a new container object of ASIC type Container.
@@ -71,7 +69,7 @@ public class BDocContainer implements ContainerInterface {
   }
 
   @Override
-  public void addDataFile(String path, String mimeType) throws Exception {
+  public void addDataFile(String path, String mimeType) {
     dataFiles.put(path, new DataFile(path, mimeType));
   }
 
@@ -81,12 +79,12 @@ public class BDocContainer implements ContainerInterface {
   }
 
   @Override
-  public void addRawSignature(byte[] signature) throws Exception {
+  public void addRawSignature(byte[] signature) {
     throw new NotYetImplementedException();
   }
 
   @Override
-  public void addRawSignature(InputStream signatureStream) throws Exception {
+  public void addRawSignature(InputStream signatureStream) {
     throw new NotYetImplementedException();
   }
 
@@ -96,12 +94,12 @@ public class BDocContainer implements ContainerInterface {
   }
 
   @Override
-  public void removeDataFile(String fileName) throws Exception {
-    if (dataFiles.remove(fileName) == null) throw new FileNotFoundException();  //TODO which Exception to throw
+  public void removeDataFile(String fileName) {
+    if (dataFiles.remove(fileName) == null) throw new DigiDoc4JException("File not found");
   }
 
   @Override
-  public void removeSignature(int signatureId) throws Exception {
+  public void removeSignature(int signatureId) {
     throw new NotYetImplementedException();
   }
 
@@ -113,7 +111,7 @@ public class BDocContainer implements ContainerInterface {
   }
 
   @Override
-  public Signature sign(Signer signer) throws Exception {
+  public Signature sign(Signer signer) {
     //addSignerInformation(signer);
     setTSL();
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource());

@@ -13,7 +13,8 @@ public class Signature {
   private byte[] signatureValue;
   private SignerInformation signerInformation;
   private Date signingTime;
-  private Signer signer;
+  private List<String> signerRoles;
+  private X509Cert certificate;
 
   /**
    * Signature default constructor
@@ -24,14 +25,28 @@ public class Signature {
   public Signature(byte[] signatureValue, Signer signer) {
     this.signatureValue = signatureValue;
     this.signerInformation = signer.getSignerInformation();
-    this.signer = signer;
+    this.signerRoles = signer.getSignerRoles();
+    this.certificate = signer.getCertificate();
   }
 
-  /**
-   * @param signingTime signing time
-   */
-  public void setSigningTime(Date signingTime) {
+  Signature(byte[] signatureValue) {
+    this.signatureValue = signatureValue;
+  }
+
+  void setSigningTime(Date signingTime) {
     this.signingTime = signingTime;
+  }
+
+  void setSignerRoles(List<String> roles) {
+    signerRoles = roles;
+  }
+
+  void setSignerInformation(SignerInformation signerInformation) {
+    this.signerInformation = signerInformation;
+  }
+
+  void setCertificate(X509Cert cert) {
+    this.certificate = cert;
   }
 
   /**
@@ -141,7 +156,7 @@ public class Signature {
    * @return signer roles
    */
   public List<String> getSignerRoles() {
-    return signer.getSignerRoles();
+    return signerRoles;
   }
 
   /**
@@ -150,7 +165,7 @@ public class Signature {
    * @return signature certificate
    */
   public X509Cert getSigningCertificate() {
-    return signer.getCertificate();
+    return certificate;
   }
 
   /**
