@@ -5,6 +5,7 @@ import eu.europa.ec.markt.dss.Digest;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
 import eu.europa.ec.markt.dss.signature.FileDocument;
+import eu.europa.ec.markt.dss.signature.InMemoryDocument;
 import eu.europa.ec.markt.dss.signature.MimeType;
 
 import java.io.IOException;
@@ -34,6 +35,17 @@ public class DataFile {
     } catch (Exception e) {
       throw new DigiDoc4JException(e);
     }
+  }
+
+  /**
+   * Creates in memory document container.
+   *
+   * @param data     file content
+   * @param fileName file name with path
+   * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
+   */
+  public DataFile(byte[] data, String fileName, String mimeType) {
+    document = new InMemoryDocument(data, fileName, MimeType.fromCode(mimeType));
   }
 
   /**
@@ -80,7 +92,9 @@ public class DataFile {
    * @return filename
    */
   public String getFileName() {
-    return document.getName();
+    if (document instanceof InMemoryDocument)
+      return document.getName();
+    return document.getAbsolutePath();
   }
 
   /**

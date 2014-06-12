@@ -70,10 +70,8 @@ public interface ContainerInterface {
    * @param is       input stream from where data is read
    * @param fileName data file name in the container
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
-   * @throws Exception thrown if the data file path is incorrect or a data file with same file name already exists.
-   *                   Also, no data file can be added if the container already has one or more signatures
    */
-  void addDataFile(InputStream is, String fileName, String mimeType) throws Exception;
+  void addDataFile(InputStream is, String fileName, String mimeType);
 
 
   /**
@@ -142,6 +140,12 @@ public interface ContainerInterface {
    * @return list of all signatures
    */
   List<Signature> getSignatures();
+
+  /**
+   * Returns document type AISC or DDOC
+   */
+
+  DocumentType getDocumentType();
 }
 
 

@@ -35,7 +35,7 @@ public class DataFileTest {
 
   @Test
   public void testGetFileName() throws Exception {
-    assertEquals("test.txt", dataFile.getFileName());
+    assertEquals(new File("test.txt").getAbsolutePath(), dataFile.getFileName());
   }
 
   @Test
@@ -71,6 +71,12 @@ public class DataFileTest {
   @Test(expected = Exception.class)
   public void testThrowsExceptionOnUnknownError() throws Exception {
     new DataFile(null, "none/none");
+  }
+
+  @Test
+  public void testInMemoryDocumentRetrievesFileName() {
+    DataFile dataFile = new DataFile(new byte[]{0x042}, "suura.txt", "text/plain");
+    assertEquals("suura.txt", dataFile.getFileName());
   }
 
   @Test
