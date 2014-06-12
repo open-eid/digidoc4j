@@ -105,6 +105,15 @@ public class ContainerTest {
     assertEquals("testFromStream.txt", dataFile.getFileName());
   }
 
+  @Test
+  public void testGetSignatureFromDDoc() {
+    Container container = new Container(ContainerInterface.DocumentType.DDOC);
+    container.addDataFile("test.txt", "text/plain");
+    container.sign(new PKCS12Signer("signout.p12", "test"));
+    List<Signature> signatures = container.getSignatures();
+    assertEquals(1, signatures.size());
+  }
+
   public void testSigningWithSignerInfo() throws Exception {
     String city = "myCity";
     String stateOrProvince = "myStateOrProvince";

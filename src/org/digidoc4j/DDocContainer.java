@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.utils.SignerInformation;
 
 import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
 
@@ -61,8 +62,12 @@ public class DDocContainer implements ContainerInterface {
   }
 
   @Override
-  public void addDataFile(String path, String mimeType) throws Exception {
-    ddoc.addDataFile(new File(path), mimeType, CONTENT_EMBEDDED_BASE64);
+  public void addDataFile(String path, String mimeType) {
+    try {
+      ddoc.addDataFile(new File(path), mimeType, CONTENT_EMBEDDED_BASE64);
+    } catch (DigiDocException e) {
+      throw new DigiDoc4JException(e);
+    }
   }
 
   @Override
@@ -79,12 +84,12 @@ public class DDocContainer implements ContainerInterface {
   }
 
   @Override
-  public void addRawSignature(byte[] signature) throws Exception {
+  public void addRawSignature(byte[] signature) {
     throw new NotYetImplementedException();
   }
 
   @Override
-  public void addRawSignature(InputStream signatureStream) throws Exception {
+  public void addRawSignature(InputStream signatureStream) {
     throw new NotYetImplementedException();
   }
 
@@ -128,14 +133,12 @@ public class DDocContainer implements ContainerInterface {
   }
 
   @Override
-  public void removeSignature(int signatureId) throws Exception {
+  public void removeSignature(int signatureId) {
     throw new NotYetImplementedException();
   }
 
   @Override
   public void save(String path) {
-    if (ddoc == null)
-      throw new NotYetImplementedException();
     try {
       ddoc.writeToFile(new File(path));
     } catch (DigiDocException e) {
@@ -144,7 +147,7 @@ public class DDocContainer implements ContainerInterface {
   }
 
   @Override
-  public Signature sign(Signer signer) throws Exception {
+  public Signature sign(Signer signer) {
     ee.sk.digidoc.Signature signature;
     try {
       List<String> signerRoles = signer.getSignerRoles();
@@ -158,7 +161,7 @@ public class DDocContainer implements ContainerInterface {
       signature.setSignatureValue(sf.sign(signature.calculateSignedInfoXML(), 0, "test", signature));
       signature.getConfirmation();
     } catch (DigiDocException e) {
-      throw new DigiDoc4JException(e.getMessage());
+      throw new DigiDoc4JException(e);
     }
 
     Signature finalSignature = new Signature(signature.getSignatureValue().getValue(), signer);
@@ -169,7 +172,38 @@ public class DDocContainer implements ContainerInterface {
 
   @Override
   public List<Signature> getSignatures() {
-    throw new NotYetImplementedException();
+    List<Signature> signatures = new ArrayList<Signature>();
+    ArrayList dDocSignatures = ddoc.getSignatures();
+
+    for (Object signature : dDocSignatures) {
+      Signature finalSignature = mapJDigiDocSignatureToDigidoc4J((ee.sk.digidoc.Signature)signature);
+      signatures.add(finalSignature);
+    }
+
+    return signatures;
+  }
+
+  private Signature mapJDigiDocSignatureToDigidoc4J(ee.sk.digidoc.Signature signature) {
+    Signature finalSignature = new Signature(signature.getSignatureValue().getValue());
+    finalSignature.setCertificate(new X509Cert(signature.getLastCertValue().getCert())); //TODO can be several certs
+    finalSignature.setSigningTime(signature.getSignatureProducedAtTime());
+    finalSignature.setSignerRoles(getRolesFromSignedProperties(signature));
+    finalSignature.setSignerInformation(
+      new SignerInformation(signature.getSignedProperties().getSignatureProductionPlace().getCity(),
+                            signature.getSignedProperties().getSignatureProductionPlace().getStateOrProvince(),
+                            signature.getSignedProperties().getSignatureProductionPlace().getPostalCode(),
+                            signature.getSignedProperties().getSignatureProductionPlace().getCountryName(), ""));
+    //TODO check logic about one role versus several roles
+    return finalSignature;
+  }
+
+  private List<String> getRolesFromSignedProperties(ee.sk.digidoc.Signature signature) {
+    List<String> roles = new ArrayList<String>();
+    int numberOfRoles = signature.getSignedProperties().countClaimedRoles();
+    for (int i = 0; i < numberOfRoles; i++) {
+      roles.add(signature.getSignedProperties().getClaimedRole(i));
+    }
+    return roles;
   }
 
   @Override public DocumentType getDocumentType() {
