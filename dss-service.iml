@@ -5,7 +5,7 @@
     <output-test url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-service/target/test-classes" />
     <content url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-service">
       <sourceFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-service/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-service/src/main/resources" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-service/src/main/resources" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-service/target" />
     </content>
     <orderEntry type="inheritedJdk" />
