@@ -313,13 +313,38 @@ public class ContainerTest {
     container.addRawSignature(signature.getBytes());
 
     assertEquals(2, container.getSignatures().size());
-    assertEquals(CERTIFICATE.replaceAll("\\s", ""), Base64.encodeBase64String(getSigningCertificateAsBytes(container)));
+    assertEquals(CERTIFICATE.replaceAll("\\s", ""), Base64.encodeBase64String(getSigningCertificateAsBytes(container, 1)));
   }
 
-  private byte[] getSigningCertificateAsBytes(Container container) throws CertificateEncodingException {
-    Signature signature = container.getSignatures().get(1);
+  @Test
+  public void testAddRawSignatureAsStreamArray() throws CertificateEncodingException {
+    Container container = new Container(DDOC);
+    container.addDataFile("test.txt", TEXT_MIME_TYPE);
+    container.addRawSignature(new ByteArrayInputStream(signature.getBytes()));
+
+    assertEquals(1, container.getSignatures().size());
+    assertEquals(CERTIFICATE.replaceAll("\\s", ""), Base64.encodeBase64String(getSigningCertificateAsBytes(container, 0)));
+  }
+
+  private byte[] getSigningCertificateAsBytes(Container container, int index) throws CertificateEncodingException {
+    Signature signature = container.getSignatures().get(index);
     return signature.getSigningCertificate().getX509Certificate().getEncoded();
   }
+
+  @Test
+  public void testRemoveSignature() {
+    Container container = new Container(DDOC);
+    container.addDataFile("test.txt", TEXT_MIME_TYPE);
+    container.sign(new PKCS12Signer("signout.p12", "test"));
+    container.addRawSignature(new ByteArrayInputStream(signature.getBytes()));
+    container.save("testRemoveSignature.ddoc");
+
+    Container containerToRemoveSignature = new Container("testRemoveSignature.ddoc");
+    containerToRemoveSignature.removeSignature(1);
+    assertEquals(1, containerToRemoveSignature.getSignatures().size());
+    //todo check is correct signature removed by signing time?
+  }
+
 
   public void testSigningWithSignerInfo() throws Exception {
     String city = "myCity";

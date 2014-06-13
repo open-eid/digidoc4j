@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.utils.SignerInformation;
 
 import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
@@ -86,17 +85,17 @@ public class DDocContainer implements ContainerInterface {
 
   @Override
   public void addRawSignature(byte[] signatureBytes) {
-    try {
-      ddoc.readSignature(new ByteArrayInputStream(signatureBytes));
-    }
-    catch (DigiDocException e) {
-      throw new DigiDoc4JException(e);
-    }
+    addRawSignature(new ByteArrayInputStream(signatureBytes));
   }
 
   @Override
   public void addRawSignature(InputStream signatureStream) {
-    throw new NotYetImplementedException();
+    try {
+      ddoc.readSignature(signatureStream);
+    }
+    catch (DigiDocException e) {
+      throw new DigiDoc4JException(e);
+    }
   }
 
   @Override
@@ -139,8 +138,13 @@ public class DDocContainer implements ContainerInterface {
   }
 
   @Override
-  public void removeSignature(int signatureId) {
-    throw new NotYetImplementedException();
+  public void removeSignature(int index) {
+    try {
+      ddoc.removeSignature(index);
+    }
+    catch (DigiDocException e) {
+      throw new DigiDoc4JException(e);
+    }
   }
 
   @Override
