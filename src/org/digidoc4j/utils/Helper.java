@@ -6,8 +6,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.Document;
-
 public class Helper {
   public static boolean isZipFile(File file) throws IOException {
     DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
@@ -17,10 +15,9 @@ public class Helper {
   }
 
   public static boolean isXMLFile(File file) throws ParserConfigurationException {
-    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     try {
-      Document doc = dBuilder.parse(file);
+      builder.parse(file);
     } catch (Exception e) {
       return false;
     }
