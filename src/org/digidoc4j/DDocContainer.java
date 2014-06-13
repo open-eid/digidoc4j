@@ -8,6 +8,7 @@ import ee.sk.digidoc.factory.Pkcs12SignatureFactory;
 import ee.sk.digidoc.factory.SAXDigiDocFactory;
 import ee.sk.utils.ConfigManager;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -84,8 +85,13 @@ public class DDocContainer implements ContainerInterface {
   }
 
   @Override
-  public void addRawSignature(byte[] signature) {
-    throw new NotYetImplementedException();
+  public void addRawSignature(byte[] signatureBytes) {
+    try {
+      ddoc.readSignature(new ByteArrayInputStream(signatureBytes));
+    }
+    catch (DigiDocException e) {
+      throw new DigiDoc4JException(e);
+    }
   }
 
   @Override
