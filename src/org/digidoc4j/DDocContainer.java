@@ -53,6 +53,7 @@ public class DDocContainer implements ContainerInterface {
    *                 ]
    */
   public DDocContainer(String fileName) {
+    ConfigManager.init("jdigidoc.cfg");
     DigiDocFactory digFac = new SAXDigiDocFactory();
     try {
       ddoc = digFac.readSignedDoc(fileName);
@@ -176,6 +177,7 @@ public class DDocContainer implements ContainerInterface {
 
     Signature finalSignature = new Signature(signature.getSignatureValue().getValue(), signer);
     finalSignature.setSigningTime(signature.getSignatureProducedAtTime());
+    finalSignature.setJDigiDocOrigin(signature);
 
     return finalSignature;
   }
@@ -203,6 +205,7 @@ public class DDocContainer implements ContainerInterface {
                             signature.getSignedProperties().getSignatureProductionPlace().getStateOrProvince(),
                             signature.getSignedProperties().getSignatureProductionPlace().getPostalCode(),
                             signature.getSignedProperties().getSignatureProductionPlace().getCountryName(), ""));
+    finalSignature.setJDigiDocOrigin(signature);
     //TODO check logic about one role versus several roles
     return finalSignature;
   }

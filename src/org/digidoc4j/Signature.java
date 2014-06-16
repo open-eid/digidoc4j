@@ -1,20 +1,22 @@
 package org.digidoc4j;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.utils.SignerInformation;
 
 /**
- * Signature interface. Provides an interface for handling a signature and the corresponding OCSP response properties.
+ * Signature implementation. Provides an interface for handling a signature and the corresponding OCSP response properties.
  */
-public class Signature {
+public class Signature implements SignatureInterface {
   private byte[] signatureValue;
   private SignerInformation signerInformation;
   private Date signingTime;
   private List<String> signerRoles;
   private X509Cert certificate;
+  private ee.sk.digidoc.Signature jDigiDocOrigin;
 
   /**
    * Signature default constructor
@@ -33,29 +35,24 @@ public class Signature {
     this.signatureValue = signatureValue;
   }
 
-  void setSigningTime(Date signingTime) {
+  public void setSigningTime(Date signingTime) {
     this.signingTime = signingTime;
   }
 
-  void setSignerRoles(List<String> roles) {
+  public void setSignerRoles(List<String> roles) {
     signerRoles = roles;
   }
 
-  void setSignerInformation(SignerInformation signerInformation) {
+  public void setSignerInformation(SignerInformation signerInformation) {
     this.signerInformation = signerInformation;
   }
 
-  void setCertificate(X509Cert cert) {
+  public void setCertificate(X509Cert cert) {
     this.certificate = cert;
   }
 
-  /**
-   * Signature validation types.
-   */
-  public enum Validate {
-    VALIDATE_TM,
-    VALIDATE_POLICY,
-    VALIDATE_FULL;
+  public void setJDigiDocOrigin(ee.sk.digidoc.Signature jDigiDocOrigin) {
+    this.jDigiDocOrigin = jDigiDocOrigin;
   }
 
   /**
@@ -80,10 +77,9 @@ public class Signature {
    * Returns the signature id.
    *
    * @return id
-   * @throws Exception when method is not implemented
    */
-  public String getId() throws Exception {
-    throw new NotYetImplementedException();
+  public String getId() {
+    return jDigiDocOrigin.getId();
   }
 
   /**
@@ -101,7 +97,7 @@ public class Signature {
    * @return OCSP responder certificate
    */
   public X509Cert getOCSPCertificate() {
-    return null;
+    return new X509Cert(jDigiDocOrigin.findResponderCert());
   }
 
   /**
@@ -110,7 +106,7 @@ public class Signature {
    * @return signature policy
    */
   public String getPolicy() {
-    return null;
+    return "";
   }
 
   /**
@@ -123,13 +119,12 @@ public class Signature {
   }
 
   /**
-   * Returns the signature OCSP producedAt timestamp.
+   * Returns the signature OCSP producedAt timestamp if exists. Otherwise returns null
    *
    * @return producedAt timestamp
-   * @throws Exception when not yet implemented
    */
-  public Date getProducedAt() throws Exception {
-    throw new NotYetImplementedException();
+  public Date getProducedAt() {
+    return jDigiDocOrigin.getSignatureProducedAtTime();
   }
 
   /**
@@ -205,17 +200,26 @@ public class Signature {
   }
 
   /**
-   * Validates the signature.
+   * Validates the signature. In case of DDOC makes full validation.
    *
    * @param validationType type of validation
    */
-  public void validate(Validate validationType) {
+  public List<DigiDoc4JException> validate(Validate validationType) {
+    return validate();
   }
 
   /**
    * Validates the signature using Validate.VALIDATE_FULL method.
+   *
+   * @return returns list of validation exceptions. NB! legacy it can be changed!!!
    */
-  public void validate() {
+  public List<DigiDoc4JException> validate() {
+    List<DigiDoc4JException> validationErrors = new ArrayList<DigiDoc4JException>();
+    ArrayList validationResult = jDigiDocOrigin.validate();
+    for (Object exception : validationResult) {
+      validationErrors.add(new DigiDoc4JException((Exception)exception));
+    }
+    return validationErrors;
   }
 
   /**
