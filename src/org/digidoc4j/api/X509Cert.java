@@ -18,7 +18,7 @@ import org.bouncycastle.util.encoders.Hex;
 
 
 /**
- * Wrapper for OpenSSL X509 certificate structure.
+ * Wrapper for java.security.cert.X509Certificate object.
  */
 public class X509Cert {
   private X509Certificate originalCert;
