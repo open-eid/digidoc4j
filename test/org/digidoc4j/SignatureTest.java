@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SignatureTest {
   private Signer signer;
@@ -56,6 +57,6 @@ public class SignatureTest {
     signer.setSignerRoles(asList("signerRoles"));
     Signature signature = bDocContainer.sign(signer);
 
-    //assertTrue(signature.getSigningTime().before(new Date()) && signature.getSigningTime().after(dateBeforeTest));
+    assertTrue(signature.getSigningTime().before(new Date()) && signature.getSigningTime().after(dateBeforeTest));
   }
 }
