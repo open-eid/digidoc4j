@@ -1,7 +1,5 @@
 package org.digidoc4j;
 
-import junit.framework.Assert;
-
 import java.util.Date;
 
 import org.digidoc4j.utils.PKCS12Signer;
@@ -34,7 +32,7 @@ public class SignatureTest {
   public void testGetSignerRoles() {
     signer.setSignerRoles(asList("Role / Resolution"));
     Signature signature = new Signature(null, signer);
-    Assert.assertEquals(1, signature.getSignerRoles().size());
+    assertEquals(1, signature.getSignerRoles().size());
     assertEquals("Role / Resolution", signature.getSignerRoles().get(0));
   }
 
@@ -42,7 +40,7 @@ public class SignatureTest {
   public void testGetMultipleSignerRoles() {
     signer.setSignerRoles(asList("Role 1", "Role 2"));
     Signature signature = new Signature(null, signer);
-    Assert.assertEquals(2, signature.getSignerRoles().size());
+    assertEquals(2, signature.getSignerRoles().size());
     assertEquals("Role 1", signature.getSignerRoles().get(0));
     assertEquals("Role 2", signature.getSignerRoles().get(1));
   }
