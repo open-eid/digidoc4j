@@ -1,12 +1,16 @@
 package org.digidoc4j.api;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.digidoc4j.SignatureInterface;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.utils.SignerInformation;
+
+import static org.digidoc4j.ContainerInterface.SignatureProfile;
 
 /**
  * Signature implementation. Provides an interface for handling a signature and the corresponding OCSP response properties.
@@ -133,8 +137,8 @@ public class Signature implements SignatureInterface {
    *
    * @return profile
    */
-  public String getProfile() {
-    return null;
+  public SignatureProfile getProfile() {
+    return "TM".equals(jDigiDocOrigin.getProfile()) ? SignatureProfile.TM : SignatureProfile.TS;
   }
 
   /**
@@ -143,7 +147,7 @@ public class Signature implements SignatureInterface {
    * @return signature method
    */
   public String getSignatureMethod() {
-    return null;
+    return jDigiDocOrigin.getSignedInfo().getSignatureMethod();
   }
 
   /**
@@ -174,11 +178,11 @@ public class Signature implements SignatureInterface {
   }
 
   /**
-   * Returns the BDoc signature policy uri. If the container is DDoc then it returns an empty string.
+   * Returns the BDoc signature policy uri. If the container is DDoc then it returns null.
    *
    * @return signature policy uri
    */
-  public String getSignaturePolicyURI() {
+  public URI getSignaturePolicyURI() {
     return null;
   }
 
@@ -197,7 +201,7 @@ public class Signature implements SignatureInterface {
    * @return TimeStampToken certificate
    */
   public X509Cert getTimeStampTokenCertificate() {
-    return null;
+    throw new NotYetImplementedException();
   }
 
   /**
@@ -216,7 +220,7 @@ public class Signature implements SignatureInterface {
    */
   public List<DigiDoc4JException> validate() {
     List<DigiDoc4JException> validationErrors = new ArrayList<DigiDoc4JException>();
-    ArrayList validationResult = jDigiDocOrigin.validate();
+    ArrayList validationResult = jDigiDocOrigin.verify(jDigiDocOrigin.getSignedDoc(), true, true);
     for (Object exception : validationResult) {
       validationErrors.add(new DigiDoc4JException((Exception)exception));
     }
@@ -229,6 +233,9 @@ public class Signature implements SignatureInterface {
    * @return signature value as byte array
    */
   public byte[] getRawSignature() {
-    return signatureValue;
+    if (jDigiDocOrigin == null)
+      return signatureValue;
+    return
+      jDigiDocOrigin.getOrigContent();
   }
 }

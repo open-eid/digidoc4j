@@ -91,7 +91,7 @@ public interface SignatureInterface {
    *
    * @return profile
    */
-  public String getProfile();
+  public ContainerInterface.SignatureProfile getProfile();
 
   /**
    * Returns the signature method that was used for signing.
@@ -126,7 +126,7 @@ public interface SignatureInterface {
    *
    * @return signature policy uri
    */
-  public String getSignaturePolicyURI();
+  public java.net.URI getSignaturePolicyURI();
 
   /**
    * Returns the signature production state or province.

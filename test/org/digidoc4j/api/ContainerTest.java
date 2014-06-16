@@ -2,6 +2,7 @@ package org.digidoc4j.api;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
 import java.util.List;
 
@@ -12,8 +13,10 @@ import org.digidoc4j.utils.Helper;
 import org.digidoc4j.utils.PKCS12Signer;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
 import static java.util.Arrays.asList;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.ContainerInterface.DocumentType.DDOC;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -306,7 +309,7 @@ public class ContainerTest {
   }
 
   @Test
-  public void testAddRawSignatureAsByteArray() throws CertificateEncodingException {
+  public void testAddRawSignatureAsByteArray() throws CertificateEncodingException, IOException, SAXException {
     Container container = new Container(DDOC);
     container.addDataFile("test.txt", TEXT_MIME_TYPE);
     container.sign(new PKCS12Signer("signout.p12", "test"));
@@ -314,6 +317,7 @@ public class ContainerTest {
 
     assertEquals(2, container.getSignatures().size());
     assertEquals(CERTIFICATE.replaceAll("\\s", ""), Base64.encodeBase64String(getSigningCertificateAsBytes(container, 1)));
+    assertXMLEqual(signature.trim(), new String(container.getSignatures().get(1).getRawSignature()));
   }
 
   @Test

@@ -5,6 +5,7 @@ import java.security.cert.CertificateEncodingException;
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.ContainerInterface;
 import org.digidoc4j.SignatureInterface;
+import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.utils.PKCS12Signer;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -13,6 +14,7 @@ import org.junit.Test;
 import static java.util.Arrays.asList;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class SignatureTest {
@@ -60,6 +62,12 @@ public class SignatureTest {
     signer.setSignerRoles(asList("signerRoles"));
     Signature signature = bDocContainer.sign(signer);
 
+    assertTrue(isAlmostNow(signature.getSigningTime()));
+  }
+
+  @Test
+  public void testGetSigningTime() {
+    Signature signature = getSignature();
     assertTrue(isAlmostNow(signature.getSigningTime()));
   }
 
@@ -124,7 +132,27 @@ public class SignatureTest {
   @Test
   public void testValidationWithInvalidDocument() {
     Container container = new Container("changed_digdoc_test.ddoc");
-    assertEquals(0, container.getSignatures().get(0).validate(SignatureInterface.Validate.VALIDATE_FULL).size());
+    assertEquals(6, container.getSignatures().get(0).validate(SignatureInterface.Validate.VALIDATE_FULL).size());
+  }
+
+  @Test
+  public void testGetSignaturePolicyURI() {
+    assertNull(getSignature().getSignaturePolicyURI());
+  }
+
+  @Test
+  public void testGetSignatureMethod() {
+    assertEquals("http://www.w3.org/2000/09/xmldsig#rsa-sha1", getSignature().getSignatureMethod());
+  }
+
+  @Test
+  public void testGetProfile() {
+    assertEquals(ContainerInterface.SignatureProfile.TM, getSignature().getProfile());
+  }
+
+  @Test(expected = NotYetImplementedException.class)
+  public void testGetTimeStampTokenCertificate() {
+    assertNull(getSignature().getTimeStampTokenCertificate());
   }
 
   private Signature getSignature() {
