@@ -6,7 +6,7 @@ import java.security.cert.CertificateEncodingException;
 import java.util.Arrays;
 
 import org.apache.commons.codec.binary.Base64;
-import org.digidoc4j.X509Cert;
+import org.digidoc4j.api.X509Cert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

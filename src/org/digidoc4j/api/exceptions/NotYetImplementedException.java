@@ -1,4 +1,4 @@
-package org.digidoc4j.exceptions;
+package org.digidoc4j.api.exceptions;
 
 /**
  * Exception is thrown when method or class is not yet implemented.

@@ -20,8 +20,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.api.DataFile;
+import org.digidoc4j.api.Signature;
+import org.digidoc4j.api.Signer;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.NotYetImplementedException;
 
 import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
 import static org.apache.commons.lang.StringUtils.isEmpty;

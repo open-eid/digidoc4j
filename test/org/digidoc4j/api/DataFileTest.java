@@ -1,4 +1,4 @@
-package org.digidoc4j;
+package org.digidoc4j.api;
 
 import eu.europa.ec.markt.dss.DSSUtils;
 
@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

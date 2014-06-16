@@ -1,7 +1,7 @@
 package org.digidoc4j.main;
 
-import org.digidoc4j.Container;
-import org.digidoc4j.Signer;
+import org.digidoc4j.api.Container;
+import org.digidoc4j.api.Signer;
 import org.digidoc4j.utils.PKCS12Signer;
 
 /**

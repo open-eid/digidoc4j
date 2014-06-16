@@ -1,8 +1,10 @@
-package org.digidoc4j;
+package org.digidoc4j.api;
 
 import java.security.cert.CertificateEncodingException;
 
 import org.apache.commons.codec.binary.Base64;
+import org.digidoc4j.ContainerInterface;
+import org.digidoc4j.SignatureInterface;
 import org.digidoc4j.utils.PKCS12Signer;
 import org.junit.Before;
 import org.junit.Ignore;

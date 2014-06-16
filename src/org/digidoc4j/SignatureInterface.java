@@ -3,6 +3,7 @@ package org.digidoc4j;
 import java.util.Date;
 import java.util.List;
 
+import org.digidoc4j.api.X509Cert;
 import org.digidoc4j.utils.SignerInformation;
 
 /**
@@ -146,12 +147,12 @@ public interface SignatureInterface {
    *
    * @param validationType type of validation
    */
-  public List<org.digidoc4j.exceptions.DigiDoc4JException> validate(Validate validationType);
+  public List<org.digidoc4j.api.exceptions.DigiDoc4JException> validate(Validate validationType);
 
   /**
    * Validates the signature using Validate.VALIDATE_FULL method.
    */
-  public List<org.digidoc4j.exceptions.DigiDoc4JException> validate();
+  public List<org.digidoc4j.api.exceptions.DigiDoc4JException> validate();
 
   /**
    * Returns raw signature

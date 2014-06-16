@@ -9,8 +9,8 @@ import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.digidoc4j.Signer;
-import org.digidoc4j.X509Cert;
+import org.digidoc4j.api.Signer;
+import org.digidoc4j.api.X509Cert;
 
 /**
  * Implements PKCS12 signer.

@@ -1,4 +1,4 @@
-package org.digidoc4j;
+package org.digidoc4j.api;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -6,8 +6,8 @@ import java.security.cert.CertificateEncodingException;
 import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.utils.Helper;
 import org.digidoc4j.utils.PKCS12Signer;
 import org.junit.Ignore;

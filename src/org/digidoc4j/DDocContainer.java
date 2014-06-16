@@ -14,7 +14,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.DataFile;
+import org.digidoc4j.api.Signature;
+import org.digidoc4j.api.Signer;
+import org.digidoc4j.api.X509Cert;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.utils.SignerInformation;
 
 import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;

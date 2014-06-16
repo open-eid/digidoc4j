@@ -23,8 +23,8 @@
   </path>
 
   <target name="javadoc">
-    <javadoc packagenames="org.digidoc4j" destdir="javadoc">
-      <sourcepath path="src"/>
+    <javadoc packagenames="org.digidoc4j.api" destdir="javadoc">
+    <sourcepath path="src"/>
       <sourcepath path="sd-dss/apps/dss/core/dss-common/src"/>
       <sourcepath path="sd-dss/apps/dss/core/dss-document/src"/>
       <sourcepath path="sd-dss/apps/dss/core/dss-service/src"/>

@@ -1,4 +1,4 @@
-package org.digidoc4j.exceptions;
+package org.digidoc4j.api.exceptions;
 
 /**
  * Generic exception for DigiDoc4J

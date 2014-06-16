@@ -1,4 +1,4 @@
-package org.digidoc4j;
+package org.digidoc4j.api;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
@@ -10,7 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
-import static org.digidoc4j.X509Cert.SubjectName.*;
+import static org.digidoc4j.api.X509Cert.SubjectName.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

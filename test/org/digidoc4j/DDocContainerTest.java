@@ -1,6 +1,6 @@
 package org.digidoc4j;
 
-import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.junit.Test;
 
 public class DDocContainerTest {
