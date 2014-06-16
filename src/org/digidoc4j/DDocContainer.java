@@ -4,9 +4,9 @@ import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.SignatureProductionPlace;
 import ee.sk.digidoc.SignedDoc;
 import ee.sk.digidoc.factory.DigiDocFactory;
-import ee.sk.digidoc.factory.Pkcs12SignatureFactory;
 import ee.sk.digidoc.factory.SAXDigiDocFactory;
 import ee.sk.utils.ConfigManager;
+import eu.europa.ec.markt.dss.DigestAlgorithm;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -167,9 +167,11 @@ public class DDocContainer implements ContainerInterface {
                                         new SignatureProductionPlace(signer.getCity(), signer.getStateOrProvince(),
                                                                      signer.getCountry(), signer.getPostalCode()));
 
-      Pkcs12SignatureFactory sf = new Pkcs12SignatureFactory();
-      sf.load("signout.p12", "PKCS12", "test");
-      signature.setSignatureValue(sf.sign(signature.calculateSignedInfoXML(), 0, "test", signature));
+//      Pkcs12SignatureFactory sf = new Pkcs12SignatureFactory();
+//      sf.load("signout.p12", "PKCS12", "test");
+//      signature.setSignatureValue(sf.sign(signature.calculateSignedInfoXML(), 0, "test", signature));
+      signature.setSignatureValue(signer.sign(DigestAlgorithm.SHA1.getXmlId(), signature.calculateSignedInfoXML()));
+
       signature.getConfirmation();
     } catch (DigiDocException e) {
       throw new DigiDoc4JException(e);
