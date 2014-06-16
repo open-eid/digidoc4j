@@ -345,6 +345,12 @@ public class ContainerTest {
     //todo check is correct signature removed by signing time?
   }
 
+  @Test(expected = DigiDoc4JException.class)
+  public void testRemovingNotExistingSignatureThrowsException() {
+    Container container = new Container(DDOC);
+    container.removeSignature(0);
+  }
+
 
   public void testSigningWithSignerInfo() throws Exception {
     String city = "myCity";
