@@ -112,7 +112,7 @@ public class BDocContainer implements ContainerInterface {
 
   @Override
   public Signature sign(Signer signer) {
-    //addSignerInformation(signer);
+    addSignerInformation(signer);
     setTSL();
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource());
 
