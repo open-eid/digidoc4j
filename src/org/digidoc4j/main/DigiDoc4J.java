@@ -46,26 +46,38 @@ public final class DigiDoc4J {
   private static void run(CommandLine commandLine) {
     boolean fileHasChanged = false;
     String inputFile = commandLine.getOptionValue("in");
-    Container container = new Container(DDOC);
+    try {
+      Container container = new Container(DDOC);
 
-    if (new File(inputFile).exists())
-      container = new Container(inputFile);
+      if (new File(inputFile).exists())
+        container = new Container(inputFile);
 
-    if (commandLine.hasOption("add")) {
-      container.addDataFile(commandLine.getOptionValue("add"), "text/plain");
-      fileHasChanged = true;
+      if (commandLine.hasOption("add")) {
+        String[] optionValues = commandLine.getOptionValues("add");
+        container.addDataFile(optionValues[0], optionValues[1]);
+        fileHasChanged = true;
+      }
+
+      if (commandLine.hasOption("remove")) {
+        container.removeDataFile(commandLine.getOptionValue("remove"));
+        fileHasChanged = true;
+      }
+
+      if (commandLine.hasOption("pkcs12")) {
+        pkcs12Sign(commandLine, container);
+        fileHasChanged = true;
+      }
+
+      if (fileHasChanged)
+        container.save(inputFile);
+
+      if (commandLine.hasOption("verify"))
+        verify(container);
     }
-
-    if (commandLine.hasOption("pkcs12")) {
-      pkcs12Sign(commandLine, container);
-      fileHasChanged = true;
+    catch (DigiDoc4JException e) {
+      System.out.println(e.getMessage());
+      System.exit(1);
     }
-
-    if (fileHasChanged)
-      container.save(inputFile);
-
-    if (commandLine.hasOption("verify"))
-      verify(container);
   }
 
   private static void pkcs12Sign(CommandLine commandLine, Container container) {
@@ -94,11 +106,15 @@ public final class DigiDoc4J {
     Options options = new Options();
     options.addOption("v", "verify", false, "verify command");
 
-    Option inputFile = OptionBuilder.withArgName("file").hasArg().withDescription("opens or creates container").create("in");
+    Option inputFile = OptionBuilder.withArgName("file").hasArg()
+      .withDescription("opens or creates container").create("in");
     inputFile.setRequired(true);
-
     options.addOption(inputFile);
-    options.addOption(OptionBuilder.withArgName("file").hasArg().withDescription("adds file to container").create("add"));
+
+    options.addOption(OptionBuilder.withArgName("file mime-type").hasArgs(2)
+                        .withDescription("adds file specified with mime type to container").create("add"));
+    options.addOption(OptionBuilder.withArgName("file").hasArg()
+                        .withDescription("removes file from container").create("remove"));
     options.addOption(OptionBuilder.withArgName("pkcs12Keystore password").hasArgs(2).withValueSeparator(' ')
                         .withDescription("sets pkcs12 keystore and keystore password").create("pkcs12"));
 

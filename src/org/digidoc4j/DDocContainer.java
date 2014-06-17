@@ -131,7 +131,7 @@ public class DDocContainer implements ContainerInterface {
     ArrayList ddocDataFiles = ddoc.getDataFiles();
     for (int i = 0; i < ddocDataFiles.size(); i++) {
       ee.sk.digidoc.DataFile dataFile = (ee.sk.digidoc.DataFile)ddocDataFiles.get(i);
-      if (dataFile.getFileName().equalsIgnoreCase(file.getAbsolutePath())) index = i;
+      if (dataFile.getFileName().equalsIgnoreCase(file.getName())) index = i;
     }
     if (index == -1) throw new DigiDoc4JException("File not found");
 

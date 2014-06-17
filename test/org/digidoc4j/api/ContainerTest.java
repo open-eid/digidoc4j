@@ -257,11 +257,13 @@ public class ContainerTest {
 
   @Test
   public void testRemovesOneFileFromContainerWhenFileExistsForDDoc() throws Exception {
-    Container container1 = new Container(DDOC);
-    container1.addDataFile("test.txt", TEXT_MIME_TYPE);
-    Container container = container1;
-    container.removeDataFile("test.txt");
-    assertEquals(0, container.getDataFiles().size());
+    Container container = new Container(DDOC);
+    container.addDataFile("test.txt", TEXT_MIME_TYPE);
+    container.save("testRemovesOneFileFromContainerWhenFileExistsFor.ddoc");
+
+    Container container1 = new Container("testRemovesOneFileFromContainerWhenFileExistsFor.ddoc");
+    container1.removeDataFile("test.txt");
+    assertEquals(0, container1.getDataFiles().size());
   }
 
   @Test

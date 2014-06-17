@@ -80,7 +80,7 @@
           <fileset dir="${build.dir}">
             <exclude name="**/*Test*"/>
             <exclude name="prototype/"/>
-            <exclude name="org/digidoc4j/main/DigiDoc4J.class"/>
+            <exclude name="org/digidoc4j/main/"/>
           </fileset>
         </classfiles>
         <sourcefiles encoding="UTF-8">
