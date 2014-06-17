@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CLASSPATH=$CLASSPATH:out/production/digidoc4j
+CLASSPATH=$CLASSPATH:out/production/digidoc4j:build
 for i in lib/*.jar; do
 	CLASSPATH="$CLASSPATH:$i"
 done
