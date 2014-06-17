@@ -101,8 +101,6 @@ public final class DigiDoc4J {
     options.addOption(OptionBuilder.withArgName("file").hasArg().withDescription("adds file to container").create("add"));
     options.addOption(OptionBuilder.withArgName("pkcs12Keystore password").hasArgs(2).withValueSeparator(' ')
                         .withDescription("sets pkcs12 keystore and keystore password").create("pkcs12"));
-    options.addOption(OptionBuilder.withArgName("slot pin").hasArgs(2).withValueSeparator(' ')
-                        .withDescription("sets pkcs11 singner slot and pin").create("pkcs11"));
 
     return options;
   }
