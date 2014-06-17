@@ -25,14 +25,16 @@ public final class DigiDoc4J {
    * @param args args for main method. No arguments are actually used
    * @throws Exception throws exception if the command cannot be executed successfully
    */
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     Options options = createParameters();
 
-    CommandLine commandLine = new BasicParser().parse(options, args);
+    CommandLine commandLine = null;
 
-    if (commandLine.getOptions().length == 0) {
-      HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp("digido4j", options);
+    try {
+      commandLine = new BasicParser().parse(options, args);
+    }
+    catch (ParseException e) {
+      new HelpFormatter().printHelp("digido4j", options);
       System.exit(1);
     }
 
@@ -92,7 +94,7 @@ public final class DigiDoc4J {
     Options options = new Options();
     options.addOption("v", "verify", false, "verify command");
 
-    Option inputFile = OptionBuilder.withArgName("file").hasArg().withDescription("open or creates container").create("in");
+    Option inputFile = OptionBuilder.withArgName("file").hasArg().withDescription("opens or creates container").create("in");
     inputFile.setRequired(true);
 
     options.addOption(inputFile);
