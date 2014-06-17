@@ -91,7 +91,11 @@ public final class DigiDoc4J {
   private static Options createParameters() {
     Options options = new Options();
     options.addOption("v", "verify", false, "verify command");
-    options.addOption(OptionBuilder.withArgName("file").hasArg().withDescription("open or creates container").create("in"));
+
+    Option inputFile = OptionBuilder.withArgName("file").hasArg().withDescription("open or creates container").create("in");
+    inputFile.setRequired(true);
+
+    options.addOption(inputFile);
     options.addOption(OptionBuilder.withArgName("file").hasArg().withDescription("adds file to container").create("add"));
     options.addOption(OptionBuilder.withArgName("pkcs12Keystore password").hasArgs(2).withValueSeparator(' ')
                         .withDescription("sets pkcs12 keystore and keystore password").create("pkcs12"));
