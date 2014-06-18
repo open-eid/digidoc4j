@@ -1,14 +1,15 @@
 package org.digidoc4j.api;
 
+import eu.europa.ec.markt.dss.parameter.SignatureParameters;
+
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.digidoc4j.BDocSignature;
+import org.digidoc4j.DDocSignature;
 import org.digidoc4j.SignatureInterface;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.digidoc4j.api.exceptions.NotYetImplementedException;
-import org.digidoc4j.utils.SignerInformation;
 
 import static org.digidoc4j.ContainerInterface.SignatureProfile;
 
@@ -16,226 +17,113 @@ import static org.digidoc4j.ContainerInterface.SignatureProfile;
  * Signature implementation. Provides an interface for handling a signature and the corresponding OCSP response properties.
  */
 public class Signature implements SignatureInterface {
-  private byte[] signatureValue;
-  private SignerInformation signerInformation;
-  private Date signingTime;
-  private List<String> signerRoles;
-  private X509Cert certificate;
-  private ee.sk.digidoc.Signature jDigiDocOrigin;
+  private SignatureInterface signature;
 
-  /**
-   * Signature default constructor
-   *
-   * @param signatureValue aa
-   * @param signer         ss
-   */
-  public Signature(byte[] signatureValue, Signer signer) {
-    this.signatureValue = signatureValue;
-    this.signerInformation = signer.getSignerInformation();
-    this.signerRoles = signer.getSignerRoles();
-    this.certificate = signer.getCertificate();
+  public Signature(ee.sk.digidoc.Signature signature) {
+    this.signature = new DDocSignature(signature);
   }
 
-  public Signature(byte[] signatureValue) {
-    this.signatureValue = signatureValue;
+  public Signature(byte[] signatureValue, SignatureParameters signatureParameters) {
+    signature = new BDocSignature(signatureValue, signatureParameters);
   }
 
-  public void setSigningTime(Date signingTime) {
-    this.signingTime = signingTime;
-  }
-
-  public void setSignerRoles(List<String> roles) {
-    signerRoles = roles;
-  }
-
-  public void setSignerInformation(SignerInformation signerInformation) {
-    this.signerInformation = signerInformation;
-  }
-
+  @Override
   public void setCertificate(X509Cert cert) {
-    this.certificate = cert;
+    signature.setCertificate(cert);
   }
 
-  public void setJDigiDocOrigin(ee.sk.digidoc.Signature jDigiDocOrigin) {
-    this.jDigiDocOrigin = jDigiDocOrigin;
-  }
-
-  /**
-   * Returns the signature production city.
-   *
-   * @return production city
-   */
+  @Override
   public String getCity() {
-    return signerInformation.getCity();
+    return signature.getCity();
   }
 
-  /**
-   * Returns the signature production country.
-   *
-   * @return production country
-   */
+  @Override
   public String getCountryName() {
-    return signerInformation.getCountry();
+    return signature.getCountryName();
   }
 
-  /**
-   * Returns the signature id.
-   *
-   * @return id
-   */
+  @Override
   public String getId() {
-    return jDigiDocOrigin.getId();
+    return signature.getId();
   }
 
-  /**
-   * Returns the signature OCSP response nonce.
-   *
-   * @return OCSP response nonce
-   */
+  @Override
   public byte[] getNonce() {
     return null;
   }
 
-  /**
-   * Returns the signature OCSP responder certificate.
-   *
-   * @return OCSP responder certificate
-   */
+  @Override
   public X509Cert getOCSPCertificate() {
-    return new X509Cert(jDigiDocOrigin.findResponderCert());
+    return signature.getOCSPCertificate();
   }
 
-  /**
-   * Returns the BDoc signature policy. If the container is DDoc then it returns an empty string.
-   *
-   * @return signature policy
-   */
+  @Override
   public String getPolicy() {
-    return "";
+    return signature.getPolicy();
   }
 
-  /**
-   * Returns the signature production postal code.
-   *
-   * @return postal code
-   */
+  @Override
   public String getPostalCode() {
-    return signerInformation.getPostalCode();
+    return signature.getPostalCode();
   }
 
-  /**
-   * Returns the signature OCSP producedAt timestamp if exists. Otherwise returns null
-   *
-   * @return producedAt timestamp
-   */
+  @Override
   public Date getProducedAt() {
-    return jDigiDocOrigin.getSignatureProducedAtTime();
+    return signature.getProducedAt();
   }
 
-  /**
-   * Returns the signature profile.
-   *
-   * @return profile
-   */
+  @Override
   public SignatureProfile getProfile() {
-    return "TM".equals(jDigiDocOrigin.getProfile()) ? SignatureProfile.TM : SignatureProfile.TS;
+    return signature.getProfile();
   }
 
-  /**
-   * Returns the signature method that was used for signing.
-   *
-   * @return signature method
-   */
+  @Override
   public String getSignatureMethod() {
-    return jDigiDocOrigin.getSignedInfo().getSignatureMethod();
+    return signature.getSignatureMethod();
   }
 
-  /**
-   * Returns the signer's roles.
-   *
-   * @return signer roles
-   */
+  @Override
   public List<String> getSignerRoles() {
-    return signerRoles;
+    return signature.getSignerRoles();
   }
 
-  /**
-   * Returns the signature certificate that was used for signing.
-   *
-   * @return signature certificate
-   */
+  @Override
   public X509Cert getSigningCertificate() {
-    return certificate;
+    return signature.getSigningCertificate();
   }
 
-  /**
-   * Returns the computer's time of signing.
-   *
-   * @return signing time
-   */
+  @Override
   public Date getSigningTime() {
-    return signingTime;
+    return signature.getSigningTime();
   }
 
-  /**
-   * Returns the BDoc signature policy uri. If the container is DDoc then it returns null.
-   *
-   * @return signature policy uri
-   */
+  @Override
   public URI getSignaturePolicyURI() {
-    return null;
+    return signature.getSignaturePolicyURI();
   }
 
-  /**
-   * Returns the signature production state or province.
-   *
-   * @return production state or province
-   */
+  @Override
   public String getStateOrProvince() {
-    return signerInformation.getStateOrProvince();
+    return signature.getStateOrProvince();
   }
 
-  /**
-   * Returns the signature TimeStampToken certificate.
-   *
-   * @return TimeStampToken certificate
-   */
+  @Override
   public X509Cert getTimeStampTokenCertificate() {
-    throw new NotYetImplementedException();
+    return signature.getTimeStampTokenCertificate();
   }
 
-  /**
-   * Validates the signature. In case of DDOC makes full validation.
-   *
-   * @param validationType type of validation
-   */
+  @Override
   public List<DigiDoc4JException> validate(Validate validationType) {
     return validate();
   }
 
-  /**
-   * Validates the signature using Validate.VALIDATE_FULL method.
-   *
-   * @return returns list of validation exceptions. NB! legacy it can be changed!!!
-   */
+  @Override
   public List<DigiDoc4JException> validate() {
-    List<DigiDoc4JException> validationErrors = new ArrayList<DigiDoc4JException>();
-    ArrayList validationResult = jDigiDocOrigin.verify(jDigiDocOrigin.getSignedDoc(), true, true);
-    for (Object exception : validationResult) {
-      validationErrors.add(new DigiDoc4JException((Exception)exception));
-    }
-    return validationErrors;
+    return signature.validate();
   }
 
-  /**
-   * Returns raw signature
-   *
-   * @return signature value as byte array
-   */
+  @Override
   public byte[] getRawSignature() {
-    if (jDigiDocOrigin == null)
-      return signatureValue;
-    return
-      jDigiDocOrigin.getOrigContent();
+    return signature.getRawSignature();
   }
 }

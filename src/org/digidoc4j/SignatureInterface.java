@@ -4,22 +4,13 @@ import java.util.Date;
 import java.util.List;
 
 import org.digidoc4j.api.X509Cert;
-import org.digidoc4j.utils.SignerInformation;
 
 /**
  * Signature interface. Provides an interface for handling a signature and the corresponding OCSP response properties.
  */
 public interface SignatureInterface {
 
-  public void setSigningTime(Date signingTime);
-
-  public void setSignerRoles(List<String> roles);
-
-  public void setSignerInformation(SignerInformation signerInformation);
-
   public void setCertificate(X509Cert cert);
-
-  public void setJDigiDocOrigin(ee.sk.digidoc.Signature jDigiDocOrigin);
 
   /**
    * Signature validation types.

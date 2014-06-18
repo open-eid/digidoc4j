@@ -131,10 +131,7 @@ public class BDocContainer implements ContainerInterface {
     byte[] signatureValue = signer.sign(signatureParameters.getDigestAlgorithm().getXmlId(), dataToSign);
     signedDocument = aSiCEService.signDocument(toSignDocument, signatureParameters, signatureValue);
 
-    Signature signature = new Signature(signatureValue, signer);
-    signature.setSigningTime(signatureParameters.bLevel().getSigningDate());
-
-    return signature;
+    return new Signature(signatureValue, signatureParameters);
   }
 
   private void setTSL() {

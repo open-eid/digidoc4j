@@ -19,7 +19,6 @@ import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.Signer;
 import org.digidoc4j.api.X509Cert;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.digidoc4j.utils.SignerInformation;
 
 import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
 
@@ -107,14 +106,15 @@ public class DDocContainer implements ContainerInterface {
   public List<DataFile> getDataFiles() {
     List<DataFile> dataFiles = new ArrayList<DataFile>();
     ArrayList ddocDataFiles = ddoc.getDataFiles();
-    for (int i = 0; i < ddocDataFiles.size(); i++) {
-      ee.sk.digidoc.DataFile dataFile = (ee.sk.digidoc.DataFile)ddocDataFiles.get(i);
+    for (Object ddocDataFile : ddocDataFiles) {
+      ee.sk.digidoc.DataFile dataFile = (ee.sk.digidoc.DataFile)ddocDataFile;
       try {
         if (dataFile.getBody() == null)
           dataFiles.add(new DataFile(dataFile.getFileName(), dataFile.getMimeType()));
         else
           dataFiles.add(new DataFile(dataFile.getBody(), dataFile.getFileName(), dataFile.getMimeType()));
-      } catch (DigiDocException e) {
+      }
+      catch (DigiDocException e) {
         throw new DigiDoc4JException(e);
       }
     }
@@ -171,9 +171,6 @@ public class DDocContainer implements ContainerInterface {
                                         new SignatureProductionPlace(signer.getCity(), signer.getStateOrProvince(),
                                                                      signer.getCountry(), signer.getPostalCode()));
 
-//      Pkcs12SignatureFactory sf = new Pkcs12SignatureFactory();
-//      sf.load("signout.p12", "PKCS12", "test");
-//      signature.setSignatureValue(sf.sign(signature.calculateSignedInfoXML(), 0, "test", signature));
       signature.setSignatureValue(signer.sign(DigestAlgorithm.SHA1.getXmlId(), signature.calculateSignedInfoXML()));
 
       signature.getConfirmation();
@@ -181,11 +178,7 @@ public class DDocContainer implements ContainerInterface {
       throw new DigiDoc4JException(e);
     }
 
-    Signature finalSignature = new Signature(signature.getSignatureValue().getValue(), signer);
-    finalSignature.setSigningTime(signature.getSignatureProducedAtTime());
-    finalSignature.setJDigiDocOrigin(signature);
-
-    return finalSignature;
+    return new Signature(signature);
   }
 
   @Override
@@ -202,27 +195,10 @@ public class DDocContainer implements ContainerInterface {
   }
 
   private Signature mapJDigiDocSignatureToDigidoc4J(ee.sk.digidoc.Signature signature) {
-    Signature finalSignature = new Signature(signature.getSignatureValue().getValue());
+    Signature finalSignature = new Signature(signature);
     finalSignature.setCertificate(new X509Cert(signature.getLastCertValue().getCert())); //TODO can be several certs
-    finalSignature.setSigningTime(signature.getSignatureProducedAtTime());
-    finalSignature.setSignerRoles(getRolesFromSignedProperties(signature));
-    finalSignature.setSignerInformation(
-      new SignerInformation(signature.getSignedProperties().getSignatureProductionPlace().getCity(),
-                            signature.getSignedProperties().getSignatureProductionPlace().getStateOrProvince(),
-                            signature.getSignedProperties().getSignatureProductionPlace().getPostalCode(),
-                            signature.getSignedProperties().getSignatureProductionPlace().getCountryName(), ""));
-    finalSignature.setJDigiDocOrigin(signature);
     //TODO check logic about one role versus several roles
     return finalSignature;
-  }
-
-  private List<String> getRolesFromSignedProperties(ee.sk.digidoc.Signature signature) {
-    List<String> roles = new ArrayList<String>();
-    int numberOfRoles = signature.getSignedProperties().countClaimedRoles();
-    for (int i = 0; i < numberOfRoles; i++) {
-      roles.add(signature.getSignedProperties().getClaimedRole(i));
-    }
-    return roles;
   }
 
   @Override public DocumentType getDocumentType() {
