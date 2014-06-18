@@ -4,7 +4,6 @@ import java.security.cert.CertificateEncodingException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.ContainerInterface;
-import org.digidoc4j.SignatureInterface;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.utils.PKCS12Signer;
@@ -13,6 +12,7 @@ import org.junit.Test;
 
 import static java.util.Arrays.asList;
 import static org.digidoc4j.ContainerInterface.DocumentType.DDOC;
+import static org.digidoc4j.SignatureInterface.Validate.VALIDATE_FULL;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -127,13 +127,18 @@ public class SignatureTest {
 
   @Test
   public void testValidation() {
-    assertEquals(0, getSignature().validate(SignatureInterface.Validate.VALIDATE_FULL).size());
+    assertEquals(0, getSignature().validate(VALIDATE_FULL).size());
+  }
+
+  @Test
+  public void testValidationNoParameters() {
+    assertEquals(0, getSignature().validate().size());
   }
 
   @Test
   public void testValidationWithInvalidDocument() {
     Container container = new Container("changed_digdoc_test.ddoc");
-    assertEquals(6, container.getSignatures().get(0).validate(SignatureInterface.Validate.VALIDATE_FULL).size());
+    assertEquals(6, container.getSignatures().get(0).validate(VALIDATE_FULL).size());
   }
 
   @Test
