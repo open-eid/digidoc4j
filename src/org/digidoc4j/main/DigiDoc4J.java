@@ -19,14 +19,6 @@ import static org.digidoc4j.ContainerInterface.DocumentType.DDOC;
  */
 public final class DigiDoc4J {
 
-  private DigiDoc4J() {
-
-  }
-
-  /**
-   * @param args args for main method. No arguments are actually used
-   * @throws Exception throws exception if the command cannot be executed successfully
-   */
   public static void main(String[] args) {
     Options options = createParameters();
 
