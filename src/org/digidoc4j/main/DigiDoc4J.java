@@ -4,13 +4,13 @@ import java.io.File;
 import java.util.List;
 
 import org.apache.commons.cli.*;
-import org.digidoc4j.ContainerInterface;
 import org.digidoc4j.api.Container;
 import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.Signer;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.utils.PKCS12Signer;
 
+import static org.digidoc4j.ContainerInterface.DocumentType;
 import static org.digidoc4j.ContainerInterface.DocumentType.ASIC;
 import static org.digidoc4j.ContainerInterface.DocumentType.DDOC;
 
@@ -41,12 +41,12 @@ public final class DigiDoc4J {
     boolean fileHasChanged = false;
 
     String inputFile = commandLine.getOptionValue("in");
-    ContainerInterface.DocumentType type = getContainerType(commandLine);
+    DocumentType type = getContainerType(commandLine);
 
     checkSupportedFunctionality(type);
 
     try {
-      Container container = new Container(DDOC);
+      Container container = new Container(type);
 
       if (new File(inputFile).exists())
         container = new Container(inputFile);
@@ -79,14 +79,14 @@ public final class DigiDoc4J {
     }
   }
 
-  private static void checkSupportedFunctionality(ContainerInterface.DocumentType type) {
-    if (type == ContainerInterface.DocumentType.ASIC) {
+  private static void checkSupportedFunctionality(DocumentType type) {
+    if (type == DocumentType.ASIC) {
       System.out.println("BDOC format is not supported yet");
       System.exit(1);
     }
   }
 
-  private static ContainerInterface.DocumentType getContainerType(CommandLine commandLine) {
+  private static DocumentType getContainerType(CommandLine commandLine) {
     if ("BDOC".equals(commandLine.getOptionValue("type")))
       return ASIC;
     return DDOC;
