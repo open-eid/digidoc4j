@@ -18,8 +18,8 @@ public class DDocSignature implements SignatureInterface {
   private X509Cert certificate;
   private ee.sk.digidoc.Signature origin;
 
-  public DDocSignature(ee.sk.digidoc.Signature origin) {
-    this.origin = origin;
+  public DDocSignature(ee.sk.digidoc.Signature signature) {
+    this.origin = signature;
   }
 
   @Override
