@@ -49,7 +49,7 @@ public class Signature implements SignatureInterface {
 
   @Override
   public byte[] getNonce() {
-    return null;
+    return signature.getNonce();
   }
 
   @Override
@@ -114,7 +114,7 @@ public class Signature implements SignatureInterface {
 
   @Override
   public List<DigiDoc4JException> validate(Validate validationType) {
-    return validate();
+    return signature.validate(validationType);
   }
 
   @Override
