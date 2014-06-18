@@ -134,7 +134,7 @@ public interface ContainerInterface {
   List<Signature> getSignatures();
 
   /**
-   * Returns document type AISC or DDOC
+   * Returns document type ASiC or DDOC
    *
    * @return document type
    */
