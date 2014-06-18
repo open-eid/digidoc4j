@@ -4,12 +4,14 @@ import java.io.File;
 import java.util.List;
 
 import org.apache.commons.cli.*;
+import org.digidoc4j.ContainerInterface;
 import org.digidoc4j.api.Container;
 import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.Signer;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.utils.PKCS12Signer;
 
+import static org.digidoc4j.ContainerInterface.DocumentType.ASIC;
 import static org.digidoc4j.ContainerInterface.DocumentType.DDOC;
 
 /**
@@ -45,7 +47,12 @@ public final class DigiDoc4J {
 
   private static void run(CommandLine commandLine) {
     boolean fileHasChanged = false;
+
     String inputFile = commandLine.getOptionValue("in");
+    ContainerInterface.DocumentType type = getContainerType(commandLine);
+
+    checkSupportedFunctionality(type);
+
     try {
       Container container = new Container(DDOC);
 
@@ -80,6 +87,19 @@ public final class DigiDoc4J {
     }
   }
 
+  private static void checkSupportedFunctionality(ContainerInterface.DocumentType type) {
+    if (type == ContainerInterface.DocumentType.ASIC) {
+      System.out.println("BDOC format is not supported yet");
+      System.exit(1);
+    }
+  }
+
+  private static ContainerInterface.DocumentType getContainerType(CommandLine commandLine) {
+    if ("BDOC".equals(commandLine.getOptionValue("type")))
+      return ASIC;
+    return DDOC;
+  }
+
   private static void pkcs12Sign(CommandLine commandLine, Container container) {
     String[] optionValues = commandLine.getOptionValues("pkcs12");
     Signer pkcs12Signer = new PKCS12Signer(optionValues[0], optionValues[1]);
@@ -104,21 +124,44 @@ public final class DigiDoc4J {
 
   private static Options createParameters() {
     Options options = new Options();
-    options.addOption("v", "verify", false, "verify command");
+    options.addOption("v", "verify", false, "verify input file");
 
+    options.addOption(type());
+    options.addOption(inputFile());
+    options.addOption(addFile());
+    options.addOption(removeFile());
+    options.addOption(pkcs12Sign());
+
+    return options;
+  }
+
+  private static Option pkcs12Sign() {
+    return OptionBuilder.withArgName("pkcs12Keystore password").hasArgs(2).withValueSeparator(' ')
+      .withDescription("sets pkcs12 keystore and keystore password").create("pkcs12");
+  }
+
+  private static Option removeFile() {
+    return OptionBuilder.withArgName("file").hasArg()
+      .withDescription("removes file from container").create("remove");
+  }
+
+  private static Option addFile() {
+    return OptionBuilder.withArgName("file mime-type").hasArgs(2)
+      .withDescription("adds file specified with mime type to container").create("add");
+  }
+
+  private static Option inputFile() {
     Option inputFile = OptionBuilder.withArgName("file").hasArg()
       .withDescription("opens or creates container").create("in");
     inputFile.setRequired(true);
-    options.addOption(inputFile);
+    return inputFile;
+  }
 
-    options.addOption(OptionBuilder.withArgName("file mime-type").hasArgs(2)
-                        .withDescription("adds file specified with mime type to container").create("add"));
-    options.addOption(OptionBuilder.withArgName("file").hasArg()
-                        .withDescription("removes file from container").create("remove"));
-    options.addOption(OptionBuilder.withArgName("pkcs12Keystore password").hasArgs(2).withValueSeparator(' ')
-                        .withDescription("sets pkcs12 keystore and keystore password").create("pkcs12"));
-
-    return options;
+  private static Option type() {
+    Option type = OptionBuilder.withArgName("type").hasArg()
+      .withDescription("sets container type. types can be DDOC or BDOC").create("t");
+    type.setLongOpt("type");
+    return type;
   }
 }
 
