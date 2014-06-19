@@ -28,13 +28,17 @@ public final class DigiDoc4J {
       commandLine = new BasicParser().parse(options, args);
     }
     catch (ParseException e) {
-      new HelpFormatter().printHelp("digido4j", options);
-      System.exit(1);
+      showUsageAndExit(options);
     }
 
     run(commandLine);
 
     System.exit(0);
+  }
+
+  private static void showUsageAndExit(Options options) {
+    new HelpFormatter().printHelp("digido4j", options);
+    System.exit(2);
   }
 
   private static void run(CommandLine commandLine) {
@@ -43,7 +47,7 @@ public final class DigiDoc4J {
     String inputFile = commandLine.getOptionValue("in");
     DocumentType type = getContainerType(commandLine);
 
-    checkSupportedFunctionality(type);
+    checkSupportedFunctionality(commandLine);
 
     try {
       Container container = new Container(type);
@@ -79,10 +83,18 @@ public final class DigiDoc4J {
     }
   }
 
-  private static void checkSupportedFunctionality(DocumentType type) {
-    if (type == DocumentType.ASIC) {
+  private static void checkSupportedFunctionality(CommandLine commandLine) {
+    if (getContainerType(commandLine) == DocumentType.ASIC) {
       System.out.println("BDOC format is not supported yet");
-      System.exit(1);
+      System.exit(2);
+    }
+
+    if (commandLine.hasOption("add")) {
+      String[] optionValues = commandLine.getOptionValues("add");
+      if (optionValues.length != 2) {
+        System.out.println("Incorrect add command");
+        System.exit(2);
+      }
     }
   }
 
@@ -138,8 +150,9 @@ public final class DigiDoc4J {
   }
 
   private static Option addFile() {
-    return OptionBuilder.withArgName("file mime-type").hasArgs(2)
+    Option option = OptionBuilder.withArgName("file mime-type").hasArgs(2)
       .withDescription("adds file specified with mime type to container").create("add");
+    return option;
   }
 
   private static Option inputFile() {
