@@ -5,4 +5,4 @@ for i in lib/*.jar; do
 	CLASSPATH="$CLASSPATH:$i"
 done
 
-java -Xmx512m -classpath $CLASSPATH org.digidoc4j.main.DigiDoc4J "$@"
+java -Xmx128m -classpath $CLASSPATH org.digidoc4j.main.DigiDoc4J "$@"
