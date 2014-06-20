@@ -73,9 +73,8 @@ public class DataFile {
    *
    * @param method method uri for calculating the digest
    * @return calculated digest
-   * @throws Exception thrown if the file does not exist or the digest calculation fails.
    */
-  public byte[] calculateDigest(URL method) throws Exception {        // TODO exceptions to throw
+  public byte[] calculateDigest(URL method) {        // TODO exceptions to throw
     if (digest == null) {
       DigestAlgorithm digestAlgorithm = DigestAlgorithm.forXML(method.toString());
       digest = new Digest(digestAlgorithm, calculateDigestInternal(digestAlgorithm));
@@ -83,7 +82,7 @@ public class DataFile {
     return digest.getValue();
   }
 
-  protected byte[] calculateDigestInternal(DigestAlgorithm digestAlgorithm) {
+  byte[] calculateDigestInternal(DigestAlgorithm digestAlgorithm) {
     return DSSUtils.digest(digestAlgorithm, document.getBytes());
   }
 
@@ -120,7 +119,6 @@ public class DataFile {
    * Saves a copy of the data file as a file to the specified stream.
    *
    * @param out stream where data is written to
-   * @throws java.io.IOException is thrown when it's not possible to write to the stream
    */
   public void saveAs(OutputStream out) throws IOException {
     out.write(document.getBytes());
@@ -130,11 +128,9 @@ public class DataFile {
    * Saves a copy of the data file as a file with the specified file name.
    *
    * @param path full file path where the data file should be saved to. If the file exists it will be overwritten
-   * @throws java.io.IOException thrown if part of the path does not exist
-   *                             or the path is an existing directory (without file name)
    */
   //TODO exception - method throws DSSException which can be caused by other exceptions
-  public void saveAs(String path) throws IOException {
+  public void saveAs(String path) {
     document.save(path);
   }
 }

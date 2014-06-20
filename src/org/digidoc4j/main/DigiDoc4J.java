@@ -150,9 +150,8 @@ public final class DigiDoc4J {
   }
 
   private static Option addFile() {
-    Option option = OptionBuilder.withArgName("file mime-type").hasArgs(2)
+    return OptionBuilder.withArgName("file mime-type").hasArgs(2)
       .withDescription("adds file specified with mime type to container").create("add");
-    return option;
   }
 
   private static Option inputFile() {

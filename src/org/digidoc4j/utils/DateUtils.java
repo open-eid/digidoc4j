@@ -12,7 +12,7 @@ public class DateUtils {
     return isInRangeOneMinute(new Date(), date);
   }
 
-  static boolean isInRangeOneMinute(Date date1, Date date2) {
+  private static boolean isInRangeOneMinute(Date date1, Date date2) {
     Date latestTime = org.apache.commons.lang.time.DateUtils.addSeconds(date2, 5);
     Date earliestTime = org.apache.commons.lang.time.DateUtils.addSeconds(date2, -5);
     return date1.before(latestTime) && date1.after(earliestTime);

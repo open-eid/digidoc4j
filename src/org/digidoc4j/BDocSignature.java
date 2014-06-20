@@ -10,7 +10,7 @@ import org.digidoc4j.api.X509Cert;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 
 public class BDocSignature implements SignatureInterface {
-  private SignatureParameters signatureParameters;
+  final private SignatureParameters signatureParameters;
 
   public BDocSignature(byte[] signatureValue, SignatureParameters signatureParameters) {
     this.signatureParameters = signatureParameters;
