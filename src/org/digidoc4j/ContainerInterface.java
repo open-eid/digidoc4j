@@ -45,7 +45,7 @@ public interface ContainerInterface {
     /**
      * Time-stamp.
      */
-    TS;
+    TS
   }
 
   /**
