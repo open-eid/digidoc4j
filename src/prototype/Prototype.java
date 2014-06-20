@@ -28,13 +28,7 @@ import java.security.cert.X509Certificate;
  * Prototype for testing purposes
  */
 public class Prototype {
-  /**
-   * @param args List of arguments for main method. No arguments expected
-   * @throws CertificateException     if there is a problem with the certificate
-   * @throws NoSuchAlgorithmException if the cryptographic algorithm is unknown
-   * @throws KeyStoreException        if there is a generic KeyStore exception
-   * @throws IOException              if there is any IO failure
-   */
+
   public static void main(String[] args) throws CertificateException, NoSuchAlgorithmException,
                                                 KeyStoreException, IOException {
     //sign();
