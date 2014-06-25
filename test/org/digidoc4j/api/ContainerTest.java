@@ -1,11 +1,5 @@
 package org.digidoc4j.api;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.security.cert.CertificateEncodingException;
-import java.util.List;
-
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
@@ -14,6 +8,12 @@ import org.digidoc4j.utils.PKCS12Signer;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.security.cert.CertificateEncodingException;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
@@ -268,9 +268,8 @@ public class ContainerTest {
 
   @Test
   public void testOpenCreatedDDocFile() throws Exception {
-    Container container1 = new Container(DDOC);
-    container1.addDataFile("test.txt", TEXT_MIME_TYPE);
-    Container container = container1;
+    Container container = new Container(DDOC);
+    container.addDataFile("test.txt", TEXT_MIME_TYPE);
     container.save("testOpenCreatedDDocFile.ddoc");
     Container containerForReading = new Container("testOpenCreatedDDocFile.ddoc");
     assertEquals(DDOC, containerForReading.getDocumentType());
