@@ -1,14 +1,14 @@
 package org.digidoc4j.main;
 
-import java.io.File;
-import java.util.List;
-
 import org.apache.commons.cli.*;
 import org.digidoc4j.api.Container;
 import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.Signer;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.utils.PKCS12Signer;
+
+import java.io.File;
+import java.util.List;
 
 import static org.digidoc4j.ContainerInterface.DocumentType;
 import static org.digidoc4j.ContainerInterface.DocumentType.ASIC;
@@ -28,7 +28,7 @@ public final class DigiDoc4J {
       commandLine = new BasicParser().parse(options, args);
     }
     catch (ParseException e) {
-      new HelpFormatter().printHelp("digido4j", options);
+      new HelpFormatter().printHelp("digidoc4j", options);
       System.exit(1);
     }
 
