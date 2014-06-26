@@ -32,14 +32,14 @@ public class Container implements ContainerInterface {
    * @param documentType container type
    */
   public Container(DocumentType documentType) {
-    if (documentType == DocumentType.ASIC)
+    if (documentType == DocumentType.ASIC_E)
       containerImplementation = new BDocContainer();
     else
       containerImplementation = new DDocContainer();
   }
 
   /**
-   * Create a new container object of ASIC type Container.
+   * Create a new container object of ASIC_E type Container.
    */
   public Container() {
     containerImplementation = new BDocContainer();
@@ -115,6 +115,10 @@ public class Container implements ContainerInterface {
   @Override
   public DocumentType getDocumentType() {
     return containerImplementation.getDocumentType();
+  }
+
+  @Override public void setDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+    containerImplementation.setDigestAlgorithm(digestAlgorithm);
   }
 }
 

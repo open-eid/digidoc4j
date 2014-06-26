@@ -229,7 +229,7 @@ public class ContainerTest {
   @Test
   @Ignore("Not working in Ubuntu check later when jDigiDoc is implemented.")
   public void testCreateAsicContainerSpecifiedByDocumentTypeForBDoc() throws Exception {
-    Container asicContainer = new Container(Container.DocumentType.ASIC);
+    Container asicContainer = new Container(Container.DocumentType.ASIC_E);
     asicContainer.addDataFile("test.txt", TEXT_MIME_TYPE);
     asicContainer.sign(new PKCS12Signer("signout.p12", "test"));
     asicContainer.save("test.bdoc");

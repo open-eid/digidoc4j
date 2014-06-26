@@ -1,6 +1,5 @@
 package org.digidoc4j;
 
-import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.parameter.BLevelParameters;
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
@@ -55,7 +54,7 @@ public class BDocContainer implements ContainerInterface {
     signatureParameters = new SignatureParameters();
     signatureParameters.setSignatureLevel(SignatureLevel.ASiC_E_BASELINE_B);
     signatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
-    signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
+    signatureParameters.setDigestAlgorithm(eu.europa.ec.markt.dss.DigestAlgorithm.SHA256);
     commonCertificateVerifier = new CommonCertificateVerifier();
 
     aSiCEService = new ASiCEService(commonCertificateVerifier);
@@ -68,7 +67,7 @@ public class BDocContainer implements ContainerInterface {
    * @param path container file name with path
    */
   public BDocContainer(String path) {
-    throw new NotYetImplementedException();
+    signedDocument = new FileDocument(path);
   }
 
   @Override
@@ -170,7 +169,11 @@ public class BDocContainer implements ContainerInterface {
 
   @Override
   public DocumentType getDocumentType() {
-    return DocumentType.ASIC;
+    return DocumentType.ASIC_E;
+  }
+
+  @Override public void setDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+
   }
 }
 

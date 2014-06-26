@@ -11,7 +11,7 @@ import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.utils.PKCS12Signer;
 
 import static org.digidoc4j.ContainerInterface.DocumentType;
-import static org.digidoc4j.ContainerInterface.DocumentType.ASIC;
+import static org.digidoc4j.ContainerInterface.DocumentType.ASIC_E;
 import static org.digidoc4j.ContainerInterface.DocumentType.DDOC;
 
 /**
@@ -84,7 +84,7 @@ public final class DigiDoc4J {
   }
 
   private static void checkSupportedFunctionality(CommandLine commandLine) {
-    if (getContainerType(commandLine) == DocumentType.ASIC) {
+    if (getContainerType(commandLine) == DocumentType.ASIC_E) {
       System.out.println("BDOC format is not supported yet");
       System.exit(2);
     }
@@ -100,7 +100,7 @@ public final class DigiDoc4J {
 
   private static DocumentType getContainerType(CommandLine commandLine) {
     if ("BDOC".equals(commandLine.getOptionValue("type")))
-      return ASIC;
+      return ASIC_E;
     return DDOC;
   }
 

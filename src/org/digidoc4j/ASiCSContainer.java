@@ -1,6 +1,5 @@
 package org.digidoc4j;
 
-import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.parameter.BLevelParameters;
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
@@ -8,16 +7,22 @@ import eu.europa.ec.markt.dss.signature.FileDocument;
 import eu.europa.ec.markt.dss.signature.SignatureLevel;
 import eu.europa.ec.markt.dss.signature.SignaturePackaging;
 import eu.europa.ec.markt.dss.signature.asic.ASiCEService;
+import eu.europa.ec.markt.dss.signature.token.AbstractSignatureTokenConnection;
+import eu.europa.ec.markt.dss.signature.token.DSSPrivateKeyEntry;
+import eu.europa.ec.markt.dss.signature.token.Pkcs12SignatureToken;
 import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
+import eu.europa.ec.markt.dss.validation102853.condition.ServiceInfo;
 import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
+import prototype.MockServiceInfo;
 import prototype.SKOnlineOCSPSource;
 
 import java.io.InputStream;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,15 +38,7 @@ import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
- * Offers functionality for handling data files and signatures in a container.
- * <p>
- * A container can contain several files and all those files can be signed using signing certificates.
- * A container can only be signed if it contains data files.
- * </p><p>
- * Data files can be added and removed from a container only if the container is not signed.
- * To modify the data list of a signed container by adding or removing datafiles you must first
- * remove all the signatures.
- * </p>
+ * Experimental code to implement ASiC-S container. There is lot's of duplication with BDocContainer. When experimenting is finished duplication is removed
  */
 public class ASiCSContainer implements ContainerInterface {
 
@@ -50,15 +47,15 @@ public class ASiCSContainer implements ContainerInterface {
   final private Map<String, DataFile> dataFiles = new HashMap<String, DataFile>();
   private SignatureParameters signatureParameters;
   private DSSDocument signedDocument;
+  eu.europa.ec.markt.dss.DigestAlgorithm digestAlgorithm = eu.europa.ec.markt.dss.DigestAlgorithm.SHA256;
 
   /**
-   * Create a new container object of ASIC type Container.
+   * Create a new container object of ASIC_E type Container.
    */
   public ASiCSContainer() {
     signatureParameters = new SignatureParameters();
     signatureParameters.setSignatureLevel(SignatureLevel.ASiC_E_BASELINE_B);
     signatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
-    signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
     commonCertificateVerifier = new CommonCertificateVerifier();
 
     aSiCEService = new ASiCEService(commonCertificateVerifier);
@@ -151,6 +148,7 @@ public class ASiCSContainer implements ContainerInterface {
   }
 
   private void addSignerInformation(Signer signer) {
+    signatureParameters.setDigestAlgorithm(digestAlgorithm);
     BLevelParameters bLevelParameters = signatureParameters.bLevel();
     SignerLocation signerLocation = new SignerLocation();
 
@@ -168,9 +166,12 @@ public class ASiCSContainer implements ContainerInterface {
   public void verify() {
     documentMustBeInitializedCheck();
 
-    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
-    //SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(signedDocument);˜                       ˜
+    AbstractSignatureTokenConnection token = new Pkcs12SignatureToken("test", "signout.p12");
+    DSSPrivateKeyEntry privateKey = token.getKeys().get(0);
+    final X509Certificate[] certificateChain = privateKey.getCertificateChain();
+    final X509Certificate trustedCertificate = certificateChain[0];
 
+    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
 
     CommonCertificateVerifier verifier = new CommonCertificateVerifier();
 
@@ -178,12 +179,15 @@ public class ASiCSContainer implements ContainerInterface {
     verifier.setOcspSource(onlineOCSPSource);
 
     TrustedListsCertificateSource trustedCertSource = getTSL();
-    //trustedCertSource.addCertificate(, mockServiceInfo);
+    ServiceInfo mockServiceInfo = new MockServiceInfo();
+
+    trustedCertSource.addCertificate(trustedCertificate, mockServiceInfo);
+
     verifier.setTrustedCertSource(trustedCertSource);
     validator.setCertificateVerifier(verifier);
     validator.validateDocument();
-
     SimpleReport simpleReport = validator.getSimpleReport();
+
     System.out.println(simpleReport);
   }
 
@@ -198,7 +202,11 @@ public class ASiCSContainer implements ContainerInterface {
 
   @Override
   public DocumentType getDocumentType() {
-    return DocumentType.ASIC;
+    return DocumentType.ASIC_E;
+  }
+
+  @Override public void setDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+    this.digestAlgorithm = eu.europa.ec.markt.dss.DigestAlgorithm.forName(digestAlgorithm.name(), eu.europa.ec.markt.dss.DigestAlgorithm.SHA256);
   }
 }
 

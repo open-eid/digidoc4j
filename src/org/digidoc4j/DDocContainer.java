@@ -6,7 +6,6 @@ import ee.sk.digidoc.SignedDoc;
 import ee.sk.digidoc.factory.DigiDocFactory;
 import ee.sk.digidoc.factory.SAXDigiDocFactory;
 import ee.sk.utils.ConfigManager;
-import eu.europa.ec.markt.dss.DigestAlgorithm;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -171,7 +170,7 @@ public class DDocContainer implements ContainerInterface {
                                         new SignatureProductionPlace(signer.getCity(), signer.getStateOrProvince(),
                                                                      signer.getCountry(), signer.getPostalCode()));
 
-      signature.setSignatureValue(signer.sign(DigestAlgorithm.SHA1.getXmlId(), signature.calculateSignedInfoXML()));
+      signature.setSignatureValue(signer.sign(eu.europa.ec.markt.dss.DigestAlgorithm.SHA1.getXmlId(), signature.calculateSignedInfoXML()));
 
       signature.getConfirmation();
     } catch (DigiDocException e) {
@@ -203,6 +202,10 @@ public class DDocContainer implements ContainerInterface {
 
   @Override public DocumentType getDocumentType() {
     return DocumentType.DDOC;
+  }
+
+  @Override public void setDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+
   }
 }
 
