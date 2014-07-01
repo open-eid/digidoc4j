@@ -1,0 +1,3 @@
+[submodule "sd-dss"]
+	path = sd-dss
+	url = ssh://git@stash.ria.ee:7799/baas/sd-dss-mirror.git
