@@ -4,6 +4,10 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -19,7 +23,16 @@ public class HelperTest {
 
   @Test
   public void testIsXMLFileWhenFileIsXMLFile() throws Exception {
-    assertTrue(Helper.isXMLFile(new File("test.xml")));
+    createXMLFile("testIsXMLFileWhenFileIsXMLFile.xml");
+    assertTrue(Helper.isXMLFile(new File("testIsXMLFileWhenFileIsXMLFile.xml")));
+    Files.deleteIfExists(Paths.get("testIsXMLFileWhenFileIsXMLFile.xml"));
+  }
+
+  private void createXMLFile(String fileName) throws IOException {
+    FileWriter writer = new FileWriter(fileName);
+    writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?><test></test>");
+    writer.flush();
+    writer.close();
   }
 
   @Test
