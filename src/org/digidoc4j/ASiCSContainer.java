@@ -66,6 +66,12 @@ public class ASiCSContainer implements ContainerInterface {
    */
   public ASiCSContainer(String path) {
     signedDocument = new FileDocument(path);
+    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
+    DSSDocument externalContent = validator.getExternalContent();
+    dataFiles.put(externalContent.getName(), new DataFile(externalContent.getBytes(), externalContent.getName(),
+        externalContent.getMimeType().name()));
+
+    System.out.println();
   }
 
   @Override
@@ -169,7 +175,6 @@ public class ASiCSContainer implements ContainerInterface {
 
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
     CommonCertificateVerifier verifier = new CommonCertificateVerifier();
-
     SKOnlineOCSPSource onlineOCSPSource = new SKOnlineOCSPSource();
     verifier.setOcspSource(onlineOCSPSource);
 

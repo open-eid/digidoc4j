@@ -79,6 +79,16 @@ public class ASiCSContainerTest {
     assertTrue(container.verify().size() > 0);
   }
 
+  @Test
+  public void testRemoveDataFile() throws Exception {
+    createSignedASicSDocument("testRemoveDataFile.asics");
+    ContainerInterface container = new ASiCSContainer("testRemoveDataFile.asics");
+    assertEquals("test.txt", container.getDataFiles().get(0).getFileName());
+    assertEquals(1, container.getDataFiles().size());
+    container.removeDataFile("test.txt");
+    assertEquals(0, container.getDataFiles().size());
+  }
+
   private ContainerInterface createSignedASicSDocument(String fileName) {
     ASiCSContainer container = new ASiCSContainer();
     container.addDataFile("test.txt", "plain/text");
