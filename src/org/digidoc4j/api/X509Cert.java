@@ -1,5 +1,12 @@
 package org.digidoc4j.api;
 
+import org.apache.commons.lang.StringUtils;
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.DLSequence;
+import org.bouncycastle.util.encoders.Hex;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -8,13 +15,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.*;
-
-import org.apache.commons.lang.StringUtils;
-import org.bouncycastle.asn1.ASN1Encodable;
-import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.DLSequence;
-import org.bouncycastle.util.encoders.Hex;
 
 
 /**
@@ -94,7 +94,7 @@ public class X509Cert {
    */
   X509Cert(String path) throws Exception {
     CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-    originalCert = (X509Certificate)certificateFactory.generateCertificate(new FileInputStream(new File(path)));
+    originalCert = (X509Certificate) certificateFactory.generateCertificate(new FileInputStream(new File(path)));
   }
 
   /**
@@ -107,12 +107,12 @@ public class X509Cert {
     byte[] extensionValue = originalCert.getExtensionValue("2.5.29.32");
     List<String> policies = new ArrayList<String>();
 
-    byte[] octets = ((DEROctetString)DEROctetString.fromByteArray(extensionValue)).getOctets();
-    ASN1Sequence sequence = (ASN1Sequence)ASN1Sequence.fromByteArray(octets);
+    byte[] octets = ((DEROctetString) DEROctetString.fromByteArray(extensionValue)).getOctets();
+    ASN1Sequence sequence = (ASN1Sequence) ASN1Sequence.fromByteArray(octets);
 
     Enumeration sequenceObjects = sequence.getObjects();
     while (sequenceObjects.hasMoreElements()) {
-      DLSequence next = (DLSequence)sequenceObjects.nextElement();
+      DLSequence next = (DLSequence) sequenceObjects.nextElement();
       Object objectAt = next.getObjectAt(0);
       if (objectAt instanceof ASN1Encodable) {
         policies.add(objectAt.toString());
@@ -172,11 +172,9 @@ public class X509Cert {
   public boolean isValid(Date date) {
     try {
       originalCert.checkValidity(date);
-    }
-    catch (CertificateExpiredException e) {
+    } catch (CertificateExpiredException e) {
       return false;
-    }
-    catch (CertificateNotYetValidException e) {
+    } catch (CertificateNotYetValidException e) {
       return false;
     }
     return true;
@@ -190,11 +188,9 @@ public class X509Cert {
   public boolean isValid() {
     try {
       originalCert.checkValidity();
-    }
-    catch (CertificateExpiredException e) {
+    } catch (CertificateExpiredException e) {
       return false;
-    }
-    catch (CertificateNotYetValidException e) {
+    } catch (CertificateNotYetValidException e) {
       return false;
     }
     return true;

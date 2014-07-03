@@ -11,6 +11,11 @@ import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
 import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
+import org.digidoc4j.api.DataFile;
+import org.digidoc4j.api.Signature;
+import org.digidoc4j.api.Signer;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import prototype.SKOnlineOCSPSource;
 
 import java.io.InputStream;
@@ -18,12 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.digidoc4j.api.DataFile;
-import org.digidoc4j.api.Signature;
-import org.digidoc4j.api.Signer;
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.digidoc4j.api.exceptions.NotYetImplementedException;
 
 import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
 import static org.apache.commons.lang.StringUtils.isEmpty;
@@ -159,7 +158,7 @@ public class BDocContainer implements ContainerInterface {
   }
 
   private DataFile getFirstDataFile() {
-    return (DataFile)dataFiles.values().toArray()[0];
+    return (DataFile) dataFiles.values().toArray()[0];
   }
 
   @Override
@@ -172,7 +171,8 @@ public class BDocContainer implements ContainerInterface {
     return DocumentType.ASIC_E;
   }
 
-  @Override public void setDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+  @Override
+  public void setDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
 
   }
 }

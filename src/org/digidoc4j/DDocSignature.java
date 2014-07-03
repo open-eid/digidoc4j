@@ -1,13 +1,13 @@
 package org.digidoc4j;
 
+import org.digidoc4j.api.X509Cert;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.NotYetImplementedException;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import org.digidoc4j.api.X509Cert;
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.digidoc4j.api.exceptions.NotYetImplementedException;
 
 import static org.digidoc4j.ContainerInterface.SignatureProfile;
 
@@ -122,7 +122,7 @@ public class DDocSignature implements SignatureInterface {
     List<DigiDoc4JException> validationErrors = new ArrayList<DigiDoc4JException>();
     ArrayList validationResult = origin.verify(origin.getSignedDoc(), true, true);
     for (Object exception : validationResult) {
-      validationErrors.add(new DigiDoc4JException((Exception)exception));
+      validationErrors.add(new DigiDoc4JException((Exception) exception));
     }
     return validationErrors;
   }

@@ -6,18 +6,17 @@ import ee.sk.digidoc.SignedDoc;
 import ee.sk.digidoc.factory.DigiDocFactory;
 import ee.sk.digidoc.factory.SAXDigiDocFactory;
 import ee.sk.utils.ConfigManager;
+import org.digidoc4j.api.DataFile;
+import org.digidoc4j.api.Signature;
+import org.digidoc4j.api.Signer;
+import org.digidoc4j.api.X509Cert;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.digidoc4j.api.DataFile;
-import org.digidoc4j.api.Signature;
-import org.digidoc4j.api.Signer;
-import org.digidoc4j.api.X509Cert;
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
 
 import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
 
@@ -77,8 +76,8 @@ public class DDocContainer implements ContainerInterface {
   public void addDataFile(InputStream is, String fileName, String mimeType) {
     try {
       ee.sk.digidoc.DataFile dataFile = new ee.sk.digidoc.DataFile(ddoc.getNewDataFileId(),
-                                                                   ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64,
-                                                                   fileName, mimeType, ddoc);
+          ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64,
+          fileName, mimeType, ddoc);
       dataFile.setBodyFromStream(is);
       ddoc.addDataFile(dataFile);
     } catch (DigiDocException e) {
@@ -95,8 +94,7 @@ public class DDocContainer implements ContainerInterface {
   public void addRawSignature(InputStream signatureStream) {
     try {
       ddoc.readSignature(signatureStream);
-    }
-    catch (DigiDocException e) {
+    } catch (DigiDocException e) {
       throw new DigiDoc4JException(e);
     }
   }
@@ -106,14 +104,13 @@ public class DDocContainer implements ContainerInterface {
     List<DataFile> dataFiles = new ArrayList<DataFile>();
     ArrayList ddocDataFiles = ddoc.getDataFiles();
     for (Object ddocDataFile : ddocDataFiles) {
-      ee.sk.digidoc.DataFile dataFile = (ee.sk.digidoc.DataFile)ddocDataFile;
+      ee.sk.digidoc.DataFile dataFile = (ee.sk.digidoc.DataFile) ddocDataFile;
       try {
         if (dataFile.getBody() == null)
           dataFiles.add(new DataFile(dataFile.getFileName(), dataFile.getMimeType()));
         else
           dataFiles.add(new DataFile(dataFile.getBody(), dataFile.getFileName(), dataFile.getMimeType()));
-      }
-      catch (DigiDocException e) {
+      } catch (DigiDocException e) {
         throw new DigiDoc4JException(e);
       }
     }
@@ -129,7 +126,7 @@ public class DDocContainer implements ContainerInterface {
     int index = -1;
     ArrayList ddocDataFiles = ddoc.getDataFiles();
     for (int i = 0; i < ddocDataFiles.size(); i++) {
-      ee.sk.digidoc.DataFile dataFile = (ee.sk.digidoc.DataFile)ddocDataFiles.get(i);
+      ee.sk.digidoc.DataFile dataFile = (ee.sk.digidoc.DataFile) ddocDataFiles.get(i);
       if (dataFile.getFileName().equalsIgnoreCase(file.getName())) index = i;
     }
     if (index == -1) throw new DigiDoc4JException("File not found");
@@ -145,8 +142,7 @@ public class DDocContainer implements ContainerInterface {
   public void removeSignature(int index) {
     try {
       ddoc.removeSignature(index);
-    }
-    catch (DigiDocException e) {
+    } catch (DigiDocException e) {
       throw new DigiDoc4JException(e);
     }
   }
@@ -166,9 +162,9 @@ public class DDocContainer implements ContainerInterface {
     try {
       List<String> signerRoles = signer.getSignerRoles();
       signature = ddoc.prepareSignature(signer.getCertificate().getX509Certificate(),
-                                        signerRoles.toArray(new String[signerRoles.size()]),
-                                        new SignatureProductionPlace(signer.getCity(), signer.getStateOrProvince(),
-                                                                     signer.getCountry(), signer.getPostalCode()));
+          signerRoles.toArray(new String[signerRoles.size()]),
+          new SignatureProductionPlace(signer.getCity(), signer.getStateOrProvince(),
+              signer.getCountry(), signer.getPostalCode()));
 
       signature.setSignatureValue(signer.sign(eu.europa.ec.markt.dss.DigestAlgorithm.SHA1.getXmlId(), signature.calculateSignedInfoXML()));
 
@@ -186,7 +182,7 @@ public class DDocContainer implements ContainerInterface {
     ArrayList dDocSignatures = ddoc.getSignatures();
 
     for (Object signature : dDocSignatures) {
-      Signature finalSignature = mapJDigiDocSignatureToDigidoc4J((ee.sk.digidoc.Signature)signature);
+      Signature finalSignature = mapJDigiDocSignatureToDigidoc4J((ee.sk.digidoc.Signature) signature);
       signatures.add(finalSignature);
     }
 
@@ -200,11 +196,13 @@ public class DDocContainer implements ContainerInterface {
     return finalSignature;
   }
 
-  @Override public DocumentType getDocumentType() {
+  @Override
+  public DocumentType getDocumentType() {
     return DocumentType.DDOC;
   }
 
-  @Override public void setDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+  @Override
+  public void setDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
 
   }
 }

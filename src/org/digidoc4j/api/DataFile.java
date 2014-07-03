@@ -33,8 +33,7 @@ public class DataFile {
       FileInputStream stream = new FileInputStream(path);
       loadDocument(IOUtils.toByteArray(stream), path, mimeType);
       stream.close();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       throw new DigiDoc4JException(e);
     }
   }

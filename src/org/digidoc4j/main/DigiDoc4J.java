@@ -26,14 +26,8 @@ public final class DigiDoc4J {
 
     try {
       commandLine = new BasicParser().parse(options, args);
-    }
-    catch (ParseException e) {
-<<<<<<< HEAD
-      new HelpFormatter().printHelp("digidoc4j", options);
-      System.exit(1);
-=======
+    } catch (ParseException e) {
       showUsageAndExit(options);
->>>>>>> asic-s-experimental
     }
 
     run(commandLine);
@@ -42,7 +36,7 @@ public final class DigiDoc4J {
   }
 
   private static void showUsageAndExit(Options options) {
-    new HelpFormatter().printHelp("digido4j", options);
+    new HelpFormatter().printHelp("digidoc4j", options);
     System.exit(2);
   }
 
@@ -81,8 +75,7 @@ public final class DigiDoc4J {
 
       if (commandLine.hasOption("verify"))
         verify(container);
-    }
-    catch (DigiDoc4JException e) {
+    } catch (DigiDoc4JException e) {
       System.out.println(e.getMessage());
       System.exit(1);
     }
@@ -121,8 +114,7 @@ public final class DigiDoc4J {
       List<DigiDoc4JException> validationResult = signature.validate();
       if (validationResult.size() == 0) {
         System.out.println("Signature " + signature.getId() + " is valid");
-      }
-      else {
+      } else {
         System.out.println("Signature " + signature.getId() + " is not valid");
         for (DigiDoc4JException exception : validationResult) {
           System.out.println(exception.getMessage());
@@ -146,29 +138,29 @@ public final class DigiDoc4J {
 
   private static Option pkcs12Sign() {
     return OptionBuilder.withArgName("pkcs12Keystore password").hasArgs(2).withValueSeparator(' ')
-      .withDescription("sets pkcs12 keystore and keystore password").create("pkcs12");
+        .withDescription("sets pkcs12 keystore and keystore password").create("pkcs12");
   }
 
   private static Option removeFile() {
     return OptionBuilder.withArgName("file").hasArg()
-      .withDescription("removes file from container").create("remove");
+        .withDescription("removes file from container").create("remove");
   }
 
   private static Option addFile() {
     return OptionBuilder.withArgName("file mime-type").hasArgs(2)
-      .withDescription("adds file specified with mime type to container").create("add");
+        .withDescription("adds file specified with mime type to container").create("add");
   }
 
   private static Option inputFile() {
     Option inputFile = OptionBuilder.withArgName("file").hasArg()
-      .withDescription("opens or creates container").create("in");
+        .withDescription("opens or creates container").create("in");
     inputFile.setRequired(true);
     return inputFile;
   }
 
   private static Option type() {
     Option type = OptionBuilder.withArgName("type").hasArg()
-      .withDescription("sets container type. types can be DDOC or BDOC").create("t");
+        .withDescription("sets container type. types can be DDOC or BDOC").create("t");
     type.setLongOpt("type");
     return type;
   }

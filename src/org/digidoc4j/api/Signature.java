@@ -1,15 +1,14 @@
 package org.digidoc4j.api;
 
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
-
-import java.net.URI;
-import java.util.Date;
-import java.util.List;
-
 import org.digidoc4j.BDocSignature;
 import org.digidoc4j.DDocSignature;
 import org.digidoc4j.SignatureInterface;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
+
+import java.net.URI;
+import java.util.Date;
+import java.util.List;
 
 import static org.digidoc4j.ContainerInterface.SignatureProfile;
 

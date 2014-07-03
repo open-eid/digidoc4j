@@ -4,13 +4,12 @@ import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.signature.token.AbstractSignatureTokenConnection;
 import eu.europa.ec.markt.dss.signature.token.DSSPrivateKeyEntry;
 import eu.europa.ec.markt.dss.signature.token.Pkcs12SignatureToken;
+import org.digidoc4j.api.Signer;
+import org.digidoc4j.api.X509Cert;
 
 import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.digidoc4j.api.Signer;
-import org.digidoc4j.api.X509Cert;
 
 /**
  * Implements PKCS12 signer.
@@ -88,7 +87,8 @@ public class PKCS12Signer implements Signer {
     return pkcs12SignatureToken.sign(dataToSign, DigestAlgorithm.forXML(digestAlgorithm), keyEntry);
   }
 
-  @Override public SignerInformation getSignerInformation() {
+  @Override
+  public SignerInformation getSignerInformation() {
     return signerInformation;
   }
 }
