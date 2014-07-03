@@ -1,9 +1,12 @@
 package org.digidoc4j;
 
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.TwoSignaturesNotAllowedException;
 import org.digidoc4j.utils.PKCS12Signer;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -13,6 +16,26 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ASiCSContainerTest {
+
+  private PKCS12Signer PKCS12_SIGNER;
+
+  @Before
+  public void setUp() throws Exception {
+    PKCS12_SIGNER = new PKCS12Signer("signout.p12", "test");
+  }
+
+//  @AfterClass
+//  public static void deleteTemporaryFiles() {
+//    try {
+//      DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("."));
+//      for(Path item : directoryStream) {
+//        String fileName = item.getFileName().toString();
+//        if (fileName.endsWith("asics") && fileName.startsWith("test")) Files.deleteIfExists(item);
+//      }
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    }
+//  }
 
   @Test
   public void testSetDigestAlgorithmToSHA256() throws Exception {
@@ -43,7 +66,7 @@ public class ASiCSContainerTest {
 
   @Test
   public void testOpenASiCSDocument() throws Exception {
-    ASiCSContainer container = new ASiCSContainer("asics_testimiseks.asics");
+    ASiCSContainer container = new ASiCSContainer("asics_for_testing.asics");
     container.verify();
   }
 
@@ -56,8 +79,8 @@ public class ASiCSContainerTest {
   @Test(expected = TwoSignaturesNotAllowedException.class)
   public void testSaveASiCSDocumentWithTwoSignatures() throws Exception {
     ASiCSContainer container = new ASiCSContainer();
-    container.addDataFile("test.txt", "plain/text");
-    container.sign(new PKCS12Signer("signout.p12", "test"));
+    container.addDataFile("test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
     container.sign(new PKCS12Signer("B4B.pfx", "123456"));
   }
 
@@ -75,7 +98,7 @@ public class ASiCSContainerTest {
 
   @Test
   public void testTestVerifyOnInvalidDocument() throws Exception {
-    ASiCSContainer container = new ASiCSContainer("testInvalidContainer.asics");
+    ASiCSContainer container = new ASiCSContainer("asics_InvalidContainer.asics");
     assertTrue(container.verify().size() > 0);
   }
 
@@ -89,10 +112,42 @@ public class ASiCSContainerTest {
     assertEquals(0, container.getDataFiles().size());
   }
 
+  @Test(expected = DigiDoc4JException.class)
+  public void testRemovingNonExistingFile() throws Exception {
+    ASiCSContainer container = new ASiCSContainer();
+    container.addDataFile("test.txt", "text/plain");
+    container.removeDataFile("test1.txt");
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void testAddingSameFileSeveralTimes() throws Exception {
+    ASiCSContainer container = new ASiCSContainer();
+    container.addDataFile("test.txt", "text/plain");
+    container.addDataFile("test.txt", "text/plain");
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void testAddingNotExistingFile() throws Exception {
+    ASiCSContainer container = new ASiCSContainer();
+    container.addDataFile("notExistingFile.txt", "text/plain");
+  }
+
+  @Test
+  public void testAddFileAsStream() throws Exception {
+    ASiCSContainer container = new ASiCSContainer();
+    ByteArrayInputStream stream = new ByteArrayInputStream("tere, tere".getBytes());
+    container.addDataFile(stream, "test1.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.save("testAddFileAsStream.asic");
+
+    ContainerInterface containerToTest = new ASiCSContainer("testAddFileAsStream.asic");
+    assertEquals("test1.txt", containerToTest.getDataFiles().get(0).getFileName());
+  }
+
   private ContainerInterface createSignedASicSDocument(String fileName) {
     ASiCSContainer container = new ASiCSContainer();
-    container.addDataFile("test.txt", "plain/text");
-    container.sign(new PKCS12Signer("signout.p12", "test"));
+    container.addDataFile("test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
     container.save(fileName);
     return container;
   }

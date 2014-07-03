@@ -2,10 +2,7 @@ package org.digidoc4j;
 
 import eu.europa.ec.markt.dss.parameter.BLevelParameters;
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
-import eu.europa.ec.markt.dss.signature.DSSDocument;
-import eu.europa.ec.markt.dss.signature.FileDocument;
-import eu.europa.ec.markt.dss.signature.SignatureLevel;
-import eu.europa.ec.markt.dss.signature.SignaturePackaging;
+import eu.europa.ec.markt.dss.signature.*;
 import eu.europa.ec.markt.dss.signature.asic.ASiCSService;
 import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
@@ -25,6 +22,7 @@ import prototype.SKOnlineOCSPSource;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,18 +66,26 @@ public class ASiCSContainer implements ContainerInterface {
     signedDocument = new FileDocument(path);
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
     DSSDocument externalContent = validator.getExternalContent();
+
     dataFiles.put(externalContent.getName(), new DataFile(externalContent.getBytes(), externalContent.getName(),
-        externalContent.getMimeType().name()));
+        externalContent.getMimeType().getCode()));
   }
 
   @Override
   public void addDataFile(String path, String mimeType) {
+    if (dataFiles.size() >= 1) throw new DigiDoc4JException("ASiCS supports only one attachment");
     dataFiles.put(path, new DataFile(path, mimeType));
   }
 
   @Override
   public void addDataFile(InputStream is, String fileName, String mimeType) {
-    throw new NotYetImplementedException();
+    DataFile dataFile;
+    try {
+      dataFile = new DataFile(org.apache.commons.io.IOUtils.toByteArray(is), fileName, mimeType);
+      dataFiles.put(fileName, dataFile);
+    } catch (IOException e) {
+      throw new DigiDoc4JException(e);
+    }
   }
 
   @Override
@@ -130,7 +136,9 @@ public class ASiCSContainer implements ContainerInterface {
     signatureParameters.setSigningCertificate(signer.getCertificate().getX509Certificate());
 
     //TODO throw error if no file exists
-    DSSDocument toSignDocument = new FileDocument(getFirstDataFile().getFileName());
+    //DSSDocument toSignDocument = new FileDocument(getFirstDataFile().getFileName());
+    DSSDocument toSignDocument = new InMemoryDocument(getFirstDataFile().getBytes(), getFirstDataFile().getFileName(),
+        MimeType.fromCode(getFirstDataFile().getMediaType()));
 
     byte[] dataToSign = aSiCSService.getDataToSign(toSignDocument, signatureParameters);
     byte[] signatureValue = signer.sign(signatureParameters.getDigestAlgorithm().getXmlId(), dataToSign);
