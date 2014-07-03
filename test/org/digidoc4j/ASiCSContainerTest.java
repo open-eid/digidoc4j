@@ -70,7 +70,7 @@ public class ASiCSContainerTest {
 
   @Test
   public void testOpenASiCSDocument() throws Exception {
-    ASiCSContainer container = new ASiCSContainer("asics_for_testing.asics");
+    ASiCSContainer container = new ASiCSContainer("testFiles/asics_for_testing.asics");
     container.verify();
   }
 
@@ -83,7 +83,7 @@ public class ASiCSContainerTest {
   @Test(expected = TwoSignaturesNotAllowedException.class)
   public void testSaveASiCSDocumentWithTwoSignatures() throws Exception {
     ASiCSContainer container = new ASiCSContainer();
-    container.addDataFile("test.txt", "text/plain");
+    container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.sign(new PKCS12Signer("testFiles/B4B.pfx", "123456"));
   }
@@ -119,15 +119,15 @@ public class ASiCSContainerTest {
   @Test(expected = DigiDoc4JException.class)
   public void testRemovingNonExistingFile() throws Exception {
     ASiCSContainer container = new ASiCSContainer();
-    container.addDataFile("test.txt", "text/plain");
+    container.addDataFile("testFiles/test.txt", "text/plain");
     container.removeDataFile("test1.txt");
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void testAddingSameFileSeveralTimes() throws Exception {
     ASiCSContainer container = new ASiCSContainer();
-    container.addDataFile("test.txt", "text/plain");
-    container.addDataFile("test.txt", "text/plain");
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/test.txt", "text/plain");
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -157,7 +157,7 @@ public class ASiCSContainerTest {
 
   private ContainerInterface createSignedASicSDocument(String fileName) {
     ASiCSContainer container = new ASiCSContainer();
-    container.addDataFile("test.txt", "text/plain");
+    container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.save(fileName);
     return container;

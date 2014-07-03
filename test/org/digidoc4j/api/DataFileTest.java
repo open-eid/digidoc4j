@@ -18,7 +18,7 @@ public class DataFileTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    dataFile = new DataFile("test.txt", "text/plain");
+    dataFile = new DataFile("testFiles/test.txt", "text/plain");
   }
 
   @Test
@@ -47,7 +47,7 @@ public class DataFileTest {
     dataFile.saveAs(fileName);
     assertTrue(new File(fileName).exists());
 
-    byte[] testFileContent = FileUtils.readFileToByteArray(new File("test.txt"));
+    byte[] testFileContent = FileUtils.readFileToByteArray(new File("testFiles/test.txt"));
 
     byte[] savedFileContent = FileUtils.readFileToByteArray(new File("testSaveToFile.txt"));
     assertArrayEquals(testFileContent, savedFileContent);
@@ -66,12 +66,12 @@ public class DataFileTest {
 
   @Test(expected = DigiDoc4JException.class)
   public void incorrectMimeType() {
-    dataFile = new DataFile("test.txt", "incorrect");
+    dataFile = new DataFile("testFiles/test.txt", "incorrect");
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void incorrectMimeTypeByteArrayConstructor() {
-    dataFile = new DataFile(new byte[]{0x042}, "test.txt", "incorrect");
+    dataFile = new DataFile(new byte[]{0x042}, "testFiles/test.txt", "incorrect");
   }
 
   @Test(expected = DigiDoc4JException.class)

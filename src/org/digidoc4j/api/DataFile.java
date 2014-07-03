@@ -9,6 +9,7 @@ import eu.europa.ec.markt.dss.signature.MimeType;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -104,7 +105,7 @@ public class DataFile {
    */
   public String getFileName() {
     if (document instanceof InMemoryDocument)
-      return document.getName();
+      return new File(document.getName()).getName();
     return document.getAbsolutePath();
   }
 

@@ -4,30 +4,18 @@
     <option name="SCOPE_TYPE" value="4" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="231d0052-c425-43c6-acab-fc208a3191a3" name="Default" comment="merged asics-experimental branch to master">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/testFiles/B4B.pfx" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/testFiles/B4B_2013.pfx" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/testFiles/asics_InvalidContainer.asics" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/testFiles/asics_testing_two_signatures.asics" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/changed_digdoc_test.ddoc" afterPath="$PROJECT_DIR$/testFiles/changed_digdoc_test.ddoc" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/constraint.xml" afterPath="$PROJECT_DIR$/conf/constraint.xml" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/signout.p12" afterPath="$PROJECT_DIR$/testFiles/signout.p12" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/signout.pem" afterPath="$PROJECT_DIR$/testFiles/signout.pem" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/test.xml" afterPath="$PROJECT_DIR$/testFiles/test.xml" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/tl-map.xml" afterPath="$PROJECT_DIR$/conf/tl-map.xml" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/trusted-test-tsl.xml" afterPath="$PROJECT_DIR$/conf/trusted-test-tsl.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/digidoc4j/ASiCSContainer.java" afterPath="$PROJECT_DIR$/src/org/digidoc4j/ASiCSContainer.java" />
+    <list default="true" id="231d0052-c425-43c6-acab-fc208a3191a3" name="Default" comment="Structure changes">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test.txt" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/asics_for_testing.asics" afterPath="$PROJECT_DIR$/testFiles/asics_for_testing.asics" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/testFiles/changed_digdoc_test.ddoc" afterPath="$PROJECT_DIR$/testFiles/changed_digidoc_test.ddoc" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/org/digidoc4j/ASiCSContainerTest.java" afterPath="$PROJECT_DIR$/test/org/digidoc4j/ASiCSContainerTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/org/digidoc4j/api/ContainerTest.java" afterPath="$PROJECT_DIR$/test/org/digidoc4j/api/ContainerTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/org/digidoc4j/DDocContainerTest.java" afterPath="$PROJECT_DIR$/test/org/digidoc4j/DDocContainerTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/digidoc4j/api/DataFile.java" afterPath="$PROJECT_DIR$/src/org/digidoc4j/api/DataFile.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/org/digidoc4j/api/DataFileTest.java" afterPath="$PROJECT_DIR$/test/org/digidoc4j/api/DataFileTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/digidoc4j/utils/DateUtils.java" afterPath="$PROJECT_DIR$/src/org/digidoc4j/utils/DateUtils.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/org/digidoc4j/utils/DateUtilsTest.java" afterPath="$PROJECT_DIR$/test/org/digidoc4j/utils/DateUtilsTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/digidoc4j/utils/Helper.java" afterPath="$PROJECT_DIR$/src/org/digidoc4j/utils/Helper.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/org/digidoc4j/utils/HelperTest.java" afterPath="$PROJECT_DIR$/test/org/digidoc4j/utils/HelperTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/org/digidoc4j/utils/PKCS12SignerTest.java" afterPath="$PROJECT_DIR$/test/org/digidoc4j/utils/PKCS12SignerTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/prototype/Prototype.java" afterPath="$PROJECT_DIR$/src/prototype/Prototype.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/org/digidoc4j/api/SignatureTest.java" afterPath="$PROJECT_DIR$/test/org/digidoc4j/api/SignatureTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/org/digidoc4j/api/X509CertTest.java" afterPath="$PROJECT_DIR$/test/org/digidoc4j/api/X509CertTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="digidoc4j.iws" />
@@ -109,8 +97,8 @@
       <file leaf-file-name="ASiCSContainerTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/ASiCSContainerTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="930" max-vertical-offset="2310">
-              <caret line="99" column="0" selection-start-line="99" selection-start-column="0" selection-end-line="99" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="1242" max-vertical-offset="2310">
+              <caret line="114" column="30" selection-start-line="114" selection-start-column="30" selection-end-line="114" selection-end-column="30" />
               <folding>
                 <element signature="e#808#809#0" expanded="true" />
                 <element signature="e#883#884#0" expanded="true" />
@@ -119,21 +107,74 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ASiCSContainer.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/ASiCSContainer.java">
+      <file leaf-file-name="ContainerTest.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/api/ContainerTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1624" max-vertical-offset="2790">
-              <caret line="190" column="37" selection-start-line="190" selection-start-column="37" selection-end-line="190" selection-end-column="37" />
+            <state vertical-scroll-proportion="0.33333334" vertical-offset="3514" max-vertical-offset="5850">
+              <caret line="271" column="17" selection-start-line="271" selection-start-column="17" selection-end-line="271" selection-end-column="17" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TrustedListsCertificateSource.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/src/main/java/eu/europa/ec/markt/dss/validation102853/tsl/TrustedListsCertificateSource.java">
+      <file leaf-file-name="DataFileTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/api/DataFileTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="3499" max-vertical-offset="6465">
-              <caret line="375" column="0" selection-start-line="375" selection-start-column="0" selection-end-line="375" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="75" max-vertical-offset="1275">
+              <caret line="35" column="18" selection-start-line="35" selection-start-column="18" selection-end-line="35" selection-end-column="18" />
+              <folding>
+                <element signature="e#881#882#0" expanded="true" />
+                <element signature="e#939#940#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ASiCSContainer.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/ASiCSContainer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="1216" max-vertical-offset="2790">
+              <caret line="139" column="0" selection-start-line="139" selection-start-column="0" selection-end-line="139" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DataFile.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/api/DataFile.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="612" max-vertical-offset="1185">
+              <caret line="106" column="0" selection-start-line="106" selection-start-column="0" selection-end-line="106" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SignedDocumentValidator.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/src/main/java/eu/europa/ec/markt/dss/validation102853/SignedDocumentValidator.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="18316" max-vertical-offset="20760">
+              <caret line="1550" column="0" selection-start-line="1550" selection-start-column="0" selection-end-line="1550" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Container.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/api/Container.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="177" max-vertical-offset="1290">
+              <caret line="60" column="42" selection-start-line="60" selection-start-column="42" selection-end-line="60" selection-end-column="42" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DDocContainer.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/DDocContainer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="121" max-vertical-offset="2685">
+              <caret line="72" column="8" selection-start-line="72" selection-start-column="3" selection-end-line="72" selection-end-column="3" />
               <folding />
             </state>
           </provider>
@@ -142,85 +183,24 @@
       <file leaf-file-name="SignatureTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/api/SignatureTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1500" max-vertical-offset="2310">
-              <caret line="130" column="22" selection-start-line="130" selection-start-column="22" selection-end-line="130" selection-end-column="22" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="1677" max-vertical-offset="2310">
+              <caret line="145" column="63" selection-start-line="145" selection-start-column="63" selection-end-line="145" selection-end-column="63" />
               <folding>
                 <element signature="e#794#795#0" expanded="true" />
                 <element signature="e#869#870#0" expanded="true" />
-                <element signature="e#5694#5695#0" expanded="true" />
-                <element signature="e#5759#5760#0" expanded="true" />
+                <element signature="e#5704#5705#0" expanded="true" />
+                <element signature="e#5769#5770#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DateUtils.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/utils/DateUtils.java">
+      <file leaf-file-name="changed_digidoc_test.ddoc" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/testFiles/changed_digidoc_test.ddoc">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.30716723" vertical-offset="0" max-vertical-offset="586">
-              <caret line="14" column="43" selection-start-line="14" selection-start-column="43" selection-end-line="14" selection-end-column="43" />
-              <folding>
-                <element signature="docComment;method#isAlmostNow#0;class#DateUtils#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DateUtilsTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/utils/DateUtilsTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="540">
-              <caret line="34" column="48" selection-start-line="34" selection-start-column="48" selection-end-line="34" selection-end-column="48" />
+            <state vertical-scroll-proportion="-12.115385" vertical-offset="0" max-vertical-offset="2775">
+              <caret line="21" column="13" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="13" />
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="X509CertTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/api/X509CertTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1290">
-              <caret line="23" column="35" selection-start-line="23" selection-start-column="35" selection-end-line="23" selection-end-column="35" />
-              <folding>
-                <element signature="e#631#632#0" expanded="true" />
-                <element signature="e#685#686#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Pkcs12SignatureToken.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/src/main/java/eu/europa/ec/markt/dss/signature/token/Pkcs12SignatureToken.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="255" max-vertical-offset="1620">
-              <caret line="92" column="0" selection-start-line="92" selection-start-column="0" selection-end-line="92" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="PKCS12SignerTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/utils/PKCS12SignerTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2640">
-              <caret line="19" column="47" selection-start-line="19" selection-start-column="47" selection-end-line="19" selection-end-column="47" />
-              <folding>
-                <element signature="e#468#469#0" expanded="true" />
-                <element signature="e#542#543#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ContainerTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/api/ContainerTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="2505" max-vertical-offset="5880">
-              <caret line="210" column="48" selection-start-line="210" selection-start-column="48" selection-end-line="210" selection-end-column="48" />
-              <folding>
-                <element signature="e#13245#13246#0" expanded="true" />
-                <element signature="e#13320#13321#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -251,7 +231,6 @@
         <option value="$PROJECT_DIR$/src/ee/org/digidoc4j/DataFile.java" />
         <option value="$PROJECT_DIR$/src/org/org/digidoc4j/DataFile.java" />
         <option value="$PROJECT_DIR$/src/org/digidoc4j/main/package-info.java" />
-        <option value="$PROJECT_DIR$/src/prototype/Prototype.java" />
         <option value="$PROJECT_DIR$/src/prototype/PKCS11Signer.java" />
         <option value="$PROJECT_DIR$/test/org/digidoc4j/DataFileTest.java" />
         <option value="$PROJECT_DIR$/test/org/digidoc4j/X509CertTest.java" />
@@ -263,16 +242,19 @@
         <option value="$PROJECT_DIR$/build.xml" />
         <option value="$PROJECT_DIR$/src/org/digidoc4j/utils/Helper.java" />
         <option value="$PROJECT_DIR$/test/org/digidoc4j/utils/HelperTest.java" />
-        <option value="$PROJECT_DIR$/test/org/digidoc4j/api/DataFileTest.java" />
         <option value="$PROJECT_DIR$/.gitignore" />
-        <option value="$PROJECT_DIR$/test/org/digidoc4j/ASiCSContainerTest.java" />
-        <option value="$PROJECT_DIR$/test/org/digidoc4j/api/ContainerTest.java" />
-        <option value="$PROJECT_DIR$/test/org/digidoc4j/api/SignatureTest.java" />
         <option value="$PROJECT_DIR$/test/org/digidoc4j/utils/PKCS12SignerTest.java" />
         <option value="$PROJECT_DIR$/test/org/digidoc4j/api/X509CertTest.java" />
         <option value="$PROJECT_DIR$/src/org/digidoc4j/ASiCSContainer.java" />
         <option value="$PROJECT_DIR$/test/org/digidoc4j/utils/DateUtilsTest.java" />
         <option value="$PROJECT_DIR$/src/org/digidoc4j/utils/DateUtils.java" />
+        <option value="$PROJECT_DIR$/src/prototype/Prototype.java" />
+        <option value="$PROJECT_DIR$/src/org/digidoc4j/api/DataFile.java" />
+        <option value="$PROJECT_DIR$/test/org/digidoc4j/ASiCSContainerTest.java" />
+        <option value="$PROJECT_DIR$/test/org/digidoc4j/api/DataFileTest.java" />
+        <option value="$PROJECT_DIR$/changed_digdoc_test.ddoc" />
+        <option value="$PROJECT_DIR$/test/org/digidoc4j/api/SignatureTest.java" />
+        <option value="$PROJECT_DIR$/test/org/digidoc4j/api/ContainerTest.java" />
       </list>
     </option>
   </component>
@@ -347,44 +329,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="testFiles" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="conf" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="digidoc4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="core" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -464,40 +408,13 @@
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/testFiles" />
-      <recent name="$PROJECT_DIR$/conf" />
+      <recent name="$PROJECT_DIR$/test" />
       <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/src/org/digidoc4j/main" />
+      <recent name="$PROJECT_DIR$/testFiles/subdirectory" />
+      <recent name="$PROJECT_DIR$/conf" />
     </key>
   </component>
   <component name="RunManager" selected="JUnit.All Tests in digidoc4j">
-    <configuration default="false" name="DigiDoc4J" type="Application" factoryName="Application" temporary="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
-        <pattern>
-          <option name="PATTERN" value="ee.sk.utils.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="MAIN_CLASS_NAME" value="org.org.utils.DigiDoc4J" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="digidoc4j" />
-      <envs />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="true" />
-      </RunnerSettings>
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Debug" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
     <configuration default="false" name="All Tests in digidoc4j" type="JUnit" factoryName="JUnit" temporary="true">
       <extension name="coverage" enabled="false" merge="false" track_test_folders="true" runner="idea">
         <pattern>
@@ -531,34 +448,6 @@
       <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Cover" />
       <ConfigurationWrapper RunnerId="Debug" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
-    <configuration default="false" name="ContainerTest" type="JUnit" factoryName="JUnit" temporary="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
-        <pattern>
-          <option name="PATTERN" value="org.digidoc4j.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <module name="digidoc4j" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="org.digidoc4j" />
-      <option name="MAIN_CLASS_NAME" value="org.digidoc4j.ContainerTest" />
-      <option name="METHOD_NAME" />
-      <option name="TEST_OBJECT" value="class" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
-      </option>
-      <envs />
-      <patterns />
-      <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
@@ -628,6 +517,72 @@
       <ConfigurationWrapper RunnerId="Debug" />
       <method />
     </configuration>
+    <configuration default="false" name="ASiCSContainerTest.testRemoveDataFile" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" track_test_folders="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="org.digidoc4j.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <module name="digidoc4j" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="PACKAGE_NAME" value="org.digidoc4j" />
+      <option name="MAIN_CLASS_NAME" value="org.digidoc4j.ASiCSContainerTest" />
+      <option name="METHOD_NAME" value="testRemoveDataFile" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <ConfigurationWrapper RunnerId="Debug" />
+      <method />
+    </configuration>
+    <configuration default="false" name="SignatureTest.testValidationWithInvalidDocument" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" track_test_folders="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="org.digidoc4j.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <module name="digidoc4j" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="PACKAGE_NAME" value="org.digidoc4j.api" />
+      <option name="MAIN_CLASS_NAME" value="org.digidoc4j.api.SignatureTest" />
+      <option name="METHOD_NAME" value="testValidationWithInvalidDocument" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Debug" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
     <configuration default="true" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
       <option name="SERVER_MODE" value="false" />
@@ -686,19 +641,19 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Application.DigiDoc4J" />
-      <item index="1" class="java.lang.String" itemvalue="JUnit.All Tests in digidoc4j" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.ContainerTest" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.HelperTest.testDeleteIfExists" />
-      <item index="4" class="java.lang.String" itemvalue="JUnit.HelperTest.testDeleteFileIfNotExists" />
+      <item index="0" class="java.lang.String" itemvalue="JUnit.All Tests in digidoc4j" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.HelperTest.testDeleteIfExists" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.HelperTest.testDeleteFileIfNotExists" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.ASiCSContainerTest.testRemoveDataFile" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.SignatureTest.testValidationWithInvalidDocument" />
     </list>
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="JUnit.All Tests in digidoc4j" />
-        <item index="1" class="java.lang.String" itemvalue="JUnit.HelperTest.testDeleteFileIfNotExists" />
-        <item index="2" class="java.lang.String" itemvalue="JUnit.HelperTest.testDeleteIfExists" />
-        <item index="3" class="java.lang.String" itemvalue="JUnit.ContainerTest" />
-        <item index="4" class="java.lang.String" itemvalue="Application.DigiDoc4J" />
+        <item index="1" class="java.lang.String" itemvalue="JUnit.SignatureTest.testValidationWithInvalidDocument" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.ASiCSContainerTest.testRemoveDataFile" />
+        <item index="3" class="java.lang.String" itemvalue="JUnit.HelperTest.testDeleteFileIfNotExists" />
+        <item index="4" class="java.lang.String" itemvalue="JUnit.HelperTest.testDeleteIfExists" />
       </list>
     </recent_temporary>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
@@ -845,7 +800,8 @@
     <MESSAGE value="fixes wrong jdigidoc.jar location" />
     <MESSAGE value="improves build.xml" />
     <MESSAGE value="merged asics-experimental branch to master" />
-    <option name="LAST_COMMIT_MESSAGE" value="merged asics-experimental branch to master" />
+    <MESSAGE value="Structure changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Structure changes" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -854,7 +810,7 @@
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="3" />
+      <option name="time" value="9" />
     </breakpoint-manager>
   </component>
   <component name="antWorkspaceConfiguration">
@@ -892,10 +848,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="4080" max-vertical-offset="5985">
           <caret line="272" column="0" selection-start-line="272" selection-start-column="0" selection-end-line="272" selection-end-column="0" />
-          <folding>
-            <element signature="e#13245#13246#0" expanded="true" />
-            <element signature="e#13320#13321#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -935,10 +888,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="4080" max-vertical-offset="5880">
           <caret line="272" column="0" selection-start-line="272" selection-start-column="0" selection-end-line="272" selection-end-column="0" />
-          <folding>
-            <element signature="e#13245#13246#0" expanded="true" />
-            <element signature="e#13320#13321#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -970,10 +920,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="4080" max-vertical-offset="5880">
           <caret line="272" column="0" selection-start-line="272" selection-start-column="0" selection-end-line="272" selection-end-column="0" />
-          <folding>
-            <element signature="e#13245#13246#0" expanded="true" />
-            <element signature="e#13320#13321#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1005,10 +952,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="3540" max-vertical-offset="5535">
           <caret line="272" column="0" selection-start-line="272" selection-start-column="0" selection-end-line="272" selection-end-column="0" />
-          <folding>
-            <element signature="e#13245#13246#0" expanded="true" />
-            <element signature="e#13320#13321#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1020,13 +964,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/src/main/java/eu/europa/ec/markt/dss/signature/token/KSPrivateKeyEntry.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/prototype/Prototype.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -1121,14 +1058,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/api/DataFileTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="183" max-vertical-offset="1245">
-          <caret line="54" column="37" selection-start-line="54" selection-start-column="37" selection-end-line="54" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/utils/HelperTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="870">
@@ -1153,17 +1082,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/api/ContainerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2505" max-vertical-offset="5880">
-          <caret line="210" column="48" selection-start-line="210" selection-start-column="48" selection-end-line="210" selection-end-column="48" />
-          <folding>
-            <element signature="e#13245#13246#0" expanded="true" />
-            <element signature="e#13320#13321#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/src/main/java/eu/europa/ec/markt/dss/validation102853/tsl/TrustedListsCertificateSource.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="3499" max-vertical-offset="6465">
@@ -1185,8 +1103,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2640">
           <caret line="19" column="47" selection-start-line="19" selection-start-column="47" selection-end-line="19" selection-end-column="47" />
           <folding>
-            <element signature="e#468#469#0" expanded="true" />
-            <element signature="e#542#543#0" expanded="true" />
+            <element signature="e#468#469#0" expanded="false" />
+            <element signature="e#542#543#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1202,38 +1120,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/ASiCSContainerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1035" max-vertical-offset="2310">
-          <caret line="99" column="0" selection-start-line="99" selection-start-column="0" selection-end-line="99" selection-end-column="0" />
-          <folding>
-            <element signature="e#808#809#0" expanded="true" />
-            <element signature="e#883#884#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/ASiCSContainer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1624" max-vertical-offset="2790">
-          <caret line="190" column="37" selection-start-line="190" selection-start-column="37" selection-end-line="190" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/api/SignatureTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1500" max-vertical-offset="2310">
-          <caret line="130" column="22" selection-start-line="130" selection-start-column="22" selection-end-line="130" selection-end-column="22" />
-          <folding>
-            <element signature="e#794#795#0" expanded="true" />
-            <element signature="e#869#870#0" expanded="true" />
-            <element signature="e#5694#5695#0" expanded="true" />
-            <element signature="e#5759#5760#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/utils/DateUtilsTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="540">
@@ -1244,11 +1130,126 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/utils/DateUtils.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.30716723" vertical-offset="0" max-vertical-offset="586">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="360">
           <caret line="14" column="43" selection-start-line="14" selection-start-column="43" selection-end-line="14" selection-end-column="43" />
           <folding>
             <element signature="docComment;method#isAlmostNow#0;class#DateUtils#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/prototype/Prototype.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="22" max-vertical-offset="1620">
+          <caret line="39" column="50" selection-start-line="39" selection-start-column="50" selection-end-line="39" selection-end-column="50" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/src/main/java/eu/europa/ec/markt/dss/validation102853/SignedDocumentValidator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="18316" max-vertical-offset="20760">
+          <caret line="1550" column="0" selection-start-line="1550" selection-start-column="0" selection-end-line="1550" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/api/DataFile.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="612" max-vertical-offset="1185">
+          <caret line="106" column="0" selection-start-line="106" selection-start-column="0" selection-end-line="106" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/ASiCSContainerTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1242" max-vertical-offset="2310">
+          <caret line="114" column="30" selection-start-line="114" selection-start-column="30" selection-end-line="114" selection-end-column="30" />
+          <folding>
+            <element signature="e#808#809#0" expanded="true" />
+            <element signature="e#883#884#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/ASiCSContainer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1216" max-vertical-offset="2790">
+          <caret line="139" column="0" selection-start-line="139" selection-start-column="0" selection-end-line="139" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/jdigidoc-3.9.0-712.jar!/ee/sk/digidoc/factory/DigiDocFactory.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.27372262" vertical-offset="0" max-vertical-offset="548">
+          <caret line="11" column="26" selection-start-line="11" selection-start-column="26" selection-end-line="11" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/jdigidoc-3.9.0-712.jar!/ee/sk/digidoc/factory/SAXDigiDocFactory.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.3489279" vertical-offset="916" max-vertical-offset="1710">
+          <caret line="74" column="33" selection-start-line="74" selection-start-column="33" selection-end-line="74" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/api/DataFileTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="75" max-vertical-offset="1275">
+          <caret line="35" column="18" selection-start-line="35" selection-start-column="18" selection-end-line="35" selection-end-column="18" />
+          <folding>
+            <element signature="e#881#882#0" expanded="true" />
+            <element signature="e#939#940#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/api/Container.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="177" max-vertical-offset="1290">
+          <caret line="60" column="42" selection-start-line="60" selection-start-column="42" selection-end-line="60" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/DDocContainer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="121" max-vertical-offset="2685">
+          <caret line="72" column="8" selection-start-line="72" selection-start-column="3" selection-end-line="72" selection-end-column="3" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/testFiles/changed_digidoc_test.ddoc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-12.115385" vertical-offset="0" max-vertical-offset="2775">
+          <caret line="21" column="13" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/api/SignatureTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1677" max-vertical-offset="2310">
+          <caret line="145" column="63" selection-start-line="145" selection-start-column="63" selection-end-line="145" selection-end-column="63" />
+          <folding>
+            <element signature="e#794#795#0" expanded="true" />
+            <element signature="e#869#870#0" expanded="true" />
+            <element signature="e#5704#5705#0" expanded="true" />
+            <element signature="e#5769#5770#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/org/digidoc4j/api/ContainerTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33333334" vertical-offset="3514" max-vertical-offset="5850">
+          <caret line="271" column="17" selection-start-line="271" selection-start-column="17" selection-end-line="271" selection-end-column="17" />
+          <folding />
         </state>
       </provider>
     </entry>

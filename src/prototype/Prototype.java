@@ -37,7 +37,7 @@ public class Prototype {
   //rm -rf test.bdoc, META-INF/.DS_Store && zip -0 -X test.bdoc mimetype && zip -r -D test.bdoc * -x mimetype && unzip -l test.bdoc
 
   private static void sign() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
-    DSSDocument toSignDocument = new FileDocument("test.txt");
+    DSSDocument toSignDocument = new FileDocument("testFiles/test.txt");
     AbstractSignatureTokenConnection token = new Pkcs12SignatureToken("test", "signout.p12");
     DSSPrivateKeyEntry privateKey = token.getKeys().get(0);
 
@@ -93,7 +93,7 @@ public class Prototype {
     final X509Certificate[] certificateChain = privateKey.getCertificateChain();
     final X509Certificate trustedCertificate = certificateChain[0];
 
-//    DSSDocument detachedDocument = new FileDocument("test.txt");
+//    DSSDocument detachedDocument = new FileDocument("testFiles/test.txt");
 
 // / Already signed document
 //    String toValidateFilePath = "documentTS/test.bdoc";

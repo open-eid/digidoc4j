@@ -64,7 +64,7 @@ public class SignatureTest {
   @Ignore("not working in ubuntu")
   public void testSigningProperties() throws Exception {
     Container bDocContainer = new Container();
-    bDocContainer.addDataFile("test.txt", "text/plain");
+    bDocContainer.addDataFile("testFiles/test.txt", "text/plain");
     PKCS12_SIGNER.setSignatureProductionPlace("city", "stateOrProvince", "postalCode", "country");
     PKCS12_SIGNER.setSignerRoles(asList("signerRoles"));
     Signature signature = bDocContainer.sign(PKCS12_SIGNER);
@@ -143,7 +143,7 @@ public class SignatureTest {
 
   @Test
   public void testValidationWithInvalidDocument() {
-    Container container = new Container("testFiles/changed_digdoc_test.ddoc");
+    Container container = new Container("testFiles/changed_digidoc_test.ddoc");
     assertEquals(6, container.getSignatures().get(0).validate(VALIDATE_FULL).size());
   }
 
@@ -169,7 +169,7 @@ public class SignatureTest {
 
   private Signature getSignature() {
     Container container = new Container(DDOC);
-    container.addDataFile("test.txt", "plain/text");
+    container.addDataFile("testFiles/test.txt", "plain/text");
     return container.sign(PKCS12_SIGNER);
   }
 }

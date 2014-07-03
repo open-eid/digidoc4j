@@ -14,7 +14,7 @@ public class DDocContainerTest {
   @Test(expected = DigiDoc4JException.class)
   public void testAddDataFileThrowsException() throws Exception {
     DDocContainer container = new DDocContainer();
-    container.addDataFile("test.txt", "");
-    container.addDataFile("test.txt", "");
+    container.addDataFile("testFiles/test.txt", "");
+    container.addDataFile("testFiles/test.txt", "");
   }
 }

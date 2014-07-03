@@ -214,7 +214,7 @@ public class ContainerTest {
   @Test
   public void testAddOneFileToContainerForBDoc() throws Exception {
     Container bDocContainer = new Container();
-    bDocContainer.addDataFile("test.txt", TEXT_MIME_TYPE);
+    bDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     List<DataFile> dataFiles = bDocContainer.getDataFiles();
     assertEquals(1, dataFiles.size());
     assertEquals("test.txt", dataFiles.get(0).getFileName());
@@ -224,14 +224,14 @@ public class ContainerTest {
   @Test(expected = NotYetImplementedException.class)
   public void testAddDataFileFromInputStreamToContainerForBDoc() throws Exception {
     Container container = new Container();
-    container.addDataFile(new ByteArrayInputStream(new byte[]{0x41}), "test.txt", TEXT_MIME_TYPE);
+    container.addDataFile(new ByteArrayInputStream(new byte[]{0x41}), "testFiles/test.txt", TEXT_MIME_TYPE);
   }
 
   @Test
   public void testRemovesOneFileFromContainerWhenFileExistsForBDoc() throws Exception {
     Container bDocContainer = new Container();
-    bDocContainer.addDataFile("test.txt", TEXT_MIME_TYPE);
-    bDocContainer.removeDataFile("test.txt");
+    bDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    bDocContainer.removeDataFile("testFiles/test.txt");
     assertEquals(0, bDocContainer.getDataFiles().size());
   }
 
@@ -245,7 +245,7 @@ public class ContainerTest {
   @Ignore("Not working in Ubuntu check later when jDigiDoc is implemented.")
   public void testCreateAsicContainerSpecifiedByDocumentTypeForBDoc() throws Exception {
     Container asicContainer = new Container(DocumentType.ASIC_E);
-    asicContainer.addDataFile("test.txt", TEXT_MIME_TYPE);
+    asicContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     asicContainer.sign(PKCS12_SIGNER);
     asicContainer.save("test.bdoc");
     assertTrue(Helper.isZipFile(new File("test.bdoc")));
@@ -254,7 +254,7 @@ public class ContainerTest {
   @Test
   public void testCreateDDocContainer() throws Exception {
     Container dDocContainer = new Container(DDOC);
-    dDocContainer.addDataFile("test.txt", TEXT_MIME_TYPE);
+    dDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     dDocContainer.sign(PKCS12_SIGNER);
     dDocContainer.save("testCreateDDocContainer.ddoc");
 
@@ -266,21 +266,21 @@ public class ContainerTest {
   @Test
   public void testAddOneFileToContainerForDDoc() throws Exception {
     Container container = new Container(DDOC);
-    container.addDataFile("test.txt", TEXT_MIME_TYPE);
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     List<DataFile> dataFiles = container.getDataFiles();
     assertEquals(1, dataFiles.size());
-    assertEquals(new File("test.txt").getAbsolutePath(), dataFiles.get(0).getFileName());
+    assertEquals("test.txt", dataFiles.get(0).getFileName());
     assertEquals(TEXT_MIME_TYPE, dataFiles.get(0).getMediaType());
   }
 
   @Test
   public void testRemovesOneFileFromContainerWhenFileExistsForDDoc() throws Exception {
     Container container = new Container(DDOC);
-    container.addDataFile("test.txt", TEXT_MIME_TYPE);
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.save("testRemovesOneFileFromContainerWhenFileExistsFor.ddoc");
 
     Container container1 = new Container("testRemovesOneFileFromContainerWhenFileExistsFor.ddoc");
-    container1.removeDataFile("test.txt");
+    container1.removeDataFile("testFiles/test.txt");
     assertEquals(0, container1.getDataFiles().size());
 
     deleteFile("testRemovesOneFileFromContainerWhenFileExistsFor.ddoc");
@@ -289,7 +289,7 @@ public class ContainerTest {
   @Test
   public void testOpenCreatedDDocFile() throws Exception {
     Container container = new Container(DDOC);
-    container.addDataFile("test.txt", TEXT_MIME_TYPE);
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.save("testOpenCreatedDDocFile.ddoc");
     Container containerForReading = new Container("testOpenCreatedDDocFile.ddoc");
     assertEquals(DDOC, containerForReading.getDocumentType());
@@ -301,7 +301,7 @@ public class ContainerTest {
 
   @Test(expected = DigiDoc4JException.class)
   public void testOpenInvalidFileThrowsException() {
-    new Container("test.txt");
+    new Container("testFiles/test.txt");
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -320,7 +320,7 @@ public class ContainerTest {
   @Test
   public void testGetSignatureFromDDoc() {
     Container container = new Container(DDOC);
-    container.addDataFile("test.txt", TEXT_MIME_TYPE);
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
     List<Signature> signatures = container.getSignatures();
     assertEquals(1, signatures.size());
@@ -335,7 +335,7 @@ public class ContainerTest {
   @Test
   public void testAddRawSignatureAsByteArray() throws CertificateEncodingException, IOException, SAXException {
     Container container = new Container(DDOC);
-    container.addDataFile("test.txt", TEXT_MIME_TYPE);
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
     container.addRawSignature(signature.getBytes());
 
@@ -347,7 +347,7 @@ public class ContainerTest {
   @Test
   public void testAddRawSignatureAsStreamArray() throws CertificateEncodingException {
     Container container = new Container(DDOC);
-    container.addDataFile("test.txt", TEXT_MIME_TYPE);
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.addRawSignature(new ByteArrayInputStream(signature.getBytes()));
 
     assertEquals(1, container.getSignatures().size());
@@ -362,7 +362,7 @@ public class ContainerTest {
   @Test
   public void testRemoveSignature() throws IOException {
     Container container = new Container(DDOC);
-    container.addDataFile("test.txt", TEXT_MIME_TYPE);
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
     container.addRawSignature(new ByteArrayInputStream(signature.getBytes()));
     container.save("testRemoveSignature.ddoc");
@@ -395,7 +395,7 @@ public class ContainerTest {
     signer.setSignerRoles(asList(signerRoles));
 
     Container bDocContainer = new Container();
-    bDocContainer.addDataFile("test.txt", TEXT_MIME_TYPE);
+    bDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     Signature signature = bDocContainer.sign(signer);
   }
 
