@@ -1,8 +1,8 @@
 package org.digidoc4j.utils;
 
-import java.util.Date;
-
 import org.junit.Test;
+
+import java.util.Date;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -15,26 +15,26 @@ public class DateUtilsTest {
   }
 
   @Test
-  public void testIsAlmostNowComparedTo10SecondsBeforeNow() throws Exception {
-    Date nowMinus10Seconds = org.apache.commons.lang.time.DateUtils.addSeconds(new Date(), -1);
-    assertTrue(DateUtils.isAlmostNow(nowMinus10Seconds));
+  public void testIsAlmostNowComparedToOneSecondsBeforeNow() throws Exception {
+    Date nowMinusOneSecond = org.apache.commons.lang.time.DateUtils.addSeconds(new Date(), -1);
+    assertTrue(DateUtils.isAlmostNow(nowMinusOneSecond));
   }
 
   @Test
-  public void testIsAlmostNowComparedTo10SecondsAfterNow() throws Exception {
-    Date nowMinus10Seconds = org.apache.commons.lang.time.DateUtils.addSeconds(new Date(), 1);
-    assertTrue(DateUtils.isAlmostNow(nowMinus10Seconds));
+  public void testIsAlmostNowComparedToOneSecondsAfterNow() throws Exception {
+    Date nowPlusOneSecond = org.apache.commons.lang.time.DateUtils.addSeconds(new Date(), 1);
+    assertTrue(DateUtils.isAlmostNow(nowPlusOneSecond));
   }
 
   @Test
-  public void testIsAlmostNowComparedTo40SecondsBeforeNow() throws Exception {
-    Date nowMinus10Seconds = org.apache.commons.lang.time.DateUtils.addSeconds(new Date(), -6);
-    assertFalse(DateUtils.isAlmostNow(nowMinus10Seconds));
+  public void testIsAlmostNowComparedToElevenSecondsBeforeNow() throws Exception {
+    Date nowMinus11Seconds = org.apache.commons.lang.time.DateUtils.addSeconds(new Date(), -11);
+    assertFalse(DateUtils.isAlmostNow(nowMinus11Seconds));
   }
 
   @Test
-  public void testIsAlmostNowComparedTo40SecondsAfterNow() throws Exception {
-    Date nowMinus10Seconds = org.apache.commons.lang.time.DateUtils.addSeconds(new Date(), 6);
-    assertFalse(DateUtils.isAlmostNow(nowMinus10Seconds));
+  public void testIsAlmostNowComparedToElevenSecondsAfterNow() throws Exception {
+    Date nowPlus11Seconds = org.apache.commons.lang.time.DateUtils.addSeconds(new Date(), 11);
+    assertFalse(DateUtils.isAlmostNow(nowPlus11Seconds));
   }
 }

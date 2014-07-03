@@ -216,7 +216,7 @@ public class ASiCSContainer implements ContainerInterface {
 
   @Override
   public DocumentType getDocumentType() {
-    return DocumentType.ASIC_E;
+    return DocumentType.ASIC_S;
   }
 
   @Override

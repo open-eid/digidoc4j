@@ -32,7 +32,7 @@ public class DataFileTest {
 
   @Test
   public void testGetFileName() throws Exception {
-    assertEquals(new File("test.txt").getAbsolutePath(), dataFile.getFileName());
+    assertEquals("test.txt", dataFile.getFileName());
   }
 
   @Test

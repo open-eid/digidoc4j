@@ -3,11 +3,15 @@ package org.digidoc4j;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.TwoSignaturesNotAllowedException;
 import org.digidoc4j.utils.PKCS12Signer;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.digidoc4j.ContainerInterface.DigestAlgorithm.SHA1;
@@ -24,18 +28,18 @@ public class ASiCSContainerTest {
     PKCS12_SIGNER = new PKCS12Signer("signout.p12", "test");
   }
 
-//  @AfterClass
-//  public static void deleteTemporaryFiles() {
-//    try {
-//      DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("."));
-//      for(Path item : directoryStream) {
-//        String fileName = item.getFileName().toString();
-//        if (fileName.endsWith("asics") && fileName.startsWith("test")) Files.deleteIfExists(item);
-//      }
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//    }
-//  }
+  @AfterClass
+  public static void deleteTemporaryFiles() {
+    try {
+      DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("."));
+      for (Path item : directoryStream) {
+        String fileName = item.getFileName().toString();
+        if (fileName.endsWith("asics") && fileName.startsWith("test")) Files.deleteIfExists(item);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
   @Test
   public void testSetDigestAlgorithmToSHA256() throws Exception {
@@ -142,6 +146,13 @@ public class ASiCSContainerTest {
 
     ContainerInterface containerToTest = new ASiCSContainer("testAddFileAsStream.asic");
     assertEquals("test1.txt", containerToTest.getDataFiles().get(0).getFileName());
+  }
+
+  @Test
+  public void testGetDocumentType() throws Exception {
+    createSignedASicSDocument("testGetDocumentType.asics");
+    ASiCSContainer container = new ASiCSContainer("testGetDocumentType.asics");
+    assertEquals(ContainerInterface.DocumentType.ASIC_S, container.getDocumentType());
   }
 
   private ContainerInterface createSignedASicSDocument(String fileName) {

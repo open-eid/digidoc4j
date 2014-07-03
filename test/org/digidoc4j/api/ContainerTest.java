@@ -1,11 +1,5 @@
 package org.digidoc4j.api;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.security.cert.CertificateEncodingException;
-import java.util.List;
-
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
@@ -15,8 +9,15 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.security.cert.CertificateEncodingException;
+import java.util.List;
+
 import static java.util.Arrays.asList;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+import static org.digidoc4j.ContainerInterface.DocumentType;
 import static org.digidoc4j.ContainerInterface.DocumentType.DDOC;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -208,7 +209,7 @@ public class ContainerTest {
     bDocContainer.addDataFile("test.txt", TEXT_MIME_TYPE);
     List<DataFile> dataFiles = bDocContainer.getDataFiles();
     assertEquals(1, dataFiles.size());
-    assertEquals(new File("test.txt").getAbsolutePath(), dataFiles.get(0).getFileName());
+    assertEquals("test.txt", dataFiles.get(0).getFileName());
     assertEquals(TEXT_MIME_TYPE, dataFiles.get(0).getMediaType());
   }
 
@@ -227,9 +228,15 @@ public class ContainerTest {
   }
 
   @Test
+  public void testCreateASiCSContainer() {
+    Container asicsContainer = new Container(DocumentType.ASIC_S);
+    assertEquals(DocumentType.ASIC_S, asicsContainer.getDocumentType());
+  }
+
+  @Test
   @Ignore("Not working in Ubuntu check later when jDigiDoc is implemented.")
   public void testCreateAsicContainerSpecifiedByDocumentTypeForBDoc() throws Exception {
-    Container asicContainer = new Container(Container.DocumentType.ASIC_E);
+    Container asicContainer = new Container(DocumentType.ASIC_E);
     asicContainer.addDataFile("test.txt", TEXT_MIME_TYPE);
     asicContainer.sign(new PKCS12Signer("signout.p12", "test"));
     asicContainer.save("test.bdoc");
