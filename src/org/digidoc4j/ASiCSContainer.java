@@ -70,8 +70,6 @@ public class ASiCSContainer implements ContainerInterface {
     DSSDocument externalContent = validator.getExternalContent();
     dataFiles.put(externalContent.getName(), new DataFile(externalContent.getBytes(), externalContent.getName(),
         externalContent.getMimeType().name()));
-
-    System.out.println();
   }
 
   @Override
