@@ -74,8 +74,8 @@
                 <classpath>
                     <pathelement location="build"/>
                 </classpath>
-                <batchtest todir="${junit.dir}">
-                <fileset dir="${build.dir}" includes="**/*Test*.class"/>
+                <batchtest>
+                    <fileset dir="${build.dir}" includes="**/*Test*.class"/>
                 </batchtest>
                 <formatter type="brief" usefile="false"/>
                 <formatter type="xml"/>
