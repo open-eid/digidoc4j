@@ -7,8 +7,6 @@
     <list default="true" id="231d0052-c425-43c6-acab-fc208a3191a3" name="Default" comment="implemets data file retrieval when opening already created container">
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/testFiles/test.txt" />
       <change type="MOVED" beforePath="$PROJECT_DIR$/asics_testimiseks.asics" afterPath="$PROJECT_DIR$/asics_for_testing.asics" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/digidoc4j/ASiCSContainer.java" afterPath="$PROJECT_DIR$/src/org/digidoc4j/ASiCSContainer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/org/digidoc4j/ASiCSContainerTest.java" afterPath="$PROJECT_DIR$/test/org/digidoc4j/ASiCSContainerTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="digidoc4j.iws" />
@@ -117,7 +115,7 @@
       <file leaf-file-name="ASiCSContainer.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/ASiCSContainer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-8.653846" vertical-offset="840" max-vertical-offset="3450">
+            <state vertical-scroll-proportion="-0.0" vertical-offset="1065" max-vertical-offset="3450">
               <caret line="75" column="98" selection-start-line="75" selection-start-column="98" selection-end-line="75" selection-end-column="98" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -131,9 +129,9 @@
                 <element signature="e#4074#4075#0" expanded="true" />
                 <element signature="e#4293#4294#0" expanded="true" />
                 <element signature="e#4341#4342#0" expanded="true" />
-                <element signature="e#8111#8131#0" expanded="true" />
-                <element signature="e#8571#8572#0" expanded="true" />
-                <element signature="e#8630#8631#0" expanded="true" />
+                <element signature="e#8113#8133#0" expanded="true" />
+                <element signature="e#8573#8574#0" expanded="true" />
+                <element signature="e#8632#8633#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -780,7 +778,6 @@
       <TodoPanelSettings />
     </option>
     <option name="CHECK_COMMIT_MESSAGE_SPELLING" value="false" />
-    <MESSAGE value="implements Container file adding and removing methods" />
     <MESSAGE value="adds files needed by chekstyle" />
     <MESSAGE value="not implemented methods are throwing exception" />
     <MESSAGE value="adds idea project file" />
@@ -805,7 +802,8 @@
     <MESSAGE value="implemets data file retrieval when opening already created container" />
     <MESSAGE value="adds getBytes method" />
     <MESSAGE value="fixes issues with stream vs real file" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixes issues with stream vs real file" />
+    <MESSAGE value="implements reading documnet to be signed from stream" />
+    <option name="LAST_COMMIT_MESSAGE" value="implements reading documnet to be signed from stream" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -1226,7 +1224,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/digidoc4j/ASiCSContainer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-8.653846" vertical-offset="840" max-vertical-offset="3450">
+        <state vertical-scroll-proportion="-0.0" vertical-offset="1065" max-vertical-offset="3450">
           <caret line="75" column="98" selection-start-line="75" selection-start-column="98" selection-end-line="75" selection-end-column="98" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -1240,9 +1238,9 @@
             <element signature="e#4074#4075#0" expanded="true" />
             <element signature="e#4293#4294#0" expanded="true" />
             <element signature="e#4341#4342#0" expanded="true" />
-            <element signature="e#8111#8131#0" expanded="true" />
-            <element signature="e#8571#8572#0" expanded="true" />
-            <element signature="e#8630#8631#0" expanded="true" />
+            <element signature="e#8113#8133#0" expanded="true" />
+            <element signature="e#8573#8574#0" expanded="true" />
+            <element signature="e#8632#8633#0" expanded="true" />
           </folding>
         </state>
       </provider>
