@@ -3,6 +3,8 @@
          name="digidoc4j builder" basedir="." default="dist">
 
     <property name="build.dir" value="build"/>
+    <property name="dist.dir" value="dist"/>
+    <property name="junit.dir" value="junit_report"/>
     <property name="coverage.dir" value="coverage"/>
     <property name="version" value="0.2"/>
     <path id="maven-ant-tasks.classpath" path="maven-ant/maven-ant-tasks-2.1.3.jar"/>
@@ -36,19 +38,21 @@
             <sourcepath path="sd-dss/apps/dss/core/dss-service/src"/>
             <sourcepath path="sd-dss/apps/dss/core/dss-spi/src"/>
         </javadoc>
-        <jar destfile="${build.dir}/digidoc4j-${version}-javadoc.jar" basedir="javadoc"/>
+        <jar destfile="${dist.dir}/digidoc4j-${version}-javadoc.jar" basedir="javadoc"/>
     </target>
 
     <target name="compile">
+        <mkdir dir="${build.dir}"/>
         <javac destdir="${build.dir}" includeantruntime="false" debug="on" source="1.7" encoding="UTF-8">
             <src path="src"/>
             <src path="test"/>
             <classpath refid="javac.classpath"/>
         </javac>
+        <jar destfile="${dist.dir}/digidoc4j-${version}.jar" basedir="${build.dir}"/>
     </target>
 
     <target name="source">
-        <jar destfile="${build.dir}/digidoc4j-${version}-sources.jar" basedir="src"/>
+        <jar destfile="${dist.dir}/digidoc4j-${version}-sources.jar" basedir="src"/>
     </target>
 
     <target name="sd-dss">
@@ -76,11 +80,12 @@
                 <formatter type="xml"/>
             </junit>
         </jacoco:coverage>
-        <junitreport todir="${build.dir}">
+        <mkdir dir="${junit.dir}"/>
+        <junitreport todir="${junit.dir}">
             <fileset dir=".">
                 <include name="TEST-*.xml"/>
             </fileset>
-            <report format="noframes" todir="${build.dir}/html"/>
+            <report format="noframes" todir="${junit.dir}/html"/>
         </junitreport>
     </target>
 
