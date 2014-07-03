@@ -25,7 +25,7 @@ public class ASiCSContainerTest {
 
   @Before
   public void setUp() throws Exception {
-    PKCS12_SIGNER = new PKCS12Signer("signout.p12", "test");
+    PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test");
   }
 
   @AfterClass
@@ -76,7 +76,7 @@ public class ASiCSContainerTest {
 
   @Test
   public void testOpenASiCSDocumentWithTwoSignatures() throws Exception {
-    ASiCSContainer container = new ASiCSContainer("asics_testing_two_signatures.asics");
+    ASiCSContainer container = new ASiCSContainer("testFiles/asics_testing_two_signatures.asics");
     container.verify();
   }
 
@@ -85,7 +85,7 @@ public class ASiCSContainerTest {
     ASiCSContainer container = new ASiCSContainer();
     container.addDataFile("test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    container.sign(new PKCS12Signer("B4B.pfx", "123456"));
+    container.sign(new PKCS12Signer("testFiles/B4B.pfx", "123456"));
   }
 
   @Test
@@ -102,7 +102,7 @@ public class ASiCSContainerTest {
 
   @Test
   public void testTestVerifyOnInvalidDocument() throws Exception {
-    ASiCSContainer container = new ASiCSContainer("asics_InvalidContainer.asics");
+    ASiCSContainer container = new ASiCSContainer("testFiles/asics_InvalidContainer.asics");
     assertTrue(container.verify().size() > 0);
   }
 
@@ -142,9 +142,9 @@ public class ASiCSContainerTest {
     ByteArrayInputStream stream = new ByteArrayInputStream("tere, tere".getBytes());
     container.addDataFile(stream, "test1.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    container.save("testAddFileAsStream.asic");
+    container.save("testAddFileAsStream.asics");
 
-    ContainerInterface containerToTest = new ASiCSContainer("testAddFileAsStream.asic");
+    ContainerInterface containerToTest = new ASiCSContainer("testAddFileAsStream.asics");
     assertEquals("test1.txt", containerToTest.getDataFiles().get(0).getFileName());
   }
 

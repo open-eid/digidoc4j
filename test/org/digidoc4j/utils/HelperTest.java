@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -46,6 +47,24 @@ public class HelperTest {
     ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
     zipOutputStream.putNextEntry(new ZipEntry("test.txt"));
     zipOutputStream.closeEntry();
+
     assertTrue(Helper.isZipFile(new File("test.zip")));
+
+    deleteFile("test.zip");
+  }
+
+  @Test
+  public void testDeleteFileIfExists() throws Exception {
+    File file = new File("testDelete.txt");
+    file.createNewFile();
+    assertTrue(file.exists());
+    deleteFile("testDelete.txt");
+    assertFalse(file.exists());
+  }
+
+  @Test
+  public void testDeleteFileIfNotExists() throws Exception {
+    deleteFile("testDeleteNotExists.txt");
+    assertFalse(new File("testDeleteNotExists.txt").exists());
   }
 }

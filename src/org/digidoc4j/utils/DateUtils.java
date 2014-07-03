@@ -9,12 +9,12 @@ public class DateUtils {
    * @param date to compare
    */
   public static boolean isAlmostNow(Date date) {
-    return isInRangeTwentySeconds(new Date(), date);
+    return isInRangeOneMinute(new Date(), date);
   }
 
-  private static boolean isInRangeTwentySeconds(Date date1, Date date2) {
-    Date latestTime = org.apache.commons.lang.time.DateUtils.addSeconds(date2, 10);
-    Date earliestTime = org.apache.commons.lang.time.DateUtils.addSeconds(date2, -10);
+  private static boolean isInRangeOneMinute(Date date1, Date date2) {
+    Date latestTime = org.apache.commons.lang.time.DateUtils.addSeconds(date2, 60);
+    Date earliestTime = org.apache.commons.lang.time.DateUtils.addSeconds(date2, -60);
     return date1.before(latestTime) && date1.after(earliestTime);
   }
 }

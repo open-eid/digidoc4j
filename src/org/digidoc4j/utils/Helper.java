@@ -1,10 +1,12 @@
 package org.digidoc4j.utils;
 
-import java.io.*;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.nio.file.Paths;
+
+import static java.nio.file.Files.deleteIfExists;
 
 public class Helper {
   public static boolean isZipFile(File file) throws IOException {
@@ -23,4 +25,10 @@ public class Helper {
     }
     return true;
   }
+
+  public static void deleteFile(String file) throws IOException {
+    deleteIfExists(Paths.get(file));
+  }
 }
+
+

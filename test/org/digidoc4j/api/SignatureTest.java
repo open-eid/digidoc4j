@@ -1,28 +1,35 @@
 package org.digidoc4j.api;
 
-import java.security.cert.CertificateEncodingException;
-
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.ContainerInterface;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.utils.PKCS12Signer;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.security.cert.CertificateEncodingException;
 
 import static java.util.Arrays.asList;
 import static org.digidoc4j.ContainerInterface.DocumentType.DDOC;
 import static org.digidoc4j.SignatureInterface.Validate.VALIDATE_FULL;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class SignatureTest {
+
+  private PKCS12Signer PKCS12_SIGNER;
+
+  @Before
+  public void setUp() throws Exception {
+    PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test");
+  }
+
   @Test
   public void testSigningProductionPlaceForDDOC() {
     Container container = new Container(DDOC);
-    PKCS12Signer signer = new PKCS12Signer("signout.p12", "test");
+    PKCS12Signer signer = PKCS12_SIGNER;
     signer.setSignatureProductionPlace("city", "state", "postalCode", "country");
     Signature signature = container.sign(signer);
     assertEquals("country", signature.getCountryName());
@@ -34,7 +41,7 @@ public class SignatureTest {
   @Test
   public void testGetSignerRolesForDDOC() {
     Container container = new Container(DDOC);
-    PKCS12Signer signer = new PKCS12Signer("signout.p12", "test");
+    PKCS12Signer signer = PKCS12_SIGNER;
     signer.setSignerRoles(asList("Role / Resolution"));
     Signature signature = container.sign(signer);
     assertEquals(1, signature.getSignerRoles().size());
@@ -44,7 +51,7 @@ public class SignatureTest {
   @Test(expected = DigiDoc4JException.class)
   public void testGetMultipleSignerRolesForDDOC() {
     Container container = new Container(DDOC);
-    PKCS12Signer signer = new PKCS12Signer("signout.p12", "test");
+    PKCS12Signer signer = PKCS12_SIGNER;
     signer.setSignerRoles(asList("Role 1", "Role 2"));
     Signature signature = container.sign(signer);
     assertEquals(2, signature.getSignerRoles().size());
@@ -58,10 +65,9 @@ public class SignatureTest {
   public void testSigningProperties() throws Exception {
     Container bDocContainer = new Container();
     bDocContainer.addDataFile("test.txt", "text/plain");
-    PKCS12Signer signer = new PKCS12Signer("signout.p12", "test");
-    signer.setSignatureProductionPlace("city", "stateOrProvince", "postalCode", "country");
-    signer.setSignerRoles(asList("signerRoles"));
-    Signature signature = bDocContainer.sign(signer);
+    PKCS12_SIGNER.setSignatureProductionPlace("city", "stateOrProvince", "postalCode", "country");
+    PKCS12_SIGNER.setSignerRoles(asList("signerRoles"));
+    Signature signature = bDocContainer.sign(PKCS12_SIGNER);
 
     assertTrue(isAlmostNow(signature.getSigningTime()));
   }
@@ -137,7 +143,7 @@ public class SignatureTest {
 
   @Test
   public void testValidationWithInvalidDocument() {
-    Container container = new Container("changed_digdoc_test.ddoc");
+    Container container = new Container("testFiles/changed_digdoc_test.ddoc");
     assertEquals(6, container.getSignatures().get(0).validate(VALIDATE_FULL).size());
   }
 
@@ -164,6 +170,6 @@ public class SignatureTest {
   private Signature getSignature() {
     Container container = new Container(DDOC);
     container.addDataFile("test.txt", "plain/text");
-    return container.sign(new PKCS12Signer("signout.p12", "test"));
+    return container.sign(PKCS12_SIGNER);
   }
 }

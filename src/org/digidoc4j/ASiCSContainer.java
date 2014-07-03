@@ -150,7 +150,7 @@ public class ASiCSContainer implements ContainerInterface {
   }
 
   private TrustedListsCertificateSource getTSL() {
-    final String lotlUrl = "file:trusted-test-tsl.xml";
+    final String lotlUrl = "file:conf/trusted-test-tsl.xml";
     TrustedListsCertificateSource tslCertificateSource = new TrustedListsCertificateSource();
     tslCertificateSource.setDataLoader(new CommonsDataLoader());
     tslCertificateSource.setLotlUrl(lotlUrl);
@@ -188,7 +188,7 @@ public class ASiCSContainer implements ContainerInterface {
 
     verifier.setTrustedCertSource(trustedCertSource);
     validator.setCertificateVerifier(verifier);
-    File policyFile = new File("constraint.xml");
+    File policyFile = new File("conf/constraint.xml");
     validator.validateDocument(policyFile);
     SimpleReport simpleReport = validator.getSimpleReport();
 

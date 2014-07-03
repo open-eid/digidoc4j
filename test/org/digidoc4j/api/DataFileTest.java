@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
+import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.*;
 
 public class DataFileTest {
@@ -47,8 +48,11 @@ public class DataFileTest {
     assertTrue(new File(fileName).exists());
 
     byte[] testFileContent = FileUtils.readFileToByteArray(new File("test.txt"));
+
     byte[] savedFileContent = FileUtils.readFileToByteArray(new File("testSaveToFile.txt"));
     assertArrayEquals(testFileContent, savedFileContent);
+
+    deleteFile("testSaveToFile.txt");
   }
 
   @Test

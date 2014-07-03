@@ -1,2 +1,7 @@
 /build
 /javadoc
+/out
+/junit_report
+/coverage
+/dist
+/jdigidoc.log

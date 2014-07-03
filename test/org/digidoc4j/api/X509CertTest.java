@@ -1,19 +1,17 @@
 package org.digidoc4j.api;
 
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import static java.util.Arrays.asList;
 import static org.digidoc4j.api.X509Cert.SubjectName.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class X509CertTest {
 
@@ -23,7 +21,7 @@ public class X509CertTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    cert = new X509Cert("signout.pem");
+    cert = new X509Cert("testFiles/signout.pem");
   }
 
   @Test

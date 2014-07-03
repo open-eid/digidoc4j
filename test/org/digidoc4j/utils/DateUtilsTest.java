@@ -27,14 +27,12 @@ public class DateUtilsTest {
   }
 
   @Test
-  public void testIsAlmostNowComparedToElevenSecondsBeforeNow() throws Exception {
-    Date nowMinus11Seconds = org.apache.commons.lang.time.DateUtils.addSeconds(new Date(), -11);
-    assertFalse(DateUtils.isAlmostNow(nowMinus11Seconds));
+  public void testIsAlmostNowComparedToOneMInuteBeforeNow() throws Exception {
+    assertFalse(DateUtils.isAlmostNow(org.apache.commons.lang.time.DateUtils.addSeconds(new Date(), -61)));
   }
 
   @Test
-  public void testIsAlmostNowComparedToElevenSecondsAfterNow() throws Exception {
-    Date nowPlus11Seconds = org.apache.commons.lang.time.DateUtils.addSeconds(new Date(), 11);
-    assertFalse(DateUtils.isAlmostNow(nowPlus11Seconds));
+  public void testIsAlmostNowComparedToOneMinuteAfterNow() throws Exception {
+    assertFalse(DateUtils.isAlmostNow(org.apache.commons.lang.time.DateUtils.addSeconds(new Date(), 61)));
   }
 }

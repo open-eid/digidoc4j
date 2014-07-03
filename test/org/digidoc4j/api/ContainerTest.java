@@ -5,6 +5,7 @@ import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.utils.Helper;
 import org.digidoc4j.utils.PKCS12Signer;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
@@ -19,6 +20,7 @@ import static java.util.Arrays.asList;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.ContainerInterface.DocumentType;
 import static org.digidoc4j.ContainerInterface.DocumentType.DDOC;
+import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -202,6 +204,12 @@ public class ContainerTest {
     "      </QualifyingProperties>\n" +
     "    </Object>\n" +
     "  </Signature>";
+  private PKCS12Signer PKCS12_SIGNER;
+
+  @Before
+  public void setUp() throws Exception {
+    PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test");
+  }
 
   @Test
   public void testAddOneFileToContainerForBDoc() throws Exception {
@@ -238,7 +246,7 @@ public class ContainerTest {
   public void testCreateAsicContainerSpecifiedByDocumentTypeForBDoc() throws Exception {
     Container asicContainer = new Container(DocumentType.ASIC_E);
     asicContainer.addDataFile("test.txt", TEXT_MIME_TYPE);
-    asicContainer.sign(new PKCS12Signer("signout.p12", "test"));
+    asicContainer.sign(PKCS12_SIGNER);
     asicContainer.save("test.bdoc");
     assertTrue(Helper.isZipFile(new File("test.bdoc")));
   }
@@ -247,9 +255,12 @@ public class ContainerTest {
   public void testCreateDDocContainer() throws Exception {
     Container dDocContainer = new Container(DDOC);
     dDocContainer.addDataFile("test.txt", TEXT_MIME_TYPE);
-    dDocContainer.sign(new PKCS12Signer("signout.p12", "test"));
-    dDocContainer.save("test.ddoc");
-    assertTrue(Helper.isXMLFile(new File("test.ddoc")));
+    dDocContainer.sign(PKCS12_SIGNER);
+    dDocContainer.save("testCreateDDocContainer.ddoc");
+
+    assertTrue(Helper.isXMLFile(new File("testCreateDDocContainer.ddoc")));
+
+    deleteFile("testCreateDDocContainer.ddoc");
   }
 
   @Test
@@ -271,6 +282,8 @@ public class ContainerTest {
     Container container1 = new Container("testRemovesOneFileFromContainerWhenFileExistsFor.ddoc");
     container1.removeDataFile("test.txt");
     assertEquals(0, container1.getDataFiles().size());
+
+    deleteFile("testRemovesOneFileFromContainerWhenFileExistsFor.ddoc");
   }
 
   @Test
@@ -280,7 +293,10 @@ public class ContainerTest {
     container.save("testOpenCreatedDDocFile.ddoc");
     Container containerForReading = new Container("testOpenCreatedDDocFile.ddoc");
     assertEquals(DDOC, containerForReading.getDocumentType());
+
     assertEquals(1, container.getDataFiles().size());
+
+    deleteFile("testOpenCreatedDDocFile.ddoc");
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -305,7 +321,7 @@ public class ContainerTest {
   public void testGetSignatureFromDDoc() {
     Container container = new Container(DDOC);
     container.addDataFile("test.txt", TEXT_MIME_TYPE);
-    container.sign(new PKCS12Signer("signout.p12", "test"));
+    container.sign(PKCS12_SIGNER);
     List<Signature> signatures = container.getSignatures();
     assertEquals(1, signatures.size());
   }
@@ -320,7 +336,7 @@ public class ContainerTest {
   public void testAddRawSignatureAsByteArray() throws CertificateEncodingException, IOException, SAXException {
     Container container = new Container(DDOC);
     container.addDataFile("test.txt", TEXT_MIME_TYPE);
-    container.sign(new PKCS12Signer("signout.p12", "test"));
+    container.sign(PKCS12_SIGNER);
     container.addRawSignature(signature.getBytes());
 
     assertEquals(2, container.getSignatures().size());
@@ -344,17 +360,20 @@ public class ContainerTest {
   }
 
   @Test
-  public void testRemoveSignature() {
+  public void testRemoveSignature() throws IOException {
     Container container = new Container(DDOC);
     container.addDataFile("test.txt", TEXT_MIME_TYPE);
-    container.sign(new PKCS12Signer("signout.p12", "test"));
+    container.sign(PKCS12_SIGNER);
     container.addRawSignature(new ByteArrayInputStream(signature.getBytes()));
     container.save("testRemoveSignature.ddoc");
 
     Container containerToRemoveSignature = new Container("testRemoveSignature.ddoc");
     containerToRemoveSignature.removeSignature(1);
+
     assertEquals(1, containerToRemoveSignature.getSignatures().size());
     //todo check is correct signature removed by signing time?
+
+    deleteFile("testRemoveSignature.ddoc");
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -371,7 +390,7 @@ public class ContainerTest {
     String country = "myCountry";
     String signerRoles = "myRole / myResolution";
 
-    PKCS12Signer signer = new PKCS12Signer("signout.p12", "test");
+    PKCS12Signer signer = PKCS12_SIGNER;
     signer.setSignatureProductionPlace(city, stateOrProvince, postalCode, country);
     signer.setSignerRoles(asList(signerRoles));
 
