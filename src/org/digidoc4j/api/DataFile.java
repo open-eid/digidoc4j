@@ -4,11 +4,12 @@ import eu.europa.ec.markt.dss.DSSUtils;
 import eu.europa.ec.markt.dss.Digest;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
-import eu.europa.ec.markt.dss.signature.FileDocument;
 import eu.europa.ec.markt.dss.signature.InMemoryDocument;
 import eu.europa.ec.markt.dss.signature.MimeType;
+import org.apache.commons.io.IOUtils;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -29,8 +30,9 @@ public class DataFile {
    */
   public DataFile(String path, String mimeType) {
     try {
-      document = new FileDocument(path);
-      document.setMimeType(MimeType.fromCode(mimeType));
+      FileInputStream stream = new FileInputStream(path);
+      loadDocument(IOUtils.toByteArray(stream), path, mimeType);
+      stream.close();
     }
     catch (Exception e) {
       throw new DigiDoc4JException(e);
@@ -45,7 +47,18 @@ public class DataFile {
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
    */
   public DataFile(byte[] data, String fileName, String mimeType) {
-    document = new InMemoryDocument(data, fileName, MimeType.fromCode(mimeType));
+    loadDocument(data, fileName, mimeType);
+  }
+
+  private void loadDocument(byte[] data, String fileName, String mimeType) {
+    MimeType mimeTypeCode = getMimeType(mimeType);
+    document = new InMemoryDocument(data, fileName, mimeTypeCode);
+  }
+
+  private MimeType getMimeType(String mimeType) {
+    MimeType mimeTypeCode = MimeType.fromCode(mimeType);
+    if (mimeTypeCode == null) throw new DigiDoc4JException("Unknown mime type");
+    return mimeTypeCode;
   }
 
   /**

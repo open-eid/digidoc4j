@@ -61,6 +61,16 @@ public class DataFileTest {
   }
 
   @Test(expected = DigiDoc4JException.class)
+  public void incorrectMimeType() {
+    dataFile = new DataFile("test.txt", "incorrect");
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void incorrectMimeTypeByteArrayConstructor() {
+    dataFile = new DataFile(new byte[]{0x042}, "test.txt", "incorrect");
+  }
+
+  @Test(expected = DigiDoc4JException.class)
   public void testThrowsFileNotFoundExceptionIfFileDoesNotExists() throws Exception {
     new DataFile("NOT_EXISTS.TXT", "text/plain");
   }
