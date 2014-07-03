@@ -67,20 +67,20 @@
     <target name="dist" depends="sd-dss, clean, javadoc, source, compile"/>
 
     <target name="test" depends="compile">
+        <mkdir dir="${junit.dir}"/>
         <jacoco:coverage>
             <junit fork="true">
                 <classpath refid="javac.classpath"/>
                 <classpath>
                     <pathelement location="build"/>
                 </classpath>
-                <batchtest>
-                    <fileset dir="${build.dir}" includes="**/*Test*.class"/>
+                <batchtest todir="${junit.dir}">
+                <fileset dir="${build.dir}" includes="**/*Test*.class"/>
                 </batchtest>
                 <formatter type="brief" usefile="false"/>
                 <formatter type="xml"/>
             </junit>
         </jacoco:coverage>
-        <mkdir dir="${junit.dir}"/>
         <junitreport todir="${junit.dir}">
             <fileset dir=".">
                 <include name="TEST-*.xml"/>
