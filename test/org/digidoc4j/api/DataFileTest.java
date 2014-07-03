@@ -1,19 +1,16 @@
 package org.digidoc4j.api;
 
 import eu.europa.ec.markt.dss.DSSUtils;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 public class DataFileTest {
   private static DataFile dataFile;
@@ -77,6 +74,12 @@ public class DataFileTest {
   public void testInMemoryDocumentRetrievesFileName() {
     DataFile dataFile = new DataFile(new byte[]{0x042}, "suura.txt", "text/plain");
     assertEquals("suura.txt", dataFile.getFileName());
+  }
+
+  @Test
+  public void testGetBytes() throws Exception {
+    DataFile dataFile = new DataFile(new byte[]{0x042}, "suura.txt", "text/plain");
+    assertArrayEquals(new byte[]{0x042}, dataFile.getBytes());
   }
 
   @Test

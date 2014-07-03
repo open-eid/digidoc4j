@@ -7,12 +7,11 @@ import eu.europa.ec.markt.dss.signature.DSSDocument;
 import eu.europa.ec.markt.dss.signature.FileDocument;
 import eu.europa.ec.markt.dss.signature.InMemoryDocument;
 import eu.europa.ec.markt.dss.signature.MimeType;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
-
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
 
 /**
  * Data file wrapper providing methods for handling signed files or files to be signed in Container.
@@ -132,5 +131,9 @@ public class DataFile {
   //TODO exception - method throws DSSException which can be caused by other exceptions
   public void saveAs(String path) {
     document.save(path);
+  }
+
+  public byte[] getBytes() {
+    return document.getBytes();
   }
 }
