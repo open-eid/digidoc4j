@@ -16,7 +16,7 @@ import static org.digidoc4j.ContainerInterface.SignatureProfile;
  */
 public class DDocSignature implements SignatureInterface {
   private X509Cert certificate;
-  private ee.sk.digidoc.Signature origin;
+  final private ee.sk.digidoc.Signature origin;
 
   public DDocSignature(ee.sk.digidoc.Signature signature) {
     this.origin = signature;

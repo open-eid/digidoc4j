@@ -56,6 +56,10 @@
     <orderEntry type="library" name="xmlunit:xmlunit:1.5" level="project" />
     <orderEntry type="library" name="commons-cli:commons-cli:1.2" level="project" />
     <orderEntry type="library" name="jdigidoc-3.9.0-712" level="project" />
+<<<<<<< HEAD
+=======
+    <orderEntry type="library" name="org.apache.maven:maven-ant-tasks:2.1.3" level="project" />
+>>>>>>> asic-s-experimental
   </component>
 </module>
 

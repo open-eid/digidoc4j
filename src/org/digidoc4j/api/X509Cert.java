@@ -40,7 +40,7 @@ public class X509Cert {
     KEY_CERTIFICATESIGN,
     CRL_SIGN,
     ENCIPHER_ONLY,
-    DECIPHER_ONLY;
+    DECIPHER_ONLY
   }
 
   /**
@@ -50,7 +50,7 @@ public class X509Cert {
     EMAILADDRESS,
     C,
     O,
-    CN;
+    CN
   }
 
   /**
@@ -63,7 +63,7 @@ public class X509Cert {
     CN,
     OU,
     O,
-    C;
+    C
   }
 
 
@@ -148,8 +148,8 @@ public class X509Cert {
   private void loadIssuerParts() {
     String[] parts = StringUtils.split(issuerName(), ',');
     issuerPartMap = new HashMap<String, String>();
-    for (int i = 0; i < parts.length; i++) {
-      String[] strings = StringUtils.split(parts[i], "=");
+    for (String part : parts) {
+      String[] strings = StringUtils.split(part, "=");
       issuerPartMap.put(strings[0].trim(), strings[1].trim());
     }
   }
@@ -241,8 +241,8 @@ public class X509Cert {
   private void loadSubjectNameParts() {
     String[] parts = getSubjectName().split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
     subjectNamePartMap = new HashMap<String, String>();
-    for (int i = 0; i < parts.length; i++) {
-      String[] strings = parts[i].split("=(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+    for (String part : parts) {
+      String[] strings = part.split("=(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
       subjectNamePartMap.put(strings[0].trim(), strings[1].trim());
     }
   }

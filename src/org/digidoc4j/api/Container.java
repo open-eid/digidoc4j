@@ -1,15 +1,16 @@
 package org.digidoc4j.api;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
+import org.digidoc4j.ASiCSContainer;
 import org.digidoc4j.BDocContainer;
 import org.digidoc4j.ContainerInterface;
 import org.digidoc4j.DDocContainer;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.utils.Helper;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 /**
  * Offers functionality for handling data files and signatures in a container.
@@ -32,14 +33,16 @@ public class Container implements ContainerInterface {
    * @param documentType container type
    */
   public Container(DocumentType documentType) {
-    if (documentType == DocumentType.ASIC)
+    if (documentType == DocumentType.ASIC_E)
       containerImplementation = new BDocContainer();
+    else if (documentType == DocumentType.ASIC_S)
+      containerImplementation = new ASiCSContainer();
     else
       containerImplementation = new DDocContainer();
   }
 
   /**
-   * Create a new container object of ASIC type Container.
+   * Create a new container object of ASIC_E type Container.
    */
   public Container() {
     containerImplementation = new BDocContainer();
@@ -56,8 +59,7 @@ public class Container implements ContainerInterface {
       if (Helper.isZipFile(new File(path)))
         containerImplementation = new BDocContainer(path);
       containerImplementation = new DDocContainer(path);
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new DigiDoc4JException(e);
     }
   }
@@ -115,6 +117,11 @@ public class Container implements ContainerInterface {
   @Override
   public DocumentType getDocumentType() {
     return containerImplementation.getDocumentType();
+  }
+
+  @Override
+  public void setDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+    containerImplementation.setDigestAlgorithm(digestAlgorithm);
   }
 }
 

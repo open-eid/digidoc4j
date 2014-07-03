@@ -4,15 +4,15 @@ import eu.europa.ec.markt.dss.DSSUtils;
 import eu.europa.ec.markt.dss.Digest;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
-import eu.europa.ec.markt.dss.signature.FileDocument;
 import eu.europa.ec.markt.dss.signature.InMemoryDocument;
 import eu.europa.ec.markt.dss.signature.MimeType;
+import org.apache.commons.io.IOUtils;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
-
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
 
 /**
  * Data file wrapper providing methods for handling signed files or files to be signed in Container.
@@ -30,8 +30,9 @@ public class DataFile {
    */
   public DataFile(String path, String mimeType) {
     try {
-      document = new FileDocument(path);
-      document.setMimeType(MimeType.fromCode(mimeType));
+      FileInputStream stream = new FileInputStream(path);
+      loadDocument(IOUtils.toByteArray(stream), path, mimeType);
+      stream.close();
     }
     catch (Exception e) {
       throw new DigiDoc4JException(e);
@@ -46,7 +47,18 @@ public class DataFile {
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
    */
   public DataFile(byte[] data, String fileName, String mimeType) {
-    document = new InMemoryDocument(data, fileName, MimeType.fromCode(mimeType));
+    loadDocument(data, fileName, mimeType);
+  }
+
+  private void loadDocument(byte[] data, String fileName, String mimeType) {
+    MimeType mimeTypeCode = getMimeType(mimeType);
+    document = new InMemoryDocument(data, fileName, mimeTypeCode);
+  }
+
+  private MimeType getMimeType(String mimeType) {
+    MimeType mimeTypeCode = MimeType.fromCode(mimeType);
+    if (mimeTypeCode == null) throw new DigiDoc4JException("Unknown mime type");
+    return mimeTypeCode;
   }
 
   /**
@@ -73,9 +85,8 @@ public class DataFile {
    *
    * @param method method uri for calculating the digest
    * @return calculated digest
-   * @throws Exception thrown if the file does not exist or the digest calculation fails.
    */
-  public byte[] calculateDigest(URL method) throws Exception {        // TODO exceptions to throw
+  public byte[] calculateDigest(URL method) {        // TODO exceptions to throw
     if (digest == null) {
       DigestAlgorithm digestAlgorithm = DigestAlgorithm.forXML(method.toString());
       digest = new Digest(digestAlgorithm, calculateDigestInternal(digestAlgorithm));
@@ -83,7 +94,7 @@ public class DataFile {
     return digest.getValue();
   }
 
-  protected byte[] calculateDigestInternal(DigestAlgorithm digestAlgorithm) {
+  byte[] calculateDigestInternal(DigestAlgorithm digestAlgorithm) {
     return DSSUtils.digest(digestAlgorithm, document.getBytes());
   }
 
@@ -120,7 +131,6 @@ public class DataFile {
    * Saves a copy of the data file as a file to the specified stream.
    *
    * @param out stream where data is written to
-   * @throws java.io.IOException is thrown when it's not possible to write to the stream
    */
   public void saveAs(OutputStream out) throws IOException {
     out.write(document.getBytes());
@@ -130,11 +140,13 @@ public class DataFile {
    * Saves a copy of the data file as a file with the specified file name.
    *
    * @param path full file path where the data file should be saved to. If the file exists it will be overwritten
-   * @throws java.io.IOException thrown if part of the path does not exist
-   *                             or the path is an existing directory (without file name)
    */
   //TODO exception - method throws DSSException which can be caused by other exceptions
-  public void saveAs(String path) throws IOException {
+  public void saveAs(String path) {
     document.save(path);
+  }
+
+  public byte[] getBytes() {
+    return document.getBytes();
   }
 }

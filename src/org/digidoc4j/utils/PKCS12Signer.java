@@ -19,8 +19,8 @@ public class PKCS12Signer implements Signer {
 
 
   private final AbstractSignatureTokenConnection pkcs12SignatureToken;
-  private DSSPrivateKeyEntry keyEntry;
-  private SignerInformation signerInformation = new SignerInformation();
+  private final DSSPrivateKeyEntry keyEntry;
+  private final SignerInformation signerInformation = new SignerInformation();
   private List<String> signerRoles = new ArrayList<String>();
 
   /**

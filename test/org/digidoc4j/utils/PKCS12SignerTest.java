@@ -1,19 +1,18 @@
 package org.digidoc4j.utils;
 
-import junit.framework.Assert;
-
 import java.security.cert.CertificateEncodingException;
 import java.util.Arrays;
 
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.api.X509Cert;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class PKCS12SignerTest {
   private static PKCS12Signer pkcs12Signer;

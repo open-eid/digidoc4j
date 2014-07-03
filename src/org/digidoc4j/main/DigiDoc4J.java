@@ -11,7 +11,7 @@ import java.io.File;
 import java.util.List;
 
 import static org.digidoc4j.ContainerInterface.DocumentType;
-import static org.digidoc4j.ContainerInterface.DocumentType.ASIC;
+import static org.digidoc4j.ContainerInterface.DocumentType.ASIC_E;
 import static org.digidoc4j.ContainerInterface.DocumentType.DDOC;
 
 /**
@@ -28,13 +28,22 @@ public final class DigiDoc4J {
       commandLine = new BasicParser().parse(options, args);
     }
     catch (ParseException e) {
+<<<<<<< HEAD
       new HelpFormatter().printHelp("digidoc4j", options);
       System.exit(1);
+=======
+      showUsageAndExit(options);
+>>>>>>> asic-s-experimental
     }
 
     run(commandLine);
 
     System.exit(0);
+  }
+
+  private static void showUsageAndExit(Options options) {
+    new HelpFormatter().printHelp("digido4j", options);
+    System.exit(2);
   }
 
   private static void run(CommandLine commandLine) {
@@ -43,7 +52,7 @@ public final class DigiDoc4J {
     String inputFile = commandLine.getOptionValue("in");
     DocumentType type = getContainerType(commandLine);
 
-    checkSupportedFunctionality(type);
+    checkSupportedFunctionality(commandLine);
 
     try {
       Container container = new Container(type);
@@ -79,16 +88,24 @@ public final class DigiDoc4J {
     }
   }
 
-  private static void checkSupportedFunctionality(DocumentType type) {
-    if (type == DocumentType.ASIC) {
+  private static void checkSupportedFunctionality(CommandLine commandLine) {
+    if (getContainerType(commandLine) == DocumentType.ASIC_E) {
       System.out.println("BDOC format is not supported yet");
-      System.exit(1);
+      System.exit(2);
+    }
+
+    if (commandLine.hasOption("add")) {
+      String[] optionValues = commandLine.getOptionValues("add");
+      if (optionValues.length != 2) {
+        System.out.println("Incorrect add command");
+        System.exit(2);
+      }
     }
   }
 
   private static DocumentType getContainerType(CommandLine commandLine) {
     if ("BDOC".equals(commandLine.getOptionValue("type")))
-      return ASIC;
+      return ASIC_E;
     return DDOC;
   }
 

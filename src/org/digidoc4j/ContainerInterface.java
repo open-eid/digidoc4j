@@ -27,7 +27,11 @@ public interface ContainerInterface {
     /**
      * BDOC 2.1 container with mime-type "application/vnd.etsi.asic-e+zip"
      */
-    ASIC,
+    ASIC_E,
+    /**
+     * ASiC-S container with mime-type "application/vnd.etsi.asic-e+zip"
+     */
+    ASIC_S,
     /**
      * DIGIDOC-XML 1.3 container
      */
@@ -45,7 +49,17 @@ public interface ContainerInterface {
     /**
      * Time-stamp.
      */
-    TS;
+    TS
+  }
+
+  /**
+   * Digest algorithm
+   */
+  public enum DigestAlgorithm {
+    SHA1,
+    SHA224,
+    SHA256,
+    SHA512
   }
 
   /**
@@ -139,6 +153,13 @@ public interface ContainerInterface {
    * @return document type
    */
   DocumentType getDocumentType();
+
+  //--- differences with CPP library
+
+  /**
+   * Sets container digest type
+   */
+  void setDigestAlgorithm(DigestAlgorithm digestAlgorithm);
 }
 
 

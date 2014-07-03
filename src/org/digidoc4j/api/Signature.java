@@ -17,7 +17,7 @@ import static org.digidoc4j.ContainerInterface.SignatureProfile;
  * Signature implementation. Provides an interface for handling a signature and the corresponding OCSP response properties.
  */
 public class Signature implements SignatureInterface {
-  private SignatureInterface signature;
+  private final SignatureInterface signature;
 
   public Signature(ee.sk.digidoc.Signature signature) {
     this.signature = new DDocSignature(signature);

@@ -6,7 +6,7 @@ import eu.europa.ec.markt.dss.signature.DSSDocument;
 import eu.europa.ec.markt.dss.signature.FileDocument;
 import eu.europa.ec.markt.dss.signature.SignatureLevel;
 import eu.europa.ec.markt.dss.signature.SignaturePackaging;
-import eu.europa.ec.markt.dss.signature.asic.ASiCEService;
+import eu.europa.ec.markt.dss.signature.asic.ASiCSService;
 import eu.europa.ec.markt.dss.signature.token.AbstractSignatureTokenConnection;
 import eu.europa.ec.markt.dss.signature.token.DSSPrivateKeyEntry;
 import eu.europa.ec.markt.dss.signature.token.Pkcs12SignatureToken;
@@ -28,25 +28,16 @@ import java.security.cert.X509Certificate;
  * Prototype for testing purposes
  */
 public class Prototype {
-  /**
-   * @param args List of arguments for main method. No arguments expected
-   * @throws CertificateException     if there is a problem with the certificate
-   * @throws NoSuchAlgorithmException if the cryptographic algorithm is unknown
-   * @throws KeyStoreException        if there is a generic KeyStore exception
-   * @throws IOException              if there is any IO failure
-   */
+
   public static void main(String[] args) throws CertificateException, NoSuchAlgorithmException,
-                                                KeyStoreException, IOException {
-    //sign();
-    validate();
+      KeyStoreException, IOException {
+    sign();
+    //validate();
   }
   //rm -rf test.bdoc, META-INF/.DS_Store && zip -0 -X test.bdoc mimetype && zip -r -D test.bdoc * -x mimetype && unzip -l test.bdoc
 
   private static void sign() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
     DSSDocument toSignDocument = new FileDocument("test.txt");
-    // File file = new File("209MBFile.tmp");
-    // File file = new File("test.txt");
-    // DSSDocument toSignDocument = new FileDocument(file);
     AbstractSignatureTokenConnection token = new Pkcs12SignatureToken("test", "signout.p12");
     DSSPrivateKeyEntry privateKey = token.getKeys().get(0);
 
@@ -76,7 +67,7 @@ public class Prototype {
     commonCertificateVerifier.setOcspSource(onlineOCSPSource);
 
     //XAdESService service = new XAdESService(commonCertificateVerifier);
-    ASiCEService service = new ASiCEService(commonCertificateVerifier);
+    ASiCSService service = new ASiCSService(commonCertificateVerifier);
 
     service.setTspSource(new OnlineTSPSource("http://tsa01.quovadisglobal.com/TSS/HttpTspServer"));
 
