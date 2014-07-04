@@ -34,7 +34,7 @@
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/.ideaLibSources/commons-lang-2.6-sources.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/.ideaLibSources/commons-lang-2.6-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

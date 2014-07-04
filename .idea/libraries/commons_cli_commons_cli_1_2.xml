@@ -1,6 +1,5 @@
 <component name="libraryTable">
-  <library name="commons-cli:commons-cli:1.2" type="repository">
-    <properties maven-id="commons-cli:commons-cli:1.2" />
+  <library name="commons-cli:commons-cli:1.2">
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/commons-cli-1.2.jar!/" />
     </CLASSES>

@@ -6,7 +6,7 @@
   </component>
   <component name="IdProvider" IDEtalkID="7EE7E333A4AFA2BF7204062829185BBA" />
   <component name="JavadocGenerationManager">
-    <option name="OUTPUT_DIRECTORY" value="$PROJECT_DIR$/../mjb_temp" />
+    <option name="OUTPUT_DIRECTORY" value="$MAVEN_REPOSITORY$/work/sk/mjb_temp" />
     <option name="OPTION_SCOPE" value="protected" />
     <option name="OPTION_HIERARCHY" value="true" />
     <option name="OPTION_NAVIGATOR" value="true" />

@@ -1,6 +1,5 @@
 <component name="libraryTable">
-  <library name="xmlunit:xmlunit:1.5" type="repository">
-    <properties maven-id="xmlunit:xmlunit:1.5" />
+  <library name="xmlunit:xmlunit:1.5">
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/xmlunit-1.5.jar!/" />
     </CLASSES>
