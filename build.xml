@@ -2,12 +2,13 @@
 <project xmlns:jacoco="antlib:org.jacoco.ant" xmlns:artifact="antlib:org.apache.maven.artifact.ant"
          name="digidoc4j builder" basedir="." default="dist">
 
+    <property environment="env"/>
     <property name="build.dir" value="build"/>
     <property name="dist.dir" value="dist"/>
     <property name="junit.dir" value="junit_report"/>
     <property name="coverage.dir" value="coverage"/>
     <property name="version" value="0.2"/>
-    <path id="maven-ant-tasks.classpath" path="maven-ant/maven-ant-tasks-2.1.3.jar"/>
+    <path id="maven-ant-tasks.classpath" path="maven-ant/maven-ant-tasks-2.1.4-SNAPSHOT.jar"/>
     <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
              uri="antlib:org.apache.maven.artifact.ant"
              classpathref="maven-ant-tasks.classpath"/>
@@ -56,7 +57,8 @@
     </target>
 
     <target name="sd-dss">
-        <artifact:mvn pom="sd-dss\pom.xml">
+        <artifact:mvn pom="sd-dss\pom.xml" mavenhome="${env.MAVEN_HOME}">
+            <arg value="-e"/>
             <arg value="clean"/>
             <arg value="install"/>
         </artifact:mvn>
