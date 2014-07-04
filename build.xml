@@ -8,7 +8,7 @@
     <property name="junit.dir" value="junit_report"/>
     <property name="coverage.dir" value="coverage"/>
     <property name="version" value="0.2"/>
-    <path id="maven-ant-tasks.classpath" path="maven-ant/maven-ant-tasks-2.1.4-SNAPSHOT.jar"/>
+    <path id="maven-ant-tasks.classpath" path="maven-ant/maven-ant-tasks-2.1.3.jar"/>
     <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
              uri="antlib:org.apache.maven.artifact.ant"
              classpathref="maven-ant-tasks.classpath"/>
