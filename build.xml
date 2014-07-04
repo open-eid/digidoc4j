@@ -57,8 +57,8 @@
     </target>
 
     <target name="sd-dss">
-        <artifact:mvn pom="sd-dss\pom.xml" mavenhome="${env.MAVEN_HOME}">
-            <arg value="-e"/>
+        <artifact:mvn pom="sd-dss\pom.xml" mavenhome="${env.MAVEN_BINARY_HOME}">
+        <arg value="-e"/>
             <arg value="clean"/>
             <arg value="install"/>
         </artifact:mvn>
