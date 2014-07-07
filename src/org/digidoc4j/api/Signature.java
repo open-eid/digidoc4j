@@ -1,6 +1,5 @@
 package org.digidoc4j.api;
 
-import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 import org.digidoc4j.BDocSignature;
 import org.digidoc4j.DDocSignature;
 import org.digidoc4j.SignatureInterface;
@@ -18,12 +17,12 @@ import static org.digidoc4j.ContainerInterface.SignatureProfile;
 public class Signature implements SignatureInterface {
   private final SignatureInterface signature;
 
-  public Signature(ee.sk.digidoc.Signature signature) {
-    this.signature = new DDocSignature(signature);
+  public Signature(DDocSignature dDocSignature) {
+    this.signature = dDocSignature;
   }
 
-  public Signature(byte[] signatureValue, SignatureParameters signatureParameters) {
-    signature = new BDocSignature(signatureValue, signatureParameters);
+  public Signature(BDocSignature bDocSignature) {
+    this.signature = bDocSignature;
   }
 
   @Override

@@ -38,10 +38,10 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 public class ASiCSContainer implements ContainerInterface {
 
   private CommonCertificateVerifier commonCertificateVerifier;
-    protected DocumentSignatureService asicService;
+  protected DocumentSignatureService asicService;
   final private Map<String, DataFile> dataFiles = new HashMap<String, DataFile>();
-    protected SignatureParameters signatureParameters;
-    protected DSSDocument signedDocument;
+  protected SignatureParameters signatureParameters;
+  protected DSSDocument signedDocument;
   private List<Signature> signatures = new ArrayList<Signature>();
   eu.europa.ec.markt.dss.DigestAlgorithm digestAlgorithm = eu.europa.ec.markt.dss.DigestAlgorithm.SHA256;
 
@@ -54,7 +54,7 @@ public class ASiCSContainer implements ContainerInterface {
     signatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
     commonCertificateVerifier = new CommonCertificateVerifier();
 
-      asicService = new ASiCSService(commonCertificateVerifier);
+    asicService = new ASiCSService(commonCertificateVerifier);
   }
 
   /**
@@ -131,20 +131,19 @@ public class ASiCSContainer implements ContainerInterface {
     commonCertificateVerifier.setTrustedCertSource(getTSL());
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource());
 
-      asicService = new ASiCSService(commonCertificateVerifier);
-      asicService.setTspSource(new OnlineTSPSource("http://tsa01.quovadisglobal.com/TSS/HttpTspServer"));
+    asicService = new ASiCSService(commonCertificateVerifier);
+    asicService.setTspSource(new OnlineTSPSource("http://tsa01.quovadisglobal.com/TSS/HttpTspServer"));
     signatureParameters.setSigningCertificate(signer.getCertificate().getX509Certificate());
 
-    //TODO throw error if no file exists
-    //DSSDocument toSignDocument = new FileDocument(getFirstDataFile().getFileName());
+    //TODO not working with big files
     DSSDocument toSignDocument = new InMemoryDocument(getFirstDataFile().getBytes(), getFirstDataFile().getFileName(),
         MimeType.fromCode(getFirstDataFile().getMediaType()));
 
-      byte[] dataToSign = asicService.getDataToSign(toSignDocument, signatureParameters);
+    byte[] dataToSign = asicService.getDataToSign(toSignDocument, signatureParameters);
     byte[] signatureValue = signer.sign(signatureParameters.getDigestAlgorithm().getXmlId(), dataToSign);
-      signedDocument = asicService.signDocument(toSignDocument, signatureParameters, signatureValue);
+    signedDocument = asicService.signDocument(toSignDocument, signatureParameters, signatureValue);
 
-    Signature signature = new Signature(signatureValue, signatureParameters);
+    Signature signature = new Signature(new BDocSignature(signatureValue, signatureParameters));
     signatures.add(signature);
     return signature;
   }

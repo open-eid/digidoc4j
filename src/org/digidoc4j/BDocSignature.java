@@ -1,18 +1,25 @@
 package org.digidoc4j;
 
+import eu.europa.ec.markt.dss.parameter.BLevelParameters;
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 import org.digidoc4j.api.X509Cert;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import sun.security.x509.X509CertImpl;
 
 import java.net.URI;
+import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.List;
 
 public class BDocSignature implements SignatureInterface {
   final private SignatureParameters signatureParameters;
+  private final byte[] signatureBytes;
+  private BLevelParameters.SignerLocation signerLocation;
 
   public BDocSignature(byte[] signatureValue, SignatureParameters signatureParameters) {
+    signatureBytes = signatureValue;
     this.signatureParameters = signatureParameters;
+    signerLocation = signatureParameters.bLevel().getSignerLocation();
   }
 
   @Override
@@ -22,12 +29,12 @@ public class BDocSignature implements SignatureInterface {
 
   @Override
   public String getCity() {
-    return null;
+    return signerLocation.getCity();
   }
 
   @Override
   public String getCountryName() {
-    return null;
+    return signerLocation.getCountry();
   }
 
   @Override
@@ -52,7 +59,7 @@ public class BDocSignature implements SignatureInterface {
 
   @Override
   public String getPostalCode() {
-    return null;
+    return signerLocation.getPostalCode();
   }
 
   @Override
@@ -72,12 +79,16 @@ public class BDocSignature implements SignatureInterface {
 
   @Override
   public List<String> getSignerRoles() {
-    return null;
+    return signatureParameters.bLevel().getClaimedSignerRoles();
   }
 
   @Override
   public X509Cert getSigningCertificate() {
-    return null;
+    try {
+      return new X509Cert(new X509CertImpl(signatureBytes));
+    } catch (CertificateException e) {
+      throw new DigiDoc4JException(e);
+    }
   }
 
   @Override
@@ -92,7 +103,7 @@ public class BDocSignature implements SignatureInterface {
 
   @Override
   public String getStateOrProvince() {
-    return null;
+    return signerLocation.getStateOrProvince();
   }
 
   @Override
@@ -112,6 +123,6 @@ public class BDocSignature implements SignatureInterface {
 
   @Override
   public byte[] getRawSignature() {
-    return new byte[0];
+    return signatureBytes;
   }
 }
