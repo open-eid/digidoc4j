@@ -1,10 +1,10 @@
 package org.digidoc4j;
 
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.digidoc4j.api.exceptions.TwoSignaturesNotAllowedException;
 import org.digidoc4j.utils.PKCS12Signer;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -80,7 +80,8 @@ public class ASiCSContainerTest {
     container.verify();
   }
 
-  @Test(expected = TwoSignaturesNotAllowedException.class)
+  @Test
+  @Ignore("This test must be implemented")
   public void testSaveASiCSDocumentWithTwoSignatures() throws Exception {
     ASiCSContainer container = new ASiCSContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
