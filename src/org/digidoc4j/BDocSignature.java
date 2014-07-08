@@ -1,25 +1,28 @@
 package org.digidoc4j;
 
-import eu.europa.ec.markt.dss.parameter.BLevelParameters;
-import eu.europa.ec.markt.dss.parameter.SignatureParameters;
+import eu.europa.ec.markt.dss.validation102853.CertificateToken;
+import eu.europa.ec.markt.dss.validation102853.bean.SignatureProductionPlace;
+import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.cert.ocsp.RespID;
 import org.digidoc4j.api.X509Cert;
+import org.digidoc4j.api.exceptions.CertificateNotFoundException;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import sun.security.x509.X509CertImpl;
+import org.digidoc4j.api.exceptions.NotYetImplementedException;
 
 import java.net.URI;
-import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 public class BDocSignature implements SignatureInterface {
-  final private SignatureParameters signatureParameters;
-  private final byte[] signatureBytes;
-  private BLevelParameters.SignerLocation signerLocation;
+  private XAdESSignature origin;
+  private SignatureProductionPlace signerLocation;
 
-  public BDocSignature(byte[] signatureValue, SignatureParameters signatureParameters) {
-    signatureBytes = signatureValue;
-    this.signatureParameters = signatureParameters;
-    signerLocation = signatureParameters.bLevel().getSignerLocation();
+  public BDocSignature(XAdESSignature signature) {
+    origin = signature;
+    signerLocation = signature.getSignatureProductionPlace();
   }
 
   @Override
@@ -34,12 +37,12 @@ public class BDocSignature implements SignatureInterface {
 
   @Override
   public String getCountryName() {
-    return signerLocation.getCountry();
+    return signerLocation.getCountryName();
   }
 
   @Override
   public String getId() {
-    return null;
+    return origin.getId();
   }
 
   @Override
@@ -49,12 +52,27 @@ public class BDocSignature implements SignatureInterface {
 
   @Override
   public X509Cert getOCSPCertificate() {
-    return null;
+    String ocspCN = getOCSPCommonName();
+    for (CertificateToken cert : origin.getCertPool().getCertificateTokens()) {
+      String value = getCN(new X500Name(cert.getSubjectX500Principal().getName()));
+      if (value.equals(ocspCN))
+        return new X509Cert(cert.getCertificate());
+    }
+    throw new CertificateNotFoundException("Certificate for " + ocspCN + " not found in TSL");
+  }
+
+  private String getOCSPCommonName() {
+    RespID responderId = origin.getOCSPSource().getContainedOCSPResponses().get(0).getResponderId();
+    return getCN(responderId.toASN1Object().getName());
+  }
+
+  private String getCN(X500Name x500Name) {
+    return x500Name.getRDNs(new ASN1ObjectIdentifier("2.5.4.3"))[0].getTypesAndValues()[0].getValue().toString();
   }
 
   @Override
   public String getPolicy() {
-    return null;
+    throw new NotYetImplementedException();
   }
 
   @Override
@@ -64,7 +82,7 @@ public class BDocSignature implements SignatureInterface {
 
   @Override
   public Date getProducedAt() {
-    return null;
+    return origin.getOCSPSource().getContainedOCSPResponses().get(0).getProducedAt();
   }
 
   @Override
@@ -79,21 +97,17 @@ public class BDocSignature implements SignatureInterface {
 
   @Override
   public List<String> getSignerRoles() {
-    return signatureParameters.bLevel().getClaimedSignerRoles();
+    return Arrays.asList(origin.getClaimedSignerRoles());
   }
 
   @Override
   public X509Cert getSigningCertificate() {
-    try {
-      return new X509Cert(new X509CertImpl(signatureBytes));
-    } catch (CertificateException e) {
-      throw new DigiDoc4JException(e);
-    }
+    return new X509Cert(origin.getSigningCertificateToken().getCertificate());
   }
 
   @Override
   public Date getSigningTime() {
-    return signatureParameters.bLevel().getSigningDate();
+    return origin.getSigningTime();
   }
 
   @Override
@@ -123,6 +137,6 @@ public class BDocSignature implements SignatureInterface {
 
   @Override
   public byte[] getRawSignature() {
-    return signatureBytes;
+    return origin.getSignatureValue().getFirstChild().getNodeValue().getBytes();
   }
 }
