@@ -1,7 +1,10 @@
 package org.digidoc4j.api;
 
+import eu.europa.ec.markt.dss.CertificateIdentifier;
+import eu.europa.ec.markt.dss.DSSUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.ContainerInterface;
+import org.digidoc4j.api.exceptions.CertificateNotFoundException;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.utils.PKCS12Signer;
@@ -9,6 +12,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.security.cert.CertificateEncodingException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.digidoc4j.ContainerInterface.DocumentType.ASIC_S;
@@ -58,15 +65,30 @@ public class SignatureTest {
     testGetSignerRoles(new Container(ASIC_S));
   }
 
+  @Test(expected = CertificateNotFoundException.class)
+  public void testGetSignerRolesForASiCS_OCSP_Exception() {
+    Container container = new Container("testFiles/asics_OCSP_Exception_test.asics");
+    List<Signature> signatures = container.getSignatures();
+    signatures.get(0).getOCSPCertificate();
+  }
+
   private void testGetSignerRoles(Container container) {
     container.addDataFile("testFiles/test.txt", "text/plain");
-    PKCS12Signer signer = PKCS12_SIGNER;
-    signer.setSignerRoles(asList("Role / Resolution"));
-    Signature signature = container.sign(signer);
+    PKCS12_SIGNER.setSignerRoles(asList("Role / Resolution"));
+    Signature signature = container.sign(PKCS12_SIGNER);
     assertEquals(1, signature.getSignerRoles().size());
     assertEquals("Role / Resolution", signature.getSignerRoles().get(0));
   }
 
+  @Test
+  public void testGetRawSignatureForASiCS() {
+    Container container = new Container("testFiles/asics_for_testing.asics");
+    List<Signature> signatures = container.getSignatures();
+    assertEquals("IXMGT0c/U69uEhWZIZvitPQGD29Tx3oKO+9PNijzyRiupcjKTxlH306mbFfIYfVXkiu5n8mA183bzBH/CA5wgbccXwIwykEfay" +
+        "Cm2/fGUNm5As9zErnzBWQ4s0oZWIVIi6DFR/QT/rzAoRNJ+1sPZBPvJlPofCW64FgkyADVAUDeCCkV6eAIr2ip+kwduJDmZwxrW/EqU1TA0" +
+        "w77lhhAIw4KYEV4yi96eAzDL2rjB8VMUlmLYMnmz1oPdkOGmuj3pbfHV1w4zxYU9uM7LFNN2EogPt4oiH17VSNSlip+HCFdUqvf7hpLFLl2" +
+        "iqxgVAijzvw0sMa2p5+iwLUfqCR45w==", new String(signatures.get(0).getRawSignature()));
+  }
 
   @Test(expected = DigiDoc4JException.class)
   public void testGetMultipleSignerRolesForDDOC() {
@@ -80,9 +102,8 @@ public class SignatureTest {
 
   private void testGetMultipleSignerRoles(Container container) {
     container.addDataFile("testFiles/test.txt", "text/plain");
-    PKCS12Signer signer = PKCS12_SIGNER;
-    signer.setSignerRoles(asList("Role 1", "Role 2"));
-    Signature signature = container.sign(signer);
+    PKCS12_SIGNER.setSignerRoles(asList("Role 1", "Role 2"));
+    Signature signature = container.sign(PKCS12_SIGNER);
     assertEquals(2, signature.getSignerRoles().size());
     assertEquals("Role 1", signature.getSignerRoles().get(0));
     assertEquals("Role 2", signature.getSignerRoles().get(1));
@@ -115,9 +136,19 @@ public class SignatureTest {
   }
 
   @Test
-  public void testGetId() {
+  public void testGetIdForDDOC() {
     Signature signature = getSignature(DDOC);
     assertEquals("S0", signature.getId());
+  }
+
+  @Test
+  public void testGetIdForASiCS() {
+    Signature signature = getSignature(ASIC_S);
+
+    final int dssId = CertificateIdentifier.getId(signature.getSigningCertificate().getX509Certificate());
+    String signatureId = DSSUtils.getDeterministicId(signature.getSigningTime(), dssId);
+
+    assertEquals(signatureId, signature.getId());
   }
 
   @Test
@@ -127,8 +158,16 @@ public class SignatureTest {
   }
 
   @Test
-  public void testGetOCSPCertificate() throws CertificateEncodingException {
-    Signature signature = getSignature(DDOC);
+  public void testGetOCSPCertificateForDDoc() throws CertificateEncodingException {
+    testGetOCSPCertificate(getSignature(DDOC));
+  }
+
+  @Test
+  public void testGetOCSPCertificateForASiCS() throws CertificateEncodingException {
+    testGetOCSPCertificate(getSignature(ASIC_S));
+  }
+
+  private void testGetOCSPCertificate(Signature signature) throws CertificateEncodingException {
     byte[] encoded = signature.getOCSPCertificate().getX509Certificate().getEncoded();
     assertEquals("MIIEijCCA3KgAwIBAgIQaI8x6BnacYdNdNwlYnn/mzANBgkqhkiG9w0BAQUFADB9" +
         "MQswCQYDVQQGEwJFRTEiMCAGA1UECgwZQVMgU2VydGlmaXRzZWVyaW1pc2tlc2t1" +
@@ -155,16 +194,30 @@ public class SignatureTest {
         "4SxStcgRq7KdRczfW6mfXzTCRWM3G9nmDei5Q3+XTED41j8szRWglzYf6zOv4djk" +
         "ja64WYraQ5zb4x8Xh7qTCk6UupZ7je+0oRfuz0h/3zyRdjcRPkjloSpQp/NG8Rmr" +
         "cnr874p8d9fdwCrRI7U=", Base64.encodeBase64String(encoded));
+
   }
 
   @Test
-  public void testGetSignaturePolicy() {
+  public void testGetSignaturePolicyForDDoc() {
     assertEquals("", getSignature(DDOC).getPolicy());
   }
 
+  @Test(expected = NotYetImplementedException.class)
+  public void testGetSignaturePolicyForASiCS() throws Exception {
+    Signature signature = getSignature(ASIC_S);
+    assertEquals("", signature.getPolicy());
+  }
+
   @Test
-  public void testGetProducedAt() {
+  public void testGetProducedAtForDDoc() {
     assertTrue(isAlmostNow(getSignature(DDOC).getProducedAt()));
+  }
+
+  @Test
+  public void testGetProducedAtForASiCS() throws ParseException {
+    Container container = new Container("testFiles/asics_ocsp_cert_is_not_in_tsl_test.asics");
+    Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse("2014-07-08 12:51:16 +0000");
+    assertEquals(date, container.getSignatures().get(0).getProducedAt());
   }
 
   @Test
@@ -206,6 +259,8 @@ public class SignatureTest {
   private Signature getSignature(ContainerInterface.DocumentType documentType) {
     Container container = new Container(documentType);
     container.addDataFile("testFiles/test.txt", "text/plain");
-    return container.sign(PKCS12_SIGNER);
+
+    Signature signature = container.sign(PKCS12_SIGNER);
+    return signature;
   }
 }
