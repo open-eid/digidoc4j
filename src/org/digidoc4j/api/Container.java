@@ -1,5 +1,6 @@
 package org.digidoc4j.api;
 
+import org.apache.commons.io.FilenameUtils;
 import org.digidoc4j.ASiCSContainer;
 import org.digidoc4j.BDocContainer;
 import org.digidoc4j.ContainerInterface;
@@ -56,9 +57,15 @@ public class Container implements ContainerInterface {
    */
   public Container(String path) {
     try {
-      if (Helper.isZipFile(new File(path)))
-        containerImplementation = new BDocContainer(path);
-      containerImplementation = new DDocContainer(path);
+
+      if (Helper.isZipFile(new File(path))) {
+        if ("asics".equalsIgnoreCase(FilenameUtils.getExtension(path)))
+          containerImplementation = new ASiCSContainer(path);
+        else
+          containerImplementation = new BDocContainer(path);
+      } else {
+        containerImplementation = new DDocContainer(path);
+      }
     } catch (IOException e) {
       throw new DigiDoc4JException(e);
     }
