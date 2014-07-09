@@ -49,7 +49,11 @@ public interface ContainerInterface {
     /**
      * Time-stamp.
      */
-    TS
+    TS,
+    /**
+     * no profile
+     */
+    NONE
   }
 
   /**

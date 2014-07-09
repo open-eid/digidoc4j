@@ -16,6 +16,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static org.digidoc4j.ContainerInterface.SignatureProfile;
+
 public class BDocSignature implements SignatureInterface {
   private XAdESSignature origin;
   private SignatureProductionPlace signerLocation;
@@ -47,7 +49,7 @@ public class BDocSignature implements SignatureInterface {
 
   @Override
   public byte[] getNonce() {
-    return new byte[0];
+    throw new NotYetImplementedException();
   }
 
   @Override
@@ -86,13 +88,15 @@ public class BDocSignature implements SignatureInterface {
   }
 
   @Override
-  public ContainerInterface.SignatureProfile getProfile() {
-    return null;
+  public SignatureProfile getProfile() {
+    if (origin.getSignatureTimestamps() != null && origin.getSignatureTimestamps().size() > 0)
+      return SignatureProfile.TS;
+    return SignatureProfile.NONE;
   }
 
   @Override
   public String getSignatureMethod() {
-    return null;
+    return origin.getDigestAlgo().getXmlId();
   }
 
   @Override
@@ -112,7 +116,7 @@ public class BDocSignature implements SignatureInterface {
 
   @Override
   public URI getSignaturePolicyURI() {
-    return null;
+    throw new NotYetImplementedException();
   }
 
   @Override

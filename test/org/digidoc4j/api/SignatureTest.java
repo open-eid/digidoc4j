@@ -1,7 +1,5 @@
 package org.digidoc4j.api;
 
-import eu.europa.ec.markt.dss.CertificateIdentifier;
-import eu.europa.ec.markt.dss.DSSUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.ContainerInterface;
 import org.digidoc4j.api.exceptions.CertificateNotFoundException;
@@ -11,6 +9,7 @@ import org.digidoc4j.utils.PKCS12Signer;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URI;
 import java.security.cert.CertificateEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -67,7 +66,7 @@ public class SignatureTest {
 
   @Test(expected = CertificateNotFoundException.class)
   public void testGetSignerRolesForASiCS_OCSP_Exception() {
-    Container container = new Container("testFiles/asics_OCSP_Exception_test.asics");
+    Container container = new Container("testFiles/asics_ocsp_cert_is_not_in_tsl_test.asics");
     List<Signature> signatures = container.getSignatures();
     signatures.get(0).getOCSPCertificate();
   }
@@ -143,12 +142,8 @@ public class SignatureTest {
 
   @Test
   public void testGetIdForASiCS() {
-    Signature signature = getSignature(ASIC_S);
-
-    final int dssId = CertificateIdentifier.getId(signature.getSigningCertificate().getX509Certificate());
-    String signatureId = DSSUtils.getDeterministicId(signature.getSigningTime(), dssId);
-
-    assertEquals(signatureId, signature.getId());
+    Container container = new Container("testFiles/asics_ocsp_cert_is_not_in_tsl_test.asics");
+    assertEquals("id-99E491801522116744419D9357CEFCC5", container.getSignatures().get(0).getId());
   }
 
   @Test
@@ -237,18 +232,43 @@ public class SignatureTest {
   }
 
   @Test
-  public void testGetSignaturePolicyURI() {
+  public void testGetSignaturePolicyURIForDDoc() {
     assertNull(getSignature(DDOC).getSignaturePolicyURI());
   }
 
+  @Test(expected = NotYetImplementedException.class)
+  public void testGetSignaturePolicyURIForASiCS() throws Exception {
+    Container container = new Container("testFiles/asics_ocsp_cert_is_not_in_tsl_test.asics");
+    assertEquals(new URI(""), container.getSignatures().get(0).getSignaturePolicyURI());
+  }
+
   @Test
-  public void testGetSignatureMethod() {
+  public void testGetSignatureMethodDDoc() {
     assertEquals("http://www.w3.org/2000/09/xmldsig#rsa-sha1", getSignature(DDOC).getSignatureMethod());
   }
 
   @Test
-  public void testGetProfile() {
+  public void testGetSignatureMethodForASiCS() {
+    Container container = new Container("testFiles/asics_ocsp_cert_is_not_in_tsl_test.asics");
+    assertEquals("http://www.w3.org/2001/04/xmlenc#sha256",
+        container.getSignatures().get(0).getSignatureMethod());
+  }
+
+  @Test
+  public void testGetProfileForDDoc() {
     assertEquals(ContainerInterface.SignatureProfile.TM, getSignature(DDOC).getProfile());
+  }
+
+  @Test
+  public void testGetProfileForASiCS_TS() throws Exception {
+    Container container = new Container("testFiles/asics_ocsp_cert_is_not_in_tsl_test.asics");
+    assertEquals(ContainerInterface.SignatureProfile.TS, container.getSignatures().get(0).getProfile());
+  }
+
+  @Test
+  public void testGetProfileForASiCS_None() throws Exception {
+    Container container = new Container("testFiles/asics_for_testing.asics");
+    assertEquals(ContainerInterface.SignatureProfile.NONE, container.getSignatures().get(0).getProfile());
   }
 
   @Test(expected = NotYetImplementedException.class)
@@ -260,7 +280,12 @@ public class SignatureTest {
     Container container = new Container(documentType);
     container.addDataFile("testFiles/test.txt", "text/plain");
 
-    Signature signature = container.sign(PKCS12_SIGNER);
-    return signature;
+    return container.sign(PKCS12_SIGNER);
+  }
+
+  @Test(expected = NotYetImplementedException.class)
+  public void testGetNonceForASiCS() {
+    Container container = new Container("testFiles/asics_for_testing.asics");
+    container.getSignatures().get(0).getNonce();
   }
 }
