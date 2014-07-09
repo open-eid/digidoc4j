@@ -12,6 +12,8 @@ import org.xml.sax.SAXException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.cert.CertificateEncodingException;
 import java.util.List;
 
@@ -242,6 +244,7 @@ public class ContainerTest {
     asicContainer.sign(PKCS12_SIGNER);
     asicContainer.save("test.bdoc");
     assertTrue(Helper.isZipFile(new File("test.bdoc")));
+    Files.deleteIfExists(Paths.get("test.bdoc"));
   }
 
   @Test
