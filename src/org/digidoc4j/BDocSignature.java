@@ -126,7 +126,10 @@ public class BDocSignature implements SignatureInterface {
 
   @Override
   public X509Cert getTimeStampTokenCertificate() {
-    return null;
+    if (origin.getSignatureTimestamps() == null || origin.getSignatureTimestamps().size() == 0) {
+      throw new CertificateNotFoundException("TimeStamp certificate not found");
+    }
+    return new X509Cert(origin.getSignatureTimestamps().get(0).getIssuerToken().getCertificate());
   }
 
   @Override

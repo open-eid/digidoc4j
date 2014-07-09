@@ -1,6 +1,7 @@
 package org.digidoc4j.api;
 
 import org.apache.commons.codec.binary.Base64;
+import org.digidoc4j.Certificates;
 import org.digidoc4j.ContainerInterface;
 import org.digidoc4j.api.exceptions.CertificateNotFoundException;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
@@ -52,6 +53,25 @@ public class SignatureTest {
     assertEquals("city", signature.getCity());
     assertEquals("state", signature.getStateOrProvince());
     assertEquals("postalCode", signature.getPostalCode());
+  }
+
+  @Test
+  public void testGetSigningCertificateForASiCS() throws Exception {
+    Container container = new Container("testFiles/asics_for_testing.asics");
+    byte[] certificate = container.getSignatures().get(0).getSigningCertificate().getX509Certificate().getEncoded();
+    assertEquals(Certificates.SIGNING_CERTIFICATE, Base64.encodeBase64String(certificate));
+  }
+
+  @Test
+  public void testGetTimeStampTokenCertificateForASiCS() throws Exception {
+    Signature signature = new Container("testFiles/asics_ocsp_cert_is_not_in_tsl_test.asics").getSignatures().get(0);
+    byte[] certificate = signature.getTimeStampTokenCertificate().getX509Certificate().getEncoded();
+    assertEquals(Certificates.TS_CERTIFICATE, Base64.encodeBase64String(certificate));
+  }
+
+  @Test(expected = CertificateNotFoundException.class)
+  public void testGetTimeStampTokenCertificateForASiCSNoTimeStampExists() throws Exception {
+    new Container("testFiles/asics_for_testing.asics").getSignatures().get(0).getTimeStampTokenCertificate();
   }
 
   @Test
@@ -272,7 +292,7 @@ public class SignatureTest {
   }
 
   @Test(expected = NotYetImplementedException.class)
-  public void testGetTimeStampTokenCertificate() {
+  public void testGetTimeStampTokenCertificateForDDoc() {
     assertNull(getSignature(DDOC).getTimeStampTokenCertificate());
   }
 
