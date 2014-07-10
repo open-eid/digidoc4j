@@ -4,7 +4,6 @@ import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.utils.PKCS12Signer;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -81,12 +80,17 @@ public class ASiCSContainerTest {
   }
 
   @Test
-  @Ignore("This test must be implemented")
   public void testSaveASiCSDocumentWithTwoSignatures() throws Exception {
     ASiCSContainer container = new ASiCSContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.sign(new PKCS12Signer("testFiles/B4B.pfx", "123456"));
+    container.save("testFiles/asics_testing_two_signatures.asics");
+    assertEquals(2, container.getSignatures().size());
+    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
+        container.getSignatures().get(0).getSigningCertificate().getSerial());
+    assertEquals("5fe0774b8ba12b98d1c2250f076cd7e0ed7259ab",
+        container.getSignatures().get(1).getSigningCertificate().getSerial());
   }
 
   @Test
@@ -103,7 +107,7 @@ public class ASiCSContainerTest {
 
   @Test
   public void testTestVerifyOnInvalidDocument() throws Exception {
-    ASiCSContainer container = new ASiCSContainer("testFiles/asics_InvalidContainer.asics");
+    ASiCSContainer container = new ASiCSContainer("testFiles/invalid_container.asics");
     assertTrue(container.verify().size() > 0);
   }
 

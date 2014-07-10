@@ -12,6 +12,7 @@ import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -21,10 +22,17 @@ import static org.digidoc4j.ContainerInterface.SignatureProfile;
 public class BDocSignature implements SignatureInterface {
   private XAdESSignature origin;
   private SignatureProductionPlace signerLocation;
+  private List<DigiDoc4JException> validationErrors = new ArrayList<DigiDoc4JException>();
 
   public BDocSignature(XAdESSignature signature) {
     origin = signature;
     signerLocation = signature.getSignatureProductionPlace();
+  }
+
+  public BDocSignature(XAdESSignature signature, List<DigiDoc4JException> validationErrors) {
+    origin = signature;
+    signerLocation = signature.getSignatureProductionPlace();
+    this.validationErrors = validationErrors;
   }
 
   @Override
@@ -134,12 +142,12 @@ public class BDocSignature implements SignatureInterface {
 
   @Override
   public List<DigiDoc4JException> validate(Validate validationType) {
-    return null;
+    return validationErrors;
   }
 
   @Override
   public List<DigiDoc4JException> validate() {
-    return null;
+    return validate(Validate.VALIDATE_FULL);
   }
 
   @Override

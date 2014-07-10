@@ -6,6 +6,7 @@ import eu.europa.ec.markt.dss.signature.*;
 import eu.europa.ec.markt.dss.signature.asic.ASiCSService;
 import eu.europa.ec.markt.dss.validation102853.AdvancedSignature;
 import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
+import eu.europa.ec.markt.dss.validation102853.SignatureForm;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
@@ -54,6 +55,7 @@ public class ASiCSContainer implements ContainerInterface {
     signatureParameters = new SignatureParameters();
     signatureParameters.setSignatureLevel(SignatureLevel.ASiC_S_BASELINE_LT);
     signatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
+    signatureParameters.aSiC().setAsicSignatureForm(SignatureForm.XAdES);
     commonCertificateVerifier = new CommonCertificateVerifier();
 
     asicService = new ASiCSService(commonCertificateVerifier);
@@ -65,14 +67,21 @@ public class ASiCSContainer implements ContainerInterface {
    * @param path container file name with path
    */
   public ASiCSContainer(String path) {
+    List<DigiDoc4JException> validationErrors;
     signedDocument = new FileDocument(path);
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
     DSSDocument externalContent = validator.getExternalContent();
 
     validate(validator);
     List<AdvancedSignature> signatureList = validator.getSignatures();
+
     for (AdvancedSignature advancedSignature : signatureList) {
-      signatures.add(new Signature(new BDocSignature((XAdESSignature) advancedSignature)));
+      validationErrors = new ArrayList<DigiDoc4JException>();
+      List<Conclusion.BasicInfo> errors = validator.getSimpleReport().getErrors(advancedSignature.getId());
+      for (Conclusion.BasicInfo error : errors) {
+        validationErrors.add(new DigiDoc4JException(error.toString()));
+      }
+      signatures.add(new Signature(new BDocSignature((XAdESSignature) advancedSignature, validationErrors)));
     }
 
     dataFiles.put(externalContent.getName(), new DataFile(externalContent.getBytes(), externalContent.getName(),
@@ -98,7 +107,8 @@ public class ASiCSContainer implements ContainerInterface {
 
   @Override
   public void addRawSignature(byte[] signature) {
-    sign(signature, getSigningDocument());
+    signatureParameters.setDeterministicId("S" + getSignatures().size());
+    sign(signature);
   }
 
   @Override
@@ -136,31 +146,37 @@ public class ASiCSContainer implements ContainerInterface {
   public Signature sign(Signer signer) {
     addSignerInformation(signer);
     signatureParameters.setSigningCertificate(signer.getCertificate().getX509Certificate());
+    signatureParameters.setDeterministicId("S" + getSignatures().size());
     byte[] dataToSign = asicService.getDataToSign(getSigningDocument(), signatureParameters);
 
-    return sign(signer.sign(signatureParameters.getDigestAlgorithm().getXmlId(), dataToSign), getSigningDocument());
+    return sign(signer.sign(signatureParameters.getDigestAlgorithm().getXmlId(), dataToSign));
   }
 
-  private DSSDocument getSigningDocument() {
-    //TODO not working with big files
-    return new InMemoryDocument(getFirstDataFile().getBytes(), getFirstDataFile().getFileName(),
-        MimeType.fromCode(getFirstDataFile().getMediaType()));
-  }
-
-  public Signature sign(byte[] rawSignature, DSSDocument toSignDocument) {
+  public Signature sign(byte[] rawSignature) {
     commonCertificateVerifier.setTrustedCertSource(getTSL());
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource());
 
     asicService = new ASiCSService(commonCertificateVerifier);
     asicService.setTspSource(new OnlineTSPSource("http://tsa01.quovadisglobal.com/TSS/HttpTspServer"));
-
-    signedDocument = asicService.signDocument(toSignDocument, signatureParameters, rawSignature);
+    signedDocument = asicService.signDocument(signedDocument, signatureParameters, rawSignature);
 
     signatureParameters.setOriginalDocument(signedDocument);
     XAdESSignature xAdESSignature = getSignatureById(signatureParameters.getDeterministicId());
+
     Signature signature = new Signature(new BDocSignature(xAdESSignature));
     signatures.add(signature);
+
     return signature;
+  }
+
+  private DSSDocument getSigningDocument() {
+    if (signedDocument == null) {
+      DataFile dataFile = getFirstDataFile();
+      MimeType mimeType = MimeType.fromCode(dataFile.getMediaType());
+      //TODO not working with big files
+      signedDocument = new InMemoryDocument(dataFile.getBytes(), dataFile.getFileName(), mimeType);
+    }
+    return signedDocument;
   }
 
   private XAdESSignature getSignatureById(String deterministicId) {

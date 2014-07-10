@@ -64,7 +64,7 @@ public class SignatureTest {
 
   @Test
   public void testGetTimeStampTokenCertificateForASiCS() throws Exception {
-    Signature signature = new Container("testFiles/asics_ocsp_cert_is_not_in_tsl_test.asics").getSignatures().get(0);
+    Signature signature = new Container("testFiles/ocsp_cert_is_not_in_tsl.asics").getSignatures().get(0);
     byte[] certificate = signature.getTimeStampTokenCertificate().getX509Certificate().getEncoded();
     assertEquals(Certificates.TS_CERTIFICATE, Base64.encodeBase64String(certificate));
   }
@@ -86,7 +86,7 @@ public class SignatureTest {
 
   @Test(expected = CertificateNotFoundException.class)
   public void testGetSignerRolesForASiCS_OCSP_Exception() {
-    Container container = new Container("testFiles/asics_ocsp_cert_is_not_in_tsl_test.asics");
+    Container container = new Container("testFiles/ocsp_cert_is_not_in_tsl.asics");
     List<Signature> signatures = container.getSignatures();
     signatures.get(0).getOCSPCertificate();
   }
@@ -162,7 +162,7 @@ public class SignatureTest {
 
   @Test
   public void testGetIdForASiCS() {
-    Container container = new Container("testFiles/asics_ocsp_cert_is_not_in_tsl_test.asics");
+    Container container = new Container("testFiles/ocsp_cert_is_not_in_tsl.asics");
     assertEquals("id-99E491801522116744419D9357CEFCC5", container.getSignatures().get(0).getId());
   }
 
@@ -184,31 +184,7 @@ public class SignatureTest {
 
   private void testGetOCSPCertificate(Signature signature) throws CertificateEncodingException {
     byte[] encoded = signature.getOCSPCertificate().getX509Certificate().getEncoded();
-    assertEquals("MIIEijCCA3KgAwIBAgIQaI8x6BnacYdNdNwlYnn/mzANBgkqhkiG9w0BAQUFADB9" +
-        "MQswCQYDVQQGEwJFRTEiMCAGA1UECgwZQVMgU2VydGlmaXRzZWVyaW1pc2tlc2t1" +
-        "czEwMC4GA1UEAwwnVEVTVCBvZiBFRSBDZXJ0aWZpY2F0aW9uIENlbnRyZSBSb290" +
-        "IENBMRgwFgYJKoZIhvcNAQkBFglwa2lAc2suZWUwHhcNMTEwMzA3MTMyMjQ1WhcN" +
-        "MjQwOTA3MTIyMjQ1WjCBgzELMAkGA1UEBhMCRUUxIjAgBgNVBAoMGUFTIFNlcnRp" +
-        "Zml0c2VlcmltaXNrZXNrdXMxDTALBgNVBAsMBE9DU1AxJzAlBgNVBAMMHlRFU1Qg" +
-        "b2YgU0sgT0NTUCBSRVNQT05ERVIgMjAxMTEYMBYGCSqGSIb3DQEJARYJcGtpQHNr" +
-        "LmVlMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0cw6Cja17BbYbHi6" +
-        "frwccDI4BIQLk/fiCE8L45os0xhPgEGR+EHE8LPCIqofPgf4gwN1vDE6cQNUlK0O" +
-        "d+Ush39i9Z45esnfpGq+2HsDJaFmFr5+uC1MEz5Kn1TazEvKbRjkGnSQ9BertlGe" +
-        "r2BlU/kqOk5qA5RtJfhT0psc1ixKdPipv59wnf+nHx1+T+fPWndXVZLoDg4t3w8l" +
-        "IvIE/KhOSMlErvBIHIAKV7yH1hOxyeGLghqzMiAn3UeTEOgoOS9URv0C/T5C3mH+" +
-        "Y/uakMSxjNuz41PneimCzbEJZJRiEaMIj8qPAubcbL8GtY03MWmfNtX6/wh6u6TM" +
-        "fW8S2wIDAQABo4H+MIH7MBYGA1UdJQEB/wQMMAoGCCsGAQUFBwMJMB0GA1UdDgQW" +
-        "BBR9/5CuRokEgGiqSzYuZGYAogl8TzCBoAYDVR0gBIGYMIGVMIGSBgorBgEEAc4f" +
-        "AwEBMIGDMFgGCCsGAQUFBwICMEweSgBBAGkAbgB1AGwAdAAgAHQAZQBzAHQAaQBt" +
-        "AGkAcwBlAGsAcwAuACAATwBuAGwAeQAgAGYAbwByACAAdABlAHMAdABpAG4AZwAu" +
-        "MCcGCCsGAQUFBwIBFhtodHRwOi8vd3d3LnNrLmVlL2FqYXRlbXBlbC8wHwYDVR0j" +
-        "BBgwFoAUtTQKnaUvEMXnIQ6+xLFlRxsDdv4wDQYJKoZIhvcNAQEFBQADggEBAAba" +
-        "j7kTruTAPHqToye9ZtBdaJ3FZjiKug9/5RjsMwDpOeqFDqCorLd+DBI4tgdu0g4l" +
-        "haI3aVnKdRBkGV18kqp84uU97JRFWQEf6H8hpJ9k/LzAACkP3tD+0ym+md532mV+" +
-        "nRz1Jj+RPLAUk9xYMV7KPczZN1xnl2wZDJwBbQpcSVH1DjlZv3tFLHBLIYTS6qOK" +
-        "4SxStcgRq7KdRczfW6mfXzTCRWM3G9nmDei5Q3+XTED41j8szRWglzYf6zOv4djk" +
-        "ja64WYraQ5zb4x8Xh7qTCk6UupZ7je+0oRfuz0h/3zyRdjcRPkjloSpQp/NG8Rmr" +
-        "cnr874p8d9fdwCrRI7U=", Base64.encodeBase64String(encoded));
+    assertEquals(Certificates.OCSP_CERTIFICATE, Base64.encodeBase64String(encoded));
 
   }
 
@@ -230,25 +206,49 @@ public class SignatureTest {
 
   @Test
   public void testGetProducedAtForASiCS() throws ParseException {
-    Container container = new Container("testFiles/asics_ocsp_cert_is_not_in_tsl_test.asics");
+    Container container = new Container("testFiles/ocsp_cert_is_not_in_tsl.asics");
     Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse("2014-07-08 12:51:16 +0000");
     assertEquals(date, container.getSignatures().get(0).getProducedAt());
   }
 
   @Test
-  public void testValidation() {
+  public void testValidationForDDoc() {
     assertEquals(0, getSignature(DDOC).validate(VALIDATE_FULL).size());
   }
 
   @Test
-  public void testValidationNoParameters() {
+  public void testValidationNoParametersForDDoc() {
     assertEquals(0, getSignature(DDOC).validate().size());
   }
 
   @Test
+  public void testValidationForASiCSDefaultValidation() throws Exception {
+    Container container = new Container("testFiles/two_signatures.asics");
+    Signature signature = container.getSignatures().get(0);
+    assertEquals(0, signature.validate().size());
+    signature = container.getSignatures().get(1);
+    assertEquals(0, signature.validate().size());
+  }
+
+  @Test
+  public void testValidationForASiCSDefaultValidationWithFailure() throws Exception {
+    Signature signature = new Container("testFiles/ocsp_cert_is_not_in_tsl.asics").getSignatures().get(0);
+    assertEquals(1, signature.validate().size());
+  }
+
+  @Test
+  public void testValidationForASiCSDefaultValidationWithOneFailing() throws Exception {
+    Container container = new Container("testFiles/two_signatures_one_invalid.asics");
+    Signature signature = container.getSignatures().get(0);
+    assertEquals(0, signature.validate().size());
+    signature = container.getSignatures().get(1);
+    assertEquals(1, signature.validate().size());
+  }
+
+  @Test
   public void testValidationWithInvalidDocument() {
-    Container container = new Container("testFiles/changed_digidoc_test.ddoc");
-    assertEquals(6, container.getSignatures().get(0).validate(VALIDATE_FULL).size());
+    Signature signature = new Container("testFiles/changed_digidoc_test.ddoc").getSignatures().get(0);
+    assertEquals(6, signature.validate(VALIDATE_FULL).size());
   }
 
   @Test
@@ -258,7 +258,7 @@ public class SignatureTest {
 
   @Test(expected = NotYetImplementedException.class)
   public void testGetSignaturePolicyURIForASiCS() throws Exception {
-    Container container = new Container("testFiles/asics_ocsp_cert_is_not_in_tsl_test.asics");
+    Container container = new Container("testFiles/ocsp_cert_is_not_in_tsl.asics");
     assertEquals(new URI(""), container.getSignatures().get(0).getSignaturePolicyURI());
   }
 
@@ -269,7 +269,7 @@ public class SignatureTest {
 
   @Test
   public void testGetSignatureMethodForASiCS() {
-    Container container = new Container("testFiles/asics_ocsp_cert_is_not_in_tsl_test.asics");
+    Container container = new Container("testFiles/ocsp_cert_is_not_in_tsl.asics");
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256",
         container.getSignatures().get(0).getSignatureMethod());
   }
@@ -281,7 +281,7 @@ public class SignatureTest {
 
   @Test
   public void testGetProfileForASiCS_TS() throws Exception {
-    Container container = new Container("testFiles/asics_ocsp_cert_is_not_in_tsl_test.asics");
+    Container container = new Container("testFiles/ocsp_cert_is_not_in_tsl.asics");
     assertEquals(ContainerInterface.SignatureProfile.TS, container.getSignatures().get(0).getProfile());
   }
 

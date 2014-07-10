@@ -11,12 +11,15 @@ import eu.europa.ec.markt.dss.signature.token.AbstractSignatureTokenConnection;
 import eu.europa.ec.markt.dss.signature.token.DSSPrivateKeyEntry;
 import eu.europa.ec.markt.dss.signature.token.Pkcs12SignatureToken;
 import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
+import eu.europa.ec.markt.dss.validation102853.SignatureForm;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.condition.ServiceInfo;
 import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
+import org.digidoc4j.api.Signer;
+import org.digidoc4j.utils.PKCS12Signer;
 
 import java.io.IOException;
 import java.security.KeyStoreException;
@@ -38,13 +41,15 @@ public class Prototype {
 
   private static void sign() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
     DSSDocument toSignDocument = new FileDocument("testFiles/test.txt");
-    AbstractSignatureTokenConnection token = new Pkcs12SignatureToken("test", "signout.p12");
-    DSSPrivateKeyEntry privateKey = token.getKeys().get(0);
 
     SignatureParameters parameters = new SignatureParameters();
     parameters.setSignatureLevel(SignatureLevel.ASiC_S_BASELINE_LT);
     parameters.setSignaturePackaging(SignaturePackaging.DETACHED);
     parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
+    parameters.aSiC().setAsicSignatureForm(SignatureForm.XAdES);
+//    parameters.setPrivateKeyEntry(privateKey);
+//    parameters.setSigningToken(token);
+
 
     // Create XAdES service for signature
     CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
@@ -54,7 +59,7 @@ public class Prototype {
     //final String lotlUrl = "file://tl-mp.xml";
 //    final String lotlUrl = "http://sr.riik.ee/tsl/estonian-tsl.xml";
     //final String lotlUrl = "http://ftp.getFileId.eesti.ee/pub/getFileId/tsl/trusted-test-tsl.xml";
-    final String lotlUrl = "file:trusted-test-tsl.xml";
+    final String lotlUrl = "file:conf/trusted-test-tsl.xml";
     TrustedListsCertificateSource tslCertificateSource = new TrustedListsCertificateSource();
     tslCertificateSource.setDataLoader(dataLoader);
     tslCertificateSource.setLotlUrl(lotlUrl);
@@ -71,19 +76,20 @@ public class Prototype {
 
     service.setTspSource(new OnlineTSPSource("http://tsa01.quovadisglobal.com/TSS/HttpTspServer"));
 
-    //parameters.setPrivateKeyEntry(privateKey);
-//    InputStream inStream = new FileInputStream("signout.p12");
-//    KeyStore ks = KeyStore.getInstance("PKCS12");
-//    ks.load(inStream, "test".toCharArray());
-//    String alias = ks.aliases().nextElement();
-    parameters.setSigningCertificate(privateKey.getCertificate());
+    Signer signer = new PKCS12Signer("testFiles/signout.p12", "test");
+    parameters.setSigningCertificate(signer.getCertificate().getX509Certificate());
+    parameters.setDeterministicId("1");
 
     byte[] dataToSign = service.getDataToSign(toSignDocument, parameters);
+    byte[] signatureBytes = signer.sign(parameters.getDigestAlgorithm().getXmlId(), dataToSign);
 
-    byte[] signatureValue = token.sign(dataToSign, parameters.getDigestAlgorithm(), privateKey);
+    DSSDocument signedDocument = service.signDocument(toSignDocument, parameters, signatureBytes);
 
-    DSSDocument signedDocument = service.signDocument(toSignDocument, parameters, signatureValue);
-    signedDocument.save("document.bdoc");
+    parameters.setDeterministicId("2");
+    dataToSign = service.getDataToSign(signedDocument, parameters);
+    signatureBytes = signer.sign(parameters.getDigestAlgorithm().getXmlId(), dataToSign);
+    DSSDocument signDssDocument = service.signDocument(signedDocument, parameters, signatureBytes);
+    signDssDocument.save("document.asics");
   }
 
 
