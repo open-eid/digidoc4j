@@ -26,11 +26,6 @@ public class Signature implements SignatureInterface {
   }
 
   @Override
-  public void setCertificate(X509Cert cert) {
-    signature.setCertificate(cert);
-  }
-
-  @Override
   public String getCity() {
     return signature.getCity();
   }

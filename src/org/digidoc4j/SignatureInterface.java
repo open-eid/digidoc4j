@@ -1,16 +1,14 @@
 package org.digidoc4j;
 
+import org.digidoc4j.api.X509Cert;
+
 import java.util.Date;
 import java.util.List;
-
-import org.digidoc4j.api.X509Cert;
 
 /**
  * Signature interface. Provides an interface for handling a signature and the corresponding OCSP response properties.
  */
 public interface SignatureInterface {
-
-  public void setCertificate(X509Cert cert);
 
   /**
    * Signature validation types.

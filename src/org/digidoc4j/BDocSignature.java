@@ -36,11 +36,6 @@ public class BDocSignature implements SignatureInterface {
   }
 
   @Override
-  public void setCertificate(X509Cert cert) {
-
-  }
-
-  @Override
   public String getCity() {
     return signerLocation.getCity();
   }

@@ -9,7 +9,6 @@ import ee.sk.utils.ConfigManager;
 import org.digidoc4j.api.DataFile;
 import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.Signer;
-import org.digidoc4j.api.X509Cert;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 
 import java.io.ByteArrayInputStream;
@@ -182,18 +181,16 @@ public class DDocContainer implements ContainerInterface {
     ArrayList dDocSignatures = ddoc.getSignatures();
 
     for (Object signature : dDocSignatures) {
-      Signature finalSignature = mapJDigiDocSignatureToDigidoc4J((ee.sk.digidoc.Signature) signature);
+      Signature finalSignature = mapJDigiDocSignatureToDigiDoc4J((ee.sk.digidoc.Signature) signature);
       signatures.add(finalSignature);
     }
 
     return signatures;
   }
 
-  private Signature mapJDigiDocSignatureToDigidoc4J(ee.sk.digidoc.Signature signature) {
-    Signature finalSignature = new Signature(new DDocSignature(signature));
-    finalSignature.setCertificate(new X509Cert(signature.getLastCertValue().getCert())); //TODO can be several certs
+  private Signature mapJDigiDocSignatureToDigiDoc4J(ee.sk.digidoc.Signature signature) {
     //TODO check logic about one role versus several roles
-    return finalSignature;
+    return new Signature(new DDocSignature(signature));
   }
 
   @Override

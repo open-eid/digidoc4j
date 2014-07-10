@@ -15,17 +15,16 @@ import static org.digidoc4j.ContainerInterface.SignatureProfile;
  * Signature implementation. Provides an interface for handling a signature and the corresponding OCSP response properties.
  */
 public class DDocSignature implements SignatureInterface {
-  private X509Cert certificate;
   final private ee.sk.digidoc.Signature origin;
 
   public DDocSignature(ee.sk.digidoc.Signature signature) {
     this.origin = signature;
   }
 
-  @Override
-  public void setCertificate(X509Cert cert) {
-    this.certificate = cert;
-  }
+//  @Override
+//  public void setCertificate(X509Cert cert) {
+//    this.certificate = cert;
+//  }
 
   @Override
   public String getCity() {
@@ -89,7 +88,7 @@ public class DDocSignature implements SignatureInterface {
 
   @Override
   public X509Cert getSigningCertificate() {
-    return certificate;
+    return new X509Cert(origin.getLastCertValue().getCert());
   }
 
   @Override
