@@ -24,15 +24,14 @@ import org.digidoc4j.api.exceptions.SignatureNotFoundException;
 import prototype.SKOnlineOCSPSource;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
+import static org.apache.commons.io.IOUtils.toByteArray;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
@@ -90,16 +89,18 @@ public class ASiCSContainer implements ContainerInterface {
 
   @Override
   public void addDataFile(String path, String mimeType) {
-    if (dataFiles.size() >= 1) throw new DigiDoc4JException("ASiCS supports only one attachment");
-    dataFiles.put(path, new DataFile(path, mimeType));
+    try {
+      addDataFile(new FileInputStream(path), path, mimeType);
+    } catch (FileNotFoundException e) {
+      throw new DigiDoc4JException(e);
+    }
   }
 
   @Override
   public void addDataFile(InputStream is, String fileName, String mimeType) {
-    DataFile dataFile;
+    if (dataFiles.size() >= 1) throw new DigiDoc4JException("ASiCS supports only one attachment");
     try {
-      dataFile = new DataFile(org.apache.commons.io.IOUtils.toByteArray(is), fileName, mimeType);
-      dataFiles.put(fileName, dataFile);
+      dataFiles.put(fileName, new DataFile(toByteArray(is), fileName, mimeType));
     } catch (IOException e) {
       throw new DigiDoc4JException(e);
     }

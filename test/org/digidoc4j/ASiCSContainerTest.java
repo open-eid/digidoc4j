@@ -160,6 +160,14 @@ public class ASiCSContainerTest {
     assertEquals(ContainerInterface.DocumentType.ASIC_S, container.getDocumentType());
   }
 
+  @Test(expected = DigiDoc4JException.class)
+  public void testAddTwoFilesAsStream() throws Exception {
+    ASiCSContainer container = new ASiCSContainer();
+    ByteArrayInputStream stream = new ByteArrayInputStream("tere, tere".getBytes());
+    container.addDataFile(stream, "test1.txt", "text/plain");
+    container.addDataFile(stream, "test2.txt", "text/plain");
+  }
+
   private ContainerInterface createSignedASicSDocument(String fileName) {
     ASiCSContainer container = new ASiCSContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
