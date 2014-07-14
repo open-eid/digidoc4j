@@ -116,6 +116,10 @@ public class Container implements ContainerInterface {
     return containerImplementation.sign(signer);
   }
 
+  @Override public void setConfiguration(Configuration conf) {
+    containerImplementation.setConfiguration(conf);
+  }
+
   @Override
   public List<Signature> getSignatures() {
     return containerImplementation.getSignatures();
