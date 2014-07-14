@@ -49,7 +49,18 @@
             <src path="test"/>
             <classpath refid="javac.classpath"/>
         </javac>
-        <jar destfile="${dist.dir}/digidoc4j-${version}.jar" basedir="${build.dir}"/>
+        <jar destfile="${dist.dir}/digidoc4j-${version}.jar">
+          <fileset dir="${build.dir}">
+            <exclude name="prototype/"/>
+          </fileset>
+          <fileset dir="sd-dss/apps/dss/core/dss-common/target/classes"/>
+          <fileset dir="sd-dss/apps/dss/core/dss-document/target/classes"/>
+          <fileset dir="sd-dss/apps/dss/core/dss-service/target/classes"/>
+          <fileset dir="sd-dss/apps/dss/core/dss-spi/target/classes"/>
+          <fileset dir=".">
+            <include name="conf/*.*"/>
+          </fileset>
+        </jar>
     </target>
 
     <target name="source">
