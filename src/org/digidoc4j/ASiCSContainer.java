@@ -15,20 +15,23 @@ import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
+import org.digidoc4j.utils.SKOnlineOCSPSource;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.digidoc4j.api.Configuration;
 import org.digidoc4j.api.DataFile;
 import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.Signer;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.api.exceptions.SignatureNotFoundException;
-import prototype.SKOnlineOCSPSource;
-
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
 import static org.apache.commons.io.IOUtils.toByteArray;
@@ -46,11 +49,13 @@ public class ASiCSContainer implements ContainerInterface {
   protected DSSDocument signedDocument;
   private List<Signature> signatures = new ArrayList<Signature>();
   eu.europa.ec.markt.dss.DigestAlgorithm digestAlgorithm = eu.europa.ec.markt.dss.DigestAlgorithm.SHA256;
+  Configuration configuration = null;
 
   /**
    * Create a new container object of ASIC_E type Container.
    */
   public ASiCSContainer() {
+    configuration = new Configuration();
     signatureParameters = new SignatureParameters();
     signatureParameters.setSignatureLevel(SignatureLevel.ASiC_S_BASELINE_LT);
     signatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
@@ -66,6 +71,7 @@ public class ASiCSContainer implements ContainerInterface {
    * @param path container file name with path
    */
   public ASiCSContainer(String path) {
+    configuration = new Configuration();
     List<DigiDoc4JException> validationErrors;
     signedDocument = new FileDocument(path);
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
@@ -158,7 +164,7 @@ public class ASiCSContainer implements ContainerInterface {
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource());
 
     asicService = new ASiCSService(commonCertificateVerifier);
-    asicService.setTspSource(new OnlineTSPSource("http://tsa01.quovadisglobal.com/TSS/HttpTspServer"));
+    asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
     signedDocument = asicService.signDocument(signedDocument, signatureParameters, rawSignature);
 
     signatureParameters.setOriginalDocument(signedDocument);
@@ -192,13 +198,21 @@ public class ASiCSContainer implements ContainerInterface {
   }
 
   private TrustedListsCertificateSource getTSL() {
-    final String lotlUrl = "file:conf/trusted-test-tsl.xml";
     TrustedListsCertificateSource tslCertificateSource = new TrustedListsCertificateSource();
     tslCertificateSource.setDataLoader(new CommonsDataLoader());
-    tslCertificateSource.setLotlUrl(lotlUrl);
+    tslCertificateSource.setLotlUrl(getConfiguration().getTslLocation());
     tslCertificateSource.setCheckSignature(false);
     tslCertificateSource.init();
     return tslCertificateSource;
+  }
+
+  private Configuration getConfiguration() {
+    return configuration;
+  }
+
+  @Override
+  public void setConfiguration(Configuration conf) {
+    this.configuration = conf;
   }
 
   private void addSignerInformation(Signer signer) {
@@ -247,7 +261,7 @@ public class ASiCSContainer implements ContainerInterface {
 
     verifier.setTrustedCertSource(trustedCertSource);
     validator.setCertificateVerifier(verifier);
-    File policyFile = new File("conf/constraint.xml");
+    File policyFile = new File(getConfiguration().getValidationPolicy());
     validator.validateDocument(policyFile);
   }
 

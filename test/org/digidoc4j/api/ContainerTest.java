@@ -2,6 +2,7 @@ package org.digidoc4j.api;
 
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.utils.Helper;
 import org.digidoc4j.utils.PKCS12Signer;
 import org.junit.Before;
@@ -402,13 +403,28 @@ public class ContainerTest {
     String country = "myCountry";
     String signerRoles = "myRole / myResolution";
 
-    PKCS12Signer signer = PKCS12_SIGNER;
-    signer.setSignatureProductionPlace(city, stateOrProvince, postalCode, country);
-    signer.setSignerRoles(asList(signerRoles));
+    PKCS12_SIGNER.setSignatureProductionPlace(city, stateOrProvince, postalCode, country);
+    PKCS12_SIGNER.setSignerRoles(asList(signerRoles));
 
     Container bDocContainer = new Container();
     bDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    Signature signature = bDocContainer.sign(signer);
+    Signature signature = bDocContainer.sign(PKCS12_SIGNER);
+  }
+
+  @Test (expected = NotYetImplementedException.class)
+  public void testSetConfigurationForDDoc() throws Exception {
+    Container ddoc = new Container(DDOC);
+    ddoc.setConfiguration(new Configuration());
+  }
+
+  @Test (expected = IllegalArgumentException.class)
+  public void testSetConfigurationForASiCS() throws Exception {
+    Container asics = new Container(ASIC_S);
+    asics.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    Configuration conf = new Configuration();
+    conf.setTslLocation("pole");
+    asics.setConfiguration(conf);
+    asics.sign(PKCS12_SIGNER);
   }
 
   public void testSigningWithOnlyLocationInfo() throws Exception {

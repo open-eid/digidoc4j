@@ -6,17 +6,16 @@ import ee.sk.digidoc.SignedDoc;
 import ee.sk.digidoc.factory.DigiDocFactory;
 import ee.sk.digidoc.factory.SAXDigiDocFactory;
 import ee.sk.utils.ConfigManager;
-import org.digidoc4j.api.DataFile;
-import org.digidoc4j.api.Signature;
-import org.digidoc4j.api.Signer;
-import org.digidoc4j.api.X509Cert;
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.digidoc4j.api.*;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.NotYetImplementedException;
 
 import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
 
@@ -174,6 +173,10 @@ public class DDocContainer implements ContainerInterface {
     }
 
     return new Signature(new DDocSignature(signature));
+  }
+
+  @Override public void setConfiguration(Configuration conf) {
+    throw new NotYetImplementedException();
   }
 
   @Override

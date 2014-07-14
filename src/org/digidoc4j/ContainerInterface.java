@@ -1,5 +1,6 @@
 package org.digidoc4j;
 
+import org.digidoc4j.api.Configuration;
 import org.digidoc4j.api.DataFile;
 import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.Signer;
@@ -143,6 +144,8 @@ public interface ContainerInterface {
    */
   Signature sign(Signer signer);
 
+
+  void setConfiguration(Configuration conf);
 
   /**
    * Returns a list of all signatures in the container.
