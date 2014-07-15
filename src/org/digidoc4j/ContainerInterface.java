@@ -145,6 +145,10 @@ public interface ContainerInterface {
   Signature sign(Signer signer);
 
 
+  /** Sets configuration for container
+   *
+   * @param conf configuration
+   */
   void setConfiguration(Configuration conf);
 
   /**

@@ -3,11 +3,13 @@ package org.digidoc4j.api;
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.Certificates;
 import org.digidoc4j.ContainerInterface;
+import org.digidoc4j.DigiDoc4JTest;
 import org.digidoc4j.api.exceptions.CertificateNotFoundException;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.utils.PKCS12Signer;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.net.URI;
@@ -21,10 +23,11 @@ import static java.util.Arrays.asList;
 import static org.digidoc4j.ContainerInterface.DocumentType.ASIC_S;
 import static org.digidoc4j.ContainerInterface.DocumentType.DDOC;
 import static org.digidoc4j.SignatureInterface.Validate.VALIDATE_FULL;
+import static org.digidoc4j.api.Configuration.Mode.TEST;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
 import static org.junit.Assert.*;
 
-public class SignatureTest {
+public class SignatureTest extends DigiDoc4JTest{
 
   private PKCS12Signer PKCS12_SIGNER;
 
@@ -104,9 +107,9 @@ public class SignatureTest {
     Container container = new Container("testFiles/asics_for_testing.asics");
     List<Signature> signatures = container.getSignatures();
     assertEquals("IXMGT0c/U69uEhWZIZvitPQGD29Tx3oKO+9PNijzyRiupcjKTxlH306mbFfIYfVXkiu5n8mA183bzBH/CA5wgbccXwIwykEfay" +
-        "Cm2/fGUNm5As9zErnzBWQ4s0oZWIVIi6DFR/QT/rzAoRNJ+1sPZBPvJlPofCW64FgkyADVAUDeCCkV6eAIr2ip+kwduJDmZwxrW/EqU1TA0" +
-        "w77lhhAIw4KYEV4yi96eAzDL2rjB8VMUlmLYMnmz1oPdkOGmuj3pbfHV1w4zxYU9uM7LFNN2EogPt4oiH17VSNSlip+HCFdUqvf7hpLFLl2" +
-        "iqxgVAijzvw0sMa2p5+iwLUfqCR45w==", new String(signatures.get(0).getRawSignature()));
+                 "Cm2/fGUNm5As9zErnzBWQ4s0oZWIVIi6DFR/QT/rzAoRNJ+1sPZBPvJlPofCW64FgkyADVAUDeCCkV6eAIr2ip+kwduJDmZwxrW/EqU1TA0" +
+                 "w77lhhAIw4KYEV4yi96eAzDL2rjB8VMUlmLYMnmz1oPdkOGmuj3pbfHV1w4zxYU9uM7LFNN2EogPt4oiH17VSNSlip+HCFdUqvf7hpLFLl2" +
+                 "iqxgVAijzvw0sMa2p5+iwLUfqCR45w==", new String(signatures.get(0).getRawSignature()));
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -185,7 +188,6 @@ public class SignatureTest {
   private void testGetOCSPCertificate(Signature signature) throws CertificateEncodingException {
     byte[] encoded = signature.getOCSPCertificate().getX509Certificate().getEncoded();
     assertEquals(Certificates.OCSP_CERTIFICATE, Base64.encodeBase64String(encoded));
-
   }
 
   @Test
@@ -271,7 +273,7 @@ public class SignatureTest {
   public void testGetSignatureMethodForASiCS() {
     Container container = new Container("testFiles/ocsp_cert_is_not_in_tsl.asics");
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256",
-        container.getSignatures().get(0).getSignatureMethod());
+                 container.getSignatures().get(0).getSignatureMethod());
   }
 
   @Test

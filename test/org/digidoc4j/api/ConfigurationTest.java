@@ -3,6 +3,8 @@ package org.digidoc4j.api;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.digidoc4j.api.Configuration.Mode.PROD;
+import static org.digidoc4j.api.Configuration.Mode.TEST;
 import static org.junit.Assert.assertEquals;
 
 public class ConfigurationTest {
@@ -10,7 +12,8 @@ public class ConfigurationTest {
 
   @Before
   public void setUp() {
-    configuration = new Configuration();
+    System.clearProperty("digidoc4j.mode");
+    configuration = new Configuration(TEST);
   }
 
   @Test
@@ -29,5 +32,24 @@ public class ConfigurationTest {
   public void setValidationPolicy() throws Exception {
     configuration.setValidationPolicy("policy");
     assertEquals("policy", configuration.getValidationPolicy());
+  }
+
+  @Test
+  public void defaultProductionConfiguration() throws Exception {
+    Configuration configuration = new Configuration(PROD);
+    assertEquals("http://sr.riik.ee/tsl/estonian-tsl.xml", configuration.getTslLocation());
+  }
+
+  @Test
+  public void defaultConstructorWithSetSystemProperty() throws Exception {
+    System.setProperty("digidoc4j.mode", "TEST");
+    Configuration configuration = new Configuration();
+    assertEquals("file:conf/trusted-test-tsl.xml", configuration.getTslLocation());
+  }
+
+  @Test
+  public void defaultConstructorWithUnSetSystemProperty() throws Exception {
+    Configuration configuration = new Configuration();
+    assertEquals("http://sr.riik.ee/tsl/estonian-tsl.xml", configuration.getTslLocation());
   }
 }

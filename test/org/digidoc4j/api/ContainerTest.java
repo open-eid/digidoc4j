@@ -1,6 +1,15 @@
 package org.digidoc4j.api;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.cert.CertificateEncodingException;
+import java.util.List;
+
 import org.apache.commons.codec.binary.Base64;
+import org.digidoc4j.DigiDoc4JTest;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.utils.Helper;
@@ -10,24 +19,17 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.cert.CertificateEncodingException;
-import java.util.List;
-
 import static java.util.Arrays.asList;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.ContainerInterface.DocumentType;
 import static org.digidoc4j.ContainerInterface.DocumentType.ASIC_S;
 import static org.digidoc4j.ContainerInterface.DocumentType.DDOC;
+import static org.digidoc4j.api.Configuration.Mode.TEST;
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ContainerTest {
+public class ContainerTest extends DigiDoc4JTest {
   public static final String TEXT_MIME_TYPE = "text/plain";
 
   public static final String CERTIFICATE =
@@ -421,7 +423,7 @@ public class ContainerTest {
   public void testSetConfigurationForASiCS() throws Exception {
     Container asics = new Container(ASIC_S);
     asics.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    Configuration conf = new Configuration();
+    Configuration conf = new Configuration(TEST);
     conf.setTslLocation("pole");
     asics.setConfiguration(conf);
     asics.sign(PKCS12_SIGNER);

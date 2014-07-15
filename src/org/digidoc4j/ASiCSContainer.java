@@ -36,6 +36,7 @@ import org.digidoc4j.api.exceptions.SignatureNotFoundException;
 import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
 import static org.apache.commons.io.IOUtils.toByteArray;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.digidoc4j.api.Configuration.Mode.PROD;
 
 /**
  * Experimental code to implement ASiC-S container. There is lot's of duplication with BDocContainer. When experimenting is finished duplication is removed
