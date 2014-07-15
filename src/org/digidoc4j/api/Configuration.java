@@ -14,12 +14,12 @@ public class Configuration {
 
   public enum Mode {
     TEST,
-    PROD;
+    PROD
   }
 
-  Map<String, String> testConfiguration = new HashMap();
-  Map<String, String> productionConfiguration = new HashMap();
-  Map<Mode, Map> configuration = new HashMap<Mode, Map>();
+  Map<String, String> testConfiguration = new HashMap<String, String>();
+  Map<String, String> productionConfiguration = new HashMap<String, String>();
+  Map<Mode, Map<String, String>> configuration = new HashMap<Mode, Map<String, String>>();
 
   public Configuration() {
     if ("TEST".equalsIgnoreCase(System.getProperty("digidoc4j.mode")))
@@ -74,11 +74,11 @@ public class Configuration {
     setConfigurationParameter("validationPolicy", validationPolicy);
   }
 
-  private String setConfigurationParameter(String key, String value) {
-    return (String)configuration.get(mode).put(key, value);
+  private void setConfigurationParameter(String key, String value) {
+    configuration.get(mode).put(key, value);
   }
 
   private String getConfigurationParameter(String key) {
-    return (String)configuration.get(mode).get(key);
+    return configuration.get(mode).get(key);
   }
 }
