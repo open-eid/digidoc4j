@@ -30,7 +30,7 @@ import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
  * remove all the signatures.
  * </p>
  */
-public class DDocContainer implements ContainerInterface {
+public class DDocContainer implements Container {
 
   private SignedDoc ddoc;
 
@@ -156,7 +156,7 @@ public class DDocContainer implements ContainerInterface {
   }
 
   @Override
-  public Signature sign(Signer signer) {
+  public SignatureImpl sign(Signer signer) {
     ee.sk.digidoc.Signature signature;
     try {
       List<String> signerRoles = signer.getSignerRoles();
@@ -172,7 +172,7 @@ public class DDocContainer implements ContainerInterface {
       throw new DigiDoc4JException(e);
     }
 
-    return new Signature(new DDocSignature(signature));
+    return new SignatureImpl(new DDocSignature(signature));
   }
 
   @Override public void setConfiguration(Configuration conf) {
@@ -180,20 +180,20 @@ public class DDocContainer implements ContainerInterface {
   }
 
   @Override
-  public List<Signature> getSignatures() {
-    List<Signature> signatures = new ArrayList<Signature>();
+  public List<SignatureImpl> getSignatures() {
+    List<SignatureImpl> signatures = new ArrayList<SignatureImpl>();
     ArrayList dDocSignatures = ddoc.getSignatures();
 
     for (Object signature : dDocSignatures) {
-      Signature finalSignature = mapJDigiDocSignatureToDigidoc4J((ee.sk.digidoc.Signature) signature);
+      SignatureImpl finalSignature = mapJDigiDocSignatureToDigidoc4J((ee.sk.digidoc.Signature) signature);
       signatures.add(finalSignature);
     }
 
     return signatures;
   }
 
-  private Signature mapJDigiDocSignatureToDigidoc4J(ee.sk.digidoc.Signature signature) {
-    Signature finalSignature = new Signature(new DDocSignature(signature));
+  private SignatureImpl mapJDigiDocSignatureToDigidoc4J(ee.sk.digidoc.Signature signature) {
+    SignatureImpl finalSignature = new SignatureImpl(new DDocSignature(signature));
     finalSignature.setCertificate(new X509Cert(signature.getLastCertValue().getCert())); //TODO can be several certs
     //TODO check logic about one role versus several roles
     return finalSignature;

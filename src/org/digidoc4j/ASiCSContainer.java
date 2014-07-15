@@ -24,10 +24,7 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.digidoc4j.api.Configuration;
-import org.digidoc4j.api.DataFile;
-import org.digidoc4j.api.Signature;
-import org.digidoc4j.api.Signer;
+import org.digidoc4j.api.*;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.api.exceptions.SignatureNotFoundException;
@@ -40,14 +37,14 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 /**
  * Experimental code to implement ASiC-S container. There is lot's of duplication with BDocContainer. When experimenting is finished duplication is removed
  */
-public class ASiCSContainer implements ContainerInterface {
+public class ASiCSContainer implements Container {
 
   private CommonCertificateVerifier commonCertificateVerifier;
   protected DocumentSignatureService asicService;
   final private Map<String, DataFile> dataFiles = new HashMap<String, DataFile>();
   protected SignatureParameters signatureParameters;
   protected DSSDocument signedDocument;
-  private List<Signature> signatures = new ArrayList<Signature>();
+  private List<SignatureImpl> signatures = new ArrayList<SignatureImpl>();
   eu.europa.ec.markt.dss.DigestAlgorithm digestAlgorithm = eu.europa.ec.markt.dss.DigestAlgorithm.SHA256;
   Configuration configuration = null;
 
@@ -86,7 +83,7 @@ public class ASiCSContainer implements ContainerInterface {
       for (Conclusion.BasicInfo error : errors) {
         validationErrors.add(new DigiDoc4JException(error.toString()));
       }
-      signatures.add(new Signature(new BDocSignature((XAdESSignature) advancedSignature, validationErrors)));
+      signatures.add(new SignatureImpl(new BDocSignature((XAdESSignature) advancedSignature, validationErrors)));
     }
 
     dataFiles.put(externalContent.getName(), new DataFile(externalContent.getBytes(), externalContent.getName(),
@@ -150,7 +147,7 @@ public class ASiCSContainer implements ContainerInterface {
   }
 
   @Override
-  public Signature sign(Signer signer) {
+  public SignatureImpl sign(Signer signer) {
     addSignerInformation(signer);
     signatureParameters.setSigningCertificate(signer.getCertificate().getX509Certificate());
     signatureParameters.setDeterministicId("S" + getSignatures().size());
@@ -159,7 +156,7 @@ public class ASiCSContainer implements ContainerInterface {
     return sign(signer.sign(signatureParameters.getDigestAlgorithm().getXmlId(), dataToSign));
   }
 
-  public Signature sign(byte[] rawSignature) {
+  public SignatureImpl sign(byte[] rawSignature) {
     commonCertificateVerifier.setTrustedCertSource(getTSL());
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource());
 
@@ -170,7 +167,7 @@ public class ASiCSContainer implements ContainerInterface {
     signatureParameters.setOriginalDocument(signedDocument);
     XAdESSignature xAdESSignature = getSignatureById(signatureParameters.getDeterministicId());
 
-    Signature signature = new Signature(new BDocSignature(xAdESSignature));
+    SignatureImpl signature = new SignatureImpl(new BDocSignature(xAdESSignature));
     signatures.add(signature);
 
     return signature;
@@ -270,7 +267,7 @@ public class ASiCSContainer implements ContainerInterface {
   }
 
   @Override
-  public List<Signature> getSignatures() {
+  public List<SignatureImpl> getSignatures() {
     return signatures;
   }
 

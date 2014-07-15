@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Possibility to create custom configurations for {@link Container} implementation.
+ * Possibility to create custom configurations for {@link org.digidoc4j.ContainerImpl} implementation.
  * <p>
  * You cas specify configuration mode. Is it {@link Configuration.Mode#TEST} or {@link Configuration.Mode#PROD} configuration.
  * <p>

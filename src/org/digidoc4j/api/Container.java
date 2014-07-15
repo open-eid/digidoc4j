@@ -1,17 +1,9 @@
 package org.digidoc4j.api;
 
-import org.apache.commons.io.FilenameUtils;
-import org.digidoc4j.ASiCSContainer;
-import org.digidoc4j.BDocContainer;
-import org.digidoc4j.ContainerInterface;
-import org.digidoc4j.DDocContainer;
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.digidoc4j.utils.Helper;
-
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+
+import org.digidoc4j.SignatureImpl;
 
 /**
  * Offers functionality for handling data files and signatures in a container.
@@ -24,116 +16,158 @@ import java.util.List;
  * remove all the signatures.
  * </p>
  */
-public class Container implements ContainerInterface {
-
-  private ContainerInterface containerImplementation;
+public interface Container {
 
   /**
-   * Creates Container specified by DocumentType
+   * Document types
+   */
+  public enum DocumentType {
+    /**
+     * BDOC 2.1 container with mime-type "application/vnd.etsi.asic-e+zip"
+     */
+    ASIC_E,
+    /**
+     * ASiC-S container with mime-type "application/vnd.etsi.asic-e+zip"
+     */
+    ASIC_S,
+    /**
+     * DIGIDOC-XML 1.3 container
+     */
+    DDOC
+  }
+
+  /**
+   * Signature profile format.
+   */
+  public enum SignatureProfile {
+    /**
+     * Time-mark.
+     */
+    TM,
+    /**
+     * Time-stamp.
+     */
+    TS,
+    /**
+     * no profile
+     */
+    NONE
+  }
+
+  /**
+   * Digest algorithm
+   */
+  public enum DigestAlgorithm {
+    SHA1,
+    SHA224,
+    SHA256,
+    SHA512
+  }
+
+  /**
+   * Adds a data file from the file system to the container.
+   * <p>
+   * Note:
+   * Data files can be removed from a container only after all signatures have been removed.
+   * </p>
    *
-   * @param documentType container type
+   * @param path     data file to be added to the container
+   * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
    */
-  public Container(DocumentType documentType) {
-    if (documentType == DocumentType.ASIC_E)
-      containerImplementation = new BDocContainer();
-    else if (documentType == DocumentType.ASIC_S)
-      containerImplementation = new ASiCSContainer();
-    else
-      containerImplementation = new DDocContainer();
-  }
+  void addDataFile(String path, String mimeType);
 
   /**
-   * Create a new container object of ASIC_E type Container.
-   */
-  public Container() {
-    containerImplementation = new BDocContainer();
-  }
-
-
-  /**
-   * Opens the container from a file.
+   * Adds a data file from the input stream (i.e. the date file content can be read from the internal memory buffer).
+   * <p>
+   * Note:
+   * Data files can be added to a container only after all signatures have been removed.
+   * </p>
    *
-   * @param path container file name with path
+   * @param is       input stream from where data is read
+   * @param fileName data file name in the container
+   * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
    */
-  public Container(String path) {
-    try {
+  void addDataFile(InputStream is, String fileName, String mimeType);
 
-      if (Helper.isZipFile(new File(path))) {
-        if ("asics".equalsIgnoreCase(FilenameUtils.getExtension(path)))
-          containerImplementation = new ASiCSContainer(path);
-        else
-          containerImplementation = new BDocContainer(path);
-      } else {
-        containerImplementation = new DDocContainer(path);
-      }
-    } catch (IOException e) {
-      throw new DigiDoc4JException(e);
-    }
-  }
 
-  @Override
-  public void addDataFile(String path, String mimeType) {
-    containerImplementation.addDataFile(path, mimeType);
-  }
+  /**
+   * Adds a signature to the container.
+   *
+   * @param signature signature to be added to the container
+   */
+  void addRawSignature(byte[] signature);
 
-  @Override
-  public void addDataFile(InputStream is, String fileName, String mimeType) {
-    containerImplementation.addDataFile(is, fileName, mimeType);
-  }
+  /**
+   * Adds signature from the input stream to the container.
+   *
+   * @param signatureStream signature to be added to the container
+   */
+  void addRawSignature(InputStream signatureStream);
 
-  @Override
-  public void addRawSignature(byte[] signature) {
-    containerImplementation.addRawSignature(signature);
-  }
+  /**
+   * Returns all data files in the container.
+   *
+   * @return list of all the data files in the container.
+   */
+  List<DataFile> getDataFiles();
 
-  @Override
-  public void addRawSignature(InputStream signatureStream) {
-    containerImplementation.addRawSignature(signatureStream);
-  }
 
-  @Override
-  public List<DataFile> getDataFiles() {
-    return containerImplementation.getDataFiles();
-  }
+  /**
+   * Removes a data file from the container by data file name. Any corresponding signatures will be deleted.
+   *
+   * @param fileName name of the data file to be removed
+   */
+  void removeDataFile(String fileName);
 
-  @Override
-  public void removeDataFile(String fileName) {
-    containerImplementation.removeDataFile(fileName);
-  }
+  /**
+   * Removes the signature with the given signature id from the container.
+   *
+   * @param signatureId id of the signature to be removed
+   */
+  void removeSignature(int signatureId);
 
-  @Override
-  public void removeSignature(int signatureId) {
-    containerImplementation.removeSignature(signatureId);
-  }
+  /**
+   * Saves the container to the specified location.
+   *
+   * @param path file name and path.
+   */
+  void save(String path);
 
-  @Override
-  public void save(String path) throws DigiDoc4JException {
-    containerImplementation.save(path);
-  }
+  /**
+   * Signs all data files in the container.
+   *
+   * @param signer signer implementation
+   * @return signature
+   */
+  SignatureImpl sign(Signer signer);
 
-  @Override
-  public Signature sign(Signer signer) {
-    return containerImplementation.sign(signer);
-  }
 
-  @Override public void setConfiguration(Configuration conf) {
-    containerImplementation.setConfiguration(conf);
-  }
+  /** Sets configuration for container
+   *
+   * @param conf configuration
+   */
+  void setConfiguration(Configuration conf);
 
-  @Override
-  public List<Signature> getSignatures() {
-    return containerImplementation.getSignatures();
-  }
+  /**
+   * Returns a list of all signatures in the container.
+   *
+   * @return list of all signatures
+   */
+  List<SignatureImpl> getSignatures();
 
-  @Override
-  public DocumentType getDocumentType() {
-    return containerImplementation.getDocumentType();
-  }
+  /**
+   * Returns document type ASiC or DDOC
+   *
+   * @return document type
+   */
+  DocumentType getDocumentType();
 
-  @Override
-  public void setDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
-    containerImplementation.setDigestAlgorithm(digestAlgorithm);
-  }
+  //--- differences with CPP library
+
+  /**
+   * Sets container digest type
+   */
+  void setDigestAlgorithm(DigestAlgorithm digestAlgorithm);
 }
 
 

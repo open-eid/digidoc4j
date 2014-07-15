@@ -6,6 +6,7 @@ import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.ocsp.RespID;
+import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.X509Cert;
 import org.digidoc4j.api.exceptions.CertificateNotFoundException;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
@@ -17,9 +18,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.digidoc4j.ContainerInterface.SignatureProfile;
+import static org.digidoc4j.api.Container.SignatureProfile;
 
-public class BDocSignature implements SignatureInterface {
+public class BDocSignature implements Signature {
   private XAdESSignature origin;
   private SignatureProductionPlace signerLocation;
   private List<DigiDoc4JException> validationErrors = new ArrayList<DigiDoc4JException>();
