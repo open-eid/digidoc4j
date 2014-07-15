@@ -6,8 +6,11 @@ import java.util.Map;
 /**
  * Possibility to create custom configurations for {@link Container} implementation.
  * <p>
- * You cas specify configuration mode. Is it {link Mode.TEST#TEST} or PROD configuration. Default is PROD.
- * Also it is possible to set mode by System property. Setting property "digidoc4j.mode" to TEST forces default mode to TEST mode
+ * You cas specify configuration mode. Is it {@link Configuration.Mode#TEST} or {@link Configuration.Mode#PROD} configuration.
+ * <p>
+ * Default is {@link Configuration.Mode#PROD}.
+ * <p>
+ * Also it is possible to set mode by System property. Setting property "digidoc4j.mode" to "TEST" forces default mode to {@link Configuration.Mode#TEST}  mode
  */
 public class Configuration {
   private final Mode mode;
