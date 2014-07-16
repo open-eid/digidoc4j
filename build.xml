@@ -85,7 +85,7 @@
           <pathelement location="build"/>
         </classpath>
         <batchtest>
-          <fileset dir="${build.dir}" includes="**/*Test*.class"/>
+          <fileset dir="${build.dir}" includes="**/*Test.class" />
         </batchtest>
         <formatter type="brief" usefile="false"/>
         <formatter type="xml"/>
