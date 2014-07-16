@@ -1,5 +1,6 @@
 package org.digidoc4j;
 
+import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.X509Cert;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
@@ -9,22 +10,23 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.digidoc4j.ContainerInterface.SignatureProfile;
+import static org.digidoc4j.api.Container.SignatureProfile;
 
 /**
  * Signature implementation. Provides an interface for handling a signature and the corresponding OCSP response properties.
  */
-public class DDocSignature implements SignatureInterface {
+public class DDocSignature implements Signature {
+  private X509Cert certificate;
   final private ee.sk.digidoc.Signature origin;
 
   public DDocSignature(ee.sk.digidoc.Signature signature) {
     this.origin = signature;
   }
 
-//  @Override
-//  public void setCertificate(X509Cert cert) {
-//    this.certificate = cert;
-//  }
+  @Override
+  public void setCertificate(X509Cert cert) {
+    this.certificate = cert;
+  }
 
   @Override
   public String getCity() {
@@ -88,7 +90,7 @@ public class DDocSignature implements SignatureInterface {
 
   @Override
   public X509Cert getSigningCertificate() {
-    return new X509Cert(origin.getLastCertValue().getCert());
+    return certificate;
   }
 
   @Override

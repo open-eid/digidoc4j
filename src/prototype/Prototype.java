@@ -20,6 +20,7 @@ import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 import org.digidoc4j.api.Signer;
 import org.digidoc4j.utils.PKCS12Signer;
+import org.digidoc4j.utils.SKOnlineOCSPSource;
 
 import java.io.IOException;
 import java.security.KeyStoreException;

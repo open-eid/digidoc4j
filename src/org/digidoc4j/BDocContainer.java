@@ -6,7 +6,7 @@ import eu.europa.ec.markt.dss.signature.SignaturePackaging;
 import eu.europa.ec.markt.dss.signature.asic.ASiCEService;
 import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
 
-import static org.digidoc4j.ContainerInterface.DocumentType.ASIC_E;
+import static org.digidoc4j.api.Container.DocumentType.ASIC_E;
 
 /**
  * Offers functionality for handling data files and signatures in a container.

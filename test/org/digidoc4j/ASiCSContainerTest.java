@@ -1,11 +1,5 @@
 package org.digidoc4j;
 
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.digidoc4j.utils.PKCS12Signer;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -13,12 +7,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.digidoc4j.ContainerInterface.DigestAlgorithm.SHA1;
-import static org.digidoc4j.ContainerInterface.DigestAlgorithm.SHA256;
+import org.digidoc4j.api.Container;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.utils.PKCS12Signer;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.digidoc4j.api.Container.DigestAlgorithm.SHA1;
+import static org.digidoc4j.api.Container.DigestAlgorithm.SHA256;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ASiCSContainerTest {
+public class ASiCSContainerTest extends DigiDoc4JTestHelper {
 
   private PKCS12Signer PKCS12_SIGNER;
 
@@ -75,7 +76,7 @@ public class ASiCSContainerTest {
 
   @Test
   public void testOpenASiCSDocumentWithTwoSignatures() throws Exception {
-    ASiCSContainer container = new ASiCSContainer("testFiles/asics_testing_two_signatures.asics");
+    ASiCSContainer container = new ASiCSContainer("testFiles/two_signatures.asics");
     container.verify();
   }
 
@@ -114,7 +115,7 @@ public class ASiCSContainerTest {
   @Test
   public void testRemoveDataFile() throws Exception {
     createSignedASicSDocument("testRemoveDataFile.asics");
-    ContainerInterface container = new ASiCSContainer("testRemoveDataFile.asics");
+    Container container = new ASiCSContainer("testRemoveDataFile.asics");
     assertEquals("test.txt", container.getDataFiles().get(0).getFileName());
     assertEquals(1, container.getDataFiles().size());
     container.removeDataFile("test.txt");
@@ -149,7 +150,7 @@ public class ASiCSContainerTest {
     container.sign(PKCS12_SIGNER);
     container.save("testAddFileAsStream.asics");
 
-    ContainerInterface containerToTest = new ASiCSContainer("testAddFileAsStream.asics");
+    Container containerToTest = new ASiCSContainer("testAddFileAsStream.asics");
     assertEquals("test1.txt", containerToTest.getDataFiles().get(0).getFileName());
   }
 
@@ -157,7 +158,7 @@ public class ASiCSContainerTest {
   public void testGetDocumentType() throws Exception {
     createSignedASicSDocument("testGetDocumentType.asics");
     ASiCSContainer container = new ASiCSContainer("testGetDocumentType.asics");
-    assertEquals(ContainerInterface.DocumentType.ASIC_S, container.getDocumentType());
+    assertEquals(Container.DocumentType.ASIC_S, container.getDocumentType());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -168,7 +169,7 @@ public class ASiCSContainerTest {
     container.addDataFile(stream, "test2.txt", "text/plain");
   }
 
-  private ContainerInterface createSignedASicSDocument(String fileName) {
+  private Container createSignedASicSDocument(String fileName) {
     ASiCSContainer container = new ASiCSContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);

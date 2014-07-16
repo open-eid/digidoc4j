@@ -1,122 +1,155 @@
 package org.digidoc4j.api;
 
-import org.digidoc4j.BDocSignature;
-import org.digidoc4j.DDocSignature;
-import org.digidoc4j.SignatureInterface;
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
-
-import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
-import static org.digidoc4j.ContainerInterface.SignatureProfile;
+import org.digidoc4j.api.Container;
+import org.digidoc4j.api.X509Cert;
 
 /**
- * Signature implementation. Provides an interface for handling a signature and the corresponding OCSP response properties.
+ * Signature interface. Provides an interface for handling a signature and the corresponding OCSP response properties.
  */
-public class Signature implements SignatureInterface {
-  private final SignatureInterface signature;
+public interface Signature {
 
-  public Signature(DDocSignature dDocSignature) {
-    this.signature = dDocSignature;
+  public void setCertificate(X509Cert cert);
+
+  /**
+   * Signature validation types.
+   */
+  public enum Validate {
+    VALIDATE_TM,
+    VALIDATE_POLICY,
+    VALIDATE_FULL
   }
 
-  public Signature(BDocSignature bDocSignature) {
-    this.signature = bDocSignature;
-  }
+  /**
+   * Returns the signature production city.
+   *
+   * @return production city
+   */
+  public String getCity();
 
-  @Override
-  public String getCity() {
-    return signature.getCity();
-  }
+  /**
+   * Returns the signature production country.
+   *
+   * @return production country
+   */
+  public String getCountryName();
 
-  @Override
-  public String getCountryName() {
-    return signature.getCountryName();
-  }
+  /**
+   * Returns the signature id.
+   *
+   * @return id
+   */
+  public String getId();
 
-  @Override
-  public String getId() {
-    return signature.getId();
-  }
+  /**
+   * Returns the signature OCSP response nonce.
+   *
+   * @return OCSP response nonce
+   */
+  public byte[] getNonce();
 
-  @Override
-  public byte[] getNonce() {
-    return signature.getNonce();
-  }
+  /**
+   * Returns the signature OCSP responder certificate.
+   *
+   * @return OCSP responder certificate
+   */
+  public X509Cert getOCSPCertificate();
 
-  @Override
-  public X509Cert getOCSPCertificate() {
-    return signature.getOCSPCertificate();
-  }
+  /**
+   * Returns the BDoc signature policy. If the container is DDoc then it returns an empty string.
+   *
+   * @return signature policy
+   */
+  public String getPolicy();
 
-  @Override
-  public String getPolicy() {
-    return signature.getPolicy();
-  }
+  /**
+   * Returns the signature production postal code.
+   *
+   * @return postal code
+   */
+  public String getPostalCode();
 
-  @Override
-  public String getPostalCode() {
-    return signature.getPostalCode();
-  }
+  /**
+   * Returns the signature OCSP producedAt timestamp.
+   *
+   * @return producedAt timestamp
+   */
+  public Date getProducedAt();
 
-  @Override
-  public Date getProducedAt() {
-    return signature.getProducedAt();
-  }
+  /**
+   * Returns the signature profile.
+   *
+   * @return profile
+   */
+  public Container.SignatureProfile getProfile();
 
-  @Override
-  public SignatureProfile getProfile() {
-    return signature.getProfile();
-  }
+  /**
+   * Returns the signature method that was used for signing.
+   *
+   * @return signature method
+   */
+  public String getSignatureMethod();
 
-  @Override
-  public String getSignatureMethod() {
-    return signature.getSignatureMethod();
-  }
+  /**
+   * Returns the signer's roles.
+   *
+   * @return signer roles
+   */
+  public List<String> getSignerRoles();
 
-  @Override
-  public List<String> getSignerRoles() {
-    return signature.getSignerRoles();
-  }
+  /**
+   * Returns the signature certificate that was used for signing.
+   *
+   * @return signature certificate
+   */
+  public X509Cert getSigningCertificate();
 
-  @Override
-  public X509Cert getSigningCertificate() {
-    return signature.getSigningCertificate();
-  }
+  /**
+   * Returns the computer's time of signing.
+   *
+   * @return signing time
+   */
+  public Date getSigningTime();
 
-  @Override
-  public Date getSigningTime() {
-    return signature.getSigningTime();
-  }
+  /**
+   * Returns the BDoc signature policy uri. If the container is DDoc then it returns an empty string.
+   *
+   * @return signature policy uri
+   */
+  public java.net.URI getSignaturePolicyURI();
 
-  @Override
-  public URI getSignaturePolicyURI() {
-    return signature.getSignaturePolicyURI();
-  }
+  /**
+   * Returns the signature production state or province.
+   *
+   * @return production state or province
+   */
+  public String getStateOrProvince();
 
-  @Override
-  public String getStateOrProvince() {
-    return signature.getStateOrProvince();
-  }
+  /**
+   * Returns the signature TimeStampToken certificate.
+   *
+   * @return TimeStampToken certificate
+   */
+  public X509Cert getTimeStampTokenCertificate();
 
-  @Override
-  public X509Cert getTimeStampTokenCertificate() {
-    return signature.getTimeStampTokenCertificate();
-  }
+  /**
+   * Validates the signature.
+   *
+   * @param validationType type of validation
+   */
+  public List<org.digidoc4j.api.exceptions.DigiDoc4JException> validate(Validate validationType);
 
-  @Override
-  public List<DigiDoc4JException> validate(Validate validationType) {
-    return signature.validate(validationType);
-  }
+  /**
+   * Validates the signature using Validate.VALIDATE_FULL method.
+   */
+  public List<org.digidoc4j.api.exceptions.DigiDoc4JException> validate();
 
-  @Override
-  public List<DigiDoc4JException> validate() {
-    return signature.validate();
-  }
-
-  @Override
-  public byte[] getRawSignature() {
-    return signature.getRawSignature();
-  }
+  /**
+   * Returns raw signature
+   *
+   * @return signature value as byte array
+   */
+  public byte[] getRawSignature();
 }

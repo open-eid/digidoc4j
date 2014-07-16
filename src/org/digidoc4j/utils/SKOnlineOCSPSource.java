@@ -1,4 +1,4 @@
-package prototype;
+package org.digidoc4j.utils;
 
 import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.validation102853.ocsp.OnlineOCSPSource;
