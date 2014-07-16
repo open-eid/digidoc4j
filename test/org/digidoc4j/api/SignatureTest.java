@@ -3,7 +3,7 @@ package org.digidoc4j.api;
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.Certificates;
 import org.digidoc4j.ContainerImpl;
-import org.digidoc4j.DigiDoc4JTest;
+import org.digidoc4j.DigiDoc4JTestHelper;
 import org.digidoc4j.SignatureImpl;
 import org.digidoc4j.api.exceptions.CertificateNotFoundException;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
@@ -26,7 +26,7 @@ import static org.digidoc4j.api.Signature.Validate.VALIDATE_FULL;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
 import static org.junit.Assert.*;
 
-public class SignatureTest extends DigiDoc4JTest{
+public class SignatureTest extends DigiDoc4JTestHelper {
 
   private PKCS12Signer PKCS12_SIGNER;
 

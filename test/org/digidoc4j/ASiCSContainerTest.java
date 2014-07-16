@@ -19,7 +19,7 @@ import static org.digidoc4j.api.Container.DigestAlgorithm.SHA256;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ASiCSContainerTest extends DigiDoc4JTest{
+public class ASiCSContainerTest extends DigiDoc4JTestHelper {
 
   private PKCS12Signer PKCS12_SIGNER;
 

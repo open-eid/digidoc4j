@@ -2,7 +2,7 @@ package org.digidoc4j;
 
 import org.junit.BeforeClass;
 
-public class DigiDoc4JTest {
+public class DigiDoc4JTestHelper {
 
   @BeforeClass
   public static void setConfigurationToTest() {

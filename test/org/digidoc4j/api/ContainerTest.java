@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.ContainerImpl;
-import org.digidoc4j.DigiDoc4JTest;
+import org.digidoc4j.DigiDoc4JTestHelper;
 import org.digidoc4j.SignatureImpl;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
@@ -31,7 +31,7 @@ import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ContainerTest extends DigiDoc4JTest {
+public class ContainerTest extends DigiDoc4JTestHelper {
   public static final String TEXT_MIME_TYPE = "text/plain";
 
   public static final String CERTIFICATE =
