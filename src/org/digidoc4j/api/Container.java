@@ -1,9 +1,17 @@
 package org.digidoc4j.api;
 
+import org.apache.commons.io.FilenameUtils;
+import org.digidoc4j.ASiCSContainer;
+import org.digidoc4j.BDocContainer;
+import org.digidoc4j.DDocContainer;
+import org.digidoc4j.SignatureImpl;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.utils.Helper;
+
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-
-import org.digidoc4j.SignatureImpl;
 
 /**
  * Offers functionality for handling data files and signatures in a container.
@@ -16,7 +24,38 @@ import org.digidoc4j.SignatureImpl;
  * remove all the signatures.
  * </p>
  */
-public interface Container {
+public abstract class Container {
+
+  public static Container create() {
+    return create(DocumentType.ASIC_E);
+  }
+
+  public static Container create(DocumentType documentType) {
+    if (documentType == DocumentType.ASIC_E)
+      return new BDocContainer();
+    else if (documentType == DocumentType.ASIC_S)
+      return new ASiCSContainer();
+    else
+      return new DDocContainer();
+  }
+
+  public static Container open(String path) {
+    try {
+      if (Helper.isZipFile(new File(path))) {
+        if ("asics".equalsIgnoreCase(FilenameUtils.getExtension(path)))
+          return new ASiCSContainer(path);
+        else
+          return new BDocContainer(path);
+      } else {
+        return new DDocContainer(path);
+      }
+    } catch (IOException e) {
+      throw new DigiDoc4JException(e);
+    }
+  }
+
+  protected Container() {
+  }
 
   /**
    * Document types
@@ -74,7 +113,7 @@ public interface Container {
    * @param path     data file to be added to the container
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
    */
-  void addDataFile(String path, String mimeType);
+  public abstract void addDataFile(String path, String mimeType);
 
   /**
    * Adds a data file from the input stream (i.e. the date file content can be read from the internal memory buffer).
@@ -87,51 +126,49 @@ public interface Container {
    * @param fileName data file name in the container
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
    */
-  void addDataFile(InputStream is, String fileName, String mimeType);
-
+  public abstract void addDataFile(InputStream is, String fileName, String mimeType);
 
   /**
    * Adds a signature to the container.
    *
    * @param signature signature to be added to the container
    */
-  void addRawSignature(byte[] signature);
+  public abstract void addRawSignature(byte[] signature);
 
   /**
    * Adds signature from the input stream to the container.
    *
    * @param signatureStream signature to be added to the container
    */
-  void addRawSignature(InputStream signatureStream);
+  public abstract void addRawSignature(InputStream signatureStream);
 
   /**
    * Returns all data files in the container.
    *
    * @return list of all the data files in the container.
    */
-  List<DataFile> getDataFiles();
-
+  public abstract List<DataFile> getDataFiles();
 
   /**
    * Removes a data file from the container by data file name. Any corresponding signatures will be deleted.
    *
    * @param fileName name of the data file to be removed
    */
-  void removeDataFile(String fileName);
+  public abstract void removeDataFile(String fileName);
 
   /**
    * Removes the signature with the given signature id from the container.
    *
    * @param signatureId id of the signature to be removed
    */
-  void removeSignature(int signatureId);
+  public abstract void removeSignature(int signatureId);
 
   /**
    * Saves the container to the specified location.
    *
    * @param path file name and path.
    */
-  void save(String path);
+  public abstract void save(String path);
 
   /**
    * Signs all data files in the container.
@@ -139,35 +176,34 @@ public interface Container {
    * @param signer signer implementation
    * @return signature
    */
-  SignatureImpl sign(Signer signer);
-
+  public abstract SignatureImpl sign(Signer signer);
 
   /** Sets configuration for container
    *
    * @param conf configuration
    */
-  void setConfiguration(Configuration conf);
+  public abstract void setConfiguration(Configuration conf);
 
   /**
    * Returns a list of all signatures in the container.
    *
    * @return list of all signatures
    */
-  List<SignatureImpl> getSignatures();
+  public abstract List<SignatureImpl> getSignatures();
 
   /**
    * Returns document type ASiC or DDOC
    *
    * @return document type
    */
-  DocumentType getDocumentType();
+  public abstract DocumentType getDocumentType();
 
   //--- differences with CPP library
 
   /**
    * Sets container digest type
    */
-  void setDigestAlgorithm(DigestAlgorithm digestAlgorithm);
+  public abstract void setDigestAlgorithm(DigestAlgorithm digestAlgorithm);
 }
 
 

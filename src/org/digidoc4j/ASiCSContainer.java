@@ -15,20 +15,21 @@ import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
+import org.digidoc4j.api.Configuration;
+import org.digidoc4j.api.Container;
+import org.digidoc4j.api.DataFile;
+import org.digidoc4j.api.Signer;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.NotYetImplementedException;
+import org.digidoc4j.api.exceptions.SignatureNotFoundException;
+import org.digidoc4j.utils.SKOnlineOCSPSource;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.digidoc4j.api.*;
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.digidoc4j.api.exceptions.NotYetImplementedException;
-import org.digidoc4j.api.exceptions.SignatureNotFoundException;
-import org.digidoc4j.utils.SKOnlineOCSPSource;
 
 import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
 import static org.apache.commons.io.IOUtils.toByteArray;
@@ -37,7 +38,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 /**
  * Experimental code to implement ASiC-S container. There is lot's of duplication with BDocContainer. When experimenting is finished duplication is removed
  */
-public class ASiCSContainer implements Container {
+public class ASiCSContainer extends Container {
 
   private CommonCertificateVerifier commonCertificateVerifier;
   protected DocumentSignatureService asicService;

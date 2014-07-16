@@ -2,7 +2,6 @@ package org.digidoc4j.api;
 
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.Certificates;
-import org.digidoc4j.ContainerImpl;
 import org.digidoc4j.DigiDoc4JTestHelper;
 import org.digidoc4j.SignatureImpl;
 import org.digidoc4j.api.exceptions.CertificateNotFoundException;
@@ -20,8 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.digidoc4j.api.Container.DocumentType.ASIC_S;
-import static org.digidoc4j.api.Container.DocumentType.DDOC;
+import static org.digidoc4j.api.Container.DocumentType.*;
 import static org.digidoc4j.api.Signature.Validate.VALIDATE_FULL;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
 import static org.junit.Assert.*;
@@ -37,15 +35,15 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testSigningProductionPlaceForDDOC() {
-    testSigningProductionPlace(new ContainerImpl(DDOC));
+    testSigningProductionPlace(Container.create(DDOC));
   }
 
   @Test
   public void testSigningProductionPlaceForASiCS() {
-    testSigningProductionPlace(new ContainerImpl(ASIC_S));
+    testSigningProductionPlace(Container.create(ASIC_S));
   }
 
-  private void testSigningProductionPlace(ContainerImpl container) {
+  private void testSigningProductionPlace(Container container) {
     container.addDataFile("testFiles/test.txt", "text/plain");
     PKCS12Signer signer = PKCS12_SIGNER;
     signer.setSignatureProductionPlace("city", "state", "postalCode", "country");
@@ -59,41 +57,41 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetSigningCertificateForASiCS() throws Exception {
-    ContainerImpl container = new ContainerImpl("testFiles/asics_for_testing.asics");
+    Container container = Container.open("testFiles/asics_for_testing.asics");
     byte[] certificate = container.getSignatures().get(0).getSigningCertificate().getX509Certificate().getEncoded();
     assertEquals(Certificates.SIGNING_CERTIFICATE, Base64.encodeBase64String(certificate));
   }
 
   @Test
   public void testGetTimeStampTokenCertificateForASiCS() throws Exception {
-    SignatureImpl signature = new ContainerImpl("testFiles/ocsp_cert_is_not_in_tsl.asics").getSignatures().get(0);
+    SignatureImpl signature = Container.open("testFiles/ocsp_cert_is_not_in_tsl.asics").getSignatures().get(0);
     byte[] certificate = signature.getTimeStampTokenCertificate().getX509Certificate().getEncoded();
     assertEquals(Certificates.TS_CERTIFICATE, Base64.encodeBase64String(certificate));
   }
 
   @Test(expected = CertificateNotFoundException.class)
   public void testGetTimeStampTokenCertificateForASiCSNoTimeStampExists() throws Exception {
-    new ContainerImpl("testFiles/asics_for_testing.asics").getSignatures().get(0).getTimeStampTokenCertificate();
+    Container.open("testFiles/asics_for_testing.asics").getSignatures().get(0).getTimeStampTokenCertificate();
   }
 
   @Test
   public void testGetSignerRolesForDDOC() {
-    testGetSignerRoles(new ContainerImpl(DDOC));
+    testGetSignerRoles(Container.create(DDOC));
   }
 
   @Test
   public void testGetSignerRolesForASiCS() {
-    testGetSignerRoles(new ContainerImpl(ASIC_S));
+    testGetSignerRoles(Container.create(ASIC_S));
   }
 
   @Test(expected = CertificateNotFoundException.class)
   public void testGetSignerRolesForASiCS_OCSP_Exception() {
-    ContainerImpl container = new ContainerImpl("testFiles/ocsp_cert_is_not_in_tsl.asics");
+    Container container = Container.open("testFiles/ocsp_cert_is_not_in_tsl.asics");
     List<SignatureImpl> signatures = container.getSignatures();
     signatures.get(0).getOCSPCertificate();
   }
 
-  private void testGetSignerRoles(ContainerImpl container) {
+  private void testGetSignerRoles(Container container) {
     container.addDataFile("testFiles/test.txt", "text/plain");
     PKCS12_SIGNER.setSignerRoles(asList("Role / Resolution"));
     SignatureImpl signature = container.sign(PKCS12_SIGNER);
@@ -103,7 +101,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetRawSignatureForASiCS() {
-    ContainerImpl container = new ContainerImpl("testFiles/asics_for_testing.asics");
+    Container container = Container.open("testFiles/asics_for_testing.asics");
     List<SignatureImpl> signatures = container.getSignatures();
     assertEquals("IXMGT0c/U69uEhWZIZvitPQGD29Tx3oKO+9PNijzyRiupcjKTxlH306mbFfIYfVXkiu5n8mA183bzBH/CA5wgbccXwIwykEfay" +
                  "Cm2/fGUNm5As9zErnzBWQ4s0oZWIVIi6DFR/QT/rzAoRNJ+1sPZBPvJlPofCW64FgkyADVAUDeCCkV6eAIr2ip+kwduJDmZwxrW/EqU1TA0" +
@@ -113,15 +111,15 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test(expected = DigiDoc4JException.class)
   public void testGetMultipleSignerRolesForDDOC() {
-    testGetMultipleSignerRoles(new ContainerImpl(DDOC));
+    testGetMultipleSignerRoles(Container.create(DDOC));
   }
 
   @Test
   public void testGetMultipleSignerRolesForASiCS() {
-    testGetMultipleSignerRoles(new ContainerImpl(ASIC_S));
+    testGetMultipleSignerRoles(Container.create(ASIC_S));
   }
 
-  private void testGetMultipleSignerRoles(ContainerImpl container) {
+  private void testGetMultipleSignerRoles(Container container) {
     container.addDataFile("testFiles/test.txt", "text/plain");
     PKCS12_SIGNER.setSignerRoles(asList("Role 1", "Role 2"));
     SignatureImpl signature = container.sign(PKCS12_SIGNER);
@@ -132,7 +130,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testSigningProperties() throws Exception {
-    ContainerImpl bDocContainer = new ContainerImpl();
+    Container bDocContainer = Container.create(ASIC_E);
     bDocContainer.addDataFile("testFiles/test.txt", "text/plain");
     PKCS12_SIGNER.setSignatureProductionPlace("city", "stateOrProvince", "postalCode", "country");
     PKCS12_SIGNER.setSignerRoles(asList("signerRoles"));
@@ -164,7 +162,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetIdForASiCS() {
-    ContainerImpl container = new ContainerImpl("testFiles/ocsp_cert_is_not_in_tsl.asics");
+    Container container = Container.open("testFiles/ocsp_cert_is_not_in_tsl.asics");
     assertEquals("id-99E491801522116744419D9357CEFCC5", container.getSignatures().get(0).getId());
   }
 
@@ -207,7 +205,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetProducedAtForASiCS() throws ParseException {
-    ContainerImpl container = new ContainerImpl("testFiles/ocsp_cert_is_not_in_tsl.asics");
+    Container container = Container.open("testFiles/ocsp_cert_is_not_in_tsl.asics");
     Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse("2014-07-08 12:51:16 +0000");
     assertEquals(date, container.getSignatures().get(0).getProducedAt());
   }
@@ -224,7 +222,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testValidationForASiCSDefaultValidation() throws Exception {
-    ContainerImpl container = new ContainerImpl("testFiles/two_signatures.asics");
+    Container container = Container.open("testFiles/two_signatures.asics");
     SignatureImpl signature = container.getSignatures().get(0);
     assertEquals(0, signature.validate().size());
     signature = container.getSignatures().get(1);
@@ -233,13 +231,13 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testValidationForASiCSDefaultValidationWithFailure() throws Exception {
-    SignatureImpl signature = new ContainerImpl("testFiles/ocsp_cert_is_not_in_tsl.asics").getSignatures().get(0);
+    SignatureImpl signature = Container.open("testFiles/ocsp_cert_is_not_in_tsl.asics").getSignatures().get(0);
     assertEquals(1, signature.validate().size());
   }
 
   @Test
   public void testValidationForASiCSDefaultValidationWithOneFailing() throws Exception {
-    ContainerImpl container = new ContainerImpl("testFiles/two_signatures_one_invalid.asics");
+    Container container = Container.open("testFiles/two_signatures_one_invalid.asics");
     SignatureImpl signature = container.getSignatures().get(0);
     assertEquals(0, signature.validate().size());
     signature = container.getSignatures().get(1);
@@ -248,7 +246,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testValidationWithInvalidDocument() {
-    SignatureImpl signature = new ContainerImpl("testFiles/changed_digidoc_test.ddoc").getSignatures().get(0);
+    SignatureImpl signature = Container.open("testFiles/changed_digidoc_test.ddoc").getSignatures().get(0);
     assertEquals(6, signature.validate(VALIDATE_FULL).size());
   }
 
@@ -259,7 +257,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test(expected = NotYetImplementedException.class)
   public void testGetSignaturePolicyURIForASiCS() throws Exception {
-    ContainerImpl container = new ContainerImpl("testFiles/ocsp_cert_is_not_in_tsl.asics");
+    Container container = Container.open("testFiles/ocsp_cert_is_not_in_tsl.asics");
     assertEquals(new URI(""), container.getSignatures().get(0).getSignaturePolicyURI());
   }
 
@@ -270,7 +268,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetSignatureMethodForASiCS() {
-    ContainerImpl container = new ContainerImpl("testFiles/ocsp_cert_is_not_in_tsl.asics");
+    Container container = Container.open("testFiles/ocsp_cert_is_not_in_tsl.asics");
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256",
                  container.getSignatures().get(0).getSignatureMethod());
   }
@@ -282,13 +280,13 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetProfileForASiCS_TS() throws Exception {
-    ContainerImpl container = new ContainerImpl("testFiles/ocsp_cert_is_not_in_tsl.asics");
+    Container container = Container.open("testFiles/ocsp_cert_is_not_in_tsl.asics");
     assertEquals(Container.SignatureProfile.TS, container.getSignatures().get(0).getProfile());
   }
 
   @Test
   public void testGetProfileForASiCS_None() throws Exception {
-    ContainerImpl container = new ContainerImpl("testFiles/asics_for_testing.asics");
+    Container container = Container.open("testFiles/asics_for_testing.asics");
     assertEquals(Container.SignatureProfile.NONE, container.getSignatures().get(0).getProfile());
   }
 
@@ -298,7 +296,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   }
 
   private SignatureImpl getSignature(Container.DocumentType documentType) {
-    ContainerImpl container = new ContainerImpl(documentType);
+    Container container = Container.create(documentType);
     container.addDataFile("testFiles/test.txt", "text/plain");
 
     return container.sign(PKCS12_SIGNER);
@@ -306,7 +304,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test(expected = NotYetImplementedException.class)
   public void testGetNonceForASiCS() {
-    ContainerImpl container = new ContainerImpl("testFiles/asics_for_testing.asics");
+    Container container = Container.open("testFiles/asics_for_testing.asics");
     container.getSignatures().get(0).getNonce();
   }
 }

@@ -37,6 +37,11 @@ public class BDocSignature implements Signature {
   }
 
   @Override
+  public void setCertificate(X509Cert cert) {
+    throw new NotYetImplementedException();
+  }
+
+  @Override
   public String getCity() {
     return signerLocation.getCity();
   }

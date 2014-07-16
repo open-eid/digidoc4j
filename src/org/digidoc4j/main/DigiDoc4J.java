@@ -1,8 +1,8 @@
 package org.digidoc4j.main;
 
 import org.apache.commons.cli.*;
-import org.digidoc4j.ContainerImpl;
 import org.digidoc4j.SignatureImpl;
+import org.digidoc4j.api.Container;
 import org.digidoc4j.api.Signer;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.utils.PKCS12Signer;
@@ -49,10 +49,10 @@ public final class DigiDoc4J {
     checkSupportedFunctionality(commandLine);
 
     try {
-      ContainerImpl container = new ContainerImpl(type);
+      Container container = Container.create(type);
 
       if (new File(inputFile).exists())
-        container = new ContainerImpl(inputFile);
+        container = Container.open(inputFile);
 
       if (commandLine.hasOption("add")) {
         String[] optionValues = commandLine.getOptionValues("add");
@@ -102,13 +102,13 @@ public final class DigiDoc4J {
     return DDOC;
   }
 
-  private static void pkcs12Sign(CommandLine commandLine, ContainerImpl container) {
+  private static void pkcs12Sign(CommandLine commandLine, Container container) {
     String[] optionValues = commandLine.getOptionValues("pkcs12");
     Signer pkcs12Signer = new PKCS12Signer(optionValues[0], optionValues[1]);
     container.sign(pkcs12Signer);
   }
 
-  private static void verify(ContainerImpl container) {
+  private static void verify(Container container) {
     List<SignatureImpl> signatures = container.getSignatures();
     for (SignatureImpl signature : signatures) {
       List<DigiDoc4JException> validationResult = signature.validate();
