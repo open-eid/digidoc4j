@@ -204,6 +204,13 @@ public abstract class Container {
    * Sets container digest type
    */
   public abstract void setDigestAlgorithm(DigestAlgorithm digestAlgorithm);
+
+  /**
+   * Validate container
+   *
+   * @return List of errors
+   */
+  public abstract List<DigiDoc4JException> validate();
 }
 
 

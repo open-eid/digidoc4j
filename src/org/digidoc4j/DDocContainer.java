@@ -32,6 +32,7 @@ import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
 public class DDocContainer extends Container {
 
   private SignedDoc ddoc;
+  private List<DigiDoc4JException> openContainerExceptions = new ArrayList<DigiDoc4JException>();
 
   /**
    * Create a new container object of DDOC type Container.
@@ -52,10 +53,13 @@ public class DDocContainer extends Container {
    *                 ]
    */
   public DDocContainer(String fileName) {
+    List exceptions = new ArrayList();
     ConfigManager.init("jdigidoc.cfg");
+//    ConfigManager.addProvider();
     DigiDocFactory digFac = new SAXDigiDocFactory();
     try {
-      ddoc = digFac.readSignedDoc(fileName);
+      ddoc = digFac.readSignedDocOfType(fileName, false, exceptions);
+      openContainerExceptions = convertToDigiDoc4JExceptions(exceptions);
     } catch (DigiDocException e) {
       throw new DigiDoc4JException(e);
     }
@@ -205,7 +209,24 @@ public class DDocContainer extends Container {
 
   @Override
   public void setDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+  }
 
+
+  @Override
+  public List<DigiDoc4JException> validate() {
+    List exceptions = ddoc.verify(true, true);
+    List<DigiDoc4JException> allExceptions;
+    allExceptions = this.openContainerExceptions;
+    allExceptions.addAll(convertToDigiDoc4JExceptions(exceptions));
+    return allExceptions;
+  }
+
+  private List<DigiDoc4JException> convertToDigiDoc4JExceptions(List errorsAndWarnings) {
+    List<DigiDoc4JException> errors = new ArrayList<DigiDoc4JException>();
+    for (Object errorsAndWarning : errorsAndWarnings) {
+      errors.add(new DigiDoc4JException(errorsAndWarning.toString()));
+    }
+    return errors;
   }
 }
 

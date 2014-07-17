@@ -94,8 +94,10 @@ public class ASiCSContainer extends Container {
   @Override
   public void addDataFile(String path, String mimeType) {
     try {
-      addDataFile(new FileInputStream(path), path, mimeType);
-    } catch (FileNotFoundException e) {
+      FileInputStream is = new FileInputStream(path);
+      addDataFile(is, path, mimeType);
+      is.close();
+    } catch (IOException e) {
       throw new DigiDoc4JException(e);
     }
   }
@@ -110,14 +112,20 @@ public class ASiCSContainer extends Container {
     }
   }
 
-  @Override
+  @Override //TODO:NotYetImplementedException
   public void addRawSignature(byte[] signature) {
-    signatureParameters.setDeterministicId("S" + getSignatures().size());
-    sign(signature);
+    ByteArrayInputStream signatureStream = new ByteArrayInputStream(signature);
+    addRawSignature(signatureStream);
+    try {
+      signatureStream.close();
+    } catch (IOException ignored) {
+    }
   }
 
-  @Override
+  @Override //TODO:NotYetImplementedException
   public void addRawSignature(InputStream signatureStream) {
+//    signatureParameters.setDeterministicId("S" + getSignatures().size());
+//    sign(signature);
     throw new NotYetImplementedException();
   }
 
@@ -132,8 +140,24 @@ public class ASiCSContainer extends Container {
   }
 
   @Override
-  public void removeSignature(int signatureId) {
-    throw new NotYetImplementedException();
+  public void removeSignature(int index) {
+//    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
+//    final Document xmlSignatureDoc = DSSXMLUtils.buildDOM(validator.getDocument());
+//    final Element documentElement = xmlSignatureDoc.getDocumentElement();
+//    final Element xmlSignatureElement = (Element) xmlSignatureDoc.removeChild(documentElement);
+//
+//    final Document xmlXAdESDoc = DSSXMLUtils.createDocument(ASICS_URI, ASICS_NS, xmlSignatureElement);
+//
+//    ByteArrayOutputStream bos=new ByteArrayOutputStream();
+//    try {
+//      TransformerFactory.newInstance().newTransformer().transform(new DOMSource(xmlXAdESDoc), new StreamResult(bos));
+//    } catch (TransformerException e) {
+//      e.printStackTrace();
+//    }
+//
+//    signedDocument = new InMemoryDocument(bos.toByteArray(), signedDocument.getName(), signedDocument.getMimeType());
+
+    signatures.remove(index);
   }
 
   @Override
@@ -142,6 +166,7 @@ public class ASiCSContainer extends Container {
     signedDocument.save(path);
   }
 
+  //TODO:NotYetImplementedException
   private void documentMustBeInitializedCheck() {
     if (signedDocument == null)
       throw new NotYetImplementedException();
@@ -280,6 +305,11 @@ public class ASiCSContainer extends Container {
   @Override
   public void setDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
     this.digestAlgorithm = eu.europa.ec.markt.dss.DigestAlgorithm.forName(digestAlgorithm.name(), eu.europa.ec.markt.dss.DigestAlgorithm.SHA256);
+  }
+
+  @Override
+  public List<DigiDoc4JException> validate() {
+    throw new NotYetImplementedException();
   }
 }
 
