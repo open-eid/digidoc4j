@@ -1,15 +1,16 @@
 package org.digidoc4j.main;
 
+import java.io.File;
+import java.util.List;
+
 import org.apache.commons.cli.*;
-import org.digidoc4j.SignatureImpl;
 import org.digidoc4j.api.Container;
+import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.Signer;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.utils.PKCS12Signer;
 
-import java.io.File;
-import java.util.List;
-
+import static org.apache.commons.cli.OptionBuilder.withArgName;
 import static org.digidoc4j.api.Container.DocumentType;
 import static org.digidoc4j.api.Container.DocumentType.ASIC_E;
 import static org.digidoc4j.api.Container.DocumentType.DDOC;
@@ -109,8 +110,8 @@ public final class DigiDoc4J {
   }
 
   private static void verify(Container container) {
-    List<SignatureImpl> signatures = container.getSignatures();
-    for (SignatureImpl signature : signatures) {
+    List<Signature> signatures = container.getSignatures();
+    for (Signature signature : signatures) {
       List<DigiDoc4JException> validationResult = signature.validate();
       if (validationResult.size() == 0) {
         System.out.println("Signature " + signature.getId() + " is valid");
@@ -136,30 +137,35 @@ public final class DigiDoc4J {
     return options;
   }
 
+  @SuppressWarnings("AccessStaticViaInstance")
   private static Option pkcs12Sign() {
-    return OptionBuilder.withArgName("pkcs12Keystore password").hasArgs(2).withValueSeparator(' ')
+    return withArgName("pkcs12Keystore password").hasArgs(2).withValueSeparator(' ')
         .withDescription("sets pkcs12 keystore and keystore password").create("pkcs12");
   }
 
+  @SuppressWarnings("AccessStaticViaInstance")
   private static Option removeFile() {
-    return OptionBuilder.withArgName("file").hasArg()
+    return withArgName("file").hasArg()
         .withDescription("removes file from container").create("remove");
   }
 
+  @SuppressWarnings("AccessStaticViaInstance")
   private static Option addFile() {
-    return OptionBuilder.withArgName("file mime-type").hasArgs(2)
+    return withArgName("file mime-type").hasArgs(2)
         .withDescription("adds file specified with mime type to container").create("add");
   }
 
+  @SuppressWarnings("AccessStaticViaInstance")
   private static Option inputFile() {
-    Option inputFile = OptionBuilder.withArgName("file").hasArg()
+    Option inputFile = withArgName("file").hasArg()
         .withDescription("opens or creates container").create("in");
     inputFile.setRequired(true);
     return inputFile;
   }
 
+  @SuppressWarnings("AccessStaticViaInstance")
   private static Option type() {
-    Option type = OptionBuilder.withArgName("type").hasArg()
+    Option type = withArgName("type").hasArg()
         .withDescription("sets container type. types can be DDOC or BDOC").create("t");
     type.setLongOpt("type");
     return type;
