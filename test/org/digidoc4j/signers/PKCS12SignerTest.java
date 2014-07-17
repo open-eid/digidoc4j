@@ -1,4 +1,4 @@
-package org.digidoc4j.utils;
+package org.digidoc4j.signers;
 
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.api.X509Cert;

@@ -4,7 +4,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.digidoc4j.ASiCSContainer;
 import org.digidoc4j.BDocContainer;
 import org.digidoc4j.DDocContainer;
-import org.digidoc4j.SignatureImpl;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.utils.Helper;
 
@@ -176,7 +175,7 @@ public abstract class Container {
    * @param signer signer implementation
    * @return signature
    */
-  public abstract SignatureImpl sign(Signer signer);
+  public abstract Signature sign(Signer signer);
 
   /** Sets configuration for container
    *
@@ -189,7 +188,7 @@ public abstract class Container {
    *
    * @return list of all signatures
    */
-  public abstract List<SignatureImpl> getSignatures();
+  public abstract List<Signature> getSignatures();
 
   /**
    * Returns document type ASiC or DDOC

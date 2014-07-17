@@ -1,16 +1,5 @@
 package org.digidoc4j.api;
 
-import org.apache.commons.codec.binary.Base64;
-import org.digidoc4j.*;
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.digidoc4j.api.exceptions.NotYetImplementedException;
-import org.digidoc4j.utils.Helper;
-import org.digidoc4j.utils.PKCS12Signer;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.xml.sax.SAXException;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -19,11 +8,27 @@ import java.nio.file.Paths;
 import java.security.cert.CertificateEncodingException;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Base64;
+import org.digidoc4j.ASiCSContainer;
+import org.digidoc4j.BDocContainer;
+import org.digidoc4j.DDocContainer;
+import org.digidoc4j.DigiDoc4JTestHelper;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.NotYetImplementedException;
+import org.digidoc4j.utils.Helper;
+import org.digidoc4j.signers.PKCS12Signer;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.xml.sax.SAXException;
+
 import static java.util.Arrays.asList;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.api.Configuration.Mode.TEST;
 import static org.digidoc4j.api.Container.DocumentType;
-import static org.digidoc4j.api.Container.DocumentType.*;
+import static org.digidoc4j.api.Container.DocumentType.ASIC_E;
+import static org.digidoc4j.api.Container.DocumentType.ASIC_S;
+import static org.digidoc4j.api.Container.DocumentType.DDOC;
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -359,7 +364,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     Container container = Container.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
-    List<SignatureImpl> signatures = container.getSignatures();
+    List<Signature> signatures = container.getSignatures();
     assertEquals(1, signatures.size());
   }
 
@@ -408,7 +413,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   }
 
   private byte[] getSigningCertificateAsBytes(Container container, int index) throws CertificateEncodingException {
-    SignatureImpl signature = container.getSignatures().get(index);
+    Signature signature = container.getSignatures().get(index);
     return signature.getSigningCertificate().getX509Certificate().getEncoded();
   }
 
@@ -436,6 +441,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   }
 
 
+  @Test
   public void testSigningWithSignerInfo() throws Exception {
     String city = "myCity";
     String stateOrProvince = "myStateOrProvince";
@@ -448,7 +454,13 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
     Container bDocContainer = Container.create();
     bDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    SignatureImpl signature = bDocContainer.sign(PKCS12_SIGNER);
+    Signature signature = bDocContainer.sign(PKCS12_SIGNER);
+    assertEquals("myCity", signature.getCity());
+    assertEquals("myStateOrProvince", signature.getStateOrProvince());
+    assertEquals("myPostalCode", signature.getPostalCode());
+    assertEquals("myCountry", signature.getCountryName());
+    assertEquals(1, signature.getSignerRoles().size());
+    assertEquals("myRole / myResolution", signature.getSignerRoles().get(0));
   }
 
   @Test (expected = NotYetImplementedException.class)
@@ -465,15 +477,6 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     conf.setTslLocation("pole");
     asics.setConfiguration(conf);
     asics.sign(PKCS12_SIGNER);
-  }
-
-  public void testSigningWithOnlyLocationInfo() throws Exception {
-  }
-
-  public void testSigningWithPartialSignerInfo() throws Exception {
-  }
-
-  public void testSigningWithOnlySignerRole() throws Exception {
   }
 }
 
