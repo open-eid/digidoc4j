@@ -5,11 +5,11 @@ import java.util.Map;
 
 /**
  * Possibility to create custom configurations for {@link org.digidoc4j.ContainerImpl} implementation.
- * <p>
+ * <p/>
  * You cas specify configuration mode. Is it {@link Configuration.Mode#TEST} or {@link Configuration.Mode#PROD} configuration.
- * <p>
+ * <p/>
  * Default is {@link Configuration.Mode#PROD}.
- * <p>
+ * <p/>
  * Also it is possible to set mode by System property. Setting property "digidoc4j.mode" to "TEST" forces default mode to {@link Configuration.Mode#TEST}  mode
  */
 public class Configuration {
@@ -18,6 +18,12 @@ public class Configuration {
   public enum Mode {
     TEST,
     PROD
+  }
+
+  protected enum OS {
+    Linux,
+    Win,
+    OSX
   }
 
   Map<String, String> testConfiguration = new HashMap<String, String>();
@@ -49,6 +55,9 @@ public class Configuration {
     testConfiguration.put("validationPolicy", "conf/constraint.xml");
     productionConfiguration.put("validationPolicy", "conf/constraint.xml");
 
+    testConfiguration.put("pkcs11ModuleLinux", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
+    productionConfiguration.put("pkcs11ModuleLinux", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
+
     configuration.put(Mode.TEST, testConfiguration);
     configuration.put(Mode.PROD, productionConfiguration);
   }
@@ -75,6 +84,14 @@ public class Configuration {
 
   public void setValidationPolicy(String validationPolicy) {
     setConfigurationParameter("validationPolicy", validationPolicy);
+  }
+
+  String getPKCS11ModulePathForOS(OS os, String key) {
+    return getConfigurationParameter(key+os);
+  }
+
+  public String getPKCS11ModulePath() {
+    return getPKCS11ModulePathForOS(OS.Linux, "pkcs11Module");
   }
 
   private void setConfigurationParameter(String key, String value) {

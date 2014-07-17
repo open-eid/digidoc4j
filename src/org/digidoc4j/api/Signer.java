@@ -1,106 +1,68 @@
 package org.digidoc4j.api;
 
-import java.security.PrivateKey;
-import java.util.List;
-
+import eu.europa.ec.markt.dss.DigestAlgorithm;
+import eu.europa.ec.markt.dss.signature.token.AbstractSignatureTokenConnection;
+import eu.europa.ec.markt.dss.signature.token.DSSPrivateKeyEntry;
+import eu.europa.ec.markt.dss.signature.token.Pkcs12SignatureToken;
+import org.digidoc4j.api.X509Cert;
 import org.digidoc4j.utils.SignerInformation;
 
-/**
- * Provides interface for signing documents.
- * Digidoc LIB implements PKCS11, PKCS12, CNG signer class that allows signing with EstId chip card.
- * Other implementations may provide signing implementations with other public-key cryptography systems
- */
-public interface Signer {
-  /**
-   * Returns the signer certificate. Must be reimplemented when subclassing.
-   *
-   * @return signer certificate
-   */
-  X509Cert getCertificate();
+import java.security.PrivateKey;
+import java.util.ArrayList;
+import java.util.List;
 
+public abstract class Signer {
+  protected AbstractSignatureTokenConnection signatureTokenConnection = null;
+  protected DSSPrivateKeyEntry keyEntry = null;
+  private final SignerInformation signerInformation = new SignerInformation();
+  private List<String> signerRoles = new ArrayList<String>();
 
-  /**
-   * Returns the signature production city.
-   *
-   * @return city
-   */
-  String getCity();
+  public X509Cert getCertificate() {
+    return new X509Cert(keyEntry.getCertificate());
+  }
 
+  public final String getCity() {
+    return signerInformation.getCity();
+  }
 
-  /**
-   * Returns the signature production country.
-   *
-   * @return country
-   */
-  String getCountry();
+  public final String getCountry() {
+    return signerInformation.getCountry();
+  }
 
+  public final String getPostalCode() {
+    return signerInformation.getPostalCode();
+  }
 
-  /**
-   * Returns the signature production postal code.
-   *
-   * @return postal code
-   */
-  String getPostalCode();
+  //TODO this is not good way to pass so many parameters discuss it with SK
+  public void setSignatureProductionPlace(final String city, final String stateOrProvince, final String postalCode,
+                                          final String country) {
+    signerInformation.setCity(city);
+    signerInformation.setStateOrProvince(stateOrProvince);
+    signerInformation.setPostalCode(postalCode);
+    signerInformation.setCountry(country);
+  }
 
+  public final String getStateOrProvince() {
+    return signerInformation.getStateOrProvince();
+  }
 
-  /**
-   * Sets the signature production place according to the XAdES standard.
-   * Note that setting the signature production place is optional.
-   *
-   * @param city            city
-   * @param stateOrProvince state
-   * @param postalCode      postal code
-   * @param countryName     country name
-   */
-  void setSignatureProductionPlace(String city, String stateOrProvince, String postalCode, String countryName);
+  public final List<String> getSignerRoles() {
+    return signerRoles;
+  }
 
+  public void setSignerRoles(final List<String> signerRolesToSet) {
+    signerRoles = signerRolesToSet;
+  }
 
-  /**
-   * Returns the signature production state.
-   *
-   * @return state
-   */
-  String getStateOrProvince();
+  public SignerInformation getSignerInformation() {
+    return signerInformation;
+  }
 
+  public final PrivateKey getPrivateKey() {
+    return keyEntry.getPrivateKey();
+  }
 
-  /**
-   * Returns the roles of the signer.
-   *
-   * @return signer roles
-   */
-  List<String> getSignerRoles();
-
-
-  /**
-   * Sets signature roles according to the XAdES standard.
-   * The parameter may contain the signer's role and optionally the signer's resolution.
-   * Note that only one signer role value (i.e. one <ClaimedRole> XML element) should be used. If the signer role
-   * contains both role and resolution then they must be separated with a slash mark, e.g. 'role / resolution'.
-   *
-   * @param signerRoles signer roles
-   */
-  void setSignerRoles(List<String> signerRoles);
-
-  /**
-   * Returns the private key if possible.
-   *
-   * @return private key
-   */
-  PrivateKey getPrivateKey();
-
-  /**
-   * Signs the data.
-   *
-   * @param digestAlgorithm digest algorithm
-   * @param dataToSign      data to sign
-   * @return signature
-   */
-  byte[] sign(String digestAlgorithm, byte[] dataToSign);
-
-  /**
-   * TODO description
-   *
-   * @return SignerInformation returns signer information
-   */
-  public SignerInformation getSignerInformation();
+  public byte[] sign(String digestAlgorithm, byte[] dataToSign) {
+    return signatureTokenConnection.sign(dataToSign, DigestAlgorithm.forXML(digestAlgorithm), keyEntry);
+  }
 }

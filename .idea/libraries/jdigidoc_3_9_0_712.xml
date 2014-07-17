@@ -4,6 +4,8 @@
       <root url="jar://$PROJECT_DIR$/lib/jdigidoc-3.9.0-712.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/jdigidoc-3.9.0-712-source.jar!/" />
+    </SOURCES>
   </library>
 </component>
