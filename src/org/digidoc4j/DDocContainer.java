@@ -37,12 +37,17 @@ public class DDocContainer extends Container {
    * Create a new container object of DDOC type Container.
    */
   public DDocContainer() {
-    ConfigManager.init("jdigidoc.cfg");
+    intConfiguration();
     try {
       ddoc = new SignedDoc("DIGIDOC-XML", "1.3");
     } catch (DigiDocException e) {
       throw new DigiDoc4JException(e);
     }
+  }
+
+  private void intConfiguration() {
+    ConfigManager.init("jdigidoc.cfg");
+    ConfigManager.addProvider();
   }
 
   /**
@@ -52,7 +57,7 @@ public class DDocContainer extends Container {
    *                 ]
    */
   public DDocContainer(String fileName) {
-    ConfigManager.init("jdigidoc.cfg");
+    intConfiguration();
     DigiDocFactory digFac = new SAXDigiDocFactory();
     try {
       ddoc = digFac.readSignedDoc(fileName);
