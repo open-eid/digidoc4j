@@ -9,9 +9,10 @@ import java.security.cert.CertificateEncodingException;
 import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
-import org.digidoc4j.ContainerImpl;
+import org.digidoc4j.ASiCSContainer;
+import org.digidoc4j.BDocContainer;
+import org.digidoc4j.DDocContainer;
 import org.digidoc4j.DigiDoc4JTestHelper;
-import org.digidoc4j.SignatureImpl;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.utils.Helper;
@@ -23,10 +24,11 @@ import org.xml.sax.SAXException;
 
 import static java.util.Arrays.asList;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+import static org.digidoc4j.api.Configuration.Mode.TEST;
 import static org.digidoc4j.api.Container.DocumentType;
+import static org.digidoc4j.api.Container.DocumentType.ASIC_E;
 import static org.digidoc4j.api.Container.DocumentType.ASIC_S;
 import static org.digidoc4j.api.Container.DocumentType.DDOC;
-import static org.digidoc4j.api.Configuration.Mode.TEST;
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -219,8 +221,43 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void createBDocContainersByDefault() {
+    assertTrue(Container.create() instanceof BDocContainer);
+  }
+
+  @Test
+  public void createASiCSContainer() {
+    assertTrue(Container.create(ASIC_S) instanceof ASiCSContainer);
+  }
+
+  @Test
+  public void createBDocContainer() {
+    assertTrue(Container.create(ASIC_E) instanceof BDocContainer);
+  }
+
+  @Test
+  public void createDDocContainer() {
+    assertTrue(Container.create(DDOC) instanceof DDocContainer);
+  }
+
+  @Test
+  public void openASiCSContainerWhenTheFileIsAZipAndExtensionIsAsics() {
+    assertTrue(Container.open("testFiles/asics_for_testing.asics") instanceof ASiCSContainer);
+  }
+
+  @Test
+  public void openBDocContainerWhenTheFileIsAZipAndTheExtensionIsNotAsics() {
+    assertTrue(Container.open("testFiles/zip_file_without_asics_extension.bdoc") instanceof BDocContainer);
+  }
+
+  @Test
+  public void openDDocContainerForAllOtherFiles() {
+    assertTrue(Container.open("testFiles/changed_digidoc_test.ddoc") instanceof DDocContainer);
+  }
+
+  @Test
   public void testAddOneFileToContainerForBDoc() throws Exception {
-    ContainerImpl bDocContainer = new ContainerImpl();
+    Container bDocContainer = Container.create();
     bDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     List<DataFile> dataFiles = bDocContainer.getDataFiles();
     assertEquals(1, dataFiles.size());
@@ -230,7 +267,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testRemovesOneFileFromContainerWhenFileExistsForBDoc() throws Exception {
-    ContainerImpl bDocContainer = new ContainerImpl();
+    Container bDocContainer = Container.create();
     bDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     bDocContainer.removeDataFile("testFiles/test.txt");
     assertEquals(0, bDocContainer.getDataFiles().size());
@@ -238,13 +275,13 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testCreateASiCSContainer() {
-    ContainerImpl asicsContainer = new ContainerImpl(DocumentType.ASIC_S);
+    Container asicsContainer = Container.create(DocumentType.ASIC_S);
     assertEquals(DocumentType.ASIC_S, asicsContainer.getDocumentType());
   }
 
   @Test
   public void testCreateAsicContainerSpecifiedByDocumentTypeForBDoc() throws Exception {
-    ContainerImpl asicContainer = new ContainerImpl(DocumentType.ASIC_E);
+    Container asicContainer = Container.create(DocumentType.ASIC_E);
     asicContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     asicContainer.sign(PKCS12_SIGNER);
     asicContainer.save("test.bdoc");
@@ -254,7 +291,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testCreateDDocContainer() throws Exception {
-    ContainerImpl dDocContainer = new ContainerImpl(DDOC);
+    Container dDocContainer = Container.create(DDOC);
     dDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     dDocContainer.sign(PKCS12_SIGNER);
     dDocContainer.save("testCreateDDocContainer.ddoc");
@@ -266,7 +303,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testAddOneFileToContainerForDDoc() throws Exception {
-    ContainerImpl container = new ContainerImpl(DDOC);
+    Container container = Container.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     List<DataFile> dataFiles = container.getDataFiles();
     assertEquals(1, dataFiles.size());
@@ -276,11 +313,11 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testRemovesOneFileFromContainerWhenFileExistsForDDoc() throws Exception {
-    ContainerImpl container = new ContainerImpl(DDOC);
+    Container container = Container.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.save("testRemovesOneFileFromContainerWhenFileExistsFor.ddoc");
 
-    ContainerImpl container1 = new ContainerImpl("testRemovesOneFileFromContainerWhenFileExistsFor.ddoc");
+    Container container1 = Container.open("testRemovesOneFileFromContainerWhenFileExistsFor.ddoc");
     container1.removeDataFile("testFiles/test.txt");
     assertEquals(0, container1.getDataFiles().size());
 
@@ -289,10 +326,10 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testOpenCreatedDDocFile() throws Exception {
-    ContainerImpl container = new ContainerImpl(DDOC);
+    Container container = Container.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.save("testOpenCreatedDDocFile.ddoc");
-    ContainerImpl containerForReading = new ContainerImpl("testOpenCreatedDDocFile.ddoc");
+    Container containerForReading = Container.open("testOpenCreatedDDocFile.ddoc");
     assertEquals(DDOC, containerForReading.getDocumentType());
 
     assertEquals(1, container.getDataFiles().size());
@@ -302,17 +339,17 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test(expected = DigiDoc4JException.class)
   public void testOpenInvalidFileThrowsException() {
-    new ContainerImpl("testFiles/test.txt");
+    Container.open("testFiles/test.txt");
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void testOpenNotExistingFileThrowsException() {
-    new ContainerImpl("noFile.ddoc");
+    Container.open("noFile.ddoc");
   }
 
   @Test
   public void testAddFileFromStreamToDDoc() {
-    ContainerImpl container = new ContainerImpl(DDOC);
+    Container container = Container.create(DDOC);
     container.addDataFile(new ByteArrayInputStream(new byte[]{0x42}), "testFromStream.txt", TEXT_MIME_TYPE);
     DataFile dataFile = container.getDataFiles().get(0);
     assertEquals("testFromStream.txt", dataFile.getFileName());
@@ -320,22 +357,22 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetSignatureFromDDoc() {
-    ContainerImpl container = new ContainerImpl(DDOC);
+    Container container = Container.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
-    List<SignatureImpl> signatures = container.getSignatures();
+    List<Signature> signatures = container.getSignatures();
     assertEquals(1, signatures.size());
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void testAddRawSignatureThrowsException() {
-    ContainerImpl container = new ContainerImpl(DDOC);
+    Container container = Container.create(DDOC);
     container.addRawSignature(new byte[]{0x42});
   }
 
   @Test
   public void testAddRawSignatureAsByteArrayForDDoc() throws CertificateEncodingException, IOException, SAXException {
-    ContainerImpl container = new ContainerImpl(DDOC);
+    Container container = Container.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
     container.addRawSignature(signature.getBytes());
@@ -348,7 +385,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   @Test
   @Ignore("possibility of this must be confirmed with dss authors")
   public void testAddRawSignatureAsByteArrayForASiCS() throws CertificateEncodingException, IOException, SAXException {
-    ContainerImpl container = new ContainerImpl(ASIC_S);
+    Container container = Container.create(ASIC_S);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
     container.addRawSignature(Base64.decodeBase64("fo4aA1PVI//1agzBm2Vcxj7sk9pYQJt+9a7xLFSkfF10RocvGjVPBI65RMqyxGIsje" +
@@ -363,7 +400,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testAddRawSignatureAsStreamArray() throws CertificateEncodingException {
-    ContainerImpl container = new ContainerImpl(DDOC);
+    Container container = Container.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.addRawSignature(new ByteArrayInputStream(signature.getBytes()));
 
@@ -371,20 +408,20 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     assertEquals(CERTIFICATE.replaceAll("\\s", ""), Base64.encodeBase64String(getSigningCertificateAsBytes(container, 0)));
   }
 
-  private byte[] getSigningCertificateAsBytes(ContainerImpl container, int index) throws CertificateEncodingException {
-    SignatureImpl signature = container.getSignatures().get(index);
+  private byte[] getSigningCertificateAsBytes(Container container, int index) throws CertificateEncodingException {
+    Signature signature = container.getSignatures().get(index);
     return signature.getSigningCertificate().getX509Certificate().getEncoded();
   }
 
   @Test
   public void testRemoveSignature() throws IOException {
-    ContainerImpl container = new ContainerImpl(DDOC);
+    Container container = Container.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
     container.addRawSignature(new ByteArrayInputStream(signature.getBytes()));
     container.save("testRemoveSignature.ddoc");
 
-    ContainerImpl containerToRemoveSignature = new ContainerImpl("testRemoveSignature.ddoc");
+    Container containerToRemoveSignature = Container.open("testRemoveSignature.ddoc");
     containerToRemoveSignature.removeSignature(1);
 
     assertEquals(1, containerToRemoveSignature.getSignatures().size());
@@ -395,11 +432,12 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test(expected = DigiDoc4JException.class)
   public void testRemovingNotExistingSignatureThrowsException() {
-    ContainerImpl container = new ContainerImpl(DDOC);
+    Container container = Container.create(DDOC);
     container.removeSignature(0);
   }
 
 
+  @Test
   public void testSigningWithSignerInfo() throws Exception {
     String city = "myCity";
     String stateOrProvince = "myStateOrProvince";
@@ -410,34 +448,31 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     PKCS12_SIGNER.setSignatureProductionPlace(city, stateOrProvince, postalCode, country);
     PKCS12_SIGNER.setSignerRoles(asList(signerRoles));
 
-    ContainerImpl bDocContainer = new ContainerImpl();
+    Container bDocContainer = Container.create();
     bDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    SignatureImpl signature = bDocContainer.sign(PKCS12_SIGNER);
+    Signature signature = bDocContainer.sign(PKCS12_SIGNER);
+    assertEquals("myCity", signature.getCity());
+    assertEquals("myStateOrProvince", signature.getStateOrProvince());
+    assertEquals("myPostalCode", signature.getPostalCode());
+    assertEquals("myCountry", signature.getCountryName());
+    assertEquals(1, signature.getSignerRoles().size());
+    assertEquals("myRole / myResolution", signature.getSignerRoles().get(0));
   }
 
   @Test (expected = NotYetImplementedException.class)
   public void testSetConfigurationForDDoc() throws Exception {
-    ContainerImpl ddoc = new ContainerImpl(DDOC);
+    Container ddoc = Container.create(DDOC);
     ddoc.setConfiguration(new Configuration());
   }
 
   @Test (expected = IllegalArgumentException.class)
   public void testSetConfigurationForASiCS() throws Exception {
-    ContainerImpl asics = new ContainerImpl(ASIC_S);
+    Container asics = Container.create(ASIC_S);
     asics.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     Configuration conf = new Configuration(TEST);
     conf.setTslLocation("pole");
     asics.setConfiguration(conf);
     asics.sign(PKCS12_SIGNER);
-  }
-
-  public void testSigningWithOnlyLocationInfo() throws Exception {
-  }
-
-  public void testSigningWithPartialSignerInfo() throws Exception {
-  }
-
-  public void testSigningWithOnlySignerRole() throws Exception {
   }
 }
 

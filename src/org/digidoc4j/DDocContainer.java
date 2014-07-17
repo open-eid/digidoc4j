@@ -6,16 +6,15 @@ import ee.sk.digidoc.SignedDoc;
 import ee.sk.digidoc.factory.DigiDocFactory;
 import ee.sk.digidoc.factory.SAXDigiDocFactory;
 import ee.sk.utils.ConfigManager;
+import org.digidoc4j.api.*;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.NotYetImplementedException;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.digidoc4j.api.*;
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.digidoc4j.api.exceptions.NotYetImplementedException;
 
 import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
 
@@ -30,7 +29,7 @@ import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
  * remove all the signatures.
  * </p>
  */
-public class DDocContainer implements Container {
+public class DDocContainer extends Container {
 
   private SignedDoc ddoc;
 
@@ -156,7 +155,7 @@ public class DDocContainer implements Container {
   }
 
   @Override
-  public SignatureImpl sign(Signer signer) {
+  public Signature sign(Signer signer) {
     ee.sk.digidoc.Signature signature;
     try {
       List<String> signerRoles = signer.getSignerRoles();
@@ -172,7 +171,7 @@ public class DDocContainer implements Container {
       throw new DigiDoc4JException(e);
     }
 
-    return new SignatureImpl(new DDocSignature(signature));
+    return new DDocSignature(signature);
   }
 
   @Override public void setConfiguration(Configuration conf) {
@@ -180,20 +179,20 @@ public class DDocContainer implements Container {
   }
 
   @Override
-  public List<SignatureImpl> getSignatures() {
-    List<SignatureImpl> signatures = new ArrayList<SignatureImpl>();
+  public List<Signature> getSignatures() {
+    List<Signature> signatures = new ArrayList<Signature>();
     ArrayList dDocSignatures = ddoc.getSignatures();
 
     for (Object signature : dDocSignatures) {
-      SignatureImpl finalSignature = mapJDigiDocSignatureToDigidoc4J((ee.sk.digidoc.Signature) signature);
+      Signature finalSignature = mapJDigiDocSignatureToDigidoc4J((ee.sk.digidoc.Signature) signature);
       signatures.add(finalSignature);
     }
 
     return signatures;
   }
 
-  private SignatureImpl mapJDigiDocSignatureToDigidoc4J(ee.sk.digidoc.Signature signature) {
-    SignatureImpl finalSignature = new SignatureImpl(new DDocSignature(signature));
+  private Signature mapJDigiDocSignatureToDigidoc4J(ee.sk.digidoc.Signature signature) {
+    Signature finalSignature = new DDocSignature(signature);
     finalSignature.setCertificate(new X509Cert(signature.getLastCertValue().getCert())); //TODO can be several certs
     //TODO check logic about one role versus several roles
     return finalSignature;
