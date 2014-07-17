@@ -1,4 +1,4 @@
-package org.digidoc4j.utils;
+package org.digidoc4j.signatures;
 
 import org.digidoc4j.api.Container;
 import org.digidoc4j.api.Signer;
