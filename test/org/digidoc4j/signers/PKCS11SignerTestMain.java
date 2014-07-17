@@ -5,7 +5,7 @@ import org.digidoc4j.api.Signer;
 
 import java.security.NoSuchAlgorithmException;
 
-public class PKCS11SignerTest {
+public class PKCS11SignerTestMain {
 
   public static void signWithIDCard() throws NoSuchAlgorithmException {
     Container container = Container.create(Container.DocumentType.ASIC_S);
