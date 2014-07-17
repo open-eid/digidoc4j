@@ -8,7 +8,7 @@ import org.digidoc4j.api.Container;
 import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.Signer;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.digidoc4j.utils.PKCS12Signer;
+import org.digidoc4j.signers.PKCS12Signer;
 
 import static org.apache.commons.cli.OptionBuilder.withArgName;
 import static org.digidoc4j.api.Container.DocumentType;

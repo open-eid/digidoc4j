@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 
 import org.digidoc4j.api.Container;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.digidoc4j.utils.PKCS12Signer;
+import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;

@@ -19,8 +19,8 @@ import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 import org.digidoc4j.api.Signer;
-import org.digidoc4j.utils.PKCS12Signer;
-import org.digidoc4j.utils.SKOnlineOCSPSource;
+import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.SKOnlineOCSPSource;
 
 import java.io.IOException;
 import java.security.KeyStoreException;
@@ -36,7 +36,7 @@ public class Prototype {
   public static void main(String[] args) throws CertificateException, NoSuchAlgorithmException,
       KeyStoreException, IOException {
     sign();
-    //validate();
+    validate();
   }
   //rm -rf test.bdoc, META-INF/.DS_Store && zip -0 -X test.bdoc mimetype && zip -r -D test.bdoc * -x mimetype && unzip -l test.bdoc
 

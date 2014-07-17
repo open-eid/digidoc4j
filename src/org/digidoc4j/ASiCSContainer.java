@@ -20,7 +20,6 @@ import org.digidoc4j.api.*;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.api.exceptions.SignatureNotFoundException;
-import org.digidoc4j.utils.SKOnlineOCSPSource;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;

@@ -6,7 +6,7 @@ import org.digidoc4j.DigiDoc4JTestHelper;
 import org.digidoc4j.api.exceptions.CertificateNotFoundException;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
-import org.digidoc4j.utils.PKCS12Signer;
+import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.Before;
 import org.junit.Test;
 

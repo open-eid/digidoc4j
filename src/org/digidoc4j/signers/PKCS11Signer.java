@@ -1,4 +1,4 @@
-package org.digidoc4j.utils;
+package org.digidoc4j.signers;
 
 import eu.europa.ec.markt.dss.signature.token.Pkcs11SignatureToken;
 import org.digidoc4j.api.Configuration;
