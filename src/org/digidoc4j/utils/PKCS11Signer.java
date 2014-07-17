@@ -8,9 +8,11 @@ public class PKCS11Signer extends Signer {
 
   private final Configuration configuration;
 
-  public PKCS11Signer(String password) {
+  public PKCS11Signer(char[] password) {
+    System.setProperty("java.security.debug", "sunpkcs11,pkcs11");
+
     configuration = new Configuration();
-    signatureTokenConnection = new Pkcs11SignatureToken(configuration.getPKCS11ModulePath(), password.toCharArray(), 1);
+    signatureTokenConnection = new Pkcs11SignatureToken(configuration.getPKCS11ModulePath(), password, 1);
     keyEntry = signatureTokenConnection.getKeys().get(0);
   }
 
