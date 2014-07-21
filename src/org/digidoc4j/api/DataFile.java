@@ -48,6 +48,17 @@ public class DataFile {
     document = new InMemoryDocument(stream, fileName, getMimeType(mimeType));
   }
 
+  /**
+   * Creates in streamed document container.
+   *
+   * @param stream   file content from stream
+   * @param fileName file name with path
+   * @param mimeType MIME type of the stream file, for example 'text/plain' or 'application/msword'
+   */
+  public DataFile(InputStream stream, String fileName, String mimeType) {
+    document = new StreamDocument(stream, fileName, getMimeType(mimeType));
+  }
+
   private MimeType getMimeType(String mimeType) {
     MimeType mimeTypeCode = MimeType.fromCode(mimeType);
     if (mimeTypeCode == null) throw new DigiDoc4JException("Unknown mime type");
