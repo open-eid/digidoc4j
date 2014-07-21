@@ -307,7 +307,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     List<DataFile> dataFiles = container.getDataFiles();
     assertEquals(1, dataFiles.size());
-    assertEquals("/Volumes/WORK/sk/digidoc4j/testFiles/test.txt", dataFiles.get(0).getFileName());
+    assertEquals("test.txt", dataFiles.get(0).getFileName());
     assertEquals(TEXT_MIME_TYPE, dataFiles.get(0).getMediaType());
   }
 

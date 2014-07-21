@@ -37,7 +37,7 @@ public class DataFileTest {
 
   @Test
   public void testGetFileName() throws Exception {
-    assertEquals("/Volumes/WORK/sk/digidoc4j/testFiles/test.txt", dataFile.getFileName());
+    assertEquals("test.txt", dataFile.getFileName());
   }
 
   @Test

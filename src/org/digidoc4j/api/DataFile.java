@@ -108,9 +108,7 @@ public class DataFile {
    * @return filename
    */
   public String getFileName() {
-    if (document instanceof InMemoryDocument)
-      return new File(document.getName()).getName();
-    return document.getAbsolutePath();
+    return new File(document.getName()).getName();
   }
 
   /**
