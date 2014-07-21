@@ -1,18 +1,19 @@
 package org.digidoc4j;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import org.digidoc4j.api.Container;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.digidoc4j.api.Container.DigestAlgorithm.SHA1;
 import static org.digidoc4j.api.Container.DigestAlgorithm.SHA256;
@@ -80,6 +81,31 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
     container.verify();
   }
 
+  @Test(expected = DigiDoc4JException.class)
+  public void testAddDataFileWhenFileDoesNotExist() throws Exception {
+    ASiCSContainer container = new ASiCSContainer();
+    container.addDataFile("notExisting.txt", "text/plain");
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void testAddDataFileFromInputStreamWithByteArrayConversionFailure() throws Exception {
+    ASiCSContainer container = new ASiCSContainer();
+    container.addDataFile(new MockInputStream(), "test.txt", "text/plain");
+
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void testAddRawSignature() throws Exception {
+    ASiCSContainer container = new ASiCSContainer();
+    container.addRawSignature(new byte[]{});
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void testAddRawSignatureFromInputStream() throws Exception {
+    ASiCSContainer container = new ASiCSContainer();
+    container.addRawSignature(new ByteArrayInputStream("test".getBytes()));
+  }
+
   @Test
   public void testSaveASiCSDocumentWithTwoSignatures() throws Exception {
     ASiCSContainer container = new ASiCSContainer();
@@ -92,6 +118,19 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
         container.getSignatures().get(0).getSigningCertificate().getSerial());
     assertEquals("5fe0774b8ba12b98d1c2250f076cd7e0ed7259ab",
         container.getSignatures().get(1).getSigningCertificate().getSerial());
+  }
+
+  @Test  //TODO Remove signatures does not work for saved file
+  public void testRemoveSignature() throws Exception {
+    ASiCSContainer container = new ASiCSContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.removeSignature(0);
+    container.save("testRemoveSignature.asics");
+    assertEquals(0, container.getSignatures().size());
+
+//    container = new ASiCSContainer("testRemoveSignature.asics");
+//    assertEquals(0, container.getSignatures().size());
   }
 
   @Test
@@ -177,4 +216,19 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
     return container;
   }
 
+  private class MockInputStream extends InputStream {
+
+    public MockInputStream() {
+    }
+
+    @Override
+    public int read() throws IOException {
+      return 0;
+    }
+
+    @Override
+    public int read(@SuppressWarnings("NullableProblems") byte b[], int off, int len) throws IOException {
+      throw new IOException();
+    }
+  }
 }
