@@ -160,10 +160,12 @@ public class ASiCSContainer extends Container {
 
     asicService = new ASiCSService(commonCertificateVerifier);
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
+    //TODO: after 4.1.0 release signing sets deteministic id to null
+    String deterministicId = signatureParameters.getDeterministicId();
     signedDocument = asicService.signDocument(signedDocument, signatureParameters, rawSignature);
 
     signatureParameters.setOriginalDocument(signedDocument);
-    XAdESSignature xAdESSignature = getSignatureById(signatureParameters.getDeterministicId());
+    XAdESSignature xAdESSignature = getSignatureById(deterministicId);
 
     Signature signature = new BDocSignature(xAdESSignature);
     signatures.add(signature);

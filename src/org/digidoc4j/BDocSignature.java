@@ -95,7 +95,7 @@ public class BDocSignature extends Signature {
   }
 
   public String getSignatureMethod() {
-    return origin.getDigestAlgo().getXmlId();
+    return origin.getDigestAlgorithm().getXmlId();
   }
 
   public List<String> getSignerRoles() {
