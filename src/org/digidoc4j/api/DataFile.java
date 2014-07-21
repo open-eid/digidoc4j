@@ -158,13 +158,4 @@ public class DataFile {
   public byte[] getBytes() {
     return document.getBytes();
   }
-
-  /**
-   * Returns document as stream
-   *
-   * @return stream
-   */
-  public InputStream getStream() {
-    return document.openStream();
-  }
 }
