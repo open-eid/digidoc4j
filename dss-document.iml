@@ -3,11 +3,11 @@
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_6" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-document/target/classes" />
     <output-test url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-document/target/test-classes" />
+    <exclude-output />
     <content url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-document">
-      <sourceFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc" isTestSource="false" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-document/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-document/src/main/resources" type="java-resource" />
-      <excludeFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-document/target" />
+      <sourceFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-document/target/generated-sources/xjc" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
