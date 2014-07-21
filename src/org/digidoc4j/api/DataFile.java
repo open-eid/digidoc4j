@@ -4,15 +4,13 @@ import eu.europa.ec.markt.dss.DSSUtils;
 import eu.europa.ec.markt.dss.Digest;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
+import eu.europa.ec.markt.dss.signature.FileDocument;
 import eu.europa.ec.markt.dss.signature.InMemoryDocument;
 import eu.europa.ec.markt.dss.signature.MimeType;
-import org.apache.commons.io.IOUtils;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.utils.StreamDocument;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URL;
 
 /**
@@ -31,9 +29,8 @@ public class DataFile {
    */
   public DataFile(String path, String mimeType) {
     try {
-      FileInputStream stream = new FileInputStream(path);
-      loadDocument(IOUtils.toByteArray(stream), path, mimeType);
-      stream.close();
+      document = new FileDocument(path);
+      document.setMimeType(getMimeType(mimeType));
     } catch (Exception e) {
       throw new DigiDoc4JException(e);
     }
@@ -47,12 +44,8 @@ public class DataFile {
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
    */
   public DataFile(byte[] data, String fileName, String mimeType) {
-    loadDocument(data, fileName, mimeType);
-  }
-
-  private void loadDocument(byte[] data, String fileName, String mimeType) {
-    MimeType mimeTypeCode = getMimeType(mimeType);
-    document = new InMemoryDocument(data, fileName, mimeTypeCode);
+    ByteArrayInputStream stream = new ByteArrayInputStream(data);
+    document = new InMemoryDocument(stream, fileName, getMimeType(mimeType));
   }
 
   private MimeType getMimeType(String mimeType) {
@@ -146,7 +139,21 @@ public class DataFile {
     document.save(path);
   }
 
+  /**
+   * Gives file bytes
+   *
+   * @return data as bytes
+   */
   public byte[] getBytes() {
     return document.getBytes();
+  }
+
+  /**
+   * Returns document as stream
+   *
+   * @return stream
+   */
+  public InputStream getStream() {
+    return document.openStream();
   }
 }
