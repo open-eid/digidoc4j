@@ -67,6 +67,7 @@ public class StreamDocumentTest {
     fileReader.close();
 
     assertEquals(65, read);
+    Files.deleteIfExists(Paths.get("streamDocumentSaveTest.txt"));
   }
 
   @Test
