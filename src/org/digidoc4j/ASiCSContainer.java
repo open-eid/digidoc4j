@@ -15,7 +15,6 @@ import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
-
 import org.digidoc4j.api.*;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
@@ -30,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
-import static org.apache.commons.io.IOUtils.toByteArray;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
@@ -72,7 +70,7 @@ public class ASiCSContainer extends Container {
     List<DigiDoc4JException> validationErrors;
     signedDocument = new FileDocument(path);
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
-    DSSDocument externalContent = validator.getExternalContent();
+    DSSDocument externalContent = validator.getDetachedContent();
 
     validate(validator);
     List<AdvancedSignature> signatureList = validator.getSignatures();
@@ -188,7 +186,7 @@ public class ASiCSContainer extends Container {
     String deterministicId = signatureParameters.getDeterministicId();
     signedDocument = asicService.signDocument(signedDocument, signatureParameters, rawSignature);
 
-    signatureParameters.setOriginalDocument(signedDocument);
+    signatureParameters.setDetachedContent(signedDocument);
     XAdESSignature xAdESSignature = getSignatureById(deterministicId);
 
     Signature signature = new BDocSignature(xAdESSignature);
@@ -212,7 +210,7 @@ public class ASiCSContainer extends Container {
   }
 
   private XAdESSignature getSignatureById(String deterministicId) {
-    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signatureParameters.getOriginalDocument());
+    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signatureParameters.getDetachedContent());
     validate(validator);
     List<AdvancedSignature> signatureList = validator.getSignatures();
     for (AdvancedSignature advancedSignature : signatureList) {
