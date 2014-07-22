@@ -72,7 +72,7 @@ public class StreamDocument implements DSSDocument {
 
   @Override
   public String getAbsolutePath() {
-    return documentName;
+    return temporaryFile.getAbsolutePath();
   }
 
   @Override

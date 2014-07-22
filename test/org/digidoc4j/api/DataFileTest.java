@@ -107,10 +107,30 @@ public class DataFileTest {
     dataFile.saveAs("createDocumentFromStream.txt");
 
     DataFile dataFileToCompare = new DataFile("createDocumentFromStream.txt", "text/plain");
-    assertEquals(19, dataFileToCompare.getFileSize());
     assertArrayEquals("tere tere tipajalga".getBytes(), dataFileToCompare.getBytes());
 
     Files.deleteIfExists(Paths.get("createDocumentFromStream.txt"));
+  }
+
+  @Test
+  public void calculateSizeForStreamedFile() throws Exception {
+    ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes());
+    DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
+
+    assertEquals(19, dataFile.getFileSize());
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void askingDataFileSizeWhenTemporoaryFileIsDeleted() throws Exception {
+    ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes());
+    DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
+    Files.deleteIfExists(Paths.get(dataFile.document.getAbsolutePath()));
+    dataFile.getFileSize();
+  }
+
+  @Test
+  public void name() throws Exception {
+
   }
 
   @Test

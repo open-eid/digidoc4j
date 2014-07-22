@@ -12,13 +12,15 @@ import org.digidoc4j.utils.StreamDocument;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Data file wrapper providing methods for handling signed files or files to be signed in Container.
  */
 public class DataFile {
 
-  private DSSDocument document = null;
+  DSSDocument document = null;
   private Digest digest = null;
 
   /**
@@ -117,6 +119,13 @@ public class DataFile {
    * @return file size
    */
   public long getFileSize() {
+    if (document instanceof StreamDocument) {
+      try {
+        return Files.size(Paths.get(document.getAbsolutePath()));
+      } catch (IOException e) {
+        throw new DigiDoc4JException(e);
+      }
+    }
     return document.getBytes().length;
   }
 
@@ -155,5 +164,9 @@ public class DataFile {
    */
   public byte[] getBytes() {
     return document.getBytes();
+  }
+
+  public InputStream getStream() {
+    return document.openStream();
   }
 }

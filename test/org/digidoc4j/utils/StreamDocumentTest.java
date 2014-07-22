@@ -2,20 +2,17 @@ package org.digidoc4j.utils;
 
 import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.signature.MimeType;
+import org.apache.commons.io.IOUtils;
+import org.digidoc4j.api.DataFile;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class StreamDocumentTest {
   StreamDocument document;
@@ -43,7 +40,7 @@ public class StreamDocumentTest {
 
   @Test
   public void getAbsolutePath() throws Exception {
-    assertEquals("suur_a.txt", document.getAbsolutePath());
+    assertTrue(document.getAbsolutePath().matches(".*digidoc4j.*.\\.tmp"));
   }
 
   @Test
@@ -67,6 +64,19 @@ public class StreamDocumentTest {
     fileReader.close();
 
     assertEquals(65, read);
+    Files.deleteIfExists(Paths.get("streamDocumentSaveTest.txt"));
+  }
+
+  @Test
+  public void createDocumentFromStreamedDataFile() throws Exception {
+    DataFile dataFile = new DataFile(new ByteArrayInputStream(new byte[]{0x041}), "A.txt", "text/plain");
+    StreamDocument streamDocument = new StreamDocument(dataFile.getStream(), dataFile.getFileName(),
+        MimeType.fromCode(dataFile.getMediaType()));
+    streamDocument.save("createDocumentFromStreamedDataFile.txt");
+
+    assertArrayEquals(new byte[]{0x041},
+        IOUtils.toByteArray(new FileInputStream("createDocumentFromStreamedDataFile.txt")));
+
     Files.deleteIfExists(Paths.get("streamDocumentSaveTest.txt"));
   }
 
