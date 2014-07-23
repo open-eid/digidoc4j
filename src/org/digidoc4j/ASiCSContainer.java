@@ -111,12 +111,16 @@ public class ASiCSContainer extends Container {
 
   @Override
   public void addRawSignature(byte[] signature) {
-    ByteArrayInputStream signatureStream = new ByteArrayInputStream(signature);
+    InputStream signatureStream = getByteArrayInputStream(signature);
     addRawSignature(signatureStream);
     try {
       signatureStream.close();
     } catch (IOException ignored) {
     }
+  }
+
+  InputStream getByteArrayInputStream(byte[] signature) {
+    return new ByteArrayInputStream(signature);
   }
 
   @Override //TODO NotYetImplementedException

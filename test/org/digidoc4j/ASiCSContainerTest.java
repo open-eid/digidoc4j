@@ -19,6 +19,7 @@ import static org.digidoc4j.api.Container.DigestAlgorithm.SHA1;
 import static org.digidoc4j.api.Container.DigestAlgorithm.SHA256;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 
 public class ASiCSContainerTest extends DigiDoc4JTestHelper {
 
@@ -194,6 +195,18 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void rawSignatureDoesNotThrowExceptionInCloseError() throws IOException {
+    ASiCSContainer container = spy(new ASiCSContainer());
+    byte[] signature = {0x41};
+    MockInputStream value = new MockInputStream();
+
+    doNothing().when(container).addRawSignature(value);
+    when(container.getByteArrayInputStream(signature)).thenReturn(value);
+
+    container.addRawSignature(signature);
+  }
+
+  @Test
   public void testGetDocumentType() throws Exception {
     createSignedASicSDocument("testGetDocumentType.asics");
     ASiCSContainer container = new ASiCSContainer("testGetDocumentType.asics");
@@ -228,6 +241,11 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
 
     @Override
     public int read(@SuppressWarnings("NullableProblems") byte b[], int off, int len) throws IOException {
+      throw new IOException();
+    }
+
+    @Override
+    public void close() throws IOException {
       throw new IOException();
     }
   }
