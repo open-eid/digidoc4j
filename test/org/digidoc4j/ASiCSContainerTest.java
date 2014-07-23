@@ -112,7 +112,7 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.sign(new PKCS12Signer("testFiles/B4B.pfx", "123456"));
-    container.save("asics_testing_two_signatures.asics");
+    container.save("testTwoSignatures.asics");
     assertEquals(2, container.getSignatures().size());
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         container.getSignatures().get(0).getSigningCertificate().getSerial());

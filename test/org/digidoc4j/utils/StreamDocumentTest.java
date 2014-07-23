@@ -77,7 +77,7 @@ public class StreamDocumentTest {
     assertArrayEquals(new byte[]{0x041},
         IOUtils.toByteArray(new FileInputStream("createDocumentFromStreamedDataFile.txt")));
 
-    Files.deleteIfExists(Paths.get("streamDocumentSaveTest.txt"));
+    Files.deleteIfExists(Paths.get("createDocumentFromStreamedDataFile.txt"));
   }
 
   @Test
