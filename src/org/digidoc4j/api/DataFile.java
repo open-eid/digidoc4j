@@ -142,6 +142,7 @@ public class DataFile {
    * Saves a copy of the data file as a file to the specified stream.
    *
    * @param out stream where data is written to
+   * @throws java.io.IOException on file write error
    */
   public void saveAs(OutputStream out) throws IOException {
     out.write(document.getBytes());
@@ -166,6 +167,11 @@ public class DataFile {
     return document.getBytes();
   }
 
+  /**
+   * Gives data file as stream
+   *
+   * @return data file stream
+   */
   public InputStream getStream() {
     return document.openStream();
   }

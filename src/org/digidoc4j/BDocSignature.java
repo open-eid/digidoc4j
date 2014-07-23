@@ -20,42 +20,63 @@ import java.util.List;
 
 import static org.digidoc4j.api.Container.SignatureProfile;
 
+
+/**
+ * BDoc signature implementation.
+ */
 public class BDocSignature extends Signature {
   private XAdESSignature origin;
   private SignatureProductionPlace signerLocation;
   private List<DigiDoc4JException> validationErrors = new ArrayList<DigiDoc4JException>();
 
+  /**
+   * Create a new BDoc signature.
+   *
+   * @param signature XAdES signature to use for the BDoc signature
+   */
   public BDocSignature(XAdESSignature signature) {
     origin = signature;
     signerLocation = signature.getSignatureProductionPlace();
   }
 
+  /**
+   * * Create a new BDOC signature.
+   *
+   * @param signature        XAdES signature to use for the BDoc signature
+   * @param validationErrors list of DigiDoc4J exceptions to add to the signature
+   */
   public BDocSignature(XAdESSignature signature, List<DigiDoc4JException> validationErrors) {
     origin = signature;
     signerLocation = signature.getSignatureProductionPlace();
     this.validationErrors = validationErrors;
   }
 
+  @Override
   public void setCertificate(X509Cert cert) {
     throw new NotYetImplementedException();
   }
 
+  @Override
   public String getCity() {
     return signerLocation.getCity();
   }
 
+  @Override
   public String getCountryName() {
     return signerLocation.getCountryName();
   }
 
+  @Override
   public String getId() {
     return origin.getId();
   }
 
+  @Override
   public byte[] getNonce() {
     throw new NotYetImplementedException();
   }
 
+  @Override
   public X509Cert getOCSPCertificate() {
     String ocspCN = getOCSPCommonName();
     for (CertificateToken cert : origin.getCertPool().getCertificateTokens()) {
@@ -75,48 +96,59 @@ public class BDocSignature extends Signature {
     return x500Name.getRDNs(new ASN1ObjectIdentifier("2.5.4.3"))[0].getTypesAndValues()[0].getValue().toString();
   }
 
+  @Override
   public String getPolicy() {
     throw new NotYetImplementedException();
   }
 
+  @Override
   public String getPostalCode() {
     return signerLocation.getPostalCode();
   }
 
+  @Override
   public Date getProducedAt() {
     return origin.getOCSPSource().getContainedOCSPResponses().get(0).getProducedAt();
   }
 
+  @Override
   public SignatureProfile getProfile() {
     if (origin.getSignatureTimestamps() != null && origin.getSignatureTimestamps().size() > 0)
       return SignatureProfile.TS;
     return SignatureProfile.NONE;
   }
 
+  @Override
   public String getSignatureMethod() {
     return origin.getDigestAlgorithm().getXmlId();
   }
 
+  @Override
   public List<String> getSignerRoles() {
     return Arrays.asList(origin.getClaimedSignerRoles());
   }
 
+  @Override
   public X509Cert getSigningCertificate() {
     return new X509Cert(origin.getSigningCertificateToken().getCertificate());
   }
 
+  @Override
   public Date getSigningTime() {
     return origin.getSigningTime();
   }
 
+  @Override
   public URI getSignaturePolicyURI() {
     throw new NotYetImplementedException();
   }
 
+  @Override
   public String getStateOrProvince() {
     return signerLocation.getStateOrProvince();
   }
 
+  @Override
   public X509Cert getTimeStampTokenCertificate() {
     if (origin.getSignatureTimestamps() == null || origin.getSignatureTimestamps().size() == 0) {
       throw new CertificateNotFoundException("TimeStamp certificate not found");
@@ -124,14 +156,17 @@ public class BDocSignature extends Signature {
     return new X509Cert(origin.getSignatureTimestamps().get(0).getIssuerToken().getCertificate());
   }
 
+  @Override
   public List<DigiDoc4JException> validate(Validate validationType) {
     return validationErrors;
   }
 
+  @Override
   public List<DigiDoc4JException> validate() {
     return validate(Validate.VALIDATE_FULL);
   }
 
+  @Override
   public byte[] getRawSignature() {
     return origin.getSignatureValue().getFirstChild().getNodeValue().getBytes();
   }

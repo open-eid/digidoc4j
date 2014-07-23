@@ -17,7 +17,7 @@ public class StreamDocument implements DSSDocument {
   MimeType mimeType;
   File temporaryFile;
 
-  //TODO: if file is small enough you can read it into byte[] and cache it
+  //TODO if file is small enough you can read it into byte[] and cache it
   public StreamDocument(InputStream stream, String documentName, MimeType mimeType) {
     fillByteArray(stream);
 
@@ -44,7 +44,6 @@ public class StreamDocument implements DSSDocument {
       IOUtils.closeQuietly(out);
     }
   }
-
 
 
   @Override
