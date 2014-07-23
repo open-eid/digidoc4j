@@ -4,11 +4,15 @@ import eu.europa.ec.markt.dss.DSSUtils;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.*;
@@ -49,10 +53,10 @@ public class DataFileTest {
 
     byte[] testFileContent = FileUtils.readFileToByteArray(new File("testFiles/test.txt"));
 
-    byte[] savedFileContent = FileUtils.readFileToByteArray(new File("testSaveToFile.txt"));
+    byte[] savedFileContent = FileUtils.readFileToByteArray(new File(fileName));
     assertArrayEquals(testFileContent, savedFileContent);
 
-    deleteFile("testSaveToFile.txt");
+    deleteFile(fileName);
   }
 
   @Test
@@ -71,7 +75,7 @@ public class DataFileTest {
 
   @Test(expected = DigiDoc4JException.class)
   public void incorrectMimeTypeByteArrayConstructor() {
-    dataFile = new DataFile(new byte[]{0x042}, "testFiles/test.txt", "incorrect");
+    dataFile = new DataFile(new byte[]{0x041}, "testFiles/test.txt", "incorrect");
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -86,17 +90,51 @@ public class DataFileTest {
 
   @Test
   public void testInMemoryDocumentRetrievesFileName() {
-    DataFile dataFile = new DataFile(new byte[]{0x042}, "suura.txt", "text/plain");
+    DataFile dataFile = new DataFile(new byte[]{0x041}, "suura.txt", "text/plain");
     assertEquals("suura.txt", dataFile.getFileName());
   }
 
   @Test
   public void testGetBytes() throws Exception {
-    DataFile dataFile = new DataFile(new byte[]{0x042}, "suura.txt", "text/plain");
-    assertArrayEquals(new byte[]{0x042}, dataFile.getBytes());
+    DataFile dataFile = new DataFile(new byte[]{0x041}, "suura.txt", "text/plain");
+    assertArrayEquals(new byte[]{0x041}, dataFile.getBytes());
   }
 
   @Test
+  public void createDocumentFromStream() throws Exception {
+    ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes());
+    DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
+    dataFile.saveAs("createDocumentFromStream.txt");
+
+    DataFile dataFileToCompare = new DataFile("createDocumentFromStream.txt", "text/plain");
+    assertArrayEquals("tere tere tipajalga".getBytes(), dataFileToCompare.getBytes());
+
+    Files.deleteIfExists(Paths.get("createDocumentFromStream.txt"));
+  }
+
+  @Test
+  public void calculateSizeForStreamedFile() throws Exception {
+    ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes());
+    DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
+
+    assertEquals(19, dataFile.getFileSize());
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void askingDataFileSizeWhenTemporoaryFileIsDeleted() throws Exception {
+    ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes());
+    DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
+    Files.deleteIfExists(Paths.get(dataFile.document.getAbsolutePath()));
+    dataFile.getFileSize();
+  }
+
+  @Test
+  public void name() throws Exception {
+
+  }
+
+  @Test
+  @Ignore
   public void testDigestIsCalculatedOnlyOnce() throws Exception {
   }
 }

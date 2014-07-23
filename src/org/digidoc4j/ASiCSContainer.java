@@ -19,6 +19,7 @@ import org.digidoc4j.api.*;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.api.exceptions.SignatureNotFoundException;
+import org.digidoc4j.utils.StreamDocument;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
@@ -36,6 +37,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
  */
 public class ASiCSContainer extends Container {
 
+  public static final int FILE_SIZE_TO_STREAM = 1024 * 1000 * 3;
   private CommonCertificateVerifier commonCertificateVerifier;
   protected DocumentSignatureService asicService;
   final private Map<String, DataFile> dataFiles = new HashMap<String, DataFile>();
@@ -101,11 +103,8 @@ public class ASiCSContainer extends Container {
   @Override
   public void addDataFile(InputStream is, String fileName, String mimeType) {
     if (dataFiles.size() >= 1) throw new DigiDoc4JException("ASiCS supports only one attachment");
-    try {
-      dataFiles.put(fileName, new DataFile(toByteArray(is), fileName, mimeType));
-    } catch (IOException e) {
-      throw new DigiDoc4JException(e);
-    }
+
+    dataFiles.put(fileName, new DataFile(is, fileName, mimeType));
   }
 
   @Override //TODO:NotYetImplementedException
@@ -184,10 +183,12 @@ public class ASiCSContainer extends Container {
 
     asicService = new ASiCSService(commonCertificateVerifier);
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
+    //TODO: after 4.1.0 release signing sets deteministic id to null
+    String deterministicId = signatureParameters.getDeterministicId();
     signedDocument = asicService.signDocument(signedDocument, signatureParameters, rawSignature);
 
     signatureParameters.setOriginalDocument(signedDocument);
-    XAdESSignature xAdESSignature = getSignatureById(signatureParameters.getDeterministicId());
+    XAdESSignature xAdESSignature = getSignatureById(deterministicId);
 
     Signature signature = new BDocSignature(xAdESSignature);
     signatures.add(signature);
@@ -199,8 +200,12 @@ public class ASiCSContainer extends Container {
     if (signedDocument == null) {
       DataFile dataFile = getFirstDataFile();
       MimeType mimeType = MimeType.fromCode(dataFile.getMediaType());
-      //TODO not working with big files
-      signedDocument = new InMemoryDocument(dataFile.getBytes(), dataFile.getFileName(), mimeType);
+      if (dataFile.getFileSize() > FILE_SIZE_TO_STREAM) {
+        //TODO not working with big files
+        signedDocument = new StreamDocument(dataFile.getStream(), dataFile.getFileName(), mimeType);
+      }
+      else
+        signedDocument = new InMemoryDocument(dataFile.getBytes(), dataFile.getFileName(), mimeType);
     }
     return signedDocument;
   }
