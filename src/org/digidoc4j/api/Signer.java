@@ -3,8 +3,6 @@ package org.digidoc4j.api;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.signature.token.AbstractSignatureTokenConnection;
 import eu.europa.ec.markt.dss.signature.token.DSSPrivateKeyEntry;
-import eu.europa.ec.markt.dss.signature.token.Pkcs12SignatureToken;
-import org.digidoc4j.api.X509Cert;
 import org.digidoc4j.utils.SignerInformation;
 
 import java.security.PrivateKey;

@@ -1,5 +1,19 @@
 package org.digidoc4j.api;
 
+import org.apache.commons.codec.binary.Base64;
+import org.digidoc4j.ASiCSContainer;
+import org.digidoc4j.BDocContainer;
+import org.digidoc4j.DDocContainer;
+import org.digidoc4j.DigiDoc4JTestHelper;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.NotYetImplementedException;
+import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.utils.Helper;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.xml.sax.SAXException;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -8,27 +22,11 @@ import java.nio.file.Paths;
 import java.security.cert.CertificateEncodingException;
 import java.util.List;
 
-import org.apache.commons.codec.binary.Base64;
-import org.digidoc4j.ASiCSContainer;
-import org.digidoc4j.BDocContainer;
-import org.digidoc4j.DDocContainer;
-import org.digidoc4j.DigiDoc4JTestHelper;
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.digidoc4j.api.exceptions.NotYetImplementedException;
-import org.digidoc4j.utils.Helper;
-import org.digidoc4j.signers.PKCS12Signer;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.xml.sax.SAXException;
-
 import static java.util.Arrays.asList;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.api.Configuration.Mode.TEST;
 import static org.digidoc4j.api.Container.DocumentType;
-import static org.digidoc4j.api.Container.DocumentType.ASIC_E;
-import static org.digidoc4j.api.Container.DocumentType.ASIC_S;
-import static org.digidoc4j.api.Container.DocumentType.DDOC;
+import static org.digidoc4j.api.Container.DocumentType.*;
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -337,18 +335,24 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     deleteFile("testOpenCreatedDDocFile.ddoc");
   }
 
-  @Test  //TODO Cannot call validate because it throws an exception
-  @Ignore
+  @Test
   public void testOpenInvalidFileReturnsError() {
     Container container = Container.open("testFiles/test.txt");
     List<DigiDoc4JException> exceptions = container.validate();
     assertEquals(2, exceptions.size());
-    assertEquals("test", exceptions.get(1).getMessage());
+    assertEquals("ERROR: 75 - 75Invalid xml file!; nested exception is: \n" +
+        "\torg.xml.sax.SAXParseException; Premature end of file.", exceptions.get(0).getMessage());
+    assertEquals("ERROR: 12 - This document is not in ddoc or bdoc format", exceptions.get(1).getMessage());
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void testOpenNotExistingFileThrowsException() {
     Container.open("noFile.ddoc");
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void testOpenEmptyFileThrowsException() {
+    Container.open("emptyFile.ddoc");
   }
 
   @Test

@@ -18,5 +18,5 @@ public class PKCS12Signer extends Signer {
   public PKCS12Signer(String fileName, String password) {
     signatureTokenConnection = new Pkcs12SignatureToken(password, fileName);
     keyEntry = signatureTokenConnection.getKeys().get(0);
- }
+  }
 }

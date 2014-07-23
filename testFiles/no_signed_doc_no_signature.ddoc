@@ -1,0 +1,102 @@
+<Signature Id="S0" xmlns="http://www.w3.org/2000/09/xmldsig#">
+    <SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+        <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315">
+        </CanonicalizationMethod>
+        <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1">
+        </SignatureMethod>
+        <Reference URI="#D0">
+            <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">
+            </DigestMethod>
+            <DigestValue>65dz/BGKDIGeiS1RFlx2ZVbY0v8=</DigestValue>
+        </Reference>
+        <Reference Type="http://uri.etsi.org/01903/v1.1.1#SignedProperties" URI="#S0-SignedProperties">
+            <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">
+            </DigestMethod>
+            <DigestValue>tEQj2LpQ6Os7XjY4Jk04W4IVrKY=</DigestValue>
+        </Reference>
+    </SignedInfo>
+    <SignatureValue Id="S0-SIG">bn3xGkuvzYP7PIUJu9uX4zQpPPpprax1hFKdCfF5X6vO3uJyKjZIwhGg0aGjpASK
+        5jQOimj3nLzQ+pscSV0w5mA1J9ThBOqWl0t0DvU+FznOoPjCgYyCKpF/5GHUAAfH
+        Bu0ybIj0wNbYQOC0GFhqta+6RR24I4qXW3eBttnPoYM=
+    </SignatureValue>
+    <KeyInfo>
+        <KeyValue>
+            <RSAKeyValue>
+                <Modulus>AOMMLm9B2wEH8Epr4/CR+HSt1I0BDTVTrhhlzi2UBJ7bhmSIQZgeGfzzaJYFDLQZ
+                    fMYpghf8wcMCIwgWA9Ff77b4XlRbsB9kMR0UQuJXCXct180MyU7ZAd5i7gKU337D
+                    2k7PLKtf3mqCcTccd2sS3eJ3L65rV6P1t2C+cEPbBEzn
+                </Modulus>
+                <Exponent>AQAB</Exponent>
+            </RSAKeyValue>
+        </KeyValue>
+        <X509Data>
+            <X509Certificate>MIIEYjCCA0qgAwIBAgICAIwwDQYJKoZIhvcNAQEFBQAwgYsxHTAbBgkqhkiG9w0B
+                CQEWDnRhb3RsdXNAZXlwLmVlMSMwIQYDVQQDExpUZXN0c2VydGlmaXRzZWVyaW1p
+                c2tlc2t1czEqMCgGA1UECxMhSVQgSW5mcmFzdHJ1a3R1dXJpIGFyZW5kdXNvc2Fr
+                b25kMQwwCgYDVQQKEwNFWVAxCzAJBgNVBAYTAkVFMB4XDTExMDEyMDA3MjcwN1oX
+                DTEzMDExOTA3MjcwN1owgbYxCzAJBgNVBAYTAkVFMRAwDgYDVQQIEwdFc3Rvbmlh
+                MRAwDgYDVQQHEwdUYWxsaW5uMRQwEgYDVQQKEwtBUyBTRUIgUGFuazEYMBYGA1UE
+                CxMPdGVzdHNlcnRpZmlrYWF0MTcwNQYDVQQDEy5BUyBTRUIgUGFuazogQXN1dHVz
+                ZSB0ZXN0LSBqYSBrb250cm9sbGtpbm5pdHVzMRowGAYJKoZIhvcNAQkBFgtpbmZv
+                QHNlYi5lZTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA4wwub0HbAQfwSmvj
+                8JH4dK3UjQENNVOuGGXOLZQEntuGZIhBmB4Z/PNolgUMtBl8ximCF/zBwwIjCBYD
+                0V/vtvheVFuwH2QxHRRC4lcJdy3XzQzJTtkB3mLuApTffsPaTs8sq1/eaoJxNxx3
+                axLd4ncvrmtXo/W3YL5wQ9sETOcCAwEAAaOCASUwggEhMA4GA1UdDwEB/wQEAwIH
+                gDAdBgNVHQ4EFgQUlEnzMGEoFv7KVYaWBZikrGQh1Y0wgbgGA1UdIwSBsDCBrYAU
+                DS7/Eb/nv3IfB4aYe9tFR/evNdWhgZGkgY4wgYsxHTAbBgkqhkiG9w0BCQEWDnRh
+                b3RsdXNAZXlwLmVlMSMwIQYDVQQDExpUZXN0c2VydGlmaXRzZWVyaW1pc2tlc2t1
+                czEqMCgGA1UECxMhSVQgSW5mcmFzdHJ1a3R1dXJpIGFyZW5kdXNvc2Frb25kMQww
+                CgYDVQQKEwNFWVAxCzAJBgNVBAYTAkVFggEAMBYGA1UdEQQPMA2BC2luZm9Ac2Vi
+                LmVlMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDANBgkqhkiG9w0BAQUF
+                AAOCAQEAjkr1BcNqK1MXzgSazyiuUdJIuTGDuGMUsMXBodnKpOM2jN1iUDfFPdU+
+                g+vXBawSa+kZZ//GvRLy7UeRtblWw2G3B2HkWNY1awkaZxlJK8kNkLNzwO/yet0n
+                shOYqvHSIogqE2Np0AKZbS0hbU43/atgsECsX0y8inLWpb8Vru8gObBfwmjH21Lu
+                vM9OtdGaUocc0Q1Pd3Cxxlk9+7Tcc+Xl4rgPS4znfxiFfYujeMP4QZBLsjYqtyGZ
+                sNAOm2El4dvTk2AgbrEYKq2DFiovM9rpmJC6qYdo1S+DjrKQ5JVUYH2/4larCp17
+                nO0IeTrVRhyhp1S+ecPmgZZpKtbv3w==
+            </X509Certificate>
+        </X509Data>
+    </KeyInfo>
+    <Object>
+        <QualifyingProperties xmlns="http://uri.etsi.org/01903/v1.1.1#" Target="#S0">
+            <SignedProperties xmlns="http://uri.etsi.org/01903/v1.1.1#" Id="S0-SignedProperties">
+                <SignedSignatureProperties>
+                    <SigningTime>2011-09-21T12:07:35Z</SigningTime>
+                    <SigningCertificate>
+                        <Cert>
+                            <CertDigest>
+                                <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">
+                                </DigestMethod>
+                                <DigestValue>eE7nEj7s6ewpGE+JGn+hwuyyAEY=</DigestValue>
+                            </CertDigest>
+                            <IssuerSerial>
+                                <X509IssuerName xmlns="http://www.w3.org/2000/09/xmldsig#">C=EE, O=EYP, OU=IT
+                                    Infrastruktuuri arendusosakond, CN=Testsertifitseerimiskeskus,
+                                    EMAILADDRESS=taotlus@eyp.ee
+                                </X509IssuerName>
+                                <X509SerialNumber xmlns="http://www.w3.org/2000/09/xmldsig#">140</X509SerialNumber>
+                            </IssuerSerial>
+                        </Cert>
+                    </SigningCertificate>
+                    <SignaturePolicyIdentifier>
+                        <SignaturePolicyImplied>
+                        </SignaturePolicyImplied>
+                    </SignaturePolicyIdentifier>
+                    <SignatureProductionPlace>
+                        <City>Tallinn</City>
+                        <StateOrProvince>Harjumaa</StateOrProvince>
+                        <PostalCode>15010</PostalCode>
+                        <CountryName>Eesti</CountryName>
+                    </SignatureProductionPlace>
+                    <SignerRole>
+                        <ClaimedRoles>
+                            <ClaimedRole>Kinnitaja</ClaimedRole>
+                        </ClaimedRoles>
+                    </SignerRole>
+                </SignedSignatureProperties>
+                <SignedDataObjectProperties>
+                </SignedDataObjectProperties>
+            </SignedProperties>
+        </QualifyingProperties>
+    </Object>
+</Signature>
