@@ -63,9 +63,4 @@ public class DDocContainerTest {
     container.addDataFile("testFiles/test.txt", "");
     container.getDataFiles();
   }
-//
-//  private class MockDataFile extends DataFile{
-//    super()
-//
-//  }
 }
