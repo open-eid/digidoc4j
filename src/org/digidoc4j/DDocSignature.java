@@ -104,7 +104,7 @@ public class DDocSignature extends Signature {
     List<DigiDoc4JException> validationErrors = new ArrayList<DigiDoc4JException>();
     ArrayList validationResult = origin.verify(origin.getSignedDoc(), true, true);
     for (Object exception : validationResult) {
-      validationErrors.add(new DigiDoc4JException((Exception) exception));
+      validationErrors.add(new DigiDoc4JException(exception.toString()));
     }
     return validationErrors;
   }

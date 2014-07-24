@@ -25,10 +25,21 @@ import java.util.List;
  */
 public abstract class Container {
 
+  /**
+   * Create an ASIC_E container.
+   *
+   * @return new ASIC_E Container
+   */
   public static Container create() {
     return create(DocumentType.ASIC_E);
   }
 
+  /**
+   * Create a container of the specified type.
+   *
+   * @param documentType Type of container to create
+   * @return new container of the specified format
+   */
   public static Container create(DocumentType documentType) {
     if (documentType == DocumentType.ASIC_E)
       return new BDocContainer();
@@ -38,7 +49,13 @@ public abstract class Container {
       return new DDocContainer();
   }
 
-  public static Container open(String path) {
+  /**
+   * Open container from a file
+   *
+   * @param path file name and path.
+   * @return container
+   */
+  public static Container open(String path) throws DigiDoc4JException {
     try {
       if (Helper.isZipFile(new File(path))) {
         if ("asics".equalsIgnoreCase(FilenameUtils.getExtension(path)))
@@ -49,7 +66,7 @@ public abstract class Container {
         return new DDocContainer(path);
       }
     } catch (IOException e) {
-      throw new DigiDoc4JException(e);
+      throw new DigiDoc4JException("ERROR: 10 - Empty or unreadable input file");
     }
   }
 

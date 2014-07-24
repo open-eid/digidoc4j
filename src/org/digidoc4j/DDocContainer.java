@@ -1,5 +1,6 @@
 package org.digidoc4j;
 
+import ee.sk.digidoc.CertValue;
 import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.SignatureProductionPlace;
 import ee.sk.digidoc.SignedDoc;
@@ -32,7 +33,7 @@ import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
 public class DDocContainer extends Container {
 
   private SignedDoc ddoc;
-  private List<DigiDoc4JException> openContainerExceptions = new ArrayList<DigiDoc4JException>();
+  private ArrayList<ee.sk.digidoc.DigiDocException> openContainerErrors = new ArrayList<ee.sk.digidoc.DigiDocException>();
 
   /**
    * Create a new container object of DDOC type Container.
@@ -58,12 +59,10 @@ public class DDocContainer extends Container {
    *                 ]
    */
   public DDocContainer(String fileName) {
-    List exceptions = new ArrayList();
     intConfiguration();
     DigiDocFactory digFac = new SAXDigiDocFactory();
     try {
-      ddoc = digFac.readSignedDocOfType(fileName, false, exceptions);
-      openContainerExceptions = convertToDigiDoc4JExceptions(exceptions);
+      ddoc = digFac.readSignedDocOfType(fileName, false, openContainerErrors);
     } catch (DigiDocException e) {
       throw new DigiDoc4JException(e);
     }
@@ -189,20 +188,37 @@ public class DDocContainer extends Container {
   @Override
   public List<Signature> getSignatures() {
     List<Signature> signatures = new ArrayList<Signature>();
+    if (ddoc == null) {
+      return null;
+    }
+
     ArrayList dDocSignatures = ddoc.getSignatures();
 
+    if (dDocSignatures == null) {
+      return null;
+    }
+
     for (Object signature : dDocSignatures) {
-      Signature finalSignature = mapJDigiDocSignatureToDigidoc4J((ee.sk.digidoc.Signature) signature);
-      signatures.add(finalSignature);
+      Signature finalSignature = mapJDigiDocSignatureToDigiDoc4J((ee.sk.digidoc.Signature) signature);
+      if (finalSignature != null) {
+        signatures.add(finalSignature);
+      }
     }
 
     return signatures;
   }
 
-  private Signature mapJDigiDocSignatureToDigidoc4J(ee.sk.digidoc.Signature signature) {
+  private Signature mapJDigiDocSignatureToDigiDoc4J(ee.sk.digidoc.Signature signature) {
     Signature finalSignature = new DDocSignature(signature);
-    finalSignature.setCertificate(new X509Cert(signature.getLastCertValue().getCert())); //TODO can be several certs
+    CertValue lastCertValue = signature.getLastCertValue();
+    if (lastCertValue == null) {
+      return null;
+    }
+
+    finalSignature.setCertificate(new X509Cert(lastCertValue.getCert()));
+    //TODO can be several certs
     //TODO check logic about one role versus several roles
+
     return finalSignature;
   }
 
@@ -218,9 +234,14 @@ public class DDocContainer extends Container {
 
   @Override
   public List<DigiDoc4JException> validate() {
+    if (SignedDoc.hasFatalErrs(openContainerErrors)) {
+      return convertToDigiDoc4JExceptions(openContainerErrors);
+    }
+
     List exceptions = ddoc.verify(true, true);
+
     List<DigiDoc4JException> allExceptions;
-    allExceptions = this.openContainerExceptions;
+    allExceptions = convertToDigiDoc4JExceptions(openContainerErrors);
     allExceptions.addAll(convertToDigiDoc4JExceptions(exceptions));
     return allExceptions;
   }

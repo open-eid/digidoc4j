@@ -1,14 +1,14 @@
 package org.digidoc4j.main;
 
-import java.io.File;
-import java.util.List;
-
 import org.apache.commons.cli.*;
 import org.digidoc4j.api.Container;
 import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.Signer;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS12Signer;
+
+import java.io.File;
+import java.util.List;
 
 import static org.apache.commons.cli.OptionBuilder.withArgName;
 import static org.digidoc4j.api.Container.DocumentType;

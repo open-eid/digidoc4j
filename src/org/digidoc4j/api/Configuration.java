@@ -87,7 +87,7 @@ public class Configuration {
   }
 
   String getPKCS11ModulePathForOS(OS os, String key) {
-    return getConfigurationParameter(key+os);
+    return getConfigurationParameter(key + os);
   }
 
   public String getPKCS11ModulePath() {
