@@ -6,6 +6,8 @@ import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.Signer;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS12Signer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.List;
@@ -19,6 +21,7 @@ import static org.digidoc4j.api.Container.DocumentType.DDOC;
  * Client commandline tool for DigiDoc4J library.
  */
 public final class DigiDoc4J {
+  private static final Logger logger = LoggerFactory.getLogger(DigiDoc4J.class);
 
   public static void main(String[] args) {
     Options options = createParameters();
@@ -87,7 +90,6 @@ public final class DigiDoc4J {
       System.out.println("BDOC format is not supported yet");
       System.exit(2);
     }
-
     if (commandLine.hasOption("add")) {
       String[] optionValues = commandLine.getOptionValues("add");
       if (optionValues.length != 2) {
