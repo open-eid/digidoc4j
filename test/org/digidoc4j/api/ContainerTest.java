@@ -347,7 +347,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testValidateDDoc() throws Exception {
-    Container dDocContainer = Container.open("testFiles/valid.ddoc");
+    Container dDocContainer = Container.open("testFiles/ddoc_for_testing.ddoc");
     assertEquals(0, dDocContainer.validate().size());
   }
 
