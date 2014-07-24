@@ -1,7 +1,10 @@
 package org.digidoc4j;
 
+import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 import org.digidoc4j.api.Container;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.NotYetImplementedException;
+import org.digidoc4j.api.exceptions.SignatureNotFoundException;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -10,6 +13,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -92,7 +96,6 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
   public void testAddDataFileFromInputStreamWithByteArrayConversionFailure() throws Exception {
     ASiCSContainer container = new ASiCSContainer();
     container.addDataFile(new MockInputStream(), "test.txt", "text/plain");
-
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -206,6 +209,39 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
     container.addRawSignature(signature);
   }
 
+
+  @Test(expected = SignatureNotFoundException.class)
+  public void testSignatureNotFoundException() throws Exception {
+    ASiCSContainer container = new ASiCSContainer();
+    ASiCSContainer spy = spy(container);
+
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setDeterministicId("NotPresentSignature");
+    when(spy.getSignatureParameters()).thenReturn(signatureParameters);
+
+    spy.addDataFile("testFiles/test.txt", "text/plain");
+    spy.sign(PKCS12_SIGNER);
+  }
+
+  @Test
+  public void testLargeFileSigning() throws Exception {
+    ASiCSContainer container = new ASiCSContainer();
+    String path = createLargeFile();
+    container.addDataFile(path, "text/plain");
+    container.sign(PKCS12_SIGNER);
+  }
+
+  private String createLargeFile() {
+    String fileName = "test_large_file.asics";
+    try {
+      RandomAccessFile largeFile = new RandomAccessFile(fileName, "rw");
+      largeFile.setLength(ASiCSContainer.FILE_SIZE_TO_STREAM + 100);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return fileName;
+  }
+
   @Test
   public void testGetDocumentType() throws Exception {
     createSignedASicSDocument("testGetDocumentType.asics");
@@ -219,6 +255,12 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
     ByteArrayInputStream stream = new ByteArrayInputStream("tere, tere".getBytes());
     container.addDataFile(stream, "test1.txt", "text/plain");
     container.addDataFile(stream, "test2.txt", "text/plain");
+  }
+
+  @Test(expected = NotYetImplementedException.class)
+  public void testValidate() {
+    ASiCSContainer container = new ASiCSContainer();
+    container.validate();
   }
 
   private Container createSignedASicSDocument(String fileName) {

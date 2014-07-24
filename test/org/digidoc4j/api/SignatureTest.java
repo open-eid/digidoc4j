@@ -1,6 +1,7 @@
 package org.digidoc4j.api;
 
 import org.apache.commons.codec.binary.Base64;
+import org.digidoc4j.BDocContainer;
 import org.digidoc4j.Certificates;
 import org.digidoc4j.DDocContainer;
 import org.digidoc4j.DigiDoc4JTestHelper;
@@ -72,6 +73,14 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   @Test(expected = CertificateNotFoundException.class)
   public void testGetTimeStampTokenCertificateForASiCSNoTimeStampExists() throws Exception {
     Container.open("testFiles/asics_for_testing.asics").getSignatures().get(0).getTimeStampTokenCertificate();
+  }
+
+  @Test(expected = NotYetImplementedException.class)
+  public void testSetCertificateForBDOC() throws Exception {
+    BDocContainer bDocContainer = new BDocContainer();
+    bDocContainer.addDataFile("testFiles/test.txt", "text/plain");
+    Signature bDocSignature = bDocContainer.sign(new PKCS12Signer("testFiles/signout.p12", "test"));
+    bDocSignature.setCertificate(new X509Cert("testFiles/signout.pem"));
   }
 
   @Test
@@ -325,5 +334,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     DDocContainer container = new DDocContainer("testFiles/signature_without_last_certificate.ddoc");
     assertEquals(0, container.getSignatures().size());
   }
+
+
 }
 

@@ -55,9 +55,9 @@
     <orderEntry type="library" name="commons-io-2.4" level="project" />
     <orderEntry type="library" name="xmlunit:xmlunit:1.5" level="project" />
     <orderEntry type="library" name="commons-cli:commons-cli:1.2" level="project" />
-    <orderEntry type="library" name="jdigidoc-3.9.0-712" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.3.4" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.3.2" level="project" />
+    <orderEntry type="library" name="jdigidoc-3.10.1316.BETA" level="project" />
   </component>
 </module>
 

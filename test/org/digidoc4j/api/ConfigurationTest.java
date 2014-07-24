@@ -52,4 +52,9 @@ public class ConfigurationTest {
     Configuration configuration = new Configuration();
     assertEquals("http://sr.riik.ee/tsl/estonian-tsl.xml", configuration.getTslLocation());
   }
+
+  @Test
+  public void testGetPKCS11ModulePath() throws Exception {
+    assertEquals("/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so", configuration.getPKCS11ModulePath());
+  }
 }

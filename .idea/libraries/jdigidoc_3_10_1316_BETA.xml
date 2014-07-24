@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="jdigidoc-3.10.1316.BETA">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/jdigidoc-3.10.1316.BETA.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/jdigidoc-3.10.1316.BETA-source.jar!/" />
+    </SOURCES>
+  </library>
+</component>

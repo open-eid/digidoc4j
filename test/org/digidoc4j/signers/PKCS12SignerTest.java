@@ -2,12 +2,15 @@ package org.digidoc4j.signers;
 
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.api.X509Cert;
+import org.digidoc4j.utils.SignerInformation;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.security.cert.CertificateEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.*;
@@ -88,6 +91,24 @@ public class PKCS12SignerTest {
         -85, 96, -23, -115, 107, -106, 57, 105, 27, -106, 75, -111, -41, 59, -23, 113, -55, 86, 70, 64, -118, -80, 44, -48, -19, 99, -43, 106, -26,
         97, -119, -94, -9, -22, -8, 88, 62, 67, -80, 35, 110, -7, -10, 55, 73, -60, 83, -128, -57, -120, 2};
     assertTrue(Arrays.equals(expected, pkcs12Signer.sign("http://www.w3.org/2001/04/xmlenc#sha512", new byte[]{0x41})));
+  }
+
+  @Test
+  public void testGetSignerInformation() {
+    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
+    List<String> signerRoles = new ArrayList<String>();
+    signerRoles.add("Role1");
+    signerRoles.add("Role2");
+    pkcs12Signer.setSignerRoles(signerRoles);
+    SignerInformation signerInformation = pkcs12Signer.getSignerInformation();
+    assertEquals("myCity", signerInformation.getCity());
+    assertEquals("myCountry", signerInformation.getCountry());
+    assertEquals("myPostalCode", signerInformation.getPostalCode());
+    assertEquals("myState", signerInformation.getStateOrProvince());
+    List<String> signerRolesReturned = pkcs12Signer.getSignerRoles();
+    assertEquals(2, signerRolesReturned.size());
+    assertEquals(signerRoles.get(0), signerRolesReturned.get(0));
+    assertEquals(signerRoles.get(1), signerRolesReturned.get(1));
   }
 
   @Test

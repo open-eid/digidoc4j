@@ -2,8 +2,11 @@ package org.digidoc4j.api;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,6 +15,7 @@ import java.util.Date;
 import static java.util.Arrays.asList;
 import static org.digidoc4j.api.X509Cert.SubjectName.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 public class X509CertTest {
 
@@ -28,8 +32,8 @@ public class X509CertTest {
   public void testGetX509Certificate() throws Exception {
     X509Certificate x509Certificate = cert.getX509Certificate();
     assertEquals("SERIALNUMBER=11404176865, GIVENNAME=MÄRÜ-LÖÖZ, SURNAME=ŽÕRINÜWŠKY, " +
-                 "CN=\"ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865\", OU=digital signature, O=ESTEID, C=EE",
-                 x509Certificate.getSubjectDN().getName());
+            "CN=\"ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865\", OU=digital signature, O=ESTEID, C=EE",
+        x509Certificate.getSubjectDN().getName());
   }
 
   @Test
@@ -40,7 +44,7 @@ public class X509CertTest {
   @Test
   public void testGetIssuerName() {
     assertEquals("emailaddress=pki@sk.ee, cn=test of esteid-sk 2011, o=as sertifitseerimiskeskus, c=ee",
-                 cert.issuerName().toLowerCase());
+        cert.issuerName().toLowerCase());
   }
 
   @Test
@@ -71,6 +75,22 @@ public class X509CertTest {
   public void testIsNoLongerValid() throws ParseException {
     Date certValidFrom = dateFormat.parse("12.04.2016");
     assertFalse(cert.isValid(new Date(certValidFrom.getTime() + ONE_DAY)));
+  }
+
+  @Test
+  public void testIsValidThrowsCertificateExpiredException() throws Exception {
+    X509Certificate mock = mock(X509Certificate.class);
+    Mockito.doThrow(new CertificateExpiredException()).when(mock).checkValidity();
+    X509Cert x509Cert = new X509Cert(mock);
+    x509Cert.isValid();
+  }
+
+  @Test
+  public void testIsValidThrowsCertificateNotYetValidException() throws Exception {
+    X509Certificate mock = mock(X509Certificate.class);
+    Mockito.doThrow(new CertificateNotYetValidException()).when(mock).checkValidity();
+    X509Cert x509Cert = new X509Cert(mock);
+    x509Cert.isValid();
   }
 
   @Test

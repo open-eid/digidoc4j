@@ -69,6 +69,10 @@ public class DDocContainer extends Container {
     }
   }
 
+  DDocContainer(SignedDoc ddoc) {
+    intConfiguration();
+    this.ddoc = ddoc;
+  }
   @Override
   public void addDataFile(String path, String mimeType) {
     try {

@@ -15,11 +15,11 @@ import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
+import org.apache.commons.io.IOUtils;
 import org.digidoc4j.api.*;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.api.exceptions.SignatureNotFoundException;
-import org.digidoc4j.utils.StreamDocument;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class ASiCSContainer extends Container {
   public static final int FILE_SIZE_TO_STREAM = 1024 * 1000 * 3;
   private CommonCertificateVerifier commonCertificateVerifier;
   protected DocumentSignatureService asicService;
-  protected SignatureParameters signatureParameters;
+  private SignatureParameters signatureParameters;
   protected DSSDocument signedDocument;
   private List<Signature> signatures = new ArrayList<Signature>();
   eu.europa.ec.markt.dss.DigestAlgorithm digestAlgorithm = SHA256;
@@ -62,6 +62,7 @@ public class ASiCSContainer extends Container {
 
     asicService = new ASiCSService(commonCertificateVerifier);
   }
+
 
   /**
    * Opens the container from a file.
@@ -113,10 +114,7 @@ public class ASiCSContainer extends Container {
   public void addRawSignature(byte[] signature) {
     InputStream signatureStream = getByteArrayInputStream(signature);
     addRawSignature(signatureStream);
-    try {
-      signatureStream.close();
-    } catch (IOException ignored) {
-    }
+    IOUtils.closeQuietly(signatureStream);
   }
 
   InputStream getByteArrayInputStream(byte[] signature) {
@@ -183,20 +181,14 @@ public class ASiCSContainer extends Container {
     return sign(signer.sign(signatureParameters.getDigestAlgorithm().getXmlId(), dataToSign));
   }
 
-  /**
-   * Signs all data files in the container using the provided raw signature
-   *
-   * @param rawSignature raw signature byte array
-   * @return signature
-   */
-  public Signature sign(byte[] rawSignature) {
+  private Signature sign(byte[] rawSignature) {
     commonCertificateVerifier.setTrustedCertSource(getTSL());
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource());
 
     asicService = new ASiCSService(commonCertificateVerifier);
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
     //TODO after 4.1.0 release signing sets deteministic id to null
-    String deterministicId = signatureParameters.getDeterministicId();
+    String deterministicId = getSignatureParameters().getDeterministicId();
     signedDocument = asicService.signDocument(signedDocument, signatureParameters, rawSignature);
 
     signatureParameters.setDetachedContent(signedDocument);
@@ -328,6 +320,10 @@ public class ASiCSContainer extends Container {
   @Override
   public List<DigiDoc4JException> validate() {
     throw new NotYetImplementedException();
+  }
+
+  protected SignatureParameters getSignatureParameters() {
+    return signatureParameters;
   }
 }
 

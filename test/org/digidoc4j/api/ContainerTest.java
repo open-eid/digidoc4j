@@ -345,6 +345,12 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     assertEquals("ERROR: 12 - This document is not in ddoc or bdoc format", exceptions.get(1).getMessage());
   }
 
+  @Test
+  public void testValidateDDoc() throws Exception {
+    Container dDocContainer = Container.open("testFiles/valid.ddoc");
+    assertEquals(0, dDocContainer.validate().size());
+  }
+
   @Test(expected = DigiDoc4JException.class)
   public void testOpenNotExistingFileThrowsException() {
     Container.open("noFile.ddoc");
@@ -467,13 +473,13 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     assertEquals("myRole / myResolution", signature.getSignerRoles().get(0));
   }
 
-  @Test (expected = NotYetImplementedException.class)
+  @Test(expected = NotYetImplementedException.class)
   public void testSetConfigurationForDDoc() throws Exception {
     Container ddoc = Container.create(DDOC);
     ddoc.setConfiguration(new Configuration());
   }
 
-  @Test (expected = IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testSetConfigurationForASiCS() throws Exception {
     Container asics = Container.create(ASIC_S);
     asics.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
