@@ -1,7 +1,10 @@
 package org.digidoc4j;
 
+import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 import org.digidoc4j.api.Container;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.NotYetImplementedException;
+import org.digidoc4j.api.exceptions.SignatureNotFoundException;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -10,6 +13,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,6 +23,7 @@ import static org.digidoc4j.api.Container.DigestAlgorithm.SHA1;
 import static org.digidoc4j.api.Container.DigestAlgorithm.SHA256;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 
 public class ASiCSContainerTest extends DigiDoc4JTestHelper {
 
@@ -91,7 +96,6 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
   public void testAddDataFileFromInputStreamWithByteArrayConversionFailure() throws Exception {
     ASiCSContainer container = new ASiCSContainer();
     container.addDataFile(new MockInputStream(), "test.txt", "text/plain");
-
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -112,7 +116,7 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.sign(new PKCS12Signer("testFiles/B4B.pfx", "123456"));
-    container.save("asics_testing_two_signatures.asics");
+    container.save("testTwoSignatures.asics");
     assertEquals(2, container.getSignatures().size());
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         container.getSignatures().get(0).getSigningCertificate().getSerial());
@@ -194,6 +198,51 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void rawSignatureDoesNotThrowExceptionInCloseError() throws IOException {
+    ASiCSContainer container = spy(new ASiCSContainer());
+    byte[] signature = {0x41};
+    MockInputStream value = new MockInputStream();
+
+    doNothing().when(container).addRawSignature(value);
+    when(container.getByteArrayInputStream(signature)).thenReturn(value);
+
+    container.addRawSignature(signature);
+  }
+
+
+  @Test(expected = SignatureNotFoundException.class)
+  public void testSignatureNotFoundException() throws Exception {
+    ASiCSContainer container = new ASiCSContainer();
+    ASiCSContainer spy = spy(container);
+
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setDeterministicId("NotPresentSignature");
+    when(spy.getSignatureParameters()).thenReturn(signatureParameters);
+
+    spy.addDataFile("testFiles/test.txt", "text/plain");
+    spy.sign(PKCS12_SIGNER);
+  }
+
+  @Test
+  public void testLargeFileSigning() throws Exception {
+    ASiCSContainer container = new ASiCSContainer();
+    String path = createLargeFile();
+    container.addDataFile(path, "text/plain");
+    container.sign(PKCS12_SIGNER);
+  }
+
+  private String createLargeFile() {
+    String fileName = "test_large_file.asics";
+    try {
+      RandomAccessFile largeFile = new RandomAccessFile(fileName, "rw");
+      largeFile.setLength(ASiCSContainer.FILE_SIZE_TO_STREAM + 100);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return fileName;
+  }
+
+  @Test
   public void testGetDocumentType() throws Exception {
     createSignedASicSDocument("testGetDocumentType.asics");
     ASiCSContainer container = new ASiCSContainer("testGetDocumentType.asics");
@@ -206,6 +255,12 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
     ByteArrayInputStream stream = new ByteArrayInputStream("tere, tere".getBytes());
     container.addDataFile(stream, "test1.txt", "text/plain");
     container.addDataFile(stream, "test2.txt", "text/plain");
+  }
+
+  @Test(expected = NotYetImplementedException.class)
+  public void testValidate() {
+    ASiCSContainer container = new ASiCSContainer();
+    container.validate();
   }
 
   private Container createSignedASicSDocument(String fileName) {
@@ -228,6 +283,11 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
 
     @Override
     public int read(@SuppressWarnings("NullableProblems") byte b[], int off, int len) throws IOException {
+      throw new IOException();
+    }
+
+    @Override
+    public void close() throws IOException {
       throw new IOException();
     }
   }

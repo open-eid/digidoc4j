@@ -33,7 +33,8 @@ import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
 public class DDocContainer extends Container {
 
   private SignedDoc ddoc;
-  private ArrayList<ee.sk.digidoc.DigiDocException> openContainerErrors = new ArrayList<ee.sk.digidoc.DigiDocException>();
+  private ArrayList<ee.sk.digidoc.DigiDocException> openContainerErrors =
+      new ArrayList<ee.sk.digidoc.DigiDocException>();
 
   /**
    * Create a new container object of DDOC type Container.
@@ -66,6 +67,11 @@ public class DDocContainer extends Container {
     } catch (DigiDocException e) {
       throw new DigiDoc4JException(e);
     }
+  }
+
+  DDocContainer(SignedDoc ddoc) {
+    intConfiguration();
+    this.ddoc = ddoc;
   }
 
   @Override
@@ -171,7 +177,8 @@ public class DDocContainer extends Container {
           new SignatureProductionPlace(signer.getCity(), signer.getStateOrProvince(),
               signer.getCountry(), signer.getPostalCode()));
 
-      signature.setSignatureValue(signer.sign(eu.europa.ec.markt.dss.DigestAlgorithm.SHA1.getXmlId(), signature.calculateSignedInfoXML()));
+      signature.setSignatureValue(signer.sign(eu.europa.ec.markt.dss.DigestAlgorithm.SHA1.getXmlId(),
+          signature.calculateSignedInfoXML()));
 
       signature.getConfirmation();
     } catch (DigiDocException e) {
@@ -181,7 +188,8 @@ public class DDocContainer extends Container {
     return new DDocSignature(signature);
   }
 
-  @Override public void setConfiguration(Configuration conf) {
+  @Override
+  public void setConfiguration(Configuration conf) {
     throw new NotYetImplementedException();
   }
 
@@ -228,7 +236,7 @@ public class DDocContainer extends Container {
   }
 
   @Override
-  public void setDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+  public void setDigestAlgorithm(DigestAlgorithm algorithm) {
   }
 
 

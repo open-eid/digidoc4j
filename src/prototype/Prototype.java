@@ -38,7 +38,8 @@ public class Prototype {
     sign();
     validate();
   }
-  //rm -rf test.bdoc, META-INF/.DS_Store && zip -0 -X test.bdoc mimetype && zip -r -D test.bdoc * -x mimetype && unzip -l test.bdoc
+  //rm -rf test.bdoc, META-INF/.DS_Store && zip -0 -X test.bdoc mimetype && zip -r -D test.bdoc * -x mimetype
+  // && unzip -l test.bdoc
 
   private static void sign() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
     DSSDocument toSignDocument = new FileDocument("testFiles/test.txt");

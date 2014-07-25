@@ -20,6 +20,15 @@ import static org.digidoc4j.api.Container.DocumentType.DDOC;
  */
 public final class DigiDoc4J {
 
+  private DigiDoc4J() {
+
+  }
+
+  /**
+   * Utility main method
+   *
+   * @param args command line arguments
+   */
   public static void main(String[] args) {
     try {
       run(args);

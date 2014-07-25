@@ -3,12 +3,8 @@ package org.digidoc4j.api;
 import eu.europa.ec.markt.dss.DSSUtils;
 import eu.europa.ec.markt.dss.Digest;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
-import eu.europa.ec.markt.dss.signature.DSSDocument;
-import eu.europa.ec.markt.dss.signature.FileDocument;
-import eu.europa.ec.markt.dss.signature.InMemoryDocument;
-import eu.europa.ec.markt.dss.signature.MimeType;
+import eu.europa.ec.markt.dss.signature.*;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.digidoc4j.utils.StreamDocument;
 
 import java.io.*;
 import java.net.URL;
@@ -58,7 +54,11 @@ public class DataFile {
    * @param mimeType MIME type of the stream file, for example 'text/plain' or 'application/msword'
    */
   public DataFile(InputStream stream, String fileName, String mimeType) {
-    document = new StreamDocument(stream, fileName, getMimeType(mimeType));
+    try {
+      document = new StreamDocument(stream, fileName, getMimeType(mimeType));
+    } catch (Exception e) {
+      throw new DigiDoc4JException(e);
+    }
   }
 
   private MimeType getMimeType(String mimeType) {
@@ -142,6 +142,7 @@ public class DataFile {
    * Saves a copy of the data file as a file to the specified stream.
    *
    * @param out stream where data is written to
+   * @throws java.io.IOException on file write error
    */
   public void saveAs(OutputStream out) throws IOException {
     out.write(document.getBytes());
@@ -166,6 +167,11 @@ public class DataFile {
     return document.getBytes();
   }
 
+  /**
+   * Gives data file as stream
+   *
+   * @return data file stream
+   */
   public InputStream getStream() {
     return document.openStream();
   }

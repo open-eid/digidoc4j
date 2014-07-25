@@ -1,13 +1,10 @@
-package org.digidoc4j.utils;
+package eu.europa.ec.markt.dss.signature;
 
 
 import eu.europa.ec.markt.dss.DSSUtils;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.exception.DSSException;
-import eu.europa.ec.markt.dss.signature.DSSDocument;
-import eu.europa.ec.markt.dss.signature.MimeType;
 import org.apache.commons.io.IOUtils;
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
 
 import java.io.*;
 
@@ -17,15 +14,14 @@ public class StreamDocument implements DSSDocument {
   MimeType mimeType;
   File temporaryFile;
 
-  //TODO: if file is small enough you can read it into byte[] and cache it
+  //TODO if file is small enough you can read it into byte[] and cache it
   public StreamDocument(InputStream stream, String documentName, MimeType mimeType) {
-    fillByteArray(stream);
-
+    createTemporaryFileOfStream(stream);
     this.documentName = documentName;
     this.mimeType = mimeType;
   }
 
-  private void fillByteArray(InputStream stream) {
+  private void createTemporaryFileOfStream(InputStream stream) {
     byte[] bytes = new byte[MAX_SIZE_IN_MEMORY];
 
     FileOutputStream out = null;
@@ -39,29 +35,32 @@ public class StreamDocument implements DSSDocument {
       }
       out.flush();
     } catch (IOException e) {
-      throw new DigiDoc4JException(e);
+      throw new DSSException(e);
     } finally {
       IOUtils.closeQuietly(out);
     }
   }
 
 
-
   @Override
   public InputStream openStream() throws DSSException {
     try {
-      return new FileInputStream(temporaryFile);
+      return getTemporaryFileAsStream();
     } catch (FileNotFoundException e) {
-      throw new DigiDoc4JException(e);
+      throw new DSSException(e);
     }
+  }
+
+  FileInputStream getTemporaryFileAsStream() throws FileNotFoundException {
+    return new FileInputStream(temporaryFile);
   }
 
   @Override
   public byte[] getBytes() throws DSSException {
     try {
-      return IOUtils.toByteArray(new FileInputStream(temporaryFile));
+      return IOUtils.toByteArray(getTemporaryFileAsStream());
     } catch (IOException e) {
-      throw new DSSException(e.getCause());
+      throw new DSSException(e);
     }
   }
 
@@ -90,12 +89,12 @@ public class StreamDocument implements DSSDocument {
     try {
       FileOutputStream fileOutputStream = new FileOutputStream(filePath);
       try {
-        IOUtils.copy(new FileInputStream(temporaryFile), fileOutputStream);
+        IOUtils.copy(getTemporaryFileAsStream(), fileOutputStream);
       } finally {
         fileOutputStream.close();
       }
     } catch (IOException e) {
-      throw new DigiDoc4JException(e);
+      throw new DSSException(e);
     }
   }
 
@@ -103,9 +102,9 @@ public class StreamDocument implements DSSDocument {
   public String getDigest(DigestAlgorithm digestAlgorithm) {
     byte[] digestBytes;
     try {
-      digestBytes = DSSUtils.digest(digestAlgorithm, new FileInputStream(temporaryFile));
+      digestBytes = DSSUtils.digest(digestAlgorithm, getTemporaryFileAsStream());
     } catch (FileNotFoundException e) {
-      throw new DigiDoc4JException(e);
+      throw new DSSException(e);
     }
     return DSSUtils.base64Encode(digestBytes);
   }

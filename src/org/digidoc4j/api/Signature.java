@@ -8,7 +8,7 @@ import java.util.List;
  */
 public abstract class Signature {
 
-  abstract public void setCertificate(X509Cert cert);
+  public abstract void setCertificate(X509Cert cert);
 
   /**
    * Signature validation types.
@@ -135,11 +135,15 @@ public abstract class Signature {
    * Validates the signature.
    *
    * @param validationType type of validation
+   *
+   * @return list of Digidoc4JExceptions
    */
   public abstract List<org.digidoc4j.api.exceptions.DigiDoc4JException> validate(Validate validationType);
 
   /**
    * Validates the signature using Validate.VALIDATE_FULL method.
+   *
+   * @return list of Digidoc4JExceptions
    */
   public abstract List<org.digidoc4j.api.exceptions.DigiDoc4JException> validate();
 

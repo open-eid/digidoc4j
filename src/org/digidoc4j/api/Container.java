@@ -54,6 +54,7 @@ public abstract class Container {
    *
    * @param path file name and path.
    * @return container
+   * @throws org.digidoc4j.api.exceptions.DigiDoc4JException sss
    */
   public static Container open(String path) throws DigiDoc4JException {
     try {
@@ -218,8 +219,9 @@ public abstract class Container {
 
   /**
    * Sets container digest type
+   * @param algorithm digest algorithm
    */
-  public abstract void setDigestAlgorithm(DigestAlgorithm digestAlgorithm);
+  public abstract void setDigestAlgorithm(DigestAlgorithm algorithm);
 
   /**
    * Validate container

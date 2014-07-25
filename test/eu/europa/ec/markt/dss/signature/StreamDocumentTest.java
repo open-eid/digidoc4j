@@ -1,10 +1,9 @@
-package org.digidoc4j.utils;
+package eu.europa.ec.markt.dss.signature;
 
 import eu.europa.ec.markt.dss.DigestAlgorithm;
-import eu.europa.ec.markt.dss.signature.MimeType;
+import eu.europa.ec.markt.dss.exception.DSSException;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.api.DataFile;
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class StreamDocumentTest {
   StreamDocument document;
@@ -77,7 +77,7 @@ public class StreamDocumentTest {
     assertArrayEquals(new byte[]{0x041},
         IOUtils.toByteArray(new FileInputStream("createDocumentFromStreamedDataFile.txt")));
 
-    Files.deleteIfExists(Paths.get("streamDocumentSaveTest.txt"));
+    Files.deleteIfExists(Paths.get("createDocumentFromStreamedDataFile.txt"));
   }
 
   @Test
@@ -85,18 +85,45 @@ public class StreamDocumentTest {
     assertEquals("VZrq0IJk1XldOQlxjN0Fq9SVcuhP5VWQ7vMaiKCP3/0=", document.getDigest(DigestAlgorithm.SHA256));
   }
 
-  @Test (expected = DigiDoc4JException.class)
+  @Test(expected = DSSException.class)
   public void saveWhenNoAccessRights() throws Exception {
     document.save("/bin/no_access.txt");
   }
 
-  @Test (expected = DigiDoc4JException.class)
-  public void name() throws Exception {
+  @Test(expected = DSSException.class)
+  public void constructorThrowsException() throws Exception {
     InputStream stream = new MockInputStream();
     document = new StreamDocument(stream, "suur_a.txt", MimeType.TEXT);
     stream.close();
 
     document.getBytes();
+  }
+
+  @Test(expected = DSSException.class)
+  public void testGetBytesThrowsException() throws Exception {
+    StreamDocument mockDocument = mock(StreamDocument.class);
+    doThrow(new FileNotFoundException()).
+        when(mockDocument).getTemporaryFileAsStream();
+    when(mockDocument.getBytes()).thenCallRealMethod();
+    mockDocument.getBytes();
+  }
+
+  @Test(expected = DSSException.class)
+  public void testOpenStreamThrowsException() throws Exception {
+    StreamDocument mockDocument = mock(StreamDocument.class);
+    doThrow(new FileNotFoundException()).
+        when(mockDocument).getTemporaryFileAsStream();
+    when(mockDocument.openStream()).thenCallRealMethod();
+    mockDocument.openStream();
+  }
+
+  @Test(expected = DSSException.class)
+  public void testGetDigestThrowsException() throws Exception {
+    StreamDocument mockDocument = mock(StreamDocument.class);
+    doThrow(new FileNotFoundException()).
+        when(mockDocument).getTemporaryFileAsStream();
+    when(mockDocument.getDigest(DigestAlgorithm.SHA1)).thenCallRealMethod();
+    mockDocument.getDigest(DigestAlgorithm.SHA1);
   }
 
   private class MockInputStream extends InputStream {

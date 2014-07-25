@@ -15,39 +15,42 @@ import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
+import org.apache.commons.io.IOUtils;
 import org.digidoc4j.api.*;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.api.exceptions.SignatureNotFoundException;
-import org.digidoc4j.utils.StreamDocument;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static eu.europa.ec.markt.dss.DigestAlgorithm.SHA256;
+import static eu.europa.ec.markt.dss.DigestAlgorithm.forName;
 import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.digidoc4j.api.Container.DocumentType.ASIC_S;
 
 /**
- * Experimental code to implement ASiC-S container. There is lot's of duplication with BDocContainer. When experimenting is finished duplication is removed
+ * Experimental code to implement ASiC-S container. There is lot's of duplication with BDocContainer.
+ * When experimenting is finished duplication is removed
  */
 public class ASiCSContainer extends Container {
 
+  private final Map<String, DataFile> dataFiles = new HashMap<String, DataFile>();
   public static final int FILE_SIZE_TO_STREAM = 1024 * 1000 * 3;
   private CommonCertificateVerifier commonCertificateVerifier;
   protected DocumentSignatureService asicService;
-  final private Map<String, DataFile> dataFiles = new HashMap<String, DataFile>();
-  protected SignatureParameters signatureParameters;
+  private SignatureParameters signatureParameters;
   protected DSSDocument signedDocument;
   private List<Signature> signatures = new ArrayList<Signature>();
-  eu.europa.ec.markt.dss.DigestAlgorithm digestAlgorithm = eu.europa.ec.markt.dss.DigestAlgorithm.SHA256;
+  eu.europa.ec.markt.dss.DigestAlgorithm digestAlgorithm = SHA256;
   Configuration configuration = null;
 
   /**
-   * Create a new container object of ASIC_E type Container.
+   * Create a new container object of type ASIC_E.
    */
   public ASiCSContainer() {
     configuration = new Configuration();
@@ -59,6 +62,7 @@ public class ASiCSContainer extends Container {
 
     asicService = new ASiCSService(commonCertificateVerifier);
   }
+
 
   /**
    * Opens the container from a file.
@@ -106,17 +110,18 @@ public class ASiCSContainer extends Container {
     dataFiles.put(fileName, new DataFile(is, fileName, mimeType));
   }
 
-  @Override //TODO:NotYetImplementedException
+  @Override
   public void addRawSignature(byte[] signature) {
-    ByteArrayInputStream signatureStream = new ByteArrayInputStream(signature);
+    InputStream signatureStream = getByteArrayInputStream(signature);
     addRawSignature(signatureStream);
-    try {
-      signatureStream.close();
-    } catch (IOException ignored) {
-    }
+    IOUtils.closeQuietly(signatureStream);
   }
 
-  @Override //TODO:NotYetImplementedException
+  InputStream getByteArrayInputStream(byte[] signature) {
+    return new ByteArrayInputStream(signature);
+  }
+
+  @Override //TODO NotYetImplementedException
   public void addRawSignature(InputStream signatureStream) {
 //    signatureParameters.setDeterministicId("S" + getSignatures().size());
 //    sign(signature);
@@ -160,7 +165,7 @@ public class ASiCSContainer extends Container {
     signedDocument.save(path);
   }
 
-  //TODO:NotYetImplementedException
+  //TODO NotYetImplementedException
   private void documentMustBeInitializedCheck() {
     if (signedDocument == null)
       throw new NotYetImplementedException();
@@ -176,14 +181,14 @@ public class ASiCSContainer extends Container {
     return sign(signer.sign(signatureParameters.getDigestAlgorithm().getXmlId(), dataToSign));
   }
 
-  public Signature sign(byte[] rawSignature) {
+  private Signature sign(byte[] rawSignature) {
     commonCertificateVerifier.setTrustedCertSource(getTSL());
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource());
 
     asicService = new ASiCSService(commonCertificateVerifier);
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
-    //TODO: after 4.1.0 release signing sets deteministic id to null
-    String deterministicId = signatureParameters.getDeterministicId();
+    //TODO after 4.1.0 release signing sets deteministic id to null
+    String deterministicId = getSignatureParameters().getDeterministicId();
     signedDocument = asicService.signDocument(signedDocument, signatureParameters, rawSignature);
 
     signatureParameters.setDetachedContent(signedDocument);
@@ -202,8 +207,7 @@ public class ASiCSContainer extends Container {
       if (dataFile.getFileSize() > FILE_SIZE_TO_STREAM) {
         //TODO not working with big files
         signedDocument = new StreamDocument(dataFile.getStream(), dataFile.getFileName(), mimeType);
-      }
-      else
+      } else
         signedDocument = new InMemoryDocument(dataFile.getBytes(), dataFile.getFileName(), mimeType);
     }
     return signedDocument;
@@ -242,7 +246,8 @@ public class ASiCSContainer extends Container {
     signatureParameters.setDigestAlgorithm(digestAlgorithm);
     BLevelParameters bLevelParameters = signatureParameters.bLevel();
 
-    if (!(isEmpty(signer.getCity()) && isEmpty(signer.getStateOrProvince()) && isEmpty(signer.getPostalCode()) && isEmpty(signer.getCountry()))) {
+    if (!(isEmpty(signer.getCity()) && isEmpty(signer.getStateOrProvince()) && isEmpty(signer.getPostalCode())
+        && isEmpty(signer.getCountry()))) {
       SignerLocation signerLocation = new SignerLocation();
       if (!isEmpty(signer.getCity())) signerLocation.setCity(signer.getCity());
       if (!isEmpty(signer.getStateOrProvince())) signerLocation.setStateOrProvince(signer.getStateOrProvince());
@@ -255,7 +260,12 @@ public class ASiCSContainer extends Container {
     }
   }
 
-  public List<DigiDoc4JException> verify() throws ParserConfigurationException {
+  /**
+   * Verify ASiCS Container.
+   *
+   * @return list of DigiDoc4JExceptions
+   */
+  public List<DigiDoc4JException> verify() {
     documentMustBeInitializedCheck();
 
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
@@ -299,17 +309,21 @@ public class ASiCSContainer extends Container {
 
   @Override
   public DocumentType getDocumentType() {
-    return DocumentType.ASIC_S;
+    return ASIC_S;
   }
 
   @Override
-  public void setDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
-    this.digestAlgorithm = eu.europa.ec.markt.dss.DigestAlgorithm.forName(digestAlgorithm.name(), eu.europa.ec.markt.dss.DigestAlgorithm.SHA256);
+  public void setDigestAlgorithm(DigestAlgorithm algorithm) {
+    this.digestAlgorithm = forName(algorithm.name(), SHA256);
   }
 
   @Override
   public List<DigiDoc4JException> validate() {
     throw new NotYetImplementedException();
+  }
+
+  protected SignatureParameters getSignatureParameters() {
+    return signatureParameters;
   }
 }
 

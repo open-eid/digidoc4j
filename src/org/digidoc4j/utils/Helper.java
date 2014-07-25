@@ -8,12 +8,18 @@ import java.nio.file.Paths;
 
 import static java.nio.file.Files.deleteIfExists;
 
-public class Helper {
+public final class Helper {
+
+  private Helper() {
+
+  }
+
   public static boolean isZipFile(File file) throws IOException {
     DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
     int test = in.readInt();
     in.close();
-    return test == 0x504b0304;
+    final int zipVerificationCode = 0x504b0304;
+    return test == zipVerificationCode;
   }
 
   public static boolean isXMLFile(File file) throws ParserConfigurationException {
