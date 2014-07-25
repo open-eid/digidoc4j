@@ -43,7 +43,7 @@ public class DDocContainer extends Container {
     try {
       ddoc = new SignedDoc("DIGIDOC-XML", "1.3");
     } catch (DigiDocException e) {
-      throw new DigiDoc4JException(e);
+      throw new DigiDoc4JException(e); // $COVERAGE-IGNORE$
     }
   }
 
