@@ -40,10 +40,11 @@ public class DDocContainer extends Container {
    * Create a new container object of DDOC type Container.
    */
   public DDocContainer() {
+    intConfiguration();
     try {
       ddoc = new SignedDoc("DIGIDOC-XML", "1.3");
     } catch (DigiDocException e) {
-      throw new DigiDoc4JException(e); // $COVERAGE-IGNORE$
+      throw new DigiDoc4JException(e);
     }
   }
 
