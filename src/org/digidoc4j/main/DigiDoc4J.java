@@ -6,8 +6,6 @@ import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.Signer;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS12Signer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.List;
@@ -21,9 +19,18 @@ import static org.digidoc4j.api.Container.DocumentType.DDOC;
  * Client commandline tool for DigiDoc4J library.
  */
 public final class DigiDoc4J {
-  private static final Logger logger = LoggerFactory.getLogger(DigiDoc4J.class);
 
   public static void main(String[] args) {
+    try {
+      run(args);
+    }
+    catch (DigiDoc4JUtilityException e) {
+      System.exit(e.getErrorCode());
+    }
+    System.exit(0);
+  }
+
+  private static void run(String[] args) {
     Options options = createParameters();
 
     CommandLine commandLine = null;
@@ -34,17 +41,15 @@ public final class DigiDoc4J {
       showUsageAndExit(options);
     }
 
-    run(commandLine);
-
-    System.exit(0);
+    execute(commandLine);
   }
 
   private static void showUsageAndExit(Options options) {
     new HelpFormatter().printHelp("digidoc4j", options);
-    System.exit(2);
+    throw new DigiDoc4JUtilityException(2, "no parameters given");
   }
 
-  private static void run(CommandLine commandLine) {
+  private static void execute(CommandLine commandLine) {
     boolean fileHasChanged = false;
 
     String inputFile = commandLine.getOptionValue("in");
