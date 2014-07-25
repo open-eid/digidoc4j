@@ -1,5 +1,6 @@
 package org.digidoc4j;
 
+import ee.sk.digidoc.DataFile;
 import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.SignedDoc;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
@@ -66,5 +67,28 @@ public class DDocContainerTest {
     DDocContainer container = new DDocContainer(ddoc);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.getDataFiles();
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void removeDataFileThrowsException() throws Exception {
+    SignedDoc ddoc = mock(SignedDoc.class);
+
+    ArrayList<ee.sk.digidoc.DataFile> mockedDataFiles = new ArrayList<ee.sk.digidoc.DataFile>();
+    DataFile dataFile = mock(DataFile.class);
+    when(dataFile.getFileName()).thenReturn("test.txt");
+    mockedDataFiles.add(dataFile);
+    doReturn(mockedDataFiles).when(ddoc).getDataFiles();
+
+    doThrow(new DigiDocException(100, "testException", new Throwable("test Exception"))).
+        when(ddoc).removeDataFile(anyInt());
+
+    DDocContainer container = new DDocContainer(ddoc);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.removeDataFile("test.txt");
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void containerWithFileNameThrowsException() throws Exception {
+    new DDocContainer("file_not_exists");
   }
 }
