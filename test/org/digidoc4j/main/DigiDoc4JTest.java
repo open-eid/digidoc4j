@@ -9,7 +9,7 @@ import org.junit.contrib.java.lang.system.StandardOutputStreamLog;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 
 
