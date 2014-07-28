@@ -82,6 +82,7 @@ public class DigiDoc4JTest {
       }
     });
     sout.clear();
+    System.out.println("temp");
     String[] params = new String[]{"-in", "testFiles/changed_digidoc_test.ddoc", "-verify"};
     DigiDoc4J.main(params);
   }
