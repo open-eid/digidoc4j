@@ -32,6 +32,7 @@ public final class DigiDoc4J {
     try {
       run(args);
     } catch (DigiDoc4JUtilityException e) {
+      System.err.print(e.getMessage());
       System.exit(e.getErrorCode());
     }
     System.exit(0);
@@ -45,13 +46,13 @@ public final class DigiDoc4J {
     try {
       commandLine = new BasicParser().parse(options, args);
     } catch (ParseException e) {
-      showUsageAndExit(options);
+      showUsage(options);
     }
 
     execute(commandLine);
   }
 
-  private static void showUsageAndExit(Options options) {
+  private static void showUsage(Options options) {
     new HelpFormatter().printHelp("digidoc4j", options);
     throw new DigiDoc4JUtilityException(2, "no parameters given");
   }
@@ -67,7 +68,7 @@ public final class DigiDoc4J {
     try {
       Container container = Container.create(type);
 
-      if (new File(inputFile).exists())
+      if (new File(inputFile).exists() || commandLine.hasOption("verify") || commandLine.hasOption("remove"))
         container = Container.open(inputFile);
 
       if (commandLine.hasOption("add")) {
@@ -92,21 +93,18 @@ public final class DigiDoc4J {
       if (commandLine.hasOption("verify"))
         verify(container);
     } catch (DigiDoc4JException e) {
-      System.out.println(e.getMessage());
-      System.exit(1);
+      throw new DigiDoc4JUtilityException(1, e.getMessage());
     }
   }
 
   private static void checkSupportedFunctionality(CommandLine commandLine) {
     if (getContainerType(commandLine) == DocumentType.ASIC_E) {
-      System.out.println("BDOC format is not supported yet");
-      System.exit(2);
+      throw new DigiDoc4JUtilityException(2, "BDOC format is not supported yet");
     }
     if (commandLine.hasOption("add")) {
       String[] optionValues = commandLine.getOptionValues("add");
       if (optionValues.length != 2) {
-        System.out.println("Incorrect add command");
-        System.exit(2);
+        throw new DigiDoc4JUtilityException(2, "Incorrect add command");
       }
     }
   }
