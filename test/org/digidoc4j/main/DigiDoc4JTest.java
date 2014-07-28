@@ -77,8 +77,7 @@ public class DigiDoc4JTest {
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        String[] messages = sout.getLog().toString().split("\n");
-        assertEquals("Signature S0 is not valid", messages[6]);
+        assertThat(sout.getLog(), containsString("Signature S0 is not valid"));
       }
     });
     sout.clear();
