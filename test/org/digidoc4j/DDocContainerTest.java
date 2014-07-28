@@ -3,14 +3,15 @@ package org.digidoc4j;
 import ee.sk.digidoc.DataFile;
 import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.SignedDoc;
+import org.digidoc4j.api.Container;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -23,12 +24,20 @@ public class DDocContainerTest {
     container.save("/not/existing/path/testSaveThrowsException.ddoc");
   }
 
-  @Test(expected = DigiDoc4JException.class)
-  @Ignore
-  public void testAddingTwoDataFilesWithSameNameThrowsException() throws Exception {
+  @Test  //TODO Does nothing for DDoc. Should it return some kind of warning?
+  public void testSetDigestAlgorithm() throws Exception {
     DDocContainer container = new DDocContainer();
-    container.addDataFile("testFiles/test.txt", "");
-    container.addDataFile("testFiles/test.txt", "");
+    container.setDigestAlgorithm(Container.DigestAlgorithm.SHA1);
+  }
+
+  @Test
+  public void testCanAddTwoDataFilesWithSameName() throws Exception {
+    DDocContainer dDocContainer = new DDocContainer();
+    dDocContainer.addDataFile("testFiles/test.txt", "");
+    dDocContainer.addDataFile("testFiles/test.txt", "");
+    dDocContainer.save("test.ddoc");
+    Container container = Container.open("test.ddoc");
+    assertEquals(2, container.getDataFiles().size());
   }
 
   @Test(expected = DigiDoc4JException.class)
