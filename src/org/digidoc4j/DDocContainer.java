@@ -10,6 +10,8 @@ import ee.sk.utils.ConfigManager;
 import org.digidoc4j.api.*;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -31,6 +33,7 @@ import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
  * </p>
  */
 public class DDocContainer extends Container {
+  Logger logger = LoggerFactory.getLogger(DDocContainer.class);
 
   private SignedDoc ddoc;
   private ArrayList<ee.sk.digidoc.DigiDocException> openContainerErrors =
@@ -44,6 +47,7 @@ public class DDocContainer extends Container {
     try {
       ddoc = new SignedDoc("DIGIDOC-XML", "1.3");
     } catch (DigiDocException e) {
+      logger.info(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
@@ -65,6 +69,7 @@ public class DDocContainer extends Container {
     try {
       ddoc = digFac.readSignedDocOfType(fileName, false, openContainerErrors);
     } catch (DigiDocException e) {
+      logger.info(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
@@ -79,6 +84,7 @@ public class DDocContainer extends Container {
     try {
       ddoc.addDataFile(new File(path), mimeType, CONTENT_EMBEDDED_BASE64);
     } catch (DigiDocException e) {
+      logger.info(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
@@ -92,6 +98,7 @@ public class DDocContainer extends Container {
       dataFile.setBodyFromStream(is);
       ddoc.addDataFile(dataFile);
     } catch (DigiDocException e) {
+      logger.info(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
@@ -106,6 +113,7 @@ public class DDocContainer extends Container {
     try {
       ddoc.readSignature(signatureStream);
     } catch (DigiDocException e) {
+      logger.info(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
@@ -122,6 +130,7 @@ public class DDocContainer extends Container {
         else
           dataFiles.add(new DataFile(dataFile.getBody(), dataFile.getFileName(), dataFile.getMimeType()));
       } catch (DigiDocException e) {
+        logger.info(e.getMessage());
         throw new DigiDoc4JException(e);
       }
     }
@@ -140,11 +149,16 @@ public class DDocContainer extends Container {
       ee.sk.digidoc.DataFile dataFile = (ee.sk.digidoc.DataFile) ddocDataFiles.get(i);
       if (dataFile.getFileName().equalsIgnoreCase(file.getName())) index = i;
     }
-    if (index == -1) throw new DigiDoc4JException("File not found");
+    if (index == -1) {
+      DigiDoc4JException exception = new DigiDoc4JException("File not found");
+      logger.info(exception.toString());
+      throw exception;
+    }
 
     try {
       ddoc.removeDataFile(index);
     } catch (DigiDocException e) {
+      logger.info(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
@@ -154,6 +168,7 @@ public class DDocContainer extends Container {
     try {
       ddoc.removeSignature(index);
     } catch (DigiDocException e) {
+      logger.info(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
@@ -163,6 +178,7 @@ public class DDocContainer extends Container {
     try {
       ddoc.writeToFile(new File(path));
     } catch (DigiDocException e) {
+      logger.info(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
@@ -182,6 +198,7 @@ public class DDocContainer extends Container {
 
       signature.getConfirmation();
     } catch (DigiDocException e) {
+      logger.info(e.getMessage());
       throw new DigiDoc4JException(e);
     }
 
@@ -190,6 +207,7 @@ public class DDocContainer extends Container {
 
   @Override
   public void setConfiguration(Configuration conf) {
+    logger.error("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
@@ -254,10 +272,12 @@ public class DDocContainer extends Container {
     return allExceptions;
   }
 
-  private List<DigiDoc4JException> convertToDigiDoc4JExceptions(List errorsAndWarnings) {
+  private List<DigiDoc4JException> convertToDigiDoc4JExceptions(List<ee.sk.digidoc.DigiDocException> errorsAndWarnings) {
     List<DigiDoc4JException> errors = new ArrayList<DigiDoc4JException>();
-    for (Object errorsAndWarning : errorsAndWarnings) {
-      errors.add(new DigiDoc4JException(errorsAndWarning.toString()));
+    for (ee.sk.digidoc.DigiDocException errorsAndWarning : errorsAndWarnings) {
+      String errorMessage = errorsAndWarning.toString();
+      logger.info(errorMessage);
+      errors.add(new DigiDoc4JException(errorMessage));
     }
     return errors;
   }

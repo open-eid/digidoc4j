@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static org.hamcrest.core.StringContains.containsString;
-import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -78,7 +77,8 @@ public class DigiDoc4JTest {
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        assertThat(sout.getLog().trim(), startsWith("Signature S0 is not valid"));
+        String[] messages = sout.getLog().toString().split("\n");
+        assertEquals("Signature S0 is not valid", messages[6]);
       }
     });
     sout.clear();

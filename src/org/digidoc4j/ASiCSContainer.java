@@ -20,6 +20,8 @@ import org.digidoc4j.api.*;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.api.exceptions.SignatureNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -38,6 +40,8 @@ import static org.digidoc4j.api.Container.DocumentType.ASIC_S;
  * When experimenting is finished duplication is removed
  */
 public class ASiCSContainer extends Container {
+
+  final Logger logger = LoggerFactory.getLogger(ASiCSContainer.class);
 
   private final Map<String, DataFile> dataFiles = new HashMap<String, DataFile>();
   public static final int FILE_SIZE_TO_STREAM = 1024 * 1000 * 3;
@@ -83,7 +87,9 @@ public class ASiCSContainer extends Container {
       validationErrors = new ArrayList<DigiDoc4JException>();
       List<Conclusion.BasicInfo> errors = validator.getSimpleReport().getErrors(advancedSignature.getId());
       for (Conclusion.BasicInfo error : errors) {
-        validationErrors.add(new DigiDoc4JException(error.toString()));
+        String errorMessage = error.toString();
+        logger.info(errorMessage);
+        validationErrors.add(new DigiDoc4JException(errorMessage));
       }
       signatures.add(new BDocSignature((XAdESSignature) advancedSignature, validationErrors));
     }
@@ -99,13 +105,18 @@ public class ASiCSContainer extends Container {
       addDataFile(is, path, mimeType);
       is.close();
     } catch (IOException e) {
+      logger.info(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
 
   @Override
   public void addDataFile(InputStream is, String fileName, String mimeType) {
-    if (dataFiles.size() >= 1) throw new DigiDoc4JException("ASiCS supports only one attachment");
+    if (dataFiles.size() >= 1) {
+      DigiDoc4JException exception = new DigiDoc4JException("ASiCS supports only one attachment");
+      logger.info(exception.getMessage());
+      throw exception;
+    }
 
     dataFiles.put(fileName, new DataFile(is, fileName, mimeType));
   }
@@ -125,6 +136,7 @@ public class ASiCSContainer extends Container {
   public void addRawSignature(InputStream signatureStream) {
 //    signatureParameters.setDeterministicId("S" + getSignatures().size());
 //    sign(signature);
+    logger.error("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
@@ -135,7 +147,11 @@ public class ASiCSContainer extends Container {
 
   @Override
   public void removeDataFile(String fileName) {
-    if (dataFiles.remove(fileName) == null) throw new DigiDoc4JException("File not found");
+    if (dataFiles.remove(fileName) == null) {
+      DigiDoc4JException exception = new DigiDoc4JException("File not found");
+      logger.info(exception.getMessage());
+      throw exception;
+    }
   }
 
   @Override
@@ -167,8 +183,10 @@ public class ASiCSContainer extends Container {
 
   //TODO NotYetImplementedException
   private void documentMustBeInitializedCheck() {
-    if (signedDocument == null)
+    if (signedDocument == null) {
+      logger.error("Not yet implemented");
       throw new NotYetImplementedException();
+    }
   }
 
   @Override
@@ -221,7 +239,9 @@ public class ASiCSContainer extends Container {
       if (advancedSignature.getId().equals(deterministicId))
         return (XAdESSignature) advancedSignature;
     }
-    throw new SignatureNotFoundException();
+    SignatureNotFoundException exception = new SignatureNotFoundException();
+    logger.info(exception.getMessage());
+    throw exception;
   }
 
   private TrustedListsCertificateSource getTSL() {
@@ -277,10 +297,12 @@ public class ASiCSContainer extends Container {
     for (String signatureId : signatureIds) {
       List<Conclusion.BasicInfo> errors = simpleReport.getErrors(signatureId);
       for (Conclusion.BasicInfo error : errors) {
-        validationErrors.add(new DigiDoc4JException(error.toString()));
+        String message = error.toString();
+        logger.info(message);
+        validationErrors.add(new DigiDoc4JException(message));
       }
     }
-    System.out.println(simpleReport);
+    logger.debug(simpleReport.toString());
 
     return validationErrors;
   }
@@ -319,6 +341,7 @@ public class ASiCSContainer extends Container {
 
   @Override
   public List<DigiDoc4JException> validate() {
+    logger.error("Not yet implemented");
     throw new NotYetImplementedException();
   }
 

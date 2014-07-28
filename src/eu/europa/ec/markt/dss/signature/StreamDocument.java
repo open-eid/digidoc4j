@@ -5,10 +5,14 @@ import eu.europa.ec.markt.dss.DSSUtils;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.exception.DSSException;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
 public class StreamDocument implements DSSDocument {
+  final Logger logger = LoggerFactory.getLogger(StreamDocument.class);
+
   private static final int MAX_SIZE_IN_MEMORY = 1024 * 5;
   String documentName;
   MimeType mimeType;
@@ -35,6 +39,7 @@ public class StreamDocument implements DSSDocument {
       }
       out.flush();
     } catch (IOException e) {
+      logger.error(e.getMessage());
       throw new DSSException(e);
     } finally {
       IOUtils.closeQuietly(out);
@@ -47,6 +52,7 @@ public class StreamDocument implements DSSDocument {
     try {
       return getTemporaryFileAsStream();
     } catch (FileNotFoundException e) {
+      logger.error(e.getMessage());
       throw new DSSException(e);
     }
   }
@@ -60,6 +66,7 @@ public class StreamDocument implements DSSDocument {
     try {
       return IOUtils.toByteArray(getTemporaryFileAsStream());
     } catch (IOException e) {
+      logger.error(e.getMessage());
       throw new DSSException(e);
     }
   }
@@ -94,6 +101,7 @@ public class StreamDocument implements DSSDocument {
         fileOutputStream.close();
       }
     } catch (IOException e) {
+      logger.error(e.getMessage());
       throw new DSSException(e);
     }
   }
@@ -104,6 +112,7 @@ public class StreamDocument implements DSSDocument {
     try {
       digestBytes = DSSUtils.digest(digestAlgorithm, getTemporaryFileAsStream());
     } catch (FileNotFoundException e) {
+      logger.error(e.getMessage());
       throw new DSSException(e);
     }
     return DSSUtils.base64Encode(digestBytes);

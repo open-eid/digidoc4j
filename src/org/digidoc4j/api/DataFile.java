@@ -5,6 +5,8 @@ import eu.europa.ec.markt.dss.Digest;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.signature.*;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URL;
@@ -15,6 +17,8 @@ import java.nio.file.Paths;
  * Data file wrapper providing methods for handling signed files or files to be signed in Container.
  */
 public class DataFile {
+  final Logger logger = LoggerFactory.getLogger(DataFile.class);
+
 
   DSSDocument document = null;
   private Digest digest = null;
@@ -30,6 +34,7 @@ public class DataFile {
       document = new FileDocument(path);
       document.setMimeType(getMimeType(mimeType));
     } catch (Exception e) {
+      logger.info(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
@@ -57,13 +62,18 @@ public class DataFile {
     try {
       document = new StreamDocument(stream, fileName, getMimeType(mimeType));
     } catch (Exception e) {
+      logger.info(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
 
   private MimeType getMimeType(String mimeType) {
     MimeType mimeTypeCode = MimeType.fromCode(mimeType);
-    if (mimeTypeCode == null) throw new DigiDoc4JException("Unknown mime type");
+    if (mimeTypeCode == null) {
+      DigiDoc4JException exception = new DigiDoc4JException("Unknown mime type");
+      logger.info(exception.toString());
+      throw exception;
+    }
     return mimeTypeCode;
   }
 
@@ -123,6 +133,7 @@ public class DataFile {
       try {
         return Files.size(Paths.get(document.getAbsolutePath()));
       } catch (IOException e) {
+        logger.info(e.getMessage());
         throw new DigiDoc4JException(e);
       }
     }

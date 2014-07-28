@@ -11,6 +11,8 @@ import org.digidoc4j.api.X509Cert;
 import org.digidoc4j.api.exceptions.CertificateNotFoundException;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ import static org.digidoc4j.api.Container.SignatureProfile;
  * BDoc signature implementation.
  */
 public class BDocSignature extends Signature {
+  final Logger logger = LoggerFactory.getLogger(BDocSignature.class);
   private XAdESSignature origin;
   private SignatureProductionPlace signerLocation;
   private List<DigiDoc4JException> validationErrors = new ArrayList<DigiDoc4JException>();
@@ -53,6 +56,7 @@ public class BDocSignature extends Signature {
 
   @Override
   public void setCertificate(X509Cert cert) {
+    logger.error("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
@@ -73,10 +77,11 @@ public class BDocSignature extends Signature {
 
   @Override
   public byte[] getNonce() {
+    logger.error("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
-  @Override
+  @Override  //TODO Should this throw a DigiDoc4JException instead of CertificateNotFoundException
   public X509Cert getOCSPCertificate() {
     String ocspCN = getOCSPCommonName();
     for (CertificateToken cert : origin.getCertPool().getCertificateTokens()) {
@@ -84,7 +89,10 @@ public class BDocSignature extends Signature {
       if (value.equals(ocspCN))
         return new X509Cert(cert.getCertificate());
     }
-    throw new CertificateNotFoundException("Certificate for " + ocspCN + " not found in TSL");
+    CertificateNotFoundException exception =
+        new CertificateNotFoundException("Certificate for " + ocspCN + " not found in TSL");
+    logger.error(exception.getMessage());
+    throw exception;
   }
 
   private String getOCSPCommonName() {
@@ -98,6 +106,7 @@ public class BDocSignature extends Signature {
 
   @Override
   public String getPolicy() {
+    logger.error("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
@@ -140,6 +149,7 @@ public class BDocSignature extends Signature {
 
   @Override
   public URI getSignaturePolicyURI() {
+    logger.error("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
@@ -151,7 +161,9 @@ public class BDocSignature extends Signature {
   @Override
   public X509Cert getTimeStampTokenCertificate() {
     if (origin.getSignatureTimestamps() == null || origin.getSignatureTimestamps().size() == 0) {
-      throw new CertificateNotFoundException("TimeStamp certificate not found");
+      CertificateNotFoundException exception = new CertificateNotFoundException("TimeStamp certificate not found");
+      logger.error(exception.getMessage());
+      throw exception;
     }
     return new X509Cert(origin.getSignatureTimestamps().get(0).getIssuerToken().getCertificate());
   }

@@ -4,6 +4,8 @@ import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.X509Cert;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import static org.digidoc4j.api.Container.SignatureProfile;
  * corresponding OCSP response properties.
  */
 public class DDocSignature extends Signature {
+  final Logger logger = LoggerFactory.getLogger(DDocSignature.class);
   private X509Cert certificate;
   private final ee.sk.digidoc.Signature origin;
 
@@ -111,6 +114,7 @@ public class DDocSignature extends Signature {
 
   @Override
   public X509Cert getTimeStampTokenCertificate() {
+    logger.error("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
@@ -124,7 +128,9 @@ public class DDocSignature extends Signature {
     List<DigiDoc4JException> validationErrors = new ArrayList<DigiDoc4JException>();
     ArrayList validationResult = origin.verify(origin.getSignedDoc(), true, true);
     for (Object exception : validationResult) {
-      validationErrors.add(new DigiDoc4JException(exception.toString()));
+      String errorMessage = exception.toString();
+      logger.info(errorMessage);
+      validationErrors.add(new DigiDoc4JException(errorMessage));
     }
     return validationErrors;
   }

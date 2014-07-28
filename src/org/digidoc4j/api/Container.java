@@ -6,6 +6,8 @@ import org.digidoc4j.BDocContainer;
 import org.digidoc4j.DDocContainer;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.utils.Helper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +26,8 @@ import java.util.List;
  * </p>
  */
 public abstract class Container {
+  static final Logger logger = LoggerFactory.getLogger(Container.class);
+
 
   /**
    * Create an ASIC_E container.
@@ -67,7 +71,9 @@ public abstract class Container {
         return new DDocContainer(path);
       }
     } catch (IOException e) {
-      throw new DigiDoc4JException("ERROR: 10 - Empty or unreadable input file");
+      DigiDoc4JException exception = new DigiDoc4JException(10, "Empty or unreadable input file");
+      logger.error(exception.toString());
+      throw exception;
     }
   }
 

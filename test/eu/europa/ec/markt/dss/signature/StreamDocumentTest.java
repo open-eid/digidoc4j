@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 public class StreamDocumentTest {
   StreamDocument document;
@@ -101,28 +100,19 @@ public class StreamDocumentTest {
 
   @Test(expected = DSSException.class)
   public void testGetBytesThrowsException() throws Exception {
-    StreamDocument mockDocument = mock(StreamDocument.class);
-    doThrow(new FileNotFoundException()).
-        when(mockDocument).getTemporaryFileAsStream();
-    when(mockDocument.getBytes()).thenCallRealMethod();
+    StreamDocument mockDocument = new MockStreamDocument();
     mockDocument.getBytes();
   }
 
   @Test(expected = DSSException.class)
   public void testOpenStreamThrowsException() throws Exception {
-    StreamDocument mockDocument = mock(StreamDocument.class);
-    doThrow(new FileNotFoundException()).
-        when(mockDocument).getTemporaryFileAsStream();
-    when(mockDocument.openStream()).thenCallRealMethod();
+    StreamDocument mockDocument = new MockStreamDocument();
     mockDocument.openStream();
   }
 
   @Test(expected = DSSException.class)
   public void testGetDigestThrowsException() throws Exception {
-    StreamDocument mockDocument = mock(StreamDocument.class);
-    doThrow(new FileNotFoundException()).
-        when(mockDocument).getTemporaryFileAsStream();
-    when(mockDocument.getDigest(DigestAlgorithm.SHA1)).thenCallRealMethod();
+    StreamDocument mockDocument = new MockStreamDocument();
     mockDocument.getDigest(DigestAlgorithm.SHA1);
   }
 
@@ -130,6 +120,17 @@ public class StreamDocumentTest {
     @Override
     public int read() throws IOException {
       throw new IOException();
+    }
+  }
+
+  private class MockStreamDocument extends StreamDocument {
+    public MockStreamDocument() {
+      super(new ByteArrayInputStream(new byte[]{0x041}), "fileName.txt", MimeType.TEXT);
+    }
+
+    @Override
+    FileInputStream getTemporaryFileAsStream() throws FileNotFoundException {
+      throw new FileNotFoundException("File not found (mock)");
     }
   }
 }
