@@ -9,8 +9,12 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -32,8 +36,15 @@ public class DDocContainerTest {
   @Test
   public void testCanAddTwoDataFilesWithSameName() throws Exception {
     DDocContainer dDocContainer = new DDocContainer();
-    dDocContainer.addDataFile("testFiles/test.txt", "");
-    dDocContainer.addDataFile("testFiles/test.txt", "");
+    dDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    dDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    dDocContainer.save("test_ddoc_file.ddoc");
+    Container container = Container.open("test_ddoc_file.ddoc");
+    List<org.digidoc4j.api.DataFile> dataFiles = container.getDataFiles();
+    assertEquals(2, dataFiles.size());
+    assertEquals("test.txt", dataFiles.get(0).getFileName());
+    assertEquals("test.txt", dataFiles.get(1).getFileName());
+    Files.deleteIfExists(Paths.get("test_ddoc_file.ddoc"));
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -65,7 +76,7 @@ public class DDocContainerTest {
     ee.sk.digidoc.DataFile dataFile = mock(ee.sk.digidoc.DataFile.class);
     doThrow(new DigiDocException(100, "testException", new Throwable("test Exception"))).
         when(dataFile).getBody();
-    ArrayList mockedDataFiles = new ArrayList();
+    ArrayList<ee.sk.digidoc.DataFile> mockedDataFiles = new ArrayList<ee.sk.digidoc.DataFile>();
     mockedDataFiles.add(dataFile);
     doReturn(mockedDataFiles).when(ddoc).getDataFiles();
 

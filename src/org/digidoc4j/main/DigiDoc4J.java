@@ -21,7 +21,6 @@ import static org.digidoc4j.api.Container.DocumentType.DDOC;
 public final class DigiDoc4J {
 
   private DigiDoc4J() {
-
   }
 
   /**
@@ -32,8 +31,7 @@ public final class DigiDoc4J {
   public static void main(String[] args) {
     try {
       run(args);
-    }
-    catch (DigiDoc4JUtilityException e) {
+    } catch (DigiDoc4JUtilityException e) {
       System.exit(e.getErrorCode());
     }
     System.exit(0);
