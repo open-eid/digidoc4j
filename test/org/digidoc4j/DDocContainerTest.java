@@ -11,7 +11,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -24,7 +23,7 @@ public class DDocContainerTest {
     container.save("/not/existing/path/testSaveThrowsException.ddoc");
   }
 
-  @Test  //TODO Does nothing for DDoc. Should it return some kind of warning?
+  @Test
   public void testSetDigestAlgorithm() throws Exception {
     DDocContainer container = new DDocContainer();
     container.setDigestAlgorithm(Container.DigestAlgorithm.SHA1);
@@ -35,9 +34,6 @@ public class DDocContainerTest {
     DDocContainer dDocContainer = new DDocContainer();
     dDocContainer.addDataFile("testFiles/test.txt", "");
     dDocContainer.addDataFile("testFiles/test.txt", "");
-    dDocContainer.save("test.ddoc");
-    Container container = Container.open("test.ddoc");
-    assertEquals(2, container.getDataFiles().size());
   }
 
   @Test(expected = DigiDoc4JException.class)
