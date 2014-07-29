@@ -28,13 +28,13 @@ import java.util.List;
 public abstract class Container {
   static final Logger logger = LoggerFactory.getLogger(Container.class);
 
-
   /**
    * Create an ASIC_E container.
    *
    * @return new ASIC_E Container
    */
   public static Container create() {
+    logger.debug("");
     return create(DocumentType.ASIC_E);
   }
 
@@ -45,12 +45,16 @@ public abstract class Container {
    * @return new container of the specified format
    */
   public static Container create(DocumentType documentType) {
-    if (documentType == DocumentType.ASIC_E)
-      return new BDocContainer();
-    else if (documentType == DocumentType.ASIC_S)
-      return new ASiCSContainer();
-    else
-      return new DDocContainer();
+    logger.debug("");
+    Container container = new DDocContainer();
+    if (documentType == DocumentType.ASIC_E) {
+      container = new BDocContainer();
+    } else if (documentType == DocumentType.ASIC_S) {
+      container = new ASiCSContainer();
+    }
+
+    logger.info("Container with type " + container.getDocumentType() + " is created");
+    return container;
   }
 
   /**
@@ -58,18 +62,21 @@ public abstract class Container {
    *
    * @param path file name and path.
    * @return container
-   * @throws org.digidoc4j.api.exceptions.DigiDoc4JException sss
+   * @throws org.digidoc4j.api.exceptions.DigiDoc4JException TODO write description
    */
   public static Container open(String path) throws DigiDoc4JException {
+    logger.debug("");
+    Container container = new DDocContainer(path);
     try {
       if (Helper.isZipFile(new File(path))) {
-        if ("asics".equalsIgnoreCase(FilenameUtils.getExtension(path)))
-          return new ASiCSContainer(path);
+        if ("asics".equalsIgnoreCase(FilenameUtils.getExtension(path))) {
+          container = new ASiCSContainer(path);
+        }
         else
-          return new BDocContainer(path);
-      } else {
-        return new DDocContainer(path);
+          container = new BDocContainer(path);
       }
+      logger.info("Opens container " + path + " as " + container.getDocumentType());
+      return container;
     } catch (IOException e) {
       DigiDoc4JException exception = new DigiDoc4JException(10, "Empty or unreadable input file");
       logger.error(exception.toString());
