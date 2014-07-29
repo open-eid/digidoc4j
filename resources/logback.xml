@@ -9,11 +9,12 @@
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>DEBUG</level>
         </filter>
-        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>digidoc4j.%i.log</fileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>digidoc4j.%d{dd.MM.yyyy}.log</fileNamePattern>
+            <maxIndex>3</maxIndex>
         </rollingPolicy>
         <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <MaxFileSize>512KB</MaxFileSize>
+            <MaxFileSize>10MB</MaxFileSize>
         </triggeringPolicy>
     </appender>
 
@@ -23,7 +24,7 @@
             <pattern>%d{dd.MM.yyyy HH:mm:ss.SSS} %-5p [%file:%line] - %m%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
+            <level>WARN</level>
         </filter>
     </appender>
 
