@@ -64,7 +64,7 @@ public class DigiDoc4JTest {
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        assertEquals(sout.getLog().trim(), "Signature S0 is valid");
+        assertEquals("Signature S0 is valid", sout.getLog().trim());
       }
     });
     String[] params = new String[]{"-in", "testFiles/ddoc_for_testing.ddoc", "-verify"};
