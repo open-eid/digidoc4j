@@ -46,8 +46,8 @@
 
     <target name="compile">
         <mkdir dir="${build.dir}"/>
-        <javac destdir="${build.dir}" includeantruntime="false" source="1.6" target="1.6" encoding="UTF-8">
-        <src path="src"/>
+      <javac destdir="${build.dir}" includeantruntime="false" source="1.6" debug="on" target="1.6" encoding="UTF-8">
+      <src path="src"/>
             <src path="test"/>
             <classpath refid="javac.classpath"/>
         </javac>
