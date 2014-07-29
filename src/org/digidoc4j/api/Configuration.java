@@ -1,5 +1,8 @@
 package org.digidoc4j.api;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +18,9 @@ import java.util.Map;
  * default mode to {@link Configuration.Mode#TEST}  mode
  */
 public class Configuration {
+
+  final Logger logger = LoggerFactory.getLogger(Configuration.class);
+
   private final Mode mode;
 
   public enum Mode {
@@ -33,20 +39,26 @@ public class Configuration {
   Map<Mode, Map<String, String>> configuration = new HashMap<Mode, Map<String, String>>();
 
   public Configuration() {
+    logger.debug("");
     if ("TEST".equalsIgnoreCase(System.getProperty("digidoc4j.mode")))
       mode = Mode.TEST;
     else
       mode = Mode.PROD;
 
+    logger.info("Configuration loaded for " + mode + " mode");
+
     initDefaultValues();
   }
 
   public Configuration(Mode mode) {
+    logger.debug("");
     this.mode = mode;
+    logger.info("Configuration loaded for " + mode + " mode");
     initDefaultValues();
   }
 
   private void initDefaultValues() {
+    logger.debug("");
 //    testConfiguration.put("tslLocation", "http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-mp.xml");
     testConfiguration.put("tslLocation", "file:conf/trusted-test-tsl.xml");
     productionConfiguration.put("tslLocation", "http://sr.riik.ee/tsl/estonian-tsl.xml");
@@ -62,6 +74,9 @@ public class Configuration {
 
     configuration.put(Mode.TEST, testConfiguration);
     configuration.put(Mode.PROD, productionConfiguration);
+
+    logger.debug("Test configuration:\n" + configuration.get(Mode.TEST));
+    logger.debug("Prod configuration:\n" + configuration.get(Mode.PROD));
   }
 
   public String getTslLocation() {
