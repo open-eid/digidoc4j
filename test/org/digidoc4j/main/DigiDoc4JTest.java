@@ -1,5 +1,6 @@
 package org.digidoc4j.main;
 
+import org.digidoc4j.DigiDoc4JTestHelper;
 import org.digidoc4j.api.Container;
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 
-public class DigiDoc4JTest {
+public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   @Rule
   public final ExpectedSystemExit exit = ExpectedSystemExit.none();
 
