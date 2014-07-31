@@ -2,6 +2,7 @@ package org.digidoc4j.main;
 
 import org.digidoc4j.DigiDoc4JTestHelper;
 import org.digidoc4j.api.Container;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.Assertion;
@@ -22,6 +23,11 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Rule
   public final StandardOutputStreamLog sout = new StandardOutputStreamLog();
+
+  @After
+  public void cleanUp() throws Exception {
+    Files.deleteIfExists(Paths.get("test1.ddoc"));
+  }
 
   @Test
   public void createsContainerAndSignsIt() throws Exception {
