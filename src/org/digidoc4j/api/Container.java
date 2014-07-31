@@ -66,13 +66,15 @@ public abstract class Container {
    */
   public static Container open(String path) throws DigiDoc4JException {
     logger.debug("");
-    Container container = new DDocContainer(path);
+    Container container;
     try {
       if (Helper.isZipFile(new File(path))) {
         if ("asics".equalsIgnoreCase(FilenameUtils.getExtension(path))) {
           container = new ASiCSContainer(path);
         } else
           container = new BDocContainer(path);
+      } else {
+        container = new DDocContainer(path);
       }
       logger.info("Opens container " + path + " as " + container.getDocumentType());
       return container;
