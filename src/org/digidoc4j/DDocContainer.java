@@ -53,7 +53,10 @@ public class DDocContainer extends Container {
   }
 
   private void intConfiguration() {
-    ConfigManager.init("jdigidoc.cfg");
+    //ConfigManager.init("jdigidoc.cfg");
+    Configuration configuration = new Configuration();
+    configuration.addConfiguration("digidoc4j.yaml");
+    ConfigManager.init(configuration.getJDigiDocConf());
     ConfigManager.addProvider();
   }
 
