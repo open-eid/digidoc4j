@@ -53,7 +53,7 @@ public abstract class Container {
       container = new ASiCSContainer();
     }
 
-    logger.info("Container with type " + container.getDocumentType() + " is created");
+    logger.info("Container with type " + container.getDocumentType() + " has been created");
     return container;
   }
 
@@ -71,8 +71,7 @@ public abstract class Container {
       if (Helper.isZipFile(new File(path))) {
         if ("asics".equalsIgnoreCase(FilenameUtils.getExtension(path))) {
           container = new ASiCSContainer(path);
-        }
-        else
+        } else
           container = new BDocContainer(path);
       }
       logger.info("Opens container " + path + " as " + container.getDocumentType());
@@ -208,7 +207,8 @@ public abstract class Container {
    */
   public abstract Signature sign(Signer signer);
 
-  /** Sets configuration for container
+  /**
+   * Sets configuration for container
    *
    * @param conf configuration
    */
@@ -232,6 +232,7 @@ public abstract class Container {
 
   /**
    * Sets container digest type
+   *
    * @param algorithm digest algorithm
    */
   public abstract void setDigestAlgorithm(DigestAlgorithm algorithm);

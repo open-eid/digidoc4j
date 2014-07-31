@@ -38,8 +38,10 @@ public class BDocSignature extends Signature {
    * @param signature XAdES signature to use for the BDoc signature
    */
   public BDocSignature(XAdESSignature signature) {
+    logger.debug("");
     origin = signature;
     signerLocation = signature.getSignatureProductionPlace();
+    logger.debug("New BDoc signature created");
   }
 
   /**
@@ -49,40 +51,46 @@ public class BDocSignature extends Signature {
    * @param validationErrors list of DigiDoc4J exceptions to add to the signature
    */
   public BDocSignature(XAdESSignature signature, List<DigiDoc4JException> validationErrors) {
+    logger.debug("");
     origin = signature;
     signerLocation = signature.getSignatureProductionPlace();
     this.validationErrors = validationErrors;
+    logger.debug("New BDoc signature created");
   }
 
   @Override
   public void setCertificate(X509Cert cert) {
-    logger.error("Not yet implemented");
+    logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
   @Override
   public String getCity() {
+    logger.debug("");
     return signerLocation.getCity();
   }
 
   @Override
   public String getCountryName() {
+    logger.debug("");
     return signerLocation.getCountryName();
   }
 
   @Override
   public String getId() {
+    logger.debug("");
     return origin.getId();
   }
 
   @Override
   public byte[] getNonce() {
-    logger.error("Not yet implemented");
+    logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
   @Override  //TODO Should this throw a DigiDoc4JException instead of CertificateNotFoundException
   public X509Cert getOCSPCertificate() {
+    logger.debug("");
     String ocspCN = getOCSPCommonName();
     for (CertificateToken cert : origin.getCertPool().getCertificateTokens()) {
       String value = getCN(new X500Name(cert.getSubjectX500Principal().getName()));
@@ -96,70 +104,95 @@ public class BDocSignature extends Signature {
   }
 
   private String getOCSPCommonName() {
+    logger.debug("");
     RespID responderId = origin.getOCSPSource().getContainedOCSPResponses().get(0).getResponderId();
-    return getCN(responderId.toASN1Object().getName());
+    String commonName = getCN(responderId.toASN1Object().getName());
+    logger.debug("OCSP common name: " + commonName);
+    return commonName;
   }
 
   private String getCN(X500Name x500Name) {
-    return x500Name.getRDNs(new ASN1ObjectIdentifier("2.5.4.3"))[0].getTypesAndValues()[0].getValue().toString();
+    logger.debug("");
+    String name = x500Name.getRDNs(new ASN1ObjectIdentifier("2.5.4.3"))[0].getTypesAndValues()[0].getValue().toString();
+    logger.debug("Common name: " + name);
+    return name;
   }
 
   @Override
   public String getPolicy() {
-    logger.error("Not yet implemented");
+    logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
   @Override
   public String getPostalCode() {
+    logger.debug("");
     return signerLocation.getPostalCode();
   }
 
   @Override
   public Date getProducedAt() {
-    return origin.getOCSPSource().getContainedOCSPResponses().get(0).getProducedAt();
+    logger.debug("");
+    Date date = origin.getOCSPSource().getContainedOCSPResponses().get(0).getProducedAt();
+    logger.debug("Produced at date: " + date.toString());
+    return date;
   }
 
   @Override
   public SignatureProfile getProfile() {
-    if (origin.getSignatureTimestamps() != null && origin.getSignatureTimestamps().size() > 0)
+    logger.debug("");
+    if (origin.getSignatureTimestamps() != null && origin.getSignatureTimestamps().size() > 0) {
+      logger.debug("Signature profile: time stamp profile");
       return SignatureProfile.TS;
+    }
+    logger.debug("Signature profile: none");
     return SignatureProfile.NONE;
   }
 
   @Override
   public String getSignatureMethod() {
-    return origin.getDigestAlgorithm().getXmlId();
+    logger.debug("");
+
+    String xmlId = origin.getDigestAlgorithm().getXmlId();
+    logger.debug("Signature method: " + xmlId);
+    return xmlId;
   }
 
   @Override
   public List<String> getSignerRoles() {
+    logger.debug("");
     return Arrays.asList(origin.getClaimedSignerRoles());
   }
 
   @Override
   public X509Cert getSigningCertificate() {
+    logger.debug("");
     return new X509Cert(origin.getSigningCertificateToken().getCertificate());
   }
 
   @Override
   public Date getSigningTime() {
-    return origin.getSigningTime();
+    logger.debug("");
+    Date signingTime = origin.getSigningTime();
+    logger.debug("Signing time: " + signingTime);
+    return signingTime;
   }
 
   @Override
   public URI getSignaturePolicyURI() {
-    logger.error("Not yet implemented");
+    logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
   @Override
   public String getStateOrProvince() {
+    logger.debug("");
     return signerLocation.getStateOrProvince();
   }
 
   @Override
   public X509Cert getTimeStampTokenCertificate() {
+    logger.debug("");
     if (origin.getSignatureTimestamps() == null || origin.getSignatureTimestamps().size() == 0) {
       CertificateNotFoundException exception = new CertificateNotFoundException("TimeStamp certificate not found");
       logger.error(exception.getMessage());
@@ -170,16 +203,19 @@ public class BDocSignature extends Signature {
 
   @Override
   public List<DigiDoc4JException> validate(Validate validationType) {
+    logger.debug("");
     return validationErrors;
   }
 
   @Override
   public List<DigiDoc4JException> validate() {
+    logger.debug("");
     return validate(Validate.VALIDATE_FULL);
   }
 
   @Override
   public byte[] getRawSignature() {
+    logger.debug("");
     return origin.getSignatureValue().getFirstChild().getNodeValue().getBytes();
   }
 }

@@ -20,12 +20,14 @@ public class StreamDocument implements DSSDocument {
 
   //TODO if file is small enough you can read it into byte[] and cache it
   public StreamDocument(InputStream stream, String documentName, MimeType mimeType) {
+    logger.debug("");
     createTemporaryFileOfStream(stream);
     this.documentName = documentName;
     this.mimeType = mimeType;
   }
 
   private void createTemporaryFileOfStream(InputStream stream) {
+    logger.debug("");
     byte[] bytes = new byte[MAX_SIZE_IN_MEMORY];
 
     FileOutputStream out = null;
@@ -49,6 +51,7 @@ public class StreamDocument implements DSSDocument {
 
   @Override
   public InputStream openStream() throws DSSException {
+    logger.debug("");
     try {
       return getTemporaryFileAsStream();
     } catch (FileNotFoundException e) {
@@ -58,11 +61,13 @@ public class StreamDocument implements DSSDocument {
   }
 
   FileInputStream getTemporaryFileAsStream() throws FileNotFoundException {
+    logger.debug("");
     return new FileInputStream(temporaryFile);
   }
 
   @Override
   public byte[] getBytes() throws DSSException {
+    logger.debug("");
     try {
       return IOUtils.toByteArray(getTemporaryFileAsStream());
     } catch (IOException e) {
@@ -73,26 +78,31 @@ public class StreamDocument implements DSSDocument {
 
   @Override
   public String getName() {
+    logger.debug("");
     return documentName;
   }
 
   @Override
   public String getAbsolutePath() {
+    logger.debug("");
     return temporaryFile.getAbsolutePath();
   }
 
   @Override
   public MimeType getMimeType() {
+    logger.debug("");
     return mimeType;
   }
 
   @Override
   public void setMimeType(MimeType mimeType) {
+    logger.debug("");
     this.mimeType = mimeType;
   }
 
   @Override
   public void save(String filePath) {
+    logger.debug("");
     try {
       FileOutputStream fileOutputStream = new FileOutputStream(filePath);
       try {
@@ -108,6 +118,7 @@ public class StreamDocument implements DSSDocument {
 
   @Override
   public String getDigest(DigestAlgorithm digestAlgorithm) {
+    logger.debug("");
     byte[] digestBytes;
     try {
       digestBytes = DSSUtils.digest(digestAlgorithm, getTemporaryFileAsStream());

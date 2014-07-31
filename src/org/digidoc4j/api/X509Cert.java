@@ -6,6 +6,8 @@ import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DLSequence;
 import org.bouncycastle.util.encoders.Hex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,6 +23,7 @@ import java.util.*;
  * Wrapper for java.security.cert.X509Certificate object.
  */
 public class X509Cert {
+  Logger logger = LoggerFactory.getLogger(X509Cert.class);
   private X509Certificate originalCert;
   private Map<String, String> issuerPartMap;
   private Map<String, String> subjectNamePartMap;
@@ -73,6 +76,7 @@ public class X509Cert {
    * @param cert X509 certificate to be wrapped
    */
   public X509Cert(X509Certificate cert) {
+    logger.debug("");
     originalCert = cert;
   }
 
@@ -93,8 +97,10 @@ public class X509Cert {
    * @throws Exception throws an exception if the X509 certificate parsing fails
    */
   X509Cert(String path) throws Exception {
+    logger.debug("");
     CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
     originalCert = (X509Certificate) certificateFactory.generateCertificate(new FileInputStream(new File(path)));
+    logger.debug("Certificate created from path: " + path);
   }
 
   /**
@@ -104,6 +110,7 @@ public class X509Cert {
    * @throws IOException when policy parsing fails
    */
   public List<String> getCertificatePolicies() throws IOException {
+    logger.debug("");
     byte[] extensionValue = originalCert.getExtensionValue("2.5.29.32");
     List<String> policies = new ArrayList<String>();
 
@@ -128,6 +135,7 @@ public class X509Cert {
    * @return X509Certificate
    */
   public X509Certificate getX509Certificate() {
+    logger.debug("");
     return originalCert;
   }
 
@@ -139,18 +147,25 @@ public class X509Cert {
    * @return part of issuer name
    */
   public String issuerName(Issuer part) {
+    logger.debug("");
     if (issuerPartMap == null) {
       loadIssuerParts();
     }
-    return issuerPartMap.get(part.name());
+    String issuerName = issuerPartMap.get(part.name());
+    logger.debug("Issuer name for part " + part.toString() + " is: " + issuerName);
+    return issuerName;
   }
 
   private void loadIssuerParts() {
+    logger.debug("");
     String[] parts = StringUtils.split(issuerName(), ',');
     issuerPartMap = new HashMap<String, String>();
     for (String part : parts) {
       String[] strings = StringUtils.split(part, "=");
-      issuerPartMap.put(strings[0].trim(), strings[1].trim());
+      String key = strings[0].trim();
+      String value = strings[1].trim();
+      issuerPartMap.put(key, value);
+      logger.debug("Subject name part key: " + key + " value: " + value);
     }
   }
 
@@ -160,7 +175,10 @@ public class X509Cert {
    * @return issuer name
    */
   public String issuerName() {
-    return originalCert.getIssuerDN().getName();
+    logger.debug("");
+    String name = originalCert.getIssuerDN().getName();
+    logger.debug("Issuer name: " + name);
+    return name;
   }
 
   /**
@@ -170,13 +188,17 @@ public class X509Cert {
    * @return boolean indicating if the certificate is in a valid time slot
    */
   public boolean isValid(Date date) {
+    logger.debug("");
     try {
       originalCert.checkValidity(date);
     } catch (CertificateExpiredException e) {
+      logger.debug("Date " + date + " is not valid");
       return false;
     } catch (CertificateNotYetValidException e) {
+      logger.debug("Date " + date + " is not valid");
       return false;
     }
+    logger.debug("Date " + date + " is valid");
     return true;
   }
 
@@ -186,14 +208,8 @@ public class X509Cert {
    * @return boolean indicating if the current time is between the certificate's validity start and expiration date
    */
   public boolean isValid() {
-    try {
-      originalCert.checkValidity();
-    } catch (CertificateExpiredException e) {
-      return false;
-    } catch (CertificateNotYetValidException e) {
-      return false;
-    }
-    return true;
+    logger.debug("");
+    return (isValid(new Date()));
   }
 
   /**
@@ -202,6 +218,7 @@ public class X509Cert {
    * @return list of key usages
    */
   public List<KeyUsage> getKeyUsages() {
+    logger.debug("");
     List<KeyUsage> keyUsages = new ArrayList<KeyUsage>();
     boolean[] keyUsagesBits = originalCert.getKeyUsage();
     for (int i = 0; i < keyUsagesBits.length; i++) {
@@ -209,6 +226,10 @@ public class X509Cert {
         keyUsages.add(KeyUsage.values()[i]);
       }
     }
+
+    logger.debug("Returning " + keyUsages.size() + "key usages:");
+    for (KeyUsage keyUsage : keyUsages) logger.debug("\t" + keyUsage.toString());
+
     return keyUsages;
   }
 
@@ -218,7 +239,10 @@ public class X509Cert {
    * @return serial number of the X.509 certificate
    */
   public String getSerial() {
-    return Hex.toHexString(originalCert.getSerialNumber().toByteArray());
+    logger.debug("");
+    String serial = Hex.toHexString(originalCert.getSerialNumber().toByteArray());
+    logger.debug("Serial number: " + serial);
+    return serial;
   }
 
   /**
@@ -228,18 +252,25 @@ public class X509Cert {
    * @return subject name
    */
   public String getSubjectName(SubjectName part) {
+    logger.debug("");
     if (subjectNamePartMap == null) {
       loadSubjectNameParts();
     }
-    return subjectNamePartMap.get(part.name());
+    String subjectName = subjectNamePartMap.get(part.name());
+    logger.debug("Subject name for " + part.toString() + " is " + subjectName);
+    return subjectName;
   }
 
   private void loadSubjectNameParts() {
+    logger.debug("");
     String[] parts = getSubjectName().split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
     subjectNamePartMap = new HashMap<String, String>();
     for (String part : parts) {
       String[] strings = part.split("=(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-      subjectNamePartMap.put(strings[0].trim(), strings[1].trim());
+      String key = strings[0].trim();
+      String value = strings[1].trim();
+      subjectNamePartMap.put(key, value);
+      logger.debug("Subject name part key: " + key + " value: " + value);
     }
   }
 
@@ -249,6 +280,9 @@ public class X509Cert {
    * @return subject name
    */
   public String getSubjectName() {
-    return originalCert.getSubjectDN().toString();
+    logger.debug("");
+    String subjectName = originalCert.getSubjectDN().toString();
+    logger.debug("Subject name: " + subjectName);
+    return subjectName;
   }
 }
