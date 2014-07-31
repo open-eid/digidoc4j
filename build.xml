@@ -46,6 +46,9 @@
 
     <target name="compile">
         <mkdir dir="${build.dir}"/>
+      <copy todir="${build.dir}">
+        <fileset dir="resources"/>
+      </copy>
       <javac destdir="${build.dir}" includeantruntime="false" source="1.6" debug="on" target="1.6" encoding="UTF-8">
       <src path="src"/>
             <src path="test"/>
