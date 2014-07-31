@@ -11,8 +11,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
-import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
-
 /**
  * Possibility to create custom configurations for {@link org.digidoc4j.api.Container} implementation.
  * <p/>
