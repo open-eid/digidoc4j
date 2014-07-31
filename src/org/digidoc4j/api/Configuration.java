@@ -113,7 +113,7 @@ public class Configuration {
     CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
 
     InputStream certAsStream = getClass().getClassLoader().getResourceAsStream(certFile.substring(6));
-    X509Certificate cert = (X509Certificate)certificateFactory.generateCertificate(certAsStream);
+    X509Certificate cert = (X509Certificate) certificateFactory.generateCertificate(certAsStream);
     IOUtils.closeQuietly(certAsStream);
 
     return cert;
@@ -126,7 +126,7 @@ public class Configuration {
     configuration.put("DIGIDOC_LOG4J_CONFIG", defaultIfNull("DIGIDOC_LOG4J_CONFIG", "./log4j.properties"));
     configuration.put("DIGIDOC_SECURITY_PROVIDER", defaultIfNull("DIGIDOC_SECURITY_PROVIDER", "org.bouncycastle.jce.provider.BouncyCastleProvider"));
     configuration.put("DIGIDOC_SECURITY_PROVIDER_NAME", defaultIfNull("DIGIDOC_SECURITY_PROVIDER_NAME", "BC"));
-    configuration.put("DATAFILE_HASHCODE_MODE", defaultIfNull("DATAFILE_HASHCODE_MODE" , "false"));
+    configuration.put("DATAFILE_HASHCODE_MODE", defaultIfNull("DATAFILE_HASHCODE_MODE", "false"));
     configuration.put("CANONICALIZATION_FACTORY_IMPL", defaultIfNull("CANONICALIZATION_FACTORY_IMPL", "ee.sk.digidoc.c14n.TinyXMLCanonicalizer"));
     configuration.put("DIGIDOC_MAX_DATAFILE_CACHED", defaultIfNull("DIGIDOC_MAX_DATAFILE_CACHED", "4096"));
     configuration.put("DIGIDOC_USE_LOCAL_TSL", defaultIfNull("DIGIDOC_USE_LOCAL_TSL", "true"));
@@ -134,6 +134,7 @@ public class Configuration {
     configuration.put("DIGIDOC_TSLFAC_IMPL", defaultIfNull("DIGIDOC_TSLFAC_IMPL", "ee.sk.digidoc.tsl.DigiDocTrustServiceFactory"));
     configuration.put("DIGIDOC_OCSP_RESPONDER_URL", getOcspSource());
     configuration.put("DIGIDOC_FACTORY_IMPL", defaultIfNull("DIGIDOC_FACTORY_IMPL", "ee.sk.digidoc.factory.SAXDigiDocFactory"));
+    configuration.put("SIGN_OCSP_REQUESTS", defaultIfNull("SIGN_OCSP_REQUESTS=false", "false"));
 
     loadCertificateAutorityCerts(configuration);
     loadOCSPCertificates(configuration);
@@ -154,12 +155,24 @@ public class Configuration {
     configuration.put("DIGIDOC_CA_1_OCSPS", String.valueOf(numberOfOCSPCertificates));
 
     for (int i = 1; i <= numberOfOCSPCertificates; i++) {
-      LinkedHashMap ocsp =  ocsps.get(i - 1);
-      configuration.put("DIGIDOC_CA_1_OCSP" + i + "_CA_CN", ocsp.get("CA_CN").toString());
-      configuration.put("DIGIDOC_CA_1_OCSP" + i + "_CA_CERT", ocsp.get("CA_CERT").toString());
-      configuration.put("DIGIDOC_CA_1_OCSP" + i + "_CN", ocsp.get("CN").toString());
-      configuration.put("DIGIDOC_CA_1_OCSP" + i + "_CERT", ocsp.get("CERT").toString());
-      configuration.put("DIGIDOC_CA_1_OCSP" + i + "_URL", ocsp.get("URL").toString());
+      LinkedHashMap ocsp = ocsps.get(i - 1);
+      String prefix = "DIGIDOC_CA_1_OCSP" + i;
+      configuration.put(prefix + "_CA_CN", ocsp.get("CA_CN").toString());
+      configuration.put(prefix + "_CA_CERT", ocsp.get("CA_CERT").toString());
+      configuration.put(prefix + "_CN", ocsp.get("CN").toString());
+      getOCSPCertificates(configuration, prefix, ocsp);
+      configuration.put(prefix + "_URL", ocsp.get("URL").toString());
+    }
+  }
+
+  private void getOCSPCertificates(Hashtable<String, String> configuration, String prefix, LinkedHashMap ocsp) {
+    ArrayList<String> certificates = (ArrayList<String>) ocsp.get("CERTS");
+    for (int j = 0; j < certificates.size(); j++) {
+      if (j == 0) {
+        configuration.put(prefix + "_CERT", certificates.get(0));
+      } else {
+        configuration.put(prefix + "_CERT_" + j, certificates.get(j));
+      }
     }
   }
 
@@ -210,7 +223,7 @@ public class Configuration {
     logger.debug("TSP Source set to " + tspSource);
   }
 
- public String getOcspSource() {
+  public String getOcspSource() {
     return getConfigurationParameter("ocspSource");
   }
 

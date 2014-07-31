@@ -95,6 +95,8 @@ public class ConfigurationTest {
     Hashtable<String, String> jDigiDocConf = configuration.getJDigiDocConf();
 
     assertEquals("jar://certs/ESTEID-SK.crt", jDigiDocConf.get("DIGIDOC_CA_1_CERT2"));
+    assertEquals("jar://certs/KLASS3-SK OCSP 2006.crt", jDigiDocConf.get("DIGIDOC_CA_1_OCSP2_CERT_1"));
+    assertEquals("jar://certs/EID-SK OCSP 2006.crt", jDigiDocConf.get("DIGIDOC_CA_1_OCSP13_CERT_1"));
     assertEquals("jar://certs/TEST Juur-SK.crt", jDigiDocConf.get("DIGIDOC_CA_1_CERT17"));
     assertEquals("./log4j.properties", jDigiDocConf.get("DIGIDOC_LOG4J_CONFIG"));
     assertEquals("org.bouncycastle.jce.provider.BouncyCastleProvider", jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER"));
@@ -102,7 +104,8 @@ public class ConfigurationTest {
     assertEquals("false", jDigiDocConf.get("DATAFILE_HASHCODE_MODE"));
     assertEquals("ee.sk.digidoc.c14n.TinyXMLCanonicalizer", jDigiDocConf.get("CANONICALIZATION_FACTORY_IMPL"));
     assertEquals("4096", jDigiDocConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
+    assertEquals("false", jDigiDocConf.get("SIGN_OCSP_REQUESTS"));
 
-    assertEquals("jar://certs/TEST SK OCSP 2011.crt", jDigiDocConf.get("DIGIDOC_CA_1_OCSP2_CERT"));
+    assertEquals("jar://certs/KLASS3-SK OCSP.crt", jDigiDocConf.get("DIGIDOC_CA_1_OCSP2_CERT"));
   }
 }

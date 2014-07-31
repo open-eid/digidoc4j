@@ -55,7 +55,6 @@ public class DDocContainer extends Container {
 
   private void intConfiguration() {
     logger.debug("");
-    //ConfigManager.init("jdigidoc.cfg");
     Configuration configuration = new Configuration();
     configuration.addConfiguration("digidoc4j.yaml");
     ConfigManager.init(configuration.getJDigiDocConf());
@@ -291,6 +290,7 @@ public class DDocContainer extends Container {
 
     List<DigiDoc4JException> allExceptions;
     allExceptions = convertToDigiDoc4JExceptions(openContainerErrors);
+    //noinspection unchecked
     allExceptions.addAll(convertToDigiDoc4JExceptions(exceptions));
     return allExceptions;
   }
