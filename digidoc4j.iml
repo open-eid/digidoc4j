@@ -17,7 +17,6 @@
     <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.49" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-ext-jdk15on:1.49" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcpkix-jdk15on:1.49" level="project" />
-    <orderEntry type="library" name="org.apache.directory.studio:org.apache.commons.io:2.4" level="application" />
     <orderEntry type="library" name="Maven: org.mockito:mockito-all:1.9.5" level="project" />
     <orderEntry type="module-library">
       <library>
@@ -36,6 +35,7 @@
         <JAVADOC />
         <SOURCES>
           <root url="jar://$MAVEN_REPOSITORY$/.ideaLibSources/commons-lang-2.6-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ideaLibSources/commons-lang-2.6-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -58,14 +58,14 @@
     <orderEntry type="library" name="commons-io-2.4" level="project" />
     <orderEntry type="library" name="xmlunit:xmlunit:1.5" level="project" />
     <orderEntry type="library" name="commons-cli:commons-cli:1.2" level="project" />
-    <orderEntry type="library" name="jdigidoc-3.9.0-712" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.3.4" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.3.2" level="project" />
-    <orderEntry type="library" name="slf4j-log4j12-1.6.6" level="project" />
     <orderEntry type="library" name="log4j-1.2.12" level="project" />
     <orderEntry type="library" name="system-rules-1.5.0" level="project" />
     <orderEntry type="library" name="org.hamcrest:hamcrest-core:1.3" level="project" />
-    <orderEntry type="library" name="jdigidoc-3.10.1316.BETA (2)" level="project" />
+    <orderEntry type="library" name="jdigidoc-3.10.1316.BETA" level="project" />
+    <orderEntry type="library" name="org.codehaus.janino:com.springsource.org.codehaus.janino:2.6.1" level="project" />
+    <orderEntry type="library" name="org.yaml:snakeyaml:1.13" level="project" />
   </component>
 </module>
 

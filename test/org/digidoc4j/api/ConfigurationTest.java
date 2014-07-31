@@ -3,9 +3,16 @@ package org.digidoc4j.api;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Hashtable;
+import java.util.List;
+
 import static org.digidoc4j.api.Configuration.Mode.PROD;
 import static org.digidoc4j.api.Configuration.Mode.TEST;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class ConfigurationTest {
   private Configuration configuration;
@@ -35,6 +42,12 @@ public class ConfigurationTest {
   }
 
   @Test
+  public void setOcspSource() throws Exception {
+    configuration.setOcspSource("ocsp_source");
+    assertEquals("ocsp_source", configuration.getOcspSource());
+  }
+
+  @Test
   public void defaultProductionConfiguration() throws Exception {
     Configuration configuration = new Configuration(PROD);
     assertEquals("http://sr.riik.ee/tsl/estonian-tsl.xml", configuration.getTslLocation());
@@ -56,5 +69,40 @@ public class ConfigurationTest {
   @Test
   public void testGetPKCS11ModulePath() throws Exception {
     assertEquals("/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so", configuration.getPKCS11ModulePath());
+  }
+
+  @Test
+  public void readConfigurationFromPropertiesFile() throws Exception {
+    configuration.addConfiguration("digidoc4j.yaml");
+    List<X509Certificate> certificates = configuration.getCACerts();
+    assertEquals(17, certificates.size());
+  }
+
+  @Test
+  public void readConfigurationFromPropertiesFileThrowsException() throws Exception {
+    Configuration configuration = spy(new Configuration(Configuration.Mode.TEST));
+    doThrow(new CertificateException()).when(configuration).getX509CertificateFromFile(anyString());
+    doCallRealMethod().when(configuration).addConfiguration(anyString());
+
+    configuration.addConfiguration("digidoc4j.yaml");
+
+    assertEquals(0, configuration.getCACerts().size());
+  }
+
+  @Test
+  public void generateJdigiDocConfig() throws Exception {
+    configuration.addConfiguration("digidoc4j.yaml");
+    Hashtable<String, String> jDigiDocConf = configuration.getJDigiDocConf();
+
+    assertEquals("jar://certs/ESTEID-SK.crt", jDigiDocConf.get("DIGIDOC_CA_1_CERT2"));
+    assertEquals("jar://certs/TEST Juur-SK.crt", jDigiDocConf.get("DIGIDOC_CA_1_CERT17"));
+    assertEquals("./log4j.properties", jDigiDocConf.get("DIGIDOC_LOG4J_CONFIG"));
+    assertEquals("org.bouncycastle.jce.provider.BouncyCastleProvider", jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER"));
+    assertEquals("BC", jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER_NAME"));
+    assertEquals("false", jDigiDocConf.get("DATAFILE_HASHCODE_MODE"));
+    assertEquals("ee.sk.digidoc.c14n.TinyXMLCanonicalizer", jDigiDocConf.get("CANONICALIZATION_FACTORY_IMPL"));
+    assertEquals("4096", jDigiDocConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
+
+    assertEquals("jar://certs/TEST SK OCSP 2011.crt", jDigiDocConf.get("DIGIDOC_CA_1_OCSP2_CERT"));
   }
 }
