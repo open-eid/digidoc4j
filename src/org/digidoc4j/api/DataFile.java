@@ -30,13 +30,15 @@ public class DataFile {
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
    */
   public DataFile(String path, String mimeType) {
+    logger.debug("");
     try {
       document = new FileDocument(path);
       document.setMimeType(getMimeType(mimeType));
     } catch (Exception e) {
-      logger.info(e.getMessage());
+      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
+    logger.debug("DataFile for path " + path + " and with mimeType " + mimeType + " has been created");
   }
 
   /**
@@ -47,8 +49,10 @@ public class DataFile {
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
    */
   public DataFile(byte[] data, String fileName, String mimeType) {
+    logger.debug("");
     ByteArrayInputStream stream = new ByteArrayInputStream(data);
     document = new InMemoryDocument(stream, fileName, getMimeType(mimeType));
+    logger.debug("DataFile from byte[] with name " + fileName + " and mimeType " + mimeType + " has been created");
   }
 
   /**
@@ -59,21 +63,25 @@ public class DataFile {
    * @param mimeType MIME type of the stream file, for example 'text/plain' or 'application/msword'
    */
   public DataFile(InputStream stream, String fileName, String mimeType) {
+    logger.debug("");
     try {
       document = new StreamDocument(stream, fileName, getMimeType(mimeType));
     } catch (Exception e) {
-      logger.info(e.getMessage());
+      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
+    logger.debug("DataFile from input stream with name " + fileName + " and mimeType " + mimeType + " has been created");
   }
 
   private MimeType getMimeType(String mimeType) {
+    logger.debug("");
     MimeType mimeTypeCode = MimeType.fromCode(mimeType);
     if (mimeTypeCode == null) {
       DigiDoc4JException exception = new DigiDoc4JException("Unknown mime type");
-      logger.info(exception.toString());
+      logger.error(exception.toString());
       throw exception;
     }
+    logger.debug("Mime type: ", mimeTypeCode);
     return mimeTypeCode;
   }
 
@@ -86,6 +94,7 @@ public class DataFile {
    * @throws Exception thrown if the file does not exist or the digest calculation fails.
    */
   public byte[] calculateDigest() throws Exception {
+    logger.debug("");
     return calculateDigest(new URL("http://www.w3.org/2001/04/xmlenc#sha256"));
   }
 
@@ -103,14 +112,19 @@ public class DataFile {
    * @return calculated digest
    */
   public byte[] calculateDigest(URL method) {        // TODO exceptions to throw
+    logger.debug("");
     if (digest == null) {
+      logger.debug("Obtaining new digest value for method " + method.toString());
       DigestAlgorithm digestAlgorithm = DigestAlgorithm.forXML(method.toString());
       digest = new Digest(digestAlgorithm, calculateDigestInternal(digestAlgorithm));
+    } else {
+      logger.debug("Returning existing digest value");
     }
     return digest.getValue();
   }
 
   byte[] calculateDigestInternal(DigestAlgorithm digestAlgorithm) {
+    logger.debug("");
     return DSSUtils.digest(digestAlgorithm, document.getBytes());
   }
 
@@ -120,7 +134,11 @@ public class DataFile {
    * @return filename
    */
   public String getFileName() {
-    return new File(document.getName()).getName();
+    logger.debug("");
+    String documentName = document.getName();
+    String name = new File(documentName).getName();
+    logger.debug("File name for document " + documentName + " is " + name);
+    return name;
   }
 
   /**
@@ -129,15 +147,21 @@ public class DataFile {
    * @return file size
    */
   public long getFileSize() {
+    logger.debug("");
+    long fileSize;
     if (document instanceof StreamDocument) {
       try {
-        return Files.size(Paths.get(document.getAbsolutePath()));
+        fileSize = Files.size(Paths.get(document.getAbsolutePath()));
+        logger.debug("Stream document size: " + fileSize);
+        return fileSize;
       } catch (IOException e) {
-        logger.info(e.getMessage());
+        logger.error(e.getMessage());
         throw new DigiDoc4JException(e);
       }
     }
-    return document.getBytes().length;
+    fileSize = document.getBytes().length;
+    logger.debug("Document size: " + fileSize);
+    return fileSize;
   }
 
   /**
@@ -146,7 +170,10 @@ public class DataFile {
    * @return media type
    */
   public String getMediaType() {
-    return document.getMimeType().getCode();
+    logger.debug("");
+    String mediaType = document.getMimeType().getCode();
+    logger.debug("Media type is: " + mediaType);
+    return mediaType;
   }
 
   /**
@@ -156,6 +183,7 @@ public class DataFile {
    * @throws java.io.IOException on file write error
    */
   public void saveAs(OutputStream out) throws IOException {
+    logger.debug("");
     out.write(document.getBytes());
   }
 
@@ -166,7 +194,9 @@ public class DataFile {
    */
   //TODO exception - method throws DSSException which can be caused by other exceptions
   public void saveAs(String path) {
+    logger.debug("");
     document.save(path);
+    logger.debug("Data file saved to: " + path);
   }
 
   /**
@@ -175,6 +205,7 @@ public class DataFile {
    * @return data as bytes
    */
   public byte[] getBytes() {
+    logger.debug("");
     return document.getBytes();
   }
 
@@ -184,6 +215,7 @@ public class DataFile {
    * @return data file stream
    */
   public InputStream getStream() {
+    logger.debug("");
     return document.openStream();
   }
 }

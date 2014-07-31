@@ -29,61 +29,77 @@ public class DDocSignature extends Signature {
 
   @Override
   public void setCertificate(X509Cert cert) {
+    logger.debug("");
     this.certificate = cert;
   }
 
   @Override
   public String getCity() {
+    logger.debug("");
     return origin.getSignedProperties().getSignatureProductionPlace().getCity();
   }
 
   @Override
   public String getCountryName() {
+    logger.debug("");
     return origin.getSignedProperties().getSignatureProductionPlace().getCountryName();
   }
 
   @Override
   public String getId() {
+    logger.debug("");
     return origin.getId();
   }
 
   @Override
   public byte[] getNonce() {
+    logger.debug("");
     return null;
   }
 
   @Override
   public X509Cert getOCSPCertificate() {
+    logger.debug("");
     return new X509Cert(origin.findResponderCert());
   }
 
   @Override
   public String getPolicy() {
+    logger.debug("");
     return "";
   }
 
   @Override
   public String getPostalCode() {
+    logger.debug("");
     return origin.getSignedProperties().getSignatureProductionPlace().getPostalCode();
   }
 
   @Override
   public Date getProducedAt() {
+    logger.debug("");
     return origin.getSignatureProducedAtTime();
   }
 
   @Override
   public SignatureProfile getProfile() {
-    return "TM".equals(origin.getProfile()) ? SignatureProfile.TM : SignatureProfile.TS;
+    logger.debug("");
+    SignatureProfile signatureProfile = "TM".equals(origin.getProfile()) ? SignatureProfile.TM : SignatureProfile.TS;
+    logger.debug("Profile is: " + signatureProfile);
+    return signatureProfile;
   }
 
   @Override
   public String getSignatureMethod() {
-    return origin.getSignedInfo().getSignatureMethod();
+    logger.debug("");
+    String signatureMethod = origin.getSignedInfo().getSignatureMethod();
+    logger.debug("Signature method: " + signatureMethod);
+    return signatureMethod;
   }
 
   @Override
   public List<String> getSignerRoles() {
+    logger.debug("");
     List<String> roles = new ArrayList<String>();
     int numberOfRoles = origin.getSignedProperties().countClaimedRoles();
     for (int i = 0; i < numberOfRoles; i++) {
@@ -94,37 +110,43 @@ public class DDocSignature extends Signature {
 
   @Override
   public X509Cert getSigningCertificate() {
+    logger.debug("");
     return certificate;
   }
 
   @Override
   public Date getSigningTime() {
+    logger.debug("");
     return origin.getSignedProperties().getSigningTime();
   }
 
   @Override
   public URI getSignaturePolicyURI() {
+    logger.debug("");
     return null;
   }
 
   @Override
   public String getStateOrProvince() {
+    logger.debug("");
     return origin.getSignedProperties().getSignatureProductionPlace().getStateOrProvince();
   }
 
   @Override
   public X509Cert getTimeStampTokenCertificate() {
-    logger.error("Not yet implemented");
+    logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
   @Override
   public List<DigiDoc4JException> validate(Validate validationType) {
+    logger.debug("");
     return validate();
   }
 
   @Override
   public List<DigiDoc4JException> validate() {
+    logger.debug("");
     List<DigiDoc4JException> validationErrors = new ArrayList<DigiDoc4JException>();
     ArrayList validationResult = origin.verify(origin.getSignedDoc(), true, true);
     for (Object exception : validationResult) {
@@ -137,6 +159,7 @@ public class DDocSignature extends Signature {
 
   @Override
   public byte[] getRawSignature() {
+    logger.debug("");
     return origin.getOrigContent();
   }
 }

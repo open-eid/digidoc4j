@@ -57,6 +57,7 @@ public class ASiCSContainer extends Container {
    * Create a new container object of type ASIC_E.
    */
   public ASiCSContainer() {
+    logger.debug("");
     configuration = new Configuration();
     signatureParameters = new SignatureParameters();
     signatureParameters.setSignatureLevel(SignatureLevel.ASiC_S_BASELINE_LT);
@@ -65,6 +66,7 @@ public class ASiCSContainer extends Container {
     commonCertificateVerifier = new CommonCertificateVerifier();
 
     asicService = new ASiCSService(commonCertificateVerifier);
+    logger.debug("New ASiCS container created");
   }
 
 
@@ -74,6 +76,7 @@ public class ASiCSContainer extends Container {
    * @param path container file name with path
    */
   public ASiCSContainer(String path) {
+    logger.debug("");
     configuration = new Configuration();
     List<DigiDoc4JException> validationErrors;
     signedDocument = new FileDocument(path);
@@ -96,39 +99,45 @@ public class ASiCSContainer extends Container {
 
     dataFiles.put(externalContent.getName(), new DataFile(externalContent.getBytes(), externalContent.getName(),
         externalContent.getMimeType().getCode()));
+    logger.debug("New ASiCS container has been created from file: " + path);
   }
 
   @Override
   public void addDataFile(String path, String mimeType) {
+    logger.debug("");
     try {
       FileInputStream is = new FileInputStream(path);
       addDataFile(is, path, mimeType);
       is.close();
     } catch (IOException e) {
-      logger.info(e.getMessage());
+      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
 
   @Override
   public void addDataFile(InputStream is, String fileName, String mimeType) {
+    logger.debug("");
     if (dataFiles.size() >= 1) {
       DigiDoc4JException exception = new DigiDoc4JException("ASiCS supports only one attachment");
-      logger.info(exception.getMessage());
+      logger.error(exception.getMessage());
       throw exception;
     }
 
     dataFiles.put(fileName, new DataFile(is, fileName, mimeType));
+    logger.debug("Data file added. File name: " + fileName + ", mime type: " + mimeType);
   }
 
   @Override
   public void addRawSignature(byte[] signature) {
+    logger.debug("");
     InputStream signatureStream = getByteArrayInputStream(signature);
     addRawSignature(signatureStream);
     IOUtils.closeQuietly(signatureStream);
   }
 
   InputStream getByteArrayInputStream(byte[] signature) {
+    logger.debug("");
     return new ByteArrayInputStream(signature);
   }
 
@@ -136,26 +145,30 @@ public class ASiCSContainer extends Container {
   public void addRawSignature(InputStream signatureStream) {
 //    signatureParameters.setDeterministicId("S" + getSignatures().size());
 //    sign(signature);
-    logger.error("Not yet implemented");
+    logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
   @Override
   public List<DataFile> getDataFiles() {
+    logger.debug("");
     return new ArrayList<DataFile>(dataFiles.values());
   }
 
   @Override
   public void removeDataFile(String fileName) {
+    logger.debug("");
     if (dataFiles.remove(fileName) == null) {
       DigiDoc4JException exception = new DigiDoc4JException("File not found");
-      logger.info(exception.getMessage());
+      logger.error(exception.getMessage());
       throw exception;
     }
+    logger.debug("Date file removed: " + fileName);
   }
 
   @Override
   public void removeSignature(int index) {
+    logger.debug("");
 //    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
 //    final Document xmlSignatureDoc = DSSXMLUtils.buildDOM(validator.getDocument());
 //    final Element documentElement = xmlSignatureDoc.getDocumentElement();
@@ -173,24 +186,28 @@ public class ASiCSContainer extends Container {
 //    signedDocument = new InMemoryDocument(bos.toByteArray(), signedDocument.getName(), signedDocument.getMimeType());
 
     signatures.remove(index);
+    logger.debug("Signature with index number " + index + "removed");
   }
 
   @Override
   public void save(String path) {
+    logger.debug("");
     documentMustBeInitializedCheck();
     signedDocument.save(path);
   }
 
   //TODO NotYetImplementedException
   private void documentMustBeInitializedCheck() {
+    logger.debug("");
     if (signedDocument == null) {
-      logger.error("Not yet implemented");
+      logger.warn("Not yet implemented");
       throw new NotYetImplementedException();
     }
   }
 
   @Override
   public Signature sign(Signer signer) {
+    logger.debug("");
     addSignerInformation(signer);
     signatureParameters.setSigningCertificate(signer.getCertificate().getX509Certificate());
     signatureParameters.setDeterministicId("S" + getSignatures().size());
@@ -200,6 +217,7 @@ public class ASiCSContainer extends Container {
   }
 
   private Signature sign(byte[] rawSignature) {
+    logger.debug("");
     commonCertificateVerifier.setTrustedCertSource(getTSL());
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource());
 
@@ -219,6 +237,7 @@ public class ASiCSContainer extends Container {
   }
 
   private DSSDocument getSigningDocument() {
+    logger.debug("");
     if (signedDocument == null) {
       DataFile dataFile = getFirstDataFile();
       MimeType mimeType = MimeType.fromCode(dataFile.getMediaType());
@@ -232,12 +251,15 @@ public class ASiCSContainer extends Container {
   }
 
   private XAdESSignature getSignatureById(String deterministicId) {
+    logger.debug("Getting signature with id: " + deterministicId);
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signatureParameters.getDetachedContent());
     validate(validator);
     List<AdvancedSignature> signatureList = validator.getSignatures();
     for (AdvancedSignature advancedSignature : signatureList) {
-      if (advancedSignature.getId().equals(deterministicId))
+      if (advancedSignature.getId().equals(deterministicId)) {
+        logger.debug("Signature found");
         return (XAdESSignature) advancedSignature;
+      }
     }
     SignatureNotFoundException exception = new SignatureNotFoundException();
     logger.info(exception.getMessage());
@@ -245,6 +267,7 @@ public class ASiCSContainer extends Container {
   }
 
   private TrustedListsCertificateSource getTSL() {
+    logger.debug("");
     TrustedListsCertificateSource tslCertificateSource = new TrustedListsCertificateSource();
     tslCertificateSource.setDataLoader(new CommonsDataLoader());
     tslCertificateSource.setLotlUrl(getConfiguration().getTslLocation());
@@ -254,15 +277,18 @@ public class ASiCSContainer extends Container {
   }
 
   private Configuration getConfiguration() {
+    logger.debug("");
     return configuration;
   }
 
   @Override
   public void setConfiguration(Configuration conf) {
+    logger.debug("");
     this.configuration = conf;
   }
 
   private void addSignerInformation(Signer signer) {
+    logger.debug("");
     signatureParameters.setDigestAlgorithm(digestAlgorithm);
     BLevelParameters bLevelParameters = signatureParameters.bLevel();
 
@@ -286,6 +312,7 @@ public class ASiCSContainer extends Container {
    * @return list of DigiDoc4JExceptions
    */
   public List<DigiDoc4JException> verify() {
+    logger.debug("");
     documentMustBeInitializedCheck();
 
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
@@ -308,6 +335,7 @@ public class ASiCSContainer extends Container {
   }
 
   private void validate(SignedDocumentValidator validator) {
+    logger.debug("");
     CommonCertificateVerifier verifier = new CommonCertificateVerifier();
     SKOnlineOCSPSource onlineOCSPSource = new SKOnlineOCSPSource();
     verifier.setOcspSource(onlineOCSPSource);
@@ -321,31 +349,36 @@ public class ASiCSContainer extends Container {
   }
 
   private DataFile getFirstDataFile() {
+    logger.debug("");
     return (DataFile) dataFiles.values().toArray()[0];
   }
 
   @Override
   public List<Signature> getSignatures() {
+    logger.debug("");
     return signatures;
   }
 
   @Override
   public DocumentType getDocumentType() {
+    logger.debug("");
     return ASIC_S;
   }
 
   @Override
   public void setDigestAlgorithm(DigestAlgorithm algorithm) {
+    logger.debug("Setting algorithm to " + algorithm.name());
     this.digestAlgorithm = forName(algorithm.name(), SHA256);
   }
 
   @Override
   public List<DigiDoc4JException> validate() {
-    logger.error("Not yet implemented");
+    logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
   protected SignatureParameters getSignatureParameters() {
+    logger.debug("");
     return signatureParameters;
   }
 }

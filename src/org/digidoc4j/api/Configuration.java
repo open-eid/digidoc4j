@@ -185,19 +185,29 @@ public class Configuration {
   }
 
   public String getTslLocation() {
-    return getConfigurationParameter("tslLocation");
+    logger.debug("");
+    String tslLocation = getConfigurationParameter("tslLocation");
+    logger.debug("TSL Location: " + tslLocation);
+    return tslLocation;
   }
 
   public void setTslLocation(String tslLocation) {
+    logger.debug("");
     setConfigurationParameter("tslLocation", tslLocation);
+    logger.debug("TSL Location set to: " + tslLocation);
   }
 
   public String getTspSource() {
-    return getConfigurationParameter("tspSource");
+    logger.debug("");
+    String tspSource = getConfigurationParameter("tspSource");
+    logger.debug("TSP Source: " + tspSource);
+    return tspSource;
   }
 
   public void setTspSource(String tspSource) {
+    logger.debug("");
     setConfigurationParameter("tspSource", tspSource);
+    logger.debug("TSP Source set to " + tspSource);
   }
 
  public String getOcspSource() {
@@ -209,11 +219,16 @@ public class Configuration {
   }
 
   public String getValidationPolicy() {
-    return getConfigurationParameter("validationPolicy");
+    logger.debug("");
+    String validationPolicy = getConfigurationParameter("validationPolicy");
+    logger.debug("Validation policy: " + validationPolicy);
+    return validationPolicy;
   }
 
   public void setValidationPolicy(String validationPolicy) {
+    logger.debug("");
     setConfigurationParameter("validationPolicy", validationPolicy);
+    logger.debug("Validation policy set to: " + validationPolicy);
   }
 
   String getPKCS11ModulePathForOS(OS os, String key) {
@@ -221,15 +236,23 @@ public class Configuration {
   }
 
   public String getPKCS11ModulePath() {
-    return getPKCS11ModulePathForOS(OS.Linux, "pkcs11Module");
+    logger.debug("");
+    String path = getPKCS11ModulePathForOS(OS.Linux, "pkcs11Module");
+    logger.debug("PKCS11 module path: " + path);
+    return path;
   }
 
   private void setConfigurationParameter(String key, String value) {
+    logger.debug("");
     configuration.get(mode).put(key, value);
+    logger.debug("Configuration set: Key = " + key + ", value = " + value);
   }
 
   private String getConfigurationParameter(String key) {
-    return configuration.get(mode).get(key);
+    logger.debug("");
+    String value = configuration.get(mode).get(key);
+    logger.debug("Configuration value for key: " + key + " is: " + value);
+    return value;
   }
 
 

@@ -43,16 +43,18 @@ public class DDocContainer extends Container {
    * Create a new container object of DDOC type Container.
    */
   public DDocContainer() {
+    logger.debug("");
     intConfiguration();
     try {
       ddoc = new SignedDoc("DIGIDOC-XML", "1.3");
     } catch (DigiDocException e) {
-      logger.info(e.getMessage());
+      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
 
   private void intConfiguration() {
+    logger.debug("");
     //ConfigManager.init("jdigidoc.cfg");
     Configuration configuration = new Configuration();
     configuration.addConfiguration("digidoc4j.yaml");
@@ -67,33 +69,38 @@ public class DDocContainer extends Container {
    *                 ]
    */
   public DDocContainer(String fileName) {
+    logger.debug("Creating DDoc container from file: " + fileName);
     intConfiguration();
     DigiDocFactory digFac = new SAXDigiDocFactory();
     try {
       ddoc = digFac.readSignedDocOfType(fileName, false, openContainerErrors);
     } catch (DigiDocException e) {
-      logger.info(e.getMessage());
+      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
 
   DDocContainer(SignedDoc ddoc) {
+    logger.debug("");
     intConfiguration();
     this.ddoc = ddoc;
   }
 
   @Override
   public void addDataFile(String path, String mimeType) {
+    logger.debug("Adding file " + path + " with mime type " + mimeType + " to the container");
     try {
       ddoc.addDataFile(new File(path), mimeType, CONTENT_EMBEDDED_BASE64);
     } catch (DigiDocException e) {
-      logger.info(e.getMessage());
+      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
 
   @Override
   public void addDataFile(InputStream is, String fileName, String mimeType) {
+    logger.debug("Adding file from inputstream to the container with name: " + fileName
+        + "with mime type: " + mimeType);
     try {
       ee.sk.digidoc.DataFile dataFile = new ee.sk.digidoc.DataFile(ddoc.getNewDataFileId(),
           ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64,
@@ -101,28 +108,31 @@ public class DDocContainer extends Container {
       dataFile.setBodyFromStream(is);
       ddoc.addDataFile(dataFile);
     } catch (DigiDocException e) {
-      logger.info(e.getMessage());
+      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
 
   @Override
   public void addRawSignature(byte[] signatureBytes) {
+    logger.debug("");
     addRawSignature(new ByteArrayInputStream(signatureBytes));
   }
 
   @Override
   public void addRawSignature(InputStream signatureStream) {
+    logger.debug("");
     try {
       ddoc.readSignature(signatureStream);
     } catch (DigiDocException e) {
-      logger.info(e.getMessage());
+      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
 
   @Override
   public List<DataFile> getDataFiles() {
+    logger.debug("");
     List<DataFile> dataFiles = new ArrayList<DataFile>();
     ArrayList ddocDataFiles = ddoc.getDataFiles();
     for (Object ddocDataFile : ddocDataFiles) {
@@ -133,7 +143,7 @@ public class DDocContainer extends Container {
         else
           dataFiles.add(new DataFile(dataFile.getBody(), dataFile.getFileName(), dataFile.getMimeType()));
       } catch (DigiDocException e) {
-        logger.info(e.getMessage());
+        logger.error(e.getMessage());
         throw new DigiDoc4JException(e);
       }
     }
@@ -142,10 +152,12 @@ public class DDocContainer extends Container {
 
   @Override
   public void removeDataFile(String fileName) {
+    logger.debug("");
     removeDataFile(new File(fileName));
   }
 
   private void removeDataFile(File file) {
+    logger.debug("Removing data file " + file.getName() + " from the container");
     int index = -1;
     ArrayList ddocDataFiles = ddoc.getDataFiles();
     for (int i = 0; i < ddocDataFiles.size(); i++) {
@@ -154,40 +166,44 @@ public class DDocContainer extends Container {
     }
     if (index == -1) {
       DigiDoc4JException exception = new DigiDoc4JException("File not found");
-      logger.info(exception.toString());
+      logger.error(exception.toString());
       throw exception;
     }
 
     try {
       ddoc.removeDataFile(index);
     } catch (DigiDocException e) {
-      logger.info(e.getMessage());
+      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
 
   @Override
   public void removeSignature(int index) {
+    logger.debug("Removing signature with index " + index + " from the container");
     try {
       ddoc.removeSignature(index);
     } catch (DigiDocException e) {
-      logger.info(e.getMessage());
+      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
 
   @Override
   public void save(String path) {
+    logger.debug("Saving container to " + path);
     try {
       ddoc.writeToFile(new File(path));
     } catch (DigiDocException e) {
-      logger.info(e.getMessage());
+      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
 
   @Override
   public Signature sign(Signer signer) {
+    logger.debug("");
+
     ee.sk.digidoc.Signature signature;
     try {
       List<String> signerRoles = signer.getSignerRoles();
@@ -201,21 +217,21 @@ public class DDocContainer extends Container {
 
       signature.getConfirmation();
     } catch (DigiDocException e) {
-      logger.info(e.getMessage());
+      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
-
     return new DDocSignature(signature);
   }
 
   @Override
   public void setConfiguration(Configuration conf) {
-    logger.error("Not yet implemented");
+    logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
   @Override
   public List<Signature> getSignatures() {
+    logger.debug("");
     List<Signature> signatures = new ArrayList<Signature>();
     if (ddoc == null) {
       return null;
@@ -233,11 +249,11 @@ public class DDocContainer extends Container {
         signatures.add(finalSignature);
       }
     }
-
     return signatures;
   }
 
   private Signature mapJDigiDocSignatureToDigiDoc4J(ee.sk.digidoc.Signature signature) {
+    logger.debug("");
     Signature finalSignature = new DDocSignature(signature);
     CertValue lastCertValue = signature.getLastCertValue();
     if (lastCertValue == null) {
@@ -253,17 +269,21 @@ public class DDocContainer extends Container {
 
   @Override
   public DocumentType getDocumentType() {
+    logger.debug("");
     return DocumentType.DDOC;
   }
 
   @Override
   public void setDigestAlgorithm(DigestAlgorithm algorithm) {
+    logger.debug("");
   }
 
 
   @Override
   public List<DigiDoc4JException> validate() {
+    logger.debug("");
     if (SignedDoc.hasFatalErrs(openContainerErrors)) {
+      logger.info("Document has fatal errors");
       return convertToDigiDoc4JExceptions(openContainerErrors);
     }
 
@@ -275,11 +295,13 @@ public class DDocContainer extends Container {
     return allExceptions;
   }
 
-  private List<DigiDoc4JException> convertToDigiDoc4JExceptions(List<ee.sk.digidoc.DigiDocException> errorsAndWarnings) {
+  private List<DigiDoc4JException>
+  convertToDigiDoc4JExceptions(List<ee.sk.digidoc.DigiDocException> errorsAndWarnings) {
+    logger.debug("");
     List<DigiDoc4JException> errors = new ArrayList<DigiDoc4JException>();
     for (ee.sk.digidoc.DigiDocException errorsAndWarning : errorsAndWarnings) {
       String errorMessage = errorsAndWarning.toString();
-      logger.info(errorMessage);
+      logger.debug(errorMessage);
       errors.add(new DigiDoc4JException(errorMessage));
     }
     return errors;
