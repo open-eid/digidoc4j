@@ -1,9 +1,3 @@
-DIGIDOC_SECURITY_PROVIDER: org.bouncycastle.jce.provider.BouncyCastleProvider
-DIGIDOC_SECURITY_PROVIDER_NAME: BC
-DATAFILE_HASHCODE_MODE: false
-CANONICALIZATION_FACTORY_IMPL: ee.sk.digidoc.c14n.TinyXMLCanonicalizer
-DIGIDOC_MAX_DATAFILE_CACHED: 4096
-
 DIGIDOC_CA:
   NAME: AS Sertifitseerimiskeskus
   TRADENAME: SK
