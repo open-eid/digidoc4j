@@ -23,7 +23,7 @@ public class SKOnlineOCSPSource extends OnlineOCSPSource {
   public String getAccessLocation(X509Certificate certificate) throws DSSException {
     logger.debug("");
     Configuration configuration = new Configuration();
-    String location = configuration.getOcspSource;
+    String location = configuration.getOcspSource();
     logger.debug("OCSP Access location: " + location);
     return configuration.getOcspSource();
   }
