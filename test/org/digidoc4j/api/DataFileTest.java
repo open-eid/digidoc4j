@@ -4,13 +4,13 @@ import eu.europa.ec.markt.dss.DSSUtils;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -134,7 +134,8 @@ public class DataFileTest {
   }
 
   @Test
-  @Ignore
   public void testDigestIsCalculatedOnlyOnce() throws Exception {
+    byte[] digest = dataFile.calculateDigest();
+    assertEquals(digest, dataFile.calculateDigest(new URL("http://NonExisting.test")));
   }
 }
