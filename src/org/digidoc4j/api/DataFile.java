@@ -30,7 +30,7 @@ public class DataFile {
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
    */
   public DataFile(String path, String mimeType) {
-    logger.debug("");
+    logger.debug("Path: " + path + ", mime type: " + mimeType);
     try {
       document = new FileDocument(path);
       document.setMimeType(getMimeType(mimeType));
@@ -38,7 +38,6 @@ public class DataFile {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
-    logger.debug("DataFile for path " + path + " and with mimeType " + mimeType + " has been created");
   }
 
   /**
@@ -49,10 +48,9 @@ public class DataFile {
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
    */
   public DataFile(byte[] data, String fileName, String mimeType) {
-    logger.debug("");
+    logger.debug("File name: " + fileName + ", mime type: " + mimeType);
     ByteArrayInputStream stream = new ByteArrayInputStream(data);
     document = new InMemoryDocument(stream, fileName, getMimeType(mimeType));
-    logger.debug("DataFile from byte[] with name " + fileName + " and mimeType " + mimeType + " has been created");
   }
 
   /**
@@ -63,14 +61,13 @@ public class DataFile {
    * @param mimeType MIME type of the stream file, for example 'text/plain' or 'application/msword'
    */
   public DataFile(InputStream stream, String fileName, String mimeType) {
-    logger.debug("");
+    logger.debug("File name: " + fileName + ", mime type: " + mimeType);
     try {
       document = new StreamDocument(stream, fileName, getMimeType(mimeType));
     } catch (Exception e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
-    logger.debug("DataFile from input stream with name " + fileName + " and mimeType " + mimeType + " has been created");
   }
 
   private MimeType getMimeType(String mimeType) {
@@ -112,9 +109,8 @@ public class DataFile {
    * @return calculated digest
    */
   public byte[] calculateDigest(URL method) {        // TODO exceptions to throw
-    logger.debug("");
+    logger.debug("URL method: " + method);
     if (digest == null) {
-      logger.debug("Obtaining new digest value for method " + method.toString());
       DigestAlgorithm digestAlgorithm = DigestAlgorithm.forXML(method.toString());
       digest = new Digest(digestAlgorithm, calculateDigestInternal(digestAlgorithm));
     } else {
@@ -124,7 +120,7 @@ public class DataFile {
   }
 
   byte[] calculateDigestInternal(DigestAlgorithm digestAlgorithm) {
-    logger.debug("");
+    logger.debug("Digest algorithm: " + digestAlgorithm);
     return DSSUtils.digest(digestAlgorithm, document.getBytes());
   }
 
@@ -137,7 +133,7 @@ public class DataFile {
     logger.debug("");
     String documentName = document.getName();
     String name = new File(documentName).getName();
-    logger.debug("File name for document " + documentName + " is " + name);
+    logger.debug("File name: for document " + documentName + " is " + name);
     return name;
   }
 
@@ -160,7 +156,7 @@ public class DataFile {
       }
     }
     fileSize = document.getBytes().length;
-    logger.debug("Document size: " + fileSize);
+    logger.debug("File document size: " + fileSize);
     return fileSize;
   }
 
@@ -194,9 +190,8 @@ public class DataFile {
    */
   //TODO exception - method throws DSSException which can be caused by other exceptions
   public void saveAs(String path) {
-    logger.debug("");
+    logger.debug("Path: " + path);
     document.save(path);
-    logger.debug("Data file saved to: " + path);
   }
 
   /**

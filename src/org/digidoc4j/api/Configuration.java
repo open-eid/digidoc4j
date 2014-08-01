@@ -57,9 +57,8 @@ public class Configuration {
   }
 
   public Configuration(Mode mode) {
-    logger.debug("");
+    logger.debug("Mode: " + mode);
     this.mode = mode;
-    logger.info("Configuration loaded for " + mode + " mode");
     initDefaultValues();
   }
 
@@ -89,7 +88,7 @@ public class Configuration {
   }
 
   public void addConfiguration(String file) {
-    logger.debug("Loads configuration from file " + file);
+    logger.debug("File " + file);
     Yaml yaml = new Yaml();
     configurationFromFile = (LinkedHashMap) yaml.load(this.getClass().getClassLoader().getResourceAsStream(file));
   }
@@ -109,7 +108,7 @@ public class Configuration {
   }
 
   X509Certificate getX509CertificateFromFile(String certFile) throws CertificateException {
-    logger.debug("Loading certificate from file: " + certFile);
+    logger.debug("File: " + certFile);
     CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
 
     InputStream certAsStream = getClass().getClassLoader().getResourceAsStream(certFile.substring(6));
@@ -143,11 +142,13 @@ public class Configuration {
   }
 
   private String defaultIfNull(String configParameter, String defaultValue) {
+    logger.debug("Parameter: " + configParameter + ", default value: " + defaultValue);
     Object value = configurationFromFile.get(configParameter);
     return value != null ? value.toString() : defaultValue;
   }
 
   private void loadOCSPCertificates(Hashtable<String, String> configuration) {
+    logger.debug("");
     LinkedHashMap digidocCA = (LinkedHashMap) configurationFromFile.get("DIGIDOC_CA");
     @SuppressWarnings("unchecked")
     ArrayList<LinkedHashMap> ocsps = (ArrayList<LinkedHashMap>) digidocCA.get("OCSPS");
@@ -166,6 +167,7 @@ public class Configuration {
   }
 
   private void getOCSPCertificates(Hashtable<String, String> configuration, String prefix, LinkedHashMap ocsp) {
+    logger.debug("");
     ArrayList<String> certificates = (ArrayList<String>) ocsp.get("CERTS");
     for (int j = 0; j < certificates.size(); j++) {
       if (j == 0) {
@@ -177,6 +179,7 @@ public class Configuration {
   }
 
   private void loadCertificateAutorityCerts(Hashtable<String, String> configuration) {
+    logger.debug("");
     LinkedHashMap digidocCA = (LinkedHashMap) configurationFromFile.get("DIGIDOC_CA");
     ArrayList<String> certificateAuthorityCerts = getCACertsAsArray(digidocCA);
 
@@ -194,6 +197,7 @@ public class Configuration {
 
   @SuppressWarnings("unchecked")
   private ArrayList<String> getCACertsAsArray(LinkedHashMap jDigiDocCa) {
+    logger.debug("");
     return (ArrayList<String>) jDigiDocCa.get("CERTS");
   }
 
@@ -205,9 +209,8 @@ public class Configuration {
   }
 
   public void setTslLocation(String tslLocation) {
-    logger.debug("");
+    logger.debug("TSL location: " + tslLocation);
     setConfigurationParameter("tslLocation", tslLocation);
-    logger.debug("TSL Location set to: " + tslLocation);
   }
 
   public String getTspSource() {
@@ -218,16 +221,19 @@ public class Configuration {
   }
 
   public void setTspSource(String tspSource) {
-    logger.debug("");
+    logger.debug("TSP source: " + tspSource);
     setConfigurationParameter("tspSource", tspSource);
-    logger.debug("TSP Source set to " + tspSource);
   }
 
   public String getOcspSource() {
-    return getConfigurationParameter("ocspSource");
+    logger.debug("");
+    String ocspSource = getConfigurationParameter("ocspSource");
+    logger.debug("OCSP source: " + ocspSource);
+    return ocspSource;
   }
 
   public void setOcspSource(String ocspSource) {
+    logger.debug("OCSP source: " + ocspSource);
     setConfigurationParameter("ocspSource", ocspSource);
   }
 
@@ -239,12 +245,12 @@ public class Configuration {
   }
 
   public void setValidationPolicy(String validationPolicy) {
-    logger.debug("");
+    logger.debug("Validation policy: " + validationPolicy);
     setConfigurationParameter("validationPolicy", validationPolicy);
-    logger.debug("Validation policy set to: " + validationPolicy);
   }
 
   String getPKCS11ModulePathForOS(OS os, String key) {
+    logger.debug("");
     return getConfigurationParameter(key + os);
   }
 
@@ -256,15 +262,14 @@ public class Configuration {
   }
 
   private void setConfigurationParameter(String key, String value) {
-    logger.debug("");
+    logger.debug("Key: " + key + ", value: " + value);
     configuration.get(mode).put(key, value);
-    logger.debug("Configuration set: Key = " + key + ", value = " + value);
   }
 
   private String getConfigurationParameter(String key) {
-    logger.debug("");
+    logger.debug("Key: " + key);
     String value = configuration.get(mode).get(key);
-    logger.debug("Configuration value for key: " + key + " is: " + value);
+    logger.debug("Value: " + value);
     return value;
   }
 

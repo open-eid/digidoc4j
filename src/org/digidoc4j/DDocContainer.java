@@ -68,7 +68,7 @@ public class DDocContainer extends Container {
    *                 ]
    */
   public DDocContainer(String fileName) {
-    logger.debug("Creating DDoc container from file: " + fileName);
+    logger.debug("File name: " + fileName);
     intConfiguration();
     DigiDocFactory digFac = new SAXDigiDocFactory();
     try {
@@ -87,7 +87,7 @@ public class DDocContainer extends Container {
 
   @Override
   public void addDataFile(String path, String mimeType) {
-    logger.debug("Adding file " + path + " with mime type " + mimeType + " to the container");
+    logger.debug("Path: " + path + ", mime type " + mimeType);
     try {
       ddoc.addDataFile(new File(path), mimeType, CONTENT_EMBEDDED_BASE64);
     } catch (DigiDocException e) {
@@ -98,8 +98,7 @@ public class DDocContainer extends Container {
 
   @Override
   public void addDataFile(InputStream is, String fileName, String mimeType) {
-    logger.debug("Adding file from inputstream to the container with name: " + fileName
-        + "with mime type: " + mimeType);
+    logger.debug("File name: " + fileName + ", mime type: " + mimeType);
     try {
       ee.sk.digidoc.DataFile dataFile = new ee.sk.digidoc.DataFile(ddoc.getNewDataFileId(),
           ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64,
@@ -151,12 +150,12 @@ public class DDocContainer extends Container {
 
   @Override
   public void removeDataFile(String fileName) {
-    logger.debug("");
+    logger.debug("File name: " + fileName);
     removeDataFile(new File(fileName));
   }
 
   private void removeDataFile(File file) {
-    logger.debug("Removing data file " + file.getName() + " from the container");
+    logger.debug("File name: " + file.getName());
     int index = -1;
     ArrayList ddocDataFiles = ddoc.getDataFiles();
     for (int i = 0; i < ddocDataFiles.size(); i++) {
@@ -179,7 +178,7 @@ public class DDocContainer extends Container {
 
   @Override
   public void removeSignature(int index) {
-    logger.debug("Removing signature with index " + index + " from the container");
+    logger.debug("Index: " + index);
     try {
       ddoc.removeSignature(index);
     } catch (DigiDocException e) {
@@ -190,7 +189,7 @@ public class DDocContainer extends Container {
 
   @Override
   public void save(String path) {
-    logger.debug("Saving container to " + path);
+    logger.debug("Path: " + path);
     try {
       ddoc.writeToFile(new File(path));
     } catch (DigiDocException e) {

@@ -147,12 +147,12 @@ public class X509Cert {
    * @return part of issuer name
    */
   public String issuerName(Issuer part) {
-    logger.debug("");
+    logger.debug("Part: " + part);
     if (issuerPartMap == null) {
       loadIssuerParts();
     }
     String issuerName = issuerPartMap.get(part.name());
-    logger.debug("Issuer name for part " + part.toString() + " is: " + issuerName);
+    logger.debug("Issuer name: " + issuerName);
     return issuerName;
   }
 
@@ -188,7 +188,7 @@ public class X509Cert {
    * @return boolean indicating if the certificate is in a valid time slot
    */
   public boolean isValid(Date date) {
-    logger.debug("");
+    logger.debug("Date: " + date);
     try {
       originalCert.checkValidity(date);
     } catch (CertificateExpiredException e) {
@@ -252,12 +252,12 @@ public class X509Cert {
    * @return subject name
    */
   public String getSubjectName(SubjectName part) {
-    logger.debug("");
+    logger.debug("Part: " + part);
     if (subjectNamePartMap == null) {
       loadSubjectNameParts();
     }
     String subjectName = subjectNamePartMap.get(part.name());
-    logger.debug("Subject name for " + part.toString() + " is " + subjectName);
+    logger.debug("Subject name: " + subjectName);
     return subjectName;
   }
 
