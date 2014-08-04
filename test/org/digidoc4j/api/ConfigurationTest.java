@@ -186,6 +186,12 @@ public class ConfigurationTest {
     assertNull(jDigiDocConf.get("DIGIDOC_PROXY_HOST"));
   }
 
+  @Test(expected = DigiDoc4JException.class)
+  public void digidocMaxDataFileCachedParameterIsNotANumber() throws Exception {
+    configuration.loadConfiguration("digidoc_test_conf_invalid.yaml");
+    configuration.getMaxDataFileCached();
+  }
+
   @Test
   public void isDataFileInHashCodeMode() throws Exception {
     assertFalse(configuration.isDataFileInHashCodeMode());
