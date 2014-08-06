@@ -86,6 +86,14 @@ public class DDocContainerTest {
   }
 
   @Test(expected = DigiDoc4JException.class)
+  public void removeDataFileWhenNotFound() throws Exception {
+    DDocContainer dDocContainer = new DDocContainer();
+    dDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    dDocContainer.removeDataFile("NotThere.txt");
+
+  }
+
+  @Test(expected = DigiDoc4JException.class)
   public void removeDataFileThrowsException() throws Exception {
     SignedDoc ddoc = mock(SignedDoc.class);
 

@@ -65,16 +65,17 @@ public abstract class Container {
    * @throws org.digidoc4j.api.exceptions.DigiDoc4JException TODO write description
    */
   public static Container open(String path) throws DigiDoc4JException {
-    logger.debug("");
-    Container container = new DDocContainer(path);
+    logger.debug("Path: " + path);
+    Container container;
     try {
       if (Helper.isZipFile(new File(path))) {
         if ("asics".equalsIgnoreCase(FilenameUtils.getExtension(path))) {
           container = new ASiCSContainer(path);
         } else
           container = new BDocContainer(path);
+      } else {
+        container = new DDocContainer(path);
       }
-      logger.info("Opens container " + path + " as " + container.getDocumentType());
       return container;
     } catch (IOException e) {
       DigiDoc4JException exception = new DigiDoc4JException(10, "Empty or unreadable input file");
@@ -84,6 +85,7 @@ public abstract class Container {
   }
 
   protected Container() {
+    logger.debug("");
   }
 
   /**

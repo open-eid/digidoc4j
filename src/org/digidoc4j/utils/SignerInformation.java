@@ -25,7 +25,7 @@ public class SignerInformation {
   }
 
   public void setCity(String city) {
-    logger.debug("");
+    logger.debug("City: " + city);
     this.city = city;
   }
 
@@ -35,7 +35,7 @@ public class SignerInformation {
   }
 
   public void setStateOrProvince(String stateOrProvince) {
-    logger.debug("");
+    logger.debug("State/province: " + stateOrProvince);
     this.stateOrProvince = stateOrProvince;
   }
 
@@ -45,7 +45,7 @@ public class SignerInformation {
   }
 
   public void setPostalCode(String postalCode) {
-    logger.debug("");
+    logger.debug("Postal code: " + postalCode);
     this.postalCode = postalCode;
   }
 
@@ -55,7 +55,7 @@ public class SignerInformation {
   }
 
   public void setCountry(String country) {
-    logger.debug("");
+    logger.debug("Country: " + country);
     this.country = country;
   }
 }

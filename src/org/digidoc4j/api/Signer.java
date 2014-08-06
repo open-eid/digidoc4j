@@ -74,9 +74,8 @@ public abstract class Signer {
   }
 
   public byte[] sign(String digestAlgorithm, byte[] dataToSign) {
-    logger.debug("");
+    logger.debug("Digest algortihm: " + digestAlgorithm);
     byte[] sign = signatureTokenConnection.sign(dataToSign, DigestAlgorithm.forXML(digestAlgorithm), keyEntry);
-    logger.debug("Data signed with: " + digestAlgorithm);
     return sign;
   }
 }

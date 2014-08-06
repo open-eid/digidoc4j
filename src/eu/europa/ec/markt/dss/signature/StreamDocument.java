@@ -20,7 +20,7 @@ public class StreamDocument implements DSSDocument {
 
   //TODO if file is small enough you can read it into byte[] and cache it
   public StreamDocument(InputStream stream, String documentName, MimeType mimeType) {
-    logger.debug("");
+    logger.debug("Document name: " + documentName + ", mime type: " + mimeType);
     createTemporaryFileOfStream(stream);
     this.documentName = documentName;
     this.mimeType = mimeType;
@@ -85,24 +85,25 @@ public class StreamDocument implements DSSDocument {
   @Override
   public String getAbsolutePath() {
     logger.debug("");
-    return temporaryFile.getAbsolutePath();
+    String absolutePath = temporaryFile.getAbsolutePath();
+    return absolutePath;
   }
 
   @Override
   public MimeType getMimeType() {
-    logger.debug("");
+    logger.debug("Mime type: " + mimeType);
     return mimeType;
   }
 
   @Override
   public void setMimeType(MimeType mimeType) {
-    logger.debug("");
+    logger.debug("Mime type: " + mimeType);
     this.mimeType = mimeType;
   }
 
   @Override
   public void save(String filePath) {
-    logger.debug("");
+    logger.debug("File Path: " + filePath);
     try {
       FileOutputStream fileOutputStream = new FileOutputStream(filePath);
       try {
@@ -118,7 +119,7 @@ public class StreamDocument implements DSSDocument {
 
   @Override
   public String getDigest(DigestAlgorithm digestAlgorithm) {
-    logger.debug("");
+    logger.debug("Digest algorithm: " + digestAlgorithm);
     byte[] digestBytes;
     try {
       digestBytes = DSSUtils.digest(digestAlgorithm, getTemporaryFileAsStream());

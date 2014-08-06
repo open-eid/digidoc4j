@@ -76,7 +76,7 @@ public class ASiCSContainer extends Container {
    * @param path container file name with path
    */
   public ASiCSContainer(String path) {
-    logger.debug("");
+    logger.debug("Path: " + path);
     configuration = new Configuration();
     List<DigiDoc4JException> validationErrors;
     signedDocument = new FileDocument(path);
@@ -99,12 +99,12 @@ public class ASiCSContainer extends Container {
 
     dataFiles.put(externalContent.getName(), new DataFile(externalContent.getBytes(), externalContent.getName(),
         externalContent.getMimeType().getCode()));
-    logger.debug("New ASiCS container has been created from file: " + path);
+    logger.debug("New ASiCS container created");
   }
 
   @Override
   public void addDataFile(String path, String mimeType) {
-    logger.debug("");
+    logger.debug("Path: " + path + ", mime type: " + mimeType);
     try {
       FileInputStream is = new FileInputStream(path);
       addDataFile(is, path, mimeType);
@@ -117,7 +117,7 @@ public class ASiCSContainer extends Container {
 
   @Override
   public void addDataFile(InputStream is, String fileName, String mimeType) {
-    logger.debug("");
+    logger.debug("File name: " + fileName + ", mime type: " + mimeType);
     if (dataFiles.size() >= 1) {
       DigiDoc4JException exception = new DigiDoc4JException("ASiCS supports only one attachment");
       logger.error(exception.getMessage());
@@ -125,7 +125,6 @@ public class ASiCSContainer extends Container {
     }
 
     dataFiles.put(fileName, new DataFile(is, fileName, mimeType));
-    logger.debug("Data file added. File name: " + fileName + ", mime type: " + mimeType);
   }
 
   @Override
@@ -157,18 +156,17 @@ public class ASiCSContainer extends Container {
 
   @Override
   public void removeDataFile(String fileName) {
-    logger.debug("");
+    logger.debug("File name: " + fileName);
     if (dataFiles.remove(fileName) == null) {
       DigiDoc4JException exception = new DigiDoc4JException("File not found");
       logger.error(exception.getMessage());
       throw exception;
     }
-    logger.debug("Date file removed: " + fileName);
   }
 
   @Override
   public void removeSignature(int index) {
-    logger.debug("");
+    logger.debug("Index: " + index);
 //    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
 //    final Document xmlSignatureDoc = DSSXMLUtils.buildDOM(validator.getDocument());
 //    final Element documentElement = xmlSignatureDoc.getDocumentElement();
@@ -186,12 +184,11 @@ public class ASiCSContainer extends Container {
 //    signedDocument = new InMemoryDocument(bos.toByteArray(), signedDocument.getName(), signedDocument.getMimeType());
 
     signatures.remove(index);
-    logger.debug("Signature with index number " + index + "removed");
   }
 
   @Override
   public void save(String path) {
-    logger.debug("");
+    logger.debug("Path: " + path);
     documentMustBeInitializedCheck();
     signedDocument.save(path);
   }
@@ -251,7 +248,7 @@ public class ASiCSContainer extends Container {
   }
 
   private XAdESSignature getSignatureById(String deterministicId) {
-    logger.debug("Getting signature with id: " + deterministicId);
+    logger.debug("Id: " + deterministicId);
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signatureParameters.getDetachedContent());
     validate(validator);
     List<AdvancedSignature> signatureList = validator.getSignatures();
@@ -335,7 +332,7 @@ public class ASiCSContainer extends Container {
   }
 
   private void validate(SignedDocumentValidator validator) {
-    logger.debug("");
+    logger.debug("Validator: " + validator);
     CommonCertificateVerifier verifier = new CommonCertificateVerifier();
     SKOnlineOCSPSource onlineOCSPSource = new SKOnlineOCSPSource();
     verifier.setOcspSource(onlineOCSPSource);
@@ -367,7 +364,7 @@ public class ASiCSContainer extends Container {
 
   @Override
   public void setDigestAlgorithm(DigestAlgorithm algorithm) {
-    logger.debug("Setting algorithm to " + algorithm.name());
+    logger.debug("Algorithm: " + algorithm);
     this.digestAlgorithm = forName(algorithm.name(), SHA256);
   }
 
