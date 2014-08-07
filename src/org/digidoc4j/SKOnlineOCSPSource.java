@@ -25,6 +25,6 @@ public class SKOnlineOCSPSource extends OnlineOCSPSource {
     Configuration configuration = new Configuration();
     String location = configuration.getOcspSource();
     logger.debug("OCSP Access location: " + location);
-    return configuration.getOcspSource();
+    return location;
   }
 }
