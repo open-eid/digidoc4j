@@ -48,18 +48,24 @@ import static java.util.Arrays.asList;
  * <p/>
  * DIGIDOC_LOG4J_CONFIG: File containing Log4J configuration parameters.
  * Default value: {@value #DEFAULT_LOG4J_CONFIGURATION}<br>
- * SIGN_OCSP_REQUESTS: Should OCSP requests be signed? Allowed values: true, false
- * DIGIDOC_SECURITY_PROVIDER: Security provider. Default value: {@value #DEFAULT_SECURITY_PROVIDER}<br>
+ * SIGN_OCSP_REQUESTS: Should OCSP requests be signed? Allowed values: true, false<br>
+ * <p/>
+ * DIGIDOC_SECURITY_PROVIDER: Security provider.
+ * Default value: {@value #DEFAULT_SECURITY_PROVIDER}<br>
  * DIGIDOC_SECURITY_PROVIDER_NAME: Name of the security provider.
  * Default value: {@value #DEFAULT_SECURITY_PROVIDER_NAME}<br>
- * KEY_USAGE_CHECK: Should key usage be checked? Allowed values: true, false<br>
+ * KEY_USAGE_CHECK: Should key usage be checked? Allowed values: true, false.
+ * Default value: {@value #DEFAULT_KEY_USAGE_CHECK}<br>
  * DIGIDOC_OCSP_SIGN_CERT_SERIAL: OCSP Signing certificate serial number<br>
- * DATAFILE_HASHCODE_MODE: Is the datafile containing only a hash (not the actual file)? Allowed values: true, false<br>
+ * <p/>
+ * DATAFILE_HASHCODE_MODE: Is the datafile containing only a hash (not the actual file)? Allowed values: true, false.
+ * Default value: {@value #DEFAULT_DATAFILE_HASHCODE_MODE}<br>
  * CANONICALIZATION_FACTORY_IMPL: Canonicalization factory implementation.
  * Default value: {@value #DEFAULT_FACTORY_IMPLEMENTATION}<br>
  * DIGIDOC_MAX_DATAFILE_CACHED: Maximum datafile size that will be cached in MB. Must be numeric.
  * Default value: {@value #DEFAULT_MAX_DATAFILE_CACHED}<br>
- * DIGIDOC_USE_LOCAL_TSL: Use local TSL? Allowed values: true, false<br>
+ * DIGIDOC_USE_LOCAL_TSL: Use local TSL? Allowed values: true, false
+ * Default value: {@value #DEFAULT_USE_LOCAL_TSL}
  * DIGIDOC_NOTARY_IMPL: Notary implementation.
  * Default value: {@value #DEFAULT_NOTARY_IMPLEMENTATION}<br>
  * DIGIDOC_TSLFAC_IMPL: TSL Factory implementation.
@@ -72,15 +78,18 @@ public class Configuration {
 
   //  protected static final String DEFAULT_OCSP_SIGN_CERT_SERIAL = "64197687259873867111983257309208039790"; no default
   // Now use setOCSPSigningCertificateSerialNumber(serialNumber). Default serial number = ""
-  protected static final String DEFAULT_MAX_DATAFILE_CACHED = "4096";
-  protected static final String DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION
+  public static final String DEFAULT_MAX_DATAFILE_CACHED = "4096";
+  public static final String DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION
       = "ee.sk.digidoc.c14n.TinyXMLCanonicalizer";
-  protected static final String DEFAULT_SECURITY_PROVIDER = "org.bouncycastle.jce.provider.BouncyCastleProvider";
-  protected static final String DEFAULT_SECURITY_PROVIDER_NAME = "BC";
-  protected static final String DEFAULT_LOG4J_CONFIGURATION = "./log4j.properties";
-  protected static final String DEFAULT_NOTARY_IMPLEMENTATION = "ee.sk.digidoc.factory.BouncyCastleNotaryFactory";
-  protected static final String DEFAULT_TSL_FACTORY_IMPLEMENTATION = "ee.sk.digidoc.tsl.DigiDocTrustServiceFactory";
-  protected static final String DEFAULT_FACTORY_IMPLEMENTATION = "ee.sk.digidoc.factory.SAXDigiDocFactory";
+  public static final String DEFAULT_SECURITY_PROVIDER = "org.bouncycastle.jce.provider.BouncyCastleProvider";
+  public static final String DEFAULT_SECURITY_PROVIDER_NAME = "BC";
+  public static final String DEFAULT_LOG4J_CONFIGURATION = "./log4j.properties";
+  public static final String DEFAULT_NOTARY_IMPLEMENTATION = "ee.sk.digidoc.factory.BouncyCastleNotaryFactory";
+  public static final String DEFAULT_TSL_FACTORY_IMPLEMENTATION = "ee.sk.digidoc.tsl.DigiDocTrustServiceFactory";
+  public static final String DEFAULT_FACTORY_IMPLEMENTATION = "ee.sk.digidoc.factory.SAXDigiDocFactory";
+  public static final String DEFAULT_KEY_USAGE_CHECK = "false";
+  public static final String DEFAULT_DATAFILE_HASHCODE_MODE = "false";
+  public static final String DEFAULT_USE_LOCAL_TSL = "true";
 
   private final Mode mode;
   private static final int JAR_FILE_NAME_BEGIN_INDEX = 6;
@@ -88,6 +97,8 @@ public class Configuration {
   private String configurationFileName;
   private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<String, String>();
   private ArrayList<String> fileParseErrors;
+
+  Map<String, String> configuration = new HashMap<String, String>();
 
   /**
    * Application mode
@@ -105,8 +116,6 @@ public class Configuration {
     Win,
     OSX
   }
-
-  Map<Mode, Map<String, String>> configuration = new HashMap<Mode, Map<String, String>>();
 
   /**
    * Create new configuration
@@ -139,29 +148,23 @@ public class Configuration {
     Map<String, String> testConfiguration = new HashMap<String, String>();
     Map<String, String> prodConfiguration = new HashMap<String, String>();
 
-//  testConfiguration.put("tslLocation", "http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-mp.xml");
-    testConfiguration.put("tslLocation", "file:conf/trusted-test-tsl.xml");
-//    prodConfiguration.put("tslLocation", "file:conf/tl-map.xml");
-    prodConfiguration.put("tslLocation", "http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-mp.xml");
-//    prodConfiguration.put("tslLocation", "http://sr.riik.ee/tsl/estonian-tsl.xml");
-
-    testConfiguration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
-    prodConfiguration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
-
-    testConfiguration.put("validationPolicy", "conf/constraint.xml");
-    prodConfiguration.put("validationPolicy", "conf/constraint.xml");
-
-    testConfiguration.put("pkcs11ModuleLinux", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
-    prodConfiguration.put("pkcs11ModuleLinux", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
-
-    testConfiguration.put("ocspSource", "http://www.openxades.org/cgi-bin/ocsp.cgi");
-    prodConfiguration.put("ocspSource", "http://ocsp.sk.ee/");
-
-    configuration.put(Mode.TEST, testConfiguration);
-    configuration.put(Mode.PROD, prodConfiguration);
-
-    logger.debug("Test configuration:\n" + configuration.get(Mode.TEST));
-    logger.debug("Prod configuration:\n" + configuration.get(Mode.PROD));
+    if (mode == Mode.TEST) {
+//    configuration.put("tslLocation", "http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-mp.xml");
+      configuration.put("tslLocation", "file:conf/trusted-test-tsl.xml");
+      configuration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
+      configuration.put("validationPolicy", "conf/constraint.xml");
+      configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
+      configuration.put("ocspSource", "http://www.openxades.org/cgi-bin/ocsp.cgi");
+    } else {
+//    configuration.put("tslLocation", "file:conf/tl-map.xml");
+//    configuration.put("tslLocation", "http://sr.riik.ee/tsl/estonian-tsl.xml");
+      configuration.put("tslLocation", "http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-mp.xml");
+      configuration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
+      configuration.put("validationPolicy", "conf/constraint.xml");
+      configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
+      configuration.put("ocspSource", "http://ocsp.sk.ee/");
+    }
+    logger.debug(mode + "configuration:\n" + configuration);
 
     loadInitialConfigurationValues();
   }
@@ -272,16 +275,27 @@ public class Configuration {
     setJDigiDocConfigurationValue("SIGN_OCSP_REQUESTS", Boolean.toString(mode == Mode.PROD));
     setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER", DEFAULT_SECURITY_PROVIDER);
     setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER_NAME", DEFAULT_SECURITY_PROVIDER_NAME);
-    setJDigiDocConfigurationValue("KEY_USAGE_CHECK", "false");
+    setJDigiDocConfigurationValue("KEY_USAGE_CHECK", DEFAULT_KEY_USAGE_CHECK);
     setJDigiDocConfigurationValue("DIGIDOC_OCSP_SIGN_CERT_SERIAL", "");
-    setJDigiDocConfigurationValue("DATAFILE_HASHCODE_MODE", "false");
+    setJDigiDocConfigurationValue("DATAFILE_HASHCODE_MODE", DEFAULT_DATAFILE_HASHCODE_MODE);
     setJDigiDocConfigurationValue("CANONICALIZATION_FACTORY_IMPL", DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION);
     setJDigiDocConfigurationValue("DIGIDOC_MAX_DATAFILE_CACHED", DEFAULT_MAX_DATAFILE_CACHED);
-    setJDigiDocConfigurationValue("DIGIDOC_USE_LOCAL_TSL", "true");
+    setJDigiDocConfigurationValue("DIGIDOC_USE_LOCAL_TSL", DEFAULT_USE_LOCAL_TSL);
     setJDigiDocConfigurationValue("DIGIDOC_NOTARY_IMPL", DEFAULT_NOTARY_IMPLEMENTATION);
     setJDigiDocConfigurationValue("DIGIDOC_TSLFAC_IMPL", DEFAULT_TSL_FACTORY_IMPLEMENTATION);
     setJDigiDocConfigurationValue("DIGIDOC_OCSP_RESPONDER_URL", getOcspSource());
     setJDigiDocConfigurationValue("DIGIDOC_FACTORY_IMPL", DEFAULT_FACTORY_IMPLEMENTATION);
+  }
+
+  /**
+   * Is key usage checked?
+   *
+   * @return true if key usage is checked, otherwise false
+   */
+  public boolean isKeyUsageChecked() {
+    String keyUsageCheck = jDigiDocConfiguration.get("KEY_USAGE_CHECK");
+    logger.debug("Is key usage checked: " + keyUsageCheck);
+    return Boolean.parseBoolean(keyUsageCheck);
   }
 
   /**
@@ -656,11 +670,6 @@ public class Configuration {
     setConfigurationParameter("validationPolicy", validationPolicy);
   }
 
-  String getPKCS11ModulePathForOS(OS os, String key) {
-    logger.debug("");
-    return getConfigurationParameter(key + os);
-  }
-
   /**
    * Get the PKCS11 Module path
    *
@@ -668,19 +677,19 @@ public class Configuration {
    */
   public String getPKCS11ModulePath() {
     logger.debug("");
-    String path = getPKCS11ModulePathForOS(OS.Linux, "pkcs11Module");
+    String path = getConfigurationParameter("pkcs11Module");
     logger.debug("PKCS11 module path: " + path);
     return path;
   }
 
   private void setConfigurationParameter(String key, String value) {
     logger.debug("Key: " + key + ", value: " + value);
-    configuration.get(mode).put(key, value);
+    configuration.put(key, value);
   }
 
   private String getConfigurationParameter(String key) {
     logger.debug("Key: " + key);
-    String value = configuration.get(mode).get(key);
+    String value = configuration.get(key);
     logger.debug("Value: " + value);
     return value;
   }
