@@ -11,6 +11,7 @@ import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 import java.util.List;
 
+import static org.digidoc4j.api.Configuration.*;
 import static org.digidoc4j.api.Configuration.Mode.PROD;
 import static org.digidoc4j.api.Configuration.Mode.TEST;
 import static org.junit.Assert.*;
@@ -46,12 +47,12 @@ public class ConfigurationTest {
 
   @Test
   public void defaultNotaryImplementation() throws Exception {
-    assertEquals(Configuration.DEFAULT_NOTARY_IMPLEMENTATION, configuration.getNotaryImplementation());
+    assertEquals(DEFAULT_NOTARY_IMPLEMENTATION, configuration.getNotaryImplementation());
   }
 
   @Test
   public void defaultTslFactoryImplementation() throws Exception {
-    assertEquals(Configuration.DEFAULT_TSL_FACTORY_IMPLEMENTATION, configuration.getTslFactoryImplementation());
+    assertEquals(DEFAULT_TSL_FACTORY_IMPLEMENTATION, configuration.getTslFactoryImplementation());
   }
 
   @Test
@@ -74,7 +75,7 @@ public class ConfigurationTest {
 
   @Test
   public void defaultCanonicalizationFactoryImplementation() throws Exception {
-    assertEquals(Configuration.DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION, configuration.getCanonicalizationFactoryImplementation());
+    assertEquals(DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION, configuration.getCanonicalizationFactoryImplementation());
   }
 
   @Test
@@ -90,7 +91,7 @@ public class ConfigurationTest {
 
   @Test
   public void defaultFactoryImplementation() throws Exception {
-    assertEquals(Configuration.DEFAULT_FACTORY_IMPLEMENTATION, configuration.getFactoryImplementation());
+    assertEquals(DEFAULT_FACTORY_IMPLEMENTATION, configuration.getFactoryImplementation());
   }
 
   @Test
@@ -143,8 +144,13 @@ public class ConfigurationTest {
   }
 
   @Test
+  public void isKeyUsageCheckedDefaultValue() throws Exception {
+    assertEquals(Boolean.parseBoolean(DEFAULT_KEY_USAGE_CHECK), configuration.isKeyUsageChecked());
+  }
+
+  @Test
   public void readConfigurationFromPropertiesFileThrowsException() throws Exception {
-    Configuration configuration = spy(new Configuration(Configuration.Mode.TEST));
+    Configuration configuration = spy(new Configuration(Mode.TEST));
     doThrow(new CertificateException()).when(configuration).getX509CertificateFromFile(anyString());
     doCallRealMethod().when(configuration).loadConfiguration(anyString());
 
@@ -161,11 +167,11 @@ public class ConfigurationTest {
     assertEquals("jar://certs/KLASS3-SK OCSP 2006.crt", jDigiDocConf.get("DIGIDOC_CA_1_OCSP2_CERT_1"));
     assertEquals("jar://certs/EID-SK OCSP 2006.crt", jDigiDocConf.get("DIGIDOC_CA_1_OCSP13_CERT_1"));
     assertEquals("jar://certs/TEST Juur-SK.crt", jDigiDocConf.get("DIGIDOC_CA_1_CERT17"));
-    assertEquals(Configuration.DEFAULT_LOG4J_CONFIGURATION, jDigiDocConf.get("DIGIDOC_LOG4J_CONFIG"));
-    assertEquals(Configuration.DEFAULT_SECURITY_PROVIDER, jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER"));
-    assertEquals(Configuration.DEFAULT_SECURITY_PROVIDER_NAME, jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER_NAME"));
+    assertEquals(DEFAULT_LOG4J_CONFIGURATION, jDigiDocConf.get("DIGIDOC_LOG4J_CONFIG"));
+    assertEquals(DEFAULT_SECURITY_PROVIDER, jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER"));
+    assertEquals(DEFAULT_SECURITY_PROVIDER_NAME, jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER_NAME"));
     assertEquals("false", jDigiDocConf.get("DATAFILE_HASHCODE_MODE"));
-    assertEquals(Configuration.DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION, jDigiDocConf.get("CANONICALIZATION_FACTORY_IMPL"));
+    assertEquals(DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION, jDigiDocConf.get("CANONICALIZATION_FACTORY_IMPL"));
     assertEquals("4096", jDigiDocConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
     assertEquals("false", jDigiDocConf.get("SIGN_OCSP_REQUESTS"));
 
@@ -213,13 +219,13 @@ public class ConfigurationTest {
   @Test
   public void digiDocSecurityProviderDefaultValue() throws Exception {
     Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("digidoc4j.yaml");
-    assertEquals(Configuration.DEFAULT_SECURITY_PROVIDER, jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER"));
+    assertEquals(DEFAULT_SECURITY_PROVIDER, jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER"));
   }
 
   @Test
   public void digiDocSecurityProviderDefaultName() throws Exception {
     Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("digidoc4j.yaml");
-    assertEquals(Configuration.DEFAULT_SECURITY_PROVIDER_NAME, jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER_NAME"));
+    assertEquals(DEFAULT_SECURITY_PROVIDER_NAME, jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER_NAME"));
   }
 
   @Test
@@ -270,7 +276,7 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void digidocKeyUsageIsNotABoolean() throws Exception {
+  public void digidocKeyUsageCheckIsNotABoolean() throws Exception {
     String fileName = "testFiles/digidoc_test_conf_invalid_key_usage.yaml";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("Configuration parameter KEY_USAGE_CHECK should be set to true or false" +
