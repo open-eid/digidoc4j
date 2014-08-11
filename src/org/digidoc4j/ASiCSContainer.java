@@ -10,6 +10,7 @@ import eu.europa.ec.markt.dss.validation102853.SignatureForm;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
+import eu.europa.ec.markt.dss.validation102853.ocsp.SKOnlineOCSPSource;
 import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
 import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
@@ -216,7 +217,7 @@ public class ASiCSContainer extends Container {
   private Signature sign(byte[] rawSignature) {
     logger.debug("");
     commonCertificateVerifier.setTrustedCertSource(getTSL());
-    commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource());
+    commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource(configuration));
 
     asicService = new ASiCSService(commonCertificateVerifier);
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
@@ -334,8 +335,7 @@ public class ASiCSContainer extends Container {
   private void validate(SignedDocumentValidator validator) {
     logger.debug("Validator: " + validator);
     CommonCertificateVerifier verifier = new CommonCertificateVerifier();
-    SKOnlineOCSPSource onlineOCSPSource = new SKOnlineOCSPSource();
-    verifier.setOcspSource(onlineOCSPSource);
+    verifier.setOcspSource(new SKOnlineOCSPSource(configuration));
 
     TrustedListsCertificateSource trustedCertSource = getTSL();
 
@@ -370,8 +370,7 @@ public class ASiCSContainer extends Container {
 
   @Override
   public List<DigiDoc4JException> validate() {
-    logger.warn("Not yet implemented");
-    throw new NotYetImplementedException();
+    return verify();
   }
 
   protected SignatureParameters getSignatureParameters() {

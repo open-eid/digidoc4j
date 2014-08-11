@@ -18,7 +18,7 @@ import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
-import org.digidoc4j.SKOnlineOCSPSource;
+import eu.europa.ec.markt.dss.validation102853.ocsp.SKOnlineOCSPSource;
 import org.digidoc4j.api.Signer;
 import org.digidoc4j.signers.PKCS12Signer;
 

@@ -15,7 +15,9 @@ import static org.digidoc4j.api.Configuration.Mode.PROD;
 import static org.digidoc4j.api.Configuration.Mode.TEST;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
 
 public class ConfigurationTest {
   private Configuration configuration;
@@ -39,6 +41,8 @@ public class ConfigurationTest {
   public void defaultUseTslLocation() throws Exception {
     assertTrue(configuration.usesLocalTsl());
   }
+
+
 
   @Test
   public void defaultNotaryImplementation() throws Exception {

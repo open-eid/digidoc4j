@@ -1,7 +1,6 @@
 package org.digidoc4j.api;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.api.exceptions.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +15,9 @@ import java.security.cert.X509Certificate;
 import java.util.*;
 
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang.StringUtils.isNumeric;
 
 /**
  * Possibility to create custom configurations for {@link org.digidoc4j.api.Container} implementation.
@@ -88,6 +90,40 @@ public class Configuration {
   private String configurationFileName;
   private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<String, String>();
   private ArrayList<String> fileParseErrors;
+
+  public boolean isOCSPSigningConfigurationAvailable() {
+    return isNotEmpty(getOCSPAccessCertificateFileName()) || getOCSPAccessCertificatePassword().length != 0;
+  }
+
+  public String getOCSPAccessCertificateFileName() {
+    logger.debug("Loading OCSPAccessCertificateFile");
+    String ocspAccessCertificateFile = getConfigurationParameter("OCSPAccessCertificateFile");
+    logger.debug("OCSPAccessCertificateFile " + ocspAccessCertificateFile + " loaded");
+    return ocspAccessCertificateFile;
+  }
+
+  public char[] getOCSPAccessCertificatePassword() {
+    logger.debug("Loading OCSPAccessCertificatePassword");
+    char[] result ={};
+    String password = getConfigurationParameter("OCSPAccessCertificatePassword");
+    if(isNotEmpty(password)) {
+      result = password.toCharArray();
+    }
+    logger.debug("OCSPAccessCertificatePassword loaded");
+    return result;
+  }
+
+  public void setOCSPAccessCertificateFileName(String fileName) {
+    logger.debug("Setting OCSPAccessCertificateFileName: " + fileName);
+    setConfigurationParameter("OCSPAccessCertificateFile", fileName);
+    logger.debug("OCSPAccessCertificateFile is set");
+  }
+
+  public void setOCSPAccessCertificatePassword(char[] password) {
+    logger.debug("Setting OCSPAccessCertificatePassword: ");
+    setConfigurationParameter("OCSPAccessCertificatePassword", String.valueOf(password));
+    logger.debug("OCSPAccessCertificatePassword is set");
+  }
 
   /**
    * Application mode
@@ -432,6 +468,16 @@ public class Configuration {
   }
 
   /**
+   * Returns configuration item must be OCSP request signed. Reads it from configuration parameter SIGN_OCSP_REQUESTS.
+   * Default value is true for {@link Configuration.Mode#PROD} and false for {@link Configuration.Mode#TEST}
+   *
+   * @return must be OCSP request signed
+   */
+  public boolean hasToBeOCSPRequestSigned() {
+    return Boolean.parseBoolean(jDigiDocConfiguration.get("SIGN_OCSP_REQUESTS"));
+  }
+
+  /**
    * Get the maximum size of data files to be cached
    *
    * @return Size
@@ -471,7 +517,7 @@ public class Configuration {
     }
 
     if (mustBeNumerics.contains(configParameter)) {
-      if (!StringUtils.isNumeric(value)) {
+      if (!isNumeric(value)) {
         String errorMessage = "Configuration parameter " + configParameter + " should have a numeric value "
             + "but the actual value is: " + value + ". Configuration file: " + configurationFileName;
         logger.error(errorMessage);
