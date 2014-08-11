@@ -15,7 +15,6 @@ import java.security.cert.X509Certificate;
 import java.util.*;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.apache.commons.lang.StringUtils.isNumeric;
 
@@ -108,17 +107,8 @@ public class Configuration {
     PROD
   }
 
-  /**
-   * Operating system
-   */
-  protected enum OS {
-    Linux,
-    Win,
-    OSX
-  }
-  
   public boolean isOCSPSigningConfigurationAvailable() {
-    return isNotEmpty(getOCSPAccessCertificateFileName()) || getOCSPAccessCertificatePassword().length != 0;
+    return isNotEmpty(getOCSPAccessCertificateFileName()) && getOCSPAccessCertificatePassword().length != 0;
   }
 
   public String getOCSPAccessCertificateFileName() {
@@ -151,7 +141,7 @@ public class Configuration {
     logger.debug("OCSPAccessCertificatePassword is set");
   }
 
-  Map<Mode, Map<String, String>> configuration = new HashMap<Mode, Map<String, String>>();
+  Map<String, String> configuration = new HashMap<String, String>();
 
   /**
    * Create new configuration
@@ -181,8 +171,6 @@ public class Configuration {
 
   private void initDefaultValues() {
     logger.debug("");
-    Map<String, String> testConfiguration = new HashMap<String, String>();
-    Map<String, String> prodConfiguration = new HashMap<String, String>();
 
     if (mode == Mode.TEST) {
 //    configuration.put("tslLocation", "http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-mp.xml");
@@ -714,11 +702,6 @@ public class Configuration {
   public void setValidationPolicy(String validationPolicy) {
     logger.debug("Set validation policy: " + validationPolicy);
     setConfigurationParameter("validationPolicy", validationPolicy);
-  }
-
-  String getPKCS11ModulePathForOS(OS os, String key) {
-    logger.debug("");
-    return getConfigurationParameter(key + os);
   }
 
   /**

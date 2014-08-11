@@ -381,4 +381,30 @@ public class ConfigurationTest {
     expectedException.expectMessage(expectedErrorMessage);
     configuration.loadConfiguration(fileName);
   }
+
+  @Test
+  public void isOCSPSigningConfigurationAvailableWhenItIsNotAvailable() throws Exception {
+    assertFalse(configuration.isOCSPSigningConfigurationAvailable());
+  }
+
+  @Test
+  public void isOCSPSigningConfigurationAvailableWhenItIsAvailable() throws Exception {
+    configuration.setOCSPAccessCertificateFileName("test.p12");
+    configuration.setOCSPAccessCertificatePassword("aaa".toCharArray());
+    assertTrue(configuration.isOCSPSigningConfigurationAvailable());
+  }
+
+  @Test
+  public void isOCSPSigningConfigurationAvailableWhenFileIsAvailable() throws Exception {
+    configuration.setOCSPAccessCertificateFileName("test.p12");
+    assertFalse(configuration.isOCSPSigningConfigurationAvailable());
+  }
+
+  @Test
+  public void isOCSPSigningConfigurationAvailableWhenPasswordIsAvailable() throws Exception {
+    configuration.setOCSPAccessCertificatePassword("aaa".toCharArray());
+    assertFalse(configuration.isOCSPSigningConfigurationAvailable());
+  }
+
+
 }
