@@ -6,17 +6,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Hashtable;
-import java.util.List;
 
 import static org.digidoc4j.api.Configuration.*;
 import static org.digidoc4j.api.Configuration.Mode.PROD;
 import static org.digidoc4j.api.Configuration.Mode.TEST;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
 
 public class ConfigurationTest {
   private Configuration configuration;
@@ -86,7 +81,8 @@ public class ConfigurationTest {
 
   @Test
   public void defaultCanonicalizationFactoryImplementation() throws Exception {
-    assertEquals(DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION, configuration.getCanonicalizationFactoryImplementation());
+    assertEquals(DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION,
+        configuration.getCanonicalizationFactoryImplementation());
   }
 
   @Test
@@ -148,26 +144,8 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void readConfigurationFromPropertiesFile() throws Exception {
-    configuration.loadConfiguration("digidoc4j.yaml");
-    List<X509Certificate> certificates = configuration.getCACerts();
-    assertEquals(17, certificates.size());
-  }
-
-  @Test
   public void isKeyUsageCheckedDefaultValue() throws Exception {
     assertEquals(Boolean.parseBoolean(DEFAULT_KEY_USAGE_CHECK), configuration.isKeyUsageChecked());
-  }
-
-  @Test
-  public void readConfigurationFromPropertiesFileThrowsException() throws Exception {
-    Configuration configuration = spy(new Configuration(Mode.TEST));
-    doThrow(new CertificateException()).when(configuration).getX509CertificateFromFile(anyString());
-    doCallRealMethod().when(configuration).loadConfiguration(anyString());
-
-    configuration.loadConfiguration("digidoc4j.yaml");
-
-    assertEquals(0, configuration.getCACerts().size());
   }
 
   @Test
@@ -440,4 +418,57 @@ public class ConfigurationTest {
     configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
     assertEquals("http://www.openxades.org/cgi-bin/test_ocsp_source.cgi", configuration.getOcspSource());
   }
+
+  @Test
+  public void loadMultipleCAsFromConfigurationFile() throws Exception {
+    Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf_with_two_cas.yaml");
+    System.out.println();
+    assertEquals("AS Sertifitseerimiskeskus", jDigiDocConf.get("DIGIDOC_CA_1_NAME"));
+    assertEquals("jar://certs/ESTEID-SK.crt", jDigiDocConf.get("DIGIDOC_CA_1_CERT2"));
+    assertEquals("Second CA", jDigiDocConf.get("DIGIDOC_CA_2_NAME"));
+    assertEquals("jar://certs/CA_2_CERT_3.crt", jDigiDocConf.get("DIGIDOC_CA_2_CERT3"));
+    assertEquals("jar://certs/CA_2_OCSP_1_SECOND_CERT", jDigiDocConf.get("DIGIDOC_CA_2_OCSP1_CERT_1"));
+  }
+
+  @Test
+  public void missingCAThrowsException() throws Exception {
+    String fileName = "testFiles/digidoc_test_conf_no_ca.yaml";
+    String expectedErrorMessage = "Configuration file " + fileName + " contains error(s):\n" +
+        "Empty or no DIGIDOC_CAS entry";
+    expectedException.expect(ConfigurationException.class);
+    expectedException.expectMessage(expectedErrorMessage);
+    configuration.loadConfiguration(fileName);
+  }
+
+  @Test
+  public void emptyCAThrowsException() throws Exception {
+    String fileName = "testFiles/digidoc_test_conf_empty_ca.yaml";
+    String expectedErrorMessage = "Configuration file " + fileName + " contains error(s):\n" +
+        "Empty or no DIGIDOC_CA for entry 1";
+    expectedException.expect(ConfigurationException.class);
+    expectedException.expectMessage(expectedErrorMessage);
+    configuration.loadConfiguration(fileName);
+  }
+
+
+//  // getCACerts is currently only used for testing purposes and not yet updated for multiple CA's
+//  @Test
+//  public void readConfigurationFromPropertiesFile() throws Exception {
+//    configuration.loadConfiguration("digidoc4j.yaml");
+//    List<X509Certificate> certificates = configuration.getCACerts();
+//    assertEquals(17, certificates.size());
+//  }
+//
+//  @Test
+//  public void readConfigurationFromPropertiesFileThrowsException() throws Exception {
+//    Configuration configuration = spy(new Configuration(Mode.TEST));
+//    doThrow(new CertificateException()).when(configuration).getX509CertificateFromFile(anyString());
+//    doCallRealMethod().when(configuration).loadConfiguration(anyString());
+//
+//    configuration.loadConfiguration("digidoc4j.yaml");
+//
+//    assertEquals(0, configuration.getCACerts().size());
+//  }
+//
+
 }

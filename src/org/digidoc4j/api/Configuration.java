@@ -1,6 +1,5 @@
 package org.digidoc4j.api;
 
-import org.apache.commons.io.IOUtils;
 import org.digidoc4j.api.exceptions.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,9 +8,6 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.util.*;
 
 import static java.util.Arrays.asList;
@@ -30,7 +26,17 @@ import static org.apache.commons.lang.StringUtils.isNumeric;
  * the default mode to {@link Configuration.Mode#TEST}  mode
  * <p/>
  * The configuration file must be in yaml format.<br>
- * The configuration file must contain one or more OCSP certificates under the heading "OCSPS"
+ * The configuration file must contain one or more Certificate Authorities under the heading DIGIDOC_CAS
+ * similar to following format (values are examples only):<br>
+ *  DIGIDOC_CAS:
+ * - DIGIDOC_CA:
+ *   NAME: CA name
+ *   TRADENAME: Tradename
+ *   CERTS:
+ *   - jar://certs/cert1.crt
+ *   - jar://certs/cert2.crt
+ *
+ * Each DIGIDOC_CA entry must contain one or more OCSP certificates under the heading "OCSPS"
  * similar to following format (values are examples only):<br>
  * <p>
  * <pre>
@@ -77,15 +83,13 @@ import static org.apache.commons.lang.StringUtils.isNumeric;
  * TSP_SOURCE: Time Stamp Protocol source address<br>
  * VALIDATION_POLICY: Validation policy source file<br>
  * PKCS11_MODULE: PKCS11 Module file<br>
- * OCSP_SOURCE: Online Certificate Service Protocol source
+ * OCSP_SOURCE: Online Certificate Service Protocol source<p/>
 
 
  */
 public class Configuration {
   final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
-  //  protected static final String DEFAULT_OCSP_SIGN_CERT_SERIAL = "64197687259873867111983257309208039790"; no default
-  // Now use setOCSPSigningCertificateSerialNumber(serialNumber). Default serial number = ""
   public static final String DEFAULT_MAX_DATAFILE_CACHED = "4096";
   public static final String DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION
       = "ee.sk.digidoc.c14n.TinyXMLCanonicalizer";
@@ -100,7 +104,7 @@ public class Configuration {
   public static final String DEFAULT_USE_LOCAL_TSL = "true";
 
   private final Mode mode;
-  private static final int JAR_FILE_NAME_BEGIN_INDEX = 6;
+  //  private static final int JAR_FILE_NAME_BEGIN_INDEX = 6;
   private LinkedHashMap configurationFromFile;
   private String configurationFileName;
   private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<String, String>();
@@ -251,36 +255,38 @@ public class Configuration {
     return mapToJDigiDocConfiguration();
   }
 
-  /**
-   * Get CA Certificates
-   *
-   * @return list of X509 Certificates
-   */
-  public List<X509Certificate> getCACerts() {
-    logger.debug("");
-    List<X509Certificate> certificates = new ArrayList<X509Certificate>();
-    ArrayList<String> certificateAuthorityCerts =
-        getCACertsAsArray((LinkedHashMap) configurationFromFile.get("DIGIDOC_CA"));
-    for (String certFile : certificateAuthorityCerts) {
-      try {
-        certificates.add(getX509CertificateFromFile(certFile));
-      } catch (CertificateException e) {
-        logger.warn("Not able to read certificate from file " + certFile + ". " + e.getMessage());
-      }
-    }
-    return certificates;
-  }
 
-  X509Certificate getX509CertificateFromFile(String certFile) throws CertificateException {
-    logger.debug("File: " + certFile);
-    CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-
-    InputStream certAsStream = getResourceAsStream(certFile.substring(JAR_FILE_NAME_BEGIN_INDEX));
-    X509Certificate cert = (X509Certificate) certificateFactory.generateCertificate(certAsStream);
-    IOUtils.closeQuietly(certAsStream);
-
-    return cert;
-  }
+//  Currently not used - if needed, then need to adjust for multiple CA's
+//  /**
+//   * Get CA Certificates
+//   *
+//   * @return list of X509 Certificates
+//   */
+//  public List<X509Certificate> getCACerts() {
+//    logger.debug("");
+//    List<X509Certificate> certificates = new ArrayList<X509Certificate>();
+//    ArrayList<String> certificateAuthorityCerts =
+//        getCACertsAsArray((LinkedHashMap) configurationFromFile.get("DIGIDOC_CA"));
+//    for (String certFile : certificateAuthorityCerts) {
+//      try {
+//        certificates.add(getX509CertificateFromFile(certFile));
+//      } catch (CertificateException e) {
+//        logger.warn("Not able to read certificate from file " + certFile + ". " + e.getMessage());
+//      }
+//    }
+//    return certificates;
+//  }
+//
+//  X509Certificate getX509CertificateFromFile(String certFile) throws CertificateException {
+//    logger.debug("File: " + certFile);
+//    CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+//
+//    InputStream certAsStream = getResourceAsStream(certFile.substring(JAR_FILE_NAME_BEGIN_INDEX));
+//    X509Certificate cert = (X509Certificate) certificateFactory.generateCertificate(certAsStream);
+//    IOUtils.closeQuietly(certAsStream);
+//
+//    return cert;
+//  }
 
   private InputStream getResourceAsStream(String certFile) {
     logger.debug("");
@@ -300,12 +306,37 @@ public class Configuration {
 
     loadInitialConfigurationValues();
 
-    loadCertificateAuthorityCerts();
-    loadOCSPCertificates();
+    loadCertificateAuthoritiesAndCertificates();
 
     reportFileParseErrors();
 
     return jDigiDocConfiguration;
+  }
+
+  private void loadCertificateAuthoritiesAndCertificates() {
+    @SuppressWarnings("unchecked")
+    ArrayList<LinkedHashMap> digiDocCAs = (ArrayList<LinkedHashMap>) configurationFromFile.get("DIGIDOC_CAS");
+    if (digiDocCAs == null) {
+      String errorMessage = "Empty or no DIGIDOC_CAS entry";
+      logger.error(errorMessage);
+      fileParseErrors.add(errorMessage);
+      return;
+    }
+
+    int numberOfDigiDocCAs = digiDocCAs.size();
+    jDigiDocConfiguration.put("DIGIDOC_CAS", String.valueOf(numberOfDigiDocCAs));
+    for (int i = 0; i < numberOfDigiDocCAs; i++) {
+      String caPrefix = "DIGIDOC_CA_" + (i + 1);
+      LinkedHashMap digiDocCA = (LinkedHashMap) digiDocCAs.get(i).get("DIGIDOC_CA");
+      if (digiDocCA == null) {
+        String errorMessage = "Empty or no DIGIDOC_CA for entry " + (i + 1);
+        logger.error(errorMessage);
+        fileParseErrors.add(errorMessage);
+      } else {
+        loadCertificateAuthorityCerts(digiDocCA, caPrefix);
+        loadOCSPCertificates(digiDocCA, caPrefix);
+      }
+    }
   }
 
   private void reportFileParseErrors() {
@@ -574,10 +605,9 @@ public class Configuration {
     return (!errorFound);
   }
 
-  private void loadOCSPCertificates() {
+  private void loadOCSPCertificates(LinkedHashMap digiDocCA, String caPrefix) {
     String errorMessage;
     logger.debug("");
-    LinkedHashMap digiDocCA = (LinkedHashMap) configurationFromFile.get("DIGIDOC_CA");
 
     @SuppressWarnings("unchecked")
     ArrayList<LinkedHashMap> ocsps = (ArrayList<LinkedHashMap>) digiDocCA.get("OCSPS");
@@ -589,10 +619,10 @@ public class Configuration {
     }
 
     int numberOfOCSPCertificates = ocsps.size();
-    jDigiDocConfiguration.put("DIGIDOC_CA_1_OCSPS", String.valueOf(numberOfOCSPCertificates));
+    jDigiDocConfiguration.put(caPrefix + "_OCSPS", String.valueOf(numberOfOCSPCertificates));
 
     for (int i = 1; i <= numberOfOCSPCertificates; i++) {
-      String prefix = "DIGIDOC_CA_1_OCSP" + i;
+      String prefix = caPrefix + "_OCSP" + i;
       LinkedHashMap ocsp = ocsps.get(i - 1);
 
       List<String> entries = asList("CA_CN", "CA_CERT", "CN", "URL");
@@ -621,7 +651,6 @@ public class Configuration {
     return true;
   }
 
-
   @SuppressWarnings("unchecked")
   private boolean getOCSPCertificates(String prefix, LinkedHashMap ocsp) {
     logger.debug("");
@@ -637,27 +666,25 @@ public class Configuration {
     return true;
   }
 
-  private void loadCertificateAuthorityCerts() {
+  private void loadCertificateAuthorityCerts(LinkedHashMap digiDocCA, String caPrefix) {
     logger.debug("");
-    LinkedHashMap digiDocCA = (LinkedHashMap) configurationFromFile.get("DIGIDOC_CA");
     ArrayList<String> certificateAuthorityCerts = getCACertsAsArray(digiDocCA);
 
-    jDigiDocConfiguration.put("DIGIDOC_CAS", "1");
-    jDigiDocConfiguration.put("DIGIDOC_CA_1_NAME", digiDocCA.get("NAME").toString());
-    jDigiDocConfiguration.put("DIGIDOC_CA_1_TRADENAME", digiDocCA.get("TRADENAME").toString());
+    jDigiDocConfiguration.put(caPrefix + "_NAME", digiDocCA.get("NAME").toString());
+    jDigiDocConfiguration.put(caPrefix + "_TRADENAME", digiDocCA.get("TRADENAME").toString());
     int numberOfCACertificates = certificateAuthorityCerts.size();
-    jDigiDocConfiguration.put("DIGIDOC_CA_1_CERTS", String.valueOf(numberOfCACertificates));
+    jDigiDocConfiguration.put(caPrefix + "_CERTS", String.valueOf(numberOfCACertificates));
 
     for (int i = 0; i < numberOfCACertificates; i++) {
       String certFile = certificateAuthorityCerts.get(i);
-      jDigiDocConfiguration.put("DIGIDOC_CA_1_CERT" + (i + 1), certFile);
+      jDigiDocConfiguration.put(caPrefix + "_CERT" + (i + 1), certFile);
     }
   }
 
   @SuppressWarnings("unchecked")
-  private ArrayList<String> getCACertsAsArray(LinkedHashMap jDigiDocCa) {
+  private ArrayList<String> getCACertsAsArray(LinkedHashMap digiDocCa) {
     logger.debug("");
-    return (ArrayList<String>) jDigiDocCa.get("CERTS");
+    return (ArrayList<String>) digiDocCa.get("CERTS");
   }
 
   /**
