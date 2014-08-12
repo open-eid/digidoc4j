@@ -53,6 +53,7 @@ public class ASiCSContainer extends Container {
   private List<Signature> signatures = new ArrayList<Signature>();
   eu.europa.ec.markt.dss.DigestAlgorithm digestAlgorithm = SHA256;
   Configuration configuration = null;
+  private TrustedListsCertificateSource tslCertificateSource;
 
   /**
    * Create a new container object of type ASIC_E.
@@ -264,13 +265,18 @@ public class ASiCSContainer extends Container {
     throw exception;
   }
 
-  private TrustedListsCertificateSource getTSL() {
+  private TrustedListsCertificateSource getTSL() { // TODO move to Configuration?
     logger.debug("");
-    TrustedListsCertificateSource tslCertificateSource = new TrustedListsCertificateSource();
+    if (tslCertificateSource != null) {
+      logger.debug("Using TSL cached copy");
+      return tslCertificateSource;
+    }
+    tslCertificateSource = new TrustedListsCertificateSource();
     tslCertificateSource.setDataLoader(new CommonsDataLoader());
     tslCertificateSource.setLotlUrl(getConfiguration().getTslLocation());
     tslCertificateSource.setCheckSignature(false);
     tslCertificateSource.init();
+
     return tslCertificateSource;
   }
 
