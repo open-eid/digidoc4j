@@ -73,6 +73,13 @@ import static org.apache.commons.lang.StringUtils.isNumeric;
  * Default value: {@value #DEFAULT_TSL_FACTORY_IMPLEMENTATION}<br>
  * DIGIDOC_FACTORY_IMPL: Factory implementation.
  * Default value: {@value #DEFAULT_FACTORY_IMPLEMENTATION}<br>
+ *   <p/>
+ * TSP_SOURCE: Time Stamp Protocol source address<br>
+ * VALIDATION_POLICY: Validation policy source file<br>
+ * PKCS11_MODULE: PKCS11 Module file<br>
+ * OCSP_SOURCE: Online Certificate Service Protocol source
+
+
  */
 public class Configuration {
   final Logger logger = LoggerFactory.getLogger(Configuration.class);
@@ -107,10 +114,43 @@ public class Configuration {
     PROD
   }
 
+  private void initDefaultValues() {
+    logger.debug("");
+
+    if (mode == Mode.TEST) {
+//    configuration.put("tslLocation", "http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-mp.xml");
+      configuration.put("tslLocation", "file:conf/trusted-test-tsl.xml");
+      configuration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
+      configuration.put("validationPolicy", "conf/constraint.xml");
+      configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
+      configuration.put("ocspSource", "http://www.openxades.org/cgi-bin/ocsp.cgi");
+    } else {
+//    configuration.put("tslLocation", "file:conf/tl-map.xml");
+//    configuration.put("tslLocation", "http://sr.riik.ee/tsl/estonian-tsl.xml");
+      configuration.put("tslLocation", "http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-mp.xml");
+      configuration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
+      configuration.put("validationPolicy", "conf/constraint.xml");
+      configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
+      configuration.put("ocspSource", "http://ocsp.sk.ee/");
+    }
+    logger.debug(mode + "configuration:\n" + configuration);
+
+    loadInitialConfigurationValues();
+  }
+
+  /**
+   * Are requirements met for signing OCSP certificate?
+   *
+   * @return value indicating if requirements are met
+   */
   public boolean isOCSPSigningConfigurationAvailable() {
     return isNotEmpty(getOCSPAccessCertificateFileName()) && getOCSPAccessCertificatePassword().length != 0;
   }
 
+  /**
+   * Get OCSP access certificate filename
+   * @return filename for the OCSP access certificate
+   */
   public String getOCSPAccessCertificateFileName() {
     logger.debug("Loading OCSPAccessCertificateFile");
     String ocspAccessCertificateFile = getConfigurationParameter("OCSPAccessCertificateFile");
@@ -118,23 +158,35 @@ public class Configuration {
     return ocspAccessCertificateFile;
   }
 
+  /**
+   * Get OSCP access certificate password
+   * @return password
+   */
   public char[] getOCSPAccessCertificatePassword() {
     logger.debug("Loading OCSPAccessCertificatePassword");
-    char[] result ={};
+    char[] result = {};
     String password = getConfigurationParameter("OCSPAccessCertificatePassword");
-    if(isNotEmpty(password)) {
+    if (isNotEmpty(password)) {
       result = password.toCharArray();
     }
     logger.debug("OCSPAccessCertificatePassword loaded");
     return result;
   }
 
+  /**
+   * Set OCSP access certificate filename
+   * @param fileName filename for the OCSP access certficate
+   */
   public void setOCSPAccessCertificateFileName(String fileName) {
     logger.debug("Setting OCSPAccessCertificateFileName: " + fileName);
     setConfigurationParameter("OCSPAccessCertificateFile", fileName);
     logger.debug("OCSPAccessCertificateFile is set");
   }
 
+  /**
+   * Set OCSP access certificate password
+   * @param password password to set
+   */
   public void setOCSPAccessCertificatePassword(char[] password) {
     logger.debug("Setting OCSPAccessCertificatePassword: ");
     setConfigurationParameter("OCSPAccessCertificatePassword", String.valueOf(password));
@@ -167,30 +219,6 @@ public class Configuration {
     logger.debug("Mode: " + mode);
     this.mode = mode;
     initDefaultValues();
-  }
-
-  private void initDefaultValues() {
-    logger.debug("");
-
-    if (mode == Mode.TEST) {
-//    configuration.put("tslLocation", "http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-mp.xml");
-      configuration.put("tslLocation", "file:conf/trusted-test-tsl.xml");
-      configuration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
-      configuration.put("validationPolicy", "conf/constraint.xml");
-      configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
-      configuration.put("ocspSource", "http://www.openxades.org/cgi-bin/ocsp.cgi");
-    } else {
-//    configuration.put("tslLocation", "file:conf/tl-map.xml");
-//    configuration.put("tslLocation", "http://sr.riik.ee/tsl/estonian-tsl.xml");
-      configuration.put("tslLocation", "http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-mp.xml");
-      configuration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
-      configuration.put("validationPolicy", "conf/constraint.xml");
-      configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
-      configuration.put("ocspSource", "http://ocsp.sk.ee/");
-    }
-    logger.debug(mode + "configuration:\n" + configuration);
-
-    loadInitialConfigurationValues();
   }
 
   /**
@@ -281,6 +309,7 @@ public class Configuration {
   }
 
   private void reportFileParseErrors() {
+    logger.debug("");
     if (fileParseErrors.size() > 0) {
       StringBuilder errorMessage = new StringBuilder();
       errorMessage.append("Configuration file ");
@@ -309,6 +338,21 @@ public class Configuration {
     setJDigiDocConfigurationValue("DIGIDOC_TSLFAC_IMPL", DEFAULT_TSL_FACTORY_IMPLEMENTATION);
     setJDigiDocConfigurationValue("DIGIDOC_OCSP_RESPONDER_URL", getOcspSource());
     setJDigiDocConfigurationValue("DIGIDOC_FACTORY_IMPL", DEFAULT_FACTORY_IMPLEMENTATION);
+
+    setConfigurationValue("TSL_LOCATION", "tslLocation");
+    setConfigurationValue("TSP_SOURCE", "tspSource");
+    setConfigurationValue("VALIDATION_POLICY", "validationPolicy");
+    setConfigurationValue("PKCS11_MODULE", "pkcs11Module");
+    setConfigurationValue("OCSP_SOURCE", "ocspSource");
+  }
+
+  private void setConfigurationValue(String fileKey, String configurationKey) {
+    logger.debug("");
+    if (configurationFromFile == null) return;
+    Object fileValue = configurationFromFile.get(fileKey);
+    if (fileValue != null) {
+      configuration.put(configurationKey, fileValue.toString());
+    }
   }
 
   /**

@@ -16,9 +16,7 @@ import static org.digidoc4j.api.Configuration.Mode.PROD;
 import static org.digidoc4j.api.Configuration.Mode.TEST;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 
 public class ConfigurationTest {
   private Configuration configuration;
@@ -34,6 +32,19 @@ public class ConfigurationTest {
 
   @Test
   public void setTslLocation() throws Exception {
+    configuration.setTslLocation("tslLocation");
+    assertEquals("tslLocation", configuration.getTslLocation());
+  }
+
+  @Test
+  public void getTslLocationFromConfigurationFile() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertEquals("file:conf/test_TSLLocation", configuration.getTslLocation());
+  }
+
+  @Test
+  public void setTslLocationOverwritesConfigurationFile() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
     configuration.setTslLocation("tslLocation");
     assertEquals("tslLocation", configuration.getTslLocation());
   }
@@ -406,5 +417,27 @@ public class ConfigurationTest {
     assertFalse(configuration.isOCSPSigningConfigurationAvailable());
   }
 
+  @Test
+  public void getTspSourceFromConfigurationFile() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertEquals("http://tsp.source.test/HttpTspServer", configuration.getTspSource());
+  }
 
+  @Test
+  public void getValidationPolicyFromConfigurationFile() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertEquals("conf/test_validation_policy.xml", configuration.getValidationPolicy());
+  }
+
+  @Test
+  public void getPKCS11ModulePathFromConfigurationFile() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertEquals("/usr/lib/x86_64-linux-gnu/test_pkcs11_module.so", configuration.getPKCS11ModulePath());
+  }
+
+  @Test
+  public void getOcspSourceFromConfigurationFile() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertEquals("http://www.openxades.org/cgi-bin/test_ocsp_source.cgi", configuration.getOcspSource());
+  }
 }

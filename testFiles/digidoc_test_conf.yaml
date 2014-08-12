@@ -2,7 +2,11 @@ DATAFILE_HASHCODE_MODE: false
 DIGIDOC_MAX_DATAFILE_CACHED: 8192
 DIGIDOC_LOG4J_CONFIG: new_log4j.properties
 DIGIDOC_SECURITY_PROVIDER: org.bouncycastle.jce.provider.BouncyCastleProvider1
-
+TSL_LOCATION: file:conf/test_TSLLocation
+TSP_SOURCE: http://tsp.source.test/HttpTspServer
+VALIDATION_POLICY: conf/test_validation_policy.xml
+PKCS11_MODULE: /usr/lib/x86_64-linux-gnu/test_pkcs11_module.so
+OCSP_SOURCE: http://www.openxades.org/cgi-bin/test_ocsp_source.cgi
 
 DIGIDOC_CA:
   NAME: AS Sertifitseerimiskeskus
