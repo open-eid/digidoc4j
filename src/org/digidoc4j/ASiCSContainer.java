@@ -71,7 +71,6 @@ public class ASiCSContainer extends Container {
     logger.debug("New ASiCS container created");
   }
 
-
   /**
    * Opens the container from a file.
    *
@@ -102,6 +101,16 @@ public class ASiCSContainer extends Container {
     dataFiles.put(externalContent.getName(), new DataFile(externalContent.getBytes(), externalContent.getName(),
         externalContent.getMimeType().getCode()));
     logger.debug("New ASiCS container created");
+  }
+
+  /**
+   * Load configuration settings
+   *
+   * @param fileName file containing configuration settings
+   */
+  public void loadConfiguration(String fileName) {
+    logger.debug("");
+    configuration.loadConfiguration(fileName);
   }
 
   @Override

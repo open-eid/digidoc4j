@@ -263,6 +263,14 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
     container.validate();
   }
 
+  @Test
+  public void testLoadConfiguration() throws Exception {
+    ASiCSContainer aSiCSContainer = new ASiCSContainer();
+    assertEquals(4096, aSiCSContainer.configuration.getMaxDataFileCached());
+    aSiCSContainer.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertEquals(8192, aSiCSContainer.configuration.getMaxDataFileCached());
+  }
+
   private Container createSignedASicSDocument(String fileName) {
     ASiCSContainer container = new ASiCSContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
