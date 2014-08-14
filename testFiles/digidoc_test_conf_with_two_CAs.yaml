@@ -46,5 +46,5 @@ DIGIDOC_CAS:
         CA_CERT: jar://certs/TEST ESTEID-SK 2011.crt
         CN: TEST of SK OCSP RESPONDER 2011
         CERTS:
-         - jar://certs/TEST SK OCSP 2011.crt
+         - jar://certs/TEST.crt
         URL: http://www.openxades.org/cgi-bin/ocsp.cgi
