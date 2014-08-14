@@ -421,7 +421,7 @@ public class ConfigurationTest {
 
   @Test
   public void loadMultipleCAsFromConfigurationFile() throws Exception {
-    Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf_with_two_cas.yaml");
+    Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf_two_cas.yaml");
     System.out.println();
     assertEquals("AS Sertifitseerimiskeskus", jDigiDocConf.get("DIGIDOC_CA_1_NAME"));
     assertEquals("jar://certs/ESTEID-SK.crt", jDigiDocConf.get("DIGIDOC_CA_1_CERT2"));
