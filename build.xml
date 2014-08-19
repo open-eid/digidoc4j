@@ -96,6 +96,7 @@
         <attribute name="Class-Path" value="./bcprov-jdk15on-1.49.jar"/>
       </manifest>
     </jar>
+    <delete file="${build.dir}/util-temp.jar"/>
   </target>
 
   <target name="source">
