@@ -3,149 +3,172 @@
          name="digidoc4j builder" basedir="."
          default="dist">
 
-    <property environment="env"/>
-    <property name="build.dir" value="build"/>
-    <property name="dist.dir" value="dist"/>
-    <property name="junit.dir" value="junit_report"/>
-    <property name="coverage.dir" value="coverage"/>
-    <condition property="version" value="0.2.${env.BUILD_NUMBER}-beta" else="0.2.LOCAL_BUILD-beta">
-        <isset property="env.BUILD_NUMBER"/>
-    </condition>
+  <property environment="env"/>
+  <property name="build.dir" value="build"/>
+  <property name="dist.dir" value="dist"/>
+  <property name="dist_util.dir" value="dist/util"/>
+  <property name="junit.dir" value="junit_report"/>
+  <property name="coverage.dir" value="coverage"/>
+  <condition property="version" value="0.2.${env.BUILD_NUMBER}-beta" else="0.2.LOCAL_BUILD-beta">
+    <isset property="env.BUILD_NUMBER"/>
+  </condition>
 
-    <path id="maven-ant-tasks.classpath" path="maven-ant/maven-ant-tasks-2.1.3.jar"/>
-    <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant"
-             classpathref="maven-ant-tasks.classpath"/>
+  <path id="maven-ant-tasks.classpath" path="maven-ant/maven-ant-tasks-2.1.3.jar"/>
+  <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant"
+           classpathref="maven-ant-tasks.classpath"/>
 
-    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
-        <classpath path="lib/jacocoant.jar"/>
-    </taskdef>
+  <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+    <classpath path="lib/jacocoant.jar"/>
+  </taskdef>
 
-    <path id="javac.classpath">
-        <pathelement location="sd-dss/apps/dss/core/dss-common/target/classes"/>
-        <pathelement location="sd-dss/apps/dss/core/dss-document/target/classes"/>
-        <pathelement location="sd-dss/apps/dss/core/dss-service/target/classes"/>
-        <pathelement location="sd-dss/apps/dss/core/dss-spi/target/classes"/>
-        <fileset dir="lib">
-            <include name="**/*.jar"/>
-        </fileset>
-    </path>
+  <path id="javac.classpath">
+    <pathelement location="sd-dss/apps/dss/core/dss-common/target/classes"/>
+    <pathelement location="sd-dss/apps/dss/core/dss-document/target/classes"/>
+    <pathelement location="sd-dss/apps/dss/core/dss-service/target/classes"/>
+    <pathelement location="sd-dss/apps/dss/core/dss-spi/target/classes"/>
+    <fileset dir="lib">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>
 
-    <path id="run.classpath">
-        <pathelement location="${build.dir}"/>
-    </path>
+  <path id="run.classpath">
+    <pathelement location="${build.dir}"/>
+  </path>
 
-    <target name="javadoc">
-        <javadoc packagenames="org.digidoc4j.api" destdir="javadoc" encoding="UTF-8">
-            <packageset dir="src" defaultexcludes="yes">
-                <include name="org/digidoc4j/api/**"/>
-                <exclude name="org/digidoc4j/api/*Impl.java"/>
-            </packageset>
-        </javadoc>
-        <jar destfile="${dist.dir}/digidoc4j-${version}-javadoc.jar" basedir="javadoc"/>
-    </target>
+  <target name="javadoc">
+    <javadoc packagenames="org.digidoc4j.api" destdir="javadoc" encoding="UTF-8">
+      <packageset dir="src" defaultexcludes="yes">
+        <include name="org/digidoc4j/api/**"/>
+        <exclude name="org/digidoc4j/api/*Impl.java"/>
+      </packageset>
+    </javadoc>
+    <jar destfile="${dist.dir}/digidoc4j-${version}-javadoc.jar" basedir="javadoc"/>
+  </target>
 
-    <target name="compile">
-        <mkdir dir="${build.dir}"/>
-      <copy todir="${build.dir}">
-        <fileset dir="resources"/>
-      </copy>
-      <javac destdir="${build.dir}" includeantruntime="false" source="1.6" debug="on" target="1.6" encoding="UTF-8">
+  <target name="compile">
+    <mkdir dir="${build.dir}"/>
+    <copy todir="${build.dir}">
+      <fileset dir="resources"/>
+    </copy>
+    <javac destdir="${build.dir}" includeantruntime="false" source="1.6" debug="on" target="1.6" encoding="UTF-8">
       <src path="src"/>
-            <src path="test"/>
-            <classpath refid="javac.classpath"/>
-        </javac>
-        <jar destfile="${dist.dir}/digidoc4j-${version}.jar">
-            <manifest>
-                <attribute name="Built-By" value="${user.name}"/>
-                <attribute name="Implementation-Vendor" value="Republic of Estonia Information System Authority"/>
-                <attribute name="Implementation-Title" value="Java BDoc/DigiDoc library"/>
-                <attribute name="Implementation-Version" value="${version}"/>
-            </manifest>
-            <fileset dir="${build.dir}">
-                <exclude name="prototype/"/>
-                <exclude name="**/*Test.class"/>
-            </fileset>
-            <fileset dir="sd-dss/apps/dss/core/dss-common/target/classes"/>
-            <fileset dir="sd-dss/apps/dss/core/dss-document/target/classes"/>
-            <fileset dir="sd-dss/apps/dss/core/dss-service/target/classes"/>
-            <fileset dir="sd-dss/apps/dss/core/dss-spi/target/classes"/>
-            <fileset dir=".">
-                <include name="conf/*.*"/>
-            </fileset>
-        </jar>
-    </target>
+      <src path="test"/>
+      <classpath refid="javac.classpath"/>
+    </javac>
+    <jar destfile="${dist.dir}/digidoc4j-${version}.jar">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Implementation-Vendor" value="Republic of Estonia Information System Authority"/>
+        <attribute name="Implementation-Title" value="Java BDoc/DigiDoc library"/>
+        <attribute name="Implementation-Version" value="${version}"/>
+      </manifest>
+      <fileset dir="${build.dir}">
+        <exclude name="prototype/"/>
+        <exclude name="**/*Test.class"/>
+      </fileset>
+      <fileset dir="sd-dss/apps/dss/core/dss-common/target/classes"/>
+      <fileset dir="sd-dss/apps/dss/core/dss-document/target/classes"/>
+      <fileset dir="sd-dss/apps/dss/core/dss-service/target/classes"/>
+      <fileset dir="sd-dss/apps/dss/core/dss-spi/target/classes"/>
+      <fileset dir=".">
+        <include name="conf/*.*"/>
+      </fileset>
+    </jar>
 
-    <target name="source">
-        <jar destfile="${dist.dir}/digidoc4j-${version}-sources.jar" basedir="src"/>
-    </target>
+    <jar jarfile="${build.dir}/util-temp.jar">
+      <zipgroupfileset dir="dist" includes="**/digidoc4j-*.jar" excludes="*-javadoc.jar *-sources.jar"/>
+      <zipgroupfileset dir="lib" includes="**/*.jar" excludes="*-source.jar *-sources.jar *-javadoc.jar bcprov-*.jar"/>
+    </jar>
+    <mkdir dir="${dist_util.dir}"/>
+    <copy file="./log4j.properties" tofile="${dist_util.dir}/log4j.properties"/>
+    <copy todir="${dist_util.dir}">
+      <fileset dir="lib" includes="**/bcprov-*.jar"/>
+    </copy>
 
-    <target name="sd-dss">
-        <artifact:mvn pom="sd-dss\pom.xml" mavenhome="${env.MAVEN_BINARY_HOME}">
-            <arg value="-e"/>
-            <arg value="clean"/>
-            <arg value="install"/>
-        </artifact:mvn>
-    </target>
+    <jar destfile="${dist_util.dir}/digidoc4j-util.jar">
+      <zipfileset src="${build.dir}/util-temp.jar" excludes="META-INF/*.SF META-INF/*.RSA META-INF/*.DSA"/>
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Implementation-Vendor" value="Republic of Estonia Information System Authority"/>
+        <attribute name="Implementation-Title" value="Java BDoc/DigiDoc utility"/>
+        <attribute name="Implementation-Version" value="${version}"/>
+        <attribute name="Main-Class" value="org.digidoc4j.main.DigiDoc4J"/>
+        <attribute name="Class-Path" value="./bcprov-jdk15on-1.49.jar"/>
+      </manifest>
+    </jar>
+  </target>
 
-    <target name="all" depends="dist, test, coverage.report"/>
+  <target name="source">
+    <jar destfile="${dist.dir}/digidoc4j-${version}-sources.jar" basedir="src"/>
+  </target>
 
-    <target name="dist" depends="sd-dss, clean, javadoc, source, compile"/>
+  <target name="sd-dss">
+    <artifact:mvn pom="sd-dss\pom.xml" mavenhome="${env.MAVEN_BINARY_HOME}">
+      <arg value="-e"/>
+      <arg value="clean"/>
+      <arg value="install"/>
+    </artifact:mvn>
+  </target>
 
-    <target name="test" depends="compile">
-        <mkdir dir="${junit.dir}"/>
-        <jacoco:coverage>
-            <junit fork="true">
-                <classpath refid="javac.classpath"/>
-                <classpath>
-                    <pathelement location="build"/>
-                </classpath>
-                <batchtest>
-                    <fileset dir="${build.dir}" includes="**/*Test.class"/>
-                </batchtest>
-                <formatter type="brief" usefile="false"/>
-                <formatter type="xml"/>
-            </junit>
-        </jacoco:coverage>
-        <junitreport todir="${junit.dir}">
-            <fileset dir=".">
-                <include name="TEST-*.xml"/>
-            </fileset>
-            <report format="noframes" todir="${junit.dir}/html"/>
-        </junitreport>
-    </target>
+  <target name="all" depends="dist, test, coverage.report"/>
 
-    <target name="coverage.report">
-        <jacoco:report>
-            <executiondata>
-                <file file="jacoco.exec"/>
-            </executiondata>
+  <target name="dist" depends="sd-dss, clean, javadoc, source, compile"/>
 
-            <structure name="Example Project">
-                <classfiles>
-                    <fileset dir="${build.dir}">
-                        <exclude name="**/*Test*"/>
-                        <exclude name="prototype/"/>
-                        <exclude name="org/digidoc4j/main/"/>
-                    </fileset>
-                </classfiles>
-                <sourcefiles encoding="UTF-8">
-                    <fileset dir="src"/>
-                </sourcefiles>
-            </structure>
+  <target name="test" depends="compile">
+    <mkdir dir="${junit.dir}"/>
+    <jacoco:coverage>
+      <junit fork="true">
+        <classpath refid="javac.classpath"/>
+        <classpath>
+          <pathelement location="build"/>
+        </classpath>
+        <batchtest>
+          <fileset dir="${build.dir}" includes="**/*Test.class"/>
+        </batchtest>
+        <formatter type="brief" usefile="false"/>
+        <formatter type="xml"/>
+      </junit>
+    </jacoco:coverage>
+    <junitreport todir="${junit.dir}">
+      <fileset dir=".">
+        <include name="TEST-*.xml"/>
+      </fileset>
+      <report format="noframes" todir="${junit.dir}/html"/>
+    </junitreport>
+  </target>
 
-            <html destdir="${coverage.dir}"/>
-        </jacoco:report>
-    </target>
+  <target name="coverage.report">
+    <jacoco:report>
+      <executiondata>
+        <file file="jacoco.exec"/>
+      </executiondata>
 
-    <target name="clean">
-        <delete includeemptydirs="true" failonerror="false">
-            <fileset dir="." includes="TEST*.xml"/>
-            <fileset dir="${build.dir}"/>
-            <fileset dir="${dist.dir}"/>
-            <fileset dir="javadoc"/>
-        </delete>
-        <delete file="testSaveToFile.txt"/>
-        <mkdir dir="javadoc"/>
-    </target>
+      <structure name="Example Project">
+        <classfiles>
+          <fileset dir="${build.dir}">
+            <exclude name="**/*Test*"/>
+            <exclude name="prototype/"/>
+            <exclude name="org/digidoc4j/main/"/>
+          </fileset>
+        </classfiles>
+        <sourcefiles encoding="UTF-8">
+          <fileset dir="src"/>
+        </sourcefiles>
+      </structure>
+
+      <html destdir="${coverage.dir}"/>
+    </jacoco:report>
+  </target>
+
+  <target name="clean">
+    <delete includeemptydirs="true" failonerror="false">
+      <fileset dir="." includes="TEST*.xml"/>
+      <fileset dir="${build.dir}"/>
+      <fileset dir="${dist.dir}"/>
+      <fileset dir="javadoc"/>
+    </delete>
+    <delete file="testSaveToFile.txt"/>
+    <mkdir dir="javadoc"/>
+  </target>
 
 </project>
