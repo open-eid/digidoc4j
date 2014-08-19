@@ -123,6 +123,9 @@ public final class DigiDoc4J {
 
   private static void verify(Container container) {
     List<Signature> signatures = container.getSignatures();
+    if (signatures == null) {
+      throw new DigiDoc4JException("No signatures found");
+    }
     for (Signature signature : signatures) {
       List<DigiDoc4JException> validationResult = signature.validate();
       if (validationResult.size() == 0) {

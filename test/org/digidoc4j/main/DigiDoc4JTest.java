@@ -103,14 +103,14 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   @Test
   public void verifyDDocWithoutSignature() throws Exception {
     exit.expectSystemExitWithStatus(1);
-    String[] params = new String[]{"-in", "testFiles/no_signed_doc_no_signature", "-verify"};
+    String[] params = new String[]{"-in", "testFiles/no_signed_doc_no_signature.ddoc", "-verify"};
     DigiDoc4J.main(params);
   }
 
   @Test
   public void verifyDDocWithEmptyContainer() throws Exception {
     exit.expectSystemExitWithStatus(1);
-    String[] params = new String[]{"-in", "testFiles/empty_container_no_signature", "-verify"};
+    String[] params = new String[]{"-in", "testFiles/empty_container_no_signature.ddoc", "-verify"};
     DigiDoc4J.main(params);
   }
 

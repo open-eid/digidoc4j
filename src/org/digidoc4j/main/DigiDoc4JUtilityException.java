@@ -6,7 +6,7 @@ public class DigiDoc4JUtilityException extends DigiDoc4JException {
   private final int errorCode;
 
   public DigiDoc4JUtilityException(int errorCode, String s) {
-    super("DigiDoc4J utility - " + s);
+    super("DigiDoc4J utility - " + s + "\n");
     this.errorCode = errorCode;
   }
 
