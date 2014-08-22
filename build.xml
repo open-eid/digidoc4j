@@ -6,9 +6,10 @@
   <property environment="env"/>
   <property name="build.dir" value="build"/>
   <property name="dist.dir" value="dist"/>
-  <property name="dist_util.dir" value="dist/util"/>
   <property name="junit.dir" value="junit_report"/>
   <property name="coverage.dir" value="coverage"/>
+  <property file="password.properties"/>
+
   <condition property="version" value="0.2.${env.BUILD_NUMBER}-beta" else="0.2.LOCAL_BUILD-beta">
     <isset property="env.BUILD_NUMBER"/>
   </condition>
@@ -74,19 +75,19 @@
         <include name="conf/*.*"/>
       </fileset>
     </jar>
+  </target>
 
-    <jar jarfile="${build.dir}/util-temp.jar">
+  <target name="utility" depends="compile">
+    <mkdir dir="${build.dir}/util"/>
+    <jar jarfile="${build.dir}/util/temp.jar">
       <zipgroupfileset dir="dist" includes="**/digidoc4j-*.jar" excludes="*-javadoc.jar *-sources.jar"/>
-      <zipgroupfileset dir="lib" includes="**/*.jar" excludes="*-source.jar *-sources.jar *-javadoc.jar bcprov-*.jar"/>
+      <zipgroupfileset dir="lib" includes="**/*.jar"
+                       excludes="*-source.jar *-sources.jar *-javadoc.jar bcprov-*.jar jacoco*.jar mockito*.jar"/>
+      <!--<zipgroupfileset dir="lib" includes="**/*.jar" excludes="*-source.jar *-sources.jar *-javadoc.jar"/>-->
     </jar>
-    <mkdir dir="${dist_util.dir}"/>
-    <copy file="./log4j.properties" tofile="${dist_util.dir}/log4j.properties"/>
-    <copy todir="${dist_util.dir}">
-      <fileset dir="lib" includes="**/bcprov-*.jar"/>
-    </copy>
 
-    <jar destfile="${dist_util.dir}/digidoc4j-util.jar">
-      <zipfileset src="${build.dir}/util-temp.jar" excludes="META-INF/*.SF META-INF/*.RSA META-INF/*.DSA"/>
+    <jar destfile="${build.dir}/util/digidoc4j-util.jar">
+      <zipfileset src="${build.dir}/util/temp.jar" excludes="META-INF/*.SF META-INF/*.RSA META-INF/*.DSA"/>
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Implementation-Vendor" value="Republic of Estonia Information System Authority"/>
@@ -96,8 +97,21 @@
         <attribute name="Class-Path" value="./bcprov-jdk15on-1.49.jar"/>
       </manifest>
     </jar>
-    <delete file="${build.dir}/util-temp.jar"/>
+    <delete file="${build.dir}/util/temp.jar"/>
+    <copy todir="${build.dir}/util">
+      <fileset dir="lib" includes="**/bcprov-*.jar"/>
+    </copy>
+    <zip destfile="${dist.dir}/digidioc4j-util-${version}.zip"
+         basedir="${build.dir}/util"/>
   </target>
+
+  <!--<target name="signjar" depends="utility">-->
+
+  <!--<signjar jar="${dist_util.dir}/digidoc4j-util-unsigned.jar" storetype="pkcs12"-->
+  <!--keystore="testFiles/codesign2014.pfx"-->
+  <!--alias="f5a035698e5674bac8d45b742bc163a5_59e8b597-f62a-4665-af98-fc45e3270c39"-->
+  <!--storepass="${signingpassword}"/>-->
+  <!--</target>-->
 
   <target name="source">
     <jar destfile="${dist.dir}/digidoc4j-${version}-sources.jar" basedir="src"/>
@@ -113,7 +127,7 @@
 
   <target name="all" depends="dist, test, coverage.report"/>
 
-  <target name="dist" depends="sd-dss, clean, javadoc, source, compile"/>
+  <target name="dist" depends="sd-dss, clean, javadoc, source, compile, utility"/>
 
   <target name="test" depends="compile">
     <mkdir dir="${junit.dir}"/>
@@ -144,11 +158,12 @@
         <file file="jacoco.exec"/>
       </executiondata>
 
-      <structure name="Example Project">
+      <structure name="DigiDoc4J">
         <classfiles>
           <fileset dir="${build.dir}">
             <exclude name="**/*Test*"/>
             <exclude name="prototype/"/>
+            <exclude name="util/"/>
             <exclude name="org/digidoc4j/main/"/>
           </fileset>
         </classfiles>
