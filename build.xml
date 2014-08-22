@@ -1,22 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:jacoco="antlib:org.jacoco.ant" xmlns:artifact="antlib:org.apache.maven.artifact.ant"
+<project xmlns:jacoco="antlib:org.jacoco.ant"
          name="digidoc4j builder" basedir="."
-         default="dist">
+         default="base">
 
   <property environment="env"/>
   <property name="build.dir" value="build"/>
-  <property name="dist.dir" value="dist"/>
   <property name="junit.dir" value="junit_report"/>
   <property name="coverage.dir" value="coverage"/>
-  <property file="password.properties"/>
+  <property name="dist.dir" value="dist"/>
 
   <condition property="version" value="0.2.${env.BUILD_NUMBER}-beta" else="0.2.LOCAL_BUILD-beta">
     <isset property="env.BUILD_NUMBER"/>
   </condition>
-
-  <path id="maven-ant-tasks.classpath" path="maven-ant/maven-ant-tasks-2.1.3.jar"/>
-  <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant"
-           classpathref="maven-ant-tasks.classpath"/>
 
   <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
     <classpath path="lib/jacocoant.jar"/>
@@ -32,11 +27,20 @@
     </fileset>
   </path>
 
+  <path id="javac.alljar.classpath">
+    <fileset dir="lib">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>
+
+  <property name="classpath" value="javac.alljar.classpath"/>
+
   <path id="run.classpath">
     <pathelement location="${build.dir}"/>
   </path>
 
   <target name="javadoc">
+    <mkdir dir="javadoc"/>
     <javadoc packagenames="org.digidoc4j.api" destdir="javadoc" encoding="UTF-8">
       <packageset dir="src" defaultexcludes="yes">
         <include name="org/digidoc4j/api/**"/>
@@ -54,7 +58,7 @@
     <javac destdir="${build.dir}" includeantruntime="false" source="1.6" debug="on" target="1.6" encoding="UTF-8">
       <src path="src"/>
       <src path="test"/>
-      <classpath refid="javac.classpath"/>
+      <classpath refid="${classpath}"/>
     </javac>
     <jar destfile="${dist.dir}/digidoc4j-${version}.jar">
       <manifest>
@@ -68,7 +72,9 @@
         <exclude name="**/*Test.class"/>
       </fileset>
       <fileset dir="sd-dss/apps/dss/core/dss-common/target/classes"/>
-      <fileset dir="sd-dss/apps/dss/core/dss-document/target/classes"/>
+      <fileset dir="sd-dss/apps/dss/core/dss-document/target/classes">
+        <exclude name="**/sun-jaxb.episode"/>
+      </fileset>
       <fileset dir="sd-dss/apps/dss/core/dss-service/target/classes"/>
       <fileset dir="sd-dss/apps/dss/core/dss-spi/target/classes"/>
       <fileset dir=".">
@@ -83,7 +89,6 @@
       <zipgroupfileset dir="dist" includes="**/digidoc4j-*.jar" excludes="*-javadoc.jar *-sources.jar"/>
       <zipgroupfileset dir="lib" includes="**/*.jar"
                        excludes="*-source.jar *-sources.jar *-javadoc.jar bcprov-*.jar jacoco*.jar mockito*.jar"/>
-      <!--<zipgroupfileset dir="lib" includes="**/*.jar" excludes="*-source.jar *-sources.jar *-javadoc.jar"/>-->
     </jar>
 
     <jar destfile="${build.dir}/util/digidoc4j-util.jar">
@@ -105,32 +110,22 @@
          basedir="${build.dir}/util"/>
   </target>
 
-  <!--<target name="signjar" depends="utility">-->
-
-  <!--<signjar jar="${dist_util.dir}/digidoc4j-util-unsigned.jar" storetype="pkcs12"-->
-  <!--keystore="testFiles/codesign2014.pfx"-->
-  <!--alias="f5a035698e5674bac8d45b742bc163a5_59e8b597-f62a-4665-af98-fc45e3270c39"-->
-  <!--storepass="${signingpassword}"/>-->
-  <!--</target>-->
-
   <target name="source">
     <jar destfile="${dist.dir}/digidoc4j-${version}-sources.jar" basedir="src"/>
   </target>
 
-  <target name="sd-dss">
-    <artifact:mvn pom="sd-dss\pom.xml" mavenhome="${env.MAVEN_BINARY_HOME}">
-      <arg value="-e"/>
-      <arg value="clean"/>
-      <arg value="install"/>
-    </artifact:mvn>
+  <target name="base" depends="clean, javadoc, source, compile"/>
+
+  <target name="all">
+    <property name="classpath" value="javac.classpath"/>
+    <antcall target="base"/>
+    <antcall target="test"/>
+    <antcall target="coverage.report"/>
+    <antcall target="utility"/>
   </target>
 
-  <target name="all" depends="dist, test, coverage.report"/>
-
-  <target name="dist" depends="sd-dss, clean, javadoc, source, compile, utility"/>
-
-  <target name="test" depends="compile">
-    <mkdir dir="${junit.dir}"/>
+  <target name="test" depends="base">
+  <mkdir dir="${junit.dir}"/>
     <jacoco:coverage>
       <junit fork="true">
         <classpath refid="javac.classpath"/>
@@ -183,8 +178,6 @@
       <fileset dir="${dist.dir}"/>
       <fileset dir="javadoc"/>
     </delete>
-    <delete file="testSaveToFile.txt"/>
-    <mkdir dir="javadoc"/>
   </target>
 
 </project>
