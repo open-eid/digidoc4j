@@ -159,6 +159,7 @@
             <exclude name="**/*Test*"/>
             <exclude name="prototype/"/>
             <exclude name="util/"/>
+            <exclude name="org/bouncycastle/"/>
             <exclude name="org/digidoc4j/main/"/>
           </fileset>
         </classfiles>
