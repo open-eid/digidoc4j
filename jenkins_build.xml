@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:artifact="antlib:org.apache.maven.artifact.ant"
-         name="digidoc4j jenkins builder" basedir=".">
+<project name="digidoc4j jenkins builder" basedir=".">
   <property file="password.properties"/>
   <property name="dist.dir" value="dist"/>
 
@@ -8,16 +7,11 @@
     <isset property="env.BUILD_NUMBER"/>
   </condition>
 
-  <path id="maven-ant-tasks.classpath" path="maven-ant/maven-ant-tasks-2.1.3.jar"/>
-  <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant"
-           classpathref="maven-ant-tasks.classpath"/>
-
   <target name="sd-dss">
-    <artifact:mvn pom="sd-dss\pom.xml">
-    <arg value="-e"/>
-      <arg value="clean"/>
-      <arg value="install"/>
-    </artifact:mvn>
+    <exec executable="mvn" dir="sd-dss">
+      <arg line="clean"/>
+      <arg line="install"/>
+    </exec>
   </target>
 
   <target name="sign">
