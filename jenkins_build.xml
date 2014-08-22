@@ -13,7 +13,7 @@
            classpathref="maven-ant-tasks.classpath"/>
 
   <target name="sd-dss">
-    <artifact:mvn pom="sd-dss\pom.xml" mavenhome="${env.MAVEN_BINARY_HOME}">
+    <artifact:mvn pom="sd-dss\pom.xml">
     <arg value="-e"/>
       <arg value="clean"/>
       <arg value="install"/>
