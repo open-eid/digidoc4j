@@ -108,6 +108,7 @@
     </copy>
     <zip destfile="${dist.dir}/digidioc4j-util-${version}.zip"
          basedir="${build.dir}/util"/>
+    <delete dir="${build.dir}/util"/>
   </target>
 
   <target name="source">
@@ -158,9 +159,9 @@
           <fileset dir="${build.dir}">
             <exclude name="**/*Test*"/>
             <exclude name="prototype/"/>
-            <exclude name="util/"/>
             <exclude name="org/bouncycastle/"/>
             <exclude name="org/digidoc4j/main/"/>
+            <exclude name="util/"/>
           </fileset>
         </classfiles>
         <sourcefiles encoding="UTF-8">
