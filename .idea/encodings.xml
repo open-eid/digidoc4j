@@ -2,6 +2,8 @@
 <project version="4">
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
     <file url="file://$PROJECT_DIR$/lib/dss-common-4.1.0.jar" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/lib/dss-common-4.1.0.jar" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/lib/dss-document-4.1.0.jar" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/lib/dss-document-4.1.0.jar" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/core" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common" charset="UTF-8" />
