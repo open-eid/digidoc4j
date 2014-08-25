@@ -2,6 +2,7 @@
 <project name="digidoc4j jenkins builder" basedir=".">
   <property file="password.properties"/>
   <property name="dist.dir" value="dist"/>
+  <property environment="env"/>
 
   <condition property="version" value="0.2.${env.BUILD_NUMBER}-beta" else="0.2.LOCAL_BUILD-beta">
     <isset property="env.BUILD_NUMBER"/>
