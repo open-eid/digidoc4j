@@ -117,15 +117,43 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
     container.sign(PKCS12_SIGNER);
     container.sign(new PKCS12Signer("testFiles/B4B.pfx", "123456"));
     container.save("testTwoSignatures.asics");
+
     assertEquals(2, container.getSignatures().size());
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         container.getSignatures().get(0).getSigningCertificate().getSerial());
     assertEquals("5fe0774b8ba12b98d1c2250f076cd7e0ed7259ab",
         container.getSignatures().get(1).getSigningCertificate().getSerial());
+
+    Container openedContainer = Container.open("testTwoSignatures.asics");
+
+    assertEquals(2, openedContainer.getSignatures().size());
+    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
+        openedContainer.getSignatures().get(0).getSigningCertificate().getSerial());
+    assertEquals("5fe0774b8ba12b98d1c2250f076cd7e0ed7259ab",
+        openedContainer.getSignatures().get(1).getSigningCertificate().getSerial());
   }
 
-  @Test  //TODO Remove signatures does not work for saved file
-  public void testRemoveSignature() throws Exception {
+
+  @Test
+  public void testAddSignaturesToExistingASiCSDocument() throws Exception {
+    Container container = Container.open("testFiles/asics_testing_two_signatures.asics");
+    container.sign(PKCS12_SIGNER);
+    container.save("testAddMultipleSignatures.asics");
+
+    assertEquals(3, container.getSignatures().size());
+    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
+        container.getSignatures().get(2).getSigningCertificate().getSerial());
+
+    Container openedContainer = Container.open("testAddMultipleSignatures.asics");
+
+    assertEquals(3, openedContainer.getSignatures().size());
+    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
+        openedContainer.getSignatures().get(2).getSigningCertificate().getSerial());
+
+  }
+
+  @Test
+  public void testRemoveSignatureWhenOneSignatureExists() throws Exception {
     ASiCSContainer container = new ASiCSContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
@@ -133,8 +161,19 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
     container.save("testRemoveSignature.asics");
     assertEquals(0, container.getSignatures().size());
 
-//    container = new ASiCSContainer("testRemoveSignature.asics");
-//    assertEquals(0, container.getSignatures().size());
+    container = new ASiCSContainer("testRemoveSignature.asics");
+    assertEquals(0, container.getSignatures().size());
+  }
+
+  @Test
+  public void testRemoveSignatureWhenTwoSignaturesExist() throws Exception {
+    Container container = Container.open("testFiles/asics_testing_two_signatures.asics");
+    container.removeSignature(0);
+    container.save("testRemoveSignature.asics");
+    assertEquals(1, container.getSignatures().size());
+
+    container = new ASiCSContainer("testRemoveSignature.asics");
+    assertEquals(1, container.getSignatures().size());
   }
 
   @Test

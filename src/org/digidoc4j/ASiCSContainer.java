@@ -65,9 +65,10 @@ public class ASiCSContainer extends Container {
     signatureParameters.setSignatureLevel(SignatureLevel.ASiC_S_BASELINE_LT);
     signatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
     signatureParameters.aSiC().setAsicSignatureForm(SignatureForm.XAdES);
-    commonCertificateVerifier = new CommonCertificateVerifier();
 
+    commonCertificateVerifier = new CommonCertificateVerifier();
     asicService = new ASiCSService(commonCertificateVerifier);
+
     logger.debug("New ASiCS container created");
   }
 
@@ -77,9 +78,12 @@ public class ASiCSContainer extends Container {
    * @param path container file name with path
    */
   public ASiCSContainer(String path) {
+    this();
+
     logger.debug("Path: " + path);
-    configuration = new Configuration();
+
     List<DigiDoc4JException> validationErrors;
+
     signedDocument = new FileDocument(path);
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
     DSSDocument externalContent = validator.getDetachedContent();
@@ -178,21 +182,13 @@ public class ASiCSContainer extends Container {
   @Override
   public void removeSignature(int index) {
     logger.debug("Index: " + index);
-//    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
-//    final Document xmlSignatureDoc = DSSXMLUtils.buildDOM(validator.getDocument());
-//    final Element documentElement = xmlSignatureDoc.getDocumentElement();
-//    final Element xmlSignatureElement = (Element) xmlSignatureDoc.removeChild(documentElement);
-//
-//    final Document xmlXAdESDoc = DSSXMLUtils.createDocument(ASICS_URI, ASICS_NS, xmlSignatureElement);
-//
-//    ByteArrayOutputStream bos=new ByteArrayOutputStream();
-//    try {
-//      TransformerFactory.newInstance().newTransformer().transform(new DOMSource(xmlXAdESDoc), new StreamResult(bos));
-//    } catch (TransformerException e) {
-//      e.printStackTrace();
-//    }
-//
-//    signedDocument = new InMemoryDocument(bos.toByteArray(), signedDocument.getName(), signedDocument.getMimeType());
+
+    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
+    signedDocument = null;
+    DSSDocument signingDocument = getSigningDocument();
+    signedDocument = validator.removeSignature("S" + index);
+
+    signedDocument = ((ASiCSService) asicService).createContainer(signingDocument, signatureParameters, signedDocument);
 
     signatures.remove(index);
   }
