@@ -335,6 +335,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     deleteFile("testOpenCreatedDDocFile.ddoc");
   }
 
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void testOpenInvalidFileReturnsError() {
     Container container = Container.open("testFiles/test.txt");
