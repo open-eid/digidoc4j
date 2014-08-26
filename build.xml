@@ -83,6 +83,13 @@
     </jar>
   </target>
 
+  <target name="library">
+    <zip destfile="${dist.dir}/digidioc4j-library-${version}.zip"
+         basedir="lib"
+         includes="*.jar"
+         excludes="*-source.jar *-sources.jar *-javadoc.jar"/>
+  </target>
+
   <target name="utility" depends="compile">
     <mkdir dir="${build.dir}/util"/>
     <jar jarfile="${build.dir}/util/temp.jar">
@@ -123,6 +130,7 @@
     <antcall target="test"/>
     <antcall target="coverage.report"/>
     <antcall target="utility"/>
+    <antcall target="library"/>
   </target>
 
   <target name="test" depends="base">
