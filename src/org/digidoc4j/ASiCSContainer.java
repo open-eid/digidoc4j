@@ -3,7 +3,7 @@ package org.digidoc4j;
 import eu.europa.ec.markt.dss.parameter.BLevelParameters;
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 import eu.europa.ec.markt.dss.signature.*;
-import eu.europa.ec.markt.dss.signature.asic.SKASiCSService;
+import eu.europa.ec.markt.dss.signature.asic.DigiDoc4JASiCSService;
 import eu.europa.ec.markt.dss.validation102853.AdvancedSignature;
 import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
 import eu.europa.ec.markt.dss.validation102853.SignatureForm;
@@ -67,7 +67,7 @@ public class ASiCSContainer extends Container {
     signatureParameters.aSiC().setAsicSignatureForm(SignatureForm.XAdES);
 
     commonCertificateVerifier = new CommonCertificateVerifier();
-    asicService = new SKASiCSService(commonCertificateVerifier);
+    asicService = new DigiDoc4JASiCSService(commonCertificateVerifier);
 
     logger.debug("New ASiCS container created");
   }
@@ -188,7 +188,7 @@ public class ASiCSContainer extends Container {
     DSSDocument signingDocument = getSigningDocument();
     signedDocument = validator.removeSignature("S" + index);
 
-    signedDocument = ((SKASiCSService) asicService).createContainer(signingDocument, signedDocument);
+    signedDocument = ((DigiDoc4JASiCSService) asicService).createContainer(signingDocument, signedDocument);
 
     signatures.remove(index);
   }
@@ -225,7 +225,7 @@ public class ASiCSContainer extends Container {
     commonCertificateVerifier.setTrustedCertSource(getTSL());
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource(configuration));
 
-    asicService = new SKASiCSService(commonCertificateVerifier);
+    asicService = new DigiDoc4JASiCSService(commonCertificateVerifier);
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
     //TODO after 4.1.0 release signing sets deteministic id to null
     String deterministicId = getSignatureParameters().getDeterministicId();

@@ -20,18 +20,18 @@ import java.util.zip.ZipOutputStream;
 import static eu.europa.ec.markt.dss.DSSXMLUtils.buildDOM;
 import static javax.xml.transform.TransformerFactory.newInstance;
 
-public class SKASiCSService extends ASiCSService {
-  private final static String ZIP_ENTRY_DETACHED_FILE = "detached-file";
-  private final static String ZIP_ENTRY_MIMETYPE = "mimetype";
-  private final static String ZIP_ENTRY_METAINF_XADES_SIGNATURE = "META-INF/signatures.xml";
-  private final static String ASICS_EXTENSION = ".asics";
+public class DigiDoc4JASiCSService extends ASiCSService {
+  private static final String ZIP_ENTRY_DETACHED_FILE = "detached-file";
+  private static final String ZIP_ENTRY_MIMETYPE = "mimetype";
+  private static final String ZIP_ENTRY_METAINF_XADES_SIGNATURE = "META-INF/signatures.xml";
+  private static final String ASICS_EXTENSION = ".asics";
 
   /**
    * This is the constructor to create an instance of the {@code ASiCSService}. A certificate verifier must be provided.
    *
    * @param certificateVerifier {@code CertificateVerifier} provides information on the sources to be used in the validation process in the context of a signature.
    */
-  public SKASiCSService(CertificateVerifier certificateVerifier) {
+  public DigiDoc4JASiCSService(CertificateVerifier certificateVerifier) {
     super(certificateVerifier);
   }
 
