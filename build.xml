@@ -71,20 +71,14 @@
         <exclude name="prototype/"/>
         <exclude name="**/*Test.class"/>
       </fileset>
-      <fileset dir="sd-dss/apps/dss/core/dss-common/target/classes"/>
-      <fileset dir="sd-dss/apps/dss/core/dss-document/target/classes">
-        <exclude name="**/sun-jaxb.episode"/>
-      </fileset>
-      <fileset dir="sd-dss/apps/dss/core/dss-service/target/classes"/>
-      <fileset dir="sd-dss/apps/dss/core/dss-spi/target/classes"/>
       <fileset dir=".">
-        <include name="conf/*.*"/>
+      <include name="conf/*.*"/>
       </fileset>
     </jar>
   </target>
 
   <target name="library">
-    <zip destfile="${dist.dir}/digidioc4j-library-${version}.zip"
+    <zip destfile="${dist.dir}/digidoc4j-library-${version}.zip"
          basedir="lib"
          includes="*.jar"
          excludes="*-source.jar *-sources.jar *-javadoc.jar"/>
@@ -113,7 +107,7 @@
     <copy todir="${build.dir}/util">
       <fileset dir="lib" includes="**/bcprov-*.jar"/>
     </copy>
-    <zip destfile="${dist.dir}/digidioc4j-util-${version}.zip"
+    <zip destfile="${dist.dir}/digidoc4j-util-${version}.zip"
          basedir="${build.dir}/util"/>
     <delete dir="${build.dir}/util"/>
   </target>
@@ -134,7 +128,7 @@
   </target>
 
   <target name="test" depends="base">
-  <mkdir dir="${junit.dir}"/>
+    <mkdir dir="${junit.dir}"/>
     <jacoco:coverage>
       <junit fork="true">
         <classpath refid="javac.classpath"/>
