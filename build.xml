@@ -106,7 +106,9 @@
     <delete file="${build.dir}/util/temp.jar"/>
     <copy todir="${build.dir}/util">
       <fileset dir="lib" includes="**/bcprov-*.jar"/>
+      <fileset dir="." includes="log4j.for.util.properties"/>
     </copy>
+    <move file="${build.dir}/util/log4j.for.util.properties" tofile="${build.dir}/util/log4j.properties"/>
     <zip destfile="${dist.dir}/digidoc4j-util-${version}.zip"
          basedir="${build.dir}/util"/>
     <delete dir="${build.dir}/util"/>

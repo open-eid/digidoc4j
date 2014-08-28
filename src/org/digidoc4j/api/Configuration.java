@@ -28,14 +28,14 @@ import static org.apache.commons.lang.StringUtils.isNumeric;
  * The configuration file must be in yaml format.<br>
  * The configuration file must contain one or more Certificate Authorities under the heading DIGIDOC_CAS
  * similar to following format (values are examples only):<br>
- *  DIGIDOC_CAS:
+ * DIGIDOC_CAS:
  * - DIGIDOC_CA:
- *   NAME: CA name
- *   TRADENAME: Tradename
- *   CERTS:
- *   - jar://certs/cert1.crt
- *   - jar://certs/cert2.crt
- *
+ * NAME: CA name
+ * TRADENAME: Tradename
+ * CERTS:
+ * - jar://certs/cert1.crt
+ * - jar://certs/cert2.crt
+ * <p/>
  * Each DIGIDOC_CA entry must contain one or more OCSP certificates under the heading "OCSPS"
  * similar to following format (values are examples only):<br>
  * <p>
@@ -79,13 +79,11 @@ import static org.apache.commons.lang.StringUtils.isNumeric;
  * Default value: {@value #DEFAULT_TSL_FACTORY_IMPLEMENTATION}<br>
  * DIGIDOC_FACTORY_IMPL: Factory implementation.
  * Default value: {@value #DEFAULT_FACTORY_IMPLEMENTATION}<br>
- *   <p/>
+ * <p/>
  * TSP_SOURCE: Time Stamp Protocol source address<br>
  * VALIDATION_POLICY: Validation policy source file<br>
  * PKCS11_MODULE: PKCS11 Module file<br>
  * OCSP_SOURCE: Online Certificate Service Protocol source<p/>
-
-
  */
 public class Configuration {
   final Logger logger = LoggerFactory.getLogger(Configuration.class);
@@ -153,6 +151,7 @@ public class Configuration {
 
   /**
    * Get OCSP access certificate filename
+   *
    * @return filename for the OCSP access certificate
    */
   public String getOCSPAccessCertificateFileName() {
@@ -164,6 +163,7 @@ public class Configuration {
 
   /**
    * Get OSCP access certificate password
+   *
    * @return password
    */
   public char[] getOCSPAccessCertificatePassword() {
@@ -179,6 +179,7 @@ public class Configuration {
 
   /**
    * Set OCSP access certificate filename
+   *
    * @param fileName filename for the OCSP access certficate
    */
   public void setOCSPAccessCertificateFileName(String fileName) {
@@ -189,6 +190,7 @@ public class Configuration {
 
   /**
    * Set OCSP access certificate password
+   *
    * @param password password to set
    */
   public void setOCSPAccessCertificatePassword(char[] password) {
@@ -209,9 +211,9 @@ public class Configuration {
     else
       mode = Mode.PROD;
 
-    logger.info("Configuration loaded for " + mode + " mode");
-
     initDefaultValues();
+
+    logger.info("Configuration loaded for " + mode + " mode");
   }
 
   /**
