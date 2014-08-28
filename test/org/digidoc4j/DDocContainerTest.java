@@ -7,14 +7,12 @@ import org.digidoc4j.api.Container;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -27,9 +25,6 @@ import static org.mockito.Mockito.*;
 
 public class DDocContainerTest {
   public static final String TEXT_MIME_TYPE = "text/plain";
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @BeforeClass
   public static void setTestMode() {
@@ -142,17 +137,13 @@ public class DDocContainerTest {
     assertTrue(out.size() != 0);
   }
 
-  @Test
+  @Test(expected = DigiDoc4JException.class)
   public void savesToStreamThrowsException() throws Exception {
-    expectedException.expect(DigiDoc4JException.class);
-    expectedException.expectMessage("test exception");
-    DDocContainer container = new DDocContainer();
-    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    container.sign(new PKCS12Signer("testFiles/signout.p12", "test"));
+    SignedDoc ddoc = mock(SignedDoc.class);
+    DigiDocException testException = new DigiDocException(100, "testException", new Throwable("test Exception"));
+    doThrow(testException).when(ddoc).writeToStream(any(OutputStream.class));
 
-
-    ByteArrayOutputStream out = mock(ByteArrayOutputStream.class);
-    doThrow(new IOException("test exception")).when(out).write(any(byte[].class));
-    container.save(out);
+    DDocContainer container = new DDocContainer(ddoc);
+    container.save(new ByteArrayOutputStream());
   }
 }
