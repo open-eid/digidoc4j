@@ -185,9 +185,7 @@ public class ASiCSContainer extends Container {
     signedDocument = null;
     DSSDocument signingDocument = getSigningDocument();
     signedDocument = validator.removeSignature("S" + index);
-
     signedDocument = ((DigiDoc4JASiCSService) asicService).createContainer(signingDocument, signedDocument);
-
     signatures.remove(index);
   }
 
@@ -196,6 +194,11 @@ public class ASiCSContainer extends Container {
     logger.debug("Path: " + path);
     documentMustBeInitializedCheck();
     signedDocument.save(path);
+  }
+
+  @Override
+  public void save(OutputStream out) {
+    throw new NotYetImplementedException("Not implemented by DSS");
   }
 
   //TODO NotYetImplementedException

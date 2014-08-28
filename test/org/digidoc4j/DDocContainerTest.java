@@ -5,21 +5,36 @@ import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.SignedDoc;
 import org.digidoc4j.api.Container;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.signers.PKCS12Signer;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class DDocContainerTest {
   public static final String TEXT_MIME_TYPE = "text/plain";
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  @BeforeClass
+  public static void setTestMode() {
+    System.setProperty("digidoc4j.mode", "TEST");
+  }
 
   @Test(expected = DigiDoc4JException.class)
   public void testSaveThrowsException() throws Exception {
@@ -114,5 +129,30 @@ public class DDocContainerTest {
   @Test(expected = DigiDoc4JException.class)
   public void containerWithFileNameThrowsException() throws Exception {
     new DDocContainer("file_not_exists");
+  }
+
+  @Test
+  public void savesToStream() {
+    DDocContainer container = new DDocContainer();
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    container.sign(new PKCS12Signer("testFiles/signout.p12", "test"));
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    container.save(out);
+    assertTrue(out.size() != 0);
+  }
+
+  @Test
+  public void savesToStreamThrowsException() throws Exception {
+    expectedException.expect(DigiDoc4JException.class);
+    expectedException.expectMessage("test exception");
+    DDocContainer container = new DDocContainer();
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    container.sign(new PKCS12Signer("testFiles/signout.p12", "test"));
+
+
+    ByteArrayOutputStream out = mock(ByteArrayOutputStream.class);
+    doThrow(new IOException("test exception")).when(out).write(any(byte[].class));
+    container.save(out);
   }
 }

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 /**
@@ -26,7 +27,7 @@ import java.util.List;
  * </p>
  */
 public abstract class Container {
-  static final Logger logger = LoggerFactory.getLogger(Container.class);
+  static Logger logger = LoggerFactory.getLogger(Container.class);
 
   /**
    * Create an ASIC_E container.
@@ -200,6 +201,13 @@ public abstract class Container {
    * @param path file name and path.
    */
   public abstract void save(String path);
+
+  /**
+   * Saves the container to the @see java.io.OutputStream.
+   *
+   * @param out output stream.
+   */
+  public abstract void save(OutputStream out);
 
   /**
    * Signs all data files in the container.

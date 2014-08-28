@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -191,6 +192,17 @@ public class DDocContainer extends Container {
     logger.debug("Path: " + path);
     try {
       ddoc.writeToFile(new File(path));
+    } catch (DigiDocException e) {
+      logger.error(e.getMessage());
+      throw new DigiDoc4JException(e);
+    }
+  }
+
+  @Override
+  public void save(OutputStream out) {
+    logger.debug("Saves to " + out.getClass());
+    try {
+      ddoc.writeToStream(out);
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
