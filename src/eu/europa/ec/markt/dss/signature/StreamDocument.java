@@ -23,6 +23,14 @@ public class StreamDocument implements DSSDocument {
   File temporaryFile;
 
   //TODO if file is small enough you can read it into byte[] and cache it
+
+  /**
+   * Add javadoc here
+   *
+   * @param stream       stream
+   * @param documentName document Name
+   * @param mimeType     mime type
+   */
   public StreamDocument(InputStream stream, String documentName, MimeType mimeType) {
     logger.debug("Document name: " + documentName + ", mime type: " + mimeType);
     createTemporaryFileOfStream(stream);
@@ -89,8 +97,7 @@ public class StreamDocument implements DSSDocument {
   @Override
   public String getAbsolutePath() {
     logger.debug("");
-    String absolutePath = temporaryFile.getAbsolutePath();
-    return absolutePath;
+    return temporaryFile.getAbsolutePath();
   }
 
   @Override
