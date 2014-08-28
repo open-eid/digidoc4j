@@ -10,6 +10,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
+/**
+ * @see eu.europa.ec.markt.dss.signature.DSSDocument implementation to handle big files. It writes data to temporary
+ * files.
+ */
 public class StreamDocument implements DSSDocument {
   final Logger logger = LoggerFactory.getLogger(StreamDocument.class);
 
