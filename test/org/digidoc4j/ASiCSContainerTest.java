@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.digidoc4j.Signatures.XADES_SIGNATURE;
 import static org.digidoc4j.api.Container.DigestAlgorithm.SHA1;
 import static org.digidoc4j.api.Container.DigestAlgorithm.SHA256;
 import static org.junit.Assert.assertEquals;
@@ -104,10 +105,15 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
     container.addRawSignature(new byte[]{});
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test(expected = NotYetImplementedException.class)
   public void testAddRawSignatureFromInputStream() throws Exception {
     ASiCSContainer container = new ASiCSContainer();
-    container.addRawSignature(new ByteArrayInputStream("test".getBytes()));
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addRawSignature(new ByteArrayInputStream(XADES_SIGNATURE.getBytes()));
+    container.save("test_add_raw_signature.asics");
+
+    Container openedContainer = container.open("test_add_raw_signature.asics");
+    assertEquals(1, openedContainer.getSignatures().size());
   }
 
   @Test
@@ -151,6 +157,7 @@ public class ASiCSContainerTest extends DigiDoc4JTestHelper {
         openedContainer.getSignatures().get(2).getSigningCertificate().getSerial());
 
   }
+
 
   @Test
   public void testRemoveSignatureWhenOneSignatureExists() throws Exception {

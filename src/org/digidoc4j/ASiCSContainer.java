@@ -157,8 +157,6 @@ public class ASiCSContainer extends Container {
 
   @Override //TODO NotYetImplementedException
   public void addRawSignature(InputStream signatureStream) {
-//    signatureParameters.setDeterministicId("S" + getSignatures().size());
-//    sign(signature);
     logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
