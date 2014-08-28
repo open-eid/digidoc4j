@@ -3,7 +3,7 @@ package org.digidoc4j;
 import eu.europa.ec.markt.dss.parameter.BLevelParameters;
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 import eu.europa.ec.markt.dss.signature.*;
-import eu.europa.ec.markt.dss.signature.asic.DigiDoc4JASiCSService;
+import eu.europa.ec.markt.dss.signature.asic.DigiDoc4JASiCEService;
 import eu.europa.ec.markt.dss.validation102853.AdvancedSignature;
 import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
 import eu.europa.ec.markt.dss.validation102853.SignatureForm;
@@ -62,12 +62,12 @@ public class ASiCSContainer extends Container {
     logger.debug("");
     configuration = new Configuration();
     signatureParameters = new SignatureParameters();
-    signatureParameters.setSignatureLevel(SignatureLevel.ASiC_S_BASELINE_LT);
+    signatureParameters.setSignatureLevel(SignatureLevel.ASiC_E_BASELINE_LT);
     signatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
     signatureParameters.aSiC().setAsicSignatureForm(SignatureForm.XAdES);
 
     commonCertificateVerifier = new CommonCertificateVerifier();
-    asicService = new DigiDoc4JASiCSService(commonCertificateVerifier);
+    asicService = new DigiDoc4JASiCEService(commonCertificateVerifier);
 
     logger.debug("New ASiCS container created");
   }
@@ -185,7 +185,7 @@ public class ASiCSContainer extends Container {
     signedDocument = null;
     DSSDocument signingDocument = getSigningDocument();
     signedDocument = validator.removeSignature("S" + index);
-    signedDocument = ((DigiDoc4JASiCSService) asicService).createContainer(signingDocument, signedDocument);
+    signedDocument = ((DigiDoc4JASiCEService) asicService).createContainer(signingDocument, signedDocument);
     signatures.remove(index);
   }
 
@@ -226,7 +226,7 @@ public class ASiCSContainer extends Container {
     commonCertificateVerifier.setTrustedCertSource(getTSL());
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource(configuration));
 
-    asicService = new DigiDoc4JASiCSService(commonCertificateVerifier);
+    asicService = new DigiDoc4JASiCEService(commonCertificateVerifier);
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
     //TODO after 4.1.0 release signing sets deteministic id to null
     String deterministicId = getSignatureParameters().getDeterministicId();
