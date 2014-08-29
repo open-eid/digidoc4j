@@ -1,8 +1,8 @@
 package org.digidoc4j.api;
 
 import org.apache.commons.codec.binary.Base64;
+import org.digidoc4j.BDocContainer;
 import org.digidoc4j.Certificates;
-import org.digidoc4j.DD4JBDocContainer;
 import org.digidoc4j.DDocContainer;
 import org.digidoc4j.DigiDoc4JTestHelper;
 import org.digidoc4j.api.exceptions.CertificateNotFoundException;
@@ -78,7 +78,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test(expected = NotYetImplementedException.class)
   public void testSetCertificateForBDOC() throws Exception {
-    DD4JBDocContainer bDocContainer = new DD4JBDocContainer();
+    BDocContainer bDocContainer = new BDocContainer();
     bDocContainer.addDataFile("testFiles/test.txt", "text/plain");
     Signature bDocSignature = bDocContainer.sign(new PKCS12Signer("testFiles/signout.p12", "test"));
     bDocSignature.setCertificate(new X509Cert("testFiles/signout.pem"));

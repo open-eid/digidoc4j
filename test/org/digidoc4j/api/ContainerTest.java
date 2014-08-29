@@ -1,7 +1,7 @@
 package org.digidoc4j.api;
 
 import org.apache.commons.codec.binary.Base64;
-import org.digidoc4j.DD4JBDocContainer;
+import org.digidoc4j.BDocContainer;
 import org.digidoc4j.DDocContainer;
 import org.digidoc4j.DigiDoc4JTestHelper;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
@@ -220,12 +220,12 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createBDocContainersByDefault() {
-    assertTrue(Container.create() instanceof DD4JBDocContainer);
+    assertTrue(Container.create() instanceof BDocContainer);
   }
 
   @Test
   public void createBDocContainer() {
-    assertTrue(Container.create(BDOC) instanceof DD4JBDocContainer);
+    assertTrue(Container.create(BDOC) instanceof BDocContainer);
   }
 
   @Test
@@ -235,7 +235,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void openBDocContainerWhenTheFileIsAZipAndTheExtensionIsBDoc() {
-    assertTrue(Container.open("testFiles/zip_file_without_asics_extension.bdoc") instanceof DD4JBDocContainer);
+    assertTrue(Container.open("testFiles/zip_file_without_asics_extension.bdoc") instanceof BDocContainer);
   }
 
   @Test

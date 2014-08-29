@@ -1,6 +1,6 @@
 package org.digidoc4j.api;
 
-import org.digidoc4j.DD4JBDocContainer;
+import org.digidoc4j.BDocContainer;
 import org.digidoc4j.DDocContainer;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.utils.Helper;
@@ -47,7 +47,7 @@ public abstract class Container {
     logger.debug("");
     Container container;
     if (documentType == DocumentType.BDOC) {
-      container = new DD4JBDocContainer();
+      container = new BDocContainer();
     } else {
       container = new DDocContainer();
     }
@@ -68,7 +68,7 @@ public abstract class Container {
     Container container;
     try {
       if (Helper.isZipFile(new File(path))) {
-        container = new DD4JBDocContainer(path);
+        container = new BDocContainer(path);
       } else {
         container = new DDocContainer(path);
       }
