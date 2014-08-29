@@ -107,9 +107,15 @@ public final class DigiDoc4J {
   }
 
   private static DocumentType getContainerType(CommandLine commandLine) {
-    if ("BDOC".equals(commandLine.getOptionValue("type")))
-      return BDOC;
-    return DDOC;
+    if ("BDOC".equals(commandLine.getOptionValue("type"))) return BDOC;
+    if ("DDOC".equals(commandLine.getOptionValue("type"))) return DDOC;
+
+    String fileName = commandLine.getOptionValue("in");
+    if (fileName != null) {
+      if (fileName.toLowerCase().endsWith(".bdoc")) return BDOC;
+      if (fileName.toLowerCase().endsWith(".ddoc")) return DDOC;
+    }
+    return BDOC;
   }
 
   private static void pkcs12Sign(CommandLine commandLine, Container container) {
