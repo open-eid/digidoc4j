@@ -93,14 +93,6 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void bDocContainerTypeNotYetSupported() throws Exception {
-    exit.expectSystemExitWithStatus(2);
-    String[] params = new String[]{"-in", "test1.bdoc", "-type", "BDOC"};
-    DigiDoc4J.main(params);
-
-  }
-
-  @Test
   public void verifyDDocWithoutSignature() throws Exception {
     exit.expectSystemExitWithStatus(1);
     String[] params = new String[]{"-in", "testFiles/no_signed_doc_no_signature.ddoc", "-verify"};

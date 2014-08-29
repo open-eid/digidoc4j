@@ -98,9 +98,6 @@ public final class DigiDoc4J {
   }
 
   private static void checkSupportedFunctionality(CommandLine commandLine) {
-    if (getContainerType(commandLine) == BDOC) {
-      throw new DigiDoc4JUtilityException(2, "BDOC format is not supported yet");
-    }
     if (commandLine.hasOption("add")) {
       String[] optionValues = commandLine.getOptionValues("add");
       if (optionValues.length != 2) {
