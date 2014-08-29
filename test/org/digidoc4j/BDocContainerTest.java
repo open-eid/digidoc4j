@@ -10,10 +10,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -315,6 +312,14 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(4096, container.configuration.getMaxDataFileCached());
     container.loadConfiguration("testFiles/digidoc_test_conf.yaml");
     assertEquals(8192, container.configuration.getMaxDataFileCached());
+  }
+
+  @Test(expected = NotYetImplementedException.class)
+  public void saveToStreamThrowsException() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.save(new ByteArrayOutputStream());
   }
 
   private Container createSignedBDocDocument(String fileName) {
