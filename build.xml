@@ -118,15 +118,13 @@
     <jar destfile="${dist.dir}/digidoc4j-${version}-sources.jar" basedir="src"/>
   </target>
 
-  <target name="base" depends="clean, javadoc, source, compile"/>
+  <target name="base" depends="clean, javadoc, source, compile, utility, library"/>
 
   <target name="all">
     <property name="classpath" value="javac.classpath"/>
     <antcall target="base"/>
     <antcall target="test"/>
     <antcall target="coverage.report"/>
-    <antcall target="utility"/>
-    <antcall target="library"/>
   </target>
 
   <target name="test" depends="base">
