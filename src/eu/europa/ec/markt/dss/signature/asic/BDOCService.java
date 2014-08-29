@@ -37,26 +37,26 @@ import static javax.xml.transform.TransformerFactory.newInstance;
 /**
  * DigiDoc4JASiCSService is extension of ASiCSService class
  */
-public class DigiDoc4JASiCEService extends ASiCSService {
+public class BDOCService extends ASiCSService {
   private static final String ZIP_ENTRY_DETACHED_FILE = "detached-file";
   private static final String ZIP_ENTRY_MIME_TYPE = "mimetype";
   private static final String ZIP_ENTRY_METAINF_XADES_SIGNATURE = "META-INF/signatures.xml";
-  private static final String ASICS_EXTENSION = ".asics";
+  private static final String ASICS_EXTENSION = ".bdoc";
   private static final String ASICS_NS = "asic:XAdESSignatures";
   private static final String ASICS_URI = "http://uri.etsi.org/02918/v1.2.1#";
   private static final String ASIC_E_MIME_TYPE = "application/vnd.etsi.asic-e+zip";
 
   /**
-   * This is the constructor to create an instance of the {@code ASiCSService}. A certificate verifier must be provided.
+   * This is the constructor to create an instance of the {@code BDocService}. A certificate verifier must be provided.
    *
    * @param certificateVerifier {@code CertificateVerifier} provides information on the sources to be used in the
    *                            validation process in the context of a signature.
    */
-  public DigiDoc4JASiCEService(CertificateVerifier certificateVerifier) {
+  public BDOCService(CertificateVerifier certificateVerifier) {
     super(certificateVerifier);
   }
 
-  final Logger logger = LoggerFactory.getLogger(DigiDoc4JASiCEService.class);
+  final Logger logger = LoggerFactory.getLogger(BDOCService.class);
 
   /**
    * ETSI TS 102 918 v1.2.1 (2012-02) <br />
@@ -64,7 +64,7 @@ public class DigiDoc4JASiCEService extends ASiCSService {
    * Contents of Container ( 6.2.2 )
    * </p>
    * <ul>
-   * <li>The file extension ".asics" should be used .</li>
+   * <li>The file extension ".bdoc" should be used .</li>
    * <li>The root element of each signature content shall be either &lt;asic:XadESSignatures&gt; as specified in clause
    * A.5. Its the recommended format</li>
    * <li>The comment field in the ZIP header may be used to identify the type of the data object within the container.

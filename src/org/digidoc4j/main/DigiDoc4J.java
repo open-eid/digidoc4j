@@ -12,7 +12,7 @@ import java.util.List;
 
 import static org.apache.commons.cli.OptionBuilder.withArgName;
 import static org.digidoc4j.api.Container.DocumentType;
-import static org.digidoc4j.api.Container.DocumentType.ASIC_E;
+import static org.digidoc4j.api.Container.DocumentType.BDOC;
 import static org.digidoc4j.api.Container.DocumentType.DDOC;
 
 /**
@@ -98,7 +98,7 @@ public final class DigiDoc4J {
   }
 
   private static void checkSupportedFunctionality(CommandLine commandLine) {
-    if (getContainerType(commandLine) == DocumentType.ASIC_E) {
+    if (getContainerType(commandLine) == BDOC) {
       throw new DigiDoc4JUtilityException(2, "BDOC format is not supported yet");
     }
     if (commandLine.hasOption("add")) {
@@ -111,7 +111,7 @@ public final class DigiDoc4J {
 
   private static DocumentType getContainerType(CommandLine commandLine) {
     if ("BDOC".equals(commandLine.getOptionValue("type")))
-      return ASIC_E;
+      return BDOC;
     return DDOC;
   }
 

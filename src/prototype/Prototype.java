@@ -15,10 +15,10 @@ import eu.europa.ec.markt.dss.validation102853.SignatureForm;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.condition.ServiceInfo;
 import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
+import eu.europa.ec.markt.dss.validation102853.ocsp.SKOnlineOCSPSource;
 import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
-import eu.europa.ec.markt.dss.validation102853.ocsp.SKOnlineOCSPSource;
 import org.digidoc4j.api.Signer;
 import org.digidoc4j.signers.PKCS12Signer;
 
@@ -91,7 +91,7 @@ public class Prototype {
     dataToSign = service.getDataToSign(signedDocument, parameters);
     signatureBytes = signer.sign(parameters.getDigestAlgorithm().getXmlId(), dataToSign);
     DSSDocument signDssDocument = service.signDocument(signedDocument, parameters, signatureBytes);
-    signDssDocument.save("document.asics");
+    signDssDocument.save("document.bdoc");
   }
 
 

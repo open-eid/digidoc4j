@@ -1,8 +1,6 @@
 package org.digidoc4j.api;
 
-import org.apache.commons.io.FilenameUtils;
-import org.digidoc4j.ASiCSContainer;
-import org.digidoc4j.BDocContainer;
+import org.digidoc4j.DD4JBDocContainer;
 import org.digidoc4j.DDocContainer;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.utils.Helper;
@@ -36,7 +34,7 @@ public abstract class Container {
    */
   public static Container create() {
     logger.debug("");
-    return create(DocumentType.ASIC_E);
+    return create(DocumentType.BDOC);
   }
 
   /**
@@ -47,11 +45,11 @@ public abstract class Container {
    */
   public static Container create(DocumentType documentType) {
     logger.debug("");
-    Container container = new DDocContainer();
-    if (documentType == DocumentType.ASIC_E) {
-      container = new BDocContainer();
-    } else if (documentType == DocumentType.ASIC_S) {
-      container = new ASiCSContainer();
+    Container container;
+    if (documentType == DocumentType.BDOC) {
+      container = new DD4JBDocContainer();
+    } else {
+      container = new DDocContainer();
     }
 
     logger.info("Container with type " + container.getDocumentType() + " has been created");
@@ -70,10 +68,7 @@ public abstract class Container {
     Container container;
     try {
       if (Helper.isZipFile(new File(path))) {
-        if ("asics".equalsIgnoreCase(FilenameUtils.getExtension(path))) {
-          container = new ASiCSContainer(path);
-        } else
-          container = new BDocContainer(path);
+        container = new DD4JBDocContainer(path);
       } else {
         container = new DDocContainer(path);
       }
@@ -96,11 +91,7 @@ public abstract class Container {
     /**
      * BDOC 2.1 container with mime-type "application/vnd.etsi.asic-e+zip"
      */
-    ASIC_E,
-    /**
-     * ASiC-S container with mime-type "application/vnd.etsi.asic-e+zip"
-     */
-    ASIC_S,
+    BDOC,
     /**
      * DIGIDOC-XML 1.3 container
      */

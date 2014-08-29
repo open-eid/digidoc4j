@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
 public class PKCS11SignerTestMain {
 
   public static void signWithIDCard() throws NoSuchAlgorithmException {
-    Container container = Container.create(Container.DocumentType.ASIC_S);
+    Container container = Container.create(Container.DocumentType.BDOC);
     Signer pkcs11Signer = new PKCS11Signer("01497".toCharArray());
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(pkcs11Signer);

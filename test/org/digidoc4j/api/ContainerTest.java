@@ -1,8 +1,7 @@
 package org.digidoc4j.api;
 
 import org.apache.commons.codec.binary.Base64;
-import org.digidoc4j.ASiCSContainer;
-import org.digidoc4j.BDocContainer;
+import org.digidoc4j.DD4JBDocContainer;
 import org.digidoc4j.DDocContainer;
 import org.digidoc4j.DigiDoc4JTestHelper;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
@@ -26,7 +25,8 @@ import static java.util.Arrays.asList;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.api.Configuration.Mode.TEST;
 import static org.digidoc4j.api.Container.DocumentType;
-import static org.digidoc4j.api.Container.DocumentType.*;
+import static org.digidoc4j.api.Container.DocumentType.BDOC;
+import static org.digidoc4j.api.Container.DocumentType.DDOC;
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -220,17 +220,12 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createBDocContainersByDefault() {
-    assertTrue(Container.create() instanceof BDocContainer);
-  }
-
-  @Test
-  public void createASiCSContainer() {
-    assertTrue(Container.create(ASIC_S) instanceof ASiCSContainer);
+    assertTrue(Container.create() instanceof DD4JBDocContainer);
   }
 
   @Test
   public void createBDocContainer() {
-    assertTrue(Container.create(ASIC_E) instanceof BDocContainer);
+    assertTrue(Container.create(BDOC) instanceof DD4JBDocContainer);
   }
 
   @Test
@@ -239,13 +234,8 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void openASiCSContainerWhenTheFileIsAZipAndExtensionIsAsics() {
-    assertTrue(Container.open("testFiles/asics_for_testing.asics") instanceof ASiCSContainer);
-  }
-
-  @Test
-  public void openBDocContainerWhenTheFileIsAZipAndTheExtensionIsNotAsics() {
-    assertTrue(Container.open("testFiles/zip_file_without_asics_extension.bdoc") instanceof BDocContainer);
+  public void openBDocContainerWhenTheFileIsAZipAndTheExtensionIsBDoc() {
+    assertTrue(Container.open("testFiles/zip_file_without_asics_extension.bdoc") instanceof DD4JBDocContainer);
   }
 
   @Test
@@ -272,14 +262,8 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void testCreateASiCSContainer() {
-    Container asicsContainer = Container.create(DocumentType.ASIC_S);
-    assertEquals(DocumentType.ASIC_S, asicsContainer.getDocumentType());
-  }
-
-  @Test
-  public void testCreateAsicContainerSpecifiedByDocumentTypeForBDoc() throws Exception {
-    Container asicContainer = Container.create(DocumentType.ASIC_E);
+  public void testCreateBDocContainerSpecifiedByDocumentTypeForBDoc() throws Exception {
+    Container asicContainer = Container.create(DocumentType.BDOC);
     asicContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     asicContainer.sign(PKCS12_SIGNER);
     asicContainer.save("test.bdoc");
@@ -399,8 +383,8 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   @Ignore("possibility of this must be confirmed with dss authors")
-  public void testAddRawSignatureAsByteArrayForASiCS() throws CertificateEncodingException, IOException, SAXException {
-    Container container = Container.create(ASIC_S);
+  public void testAddRawSignatureAsByteArrayForBDoc() throws CertificateEncodingException, IOException, SAXException {
+    Container container = Container.create(BDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
     container.addRawSignature(Base64.decodeBase64("fo4aA1PVI//1agzBm2Vcxj7sk9pYQJt+9a7xLFSkfF10RocvGjVPBI65RMqyxGIsje" +
@@ -481,13 +465,13 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testSetConfigurationForASiCS() throws Exception {
-    Container asics = Container.create(ASIC_S);
-    asics.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+  public void testSetConfigurationForBDoc() throws Exception {
+    Container container = Container.create(BDOC);
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     Configuration conf = new Configuration(TEST);
     conf.setTslLocation("pole");
-    asics.setConfiguration(conf);
-    asics.sign(PKCS12_SIGNER);
+    container.setConfiguration(conf);
+    container.sign(PKCS12_SIGNER);
   }
 }
 
