@@ -43,7 +43,7 @@ public class DigiDoc4JASiCEService extends ASiCSService {
   private static final String ZIP_ENTRY_METAINF_XADES_SIGNATURE = "META-INF/signatures.xml";
   private static final String ASICS_EXTENSION = ".asics";
   private static final String ASICS_NS = "asic:XAdESSignatures";
-  private static final String ASICS_URI = "http://uri.etsi.org/2918/v1.2.1#";
+  private static final String ASICS_URI = "http://uri.etsi.org/02918/v1.2.1#";
   private static final String ASIC_E_MIME_TYPE = "application/vnd.etsi.asic-e+zip";
 
   /**
