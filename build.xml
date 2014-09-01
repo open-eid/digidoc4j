@@ -8,9 +8,19 @@
   <property name="junit.dir" value="junit_report"/>
   <property name="coverage.dir" value="coverage"/>
   <property name="dist.dir" value="dist"/>
+  <!--<property name="version" value="0.0.0"/>-->
 
-  <condition property="version" value="0.2.${env.BUILD_NUMBER}-beta" else="0.2.LOCAL_BUILD-beta">
-    <isset property="env.BUILD_NUMBER"/>
+  <target name="version">
+    <exec executable="sh" outputproperty="lib.version">
+      <arg value="-c"/>
+      <arg value="git tag -l public* | tail -1 | awk -F '-' '{print $2}'"/>
+      <!--| awk -F '-' '{print $2}'""/>-->
+    </exec>
+    <echo>Version = ${lib.version}</echo>
+  </target>
+
+  <condition property="version.suffix" value=".${env.BUILD_NUMBER}-beta" else=".LOCAL_BUILD-beta">
+  <isset property="env.BUILD_NUMBER"/>
   </condition>
 
   <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
@@ -47,7 +57,7 @@
         <exclude name="org/digidoc4j/api/*Impl.java"/>
       </packageset>
     </javadoc>
-    <jar destfile="${dist.dir}/digidoc4j-${version}-javadoc.jar" basedir="javadoc"/>
+    <jar destfile="${dist.dir}/digidoc4j-${lib.version}${version.suffix}-javadoc.jar" basedir="javadoc"/>
   </target>
 
   <target name="compile">
@@ -60,12 +70,12 @@
       <src path="test"/>
       <classpath refid="${classpath}"/>
     </javac>
-    <jar destfile="${dist.dir}/digidoc4j-${version}.jar">
+    <jar destfile="${dist.dir}/digidoc4j-${lib.version}${version.suffix}.jar">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Implementation-Vendor" value="Republic of Estonia Information System Authority"/>
         <attribute name="Implementation-Title" value="Java BDoc/DigiDoc library"/>
-        <attribute name="Implementation-Version" value="${version}"/>
+        <attribute name="Implementation-Version" value="${lib.version}"/>
       </manifest>
       <fileset dir="${build.dir}">
         <exclude name="prototype/"/>
@@ -78,7 +88,7 @@
   </target>
 
   <target name="library">
-    <zip destfile="${dist.dir}/digidoc4j-library-${version}.zip"
+    <zip destfile="${dist.dir}/digidoc4j-library-${lib.version}${version.suffix}.zip"
          basedir="lib"
          includes="*.jar"
          excludes="*-source.jar *-sources.jar *-javadoc.jar"/>
@@ -98,7 +108,7 @@
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Implementation-Vendor" value="Republic of Estonia Information System Authority"/>
         <attribute name="Implementation-Title" value="Java BDoc/DigiDoc utility"/>
-        <attribute name="Implementation-Version" value="${version}"/>
+        <attribute name="Implementation-Version" value="${lib.version}"/>
         <attribute name="Main-Class" value="org.digidoc4j.main.DigiDoc4J"/>
         <attribute name="Class-Path" value="./bcprov-jdk15on-1.49.jar"/>
       </manifest>
@@ -109,16 +119,16 @@
       <fileset dir="." includes="log4j.for.util.properties"/>
     </copy>
     <move file="${build.dir}/util/log4j.for.util.properties" tofile="${build.dir}/util/log4j.properties"/>
-    <zip destfile="${dist.dir}/digidoc4j-util-${version}.zip"
+    <zip destfile="${dist.dir}/digidoc4j-util-${lib.version}${version.suffix}.zip"
          basedir="${build.dir}/util"/>
     <delete dir="${build.dir}/util"/>
   </target>
 
   <target name="source">
-    <jar destfile="${dist.dir}/digidoc4j-${version}-sources.jar" basedir="src"/>
+    <jar destfile="${dist.dir}/digidoc4j-${lib.version}${version.suffix}-sources.jar" basedir="src"/>
   </target>
 
-  <target name="base" depends="clean, javadoc, source, compile, utility, library"/>
+  <target name="base" depends="version, clean, javadoc, source, compile, utility, library"/>
 
   <target name="all">
     <property name="classpath" value="javac.classpath"/>
