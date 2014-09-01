@@ -4,6 +4,7 @@ import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 import org.digidoc4j.api.Container;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
+import org.digidoc4j.api.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.api.exceptions.SignatureNotFoundException;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.AfterClass;
@@ -118,13 +119,13 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    container.sign(new PKCS12Signer("testFiles/B4B.pfx", "123456"));
+    container.sign(PKCS12_SIGNER);
     container.save("testTwoSignatures.bdoc");
 
     assertEquals(2, container.getSignatures().size());
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         container.getSignatures().get(0).getSigningCertificate().getSerial());
-    assertEquals("5fe0774b8ba12b98d1c2250f076cd7e0ed7259ab",
+    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         container.getSignatures().get(1).getSigningCertificate().getSerial());
 
     Container openedContainer = Container.open("testTwoSignatures.bdoc");
@@ -132,8 +133,15 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(2, openedContainer.getSignatures().size());
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         openedContainer.getSignatures().get(0).getSigningCertificate().getSerial());
-    assertEquals("5fe0774b8ba12b98d1c2250f076cd7e0ed7259ab",
+    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         openedContainer.getSignatures().get(1).getSigningCertificate().getSerial());
+  }
+
+  @Test(expected = OCSPRequestFailedException.class)
+  public void ocspResponseUnknownStatusThrowsException() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(new PKCS12Signer("testFiles/B4B.pfx", "123456"));
   }
 
 

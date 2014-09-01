@@ -1,5 +1,6 @@
 package org.digidoc4j;
 
+import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.parameter.BLevelParameters;
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 import eu.europa.ec.markt.dss.signature.*;
@@ -20,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.digidoc4j.api.*;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
+import org.digidoc4j.api.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.api.exceptions.SignatureNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -230,7 +232,15 @@ public class BDocContainer extends Container {
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
     //TODO after 4.1.0 release signing sets deteministic id to null
     String deterministicId = getSignatureParameters().getDeterministicId();
-    signedDocument = asicService.signDocument(signedDocument, signatureParameters, rawSignature);
+    try {
+      signedDocument = asicService.signDocument(signedDocument, signatureParameters, rawSignature);
+    } catch (DSSException e) {
+      logger.error(e.getMessage());
+      if ("OCSP request failed".equals(e.getMessage()))
+        throw new OCSPRequestFailedException();
+
+      throw new DigiDoc4JException(e);
+    }
 
     signatureParameters.setDetachedContent(signedDocument);
     XAdESSignature xAdESSignature = getSignatureById(deterministicId);
