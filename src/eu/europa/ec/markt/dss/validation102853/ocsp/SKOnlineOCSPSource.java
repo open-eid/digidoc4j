@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 
 /**
  * SK OCSP source location.
@@ -49,7 +48,7 @@ public class SKOnlineOCSPSource implements OCSPSource {
    *
    * @return OCSP source location
    */
-  public String getAccessLocation() throws DSSException {
+  public String getAccessLocation() {
     logger.debug("");
     String location = "http://www.openxades.org/cgi-bin/ocsp.cgi";
     if (configuration != null)
@@ -88,7 +87,7 @@ public class SKOnlineOCSPSource implements OCSPSource {
   }
 
   @Override
-  public BasicOCSPResp getOCSPResponse(final X509Certificate x509Certificate, final X509Certificate issuerX509Certificate) {
+  public BasicOCSPResp getOCSPResponse(final X509Certificate certificate, final X509Certificate issuerCertificate) {
     if (dataLoader == null) {
       throw new DSSNullException(DataLoader.class);
     }
@@ -101,7 +100,7 @@ public class SKOnlineOCSPSource implements OCSPSource {
 
         return null;
       }
-      final byte[] content = buildOCSPRequest(x509Certificate, issuerX509Certificate);
+      final byte[] content = buildOCSPRequest(certificate, issuerCertificate);
 
       final byte[] ocspRespBytes = dataLoader.post(ocspUri, content);
 
