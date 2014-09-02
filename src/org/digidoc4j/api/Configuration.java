@@ -307,9 +307,7 @@ public class Configuration {
     fileParseErrors = new ArrayList<String>();
 
     loadInitialConfigurationValues();
-
     loadCertificateAuthoritiesAndCertificates();
-
     reportFileParseErrors();
 
     return jDigiDocConfiguration;
@@ -388,160 +386,17 @@ public class Configuration {
     }
   }
 
-  /**
-   * Is key usage checked?
-   *
-   * @return true if key usage is checked, otherwise false
-   */
-  public boolean isKeyUsageChecked() {
-    String keyUsageCheck = jDigiDocConfiguration.get("KEY_USAGE_CHECK");
-    logger.debug("Is key usage checked: " + keyUsageCheck);
-    return Boolean.parseBoolean(keyUsageCheck);
-  }
-
-  /**
-   * get factory implementation method
-   *
-   * @return implementation method
-   */
-  public String getFactoryImplementation() {
-    String factoryImplementation = jDigiDocConfiguration.get("DIGIDOC_FACTORY_IMPL");
-    logger.debug("Factory implementation: " + factoryImplementation);
-    return factoryImplementation;
-  }
-
-  /**
-   * get the TSL Factory implementation method
-   *
-   * @return implementation method
-   */
-  public String getTslFactoryImplementation() {
-    String tslFactoryImplementation = jDigiDocConfiguration.get("DIGIDOC_TSLFAC_IMPL");
-    logger.debug("TSL factory implementation: " + tslFactoryImplementation);
-    return tslFactoryImplementation;
-  }
-
-  /**
-   * get notary implementation method
-   *
-   * @return notary implementation method
-   */
-  public String getNotaryImplementation() {
-    String notaryImplementation = jDigiDocConfiguration.get("DIGIDOC_NOTARY_IMPL");
-    logger.debug("Notary implementation: " + notaryImplementation);
-    return notaryImplementation;
-  }
-
-  /**
-   * set if local TSL should be used
-   *
-   * @param useLocalTSL uses local TSL if set to true.
-   */
-  public void setUseLocalTsl(boolean useLocalTSL) {
-    logger.debug("Use local TSL: " + useLocalTSL);
-    jDigiDocConfiguration.put("DIGIDOC_USE_LOCAL_TSL", Boolean.toString(useLocalTSL));
-  }
-
-
-  /**
-   * get if local TSL should be used
-   *
-   * @return True if using local TSL, false if not
-   */
-  public Boolean usesLocalTsl() {
-    boolean usesLocalTsl = Boolean.parseBoolean(jDigiDocConfiguration.get("DIGIDOC_USE_LOCAL_TSL"));
-    logger.debug("Uses local TSL: " + usesLocalTsl);
-    return usesLocalTsl;
-  }
-
-  /**
-   * get canonicalization factory implementation
-   *
-   * @return implementation
-   */
-  public String getCanonicalizationFactoryImplementation() {
-    String canonicalizationFactoryImplementation = jDigiDocConfiguration.get("CANONICALIZATION_FACTORY_IMPL");
-    logger.debug("Canonicalization factory implementation: " + canonicalizationFactoryImplementation);
-    return canonicalizationFactoryImplementation;
-  }
-
-  /**
-   * Indicates if Data file should be in Hashcode mode
-   *
-   * @return boolean
-   */
-  public boolean isDataFileInHashCodeMode() {
-    boolean isDataFileInHasCodeMode = Boolean.parseBoolean(jDigiDocConfiguration.get("DATAFILE_HASHCODE_MODE"));
-    logger.debug("Is datafile in Hashcode mode: " + isDataFileInHasCodeMode);
-    return isDataFileInHasCodeMode;
-  }
-
-  /**
-   * Set Datafile hashcode mode
-   *
-   * @param hashCodeMode set hashcode mode
-   */
-  public void setDataFileHashCodeMode(Boolean hashCodeMode) {
-    logger.debug("Hashcode mode: " + hashCodeMode);
-    jDigiDocConfiguration.put("DATAFILE_HASHCODE_MODE", hashCodeMode.toString());
-  }
-
   private void setJDigiDocConfigurationValue(String key, String defaultValue) {
     logger.debug("Key: " + key + ", default value: " + defaultValue);
     jDigiDocConfiguration.put(key, defaultIfNull(key, defaultValue));
   }
 
-
   /**
-   * Load Log4J configuration parameters from a file
-   *
-   * @param fileName File name
-   */
-  public void setLog4JConfiguration(String fileName) {
-    logger.debug("Filename: " + fileName);
-    jDigiDocConfiguration.put("DIGIDOC_LOG4J_CONFIG", fileName);
-  }
-
-  /**
-   * Get Log4J parameters
-   *
-   * @return Log4j parameters
-   */
-  public String getLog4JConfiguration() {
-    String log4jConfiguration = jDigiDocConfiguration.get("DIGIDOC_LOG4J_CONFIG");
-    logger.debug("Log4J configuration: " + log4jConfiguration);
-    return log4jConfiguration;
-  }
-
-
-  /**
-   * Set OCSP Signing Certificate Serial Number
-   *
-   * @param serialNumber Serial number
-   */
-  public void setOCSPSigningCertificateSerialNumber(String serialNumber) {
-    logger.debug("Set OCSP Signing certificate serialnumber: " + serialNumber);
-    jDigiDocConfiguration.put("DIGIDOC_OCSP_SIGN_CERT_SERIAL", serialNumber);
-  }
-
-  /**
-   * Get OCSP Signing Certificate Serial number
-   *
-   * @return Serial number
-   */
-  public String getOCSPSigningCertificateSerialNumber() {
-    String serialNumber = jDigiDocConfiguration.get("DIGIDOC_OCSP_SIGN_CERT_SERIAL");
-    logger.debug("OCSP signing certificate serial number: " + serialNumber);
-    return serialNumber;
-  }
-
-
-  /**
-   * Set the maximum size of data files to be cached
+   * Set the maximum size of data files to be cached. Used by DigiDoc4J and by JDigiDoc.
    *
    * @param maxDataFileCached Maximum size in MB
    */
-  public void setMaxDataFileCached(long maxDataFileCached) {
+  public void setMaxDataFileCachedinMB(long maxDataFileCached) {
     logger.debug("Set maximum datafile cached to: " + maxDataFileCached);
     jDigiDocConfiguration.put("DIGIDOC_MAX_DATAFILE_CACHED", Long.toString(maxDataFileCached));
   }
@@ -557,11 +412,11 @@ public class Configuration {
   }
 
   /**
-   * Get the maximum size of data files to be cached
+   * Get the maximum size of data files to be cached. Used by DigiDoc4J and by JDigiDoc.
    *
-   * @return Size
+   * @return Size in MB
    */
-  public long getMaxDataFileCached() {
+  public long getMaxDataFileCachedInMB() {
     String maxDataFileCached = jDigiDocConfiguration.get("DIGIDOC_MAX_DATAFILE_CACHED");
     logger.debug("Maximum datafile cached: " + maxDataFileCached);
     return Long.parseLong(maxDataFileCached);

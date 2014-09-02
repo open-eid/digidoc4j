@@ -317,9 +317,9 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testLoadConfiguration() throws Exception {
     BDocContainer container = new BDocContainer();
-    assertEquals(4096, container.configuration.getMaxDataFileCached());
+    assertEquals(4096, container.configuration.getMaxDataFileCachedInMB());
     container.loadConfiguration("testFiles/digidoc_test_conf.yaml");
-    assertEquals(8192, container.configuration.getMaxDataFileCached());
+    assertEquals(8192, container.configuration.getMaxDataFileCachedInMB());
   }
 
   @Test(expected = NotYetImplementedException.class)

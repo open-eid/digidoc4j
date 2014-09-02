@@ -45,29 +45,6 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void defaultUseTslLocation() throws Exception {
-    assertTrue(configuration.usesLocalTsl());
-  }
-
-
-
-  @Test
-  public void defaultNotaryImplementation() throws Exception {
-    assertEquals(DEFAULT_NOTARY_IMPLEMENTATION, configuration.getNotaryImplementation());
-  }
-
-  @Test
-  public void defaultTslFactoryImplementation() throws Exception {
-    assertEquals(DEFAULT_TSL_FACTORY_IMPLEMENTATION, configuration.getTslFactoryImplementation());
-  }
-
-  @Test
-  public void setUseLocalTslLocation() throws Exception {
-    configuration.setUseLocalTsl(false);
-    assertFalse(configuration.usesLocalTsl());
-  }
-
-  @Test
   public void setTspSource() throws Exception {
     configuration.setTspSource("tspSource");
     assertEquals("tspSource", configuration.getTspSource());
@@ -77,12 +54,6 @@ public class ConfigurationTest {
   public void setValidationPolicy() throws Exception {
     configuration.setValidationPolicy("policy");
     assertEquals("policy", configuration.getValidationPolicy());
-  }
-
-  @Test
-  public void defaultCanonicalizationFactoryImplementation() throws Exception {
-    assertEquals(DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION,
-        configuration.getCanonicalizationFactoryImplementation());
   }
 
   @Test
@@ -97,15 +68,9 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void defaultFactoryImplementation() throws Exception {
-    assertEquals(DEFAULT_FACTORY_IMPLEMENTATION, configuration.getFactoryImplementation());
-  }
-
-  @Test
   public void defaultProductionConfiguration() throws Exception {
     Configuration configuration = new Configuration(PROD);
     assertEquals("http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-mp.xml", configuration.getTslLocation());
-//    assertEquals("http://sr.riik.ee/tsl/estonian-tsl.xml", configuration.getTslLocation());
   }
 
   @Test
@@ -119,33 +84,19 @@ public class ConfigurationTest {
   public void setMaxDataFileCached() throws Exception {
     configuration = new Configuration();
     long maxDataFileCached = 12345;
-    configuration.setMaxDataFileCached(maxDataFileCached);
-    assertEquals(maxDataFileCached, configuration.getMaxDataFileCached());
-  }
-
-  @Test
-  public void setLog4JConfig() throws Exception {
-    configuration = new Configuration();
-    String fileName = "./NewFolder/NewFile.txt";
-    configuration.setLog4JConfiguration(fileName);
-    assertEquals(fileName, configuration.getLog4JConfiguration());
+    configuration.setMaxDataFileCachedinMB(maxDataFileCached);
+    assertEquals(maxDataFileCached, configuration.getMaxDataFileCachedInMB());
   }
 
   @Test
   public void defaultConstructorWithUnSetSystemProperty() throws Exception {
     Configuration configuration = new Configuration();
     assertEquals("http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-mp.xml", configuration.getTslLocation());
-//    assertEquals("http://sr.riik.ee/tsl/estonian-tsl.xml", configuration.getTslLocation());
   }
 
   @Test
   public void testGetPKCS11ModulePath() throws Exception {
     assertEquals("/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so", configuration.getPKCS11ModulePath());
-  }
-
-  @Test
-  public void isKeyUsageCheckedDefaultValue() throws Exception {
-    assertEquals(Boolean.parseBoolean(DEFAULT_KEY_USAGE_CHECK), configuration.isKeyUsageChecked());
   }
 
   @Test
@@ -165,31 +116,6 @@ public class ConfigurationTest {
     assertEquals("false", jDigiDocConf.get("SIGN_OCSP_REQUESTS"));
 
     assertEquals("jar://certs/KLASS3-SK OCSP.crt", jDigiDocConf.get("DIGIDOC_CA_1_OCSP2_CERT"));
-  }
-
-  @Test
-  public void getLog4jConfigurationLocation() throws Exception {
-    configuration.loadConfiguration("digidoc4j.yaml");
-    assertEquals("./log4j.properties", configuration.getLog4JConfiguration());
-  }
-
-  @Test
-  public void getLog4jDefaultConfigurationLocation() throws Exception {
-    assertEquals("./log4j.properties", configuration.getLog4JConfiguration());
-  }
-
-  @Test
-  public void getLog4jDefaultConfigurationLocationWhenParameterInFileIsNotPresent() throws Exception {
-    configuration.setLog4JConfiguration("new_file");
-    configuration.loadConfiguration("digidoc4j.yaml");
-    assertEquals("new_file", configuration.getLog4JConfiguration());
-  }
-
-  @Test
-  public void getLog4jDefaultConfigurationLocationWhenParameterInFileIsPresent() throws Exception {
-    configuration.setLog4JConfiguration("new_file");
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
-    assertEquals("new_log4j.properties", configuration.getLog4JConfiguration());
   }
 
   @Test
@@ -222,29 +148,6 @@ public class ConfigurationTest {
     Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("digidoc4j.yaml");
     assertNull(jDigiDocConf.get("DIGIDOC_PROXY_HOST"));
   }
-
-  @Test
-  public void isDataFileInHashCodeMode() throws Exception {
-    assertFalse(configuration.isDataFileInHashCodeMode());
-  }
-
-  @Test
-  public void setDataFileHashCodeMode() throws Exception {
-    configuration.setDataFileHashCodeMode(true);
-    assertTrue(configuration.isDataFileInHashCodeMode());
-  }
-
-  @Test
-  public void DefaultOCSPSigningCertificateSerialNumber() throws Exception {
-    assertEquals("", configuration.getOCSPSigningCertificateSerialNumber());
-  }
-
-  @Test
-  public void SetOCSPSigningCertificateSerialNumber() throws Exception {
-    configuration.setOCSPSigningCertificateSerialNumber("New Serial Number");
-    assertEquals("New Serial Number", configuration.getOCSPSigningCertificateSerialNumber());
-  }
-
 
   @Test
   public void digidocMaxDataFileCachedParameterIsNotANumber() throws Exception {
