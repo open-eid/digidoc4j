@@ -120,16 +120,14 @@ public class Configuration {
     logger.debug("");
 
     if (mode == Mode.TEST) {
-//    configuration.put("tslLocation", "http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-mp.xml");
-      configuration.put("tslLocation", "file:conf/trusted-test-tsl.xml");
+      configuration.put("tslLocation", "http://10.0.25.57/tsl/trusted-test-mp.xml");
       configuration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
       configuration.put("validationPolicy", "conf/constraint.xml");
       configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
       configuration.put("ocspSource", "http://www.openxades.org/cgi-bin/ocsp.cgi");
     } else {
-//    configuration.put("tslLocation", "file:conf/tl-map.xml");
-//    configuration.put("tslLocation", "http://sr.riik.ee/tsl/estonian-tsl.xml");
-      configuration.put("tslLocation", "http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-mp.xml");
+      configuration.put("tslLocation", "http://10.0.25.57/tsl/trusted-test-mp.xml");
+//      configuration.put("tslLocation", "http://sr.riik.ee/tsl/estonian-tsl.xml");
       configuration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
       configuration.put("validationPolicy", "conf/constraint.xml");
       configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
