@@ -120,7 +120,7 @@ public class Configuration {
     logger.debug("");
 
     if (mode == Mode.TEST) {
-      configuration.put("tslLocation", "http://10.0.25.57/tsl/trusted-test-mp.xml");
+      configuration.put("tslLocation", "file:conf/trusted-test-tsl.xml");
       configuration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
       configuration.put("validationPolicy", "conf/constraint.xml");
       configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");

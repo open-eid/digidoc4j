@@ -70,7 +70,7 @@ public class ConfigurationTest {
   @Test
   public void defaultProductionConfiguration() throws Exception {
     Configuration configuration = new Configuration(PROD);
-    assertEquals("http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-mp.xml", configuration.getTslLocation());
+    assertEquals("http://10.0.25.57/tsl/trusted-test-mp.xml", configuration.getTslLocation());
   }
 
   @Test
@@ -91,7 +91,7 @@ public class ConfigurationTest {
   @Test
   public void defaultConstructorWithUnSetSystemProperty() throws Exception {
     Configuration configuration = new Configuration();
-    assertEquals("http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-mp.xml", configuration.getTslLocation());
+    assertEquals("http://10.0.25.57/tsl/trusted-test-mp.xml", configuration.getTslLocation());
   }
 
   @Test

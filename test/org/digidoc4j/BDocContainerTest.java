@@ -144,7 +144,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.sign(new PKCS12Signer("testFiles/B4B.pfx", "123456"));
   }
 
-
   @Test
   public void testAddSignaturesToExistingDocument() throws Exception {
     Container container = Container.open("testFiles/asics_testing_two_signatures.bdoc");

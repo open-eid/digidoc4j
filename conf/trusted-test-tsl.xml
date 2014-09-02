@@ -104,7 +104,7 @@
                         </tsl:DigitalId>
                     </tsl:ServiceDigitalIdentity>
                 </tsl:ServiceDigitalIdentities>
-                <tsl:TSLLocation>http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-tsl.xml
+              <tsl:TSLLocation>http://10.0.25.57/tsl/trusted-test-tsl.xml
                 </tsl:TSLLocation>
                 <tsl:AdditionalInformation>
                     <tsl:OtherInformation>
@@ -136,7 +136,7 @@
             <tsl:dateTime>2014-07-16T21:00:00Z</tsl:dateTime>
         </tsl:NextUpdate>
         <tsl:DistributionPoints>
-            <tsl:URI>http://ftp.id.eesti.ee/pub/id/tsl/trusted-test-tsl.xml</tsl:URI>
+          <tsl:URI>http://10.0.25.57/tsl/trusted-test-tsl.xml</tsl:URI>
         </tsl:DistributionPoints>
     </tsl:SchemeInformation>
     <tsl:TrustServiceProviderList>
