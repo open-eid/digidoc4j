@@ -17,15 +17,8 @@
   <isset property="env.BUILD_NUMBER"/>
   </condition>
 
-  <target name="sd-dss">
-    <exec executable="mvn" dir="sd-dss">
-      <arg line="clean"/>
-      <arg line="install"/>
-    </exec>
-  </target>
-
-  <target name="sign">
-    <echo message="${dist.dir}/digidoc4j-${lib.version}${version.suffix}.jar"/>
+  <target name="sign" depends="version">
+  <echo message="${dist.dir}/digidoc4j-${lib.version}${version.suffix}.jar"/>
     <signjar jar="${dist.dir}/digidoc4j-${lib.version}${version.suffix}.jar" storetype="pkcs12"
              keystore="testFiles/codesign2014.pfx"
              alias="f5a035698e5674bac8d45b742bc163a5_59e8b597-f62a-4665-af98-fc45e3270c39"
