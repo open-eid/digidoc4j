@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Permission;
 
+import static org.digidoc4j.api.Configuration.Mode;
 import static org.digidoc4j.api.Container.DocumentType.BDOC;
 import static org.digidoc4j.api.Container.DocumentType.DDOC;
 import static org.hamcrest.core.StringContains.containsString;
@@ -60,6 +61,23 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
     Container container = Container.open(fileName);
     assertEquals(BDOC, container.getDocumentType());
+  }
+
+  @Test
+  public void defaultDigidoc4jModeIsTest() throws Exception {
+    String[] params = new String[]{""};
+
+    callMainWithoutSystemExit(params);
+    assertEquals(Mode.TEST.toString(), System.getProperty("digidoc4j.mode"));
+  }
+
+  @Test
+  public void commandLineDigidoc4jModeOverwritesDefault() throws Exception {
+    String[] params = new String[]{""};
+    System.setProperty("digidoc4j.mode", "PROD");
+
+    callMainWithoutSystemExit(params);
+    assertEquals(Mode.PROD.toString(), System.getProperty("digidoc4j.mode"));
   }
 
   @Test

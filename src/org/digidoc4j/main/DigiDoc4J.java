@@ -30,6 +30,8 @@ public final class DigiDoc4J {
    */
   public static void main(String[] args) {
     try {
+      if (System.getProperty("digidoc4j.mode") == null)
+        System.setProperty("digidoc4j.mode", "TEST");
       run(args);
     } catch (DigiDoc4JUtilityException e) {
       System.err.print(e.getMessage());
