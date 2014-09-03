@@ -20,6 +20,7 @@ import java.nio.file.Paths;
 import static org.digidoc4j.Signatures.XADES_SIGNATURE;
 import static org.digidoc4j.api.Container.DigestAlgorithm.SHA1;
 import static org.digidoc4j.api.Container.DigestAlgorithm.SHA256;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -321,12 +322,20 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(8192, container.configuration.getMaxDataFileCachedInMB());
   }
 
-  @Test(expected = NotYetImplementedException.class)
-  public void saveToStreamThrowsException() throws Exception {
+  @Test
+  public void saveToStream() throws Exception {
     BDocContainer container = new BDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile(new ByteArrayInputStream(new byte[]{0x42}), "test_bytes.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    container.save(new ByteArrayOutputStream());
+    File expectedContainerAsFile = new File("saveToStreamTest.bdoc");
+    OutputStream out = new FileOutputStream(expectedContainerAsFile);
+    container.save(out);
+    assertTrue(Files.exists(expectedContainerAsFile.toPath()));
+
+    Container containerToTest = Container.open(expectedContainerAsFile.getName());
+    assertArrayEquals(new byte[]{0x42}, containerToTest.getDataFiles().get(0).getBytes());
+
+    Files.deleteIfExists(expectedContainerAsFile.toPath());
   }
 
   private Container createSignedBDocDocument(String fileName) {

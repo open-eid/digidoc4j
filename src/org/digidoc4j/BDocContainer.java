@@ -200,7 +200,11 @@ public class BDocContainer extends Container {
 
   @Override
   public void save(OutputStream out) {
-    throw new NotYetImplementedException("Not implemented by DSS");
+    try {
+      IOUtils.copyLarge(signedDocument.openStream(), out);
+    } catch (IOException e) {
+      throw new DigiDoc4JException(e);
+    }
   }
 
   //TODO NotYetImplementedException
