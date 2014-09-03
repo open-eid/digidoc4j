@@ -63,6 +63,43 @@ public class ConfigurationTest {
   }
 
   @Test
+  public void defaultOCSPAccessCertificateFile() {
+    assertNull(configuration.getOCSPAccessCertificateFileName());
+  }
+
+  @Test
+  public void getOCSPAccessCertificateFileFromConfigurationFile() {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertEquals("conf/OCSP_access_certificate_test_file_name", configuration.getOCSPAccessCertificateFileName());
+  }
+
+  @Test
+  public void setOCSPAccessCertificateFileNameOverwritesConfigurationFile() {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    configuration.setOCSPAccessCertificateFileName("New File");
+    assertEquals("New File", configuration.getOCSPAccessCertificateFileName());
+  }
+
+  @Test
+  public void defaultOCSPAccessCertificatePassword() {
+    assertEquals(0, configuration.getOCSPAccessCertificatePassword().length);
+  }
+
+  @Test
+  public void getOCSPAccessCertificatePasswordFromConfigurationFile() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertArrayEquals("OCSP_test_password".toCharArray(), configuration.getOCSPAccessCertificatePassword());
+  }
+
+  @Test
+  public void setOCSPAccessCertificatePasswordOverwritesConfigurationFile() {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    char[] newPassword = "New password".toCharArray();
+    configuration.setOCSPAccessCertificatePassword(newPassword);
+    assertArrayEquals(newPassword, configuration.getOCSPAccessCertificatePassword());
+  }
+
+  @Test
   public void defaultOcspSource() throws Exception {
     assertEquals("http://www.openxades.org/cgi-bin/ocsp.cgi", configuration.getOcspSource());
   }

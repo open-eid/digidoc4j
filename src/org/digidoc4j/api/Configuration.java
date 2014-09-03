@@ -84,6 +84,8 @@ import static org.apache.commons.lang.StringUtils.isNumeric;
  * VALIDATION_POLICY: Validation policy source file<br>
  * PKCS11_MODULE: PKCS11 Module file<br>
  * OCSP_SOURCE: Online Certificate Service Protocol source<p/>
+ * OCSP_ACCESS_CERTIFICATE_FILE: OCSP access certificate file
+ * OCSP_ACCESS_CERTIFICATE_PASSWORD: OCSP access certificate password
  */
 public class Configuration {
   final Logger logger = LoggerFactory.getLogger(Configuration.class);
@@ -373,6 +375,8 @@ public class Configuration {
     setConfigurationValue("VALIDATION_POLICY", "validationPolicy");
     setConfigurationValue("PKCS11_MODULE", "pkcs11Module");
     setConfigurationValue("OCSP_SOURCE", "ocspSource");
+    setConfigurationValue("OCSP_ACCESS_CERTIFICATE_FILE", "OCSPAccessCertificateFile");
+    setConfigurationValue("OCSP_ACCESS_CERTIFICATE_PASSWORD", "OCSPAccessCertificatePassword");
   }
 
   private void setConfigurationValue(String fileKey, String configurationKey) {

@@ -7,6 +7,8 @@ TSP_SOURCE: http://tsp.source.test/HttpTspServer
 VALIDATION_POLICY: conf/test_validation_policy.xml
 PKCS11_MODULE: /usr/lib/x86_64-linux-gnu/test_pkcs11_module.so
 OCSP_SOURCE: http://www.openxades.org/cgi-bin/test_ocsp_source.cgi
+OCSP_ACCESS_CERTIFICATE_FILE: conf/OCSP_access_certificate_test_file_name
+OCSP_ACCESS_CERTIFICATE_PASSWORD: OCSP_test_password
 
 DIGIDOC_CAS:
 - DIGIDOC_CA:
