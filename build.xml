@@ -98,8 +98,9 @@
     <mkdir dir="${build.dir}/util"/>
     <jar jarfile="${build.dir}/util/temp.jar">
       <zipgroupfileset dir="dist" includes="**/digidoc4j-*.jar" excludes="*-javadoc.jar *-sources.jar"/>
+      <zipgroupfileset dir="sd-dss/apps/dss/core" includes="**/dss-*.jar" excludes="*-javadoc.jar *-sources.jar"/>
       <zipgroupfileset dir="lib" includes="**/*.jar"
-                       excludes="*-source.jar *-sources.jar *-javadoc.jar bcprov-*.jar jacoco*.jar mockito*.jar"/>
+                       excludes="dss-*.jar *-source.jar *-sources.jar *-javadoc.jar bcprov-*.jar jacoco*.jar mockito*.jar"/>
     </jar>
 
     <jar destfile="${build.dir}/util/digidoc4j-util.jar">
