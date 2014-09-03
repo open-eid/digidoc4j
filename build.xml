@@ -20,7 +20,7 @@
   </target>
 
   <condition property="version.suffix" value=".${env.BUILD_NUMBER}-beta" else=".LOCAL_BUILD-beta">
-  <isset property="env.BUILD_NUMBER"/>
+    <isset property="env.BUILD_NUMBER"/>
   </condition>
 
   <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
@@ -82,16 +82,23 @@
         <exclude name="**/*Test.class"/>
       </fileset>
       <fileset dir=".">
-      <include name="conf/*.*"/>
+        <include name="conf/*.*"/>
       </fileset>
     </jar>
   </target>
 
   <target name="library">
-    <zip destfile="${dist.dir}/digidoc4j-library-${lib.version}${version.suffix}.zip"
-         basedir="lib"
-         includes="*.jar"
-         excludes="*-source.jar *-sources.jar *-javadoc.jar"/>
+    <zip destfile="${dist.dir}/digidoc4j-library-${lib.version}${version.suffix}.zip">
+      <zipfileset dir="lib" includes="*.jar" excludes="*-source.jar *-sources.jar *-javadoc.jar dss-*.jar"/>
+      <zipfileset dir="sd-dss/apps/dss/core/dss-common/target" includes="dss-*.jar"
+                  excludes="*-javadoc.jar *-sources.jar"/>
+      <zipfileset dir="sd-dss/apps/dss/core/dss-document/target" includes="dss-*.jar"
+                  excludes="*-javadoc.jar *-sources.jar"/>
+      <zipfileset dir="sd-dss/apps/dss/core/dss-service/target" includes="dss-*.jar"
+                  excludes="*-javadoc.jar *-sources.jar"/>
+      <zipfileset dir="sd-dss/apps/dss/core/dss-spi/target" includes="dss-*.jar"
+                  excludes="*-javadoc.jar *-sources.jar"/>
+    </zip>
   </target>
 
   <target name="utility" depends="compile">
