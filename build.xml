@@ -129,17 +129,10 @@
     <jar destfile="${dist.dir}/digidoc4j-${lib.version}${version.suffix}-sources.jar" basedir="src"/>
   </target>
 
-  <target name="sd-dss">
-    <exec executable="mvn" dir="sd-dss">
-      <arg line="clean"/>
-      <arg line="install"/>
-    </exec>
-  </target>
-
   <target name="base" depends="version, clean, javadoc, source, compile, utility, library"/>
 
-  <target name="all" depends="sd-dss">
-  <property name="classpath" value="javac.classpath"/>
+  <target name="all">
+    <property name="classpath" value="javac.classpath"/>
     <antcall target="base"/>
     <antcall target="test"/>
     <antcall target="coverage.report"/>
