@@ -1,6 +1,7 @@
 package org.digidoc4j;
 
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
+import org.digidoc4j.api.Configuration;
 import org.digidoc4j.api.Container;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
@@ -20,9 +21,9 @@ import java.nio.file.Paths;
 import static org.digidoc4j.Signatures.XADES_SIGNATURE;
 import static org.digidoc4j.api.Container.DigestAlgorithm.SHA1;
 import static org.digidoc4j.api.Container.DigestAlgorithm.SHA256;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.endsWith;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class BDocContainerTest extends DigiDoc4JTestHelper {
@@ -336,6 +337,45 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertArrayEquals(new byte[]{0x42}, containerToTest.getDataFiles().get(0).getBytes());
 
     Files.deleteIfExists(expectedContainerAsFile.toPath());
+  }
+
+  @Test
+  public void getTSLLocationWhenNotFileURL() {
+    Configuration configuration = new Configuration();
+    BDocContainer container = new BDocContainer();
+    String tslLocation = "URL:test";
+    configuration.setTslLocation(tslLocation);
+    container.setConfiguration(configuration);
+
+    assertEquals(tslLocation, container.getTslLocation());
+  }
+
+  @Test
+  public void getTSLLocationWhenFileExists() {
+    BDocContainer container = new BDocContainer();
+    assertEquals("file:conf/trusted-test-tsl.xml", container.getTslLocation());
+  }
+
+  @Test
+  public void getTSLLocationWhenFileDoesNotExistInDefaultLocation() {
+    BDocContainer container = new BDocContainer();
+    Configuration configuration = new Configuration();
+    String tslFilePath = ("conf/tsl-location-test.xml");
+    configuration.setTslLocation("file:" + tslFilePath);
+    container.setConfiguration(configuration);
+
+    assertThat(container.getTslLocation(), endsWith(tslFilePath));
+  }
+
+  @Test
+  public void getTSLLocationFileDoesNotExistReturnsUrlPath() {
+    BDocContainer container = new BDocContainer();
+    Configuration configuration = new Configuration();
+    String tslLocation = ("file:conf/does-not-exist.xml");
+    configuration.setTslLocation(tslLocation);
+    container.setConfiguration(configuration);
+
+    assertEquals(container.getTslLocation(), tslLocation);
   }
 
   private Container createSignedBDocDocument(String fileName) {

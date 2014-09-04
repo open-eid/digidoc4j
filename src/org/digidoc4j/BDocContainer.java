@@ -10,7 +10,8 @@ import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
 import eu.europa.ec.markt.dss.validation102853.SignatureForm;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
-import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
+import eu.europa.ec.markt.dss.validation102853.https.DigiDoc4JDataLoader;
+import eu.europa.ec.markt.dss.validation102853.loader.Protocol;
 import eu.europa.ec.markt.dss.validation102853.ocsp.SKOnlineOCSPSource;
 import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
 import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
@@ -27,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -292,12 +295,28 @@ public class BDocContainer extends Container {
       return tslCertificateSource;
     }
     tslCertificateSource = new TrustedListsCertificateSource();
-    tslCertificateSource.setDataLoader(new CommonsDataLoader());
-    tslCertificateSource.setLotlUrl(getConfiguration().getTslLocation());
+    tslCertificateSource.setDataLoader(new DigiDoc4JDataLoader());
+    tslCertificateSource.setLotlUrl(getTslLocation());
     tslCertificateSource.setCheckSignature(false);
     tslCertificateSource.init();
 
     return tslCertificateSource;
+  }
+
+  String getTslLocation() {
+    String urlString = getConfiguration().getTslLocation();
+    if (!Protocol.isFileUrl(urlString)) return urlString;
+    try {
+      String filePath = new URL(urlString).getPath();
+      if (!new File(filePath).exists()) {
+        URL resource = getClass().getClassLoader().getResource(filePath);
+        if (resource != null)
+          urlString = resource.toString();
+      }
+    } catch (MalformedURLException e) {
+      logger.warn(e.getMessage());
+    }
+    return urlString;
   }
 
   private Configuration getConfiguration() {
