@@ -83,9 +83,9 @@ import static org.apache.commons.lang.StringUtils.isNumeric;
  * TSP_SOURCE: Time Stamp Protocol source address<br>
  * VALIDATION_POLICY: Validation policy source file<br>
  * PKCS11_MODULE: PKCS11 Module file<br>
- * OCSP_SOURCE: Online Certificate Service Protocol source<p/>
- * OCSP_ACCESS_CERTIFICATE_FILE: OCSP access certificate file
- * OCSP_ACCESS_CERTIFICATE_PASSWORD: OCSP access certificate password
+ * OCSP_SOURCE: Online Certificate Service Protocol source<br>
+ * OCSP_ACCESS_CERTIFICATE_FILE: OCSP access certificate file<br>
+ * OCSP_ACCESS_CERTIFICATE_PASSWORD: OCSP access certificate password<p/>
  */
 public class Configuration {
   final Logger logger = LoggerFactory.getLogger(Configuration.class);
