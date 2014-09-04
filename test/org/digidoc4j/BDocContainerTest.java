@@ -287,7 +287,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     String fileName = "test_large_file.bdoc";
     try {
       RandomAccessFile largeFile = new RandomAccessFile(fileName, "rw");
-      largeFile.setLength(BDocContainer.FILE_SIZE_TO_STREAM + 100);
+      largeFile.setLength(100);//todo create large file correctly
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -318,8 +318,9 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testLoadConfiguration() throws Exception {
     BDocContainer container = new BDocContainer();
-    assertEquals(4096, container.configuration.getMaxDataFileCachedInMB());
+    assertFalse(container.configuration.isBigFilesSupportEnabled());
     container.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertTrue(container.configuration.isBigFilesSupportEnabled());
     assertEquals(8192, container.configuration.getMaxDataFileCachedInMB());
   }
 

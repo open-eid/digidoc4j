@@ -70,7 +70,6 @@ import static org.apache.commons.lang.StringUtils.isNumeric;
  * CANONICALIZATION_FACTORY_IMPL: Canonicalization factory implementation.
  * Default value: {@value #DEFAULT_FACTORY_IMPLEMENTATION}<br>
  * DIGIDOC_MAX_DATAFILE_CACHED: Maximum datafile size that will be cached in MB. Must be numeric.
- * Default value: {@value #DEFAULT_MAX_DATAFILE_CACHED}<br>
  * DIGIDOC_USE_LOCAL_TSL: Use local TSL? Allowed values: true, false
  * Default value: {@value #DEFAULT_USE_LOCAL_TSL}
  * DIGIDOC_NOTARY_IMPL: Notary implementation.
@@ -90,7 +89,6 @@ import static org.apache.commons.lang.StringUtils.isNumeric;
 public class Configuration {
   final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
-  public static final String DEFAULT_MAX_DATAFILE_CACHED = "4096";
   public static final String DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION
       = "ee.sk.digidoc.c14n.TinyXMLCanonicalizer";
   public static final String DEFAULT_SECURITY_PROVIDER = "org.bouncycastle.jce.provider.BouncyCastleProvider";
@@ -363,7 +361,7 @@ public class Configuration {
     setJDigiDocConfigurationValue("DIGIDOC_OCSP_SIGN_CERT_SERIAL", "");
     setJDigiDocConfigurationValue("DATAFILE_HASHCODE_MODE", DEFAULT_DATAFILE_HASHCODE_MODE);
     setJDigiDocConfigurationValue("CANONICALIZATION_FACTORY_IMPL", DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION);
-    setJDigiDocConfigurationValue("DIGIDOC_MAX_DATAFILE_CACHED", DEFAULT_MAX_DATAFILE_CACHED);
+    setJDigiDocConfigurationValue("DIGIDOC_MAX_DATAFILE_CACHED", "-1");
     setJDigiDocConfigurationValue("DIGIDOC_USE_LOCAL_TSL", DEFAULT_USE_LOCAL_TSL);
     setJDigiDocConfigurationValue("DIGIDOC_NOTARY_IMPL", DEFAULT_NOTARY_IMPLEMENTATION);
     setJDigiDocConfigurationValue("DIGIDOC_TSLFAC_IMPL", DEFAULT_TSL_FACTORY_IMPLEMENTATION);
@@ -394,13 +392,24 @@ public class Configuration {
   }
 
   /**
-   * Set the maximum size of data files to be cached. Used by DigiDoc4J and by JDigiDoc.
+   * Enables big files support. Sets limit in MB when handling files are creating temporary file for streaming in
+   * container creation and adding data files.
    *
-   * @param maxDataFileCached Maximum size in MB
+   * Used by DigiDoc4J and by JDigiDoc.
+   *
+   * @param maxFileSizeCachedInMB Maximum size in MB
    */
-  public void setMaxDataFileCachedinMB(long maxDataFileCached) {
-    logger.debug("Set maximum datafile cached to: " + maxDataFileCached);
-    jDigiDocConfiguration.put("DIGIDOC_MAX_DATAFILE_CACHED", Long.toString(maxDataFileCached));
+  public void enableBigFilesSupport(long maxFileSizeCachedInMB) {
+    logger.debug("Set maximum datafile cached to: " + maxFileSizeCachedInMB);
+    jDigiDocConfiguration.put("DIGIDOC_MAX_DATAFILE_CACHED", Long.toString(maxFileSizeCachedInMB));
+  }
+
+  /**
+   *
+   * @return is big file support enabled
+   */
+  public boolean isBigFilesSupportEnabled() {
+    return getMaxDataFileCachedInMB() > 0;
   }
 
   /**
@@ -416,11 +425,13 @@ public class Configuration {
   /**
    * Get the maximum size of data files to be cached. Used by DigiDoc4J and by JDigiDoc.
    *
-   * @return Size in MB
+   * @return Size in MB. if size < 0 no caching is used
    */
   public long getMaxDataFileCachedInMB() {
     String maxDataFileCached = jDigiDocConfiguration.get("DIGIDOC_MAX_DATAFILE_CACHED");
     logger.debug("Maximum datafile cached: " + maxDataFileCached);
+
+    if (maxDataFileCached == null) return -1;
     return Long.parseLong(maxDataFileCached);
   }
 

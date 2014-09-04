@@ -121,7 +121,7 @@ public class ConfigurationTest {
   public void setMaxDataFileCached() throws Exception {
     configuration = new Configuration();
     long maxDataFileCached = 12345;
-    configuration.setMaxDataFileCachedinMB(maxDataFileCached);
+    configuration.enableBigFilesSupport(maxDataFileCached);
     assertEquals(maxDataFileCached, configuration.getMaxDataFileCachedInMB());
   }
 
@@ -149,7 +149,7 @@ public class ConfigurationTest {
     assertEquals(DEFAULT_SECURITY_PROVIDER_NAME, jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER_NAME"));
     assertEquals("false", jDigiDocConf.get("DATAFILE_HASHCODE_MODE"));
     assertEquals(DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION, jDigiDocConf.get("CANONICALIZATION_FACTORY_IMPL"));
-    assertEquals("4096", jDigiDocConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
+    assertEquals("-1", jDigiDocConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
     assertEquals("false", jDigiDocConf.get("SIGN_OCSP_REQUESTS"));
 
     assertEquals("jar://certs/KLASS3-SK OCSP.crt", jDigiDocConf.get("DIGIDOC_CA_1_OCSP2_CERT"));

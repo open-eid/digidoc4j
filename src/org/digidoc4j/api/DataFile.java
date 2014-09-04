@@ -140,7 +140,7 @@ public class DataFile {
   /**
    * Returns the data file size.
    *
-   * @return file size
+   * @return file size in bytes
    */
   public long getFileSize() {
     logger.debug("");

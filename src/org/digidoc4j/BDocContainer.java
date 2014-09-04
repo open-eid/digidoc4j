@@ -49,7 +49,7 @@ public class BDocContainer extends Container {
   final Logger logger = LoggerFactory.getLogger(BDocContainer.class);
 
   private final Map<String, DataFile> dataFiles = new HashMap<String, DataFile>();
-  public static final int FILE_SIZE_TO_STREAM = 1024 * 1000 * 3;
+  public static final int ONE_MB_IN_BYTES = 1048576;
   private CommonCertificateVerifier commonCertificateVerifier;
   protected DocumentSignatureService asicService;
   private SignatureParameters signatureParameters;
@@ -237,7 +237,7 @@ public class BDocContainer extends Container {
 
     asicService = new BDOCService(commonCertificateVerifier);
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
-    //TODO after 4.1.0 release signing sets deteministic id to null
+    //TODO after 4.1.0 release signing sets deterministic id to null
     String deterministicId = getSignatureParameters().getDeterministicId();
     try {
       signedDocument = asicService.signDocument(signedDocument, signatureParameters, rawSignature);
@@ -263,8 +263,8 @@ public class BDocContainer extends Container {
     if (signedDocument == null) {
       DataFile dataFile = getFirstDataFile();
       MimeType mimeType = MimeType.fromCode(dataFile.getMediaType());
-      if (dataFile.getFileSize() > FILE_SIZE_TO_STREAM) {
-        //TODO not working with big files
+      long cachedFileSizeInMB = configuration.getMaxDataFileCachedInMB();
+      if (configuration.isBigFilesSupportEnabled() && dataFile.getFileSize() > cachedFileSizeInMB * ONE_MB_IN_BYTES) {
         signedDocument = new StreamDocument(dataFile.getStream(), dataFile.getFileName(), mimeType);
       } else
         signedDocument = new InMemoryDocument(dataFile.getBytes(), dataFile.getFileName(), mimeType);
