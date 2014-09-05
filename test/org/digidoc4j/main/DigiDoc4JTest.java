@@ -72,6 +72,15 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void nonExistingDigidoc4jModeResultsInTest() throws Exception {
+    String[] params = new String[]{""};
+    System.clearProperty("digidoc4j.mode");
+
+    callMainWithoutSystemExit(params);
+    assertEquals(Mode.TEST.toString(), System.getProperty("digidoc4j.mode"));
+  }
+
+  @Test
   public void commandLineDigidoc4jModeOverwritesDefault() throws Exception {
     String[] params = new String[]{""};
     System.setProperty("digidoc4j.mode", "PROD");
