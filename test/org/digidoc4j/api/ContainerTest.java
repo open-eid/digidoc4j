@@ -208,7 +208,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Before
   public void setUp() throws Exception {
-    PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test");
+    PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
   }
 
   @Test

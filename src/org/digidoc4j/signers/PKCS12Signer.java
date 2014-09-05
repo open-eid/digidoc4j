@@ -17,7 +17,7 @@ public class PKCS12Signer extends Signer {
    * @param fileName .p12 file name and path
    * @param password keystore password
    */
-  public PKCS12Signer(String fileName, String password) {
+  public PKCS12Signer(String fileName, char[] password) {
     logger.debug("File name: " + fileName);
     signatureTokenConnection = new Pkcs12SignatureToken(password, fileName);
     keyEntry = signatureTokenConnection.getKeys().get(0);

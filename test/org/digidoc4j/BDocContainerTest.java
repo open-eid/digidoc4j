@@ -33,7 +33,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Before
   public void setUp() throws Exception {
-    PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test");
+    PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
   }
 
   @AfterClass
@@ -154,7 +154,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void ocspResponseUnknownStatusThrowsException() throws Exception {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(new PKCS12Signer("testFiles/B4B.pfx", "123456"));
+    container.sign(new PKCS12Signer("testFiles/B4B.pfx", "123456".toCharArray()));
   }
 
   @Test

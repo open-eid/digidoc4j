@@ -32,7 +32,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Before
   public void setUp() throws Exception {
-    PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test");
+    PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
   }
 
   @Test
@@ -80,7 +80,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   public void testSetCertificateForBDOC() throws Exception {
     BDocContainer bDocContainer = new BDocContainer();
     bDocContainer.addDataFile("testFiles/test.txt", "text/plain");
-    Signature bDocSignature = bDocContainer.sign(new PKCS12Signer("testFiles/signout.p12", "test"));
+    Signature bDocSignature = bDocContainer.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
     bDocSignature.setCertificate(new X509Cert("testFiles/signout.pem"));
   }
 

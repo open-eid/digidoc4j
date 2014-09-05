@@ -34,11 +34,19 @@ public class SKOnlineOCSPSource implements OCSPSource {
 
   private Configuration configuration;
 
+  /**
+   * SK Online OCSP Source constructor
+   *
+   * @param configuration configuration to use for this source
+   */
   public SKOnlineOCSPSource(Configuration configuration) {
     this();
     this.configuration = configuration;
   }
 
+  /**
+   * SK Online OCSP Source constructor
+   */
   public SKOnlineOCSPSource() {
     dataLoader = new OCSPDataLoader();
   }
@@ -57,7 +65,8 @@ public class SKOnlineOCSPSource implements OCSPSource {
     return location;
   }
 
-  private byte[] buildOCSPRequest(final X509Certificate signCert, final X509Certificate issuerCert) throws DSSException {
+  private byte[] buildOCSPRequest(final X509Certificate signCert, final X509Certificate issuerCert) throws
+      DSSException {
     try {
       final CertificateID certId = DSSRevocationUtils.getOCSPCertificateID(signCert, issuerCert);
       final OCSPReqBuilder ocspReqBuilder = new OCSPReqBuilder();
@@ -70,7 +79,7 @@ public class SKOnlineOCSPSource implements OCSPSource {
           throw new ConfigurationException("Configuration needed for OCSP request signing is not complete.");
 
         Signer ocspSigner = new PKCS12Signer(configuration.getOCSPAccessCertificateFileName(),
-            String.valueOf(configuration.getOCSPAccessCertificatePassword()));
+            configuration.getOCSPAccessCertificatePassword());
 
         ContentSigner contentSigner = signerBuilder.build(ocspSigner.getPrivateKey());
         X509Certificate ocspSignerCert = ocspSigner.getCertificate().getX509Certificate();

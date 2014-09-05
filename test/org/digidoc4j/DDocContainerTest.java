@@ -33,7 +33,7 @@ public class DDocContainerTest {
 
   @Before
   public void setUp() throws Exception {
-    pkcs12Signer = new PKCS12Signer("testFiles/signout.p12", "test");
+    pkcs12Signer = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
   }
 
   @Test(expected = DigiDoc4JException.class)

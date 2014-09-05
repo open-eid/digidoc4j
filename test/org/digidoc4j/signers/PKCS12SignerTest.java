@@ -20,7 +20,7 @@ public class PKCS12SignerTest {
 
   @BeforeClass
   public static void setUp() {
-    pkcs12Signer = new PKCS12Signer("testFiles/signout.p12", "test");
+    pkcs12Signer = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
   }
 
   @Test

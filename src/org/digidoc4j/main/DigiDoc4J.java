@@ -122,7 +122,7 @@ public final class DigiDoc4J {
 
   private static void pkcs12Sign(CommandLine commandLine, Container container) {
     String[] optionValues = commandLine.getOptionValues("pkcs12");
-    Signer pkcs12Signer = new PKCS12Signer(optionValues[0], optionValues[1]);
+    Signer pkcs12Signer = new PKCS12Signer(optionValues[0], optionValues[1].toCharArray());
     container.sign(pkcs12Signer);
   }
 
