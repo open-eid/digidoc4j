@@ -14,12 +14,16 @@ public final class Helper {
 
   }
 
-  public static boolean isZipFile(File file) throws IOException {
-    DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
+  public static boolean isZipFile(InputStream stream) throws IOException {
+    DataInputStream in = new DataInputStream(new BufferedInputStream(stream));
     int test = in.readInt();
     in.close();
     final int zipVerificationCode = 0x504b0304;
     return test == zipVerificationCode;
+  }
+
+  public static boolean isZipFile(File file) throws IOException {
+    return isZipFile(new FileInputStream(file));
   }
 
   public static boolean isXMLFile(File file) throws ParserConfigurationException {

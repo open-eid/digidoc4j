@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import static org.digidoc4j.Signatures.XADES_SIGNATURE;
 import static org.digidoc4j.api.Container.DigestAlgorithm.SHA1;
 import static org.digidoc4j.api.Container.DigestAlgorithm.SHA256;
+import static org.digidoc4j.api.Container.DocumentType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 import static org.junit.Assert.*;
@@ -275,19 +276,49 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     spy.sign(PKCS12_SIGNER);
   }
 
+  @Test(expected = DigiDoc4JException.class)
+  public void openNonExistingFileThrowsError() {
+    new BDocContainer("non-existing.bdoc");
+  }
+
+
+  @Test(expected = DigiDoc4JException.class)
+  public void openClosedStreamThrowsException() throws IOException {
+    FileInputStream stream = new FileInputStream(new File("testFiles/test.txt"));
+    stream.close();
+    new BDocContainer(stream, false);
+  }
+
   @Test
   public void testLargeFileSigning() throws Exception {
     BDocContainer container = new BDocContainer();
-    String path = createLargeFile();
+    container.configuration.enableBigFilesSupport(10);
+    String path = createLargeFile((container.configuration.getMaxDataFileCachedInMB() * 1024 * 1024) + 100);
     container.addDataFile(path, "text/plain");
     container.sign(PKCS12_SIGNER);
   }
 
-  private String createLargeFile() {
+  @Test
+  public void openLargeFileFromStream() throws FileNotFoundException {
+
+    BDocContainer container = new BDocContainer();
+    container.configuration.enableBigFilesSupport(0);
+
+    String path = createLargeFile((container.configuration.getMaxDataFileCachedInMB() * 1024 * 1024) + 100);
+    container.addDataFile(path, "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.save("test-large-file.bdoc");
+    File file = new File("test-large-file.bdoc");
+    FileInputStream fileInputStream = new FileInputStream(file);
+    Container.open(fileInputStream, DocumentType.BDOC, true);
+    assertEquals(1, container.getSignatures().size());
+  }
+
+  private String createLargeFile(long size) {
     String fileName = "test_large_file.bdoc";
     try {
       RandomAccessFile largeFile = new RandomAccessFile(fileName, "rw");
-      largeFile.setLength(100);//todo create large file correctly
+      largeFile.setLength(size);//todo create large file correctly
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -298,7 +329,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void testGetDocumentType() throws Exception {
     createSignedBDocDocument("testGetDocumentType.bdoc");
     BDocContainer container = new BDocContainer("testGetDocumentType.bdoc");
-    assertEquals(Container.DocumentType.BDOC, container.getDocumentType());
+    assertEquals(DocumentType.BDOC, container.getDocumentType());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -338,6 +369,17 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertArrayEquals(new byte[]{0x42}, containerToTest.getDataFiles().get(0).getBytes());
 
     Files.deleteIfExists(expectedContainerAsFile.toPath());
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void saveToStreamThrowsException() throws IOException {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    File expectedContainerAsFile = new File("saveToStreamTest.bdoc");
+    OutputStream out = new FileOutputStream(expectedContainerAsFile);
+    out.close();
+    container.save(out);
   }
 
   @Test

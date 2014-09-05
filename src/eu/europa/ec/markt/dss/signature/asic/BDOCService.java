@@ -44,7 +44,7 @@ public class BDOCService extends ASiCSService {
   private static final String ASICS_EXTENSION = ".bdoc";
   private static final String ASICS_NS = "asic:XAdESSignatures";
   private static final String ASICS_URI = "http://uri.etsi.org/02918/v1.2.1#";
-  private static final String ASIC_E_MIME_TYPE = "application/vnd.etsi.asic-e+zip";
+  public static final String ASIC_E_MIME_TYPE = "application/vnd.etsi.asic-e+zip";
 
   /**
    * This is the constructor to create an instance of the {@code BDocService}. A certificate verifier must be provided.

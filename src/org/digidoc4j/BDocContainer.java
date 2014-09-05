@@ -41,8 +41,7 @@ import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
- * Experimental code to implement ASiC-S container. There is lot's of duplication with BDocContainer.
- * When experimenting is finished duplication is removed
+ * BDOC container implementation
  */
 public class BDocContainer extends Container {
 
@@ -58,6 +57,7 @@ public class BDocContainer extends Container {
   eu.europa.ec.markt.dss.DigestAlgorithm digestAlgorithm = SHA256;
   Configuration configuration = null;
   private TrustedListsCertificateSource tslCertificateSource;
+  private static final MimeType BDOC_MIME_TYPE = MimeType.fromCode(BDOCService.ASIC_E_MIME_TYPE);
 
   /**
    * Create a new container object of type ASIC_E.
@@ -84,21 +84,50 @@ public class BDocContainer extends Container {
    */
   public BDocContainer(String path) {
     this();
+    logger.debug("Opens file: " + path);
+    try {
+      signedDocument = new FileDocument(path);
+    } catch (DSSException e) {
+      logger.error(e.getMessage());
+      throw new DigiDoc4JException(e);
+    }
+    readsOpenedDocumentDetails();
+  }
 
-    logger.debug("Path: " + path);
+  /**
+   * Opens container from a stream
+   *
+   * @param stream                      stream to read container from
+   * @param actAsBigFilesSupportEnabled acts as configuration parameter
+   * @see org.digidoc4j.api.Configuration#isBigFilesSupportEnabled() returns true
+   */
+  public BDocContainer(InputStream stream, boolean actAsBigFilesSupportEnabled) {
+    this();
+    logger.debug("");
+    try {
+      if (actAsBigFilesSupportEnabled) {
+        signedDocument = new StreamDocument(stream, null, BDOC_MIME_TYPE);
+      } else
+        signedDocument = new InMemoryDocument(IOUtils.toByteArray(stream), null, BDOC_MIME_TYPE);
+    } catch (IOException e) {
+      logger.debug(e.getMessage());
+      throw new DigiDoc4JException(e);
+    }
+
+    readsOpenedDocumentDetails();
+  }
+
+  private void readsOpenedDocumentDetails() {
+    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
+    validate(validator);
+    SimpleReport simpleReport = validator.getSimpleReport();
 
     List<DigiDoc4JException> validationErrors;
-
-    signedDocument = new FileDocument(path);
-    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
-    DSSDocument externalContent = validator.getDetachedContent();
-
-    validate(validator);
     List<AdvancedSignature> signatureList = validator.getSignatures();
 
     for (AdvancedSignature advancedSignature : signatureList) {
       validationErrors = new ArrayList<DigiDoc4JException>();
-      List<Conclusion.BasicInfo> errors = validator.getSimpleReport().getErrors(advancedSignature.getId());
+      List<Conclusion.BasicInfo> errors = simpleReport.getErrors(advancedSignature.getId());
       for (Conclusion.BasicInfo error : errors) {
         String errorMessage = error.toString();
         logger.info(errorMessage);
@@ -107,6 +136,7 @@ public class BDocContainer extends Container {
       signatures.add(new BDocSignature((XAdESSignature) advancedSignature, validationErrors));
     }
 
+    DSSDocument externalContent = validator.getDetachedContent();
     dataFiles.put(externalContent.getName(), new DataFile(externalContent.getBytes(), externalContent.getName(),
         externalContent.getMimeType().getCode()));
     logger.debug("New BDoc container created");
@@ -364,6 +394,7 @@ public class BDocContainer extends Container {
 
     List<DigiDoc4JException> validationErrors = new ArrayList<DigiDoc4JException>();
     List<String> signatureIds = simpleReport.getSignatureIds();
+
     for (String signatureId : signatureIds) {
       List<Conclusion.BasicInfo> errors = simpleReport.getErrors(signatureId);
       for (Conclusion.BasicInfo error : errors) {

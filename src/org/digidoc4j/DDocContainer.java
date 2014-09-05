@@ -54,6 +54,22 @@ public class DDocContainer extends Container {
     }
   }
 
+  /**
+   * description
+   *
+   * @param stream description
+   */
+  public DDocContainer(InputStream stream) {
+    intConfiguration();
+    DigiDocFactory digFac = new SAXDigiDocFactory();
+    try {
+      ddoc = digFac.readDigiDocFromStream(stream);
+    } catch (DigiDocException e) {
+      logger.error(e.getMessage());
+      throw new DigiDoc4JException(e);
+    }
+  }
+
   private void intConfiguration() {
     logger.debug("");
     Configuration configuration = new Configuration();

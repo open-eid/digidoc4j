@@ -9,10 +9,7 @@ import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -146,4 +143,12 @@ public class DDocContainerTest {
     DDocContainer container = new DDocContainer(ddoc);
     container.save(new ByteArrayOutputStream());
   }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void openFromStreamThrowsException() throws IOException {
+    FileInputStream stream = new FileInputStream(new File("testFiles/test.txt"));
+    stream.close();
+    new DDocContainer(stream);
+  }
+
 }

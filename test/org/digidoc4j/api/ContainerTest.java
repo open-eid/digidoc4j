@@ -15,6 +15,7 @@ import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -352,6 +353,27 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     container.addDataFile(new ByteArrayInputStream(new byte[]{0x42}), "testFromStream.txt", TEXT_MIME_TYPE);
     DataFile dataFile = container.getDataFiles().get(0);
     assertEquals("testFromStream.txt", dataFile.getFileName());
+  }
+
+  @Test
+  public void openContainerFromStreamAsBDoc() throws IOException {
+    Container container = Container.create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.save("openContainerFromStreamAsBDoc.bdoc");
+
+    FileInputStream stream = new FileInputStream("openContainerFromStreamAsBDoc.bdoc");
+    Container containerToTest = Container.open(stream, BDOC, false);
+    assertEquals(1, containerToTest.getSignatures().size());
+    stream.close();
+  }
+
+  @Test
+  public void openContainerFromStreamAsDDoc() throws IOException {
+    FileInputStream stream = new FileInputStream("testFiles/ddoc_for_testing.ddoc");
+    Container container = Container.open(stream, DDOC, false);
+    assertEquals(1, container.getSignatures().size());
+    stream.close();
   }
 
   @Test

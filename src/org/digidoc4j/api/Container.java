@@ -61,7 +61,7 @@ public abstract class Container {
    *
    * @param path file name and path.
    * @return container
-   * @throws org.digidoc4j.api.exceptions.DigiDoc4JException TODO write description
+   * @throws DigiDoc4JException when the file is not found or empty
    */
   public static Container open(String path) throws DigiDoc4JException {
     logger.debug("Path: " + path);
@@ -74,10 +74,25 @@ public abstract class Container {
       }
       return container;
     } catch (IOException e) {
-      DigiDoc4JException exception = new DigiDoc4JException(10, "Empty or unreadable input file");
-      logger.error(exception.toString());
-      throw exception;
+      logger.error(e.getMessage());
+      throw new DigiDoc4JException(e);
     }
+  }
+
+  /**
+   * Open container from a stream
+   *
+   * @param stream                      input stream
+   * @param type                        document type
+   * @param actAsBigFilesSupportEnabled acts as configuration parameter
+   * @return container
+   * @see org.digidoc4j.api.Configuration#isBigFilesSupportEnabled() returns true used for BDOC
+   */
+  public static Container open(InputStream stream, DocumentType type, boolean actAsBigFilesSupportEnabled) {
+    logger.debug("");
+    if (type == DocumentType.BDOC)
+      return new BDocContainer(stream, actAsBigFilesSupportEnabled);
+    return new DDocContainer(stream);
   }
 
   protected Container() {
