@@ -23,6 +23,9 @@ public class DDocSignature extends Signature {
   private X509Cert certificate;
   private final ee.sk.digidoc.Signature origin;
 
+  /**
+   * @param signature add description
+   */
   public DDocSignature(ee.sk.digidoc.Signature signature) {
     this.origin = signature;
   }

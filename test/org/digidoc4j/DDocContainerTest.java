@@ -6,12 +6,14 @@ import ee.sk.digidoc.SignedDoc;
 import org.digidoc4j.api.Container;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS12Signer;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,10 +24,16 @@ import static org.mockito.Mockito.*;
 
 public class DDocContainerTest {
   public static final String TEXT_MIME_TYPE = "text/plain";
+  private PKCS12Signer pkcs12Signer;
 
   @BeforeClass
   public static void setTestMode() {
     System.setProperty("digidoc4j.mode", "TEST");
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    pkcs12Signer = new PKCS12Signer("testFiles/signout.p12", "test");
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -52,6 +60,15 @@ public class DDocContainerTest {
     assertEquals("test.txt", dataFiles.get(0).getFileName());
     assertEquals("test.txt", dataFiles.get(1).getFileName());
     Files.deleteIfExists(Paths.get("test_ddoc_file.ddoc"));
+  }
+
+  @Test
+  public void getDataFileByIndex() {
+    DDocContainer container = new DDocContainer();
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    container.addDataFile("testFiles/test.xml", TEXT_MIME_TYPE);
+
+    assertEquals("test.xml", container.getDataFile(1).getFileName());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -127,7 +144,7 @@ public class DDocContainerTest {
   public void savesToStream() {
     DDocContainer container = new DDocContainer();
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    container.sign(new PKCS12Signer("testFiles/signout.p12", "test"));
+    container.sign(pkcs12Signer);
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     container.save(out);
@@ -151,4 +168,13 @@ public class DDocContainerTest {
     new DDocContainer(stream);
   }
 
+  @Test
+  public void getSignatureByIndex() throws CertificateEncodingException {
+    DDocContainer container = new DDocContainer();
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    container.sign(pkcs12Signer);
+    container.sign(pkcs12Signer);
+
+    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12", container.getSignature(1).getSigningCertificate().getSerial());
+  }
 }

@@ -194,6 +194,14 @@ public abstract class Container {
   public abstract List<DataFile> getDataFiles();
 
   /**
+   * Returns a data file
+   *
+   * @param index index number of the data file to return
+   * @return data file
+   */
+  public abstract DataFile getDataFile(int index);
+
+  /**
    * Removes a data file from the container by data file name. Any corresponding signatures will be deleted.
    *
    * @param fileName name of the data file to be removed
@@ -242,6 +250,14 @@ public abstract class Container {
    * @return list of all signatures
    */
   public abstract List<Signature> getSignatures();
+
+  /**
+   * Return signature
+   *
+   * @param index index number of the signature to return
+   * @return signature
+   */
+  public abstract Signature getSignature(int index);
 
   /**
    * Returns document type ASiC or DDOC

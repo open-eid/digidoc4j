@@ -1,7 +1,7 @@
 package org.digidoc4j;
 
-import ee.sk.digidoc.CertValue;
 import ee.sk.digidoc.DigiDocException;
+import ee.sk.digidoc.KeyInfo;
 import ee.sk.digidoc.SignatureProductionPlace;
 import ee.sk.digidoc.SignedDoc;
 import ee.sk.digidoc.factory.DigiDocFactory;
@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -165,6 +166,11 @@ public class DDocContainer extends Container {
   }
 
   @Override
+  public DataFile getDataFile(int index) {
+    return getDataFiles().get(index);
+  }
+
+  @Override
   public void removeDataFile(String fileName) {
     logger.debug("File name: " + fileName);
     removeDataFile(new File(fileName));
@@ -277,15 +283,26 @@ public class DDocContainer extends Container {
     return signatures;
   }
 
+  @Override
+  public Signature getSignature(int index) {
+    return getSignatures().get(index);
+  }
+
   private Signature mapJDigiDocSignatureToDigiDoc4J(ee.sk.digidoc.Signature signature) {
     logger.debug("");
     Signature finalSignature = new DDocSignature(signature);
-    CertValue lastCertValue = signature.getLastCertValue();
-    if (lastCertValue == null) {
+
+    KeyInfo keyInfo = signature.getKeyInfo();
+    if (keyInfo == null) {
       return null;
     }
 
-    finalSignature.setCertificate(new X509Cert(lastCertValue.getCert()));
+    X509Certificate signersCertificate = keyInfo.getSignersCertificate();
+    if (signersCertificate == null) {
+      return null;
+    }
+
+    finalSignature.setCertificate(new X509Cert(signersCertificate));
     //TODO can be several certs
     //TODO check logic about one role versus several roles
 

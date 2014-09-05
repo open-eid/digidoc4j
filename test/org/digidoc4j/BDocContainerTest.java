@@ -140,6 +140,16 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
         openedContainer.getSignatures().get(1).getSigningCertificate().getSerial());
   }
 
+  @Test
+  public void getSignatureByIndex() {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.sign(PKCS12_SIGNER);
+
+    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12", container.getSignature(1).getSigningCertificate().getSerial());
+  }
+
   @Test(expected = OCSPRequestFailedException.class)
   public void ocspResponseUnknownStatusThrowsException() throws Exception {
     BDocContainer container = new BDocContainer();
@@ -248,6 +258,15 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
     Container containerToTest = new BDocContainer("testAddFileAsStream.bdoc");
     assertEquals("test1.txt", containerToTest.getDataFiles().get(0).getFileName());
+  }
+
+  @Test
+  public void getDataFileByIndex() {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("TestFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+
+    assertEquals("test.txt", container.getDataFile(0).getFileName());
   }
 
   @Test

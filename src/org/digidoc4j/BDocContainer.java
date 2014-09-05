@@ -203,6 +203,12 @@ public class BDocContainer extends Container {
   }
 
   @Override
+  public DataFile getDataFile(int index) {
+    logger.debug("get data file with index: " + index);
+    return getDataFiles().get(index);
+  }
+
+  @Override
   public void removeDataFile(String fileName) {
     logger.debug("File name: " + fileName);
     if (dataFiles.remove(fileName) == null) {
@@ -430,6 +436,11 @@ public class BDocContainer extends Container {
   public List<Signature> getSignatures() {
     logger.debug("");
     return signatures;
+  }
+
+  @Override
+  public Signature getSignature(int index) {
+    return getSignatures().get(index);
   }
 
   @Override
