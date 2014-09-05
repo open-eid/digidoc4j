@@ -263,7 +263,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void getDataFileByIndex() {
     BDocContainer container = new BDocContainer();
-    container.addDataFile("TestFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
 
     assertEquals("test.txt", container.getDataFile(0).getFileName());
