@@ -89,15 +89,15 @@
 
   <target name="library">
     <zip destfile="${dist.dir}/digidoc4j-library-${lib.version}${version.suffix}.zip">
-      <zipfileset dir="lib" includes="*.jar" excludes="*-source.jar *-sources.jar *-javadoc.jar dss-*.jar"/>
-      <zipfileset dir="sd-dss/apps/dss/core/dss-common/target" includes="dss-*.jar"
-                  excludes="*-javadoc.jar *-sources.jar"/>
-      <zipfileset dir="sd-dss/apps/dss/core/dss-document/target" includes="dss-*.jar"
-                  excludes="*-javadoc.jar *-sources.jar"/>
-      <zipfileset dir="sd-dss/apps/dss/core/dss-service/target" includes="dss-*.jar"
-                  excludes="*-javadoc.jar *-sources.jar"/>
-      <zipfileset dir="sd-dss/apps/dss/core/dss-spi/target" includes="dss-*.jar"
-                  excludes="*-javadoc.jar *-sources.jar"/>
+      <zipfileset dir="lib" includes="*.jar" excludes="*-source.jar *-sources.jar *-javadoc.jar"/>
+      <!--<zipfileset dir="sd-dss/apps/dss/core/dss-common/target" includes="dss-*.jar"-->
+      <!--excludes="*-javadoc.jar *-sources.jar"/>-->
+      <!--<zipfileset dir="sd-dss/apps/dss/core/dss-document/target" includes="dss-*.jar"-->
+      <!--excludes="*-javadoc.jar *-sources.jar"/>-->
+      <!--<zipfileset dir="sd-dss/apps/dss/core/dss-service/target" includes="dss-*.jar"-->
+      <!--excludes="*-javadoc.jar *-sources.jar"/>-->
+      <!--<zipfileset dir="sd-dss/apps/dss/core/dss-spi/target" includes="dss-*.jar"-->
+      <!--excludes="*-javadoc.jar *-sources.jar"/>-->
     </zip>
   </target>
 
