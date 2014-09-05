@@ -4,6 +4,7 @@ import org.digidoc4j.api.DataFile;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import static java.util.Arrays.asList;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
@@ -24,5 +25,14 @@ public class ManifestTest {
     manifest.save(out);
 
     assertXMLEqual(expectedResult, new String(out.toByteArray()));
+  }
+
+  @Test
+  public void saveThrowsException() throws IOException {
+    Manifest manifest = new Manifest();
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    out.close();
+    manifest.save(out);
   }
 }
