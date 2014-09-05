@@ -1,7 +1,6 @@
 package org.digidoc4j.api;
 
 import org.apache.commons.lang.StringUtils;
-import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DLSequence;
@@ -121,7 +120,7 @@ public class X509Cert {
     while (sequenceObjects.hasMoreElements()) {
       DLSequence next = (DLSequence) sequenceObjects.nextElement();
       Object objectAt = next.getObjectAt(0);
-      if (objectAt instanceof ASN1Encodable) {
+      if (objectAt != null) {
         policies.add(objectAt.toString());
       }
     }
