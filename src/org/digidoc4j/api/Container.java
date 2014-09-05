@@ -1,5 +1,6 @@
 package org.digidoc4j.api;
 
+import org.apache.commons.io.IOUtils;
 import org.digidoc4j.BDocContainer;
 import org.digidoc4j.DDocContainer;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
@@ -7,10 +8,7 @@ import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.List;
 
 /**
@@ -25,7 +23,7 @@ import java.util.List;
  * </p>
  */
 public abstract class Container {
-  static Logger logger = LoggerFactory.getLogger(Container.class);
+  private static final Logger logger = LoggerFactory.getLogger(Container.class);
 
   /**
    * Create an ASIC_E container.
@@ -83,16 +81,24 @@ public abstract class Container {
    * Open container from a stream
    *
    * @param stream                      input stream
-   * @param type                        document type
    * @param actAsBigFilesSupportEnabled acts as configuration parameter
    * @return container
    * @see org.digidoc4j.api.Configuration#isBigFilesSupportEnabled() returns true used for BDOC
    */
-  public static Container open(InputStream stream, DocumentType type, boolean actAsBigFilesSupportEnabled) {
+  public static Container open(InputStream stream, boolean actAsBigFilesSupportEnabled) {
     logger.debug("");
-    if (type == DocumentType.BDOC)
-      return new BDocContainer(stream, actAsBigFilesSupportEnabled);
-    return new DDocContainer(stream);
+    BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);
+
+    try {
+      if (Helper.isZipFile(bufferedInputStream))
+        return new BDocContainer(bufferedInputStream, actAsBigFilesSupportEnabled);
+      return new DDocContainer(bufferedInputStream);
+    } catch (IOException e) {
+      logger.error(e.getMessage());
+      throw new DigiDoc4JException(e);
+    } finally {
+      IOUtils.closeQuietly(bufferedInputStream);
+    }
   }
 
   protected Container() {

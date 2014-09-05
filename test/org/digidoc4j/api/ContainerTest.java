@@ -363,7 +363,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     container.save("openContainerFromStreamAsBDoc.bdoc");
 
     FileInputStream stream = new FileInputStream("openContainerFromStreamAsBDoc.bdoc");
-    Container containerToTest = Container.open(stream, BDOC, false);
+    Container containerToTest = Container.open(stream, false);
     assertEquals(1, containerToTest.getSignatures().size());
     stream.close();
   }
@@ -371,7 +371,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void openContainerFromStreamAsDDoc() throws IOException {
     FileInputStream stream = new FileInputStream("testFiles/ddoc_for_testing.ddoc");
-    Container container = Container.open(stream, DDOC, false);
+    Container container = Container.open(stream, false);
     assertEquals(1, container.getSignatures().size());
     stream.close();
   }

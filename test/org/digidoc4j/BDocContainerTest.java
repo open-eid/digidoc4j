@@ -310,7 +310,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.save("test-large-file.bdoc");
     File file = new File("test-large-file.bdoc");
     FileInputStream fileInputStream = new FileInputStream(file);
-    Container.open(fileInputStream, DocumentType.BDOC, true);
+    Container.open(fileInputStream, true);
     assertEquals(1, container.getSignatures().size());
   }
 

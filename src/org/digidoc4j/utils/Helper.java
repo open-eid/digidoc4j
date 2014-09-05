@@ -8,24 +8,53 @@ import java.nio.file.Paths;
 
 import static java.nio.file.Files.deleteIfExists;
 
+/**
+ *
+ */
 public final class Helper {
 
-  private Helper() {
+  private static final int ZIP_VERIFICATION_CODE = 0x504b0304;
+  private static final int INT_LENGTH = 4;
 
+  private Helper() {
   }
 
+  /**
+   * @param stream aa
+   * @return aa
+   * @throws IOException aa
+   */
   public static boolean isZipFile(InputStream stream) throws IOException {
-    DataInputStream in = new DataInputStream(new BufferedInputStream(stream));
+    DataInputStream in = new DataInputStream(stream);
+
+    if (stream.markSupported())
+      stream.mark(INT_LENGTH);
+
     int test = in.readInt();
-    in.close();
-    final int zipVerificationCode = 0x504b0304;
+
+    if (stream.markSupported())
+      stream.reset();
+
+    final int zipVerificationCode = ZIP_VERIFICATION_CODE;
     return test == zipVerificationCode;
   }
 
+  /**
+   *
+   * @param file aa
+   * @return aa
+   * @throws IOException aa
+   */
   public static boolean isZipFile(File file) throws IOException {
     return isZipFile(new FileInputStream(file));
   }
 
+  /**
+   *
+   * @param file aa
+   * @return aa
+   * @throws ParserConfigurationException aa
+   */
   public static boolean isXMLFile(File file) throws ParserConfigurationException {
     DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     try {
@@ -36,9 +65,12 @@ public final class Helper {
     return true;
   }
 
+  /**
+   *
+   * @param file aa
+   * @throws IOException aa
+   */
   public static void deleteFile(String file) throws IOException {
     deleteIfExists(Paths.get(file));
   }
 }
-
-
