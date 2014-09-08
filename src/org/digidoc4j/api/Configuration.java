@@ -119,18 +119,17 @@ public class Configuration {
   private void initDefaultValues() {
     logger.debug("");
 
+    configuration.put("tspSource", "http://demo.sk.ee/tsa");
+    configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
+
     if (mode == Mode.TEST) {
       configuration.put("tslLocation", "file:conf/trusted-test-tsl.xml");
-      configuration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
       configuration.put("validationPolicy", "conf/constraint.xml");
-      configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
       configuration.put("ocspSource", "http://www.openxades.org/cgi-bin/ocsp.cgi");
     } else {
       configuration.put("tslLocation", "http://10.0.25.57/tsl/trusted-test-mp.xml");
 //      configuration.put("tslLocation", "http://sr.riik.ee/tsl/estonian-tsl.xml");
-      configuration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
       configuration.put("validationPolicy", "conf/constraint.xml");
-      configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
       configuration.put("ocspSource", "http://ocsp.sk.ee/");
     }
     logger.debug(mode + "configuration:\n" + configuration);
@@ -394,7 +393,7 @@ public class Configuration {
   /**
    * Enables big files support. Sets limit in MB when handling files are creating temporary file for streaming in
    * container creation and adding data files.
-   *
+   * <p/>
    * Used by DigiDoc4J and by JDigiDoc.
    *
    * @param maxFileSizeCachedInMB Maximum size in MB
@@ -405,7 +404,6 @@ public class Configuration {
   }
 
   /**
-   *
    * @return is big file support enabled
    */
   public boolean isBigFilesSupportEnabled() {

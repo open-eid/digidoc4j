@@ -23,6 +23,7 @@ public final class Prototype {
     container.setConfiguration(new Configuration(Configuration.Mode.TEST));
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
+    container.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
     container.save("prototype.bdoc");
   }
 }

@@ -12,6 +12,7 @@ import eu.europa.ec.markt.dss.validation102853.SignatureForm;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCCMSDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
+import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Manifest;
 import org.digidoc4j.api.DataFile;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import static eu.europa.ec.markt.dss.DSSXMLUtils.buildDOM;
@@ -44,7 +46,6 @@ public class BDOCService extends ASiCSService {
   private static final String ASICS_EXTENSION = ".bdoc";
   private static final String ASICS_NS = "asic:XAdESSignatures";
   private static final String ASICS_URI = "http://uri.etsi.org/02918/v1.2.1#";
-  public static final String ASIC_E_MIME_TYPE = "application/vnd.etsi.asic-e+zip";
 
   /**
    * This is the constructor to create an instance of the {@code BDocService}. A certificate verifier must be provided.
@@ -118,11 +119,7 @@ public class BDOCService extends ASiCSService {
     }
 
     final ASiCParameters asicParameters = specificParameters.aSiC();
-
     final DocumentSignatureService underlyingService = getSpecificService(specificParameters);
-
-    final DSSDocument enclosedSignature = asicParameters.getEnclosedSignature();
-
     final SignatureForm asicSignatureForm = asicParameters.getAsicSignatureForm();
     final DSSDocument signature;
 
@@ -134,29 +131,43 @@ public class BDOCService extends ASiCSService {
     }
 
     final DSSDocument originalDocument = specificParameters.getDetachedContent();
-
     final ByteArrayOutputStream outBytes = new ByteArrayOutputStream();
+    final String toSignDocumentName = originalDocument.getName();
     final ZipOutputStream outZip = new ZipOutputStream(outBytes);
 
-    final String toSignDocumentName = originalDocument.getName();
+    if (toSignDocument.getMimeType() == MimeType.ASICE) {
+      ZipInputStream zin = new ZipInputStream(toSignDocument.openStream());
+      try {
+        for (ZipEntry entry; (entry = zin.getNextEntry()) != null; ) {
+          outZip.putNextEntry(entry);
+          IOUtils.copyLarge(zin, outZip);
+        }
 
+      } catch (IOException e) {
+        throw new DigiDoc4JException(e);
+      }
 
-    if (asicParameters.isZipComment() && DSSUtils.isNotEmpty(toSignDocumentName)) {
-      outZip.setComment("mimetype=" + ASIC_E_MIME_TYPE);
+      buildXAdES(signature, outZip, parameters.getDeterministicId());
+    } else {
+
+      if (asicParameters.isZipComment() && DSSUtils.isNotEmpty(toSignDocumentName)) {
+        outZip.setComment("mimetype=" + MimeType.ASICE);
+      }
+
+      storeMimeType(asicParameters, outZip, MimeType.ASICE.getCode());
+      storeSignedFile(originalDocument, outZip);
+      buildXAdES(signature, outZip, parameters.getDeterministicId());
+      storeManifest(asList(new DataFile(new byte[]{}, originalDocument.getName(),
+          originalDocument.getMimeType().getCode())), outZip);
+
     }
-
-    storeMimeType(asicParameters, outZip, ASIC_E_MIME_TYPE);
-    storeSignedFile(originalDocument, outZip);
-    buildXAdES(enclosedSignature, signature, outZip);
-    storeManifest(asList(new DataFile(new byte[]{}, originalDocument.getName(),
-        originalDocument.getMimeType().getCode())), outZip);
-
     DSSUtils.close(outZip);
 
     final byte[] documentBytes = outBytes.toByteArray();
     final String name = toSignDocumentName != null ? toSignDocumentName + ASICS_EXTENSION : null;
-    final InMemoryDocument asicSignature = new InMemoryDocument(documentBytes, name, MimeType.ASICS);
+    InMemoryDocument asicSignature = new InMemoryDocument(documentBytes, name, MimeType.ASICE);
     parameters.setDeterministicId(null);
+
     return asicSignature;
   }
 
@@ -210,35 +221,21 @@ public class BDOCService extends ASiCSService {
    * This method creates a XAdES signature. When adding a new signature,
    * this one is appended to the already present signatures.
    *
-   * @param contextSignature already present signatures
    * @param signature        signature being created
    * @param outZip           destination {@code ZipOutputStream}
+   * @param signatureId      signature id
    * @throws DSSException
    */
-  private void buildXAdES(final DSSDocument contextSignature, final DSSDocument signature,
-                          final ZipOutputStream outZip) throws DSSException {
-
+  private void buildXAdES(final DSSDocument signature, final ZipOutputStream outZip, String signatureId)
+      throws DSSException {
     try {
-
-      final ZipEntry entrySignature = new ZipEntry(ZIP_ENTRY_METAINF_XADES_SIGNATURE);
+      ZipEntry entrySignature = new ZipEntry("META-INF/signature" + signatureId.toLowerCase() + ".xml");
       outZip.putNextEntry(entrySignature);
-      // Creates the XAdES signature
-      final Document xmlSignatureDoc = buildDOM(signature);
-      final Element documentElement = xmlSignatureDoc.getDocumentElement();
-      final Element xmlSignatureElement = (Element) xmlSignatureDoc.removeChild(documentElement);
+      Document xmlSignatureDoc = buildDOM(signature);
+      Element documentElement = xmlSignatureDoc.getDocumentElement();
+      Element xmlSignatureElement = (Element) xmlSignatureDoc.removeChild(documentElement);
 
-      final Document xmlXAdESDoc;
-      if (contextSignature != null) {
-
-        final Document contextXmlSignatureDoc = buildDOM(contextSignature);
-        final Element contextDocumentElement = contextXmlSignatureDoc.getDocumentElement();
-        contextXmlSignatureDoc.adoptNode(xmlSignatureElement);
-        contextDocumentElement.appendChild(xmlSignatureElement);
-        xmlXAdESDoc = contextXmlSignatureDoc;
-      } else {
-
-        xmlXAdESDoc = DSSXMLUtils.createDocument(ASICS_URI, ASICS_NS, xmlSignatureElement);
-      }
+      Document xmlXAdESDoc = DSSXMLUtils.createDocument(ASICS_URI, ASICS_NS, xmlSignatureElement);
       newInstance().newTransformer().transform(new DOMSource(xmlXAdESDoc), new StreamResult(outZip));
     } catch (IOException e) {
       throw new DSSException(e);
@@ -261,12 +258,12 @@ public class BDOCService extends ASiCSService {
 
     final String toSignDocumentName = toSignDocument.getName();
 
-    outZip.setComment("mimetype=" + ASIC_E_MIME_TYPE);
+    outZip.setComment("mimetype=" + MimeType.ASICE);
 
     ASiCParameters asicParameters = new ASiCParameters();
-    asicParameters.setMimeType(ASIC_E_MIME_TYPE);
+    asicParameters.setMimeType(MimeType.ASICE.getCode());
 
-    storeMimeType(asicParameters, outZip, ASIC_E_MIME_TYPE);
+    storeMimeType(asicParameters, outZip, MimeType.ASICE.getCode());
     storeSignedFile(toSignDocument, outZip);
 
     try {

@@ -57,7 +57,7 @@ public class BDocContainer extends Container {
   eu.europa.ec.markt.dss.DigestAlgorithm digestAlgorithm = SHA256;
   Configuration configuration = null;
   private TrustedListsCertificateSource tslCertificateSource;
-  private static final MimeType BDOC_MIME_TYPE = MimeType.fromCode(BDOCService.ASIC_E_MIME_TYPE);
+  private static final MimeType BDOC_MIME_TYPE = MimeType.ASICE;
 
   /**
    * Create a new container object of type ASIC_E.
@@ -70,6 +70,7 @@ public class BDocContainer extends Container {
     signatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
     signatureParameters.setDigestAlgorithm(eu.europa.ec.markt.dss.DigestAlgorithm.SHA256);
     signatureParameters.aSiC().setAsicSignatureForm(SignatureForm.XAdES);
+    signatureParameters.aSiC().setZipComment(true);
 
     commonCertificateVerifier = new CommonCertificateVerifier();
     asicService = new BDOCService(commonCertificateVerifier);
