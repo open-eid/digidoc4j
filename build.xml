@@ -118,23 +118,18 @@
     <jar destfile="${dist.dir}/digidoc4j-${lib.version}${version.suffix}-sources.jar" basedir="src"/>
   </target>
 
-  <target name="base" depends="version, clean, javadoc, source, compile, utility, library"/>
-
-  <target name="all">
-    <!--<copy file="sd-dss/apps/dss/core/dss-common/target/dss-common-?.?.?.jar" todir="lib"/>-->
-    <!--<copy file="sd-dss/apps/dss/core/dss-document/target/dss-document-?.?.?.jar" todir="lib"/>-->
-    <!--<copy file="sd-dss/apps/dss/core/dss-service/target/dss-service-?.?.?.jar" todir="lib"/>-->
-    <!--<copy file="sd-dss/apps/dss/core/dss-spi/target/dss-spi-?.?.?.jar" todir="lib"/>-->
-    <copy todir="lib">
+  <target name="copy.dss.library">
+  <copy todir="lib">
       <fileset dir="sd-dss/apps/dss/core/dss-common/target" includes="dss-common*.jar" excludes="*-sources.jar "/>
       <fileset dir="sd-dss/apps/dss/core/dss-document/target" includes="dss-document*.jar" excludes="*-sources.jar "/>
       <fileset dir="sd-dss/apps/dss/core/dss-service/target" includes="dss-service*.jar" excludes="*-sources.jar "/>
       <fileset dir="sd-dss/apps/dss/core/dss-spi/target" includes="dss-spi*.jar" excludes="*-sources.jar "/>
     </copy>
-    <antcall target="base"/>
-    <antcall target="test"/>
-    <antcall target="coverage.report"/>
   </target>
+
+  <target name="base" depends="version, clean, javadoc, source, compile, utility, library"/>
+
+  <target name="all" depends="copy.dss.library, test, coverage.report"/>
 
   <target name="test" depends="base">
     <mkdir dir="${junit.dir}"/>
