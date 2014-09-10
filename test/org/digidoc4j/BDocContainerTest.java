@@ -5,7 +5,6 @@ import org.digidoc4j.api.Configuration;
 import org.digidoc4j.api.Container;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
-import org.digidoc4j.api.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.api.exceptions.SignatureNotFoundException;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.AfterClass;
@@ -148,13 +147,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.sign(PKCS12_SIGNER);
 
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12", container.getSignature(1).getSigningCertificate().getSerial());
-  }
-
-  @Test(expected = OCSPRequestFailedException.class)
-  public void ocspResponseUnknownStatusThrowsException() throws Exception {
-    BDocContainer container = new BDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(new PKCS12Signer("testFiles/B4B.pfx", "123456".toCharArray()));
   }
 
   @Test
@@ -415,7 +407,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void getTSLLocationWhenFileExists() {
     BDocContainer container = new BDocContainer();
-    assertEquals("file:conf/trusted-test-tsl.xml", container.getTslLocation());
+    assertEquals("file:conf/trusted-test-mp.xml", container.getTslLocation());
   }
 
   @Test

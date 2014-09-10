@@ -107,14 +107,15 @@ public class ConfigurationTest {
   @Test
   public void defaultProductionConfiguration() throws Exception {
     Configuration configuration = new Configuration(PROD);
-    assertEquals("http://10.0.25.57/tsl/trusted-test-mp.xml", configuration.getTslLocation());
+    assertEquals("https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml",
+        configuration.getTslLocation());
   }
 
   @Test
   public void defaultConstructorWithSetSystemProperty() throws Exception {
     System.setProperty("digidoc4j.mode", "TEST");
     Configuration configuration = new Configuration();
-    assertEquals("file:conf/trusted-test-tsl.xml", configuration.getTslLocation());
+    assertEquals("file:conf/trusted-test-mp.xml", configuration.getTslLocation());
   }
 
   @Test
@@ -128,7 +129,8 @@ public class ConfigurationTest {
   @Test
   public void defaultConstructorWithUnSetSystemProperty() throws Exception {
     Configuration configuration = new Configuration();
-    assertEquals("http://10.0.25.57/tsl/trusted-test-mp.xml", configuration.getTslLocation());
+    assertEquals("https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml",
+        configuration.getTslLocation());
   }
 
   @Test
@@ -361,7 +363,8 @@ public class ConfigurationTest {
 
   @Test
   public void loadMultipleCAsFromConfigurationFile() throws Exception {
-    Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf_two_cas.yaml");
+    Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf_two_cas" +
+        ".yaml");
     System.out.println();
     assertEquals("AS Sertifitseerimiskeskus", jDigiDocConf.get("DIGIDOC_CA_1_NAME"));
     assertEquals("jar://certs/ESTEID-SK.crt", jDigiDocConf.get("DIGIDOC_CA_1_CERT2"));
