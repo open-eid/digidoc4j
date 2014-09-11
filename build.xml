@@ -129,6 +129,8 @@
 
   <target name="base" depends="version, clean, javadoc, source, compile, utility, library"/>
 
+  <target name="make.utility" depends="version, clean, compile, utility"/>
+
   <target name="all" depends="copy.dss.library, test, coverage.report"/>
 
   <target name="test" depends="base">

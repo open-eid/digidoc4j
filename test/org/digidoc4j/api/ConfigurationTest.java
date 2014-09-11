@@ -166,7 +166,7 @@ public class ConfigurationTest {
   @Test
   public void settingNonExistingConfigurationFileThrowsError() throws Exception {
     expectedException.expect(ConfigurationException.class);
-    expectedException.expectMessage("testFiles/not_exists.yaml (No such file or directory)");
+    expectedException.expectMessage("File testFiles/not_exists.yaml not found in classpath.");
     configuration.loadConfiguration("testFiles/not_exists.yaml");
   }
 
@@ -393,8 +393,19 @@ public class ConfigurationTest {
     configuration.loadConfiguration(fileName);
   }
 
+  @Test
+  public void isTestMode() throws Exception {
+    Configuration configuration = new Configuration(TEST);
+    assertTrue(configuration.isTest());
+  }
 
-//  // getCACerts is currently only used for testing purposes and not yet updated for multiple CA's
+  @Test
+  public void isNotTestMode() throws Exception {
+    Configuration configuration = new Configuration(PROD);
+    assertFalse(configuration.isTest());
+  }
+
+  //  // getCACerts is currently only used for testing purposes and not yet updated for multiple CA's
 //  @Test
 //  public void readConfigurationFromPropertiesFile() throws Exception {
 //    configuration.loadConfiguration("digidoc4j.yaml");
