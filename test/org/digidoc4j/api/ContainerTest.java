@@ -29,8 +29,7 @@ import static org.digidoc4j.api.Container.DocumentType;
 import static org.digidoc4j.api.Container.DocumentType.BDOC;
 import static org.digidoc4j.api.Container.DocumentType.DDOC;
 import static org.digidoc4j.utils.Helper.deleteFile;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ContainerTest extends DigiDoc4JTestHelper {
   public static final String TEXT_MIME_TYPE = "text/plain";
@@ -316,7 +315,9 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testOpenInvalidFileReturnsError() {
     Container container = Container.open("testFiles/test.txt");
-    List<DigiDoc4JException> exceptions = container.validate();
+    ValidationResult validate = container.validate();
+    List<DigiDoc4JException> exceptions = validate.getErrors();
+    exceptions.addAll(validate.getWarnings());
     assertEquals(2, exceptions.size());
     assertEquals("ERROR: 75 - 75Invalid xml file!; nested exception is: \n" +
         "\torg.xml.sax.SAXParseException; Premature end of file.", exceptions.get(0).getMessage());
@@ -326,7 +327,8 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testValidateDDoc() throws Exception {
     Container dDocContainer = Container.open("testFiles/ddoc_for_testing.ddoc");
-    assertEquals(0, dDocContainer.validate().size());
+    assertFalse(dDocContainer.validate().hasErrors());
+    assertFalse(dDocContainer.validate().hasWarnings());
   }
 
   @Test(expected = DigiDoc4JException.class)

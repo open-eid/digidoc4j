@@ -391,7 +391,7 @@ public class BDocContainer extends Container {
    *
    * @return list of DigiDoc4JExceptions
    */
-  public List<DigiDoc4JException> verify() {
+  public ValidationResult verify() {
     logger.debug("");
     documentMustBeInitializedCheck();
 
@@ -399,20 +399,21 @@ public class BDocContainer extends Container {
     validate(validator);
     SimpleReport simpleReport = validator.getSimpleReport();
 
-    List<DigiDoc4JException> validationErrors = new ArrayList<DigiDoc4JException>();
     List<String> signatureIds = simpleReport.getSignatureIds();
+
+    ValidationResult validationResult = new ValidationResult();
 
     for (String signatureId : signatureIds) {
       List<Conclusion.BasicInfo> errors = simpleReport.getErrors(signatureId);
       for (Conclusion.BasicInfo error : errors) {
         String message = error.toString();
         logger.info(message);
-        validationErrors.add(new DigiDoc4JException(message));
+        validationResult.addError(new DigiDoc4JException(message));
       }
     }
     logger.debug(simpleReport.toString());
 
-    return validationErrors;
+    return validationResult;
   }
 
   private void validate(SignedDocumentValidator validator) {
@@ -457,7 +458,7 @@ public class BDocContainer extends Container {
   }
 
   @Override
-  public List<DigiDoc4JException> validate() {
+  public ValidationResult validate() {
     return verify();
   }
 

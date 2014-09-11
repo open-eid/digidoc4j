@@ -44,6 +44,15 @@ public class DigiDoc4JException extends RuntimeException {
     super(e.getMessage(), e.getCause());
   }
 
+  /**
+   * Get the error code of the exception
+   *
+   * @return error code
+   */
+  public int getErrorCode() {
+    return errorCode;
+  }
+
   @Override
   public String toString() {
     StringBuilder msg = new StringBuilder();

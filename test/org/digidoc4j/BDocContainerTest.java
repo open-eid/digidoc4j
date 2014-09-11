@@ -3,6 +3,7 @@ package org.digidoc4j;
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 import org.digidoc4j.api.Configuration;
 import org.digidoc4j.api.Container;
+import org.digidoc4j.api.ValidationResult;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.api.exceptions.SignatureNotFoundException;
@@ -201,13 +202,14 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testVerifySignedDocument() throws Exception {
     BDocContainer container = (BDocContainer) createSignedBDocDocument("testSaveBDocDocumentWithOneSignature.bdoc");
-    assertEquals(0, container.verify().size());
+    assertFalse(container.verify().hasErrors());
+    assertFalse(container.verify().hasWarnings());
   }
 
   @Test
   public void testTestVerifyOnInvalidDocument() throws Exception {
     BDocContainer container = new BDocContainer("testFiles/invalid_container.bdoc");
-    assertTrue(container.verify().size() > 0);
+    assertTrue(container.verify().hasErrors());
   }
 
   @Test
@@ -352,9 +354,18 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test(expected = NotYetImplementedException.class)
-  public void testValidate() {
+  public void testValidateEmptyDocument() {
     BDocContainer container = new BDocContainer();
     container.validate();
+  }
+
+  @Test
+  public void testValidate() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    ValidationResult validationResult = container.validate();
+    assertEquals(0, validationResult.getErrors().size());
   }
 
   @Test

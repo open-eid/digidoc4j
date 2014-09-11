@@ -322,32 +322,18 @@ public class DDocContainer extends Container {
 
 
   @Override
-  public List<DigiDoc4JException> validate() {
+  public ValidationResult validate() {
     logger.debug("");
     if (SignedDoc.hasFatalErrs(openContainerErrors)) {
       logger.info("Document has fatal errors");
-      return convertToDigiDoc4JExceptions(openContainerErrors);
+      return (ValidationResult.fromList(ddoc, openContainerErrors));
     }
 
-    List exceptions = ddoc.verify(true, true);
+    ArrayList<DigiDocException> digiDocExceptions = new ArrayList<DigiDocException>();
+    digiDocExceptions.addAll(openContainerErrors);
+    digiDocExceptions.addAll(ddoc.verify(true, true));
 
-    List<DigiDoc4JException> allExceptions;
-    allExceptions = convertToDigiDoc4JExceptions(openContainerErrors);
-    //noinspection unchecked
-    allExceptions.addAll(convertToDigiDoc4JExceptions(exceptions));
-    return allExceptions;
-  }
-
-  private List<DigiDoc4JException>
-  convertToDigiDoc4JExceptions(List<ee.sk.digidoc.DigiDocException> errorsAndWarnings) {
-    logger.debug("");
-    List<DigiDoc4JException> errors = new ArrayList<DigiDoc4JException>();
-    for (ee.sk.digidoc.DigiDocException errorsAndWarning : errorsAndWarnings) {
-      String errorMessage = errorsAndWarning.toString();
-      logger.debug(errorMessage);
-      errors.add(new DigiDoc4JException(errorMessage));
-    }
-    return errors;
+    return (ValidationResult.fromList(ddoc, digiDocExceptions));
   }
 }
 

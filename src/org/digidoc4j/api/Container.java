@@ -278,9 +278,9 @@ public abstract class Container {
   /**
    * Validate container
    *
-   * @return List of errors
+   * @return validation result
    */
-  public abstract List<DigiDoc4JException> validate();
+  public abstract ValidationResult validate();
 }
 
 
