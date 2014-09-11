@@ -100,7 +100,7 @@
         <attribute name="Implementation-Title" value="Java BDoc/DigiDoc utility"/>
         <attribute name="Implementation-Version" value="${lib.version}"/>
         <attribute name="Main-Class" value="org.digidoc4j.main.DigiDoc4J"/>
-        <attribute name="Class-Path" value="./bcprov-jdk15on-1.49.jar"/>
+        <attribute name="Class-Path" value="./ ./bcprov-jdk15on-1.49.jar"/>
       </manifest>
     </jar>
     <delete file="${build.dir}/util/temp.jar"/>
@@ -128,6 +128,8 @@
   </target>
 
   <target name="base" depends="version, clean, javadoc, source, compile, utility, library"/>
+
+  <target name="make.utility" depends="version, clean, compile, utility"/>
 
   <target name="all" depends="copy.dss.library, test, coverage.report"/>
 

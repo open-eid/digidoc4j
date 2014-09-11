@@ -11,6 +11,7 @@ import eu.europa.ec.markt.dss.validation102853.SignatureForm;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.https.DigiDoc4JDataLoader;
+import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
 import eu.europa.ec.markt.dss.validation102853.loader.Protocol;
 import eu.europa.ec.markt.dss.validation102853.ocsp.SKOnlineOCSPSource;
 import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
@@ -65,6 +66,7 @@ public class BDocContainer extends Container {
   public BDocContainer() {
     logger.debug("");
     configuration = new Configuration();
+    configuration.loadConfiguration("digidoc4j.yaml");
     signatureParameters = new SignatureParameters();
     signatureParameters.setSignatureLevel(SignatureLevel.ASiC_E_BASELINE_LT);
     signatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
@@ -331,8 +333,14 @@ public class BDocContainer extends Container {
       logger.debug("Using TSL cached copy");
       return tslCertificateSource;
     }
+
     tslCertificateSource = new TrustedListsCertificateSource();
-    tslCertificateSource.setDataLoader(new DigiDoc4JDataLoader());
+
+    if (configuration.isTest())
+      tslCertificateSource.setDataLoader(new DigiDoc4JDataLoader());
+    else
+      tslCertificateSource.setDataLoader(new FileCacheDataLoader());
+
     tslCertificateSource.setLotlUrl(getTslLocation());
     tslCertificateSource.setCheckSignature(false);
     tslCertificateSource.init();

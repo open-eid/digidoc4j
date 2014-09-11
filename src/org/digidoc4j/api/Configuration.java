@@ -235,13 +235,14 @@ public class Configuration {
     configurationFromFile = new LinkedHashMap();
     Yaml yaml = new Yaml();
     configurationFileName = file;
-    InputStream resourceAsStream = getResourceAsStream(file);
+    InputStream resourceAsStream = null;
+    try {
+      resourceAsStream = new FileInputStream(file);
+    } catch (FileNotFoundException e) {
+      logger.info("Configuration file" + file + " not found. Trying to search from jar file.");
+    }
     if (resourceAsStream == null) {
-      try {
-        resourceAsStream = new FileInputStream(file);
-      } catch (FileNotFoundException e) {
-        throw new ConfigurationException(e);
-      }
+        resourceAsStream = getResourceAsStream(file);
     }
     try {
       configurationFromFile = (LinkedHashMap) yaml.load(resourceAsStream);
@@ -289,7 +290,13 @@ public class Configuration {
 
   private InputStream getResourceAsStream(String certFile) {
     logger.debug("");
-    return getClass().getClassLoader().getResourceAsStream(certFile);
+    InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(certFile);
+    if (resourceAsStream == null) {
+      String message = "File " + certFile + " not found in classpath.";
+      logger.error(message);
+      throw new ConfigurationException(message);
+    }
+    return resourceAsStream;
   }
 
   /**
@@ -372,8 +379,8 @@ public class Configuration {
     setConfigurationValue("VALIDATION_POLICY", "validationPolicy");
     setConfigurationValue("PKCS11_MODULE", "pkcs11Module");
     setConfigurationValue("OCSP_SOURCE", "ocspSource");
-    setConfigurationValue("OCSP_ACCESS_CERTIFICATE_FILE", "OCSPAccessCertificateFile");
-    setConfigurationValue("OCSP_ACCESS_CERTIFICATE_PASSWORD", "OCSPAccessCertificatePassword");
+    setConfigurationValue("DIGIDOC_PKCS12_CONTAINER", "OCSPAccessCertificateFile");
+    setConfigurationValue("DIGIDOC_PKCS12_PASSWD", "OCSPAccessCertificatePassword");
   }
 
   private void setConfigurationValue(String fileKey, String configurationKey) {
@@ -666,4 +673,14 @@ public class Configuration {
     logger.debug("Value: " + value);
     return value;
   }
+
+  /**
+   *
+   *
+   * @return true when configuration is @see Configuration.Mode#TEST
+   */
+  public boolean isTest() {
+    return mode == Mode.TEST;
+  }
 }
+

@@ -22,6 +22,7 @@ public final class Prototype {
     Container container = Container.create();
     container.setConfiguration(new Configuration(Configuration.Mode.TEST));
     container.addDataFile("testFiles/test.txt", "text/plain");
+//    container.sign(new PKCS12Signer("testFiles/cb_b4b.p12", "c0deb0rne!xp".toCharArray()));
     container.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
     container.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
     container.save("prototype.bdoc");
