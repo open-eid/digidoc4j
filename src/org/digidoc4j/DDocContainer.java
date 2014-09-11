@@ -38,8 +38,6 @@ public class DDocContainer extends Container {
   Logger logger = LoggerFactory.getLogger(DDocContainer.class);
 
   private SignedDoc ddoc;
-  private ArrayList<ee.sk.digidoc.DigiDocException> openContainerErrors =
-      new ArrayList<ee.sk.digidoc.DigiDocException>();
 
   /**
    * Create a new container object of DDOC type Container.
@@ -86,10 +84,11 @@ public class DDocContainer extends Container {
    */
   public DDocContainer(String fileName) {
     logger.debug("File name: " + fileName);
+
     intConfiguration();
     DigiDocFactory digFac = new SAXDigiDocFactory();
     try {
-      ddoc = digFac.readSignedDocOfType(fileName, false, openContainerErrors);
+      ddoc = digFac.readSignedDocOfType(fileName, false);
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
@@ -321,24 +320,11 @@ public class DDocContainer extends Container {
   }
 
 
+  @SuppressWarnings("unchecked")
   @Override
   public ValidationResult validate() {
     logger.debug("");
-    if (SignedDoc.hasFatalErrs(openContainerErrors)) {
-      logger.info("Document has fatal errors");
-      return (ValidationResult.fromList(ddoc, openContainerErrors));
-    }
 
-    ArrayList<DigiDocException> digiDocExceptions = new ArrayList<DigiDocException>();
-    digiDocExceptions.addAll(openContainerErrors);
-    digiDocExceptions.addAll(ddoc.verify(true, true));
-
-    return (ValidationResult.fromList(ddoc, digiDocExceptions));
+    return ValidationResultMapper.fromList(ddoc.getFormat(), ddoc.verify(true, true));
   }
 }
-
-
-
-
-
-

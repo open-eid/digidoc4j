@@ -397,7 +397,7 @@ public class BDocContainer extends Container {
   /**
    * Verify BDoc Container.
    *
-   * @return list of DigiDoc4JExceptions
+   * @return result of the verification
    */
   public ValidationResult verify() {
     logger.debug("");
@@ -405,23 +405,8 @@ public class BDocContainer extends Container {
 
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
     validate(validator);
-    SimpleReport simpleReport = validator.getSimpleReport();
 
-    List<String> signatureIds = simpleReport.getSignatureIds();
-
-    ValidationResult validationResult = new ValidationResult();
-
-    for (String signatureId : signatureIds) {
-      List<Conclusion.BasicInfo> errors = simpleReport.getErrors(signatureId);
-      for (Conclusion.BasicInfo error : errors) {
-        String message = error.toString();
-        logger.info(message);
-        validationResult.addError(new DigiDoc4JException(message));
-      }
-    }
-    logger.debug(simpleReport.toString());
-
-    return validationResult;
+    return ValidationResultMapper.fromValidator(validator);
   }
 
   private void validate(SignedDocumentValidator validator) {

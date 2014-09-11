@@ -311,17 +311,9 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     deleteFile("testOpenCreatedDDocFile.ddoc");
   }
 
-  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-  @Test
+  @Test(expected = DigiDoc4JException.class)
   public void testOpenInvalidFileReturnsError() {
-    Container container = Container.open("testFiles/test.txt");
-    ValidationResult validate = container.validate();
-    List<DigiDoc4JException> exceptions = validate.getErrors();
-    exceptions.addAll(validate.getWarnings());
-    assertEquals(2, exceptions.size());
-    assertEquals("ERROR: 75 - 75Invalid xml file!; nested exception is: \n" +
-        "\torg.xml.sax.SAXParseException; Premature end of file.", exceptions.get(0).getMessage());
-    assertEquals("ERROR: 12 - This document is not in ddoc or bdoc format", exceptions.get(1).getMessage());
+    Container.open("testFiles/test.txt");
   }
 
   @Test

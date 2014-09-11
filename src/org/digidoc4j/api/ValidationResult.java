@@ -1,7 +1,5 @@
 package org.digidoc4j.api;
 
-import ee.sk.digidoc.DigiDocException;
-import ee.sk.digidoc.SignedDoc;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,25 +15,15 @@ public class ValidationResult {
   private List<DigiDoc4JException> errors = new ArrayList<DigiDoc4JException>();
   private List<DigiDoc4JException> warnings = new ArrayList<DigiDoc4JException>();
 
-
   /**
-   * Add error
+   * Constructor
    *
-   * @param error Digidoc4JException error
+   * @param errors   List of validation errors
+   * @param warnings List of validation warnings
    */
-  public void addError(DigiDoc4JException error) {
-    logger.debug("");
-    errors.add(error);
-  }
-
-  /**
-   * Add warning
-   *
-   * @param warning Digidoc4JException warning
-   */
-  public void addWarning(DigiDoc4JException warning) {
-    logger.debug("");
-    warnings.add(warning);
+  public ValidationResult(List<DigiDoc4JException> errors, List<DigiDoc4JException> warnings) {
+    this.errors = errors;
+    this.warnings = warnings;
   }
 
   /**
@@ -80,37 +68,5 @@ public class ValidationResult {
     return hasWarnings;
   }
 
-  /**
-   * Generate validation result for DDoc
-   *
-   * @param document   Validated document
-   * @param exceptions List of DigiDocExceptions found for the document
-   * @return validation result
-   */
-  public static ValidationResult fromList(SignedDoc document, ArrayList<DigiDocException> exceptions) {
-    logger.debug("");
-    ValidationResult validationResult = new ValidationResult();
-    for (ee.sk.digidoc.DigiDocException exception : exceptions) {
-      DigiDoc4JException digiDoc4JException = new DigiDoc4JException(exception.getMessage());
-      String message = exception.toString();
-      if (isWarning(document, digiDoc4JException)) {
-        logger.debug("Validation warning : " + message);
-        validationResult.addWarning(new DigiDoc4JException(message));
-      } else {
-        logger.debug("Validation error : " + message);
-        validationResult.addError(new DigiDoc4JException(message));
-      }
-    }
-    return validationResult;
-  }
 
-  static boolean isWarning(SignedDoc document, DigiDoc4JException exception) {
-    logger.debug("");
-    int errorCode = exception.getErrorCode();
-    return (errorCode == DigiDocException.ERR_DF_INV_HASH_GOOD_ALT_HASH
-        || errorCode == DigiDocException.ERR_OLD_VER
-        || errorCode == DigiDocException.ERR_TEST_SIGNATURE
-        || errorCode == DigiDocException.WARN_WEAK_DIGEST
-        || (errorCode == DigiDocException.ERR_ISSUER_XMLNS && !document.getFormat().equals(SignedDoc.FORMAT_SK_XML)));
-  }
 }

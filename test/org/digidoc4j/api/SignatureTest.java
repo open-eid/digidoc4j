@@ -319,14 +319,8 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void testGetSignaturesWhereNoSignedDocumentExists() throws Exception {
-    DDocContainer container = new DDocContainer("testFiles/no_signed_doc_no_signature.ddoc");
-    assertNull(container.getSignatures());
-  }
-
-  @Test
   public void testGetSignaturesWhereNoSignaturePresent() throws Exception {
-    DDocContainer container = new DDocContainer("testFiles/empty_container_no_signature.ddoc");
+    DDocContainer container = new DDocContainer();
     assertNull(container.getSignatures());
   }
 
@@ -335,7 +329,4 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     DDocContainer container = new DDocContainer("testFiles/signature_without_last_certificate.ddoc");
     assertEquals(0, container.getSignatures().size());
   }
-
-
 }
-
