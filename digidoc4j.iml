@@ -72,6 +72,8 @@
     <orderEntry type="library" name="org.yaml:snakeyaml:1.13" level="project" />
     <orderEntry type="library" name="jdigidoc-3.10.1316.BETA" level="project" />
     <orderEntry type="library" name="slf4j-simple-1.6.6" level="project" />
+    <orderEntry type="library" name="serializer-2.7.1" level="project" />
+    <orderEntry type="library" name="xercesImpl-2.11.0" level="project" />
   </component>
 </module>
 

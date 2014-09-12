@@ -1,18 +1,18 @@
 package org.digidoc4j;
 
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import org.digidoc4j.api.DataFile;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
@@ -73,13 +73,10 @@ public class Manifest {
    * @param out output stream
    */
   public void save(OutputStream out) {
-    logger.debug("");
-    XMLSerializer serializer = new XMLSerializer(out, new OutputFormat(dom));
-    try {
-      serializer.serialize(dom);
-    } catch (IOException e) {
-      logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
-    }
+    DOMImplementationLS implementation = (DOMImplementationLS) dom.getImplementation();
+    LSOutput lsOutput = implementation.createLSOutput();
+    lsOutput.setByteStream(out);
+    LSSerializer writer = implementation.createLSSerializer();
+    writer.write(dom, lsOutput);
   }
 }
