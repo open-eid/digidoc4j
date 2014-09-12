@@ -239,7 +239,7 @@ public class Configuration {
     try {
       resourceAsStream = new FileInputStream(file);
     } catch (FileNotFoundException e) {
-      logger.info("Configuration file" + file + " not found. Trying to search from jar file.");
+      logger.info("Configuration file " + file + " not found. Trying to search from jar file.");
     }
     if (resourceAsStream == null) {
         resourceAsStream = getResourceAsStream(file);
