@@ -406,7 +406,7 @@ public class BDocContainer extends Container {
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
     validate(validator);
 
-    return ValidationResultMapper.fromValidator(validator);
+    return new ValidationResultForBDoc(validator);
   }
 
   private void validate(SignedDocumentValidator validator) {

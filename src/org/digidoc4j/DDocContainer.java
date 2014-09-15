@@ -49,7 +49,7 @@ public class DDocContainer extends Container {
       ddoc = new SignedDoc("DIGIDOC-XML", "1.3");
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
+      throw new DigiDoc4JException(e.getNestedException());
     }
   }
 
@@ -65,7 +65,8 @@ public class DDocContainer extends Container {
       ddoc = digFac.readDigiDocFromStream(stream);
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
+      if (e.getCode() == DigiDocException.ERR_PARSE_XML) throw new DigiDoc4JException(e.toString());
+      throw new DigiDoc4JException(e.getNestedException());
     }
   }
 
@@ -91,7 +92,8 @@ public class DDocContainer extends Container {
       ddoc = digFac.readSignedDocOfType(fileName, false);
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
+      if (e.getCode() == DigiDocException.ERR_PARSE_XML) throw new DigiDoc4JException(e.toString());
+      throw new DigiDoc4JException(e.getNestedException());
     }
   }
 
@@ -108,7 +110,7 @@ public class DDocContainer extends Container {
       ddoc.addDataFile(new File(path), mimeType, CONTENT_EMBEDDED_BASE64);
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
+      throw new DigiDoc4JException(e.getNestedException());
     }
   }
 
@@ -140,7 +142,7 @@ public class DDocContainer extends Container {
       ddoc.readSignature(signatureStream);
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
+      throw new DigiDoc4JException(e.getNestedException());
     }
   }
 
@@ -158,7 +160,7 @@ public class DDocContainer extends Container {
           dataFiles.add(new DataFile(dataFile.getBody(), dataFile.getFileName(), dataFile.getMimeType()));
       } catch (DigiDocException e) {
         logger.error(e.getMessage());
-        throw new DigiDoc4JException(e);
+        throw new DigiDoc4JException(e.getNestedException());
       }
     }
     return dataFiles;
@@ -193,7 +195,7 @@ public class DDocContainer extends Container {
       ddoc.removeDataFile(index);
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
+      throw new DigiDoc4JException(e.getNestedException());
     }
   }
 
@@ -204,7 +206,7 @@ public class DDocContainer extends Container {
       ddoc.removeSignature(index);
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
+      throw new DigiDoc4JException(e.getNestedException());
     }
   }
 
@@ -215,7 +217,7 @@ public class DDocContainer extends Container {
       ddoc.writeToFile(new File(path));
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
+      throw new DigiDoc4JException(e.getNestedException());
     }
   }
 
@@ -226,7 +228,7 @@ public class DDocContainer extends Container {
       ddoc.writeToStream(out);
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
+      throw new DigiDoc4JException(e.getNestedException());
     }
   }
 
@@ -248,7 +250,7 @@ public class DDocContainer extends Container {
       signature.getConfirmation();
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
+      throw new DigiDoc4JException(e.getNestedException());
     }
     return new DDocSignature(signature);
   }
@@ -324,7 +326,6 @@ public class DDocContainer extends Container {
   @Override
   public ValidationResult validate() {
     logger.debug("");
-
-    return ValidationResultMapper.fromList(ddoc.getFormat(), ddoc.verify(true, true));
+    return new ValidationResultForDDoc(ddoc.getFormat(), ddoc.verify(true, true));
   }
 }

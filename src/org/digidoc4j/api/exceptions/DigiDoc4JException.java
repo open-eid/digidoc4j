@@ -40,6 +40,15 @@ public class DigiDoc4JException extends RuntimeException {
    *
    * @param e parent exception
    */
+  public DigiDoc4JException(Throwable e) {
+    super(e);
+  }
+
+  /**
+   * Creates new exception based on another exception
+   *
+   * @param e parent exception
+   */
   public DigiDoc4JException(Exception e) {
     super(e.getMessage(), e.getCause());
   }
