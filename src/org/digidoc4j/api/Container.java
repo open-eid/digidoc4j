@@ -71,6 +71,10 @@ public abstract class Container {
         container = new DDocContainer(path);
       }
       return container;
+    } catch (EOFException eof) {
+      String msg = "File is empty or does not exist.";
+      logger.error(msg);
+      throw new DigiDoc4JException(msg);
     } catch (IOException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
