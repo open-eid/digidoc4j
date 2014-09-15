@@ -15,19 +15,21 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.apache.commons.lang.StringUtils.isNumeric;
 
 /**
- * Possibility to create custom configurations for {@link org.digidoc4j.api.Container} implementation.
+ * Possibility to create custom configurations for {@link org.digidoc4j.api.Container} implementations.
  * <p/>
  * You can specify the configuration mode, either {@link Configuration.Mode#TEST} or {@link Configuration.Mode#PROD}
- * configuration.
- * <p/>
- * Default is {@link Configuration.Mode#PROD}.
+ * configuration. Default is {@link Configuration.Mode#PROD}.
  * <p/>
  * It is also possible to set the mode using the System property. Setting the property "digidoc4j.mode" to "TEST" forces
- * the default mode to {@link Configuration.Mode#TEST}  mode
+ * the default mode to {@link Configuration.Mode#TEST} mode
  * <p/>
- * The configuration file must be in yaml format.<br>
+ * Configurations will be loaded from a file. The file must be in yaml format.<p/>
+ * <p/>
+ * <H3>Required entries of the configuration file:</H3>
  * The configuration file must contain one or more Certificate Authorities under the heading DIGIDOC_CAS
  * similar to following format (values are examples only):<br>
+ * <p>
+ * <pre>
  * DIGIDOC_CAS:
  * - DIGIDOC_CA:
  * NAME: CA name
@@ -35,6 +37,7 @@ import static org.apache.commons.lang.StringUtils.isNumeric;
  * CERTS:
  * - jar://certs/cert1.crt
  * - jar://certs/cert2.crt
+ * </pre>
  * <p/>
  * Each DIGIDOC_CA entry must contain one or more OCSP certificates under the heading "OCSPS"
  * similar to following format (values are examples only):<br>
@@ -51,40 +54,42 @@ import static org.apache.commons.lang.StringUtils.isNumeric;
  * </pre>
  * <p>All entries must exist and be valid. Under CERTS must be at least one entry.</p>
  * <p/>
- * <p>The configuration file may contain the following additional settings:</p>
  * <p/>
- * DIGIDOC_LOG4J_CONFIG: File containing Log4J configuration parameters.
- * Default value: {@value #DEFAULT_LOG4J_CONFIGURATION}<br>
- * SIGN_OCSP_REQUESTS: Should OCSP requests be signed? Allowed values: true, false<br>
- * <p/>
- * DIGIDOC_SECURITY_PROVIDER: Security provider.
- * Default value: {@value #DEFAULT_SECURITY_PROVIDER}<br>
- * DIGIDOC_SECURITY_PROVIDER_NAME: Name of the security provider.
- * Default value: {@value #DEFAULT_SECURITY_PROVIDER_NAME}<br>
- * KEY_USAGE_CHECK: Should key usage be checked? Allowed values: true, false.
- * Default value: {@value #DEFAULT_KEY_USAGE_CHECK}<br>
- * DIGIDOC_OCSP_SIGN_CERT_SERIAL: OCSP Signing certificate serial number<br>
- * <p/>
- * DATAFILE_HASHCODE_MODE: Is the datafile containing only a hash (not the actual file)? Allowed values: true, false.
- * Default value: {@value #DEFAULT_DATAFILE_HASHCODE_MODE}<br>
- * CANONICALIZATION_FACTORY_IMPL: Canonicalization factory implementation.
- * Default value: {@value #DEFAULT_FACTORY_IMPLEMENTATION}<br>
- * DIGIDOC_MAX_DATAFILE_CACHED: Maximum datafile size that will be cached in MB. Must be numeric.
- * DIGIDOC_USE_LOCAL_TSL: Use local TSL? Allowed values: true, false
- * Default value: {@value #DEFAULT_USE_LOCAL_TSL}
- * DIGIDOC_NOTARY_IMPL: Notary implementation.
- * Default value: {@value #DEFAULT_NOTARY_IMPLEMENTATION}<br>
- * DIGIDOC_TSLFAC_IMPL: TSL Factory implementation.
- * Default value: {@value #DEFAULT_TSL_FACTORY_IMPLEMENTATION}<br>
- * DIGIDOC_FACTORY_IMPL: Factory implementation.
- * Default value: {@value #DEFAULT_FACTORY_IMPLEMENTATION}<br>
- * <p/>
- * TSP_SOURCE: Time Stamp Protocol source address<br>
- * VALIDATION_POLICY: Validation policy source file<br>
- * PKCS11_MODULE: PKCS11 Module file<br>
- * OCSP_SOURCE: Online Certificate Service Protocol source<br>
- * OCSP_ACCESS_CERTIFICATE_FILE: OCSP access certificate file<br>
- * OCSP_ACCESS_CERTIFICATE_PASSWORD: OCSP access certificate password<p/>
+ * <H3>Optional entries of the configuration file:</H3>
+ * <ul>
+ * <li>CANONICALIZATION_FACTORY_IMPL: Canonicalization factory implementation.<br>
+ * Default value: {@value #DEFAULT_FACTORY_IMPLEMENTATION}</li>
+ * <li>DIGIDOC_FACTORY_IMPL: Factory implementation.<br>
+ * Default value: {@value #DEFAULT_FACTORY_IMPLEMENTATION}</li>
+ * <li>DATAFILE_HASHCODE_MODE: Is the datafile containing only a hash (not the actual file)?
+ * Allowed values: true, false.<br>
+ * Default value: {@value #DEFAULT_DATAFILE_HASHCODE_MODE}</li>
+ * <li>DIGIDOC_LOG4J_CONFIG: File containing Log4J configuration parameters.<br>
+ * Default value: {@value #DEFAULT_LOG4J_CONFIGURATION}</li>
+ * <li>DIGIDOC_MAX_DATAFILE_CACHED: Maximum datafile size that will be cached in MB.
+ * Must be numeric. Set to -1 to cache all files.<br>
+ * Default value: {@value #DEFAULT_MAX_DATAFILE_CACHED}</li>
+ * <li>DIGIDOC_NOTARY_IMPL: Notary implementation.<br>
+ * Default value: {@value #DEFAULT_NOTARY_IMPLEMENTATION}</li>
+ * <li>DIGIDOC_OCSP_SIGN_CERT_SERIAL: OCSP Signing certificate serial number</li>
+ * <li>DIGIDOC_SECURITY_PROVIDER: Security provider.<br>
+ * Default value: {@value #DEFAULT_SECURITY_PROVIDER}</li>
+ * <li>DIGIDOC_SECURITY_PROVIDER_NAME: Name of the security provider.<br>
+ * Default value: {@value #DEFAULT_SECURITY_PROVIDER_NAME}</li>
+ * <li>DIGIDOC_TSLFAC_IMPL: TSL Factory implementation.<br>
+ * Default value: {@value #DEFAULT_TSL_FACTORY_IMPLEMENTATION}</li>
+ * <li>DIGIDOC_USE_LOCAL_TSL: Use local TSL? Allowed values: true, false<br>
+ * Default value: {@value #DEFAULT_USE_LOCAL_TSL}</li>
+ * <li>KEY_USAGE_CHECK: Should key usage be checked? Allowed values: true, false.<br>
+ * Default value: {@value #DEFAULT_KEY_USAGE_CHECK}</li>
+ * <li>OCSP_ACCESS_CERTIFICATE_FILE: OCSP access certificate file</li>
+ * <li>OCSP_ACCESS_CERTIFICATE_PASSWORD: OCSP access certificate password</li>
+ * <li>OCSP_SOURCE: Online Certificate Service Protocol source</li>
+ * <li>PKCS11_MODULE: PKCS11 Module file</li>
+ * <li>SIGN_OCSP_REQUESTS: Should OCSP requests be signed? Allowed values: true, false</li>
+ * <li>TSP_SOURCE: Time Stamp Protocol source address</li>
+ * <li>VALIDATION_POLICY: Validation policy source file</li>
+ * </ul>
  */
 public class Configuration {
   final Logger logger = LoggerFactory.getLogger(Configuration.class);
@@ -100,6 +105,7 @@ public class Configuration {
   public static final String DEFAULT_KEY_USAGE_CHECK = "false";
   public static final String DEFAULT_DATAFILE_HASHCODE_MODE = "false";
   public static final String DEFAULT_USE_LOCAL_TSL = "true";
+  public static final String DEFAULT_MAX_DATAFILE_CACHED = "-1";
 
   private final Mode mode;
   //  private static final int JAR_FILE_NAME_BEGIN_INDEX = 6;
@@ -127,8 +133,8 @@ public class Configuration {
       configuration.put("validationPolicy", "conf/constraint.xml");
       configuration.put("ocspSource", "http://www.openxades.org/cgi-bin/ocsp.cgi");
     } else {
-      configuration.put("tslLocation", "https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp" +
-          ".xml");
+      configuration.put("tslLocation",
+          "https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml");
       configuration.put("validationPolicy", "conf/constraint.xml");
       configuration.put("ocspSource", "http://ocsp.sk.ee/");
     }
@@ -242,7 +248,7 @@ public class Configuration {
       logger.info("Configuration file " + file + " not found. Trying to search from jar file.");
     }
     if (resourceAsStream == null) {
-        resourceAsStream = getResourceAsStream(file);
+      resourceAsStream = getResourceAsStream(file);
     }
     try {
       configurationFromFile = (LinkedHashMap) yaml.load(resourceAsStream);
@@ -367,7 +373,7 @@ public class Configuration {
     setJDigiDocConfigurationValue("DIGIDOC_OCSP_SIGN_CERT_SERIAL", "");
     setJDigiDocConfigurationValue("DATAFILE_HASHCODE_MODE", DEFAULT_DATAFILE_HASHCODE_MODE);
     setJDigiDocConfigurationValue("CANONICALIZATION_FACTORY_IMPL", DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION);
-    setJDigiDocConfigurationValue("DIGIDOC_MAX_DATAFILE_CACHED", "-1");
+    setJDigiDocConfigurationValue("DIGIDOC_MAX_DATAFILE_CACHED", DEFAULT_MAX_DATAFILE_CACHED);
     setJDigiDocConfigurationValue("DIGIDOC_USE_LOCAL_TSL", DEFAULT_USE_LOCAL_TSL);
     setJDigiDocConfigurationValue("DIGIDOC_NOTARY_IMPL", DEFAULT_NOTARY_IMPLEMENTATION);
     setJDigiDocConfigurationValue("DIGIDOC_TSLFAC_IMPL", DEFAULT_TSL_FACTORY_IMPLEMENTATION);
@@ -675,8 +681,6 @@ public class Configuration {
   }
 
   /**
-   *
-   *
    * @return true when configuration is @see Configuration.Mode#TEST
    */
   public boolean isTest() {
