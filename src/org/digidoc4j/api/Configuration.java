@@ -129,7 +129,7 @@ public class Configuration {
     configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
 
     if (mode == Mode.TEST) {
-      configuration.put("tslLocation", "file:conf/trusted-test-mp.xml");
+      configuration.put("tslLocation", "http://10.0.25.57/tsl/trusted-test-mp.xml");
       configuration.put("validationPolicy", "conf/constraint.xml");
       configuration.put("ocspSource", "http://www.openxades.org/cgi-bin/ocsp.cgi");
     } else {
@@ -430,7 +430,7 @@ public class Configuration {
    * @return must be OCSP request signed
    */
   public boolean hasToBeOCSPRequestSigned() {
-    return Boolean.parseBoolean(jDigiDocConfiguration.get("SIGN_OCSP_REQUESTS"));
+    return mode == Mode.PROD;
   }
 
   /**

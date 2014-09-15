@@ -20,6 +20,10 @@ import static org.digidoc4j.api.Container.DocumentType.DDOC;
  */
 public final class DigiDoc4J {
 
+  private static boolean verboseMode;
+  private static final String ANSI_RED = "\033[31m";
+  private static final String ANSI_RESET = "\033[0m";
+
   private DigiDoc4J() {
   }
 
@@ -62,16 +66,23 @@ public final class DigiDoc4J {
   private static void execute(CommandLine commandLine) {
     boolean fileHasChanged = false;
 
+    verboseMode = commandLine.hasOption("verbose");
     String inputFile = commandLine.getOptionValue("in");
     DocumentType type = getContainerType(commandLine);
 
     checkSupportedFunctionality(commandLine);
 
     try {
-      Container container = Container.create(type);
+      Container container;
 
-      if (new File(inputFile).exists() || commandLine.hasOption("verify") || commandLine.hasOption("remove"))
+      if (new File(inputFile).exists() || commandLine.hasOption("verify") || commandLine.hasOption("remove")) {
+        verboseMessage("Opening container " + inputFile);
         container = Container.open(inputFile);
+      }
+      else {
+        verboseMessage("Creating new " + type + "container " + inputFile);
+        container = Container.create(type);
+      }
 
       if (commandLine.hasOption("add")) {
         String[] optionValues = commandLine.getOptionValues("add");
@@ -136,9 +147,9 @@ public final class DigiDoc4J {
       if (validationResult.size() == 0) {
         System.out.println("Signature " + signature.getId() + " is valid");
       } else {
-        System.out.println("Signature " + signature.getId() + " is not valid");
+        System.out.println(ANSI_RED + "Signature " + signature.getId() + " is not valid" + ANSI_RESET);
         for (DigiDoc4JException exception : validationResult) {
-          System.out.println(exception.getMessage());
+          System.out.println("\t" + exception.getMessage());
         }
       }
     }
@@ -147,6 +158,7 @@ public final class DigiDoc4J {
   private static Options createParameters() {
     Options options = new Options();
     options.addOption("v", "verify", false, "verify input file");
+    options.addOption("verbose", "verbose", false, "verbose output");
 
     options.addOption(type());
     options.addOption(inputFile());
@@ -155,6 +167,11 @@ public final class DigiDoc4J {
     options.addOption(pkcs12Sign());
 
     return options;
+  }
+
+  private static void verboseMessage(String message) {
+    if (verboseMode)
+      System.out.println(message);
   }
 
   @SuppressWarnings("AccessStaticViaInstance")

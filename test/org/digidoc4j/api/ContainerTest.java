@@ -472,7 +472,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     ddoc.setConfiguration(new Configuration());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testSetConfigurationForBDoc() throws Exception {
     Container container = Container.create(BDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
