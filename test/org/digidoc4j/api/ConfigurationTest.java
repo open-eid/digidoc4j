@@ -115,7 +115,7 @@ public class ConfigurationTest {
   public void defaultConstructorWithSetSystemProperty() throws Exception {
     System.setProperty("digidoc4j.mode", "TEST");
     Configuration configuration = new Configuration();
-    assertEquals("file:conf/trusted-test-mp.xml", configuration.getTslLocation());
+    assertEquals("http://10.0.25.57/tsl/trusted-test-mp.xml", configuration.getTslLocation());
   }
 
   @Test

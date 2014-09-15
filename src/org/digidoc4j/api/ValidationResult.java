@@ -68,5 +68,14 @@ public class ValidationResult {
     return hasWarnings;
   }
 
+  /**
+   * Is container valid or not.
+   *
+   * @return true when container is valid
+   */
+  public boolean isValid() {
+    logger.debug("");
+    return hasErrors();
+  }
 
 }

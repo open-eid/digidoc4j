@@ -417,12 +417,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void getTSLLocationWhenFileExists() {
-    BDocContainer container = new BDocContainer();
-    assertEquals("file:conf/trusted-test-mp.xml", container.getTslLocation());
-  }
-
-  @Test
   public void getTSLLocationWhenFileDoesNotExistInDefaultLocation() {
     BDocContainer container = new BDocContainer();
     Configuration configuration = new Configuration();

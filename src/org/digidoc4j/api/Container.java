@@ -58,15 +58,17 @@ public abstract class Container {
    * Open container from a file
    *
    * @param path file name and path.
+   *
    * @return container
    * @throws DigiDoc4JException when the file is not found or empty
    */
-  public static Container open(String path) throws DigiDoc4JException {
+  public static Container open(String path, Configuration configuration) throws DigiDoc4JException {
     logger.debug("Path: " + path);
     Container container;
     try {
       if (Helper.isZipFile(new File(path))) {
-        container = new BDocContainer(path);
+        configuration.loadConfiguration("digidoc4j.yaml");
+        container = new BDocContainer(path, configuration);
       } else {
         container = new DDocContainer(path);
       }
@@ -75,6 +77,18 @@ public abstract class Container {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
+  }
+
+  /**
+   * Open container from a file
+   *
+   * @param path file name and path.
+   *
+   * @return container
+   * @throws DigiDoc4JException when the file is not found or empty
+   */
+  public static Container open(String path) throws DigiDoc4JException {
+    return open(path, new Configuration());
   }
 
   /**

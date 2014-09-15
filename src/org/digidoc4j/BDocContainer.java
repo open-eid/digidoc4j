@@ -10,7 +10,6 @@ import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
 import eu.europa.ec.markt.dss.validation102853.SignatureForm;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
-import eu.europa.ec.markt.dss.validation102853.https.DigiDoc4JDataLoader;
 import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
 import eu.europa.ec.markt.dss.validation102853.loader.Protocol;
 import eu.europa.ec.markt.dss.validation102853.ocsp.SKOnlineOCSPSource;
@@ -31,6 +30,8 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -86,15 +87,7 @@ public class BDocContainer extends Container {
    * @param path container file name with path
    */
   public BDocContainer(String path) {
-    this();
-    logger.debug("Opens file: " + path);
-    try {
-      signedDocument = new FileDocument(path);
-    } catch (DSSException e) {
-      logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
-    }
-    readsOpenedDocumentDetails();
+    this(path, null);
   }
 
   /**
@@ -116,6 +109,21 @@ public class BDocContainer extends Container {
       logger.debug(e.getMessage());
       throw new DigiDoc4JException(e);
     }
+
+    readsOpenedDocumentDetails();
+  }
+
+  public BDocContainer(String path, Configuration configuration) {
+    this();
+    logger.debug("Opens file: " + path);
+    try {
+      signedDocument = new FileDocument(path);
+    } catch (DSSException e) {
+      logger.error(e.getMessage());
+      throw new DigiDoc4JException(e);
+    }
+    if (configuration != null)
+      this.configuration = configuration;
 
     readsOpenedDocumentDetails();
   }
@@ -336,10 +344,7 @@ public class BDocContainer extends Container {
 
     tslCertificateSource = new TrustedListsCertificateSource();
 
-    if (configuration.isTest())
-      tslCertificateSource.setDataLoader(new DigiDoc4JDataLoader());
-    else
-      tslCertificateSource.setDataLoader(new FileCacheDataLoader());
+    tslCertificateSource.setDataLoader(new FileCacheDataLoader());
 
     tslCertificateSource.setLotlUrl(getTslLocation());
     tslCertificateSource.setCheckSignature(false);
@@ -418,8 +423,21 @@ public class BDocContainer extends Container {
 
     verifier.setTrustedCertSource(trustedCertSource);
     validator.setCertificateVerifier(verifier);
-    File policyFile = new File(getConfiguration().getValidationPolicy());
-    validator.validateDocument(policyFile);
+
+    validator.validateDocument(getValidationPolicyAsStream(getConfiguration().getValidationPolicy()));
+  }
+
+  private InputStream getValidationPolicyAsStream(String policyFile)  {
+
+    if (Files.exists(Paths.get(policyFile))) {
+      try {
+        return new FileInputStream(policyFile);
+      } catch (FileNotFoundException ignore) {
+        logger.warn(ignore.getMessage());
+      }
+    }
+
+    return getClass().getClassLoader().getResourceAsStream(policyFile);
   }
 
   private DataFile getFirstDataFile() {

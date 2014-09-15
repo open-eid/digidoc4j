@@ -68,10 +68,12 @@ public final class DigiDoc4J {
     checkSupportedFunctionality(commandLine);
 
     try {
-      Container container = Container.create(type);
+      Container container;
 
       if (new File(inputFile).exists() || commandLine.hasOption("verify") || commandLine.hasOption("remove"))
         container = Container.open(inputFile);
+      else
+        container = Container.create(type);
 
       if (commandLine.hasOption("add")) {
         String[] optionValues = commandLine.getOptionValues("add");
