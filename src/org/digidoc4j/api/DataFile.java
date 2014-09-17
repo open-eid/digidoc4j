@@ -145,10 +145,10 @@ public class DataFile {
   public long getFileSize() {
     logger.debug("");
     long fileSize;
-    if (document instanceof StreamDocument) {
+    if (document instanceof StreamDocument || document instanceof FileDocument) {
       try {
         fileSize = Files.size(Paths.get(document.getAbsolutePath()));
-        logger.debug("Stream document size: " + fileSize);
+        logger.debug("Document size: " + fileSize);
         return fileSize;
       } catch (IOException e) {
         logger.error(e.getMessage());

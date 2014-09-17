@@ -50,7 +50,6 @@ public class BDocContainer extends Container {
   final Logger logger = LoggerFactory.getLogger(BDocContainer.class);
 
   private final Map<String, DataFile> dataFiles = new HashMap<String, DataFile>();
-  public static final int ONE_MB_IN_BYTES = 1048576;
   private CommonCertificateVerifier commonCertificateVerifier;
   protected DocumentSignatureService asicService;
   private SignatureParameters signatureParameters;
@@ -113,6 +112,12 @@ public class BDocContainer extends Container {
     readsOpenedDocumentDetails();
   }
 
+  /**
+   * Opens container from a file with specified configuration settings
+   *
+   * @param path          container file name with path
+   * @param configuration configuration settings
+   */
   public BDocContainer(String path, Configuration configuration) {
     this();
     logger.debug("Opens file: " + path);
@@ -166,26 +171,47 @@ public class BDocContainer extends Container {
   @Override
   public void addDataFile(String path, String mimeType) {
     logger.debug("Path: " + path + ", mime type: " + mimeType);
-    try {
-      FileInputStream is = new FileInputStream(path);
-      addDataFile(is, path, mimeType);
-      is.close();
-    } catch (IOException e) {
-      logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
+    if (canAddDataFile()) {
+      try {
+        long cachedFileSizeInBytes = configuration.getMaxDataFileCachedInBytes();
+        if (configuration.isBigFilesSupportEnabled() && new File(path).length() > cachedFileSizeInBytes) {
+          dataFiles.put(path, new DataFile(path, mimeType));
+        } else {
+          FileInputStream is = new FileInputStream(path);
+          dataFiles.put(path, new DataFile(IOUtils.toByteArray(is), path, mimeType));
+          is.close();
+        }
+      } catch (IOException e) {
+        logger.error(e.getMessage());
+        throw new DigiDoc4JException(e);
+      }
     }
   }
 
   @Override
   public void addDataFile(InputStream is, String fileName, String mimeType) {
     logger.debug("File name: " + fileName + ", mime type: " + mimeType);
+    if (canAddDataFile()) {
+      try {
+        if (configuration.isBigFilesSupportEnabled()) {
+          dataFiles.put(fileName, new DataFile(is, fileName, mimeType));
+        } else {
+          dataFiles.put(fileName, new DataFile(IOUtils.toByteArray(is), fileName, mimeType));
+        }
+      } catch (IOException e) {
+        logger.error(e.getMessage());
+        throw new DigiDoc4JException(e);
+      }
+    }
+  }
+
+  private boolean canAddDataFile() {
     if (dataFiles.size() >= 1) {
       DigiDoc4JException exception = new DigiDoc4JException("ASiCS supports only one attachment");
       logger.error(exception.getMessage());
       throw exception;
     }
-
-    dataFiles.put(fileName, new DataFile(is, fileName, mimeType));
+    return true;
   }
 
   @Override
@@ -310,8 +336,8 @@ public class BDocContainer extends Container {
     if (signedDocument == null) {
       DataFile dataFile = getFirstDataFile();
       MimeType mimeType = MimeType.fromCode(dataFile.getMediaType());
-      long cachedFileSizeInMB = configuration.getMaxDataFileCachedInMB();
-      if (configuration.isBigFilesSupportEnabled() && dataFile.getFileSize() > cachedFileSizeInMB * ONE_MB_IN_BYTES) {
+      long cachedFileSizeInBytes = configuration.getMaxDataFileCachedInBytes();
+      if (configuration.isBigFilesSupportEnabled() && dataFile.getFileSize() > cachedFileSizeInBytes) {
         signedDocument = new StreamDocument(dataFile.getStream(), dataFile.getFileName(), mimeType);
       } else
         signedDocument = new InMemoryDocument(dataFile.getBytes(), dataFile.getFileName(), mimeType);
@@ -427,7 +453,7 @@ public class BDocContainer extends Container {
     validator.validateDocument(getValidationPolicyAsStream(getConfiguration().getValidationPolicy()));
   }
 
-  private InputStream getValidationPolicyAsStream(String policyFile)  {
+  private InputStream getValidationPolicyAsStream(String policyFile) {
 
     if (Files.exists(Paths.get(policyFile))) {
       try {

@@ -307,7 +307,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void testLargeFileSigning() throws Exception {
     BDocContainer container = new BDocContainer();
     container.configuration.enableBigFilesSupport(10);
-    String path = createLargeFile((container.configuration.getMaxDataFileCachedInMB() * 1024 * 1024) + 100);
+    String path = createLargeFile((container.configuration.getMaxDataFileCachedInBytes()) + 100);
     container.addDataFile(path, "text/plain");
     container.sign(PKCS12_SIGNER);
   }
@@ -318,7 +318,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     BDocContainer container = new BDocContainer();
     container.configuration.enableBigFilesSupport(0);
 
-    String path = createLargeFile((container.configuration.getMaxDataFileCachedInMB() * 1024 * 1024) + 100);
+    String path = createLargeFile((container.configuration.getMaxDataFileCachedInBytes()) + 100);
     container.addDataFile(path, "text/plain");
     container.sign(PKCS12_SIGNER);
     container.save("test-large-file.bdoc");

@@ -65,8 +65,7 @@ public class DDocContainer extends Container {
       ddoc = digFac.readDigiDocFromStream(stream);
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
-      if (e.getCode() == DigiDocException.ERR_PARSE_XML) throw new DigiDoc4JException(e.toString());
-      throw new DigiDoc4JException(e.getNestedException());
+      throw new DigiDoc4JException(e);
     }
   }
 
@@ -92,8 +91,7 @@ public class DDocContainer extends Container {
       ddoc = digFac.readSignedDocOfType(fileName, false);
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
-      if (e.getCode() == DigiDocException.ERR_PARSE_XML) throw new DigiDoc4JException(e.toString());
-      throw new DigiDoc4JException(e.getNestedException());
+      throw new DigiDoc4JException(e);
     }
   }
 

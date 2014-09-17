@@ -124,6 +124,46 @@ public class ConfigurationTest {
     long maxDataFileCached = 12345;
     configuration.enableBigFilesSupport(maxDataFileCached);
     assertEquals(maxDataFileCached, configuration.getMaxDataFileCachedInMB());
+    assertEquals(maxDataFileCached * ONE_MB_IN_BYTES, configuration.getMaxDataFileCachedInBytes());
+  }
+
+  @Test
+  public void setMaxDataFileCachedToNoCaching() {
+    configuration = new Configuration();
+    long maxDataFileCached = CACHE_NO_DATA_FILES;
+    configuration.enableBigFilesSupport(maxDataFileCached);
+    assertEquals(CACHE_NO_DATA_FILES, configuration.getMaxDataFileCachedInMB());
+    assertEquals(CACHE_NO_DATA_FILES, configuration.getMaxDataFileCachedInBytes());
+  }
+
+  @Test
+  public void setMaxDataFileCachedToAllCaching() {
+    configuration = new Configuration();
+    long maxDataFileCached = CACHE_ALL_DATA_FILES;
+    configuration.enableBigFilesSupport(maxDataFileCached);
+    assertEquals(CACHE_ALL_DATA_FILES, configuration.getMaxDataFileCachedInMB());
+    assertEquals(CACHE_ALL_DATA_FILES, configuration.getMaxDataFileCachedInBytes());
+  }
+
+  @Test
+  public void maxDataFileCachedNotAllowedValue() {
+    configuration = new Configuration();
+    long oldValue = 4096;
+    configuration.enableBigFilesSupport(oldValue);
+    configuration.enableBigFilesSupport(-2);
+    assertEquals(oldValue, configuration.getMaxDataFileCachedInMB());
+  }
+
+  @Test
+  public void maxDataFileCachedNotAllowedValueFromFile() {
+    configuration = new Configuration();
+    String fileName = "testFiles/digidoc_test_conf_max_datafile_cached_invalid.yaml";
+
+    expectedException.expect(ConfigurationException.class);
+    expectedException.expectMessage("Configuration parameter DIGIDOC_MAX_DATAFILE_CACHED should be greater or equal " +
+        "-1 but the actual value is: -2.");
+
+    configuration.loadConfiguration(fileName);
   }
 
   @Test
@@ -153,7 +193,6 @@ public class ConfigurationTest {
     assertEquals(DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION, jDigiDocConf.get("CANONICALIZATION_FACTORY_IMPL"));
     assertEquals("-1", jDigiDocConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
     assertEquals("false", jDigiDocConf.get("SIGN_OCSP_REQUESTS"));
-
     assertEquals("jar://certs/KLASS3-SK OCSP.crt", jDigiDocConf.get("DIGIDOC_CA_1_OCSP2_CERT"));
   }
 
@@ -163,12 +202,24 @@ public class ConfigurationTest {
     assertEquals("org.bouncycastle.jce.provider.BouncyCastleProvider1", jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER"));
   }
 
+  @SuppressWarnings("NumericOverflow")
+  @Test
+  public void loadsMaxDataFileCachedFromFile() throws Exception {
+    Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+
+    assertEquals("8192", jDigiDocConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
+    assertEquals(8192, configuration.getMaxDataFileCachedInMB());
+    assertEquals(8192 * ONE_MB_IN_BYTES, configuration.getMaxDataFileCachedInBytes());
+  }
+
   @Test
   public void settingNonExistingConfigurationFileThrowsError() throws Exception {
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("File testFiles/not_exists.yaml not found in classpath.");
+
     configuration.loadConfiguration("testFiles/not_exists.yaml");
   }
+
 
   @Test
   public void digiDocSecurityProviderDefaultValue() throws Exception {
@@ -192,8 +243,9 @@ public class ConfigurationTest {
   public void digidocMaxDataFileCachedParameterIsNotANumber() throws Exception {
     String fileName = "testFiles/digidoc_test_conf_invalid_max_data_file_cached.yaml";
     expectedException.expect(ConfigurationException.class);
-    expectedException.expectMessage("Configuration parameter DIGIDOC_MAX_DATAFILE_CACHED should have a numeric value " +
-        "but the actual value is: 8192MB. Configuration file: " + fileName);
+    expectedException.expectMessage("Configuration parameter DIGIDOC_MAX_DATAFILE_CACHED" +
+        " should have an integer value but the actual value is: 8192MB.");
+
     configuration.loadConfiguration(fileName);
   }
 
@@ -202,7 +254,8 @@ public class ConfigurationTest {
     String fileName = "testFiles/digidoc_test_conf_invalid_sign_ocsp_request.yaml";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("Configuration parameter SIGN_OCSP_REQUESTS should be set to true or false" +
-        " but the actual value is: NonBooleanValue. Configuration file: " + fileName);
+        " but the actual value is: NonBooleanValue.");
+
     configuration.loadConfiguration(fileName);
   }
 
@@ -211,7 +264,8 @@ public class ConfigurationTest {
     String fileName = "testFiles/digidoc_test_conf_invalid_key_usage.yaml";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("Configuration parameter KEY_USAGE_CHECK should be set to true or false" +
-        " but the actual value is: NonBooleanValue. Configuration file: " + fileName);
+        " but the actual value is: NonBooleanValue.");
+
     configuration.loadConfiguration(fileName);
   }
 
@@ -220,7 +274,8 @@ public class ConfigurationTest {
     String fileName = "testFiles/digidoc_test_conf_invalid_use_local_tsl.yaml";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("Configuration parameter DIGIDOC_USE_LOCAL_TSL should be set to true or false" +
-        " but the actual value is: NonBooleanValue. Configuration file: " + fileName);
+        " but the actual value is: NonBooleanValue.");
+
     configuration.loadConfiguration(fileName);
   }
 
@@ -229,7 +284,8 @@ public class ConfigurationTest {
     String fileName = "testFiles/digidoc_test_conf_invalid_datafile_hashcode_mode.yaml";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("Configuration parameter DATAFILE_HASHCODE_MODE should be set to true or false" +
-        " but the actual value is: NonBooleanValue. Configuration file: " + fileName);
+        " but the actual value is: NonBooleanValue.");
+
     configuration.loadConfiguration(fileName);
   }
 
@@ -238,6 +294,7 @@ public class ConfigurationTest {
     String fileName = "testFiles/digidoc_test_conf_ocsps_no_entry.yaml";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("No OCSPS entry found or OCSPS entry is empty. Configuration file: " + fileName);
+
     configuration.loadConfiguration(fileName);
   }
 
@@ -246,6 +303,7 @@ public class ConfigurationTest {
     String fileName = "testFiles/digidoc_test_conf_ocsps_empty.yaml";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("No OCSPS entry found or OCSPS entry is empty. Configuration file: " + fileName);
+
     configuration.loadConfiguration(fileName);
   }
 
@@ -255,6 +313,7 @@ public class ConfigurationTest {
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("Configuration file " + fileName + " contains error(s):\n" +
         "OCSPS list entry 2 does not have an entry for CA_CN or the entry is empty\n");
+
     configuration.loadConfiguration(fileName);
   }
 
@@ -268,6 +327,7 @@ public class ConfigurationTest {
         "OCSPS list entry 8 does not have an entry for URL or the entry is empty\n";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage(expectedErrorMessage);
+
     configuration.loadConfiguration(fileName);
   }
 
@@ -281,6 +341,7 @@ public class ConfigurationTest {
         "OCSPS list entry 8 does not have an entry for CA_CN or the entry is empty\n";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage(expectedErrorMessage);
+
     configuration.loadConfiguration(fileName);
   }
 
@@ -291,6 +352,7 @@ public class ConfigurationTest {
         "OCSPS list entry 3 does not have an entry for CERTS or the entry is empty\n";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage(expectedErrorMessage);
+
     configuration.loadConfiguration(fileName);
   }
 
@@ -301,6 +363,7 @@ public class ConfigurationTest {
         "OCSPS list entry 2 does not have an entry for CERTS or the entry is empty\n";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage(expectedErrorMessage);
+
     configuration.loadConfiguration(fileName);
   }
 
@@ -310,6 +373,7 @@ public class ConfigurationTest {
     String expectedErrorMessage = "Configuration file " + fileName + " is not a correctly formatted yaml file";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage(expectedErrorMessage);
+
     configuration.loadConfiguration(fileName);
   }
 
@@ -322,6 +386,7 @@ public class ConfigurationTest {
   public void isOCSPSigningConfigurationAvailableWhenItIsAvailable() throws Exception {
     configuration.setOCSPAccessCertificateFileName("test.p12");
     configuration.setOCSPAccessCertificatePassword("aaa".toCharArray());
+
     assertTrue(configuration.isOCSPSigningConfigurationAvailable());
   }
 
@@ -365,7 +430,7 @@ public class ConfigurationTest {
   public void loadMultipleCAsFromConfigurationFile() throws Exception {
     Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf_two_cas" +
         ".yaml");
-    System.out.println();
+
     assertEquals("AS Sertifitseerimiskeskus", jDigiDocConf.get("DIGIDOC_CA_1_NAME"));
     assertEquals("jar://certs/ESTEID-SK.crt", jDigiDocConf.get("DIGIDOC_CA_1_CERT2"));
     assertEquals("Second CA", jDigiDocConf.get("DIGIDOC_CA_2_NAME"));
@@ -378,8 +443,10 @@ public class ConfigurationTest {
     String fileName = "testFiles/digidoc_test_conf_no_ca.yaml";
     String expectedErrorMessage = "Configuration file " + fileName + " contains error(s):\n" +
         "Empty or no DIGIDOC_CAS entry";
+
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage(expectedErrorMessage);
+
     configuration.loadConfiguration(fileName);
   }
 
@@ -388,8 +455,10 @@ public class ConfigurationTest {
     String fileName = "testFiles/digidoc_test_conf_empty_ca.yaml";
     String expectedErrorMessage = "Configuration file " + fileName + " contains error(s):\n" +
         "Empty or no DIGIDOC_CA for entry 1";
+
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage(expectedErrorMessage);
+
     configuration.loadConfiguration(fileName);
   }
 

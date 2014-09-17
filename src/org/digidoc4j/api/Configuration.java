@@ -12,7 +12,6 @@ import java.util.*;
 
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
-import static org.apache.commons.lang.StringUtils.isNumeric;
 
 /**
  * Possibility to create custom configurations for {@link org.digidoc4j.api.Container} implementations.
@@ -67,7 +66,7 @@ import static org.apache.commons.lang.StringUtils.isNumeric;
  * <li>DIGIDOC_LOG4J_CONFIG: File containing Log4J configuration parameters.<br>
  * Default value: {@value #DEFAULT_LOG4J_CONFIGURATION}</li>
  * <li>DIGIDOC_MAX_DATAFILE_CACHED: Maximum datafile size that will be cached in MB.
- * Must be numeric. Set to -1 to cache all files.<br>
+ * Must be numeric. Set to -1 to cache all files. Set to 0 to prevent caching for all files<br>
  * Default value: {@value #DEFAULT_MAX_DATAFILE_CACHED}</li>
  * <li>DIGIDOC_NOTARY_IMPL: Notary implementation.<br>
  * Default value: {@value #DEFAULT_NOTARY_IMPLEMENTATION}</li>
@@ -93,6 +92,7 @@ import static org.apache.commons.lang.StringUtils.isNumeric;
  */
 public class Configuration {
   final Logger logger = LoggerFactory.getLogger(Configuration.class);
+  public static final long ONE_MB_IN_BYTES = 1048576;
 
   public static final String DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION
       = "ee.sk.digidoc.c14n.TinyXMLCanonicalizer";
@@ -107,12 +107,15 @@ public class Configuration {
   public static final String DEFAULT_USE_LOCAL_TSL = "true";
   public static final String DEFAULT_MAX_DATAFILE_CACHED = "-1";
 
+  public static final long CACHE_ALL_DATA_FILES = -1;
+  public static final long CACHE_NO_DATA_FILES = 0;
+
   private final Mode mode;
   //  private static final int JAR_FILE_NAME_BEGIN_INDEX = 6;
   private LinkedHashMap configurationFromFile;
   private String configurationFileName;
   private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<String, String>();
-  private ArrayList<String> fileParseErrors;
+  private ArrayList<String> fileParseErrors = new ArrayList<String>();
 
   /**
    * Application mode
@@ -209,10 +212,8 @@ public class Configuration {
    */
   public Configuration() {
     logger.debug("");
-    if ("TEST".equalsIgnoreCase(System.getProperty("digidoc4j.mode")))
-      mode = Mode.TEST;
-    else
-      mode = Mode.PROD;
+
+    mode = ("TEST".equalsIgnoreCase(System.getProperty("digidoc4j.mode")) ? Mode.TEST : Mode.PROD);
 
     initDefaultValues();
 
@@ -227,6 +228,7 @@ public class Configuration {
   public Configuration(Mode mode) {
     logger.debug("Mode: " + mode);
     this.mode = mode;
+
     initDefaultValues();
   }
 
@@ -242,14 +244,17 @@ public class Configuration {
     Yaml yaml = new Yaml();
     configurationFileName = file;
     InputStream resourceAsStream = null;
+
     try {
       resourceAsStream = new FileInputStream(file);
     } catch (FileNotFoundException e) {
       logger.info("Configuration file " + file + " not found. Trying to search from jar file.");
     }
+
     if (resourceAsStream == null) {
       resourceAsStream = getResourceAsStream(file);
     }
+
     try {
       configurationFromFile = (LinkedHashMap) yaml.load(resourceAsStream);
     } catch (Exception e) {
@@ -258,6 +263,7 @@ public class Configuration {
       logger.error(exception.getMessage());
       throw exception;
     }
+
     return mapToJDigiDocConfiguration();
   }
 
@@ -296,12 +302,14 @@ public class Configuration {
 
   private InputStream getResourceAsStream(String certFile) {
     logger.debug("");
+
     InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(certFile);
     if (resourceAsStream == null) {
       String message = "File " + certFile + " not found in classpath.";
       logger.error(message);
       throw new ConfigurationException(message);
     }
+
     return resourceAsStream;
   }
 
@@ -328,8 +336,7 @@ public class Configuration {
     ArrayList<LinkedHashMap> digiDocCAs = (ArrayList<LinkedHashMap>) configurationFromFile.get("DIGIDOC_CAS");
     if (digiDocCAs == null) {
       String errorMessage = "Empty or no DIGIDOC_CAS entry";
-      logger.error(errorMessage);
-      fileParseErrors.add(errorMessage);
+      logError(errorMessage);
       return;
     }
 
@@ -340,13 +347,17 @@ public class Configuration {
       LinkedHashMap digiDocCA = (LinkedHashMap) digiDocCAs.get(i).get("DIGIDOC_CA");
       if (digiDocCA == null) {
         String errorMessage = "Empty or no DIGIDOC_CA for entry " + (i + 1);
-        logger.error(errorMessage);
-        fileParseErrors.add(errorMessage);
+        logError(errorMessage);
       } else {
         loadCertificateAuthorityCerts(digiDocCA, caPrefix);
         loadOCSPCertificates(digiDocCA, caPrefix);
       }
     }
+  }
+
+  private void logError(String errorMessage) {
+    logger.error(errorMessage);
+    fileParseErrors.add(errorMessage);
   }
 
   private void reportFileParseErrors() {
@@ -413,14 +424,17 @@ public class Configuration {
    */
   public void enableBigFilesSupport(long maxFileSizeCachedInMB) {
     logger.debug("Set maximum datafile cached to: " + maxFileSizeCachedInMB);
-    jDigiDocConfiguration.put("DIGIDOC_MAX_DATAFILE_CACHED", Long.toString(maxFileSizeCachedInMB));
+    String value = Long.toString(maxFileSizeCachedInMB);
+    if (isValidIntegerParameter("DIGIDOC_MAX_DATAFILE_CACHED", value)) {
+      jDigiDocConfiguration.put("DIGIDOC_MAX_DATAFILE_CACHED", value);
+    }
   }
 
   /**
    * @return is big file support enabled
    */
   public boolean isBigFilesSupportEnabled() {
-    return getMaxDataFileCachedInMB() > 0;
+    return getMaxDataFileCachedInMB() >= 0;
   }
 
   /**
@@ -440,10 +454,24 @@ public class Configuration {
    */
   public long getMaxDataFileCachedInMB() {
     String maxDataFileCached = jDigiDocConfiguration.get("DIGIDOC_MAX_DATAFILE_CACHED");
-    logger.debug("Maximum datafile cached: " + maxDataFileCached);
+    logger.debug("Maximum datafile cached in MB: " + maxDataFileCached);
 
-    if (maxDataFileCached == null) return -1;
+    if (maxDataFileCached == null) return CACHE_ALL_DATA_FILES;
     return Long.parseLong(maxDataFileCached);
+  }
+
+  /**
+   * Get the maximum size of data files to be cached. Used by DigiDoc4J and by JDigiDoc.
+   *
+   * @return Size in MB. if size < 0 no caching is used
+   */
+  public long getMaxDataFileCachedInBytes() {
+    long maxDataFileCachedInMB = getMaxDataFileCachedInMB();
+    if (maxDataFileCachedInMB == CACHE_ALL_DATA_FILES) {
+      return CACHE_ALL_DATA_FILES;
+    } else {
+      return (maxDataFileCachedInMB * ONE_MB_IN_BYTES);
+    }
   }
 
   private String defaultIfNull(String configParameter, String defaultValue) {
@@ -451,39 +479,61 @@ public class Configuration {
     if (configurationFromFile == null) return defaultValue;
     Object value = configurationFromFile.get(configParameter);
     if (value != null) {
-      return verifyValueIsAllowed(configParameter, value.toString()) ? value.toString() : "";
+      return valueIsAllowed(configParameter, value.toString()) ? value.toString() : "";
     }
     String configuredValue = jDigiDocConfiguration.get(configParameter);
     return configuredValue != null ? configuredValue : defaultValue;
   }
 
-  private boolean verifyValueIsAllowed(String configParameter, String value) {
+  private boolean valueIsAllowed(String configParameter, String value) {
     logger.debug("");
-    boolean errorFound = false;
+
     List<String> mustBeBooleans =
         asList("SIGN_OCSP_REQUESTS", "KEY_USAGE_CHECK", "DATAFILE_HASHCODE_MODE", "DIGIDOC_USE_LOCAL_TSL");
-    List<String> mustBeNumerics = asList("DIGIDOC_MAX_DATAFILE_CACHED");
+    List<String> mustBeIntegers =
+        asList("DIGIDOC_MAX_DATAFILE_CACHED");
 
+    boolean errorFound = false;
     if (mustBeBooleans.contains(configParameter)) {
-      if (!("true".equals(value.toLowerCase()) || "false".equals(value.toLowerCase()))) {
-        String errorMessage = "Configuration parameter " + configParameter + " should be set to true or false "
-            + "but the actual value is: " + value + ". Configuration file: " + configurationFileName;
-        logger.error(errorMessage);
-        fileParseErrors.add(errorMessage);
-        errorFound = true;
-      }
+      errorFound = !(isValidBooleanParameter(configParameter, value));
     }
 
-    if (mustBeNumerics.contains(configParameter)) {
-      if (!isNumeric(value)) {
-        String errorMessage = "Configuration parameter " + configParameter + " should have a numeric value "
-            + "but the actual value is: " + value + ". Configuration file: " + configurationFileName;
-        logger.error(errorMessage);
-        fileParseErrors.add(errorMessage);
-        errorFound = true;
-      }
+    if (mustBeIntegers.contains(configParameter)) {
+      errorFound = !(isValidIntegerParameter(configParameter, value)) || errorFound;
     }
     return (!errorFound);
+  }
+
+  private boolean isValidBooleanParameter(String configParameter, String value) {
+    if (!("true".equals(value.toLowerCase()) || "false".equals(value.toLowerCase()))) {
+      String errorMessage = "Configuration parameter " + configParameter + " should be set to true or false"
+          + " but the actual value is: " + value + ".";
+      logError(errorMessage);
+      return false;
+    }
+    return true;
+  }
+
+  private boolean isValidIntegerParameter(String configParameter, String value) {
+    Integer parameterValue;
+
+    try {
+      parameterValue = Integer.parseInt(value);
+    } catch (Exception e) {
+      String errorMessage = "Configuration parameter " + configParameter + " should have an integer value"
+          + " but the actual value is: " + value + ".";
+      logError(errorMessage);
+      return false;
+    }
+
+    if (configParameter.equals("DIGIDOC_MAX_DATAFILE_CACHED") && parameterValue < -1) {
+      String errorMessage = "Configuration parameter " + configParameter + " should be greater or equal -1"
+          + " but the actual value is: " + value + ".";
+      logError(errorMessage);
+      return false;
+    }
+
+    return true;
   }
 
   private void loadOCSPCertificates(LinkedHashMap digiDocCA, String caPrefix) {
@@ -494,8 +544,7 @@ public class Configuration {
     ArrayList<LinkedHashMap> ocsps = (ArrayList<LinkedHashMap>) digiDocCA.get("OCSPS");
     if (ocsps == null) {
       errorMessage = "No OCSPS entry found or OCSPS entry is empty. Configuration file: " + configurationFileName;
-      logger.error(errorMessage);
-      fileParseErrors.add(errorMessage);
+      logError(errorMessage);
       return;
     }
 
@@ -511,15 +560,13 @@ public class Configuration {
         if (!loadOCSPCertificateEntry(entry, ocsp, prefix)) {
           errorMessage = "OCSPS list entry " + i + " does not have an entry for " + entry
               + " or the entry is empty\n";
-          logger.error(errorMessage);
-          fileParseErrors.add(errorMessage);
+          logError(errorMessage);
         }
       }
 
       if (!getOCSPCertificates(prefix, ocsp)) {
         errorMessage = "OCSPS list entry " + i + " does not have an entry for CERTS or the entry is empty\n";
-        logger.error(errorMessage);
-        fileParseErrors.add(errorMessage);
+        logError(errorMessage);
       }
     }
   }
