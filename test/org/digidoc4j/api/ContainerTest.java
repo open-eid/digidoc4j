@@ -13,10 +13,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.CertificateEncodingException;
@@ -57,19 +54,24 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   private static String signature =
       "  <Signature Id=\"S1\" xmlns=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
           "    <SignedInfo xmlns=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
-          "      <CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\"></CanonicalizationMethod>\n" +
+          "      <CanonicalizationMethod Algorithm=\"http://www.w3" +
+          ".org/TR/2001/REC-xml-c14n-20010315\"></CanonicalizationMethod>\n" +
           "      <SignatureMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#rsa-sha1\"></SignatureMethod>\n" +
           "      <Reference URI=\"#D0\">\n" +
           "        <DigestMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#sha1\"></DigestMethod>\n" +
           "        <DigestValue>PKkcL8LlT9S1BO+HdXjb2djNzrM=</DigestValue>\n" +
           "      </Reference>\n" +
-          "      <Reference Type=\"http://uri.etsi.org/01903/v1.1.1#SignedProperties\" URI=\"#S1-SignedProperties\">\n" +
+          "      <Reference Type=\"http://uri.etsi.org/01903/v1.1.1#SignedProperties\" " +
+          "URI=\"#S1-SignedProperties\">\n" +
           "        <DigestMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#sha1\"></DigestMethod>\n" +
           "        <DigestValue>UOK/V3cCbuo/kRTtgTWuYLm2wJA=</DigestValue>\n" +
           "      </Reference>\n" +
           "    </SignedInfo>\n" +
           "    <SignatureValue Id=\"S1-SIG\">\n" +
-          "      RQ13qS4+2eqas4MS9rz4dKXqIEKMoXBWHGU0/TOtBk2sRST+ItOChpRn+xRIFg13vSzjKIZHhnTYHuNRSmMLPFWD1UiXU68sqnBDzpI5f2db1FXC7OniGthZDwHWuGg1gBsqtW7tOfSpSQREYzP86amzY/lf1CLECPqC+Up886dyNjWccSQf1CaYtSneEUNpJP2XQhlMf22bOvL8wq76dvudl3jx2HJErqyz0TObQXYLsQQGSYGN7JhdDQvYwTEYNIz/NCu1K/Wn+HuIUZCZnh1KqQt7KZSX186MilkCXSBEM+PHEd/7qOyJYTnwJFYp6sTDO4ntAUq3ZDMHM4qE2g==\n" +
+          "      RQ13qS4+2eqas4MS9rz4dKXqIEKMoXBWHGU0/TOtBk2sRST+ItOChpRn" +
+          "+xRIFg13vSzjKIZHhnTYHuNRSmMLPFWD1UiXU68sqnBDzpI5f2db1FXC7OniGthZDwHWuGg1gBsqtW7tOfSpSQREYzP86amzY" +
+          "/lf1CLECPqC+Up886dyNjWccSQf1CaYtSneEUNpJP2XQhlMf22bOvL8wq76dvudl3jx2HJErqyz0TObQXYLsQQGSYGN7JhdDQvYwTEYNIz" +
+          "/NCu1K/Wn+HuIUZCZnh1KqQt7KZSX186MilkCXSBEM+PHEd/7qOyJYTnwJFYp6sTDO4ntAUq3ZDMHM4qE2g==\n" +
           "    </SignatureValue>\n" +
           "    <KeyInfo>\n" +
           "      <KeyValue>\n" +
@@ -129,9 +131,11 @@ public class ContainerTest extends DigiDoc4JTestHelper {
           "                </CertDigest>\n" +
           "                <IssuerSerial>\n" +
           "                  <X509IssuerName\n" +
-          "                    xmlns=\"http://www.w3.org/2000/09/xmldsig#\">1.2.840.113549.1.9.1=#1609706b6940736b2e6565,CN=TEST of ESTEID-SK 2011,O=AS Sertifitseerimiskeskus,C=EE\n" +
+          "                    xmlns=\"http://www.w3.org/2000/09/xmldsig#\">1.2.840.113549.1.9" +
+          ".1=#1609706b6940736b2e6565,CN=TEST of ESTEID-SK 2011,O=AS Sertifitseerimiskeskus,C=EE\n" +
           "                  </X509IssuerName>\n" +
-          "                  <X509SerialNumber xmlns=\"http://www.w3.org/2000/09/xmldsig#\">97679317403981919837045055800589842962</X509SerialNumber>\n" +
+          "                  <X509SerialNumber xmlns=\"http://www.w3" +
+          ".org/2000/09/xmldsig#\">97679317403981919837045055800589842962</X509SerialNumber>\n" +
           "                </IssuerSerial>\n" +
           "              </Cert>\n" +
           "            </SigningCertificate>\n" +
@@ -153,9 +157,11 @@ public class ContainerTest extends DigiDoc4JTestHelper {
           "                  </CertDigest>\n" +
           "                  <IssuerSerial>\n" +
           "                    <X509IssuerName\n" +
-          "                      xmlns=\"http://www.w3.org/2000/09/xmldsig#\">1.2.840.113549.1.9.1=#1609706b6940736b2e6565,CN=TEST of EE Certification Centre Root CA,O=AS Sertifitseerimiskeskus,C=EE\n" +
+          "                      xmlns=\"http://www.w3.org/2000/09/xmldsig#\">1.2.840.113549.1.9" +
+          ".1=#1609706b6940736b2e6565,CN=TEST of EE Certification Centre Root CA,O=AS Sertifitseerimiskeskus,C=EE\n" +
           "                    </X509IssuerName>\n" +
-          "                    <X509SerialNumber xmlns=\"http://www.w3.org/2000/09/xmldsig#\">138983222239407220571566848351990841243</X509SerialNumber>\n" +
+          "                    <X509SerialNumber xmlns=\"http://www.w3" +
+          ".org/2000/09/xmldsig#\">138983222239407220571566848351990841243</X509SerialNumber>\n" +
           "                  </IssuerSerial>\n" +
           "                </Cert>\n" +
           "              </CertRefs>\n" +
@@ -164,7 +170,8 @@ public class ContainerTest extends DigiDoc4JTestHelper {
           "              <OCSPRefs>\n" +
           "                <OCSPRef>\n" +
           "                  <OCSPIdentifier URI=\"#N1\">\n" +
-          "                    <ResponderID>C=EE,O=AS Sertifitseerimiskeskus,OU=OCSP,CN=TEST of SK OCSP RESPONDER 2011,E=pki@sk.ee</ResponderID>\n" +
+          "                    <ResponderID>C=EE,O=AS Sertifitseerimiskeskus,OU=OCSP," +
+          "CN=TEST of SK OCSP RESPONDER 2011,E=pki@sk.ee</ResponderID>\n" +
           "                    <ProducedAt>2014-06-13T09:50:06Z</ProducedAt>\n" +
           "                  </OCSPIdentifier>\n" +
           "                  <DigestAlgAndValue>\n" +
@@ -333,6 +340,21 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     Container.open("emptyFile.ddoc");
   }
 
+  @Test(expected = DigiDoc4JException.class)
+  public void testFileTooShortToVerifyIfItIsZipFileThrowsException() {
+    Container.open("testFiles/tooShortToVerifyIfIsZip.ddoc");
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void testOpenFromStreamTooShortToVerifyIfIsZip() {
+    try {
+      FileInputStream stream = new FileInputStream(new File("testFiles/tooShortToVerifyIfIsZip.ddoc"));
+      Container.open(stream, true);
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
+  }
+
   @Test
   public void testAddFileFromStreamToDDoc() {
     Container container = Container.create(DDOC);
@@ -385,7 +407,8 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     container.addRawSignature(signature.getBytes());
 
     assertEquals(2, container.getSignatures().size());
-    assertEquals(CERTIFICATE.replaceAll("\\s", ""), Base64.encodeBase64String(getSigningCertificateAsBytes(container, 1)));
+    assertEquals(CERTIFICATE.replaceAll("\\s", ""), Base64.encodeBase64String(getSigningCertificateAsBytes(container,
+        1)));
     assertXMLEqual(signature.trim(), new String(container.getSignatures().get(1).getRawSignature()));
   }
 
@@ -401,7 +424,8 @@ public class ContainerTest extends DigiDoc4JTestHelper {
         "j4QH5si35YmRIe0fp8tGDo6li63/tybb+kQ96AIaRe1NxpkKVDBGNi+VNVNA=="));
 
     assertEquals(2, container.getSignatures().size());
-//    assertEquals(CERTIFICATE.replaceAll("\\s", ""), Base64.encodeBase64String(getSigningCertificateAsBytes(container, 1)));
+//    assertEquals(CERTIFICATE.replaceAll("\\s", ""), Base64.encodeBase64String(getSigningCertificateAsBytes
+// (container, 1)));
 //    assertXMLEqual(signature.trim(), new String(container.getSignatures().get(1).getRawSignature()));
   }
 
@@ -412,7 +436,8 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     container.addRawSignature(new ByteArrayInputStream(signature.getBytes()));
 
     assertEquals(1, container.getSignatures().size());
-    assertEquals(CERTIFICATE.replaceAll("\\s", ""), Base64.encodeBase64String(getSigningCertificateAsBytes(container, 0)));
+    assertEquals(CERTIFICATE.replaceAll("\\s", ""), Base64.encodeBase64String(getSigningCertificateAsBytes(container,
+        0)));
   }
 
   private byte[] getSigningCertificateAsBytes(Container container, int index) throws CertificateEncodingException {
