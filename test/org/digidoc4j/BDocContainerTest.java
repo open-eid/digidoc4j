@@ -328,6 +328,22 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(1, container.getSignatures().size());
   }
 
+  @Test
+  public void openAddFileFromStream() throws FileNotFoundException {
+    BDocContainer container = new BDocContainer();
+    container.configuration.enableBigFilesSupport(0);
+
+    String path = createLargeFile((container.configuration.getMaxDataFileCachedInBytes()) + 100);
+    FileInputStream stream = new FileInputStream(new File(path));
+    container.addDataFile(stream, "fileName", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.save("test-large-file.bdoc");
+    File file = new File("test-large-file.bdoc");
+    FileInputStream fileInputStream = new FileInputStream(file);
+    Container.open(fileInputStream, true);
+    assertEquals(1, container.getSignatures().size());
+  }
+
   private String createLargeFile(long size) {
     String fileName = "test_large_file.bdoc";
     try {

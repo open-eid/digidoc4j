@@ -1,6 +1,7 @@
 package org.digidoc4j.api;
 
 import eu.europa.ec.markt.dss.DSSUtils;
+import eu.europa.ec.markt.dss.signature.InMemoryDocument;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.junit.BeforeClass;
@@ -28,6 +29,12 @@ public class DataFileTest {
   @Test
   public void testGetFileSize() throws Exception {
     assertEquals(16, dataFile.getFileSize());
+  }
+
+  @Test
+  public void testGetFileSizeForInMemoryDocument() {
+    DataFile mockDataFile = new MockDataFile(new byte[]{1, 2}, "fileName", "text/plain");
+    assertEquals(2, mockDataFile.getFileSize());
   }
 
   @Test
@@ -112,6 +119,12 @@ public class DataFileTest {
     Files.deleteIfExists(Paths.get("createDocumentFromStream.txt"));
   }
 
+  @Test(expected = DigiDoc4JException.class)
+  public void createDocumentFromInoutStreamThrowsException() {
+    ByteArrayInputStream inputStream = new ByteArrayInputStream("test".getBytes());
+    new DataFile(inputStream, "test.txt", "unknown");
+  }
+
   @Test
   public void calculateSizeForStreamedFile() throws Exception {
     ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes());
@@ -120,7 +133,7 @@ public class DataFileTest {
     assertEquals(19, dataFile.getFileSize());
   }
 
-  @Test (expected = DigiDoc4JException.class)
+  @Test(expected = DigiDoc4JException.class)
   public void askingDataFileSizeWhenTemporoaryFileIsDeleted() throws Exception {
     ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes());
     DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
@@ -129,13 +142,15 @@ public class DataFileTest {
   }
 
   @Test
-  public void name() throws Exception {
-
-  }
-
-  @Test
   public void testDigestIsCalculatedOnlyOnce() throws Exception {
     byte[] digest = dataFile.calculateDigest();
     assertEquals(digest, dataFile.calculateDigest(new URL("http://NonExisting.test")));
+  }
+
+  private class MockDataFile extends DataFile {
+    public MockDataFile(byte[] data, String fileName, String mimeType) {
+      super(data, fileName, mimeType);
+      document = new InMemoryDocument(data, mimeType);
+    }
   }
 }

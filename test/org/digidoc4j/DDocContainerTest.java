@@ -17,8 +17,7 @@ import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -176,5 +175,26 @@ public class DDocContainerTest {
     container.sign(pkcs12Signer);
 
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12", container.getSignature(1).getSigningCertificate().getSerial());
+  }
+
+  @Test
+  public void getSignatureWhenNotSigned() {
+    DDocContainer container = new DDocContainer();
+    assertNull(container.getSignatures());
+  }
+
+  @Test
+  public void getSignatureWhenNoDocument() {
+    MockDDocContainer container = new MockDDocContainer();
+    assertNull(container.getSignatures());
+  }
+
+  private class MockDDocContainer extends DDocContainer {
+    private SignedDoc ddoc;
+
+    public MockDDocContainer() {
+      super();
+      ddoc = null;
+    }
   }
 }
