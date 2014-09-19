@@ -57,9 +57,9 @@ public abstract class Container {
   /**
    * Open container from a file
    *
-   * @param path file name and path.
-   *
-   * @return container
+   * @param path          file name and path.
+   * @param configuration configuration settings
+   * @return container new container of the specified format
    * @throws DigiDoc4JException when the file is not found or empty
    */
   public static Container open(String path, Configuration configuration) throws DigiDoc4JException {
@@ -74,7 +74,7 @@ public abstract class Container {
       }
       return container;
     } catch (EOFException eof) {
-      String msg = "File is empty or does not exist.";
+      String msg = "File is not valid.";
       logger.error(msg);
       throw new DigiDoc4JException(msg);
     } catch (IOException e) {
@@ -87,7 +87,6 @@ public abstract class Container {
    * Open container from a file
    *
    * @param path file name and path.
-   *
    * @return container
    * @throws DigiDoc4JException when the file is not found or empty
    */

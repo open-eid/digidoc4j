@@ -504,9 +504,3 @@ public class BDocContainer extends Container {
     return signatureParameters;
   }
 }
-
-
-
-
-
-

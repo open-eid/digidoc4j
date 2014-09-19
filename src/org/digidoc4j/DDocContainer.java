@@ -38,6 +38,7 @@ public class DDocContainer extends Container {
   Logger logger = LoggerFactory.getLogger(DDocContainer.class);
 
   private SignedDoc ddoc;
+  private ArrayList<DigiDocException> openContainerExceptions = new ArrayList<DigiDocException>();
 
   /**
    * Create a new container object of DDOC type Container.
@@ -88,10 +89,13 @@ public class DDocContainer extends Container {
     intConfiguration();
     DigiDocFactory digFac = new SAXDigiDocFactory();
     try {
-      ddoc = digFac.readSignedDocOfType(fileName, false);
+      ddoc = digFac.readSignedDocOfType(fileName, false, openContainerExceptions);
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
+    }
+    if (SignedDoc.hasFatalErrs(openContainerExceptions)) {
+      throw new DigiDoc4JException(openContainerExceptions.get(0));
     }
   }
 
@@ -324,6 +328,14 @@ public class DDocContainer extends Container {
   @Override
   public ValidationResult validate() {
     logger.debug("");
-    return new ValidationResultForDDoc(ddoc.getFormat(), ddoc.verify(true, true));
+
+    if (SignedDoc.hasFatalErrs(openContainerExceptions)) {
+      return new ValidationResultForDDoc(null, openContainerExceptions);
+    }
+
+    ArrayList exceptions = ddoc.verify(true, true);
+    exceptions.addAll(openContainerExceptions);
+
+    return new ValidationResultForDDoc(ddoc.getFormat(), exceptions);
   }
 }
