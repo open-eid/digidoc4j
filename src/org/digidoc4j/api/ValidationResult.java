@@ -41,4 +41,10 @@ public interface ValidationResult {
    */
   boolean isValid();
 
+  /**
+   * get validation report
+   *
+   * @return report
+   */
+  String getReport();
 }

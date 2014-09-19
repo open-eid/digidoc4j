@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static junit.framework.TestCase.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,6 +32,24 @@ public class ValidationResultForBDocTest {
     assertFalse(result.hasErrors());
     assertFalse(result.hasWarnings());
   }
+
+  @Test
+  public void testGetReport() {
+    SimpleReport simpleReport = mock(SimpleReport.class);
+    String reportContent = "test report";
+    when(simpleReport.toString()).thenReturn(reportContent);
+    when(simpleReport.getSignatureIds()).thenReturn(asList("S0"));
+    when(simpleReport.getErrors("S0")).thenReturn(new ArrayList<Conclusion.BasicInfo>());
+    when(simpleReport.getWarnings("S0")).thenReturn(new ArrayList<Conclusion.BasicInfo>());
+
+    ASiCXMLDocumentValidator validator = mock(ASiCXMLDocumentValidator.class);
+    when(validator.getSimpleReport()).thenReturn(simpleReport);
+
+    ValidationResultForBDoc result = new ValidationResultForBDoc(validator);
+
+    assertEquals(reportContent, result.getReport());
+  }
+
 
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")

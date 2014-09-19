@@ -19,6 +19,7 @@ public class ValidationResultForBDoc implements ValidationResult {
   static final Logger logger = LoggerFactory.getLogger(ValidationResultForDDoc.class);
   private List<DigiDoc4JException> errors = new ArrayList<DigiDoc4JException>();
   private List<DigiDoc4JException> warnings = new ArrayList<DigiDoc4JException>();
+  private String report;
 
   /**
    * Constructor
@@ -46,9 +47,9 @@ public class ValidationResultForBDoc implements ValidationResult {
         warnings.add(new DigiDoc4JException(message));
       }
     }
-    logger.debug(simpleReport.toString());
+    report = simpleReport.toString();
+    logger.debug(report);
   }
-
 
   @Override
   public List<DigiDoc4JException> getErrors() {
@@ -73,5 +74,10 @@ public class ValidationResultForBDoc implements ValidationResult {
   @Override
   public boolean isValid() {
     return !hasErrors();
+  }
+
+  @Override
+  public String getReport() {
+    return report;
   }
 }

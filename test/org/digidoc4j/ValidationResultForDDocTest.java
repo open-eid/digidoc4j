@@ -110,4 +110,28 @@ public class ValidationResultForDDocTest {
     assertEquals(DigiDocException.WARN_WEAK_DIGEST + "test2; nested exception is: \n\tjava.lang.Throwable: " +
         "exception2", warnings.get(1).getMessage());
   }
+
+  @Test
+  public void testReport() {
+    ArrayList<DigiDocException> exceptions = new ArrayList<DigiDocException>();
+    exceptions.add(new DigiDocException(DigiDocException.ERR_UNSUPPORTED, "test", new Throwable("exception1")));
+    exceptions.add(new DigiDocException(DigiDocException.ERR_CALCULATE_DIGEST, "test2", new Throwable("exception2")));
+
+    exceptions.add(new DigiDocException(DigiDocException.ERR_OLD_VER, "test", new Throwable("exception1")));
+    exceptions.add(new DigiDocException(DigiDocException.WARN_WEAK_DIGEST, "test2", new Throwable("exception2")));
+
+    ValidationResultForDDoc result = new ValidationResultForDDoc(SignedDoc.FORMAT_DIGIDOC_XML, exceptions);
+    assertEquals("<?xml version=\"1.0\" encoding=\"UTF-16\"?>" +
+            "<!--DDoc verification result-->" +
+            "<root>" +
+            "<error Code=\"15\" Message=\"15test; nested exception is: &#10;&#9;java.lang.Throwable: exception1\"/>" +
+            "<error Code=\"54\" Message=\"54test2; nested exception is: &#10;&#9;java.lang.Throwable: " +
+            "exception2\"/><warning " +
+            "Code=\"177\" Message=\"177test; nested exception is: &#10;&#9;java.lang.Throwable: " +
+            "exception1\"/><warning " +
+            "Code=\"129\" Message=\"129test2; nested exception is: &#10;&#9;java.lang.Throwable: exception2\"/></root>",
+        result.getReport());
+    System.out.println();
+  }
+
 }
