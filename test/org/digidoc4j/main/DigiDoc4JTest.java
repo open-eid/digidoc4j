@@ -1,9 +1,13 @@
 package org.digidoc4j.main;
 
+import ee.sk.digidoc.DigiDocException;
+import org.digidoc4j.DDocContainer;
 import org.digidoc4j.DigiDoc4JTestHelper;
+import org.digidoc4j.ValidationResultForDDoc;
 import org.digidoc4j.api.Container;
+import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.SignatureNotFoundException;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.Assertion;
@@ -14,12 +18,15 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Permission;
 
+import static java.util.Arrays.asList;
 import static org.digidoc4j.api.Configuration.Mode;
 import static org.digidoc4j.api.Container.DocumentType.BDOC;
 import static org.digidoc4j.api.Container.DocumentType.DDOC;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 
 public class DigiDoc4JTest extends DigiDoc4JTestHelper {
@@ -216,6 +223,39 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
       }
     });
     DigiDoc4J.main(new String[]{});
+  }
+
+  @Test
+  public void verifyWithFatalError() {
+    DDocContainer container = new DDocContainer();
+    DDocContainer spy = spy(container);
+
+    DigiDocException exception = new DigiDocException(75, "testException", new Throwable("test Exception"));
+
+    ValidationResultForDDoc validationResultForDDoc = spy(new ValidationResultForDDoc(null, asList(exception)));
+    when(validationResultForDDoc.getContainerErrors()).thenReturn(asList(new DigiDoc4JException(exception)));
+    when(validationResultForDDoc.hasFatalErrors()).thenReturn(true);
+
+    when(spy.validate()).thenReturn(validationResultForDDoc);
+
+    DigiDoc4J.verify(spy);
+    assertEquals("\t75testException; nested exception is: \n\tjava.lang.Throwable: test Exception\n", sout.getLog());
+  }
+
+  @Test(expected = SignatureNotFoundException.class)
+  public void verifyWithoutFatalError() {
+    DDocContainer container = new DDocContainer();
+    DDocContainer spy = spy(container);
+
+    DigiDocException exception = new DigiDocException(10, "testException", new Throwable("test Exception"));
+
+    ValidationResultForDDoc validationResultForDDoc = spy(new ValidationResultForDDoc(null, asList(exception)));
+    when(validationResultForDDoc.getContainerErrors()).thenReturn(asList(new DigiDoc4JException(exception)));
+    when(validationResultForDDoc.hasFatalErrors()).thenReturn(false);
+
+    when(spy.validate()).thenReturn(validationResultForDDoc);
+
+    DigiDoc4J.verify(spy);
   }
 
   private static void forbidSystemExitCall() {

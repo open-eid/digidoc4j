@@ -100,12 +100,13 @@ public class DDocContainer extends Container {
   }
 
   private DigiDocException getFatalError() {
+    DigiDocException exception = null;
     for (DigiDocException openContainerException : openContainerExceptions) {
       if (openContainerException.getCode() == DigiDocException.ERR_PARSE_XML) {
-        return openContainerException;
+        exception = openContainerException;
       }
     }
-    return openContainerExceptions.get(0);
+    return exception;
   }
 
   DDocContainer(SignedDoc ddoc) {
@@ -276,9 +277,6 @@ public class DDocContainer extends Container {
   public List<Signature> getSignatures() {
     logger.debug("");
     List<Signature> signatures = new ArrayList<Signature>();
-    if (ddoc == null) {
-      return null;
-    }
 
     ArrayList dDocSignatures = ddoc.getSignatures();
 
@@ -308,15 +306,8 @@ public class DDocContainer extends Container {
     if (keyInfo == null) {
       return null;
     }
-
     X509Certificate signersCertificate = keyInfo.getSignersCertificate();
-    if (signersCertificate == null) {
-      return null;
-    }
-
     finalSignature.setCertificate(new X509Cert(signersCertificate));
-    //TODO can be several certs
-    //TODO check logic about one role versus several roles
 
     return finalSignature;
   }
@@ -337,10 +328,6 @@ public class DDocContainer extends Container {
   @Override
   public ValidationResult validate() {
     logger.debug("");
-
-    if (SignedDoc.hasFatalErrs(openContainerExceptions)) {
-      return new ValidationResultForDDoc(null, null, openContainerExceptions);
-    }
 
     ArrayList exceptions = ddoc.verify(true, true);
 

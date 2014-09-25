@@ -7,6 +7,7 @@ import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.Signer;
 import org.digidoc4j.api.ValidationResult;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.api.exceptions.SignatureNotFoundException;
 import org.digidoc4j.signers.PKCS12Signer;
 
 import java.io.File;
@@ -139,7 +140,7 @@ public final class DigiDoc4J {
     container.sign(pkcs12Signer);
   }
 
-  private static void verify(Container container) {
+  static void verify(Container container) {
     ValidationResult validationResult = container.validate();
 
     if (container.getDocumentType() == DocumentType.DDOC) {
@@ -154,7 +155,7 @@ public final class DigiDoc4J {
 
     List<Signature> signatures = container.getSignatures();
     if (signatures == null) {
-      throw new DigiDoc4JException("No signatures found");
+      throw new SignatureNotFoundException();
     }
 
     for (Signature signature : signatures) {

@@ -8,7 +8,6 @@ import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.*;
@@ -44,6 +43,12 @@ public class DDocContainerTest {
 
   @Test
   public void testSetDigestAlgorithm() throws Exception {
+    DDocContainer container = new DDocContainer();
+    container.setDigestAlgorithm(Container.DigestAlgorithm.SHA1);
+  }
+
+  @Test
+  public void testFatalError() throws Exception {
     DDocContainer container = new DDocContainer();
     container.setDigestAlgorithm(Container.DigestAlgorithm.SHA1);
   }
@@ -114,7 +119,6 @@ public class DDocContainerTest {
     DDocContainer dDocContainer = new DDocContainer();
     dDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     dDocContainer.removeDataFile("NotThere.txt");
-
   }
 
   @Test(expected = DigiDoc4JException.class)
