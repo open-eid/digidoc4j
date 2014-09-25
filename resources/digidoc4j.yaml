@@ -1,6 +1,3 @@
-DIGIDOC_PKCS12_CONTAINER: /Users/ahoa/work/sk/digidoc4j/testFiles/ocsp_juurdepaasutoend.p12d
-DIGIDOC_PKCS12_PASSWD: 0vRsI0XQ
-
 DIGIDOC_CAS:
 - DIGIDOC_CA:
     NAME: AS Sertifitseerimiskeskus
