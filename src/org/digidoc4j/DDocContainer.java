@@ -81,7 +81,7 @@ public class DDocContainer extends Container {
    * Opens the container from a file.
    *
    * @param fileName container file name with path
-   *                 ]
+   *
    */
   public DDocContainer(String fileName) {
     logger.debug("File name: " + fileName);

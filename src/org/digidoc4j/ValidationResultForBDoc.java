@@ -1,7 +1,7 @@
 package org.digidoc4j;
 
-import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
+import eu.europa.ec.markt.dss.validation102853.report.Reports;
 import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import org.digidoc4j.api.ValidationResult;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
@@ -24,12 +24,12 @@ public class ValidationResultForBDoc implements ValidationResult {
   /**
    * Constructor
    *
-   * @param validator add description
+   * @param report add description
    */
-  public ValidationResultForBDoc(SignedDocumentValidator validator) {
+  public ValidationResultForBDoc(Reports report) {
     logger.debug("");
 
-    SimpleReport simpleReport = validator.getSimpleReport();
+    SimpleReport simpleReport = report.getSimpleReport();
 
     List<String> signatureIds = simpleReport.getSignatureIds();
 
@@ -47,8 +47,10 @@ public class ValidationResultForBDoc implements ValidationResult {
         warnings.add(new DigiDoc4JException(message));
       }
     }
-    report = simpleReport.toString();
-    logger.debug(report);
+    this.report = simpleReport.toString();
+    if(logger.isDebugEnabled()) {
+      logger.debug(simpleReport.toString());
+    }
   }
 
   @Override

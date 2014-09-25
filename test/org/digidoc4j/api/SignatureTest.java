@@ -10,6 +10,7 @@ import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.URI;
@@ -255,9 +256,9 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void testValidationWithInvalidDocument() {
+  public void testValidationWithInvalidDDoc() {
     Signature signature = Container.open("testFiles/changed_digidoc_test.ddoc").getSignatures().get(0);
-    assertEquals(6, signature.validate(VALIDATE_FULL).size());
+    assertEquals(4, signature.validate(VALIDATE_FULL).size());
   }
 
   @Test

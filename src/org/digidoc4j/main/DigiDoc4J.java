@@ -106,7 +106,7 @@ public final class DigiDoc4J {
       if (commandLine.hasOption("verify"))
         verify(container);
     } catch (DigiDoc4JException e) {
-      throw new DigiDoc4JUtilityException(1, e.getMessage());
+      throw new DigiDoc4JUtilityException(1, e);
     }
   }
 

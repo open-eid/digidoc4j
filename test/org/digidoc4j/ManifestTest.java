@@ -1,5 +1,7 @@
 package org.digidoc4j;
 
+import eu.europa.ec.markt.dss.signature.FileDocument;
+import eu.europa.ec.markt.dss.signature.asic.Manifest;
 import org.digidoc4j.api.DataFile;
 import org.junit.Test;
 
@@ -20,7 +22,7 @@ public class ManifestTest {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
 
     Manifest manifest = new Manifest();
-    manifest.addFileEntry(asList(new DataFile("testFiles/test.txt", "text/plain")));
+    manifest.addFileEntry(new FileDocument("testFiles/test.txt"));
     manifest.save(out);
 
     assertXMLEqual(expectedResult, new String(out.toByteArray()));
