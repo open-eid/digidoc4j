@@ -191,7 +191,7 @@ public class BDocContainer extends Container {
     Reports report = validate(validator);
     do {
       SimpleReport simpleReport = report.getSimpleReport();
-      if(simpleReport.getSignatureIds().size() > 0)
+      if (simpleReport.getSignatureIds().size() > 0)
         simpleReports.put(simpleReport.getSignatureIds().get(0), simpleReport);
       report = report.getNextReports();
     } while (report != null);
@@ -364,6 +364,7 @@ public class BDocContainer extends Container {
     logger.debug("");
 
     addSignerInformation(signer);
+    signatureParameters.clearCertificateChain();
     signatureParameters.setSigningCertificate(signer.getCertificate().getX509Certificate());
     String signatureId = "S" + getSignatures().size();
     signatureParameters.setDeterministicId(signatureId);
