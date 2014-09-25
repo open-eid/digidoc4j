@@ -15,11 +15,6 @@
     <orderEntry type="module" module-name="dss-document" />
     <orderEntry type="module" module-name="dss-service" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.6.6" level="project" />
-    <orderEntry type="library" name="bcpkix-jdk15on-1.49" level="project" />
-    <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.49" level="project" />
-    <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-ext-jdk15on:1.49" level="project" />
-    <orderEntry type="library" name="Maven: org.bouncycastle:bcpkix-jdk15on:1.49" level="project" />
-    <orderEntry type="library" name="org.apache.directory.studio:org.apache.commons.io:2.4" level="application" />
     <orderEntry type="library" name="Maven: org.mockito:mockito-all:1.9.5" level="project" />
     <orderEntry type="module-library">
       <library>
@@ -70,10 +65,12 @@
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.0.13" level="project" />
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.0.13" level="project" />
     <orderEntry type="library" name="org.yaml:snakeyaml:1.13" level="project" />
-    <orderEntry type="library" name="jdigidoc-3.10.1316.BETA" level="project" />
     <orderEntry type="library" name="slf4j-simple-1.6.6" level="project" />
-    <orderEntry type="library" name="serializer-2.7.1" level="project" />
-    <orderEntry type="library" name="xercesImpl-2.11.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.santuario:xmlsec:1.5.6" level="project" />
+    <orderEntry type="library" name="Maven: org.bouncycastle:bcmail-jdk15on:1.51" level="project" />
+    <orderEntry type="library" name="Maven: org.bouncycastle:bcpkix-jdk15on:1.51" level="project" />
+    <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.51" level="project" />
+    <orderEntry type="library" name="jdigidoc-3.10.1424.BETA" level="project" />
   </component>
 </module>
 

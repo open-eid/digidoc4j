@@ -13,8 +13,6 @@ import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCCMSDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
 import org.apache.commons.io.IOUtils;
-import org.digidoc4j.Manifest;
-import org.digidoc4j.api.DataFile;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,20 +24,18 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import static eu.europa.ec.markt.dss.DSSXMLUtils.buildDOM;
-import static java.util.Arrays.asList;
 import static javax.xml.transform.TransformerFactory.newInstance;
 
 /**
  * DigiDoc4JASiCSService is extension of ASiCSService class
  */
-public class BDOCService extends ASiCSService {
+public class BDOCService extends ASiCService {
   private static final String ZIP_ENTRY_DETACHED_FILE = "detached-file";
   private static final String ZIP_ENTRY_MIME_TYPE = "mimetype";
   private static final String ZIP_ENTRY_METAINF_XADES_SIGNATURE = "META-INF/signatures.xml";
@@ -108,7 +104,7 @@ public class BDOCService extends ASiCSService {
     if (validator != null && (validator instanceof ASiCCMSDocumentValidator
         || validator instanceof ASiCXMLDocumentValidator)) {
 
-      contextToSignDocument = validator.getDetachedContent();
+      contextToSignDocument = validator.getDetachedContents().get(0);
       specificParameters.setDetachedContent(contextToSignDocument);
       final DSSDocument contextSignature = validator.getDocument();
       parameters.aSiC().setEnclosedSignature(contextSignature);
@@ -120,7 +116,7 @@ public class BDOCService extends ASiCSService {
 
     final ASiCParameters asicParameters = specificParameters.aSiC();
     final DocumentSignatureService underlyingService = getSpecificService(specificParameters);
-    final SignatureForm asicSignatureForm = asicParameters.getAsicSignatureForm();
+    final SignatureForm asicSignatureForm = asicParameters.getContainerForm();
     final DSSDocument signature;
 
     if (SignatureForm.XAdES.equals(asicSignatureForm)) {
@@ -151,14 +147,14 @@ public class BDOCService extends ASiCSService {
     } else {
 
       if (asicParameters.isZipComment() && DSSUtils.isNotEmpty(toSignDocumentName)) {
-        outZip.setComment("mimetype=" + MimeType.ASICE);
+        outZip.setComment("mimetype=" + MimeType.ASICE.getCode());
       }
 
       storeMimeType(asicParameters, outZip, MimeType.ASICE.getCode());
       storeSignedFile(originalDocument, outZip);
       buildXAdES(signature, outZip, parameters.getDeterministicId());
-      storeManifest(asList(new DataFile(new byte[]{}, originalDocument.getName(),
-          originalDocument.getMimeType().getCode())), outZip);
+      //storeManifest(asList(new DataFile(new byte[]{}, originalDocument.getName(),
+      //    originalDocument.getMimeType().getCode())), outZip);
 
     }
     DSSUtils.close(outZip);
@@ -171,19 +167,19 @@ public class BDOCService extends ASiCSService {
     return asicSignature;
   }
 
-  private void storeManifest(List<DataFile> dataFiles, ZipOutputStream outZip) {
-    Manifest manifest = new Manifest();
-    manifest.addFileEntry(dataFiles);
-    try {
-      outZip.putNextEntry(new ZipEntry("META-INF/manifest.xml"));
-      ByteArrayOutputStream out = new ByteArrayOutputStream();
-      manifest.save(out);
-      outZip.write(out.toByteArray());
-    } catch (IOException e) {
-      logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
-    }
-  }
+//  private void storeManifest(List<DataFile> dataFiles, ZipOutputStream outZip) {
+//    Manifest manifest = new Manifest();
+//    manifest.addFileEntry(dataFiles);
+//    try {
+//      outZip.putNextEntry(new ZipEntry("META-INF/manifest.xml"));
+//      ByteArrayOutputStream out = new ByteArrayOutputStream();
+//      manifest.save(out);
+//      outZip.write(out.toByteArray());
+//    } catch (IOException e) {
+//      logger.error(e.getMessage());
+//      throw new DigiDoc4JException(e);
+//    }
+//  }
 
   /**
    * Creates a specific XAdES/CAdES signature parameters on the base of the provided parameters.
@@ -276,8 +272,8 @@ public class BDOCService extends ASiCSService {
       throw new DSSException(e);
     }
 
-    storeManifest(asList(new DataFile(new byte[]{}, toSignDocument.getName(),
-        toSignDocument.getMimeType().getCode())), outZip);
+//    storeManifest(asList(new DataFile(new byte[]{}, toSignDocument.getName(),
+//        toSignDocument.getMimeType().getCode())), outZip);
 
     DSSUtils.close(outZip);
 

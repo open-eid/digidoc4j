@@ -51,7 +51,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
           "rJJ6H8j+h+nCKLjIdYImvnznKyR0N2CRc/zQ+g==";
 
   //TODO maybe it is good idea to put it to separate file
-  private static String signature =
+  private static String signature  =
       "  <Signature Id=\"S1\" xmlns=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
           "    <SignedInfo xmlns=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
           "      <CanonicalizationMethod Algorithm=\"http://www.w3" +
@@ -210,6 +210,13 @@ public class ContainerTest extends DigiDoc4JTestHelper {
           "      </QualifyingProperties>\n" +
           "    </Object>\n" +
           "  </Signature>";
+
+//  private static String signatureXML =
+//      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+//      "<SignedDoc format=\"DIGIDOC-XML\" version=\"1.3\" xmlns=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
+//          signature +
+//      "</SignedDoc>";
+
   private PKCS12Signer PKCS12_SIGNER;
 
   @Before
@@ -426,7 +433,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     assertEquals(2, container.getSignatures().size());
 //    assertEquals(CERTIFICATE.replaceAll("\\s", ""), Base64.encodeBase64String(getSigningCertificateAsBytes
 // (container, 1)));
-//    assertXMLEqual(signature.trim(), new String(container.getSignatures().get(1).getRawSignature()));
+//    assertXMLEqual(signatureXML.trim(), new String(container.getSignatures().get(1).getRawSignature()));
   }
 
   @Test
@@ -457,7 +464,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     containerToRemoveSignature.removeSignature(1);
 
     assertEquals(1, containerToRemoveSignature.getSignatures().size());
-    //todo check is correct signature removed by signing time?
+    //todo check is correct signatureXML removed by signing time?
 
     deleteFile("testRemoveSignature.ddoc");
   }

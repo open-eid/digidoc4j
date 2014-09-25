@@ -140,4 +140,14 @@ public class StreamDocument implements DSSDocument {
     }
     return DSSUtils.base64Encode(digestBytes);
   }
+
+  @Override
+  public DSSDocument getNextDocument() {
+    return null;
+  }
+
+  @Override
+  public void setNextDocument(DSSDocument nextDocument) {
+
+  }
 }

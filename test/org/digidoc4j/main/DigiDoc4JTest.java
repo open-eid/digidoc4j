@@ -3,6 +3,7 @@ package org.digidoc4j.main;
 import org.digidoc4j.DigiDoc4JTestHelper;
 import org.digidoc4j.api.Container;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.Assertion;

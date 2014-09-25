@@ -2,6 +2,7 @@ package org.digidoc4j;
 
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
+import eu.europa.ec.markt.dss.validation102853.report.Reports;
 import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import org.digidoc4j.api.ValidationResult;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
@@ -24,10 +25,12 @@ public class ValidationResultForBDocTest {
     when(simpleReport.getErrors("S0")).thenReturn(new ArrayList<Conclusion.BasicInfo>());
     when(simpleReport.getWarnings("S0")).thenReturn(new ArrayList<Conclusion.BasicInfo>());
 
+    Reports report = mock(Reports.class);
     ASiCXMLDocumentValidator validator = mock(ASiCXMLDocumentValidator.class);
-    when(validator.getSimpleReport()).thenReturn(simpleReport);
+    when(validator.validateDocument()).thenReturn(report);
+    when(report.getSimpleReport()).thenReturn(simpleReport);
 
-    ValidationResultForBDoc result = new ValidationResultForBDoc(validator);
+    ValidationResultForBDoc result = new ValidationResultForBDoc(report);
 
     assertFalse(result.hasErrors());
     assertFalse(result.hasWarnings());
@@ -37,15 +40,18 @@ public class ValidationResultForBDocTest {
   public void testGetReport() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     String reportContent = "test report";
+
     when(simpleReport.toString()).thenReturn(reportContent);
     when(simpleReport.getSignatureIds()).thenReturn(asList("S0"));
     when(simpleReport.getErrors("S0")).thenReturn(new ArrayList<Conclusion.BasicInfo>());
     when(simpleReport.getWarnings("S0")).thenReturn(new ArrayList<Conclusion.BasicInfo>());
 
+    Reports report = mock(Reports.class);
     ASiCXMLDocumentValidator validator = mock(ASiCXMLDocumentValidator.class);
-    when(validator.getSimpleReport()).thenReturn(simpleReport);
+    when(validator.validateDocument()).thenReturn(report);
+    when(report.getSimpleReport()).thenReturn(simpleReport);
 
-    ValidationResultForBDoc result = new ValidationResultForBDoc(validator);
+    ValidationResultForBDoc result = new ValidationResultForBDoc(report);
 
     assertEquals(reportContent, result.getReport());
   }
@@ -61,10 +67,12 @@ public class ValidationResultForBDocTest {
         new Conclusion.BasicInfo("Error", "Error2")));
     when(simpleReport.getWarnings("S0")).thenReturn(new ArrayList<Conclusion.BasicInfo>());
 
+    Reports report = mock(Reports.class);
     ASiCXMLDocumentValidator validator = mock(ASiCXMLDocumentValidator.class);
-    when(validator.getSimpleReport()).thenReturn(simpleReport);
+    when(validator.validateDocument()).thenReturn(report);
+    when(report.getSimpleReport()).thenReturn(simpleReport);
 
-    ValidationResult result = new ValidationResultForBDoc(validator);
+    ValidationResult result = new ValidationResultForBDoc(report);
 
     List<DigiDoc4JException> errors = result.getErrors();
     List<DigiDoc4JException> warnings = result.getWarnings();
@@ -91,10 +99,12 @@ public class ValidationResultForBDocTest {
     when(simpleReport.getWarnings("S0")).thenReturn(
         asList(new Conclusion.BasicInfo("Warning", "Warning1"), new Conclusion.BasicInfo("Warning", "Warning2")));
 
+    Reports report = mock(Reports.class);
     ASiCXMLDocumentValidator validator = mock(ASiCXMLDocumentValidator.class);
-    when(validator.getSimpleReport()).thenReturn(simpleReport);
+    when(validator.validateDocument()).thenReturn(report);
+    when(report.getSimpleReport()).thenReturn(simpleReport);
 
-    ValidationResult result = new ValidationResultForBDoc(validator);
+    ValidationResult result = new ValidationResultForBDoc(report);
 
     List<DigiDoc4JException> errors = result.getErrors();
     List<DigiDoc4JException> warnings = result.getWarnings();
