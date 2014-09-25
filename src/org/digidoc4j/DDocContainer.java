@@ -95,8 +95,17 @@ public class DDocContainer extends Container {
       throw new DigiDoc4JException(e);
     }
     if (SignedDoc.hasFatalErrs(openContainerExceptions)) {
-      throw new DigiDoc4JException(openContainerExceptions.get(0));
+      throw new DigiDoc4JException(getFatalError());
     }
+  }
+
+  private DigiDocException getFatalError() {
+    for (DigiDocException openContainerException : openContainerExceptions) {
+      if (openContainerException.getCode() == DigiDocException.ERR_PARSE_XML) {
+        return openContainerException;
+      }
+    }
+    return openContainerExceptions.get(0);
   }
 
   DDocContainer(SignedDoc ddoc) {
@@ -330,12 +339,13 @@ public class DDocContainer extends Container {
     logger.debug("");
 
     if (SignedDoc.hasFatalErrs(openContainerExceptions)) {
-      return new ValidationResultForDDoc(null, openContainerExceptions);
+      return new ValidationResultForDDoc(null, null, openContainerExceptions);
     }
 
     ArrayList exceptions = ddoc.verify(true, true);
-    exceptions.addAll(openContainerExceptions);
 
-    return new ValidationResultForDDoc(ddoc.getFormat(), exceptions);
+    ArrayList containerExceptions = ddoc.validate(true);
+    containerExceptions.addAll(openContainerExceptions);
+    return new ValidationResultForDDoc(ddoc.getFormat(), exceptions, containerExceptions);
   }
 }

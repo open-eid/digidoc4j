@@ -24,6 +24,9 @@ import java.util.List;
 public class ValidationResultForDDoc implements ValidationResult {
 
   static final Logger logger = LoggerFactory.getLogger(ValidationResultForDDoc.class);
+
+  private List<DigiDoc4JException> containerExceptions = new ArrayList<DigiDoc4JException>();
+  private boolean hasFatalErrors = false;
   private List<DigiDoc4JException> errors = new ArrayList<DigiDoc4JException>();
   private List<DigiDoc4JException> warnings = new ArrayList<DigiDoc4JException>();
 
@@ -38,10 +41,35 @@ public class ValidationResultForDDoc implements ValidationResult {
    * @param exceptions     add description
    */
   public ValidationResultForDDoc(String documentFormat, List<DigiDocException> exceptions) {
+    this(documentFormat, exceptions, null);
     logger.debug("");
+  }
+
+
+  /**
+   * Constructor
+   *
+   * @param documentFormat          add description
+   * @param exceptions              add description
+   * @param openContainerExceptions list of exceptions encountered when opening the container
+   */
+
+  public ValidationResultForDDoc(String documentFormat, List<DigiDocException> exceptions,
+                                 List<DigiDocException> openContainerExceptions) {
     Element childElement;
 
     initXMLReport();
+    if (openContainerExceptions != null) {
+      for (DigiDocException exception : openContainerExceptions) {
+        DigiDoc4JException digiDoc4JException = new DigiDoc4JException(exception.getCode(), exception.getMessage());
+        containerExceptions.add(digiDoc4JException);
+        if (SignedDoc.hasFatalErrs((ArrayList) openContainerExceptions)) {
+          hasFatalErrors = true;
+        }
+      }
+      exceptions.addAll(0, openContainerExceptions);
+    }
+
 
     for (DigiDocException exception : exceptions) {
       String message = exception.getMessage();
@@ -62,6 +90,15 @@ public class ValidationResultForDDoc implements ValidationResult {
       }
       rootElement.appendChild(childElement);
     }
+  }
+
+  /**
+   * Does the container have fatal errors
+   *
+   * @return true if fatal errors have been encountered
+   */
+  public boolean hasFatalErrors() {
+    return hasFatalErrors;
   }
 
   static boolean isWarning(String documentFormat, DigiDoc4JException exception) {
@@ -133,5 +170,15 @@ public class ValidationResultForDDoc implements ValidationResult {
     DOMImplementationLS domImplementation = (DOMImplementationLS) document.getImplementation();
     LSSerializer lsSerializer = domImplementation.createLSSerializer();
     return lsSerializer.writeToString(document);
+  }
+
+
+  /**
+   * Get list of exceptions encountered when opening the container
+   *
+   * @return List of exceptions
+   */
+  public List<DigiDoc4JException> getContainerErrors() {
+    return containerExceptions;
   }
 }

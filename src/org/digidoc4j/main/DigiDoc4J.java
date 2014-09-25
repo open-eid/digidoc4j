@@ -1,9 +1,11 @@
 package org.digidoc4j.main;
 
 import org.apache.commons.cli.*;
+import org.digidoc4j.ValidationResultForDDoc;
 import org.digidoc4j.api.Container;
 import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.Signer;
+import org.digidoc4j.api.ValidationResult;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS12Signer;
 
@@ -78,8 +80,7 @@ public final class DigiDoc4J {
       if (new File(inputFile).exists() || commandLine.hasOption("verify") || commandLine.hasOption("remove")) {
         verboseMessage("Opening container " + inputFile);
         container = Container.open(inputFile);
-      }
-      else {
+      } else {
         verboseMessage("Creating new " + type + "container " + inputFile);
         container = Container.create(type);
       }
@@ -106,6 +107,7 @@ public final class DigiDoc4J {
       if (commandLine.hasOption("verify"))
         verify(container);
     } catch (DigiDoc4JException e) {
+      System.out.println("Fatal error: " + e.toString());
       throw new DigiDoc4JUtilityException(1, e.getMessage());
     }
   }
@@ -138,21 +140,35 @@ public final class DigiDoc4J {
   }
 
   private static void verify(Container container) {
+    ValidationResult validationResult = container.validate();
+
+    if (container.getDocumentType() == DocumentType.DDOC) {
+      List<DigiDoc4JException> exceptions = ((ValidationResultForDDoc) validationResult).getContainerErrors();
+      for (DigiDoc4JException exception : exceptions) {
+        System.out.println("\t" + exception.toString());
+      }
+      if (((ValidationResultForDDoc) validationResult).hasFatalErrors()) {
+        return;
+      }
+    }
+
     List<Signature> signatures = container.getSignatures();
     if (signatures == null) {
       throw new DigiDoc4JException("No signatures found");
     }
+
     for (Signature signature : signatures) {
-      List<DigiDoc4JException> validationResult = signature.validate();
-      if (validationResult.size() == 0) {
+      List<DigiDoc4JException> signatureValidationResult = signature.validate();
+      if (signatureValidationResult.size() == 0) {
         System.out.println("Signature " + signature.getId() + " is valid");
       } else {
         System.out.println(ANSI_RED + "Signature " + signature.getId() + " is not valid" + ANSI_RESET);
-        for (DigiDoc4JException exception : validationResult) {
-          System.out.println("\t" + exception.getMessage());
+        for (DigiDoc4JException exception : signatureValidationResult) {
+          System.out.println("\t" + exception.toString());
         }
       }
     }
+
   }
 
   private static Options createParameters() {
