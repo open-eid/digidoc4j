@@ -168,7 +168,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   }
 
-
   @Test
   public void testRemoveSignatureWhenOneSignatureExists() throws Exception {
     BDocContainer container = new BDocContainer();
@@ -187,10 +186,26 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = Container.open("testFiles/asics_testing_two_signatures.bdoc");
     container.removeSignature(0);
     container.save("testRemoveSignature.bdoc");
-    assertEquals(1, container.getSignatures().size());
 
     container = new BDocContainer("testRemoveSignature.bdoc");
     assertEquals(1, container.getSignatures().size());
+  }
+
+  @Test
+  public void testRemoveSignatureWhenThreeSignaturesExist() throws Exception {
+    Container container = Container.open("testFiles/asics_testing_two_signatures.bdoc");
+
+    container.sign(PKCS12_SIGNER);
+    container.save("testThreeSignatures.bdoc");
+    container = new BDocContainer("testThreeSignatures.bdoc");
+    assertEquals(3, container.getSignatures().size());
+
+    container.removeSignature(1);
+
+    container.save("testRemoveSignature.bdoc");
+
+    container = new BDocContainer("testRemoveSignature.bdoc");
+    assertEquals(2, container.getSignatures().size());
   }
 
   @Test

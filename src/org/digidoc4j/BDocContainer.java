@@ -1,5 +1,6 @@
 package org.digidoc4j;
 
+import eu.europa.ec.markt.dss.DSSXMLUtils;
 import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.parameter.BLevelParameters;
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
@@ -24,6 +25,8 @@ import org.digidoc4j.api.*;
 import org.digidoc4j.api.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -330,10 +333,23 @@ public class BDocContainer extends Container {
     DSSDocument signingDocument = getAttachment();
     DSSDocument signature = validator.removeSignature("S" + index);
     signatureParameters.setDetachedContent(signingDocument);
-    signatureParameters.aSiC().setSignatureFileName(getSignatureFileName(signature));
-    signedDocument = ((ASiCService) asicService).buildASiCContainer(signingDocument, null, signatureParameters,
-        signature);
+
+    signedDocument = null;
+    do {
+      signatureParameters.aSiC().setSignatureFileName(getSignatureFileName(signature));
+      signedDocument = ((ASiCService) asicService).buildASiCContainer(signingDocument, signedDocument,
+          signatureParameters, createBareDocument(signature));
+      signature = signature.getNextDocument();
+    } while (signature != null);
+
     signatures.remove(index);
+  }
+
+  private DSSDocument createBareDocument(DSSDocument signature) {
+    if (signature.getName() == null) return signature;
+    Document root = DSSXMLUtils.buildDOM(signature);
+    final Element signatureEl = (Element) root.getDocumentElement().getFirstChild();
+    return new InMemoryDocument(DSSXMLUtils.serializeNode(signatureEl));
   }
 
   private String getSignatureFileName(DSSDocument signature) {
