@@ -330,8 +330,16 @@ public class BDocContainer extends Container {
     DSSDocument signingDocument = getAttachment();
     DSSDocument signature = validator.removeSignature("S" + index);
     signatureParameters.setDetachedContent(signingDocument);
-    signedDocument = ((ASiCService)asicService).buildASiCContainer(signingDocument, signatureParameters, signature);
+    signatureParameters.aSiC().setSignatureFileName(getSignatureFileName(signature));
+    signedDocument = ((ASiCService) asicService).buildASiCContainer(signingDocument, null, signatureParameters,
+        signature);
     signatures.remove(index);
+  }
+
+  private String getSignatureFileName(DSSDocument signature) {
+    if (signature.getName() == null)
+      return "signatures0.xml";
+    return signature.getName().substring(signature.getName().lastIndexOf('/') + 1);
   }
 
   @Override
