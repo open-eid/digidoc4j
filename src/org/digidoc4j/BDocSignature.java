@@ -88,9 +88,13 @@ public class BDocSignature extends Signature {
     throw new NotYetImplementedException();
   }
 
-  @Override  //TODO Should this throw a DigiDoc4JException instead of CertificateNotFoundException
+  @Override
   public X509Cert getOCSPCertificate() {
     logger.debug("");
+
+    if (origin.getOCSPSource().getContainedOCSPResponses().size() == 0)
+      return null;
+
     String ocspCN = getOCSPCommonName();
     for (CertificateToken cert : origin.getCertPool().getCertificateTokens()) {
       String value = getCN(new X500Name(cert.getSubjectX500Principal().getName()));

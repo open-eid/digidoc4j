@@ -1,5 +1,6 @@
 package org.digidoc4j;
 
+import ee.sk.digidoc.CertValue;
 import org.digidoc4j.api.Signature;
 import org.digidoc4j.api.X509Cert;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
@@ -63,7 +64,7 @@ public class DDocSignature extends Signature {
   @Override
   public X509Cert getOCSPCertificate() {
     logger.debug("");
-    return new X509Cert(origin.findResponderCert());
+    return origin.findResponderCert() != null ? new X509Cert(origin.findResponderCert()) : null;
   }
 
   @Override
@@ -158,6 +159,17 @@ public class DDocSignature extends Signature {
       validationErrors.add(new DigiDoc4JException(errorMessage));
     }
     return validationErrors;
+  }
+
+  /**
+   * Retrieves CertValue element with the desired type
+   *
+   * @param type CertValue type
+   * @return CertValue element or null if not found
+   */
+  public CertValue getCertValueOfType(int type) {
+    logger.debug("type: " + type);
+    return origin.getCertValueOfType(type);
   }
 
   @Override

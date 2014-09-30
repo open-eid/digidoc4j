@@ -182,6 +182,22 @@ public class DDocContainerTest {
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12", container.getSignature(1).getSigningCertificate().getSerial());
   }
 
+  @Test(expected = DigiDoc4JException.class)
+  public void addDataFileAfterSigning() {
+    DDocContainer container = new DDocContainer();
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    container.sign(pkcs12Signer);
+    container.addDataFile("testFiles/test.xml", TEXT_MIME_TYPE);
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void removeDataFileAfterSigning() {
+    DDocContainer container = new DDocContainer();
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    container.sign(pkcs12Signer);
+    container.removeDataFile("testFiles/test.txt");
+  }
+
   @Test
   public void getSignatureWhenNotSigned() {
     DDocContainer container = new DDocContainer();
@@ -192,6 +208,14 @@ public class DDocContainerTest {
   public void getSignatureWhenNoDocument() {
     MockDDocContainer container = new MockDDocContainer();
     assertNull(container.getSignatures());
+  }
+
+  @Test
+  public void addConfirmation() throws Exception {
+    DDocContainer container = new DDocContainer();
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    container.signWithoutOCSP(pkcs12Signer);
+    assertNull(container.getSignature(0).getOCSPCertificate());
   }
 
   private class MockDDocContainer extends DDocContainer {

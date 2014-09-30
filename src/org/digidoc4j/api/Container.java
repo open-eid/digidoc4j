@@ -298,6 +298,19 @@ public abstract class Container {
    * @return validation result
    */
   public abstract ValidationResult validate();
+
+  /**
+   * Signs all data files in the container. No OCSP confirmation is added
+   *
+   * @param signer signer implementation
+   * @return signature
+   */
+  public abstract Signature signWithoutOCSP(Signer signer);
+
+  /**
+   * Adds OCSP confirmation
+   */
+  public abstract void addConfirmation();
 }
 
 

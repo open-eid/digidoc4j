@@ -7,9 +7,11 @@ import org.digidoc4j.api.ValidationResult;
 import org.digidoc4j.api.exceptions.DigiDoc4JException;
 import org.digidoc4j.api.exceptions.NotYetImplementedException;
 import org.digidoc4j.api.exceptions.SignatureNotFoundException;
+import org.digidoc4j.api.exceptions.UnsupportedFormatException;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.*;
@@ -219,7 +221,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     BDocContainer container = (BDocContainer) createSignedBDocDocument("testSaveBDocDocumentWithOneSignature.bdoc");
     ValidationResult result = container.verify();
     assertFalse(result.hasErrors());
-//    assertFalse(result.hasWarnings());
   }
 
   @Test
@@ -228,14 +229,32 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertTrue(container.verify().hasErrors());
   }
 
-  @Test
-  public void testRemoveDataFile() throws Exception {
+  @Test(expected = DigiDoc4JException.class)
+  public void testRemoveDataFileAfterSigning() throws Exception {
     createSignedBDocDocument("testRemoveDataFile.bdoc");
     Container container = new BDocContainer("testRemoveDataFile.bdoc");
     assertEquals("test.txt", container.getDataFiles().get(0).getFileName());
     assertEquals(1, container.getDataFiles().size());
     container.removeDataFile("test.txt");
     assertEquals(0, container.getDataFiles().size());
+  }
+
+  @Test
+  public void testRemoveDataFile() throws Exception {
+    Container container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    assertEquals("test.txt", container.getDataFiles().get(0).getFileName());
+    assertEquals(1, container.getDataFiles().size());
+    container.removeDataFile("testFiles/test.txt");
+    assertEquals(0, container.getDataFiles().size());
+  }
+
+
+  @Test(expected = DigiDoc4JException.class)
+  public void testAddDataFileAfterSigning() throws Exception {
+    createSignedBDocDocument("testAddDataFile.bdoc");
+    Container container = new BDocContainer("testAddDataFile.bdoc");
+    container.addDataFile("testFiles/test.txt", "text/plain");
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -250,6 +269,15 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.addDataFile("testFiles/test.txt", "text/plain");
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void testAddingSameFileInDifferentContainerSeveralTimes() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/sub/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.save("testAddSameFile.bdoc");
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -377,12 +405,37 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(DocumentType.BDOC, container.getDocumentType());
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void testAddTwoFilesAsStream() throws Exception {
     BDocContainer container = new BDocContainer();
     ByteArrayInputStream stream = new ByteArrayInputStream("tere, tere".getBytes());
     container.addDataFile(stream, "test1.txt", "text/plain");
     container.addDataFile(stream, "test2.txt", "text/plain");
+  }
+
+  @Test
+  public void testAddTwoFilesAsFileWithoutOCSP() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/test.xml", "text/xml");
+    container.signWithoutOCSP(PKCS12_SIGNER);
+    container.save("testTwoFilesSigned.bdoc");
+
+    container = new BDocContainer("testTwoFilesSigned.bdoc");
+    assertEquals(2, container.getDataFiles().size());
+  }
+
+  @Ignore
+  @Test
+  public void testAddTwoFilesAsFileWithOCSP() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/test.xml", "text/xml");
+    container.sign(PKCS12_SIGNER);
+    container.save("testTwoFilesSigned.bdoc");
+
+    container = new BDocContainer("testTwoFilesSigned.bdoc");
+    assertEquals(2, container.getDataFiles().size());
   }
 
   @Test(expected = NotYetImplementedException.class)
@@ -468,6 +521,107 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
     assertEquals(container.getTslLocation(), tslLocation);
   }
+
+  @Test
+  public void addConfirmation() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.signWithoutOCSP(PKCS12_SIGNER);
+    container.save("testAddConfirmation.bdoc");
+
+    assertEquals(1, container.getSignatures().size());
+    assertNull(container.getSignature(0).getOCSPCertificate());
+
+    container = new BDocContainer("testAddConfirmation.bdoc");
+    container.addConfirmation();
+    container.save("testAddConfirmationContainsIt.bdoc");
+
+    assertEquals(1, container.getSignatures().size());
+    assertNotNull(container.getSignature(0).getOCSPCertificate());
+  }
+
+  @Test
+  public void addConfirmationWhenConfirmationAlreadyExists() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.signWithoutOCSP(PKCS12_SIGNER);
+    container.save("testAddConfirmation.bdoc");
+
+    assertEquals(1, container.getSignatures().size());
+    assertNull(container.getSignature(0).getOCSPCertificate());
+
+    container = new BDocContainer("testAddConfirmation.bdoc");
+    container.addConfirmation();
+    container.addConfirmation();
+    container.save("testAddConfirmationContainsIt.bdoc");
+
+    assertEquals(1, container.getSignatures().size());
+    assertNotNull(container.getSignature(0).getOCSPCertificate());
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void signWithoutDataFile() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.sign(PKCS12_SIGNER);
+  }
+
+  @Test
+  public void addConfirmationWithMultipleSignatures() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.signWithoutOCSP(PKCS12_SIGNER);
+    container.signWithoutOCSP(PKCS12_SIGNER);
+    container.save("testAddConfirmation.bdoc");
+
+    assertEquals(2, container.getSignatures().size());
+    assertNull(container.getSignature(0).getOCSPCertificate());
+    assertNull(container.getSignature(1).getOCSPCertificate());
+
+    container = new BDocContainer("testAddConfirmation.bdoc");
+    container.addConfirmation();
+    container.save("testAddConfirmationContainsIt.bdoc");
+
+    container = new BDocContainer("testAddConfirmationContainsIt.bdoc");
+    assertEquals(2, container.getSignatures().size());
+    assertNotNull(container.getSignature(0).getOCSPCertificate());
+    assertNotNull(container.getSignature(1).getOCSPCertificate());
+  }
+
+  @Ignore
+  @Test
+  public void addConfirmationWithMultipleSignaturesAndMultipleFiles() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/test.xml", "text/xml");
+    container.signWithoutOCSP(PKCS12_SIGNER);
+    container.signWithoutOCSP(PKCS12_SIGNER);
+    container.save("testAddConfirmation.bdoc");
+
+    assertEquals(2, container.getSignatures().size());
+    assertEquals(2, container.getDataFiles().size());
+    assertNull(container.getSignature(0).getOCSPCertificate());
+    assertNull(container.getSignature(1).getOCSPCertificate());
+
+    container = new BDocContainer("testAddConfirmation.bdoc");
+    container.addConfirmation();
+    container.save("testAddConfirmationContainsIt.bdoc");
+
+    assertEquals(2, container.getSignatures().size());
+    assertEquals(2, container.getDataFiles().size());
+    assertNotNull(container.getSignature(0).getOCSPCertificate());
+    assertNotNull(container.getSignature(1).getOCSPCertificate());
+  }
+
+  @Test(expected = UnsupportedFormatException.class)
+  public void notBDocThrowsException() {
+    new BDocContainer("testFiles/notABDoc.bdoc");
+  }
+
+  @Test(expected = UnsupportedFormatException.class)
+  public void incorrectMimetypeThrowsException() {
+    new BDocContainer("testFiles/incorrectMimetype.bdoc");
+  }
+
 
   private Container createSignedBDocDocument(String fileName) {
     BDocContainer container = new BDocContainer();

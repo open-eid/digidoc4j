@@ -33,16 +33,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static eu.europa.ec.markt.dss.DigestAlgorithm.SHA256;
 import static eu.europa.ec.markt.dss.DigestAlgorithm.forName;
 import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
+import static eu.europa.ec.markt.dss.signature.SignatureLevel.ASiC_E_BASELINE_B;
 import static eu.europa.ec.markt.dss.signature.SignatureLevel.ASiC_E_BASELINE_LT;
 import static eu.europa.ec.markt.dss.signature.SignaturePackaging.DETACHED;
 import static eu.europa.ec.markt.dss.validation102853.SignatureForm.XAdES;
@@ -112,7 +110,7 @@ public class BDocContainer extends Container {
       } else
         signedDocument = new InMemoryDocument(IOUtils.toByteArray(stream), null, BDOC_MIME_TYPE);
     } catch (IOException e) {
-      logger.debug(e.getMessage());
+      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
 
@@ -158,7 +156,7 @@ public class BDocContainer extends Container {
       ZipFile zipFile = new ZipFile(path);
       ZipEntry entry = zipFile.getEntry("mimetype");
       if (entry == null)
-        throw new UnsupportedFormatException("Not asic-e document. Mimetype is missing.");
+        throw new UnsupportedFormatException("Not an asic-e document. Mimetype is missing.");
       InputStream stream = zipFile.getInputStream(entry);
       mimeType = IOUtils.toString(stream);
       stream.close();
@@ -176,15 +174,19 @@ public class BDocContainer extends Container {
 
     SignedDocumentValidator validator = ASiCContainerValidator.fromDocument(signedDocument);
 
-    Map<String, SimpleReport> simpleReports = loadValidationResults(validator);
-    loadSignatures(simpleReports, validator.getSignatures());
-
-    List<DSSDocument> detachedContents = validator.getDetachedContents();
-    DSSDocument externalContent = detachedContents.get(0);
-    dataFiles.put(externalContent.getName(), new DataFile(externalContent.getBytes(), externalContent.getName(),
-        externalContent.getMimeType().getCode()));
+    loadSignatures(validator);
+    loadAttachments(validator);
 
     logger.debug("New BDoc container created");
+  }
+
+  private void loadAttachments(SignedDocumentValidator validator) {
+    for (DSSDocument externalContent : validator.getDetachedContents()) {
+      if (!"META-INF/manifest.xml".equals(externalContent.getName())) {
+        dataFiles.put(externalContent.getName(), new DataFile(externalContent.getBytes(), externalContent.getName(),
+            externalContent.getMimeType().getCode()));
+      }
+    }
   }
 
   private Map<String, SimpleReport> loadValidationResults(SignedDocumentValidator validator) {
@@ -201,8 +203,11 @@ public class BDocContainer extends Container {
     return simpleReports;
   }
 
-  private void loadSignatures(Map<String, SimpleReport> simpleReports, List<AdvancedSignature> signatureList) {
+  private void loadSignatures(SignedDocumentValidator validator) {
     logger.debug("");
+    Map<String, SimpleReport> simpleReports = loadValidationResults(validator);
+    List<AdvancedSignature> signatureList = validator.getSignatures();
+
     List<DigiDoc4JException> validationErrors;
     for (AdvancedSignature advancedSignature : signatureList) {
       validationErrors = new ArrayList<DigiDoc4JException>();
@@ -241,19 +246,37 @@ public class BDocContainer extends Container {
   @Override
   public void addDataFile(String path, String mimeType) {
     logger.debug("Path: " + path + ", mime type: " + mimeType);
-    if (canAddDataFile()) {
-      try {
-        long cachedFileSizeInBytes = configuration.getMaxDataFileCachedInBytes();
-        if (configuration.isBigFilesSupportEnabled() && new File(path).length() > cachedFileSizeInBytes) {
-          dataFiles.put(path, new DataFile(path, mimeType));
-        } else {
-          FileInputStream is = new FileInputStream(path);
-          dataFiles.put(path, new DataFile(IOUtils.toByteArray(is), path, mimeType));
-          is.close();
-        }
-      } catch (IOException e) {
-        logger.error(e.getMessage());
-        throw new DigiDoc4JException(e);
+
+    if (signatures.size() > 0) {
+      String errorMessage = "Datafiles cannot be added to an already signed container";
+      logger.error(errorMessage);
+      throw new DigiDoc4JException(errorMessage);
+    }
+
+    checkForDuplicateDataFile(path);
+
+    try {
+      long cachedFileSizeInBytes = configuration.getMaxDataFileCachedInBytes();
+      if (configuration.isBigFilesSupportEnabled() && new File(path).length() > cachedFileSizeInBytes) {
+        dataFiles.put(path, new DataFile(path, mimeType));
+      } else {
+        FileInputStream is = new FileInputStream(path);
+        dataFiles.put(path, new DataFile(IOUtils.toByteArray(is), path, mimeType));
+        is.close();
+      }
+    } catch (IOException e) {
+      logger.error(e.getMessage());
+      throw new DigiDoc4JException(e);
+    }
+  }
+
+  private void checkForDuplicateDataFile(String path) {
+    String fileName = new File(path).getName();
+    for (String key : dataFiles.keySet()) {
+      if (dataFiles.get(key).getFileName().equals(fileName)) {
+        String errorMessage = "Data file " + fileName + " already exists";
+        logger.error(errorMessage);
+        throw new DigiDoc4JException(errorMessage);
       }
     }
   }
@@ -261,27 +284,16 @@ public class BDocContainer extends Container {
   @Override
   public void addDataFile(InputStream is, String fileName, String mimeType) {
     logger.debug("File name: " + fileName + ", mime type: " + mimeType);
-    if (canAddDataFile()) {
-      try {
-        if (configuration.isBigFilesSupportEnabled()) {
-          dataFiles.put(fileName, new DataFile(is, fileName, mimeType));
-        } else {
-          dataFiles.put(fileName, new DataFile(IOUtils.toByteArray(is), fileName, mimeType));
-        }
-      } catch (IOException e) {
-        logger.error(e.getMessage());
-        throw new DigiDoc4JException(e);
+    try {
+      if (configuration.isBigFilesSupportEnabled()) {
+        dataFiles.put(fileName, new DataFile(is, fileName, mimeType));
+      } else {
+        dataFiles.put(fileName, new DataFile(IOUtils.toByteArray(is), fileName, mimeType));
       }
+    } catch (IOException e) {
+      logger.error(e.getMessage());
+      throw new DigiDoc4JException(e);
     }
-  }
-
-  private boolean canAddDataFile() {
-    if (dataFiles.size() >= 1) {
-      DigiDoc4JException exception = new DigiDoc4JException("ASiCS supports only one attachment");
-      logger.error(exception.getMessage());
-      throw exception;
-    }
-    return true;
   }
 
   @Override
@@ -318,6 +330,13 @@ public class BDocContainer extends Container {
   @Override
   public void removeDataFile(String fileName) {
     logger.debug("File name: " + fileName);
+
+    if (signatures.size() > 0) {
+      String errorMessage = "Datafiles cannot be removed from an already signed container";
+      logger.error(errorMessage);
+      throw new DigiDoc4JException(errorMessage);
+    }
+
     if (dataFiles.remove(fileName) == null) {
       DigiDoc4JException exception = new DigiDoc4JException("File not found");
       logger.error(exception.getMessage());
@@ -370,6 +389,7 @@ public class BDocContainer extends Container {
     try {
       IOUtils.copyLarge(signedDocument.openStream(), out);
     } catch (IOException e) {
+      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
@@ -394,7 +414,9 @@ public class BDocContainer extends Container {
     signatureParameters.setDeterministicId(signatureId);
     signatureParameters.aSiC().setSignatureFileName("signature" + signatureId.toLowerCase() + ".xml");
 
-    byte[] dataToSign = asicService.getDataToSign(getAttachment(), signatureParameters);
+    DSSDocument toSignDocument = getAttachment();
+    byte[] dataToSign = asicService.getDataToSign(toSignDocument, signatureParameters);
+    signatureParameters.setDetachedContent(toSignDocument);
 
     return sign(signer.sign(signatureParameters.getDigestAlgorithm().getXmlId(), dataToSign));
   }
@@ -403,10 +425,9 @@ public class BDocContainer extends Container {
     logger.debug("");
     commonCertificateVerifier.setTrustedCertSource(getTSL());
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource(configuration));
-
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
+
     String deterministicId = getSignatureParameters().getDeterministicId();
-    signatureParameters.setDetachedContent(getAttachment());
 
     try {
       signedDocument = asicService.signDocument(getSigningDocument(), signatureParameters, rawSignature);
@@ -417,7 +438,6 @@ public class BDocContainer extends Container {
       throw new DigiDoc4JException(e);
     }
 
-    signatureParameters.setDetachedContent(signedDocument);
     XAdESSignature xAdESSignature = getSignatureById(deterministicId);
 
     Signature signature = new BDocSignature(xAdESSignature);
@@ -436,7 +456,24 @@ public class BDocContainer extends Container {
 
   private DSSDocument getAttachment() {
     DSSDocument attachment;
-    DataFile dataFile = getFirstDataFile();
+
+    if (dataFiles.size() == 0) {
+      String errorMessage = "Container does not contain any attachments";
+      logger.error(errorMessage);
+      throw new DigiDoc4JException(errorMessage);
+    }
+    Iterator<String> iterator = dataFiles.keySet().iterator();
+    attachment = getDssDocumentFromDataFile(dataFiles.get(iterator.next()));
+    while (iterator.hasNext()) {
+      String fileName = iterator.next();
+      attachment.setNextDocument(getDssDocumentFromDataFile(dataFiles.get(fileName)));
+    }
+
+    return attachment;
+  }
+
+  private DSSDocument getDssDocumentFromDataFile(DataFile dataFile) {
+    DSSDocument attachment;
     MimeType mimeType = MimeType.fromCode(dataFile.getMediaType());
     long cachedFileSizeInMB = configuration.getMaxDataFileCachedInMB();
     if (configuration.isBigFilesSupportEnabled() && dataFile.getFileSize() > cachedFileSizeInMB * ONE_MB_IN_BYTES) {
@@ -449,7 +486,7 @@ public class BDocContainer extends Container {
 
   private XAdESSignature getSignatureById(String deterministicId) {
     logger.debug("Id: " + deterministicId);
-    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signatureParameters.getDetachedContent());
+    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
     validate(validator);
     List<AdvancedSignature> signatureList = validator.getSignatures();
     for (AdvancedSignature advancedSignature : signatureList) {
@@ -567,11 +604,6 @@ public class BDocContainer extends Container {
     return getClass().getClassLoader().getResourceAsStream(policyFile);
   }
 
-  private DataFile getFirstDataFile() {
-    logger.debug("");
-    return (DataFile) dataFiles.values().toArray()[0];
-  }
-
   @Override
   public List<Signature> getSignatures() {
     logger.debug("");
@@ -600,14 +632,32 @@ public class BDocContainer extends Container {
     return verify();
   }
 
+  @Override
+  public Signature signWithoutOCSP(Signer signer) {
+    signatureParameters.setSignatureLevel(ASiC_E_BASELINE_B);
+    return sign(signer);
+  }
+
+  @Override
+  public void addConfirmation() {
+    commonCertificateVerifier.setTrustedCertSource(getTSL());
+    commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource(configuration));
+    asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
+
+    signatureParameters.setSignatureLevel(ASiC_E_BASELINE_LT);
+    signedDocument = asicService.extendDocument(signedDocument, signatureParameters);
+
+    signatures = new ArrayList<Signature>();
+    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
+    validate(validator);
+    List<AdvancedSignature> signatureList = validator.getSignatures();
+    for (AdvancedSignature advancedSignature : signatureList) {
+      signatures.add(new BDocSignature((XAdESSignature) advancedSignature));
+    }
+  }
+
   protected SignatureParameters getSignatureParameters() {
     logger.debug("");
     return signatureParameters;
   }
 }
-
-
-
-
-
-

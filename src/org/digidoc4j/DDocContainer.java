@@ -95,7 +95,9 @@ public class DDocContainer extends Container {
       throw new DigiDoc4JException(e);
     }
     if (SignedDoc.hasFatalErrs(openContainerExceptions)) {
-      throw new DigiDoc4JException(getFatalError());
+      DigiDocException fatalError = getFatalError();
+      logger.error("Container has a fatal error: " + fatalError.getMessage());
+      throw new DigiDoc4JException(fatalError);
     }
   }
 
@@ -247,23 +249,14 @@ public class DDocContainer extends Container {
   @Override
   public Signature sign(Signer signer) {
     logger.debug("");
-
-    ee.sk.digidoc.Signature signature;
+    ee.sk.digidoc.Signature signature = calculateSignature(signer);
     try {
-      List<String> signerRoles = signer.getSignerRoles();
-      signature = ddoc.prepareSignature(signer.getCertificate().getX509Certificate(),
-          signerRoles.toArray(new String[signerRoles.size()]),
-          new SignatureProductionPlace(signer.getCity(), signer.getStateOrProvince(),
-              signer.getCountry(), signer.getPostalCode()));
-
-      signature.setSignatureValue(signer.sign(eu.europa.ec.markt.dss.DigestAlgorithm.SHA1.getXmlId(),
-          signature.calculateSignedInfoXML()));
-
       signature.getConfirmation();
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e.getNestedException());
     }
+
     return new DDocSignature(signature);
   }
 
@@ -334,5 +327,44 @@ public class DDocContainer extends Container {
     ArrayList containerExceptions = ddoc.validate(true);
     containerExceptions.addAll(openContainerExceptions);
     return new ValidationResultForDDoc(ddoc.getFormat(), exceptions, containerExceptions);
+  }
+
+  @Override
+  public Signature signWithoutOCSP(Signer signer) {
+    logger.debug("");
+    return new DDocSignature(calculateSignature(signer));
+  }
+
+  private ee.sk.digidoc.Signature calculateSignature(Signer signer) {
+    ee.sk.digidoc.Signature signature;
+    try {
+      List<String> signerRoles = signer.getSignerRoles();
+      SignatureProductionPlace productionPlace = new SignatureProductionPlace(signer.getCity(),
+          signer.getStateOrProvince(), signer.getCountry(), signer.getPostalCode());
+
+      signature = ddoc.prepareSignature(signer.getCertificate().getX509Certificate(),
+          signerRoles.toArray(new String[signerRoles.size()]),
+          productionPlace);
+
+      signature.setSignatureValue(signer.sign(eu.europa.ec.markt.dss.DigestAlgorithm.SHA1.getXmlId(),
+          signature.calculateSignedInfoXML()));
+
+    } catch (DigiDocException e) {
+      logger.error(e.getMessage());
+      throw new DigiDoc4JException(e.getNestedException());
+    }
+    return signature;
+  }
+
+  @Override
+  public void addConfirmation() {
+    for (Object signature : ddoc.getSignatures()) {
+      try {
+        ((ee.sk.digidoc.Signature) signature).getConfirmation();
+      } catch (DigiDocException e) {
+        logger.error(e.getMessage());
+        throw new DigiDoc4JException(e.getNestedException());
+      }
+    }
   }
 }
