@@ -31,25 +31,26 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
  * <pre>
  * DIGIDOC_CAS:
  * - DIGIDOC_CA:
- * NAME: CA name
- * TRADENAME: Tradename
- * CERTS:
- * - jar://certs/cert1.crt
- * - jar://certs/cert2.crt
+ *     NAME: CA name
+ *     TRADENAME: Tradename
+ *     CERTS:
+ *       - jar://certs/cert1.crt
+ *       - jar://certs/cert2.crt
+ *     OCSPS:
  * </pre>
  * <p/>
  * Each DIGIDOC_CA entry must contain one or more OCSP certificates under the heading "OCSPS"
  * similar to following format (values are examples only):<br>
  * <p>
  * <pre>
- * - OCSP:
- *   CA_CN: your certificate authority common name
- *   CA_CERT: jar://your ca_cn.crt
- *   CN: your common name
- *   CERTS:
- *   - jar://certs/Your first OCSP Certifications file.crt
- *   - jar://certs/Your second OCSP Certifications file.crt
- *   URL: http://ocsp.test.test
+ *       - OCSP:
+ *         CA_CN: your certificate authority common name
+ *         CA_CERT: jar://your ca_cn.crt
+ *         CN: your common name
+ *         CERTS:
+ *         - jar://certs/Your first OCSP Certifications file.crt
+ *         - jar://certs/Your second OCSP Certifications file.crt
+ *         URL: http://ocsp.test.test
  * </pre>
  * <p>All entries must exist and be valid. Under CERTS must be at least one entry.</p>
  * <p/>
@@ -129,7 +130,6 @@ public class Configuration {
     logger.debug("");
 
     configuration.put("tspSource", "http://demo.sk.ee/tsa");
-//    configuration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
     configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
 
     if (mode == Mode.TEST) {
