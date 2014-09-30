@@ -50,7 +50,8 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     Files.deleteIfExists(Paths.get(fileName));
 
 
-    String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/test.txt", "text/plain", "-pkcs12", "testFiles/signout.p12", "test"};
+    String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/test.txt", "text/plain",
+        "-pkcs12", "testFiles/signout.p12", "test"};
 
     callMainWithoutSystemExit(params);
 
@@ -63,7 +64,8 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     String fileName = "test1.ddoc";
     Files.deleteIfExists(Paths.get(fileName));
 
-    String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/test.txt", "text/plain", "-pkcs12", "testFiles/signout.p12", "test"};
+    String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/test.txt", "text/plain",
+        "-pkcs12", "testFiles/signout.p12", "test"};
 
     callMainWithoutSystemExit(params);
 
@@ -102,7 +104,8 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     String fileName = "test1.ddoc";
     Files.deleteIfExists(Paths.get(fileName));
 
-    String[] params = new String[]{"-in", fileName, "-add", "testFiles/test.txt", "text/plain", "-pkcs12", "testFiles/signout.p12", "test"};
+    String[] params = new String[]{"-in", fileName, "-add", "testFiles/test.txt", "text/plain", "-pkcs12",
+        "testFiles/signout.p12", "test"};
 
     callMainWithoutSystemExit(params);
 
@@ -115,7 +118,8 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     String fileName = "test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
-    String[] params = new String[]{"-in", fileName, "-add", "testFiles/test.txt", "text/plain", "-pkcs12", "testFiles/signout.p12", "test"};
+    String[] params = new String[]{"-in", fileName, "-add", "testFiles/test.txt", "text/plain", "-pkcs12",
+        "testFiles/signout.p12", "test"};
 
     callMainWithoutSystemExit(params);
 
@@ -128,7 +132,8 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     String fileName = "test1.test";
     Files.deleteIfExists(Paths.get(fileName));
 
-    String[] params = new String[]{"-in", fileName, "-add", "testFiles/test.txt", "text/plain", "-pkcs12", "testFiles/signout.p12", "test"};
+    String[] params = new String[]{"-in", fileName, "-add", "testFiles/test.txt", "text/plain", "-pkcs12",
+        "testFiles/signout.p12", "test"};
 
     callMainWithoutSystemExit(params);
 
@@ -140,7 +145,8 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   public void createsContainerAndSignsIt() throws Exception {
     exit.expectSystemExitWithStatus(0);
     Files.deleteIfExists(Paths.get("test1.ddoc"));
-    String[] params = new String[]{"-in", "test1.ddoc", "-add", "testFiles/test.txt", "text/plain", "-pkcs12", "testFiles/signout.p12", "test"};
+    String[] params = new String[]{"-in", "test1.ddoc", "-add", "testFiles/test.txt", "text/plain", "-pkcs12",
+        "testFiles/signout.p12", "test"};
     DigiDoc4J.main(params);
   }
 
@@ -148,7 +154,8 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   public void createsContainerAndAddsFileWithoutMimeType() throws Exception {
     exit.expectSystemExitWithStatus(2);
     Files.deleteIfExists(Paths.get("test1.ddoc"));
-    String[] params = new String[]{"-in", "test1.ddoc", "-add", "testFiles/test.txt", "-pkcs12", "testFiles/signout.p12", "test"};
+    String[] params = new String[]{"-in", "test1.ddoc", "-add", "testFiles/test.txt", "-pkcs12",
+        "testFiles/signout.p12", "test"};
     DigiDoc4J.main(params);
   }
 
@@ -178,7 +185,20 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        assertEquals("Signature S0 is valid", sout.getLog().trim());
+        assertThat(sout.getLog(), containsString("Signature S0 is valid"));
+      }
+    });
+    String[] params = new String[]{"-in", "testFiles/ddoc_for_testing.ddoc", "-verify"};
+    DigiDoc4J.main(params);
+  }
+
+  @Test
+  public void hasTestSignature() {
+    exit.expectSystemExitWithStatus(0);
+    exit.checkAssertionAfterwards(new Assertion() {
+      @Override
+      public void checkAssertion() throws Exception {
+        assertThat(sout.getLog(), containsString("Signature S0 is a test signature"));
       }
     });
     String[] params = new String[]{"-in", "testFiles/ddoc_for_testing.ddoc", "-verify"};
