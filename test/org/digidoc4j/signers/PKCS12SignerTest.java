@@ -1,8 +1,8 @@
 package org.digidoc4j.signers;
 
 import org.apache.commons.codec.binary.Base64;
-import org.digidoc4j.api.X509Cert;
-import org.digidoc4j.utils.SignerInformation;
+import org.digidoc4j.SignatureProductionPlace;
+import org.digidoc4j.X509Cert;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -81,14 +81,22 @@ public class PKCS12SignerTest {
 
   @Test
   public void testSign() {                                //TODO know expected value
-    byte[] expected = new byte[]{121, 39, -126, -87, -118, -7, -79, 13, -52, -109, -8, -77, -15, 77, 12, 3, -10, -56, 74, 112, -21, 54, -75,
-        28, -19, -104, 2, -77, 41, -32, -93, 64, -119, 54, -98, -50, -88, 24, -85, -48, 24, -93, -18, -86, -24, -127, 87, -125, -94, -21, 77, 87, 95,
-        95, 22, -64, -104, 90, -13, -29, 113, -25, -21, 40, -50, -24, -5, -111, -83, -98, 62, 46, 68, -127, -100, 112, 45, 82, -2, 51, 90, 65, -72,
-        18, -67, 9, 40, 122, -55, 59, -83, -17, -63, 11, 117, -97, 25, 116, -93, -49, 88, -127, 92, -123, 23, 12, 5, -16, -91, -96, -30, 51, -77, 116,
-        -36, 97, -73, -20, -80, 98, -5, -123, 118, -19, 59, -84, -30, 52, -25, -82, -104, -118, -80, -91, -8, 100, -19, 105, 65, -83, -2, 73, -101,
-        -54, 90, -20, 95, -78, 113, -95, 81, 42, 93, 10, -121, 12, 99, 31, 29, 61, -99, 60, -82, 100, -39, 86, -81, 68, -42, 75, 100, 60, -80, 99, -31,
-        109, 48, -80, -22, -7, 34, -110, 103, -114, 63, 30, -34, 92, 11, 51, -22, 75, 52, 9, -103, 108, -113, 11, -96, -73, -14, -122, -18, 105, 38,
-        -85, 96, -23, -115, 107, -106, 57, 105, 27, -106, 75, -111, -41, 59, -23, 113, -55, 86, 70, 64, -118, -80, 44, -48, -19, 99, -43, 106, -26,
+    byte[] expected = new byte[]{121, 39, -126, -87, -118, -7, -79, 13, -52, -109, -8, -77, -15, 77, 12, 3, -10, -56,
+        74, 112, -21, 54, -75,
+        28, -19, -104, 2, -77, 41, -32, -93, 64, -119, 54, -98, -50, -88, 24, -85, -48, 24, -93, -18, -86, -24, -127,
+        87, -125, -94, -21, 77, 87, 95,
+        95, 22, -64, -104, 90, -13, -29, 113, -25, -21, 40, -50, -24, -5, -111, -83, -98, 62, 46, 68, -127, -100,
+        112, 45, 82, -2, 51, 90, 65, -72,
+        18, -67, 9, 40, 122, -55, 59, -83, -17, -63, 11, 117, -97, 25, 116, -93, -49, 88, -127, 92, -123, 23, 12, 5,
+        -16, -91, -96, -30, 51, -77, 116,
+        -36, 97, -73, -20, -80, 98, -5, -123, 118, -19, 59, -84, -30, 52, -25, -82, -104, -118, -80, -91, -8, 100,
+        -19, 105, 65, -83, -2, 73, -101,
+        -54, 90, -20, 95, -78, 113, -95, 81, 42, 93, 10, -121, 12, 99, 31, 29, 61, -99, 60, -82, 100, -39, 86, -81,
+        68, -42, 75, 100, 60, -80, 99, -31,
+        109, 48, -80, -22, -7, 34, -110, 103, -114, 63, 30, -34, 92, 11, 51, -22, 75, 52, 9, -103, 108, -113, 11,
+        -96, -73, -14, -122, -18, 105, 38,
+        -85, 96, -23, -115, 107, -106, 57, 105, 27, -106, 75, -111, -41, 59, -23, 113, -55, 86, 70, 64, -118, -80,
+        44, -48, -19, 99, -43, 106, -26,
         97, -119, -94, -9, -22, -8, 88, 62, 67, -80, 35, 110, -7, -10, 55, 73, -60, 83, -128, -57, -120, 2};
     assertTrue(Arrays.equals(expected, pkcs12Signer.sign("http://www.w3.org/2001/04/xmlenc#sha512", new byte[]{0x41})));
   }
@@ -100,11 +108,11 @@ public class PKCS12SignerTest {
     signerRoles.add("Role1");
     signerRoles.add("Role2");
     pkcs12Signer.setSignerRoles(signerRoles);
-    SignerInformation signerInformation = pkcs12Signer.getSignerInformation();
-    assertEquals("myCity", signerInformation.getCity());
-    assertEquals("myCountry", signerInformation.getCountry());
-    assertEquals("myPostalCode", signerInformation.getPostalCode());
-    assertEquals("myState", signerInformation.getStateOrProvince());
+    SignatureProductionPlace signatureProductionPlace = pkcs12Signer.getSignatureProductionPlace();
+    assertEquals("myCity", signatureProductionPlace.getCity());
+    assertEquals("myCountry", signatureProductionPlace.getCountry());
+    assertEquals("myPostalCode", signatureProductionPlace.getPostalCode());
+    assertEquals("myState", signatureProductionPlace.getStateOrProvince());
     List<String> signerRolesReturned = pkcs12Signer.getSignerRoles();
     assertEquals(2, signerRolesReturned.size());
     assertEquals(signerRoles.get(0), signerRolesReturned.get(0));

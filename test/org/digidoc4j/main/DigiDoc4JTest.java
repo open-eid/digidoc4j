@@ -1,12 +1,12 @@
 package org.digidoc4j.main;
 
 import ee.sk.digidoc.DigiDocException;
-import org.digidoc4j.DDocContainer;
-import org.digidoc4j.DigiDoc4JTestHelper;
-import org.digidoc4j.ValidationResultForDDoc;
-import org.digidoc4j.api.Container;
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.digidoc4j.api.exceptions.SignatureNotFoundException;
+import org.digidoc4j.Container;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.SignatureNotFoundException;
+import org.digidoc4j.impl.DDocContainer;
+import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.impl.ValidationResultForDDoc;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,9 +19,9 @@ import java.nio.file.Paths;
 import java.security.Permission;
 
 import static java.util.Arrays.asList;
-import static org.digidoc4j.api.Configuration.Mode;
-import static org.digidoc4j.api.Container.DocumentType.BDOC;
-import static org.digidoc4j.api.Container.DocumentType.DDOC;
+import static org.digidoc4j.Configuration.Mode;
+import static org.digidoc4j.Container.DocumentType.BDOC;
+import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;

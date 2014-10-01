@@ -3,7 +3,7 @@ package eu.europa.ec.markt.dss.signature;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.exception.DSSException;
 import org.apache.commons.io.IOUtils;
-import org.digidoc4j.api.DataFile;
+import org.digidoc4j.DataFile;
 import org.junit.Before;
 import org.junit.Test;
 

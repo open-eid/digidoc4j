@@ -1,7 +1,7 @@
 package org.digidoc4j.signers;
 
 import eu.europa.ec.markt.dss.signature.token.Pkcs12SignatureToken;
-import org.digidoc4j.api.Signer;
+import org.digidoc4j.Signer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

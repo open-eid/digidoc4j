@@ -13,7 +13,7 @@ import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCCMSDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
 import org.apache.commons.io.IOUtils;
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -217,9 +217,9 @@ public class BDOCService extends ASiCService {
    * This method creates a XAdES signature. When adding a new signature,
    * this one is appended to the already present signatures.
    *
-   * @param signature        signature being created
-   * @param outZip           destination {@code ZipOutputStream}
-   * @param signatureId      signature id
+   * @param signature   signature being created
+   * @param outZip      destination {@code ZipOutputStream}
+   * @param signatureId signature id
    * @throws DSSException
    */
   private void buildXAdES(final DSSDocument signature, final ZipOutputStream outZip, String signatureId)

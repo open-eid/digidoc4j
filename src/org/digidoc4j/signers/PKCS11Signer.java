@@ -1,8 +1,8 @@
 package org.digidoc4j.signers;
 
 import eu.europa.ec.markt.dss.signature.token.Pkcs11SignatureToken;
-import org.digidoc4j.api.Configuration;
-import org.digidoc4j.api.Signer;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Signer;
 
 /**
  * This signer implementation is for testing purposes

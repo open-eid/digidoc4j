@@ -1,6 +1,6 @@
 package org.digidoc4j.main;
 
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 
 public class DigiDoc4JUtilityException extends DigiDoc4JException {
   private final int errorCode;

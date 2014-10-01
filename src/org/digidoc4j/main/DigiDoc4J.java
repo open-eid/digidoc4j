@@ -3,23 +3,23 @@ package org.digidoc4j.main;
 import ee.sk.digidoc.CertValue;
 import ee.sk.digidoc.factory.DigiDocGenFactory;
 import org.apache.commons.cli.*;
-import org.digidoc4j.DDocSignature;
-import org.digidoc4j.ValidationResultForDDoc;
-import org.digidoc4j.api.Container;
-import org.digidoc4j.api.Signature;
-import org.digidoc4j.api.Signer;
-import org.digidoc4j.api.ValidationResult;
-import org.digidoc4j.api.exceptions.DigiDoc4JException;
-import org.digidoc4j.api.exceptions.SignatureNotFoundException;
+import org.digidoc4j.Container;
+import org.digidoc4j.Signature;
+import org.digidoc4j.Signer;
+import org.digidoc4j.ValidationResult;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.SignatureNotFoundException;
+import org.digidoc4j.impl.DDocSignature;
+import org.digidoc4j.impl.ValidationResultForDDoc;
 import org.digidoc4j.signers.PKCS12Signer;
 
 import java.io.File;
 import java.util.List;
 
 import static org.apache.commons.cli.OptionBuilder.withArgName;
-import static org.digidoc4j.api.Container.DocumentType;
-import static org.digidoc4j.api.Container.DocumentType.BDOC;
-import static org.digidoc4j.api.Container.DocumentType.DDOC;
+import static org.digidoc4j.Container.DocumentType;
+import static org.digidoc4j.Container.DocumentType.BDOC;
+import static org.digidoc4j.Container.DocumentType.DDOC;
 
 /**
  * Client commandline tool for DigiDoc4J library.
