@@ -41,10 +41,10 @@
 
   <target name="javadoc">
     <mkdir dir="javadoc"/>
-    <javadoc packagenames="org.digidoc4j.api" destdir="javadoc" encoding="UTF-8">
+    <javadoc packagenames="org.digidoc4j" destdir="javadoc" encoding="UTF-8">
       <packageset dir="src" defaultexcludes="yes">
-        <include name="org/digidoc4j/api/**"/>
-        <exclude name="org/digidoc4j/api/*Impl.java"/>
+        <include name="org/digidoc4j"/>
+        <include name="org/digidoc4j/exceptions"/>
       </packageset>
     </javadoc>
     <jar destfile="${dist.dir}/digidoc4j-${lib.version}${version.suffix}-javadoc.jar" basedir="javadoc"/>
