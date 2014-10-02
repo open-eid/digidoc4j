@@ -165,6 +165,7 @@
         <classfiles>
           <fileset dir="${build.dir}">
             <exclude name="**/*Test*"/>
+            <exclude name="eu/"/>
             <exclude name="prototype/"/>
             <exclude name="org/bouncycastle/"/>
             <exclude name="org/digidoc4j/main/"/>
