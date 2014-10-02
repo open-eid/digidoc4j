@@ -41,7 +41,7 @@
 
   <target name="javadoc">
     <mkdir dir="javadoc"/>
-    <javadoc packagenames="org.digidoc4j" destdir="javadoc" encoding="UTF-8">
+    <javadoc packagenames="org.digidoc4j" destdir="javadoc" encoding="UTF-8" overview="doc/overview.html">
       <packageset dir="src" defaultexcludes="yes">
         <include name="org/digidoc4j"/>
         <include name="org/digidoc4j/exceptions"/>
@@ -99,7 +99,7 @@
         <attribute name="Implementation-Title" value="Java BDoc/DigiDoc utility"/>
         <attribute name="Implementation-Version" value="${lib.version}"/>
         <attribute name="Main-Class" value="org.digidoc4j.main.DigiDoc4J"/>
-        <attribute name="Class-Path" value="./ ./bcprov-jdk15on-1.49.jar"/>
+        <attribute name="Class-Path" value="./ ./bcprov-jdk15on-151.jar"/>
       </manifest>
     </jar>
     <delete file="${build.dir}/util/temp.jar"/>

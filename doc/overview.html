@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Overview</title>
+</head>
+
+<body>
+<p><a href="http://digidoc4j.org/" target="_blank"><strong>digidoc4j</strong></a> is a  library for integrating digital signatures (XAdES/ASiC based) into applications and services built with Java technology.</p>
+<p>&nbsp;</p>
+<h1>Supported  functionality</h1>
+<p>This section gives overview of the main functionality offered by digidoc4j. </p>
+<p>For the information about functions that are planned for later releases, see the digidoc4j project's <a href="https://www.pivotaltracker.com/n/projects/1110130" target="_blank"><strong>Pivotal Tracker</strong></a>. </p>
+<p>The  digidoc4j utility program digidoc4j-util*.jar can be used for testing purposes, the program is accessible from the <a href="http://digidoc4j.org/downloads/" target="_blank"><strong>digidoc4j download area</strong></a>.</p>
+<h6>Creating and handling signature containers</h6>
+<p>digidoc4j enables handling signature containers compliant to ETSI TS 102 918 standard called <a href="http://www.etsi.org/deliver/etsi_ts/102900_102999/102918/01.03.01_60/ts_102918v010301p.pdf" target="_blank">Associated Signature Containers (ASiC)</a>. By default, the digidoc4j implementation uses containers in <a href="http://www.id.ee/public/bdoc-spec212-eng.pdf" target="_blank">BDOC 2.1</a> format, which is a subset of ASiC standard.</p>
+<p>The main use cases regarding signature containers are:</p>
+<ol>
+  <li>Creating  a new container</li>
+  <li>Adding and removing  data files </li>
+  <li>Extracting data files from container</li>
+  <li>Using temporary cache files for  storing the data file's contents in file system</li>
+  <li>Adding and removing signatures</li>
+  <li>Input/output operations with containers</li>
+</ol>
+<p>See also: {@see org.digidoc4j.Container org.digidoc4j.Container}</p>
+<h6>Creating and handling digital signatures </h6>
+<p>digidoc4j enables handling digital signatures based  on ETSI TS 101 903 standard called <a href="http://www.etsi.org/deliver/etsi_ts/101900_101999/101903/01.04.02_60/ts_101903v010402p.pdf" target="_blank">XML Advanced Electronic Signatures (XAdES)</a>. By default, the digidoc4j implementation uses signatures in <a href="http://www.id.ee/public/bdoc-spec212-eng.pdf" target="_blank">BDOC 2.1</a> format, which is a subset of XAdES standard. Possible BDOC profiles are: <br>
+  <a id="BDOC-TS">BDOC-TS</a> - BDOC with time-stamp -  long term validation data is added to the signature in the form of  a RFC3161 compliant time-stamp and RFC6960 compliant OCSP confirmation<br>
+<a id="BDOC-TM">BDOC-TM</a> - BDOC with time-mark - long term validation data is added to the signature in the form of a time-mark (RFC6960 compliant OCSP confirmation with a special nonce value)</p>
+<p>The main use cases regarding digital signatures are:</p>
+<ol>
+  <li>Calculating  the hash to be signed - e.g. for signing with plug-in in browser </li>
+  <li>Calculating the  RSA signature  value</li>
+  <li>Adding  a signature value that is calculated in an external system (e.g. with plugin  when signing in browser) to the signature's XML content.</li>
+  <li>Adding  meta-data to the signature: e.g. signature creation location and signer's role</li>
+  <li>Adding time-mark - used in case of BDOC 2.1 format's <a href="#BDOC-TM">TM profile</a> and for DIGIDOC-XML 1.3  format</li>
+  <li>Adding time-stamp</li>
+  <li>Adding  OCSP confirmation </li>
+</ol>
+<p>See also: {@see org.digidoc4j.Signature org.digidoc4j.Signature}</p>
+<p>Note:  additionally, an older XAdES-based <a href="http://www.id.ee/public/DigiDoc_format_1.3.pdf" target="_blank">DIGIDOC-XML 1.3</a>  format is supported via  <a href="http://id.ee/index.php?id=35783" target="_blank">JDigiDoc</a> base library. More information of the life cycle of BDOC 2.1 and DIGIDOC-XML 1.3 digitally signed file formats can be found <a href="http://www.id.ee/?lang=en&id=36161" target="_blank">here</a>.  Transformation from DIGIDOC-XML 1.3 to BDOC 2.1 format is described <a href="http://www.id.ee/?id=34336" target="_blank">here</a>.</p>
+<h6>Validating signature container and  all of its contents</h6>
+<p>The signature validation process is based on ETSI TS 102 853 standard called <a href="http://www.etsi.org/deliver/etsi_ts/102800_102899/102853/01.01.02_60/ts_102853v010102p.pdf" target="_blank">Signature validation procedures and policies</a>. </p>
+<p>The main use cases regarding validation are:</p>
+<ol>
+  <li>Validating a single digital signature. See also: {@see org.digidoc4j.Signature#validate org.digidoc4j.Signature.validate}</li>
+  <li>Validating a signature container and all of its contents. See also: {@see org.digidoc4j.Container#validate org.digidoc4j.Container.validate}</li>
+  <li>Generating  validation report in XML format. </li>
+  <li>Enabling configuration of signature validation policies according to  ETSI TR 102 038 standard <a href="http://www.etsi.org/deliver/etsi_tr/102000_102099/102038/01.01.01_60/tr_102038v010101p.pdf" target="_blank">XML format for signature policies</a>.</li>
+</ol>
+<h6>Using TSL lists as  trust  anchors</h6>
+<p>TSL (Trust Service status List) list is a signed XML document that provides information about the status of trust services. The format is based on <a href="http://www.etsi.org/deliver/etsi_ts/119600_119699/119612/01.02.01_60/ts_119612v010201p.pdf" target="_blank">ETSI 119 612</a> standard.  </p>
+<p>digidoc4j uses TSL lists for checking the trustworthiness of  the certificates that are used in the signature.  The <a href="https://ec.europa.eu/information_society/policy/esignature/trusted-list/" target="_blank">European Commission's  TSL</a> list is used as the List Of Trusted List (LOTL) (accessible from: <a href="https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml" target="_blank">https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml</a>).</p>
+<p>The main use case regarding TSL lists usage is:</p>
+<ol>
+  <li>Using TSL lists for checking the trustworthiness of  the signer's certificate, OCSP service and time-stamping service certificates during signature creation and validation processes.</li>
+</ol>
+<h6>Supported cryptographic tokens</h6>
+<ol>
+  <li>PKCS#12 token (software token).</li>
+  <li>PKCS#11 token</li>
+</ol>
+<p>&nbsp;</p>
+<h1>Architecture</h1>
+<p><img src="{@docRoot}/../doc/images/DD4J.jpg" width="712" height="699" alt=""/></p>
+<h1>API overview</h1>
+<p>The API is documented according to JavaDoc best practices, described in &quot;<a href="http://www.oracle.com/technetwork/java/javase/documentation/index-137868.html" target="_blank">How to write doc comments for the JavaDoc tool</a>&quot; and is compliant with &quot;<a href="http://www.oracle.com/technetwork/java/index-135089.html" target="_blank">Code  conventions for the Java programming language</a>&quot;<br>
+  <br>
+  <a href="http://www.oracle.com/technetwork/java/codeconv-138413.html"></a></p>
+<h2>Creating a container</h2>
+<code>
+Container container = Container.create(Container.DocumentType.BDOC);
+</code>
+<h2>Adding data files</h2>
+<code>
+container.addDataFile("file.txt", "text/plain");
+</code>
+<h2>Adding signatures</h2>
+<code>
+container.sign(new PKCS12Signer("certificate.p12", "parool".toCharArray()));</code>
+<h2>Adding OCSP confirmation and time-stamp</h2>
+<code></code>
+<h2>Reading and writing containers</h2>
+<p><code>container.save("file.bdoc");</code>
+</p>
+<p>Container can be read as follows: </p>
+<p><code>container = Container.open("file.bdoc");</code>
+</p>
+<h2>Validating </h2>
+<p><code>ValidationResult result = container.validate();</code>
+</p>
+<p>Showing validation results: </p>
+<p><code>
+if (!result.isValid()) { <br>
+&nbsp;&nbsp;  for (DigiDoc4JException error : result.getErrors()) { <br>
+&nbsp;&nbsp;&nbsp;&nbsp;  System.out.println(error.getMessage()); <br>
+&nbsp;&nbsp;  } <br>
+ } </code>
+</p>
+<h1>Exception handling</h1>
+<p>&nbsp;</p>
+</body>
+</html>
