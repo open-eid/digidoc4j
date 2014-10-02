@@ -6,6 +6,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Hashtable;
 
 import static org.digidoc4j.Configuration.*;
@@ -70,6 +72,13 @@ public class ConfigurationTest {
   @Test
   public void getOCSPAccessCertificateFileFromConfigurationFile() {
     configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertEquals("conf/OCSP_access_certificate_test_file_name", configuration.getOCSPAccessCertificateFileName());
+  }
+
+  @Test
+  public void getOCSPAccessCertificateFileFromStream() throws FileNotFoundException {
+    FileInputStream stream = new FileInputStream("testFiles/digidoc_test_conf.yaml");
+    configuration.loadConfiguration(stream);
     assertEquals("conf/OCSP_access_certificate_test_file_name", configuration.getOCSPAccessCertificateFileName());
   }
 
@@ -293,7 +302,7 @@ public class ConfigurationTest {
   public void missingOCSPSEntryThrowsException() throws Exception {
     String fileName = "testFiles/digidoc_test_conf_ocsps_no_entry.yaml";
     expectedException.expect(ConfigurationException.class);
-    expectedException.expectMessage("No OCSPS entry found or OCSPS entry is empty. Configuration file: " + fileName);
+    expectedException.expectMessage("No OCSPS entry found or OCSPS entry is empty. Configuration from: " + fileName);
 
     configuration.loadConfiguration(fileName);
   }
@@ -302,7 +311,7 @@ public class ConfigurationTest {
   public void emptyOCSPSEntryThrowsException() throws Exception {
     String fileName = "testFiles/digidoc_test_conf_ocsps_empty.yaml";
     expectedException.expect(ConfigurationException.class);
-    expectedException.expectMessage("No OCSPS entry found or OCSPS entry is empty. Configuration file: " + fileName);
+    expectedException.expectMessage("No OCSPS entry found or OCSPS entry is empty. Configuration from: " + fileName);
 
     configuration.loadConfiguration(fileName);
   }
@@ -311,7 +320,7 @@ public class ConfigurationTest {
   public void OCSPWithoutCaCnValueThrowsException() throws Exception {
     String fileName = "testFiles/digidoc_test_conf_ocsps_no_ca_cn.yaml";
     expectedException.expect(ConfigurationException.class);
-    expectedException.expectMessage("Configuration file " + fileName + " contains error(s):\n" +
+    expectedException.expectMessage("Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 2 does not have an entry for CA_CN or the entry is empty\n");
 
     configuration.loadConfiguration(fileName);
@@ -320,7 +329,7 @@ public class ConfigurationTest {
   @Test
   public void OCSPWithEmptySubEntriesThrowsException() throws Exception {
     String fileName = "testFiles/digidoc_test_conf_ocsps_empty_sub_entries.yaml";
-    String expectedErrorMessage = "Configuration file " + fileName + " contains error(s):\n" +
+    String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 3 does not have an entry for CA_CN or the entry is empty\n" +
         "OCSPS list entry 4 does not have an entry for CA_CERT or the entry is empty\n" +
         "OCSPS list entry 5 does not have an entry for CN or the entry is empty\n" +
@@ -334,7 +343,7 @@ public class ConfigurationTest {
   @Test
   public void OCSPWithMissingSubEntriesThrowsException() throws Exception {
     String fileName = "testFiles/digidoc_test_conf_ocsps_missing_sub_entries.yaml";
-    String expectedErrorMessage = "Configuration file " + fileName + " contains error(s):\n" +
+    String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 3 does not have an entry for CN or the entry is empty\n" +
         "OCSPS list entry 4 does not have an entry for URL or the entry is empty\n" +
         "OCSPS list entry 5 does not have an entry for CA_CERT or the entry is empty\n" +
@@ -348,7 +357,7 @@ public class ConfigurationTest {
   @Test
   public void OCSPWithMissingOcspsCertsEntryThrowsException() throws Exception {
     String fileName = "testFiles/digidoc_test_conf_ocsps_missing_certs_entry.yaml";
-    String expectedErrorMessage = "Configuration file " + fileName + " contains error(s):\n" +
+    String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 3 does not have an entry for CERTS or the entry is empty\n";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage(expectedErrorMessage);
@@ -359,7 +368,7 @@ public class ConfigurationTest {
   @Test
   public void OCSPWithEmptyOcspsCertsEntryThrowsException() throws Exception {
     String fileName = "testFiles/digidoc_test_conf_ocsps_empty_certs_entry.yaml";
-    String expectedErrorMessage = "Configuration file " + fileName + " contains error(s):\n" +
+    String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 2 does not have an entry for CERTS or the entry is empty\n";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage(expectedErrorMessage);
@@ -370,11 +379,21 @@ public class ConfigurationTest {
   @Test
   public void configurationFileIsNotYamlFormatThrowsException() throws Exception {
     String fileName = "testFiles/test.txt";
-    String expectedErrorMessage = "Configuration file " + fileName + " is not a correctly formatted yaml file";
+    String expectedErrorMessage = "Configuration from " + fileName + " is not correctly formatted";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage(expectedErrorMessage);
 
     configuration.loadConfiguration(fileName);
+  }
+
+  @Test
+  public void configurationStreamIsNotYamlFormatThrowsException() throws Exception {
+    String fileName = "testFiles/test.txt";
+    String expectedErrorMessage = "Configuration from stream is not correctly formatted";
+    expectedException.expect(ConfigurationException.class);
+    expectedException.expectMessage(expectedErrorMessage);
+
+    configuration.loadConfiguration(new FileInputStream(fileName));
   }
 
   @Test
@@ -441,7 +460,7 @@ public class ConfigurationTest {
   @Test
   public void missingCAThrowsException() throws Exception {
     String fileName = "testFiles/digidoc_test_conf_no_ca.yaml";
-    String expectedErrorMessage = "Configuration file " + fileName + " contains error(s):\n" +
+    String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "Empty or no DIGIDOC_CAS entry";
 
     expectedException.expect(ConfigurationException.class);
@@ -453,7 +472,7 @@ public class ConfigurationTest {
   @Test
   public void emptyCAThrowsException() throws Exception {
     String fileName = "testFiles/digidoc_test_conf_empty_ca.yaml";
-    String expectedErrorMessage = "Configuration file " + fileName + " contains error(s):\n" +
+    String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "Empty or no DIGIDOC_CA for entry 1";
 
     expectedException.expect(ConfigurationException.class);

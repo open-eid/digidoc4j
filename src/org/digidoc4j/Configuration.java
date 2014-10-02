@@ -114,9 +114,9 @@ public class Configuration {
   private final Mode mode;
   //  private static final int JAR_FILE_NAME_BEGIN_INDEX = 6;
   private LinkedHashMap configurationFromFile;
-  private String configurationFileName;
+  private String configurationInputSourceName;
   private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<String, String>();
-  private ArrayList<String> fileParseErrors = new ArrayList<String>();
+  private ArrayList<String> inputSourceParseErrors = new ArrayList<String>();
 
   /**
    * Application mode
@@ -234,6 +234,19 @@ public class Configuration {
   }
 
   /**
+   * Add configuration settings from a stream
+   *
+   * @param stream  Input stream
+   * @return configuration hashtable
+   */
+  public Hashtable<String, String> loadConfiguration(InputStream stream) {
+    logger.debug("");
+    configurationInputSourceName = "stream";
+
+    return loadConfigurationSettings(stream);
+  }
+
+  /**
    * Add configuration settings from a file
    *
    * @param file File name
@@ -241,9 +254,7 @@ public class Configuration {
    */
   public Hashtable<String, String> loadConfiguration(String file) {
     logger.debug("File " + file);
-    configurationFromFile = new LinkedHashMap();
-    Yaml yaml = new Yaml();
-    configurationFileName = file;
+    configurationInputSourceName = file;
     InputStream resourceAsStream = null;
 
     try {
@@ -255,51 +266,24 @@ public class Configuration {
     if (resourceAsStream == null) {
       resourceAsStream = getResourceAsStream(file);
     }
+    return loadConfigurationSettings(resourceAsStream);
+  }
+
+  private Hashtable<String, String> loadConfigurationSettings(InputStream stream) {
+    configurationFromFile = new LinkedHashMap();
+    Yaml yaml = new Yaml();
 
     try {
-      configurationFromFile = (LinkedHashMap) yaml.load(resourceAsStream);
+      configurationFromFile = (LinkedHashMap) yaml.load(stream);
     } catch (Exception e) {
-      ConfigurationException exception = new ConfigurationException("Configuration file " + file + " "
-          + "is not a correctly formatted yaml file");
+      ConfigurationException exception = new ConfigurationException("Configuration from "
+          + configurationInputSourceName + " is not correctly formatted");
       logger.error(exception.getMessage());
       throw exception;
     }
 
     return mapToJDigiDocConfiguration();
   }
-
-
-//  Currently not used - if needed, then need to adjust for multiple CA's
-//  /**
-//   * Get CA Certificates
-//   *
-//   * @return list of X509 Certificates
-//   */
-//  public List<X509Certificate> getCACerts() {
-//    logger.debug("");
-//    List<X509Certificate> certificates = new ArrayList<X509Certificate>();
-//    ArrayList<String> certificateAuthorityCerts =
-//        getCACertsAsArray((LinkedHashMap) configurationFromFile.get("DIGIDOC_CA"));
-//    for (String certFile : certificateAuthorityCerts) {
-//      try {
-//        certificates.add(getX509CertificateFromFile(certFile));
-//      } catch (CertificateException e) {
-//        logger.warn("Not able to read certificate from file " + certFile + ". " + e.getMessage());
-//      }
-//    }
-//    return certificates;
-//  }
-//
-//  X509Certificate getX509CertificateFromFile(String certFile) throws CertificateException {
-//    logger.debug("File: " + certFile);
-//    CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-//
-//    InputStream certAsStream = getResourceAsStream(certFile.substring(JAR_FILE_NAME_BEGIN_INDEX));
-//    X509Certificate cert = (X509Certificate) certificateFactory.generateCertificate(certAsStream);
-//    IOUtils.closeQuietly(certAsStream);
-//
-//    return cert;
-//  }
 
   private InputStream getResourceAsStream(String certFile) {
     logger.debug("");
@@ -323,7 +307,7 @@ public class Configuration {
   private Hashtable<String, String> mapToJDigiDocConfiguration() {
     logger.debug("loading JDigiDoc configuration");
 
-    fileParseErrors = new ArrayList<String>();
+    inputSourceParseErrors = new ArrayList<String>();
 
     loadInitialConfigurationValues();
     loadCertificateAuthoritiesAndCertificates();
@@ -358,17 +342,17 @@ public class Configuration {
 
   private void logError(String errorMessage) {
     logger.error(errorMessage);
-    fileParseErrors.add(errorMessage);
+    inputSourceParseErrors.add(errorMessage);
   }
 
   private void reportFileParseErrors() {
     logger.debug("");
-    if (fileParseErrors.size() > 0) {
+    if (inputSourceParseErrors.size() > 0) {
       StringBuilder errorMessage = new StringBuilder();
-      errorMessage.append("Configuration file ");
-      errorMessage.append(configurationFileName);
+      errorMessage.append("Configuration from ");
+      errorMessage.append(configurationInputSourceName);
       errorMessage.append(" contains error(s):\n");
-      for (String message : fileParseErrors) {
+      for (String message : inputSourceParseErrors) {
         errorMessage.append(message);
       }
       throw new ConfigurationException(errorMessage.toString());
@@ -544,7 +528,8 @@ public class Configuration {
     @SuppressWarnings("unchecked")
     ArrayList<LinkedHashMap> ocsps = (ArrayList<LinkedHashMap>) digiDocCA.get("OCSPS");
     if (ocsps == null) {
-      errorMessage = "No OCSPS entry found or OCSPS entry is empty. Configuration file: " + configurationFileName;
+      errorMessage = "No OCSPS entry found or OCSPS entry is empty. Configuration from: "
+          + configurationInputSourceName;
       logError(errorMessage);
       return;
     }
