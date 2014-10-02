@@ -170,7 +170,7 @@ public class DDocContainer extends Container {
         if (dataFile.getBody() == null)
           dataFiles.add(new DataFile(dataFile.getFileName(), dataFile.getMimeType()));
         else
-          dataFiles.add(new DataFile(dataFile.getBody(), dataFile.getFileName(), dataFile.getMimeType()));
+          dataFiles.add(new DataFile(dataFile.getBodyAsData(), dataFile.getFileName(), dataFile.getMimeType()));
       } catch (DigiDocException e) {
         logger.error(e.getMessage());
         throw new DigiDoc4JException(e.getNestedException());

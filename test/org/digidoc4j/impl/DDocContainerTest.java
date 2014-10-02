@@ -42,6 +42,13 @@ public class DDocContainerTest {
   }
 
   @Test
+  public void testGetDataFileSize() {
+    DDocContainer container = new DDocContainer("testFiles/ddoc_for_testing.ddoc");
+    org.digidoc4j.DataFile dataFile = container.getDataFile(0);
+    assertEquals(16, dataFile.getFileSize());
+  }
+
+  @Test
   public void testSetDigestAlgorithm() throws Exception {
     DDocContainer container = new DDocContainer();
     container.setDigestAlgorithm(Container.DigestAlgorithm.SHA1);
