@@ -11,7 +11,6 @@ import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.*;
@@ -493,7 +492,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(2, container.getDataFiles().size());
   }
 
-  @Ignore
   @Test
   public void testAddTwoFilesAsFileWithOCSP() throws Exception {
     BDocContainer container = new BDocContainer();
@@ -655,7 +653,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNotNull(container.getSignature(1).getOCSPCertificate());
   }
 
-  @Ignore
   @Test
   public void addConfirmationWithMultipleSignaturesAndMultipleFiles() throws Exception {
     BDocContainer container = new BDocContainer();
