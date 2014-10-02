@@ -220,7 +220,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void verifyError75OnValidateDDoc() throws Exception {
+  public void verifyError75InValidateDDoc() throws Exception {
     exit.expectSystemExitWithStatus(0);
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
