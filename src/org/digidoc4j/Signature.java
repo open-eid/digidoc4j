@@ -10,6 +10,11 @@ import java.util.List;
  */
 public abstract class Signature {
 
+  /**
+   * Sets signer certificate
+   *
+   * @param cert signers certificate
+   */
   public abstract void setCertificate(X509Cert cert);
 
   /**
