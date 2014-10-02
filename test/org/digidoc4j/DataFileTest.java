@@ -4,7 +4,7 @@ import eu.europa.ec.markt.dss.DSSUtils;
 import eu.europa.ec.markt.dss.signature.InMemoryDocument;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -21,8 +21,8 @@ import static org.junit.Assert.*;
 public class DataFileTest {
   private static DataFile dataFile;
 
-  @BeforeClass
-  public static void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     dataFile = new DataFile("testFiles/test.txt", "text/plain");
   }
 
@@ -50,6 +50,17 @@ public class DataFileTest {
   @Test
   public void testCalculateDigest() throws Exception {
     assertEquals("tYpuWTmktpzSwRM8cxRlZfY4aw4wqr4vkXKPs9lwxP4=", DSSUtils.base64Encode(dataFile.calculateDigest()));
+  }
+
+  @Test
+  public void testCalculateDigestWithEnumTypeSHA256() throws Exception {
+    assertEquals("tYpuWTmktpzSwRM8cxRlZfY4aw4wqr4vkXKPs9lwxP4=",
+        DSSUtils.base64Encode(dataFile.calculateDigest(DigestAlgorithm.SHA256)));
+  }
+
+  @Test
+  public void testCalculateDigestWithEnumTypeSHA1() throws Exception {
+    assertEquals("VNdqcg8SQlmbqk0MCl3rpxAN5qs=", DSSUtils.base64Encode(dataFile.calculateDigest(DigestAlgorithm.SHA1)));
   }
 
   @Test

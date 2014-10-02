@@ -19,7 +19,6 @@ import java.nio.file.Paths;
 public class DataFile {
   final Logger logger = LoggerFactory.getLogger(DataFile.class);
 
-
   DSSDocument document = null;
   private Digest digest = null;
 
@@ -117,6 +116,14 @@ public class DataFile {
       logger.debug("Returning existing digest value");
     }
     return digest.getValue();
+  }
+
+  /**
+   * @param digestType digest algorithm type
+   * @return digest algorithm uri
+   */
+  public byte[] calculateDigest(org.digidoc4j.DigestAlgorithm digestType) {
+    return calculateDigest(digestType.uri());
   }
 
   byte[] calculateDigestInternal(DigestAlgorithm digestAlgorithm) {
