@@ -1,4 +1,4 @@
-package org.digidoc4j.signers;
+package prototype;
 
 import org.digidoc4j.Container;
 import org.digidoc4j.Signer;
