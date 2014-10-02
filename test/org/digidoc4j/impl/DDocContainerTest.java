@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 
 public class DDocContainerTest {
   public static final String TEXT_MIME_TYPE = "text/plain";
-  private PKCS12Signer pkcs12Signer;
+  private PKCS12Signer PKCS12_SIGNER;
 
   @BeforeClass
   public static void setTestMode() {
@@ -32,7 +32,7 @@ public class DDocContainerTest {
 
   @Before
   public void setUp() throws Exception {
-    pkcs12Signer = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
+    PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -72,6 +72,20 @@ public class DDocContainerTest {
     assertEquals("test.txt", dataFiles.get(0).getFileName());
     assertEquals("test.txt", dataFiles.get(1).getFileName());
     Files.deleteIfExists(Paths.get("test_ddoc_file.ddoc"));
+  }
+
+  @Test
+  public void testAddEmptyFile() throws Exception {
+    DDocContainer dDocContainer = new DDocContainer();
+    new File("test_empty.txt").createNewFile();
+    dDocContainer.addDataFile("test_empty.txt", TEXT_MIME_TYPE);
+    dDocContainer.save("test_empty.ddoc");
+    Container container = Container.open("test_empty.ddoc");
+    List<org.digidoc4j.DataFile> dataFiles = container.getDataFiles();
+    assertEquals(1, dataFiles.size());
+    assertEquals(0, dataFiles.get(0).getFileSize());
+    Files.deleteIfExists(Paths.get("test_empty.ddoc"));
+    Files.deleteIfExists(Paths.get("test_empty.txt"));
   }
 
   @Test
@@ -152,10 +166,62 @@ public class DDocContainerTest {
   }
 
   @Test
+  public void setsSignatureId() throws Exception {
+    DDocContainer container = new DDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER, "SIGNATURE-1");
+    container.sign(PKCS12_SIGNER, "SIGNATURE-2");
+    container.save("setsSignatureId.ddoc");
+
+    container = new DDocContainer("setsSignatureId.ddoc");
+    assertEquals("SIGNATURE-1", container.getSignature(0).getId());
+    assertEquals("SIGNATURE-2", container.getSignature(1).getId());
+  }
+
+  @Test
+  public void setsDefaultSignatureId() throws Exception {
+    DDocContainer container = new DDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.sign(PKCS12_SIGNER);
+    container.save("setsDefaultSignatureId.ddoc");
+
+    container = new DDocContainer("setsDefaultSignatureId.ddoc");
+    assertEquals("S0", container.getSignature(0).getId());
+    assertEquals("S1", container.getSignature(1).getId());
+  }
+
+  @Test
+  public void setsSignatureIdWithoutOCSP() throws Exception {
+    DDocContainer container = new DDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.signWithoutOCSP(PKCS12_SIGNER, "SIGNATURE-1");
+    container.signWithoutOCSP(PKCS12_SIGNER, "SIGNATURE-2");
+    container.save("setsSignatureId.ddoc");
+
+    container = new DDocContainer("setsSignatureId.ddoc");
+    assertEquals("SIGNATURE-1", container.getSignature(0).getId());
+    assertEquals("SIGNATURE-2", container.getSignature(1).getId());
+  }
+
+  @Test
+  public void setsDefaultSignatureIdWithoutOCSP() throws Exception {
+    DDocContainer container = new DDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.signWithoutOCSP(PKCS12_SIGNER);
+    container.signWithoutOCSP(PKCS12_SIGNER);
+    container.save("setsDefaultSignatureId.ddoc");
+
+    container = new DDocContainer("setsDefaultSignatureId.ddoc");
+    assertEquals("S0", container.getSignature(0).getId());
+    assertEquals("S1", container.getSignature(1).getId());
+  }
+
+  @Test
   public void savesToStream() {
     DDocContainer container = new DDocContainer();
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    container.sign(pkcs12Signer);
+    container.sign(PKCS12_SIGNER);
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     container.save(out);
@@ -183,8 +249,8 @@ public class DDocContainerTest {
   public void getSignatureByIndex() throws CertificateEncodingException {
     DDocContainer container = new DDocContainer();
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    container.sign(pkcs12Signer);
-    container.sign(pkcs12Signer);
+    container.sign(PKCS12_SIGNER);
+    container.sign(PKCS12_SIGNER);
 
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12", container.getSignature(1).getSigningCertificate().getSerial());
   }
@@ -193,7 +259,7 @@ public class DDocContainerTest {
   public void addDataFileAfterSigning() {
     DDocContainer container = new DDocContainer();
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    container.sign(pkcs12Signer);
+    container.sign(PKCS12_SIGNER);
     container.addDataFile("testFiles/test.xml", TEXT_MIME_TYPE);
   }
 
@@ -201,7 +267,7 @@ public class DDocContainerTest {
   public void removeDataFileAfterSigning() {
     DDocContainer container = new DDocContainer();
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    container.sign(pkcs12Signer);
+    container.sign(PKCS12_SIGNER);
     container.removeDataFile("testFiles/test.txt");
   }
 
@@ -212,25 +278,10 @@ public class DDocContainerTest {
   }
 
   @Test
-  public void getSignatureWhenNoDocument() {
-    MockDDocContainer container = new MockDDocContainer();
-    assertNull(container.getSignatures());
-  }
-
-  @Test
   public void addConfirmation() throws Exception {
     DDocContainer container = new DDocContainer();
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    container.signWithoutOCSP(pkcs12Signer);
+    container.signWithoutOCSP(PKCS12_SIGNER);
     assertNull(container.getSignature(0).getOCSPCertificate());
-  }
-
-  private class MockDDocContainer extends DDocContainer {
-    private SignedDoc ddoc;
-
-    public MockDDocContainer() {
-      super();
-      ddoc = null;
-    }
   }
 }

@@ -247,8 +247,13 @@ public class DDocContainer extends Container {
 
   @Override
   public Signature sign(Signer signer) {
+    return sign(signer, null);
+  }
+
+  @Override
+  public Signature sign(Signer signer, String signatureId) {
     logger.debug("");
-    ee.sk.digidoc.Signature signature = calculateSignature(signer);
+    ee.sk.digidoc.Signature signature = calculateSignature(signer, signatureId);
     try {
       signature.getConfirmation();
     } catch (DigiDocException e) {
@@ -331,10 +336,16 @@ public class DDocContainer extends Container {
   @Override
   public Signature signWithoutOCSP(Signer signer) {
     logger.debug("");
-    return new DDocSignature(calculateSignature(signer));
+    return new DDocSignature(calculateSignature(signer, null));
   }
 
-  private ee.sk.digidoc.Signature calculateSignature(Signer signer) {
+  @Override
+  public Signature signWithoutOCSP(Signer signer, String signatureId) {
+    logger.debug("");
+    return new DDocSignature(calculateSignature(signer, signatureId));
+  }
+
+  private ee.sk.digidoc.Signature calculateSignature(Signer signer, String signatureId) {
     ee.sk.digidoc.Signature signature;
     try {
       List<String> signerRoles = signer.getSignerRoles();
@@ -344,6 +355,9 @@ public class DDocContainer extends Container {
       signature = ddoc.prepareSignature(signer.getCertificate().getX509Certificate(),
           signerRoles.toArray(new String[signerRoles.size()]),
           productionPlace);
+
+      if (signatureId != null)
+        signature.setId(signatureId);
 
       signature.setSignatureValue(signer.sign(eu.europa.ec.markt.dss.DigestAlgorithm.SHA1.getXmlId(),
           signature.calculateSignedInfoXML()));

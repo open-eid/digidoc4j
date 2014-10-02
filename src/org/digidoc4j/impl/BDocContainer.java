@@ -404,21 +404,25 @@ public class BDocContainer extends Container {
   }
 
   @Override
-  public Signature sign(Signer signer) {
+  public Signature sign(Signer signer, String signatureId) {
     logger.debug("");
 
     addSignerInformation(signer);
     signatureParameters.clearCertificateChain();
     signatureParameters.setSigningCertificate(signer.getCertificate().getX509Certificate());
-    String signatureId = "S" + getSignatures().size();
     signatureParameters.setDeterministicId(signatureId);
-    signatureParameters.aSiC().setSignatureFileName("signature" + signatureId.toLowerCase() + ".xml");
+    signatureParameters.aSiC().setSignatureFileName("signatures" + signatures.size() + ".xml");
 
     DSSDocument toSignDocument = getAttachment();
     byte[] dataToSign = asicService.getDataToSign(toSignDocument, signatureParameters);
     signatureParameters.setDetachedContent(toSignDocument);
 
     return sign(signer.sign(signatureParameters.getDigestAlgorithm().getXmlId(), dataToSign));
+  }
+
+  @Override
+  public Signature sign(Signer signer) {
+    return sign(signer, "S" + getSignatures().size());
   }
 
   private Signature sign(byte[] rawSignature) {
@@ -634,8 +638,13 @@ public class BDocContainer extends Container {
 
   @Override
   public Signature signWithoutOCSP(Signer signer) {
+    return signWithoutOCSP(signer, "S" + getSignatures().size());
+  }
+
+  @Override
+  public Signature signWithoutOCSP(Signer signer, String signatureId) {
     signatureParameters.setSignatureLevel(ASiC_E_BASELINE_B);
-    return sign(signer);
+    return sign(signer, signatureId);
   }
 
   @Override

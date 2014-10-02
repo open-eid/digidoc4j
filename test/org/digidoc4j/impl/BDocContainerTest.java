@@ -19,6 +19,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.zip.ZipFile;
 
 import static org.digidoc4j.Container.DigestAlgorithm.SHA1;
 import static org.digidoc4j.Container.DigestAlgorithm.SHA256;
@@ -295,6 +296,74 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
     Container containerToTest = new BDocContainer("testAddFileAsStream.bdoc");
     assertEquals("test1.txt", containerToTest.getDataFiles().get(0).getFileName());
+  }
+
+  @Test
+  public void setsSignatureId() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER, "SIGNATURE-1");
+    container.sign(PKCS12_SIGNER, "SIGNATURE-2");
+    container.save("setsSignatureId.bdoc");
+
+    container = new BDocContainer("setsSignatureId.bdoc");
+    assertEquals("SIGNATURE-1", container.getSignature(0).getId());
+    assertEquals("SIGNATURE-2", container.getSignature(1).getId());
+
+    ZipFile zip = new ZipFile("setsSignatureId.bdoc");
+    assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
+  }
+
+  @Test
+  public void setsDefaultSignatureId() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.sign(PKCS12_SIGNER);
+    container.save("setsDefaultSignatureId.bdoc");
+
+    container = new BDocContainer("setsDefaultSignatureId.bdoc");
+    assertEquals("S0", container.getSignature(0).getId());
+    assertEquals("S1", container.getSignature(1).getId());
+
+    ZipFile zip = new ZipFile("setsDefaultSignatureId.bdoc");
+    assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
+  }
+
+  @Test
+  public void setsSignatureIdWithoutOCSP() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.signWithoutOCSP(PKCS12_SIGNER, "SIGNATURE-1");
+    container.signWithoutOCSP(PKCS12_SIGNER, "SIGNATURE-2");
+    container.save("setsSignatureId.bdoc");
+
+    container = new BDocContainer("setsSignatureId.bdoc");
+    assertEquals("SIGNATURE-1", container.getSignature(0).getId());
+    assertEquals("SIGNATURE-2", container.getSignature(1).getId());
+
+    ZipFile zip = new ZipFile("setsSignatureId.bdoc");
+    assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
+  }
+
+  @Test
+  public void setsDefaultSignatureIdWithoutOCSP() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.signWithoutOCSP(PKCS12_SIGNER);
+    container.signWithoutOCSP(PKCS12_SIGNER);
+    container.save("setsDefaultSignatureId.bdoc");
+
+    container = new BDocContainer("setsDefaultSignatureId.bdoc");
+    assertEquals("S0", container.getSignature(0).getId());
+    assertEquals("S1", container.getSignature(1).getId());
+
+    ZipFile zip = new ZipFile("setsDefaultSignatureId.bdoc");
+    assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
   }
 
   @Test

@@ -255,6 +255,15 @@ public abstract class Container {
   public abstract Signature sign(Signer signer);
 
   /**
+   * Signs all data files in the container.
+   *
+   * @param signer signer implementation
+   * @param signatureId sets signature id
+   * @return signature
+   */
+  public abstract Signature sign(Signer signer, String signatureId);
+
+  /**
    * Sets configuration for container
    *
    * @param conf configuration
@@ -306,6 +315,15 @@ public abstract class Container {
    * @return signature
    */
   public abstract Signature signWithoutOCSP(Signer signer);
+
+  /**
+   * Signs all data files in the container. No OCSP confirmation is added
+   *
+   * @param signer      signer implementation
+   * @param signatureId sets signature id
+   * @return signature
+   */
+  public abstract Signature signWithoutOCSP(Signer signer, String signatureId);
 
   /**
    * Adds OCSP confirmation

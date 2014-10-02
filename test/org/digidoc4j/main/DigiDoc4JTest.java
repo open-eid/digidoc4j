@@ -220,6 +220,20 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void verifyError75OnValidateDDoc() throws Exception {
+    exit.expectSystemExitWithStatus(0);
+    exit.checkAssertionAfterwards(new Assertion() {
+      @Override
+      public void checkAssertion() throws Exception {
+        assertThat(sout.getLog(), containsString("ERROR: 75"));
+      }
+    });
+    sout.clear();
+    String[] params = new String[]{"-in", "testFiles/error75.ddoc", "-verify"};
+    DigiDoc4J.main(params);
+  }
+
+  @Test
   public void verifyDDocWithoutSignature() throws Exception {
     exit.expectSystemExitWithStatus(1);
     String[] params = new String[]{"-in", "testFiles/no_signed_doc_no_signature.ddoc", "-verify"};
@@ -297,7 +311,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     forbidSystemExitCall();
     try {
       DigiDoc4J.main(params);
-    } catch (DigiDoc4JUtilityException e) {
+    } catch (DigiDoc4JUtilityException ignore) {
     }
     System.setSecurityManager(securityManager);
   }
