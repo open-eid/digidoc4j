@@ -536,7 +536,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.save("testAddConfirmationContainsIt.bdoc");
 
     assertEquals(1, container.getSignatures().size());
+    System.out.println("addConfirmation final check");
+    System.out.println("certificate true " + container.getSignature(0).getOCSPCertificate().isValid());
     assertNotNull(container.getSignature(0).getOCSPCertificate());
+    System.out.println("addConfirmation end");
   }
 
   @Test
