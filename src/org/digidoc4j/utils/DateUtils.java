@@ -5,7 +5,6 @@ import java.util.Date;
 public final class DateUtils {
 
   private DateUtils() {
-
   }
 
   /**

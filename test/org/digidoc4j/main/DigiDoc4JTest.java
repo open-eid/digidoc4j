@@ -193,15 +193,15 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void hasTestSignature() {
+  public void verboseMode() throws Exception {
     exit.expectSystemExitWithStatus(0);
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        assertThat(sout.getLog(), containsString("Signature S0 is a test signature"));
+        assertThat(sout.getLog(), containsString("Opening container testFiles/ddoc_for_testing.ddoc"));
       }
     });
-    String[] params = new String[]{"-in", "testFiles/ddoc_for_testing.ddoc", "-verify"};
+    String[] params = new String[]{"-in", "testFiles/ddoc_for_testing.ddoc", "-verify", "-verbose"};
     DigiDoc4J.main(params);
   }
 

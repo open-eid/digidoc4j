@@ -12,13 +12,4 @@ public class ConfigurationException extends DigiDoc4JException {
   public ConfigurationException(String message) {
     super(message);
   }
-
-  /**
-   * Create a configuration exception using an exception object
-   *
-   * @param e Exception used as source for this exception
-   */
-  public ConfigurationException(Exception e) {
-    super(e);
-  }
 }

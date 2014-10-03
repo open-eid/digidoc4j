@@ -1,7 +1,5 @@
 package org.digidoc4j.main;
 
-import ee.sk.digidoc.CertValue;
-import ee.sk.digidoc.factory.DigiDocGenFactory;
 import org.apache.commons.cli.*;
 import org.digidoc4j.Container;
 import org.digidoc4j.Signature;
@@ -9,7 +7,6 @@ import org.digidoc4j.Signer;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
-import org.digidoc4j.impl.DDocSignature;
 import org.digidoc4j.impl.ValidationResultForDDoc;
 import org.digidoc4j.signers.PKCS12Signer;
 
@@ -172,18 +169,7 @@ public final class DigiDoc4J {
           System.out.println("\t" + exception.toString());
         }
       }
-      if (isDDoc && isDDocTestSignature(signature)) {
-        System.out.println("Signature " + signature.getId() + " is a test signature");
-      }
     }
-  }
-
-  private static boolean isDDocTestSignature(Signature signature) {
-    CertValue certValue = ((DDocSignature) signature).getCertValueOfType(CertValue.CERTVAL_TYPE_SIGNER);
-    if (certValue != null) {
-      if (DigiDocGenFactory.isTestCard(certValue.getCert())) return true;
-    }
-    return false;
   }
 
   private static Options createParameters() {

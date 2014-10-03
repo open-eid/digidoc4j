@@ -163,7 +163,7 @@ public class BDocContainer extends Container {
       zipFile.close();
     } catch (IOException e) {
       e.printStackTrace();
-      throw new UnsupportedFormatException("Not asic-e document");
+      throw new DigiDoc4JException(e);
     }
 
     return mimeType;
