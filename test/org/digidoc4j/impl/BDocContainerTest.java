@@ -1,17 +1,17 @@
 package org.digidoc4j.impl;
 
+import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.parameter.SignatureParameters;
-import org.digidoc4j.Configuration;
-import org.digidoc4j.Container;
-import org.digidoc4j.ValidationResult;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
-import org.digidoc4j.exceptions.SignatureNotFoundException;
-import org.digidoc4j.exceptions.UnsupportedFormatException;
+import eu.europa.ec.markt.dss.signature.DSSDocument;
+import eu.europa.ec.markt.dss.signature.asic.ASiCService;
+import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
+import org.digidoc4j.*;
+import org.digidoc4j.exceptions.*;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.*;
 import java.nio.file.DirectoryStream;
@@ -687,6 +687,19 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     new BDocContainer("testFiles/incorrectMimetype.bdoc");
   }
 
+  @Test(expected = DigiDoc4JException.class)
+  public void signingThrowsNormalDSSException() {
+    MockBDocContainer container = new MockBDocContainer("Normal DSS Exception");
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+  }
+
+  @Test(expected = OCSPRequestFailedException.class)
+  public void signingThrowsOCSPException() {
+    MockBDocContainer container = new MockBDocContainer("OCSP request failed");
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+  }
 
   private Container createSignedBDocDocument(String fileName) {
     BDocContainer container = new BDocContainer();
@@ -714,6 +727,23 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     @Override
     public void close() throws IOException {
       throw new IOException();
+    }
+  }
+
+  private class MockBDocContainer extends BDocContainer {
+    private String expected;
+
+    public MockBDocContainer(String expected) {
+      super();
+      this.expected = expected;
+    }
+
+    @Override
+    public Signature sign(Signer signer) {
+      super.asicService = spy(new ASiCService(new CommonCertificateVerifier()));
+      doThrow(new DSSException(expected)).when(super.asicService).signDocument(Mockito.any(DSSDocument.class),
+          Mockito.any(SignatureParameters.class), Mockito.any(byte[].class));
+      return super.sign(signer);
     }
   }
 }

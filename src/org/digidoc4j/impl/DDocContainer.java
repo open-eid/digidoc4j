@@ -37,7 +37,7 @@ import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
 public class DDocContainer extends Container {
   Logger logger = LoggerFactory.getLogger(DDocContainer.class);
 
-  private SignedDoc ddoc;
+  SignedDoc ddoc;
   private ArrayList<DigiDocException> openContainerExceptions = new ArrayList<DigiDocException>();
 
   /**
@@ -345,7 +345,7 @@ public class DDocContainer extends Container {
     return new DDocSignature(calculateSignature(signer, signatureId));
   }
 
-  private ee.sk.digidoc.Signature calculateSignature(Signer signer, String signatureId) {
+  ee.sk.digidoc.Signature calculateSignature(Signer signer, String signatureId) {
     ee.sk.digidoc.Signature signature;
     try {
       List<String> signerRoles = signer.getSignerRoles();

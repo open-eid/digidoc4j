@@ -4,6 +4,8 @@ import ee.sk.digidoc.DataFile;
 import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.SignedDoc;
 import org.digidoc4j.Container;
+import org.digidoc4j.Signature;
+import org.digidoc4j.Signer;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.Before;
@@ -282,6 +284,68 @@ public class DDocContainerTest {
     DDocContainer container = new DDocContainer();
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.signWithoutOCSP(PKCS12_SIGNER);
+    container.save("testAddConfirmation.ddoc");
+    container = (DDocContainer) Container.open("testAddConfirmation.ddoc");
     assertNull(container.getSignature(0).getOCSPCertificate());
+
+    container.addConfirmation();
+    container.save("testAddedConfirmation.ddoc");
+    container = (DDocContainer) Container.open("testAddedConfirmation.ddoc");
+    assertNotNull(container.getSignature(0).getOCSPCertificate());
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void addConfirmationThrowsException() throws Exception {
+    MockDDocContainer container = new MockDDocContainer();
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+
+    container.signWithoutOCSP(PKCS12_SIGNER);
+
+    container.addConfirmation();
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void signThrowsException() throws Exception {
+    MockDDocContainer container = new MockDDocContainer();
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+
+    container.sign(PKCS12_SIGNER);
+
+    container.addConfirmation();
+  }
+
+  private class MockDDocContainer extends DDocContainer {
+    ee.sk.digidoc.Signature signature = spy(new ee.sk.digidoc.Signature(new SignedDoc()));
+
+    @Override
+    public void addConfirmation() {
+      super.ddoc = spy(new SignedDoc());
+      getConfirmationThrowsException();
+
+      ArrayList signatures = new ArrayList();
+      signatures.add(signature);
+      doReturn(signatures).when(ddoc).getSignatures();
+
+      super.addConfirmation();
+    }
+
+    @Override
+    ee.sk.digidoc.Signature calculateSignature(Signer signer, String signatureId) {
+      return signature;
+    }
+
+    @Override
+    public Signature sign(Signer signer, String signatureId) {
+      getConfirmationThrowsException();
+      return super.sign(signer, signatureId);
+    }
+
+    private void getConfirmationThrowsException() {
+      try {
+        doThrow(new DigiDocException(1, "test", new Throwable())).when(signature).getConfirmation();
+      } catch (DigiDocException e) {
+        e.printStackTrace();
+      }
+    }
   }
 }
