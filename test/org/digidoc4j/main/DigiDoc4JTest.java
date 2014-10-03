@@ -87,7 +87,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     System.clearProperty("digidoc4j.mode");
 
     callMainWithoutSystemExit(params);
-    assertEquals(Mode.TEST.toString(), System.getProperty("digidoc4j.mode"));
+    assertEquals(Mode.PROD.toString(), System.getProperty("digidoc4j.mode"));
   }
 
   @Test
@@ -129,6 +129,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createsContainerWithTypeSettingBDocIfNoSuitableFileExtensionAndNoType() throws Exception {
+    System.setProperty("digidoc4j.mode", "TEST");
     String fileName = "test1.test";
     Files.deleteIfExists(Paths.get(fileName));
 
@@ -139,6 +140,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
     Container container = Container.open(fileName);
     assertEquals(BDOC, container.getDocumentType());
+    System.setProperty("digidoc4j.mode", "PROD");
   }
 
   @Test
