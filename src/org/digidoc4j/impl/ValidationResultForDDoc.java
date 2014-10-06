@@ -37,11 +37,10 @@ public class ValidationResultForDDoc implements ValidationResult {
   /**
    * Constructor
    *
-   * @param documentFormat add description
    * @param exceptions     add description
    */
-  public ValidationResultForDDoc(String documentFormat, List<DigiDocException> exceptions) {
-    this(documentFormat, exceptions, null);
+  public ValidationResultForDDoc(List<DigiDocException> exceptions) {
+    this(exceptions, null);
     logger.debug("");
   }
 
@@ -49,12 +48,11 @@ public class ValidationResultForDDoc implements ValidationResult {
   /**
    * Constructor
    *
-   * @param documentFormat          add description
    * @param exceptions              add description
    * @param openContainerExceptions list of exceptions encountered when opening the container
    */
 
-  public ValidationResultForDDoc(String documentFormat, List<DigiDocException> exceptions,
+  public ValidationResultForDDoc(List<DigiDocException> exceptions,
                                  List<DigiDocException> openContainerExceptions) {
     Element childElement;
 
@@ -75,19 +73,11 @@ public class ValidationResultForDDoc implements ValidationResult {
       String message = exception.getMessage();
       int code = exception.getCode();
       DigiDoc4JException digiDoc4JException = new DigiDoc4JException(code, message);
-      if (isWarning(documentFormat, digiDoc4JException)) {
-        logger.debug("Validation warning." + " Code: " + code + ", message: " + message);
-        warnings.add(digiDoc4JException);
-        childElement = report.createElement("warning");
-        childElement.setAttribute("Code", Integer.toString(code));
-        childElement.setAttribute("Message", message);
-      } else {
-        logger.debug("Validation error." + " Code: " + code + ", message: " + message);
-        errors.add(digiDoc4JException);
-        childElement = report.createElement("error");
-        childElement.setAttribute("Code", Integer.toString(code));
-        childElement.setAttribute("Message", message);
-      }
+      logger.debug("Validation error." + " Code: " + code + ", message: " + message);
+      errors.add(digiDoc4JException);
+      childElement = report.createElement("error");
+      childElement.setAttribute("Code", Integer.toString(code));
+      childElement.setAttribute("Message", message);
       rootElement.appendChild(childElement);
     }
   }
@@ -99,16 +89,6 @@ public class ValidationResultForDDoc implements ValidationResult {
    */
   public boolean hasFatalErrors() {
     return hasFatalErrors;
-  }
-
-  static boolean isWarning(String documentFormat, DigiDoc4JException exception) {
-    logger.debug("");
-    int errorCode = exception.getErrorCode();
-    return (errorCode == DigiDocException.ERR_DF_INV_HASH_GOOD_ALT_HASH
-        || errorCode == DigiDocException.ERR_OLD_VER
-        || errorCode == DigiDocException.ERR_TEST_SIGNATURE
-        || errorCode == DigiDocException.WARN_WEAK_DIGEST
-        || (errorCode == DigiDocException.ERR_ISSUER_XMLNS && !documentFormat.equals(SignedDoc.FORMAT_SK_XML)));
   }
 
   private void initXMLReport() {

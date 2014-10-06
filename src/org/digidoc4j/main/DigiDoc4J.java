@@ -1,6 +1,8 @@
 package org.digidoc4j.main;
 
 import ee.sk.digidoc.CertValue;
+import ee.sk.digidoc.DigiDocException;
+import ee.sk.digidoc.SignedDoc;
 import ee.sk.digidoc.factory.DigiDocGenFactory;
 import org.apache.commons.cli.*;
 import org.digidoc4j.Container;
@@ -9,6 +11,7 @@ import org.digidoc4j.Signer;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
+import org.digidoc4j.impl.DDocContainer;
 import org.digidoc4j.impl.DDocSignature;
 import org.digidoc4j.impl.ValidationResultForDDoc;
 import org.digidoc4j.signers.PKCS12Signer;
@@ -149,7 +152,9 @@ public final class DigiDoc4J {
     if (isDDoc) {
       List<DigiDoc4JException> exceptions = ((ValidationResultForDDoc) validationResult).getContainerErrors();
       for (DigiDoc4JException exception : exceptions) {
-        System.out.println("\t" + exception.toString());
+        if (!isWarning(((DDocContainer) container).getFormat(), exception)) {
+          System.out.println("\t" + exception.toString());
+        }
       }
       if (((ValidationResultForDDoc) validationResult).hasFatalErrors()) {
         return;
@@ -181,6 +186,22 @@ public final class DigiDoc4J {
     }
 
     verboseMessage(validationResult.getReport());
+  }
+
+  /**
+   * Checks is DigiDoc4JException predefined as warning for DDOC
+   *
+   * @param documentFormat format @see SignedDoc
+   * @param exception      error to check
+   * @return is this exception warning for DDOC utility program
+   */
+  public static boolean isWarning(String documentFormat, DigiDoc4JException exception) {
+    int errorCode = exception.getErrorCode();
+    return (errorCode == DigiDocException.ERR_DF_INV_HASH_GOOD_ALT_HASH
+        || errorCode == DigiDocException.ERR_OLD_VER
+        || errorCode == DigiDocException.ERR_TEST_SIGNATURE
+        || errorCode == DigiDocException.WARN_WEAK_DIGEST
+        || (errorCode == DigiDocException.ERR_ISSUER_XMLNS && !documentFormat.equals(SignedDoc.FORMAT_SK_XML)));
   }
 
   private static boolean isDDocTestSignature(Signature signature) {

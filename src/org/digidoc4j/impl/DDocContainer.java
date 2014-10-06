@@ -330,7 +330,7 @@ public class DDocContainer extends Container {
 
     ArrayList containerExceptions = ddoc.validate(true);
     containerExceptions.addAll(openContainerExceptions);
-    return new ValidationResultForDDoc(ddoc.getFormat(), exceptions, containerExceptions);
+    return new ValidationResultForDDoc(exceptions, containerExceptions);
   }
 
   @Override
@@ -379,5 +379,14 @@ public class DDocContainer extends Container {
         throw new DigiDoc4JException(e.getNestedException());
       }
     }
+  }
+
+  /**
+   * Returns ddoc format
+   *
+   * @return format as string
+   */
+  public String getFormat() {
+    return ddoc.getFormat();
   }
 }

@@ -1,6 +1,7 @@
 package org.digidoc4j.main;
 
 import ee.sk.digidoc.DigiDocException;
+import ee.sk.digidoc.SignedDoc;
 import org.digidoc4j.Container;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
@@ -22,9 +23,9 @@ import static java.util.Arrays.asList;
 import static org.digidoc4j.Configuration.Mode;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
+import static org.digidoc4j.main.DigiDoc4J.isWarning;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -268,7 +269,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
     DigiDocException exception = new DigiDocException(75, "testException", new Throwable("test Exception"));
 
-    ValidationResultForDDoc validationResultForDDoc = spy(new ValidationResultForDDoc(null, asList(exception)));
+    ValidationResultForDDoc validationResultForDDoc = spy(new ValidationResultForDDoc(asList(exception)));
     when(validationResultForDDoc.getContainerErrors()).thenReturn(asList(new DigiDoc4JException(exception)));
     when(validationResultForDDoc.hasFatalErrors()).thenReturn(true);
 
@@ -285,13 +286,42 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
     DigiDocException exception = new DigiDocException(10, "testException", new Throwable("test Exception"));
 
-    ValidationResultForDDoc validationResultForDDoc = spy(new ValidationResultForDDoc(null, asList(exception)));
+    ValidationResultForDDoc validationResultForDDoc = spy(new ValidationResultForDDoc(asList(exception)));
     when(validationResultForDDoc.getContainerErrors()).thenReturn(asList(new DigiDoc4JException(exception)));
     when(validationResultForDDoc.hasFatalErrors()).thenReturn(false);
 
     when(spy.validate()).thenReturn(validationResultForDDoc);
 
     DigiDoc4J.verify(spy);
+  }
+
+  @Test
+  public void testIsWarningWhenNoWarningExists() throws DigiDocException {
+    assertFalse(isWarning(SignedDoc.FORMAT_DIGIDOC_XML, new DigiDoc4JException(1, "testError")));
+  }
+
+  @Test
+  public void testIsNotWarningWhenCodeIsErrIssuerXmlnsAndDocumentFormatIsSkXML() throws DigiDocException {
+    assertFalse(isWarning(SignedDoc.FORMAT_SK_XML, new DigiDoc4JException(DigiDocException.ERR_ISSUER_XMLNS,
+        "testError")));
+  }
+
+  @Test
+  public void testIsWarningWhenCodeIsErrIssuerXmlnsAndDocumentFormatIsNotSkXML() throws DigiDocException {
+    assertTrue(isWarning(SignedDoc.FORMAT_DIGIDOC_XML, new DigiDoc4JException(DigiDocException.ERR_ISSUER_XMLNS,
+        "testError")));
+  }
+
+  @Test
+  public void testIsWarningWhenWarningIsFound() throws DigiDocException {
+    assertTrue(isWarning(SignedDoc.FORMAT_DIGIDOC_XML,
+        new DigiDoc4JException(DigiDocException.ERR_DF_INV_HASH_GOOD_ALT_HASH, "test")));
+    assertTrue(isWarning(SignedDoc.FORMAT_DIGIDOC_XML,
+        new DigiDoc4JException(DigiDocException.ERR_OLD_VER, "test")));
+    assertTrue(isWarning(SignedDoc.FORMAT_DIGIDOC_XML,
+        new DigiDoc4JException(DigiDocException.ERR_TEST_SIGNATURE, "test")));
+    assertTrue(isWarning(SignedDoc.FORMAT_DIGIDOC_XML,
+        new DigiDoc4JException(DigiDocException.WARN_WEAK_DIGEST, "test")));
   }
 
   private static void forbidSystemExitCall() {
