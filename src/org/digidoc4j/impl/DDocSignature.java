@@ -1,5 +1,6 @@
 package org.digidoc4j.impl;
 
+import ee.sk.digidoc.CertValue;
 import org.digidoc4j.Signature;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -158,6 +159,17 @@ public class DDocSignature extends Signature {
       validationErrors.add(new DigiDoc4JException(errorMessage));
     }
     return validationErrors;
+  }
+
+  /**
+   * Retrieves CertValue element with the desired type
+   *
+   * @param type CertValue type
+   * @return CertValue element or null if not found
+   */
+  public CertValue getCertValueOfType(int type) {
+    logger.debug("type: " + type);
+    return origin.getCertValueOfType(type);
   }
 
   @Override
