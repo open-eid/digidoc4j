@@ -614,7 +614,10 @@ public class Configuration {
   }
 
   /**
-   * Set the TSL location
+   * Set the TSL location.
+   * TSL can be loaded from file (file://) or from web (http://). If file protocol is used then
+   * first try is to locate file from this location if file does not exist then it tries to load
+   * relatively from classpath.
    *
    * @param tslLocation TSL Location to be used
    */
