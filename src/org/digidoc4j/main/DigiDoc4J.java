@@ -108,7 +108,6 @@ public final class DigiDoc4J {
       if (commandLine.hasOption("verify"))
         verify(container);
     } catch (DigiDoc4JException e) {
-      System.out.println("Fatal error: " + e.toString());
       throw new DigiDoc4JUtilityException(1, e.getMessage());
     }
   }
@@ -166,10 +165,16 @@ public final class DigiDoc4J {
       } else {
         System.out.println(ANSI_RED + "Signature " + signature.getId() + " is not valid" + ANSI_RESET);
         for (DigiDoc4JException exception : signatureValidationResult) {
-          System.out.println("\t" + exception.toString());
+          System.out.println("\tError: " + exception.toString());
         }
       }
     }
+
+    for (DigiDoc4JException warning : validationResult.getWarnings()) {
+      System.out.println("Warning: " + warning.toString());
+    }
+
+    verboseMessage(validationResult.getReport());
   }
 
   private static Options createParameters() {
