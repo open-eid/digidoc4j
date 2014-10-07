@@ -211,6 +211,19 @@ public class ConfigurationTest {
     assertEquals("org.bouncycastle.jce.provider.BouncyCastleProvider1", jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER"));
   }
 
+  @Test
+  public void loadsJDigiDocCacheDirectoryFromFile() throws Exception {
+    Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertEquals("/test_cache_dir", jDigiDocConf.get("DIGIDOC_DF_CACHE_DIR"));
+  }
+
+  @Test
+  public void defaultJDigiDocCacheDirectory() throws Exception {
+    Hashtable<String, String> jDigiDocConf =
+        configuration.loadConfiguration("testFiles/digidoc_test_conf_without_cache_dir.yaml");
+    assertNull(jDigiDocConf.get("DIGIDOC_DF_CACHE_DIR"));
+  }
+
   @SuppressWarnings("NumericOverflow")
   @Test
   public void loadsMaxDataFileCachedFromFile() throws Exception {

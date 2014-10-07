@@ -112,7 +112,6 @@ public class Configuration {
   public static final long CACHE_NO_DATA_FILES = 0;
 
   private final Mode mode;
-  //  private static final int JAR_FILE_NAME_BEGIN_INDEX = 6;
   private LinkedHashMap configurationFromFile;
   private String configurationInputSourceName;
   private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<String, String>();
@@ -375,6 +374,7 @@ public class Configuration {
     setJDigiDocConfigurationValue("DIGIDOC_TSLFAC_IMPL", DEFAULT_TSL_FACTORY_IMPLEMENTATION);
     setJDigiDocConfigurationValue("DIGIDOC_OCSP_RESPONDER_URL", getOcspSource());
     setJDigiDocConfigurationValue("DIGIDOC_FACTORY_IMPL", DEFAULT_FACTORY_IMPLEMENTATION);
+    setJDigiDocConfigurationValue("DIGIDOC_DF_CACHE_DIR", null);
 
     setConfigurationValue("TSL_LOCATION", "tslLocation");
     setConfigurationValue("TSP_SOURCE", "tspSource");
@@ -395,8 +395,10 @@ public class Configuration {
   }
 
   private void setJDigiDocConfigurationValue(String key, String defaultValue) {
-    logger.debug("Key: " + key + ", default value: " + defaultValue);
-    jDigiDocConfiguration.put(key, defaultIfNull(key, defaultValue));
+    String value = defaultIfNull(key, defaultValue);
+    if (value != null) {
+      jDigiDocConfiguration.put(key, value);
+    }
   }
 
   /**
@@ -460,7 +462,7 @@ public class Configuration {
   }
 
   private String defaultIfNull(String configParameter, String defaultValue) {
-    logger.debug("Parameter: " + configParameter + ", default value: " + defaultValue);
+    logger.debug("Parameter: " + configParameter);
     if (configurationFromFile == null) return defaultValue;
     Object value = configurationFromFile.get(configParameter);
     if (value != null) {

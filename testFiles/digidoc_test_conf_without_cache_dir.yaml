@@ -9,7 +9,6 @@ PKCS11_MODULE: /usr/lib/x86_64-linux-gnu/test_pkcs11_module.so
 OCSP_SOURCE: http://www.openxades.org/cgi-bin/test_ocsp_source.cgi
 DIGIDOC_PKCS12_CONTAINER: conf/OCSP_access_certificate_test_file_name
 DIGIDOC_PKCS12_PASSWD: OCSP_test_password
-DIGIDOC_DF_CACHE_DIR: /test_cache_dir
 
 DIGIDOC_CAS:
 - DIGIDOC_CA:
