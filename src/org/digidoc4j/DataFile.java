@@ -21,6 +21,7 @@ public class DataFile {
 
   DSSDocument document = null;
   private Digest digest = null;
+  private String id;
 
   /**
    * Creates container.
@@ -145,6 +146,17 @@ public class DataFile {
   }
 
   /**
+   * Returns file ID
+   * For BDoc it will return the filename
+   *
+   * @return id or name
+   */
+  public String getFileID() {
+    logger.debug("");
+    return (id == null ? getFileName() : id);
+  }
+
+  /**
    * Returns the data file size.
    *
    * @return file size in bytes
@@ -219,5 +231,14 @@ public class DataFile {
   public InputStream getStream() {
     logger.debug("");
     return document.openStream();
+  }
+
+  /**
+   * Set id for the dataFile (DDoc usage only)
+   *
+   * @param dataFileId id for the dataFile
+   */
+  public void setId(String dataFileId) {
+    this.id = dataFileId;
   }
 }

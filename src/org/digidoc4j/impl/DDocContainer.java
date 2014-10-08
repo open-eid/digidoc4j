@@ -168,10 +168,15 @@ public class DDocContainer extends Container {
     for (Object ddocDataFile : ddocDataFiles) {
       ee.sk.digidoc.DataFile dataFile = (ee.sk.digidoc.DataFile) ddocDataFile;
       try {
-        if (dataFile.getBody() == null)
-          dataFiles.add(new DataFile(dataFile.getFileName(), dataFile.getMimeType()));
-        else
-          dataFiles.add(new DataFile(dataFile.getBodyAsData(), dataFile.getFileName(), dataFile.getMimeType()));
+        if (dataFile.getBody() == null) {
+          DataFile dataFile1 = new DataFile(dataFile.getFileName(), dataFile.getMimeType());
+          dataFile1.setId(dataFile.getId());
+          dataFiles.add(dataFile1);
+        } else {
+          DataFile dataFile1 = new DataFile(dataFile.getBodyAsData(), dataFile.getFileName(), dataFile.getMimeType());
+          dataFile1.setId(dataFile.getId());
+          dataFiles.add(dataFile1);
+        }
       } catch (DigiDocException e) {
         logger.error(e.getMessage());
         throw new DigiDoc4JException(e.getNestedException());

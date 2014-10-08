@@ -77,8 +77,22 @@ public class DDocContainerTest {
   }
 
   @Test
+  public void testGetFileId() {
+    DDocContainer container = new DDocContainer();
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    List<org.digidoc4j.DataFile> dataFiles = container.getDataFiles();
+
+    assertEquals("D0", dataFiles.get(0).getFileID());
+    assertEquals("D1", dataFiles.get(1).getFileID());
+    assertEquals("test.txt", dataFiles.get(0).getFileName());
+    assertEquals("test.txt", dataFiles.get(1).getFileName());
+  }
+
+  @Test
   public void testAddEmptyFile() throws Exception {
     DDocContainer dDocContainer = new DDocContainer();
+    //noinspection ResultOfMethodCallIgnored
     new File("test_empty.txt").createNewFile();
     dDocContainer.addDataFile("test_empty.txt", TEXT_MIME_TYPE);
     dDocContainer.save("test_empty.ddoc");
@@ -96,6 +110,9 @@ public class DDocContainerTest {
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.addDataFile("testFiles/test.xml", TEXT_MIME_TYPE);
 
+    assertEquals("D0", container.getDataFile(0).getFileID());
+    assertEquals("D1", container.getDataFile(1).getFileID());
+    assertEquals("test.txt", container.getDataFile(0).getFileName());
     assertEquals("test.xml", container.getDataFile(1).getFileName());
   }
 

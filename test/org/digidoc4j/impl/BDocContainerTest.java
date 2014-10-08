@@ -493,6 +493,22 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void testgetFileNameAndID() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/test.xml", "text/xml");
+    container.sign(PKCS12_SIGNER);
+    container.save("testTwoFilesSigned.bdoc");
+
+    container = new BDocContainer("testTwoFilesSigned.bdoc");
+
+    assertEquals("test.xml", container.getDataFile(0).getFileName());
+    assertEquals("test.txt", container.getDataFile(1).getFileName());
+    assertEquals("test.xml", container.getDataFile(0).getFileID());
+    assertEquals("test.txt", container.getDataFile(1).getFileID());
+  }
+
+  @Test
   public void testAddTwoFilesAsFileWithOCSP() throws Exception {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
