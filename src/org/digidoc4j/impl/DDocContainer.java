@@ -164,6 +164,7 @@ public class DDocContainer extends Container {
     logger.debug("");
     List<DataFile> dataFiles = new ArrayList<DataFile>();
     ArrayList ddocDataFiles = ddoc.getDataFiles();
+    if (ddocDataFiles == null) return null;
     for (Object ddocDataFile : ddocDataFiles) {
       ee.sk.digidoc.DataFile dataFile = (ee.sk.digidoc.DataFile) ddocDataFile;
       try {

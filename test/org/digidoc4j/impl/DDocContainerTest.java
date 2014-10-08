@@ -137,6 +137,12 @@ public class DDocContainerTest {
     container.getDataFiles();
   }
 
+  @Test
+  public void testGetDataFilesWhenNoDataFileExists() {
+    DDocContainer container = new DDocContainer();
+    assertNull(container.getDataFiles());
+  }
+
   @Test(expected = DigiDoc4JException.class)
   public void removeDataFileWhenNotFound() throws Exception {
     DDocContainer dDocContainer = new DDocContainer();
