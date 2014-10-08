@@ -45,6 +45,7 @@
       <packageset dir="src" defaultexcludes="yes">
         <include name="org/digidoc4j"/>
         <include name="org/digidoc4j/exceptions"/>
+        <include name="org/digidoc4j/signers"/>
       </packageset>
     </javadoc>
     <jar destfile="${dist.dir}/digidoc4j-${lib.version}${version.suffix}-javadoc.jar" basedir="javadoc"/>
