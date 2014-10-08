@@ -72,7 +72,6 @@
     <orderEntry type="library" name="org.apache.santuario:xmlsec:2.0.2" level="project" />
     <orderEntry type="library" name="org.codehaus.janino:com.springsource.org.codehaus.janino:2.6.11" level="project" />
     <orderEntry type="library" name="slf4j-api-1.7.7" level="project" />
-    <orderEntry type="library" name="slf4j-simple-1.7.7" level="project" />
   </component>
 </module>
 
