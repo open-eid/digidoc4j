@@ -71,8 +71,8 @@ public class DDocContainerTest {
     Container container = Container.open("test_ddoc_file.ddoc");
     List<org.digidoc4j.DataFile> dataFiles = container.getDataFiles();
     assertEquals(2, dataFiles.size());
-    assertEquals("test.txt", dataFiles.get(0).getFileName());
-    assertEquals("test.txt", dataFiles.get(1).getFileName());
+    assertEquals("test.txt", dataFiles.get(0).getName());
+    assertEquals("test.txt", dataFiles.get(1).getName());
     Files.deleteIfExists(Paths.get("test_ddoc_file.ddoc"));
   }
 
@@ -83,10 +83,10 @@ public class DDocContainerTest {
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     List<org.digidoc4j.DataFile> dataFiles = container.getDataFiles();
 
-    assertEquals("D0", dataFiles.get(0).getFileID());
-    assertEquals("D1", dataFiles.get(1).getFileID());
-    assertEquals("test.txt", dataFiles.get(0).getFileName());
-    assertEquals("test.txt", dataFiles.get(1).getFileName());
+    assertEquals("D0", dataFiles.get(0).getId());
+    assertEquals("D1", dataFiles.get(1).getId());
+    assertEquals("test.txt", dataFiles.get(0).getName());
+    assertEquals("test.txt", dataFiles.get(1).getName());
   }
 
   @Test
@@ -110,10 +110,10 @@ public class DDocContainerTest {
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.addDataFile("testFiles/test.xml", TEXT_MIME_TYPE);
 
-    assertEquals("D0", container.getDataFile(0).getFileID());
-    assertEquals("D1", container.getDataFile(1).getFileID());
-    assertEquals("test.txt", container.getDataFile(0).getFileName());
-    assertEquals("test.xml", container.getDataFile(1).getFileName());
+    assertEquals("D0", container.getDataFile(0).getId());
+    assertEquals("D1", container.getDataFile(1).getId());
+    assertEquals("test.txt", container.getDataFile(0).getName());
+    assertEquals("test.xml", container.getDataFile(1).getName());
   }
 
   @Test(expected = DigiDoc4JException.class)

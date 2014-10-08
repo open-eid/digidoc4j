@@ -255,7 +255,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     bDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     List<DataFile> dataFiles = bDocContainer.getDataFiles();
     assertEquals(1, dataFiles.size());
-    assertEquals("test.txt", dataFiles.get(0).getFileName());
+    assertEquals("test.txt", dataFiles.get(0).getName());
     assertEquals(TEXT_MIME_TYPE, dataFiles.get(0).getMediaType());
   }
 
@@ -295,7 +295,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     List<DataFile> dataFiles = container.getDataFiles();
     assertEquals(1, dataFiles.size());
-    assertEquals("test.txt", dataFiles.get(0).getFileName());
+    assertEquals("test.txt", dataFiles.get(0).getName());
     assertEquals(TEXT_MIME_TYPE, dataFiles.get(0).getMediaType());
   }
 
@@ -367,7 +367,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     Container container = Container.create(DDOC);
     container.addDataFile(new ByteArrayInputStream(new byte[]{0x42}), "testFromStream.txt", TEXT_MIME_TYPE);
     DataFile dataFile = container.getDataFiles().get(0);
-    assertEquals("testFromStream.txt", dataFile.getFileName());
+    assertEquals("testFromStream.txt", dataFile.getName());
   }
 
   @Test

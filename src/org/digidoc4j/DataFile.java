@@ -137,7 +137,7 @@ public class DataFile {
    *
    * @return filename
    */
-  public String getFileName() {
+  public String getName() {
     logger.debug("");
     String documentName = document.getName();
     String name = new File(documentName).getName();
@@ -151,9 +151,9 @@ public class DataFile {
    *
    * @return id or name
    */
-  public String getFileID() {
+  public String getId() {
     logger.debug("");
-    return (id == null ? getFileName() : id);
+    return (id == null ? getName() : id);
   }
 
   /**
