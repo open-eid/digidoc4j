@@ -48,6 +48,10 @@
       </packageset>
     </javadoc>
     <jar destfile="${dist.dir}/digidoc4j-${lib.version}${version.suffix}-javadoc.jar" basedir="javadoc"/>
+	<mkdir dir="javadoc/doc-files"/>
+	<copy todir="javadoc/doc-files">
+      <fileset dir="doc/images"/>
+    </copy>
   </target>
 
   <target name="compile">
