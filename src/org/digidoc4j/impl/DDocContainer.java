@@ -387,6 +387,11 @@ public class DDocContainer extends Container {
     }
   }
 
+  @Override
+  public String getVersion() {
+    return ddoc.getVersion();
+  }
+
   /**
    * Returns ddoc format
    *

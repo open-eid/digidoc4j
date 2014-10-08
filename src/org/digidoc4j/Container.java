@@ -329,6 +329,13 @@ public abstract class Container {
    * Adds OCSP confirmation
    */
   public abstract void addConfirmation();
+
+  /**
+   * Returns container version in case of DDOC. BDOC does not have a version and it returns null
+   *
+   * @return version
+   */
+  public abstract String getVersion();
 }
 
 

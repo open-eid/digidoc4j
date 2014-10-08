@@ -717,6 +717,12 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.sign(PKCS12_SIGNER);
   }
 
+  @Test
+  public void getVersion() {
+    BDocContainer container = new BDocContainer();
+    assertNull(container.getVersion());
+  }
+
   private Container createSignedBDocDocument(String fileName) {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");

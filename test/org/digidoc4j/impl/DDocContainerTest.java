@@ -327,6 +327,12 @@ public class DDocContainerTest {
     container.addConfirmation();
   }
 
+  @Test
+  public void getVersion() {
+    DDocContainer container = new DDocContainer();
+    assertEquals("1.3", container.getVersion());
+  }
+
   @Test(expected = DigiDoc4JException.class)
   public void signThrowsException() throws Exception {
     MockDDocContainer container = new MockDDocContainer();

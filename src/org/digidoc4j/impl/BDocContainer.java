@@ -665,6 +665,11 @@ public class BDocContainer extends Container {
     }
   }
 
+  @Override
+  public String getVersion() {
+    return null;
+  }
+
   protected SignatureParameters getSignatureParameters() {
     logger.debug("");
     return signatureParameters;
