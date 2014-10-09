@@ -28,7 +28,6 @@ public class ValidationResultForDDoc implements ValidationResult {
   private List<DigiDoc4JException> containerExceptions = new ArrayList<DigiDoc4JException>();
   private boolean hasFatalErrors = false;
   private List<DigiDoc4JException> errors = new ArrayList<DigiDoc4JException>();
-  private List<DigiDoc4JException> warnings = new ArrayList<DigiDoc4JException>();
 
   private Document report;
   private Element rootElement;
@@ -43,7 +42,6 @@ public class ValidationResultForDDoc implements ValidationResult {
     this(exceptions, null);
     logger.debug("");
   }
-
 
   /**
    * Constructor
@@ -117,8 +115,8 @@ public class ValidationResultForDDoc implements ValidationResult {
 
   @Override
   public List<DigiDoc4JException> getWarnings() {
-    logger.debug("Returning " + warnings.size() + " warnings");
-    return warnings;
+    logger.debug("");
+    return new ArrayList<DigiDoc4JException>();
   }
 
   @Override
@@ -130,9 +128,8 @@ public class ValidationResultForDDoc implements ValidationResult {
 
   @Override
   public boolean hasWarnings() {
-    boolean hasWarnings = (warnings.size() != 0);
-    logger.debug("Has warnings: " + hasWarnings);
-    return hasWarnings;
+    logger.debug("");
+    return false;
   }
 
   @Override
@@ -151,7 +148,6 @@ public class ValidationResultForDDoc implements ValidationResult {
     LSSerializer lsSerializer = domImplementation.createLSSerializer();
     return lsSerializer.writeToString(document);
   }
-
 
   /**
    * Get list of exceptions encountered when opening the container
