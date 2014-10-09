@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SimpleReport xmlns="http://dss.markt.ec.europa.eu/validation/diagnostic">
+  <Policy>
+    <PolicyName>QES AdESQC TL based</PolicyName>
+    <PolicyDescription>RIA customized validation policy</PolicyDescription>
+  </Policy>
+  <ValidationTime>2014-10-09T15:27:24Z</ValidationTime>
+  <DocumentName/>
+  <Signature Id="S0" SignatureFormat="XAdES_BASELINE_LT">
+    <SigningTime>2014-01-14T10:21:01Z</SigningTime>
+    <SignedBy>MÄNNIK,MARI-LIIS,47101010033</SignedBy>
+    <Indication>INDETERMINATE</Indication>
+    <SubIndication>TRY_LATER</SubIndication>
+    <Error CertificateId="86" NameId="CTS_ITACBT_ANS">There is no concordance between the trusted service and the
+      certificate!
+    </Error>
+    <Warning CertificateId="86" NameId="CTS_IIDOCWVPOTS_ANS">There is no concordance between the validity dates of
+      trusted services and the certificate!
+    </Warning>
+    <SignatureLevel>AdESqc</SignatureLevel>
+    <SignatureScopes>
+      <SignatureScope name="test2.txt" scope="FullSignatureScope">Full document</SignatureScope>
+    </SignatureScopes>
+  </Signature>
+  <ValidSignaturesCount>0</ValidSignaturesCount>
+  <SignaturesCount>1</SignaturesCount>
+</SimpleReport>
