@@ -145,7 +145,7 @@ public final class DigiDoc4J {
     container.sign(pkcs12Signer);
   }
 
-  static void verify(Container container) {
+  private static void verify(Container container) {
     ValidationResult validationResult = container.validate();
 
     boolean isDDoc = container.getDocumentType() == DocumentType.DDOC;
