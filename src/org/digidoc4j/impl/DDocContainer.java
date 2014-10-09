@@ -164,13 +164,19 @@ public class DDocContainer extends Container {
     logger.debug("");
     List<DataFile> dataFiles = new ArrayList<DataFile>();
     ArrayList ddocDataFiles = ddoc.getDataFiles();
+    if (ddocDataFiles == null) return null;
     for (Object ddocDataFile : ddocDataFiles) {
       ee.sk.digidoc.DataFile dataFile = (ee.sk.digidoc.DataFile) ddocDataFile;
       try {
-        if (dataFile.getBody() == null)
-          dataFiles.add(new DataFile(dataFile.getFileName(), dataFile.getMimeType()));
-        else
-          dataFiles.add(new DataFile(dataFile.getBodyAsData(), dataFile.getFileName(), dataFile.getMimeType()));
+        if (dataFile.getBody() == null) {
+          DataFile dataFile1 = new DataFile(dataFile.getFileName(), dataFile.getMimeType());
+          dataFile1.setId(dataFile.getId());
+          dataFiles.add(dataFile1);
+        } else {
+          DataFile dataFile1 = new DataFile(dataFile.getBodyAsData(), dataFile.getFileName(), dataFile.getMimeType());
+          dataFile1.setId(dataFile.getId());
+          dataFiles.add(dataFile1);
+        }
       } catch (DigiDocException e) {
         logger.error(e.getMessage());
         throw new DigiDoc4JException(e.getNestedException());
@@ -379,6 +385,11 @@ public class DDocContainer extends Container {
         throw new DigiDoc4JException(e.getNestedException());
       }
     }
+  }
+
+  @Override
+  public String getVersion() {
+    return ddoc.getVersion();
   }
 
   /**

@@ -12,6 +12,7 @@ public abstract class Signature {
 
   /**
    * Sets signer certificate
+   * For a BDOC Signature it throws a NotYetImplementedException.
    *
    * @param cert signers certificate
    */
@@ -50,6 +51,8 @@ public abstract class Signature {
   /**
    * Returns the signature OCSP response nonce.
    *
+   * For a BDOC Signature it throws a NotYetImplementedException.
+   *
    * @return OCSP response nonce
    */
   public abstract byte[] getNonce();
@@ -62,7 +65,9 @@ public abstract class Signature {
   public abstract X509Cert getOCSPCertificate();
 
   /**
-   * Returns the BDoc signature policy. If the container is DDoc then it returns an empty string.
+   * If the container is DDOC then it returns an empty string.
+   *
+   * For a BDOC Signature it throws a NotYetImplementedException.
    *
    * @return signature policy
    */
@@ -118,7 +123,8 @@ public abstract class Signature {
   public abstract Date getSigningTime();
 
   /**
-   * Returns the BDoc signature policy uri. If the container is DDoc then it returns an empty string.
+   * If the container is DDoc then it returns an empty string.
+   * For a BDOC Signature it throws a NotYetImplementedException.
    *
    * @return signature policy uri
    */
@@ -133,6 +139,7 @@ public abstract class Signature {
 
   /**
    * Returns the signature TimeStampToken certificate.
+   * For a DDOC Signature it throws a NotYetImplementedException.
    *
    * @return TimeStampToken certificate
    */

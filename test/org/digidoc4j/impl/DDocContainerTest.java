@@ -71,14 +71,28 @@ public class DDocContainerTest {
     Container container = Container.open("test_ddoc_file.ddoc");
     List<org.digidoc4j.DataFile> dataFiles = container.getDataFiles();
     assertEquals(2, dataFiles.size());
-    assertEquals("test.txt", dataFiles.get(0).getFileName());
-    assertEquals("test.txt", dataFiles.get(1).getFileName());
+    assertEquals("test.txt", dataFiles.get(0).getName());
+    assertEquals("test.txt", dataFiles.get(1).getName());
     Files.deleteIfExists(Paths.get("test_ddoc_file.ddoc"));
+  }
+
+  @Test
+  public void testGetFileId() {
+    DDocContainer container = new DDocContainer();
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    List<org.digidoc4j.DataFile> dataFiles = container.getDataFiles();
+
+    assertEquals("D0", dataFiles.get(0).getId());
+    assertEquals("D1", dataFiles.get(1).getId());
+    assertEquals("test.txt", dataFiles.get(0).getName());
+    assertEquals("test.txt", dataFiles.get(1).getName());
   }
 
   @Test
   public void testAddEmptyFile() throws Exception {
     DDocContainer dDocContainer = new DDocContainer();
+    //noinspection ResultOfMethodCallIgnored
     new File("test_empty.txt").createNewFile();
     dDocContainer.addDataFile("test_empty.txt", TEXT_MIME_TYPE);
     dDocContainer.save("test_empty.ddoc");
@@ -96,7 +110,10 @@ public class DDocContainerTest {
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.addDataFile("testFiles/test.xml", TEXT_MIME_TYPE);
 
-    assertEquals("test.xml", container.getDataFile(1).getFileName());
+    assertEquals("D0", container.getDataFile(0).getId());
+    assertEquals("D1", container.getDataFile(1).getId());
+    assertEquals("test.txt", container.getDataFile(0).getName());
+    assertEquals("test.xml", container.getDataFile(1).getName());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -135,6 +152,12 @@ public class DDocContainerTest {
     DDocContainer container = new DDocContainer(ddoc);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.getDataFiles();
+  }
+
+  @Test
+  public void testGetDataFilesWhenNoDataFileExists() {
+    DDocContainer container = new DDocContainer();
+    assertNull(container.getDataFiles());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -302,6 +325,12 @@ public class DDocContainerTest {
     container.signWithoutOCSP(PKCS12_SIGNER);
 
     container.addConfirmation();
+  }
+
+  @Test
+  public void getVersion() {
+    DDocContainer container = new DDocContainer();
+    assertEquals("1.3", container.getVersion());
   }
 
   @Test(expected = DigiDoc4JException.class)

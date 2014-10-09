@@ -69,7 +69,7 @@ public class StreamDocumentTest {
   @Test
   public void createDocumentFromStreamedDataFile() throws Exception {
     DataFile dataFile = new DataFile(new ByteArrayInputStream(new byte[]{0x041}), "A.txt", "text/plain");
-    StreamDocument streamDocument = new StreamDocument(dataFile.getStream(), dataFile.getFileName(),
+    StreamDocument streamDocument = new StreamDocument(dataFile.getStream(), dataFile.getName(),
         MimeType.fromCode(dataFile.getMediaType()));
     streamDocument.save("createDocumentFromStreamedDataFile.txt");
 

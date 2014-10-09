@@ -198,6 +198,7 @@ public abstract class Container {
 
   /**
    * Adds signature from the input stream to the container.
+   * For BDOC it throws a NotYetImplementedException().
    *
    * @param signatureStream signature to be added to the container
    */
@@ -264,7 +265,8 @@ public abstract class Container {
   public abstract Signature sign(Signer signer, String signatureId);
 
   /**
-   * Sets configuration for container
+   * Sets configuration for container.
+   * For a DDOC Container it throws a NotYetImplementedException.
    *
    * @param conf configuration
    */
@@ -329,6 +331,13 @@ public abstract class Container {
    * Adds OCSP confirmation
    */
   public abstract void addConfirmation();
+
+  /**
+   * Returns container version in case of DDOC. BDOC does not have a version and it returns null
+   *
+   * @return version
+   */
+  public abstract String getVersion();
 }
 
 

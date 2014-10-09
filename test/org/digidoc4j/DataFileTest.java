@@ -44,7 +44,7 @@ public class DataFileTest {
 
   @Test
   public void testGetFileName() throws Exception {
-    assertEquals("test.txt", dataFile.getFileName());
+    assertEquals("test.txt", dataFile.getName());
   }
 
   @Test
@@ -109,7 +109,7 @@ public class DataFileTest {
   @Test
   public void testInMemoryDocumentRetrievesFileName() {
     DataFile dataFile = new DataFile(new byte[]{0x041}, "suura.txt", "text/plain");
-    assertEquals("suura.txt", dataFile.getFileName());
+    assertEquals("suura.txt", dataFile.getName());
   }
 
   @Test

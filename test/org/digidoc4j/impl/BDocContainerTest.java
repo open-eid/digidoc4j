@@ -232,7 +232,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void testRemoveDataFileAfterSigning() throws Exception {
     createSignedBDocDocument("testRemoveDataFile.bdoc");
     Container container = new BDocContainer("testRemoveDataFile.bdoc");
-    assertEquals("test.txt", container.getDataFiles().get(0).getFileName());
+    assertEquals("test.txt", container.getDataFiles().get(0).getName());
     assertEquals(1, container.getDataFiles().size());
     container.removeDataFile("test.txt");
     assertEquals(0, container.getDataFiles().size());
@@ -242,7 +242,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void testRemoveDataFile() throws Exception {
     Container container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    assertEquals("test.txt", container.getDataFiles().get(0).getFileName());
+    assertEquals("test.txt", container.getDataFiles().get(0).getName());
     assertEquals(1, container.getDataFiles().size());
     container.removeDataFile("testFiles/test.txt");
     assertEquals(0, container.getDataFiles().size());
@@ -294,7 +294,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.save("testAddFileAsStream.bdoc");
 
     Container containerToTest = new BDocContainer("testAddFileAsStream.bdoc");
-    assertEquals("test1.txt", containerToTest.getDataFiles().get(0).getFileName());
+    assertEquals("test1.txt", containerToTest.getDataFiles().get(0).getName());
   }
 
   @Test
@@ -371,7 +371,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
 
-    assertEquals("test.txt", container.getDataFile(0).getFileName());
+    assertEquals("test.txt", container.getDataFile(0).getName());
   }
 
   @Test
@@ -490,6 +490,22 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
     container = new BDocContainer("testTwoFilesSigned.bdoc");
     assertEquals(2, container.getDataFiles().size());
+  }
+
+  @Test
+  public void testgetFileNameAndID() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/test.xml", "text/xml");
+    container.sign(PKCS12_SIGNER);
+    container.save("testTwoFilesSigned.bdoc");
+
+    container = new BDocContainer("testTwoFilesSigned.bdoc");
+
+    assertEquals("test.xml", container.getDataFile(0).getName());
+    assertEquals("test.txt", container.getDataFile(1).getName());
+    assertEquals("test.xml", container.getDataFile(0).getId());
+    assertEquals("test.txt", container.getDataFile(1).getId());
   }
 
   @Test
@@ -699,6 +715,12 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     MockBDocContainer container = new MockBDocContainer("OCSP request failed");
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
+  }
+
+  @Test
+  public void getVersion() {
+    BDocContainer container = new BDocContainer();
+    assertNull(container.getVersion());
   }
 
   private Container createSignedBDocDocument(String fileName) {

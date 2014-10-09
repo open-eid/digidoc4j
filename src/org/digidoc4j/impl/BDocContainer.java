@@ -273,7 +273,7 @@ public class BDocContainer extends Container {
   private void checkForDuplicateDataFile(String path) {
     String fileName = new File(path).getName();
     for (String key : dataFiles.keySet()) {
-      if (dataFiles.get(key).getFileName().equals(fileName)) {
+      if (dataFiles.get(key).getName().equals(fileName)) {
         String errorMessage = "Data file " + fileName + " already exists";
         logger.error(errorMessage);
         throw new DigiDoc4JException(errorMessage);
@@ -481,9 +481,9 @@ public class BDocContainer extends Container {
     MimeType mimeType = MimeType.fromCode(dataFile.getMediaType());
     long cachedFileSizeInMB = configuration.getMaxDataFileCachedInMB();
     if (configuration.isBigFilesSupportEnabled() && dataFile.getFileSize() > cachedFileSizeInMB * ONE_MB_IN_BYTES) {
-      attachment = new StreamDocument(dataFile.getStream(), dataFile.getFileName(), mimeType);
+      attachment = new StreamDocument(dataFile.getStream(), dataFile.getName(), mimeType);
     } else {
-      attachment = new InMemoryDocument(dataFile.getBytes(), dataFile.getFileName(), mimeType);
+      attachment = new InMemoryDocument(dataFile.getBytes(), dataFile.getName(), mimeType);
     }
     return attachment;
   }
@@ -663,6 +663,11 @@ public class BDocContainer extends Container {
     for (AdvancedSignature advancedSignature : signatureList) {
       signatures.add(new BDocSignature((XAdESSignature) advancedSignature));
     }
+  }
+
+  @Override
+  public String getVersion() {
+    return null;
   }
 
   protected SignatureParameters getSignatureParameters() {
