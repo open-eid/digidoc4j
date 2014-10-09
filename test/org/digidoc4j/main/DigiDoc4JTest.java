@@ -267,7 +267,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
             containsString("Warning: The 'issuer-serial' attribute is absent or does not match!"));
       }
     });
-    String[] params = new String[]{"-in", "testFiles/warning.bdoc", "-verify"};
+    String[] params = new String[]{"-in", "testFiles/warning.bdoc", "-verify", "-verbose"};
     DigiDoc4J.main(params);
   }
 
