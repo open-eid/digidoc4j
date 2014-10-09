@@ -264,7 +264,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
       @Override
       public void checkAssertion() throws Exception {
         assertThat(sout.getLog(),
-            containsString("Warning: The 'issuer-serial' attribute is absent or does not match!"));
+            containsString("Warning: The public key size is to small!"));
       }
     });
     String[] params = new String[]{"-in", "testFiles/warning.bdoc", "-verify", "-verbose"};
