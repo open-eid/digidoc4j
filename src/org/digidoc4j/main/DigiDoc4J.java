@@ -266,7 +266,4 @@ public final class DigiDoc4J {
     type.setLongOpt("type");
     return type;
   }
-
-
 }
-

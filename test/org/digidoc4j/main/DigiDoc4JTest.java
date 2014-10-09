@@ -4,7 +4,6 @@ import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.SignedDoc;
 import org.digidoc4j.Container;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.junit.After;
 import org.junit.Rule;
@@ -219,7 +218,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void verifyError75InValidateDDoc() throws Exception {
+  public void verifyDDocWithFatalError() throws Exception {
     exit.expectSystemExitWithStatus(0);
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
@@ -258,25 +257,47 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     DigiDoc4J.main(new String[]{});
   }
 
-  //TODO
-  @Test
-  public void verifyWithFatalError() {
-  }
-
-  //TODO
-  @Test
-  public void verifyDDocWithWarning() {
-  }
-
-  //TODO
   @Test
   public void verifyBDocWithWarning() {
+    exit.expectSystemExitWithStatus(0);
+    exit.checkAssertionAfterwards(new Assertion() {
+      @Override
+      public void checkAssertion() throws Exception {
+        assertThat(sout.getLog(),
+            containsString("Warning: The 'issuer-serial' attribute is absent or does not match!"));
+      }
+    });
+    String[] params = new String[]{"-in", "testFiles/warning.bdoc", "-verify"};
+    DigiDoc4J.main(params);
   }
 
-  //TODO
-  @Test(expected = SignatureNotFoundException.class)
-  public void verifyWithoutFatalError() {
+  @Test
+  public void verifyDDocWithError() {
+    exit.expectSystemExitWithStatus(1);
+    exit.checkAssertionAfterwards(new Assertion() {
+      @Override
+      public void checkAssertion() throws Exception {
+        assertThat(sout.getLog(), containsString("ERROR: 13 - Format attribute is mandatory!"));
+      }
+    });
+    String[] params = new String[]{"-in", "testFiles/empty_container_no_signature.ddoc", "-verify"};
+    DigiDoc4J.main(params);
   }
+
+  @Test
+  public void verifyDDocWithWarning() {
+    exit.expectSystemExitWithStatus(0);
+    exit.checkAssertionAfterwards(new Assertion() {
+      @Override
+      public void checkAssertion() throws Exception {
+        assertThat(sout.getLog(), containsString("\tWarning: ERROR: 176 - X509IssuerName has none or invalid " +
+            "namespace: null"));
+      }
+    });
+    String[] params = new String[]{"-in", "testFiles/warning.ddoc", "-verify"};
+    DigiDoc4J.main(params);
+  }
+
 
   @Test
   public void testIsWarningWhenNoWarningExists() throws DigiDocException {
