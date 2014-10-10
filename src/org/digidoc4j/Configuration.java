@@ -129,8 +129,8 @@ public class Configuration {
   private void initDefaultValues() {
     logger.debug("");
 
-//    configuration.put("tspSource", "http://demo.sk.ee/tsa");
-    configuration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
+    configuration.put("tspSource", "http://demo.sk.ee/tsa");
+//    configuration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
     configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
 
     if (mode == Mode.TEST) {
@@ -237,7 +237,7 @@ public class Configuration {
   /**
    * Add configuration settings from a stream
    *
-   * @param stream  Input stream
+   * @param stream Input stream
    * @return configuration hashtable
    */
   public Hashtable<String, String> loadConfiguration(InputStream stream) {
