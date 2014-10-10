@@ -6,7 +6,6 @@ import org.digidoc4j.Container;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.Assertion;
@@ -258,7 +257,6 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     DigiDoc4J.main(new String[]{});
   }
 
-  @Ignore
   @Test
   public void verifyBDocWithWarning() {
     exit.expectSystemExitWithStatus(0);

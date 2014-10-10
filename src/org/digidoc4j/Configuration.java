@@ -129,7 +129,8 @@ public class Configuration {
   private void initDefaultValues() {
     logger.debug("");
 
-    configuration.put("tspSource", "http://demo.sk.ee/tsa");
+//    configuration.put("tspSource", "http://demo.sk.ee/tsa");
+    configuration.put("tspSource", "http://tsa01.quovadisglobal.com/TSS/HttpTspServer");
     configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
 
     if (mode == Mode.TEST) {
