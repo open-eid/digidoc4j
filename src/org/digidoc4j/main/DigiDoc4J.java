@@ -11,6 +11,7 @@ import org.digidoc4j.Signer;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
+import org.digidoc4j.impl.DDocContainer;
 import org.digidoc4j.impl.DDocSignature;
 import org.digidoc4j.impl.ValidationResultForDDoc;
 import org.digidoc4j.signers.PKCS12Signer;
@@ -144,14 +145,17 @@ public final class DigiDoc4J {
     container.sign(pkcs12Signer);
   }
 
-  static void verify(Container container) {
+  private static void verify(Container container) {
     ValidationResult validationResult = container.validate();
 
     boolean isDDoc = container.getDocumentType() == DocumentType.DDOC;
     if (isDDoc) {
       List<DigiDoc4JException> exceptions = ((ValidationResultForDDoc) validationResult).getContainerErrors();
       for (DigiDoc4JException exception : exceptions) {
-        System.out.println("\t" + exception.toString());
+        if (isWarning(((DDocContainer) container).getFormat(), exception))
+          System.out.println("\tWarning: " + exception.toString());
+        else
+          System.out.println("\t" + exception.toString());
       }
       if (((ValidationResultForDDoc) validationResult).hasFatalErrors()) {
         return;
@@ -263,4 +267,3 @@ public final class DigiDoc4J {
     return type;
   }
 }
-

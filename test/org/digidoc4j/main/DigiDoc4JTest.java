@@ -4,10 +4,7 @@ import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.SignedDoc;
 import org.digidoc4j.Container;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.SignatureNotFoundException;
-import org.digidoc4j.impl.DDocContainer;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
-import org.digidoc4j.impl.ValidationResultForDDoc;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,15 +16,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Permission;
 
-import static java.util.Arrays.asList;
 import static org.digidoc4j.Configuration.Mode;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.main.DigiDoc4J.isWarning;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 
 public class DigiDoc4JTest extends DigiDoc4JTestHelper {
@@ -206,6 +200,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     });
     String[] params = new String[]{"-in", "testFiles/ddoc_for_testing.ddoc", "-verify", "-verbose"};
     DigiDoc4J.main(params);
+
   }
 
   @Test
@@ -223,7 +218,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void verifyError75InValidateDDoc() throws Exception {
+  public void verifyDDocWithFatalError() throws Exception {
     exit.expectSystemExitWithStatus(0);
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
@@ -263,37 +258,46 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void verifyWithFatalError() {
-    DDocContainer container = new DDocContainer();
-    DDocContainer spy = spy(container);
-
-    DigiDocException exception = new DigiDocException(75, "testException", new Throwable("test Exception"));
-
-    ValidationResultForDDoc validationResultForDDoc = spy(new ValidationResultForDDoc(asList(exception)));
-    when(validationResultForDDoc.getContainerErrors()).thenReturn(asList(new DigiDoc4JException(exception)));
-    when(validationResultForDDoc.hasFatalErrors()).thenReturn(true);
-
-    when(spy.validate()).thenReturn(validationResultForDDoc);
-
-    DigiDoc4J.verify(spy);
-    assertEquals("\t75testException; nested exception is: \n\tjava.lang.Throwable: test Exception\n", sout.getLog());
+  public void verifyBDocWithWarning() {
+    exit.expectSystemExitWithStatus(0);
+    exit.checkAssertionAfterwards(new Assertion() {
+      @Override
+      public void checkAssertion() throws Exception {
+        assertThat(sout.getLog(),
+            containsString("Warning: The public key size is to small!"));
+      }
+    });
+    String[] params = new String[]{"-in", "testFiles/warning.bdoc", "-verify", "-verbose"};
+    DigiDoc4J.main(params);
   }
 
-  @Test(expected = SignatureNotFoundException.class)
-  public void verifyWithoutFatalError() {
-    DDocContainer container = new DDocContainer();
-    DDocContainer spy = spy(container);
-
-    DigiDocException exception = new DigiDocException(10, "testException", new Throwable("test Exception"));
-
-    ValidationResultForDDoc validationResultForDDoc = spy(new ValidationResultForDDoc(asList(exception)));
-    when(validationResultForDDoc.getContainerErrors()).thenReturn(asList(new DigiDoc4JException(exception)));
-    when(validationResultForDDoc.hasFatalErrors()).thenReturn(false);
-
-    when(spy.validate()).thenReturn(validationResultForDDoc);
-
-    DigiDoc4J.verify(spy);
+  @Test
+  public void verifyDDocWithError() {
+    exit.expectSystemExitWithStatus(1);
+    exit.checkAssertionAfterwards(new Assertion() {
+      @Override
+      public void checkAssertion() throws Exception {
+        assertThat(sout.getLog(), containsString("ERROR: 13 - Format attribute is mandatory!"));
+      }
+    });
+    String[] params = new String[]{"-in", "testFiles/empty_container_no_signature.ddoc", "-verify"};
+    DigiDoc4J.main(params);
   }
+
+  @Test
+  public void verifyDDocWithWarning() {
+    exit.expectSystemExitWithStatus(0);
+    exit.checkAssertionAfterwards(new Assertion() {
+      @Override
+      public void checkAssertion() throws Exception {
+        assertThat(sout.getLog(), containsString("\tWarning: ERROR: 176 - X509IssuerName has none or invalid " +
+            "namespace: null"));
+      }
+    });
+    String[] params = new String[]{"-in", "testFiles/warning.ddoc", "-verify"};
+    DigiDoc4J.main(params);
+  }
+
 
   @Test
   public void testIsWarningWhenNoWarningExists() throws DigiDocException {
