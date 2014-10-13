@@ -33,6 +33,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -60,7 +61,6 @@ public class BDocContainer extends Container {
   private SignatureParameters signatureParameters;
   protected DSSDocument signedDocument;
   private List<Signature> signatures = new ArrayList<Signature>();
-  eu.europa.ec.markt.dss.DigestAlgorithm digestAlgorithm = SHA256;
   Configuration configuration = null;
   private TrustedListsCertificateSource tslCertificateSource;
   private static final MimeType BDOC_MIME_TYPE = MimeType.ASICE;
@@ -407,17 +407,27 @@ public class BDocContainer extends Container {
   public Signature sign(Signer signer, String signatureId) {
     logger.debug("");
 
-    addSignerInformation(signer);
+    byte[] dataToSign = prepareSigning(signer.getSignatureProductionPlace(), signer.getSignerRoles(), signatureId,
+        signer.getCertificate().getX509Certificate());
+
+    byte[] signature = signer.sign(signatureParameters.getDigestAlgorithm().getXmlId(), dataToSign);
+    return signRaw(signature);
+  }
+
+  @Override
+  public byte[] prepareSigning(SignatureProductionPlace productionPlace, List<String> roles, String signatureId,
+                               X509Certificate signerCertificate) {
+    addSignerInformation(productionPlace, roles);
+
     signatureParameters.clearCertificateChain();
-    signatureParameters.setSigningCertificate(signer.getCertificate().getX509Certificate());
     signatureParameters.setDeterministicId(signatureId);
     signatureParameters.aSiC().setSignatureFileName("signatures" + signatures.size() + ".xml");
+    signatureParameters.setSigningCertificate(signerCertificate);
 
-    DSSDocument toSignDocument = getAttachment();
-    byte[] dataToSign = asicService.getDataToSign(toSignDocument, signatureParameters);
-    signatureParameters.setDetachedContent(toSignDocument);
+    DSSDocument attachment = getAttachment();
+    signatureParameters.setDetachedContent(attachment);
 
-    return sign(signer.sign(signatureParameters.getDigestAlgorithm().getXmlId(), dataToSign));
+    return asicService.getDataToSign(attachment, signatureParameters);
   }
 
   @Override
@@ -425,8 +435,10 @@ public class BDocContainer extends Container {
     return sign(signer, "S" + getSignatures().size());
   }
 
-  private Signature sign(byte[] rawSignature) {
+  @Override
+  public Signature signRaw(byte[] rawSignature) {
     logger.debug("");
+
     commonCertificateVerifier.setTrustedCertSource(getTSL());
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource(configuration));
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
@@ -549,21 +561,23 @@ public class BDocContainer extends Container {
     this.configuration = conf;
   }
 
-  private void addSignerInformation(Signer signer) {
+  private void addSignerInformation(SignatureProductionPlace signatureProductionPlace, List<String> signerRoles) {
     logger.debug("");
-    signatureParameters.setDigestAlgorithm(digestAlgorithm);
     BLevelParameters bLevelParameters = signatureParameters.bLevel();
 
-    if (!(isEmpty(signer.getCity()) && isEmpty(signer.getStateOrProvince()) && isEmpty(signer.getPostalCode())
-        && isEmpty(signer.getCountry()))) {
+    if (!(isEmpty(signatureProductionPlace.getCity()) && isEmpty(signatureProductionPlace.getStateOrProvince())
+        && isEmpty(signatureProductionPlace.getPostalCode())
+        && isEmpty(signatureProductionPlace.getCountry()))) {
+
       SignerLocation signerLocation = new SignerLocation();
-      if (!isEmpty(signer.getCity())) signerLocation.setCity(signer.getCity());
-      if (!isEmpty(signer.getStateOrProvince())) signerLocation.setStateOrProvince(signer.getStateOrProvince());
-      if (!isEmpty(signer.getPostalCode())) signerLocation.setPostalCode(signer.getPostalCode());
-      if (!isEmpty(signer.getCountry())) signerLocation.setCountry(signer.getCountry());
+
+      if (!isEmpty(signatureProductionPlace.getCity())) signerLocation.setCity(signatureProductionPlace.getCity());
+      if (!isEmpty(signatureProductionPlace.getStateOrProvince())) signerLocation.setStateOrProvince(signatureProductionPlace.getStateOrProvince());
+      if (!isEmpty(signatureProductionPlace.getPostalCode())) signerLocation.setPostalCode(signatureProductionPlace.getPostalCode());
+      if (!isEmpty(signatureProductionPlace.getCountry())) signerLocation.setCountry(signatureProductionPlace.getCountry());
       bLevelParameters.setSignerLocation(signerLocation);
     }
-    for (String signerRole : signer.getSignerRoles()) {
+    for (String signerRole : signerRoles) {
       bLevelParameters.addClaimedSignerRole(signerRole);
     }
   }
@@ -628,7 +642,12 @@ public class BDocContainer extends Container {
   @Override
   public void setDigestAlgorithm(DigestAlgorithm algorithm) {
     logger.debug("Algorithm: " + algorithm);
-    this.digestAlgorithm = forName(algorithm.name(), SHA256);
+    signatureParameters.setDigestAlgorithm(forName(algorithm.name(), SHA256));
+  }
+
+  @Override
+  public DigestAlgorithm getDigestAlgorithm() {
+    return DigestAlgorithm.valueOf(signatureParameters.getDigestAlgorithm().getName());
   }
 
   @Override

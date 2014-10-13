@@ -33,4 +33,13 @@ public enum DigestAlgorithm {
   public URL uri() {
     return uri;
   }
+
+  /**
+   * Get value as string
+   *
+   * @return uri
+   */
+  public String toString() {
+    return uri.toString();
+  }
 }

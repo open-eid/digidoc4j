@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 /**
@@ -155,16 +156,6 @@ public abstract class Container {
   }
 
   /**
-   * Digest algorithm
-   */
-  public enum DigestAlgorithm {
-    SHA1,
-    SHA224,
-    SHA256,
-    SHA512
-  }
-
-  /**
    * Adds a data file from the file system to the container.
    * <p>
    * Note:
@@ -247,6 +238,9 @@ public abstract class Container {
    */
   public abstract void save(OutputStream out);
 
+  public abstract byte[] prepareSigning(SignatureProductionPlace productionPlace, List<String> roles, String signatureId,
+                                        X509Certificate signerCertificate);
+
   /**
    * Signs all data files in the container.
    *
@@ -263,6 +257,14 @@ public abstract class Container {
    * @return signature
    */
   public abstract Signature sign(Signer signer, String signatureId);
+
+  /**
+   * Adds externally calculated signatureValue to XAdES signature
+   *
+   * @param rawSignature signature
+   * @return whole signature object
+   */
+  public abstract Signature signRaw(byte[] rawSignature);
 
   /**
    * Sets configuration for container.
@@ -304,6 +306,13 @@ public abstract class Container {
   public abstract void setDigestAlgorithm(DigestAlgorithm algorithm);
 
   /**
+   * Gets container digest type
+   *
+   * @return container digest algorithm
+   */
+  public abstract DigestAlgorithm  getDigestAlgorithm();
+
+  /**
    * Validate container
    *
    * @return validation result
@@ -338,6 +347,7 @@ public abstract class Container {
    * @return version
    */
   public abstract String getVersion();
+
 }
 
 

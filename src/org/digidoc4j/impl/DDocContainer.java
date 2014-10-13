@@ -252,6 +252,12 @@ public class DDocContainer extends Container {
   }
 
   @Override
+  public byte[] prepareSigning(org.digidoc4j.SignatureProductionPlace productionPlace,
+                               List<String> roles, String signatureId, X509Certificate signerCertificate) {
+    throw new NotYetImplementedException();
+  }
+
+  @Override
   public Signature sign(Signer signer) {
     return sign(signer, null);
   }
@@ -268,6 +274,11 @@ public class DDocContainer extends Container {
     }
 
     return new DDocSignature(signature);
+  }
+
+  @Override
+  public Signature signRaw(byte[] rawSignature) {
+    throw new NotYetImplementedException();
   }
 
   @Override
@@ -324,8 +335,13 @@ public class DDocContainer extends Container {
   @Override
   public void setDigestAlgorithm(DigestAlgorithm algorithm) {
     logger.debug("");
+    throw new NotYetImplementedException();
   }
 
+  @Override
+  public DigestAlgorithm getDigestAlgorithm() {
+    throw new NotYetImplementedException();
+  }
 
   @SuppressWarnings("unchecked")
   @Override

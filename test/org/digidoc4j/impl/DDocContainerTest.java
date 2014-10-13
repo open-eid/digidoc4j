@@ -4,9 +4,11 @@ import ee.sk.digidoc.DataFile;
 import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.SignedDoc;
 import org.digidoc4j.Container;
+import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.Signer;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -50,16 +52,10 @@ public class DDocContainerTest {
     assertEquals(16, dataFile.getFileSize());
   }
 
-  @Test
+  @Test (expected = NotYetImplementedException.class)
   public void testSetDigestAlgorithm() throws Exception {
     DDocContainer container = new DDocContainer();
-    container.setDigestAlgorithm(Container.DigestAlgorithm.SHA1);
-  }
-
-  @Test
-  public void testFatalError() throws Exception {
-    DDocContainer container = new DDocContainer();
-    container.setDigestAlgorithm(Container.DigestAlgorithm.SHA1);
+    container.setDigestAlgorithm(DigestAlgorithm.SHA1);
   }
 
   @Test
@@ -351,7 +347,7 @@ public class DDocContainerTest {
       super.ddoc = spy(new SignedDoc());
       getConfirmationThrowsException();
 
-      ArrayList signatures = new ArrayList();
+      ArrayList<ee.sk.digidoc.Signature> signatures = new ArrayList<ee.sk.digidoc.Signature>();
       signatures.add(signature);
       doReturn(signatures).when(ddoc).getSignatures();
 

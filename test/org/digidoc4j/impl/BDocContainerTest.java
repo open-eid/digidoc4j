@@ -20,9 +20,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.zip.ZipFile;
 
-import static org.digidoc4j.Container.DigestAlgorithm.SHA1;
-import static org.digidoc4j.Container.DigestAlgorithm.SHA256;
 import static org.digidoc4j.Container.DocumentType;
+import static org.digidoc4j.DigestAlgorithm.SHA1;
+import static org.digidoc4j.DigestAlgorithm.SHA256;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 import static org.junit.Assert.*;
@@ -54,27 +54,27 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void testSetDigestAlgorithmToSHA256() throws Exception {
     BDocContainer container = new BDocContainer();
     container.setDigestAlgorithm(SHA256);
-    assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", container.digestAlgorithm.getXmlId());
+    assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", container.getDigestAlgorithm().toString());
   }
 
   @Test
   public void testSetDigestAlgorithmToSHA1() throws Exception {
     BDocContainer container = new BDocContainer();
     container.setDigestAlgorithm(SHA1);
-    assertEquals("http://www.w3.org/2000/09/xmldsig#sha1", container.digestAlgorithm.getXmlId());
+    assertEquals("http://www.w3.org/2000/09/xmldsig#sha1", container.getDigestAlgorithm().toString());
   }
 
   @Test
   public void testSetDigestAlgorithmToNotImplementedDigest() throws Exception {
     BDocContainer container = new BDocContainer();
     container.setDigestAlgorithm(SHA256);
-    assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", container.digestAlgorithm.getXmlId());
+    assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", container.getDigestAlgorithm().toString());
   }
 
   @Test
   public void testDefaultDigestAlgorithm() throws Exception {
     BDocContainer container = new BDocContainer();
-    assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", container.digestAlgorithm.getXmlId());
+    assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", container.getDigestAlgorithm().toString());
   }
 
   @Test
