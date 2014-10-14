@@ -25,6 +25,8 @@ import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.digidoc4j.Container.DocumentType;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
+import static org.digidoc4j.Container.SignatureProfile.BES;
+import static org.digidoc4j.Container.SignatureProfile.TS;
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.*;
 
@@ -418,6 +420,29 @@ public class ContainerTest extends DigiDoc4JTestHelper {
         1)));
     assertXMLEqual(signature.trim(), new String(container.getSignatures().get(1).getRawSignature()));
   }
+
+  @Test
+  public void testExtendToForBDOC() {
+    Container container = Container.create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.setSignatureProfile(BES);
+    container.sign(PKCS12_SIGNER);
+
+    container.extendTo(TS);
+    assertNotNull(container.getSignature(0).getOCSPCertificate());
+  }
+
+  @Test
+  public void testExtendToForDDOC() {
+    Container container = Container.create(DDOC);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.setSignatureProfile(BES);
+    container.sign(PKCS12_SIGNER);
+
+    container.extendTo(Container.SignatureProfile.TM);
+    assertNotNull(container.getSignature(0).getOCSPCertificate());
+  }
+
 
   @Test
   @Ignore("possibility of this must be confirmed with dss authors")

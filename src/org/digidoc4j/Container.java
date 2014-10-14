@@ -146,13 +146,13 @@ public abstract class Container {
      */
     TM,
     /**
-     * Time-stamp.
+     * Time-stamp and OCSP confirmation
      */
     TS,
     /**
      * no profile
      */
-    NONE
+    BES
   }
 
   /**
@@ -342,9 +342,3 @@ public abstract class Container {
 
 
 }
-
-
-
-
-
-

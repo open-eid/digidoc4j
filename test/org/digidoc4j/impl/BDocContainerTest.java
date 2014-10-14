@@ -21,8 +21,7 @@ import java.nio.file.Paths;
 import java.util.zip.ZipFile;
 
 import static org.digidoc4j.Container.DocumentType;
-import static org.digidoc4j.Container.SignatureProfile.NONE;
-import static org.digidoc4j.Container.SignatureProfile.TS;
+import static org.digidoc4j.Container.SignatureProfile.*;
 import static org.digidoc4j.DigestAlgorithm.SHA1;
 import static org.digidoc4j.DigestAlgorithm.SHA256;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -451,7 +450,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testAddTwoFilesAsFileWithoutOCSP() throws Exception {
     BDocContainer container = new BDocContainer();
-    container.setSignatureProfile(NONE);
+    container.setSignatureProfile(BES);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.addDataFile("testFiles/test.xml", "text/xml");
     container.sign(PKCS12_SIGNER);
@@ -462,7 +461,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void testgetFileNameAndID() throws Exception {
+  public void testGetFileNameAndID() throws Exception {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.addDataFile("testFiles/test.xml", "text/xml");
@@ -574,9 +573,9 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void addConfirmation() throws Exception {
+  public void addOCSPConfirmation() throws Exception {
     BDocContainer container = new BDocContainer();
-    container.setSignatureProfile(NONE);
+    container.setSignatureProfile(BES);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.save("testAddConfirmation.bdoc");
@@ -593,10 +592,28 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void addConfirmationWhenConfirmationAlreadyExists() throws Exception {
+  public void verifySignatureProfileIsTS() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.setSignatureProfile(Container.SignatureProfile.TS);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.save("testAddConfirmation.bdoc");
+
+    assertEquals(1, container.getSignatures().size());
+    assertNotNull(container.getSignature(0).getOCSPCertificate());
+  }
+
+  @Test(expected = NotYetImplementedException.class)
+  public void signatureProfileTMIsNotSupported() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.setSignatureProfile(TM);
+  }
+
+  @Test
+  public void extendToWhenConfirmationAlreadyExists() throws Exception {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.setSignatureProfile(NONE);
+    container.setSignatureProfile(BES);
     container.sign(PKCS12_SIGNER);
     container.save("testAddConfirmation.bdoc");
 
@@ -619,10 +636,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void addConfirmationWithMultipleSignatures() throws Exception {
+  public void extendToWithMultipleSignatures() throws Exception {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.setSignatureProfile(NONE);
+    container.setSignatureProfile(BES);
     container.sign(PKCS12_SIGNER);
     container.sign(PKCS12_SIGNER);
     container.save("testAddConfirmation.bdoc");
@@ -641,10 +658,20 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNotNull(container.getSignature(1).getOCSPCertificate());
   }
 
-  @Test
-  public void addConfirmationWithMultipleSignaturesAndMultipleFiles() throws Exception {
+  @Test(expected = NotYetImplementedException.class)
+  public void extendToIsImplementedForTSProfileOtherProfilesThrowException() throws Exception {
     BDocContainer container = new BDocContainer();
-    container.setSignatureProfile(NONE);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.setSignatureProfile(BES);
+    container.sign(PKCS12_SIGNER);
+
+    container.extendTo(TM);
+  }
+
+  @Test
+  public void extendToWithMultipleSignaturesAndMultipleFiles() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.setSignatureProfile(BES);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.addDataFile("testFiles/test.xml", "text/xml");
     container.sign(PKCS12_SIGNER);

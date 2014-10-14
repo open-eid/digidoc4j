@@ -571,10 +571,14 @@ public class BDocContainer extends Container {
 
       SignerLocation signerLocation = new SignerLocation();
 
-      if (!isEmpty(signatureProductionPlace.getCity())) signerLocation.setCity(signatureProductionPlace.getCity());
-      if (!isEmpty(signatureProductionPlace.getStateOrProvince())) signerLocation.setStateOrProvince(signatureProductionPlace.getStateOrProvince());
-      if (!isEmpty(signatureProductionPlace.getPostalCode())) signerLocation.setPostalCode(signatureProductionPlace.getPostalCode());
-      if (!isEmpty(signatureProductionPlace.getCountry())) signerLocation.setCountry(signatureProductionPlace.getCountry());
+      if (!isEmpty(signatureProductionPlace.getCity()))
+        signerLocation.setCity(signatureProductionPlace.getCity());
+      if (!isEmpty(signatureProductionPlace.getStateOrProvince()))
+        signerLocation.setStateOrProvince(signatureProductionPlace.getStateOrProvince());
+      if (!isEmpty(signatureProductionPlace.getPostalCode()))
+        signerLocation.setPostalCode(signatureProductionPlace.getPostalCode());
+      if (!isEmpty(signatureProductionPlace.getCountry()))
+        signerLocation.setCountry(signatureProductionPlace.getCountry());
       bLevelParameters.setSignerLocation(signerLocation);
     }
     for (String signerRole : signerRoles) {
@@ -693,7 +697,7 @@ public class BDocContainer extends Container {
     switch (profile) {
       case TM:
         throw new NotYetImplementedException();
-      case NONE:
+      case BES:
         signatureParameters.setSignatureLevel(ASiC_E_BASELINE_B);
         break;
       default:

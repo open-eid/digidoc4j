@@ -150,7 +150,7 @@ public class BDocSignature extends Signature {
       return SignatureProfile.TS;
     }
     logger.debug("Signature profile: none");
-    return SignatureProfile.NONE;
+    return SignatureProfile.BES;
   }
 
   @Override

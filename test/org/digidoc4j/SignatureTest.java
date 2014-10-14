@@ -297,7 +297,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   @Test
   public void testGetProfileForBDoc_None() throws Exception {
     Container container = Container.open("testFiles/asics_for_testing.bdoc");
-    assertEquals(Container.SignatureProfile.NONE, container.getSignatures().get(0).getProfile());
+    assertEquals(Container.SignatureProfile.BES, container.getSignatures().get(0).getProfile());
   }
 
   @Test(expected = NotYetImplementedException.class)

@@ -9,6 +9,7 @@ import ee.sk.digidoc.factory.SAXDigiDocFactory;
 import ee.sk.utils.ConfigManager;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,7 @@ public class DDocContainer extends Container {
 
   SignedDoc ddoc;
   private ArrayList<DigiDocException> openContainerExceptions = new ArrayList<DigiDocException>();
+  private SignatureProfile signatureProfile = SignatureProfile.TM;
 
   /**
    * Create a new container object of DDOC type Container.
@@ -266,11 +268,13 @@ public class DDocContainer extends Container {
   public Signature sign(Signer signer, String signatureId) {
     logger.debug("");
     ee.sk.digidoc.Signature signature = calculateSignature(signer, signatureId);
-    try {
-      signature.getConfirmation();
-    } catch (DigiDocException e) {
-      logger.error(e.getMessage());
-      throw new DigiDoc4JException(e.getNestedException());
+    if (signatureProfile == SignatureProfile.TM) {
+      try {
+        signature.getConfirmation();
+      } catch (DigiDocException e) {
+        logger.error(e.getMessage());
+        throw new DigiDoc4JException(e.getNestedException());
+      }
     }
 
     return new DDocSignature(signature);
@@ -355,16 +359,6 @@ public class DDocContainer extends Container {
     return new ValidationResultForDDoc(exceptions, containerExceptions);
   }
 
-  public Signature signWithoutOCSP(Signer signer) {
-    logger.debug("");
-    return new DDocSignature(calculateSignature(signer, null));
-  }
-
-  public Signature signWithoutOCSP(Signer signer, String signatureId) {
-    logger.debug("");
-    return new DDocSignature(calculateSignature(signer, signatureId));
-  }
-
   ee.sk.digidoc.Signature calculateSignature(Signer signer, String signatureId) {
     ee.sk.digidoc.Signature signature;
     try {
@@ -389,7 +383,7 @@ public class DDocContainer extends Container {
     return signature;
   }
 
-  public void addConfirmation() {
+  private void addConfirmation() {
     for (Object signature : ddoc.getSignatures()) {
       try {
         ((ee.sk.digidoc.Signature) signature).getConfirmation();
@@ -407,12 +401,16 @@ public class DDocContainer extends Container {
 
   @Override
   public void extendTo(SignatureProfile profile) {
-
+    if (profile != SignatureProfile.TM)
+      throw new NotSupportedException(profile + "profile is not supported for DDOC extension");
+    addConfirmation();
   }
 
   @Override
   public void setSignatureProfile(SignatureProfile profile) {
-
+    if (profile == SignatureProfile.TS)
+      throw new NotSupportedException("Time Stamp profile is not supported for DDOC");
+    signatureProfile = profile;
   }
 
   /**
