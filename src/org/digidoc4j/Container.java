@@ -320,33 +320,26 @@ public abstract class Container {
   public abstract ValidationResult validate();
 
   /**
-   * Signs all data files in the container. No OCSP confirmation is added
-   *
-   * @param signer signer implementation
-   * @return signature
-   */
-  public abstract Signature signWithoutOCSP(Signer signer);
-
-  /**
-   * Signs all data files in the container. No OCSP confirmation is added
-   *
-   * @param signer      signer implementation
-   * @param signatureId sets signature id
-   * @return signature
-   */
-  public abstract Signature signWithoutOCSP(Signer signer, String signatureId);
-
-  /**
-   * Adds OCSP confirmation
-   */
-  public abstract void addConfirmation();
-
-  /**
    * Returns container version in case of DDOC. BDOC does not have a version and it returns null
    *
    * @return version
    */
   public abstract String getVersion();
+
+  /**
+   * Extends signature profile to @see SignatureProfile
+   *
+   * @param profile signature profile
+   */
+  public abstract void extendTo(SignatureProfile profile);
+
+  /**
+   * Extends signature profile to @see SignatureProfile
+   *
+   * @param profile signature profile
+   */
+  public abstract void setSignatureProfile(SignatureProfile profile);
+
 
 }
 

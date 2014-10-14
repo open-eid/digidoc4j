@@ -21,6 +21,8 @@ import java.nio.file.Paths;
 import java.util.zip.ZipFile;
 
 import static org.digidoc4j.Container.DocumentType;
+import static org.digidoc4j.Container.SignatureProfile.NONE;
+import static org.digidoc4j.Container.SignatureProfile.TS;
 import static org.digidoc4j.DigestAlgorithm.SHA1;
 import static org.digidoc4j.DigestAlgorithm.SHA256;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -332,40 +334,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void setsSignatureIdWithoutOCSP() throws Exception {
-    BDocContainer container = new BDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.signWithoutOCSP(PKCS12_SIGNER, "SIGNATURE-1");
-    container.signWithoutOCSP(PKCS12_SIGNER, "SIGNATURE-2");
-    container.save("setsSignatureId.bdoc");
-
-    container = new BDocContainer("setsSignatureId.bdoc");
-    assertEquals("SIGNATURE-1", container.getSignature(0).getId());
-    assertEquals("SIGNATURE-2", container.getSignature(1).getId());
-
-    ZipFile zip = new ZipFile("setsSignatureId.bdoc");
-    assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
-    assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
-  }
-
-  @Test
-  public void setsDefaultSignatureIdWithoutOCSP() throws Exception {
-    BDocContainer container = new BDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.signWithoutOCSP(PKCS12_SIGNER);
-    container.signWithoutOCSP(PKCS12_SIGNER);
-    container.save("setsDefaultSignatureId.bdoc");
-
-    container = new BDocContainer("setsDefaultSignatureId.bdoc");
-    assertEquals("S0", container.getSignature(0).getId());
-    assertEquals("S1", container.getSignature(1).getId());
-
-    ZipFile zip = new ZipFile("setsDefaultSignatureId.bdoc");
-    assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
-    assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
-  }
-
-  @Test
   public void getDataFileByIndex() {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
@@ -483,9 +451,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testAddTwoFilesAsFileWithoutOCSP() throws Exception {
     BDocContainer container = new BDocContainer();
+    container.setSignatureProfile(NONE);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.addDataFile("testFiles/test.xml", "text/xml");
-    container.signWithoutOCSP(PKCS12_SIGNER);
+    container.sign(PKCS12_SIGNER);
     container.save("testTwoFilesSigned.bdoc");
 
     container = new BDocContainer("testTwoFilesSigned.bdoc");
@@ -607,15 +576,16 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void addConfirmation() throws Exception {
     BDocContainer container = new BDocContainer();
+    container.setSignatureProfile(NONE);
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.signWithoutOCSP(PKCS12_SIGNER);
+    container.sign(PKCS12_SIGNER);
     container.save("testAddConfirmation.bdoc");
 
     assertEquals(1, container.getSignatures().size());
     assertNull(container.getSignature(0).getOCSPCertificate());
 
     container = new BDocContainer("testAddConfirmation.bdoc");
-    container.addConfirmation();
+    container.extendTo(Container.SignatureProfile.TS);
     container.save("testAddConfirmationContainsIt.bdoc");
 
     assertEquals(1, container.getSignatures().size());
@@ -626,15 +596,16 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void addConfirmationWhenConfirmationAlreadyExists() throws Exception {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.signWithoutOCSP(PKCS12_SIGNER);
+    container.setSignatureProfile(NONE);
+    container.sign(PKCS12_SIGNER);
     container.save("testAddConfirmation.bdoc");
 
     assertEquals(1, container.getSignatures().size());
     assertNull(container.getSignature(0).getOCSPCertificate());
 
     container = new BDocContainer("testAddConfirmation.bdoc");
-    container.addConfirmation();
-    container.addConfirmation();
+    container.extendTo(TS);
+    container.extendTo(TS);
     container.save("testAddConfirmationContainsIt.bdoc");
 
     assertEquals(1, container.getSignatures().size());
@@ -651,8 +622,9 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void addConfirmationWithMultipleSignatures() throws Exception {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.signWithoutOCSP(PKCS12_SIGNER);
-    container.signWithoutOCSP(PKCS12_SIGNER);
+    container.setSignatureProfile(NONE);
+    container.sign(PKCS12_SIGNER);
+    container.sign(PKCS12_SIGNER);
     container.save("testAddConfirmation.bdoc");
 
     assertEquals(2, container.getSignatures().size());
@@ -660,7 +632,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNull(container.getSignature(1).getOCSPCertificate());
 
     container = new BDocContainer("testAddConfirmation.bdoc");
-    container.addConfirmation();
+    container.extendTo(TS);
     container.save("testAddConfirmationContainsIt.bdoc");
 
     container = new BDocContainer("testAddConfirmationContainsIt.bdoc");
@@ -672,10 +644,11 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void addConfirmationWithMultipleSignaturesAndMultipleFiles() throws Exception {
     BDocContainer container = new BDocContainer();
+    container.setSignatureProfile(NONE);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.addDataFile("testFiles/test.xml", "text/xml");
-    container.signWithoutOCSP(PKCS12_SIGNER);
-    container.signWithoutOCSP(PKCS12_SIGNER);
+    container.sign(PKCS12_SIGNER);
+    container.sign(PKCS12_SIGNER);
     container.save("testAddConfirmation.bdoc");
 
     assertEquals(2, container.getSignatures().size());
@@ -684,7 +657,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNull(container.getSignature(1).getOCSPCertificate());
 
     container = new BDocContainer("testAddConfirmation.bdoc");
-    container.addConfirmation();
+    container.extendTo(TS);
     container.save("testAddConfirmationContainsIt.bdoc");
 
     assertEquals(2, container.getSignatures().size());

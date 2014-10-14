@@ -355,13 +355,11 @@ public class DDocContainer extends Container {
     return new ValidationResultForDDoc(exceptions, containerExceptions);
   }
 
-  @Override
   public Signature signWithoutOCSP(Signer signer) {
     logger.debug("");
     return new DDocSignature(calculateSignature(signer, null));
   }
 
-  @Override
   public Signature signWithoutOCSP(Signer signer, String signatureId) {
     logger.debug("");
     return new DDocSignature(calculateSignature(signer, signatureId));
@@ -391,7 +389,6 @@ public class DDocContainer extends Container {
     return signature;
   }
 
-  @Override
   public void addConfirmation() {
     for (Object signature : ddoc.getSignatures()) {
       try {
@@ -406,6 +403,16 @@ public class DDocContainer extends Container {
   @Override
   public String getVersion() {
     return ddoc.getVersion();
+  }
+
+  @Override
+  public void extendTo(SignatureProfile profile) {
+
+  }
+
+  @Override
+  public void setSignatureProfile(SignatureProfile profile) {
+
   }
 
   /**

@@ -655,24 +655,12 @@ public class BDocContainer extends Container {
     return verify();
   }
 
-  @Override
-  public Signature signWithoutOCSP(Signer signer) {
-    return signWithoutOCSP(signer, "S" + getSignatures().size());
-  }
-
-  @Override
-  public Signature signWithoutOCSP(Signer signer, String signatureId) {
-    signatureParameters.setSignatureLevel(ASiC_E_BASELINE_B);
-    return sign(signer, signatureId);
-  }
-
-  @Override
-  public void addConfirmation() {
+  private void extend(SignatureLevel signatureLevel) {
     commonCertificateVerifier.setTrustedCertSource(getTSL());
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource(configuration));
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
 
-    signatureParameters.setSignatureLevel(ASiC_E_BASELINE_LT);
+    signatureParameters.setSignatureLevel(signatureLevel);
     signedDocument = asicService.extendDocument(signedDocument, signatureParameters);
 
     signatures = new ArrayList<Signature>();
@@ -687,6 +675,30 @@ public class BDocContainer extends Container {
   @Override
   public String getVersion() {
     return null;
+  }
+
+  @Override
+  public void extendTo(SignatureProfile profile) {
+    switch (profile) {
+      case TS:
+        extend(ASiC_E_BASELINE_LT);
+        break;
+      default:
+        throw new NotYetImplementedException();
+    }
+  }
+
+  @Override
+  public void setSignatureProfile(SignatureProfile profile) {
+    switch (profile) {
+      case TM:
+        throw new NotYetImplementedException();
+      case NONE:
+        signatureParameters.setSignatureLevel(ASiC_E_BASELINE_B);
+        break;
+      default:
+        signatureParameters.setSignatureLevel(ASiC_E_BASELINE_LT);
+    }
   }
 
   protected SignatureParameters getSignatureParameters() {
