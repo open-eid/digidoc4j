@@ -236,7 +236,7 @@ public class Configuration {
   /**
    * Add configuration settings from a stream
    *
-   * @param stream  Input stream
+   * @param stream Input stream
    * @return configuration hashtable
    */
   public Hashtable<String, String> loadConfiguration(InputStream stream) {
