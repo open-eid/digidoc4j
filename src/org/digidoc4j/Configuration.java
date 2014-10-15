@@ -8,6 +8,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.*;
 
 import static java.util.Arrays.asList;
@@ -92,7 +93,7 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
  * <li>DIGIDOC_DF_CACHE_DIR: Temporary directory to use. Default: uses system's default temporary directory</li>
  * </ul>
  */
-public class Configuration {
+public class Configuration implements Serializable {
   final Logger logger = LoggerFactory.getLogger(Configuration.class);
   public static final long ONE_MB_IN_BYTES = 1048576;
 

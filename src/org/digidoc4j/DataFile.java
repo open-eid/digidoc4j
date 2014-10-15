@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 /**
  * Data file wrapper providing methods for handling signed files or files to be signed in Container.
  */
-public class DataFile {
+public class DataFile implements Serializable {
   final Logger logger = LoggerFactory.getLogger(DataFile.class);
 
   DSSDocument document = null;

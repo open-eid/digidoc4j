@@ -22,7 +22,7 @@ import java.util.List;
  * remove all the signatures.
  * </p>
  */
-public abstract class Container {
+public abstract class Container implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(Container.class);
 
   /**

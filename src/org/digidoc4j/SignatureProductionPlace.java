@@ -2,10 +2,12 @@ package org.digidoc4j;
 
 import org.slf4j.Logger;
 
+import java.io.Serializable;
+
 /**
  * Optional additional information about the signer
  */
-public class SignatureProductionPlace {
+public class SignatureProductionPlace implements Serializable {
   Logger logger = org.slf4j.LoggerFactory.getLogger(SignatureProductionPlace.class);
   private String city;
   private String stateOrProvince;

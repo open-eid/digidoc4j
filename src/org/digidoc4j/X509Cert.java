@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateNotYetValidException;
@@ -21,7 +22,7 @@ import java.util.*;
 /**
  * Wrapper for java.security.cert.X509Certificate object.
  */
-public class X509Cert {
+public class X509Cert implements Serializable {
   Logger logger = LoggerFactory.getLogger(X509Cert.class);
   private X509Certificate originalCert;
   private Map<String, String> issuerPartMap;
