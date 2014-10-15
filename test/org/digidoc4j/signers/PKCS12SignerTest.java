@@ -1,8 +1,8 @@
 package org.digidoc4j.signers;
 
 import org.apache.commons.codec.binary.Base64;
-import org.digidoc4j.SignatureProductionPlace;
-import org.digidoc4j.X509Cert;
+import org.apache.commons.codec.binary.Hex;
+import org.digidoc4j.*;
 import org.digidoc4j.impl.BDocContainer;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -16,6 +16,8 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.digidoc4j.DigestAlgorithm.SHA512;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PKCS12SignerTest {
   private static PKCS12Signer pkcs12Signer;
@@ -26,7 +28,7 @@ public class PKCS12SignerTest {
   }
 
   @Test
-  public void testGetPrivateKey() throws Exception {
+  public void getPrivateKey() throws Exception {
     assertEquals("MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQChn9qVaA+x3RkDBrD5ujwfnreK" +
             "5/Nb+Nvo9Vg5OLMn3JKUoUhFX6A/q5lBUylK/CU/lNRTv/kicqnu1aCyAiW0XVYk8jrOI1wRbHey" +
             "BMq/5gVm/vbbRtMi/XGLkgMZ5UDxY0QZfmu8wlRJ8164zRNocuUJLLXWOB6vda2RRXC3Cix4TDvQ" +
@@ -53,7 +55,7 @@ public class PKCS12SignerTest {
   }
 
   @Test
-  public void testGetCertificate() throws CertificateEncodingException {
+  public void getCertificate() throws CertificateEncodingException {
     X509Cert x509Cert = new X509Cert(pkcs12Signer.getCertificate());
     assertEquals("MIIFEzCCA/ugAwIBAgIQSXxaK/qTYahTT77Z9I56EjANBgkqhkiG9w0BAQUFADBsMQswC" +
             "QYDVQQGEwJFRTEiMCAGA1UECgwZQVMgU2VydGlmaXRzZWVyaW1pc2tlc2t1czEfMB0GA1UEAwwWVEV" +
@@ -82,7 +84,7 @@ public class PKCS12SignerTest {
   }
 
   @Test
-  public void testSign() {                                //TODO know expected value
+  public void sign() {                                //TODO know expected value
     byte[] expected = new byte[]{121, 39, -126, -87, -118, -7, -79, 13, -52, -109, -8, -77, -15, 77, 12, 3, -10, -56,
         74, 112, -21, 54, -75,
         28, -19, -104, 2, -77, 41, -32, -93, 64, -119, 54, -98, -50, -88, 24, -85, -48, 24, -93, -18, -86, -24, -127,
@@ -106,7 +108,7 @@ public class PKCS12SignerTest {
   }
 
   @Test
-  public void testGetSignerInformation() {
+  public void getSignerInformation() {
     pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
     List<String> signerRoles = new ArrayList<String>();
     signerRoles.add("Role1");
@@ -124,90 +126,109 @@ public class PKCS12SignerTest {
   }
 
   @Test
-  public void testGetCity() {
+  public void getCity() {
     pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
     assertEquals("myCity", pkcs12Signer.getCity());
   }
 
   @Test
-  public void testGetCityWhenEmpty() {
+  public void getCityWhenEmpty() {
     pkcs12Signer.setSignatureProductionPlace("", "myState", "myPostalCode", "myCountry");
     assertEquals("", pkcs12Signer.getCity());
   }
 
   @Test
-  public void testGetCityWhenNull() {
+  public void getCityWhenNull() {
     pkcs12Signer.setSignatureProductionPlace(null, "myState", "myPostalCode", "myCountry");
     assertNull(pkcs12Signer.getCity());
   }
 
   @Test
-  public void testGetStateOrProvince() {
+  public void getStateOrProvince() {
     pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
     assertEquals("myState", pkcs12Signer.getStateOrProvince());
   }
 
   @Test
-  public void testGetStateOrProvinceWhenEmpty() {
+  public void getStateOrProvinceWhenEmpty() {
     pkcs12Signer.setSignatureProductionPlace("myCity", "", "myPostalCode", "myCountry");
     assertEquals("", pkcs12Signer.getStateOrProvince());
   }
 
   @Test
-  public void testGetStateOrProvinceWhenNull() {
+  public void getStateOrProvinceWhenNull() {
     pkcs12Signer.setSignatureProductionPlace("myCity", null, "myPostalCode", "myCountry");
     assertNull(pkcs12Signer.getStateOrProvince());
   }
 
   @Test
-  public void testGetPostalCode() {
+  public void getPostalCode() {
     pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
     assertEquals("myPostalCode", pkcs12Signer.getPostalCode());
   }
 
   @Test
-  public void testGetPostalCodeWhenEmpty() {
+  public void getPostalCodeWhenEmpty() {
     pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "", "myCountry");
     assertEquals("", pkcs12Signer.getPostalCode());
   }
 
   @Test
-  public void testGetPostalCodeWhenNull() {
+  public void getPostalCodeWhenNull() {
     pkcs12Signer.setSignatureProductionPlace("myCity", "myState", null, "myCountry");
     assertNull(pkcs12Signer.getPostalCode());
   }
 
   @Test
-  public void testGetCountry() {
+  public void getCountry() {
     pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
     assertEquals("myCountry", pkcs12Signer.getCountry());
   }
 
   @Test
-  public void testGetCountryWhenEmpty() {
+  public void getCountryWhenEmpty() {
     pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "");
     assertEquals("", pkcs12Signer.getCountry());
   }
 
   @Test
-  public void testGetCountryWhenNull() {
+  public void getCountryWhenNull() {
     pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", null);
     assertNull(pkcs12Signer.getCountry());
   }
 
-
   @Test
-  public void testgetSignerRoles() {
+  public void getSignerRoles() {
     pkcs12Signer.setSignerRoles(asList("Role / Resolution"));
     Assert.assertEquals(1, pkcs12Signer.getSignerRoles().size());
     assertEquals("Role / Resolution", pkcs12Signer.getSignerRoles().get(0));
   }
 
   @Test
-  public void testGetMultipleSignerRoles() {
+  public void getMultipleSignerRoles() {
     pkcs12Signer.setSignerRoles(asList("Role 1", "Role 2"));
     Assert.assertEquals(2, pkcs12Signer.getSignerRoles().size());
     assertEquals("Role 1", pkcs12Signer.getSignerRoles().get(0));
     assertEquals("Role 2", pkcs12Signer.getSignerRoles().get(1));
+  }
+
+  @Test
+  public void addSignatureProductionPlace() throws Exception {
+    SignatureProductionPlace signatureProductionPlace = new SignatureProductionPlace();
+    signatureProductionPlace.setCountry("Country");
+    pkcs12Signer.setSignatureProductionPlace(signatureProductionPlace);
+
+    assertEquals("Country", pkcs12Signer.getCountry());
+    SignatureProductionPlace productionPlaceToTest = pkcs12Signer.getSignatureProductionPlace();
+    assertEquals("Country", productionPlaceToTest.getCountry());
+  }
+
+  @Test
+  public void calculateDigest() throws Exception {
+    Container container = mock(Container.class);
+    when(container.getDigestAlgorithm()).thenReturn(DigestAlgorithm.SHA256);
+
+    byte[] digest = Signer.calculateDigest(container, "TERE".getBytes());
+    assertEquals("ef864d27cdc0ecaf5ec80dbfcba40c07b085c1de32d7f6c0f196424977c10f73", Hex.encodeHexString(digest));
   }
 }
