@@ -82,7 +82,7 @@ public class SKOnlineOCSPSource implements OCSPSource {
             configuration.getOCSPAccessCertificatePassword());
 
         ContentSigner contentSigner = signerBuilder.build(ocspSigner.getPrivateKey());
-        X509Certificate ocspSignerCert = ocspSigner.getCertificate().getX509Certificate();
+        X509Certificate ocspSignerCert = ocspSigner.getCertificate();
         X509CertificateHolder[] chain = {new X509CertificateHolder(ocspSignerCert.getEncoded())};
         GeneralName generalName = new GeneralName(new JcaX509CertificateHolder(ocspSignerCert).getSubject());
         ocspReqBuilder.setRequestorName(generalName);

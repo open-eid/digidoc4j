@@ -22,8 +22,7 @@ import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.digidoc4j.Container.SignatureProfile.BES;
-import static org.digidoc4j.Container.SignatureProfile.TM;
+import static org.digidoc4j.Container.SignatureProfile.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -306,7 +305,7 @@ public class DDocContainerTest {
   @Test(expected = NotSupportedException.class)
   public void timeStampProfileIsNotSupported() throws Exception {
     DDocContainer container = new DDocContainer();
-    container.setSignatureProfile(Container.SignatureProfile.TS);
+    container.setSignatureProfile(TS);
   }
 
   @Test(expected = NotSupportedException.class)
@@ -315,11 +314,11 @@ public class DDocContainerTest {
     container.setSignatureProfile(BES);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
-    container.extendTo(Container.SignatureProfile.TS);
+    container.extendTo(TS);
   }
 
   @Test
-  public void addOCSPConfirmation() throws Exception {
+  public void extendToTM() throws Exception {
     DDocContainer container = new DDocContainer();
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.setSignatureProfile(BES);
@@ -335,7 +334,7 @@ public class DDocContainerTest {
   }
 
   @Test(expected = DigiDoc4JException.class)
-  public void addConfirmationThrowsException() throws Exception {
+  public void extendToThrowsExceptionForGetConfirmation() throws Exception {
     MockDDocContainer container = new MockDDocContainer();
     container.setSignatureProfile(BES);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);

@@ -254,12 +254,6 @@ public class DDocContainer extends Container {
   }
 
   @Override
-  public byte[] prepareSigning(org.digidoc4j.SignatureProductionPlace productionPlace,
-                               List<String> roles, String signatureId, X509Certificate signerCertificate) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
   public Signature sign(Signer signer) {
     return sign(signer, null);
   }
@@ -278,11 +272,6 @@ public class DDocContainer extends Container {
     }
 
     return new DDocSignature(signature);
-  }
-
-  @Override
-  public Signature signRaw(byte[] rawSignature) {
-    throw new NotYetImplementedException();
   }
 
   @Override
@@ -344,7 +333,7 @@ public class DDocContainer extends Container {
 
   @Override
   public DigestAlgorithm getDigestAlgorithm() {
-    throw new NotYetImplementedException();
+    return DigestAlgorithm.SHA1;
   }
 
   @SuppressWarnings("unchecked")
@@ -366,15 +355,14 @@ public class DDocContainer extends Container {
       SignatureProductionPlace productionPlace = new SignatureProductionPlace(signer.getCity(),
           signer.getStateOrProvince(), signer.getCountry(), signer.getPostalCode());
 
-      signature = ddoc.prepareSignature(signer.getCertificate().getX509Certificate(),
+      signature = ddoc.prepareSignature(signer.getCertificate(),
           signerRoles.toArray(new String[signerRoles.size()]),
           productionPlace);
 
       if (signatureId != null)
         signature.setId(signatureId);
 
-      signature.setSignatureValue(signer.sign(eu.europa.ec.markt.dss.DigestAlgorithm.SHA1.getXmlId(),
-          signature.calculateSignedInfoXML()));
+      signature.setSignatureValue(signer.sign(this, signature.calculateSignedInfoXML()));
 
     } catch (DigiDocException e) {
       logger.error(e.getMessage());

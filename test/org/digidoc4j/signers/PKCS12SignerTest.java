@@ -3,6 +3,7 @@ package org.digidoc4j.signers;
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.SignatureProductionPlace;
 import org.digidoc4j.X509Cert;
+import org.digidoc4j.impl.BDocContainer;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -13,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static org.digidoc4j.DigestAlgorithm.SHA512;
 import static org.junit.Assert.*;
 
 public class PKCS12SignerTest {
@@ -52,7 +54,7 @@ public class PKCS12SignerTest {
 
   @Test
   public void testGetCertificate() throws CertificateEncodingException {
-    X509Cert x509Cert = pkcs12Signer.getCertificate();
+    X509Cert x509Cert = new X509Cert(pkcs12Signer.getCertificate());
     assertEquals("MIIFEzCCA/ugAwIBAgIQSXxaK/qTYahTT77Z9I56EjANBgkqhkiG9w0BAQUFADBsMQswC" +
             "QYDVQQGEwJFRTEiMCAGA1UECgwZQVMgU2VydGlmaXRzZWVyaW1pc2tlc2t1czEfMB0GA1UEAwwWVEV" +
             "TVCBvZiBFU1RFSUQtU0sgMjAxMTEYMBYGCSqGSIb3DQEJARYJcGtpQHNrLmVlMB4XDTE0MDQxNzExN" +
@@ -98,7 +100,9 @@ public class PKCS12SignerTest {
         -85, 96, -23, -115, 107, -106, 57, 105, 27, -106, 75, -111, -41, 59, -23, 113, -55, 86, 70, 64, -118, -80,
         44, -48, -19, 99, -43, 106, -26,
         97, -119, -94, -9, -22, -8, 88, 62, 67, -80, 35, 110, -7, -10, 55, 73, -60, 83, -128, -57, -120, 2};
-    assertTrue(Arrays.equals(expected, pkcs12Signer.sign("http://www.w3.org/2001/04/xmlenc#sha512", new byte[]{0x41})));
+    BDocContainer container = new BDocContainer();
+    container.setDigestAlgorithm(SHA512);
+    assertTrue(Arrays.equals(expected, pkcs12Signer.sign(container, new byte[]{0x41})));
   }
 
   @Test

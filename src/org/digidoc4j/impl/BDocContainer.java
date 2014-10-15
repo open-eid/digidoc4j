@@ -408,14 +408,22 @@ public class BDocContainer extends Container {
     logger.debug("");
 
     byte[] dataToSign = prepareSigning(signer.getSignatureProductionPlace(), signer.getSignerRoles(), signatureId,
-        signer.getCertificate().getX509Certificate());
+        signer.getCertificate());
 
-    byte[] signature = signer.sign(signatureParameters.getDigestAlgorithm().getXmlId(), dataToSign);
+    byte[] signature = signer.sign(this, dataToSign);
     return signRaw(signature);
   }
 
-  @Override
-  public byte[] prepareSigning(SignatureProductionPlace productionPlace, List<String> roles, String signatureId,
+  /**
+   * Return info that needs to be signed
+   *
+   * @param productionPlace   Production place info
+   * @param roles             List of roles
+   * @param signatureId       signature id for signing
+   * @param signerCertificate X509 Certificate of signer
+   * @return byte array with info that needs to be signed
+   */
+  private byte[] prepareSigning(SignatureProductionPlace productionPlace, List<String> roles, String signatureId,
                                X509Certificate signerCertificate) {
     addSignerInformation(productionPlace, roles);
 
@@ -435,8 +443,7 @@ public class BDocContainer extends Container {
     return sign(signer, "S" + getSignatures().size());
   }
 
-  @Override
-  public Signature signRaw(byte[] rawSignature) {
+  private Signature signRaw(byte[] rawSignature) {
     logger.debug("");
 
     commonCertificateVerifier.setTrustedCertSource(getTSL());

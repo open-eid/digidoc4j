@@ -573,19 +573,19 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void addOCSPConfirmation() throws Exception {
+  public void extendToTS() throws Exception {
     BDocContainer container = new BDocContainer();
     container.setSignatureProfile(BES);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    container.save("testAddConfirmation.bdoc");
+    container.save("testExtendTo.bdoc");
 
     assertEquals(1, container.getSignatures().size());
     assertNull(container.getSignature(0).getOCSPCertificate());
 
-    container = new BDocContainer("testAddConfirmation.bdoc");
+    container = new BDocContainer("testExtendTo.bdoc");
     container.extendTo(Container.SignatureProfile.TS);
-    container.save("testAddConfirmationContainsIt.bdoc");
+    container.save("testExtendToContainsIt.bdoc");
 
     assertEquals(1, container.getSignatures().size());
     assertNotNull(container.getSignature(0).getOCSPCertificate());
@@ -615,15 +615,15 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.setSignatureProfile(BES);
     container.sign(PKCS12_SIGNER);
-    container.save("testAddConfirmation.bdoc");
+    container.save("testExtendTo.bdoc");
 
     assertEquals(1, container.getSignatures().size());
     assertNull(container.getSignature(0).getOCSPCertificate());
 
-    container = new BDocContainer("testAddConfirmation.bdoc");
+    container = new BDocContainer("testExtendTo.bdoc");
     container.extendTo(TS);
     container.extendTo(TS);
-    container.save("testAddConfirmationContainsIt.bdoc");
+    container.save("testExtendToIt.bdoc");
 
     assertEquals(1, container.getSignatures().size());
     assertNotNull(container.getSignature(0).getOCSPCertificate());
@@ -642,17 +642,17 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.setSignatureProfile(BES);
     container.sign(PKCS12_SIGNER);
     container.sign(PKCS12_SIGNER);
-    container.save("testAddConfirmation.bdoc");
+    container.save("testExtendTo.bdoc");
 
     assertEquals(2, container.getSignatures().size());
     assertNull(container.getSignature(0).getOCSPCertificate());
     assertNull(container.getSignature(1).getOCSPCertificate());
 
-    container = new BDocContainer("testAddConfirmation.bdoc");
+    container = new BDocContainer("testExtendTo.bdoc");
     container.extendTo(TS);
-    container.save("testAddConfirmationContainsIt.bdoc");
+    container.save("testExtendToContainsIt.bdoc");
 
-    container = new BDocContainer("testAddConfirmationContainsIt.bdoc");
+    container = new BDocContainer("testExtendToContainsIt.bdoc");
     assertEquals(2, container.getSignatures().size());
     assertNotNull(container.getSignature(0).getOCSPCertificate());
     assertNotNull(container.getSignature(1).getOCSPCertificate());

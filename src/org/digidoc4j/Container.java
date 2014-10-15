@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.security.cert.X509Certificate;
 import java.util.List;
 
 /**
@@ -238,9 +237,6 @@ public abstract class Container {
    */
   public abstract void save(OutputStream out);
 
-  public abstract byte[] prepareSigning(SignatureProductionPlace productionPlace, List<String> roles, String signatureId,
-                                        X509Certificate signerCertificate);
-
   /**
    * Signs all data files in the container.
    *
@@ -252,19 +248,11 @@ public abstract class Container {
   /**
    * Signs all data files in the container.
    *
-   * @param signer signer implementation
+   * @param signer      signer implementation
    * @param signatureId sets signature id
    * @return signature
    */
   public abstract Signature sign(Signer signer, String signatureId);
-
-  /**
-   * Adds externally calculated signatureValue to XAdES signature
-   *
-   * @param rawSignature signature
-   * @return whole signature object
-   */
-  public abstract Signature signRaw(byte[] rawSignature);
 
   /**
    * Sets configuration for container.
@@ -310,7 +298,7 @@ public abstract class Container {
    *
    * @return container digest algorithm
    */
-  public abstract DigestAlgorithm  getDigestAlgorithm();
+  public abstract DigestAlgorithm getDigestAlgorithm();
 
   /**
    * Validate container
@@ -339,6 +327,4 @@ public abstract class Container {
    * @param profile signature profile
    */
   public abstract void setSignatureProfile(SignatureProfile profile);
-
-
 }
