@@ -9,7 +9,6 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.Signer;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -54,10 +53,16 @@ public class DDocContainerTest {
     assertEquals(16, dataFile.getFileSize());
   }
 
-  @Test(expected = NotYetImplementedException.class)
-  public void testSetDigestAlgorithm() throws Exception {
+  @Test
+  public void testSetDigestAlgorithmSHA1() throws Exception {
     DDocContainer container = new DDocContainer();
     container.setDigestAlgorithm(DigestAlgorithm.SHA1);
+  }
+
+  @Test(expected = NotSupportedException.class)
+  public void testSetDigestAlgorithmOtherThenSHA1() throws Exception {
+    DDocContainer container = new DDocContainer();
+    container.setDigestAlgorithm(DigestAlgorithm.SHA224);
   }
 
   @Test

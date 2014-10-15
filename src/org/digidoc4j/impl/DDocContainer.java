@@ -328,11 +328,13 @@ public class DDocContainer extends Container {
   @Override
   public void setDigestAlgorithm(DigestAlgorithm algorithm) {
     logger.debug("");
-    throw new NotYetImplementedException();
+    if (algorithm != DigestAlgorithm.SHA1)
+      throw new NotSupportedException("DDOC 1.3 supports only SHA1 as digest algorithm");
   }
 
   @Override
   public DigestAlgorithm getDigestAlgorithm() {
+    logger.debug("");
     return DigestAlgorithm.SHA1;
   }
 
