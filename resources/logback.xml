@@ -23,7 +23,7 @@
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
       <if condition='property("digidoc4j.mode").contains("TEST")'>
         <then>
-          <level>DEBUG</level>
+          <level>ERROR</level>
         </then>
         <else>
           <level>ERROR</level>
