@@ -11,6 +11,7 @@ import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCContainerValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
+import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
 import eu.europa.ec.markt.dss.validation102853.loader.Protocol;
 import eu.europa.ec.markt.dss.validation102853.ocsp.SKOnlineOCSPSource;
@@ -194,7 +195,7 @@ public class BDocContainer extends Container {
     Map<String, SimpleReport> simpleReports = new HashMap<String, SimpleReport>();
 
     Reports report = validate(validator);
-    do {
+   do {
       SimpleReport simpleReport = report.getSimpleReport();
       if (simpleReport.getSignatureIds().size() > 0)
         simpleReports.put(simpleReport.getSignatureIds().get(0), simpleReport);
@@ -532,9 +533,15 @@ public class BDocContainer extends Container {
 
     tslCertificateSource = new TrustedListsCertificateSource();
 
-    tslCertificateSource.setDataLoader(new FileCacheDataLoader());
+    String tslLocation = getTslLocation();
+    if(Protocol.isHttpUrl(tslLocation)) {
+      tslCertificateSource.setDataLoader(new FileCacheDataLoader());
+    }
+    else {
+      tslCertificateSource.setDataLoader(new CommonsDataLoader());
+    }
 
-    tslCertificateSource.setLotlUrl(getTslLocation());
+    tslCertificateSource.setLotlUrl(tslLocation);
     tslCertificateSource.setCheckSignature(false);
     tslCertificateSource.init();
 
