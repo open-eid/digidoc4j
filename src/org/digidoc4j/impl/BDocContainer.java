@@ -195,7 +195,10 @@ public class BDocContainer extends Container {
     Map<String, SimpleReport> simpleReports = new HashMap<String, SimpleReport>();
 
     Reports report = validate(validator);
-   do {
+
+    signatureParameters.setDigestAlgorithm(report.getDiagnosticData().getSignatureDigestAlgorithm());
+
+    do {
       SimpleReport simpleReport = report.getSimpleReport();
       if (simpleReport.getSignatureIds().size() > 0)
         simpleReports.put(simpleReport.getSignatureIds().get(0), simpleReport);
@@ -425,7 +428,7 @@ public class BDocContainer extends Container {
    * @return byte array with info that needs to be signed
    */
   private byte[] prepareSigning(SignatureProductionPlace productionPlace, List<String> roles, String signatureId,
-                               X509Certificate signerCertificate) {
+                                X509Certificate signerCertificate) {
     addSignerInformation(productionPlace, roles);
 
     signatureParameters.clearCertificateChain();
@@ -534,10 +537,9 @@ public class BDocContainer extends Container {
     tslCertificateSource = new TrustedListsCertificateSource();
 
     String tslLocation = getTslLocation();
-    if(Protocol.isHttpUrl(tslLocation)) {
+    if (Protocol.isHttpUrl(tslLocation)) {
       tslCertificateSource.setDataLoader(new FileCacheDataLoader());
-    }
-    else {
+    } else {
       tslCertificateSource.setDataLoader(new CommonsDataLoader());
     }
 
