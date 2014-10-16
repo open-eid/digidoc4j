@@ -135,7 +135,7 @@ public class Configuration implements Serializable {
 
     if (mode == Mode.TEST) {
       configuration.put("tslLocation", "http://10.0.25.57/tsl/trusted-test-mp.xml");
-      configuration.put("validationPolicy", "conf/constraint.xml");
+      configuration.put("validationPolicy", "conf/test_constraint.xml");
       configuration.put("ocspSource", "http://www.openxades.org/cgi-bin/ocsp.cgi");
     } else {
       configuration.put("tslLocation",
