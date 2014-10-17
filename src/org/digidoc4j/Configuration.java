@@ -135,7 +135,8 @@ public class Configuration implements Serializable {
 
     if (mode == Mode.TEST) {
       configuration.put("tslLocation", "http://10.0.25.57/tsl/trusted-test-mp.xml");
-      configuration.put("validationPolicy", "conf/constraint.xml");
+      configuration.put("tslLocation", "file:test-tsl/trusted-test-mp.xml");
+      configuration.put("validationPolicy", "conf/test_constraint.xml");
       configuration.put("ocspSource", "http://www.openxades.org/cgi-bin/ocsp.cgi");
     } else {
       configuration.put("tslLocation",
@@ -622,6 +623,8 @@ public class Configuration implements Serializable {
    * TSL can be loaded from file (file://) or from web (http://). If file protocol is used then
    * first try is to locate file from this location if file does not exist then it tries to load
    * relatively from classpath.
+   *
+   * Windows wants it in file:DRIVE:/directories/tsl-file.xml format
    *
    * @param tslLocation TSL Location to be used
    */

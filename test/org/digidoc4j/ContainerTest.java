@@ -23,6 +23,7 @@ import java.security.cert.CertificateEncodingException;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static junit.framework.Assert.assertEquals;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.digidoc4j.Container.DocumentType;
@@ -536,7 +537,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     ddoc.setConfiguration(new Configuration());
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testSetConfigurationForBDoc() throws Exception {
     Container container = Container.create(BDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
@@ -544,6 +545,18 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     conf.setTslLocation("pole");
     container.setConfiguration(conf);
     container.sign(PKCS12_SIGNER);
+  }
+
+  @Test
+  public void mustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224() throws Exception {
+    Container container = Container.create();
+    container.setDigestAlgorithm(DigestAlgorithm.SHA224);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.save("mustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224.bdoc");
+
+    container = Container.open("mustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224.bdoc");
+    assertEquals(DigestAlgorithm.SHA224, container.getDigestAlgorithm());
   }
 }
 
