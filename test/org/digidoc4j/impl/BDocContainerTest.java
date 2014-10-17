@@ -543,7 +543,22 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void getTSLLocationWhenNotFileURL() {
     Configuration configuration = new Configuration();
     BDocContainer container = new BDocContainer();
+
     String tslLocation = "URL:test";
+
+    configuration.setTslLocation(tslLocation);
+    container.setConfiguration(configuration);
+
+    assertEquals(tslLocation, container.getTslLocation());
+  }
+
+  @Test
+  public void whenTSLLocationIsMalformedURLNoErrorIsRaisedAndThisSameValueIsReturned() throws Exception {
+    Configuration configuration = new Configuration();
+    BDocContainer container = new BDocContainer();
+
+    String tslLocation = "file://C:\\";
+
     configuration.setTslLocation(tslLocation);
     container.setConfiguration(configuration);
 
@@ -554,7 +569,9 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void getTSLLocationWhenFileDoesNotExistInDefaultLocation() {
     BDocContainer container = new BDocContainer();
     Configuration configuration = new Configuration();
+
     String tslFilePath = ("conf/tsl-location-test.xml");
+
     configuration.setTslLocation("file:" + tslFilePath);
     container.setConfiguration(configuration);
 
