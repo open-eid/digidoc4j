@@ -4,6 +4,8 @@ import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.exception.DSSException;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.DataFile;
+import org.digidoc4j.utils.Helper;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,6 +22,11 @@ public class StreamDocumentTest {
   public void setUp() {
     ByteArrayInputStream stream = new ByteArrayInputStream(new byte[]{0x041});
     document = new StreamDocument(stream, "suur_a.txt", MimeType.TEXT);
+  }
+
+  @AfterClass
+  public static void deleteTemporaryFiles() throws IOException {
+    Helper.deleteFile("createDocumentFromStreamedDataFile.txt");
   }
 
   @Test
@@ -75,8 +82,6 @@ public class StreamDocumentTest {
 
     assertArrayEquals(new byte[]{0x041},
         IOUtils.toByteArray(new FileInputStream("createDocumentFromStreamedDataFile.txt")));
-
-    Files.deleteIfExists(Paths.get("createDocumentFromStreamedDataFile.txt"));
   }
 
   @Test

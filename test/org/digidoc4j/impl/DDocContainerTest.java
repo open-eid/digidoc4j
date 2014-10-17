@@ -10,12 +10,15 @@ import org.digidoc4j.Signer;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.signers.PKCS12Signer;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.*;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
@@ -38,6 +41,19 @@ public class DDocContainerTest {
   @Before
   public void setUp() throws Exception {
     PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
+  }
+
+  @AfterClass
+  public static void deleteTemporaryFiles() {
+    try {
+      DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("."));
+      for (Path item : directoryStream) {
+        String fileName = item.getFileName().toString();
+        if (fileName.endsWith("ddoc") && fileName.startsWith("test")) Files.deleteIfExists(item);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -76,7 +92,6 @@ public class DDocContainerTest {
     assertEquals(2, dataFiles.size());
     assertEquals("test.txt", dataFiles.get(0).getName());
     assertEquals("test.txt", dataFiles.get(1).getName());
-    Files.deleteIfExists(Paths.get("test_ddoc_file.ddoc"));
   }
 
   @Test
@@ -103,7 +118,7 @@ public class DDocContainerTest {
     List<org.digidoc4j.DataFile> dataFiles = container.getDataFiles();
     assertEquals(1, dataFiles.size());
     assertEquals(0, dataFiles.get(0).getFileSize());
-    Files.deleteIfExists(Paths.get("test_empty.ddoc"));
+
     Files.deleteIfExists(Paths.get("test_empty.txt"));
   }
 

@@ -8,13 +8,16 @@ import org.digidoc4j.impl.DDocContainer;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.digidoc4j.utils.Helper;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import java.io.*;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.CertificateEncodingException;
 import java.util.List;
@@ -27,7 +30,6 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.Container.SignatureProfile.BES;
 import static org.digidoc4j.Container.SignatureProfile.TS;
-import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.*;
 
 public class ContainerTest extends DigiDoc4JTestHelper {
@@ -226,6 +228,20 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
   }
 
+  @AfterClass
+  public static void deleteTemporaryFiles() {
+    try {
+      DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("."));
+      for (Path item : directoryStream) {
+        String fileName = item.getFileName().toString();
+        if ((fileName.endsWith("bdoc") || fileName.endsWith("ddoc")) && fileName.startsWith("test"))
+          Files.deleteIfExists(item);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
   @Test
   public void createBDocContainersByDefault() {
     assertTrue(Container.create() instanceof BDocContainer);
@@ -276,7 +292,6 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     asicContainer.sign(PKCS12_SIGNER);
     asicContainer.save("test.bdoc");
     assertTrue(Helper.isZipFile(new File("test.bdoc")));
-    Files.deleteIfExists(Paths.get("test.bdoc"));
   }
 
   @Test
@@ -287,8 +302,6 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     dDocContainer.save("testCreateDDocContainer.ddoc");
 
     assertTrue(Helper.isXMLFile(new File("testCreateDDocContainer.ddoc")));
-
-    deleteFile("testCreateDDocContainer.ddoc");
   }
 
   @Test
@@ -310,8 +323,6 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     Container container1 = Container.open("testRemovesOneFileFromContainerWhenFileExistsFor.ddoc");
     container1.removeDataFile("testFiles/test.txt");
     assertEquals(0, container1.getDataFiles().size());
-
-    deleteFile("testRemovesOneFileFromContainerWhenFileExistsFor.ddoc");
   }
 
   @Test
@@ -323,8 +334,6 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     assertEquals(DDOC, containerForReading.getDocumentType());
 
     assertEquals(1, container.getDataFiles().size());
-
-    deleteFile("testOpenCreatedDDocFile.ddoc");
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -490,8 +499,6 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
     assertEquals(1, containerToRemoveSignature.getSignatures().size());
     //todo check is correct signatureXML removed by signing time?
-
-    deleteFile("testRemoveSignature.ddoc");
   }
 
   @Test(expected = DigiDoc4JException.class)

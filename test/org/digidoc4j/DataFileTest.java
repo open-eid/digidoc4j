@@ -28,7 +28,7 @@ public class DataFileTest {
 
   @Test
   public void testGetFileSize() throws Exception {
-    assertEquals(16, dataFile.getFileSize());
+    assertEquals(15, dataFile.getFileSize());
   }
 
   @Test
@@ -49,18 +49,18 @@ public class DataFileTest {
 
   @Test
   public void testCalculateDigest() throws Exception {
-    assertEquals("tYpuWTmktpzSwRM8cxRlZfY4aw4wqr4vkXKPs9lwxP4=", DSSUtils.base64Encode(dataFile.calculateDigest()));
+    assertEquals("RqDqtqi3rTsWj07rrWc5kATAZIw7T1XHP/NPLCF05RU=", DSSUtils.base64Encode(dataFile.calculateDigest()));
   }
 
   @Test
   public void testCalculateDigestWithEnumTypeSHA256() throws Exception {
-    assertEquals("tYpuWTmktpzSwRM8cxRlZfY4aw4wqr4vkXKPs9lwxP4=",
+    assertEquals("RqDqtqi3rTsWj07rrWc5kATAZIw7T1XHP/NPLCF05RU=",
         DSSUtils.base64Encode(dataFile.calculateDigest(DigestAlgorithm.SHA256)));
   }
 
   @Test
   public void testCalculateDigestWithEnumTypeSHA1() throws Exception {
-    assertEquals("VNdqcg8SQlmbqk0MCl3rpxAN5qs=", DSSUtils.base64Encode(dataFile.calculateDigest(DigestAlgorithm.SHA1)));
+    assertEquals("OQj17m9Rt2vPXYrry+v/KHpf98Q=", DSSUtils.base64Encode(dataFile.calculateDigest(DigestAlgorithm.SHA1)));
   }
 
   @Test
@@ -83,7 +83,7 @@ public class DataFileTest {
     dataFile.saveAs(out);
     out.flush();
 
-    assertEquals("see on testfail\n", out.toString());
+    assertEquals("see on testfail", out.toString());
   }
 
   @Test(expected = DigiDoc4JException.class)

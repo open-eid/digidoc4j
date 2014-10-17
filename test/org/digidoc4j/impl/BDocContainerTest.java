@@ -524,8 +524,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
     Container containerToTest = Container.open(expectedContainerAsFile.getName());
     assertArrayEquals(new byte[]{0x42}, containerToTest.getDataFiles().get(0).getBytes());
-
-    Files.deleteIfExists(expectedContainerAsFile.toPath());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -533,7 +531,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    File expectedContainerAsFile = new File("saveToStreamTest.bdoc");
+    File expectedContainerAsFile = new File("testSaveToStreamTest.bdoc");
     OutputStream out = new FileOutputStream(expectedContainerAsFile);
     out.close();
     container.save(out);

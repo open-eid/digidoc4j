@@ -46,7 +46,9 @@ public final class Helper {
    * @throws IOException aa
    */
   public static boolean isZipFile(File file) throws IOException {
-    return isZipFile(new FileInputStream(file));
+      try(FileInputStream stream = new FileInputStream(file)) {
+          return isZipFile(stream);
+      }
   }
 
   /**

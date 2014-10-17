@@ -50,6 +50,8 @@ public class HelperTest {
 
     assertTrue(Helper.isZipFile(new File("test.zip")));
 
+    fileOutputStream.close();
+
     deleteFile("test.zip");
   }
 
