@@ -623,6 +623,8 @@ public class Configuration implements Serializable {
    * first try is to locate file from this location if file does not exist then it tries to load
    * relatively from classpath.
    *
+   * Windows wants it in file:DRIVE:/directories/tsl-file.xml format
+   *
    * @param tslLocation TSL Location to be used
    */
   public void setTslLocation(String tslLocation) {
