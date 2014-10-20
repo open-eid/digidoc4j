@@ -165,7 +165,7 @@ public class DDocContainerTest {
     ee.sk.digidoc.DataFile dataFile = mock(ee.sk.digidoc.DataFile.class);
     doThrow(new DigiDocException(100, "testException", new Throwable("test Exception"))).
         when(dataFile).getBody();
-    ArrayList<ee.sk.digidoc.DataFile> mockedDataFiles = new ArrayList<ee.sk.digidoc.DataFile>();
+    ArrayList<ee.sk.digidoc.DataFile> mockedDataFiles = new ArrayList<>();
     mockedDataFiles.add(dataFile);
     doReturn(mockedDataFiles).when(ddoc).getDataFiles();
 
@@ -191,7 +191,7 @@ public class DDocContainerTest {
   public void removeDataFileThrowsException() throws Exception {
     SignedDoc ddoc = mock(SignedDoc.class);
 
-    ArrayList<ee.sk.digidoc.DataFile> mockedDataFiles = new ArrayList<ee.sk.digidoc.DataFile>();
+    ArrayList<ee.sk.digidoc.DataFile> mockedDataFiles = new ArrayList<>();
     DataFile dataFile = mock(DataFile.class);
     when(dataFile.getFileName()).thenReturn("test.txt");
     mockedDataFiles.add(dataFile);
@@ -393,7 +393,7 @@ public class DDocContainerTest {
       super.ddoc = spy(new SignedDoc());
       getConfirmationThrowsException();
 
-      ArrayList<ee.sk.digidoc.Signature> signatures = new ArrayList<ee.sk.digidoc.Signature>();
+      ArrayList<ee.sk.digidoc.Signature> signatures = new ArrayList<>();
       signatures.add(signature);
       doReturn(signatures).when(ddoc).getSignatures();
 
