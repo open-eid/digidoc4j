@@ -135,7 +135,7 @@ public class DDocContainerTest {
   }
 
   @Test(expected = DigiDoc4JException.class)
-  public void testAddFileFromStreamToDDocThrowsException() throws DigiDocException {
+  public void testAddFileFromStreamToDDocThrowsException() throws DigiDocException, IOException {
     SignedDoc ddoc = mock(SignedDoc.class);
     when(ddoc.getNewDataFileId()).thenReturn("A");
     when(ddoc.getFormat()).thenReturn("SignedDoc.FORMAT_DDOC");
@@ -143,7 +143,9 @@ public class DDocContainerTest {
         when(ddoc).addDataFile(any(ee.sk.digidoc.DataFile.class));
 
     DDocContainer container = new DDocContainer(ddoc);
-    container.addDataFile(new ByteArrayInputStream(new byte[]{0x42}), "testFromStream.txt", TEXT_MIME_TYPE);
+    try(ByteArrayInputStream is = new ByteArrayInputStream(new byte[]{0x42})) {
+      container.addDataFile(is, "testFromStream.txt", TEXT_MIME_TYPE);
+    }
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -227,9 +229,9 @@ public class DDocContainerTest {
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.sign(PKCS12_SIGNER);
-    container.save("setsDefaultSignatureId.ddoc");
+    container.save("testSetsDefaultSignatureId.ddoc");
 
-    container = new DDocContainer("setsDefaultSignatureId.ddoc");
+    container = new DDocContainer("testSetsDefaultSignatureId.ddoc");
     assertEquals("S0", container.getSignature(0).getId());
     assertEquals("S1", container.getSignature(1).getId());
   }
@@ -241,9 +243,9 @@ public class DDocContainerTest {
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER, "SIGNATURE-1");
     container.sign(PKCS12_SIGNER, "SIGNATURE-2");
-    container.save("setsSignatureId.ddoc");
+    container.save("testSetsSignatureId.ddoc");
 
-    container = new DDocContainer("setsSignatureId.ddoc");
+    container = new DDocContainer("testSetsSignatureId.ddoc");
     assertEquals("SIGNATURE-1", container.getSignature(0).getId());
     assertEquals("SIGNATURE-2", container.getSignature(1).getId());
   }
@@ -255,22 +257,23 @@ public class DDocContainerTest {
     container.setSignatureProfile(BES);
     container.sign(PKCS12_SIGNER);
     container.sign(PKCS12_SIGNER);
-    container.save("setsDefaultSignatureId.ddoc");
+    container.save("testSetsDefaultSignatureId.ddoc");
 
-    container = new DDocContainer("setsDefaultSignatureId.ddoc");
+    container = new DDocContainer("testSetsDefaultSignatureId.ddoc");
     assertEquals("S0", container.getSignature(0).getId());
     assertEquals("S1", container.getSignature(1).getId());
   }
 
   @Test
-  public void savesToStream() {
+  public void savesToStream() throws IOException {
     DDocContainer container = new DDocContainer();
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
 
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    container.save(out);
-    assertTrue(out.size() != 0);
+    try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+      container.save(out);
+      assertTrue(out.size() != 0);
+    }
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -280,7 +283,9 @@ public class DDocContainerTest {
     doThrow(testException).when(ddoc).writeToStream(any(OutputStream.class));
 
     DDocContainer container = new DDocContainer(ddoc);
-    container.save(new ByteArrayOutputStream());
+    try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+      container.save(out);
+    }
   }
 
   @Test(expected = DigiDoc4JException.class)

@@ -3,6 +3,7 @@ package org.digidoc4j;
 import eu.europa.ec.markt.dss.DSSUtils;
 import eu.europa.ec.markt.dss.signature.InMemoryDocument;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,6 +85,7 @@ public class DataFileTest {
     out.flush();
 
     assertEquals("see on testfail", out.toString());
+    out.close();
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -120,36 +122,40 @@ public class DataFileTest {
 
   @Test
   public void createDocumentFromStream() throws Exception {
-    ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes());
-    DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
-    dataFile.saveAs("createDocumentFromStream.txt");
+    try(ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
+      DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
+      dataFile.saveAs("createDocumentFromStream.txt");
 
-    DataFile dataFileToCompare = new DataFile("createDocumentFromStream.txt", "text/plain");
-    assertArrayEquals("tere tere tipajalga".getBytes(), dataFileToCompare.getBytes());
+      DataFile dataFileToCompare = new DataFile("createDocumentFromStream.txt", "text/plain");
+      assertArrayEquals("tere tere tipajalga".getBytes(), dataFileToCompare.getBytes());
+    }
 
     Files.deleteIfExists(Paths.get("createDocumentFromStream.txt"));
   }
 
   @Test(expected = DigiDoc4JException.class)
-  public void createDocumentFromInoutStreamThrowsException() {
-    ByteArrayInputStream inputStream = new ByteArrayInputStream("test".getBytes());
-    new DataFile(inputStream, "test.txt", "unknown");
+  public void createDocumentFromInoutStreamThrowsException() throws IOException {
+    try(ByteArrayInputStream inputStream = new ByteArrayInputStream("test".getBytes())) {
+      new DataFile(inputStream, "test.txt", "unknown");
+    }
   }
 
   @Test
   public void calculateSizeForStreamedFile() throws Exception {
-    ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes());
-    DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
+    try(ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
+      DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
 
-    assertEquals(19, dataFile.getFileSize());
+      assertEquals(19, dataFile.getFileSize());
+    }
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void askingDataFileSizeWhenTemporoaryFileIsDeleted() throws Exception {
-    ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes());
-    DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
-    Files.deleteIfExists(Paths.get(dataFile.document.getAbsolutePath()));
-    dataFile.getFileSize();
+    try(ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
+      DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
+      Files.deleteIfExists(Paths.get(dataFile.document.getAbsolutePath()));
+      dataFile.getFileSize();
+    }
   }
 
   @Test

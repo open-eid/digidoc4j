@@ -1,5 +1,6 @@
 package org.digidoc4j;
 
+import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -236,7 +237,7 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Add configuration settings from a stream
+   * Add configuration settings from a stream. After loading closes stream.
    *
    * @param stream Input stream
    * @return configuration hashtable
@@ -283,6 +284,8 @@ public class Configuration implements Serializable {
       logger.error(exception.getMessage());
       throw exception;
     }
+
+    IOUtils.closeQuietly(stream);
 
     return mapToJDigiDocConfiguration();
   }

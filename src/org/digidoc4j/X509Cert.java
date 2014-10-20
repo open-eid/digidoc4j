@@ -99,7 +99,9 @@ public class X509Cert implements Serializable {
   X509Cert(String path) throws Exception {
     logger.debug("");
     CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-    originalCert = (X509Certificate) certificateFactory.generateCertificate(new FileInputStream(new File(path)));
+    try(FileInputStream inStream = new FileInputStream(new File(path))) {
+      originalCert = (X509Certificate) certificateFactory.generateCertificate(inStream);
+    }
     logger.debug("Certificate created from path: " + path);
   }
 

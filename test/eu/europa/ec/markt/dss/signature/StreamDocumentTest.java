@@ -19,9 +19,10 @@ public class StreamDocumentTest {
   StreamDocument document;
 
   @Before
-  public void setUp() {
-    ByteArrayInputStream stream = new ByteArrayInputStream(new byte[]{0x041});
-    document = new StreamDocument(stream, "suur_a.txt", MimeType.TEXT);
+  public void setUp() throws IOException {
+    try(ByteArrayInputStream stream = new ByteArrayInputStream(new byte[]{0x041})) {
+      document = new StreamDocument(stream, "suur_a.txt", MimeType.TEXT);
+    }
   }
 
   @AfterClass
@@ -75,13 +76,20 @@ public class StreamDocumentTest {
 
   @Test
   public void createDocumentFromStreamedDataFile() throws Exception {
-    DataFile dataFile = new DataFile(new ByteArrayInputStream(new byte[]{0x041}), "A.txt", "text/plain");
-    StreamDocument streamDocument = new StreamDocument(dataFile.getStream(), dataFile.getName(),
-        MimeType.fromCode(dataFile.getMediaType()));
-    streamDocument.save("createDocumentFromStreamedDataFile.txt");
+    try(ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(new byte[]{0x041})) {
+      DataFile dataFile = new DataFile(byteArrayInputStream, "A.txt", "text/plain");
+      StreamDocument streamDocument = new StreamDocument(dataFile.getStream(),
+          dataFile.getName(),
+          MimeType.fromCode(dataFile.getMediaType()));
 
-    assertArrayEquals(new byte[]{0x041},
-        IOUtils.toByteArray(new FileInputStream("createDocumentFromStreamedDataFile.txt")));
+      streamDocument.save("createDocumentFromStreamedDataFile.txt");
+    }
+
+    try(FileInputStream fileInputStream = new FileInputStream("createDocumentFromStreamedDataFile.txt")) {
+      assertArrayEquals(new byte[]{0x041}, IOUtils.toByteArray(fileInputStream));
+    }
+
+    Files.deleteIfExists(Paths.get("createDocumentFromStreamedDataFile.txt"));
   }
 
   @Test

@@ -7,6 +7,7 @@ import ee.sk.digidoc.SignedDoc;
 import ee.sk.digidoc.factory.DigiDocFactory;
 import ee.sk.digidoc.factory.SAXDigiDocFactory;
 import ee.sk.utils.ConfigManager;
+import org.apache.commons.io.IOUtils;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
@@ -147,7 +148,9 @@ public class DDocContainer extends Container {
   @Override
   public void addRawSignature(byte[] signatureBytes) {
     logger.debug("");
-    addRawSignature(new ByteArrayInputStream(signatureBytes));
+    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(signatureBytes);
+    addRawSignature(byteArrayInputStream);
+    IOUtils.closeQuietly(byteArrayInputStream);
   }
 
   @Override

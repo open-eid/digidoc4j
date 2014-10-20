@@ -406,7 +406,9 @@ public class ConfigurationTest {
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage(expectedErrorMessage);
 
-    configuration.loadConfiguration(new FileInputStream(fileName));
+    FileInputStream stream = new FileInputStream(fileName);
+    configuration.loadConfiguration(stream);
+    stream.close();
   }
 
   @Test

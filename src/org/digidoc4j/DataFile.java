@@ -4,6 +4,7 @@ import eu.europa.ec.markt.dss.DSSUtils;
 import eu.europa.ec.markt.dss.Digest;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.signature.*;
+import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,7 @@ public class DataFile implements Serializable {
     logger.debug("File name: " + fileName + ", mime type: " + mimeType);
     ByteArrayInputStream stream = new ByteArrayInputStream(data);
     document = new InMemoryDocument(stream, fileName, getMimeType(mimeType));
+    IOUtils.closeQuietly(stream);
   }
 
   /**

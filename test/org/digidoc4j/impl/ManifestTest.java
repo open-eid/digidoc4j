@@ -17,12 +17,13 @@ public class ManifestTest {
         "<manifest:file-entry manifest:media-type=\"application/vnd.etsi.asic-e+zip\" manifest:full-path=\"/\" />" +
         "<manifest:file-entry manifest:media-type=\"text/plain\" manifest:full-path=\"test.txt\" />" +
         "</manifest:manifest>";
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
-    Manifest manifest = new Manifest();
-    manifest.addFileEntry(new FileDocument("testFiles/test.txt"));
-    manifest.save(out);
+      Manifest manifest = new Manifest();
+      manifest.addFileEntry(new FileDocument("testFiles/test.txt"));
+      manifest.save(out);
 
-    assertXMLEqual(expectedResult, new String(out.toByteArray()));
+      assertXMLEqual(expectedResult, new String(out.toByteArray()));
+    }
   }
 }

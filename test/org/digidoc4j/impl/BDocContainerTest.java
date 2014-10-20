@@ -5,6 +5,7 @@ import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
 import eu.europa.ec.markt.dss.signature.asic.ASiCService;
 import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
+import org.apache.commons.io.IOUtils;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.*;
 import org.digidoc4j.signers.PKCS12Signer;
@@ -321,13 +322,13 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.sign(PKCS12_SIGNER);
-    container.save("setsDefaultSignatureId.bdoc");
+    container.save("testSetsDefaultSignatureId.bdoc");
 
-    container = new BDocContainer("setsDefaultSignatureId.bdoc");
+    container = new BDocContainer("testSetsDefaultSignatureId.bdoc");
     assertEquals("S0", container.getSignature(0).getId());
     assertEquals("S1", container.getSignature(1).getId());
 
-    ZipFile zip = new ZipFile("setsDefaultSignatureId.bdoc");
+    ZipFile zip = new ZipFile("testSetsDefaultSignatureId.bdoc");
     assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
     assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
   }
@@ -402,22 +403,27 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     File file = new File("test-large-file.bdoc");
     FileInputStream fileInputStream = new FileInputStream(file);
     Container.open(fileInputStream, true);
+
+    IOUtils.closeQuietly(fileInputStream);
+
     assertEquals(1, container.getSignatures().size());
   }
 
   @Test
-  public void openAddFileFromStream() throws FileNotFoundException {
+  public void openAddFileFromStream() throws IOException {
     BDocContainer container = new BDocContainer();
     container.configuration.enableBigFilesSupport(0);
 
     String path = createLargeFile((container.configuration.getMaxDataFileCachedInBytes()) + 100);
-    FileInputStream stream = new FileInputStream(new File(path));
-    container.addDataFile(stream, "fileName", "text/plain");
-    container.sign(PKCS12_SIGNER);
-    container.save("test-large-file.bdoc");
-    File file = new File("test-large-file.bdoc");
-    FileInputStream fileInputStream = new FileInputStream(file);
-    Container.open(fileInputStream, true);
+    try(FileInputStream stream = new FileInputStream(new File(path))) {
+      container.addDataFile(stream, "fileName", "text/plain");
+      container.sign(PKCS12_SIGNER);
+      container.save("test-large-file.bdoc");
+      File file = new File("test-large-file.bdoc");
+      FileInputStream fileInputStream = new FileInputStream(file);
+      Container.open(fileInputStream, true);
+      IOUtils.closeQuietly(fileInputStream);
+    }
     assertEquals(1, container.getSignatures().size());
   }
 
@@ -517,7 +523,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     BDocContainer container = new BDocContainer();
     container.addDataFile(new ByteArrayInputStream(new byte[]{0x42}), "test_bytes.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    File expectedContainerAsFile = new File("saveToStreamTest.bdoc");
+    File expectedContainerAsFile = new File("testSaveToStreamTest.bdoc");
     OutputStream out = new FileOutputStream(expectedContainerAsFile);
     container.save(out);
     assertTrue(Files.exists(expectedContainerAsFile.toPath()));
