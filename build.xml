@@ -60,7 +60,7 @@
     <copy todir="${build.dir}">
       <fileset dir="resources"/>
     </copy>
-    <javac destdir="${build.dir}" includeantruntime="false" source="1.6" debug="on" target="1.6" encoding="UTF-8">
+    <javac destdir="${build.dir}" includeantruntime="false" source="1.7" debug="on" target="1.7" encoding="UTF-8">
       <src path="src"/>
       <src path="test"/>
       <classpath refid="${classpath}"/>
