@@ -1,13 +1,12 @@
 package org.digidoc4j.utils;
 
+import org.junit.AfterClass;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -15,6 +14,10 @@ import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.*;
 
 public class HelperTest {
+  @AfterClass
+  public static void cleanup() throws IOException {
+    deleteFile("extractSignatureThrowsErrorWhenSignatureIsNotFound.zip");
+  }
 
   @Test
   public void testIsXMLFileWhenFileIsNotXMLFile() throws Exception {
@@ -101,7 +104,6 @@ public class HelperTest {
     }
 
     Helper.extractSignature("extractSignatureThrowsErrorWhenSignatureIsNotFound.zip", 0);
-    deleteFile("extractSignatureThrowsErrorWhenSignatureIsNotFound.zip");
   }
 
   private void createZIPFile() throws IOException {
