@@ -12,6 +12,7 @@
       <w>ocsp</w>
       <w>opensc</w>
       <w>signout</w>
+      <w>zout</w>
     </words>
   </dictionary>
 </component>
