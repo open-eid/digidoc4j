@@ -9,8 +9,11 @@ import org.digidoc4j.impl.Certificates;
 import org.digidoc4j.impl.DDocContainer;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.utils.Helper;
 import org.junit.Before;
 import org.junit.Test;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+
 
 import java.net.URI;
 import java.security.cert.CertificateEncodingException;
@@ -24,6 +27,7 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.Signature.Validate.VALIDATE_FULL;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
+import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.*;
 
 public class SignatureTest extends DigiDoc4JTestHelper {
@@ -107,16 +111,6 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     Signature signature = container.sign(PKCS12_SIGNER);
     assertEquals(1, signature.getSignerRoles().size());
     assertEquals("Role / Resolution", signature.getSignerRoles().get(0));
-  }
-
-  @Test
-  public void testGetRawSignatureForBDoc() {
-    Container container = Container.open("testFiles/asics_for_testing.bdoc");
-    List<Signature> signatures = container.getSignatures();
-    assertEquals("IXMGT0c/U69uEhWZIZvitPQGD29Tx3oKO+9PNijzyRiupcjKTxlH306mbFfIYfVXkiu5n8mA183bzBH/CA5wgbccXwIwykEfay" +
-        "Cm2/fGUNm5As9zErnzBWQ4s0oZWIVIi6DFR/QT/rzAoRNJ+1sPZBPvJlPofCW64FgkyADVAUDeCCkV6eAIr2ip+kwduJDmZwxrW/EqU1TA0" +
-        "w77lhhAIw4KYEV4yi96eAzDL2rjB8VMUlmLYMnmz1oPdkOGmuj3pbfHV1w4zxYU9uM7LFNN2EogPt4oiH17VSNSlip+HCFdUqvf7hpLFLl2" +
-        "iqxgVAijzvw0sMa2p5+iwLUfqCR45w==", new String(signatures.get(0).getRawSignature()));
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -328,5 +322,20 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   public void testGetSignaturesWhereSignatureDoesNotHaveLastCertificate() throws Exception {
     DDocContainer container = new DDocContainer("testFiles/signature_without_last_certificate.ddoc");
     assertEquals(0, container.getSignatures().size());
+  }
+
+  @Test
+  public void getSignatureXMLForBDOC() throws Exception {
+    Container container = Container.create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    Signature signature = container.sign(PKCS12_SIGNER);
+
+    container.save("getSignatureXMLForBDOC.bdoc");
+    String signatureFromContainer = Helper.extractSignature("getSignatureXMLForBDOC.bdoc", 0);
+
+
+    deleteFile("getSignatureXMLForBDOC.bdoc");
+
+    assertXMLEqual(signatureFromContainer, new String(signature.getRawSignature()));
   }
 }

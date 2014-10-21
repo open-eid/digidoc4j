@@ -12,8 +12,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static org.digidoc4j.utils.Helper.deleteFile;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class HelperTest {
 
@@ -26,7 +25,7 @@ public class HelperTest {
   public void testIsXMLFileWhenFileIsXMLFile() throws Exception {
     createXMLFile("testIsXMLFileWhenFileIsXMLFile.xml");
     assertTrue(Helper.isXMLFile(new File("testIsXMLFileWhenFileIsXMLFile.xml")));
-    Files.deleteIfExists(Paths.get("testIsXMLFileWhenFileIsXMLFile.xml"));
+    deleteFile("testIsXMLFileWhenFileIsXMLFile.xml");
   }
 
   private void createXMLFile(String fileName) throws IOException {
@@ -58,7 +57,9 @@ public class HelperTest {
   @Test
   public void testDeleteFileIfExists() throws Exception {
     File file = new File("testDelete.txt");
+    //noinspection ResultOfMethodCallIgnored
     file.createNewFile();
+
     assertTrue(file.exists());
     deleteFile("testDelete.txt");
     assertFalse(file.exists());
@@ -68,5 +69,53 @@ public class HelperTest {
   public void testDeleteFileIfNotExists() throws Exception {
     deleteFile("testDeleteNotExists.txt");
     assertFalse(new File("testDeleteNotExists.txt").exists());
+  }
+
+  @Test
+  public void extractSignatureS0() throws Exception {
+    createZIPFile();
+    assertEquals("A", Helper.extractSignature("extractSignature.zip", 0));
+
+    deleteFile("extractSignature.zip");
+  }
+
+  @Test
+  public void extractSignatureS1() throws Exception {
+    createZIPFile();
+    assertEquals("B", Helper.extractSignature("extractSignature.zip", 1));
+
+    deleteFile("extractSignature.zip");
+  }
+
+  @Test(expected = IOException.class)
+  public void extractSignatureThrowsErrorWhenSignatureIsNotFound() throws Exception {
+    try (
+        FileOutputStream fileOutputStream = new FileOutputStream("extractSignatureThrowsErrorWhenSignatureIsNotFound.zip");
+        ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
+
+      ZipEntry zipEntry = new ZipEntry("test");
+      zipOutputStream.putNextEntry(zipEntry);
+
+      zipOutputStream.write(0x42);
+      zipOutputStream.closeEntry();
+    }
+
+    Helper.extractSignature("extractSignatureThrowsErrorWhenSignatureIsNotFound.zip", 0);
+    deleteFile("extractSignatureThrowsErrorWhenSignatureIsNotFound.zip");
+  }
+
+  private void createZIPFile() throws IOException {
+    try(FileOutputStream out = new FileOutputStream("extractSignature.zip");
+        ZipOutputStream zout = new ZipOutputStream(out)) {
+      ZipEntry signature0 = new ZipEntry("META-INF/signatures0.xml");
+      zout.putNextEntry(signature0);
+      zout.write(0x41);
+      zout.closeEntry();
+
+      ZipEntry signature1 = new ZipEntry("META-INF/signatures1.xml");
+      zout.putNextEntry(signature1);
+      zout.write(0x42);
+      zout.closeEntry();
+    }
   }
 }

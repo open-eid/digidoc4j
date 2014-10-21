@@ -162,9 +162,9 @@ public abstract class Signature implements Serializable {
   public abstract List<DigiDoc4JException> validate();
 
   /**
-   * Returns raw signature
+   * Returns signature as XAdES XML
    *
-   * @return signature value as byte array
+   * @return signature as byte array
    */
   public abstract byte[] getRawSignature();
 }

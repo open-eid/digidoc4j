@@ -1,10 +1,14 @@
 package org.digidoc4j.utils;
 
+import org.apache.commons.io.IOUtils;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.nio.file.Paths;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import static java.nio.file.Files.deleteIfExists;
 
@@ -40,19 +44,17 @@ public final class Helper {
   }
 
   /**
-   *
    * @param file aa
    * @return aa
    * @throws IOException aa
    */
   public static boolean isZipFile(File file) throws IOException {
-      try(FileInputStream stream = new FileInputStream(file)) {
-          return isZipFile(stream);
-      }
+    try (FileInputStream stream = new FileInputStream(file)) {
+      return isZipFile(stream);
+    }
   }
 
   /**
-   *
    * @param file aa
    * @return aa
    * @throws ParserConfigurationException aa
@@ -68,11 +70,27 @@ public final class Helper {
   }
 
   /**
-   *
    * @param file aa
    * @throws IOException aa
    */
   public static void deleteFile(String file) throws IOException {
     deleteIfExists(Paths.get(file));
+  }
+
+  public static String extractSignature(String file, int index) throws IOException {
+    ZipFile zipFile = new ZipFile(file);
+    String signatureFileName = "META-INF/signatures" + index + ".xml";
+    ZipEntry entry = zipFile.getEntry(signatureFileName);
+
+    if (entry == null)
+      throw new IOException(signatureFileName + " does not exists in archive: " + file);
+
+    InputStream inputStream = zipFile.getInputStream(entry);
+    String signatureContent = IOUtils.toString(inputStream, "UTF-8");
+
+    zipFile.close();
+    inputStream.close();
+
+    return signatureContent;
   }
 }

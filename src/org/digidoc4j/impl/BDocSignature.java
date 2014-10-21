@@ -1,5 +1,8 @@
 package org.digidoc4j.impl;
 
+import eu.europa.ec.markt.dss.ASiCNamespaces;
+import eu.europa.ec.markt.dss.DSSXMLUtils;
+import eu.europa.ec.markt.dss.signature.asic.ASiCService;
 import eu.europa.ec.markt.dss.validation102853.CertificateToken;
 import eu.europa.ec.markt.dss.validation102853.bean.SignatureProductionPlace;
 import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
@@ -13,6 +16,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -20,6 +24,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static eu.europa.ec.markt.dss.DSSXMLUtils.createDocument;
 import static org.digidoc4j.Container.SignatureProfile;
 
 
@@ -30,7 +35,7 @@ public class BDocSignature extends Signature {
   final Logger logger = LoggerFactory.getLogger(BDocSignature.class);
   private XAdESSignature origin;
   private SignatureProductionPlace signerLocation;
-  private List<DigiDoc4JException> validationErrors = new ArrayList<DigiDoc4JException>();
+  private List<DigiDoc4JException> validationErrors = new ArrayList<>();
 
   /**
    * Create a new BDoc signature.
@@ -219,7 +224,7 @@ public class BDocSignature extends Signature {
 
   @Override
   public byte[] getRawSignature() {
-    logger.debug("");
-    return origin.getSignatureValue().getFirstChild().getNodeValue().getBytes();
+    Document signatureDOM = createDocument(ASiCNamespaces.ASiC, ASiCService.ASICS_NS, origin.getSignatureElement());
+    return DSSXMLUtils.transformDomToByteArray(signatureDOM);
   }
 }
