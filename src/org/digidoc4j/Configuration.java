@@ -2,14 +2,12 @@ package org.digidoc4j;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 
 import static java.util.Arrays.asList;
@@ -94,7 +92,7 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
  * <li>DIGIDOC_DF_CACHE_DIR: Temporary directory to use. Default: uses system's default temporary directory</li>
  * </ul>
  */
-public class Configuration implements Serializable {
+public final class Configuration implements Serializable {
   final Logger logger = LoggerFactory.getLogger(Configuration.class);
   public static final long ONE_MB_IN_BYTES = 1048576;
 
@@ -117,8 +115,8 @@ public class Configuration implements Serializable {
   private final Mode mode;
   private LinkedHashMap configurationFromFile;
   private String configurationInputSourceName;
-  private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<String, String>();
-  private ArrayList<String> inputSourceParseErrors = new ArrayList<String>();
+  private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<>();
+  private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
 
   /**
    * Application mode
@@ -209,7 +207,7 @@ public class Configuration implements Serializable {
     logger.debug("OCSPAccessCertificatePassword is set");
   }
 
-  Map<String, String> configuration = new HashMap<String, String>();
+  Map<String, String> configuration = new HashMap<>();
 
   /**
    * Create new configuration
@@ -218,6 +216,7 @@ public class Configuration implements Serializable {
     logger.debug("");
 
     mode = ("TEST".equalsIgnoreCase(System.getProperty("digidoc4j.mode")) ? Mode.TEST : Mode.PROD);
+    loadConfiguration("digidoc4j.yaml");
 
     initDefaultValues();
 
@@ -232,6 +231,7 @@ public class Configuration implements Serializable {
   public Configuration(Mode mode) {
     logger.debug("Mode: " + mode);
     this.mode = mode;
+    loadConfiguration("digidoc4j.yaml");
 
     initDefaultValues();
   }
@@ -303,6 +303,10 @@ public class Configuration implements Serializable {
     return resourceAsStream;
   }
 
+  public Hashtable<String, String> getJDigiDocConfiguration() {
+    return jDigiDocConfiguration;
+  }
+
   /**
    * Gives back all configuration parameters needed for jDigiDoc
    *
@@ -312,7 +316,7 @@ public class Configuration implements Serializable {
   private Hashtable<String, String> mapToJDigiDocConfiguration() {
     logger.debug("loading JDigiDoc configuration");
 
-    inputSourceParseErrors = new ArrayList<String>();
+    inputSourceParseErrors = new ArrayList<>();
 
     loadInitialConfigurationValues();
     loadCertificateAuthoritiesAndCertificates();
@@ -731,6 +735,31 @@ public class Configuration implements Serializable {
    */
   public boolean isTest() {
     return mode == Mode.TEST;
+  }
+
+  @Override
+  public Object clone() throws CloneNotSupportedException {
+    ObjectOutputStream oos = null;
+    ObjectInputStream ois = null;
+    Configuration copyConfiguration = null;
+    // deep copy
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    try {
+      oos = new ObjectOutputStream(bos);
+      oos.writeObject(this);
+      oos.flush();
+      ByteArrayInputStream bin =
+          new ByteArrayInputStream(bos.toByteArray());
+      ois = new ObjectInputStream(bin);
+      copyConfiguration = (Configuration) ois.readObject();
+    } catch (Exception e) {
+      throw new DigiDoc4JException(e);
+    } finally {
+      IOUtils.closeQuietly(oos);
+      IOUtils.closeQuietly(ois);
+      IOUtils.closeQuietly(bos);
+    }
+    return copyConfiguration;
   }
 }
 

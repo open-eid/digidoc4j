@@ -11,7 +11,6 @@ import org.apache.commons.io.IOUtils;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +39,7 @@ public class DDocContainer extends Container {
   Logger logger = LoggerFactory.getLogger(DDocContainer.class);
 
   SignedDoc ddoc;
-  private ArrayList<DigiDocException> openContainerExceptions = new ArrayList<DigiDocException>();
+  private ArrayList<DigiDocException> openContainerExceptions = new ArrayList<>();
   private SignatureProfile signatureProfile = SignatureProfile.TM;
 
   /**
@@ -49,6 +48,14 @@ public class DDocContainer extends Container {
   public DDocContainer() {
     logger.debug("");
     intConfiguration();
+    createDDOCContainer();
+  }
+
+  public DDocContainer(String path) {
+    this(path, new Configuration());
+  }
+
+  private void createDDOCContainer() {
     try {
       ddoc = new SignedDoc("DIGIDOC-XML", "1.3");
     } catch (DigiDocException e) {
@@ -73,10 +80,16 @@ public class DDocContainer extends Container {
     }
   }
 
+  public DDocContainer(Configuration configuration) {
+    ConfigManager.init(configuration.getJDigiDocConfiguration());
+    ConfigManager.addProvider();
+    createDDOCContainer();
+  }
+
   private void intConfiguration() {
     logger.debug("");
     Configuration configuration = new Configuration();
-    ConfigManager.init(configuration.loadConfiguration("digidoc4j.yaml"));
+    ConfigManager.init(configuration.getJDigiDocConfiguration());
     ConfigManager.addProvider();
   }
 
@@ -85,10 +98,12 @@ public class DDocContainer extends Container {
    *
    * @param fileName container file name with path
    */
-  public DDocContainer(String fileName) {
+  public DDocContainer(String fileName, Configuration configuration) {
     logger.debug("File name: " + fileName);
 
-    intConfiguration();
+    ConfigManager.init(configuration.getJDigiDocConfiguration());
+    ConfigManager.addProvider();
+
     DigiDocFactory digFac = new SAXDigiDocFactory();
     try {
       ddoc = digFac.readSignedDocOfType(fileName, false, openContainerExceptions);
@@ -167,7 +182,7 @@ public class DDocContainer extends Container {
   @Override
   public List<DataFile> getDataFiles() {
     logger.debug("");
-    List<DataFile> dataFiles = new ArrayList<DataFile>();
+    List<DataFile> dataFiles = new ArrayList<>();
     ArrayList ddocDataFiles = ddoc.getDataFiles();
     if (ddocDataFiles == null) return null;
     for (Object ddocDataFile : ddocDataFiles) {
@@ -278,15 +293,9 @@ public class DDocContainer extends Container {
   }
 
   @Override
-  public void setConfiguration(Configuration conf) {
-    logger.warn("Not yet implemented");
-    throw new NotYetImplementedException();
-  }
-
-  @Override
   public List<Signature> getSignatures() {
     logger.debug("");
-    List<Signature> signatures = new ArrayList<Signature>();
+    List<Signature> signatures = new ArrayList<>();
 
     ArrayList dDocSignatures = ddoc.getSignatures();
 

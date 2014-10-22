@@ -28,8 +28,7 @@ public final class ExternalSigning {
   public static void main(String[] args) throws Exception {
     System.setProperty("digidoc4j.mode", "TEST");
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    Container container = Container.create();
-    container.setConfiguration(configuration);
+    Container container = Container.create(configuration);
     container.addDataFile("testFiles/test.txt", "text/plain");
 
     Signer externalSigner = new ExternalSigner(getSignerCert()) {

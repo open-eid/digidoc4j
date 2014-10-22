@@ -55,24 +55,46 @@ public class BDocContainer extends Container {
 
   final Logger logger = LoggerFactory.getLogger(BDocContainer.class);
 
-  private final Map<String, DataFile> dataFiles = new HashMap<String, DataFile>();
+  private final Map<String, DataFile> dataFiles = new HashMap<>();
   public static final int ONE_MB_IN_BYTES = 1048576;
   private CommonCertificateVerifier commonCertificateVerifier;
   protected DocumentSignatureService asicService;
   private SignatureParameters signatureParameters;
   protected DSSDocument signedDocument;
-  private List<Signature> signatures = new ArrayList<Signature>();
+  private List<Signature> signatures = new ArrayList<>();
   Configuration configuration = null;
   private TrustedListsCertificateSource tslCertificateSource;
   private static final MimeType BDOC_MIME_TYPE = MimeType.ASICE;
 
   /**
-   * Create a new container object of type ASIC_E.
+   * Create a new container object of type BDOC.
    */
   public BDocContainer() {
     logger.debug("");
-    configuration = new Configuration();
-    configuration.loadConfiguration("digidoc4j.yaml");
+    this.configuration = new Configuration();
+    initASiC();
+
+    logger.debug("New BDoc container created");
+  }
+
+  /**
+   * Create a new container object of type BDOC with given configuration.
+   * Configuration is immutable. You cant change already set configuration.
+   *
+   * @param configuration sets container configuration
+   */
+  public BDocContainer(Configuration configuration) {
+    logger.debug("");
+    initASiC();
+    try {
+      this.configuration = (Configuration) configuration.clone();
+    } catch (CloneNotSupportedException e) {
+      throw new DigiDoc4JException(e);
+    }
+    logger.debug("New BDoc container created");
+  }
+
+  private void initASiC() {
     signatureParameters = new SignatureParameters();
     signatureParameters.setSignatureLevel(ASiC_E_BASELINE_LT);
     signatureParameters.setSignaturePackaging(DETACHED);
@@ -82,8 +104,6 @@ public class BDocContainer extends Container {
 
     commonCertificateVerifier = new CommonCertificateVerifier();
     asicService = new ASiCService(commonCertificateVerifier);
-
-    logger.debug("New BDoc container created");
   }
 
   /**
@@ -92,7 +112,7 @@ public class BDocContainer extends Container {
    * @param path container file name with path
    */
   public BDocContainer(String path) {
-    this(path, null);
+    this(path, new Configuration());
   }
 
   /**
@@ -103,7 +123,8 @@ public class BDocContainer extends Container {
    * @see org.digidoc4j.Configuration#isBigFilesSupportEnabled() returns true
    */
   public BDocContainer(InputStream stream, boolean actAsBigFilesSupportEnabled) {
-    this();
+    this.configuration = new Configuration();
+    initASiC();
     logger.debug("");
     try {
       if (actAsBigFilesSupportEnabled) {
@@ -125,22 +146,18 @@ public class BDocContainer extends Container {
    * @param configuration configuration settings
    */
   public BDocContainer(String path, Configuration configuration) {
-    this();
+    initASiC();
     logger.debug("Opens file: " + path);
 
     try {
-
       signedDocument = new FileDocument(path);
       checkMimeType(path);
-
     } catch (DSSException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
 
-    if (configuration != null)
-      this.configuration = configuration;
-
+    this.configuration = configuration;
     readsOpenedDocumentDetails();
   }
 
@@ -192,7 +209,7 @@ public class BDocContainer extends Container {
 
   private Map<String, SimpleReport> loadValidationResults(SignedDocumentValidator validator) {
     logger.debug("");
-    Map<String, SimpleReport> simpleReports = new HashMap<String, SimpleReport>();
+    Map<String, SimpleReport> simpleReports = new HashMap<>();
 
     Reports report = validate(validator);
 
@@ -214,7 +231,7 @@ public class BDocContainer extends Container {
 
     List<DigiDoc4JException> validationErrors;
     for (AdvancedSignature advancedSignature : signatureList) {
-      validationErrors = new ArrayList<DigiDoc4JException>();
+      validationErrors = new ArrayList<>();
       String signatureId = advancedSignature.getId();
       SimpleReport simpleReport = getSimpleReport(simpleReports, signatureId);
       if (simpleReport != null) {
@@ -322,7 +339,7 @@ public class BDocContainer extends Container {
   @Override
   public List<DataFile> getDataFiles() {
     logger.debug("");
-    return new ArrayList<DataFile>(dataFiles.values());
+    return new ArrayList<>(dataFiles.values());
   }
 
   @Override
@@ -571,12 +588,6 @@ public class BDocContainer extends Container {
     return configuration;
   }
 
-  @Override
-  public void setConfiguration(Configuration conf) {
-    logger.debug("");
-    this.configuration = conf;
-  }
-
   private void addSignerInformation(SignatureProductionPlace signatureProductionPlace, List<String> signerRoles) {
     logger.debug("");
     BLevelParameters bLevelParameters = signatureParameters.bLevel();
@@ -683,7 +694,7 @@ public class BDocContainer extends Container {
     signatureParameters.setSignatureLevel(signatureLevel);
     signedDocument = asicService.extendDocument(signedDocument, signatureParameters);
 
-    signatures = new ArrayList<Signature>();
+    signatures = new ArrayList<>();
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
     validate(validator);
     List<AdvancedSignature> signatureList = validator.getSignatures();

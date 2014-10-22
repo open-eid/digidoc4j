@@ -546,12 +546,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void getTSLLocationWhenNotFileURL() {
     Configuration configuration = new Configuration();
-    BDocContainer container = new BDocContainer();
-
     String tslLocation = "URL:test";
-
     configuration.setTslLocation(tslLocation);
-    container.setConfiguration(configuration);
+
+    BDocContainer container = new BDocContainer(configuration);
 
     assertEquals(tslLocation, container.getTslLocation());
   }
@@ -559,38 +557,44 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void whenTSLLocationIsMalformedURLNoErrorIsRaisedAndThisSameValueIsReturned() throws Exception {
     Configuration configuration = new Configuration();
-    BDocContainer container = new BDocContainer();
-
     String tslLocation = "file://C:\\";
-
     configuration.setTslLocation(tslLocation);
-    container.setConfiguration(configuration);
+
+    BDocContainer container = new BDocContainer(configuration);
 
     assertEquals(tslLocation, container.getTslLocation());
   }
 
   @Test
   public void getTSLLocationWhenFileDoesNotExistInDefaultLocation() {
-    BDocContainer container = new BDocContainer();
     Configuration configuration = new Configuration();
-
     String tslFilePath = ("conf/tsl-location-test.xml");
-
     configuration.setTslLocation("file:" + tslFilePath);
-    container.setConfiguration(configuration);
+
+    BDocContainer container = new BDocContainer(configuration);
 
     assertThat(container.getTslLocation(), endsWith(tslFilePath));
   }
 
   @Test
   public void getTSLLocationFileDoesNotExistReturnsUrlPath() {
-    BDocContainer container = new BDocContainer();
     Configuration configuration = new Configuration();
     String tslLocation = ("file:conf/does-not-exist.xml");
     configuration.setTslLocation(tslLocation);
-    container.setConfiguration(configuration);
+
+    BDocContainer container = new BDocContainer(configuration);
 
     assertEquals(container.getTslLocation(), tslLocation);
+  }
+
+
+  @Test
+  public void configurationImmutability() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    String tslLocation = configuration.getTslLocation();
+    BDocContainer container = new BDocContainer(configuration);
+    configuration.setTslLocation("changed_ts_location");
+    assertEquals(tslLocation, container.configuration.getTslLocation());
   }
 
   @Test

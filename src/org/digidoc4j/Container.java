@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.List;
 
+import static org.digidoc4j.Container.DocumentType.BDOC;
+
 /**
  * Offers functionality for handling data files and signatures in a container.
  * <p>
@@ -26,13 +28,13 @@ public abstract class Container implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(Container.class);
 
   /**
-   * Create an ASIC_E container.
+   * Create an BDOC container.
    *
-   * @return new ASIC_E Container
+   * @return new BDOC Container
    */
   public static Container create() {
     logger.debug("");
-    return create(DocumentType.BDOC);
+    return create(BDOC);
   }
 
   /**
@@ -43,15 +45,16 @@ public abstract class Container implements Serializable {
    */
   public static Container create(DocumentType documentType) {
     logger.debug("");
-    Container container;
-    if (documentType == DocumentType.BDOC) {
-      container = new BDocContainer();
-    } else {
-      container = new DDocContainer();
-    }
+    if (documentType == BDOC)
+      return new BDocContainer();
+    return new DDocContainer();
+  }
 
-    logger.info("Container with type " + container.getDocumentType() + " has been created");
-    return container;
+  public static Container create(DocumentType documentType, Configuration configuration) {
+    logger.debug("");
+    if (documentType == BDOC)
+      return new BDocContainer(configuration);
+    return new DDocContainer(configuration);
   }
 
   /**
@@ -70,7 +73,7 @@ public abstract class Container implements Serializable {
         configuration.loadConfiguration("digidoc4j.yaml");
         container = new BDocContainer(path, configuration);
       } else {
-        container = new DDocContainer(path);
+        container = new DDocContainer(path, configuration);
       }
       return container;
     } catch (EOFException eof) {
@@ -120,6 +123,17 @@ public abstract class Container implements Serializable {
 
   protected Container() {
     logger.debug("");
+  }
+
+
+  /**
+   * Creates BDOC container with given configuration
+   * @param configuration configuration used for container creation
+   * @return BDOC container
+   */
+  public static Container create(Configuration configuration) {
+    logger.debug("");
+    return create(BDOC, configuration);
   }
 
   /**
@@ -253,14 +267,6 @@ public abstract class Container implements Serializable {
    * @return signature
    */
   public abstract Signature sign(Signer signer, String signatureId);
-
-  /**
-   * Sets configuration for container.
-   * For a DDOC Container it throws a NotYetImplementedException.
-   *
-   * @param conf configuration
-   */
-  public abstract void setConfiguration(Configuration conf);
 
   /**
    * Returns a list of all signatures in the container.

@@ -28,11 +28,11 @@ import static junit.framework.Assert.assertEquals;
 import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Configuration.Mode.TEST;
-import static org.digidoc4j.Container.DocumentType;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.Container.SignatureProfile.BES;
 import static org.digidoc4j.Container.SignatureProfile.TS;
+import static org.digidoc4j.DigestAlgorithm.SHA224;
 import static org.junit.Assert.*;
 
 public class ContainerTest extends DigiDoc4JTestHelper {
@@ -290,7 +290,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testCreateBDocContainerSpecifiedByDocumentTypeForBDoc() throws Exception {
-    Container asicContainer = Container.create(DocumentType.BDOC);
+    Container asicContainer = Container.create(BDOC);
     asicContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     asicContainer.sign(PKCS12_SIGNER);
     asicContainer.save("test.bdoc");
@@ -440,6 +440,12 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void throwsErrorWhenCreatesDDOCContainerWithConfiguration() throws Exception {
+    Container container = Container.create(DDOC, new Configuration());
+    assertEquals(DDOC, container.getDocumentType());
+  }
+
+  @Test
   public void testExtendToForBDOC() {
     Container container = Container.create();
     container.addDataFile("testFiles/test.txt", "text/plain");
@@ -542,33 +548,32 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     assertEquals("myRole / myResolution", signature.getSignerRoles().get(0));
   }
 
-  @Test(expected = NotYetImplementedException.class)
-  public void testSetConfigurationForDDoc() throws Exception {
-    Container ddoc = Container.create(DDOC);
-    ddoc.setConfiguration(new Configuration());
-  }
-
   @Test(expected = IllegalArgumentException.class)
   public void testSetConfigurationForBDoc() throws Exception {
-    Container container = Container.create(BDOC);
-    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     Configuration conf = new Configuration(TEST);
     conf.setTslLocation("pole");
-    container.setConfiguration(conf);
+    Container container = Container.create(BDOC, conf);
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
   }
 
   @Test
   public void mustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224() throws Exception {
     Container container = Container.create();
-    container.setDigestAlgorithm(DigestAlgorithm.SHA224);
+    container.setDigestAlgorithm(SHA224);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.save("testMustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224.bdoc");
 
     container = Container.open("testMustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224.bdoc");
 
-    assertEquals(DigestAlgorithm.SHA224, container.getDigestAlgorithm());
+    assertEquals(SHA224, container.getDigestAlgorithm());
+  }
+
+  @Test
+  public void constructorWithConfigurationParameter() throws Exception {
+    Container container = Container.create(new Configuration());
+    assertEquals(BDOC, container.getDocumentType());
   }
 }
 
