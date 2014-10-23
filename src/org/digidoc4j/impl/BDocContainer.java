@@ -440,7 +440,7 @@ public class BDocContainer extends Container {
    * @param signerCertificate X509 Certificate of signer
    * @return byte array with info that needs to be signed
    */
-  private byte[] prepareSigning(SignatureProductionPlace productionPlace, List<String> roles, String signatureId,
+  public byte[] prepareSigning(SignatureProductionPlace productionPlace, List<String> roles, String signatureId,
                                 X509Certificate signerCertificate) {
     addSignerInformation(productionPlace, roles);
 
@@ -460,7 +460,7 @@ public class BDocContainer extends Container {
     return sign(signer, "S" + getSignatures().size());
   }
 
-  private Signature signRaw(byte[] rawSignature) {
+  public Signature signRaw(byte[] rawSignature) {
     logger.debug("");
 
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
