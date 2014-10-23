@@ -44,9 +44,11 @@ import static eu.europa.ec.markt.dss.DigestAlgorithm.forName;
 import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
 import static eu.europa.ec.markt.dss.signature.SignatureLevel.ASiC_E_BASELINE_B;
 import static eu.europa.ec.markt.dss.signature.SignatureLevel.ASiC_E_BASELINE_LT;
+import static eu.europa.ec.markt.dss.signature.SignatureLevel.ASiC_E_BASELINE_LTA;
 import static eu.europa.ec.markt.dss.signature.SignaturePackaging.DETACHED;
 import static eu.europa.ec.markt.dss.validation102853.SignatureForm.XAdES;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.digidoc4j.Container.SignatureProfile.TS;
 
 /**
  * BDOC container implementation
@@ -194,6 +196,10 @@ public class BDocContainer extends Container {
 
     loadSignatures(validator);
     loadAttachments(validator);
+
+    //TODO must be changed when extending signature is possible in sd-dss currently is possible to extend whole
+    //container and it extend also all signatures
+    setSignatureProfile(getSignatures().size() != 0 ? getSignature(0).getProfile() : TS);
 
     logger.debug("New BDoc container created");
   }
@@ -555,7 +561,7 @@ public class BDocContainer extends Container {
 
     String tslLocation = getTslLocation();
     if (Protocol.isHttpUrl(tslLocation)) {
-      tslCertificateSource.setDataLoader(new FileCacheDataLoader());
+      tslCertificateSource.setDataLoader(new FileCacheDataLoader()); //TODO test is missing
     } else {
       tslCertificateSource.setDataLoader(new CommonsDataLoader());
     }
@@ -687,6 +693,9 @@ public class BDocContainer extends Container {
   }
 
   private void extend(SignatureLevel signatureLevel) {
+    if (signatureLevel == signatureParameters.getSignatureLevel())
+      throw new DigiDoc4JException("It is no possible to extend signature to same level");
+
     commonCertificateVerifier.setTrustedCertSource(getTSL());
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource(configuration));
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
@@ -697,6 +706,7 @@ public class BDocContainer extends Container {
     signatures = new ArrayList<>();
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
     validate(validator);
+
     List<AdvancedSignature> signatureList = validator.getSignatures();
     for (AdvancedSignature advancedSignature : signatureList) {
       signatures.add(new BDocSignature((XAdESSignature) advancedSignature));
@@ -714,6 +724,9 @@ public class BDocContainer extends Container {
       case TS:
         extend(ASiC_E_BASELINE_LT);
         break;
+      case TSA:
+        extend(ASiC_E_BASELINE_LTA);
+        break;
       default:
         throw new NotYetImplementedException();
     }
@@ -726,6 +739,9 @@ public class BDocContainer extends Container {
         throw new NotYetImplementedException();
       case BES:
         signatureParameters.setSignatureLevel(ASiC_E_BASELINE_B);
+        break;
+      case TSA:
+        signatureParameters.setSignatureLevel(ASiC_E_BASELINE_LTA);
         break;
       default:
         signatureParameters.setSignatureLevel(ASiC_E_BASELINE_LT);

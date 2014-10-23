@@ -163,6 +163,10 @@ public abstract class Container implements Serializable {
      */
     TS,
     /**
+     * Archive timestamp, same as XAdES LTA (Long Term Archive time-stamp)
+     */
+    TSA,
+    /**
      * no profile
      */
     BES

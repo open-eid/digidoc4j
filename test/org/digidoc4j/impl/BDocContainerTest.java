@@ -634,7 +634,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.setSignatureProfile(TM);
   }
 
-  @Test
+  @Test (expected = DigiDoc4JException.class)
   public void extendToWhenConfirmationAlreadyExists() throws Exception {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
@@ -648,10 +648,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container = new BDocContainer("testExtendTo.bdoc");
     container.extendTo(TS);
     container.extendTo(TS);
-    container.save("testExtendToIt.bdoc");
-
-    assertEquals(1, container.getSignatures().size());
-    assertNotNull(container.getSignature(0).getOCSPCertificate());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -746,6 +742,36 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void getVersion() {
     BDocContainer container = new BDocContainer();
     assertNull(container.getVersion());
+  }
+
+  @Test
+  public void testContainerExtensionToTSA() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+
+    container.extendTo(TSA);
+
+    assertNotNull(container.getSignature(0).getOCSPCertificate());
+  }
+
+  @Test
+  public void testContainerCreationAsTSA() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.setSignatureProfile(TSA);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+
+    assertNotNull(container.getSignature(0).getOCSPCertificate());
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void extensionNotPossibleWhenSignatureLevelIsSame() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.setSignatureProfile(TSA);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.extendTo(TSA);
   }
 
   private Container createSignedBDocDocument(String fileName) {

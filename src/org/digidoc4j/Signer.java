@@ -16,7 +16,7 @@ import java.util.List;
 public abstract class Signer {
   final Logger logger = LoggerFactory.getLogger(Signer.class);
   private SignatureProductionPlace signatureProductionPlace = new SignatureProductionPlace();
-  private List<String> signerRoles = new ArrayList<String>();
+  private List<String> signerRoles = new ArrayList<>();
 
   /**
    * Returns signer certificate
