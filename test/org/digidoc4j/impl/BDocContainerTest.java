@@ -25,8 +25,6 @@ import static org.digidoc4j.Container.DocumentType;
 import static org.digidoc4j.Container.SignatureProfile.*;
 import static org.digidoc4j.DigestAlgorithm.SHA1;
 import static org.digidoc4j.DigestAlgorithm.SHA256;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.endsWith;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -544,57 +542,33 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void getTSLLocationWhenNotFileURL() {
-    Configuration configuration = new Configuration();
-    String tslLocation = "URL:test";
-    configuration.setTslLocation(tslLocation);
+  public void configurationImmutabilityWhenLoadingFromFile() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.save("test_immutable.bdoc");
 
-    BDocContainer container = new BDocContainer(configuration);
-
-    assertEquals(tslLocation, container.getTslLocation());
-  }
-
-  @Test
-  public void whenTSLLocationIsMalformedURLNoErrorIsRaisedAndThisSameValueIsReturned() throws Exception {
-    Configuration configuration = new Configuration();
-    String tslLocation = "file://C:\\";
-    configuration.setTslLocation(tslLocation);
-
-    BDocContainer container = new BDocContainer(configuration);
-
-    assertEquals(tslLocation, container.getTslLocation());
-  }
-
-  @Test
-  public void getTSLLocationWhenFileDoesNotExistInDefaultLocation() {
-    Configuration configuration = new Configuration();
-    String tslFilePath = ("conf/tsl-location-test.xml");
-    configuration.setTslLocation("file:" + tslFilePath);
-
-    BDocContainer container = new BDocContainer(configuration);
-
-    assertThat(container.getTslLocation(), endsWith(tslFilePath));
-  }
-
-  @Test
-  public void getTSLLocationFileDoesNotExistReturnsUrlPath() {
-    Configuration configuration = new Configuration();
-    String tslLocation = ("file:conf/does-not-exist.xml");
-    configuration.setTslLocation(tslLocation);
-
-    BDocContainer container = new BDocContainer(configuration);
-
-    assertEquals(container.getTslLocation(), tslLocation);
-  }
-
-
-  @Test
-  public void configurationImmutability() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    String tslLocation = configuration.getTslLocation();
+    String tspSource = configuration.getTspSource();
+
+    container = new BDocContainer("test_immutable.bdoc", configuration);
+    configuration.setTspSource("changed_tsp_source");
+
+    assertEquals(tspSource, container.configuration.getTspSource());
+  }
+
+
+  @Test
+  public void TSLIsLoadedAfterSettingNewTSLLocation() {
+    Configuration configuration = new Configuration();
+    configuration.setTslLocation("file:test-tsl/trusted-test-mp.xml");
     BDocContainer container = new BDocContainer(configuration);
-    configuration.setTslLocation("changed_ts_location");
-    assertEquals(tslLocation, container.configuration.getTslLocation());
+    container.configuration.getTSL();
+    assertEquals(6, container.configuration.getTSL().getCertificates().size());
+
+    configuration.setTslLocation("http://10.0.25.57/tsl/trusted-test-mp.xml");
+    container = new BDocContainer(configuration);
+    assertEquals(86, container.configuration.getTSL().getCertificates().size());
   }
 
   @Test

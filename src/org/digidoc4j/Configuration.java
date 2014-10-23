@@ -1,5 +1,9 @@
 package org.digidoc4j;
 
+import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
+import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
+import eu.europa.ec.markt.dss.validation102853.loader.Protocol;
+import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -8,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 import static java.util.Arrays.asList;
@@ -92,7 +98,7 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
  * <li>DIGIDOC_DF_CACHE_DIR: Temporary directory to use. Default: uses system's default temporary directory</li>
  * </ul>
  */
-public final class Configuration implements Serializable {
+public class Configuration implements Serializable {
   final Logger logger = LoggerFactory.getLogger(Configuration.class);
   public static final long ONE_MB_IN_BYTES = 1048576;
 
@@ -117,6 +123,8 @@ public final class Configuration implements Serializable {
   private String configurationInputSourceName;
   private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<>();
   private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
+  private TrustedListsCertificateSource tslCertificateSource;
+
 
   /**
    * Application mode
@@ -303,6 +311,11 @@ public final class Configuration implements Serializable {
     return resourceAsStream;
   }
 
+  /**
+   * Returns configuration needed for JDigiDoc library
+   *
+   * @return configuration values
+   */
   public Hashtable<String, String> getJDigiDocConfiguration() {
     return jDigiDocConfiguration;
   }
@@ -613,17 +626,50 @@ public final class Configuration implements Serializable {
     return (ArrayList<String>) digiDocCa.get("CERTS");
   }
 
-  /**
-   * get the TSL location
-   *
-   * @return TSL location
-   */
-  public String getTslLocation() {
-    logger.debug("");
-    String tslLocation = getConfigurationParameter("tslLocation");
-    logger.debug("TSL Location: " + tslLocation);
-    return tslLocation;
+  String getTslLocation() {
+    String urlString = getConfigurationParameter("tslLocation");
+    if (!Protocol.isFileUrl(urlString)) return urlString;
+    try {
+      String filePath = new URL(urlString).getPath();
+      if (!new File(filePath).exists()) {
+        URL resource = getClass().getClassLoader().getResource(filePath);
+        if (resource != null)
+          urlString = resource.toString();
+      }
+    } catch (MalformedURLException e) {
+      logger.warn(e.getMessage());
+    }
+    return urlString;
   }
+
+  /**
+   * Loads TSL certificates
+   *
+   * @return TSL source
+   */
+  public TrustedListsCertificateSource getTSL() {
+    logger.debug("");
+    if (tslCertificateSource != null) {
+      logger.debug("Using TSL cached copy");
+      return tslCertificateSource;
+    }
+
+    tslCertificateSource = new TrustedListsCertificateSource();
+
+    String tslLocation = getTslLocation();
+    if (Protocol.isHttpUrl(tslLocation)) {
+      tslCertificateSource.setDataLoader(new FileCacheDataLoader());
+    } else {
+      tslCertificateSource.setDataLoader(new CommonsDataLoader());
+    }
+
+    tslCertificateSource.setLotlUrl(tslLocation);
+    tslCertificateSource.setCheckSignature(false);
+    tslCertificateSource.init();
+
+    return tslCertificateSource;
+  }
+
 
   /**
    * Set the TSL location.
@@ -638,6 +684,7 @@ public final class Configuration implements Serializable {
   public void setTslLocation(String tslLocation) {
     logger.debug("Set TSL location: " + tslLocation);
     setConfigurationParameter("tslLocation", tslLocation);
+    tslCertificateSource = null;
   }
 
   /**
@@ -737,8 +784,12 @@ public final class Configuration implements Serializable {
     return mode == Mode.TEST;
   }
 
-  @Override
-  public Object clone() throws CloneNotSupportedException {
+  /**
+   * Clones configuration
+   *
+   * @return new configuration object
+   */
+  public Configuration copy() {
     ObjectOutputStream oos = null;
     ObjectInputStream ois = null;
     Configuration copyConfiguration = null;

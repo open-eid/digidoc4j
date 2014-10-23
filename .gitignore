@@ -4,11 +4,10 @@
 /junit_report
 /coverage
 /dist
-/jdigidoc.log
 /.idea/workspace.xml
 /tmp
 /.idea/dictionaries/xp.xml
 digidoc4j.iml
-digidoc4j.log
+*.log
 password.properties
 copy-dss-jars.sh

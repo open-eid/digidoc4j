@@ -1,5 +1,6 @@
 package org.digidoc4j;
 
+import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -13,6 +14,7 @@ import java.util.Hashtable;
 import static org.digidoc4j.Configuration.*;
 import static org.digidoc4j.Configuration.Mode.PROD;
 import static org.digidoc4j.Configuration.Mode.TEST;
+import static org.hamcrest.Matchers.endsWith;
 import static org.junit.Assert.*;
 
 public class ConfigurationTest {
@@ -25,6 +27,59 @@ public class ConfigurationTest {
   public void setUp() {
     System.clearProperty("digidoc4j.mode");
     configuration = new Configuration(TEST);
+  }
+
+  @Test
+  public void getTSLLocationWhenNotFileURL() {
+    Configuration configuration = new Configuration();
+    String tslLocation = "URL:test";
+    configuration.setTslLocation(tslLocation);
+
+    assertEquals(tslLocation, configuration.getTslLocation());
+  }
+
+  @Test
+  public void TSLIsLoadedOnlyOnceForGlobalConfiguration() {
+    TrustedListsCertificateSource tsl = configuration.getTSL();
+    assertEquals(tsl, configuration.getTSL());
+  }
+
+  @Test
+  public void TSLIsLoadedAfterSettingNewTSLLocation() {
+    TrustedListsCertificateSource tsl = configuration.getTSL();
+    assertEquals(6, tsl.getCertificates().size());
+
+    configuration.setTslLocation("http://10.0.25.57/tsl/trusted-test-mp.xml");
+    assertEquals(86, configuration.getTSL().getCertificates().size());
+  }
+
+
+  @Test
+  public void whenTSLLocationIsMalformedURLNoErrorIsRaisedAndThisSameValueIsReturned() throws Exception {
+    Configuration configuration = new Configuration();
+    String tslLocation = "file://C:\\";
+    configuration.setTslLocation(tslLocation);
+
+    assertEquals(tslLocation, configuration.getTslLocation());
+  }
+
+  @Test
+  public void getTSLLocationWhenFileDoesNotExistInDefaultLocation() {
+    Configuration configuration = new Configuration();
+    String tslFilePath = ("conf/tsl-location-test.xml");
+    configuration.setTslLocation("file:" + tslFilePath);
+
+    assertThat(configuration.getTslLocation(), endsWith(tslFilePath));
+  }
+
+
+  @Test
+  public void getTSLLocationFileDoesNotExistReturnsUrlPath() {
+    Configuration configuration = new Configuration();
+    String tslLocation = ("file:conf/does-not-exist.xml");
+    configuration.setTslLocation(tslLocation);
+
+    assertEquals(configuration.getTslLocation(), tslLocation);
   }
 
   @Test

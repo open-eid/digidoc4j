@@ -11,9 +11,6 @@ import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCContainerValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
-import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
-import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
-import eu.europa.ec.markt.dss.validation102853.loader.Protocol;
 import eu.europa.ec.markt.dss.validation102853.ocsp.SKOnlineOCSPSource;
 import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
 import eu.europa.ec.markt.dss.validation102853.report.Reports;
@@ -30,8 +27,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
@@ -42,9 +37,7 @@ import java.util.zip.ZipFile;
 import static eu.europa.ec.markt.dss.DigestAlgorithm.SHA256;
 import static eu.europa.ec.markt.dss.DigestAlgorithm.forName;
 import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
-import static eu.europa.ec.markt.dss.signature.SignatureLevel.ASiC_E_BASELINE_B;
-import static eu.europa.ec.markt.dss.signature.SignatureLevel.ASiC_E_BASELINE_LT;
-import static eu.europa.ec.markt.dss.signature.SignatureLevel.ASiC_E_BASELINE_LTA;
+import static eu.europa.ec.markt.dss.signature.SignatureLevel.*;
 import static eu.europa.ec.markt.dss.signature.SignaturePackaging.DETACHED;
 import static eu.europa.ec.markt.dss.validation102853.SignatureForm.XAdES;
 import static org.apache.commons.lang.StringUtils.isEmpty;
@@ -65,7 +58,6 @@ public class BDocContainer extends Container {
   protected DSSDocument signedDocument;
   private List<Signature> signatures = new ArrayList<>();
   Configuration configuration = null;
-  private TrustedListsCertificateSource tslCertificateSource;
   private static final MimeType BDOC_MIME_TYPE = MimeType.ASICE;
 
   /**
@@ -88,11 +80,8 @@ public class BDocContainer extends Container {
   public BDocContainer(Configuration configuration) {
     logger.debug("");
     initASiC();
-    try {
-      this.configuration = (Configuration) configuration.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new DigiDoc4JException(e);
-    }
+    configuration.getTSL();
+    this.configuration = configuration.copy();
     logger.debug("New BDoc container created");
   }
 
@@ -159,7 +148,8 @@ public class BDocContainer extends Container {
       throw new DigiDoc4JException(e);
     }
 
-    this.configuration = configuration;
+    configuration.getTSL();
+    this.configuration = configuration.copy();
     readsOpenedDocumentDetails();
   }
 
@@ -473,7 +463,7 @@ public class BDocContainer extends Container {
   private Signature signRaw(byte[] rawSignature) {
     logger.debug("");
 
-    commonCertificateVerifier.setTrustedCertSource(getTSL());
+    commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource(configuration));
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
 
@@ -550,45 +540,6 @@ public class BDocContainer extends Container {
     throw exception;
   }
 
-  private TrustedListsCertificateSource getTSL() { // TODO move to Configuration?
-    logger.debug("");
-    if (tslCertificateSource != null) {
-      logger.debug("Using TSL cached copy");
-      return tslCertificateSource;
-    }
-
-    tslCertificateSource = new TrustedListsCertificateSource();
-
-    String tslLocation = getTslLocation();
-    if (Protocol.isHttpUrl(tslLocation)) {
-      tslCertificateSource.setDataLoader(new FileCacheDataLoader()); //TODO test is missing
-    } else {
-      tslCertificateSource.setDataLoader(new CommonsDataLoader());
-    }
-
-    tslCertificateSource.setLotlUrl(tslLocation);
-    tslCertificateSource.setCheckSignature(false);
-    tslCertificateSource.init();
-
-    return tslCertificateSource;
-  }
-
-  String getTslLocation() {
-    String urlString = getConfiguration().getTslLocation();
-    if (!Protocol.isFileUrl(urlString)) return urlString;
-    try {
-      String filePath = new URL(urlString).getPath();
-      if (!new File(filePath).exists()) {
-        URL resource = getClass().getClassLoader().getResource(filePath);
-        if (resource != null)
-          urlString = resource.toString();
-      }
-    } catch (MalformedURLException e) {
-      logger.warn(e.getMessage());
-    }
-    return urlString;
-  }
-
   private Configuration getConfiguration() {
     logger.debug("");
     return configuration;
@@ -638,7 +589,7 @@ public class BDocContainer extends Container {
     CommonCertificateVerifier verifier = new CommonCertificateVerifier();
     verifier.setOcspSource(new SKOnlineOCSPSource(configuration));
 
-    TrustedListsCertificateSource trustedCertSource = getTSL();
+    TrustedListsCertificateSource trustedCertSource = configuration.getTSL();
 
     verifier.setTrustedCertSource(trustedCertSource);
     validator.setCertificateVerifier(verifier);
@@ -696,7 +647,7 @@ public class BDocContainer extends Container {
     if (signatureLevel == signatureParameters.getSignatureLevel())
       throw new DigiDoc4JException("It is no possible to extend signature to same level");
 
-    commonCertificateVerifier.setTrustedCertSource(getTSL());
+    commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource(configuration));
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
 
