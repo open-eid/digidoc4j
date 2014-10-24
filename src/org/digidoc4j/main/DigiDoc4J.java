@@ -105,10 +105,9 @@ public final class DigiDoc4J {
       }
 
       if (commandLine.hasOption("profile")) {
-        SignatureProfile signatureProfile = null;
         String profile = commandLine.getOptionValue("profile");
         try {
-          signatureProfile = SignatureProfile.valueOf(profile);
+          SignatureProfile signatureProfile = SignatureProfile.valueOf(profile);
           container.setSignatureProfile(signatureProfile);
         } catch (IllegalArgumentException e) {
           System.out.println("Signature profile \"" + profile + "\" is unknown and will be ignored");

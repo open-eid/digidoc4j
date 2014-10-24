@@ -57,7 +57,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void createsContainerWithSignatureProfileIsTSA() throws Exception {
+  public void createsContainerWithSignatureProfileIsTSAForBDoc() throws Exception {
     String fileName = "test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
@@ -69,6 +69,40 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
     Container container = Container.open(fileName);
     assertEquals(SignatureProfile.TSA, container.getSignature(0).getProfile());
+  }
+
+  @Test
+  public void createsContainerWithSignatureProfileIsTSForBDoc() throws Exception {
+    String fileName = "test1.bdoc";
+    Files.deleteIfExists(Paths.get(fileName));
+
+
+    String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/test.txt", "text/plain",
+        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "TS"};
+
+    System.setProperty("digidoc4j.mode", "TEST");
+    callMainWithoutSystemExit(params);
+
+
+    Container container = Container.open(fileName);
+    assertEquals(SignatureProfile.TS, container.getSignature(0).getProfile());
+    System.clearProperty("digidoc4j.mode");
+  }
+
+
+  @Test
+  public void createsContainerWithSignatureProfileIsBESForBDoc() throws Exception {
+    String fileName = "test1.bdoc";
+    Files.deleteIfExists(Paths.get(fileName));
+
+
+    String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/test.txt", "text/plain",
+        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "BES"};
+
+    callMainWithoutSystemExit(params);
+
+    Container container = Container.open(fileName);
+    assertEquals(SignatureProfile.BES, container.getSignature(0).getProfile());
   }
 
   @Test
@@ -87,36 +121,32 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void createsContainerWithSignatureProfileIsBES() throws Exception {
+  public void createsContainerWithSignatureProfileIsTMForDDoc() throws Exception {
     String fileName = "test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
 
-    String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/test.txt", "text/plain",
-        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "BES"};
+    String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/test.txt", "text/plain",
+        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "TM"};
 
     callMainWithoutSystemExit(params);
 
     Container container = Container.open(fileName);
-    assertEquals(SignatureProfile.BES, container.getSignature(0).getProfile());
+    assertEquals(SignatureProfile.TM, container.getSignature(0).getProfile());
   }
 
   @Test
-  public void createsContainerWithSignatureProfileIsTS() throws Exception {
-    String fileName = "test1.bdoc";
+  public void createsContainerWithSignatureProfileTSForDDocThrowsException() throws Exception {
+    exit.expectSystemExitWithStatus(1);
+
+    String fileName = "test1.ddoc";
     Files.deleteIfExists(Paths.get(fileName));
 
 
-    String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/test.txt", "text/plain",
+    String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/test.txt", "text/plain",
         "-pkcs12", "testFiles/signout.p12", "test", "-profile", "TS"};
 
-    System.setProperty("digidoc4j.mode", "TEST");
-    callMainWithoutSystemExit(params);
-
-
-    Container container = Container.open(fileName);
-    assertEquals(SignatureProfile.TS, container.getSignature(0).getProfile());
-    System.clearProperty("digidoc4j.mode");
+    DigiDoc4J.main(params);
   }
 
   @Test
