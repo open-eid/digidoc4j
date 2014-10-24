@@ -39,6 +39,7 @@ public class BDocSignature extends Signature {
       put(SignatureLevel.XAdES_BASELINE_B, BES);
       put(SignatureLevel.XAdES_BASELINE_LT, TS);
       put(SignatureLevel.XAdES_BASELINE_LTA, TSA);
+    put(SignatureLevel.XAdES_A, TSA);
     }
   };
 
