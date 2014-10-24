@@ -23,6 +23,7 @@ import static org.apache.commons.cli.OptionBuilder.withArgName;
 import static org.digidoc4j.Container.DocumentType;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
+import static org.digidoc4j.Container.SignatureProfile;
 
 /**
  * Client commandline tool for DigiDoc4J library.
@@ -101,6 +102,17 @@ public final class DigiDoc4J {
       if (commandLine.hasOption("remove")) {
         container.removeDataFile(commandLine.getOptionValue("remove"));
         fileHasChanged = true;
+      }
+
+      if (commandLine.hasOption("profile")) {
+        SignatureProfile signatureProfile = null;
+        String profile = commandLine.getOptionValue("profile");
+        try {
+          signatureProfile = SignatureProfile.valueOf(profile);
+          container.setSignatureProfile(signatureProfile);
+        } catch (IllegalArgumentException e) {
+          System.out.println("Signature profile \"" + profile + "\" is unknown and will be ignored");
+        }
       }
 
       if (commandLine.hasOption("pkcs12")) {
@@ -224,8 +236,15 @@ public final class DigiDoc4J {
     options.addOption(addFile());
     options.addOption(removeFile());
     options.addOption(pkcs12Sign());
+    options.addOption(signatureProfile());
 
     return options;
+  }
+
+  @SuppressWarnings("AccessStaticViaInstance")
+  private static Option signatureProfile() {
+    return withArgName("signatureProfile").hasArg()
+        .withDescription("sets signature profile. Profile can be BES, TS or TSA").create("profile");
   }
 
   private static void verboseMessage(String message) {
