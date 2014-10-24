@@ -11,6 +11,6 @@ public class NotSupportedException extends DigiDoc4JException {
    * @param message reason to throw exception
    */
   public NotSupportedException(String message) {
-    super("Not supported" + message);
+    super("Not supported: " + message);
   }
 }
