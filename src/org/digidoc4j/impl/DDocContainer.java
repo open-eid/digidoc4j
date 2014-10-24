@@ -51,6 +51,11 @@ public class DDocContainer extends Container {
     createDDOCContainer();
   }
 
+  /**
+   * Create a new container object of DDOC type from a file
+   *
+   * @param path file path
+   */
   public DDocContainer(String path) {
     this(path, new Configuration());
   }
@@ -65,7 +70,7 @@ public class DDocContainer extends Container {
   }
 
   /**
-   * description
+   * Create a new container object of DDOC type from a stream
    *
    * @param stream description
    */
@@ -80,6 +85,11 @@ public class DDocContainer extends Container {
     }
   }
 
+  /**
+   * Create a new container object of DDOC type using specified configuration settings
+   *
+   * @param configuration configuration to use
+   */
   public DDocContainer(Configuration configuration) {
     ConfigManager.init(configuration.getJDigiDocConfiguration());
     ConfigManager.addProvider();
@@ -94,9 +104,10 @@ public class DDocContainer extends Container {
   }
 
   /**
-   * Opens the container from a file.
+   * Create a new container object of DDOC type from a file using specified configuration settings
    *
    * @param fileName container file name with path
+   * @param configuration configuration to use
    */
   public DDocContainer(String fileName, Configuration configuration) {
     logger.debug("File name: " + fileName);
