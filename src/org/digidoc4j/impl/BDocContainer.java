@@ -645,7 +645,7 @@ public class BDocContainer extends Container {
 
   private void extend(SignatureLevel signatureLevel) {
     if (signatureLevel == signatureParameters.getSignatureLevel())
-      throw new DigiDoc4JException("It is no possible to extend signature to same level");
+      throw new DigiDoc4JException("It is not possible to extend the signature to the same level");
 
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource(configuration));
