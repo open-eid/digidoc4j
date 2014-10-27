@@ -1,15 +1,4 @@
-DATAFILE_HASHCODE_MODE: false
-DIGIDOC_MAX_DATAFILE_CACHED: 8192
-DIGIDOC_LOG4J_CONFIG: new_log4j.properties
-DIGIDOC_SECURITY_PROVIDER: org.bouncycastle.jce.provider.BouncyCastleProvider1
-TSL_LOCATION: file:conf/test_TSLLocation
-TSP_SOURCE: http://tsp.source.test/HttpTspServer
-VALIDATION_POLICY: conf/test_validation_policy.xml
-PKCS11_MODULE: /usr/lib/x86_64-linux-gnu/test_pkcs11_module.so
-OCSP_SOURCE: http://www.openxades.org/cgi-bin/test_ocsp_source.cgi
-TEST_DIGIDOC_PKCS12_CONTAINER: conf/OCSP_access_certificate_test_file_name
-TEST_DIGIDOC_PKCS12_PASSWD: OCSP_test_password
-
+TSL_LOCATION: http://10.0.25.57/tsl/trusted-test-mp.xml
 DIGIDOC_CAS:
 - DIGIDOC_CA:
     NAME: AS Sertifitseerimiskeskus
@@ -40,13 +29,6 @@ DIGIDOC_CAS:
         CERTS:
          - jar://certs/ESTEID-SK 2007 OCSP.crt
         URL: http://ocsp.sk.ee
-      - OCSP:
-        CA_CN: TEST of ESTEID-SK 2011
-        CA_CERT: jar://certs/TEST ESTEID-SK 2011.crt
-        CN: TEST of SK OCSP RESPONDER 2011
-        CERTS:
-         - jar://certs/TEST SK OCSP 2011.crt
-        URL: http://www.openxades.org/cgi-bin/ocsp.cgi
       - OCSP:
         CA_CN: KLASS3-SK
         CA_CERT: jar://certs/KLASS3-SK.crt
@@ -155,9 +137,23 @@ DIGIDOC_CAS:
         CA_CN: TEST of EE Certification Centre Root CA
         URL: http://www.openxades.org/cgi-bin/ocsp.cgi
       - OCSP:
+        CA_CN: TEST of ESTEID-SK 2011
+        CA_CERT: jar://certs/TEST ESTEID-SK 2011.crt
+        CN: TEST of SK OCSP RESPONDER 2011
+        CERTS:
+         - jar://certs/TEST SK OCSP 2011.crt
+        URL: http://www.openxades.org/cgi-bin/ocsp.cgi
+      - OCSP:
         CERTS:
          - jar://certs/TEST SK OCSP 2011.crt
         CN: TEST of SK OCSP RESPONDER 2011
         CA_CERT: jar://certs/KLASS3-SK 2010.crt
         CA_CN: KLASS3-SK 2010
         URL: http://www.openxades.org/cgi-bin/ocsp.cgi
+      - OCSP:
+        CERTS:
+         - jar://certs/SK_proxy_OCSP_responder_2009.pem.cer
+        CA_CN: KLASS3-SK
+        CA_CERT: jar://certs/KLASS3-SK.crt
+        CN: SK Proxy OCSP Responder 2009
+        URL: http://ocsp.sk.ee
