@@ -35,13 +35,15 @@ public class BDocSignature extends Signature {
   private XAdESSignature origin;
   private SignatureProductionPlace signerLocation;
   private List<DigiDoc4JException> validationErrors = new ArrayList<>();
-  private final static Map<SignatureLevel, SignatureProfile> signatureProfileMap = new HashMap<SignatureLevel, SignatureProfile>() { {
-      put(SignatureLevel.XAdES_BASELINE_B, BES);
-      put(SignatureLevel.XAdES_BASELINE_LT, TS);
-      put(SignatureLevel.XAdES_BASELINE_LTA, TSA);
-    put(SignatureLevel.XAdES_A, TSA);
-    }
-  };
+  private static final Map<SignatureLevel, SignatureProfile> signatureProfileMap =
+      new HashMap<SignatureLevel, SignatureProfile>() {
+        {
+          put(SignatureLevel.XAdES_BASELINE_B, BES);
+          put(SignatureLevel.XAdES_BASELINE_LT, TS);
+          put(SignatureLevel.XAdES_BASELINE_LTA, TSA);
+          put(SignatureLevel.XAdES_A, TSA);
+        }
+      };
 
   /**
    * Create a new BDoc signature.
