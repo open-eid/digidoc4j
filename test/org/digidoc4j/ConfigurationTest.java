@@ -2,13 +2,18 @@ package org.digidoc4j;
 
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import org.digidoc4j.exceptions.ConfigurationException;
+import org.digidoc4j.impl.BDocContainer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import sun.security.x509.X509CertImpl;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 
 import static org.digidoc4j.Configuration.*;
@@ -51,6 +56,35 @@ public class ConfigurationTest {
 
     configuration.setTslLocation("http://10.0.25.57/tsl/trusted-test-mp.xml");
     assertNotEquals(6, configuration.getTSL().getCertificates().size());
+  }
+
+
+  @Test
+  public void addTSL() throws IOException, CertificateException {
+    TrustedListsCertificateSource tsl = configuration.getTSL();
+    int numberOfTSLCertificates = tsl.getCertificates().size();
+    addFromFileToTSLCertificate("testFiles/Juur-SK.pem.crt");
+
+    assertEquals(numberOfTSLCertificates + 1, configuration.getTSL().getCertificates().size());
+  }
+
+  @Test
+  public void addedTSLIsValid() throws IOException, CertificateException {
+    addFromFileToTSLCertificate("testFiles/Juur-SK.pem.crt");
+    addFromFileToTSLCertificate("testFiles/EE_Certification_Centre_Root_CA.pem.crt");
+    addFromFileToTSLCertificate("testFiles/ESTEID-SK_2011.pem.crt");
+    addFromFileToTSLCertificate("testFiles/SK_OCSP_RESPONDER_2011.pem.cer");
+
+    BDocContainer container = new BDocContainer("testFiles/warning.bdoc", configuration);
+    ValidationResult verify = container.verify();
+    assertTrue(verify.isValid());
+  }
+
+  private void addFromFileToTSLCertificate(String fileName) throws IOException, CertificateException {
+    FileInputStream fileInputStream = new FileInputStream(fileName);
+    X509Certificate certificate = new X509CertImpl(fileInputStream);
+    configuration.addTSLCertificate(certificate);
+    fileInputStream.close();
   }
 
 
@@ -561,6 +595,60 @@ public class ConfigurationTest {
   public void isNotTestMode() throws Exception {
     Configuration configuration = new Configuration(PROD);
     assertFalse(configuration.isTest());
+  }
+
+
+  @Test
+  public void verifyAllOptionalConfigurationSettingsAreLoadedFromFile() throws Exception {
+    configuration.setTslLocation("Set TSL location");
+    configuration.setTspSource("Set TSP source");
+    configuration.setOCSPAccessCertificateFileName("Set OCSP access certificate file name");
+    configuration.setOCSPAccessCertificatePassword("Set password".toCharArray());
+    configuration.setOcspSource("Set OCSP source");
+    configuration.setValidationPolicy("Set validation policy");
+
+    configuration.loadConfiguration("testFiles/digidoc_test_all_optional_settings.yaml");
+
+    assertEquals("TEST_DIGIDOC_LOG4J_CONFIG", configuration.getJDigiDocConfiguration().get("DIGIDOC_LOG4J_CONFIG"));
+    assertEquals("123876", configuration.getJDigiDocConfiguration().get("DIGIDOC_MAX_DATAFILE_CACHED"));
+    assertEquals("TEST_DIGIDOC_NOTARY_IMPL", configuration.getJDigiDocConfiguration().get("DIGIDOC_NOTARY_IMPL"));
+    assertEquals("TEST_DIGIDOC_OCSP_SIGN_CERT_SERIAL", configuration.getJDigiDocConfiguration().get
+        ("DIGIDOC_OCSP_SIGN_CERT_SERIAL"));
+    assertEquals("TEST_DIGIDOC_SECURITY_PROVIDER", configuration.getJDigiDocConfiguration().get
+        ("DIGIDOC_SECURITY_PROVIDER"));
+    assertEquals("TEST_DIGIDOC_SECURITY_PROVIDER_NAME", configuration.getJDigiDocConfiguration().get
+        ("DIGIDOC_SECURITY_PROVIDER_NAME"));
+    assertEquals("TEST_DIGIDOC_TSLFAC_IMPL", configuration.getJDigiDocConfiguration().get("DIGIDOC_TSLFAC_IMPL"));
+    assertEquals("false", configuration.getJDigiDocConfiguration().get("DIGIDOC_USE_LOCAL_TSL"));
+    assertEquals("false", configuration.getJDigiDocConfiguration().get("KEY_USAGE_CHECK"));
+    assertEquals("false", configuration.getJDigiDocConfiguration().get("SIGN_OCSP_REQUESTS"));
+    assertEquals("TEST_DIGIDOC_DF_CACHE_DIR", configuration.getJDigiDocConfiguration().get("DIGIDOC_DF_CACHE_DIR"));
+    assertEquals("TEST_DIGIDOC_FACTORY_IMPL", configuration.getJDigiDocConfiguration().get("DIGIDOC_FACTORY_IMPL"));
+    assertEquals("TEST_CANONICALIZATION_FACTORY_IMPL", configuration.getJDigiDocConfiguration().get
+        ("CANONICALIZATION_FACTORY_IMPL"));
+    assertEquals("false", configuration.getJDigiDocConfiguration().get("DATAFILE_HASHCODE_MODE"));
+    assertEquals("TEST_DIGIDOC_PKCS12_CONTAINER", configuration.configuration.get("OCSPAccessCertificateFile"));
+    assertEquals("TEST_DIGIDOC_PKCS12_PASSWD", configuration.configuration.get("OCSPAccessCertificatePassword"));
+    assertEquals("TEST_OCSP_SOURCE", configuration.configuration.get("ocspSource"));
+    assertEquals("TEST_PKCS11_MODULE", configuration.configuration.get("pkcs11Module"));
+    assertEquals("TEST_TSP_SOURCE", configuration.configuration.get("tspSource"));
+    assertEquals("TEST_VALIDATION_POLICY", configuration.configuration.get("validationPolicy"));
+    assertEquals("TEST_TSL_LOCATION", configuration.configuration.get("tslLocation"));
+
+    configuration.setTslLocation("Set TSL location");
+    configuration.setTspSource("Set TSP source");
+    configuration.setOCSPAccessCertificateFileName("Set OCSP access certificate file name");
+    configuration.setOCSPAccessCertificatePassword("Set password".toCharArray());
+    configuration.setOcspSource("Set OCSP source");
+    configuration.setValidationPolicy("Set validation policy");
+
+    assertEquals("Set TSL location", configuration.getTslLocation());
+    assertEquals("Set TSP source", configuration.getTspSource());
+    assertEquals("Set OCSP access certificate file name", configuration.getOCSPAccessCertificateFileName());
+    assertEquals("Set password", configuration.configuration.get("OCSPAccessCertificatePassword"));
+    assertEquals("Set OCSP source", configuration.getOcspSource());
+    assertEquals("Set validation policy", configuration.getValidationPolicy());
+
   }
 
   //  // getCACerts is currently only used for testing purposes and not yet updated for multiple CA's

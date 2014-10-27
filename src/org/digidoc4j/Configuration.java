@@ -1,5 +1,6 @@
 package org.digidoc4j;
 
+import eu.europa.ec.markt.dss.validation102853.condition.ServiceInfo;
 import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
 import eu.europa.ec.markt.dss.validation102853.loader.Protocol;
@@ -14,6 +15,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.cert.X509Certificate;
 import java.util.*;
 
 import static java.util.Arrays.asList;
@@ -88,11 +90,12 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
  * Default value: {@value #DEFAULT_USE_LOCAL_TSL}</li>
  * <li>KEY_USAGE_CHECK: Should key usage be checked? Allowed values: true, false.<br>
  * Default value: {@value #DEFAULT_KEY_USAGE_CHECK}</li>
- * <li>OCSP_ACCESS_CERTIFICATE_FILE: OCSP access certificate file</li>
- * <li>OCSP_ACCESS_CERTIFICATE_PASSWORD: OCSP access certificate password</li>
+ * <li>DIGIDOC_PKCS12_CONTAINER: OCSP access certificate file</li>
+ * <li>DIGIDOC_PKCS12_PASSWD: OCSP access certificate password</li>
  * <li>OCSP_SOURCE: Online Certificate Service Protocol source</li>
  * <li>PKCS11_MODULE: PKCS11 Module file</li>
  * <li>SIGN_OCSP_REQUESTS: Should OCSP requests be signed? Allowed values: true, false</li>
+ * <li>TSL_LOCATION: TSL Location</li>
  * <li>TSP_SOURCE: Time Stamp Protocol source address</li>
  * <li>VALIDATION_POLICY: Validation policy source file</li>
  * <li>DIGIDOC_DF_CACHE_DIR: Temporary directory to use. Default: uses system's default temporary directory</li>
@@ -677,6 +680,8 @@ public class Configuration implements Serializable {
    * first try is to locate file from this location if file does not exist then it tries to load
    * relatively from classpath.
    *
+   * Setting new location clears old values
+   *
    * Windows wants it in file:DRIVE:/directories/tsl-file.xml format
    *
    * @param tslLocation TSL Location to be used
@@ -763,6 +768,25 @@ public class Configuration implements Serializable {
     String path = getConfigurationParameter("pkcs11Module");
     logger.debug("PKCS11 module path: " + path);
     return path;
+  }
+
+  /**
+   * Add a certificate to the TSL
+   * <p/>
+   * ServiceTypeIdentifier is http://uri.etsi.org/TrstSvc/Svctype/CA/QC
+   * ServiceStatus is http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision
+   *
+   * @param certificate X509 certificate to be added to the list
+   */
+  public void addTSLCertificate(X509Certificate certificate) {
+    ServiceInfo serviceInfo = new ServiceInfo();
+    serviceInfo.setStatus("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision");
+    serviceInfo.setType("http://uri.etsi.org/TrstSvc/Svctype/CA/QC");
+    serviceInfo.setStatusStartDate(certificate.getNotBefore());
+
+    if (tslCertificateSource == null)
+      tslCertificateSource = new TrustedListsCertificateSource();
+    tslCertificateSource.addCertificate(certificate, serviceInfo);
   }
 
   private void setConfigurationParameter(String key, String value) {
