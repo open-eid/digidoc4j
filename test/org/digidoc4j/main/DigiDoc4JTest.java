@@ -13,15 +13,19 @@ import org.junit.contrib.java.lang.system.Assertion;
 import org.junit.contrib.java.lang.system.ExpectedSystemExit;
 import org.junit.contrib.java.lang.system.StandardOutputStreamLog;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Permission;
 
+import static org.apache.commons.io.FileUtils.copyFile;
 import static org.digidoc4j.Configuration.Mode;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.Container.SignatureProfile;
 import static org.digidoc4j.main.DigiDoc4J.isWarning;
+import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.*;
 
@@ -36,9 +40,10 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @After
   public void cleanUp() throws Exception {
-    Files.deleteIfExists(Paths.get("test1.ddoc"));
-    Files.deleteIfExists(Paths.get("test1.bdoc"));
-    Files.deleteIfExists(Paths.get("test1.test"));
+    deleteFile("digidoc4j.yaml");
+    deleteFile("test1.ddoc");
+    deleteFile("test1.bdoc");
+    deleteFile("test1.test");
   }
 
   @Test
@@ -120,6 +125,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     assertEquals(SignatureProfile.TS, container.getSignature(0).getProfile());
   }
 
+
   @Test
   public void createsContainerWithSignatureProfileIsTMForDDoc() throws Exception {
     String fileName = "test1.bdoc";
@@ -136,7 +142,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void createsContainerWithSignatureProfileTSForDDocThrowsException() throws Exception {
+  public void createsContainerWithSignatureProfileTSForDDocReturnsFailureCode() throws Exception {
     exit.expectSystemExitWithStatus(1);
 
     String fileName = "test1.ddoc";
@@ -147,6 +153,36 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
         "-pkcs12", "testFiles/signout.p12", "test", "-profile", "TS"};
 
     DigiDoc4J.main(params);
+  }
+
+  @Test
+  public void createsContainerWithSignatureProfileTSAForDDocReturnsFailureCode() throws Exception {
+    exit.expectSystemExitWithStatus(1);
+
+    String fileName = "test1.ddoc";
+    Files.deleteIfExists(Paths.get(fileName));
+
+
+    String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/test.txt", "text/plain",
+        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "TSA"};
+
+    DigiDoc4J.main(params);
+  }
+
+  @Test
+  @Ignore("JDigiDoc by default returns TM profile but should be BES profile")
+  public void createsContainerWithSignatureProfileBESForDDoc() throws Exception {
+    String fileName = "test1.ddoc";
+    Files.deleteIfExists(Paths.get(fileName));
+
+
+    String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/test.txt", "text/plain",
+        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "BES"};
+
+    callMainWithoutSystemExit(params);
+
+    Container container = Container.open(fileName);
+    assertEquals(SignatureProfile.BES, container.getSignature(0).getProfile());
   }
 
   @Test
@@ -353,8 +389,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  @Ignore
-  public void verifyBDocWithWarning() {
+  public void verifyBDocWithWarning() throws IOException {
     exit.expectSystemExitWithStatus(0);
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
@@ -364,6 +399,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
       }
     });
     String[] params = new String[]{"-in", "testFiles/warning.bdoc", "-verify"};
+    copyFile(new File("testFiles/digidoc4j_ForBDocWarningTest.yaml"), new File("digidoc4j.yaml"));
     DigiDoc4J.main(params);
   }
 

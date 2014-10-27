@@ -3,7 +3,6 @@ package org.digidoc4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.impl.BDocContainer;
 import org.digidoc4j.impl.DDocContainer;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
@@ -380,7 +379,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testAddFileFromStreamToDDoc() throws IOException {
     Container container = Container.create(DDOC);
-    try(ByteArrayInputStream is = new ByteArrayInputStream(new byte[]{0x42})) {
+    try (ByteArrayInputStream is = new ByteArrayInputStream(new byte[]{0x42})) {
       container.addDataFile(is, "testFromStream.txt", TEXT_MIME_TYPE);
     }
     DataFile dataFile = container.getDataFiles().get(0);
@@ -488,7 +487,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   public void testAddRawSignatureAsStreamArray() throws CertificateEncodingException, IOException {
     Container container = Container.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    try(ByteArrayInputStream signatureStream = new ByteArrayInputStream(signature.getBytes())) {
+    try (ByteArrayInputStream signatureStream = new ByteArrayInputStream(signature.getBytes())) {
       container.addRawSignature(signatureStream);
     }
 
@@ -506,7 +505,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     Container container = Container.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
-    try(ByteArrayInputStream signatureStream = new ByteArrayInputStream(signature.getBytes())) {
+    try (ByteArrayInputStream signatureStream = new ByteArrayInputStream(signature.getBytes())) {
       container.addRawSignature(signatureStream);
     }
     container.save("testRemoveSignature.ddoc");
