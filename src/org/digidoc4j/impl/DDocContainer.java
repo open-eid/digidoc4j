@@ -415,14 +415,14 @@ public class DDocContainer extends Container {
   @Override
   public void extendTo(SignatureProfile profile) {
     if (profile != SignatureProfile.TM)
-      throw new NotSupportedException(profile + "profile is not supported for DDOC extension");
+      throw new NotSupportedException(profile + " profile is not supported for DDOC extension");
     addConfirmation();
   }
 
   @Override
   public void setSignatureProfile(SignatureProfile profile) {
-    if (profile == SignatureProfile.TS)
-      throw new NotSupportedException("Time Stamp profile is not supported for DDOC");
+    if (profile != SignatureProfile.TM && profile != SignatureProfile.BES)
+      throw new NotSupportedException(profile + " profile is not supported for DDOC");
     signatureProfile = profile;
   }
 

@@ -87,10 +87,8 @@ public class DDocSignature extends Signature {
 
   @Override
   public SignatureProfile getProfile() {
-    logger.debug("");
-    SignatureProfile signatureProfile = "TM".equals(origin.getProfile()) ? SignatureProfile.TM : SignatureProfile.TS;
-    logger.debug("Profile is: " + signatureProfile);
-    return signatureProfile;
+    logger.debug("Profile is TM");
+    return SignatureProfile.TM;
   }
 
   @Override
