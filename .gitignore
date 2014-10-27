@@ -11,3 +11,6 @@ digidoc4j.iml
 *.log
 password.properties
 copy-dss-jars.sh
+util/cpp.sh
+util/cpp_dd4j.sh
+util/dd4J.sh
