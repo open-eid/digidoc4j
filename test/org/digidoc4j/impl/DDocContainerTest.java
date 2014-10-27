@@ -334,6 +334,12 @@ public class DDocContainerTest {
   }
 
   @Test(expected = NotSupportedException.class)
+  public void TSAProfileIsNotSupported() throws Exception {
+    DDocContainer container = new DDocContainer();
+    container.setSignatureProfile(TSA);
+  }
+
+  @Test(expected = NotSupportedException.class)
   public void timeStampProfileIsNotSupportedForExtension() throws Exception {
     DDocContainer container = new DDocContainer();
     container.setSignatureProfile(BES);
