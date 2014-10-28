@@ -292,7 +292,7 @@ public class BDocContainer extends Container {
       if (configuration.isBigFilesSupportEnabled() && new File(path).length() > cachedFileSizeInBytes) {
         dataFiles.put(path, new DataFile(path, mimeType));
       } else {
-        FileInputStream is = new FileInputStream(path);
+        InputStream is = Files.newInputStream(Paths.get(path));
         dataFiles.put(path, new DataFile(IOUtils.toByteArray(is), path, mimeType));
         is.close();
       }

@@ -27,6 +27,7 @@ import java.util.List;
 import static eu.europa.ec.markt.dss.DSSXMLUtils.transformDomToByteArray;
 import static java.util.Arrays.asList;
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Configuration.Mode.TEST;
@@ -608,6 +609,16 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   public void constructorWithConfigurationParameter() throws Exception {
     Container container = Container.create(new Configuration());
     assertEquals(BDOC, container.getDocumentType());
+  }
+
+  @Test
+  public void createContainerWhenAttachmentNameContainsEstonianCharacters() throws Exception {
+    Container container = Container.create();
+    container.addDataFile("testFiles/test_õäöü.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    assertEquals(1, container.getDataFiles().size());
+    ValidationResult validate = container.validate();
+    assertTrue(validate.isValid());
   }
 }
 
