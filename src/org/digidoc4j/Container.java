@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 import static org.digidoc4j.Container.DocumentType.BDOC;
@@ -136,6 +137,8 @@ public abstract class Container implements Serializable {
     return create(BDOC, configuration);
   }
 
+  public abstract SignedInfo prepareSigning(X509Certificate signerCert);
+
   /**
    * Document types
    */
@@ -171,6 +174,8 @@ public abstract class Container implements Serializable {
      */
     BES
   }
+
+  public abstract void setSignatureParameters(SignatureParameters signatureParameters);
 
   /**
    * Adds a data file from the file system to the container.
@@ -271,6 +276,8 @@ public abstract class Container implements Serializable {
    * @return signature
    */
   public abstract Signature sign(Signer signer, String signatureId);
+
+  public abstract Signature signRaw(byte[] rawSignature);
 
   /**
    * Returns a list of all signatures in the container.

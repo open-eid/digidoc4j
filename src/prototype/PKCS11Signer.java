@@ -14,7 +14,7 @@ import java.security.cert.X509Certificate;
  * This signer implementation is for testing purposes
  */
 @Deprecated
-public class PKCS11Signer extends Signer {
+public class PKCS11Signer implements Signer {
   protected AbstractSignatureTokenConnection signatureTokenConnection = null;
   protected DSSPrivateKeyEntry keyEntry = null;
 

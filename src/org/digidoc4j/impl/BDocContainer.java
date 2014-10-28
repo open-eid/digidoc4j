@@ -52,7 +52,7 @@ public class BDocContainer extends Container {
 
   private final Map<String, DataFile> dataFiles = new HashMap<>();
   public static final int ONE_MB_IN_BYTES = 1048576;
-  private CommonCertificateVerifier commonCertificateVerifier;
+  private SKCommonCertificateVerifier commonCertificateVerifier;
   protected DocumentSignatureService asicService;
   private SignatureParameters signatureParameters;
   protected DSSDocument signedDocument;
@@ -71,6 +71,13 @@ public class BDocContainer extends Container {
     logger.debug("New BDoc container created");
   }
 
+  @Override
+  public SignedInfo prepareSigning(X509Certificate signerCert) {
+    byte[] signedInfo = prepareSigning(signatureParameters.getDeterministicId(), signerCert);
+
+    return new SignedInfo(signedInfo, getDigestAlgorithm());
+  }
+
   /**
    * Create a new container object of type BDOC with given configuration.
    * Configuration is immutable. You cant change already set configuration.
@@ -85,6 +92,12 @@ public class BDocContainer extends Container {
     logger.debug("New BDoc container created");
   }
 
+
+  @Override
+  public void setSignatureParameters(org.digidoc4j.SignatureParameters signatureParameters) {
+    addSignerInformation(signatureParameters.getProductionPlace(), signatureParameters.getRoles());
+  }
+
   private void initASiC() {
     signatureParameters = new SignatureParameters();
     signatureParameters.setSignatureLevel(ASiC_E_BASELINE_LT);
@@ -93,7 +106,7 @@ public class BDocContainer extends Container {
     signatureParameters.aSiC().setUnderlyingForm(XAdES);
     signatureParameters.aSiC().setZipComment(true);
 
-    commonCertificateVerifier = new CommonCertificateVerifier();
+    commonCertificateVerifier = new SKCommonCertificateVerifier();
     asicService = new ASiCService(commonCertificateVerifier);
   }
 
@@ -424,26 +437,13 @@ public class BDocContainer extends Container {
   public Signature sign(Signer signer, String signatureId) {
     logger.debug("");
 
-    byte[] dataToSign = prepareSigning(signer.getSignatureProductionPlace(), signer.getSignerRoles(), signatureId,
-        signer.getCertificate());
+    byte[] dataToSign = prepareSigning(signatureId, signer.getCertificate());
 
     byte[] signature = signer.sign(this, dataToSign);
     return signRaw(signature);
   }
 
-  /**
-   * Return info that needs to be signed
-   *
-   * @param productionPlace   Production place info
-   * @param roles             List of roles
-   * @param signatureId       signature id for signing
-   * @param signerCertificate X509 Certificate of signer
-   * @return byte array with info that needs to be signed
-   */
-  public byte[] prepareSigning(SignatureProductionPlace productionPlace, List<String> roles, String signatureId,
-                                X509Certificate signerCertificate) {
-    addSignerInformation(productionPlace, roles);
-
+  private byte[] prepareSigning(String signatureId, X509Certificate signerCertificate) {
     signatureParameters.clearCertificateChain();
     signatureParameters.setDeterministicId(signatureId);
     signatureParameters.aSiC().setSignatureFileName("signatures" + signatures.size() + ".xml");
@@ -460,6 +460,7 @@ public class BDocContainer extends Container {
     return sign(signer, "S" + getSignatures().size());
   }
 
+  @Override
   public Signature signRaw(byte[] rawSignature) {
     logger.debug("");
 

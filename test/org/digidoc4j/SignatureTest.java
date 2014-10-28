@@ -2,7 +2,6 @@ package org.digidoc4j;
 
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.exceptions.CertificateNotFoundException;
-import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.impl.BDocContainer;
 import org.digidoc4j.impl.Certificates;
@@ -12,8 +11,6 @@ import org.digidoc4j.signers.PKCS12Signer;
 import org.digidoc4j.utils.Helper;
 import org.junit.Before;
 import org.junit.Test;
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-
 
 import java.net.URI;
 import java.security.cert.CertificateEncodingException;
@@ -22,7 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import static java.util.Arrays.asList;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.Signature.Validate.VALIDATE_FULL;
@@ -37,28 +34,6 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   @Before
   public void setUp() throws Exception {
     PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
-  }
-
-  @Test
-  public void testSigningProductionPlaceForDDOC() {
-    testSigningProductionPlace(Container.create(DDOC));
-  }
-
-  @Test
-  public void testSigningProductionPlaceForBDoc() {
-    testSigningProductionPlace(Container.create(BDOC));
-  }
-
-  private void testSigningProductionPlace(Container container) {
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    PKCS12Signer signer = PKCS12_SIGNER;
-    signer.setSignatureProductionPlace("city", "state", "postalCode", "country");
-    Signature signature = container.sign(signer);
-
-    assertEquals("country", signature.getCountryName());
-    assertEquals("city", signature.getCity());
-    assertEquals("state", signature.getStateOrProvince());
-    assertEquals("postalCode", signature.getPostalCode());
   }
 
   @Test
@@ -88,59 +63,11 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     bDocSignature.setCertificate(new X509Cert("testFiles/signout.pem"));
   }
 
-  @Test
-  public void testGetSignerRolesForDDOC() {
-    testGetSignerRoles(Container.create(DDOC));
-  }
-
-  @Test
-  public void testGetSignerRolesForBDoc() {
-    testGetSignerRoles(Container.create(BDOC));
-  }
-
   @Test(expected = CertificateNotFoundException.class)
   public void testGetSignerRolesForBDoc_OCSP_Exception() {
     Container container = Container.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
     List<Signature> signatures = container.getSignatures();
     signatures.get(0).getOCSPCertificate();
-  }
-
-  private void testGetSignerRoles(Container container) {
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    PKCS12_SIGNER.setSignerRoles(asList("Role / Resolution"));
-    Signature signature = container.sign(PKCS12_SIGNER);
-    assertEquals(1, signature.getSignerRoles().size());
-    assertEquals("Role / Resolution", signature.getSignerRoles().get(0));
-  }
-
-  @Test(expected = DigiDoc4JException.class)
-  public void testGetMultipleSignerRolesForDDOC() {
-    testGetMultipleSignerRoles(Container.create(DDOC));
-  }
-
-  @Test
-  public void testGetMultipleSignerRolesForBDoc() {
-    testGetMultipleSignerRoles(Container.create(BDOC));
-  }
-
-  private void testGetMultipleSignerRoles(Container container) {
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    PKCS12_SIGNER.setSignerRoles(asList("Role 1", "Role 2"));
-    Signature signature = container.sign(PKCS12_SIGNER);
-    assertEquals(2, signature.getSignerRoles().size());
-    assertEquals("Role 1", signature.getSignerRoles().get(0));
-    assertEquals("Role 2", signature.getSignerRoles().get(1));
-  }
-
-  @Test
-  public void testSigningProperties() throws Exception {
-    Container bDocContainer = Container.create(BDOC);
-    bDocContainer.addDataFile("testFiles/test.txt", "text/plain");
-    PKCS12_SIGNER.setSignatureProductionPlace("city", "stateOrProvince", "postalCode", "country");
-    PKCS12_SIGNER.setSignerRoles(asList("signerRoles"));
-    Signature signature = bDocContainer.sign(PKCS12_SIGNER);
-
-    assertTrue(isAlmostNow(signature.getSigningTime()));
   }
 
   @Test

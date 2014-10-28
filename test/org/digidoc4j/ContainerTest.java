@@ -532,10 +532,12 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     String country = "myCountry";
     String signerRoles = "myRole / myResolution";
 
-    PKCS12_SIGNER.setSignatureProductionPlace(city, stateOrProvince, postalCode, country);
-    PKCS12_SIGNER.setSignerRoles(asList(signerRoles));
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setProductionPlace(new SignatureProductionPlace(city, stateOrProvince, postalCode, country));
+    signatureParameters.setRoles(asList(signerRoles));
 
     Container bDocContainer = Container.create();
+    bDocContainer.setSignatureParameters(signatureParameters);
     bDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     Signature signature = bDocContainer.sign(PKCS12_SIGNER);
 

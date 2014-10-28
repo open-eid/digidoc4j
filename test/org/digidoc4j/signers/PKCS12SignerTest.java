@@ -107,128 +107,101 @@ public class PKCS12SignerTest {
     assertTrue(Arrays.equals(expected, pkcs12Signer.sign(container, new byte[]{0x41})));
   }
 
-  @Test
-  public void getSignerInformation() {
-    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
-    List<String> signerRoles = new ArrayList<String>();
-    signerRoles.add("Role1");
-    signerRoles.add("Role2");
-    pkcs12Signer.setSignerRoles(signerRoles);
-    SignatureProductionPlace signatureProductionPlace = pkcs12Signer.getSignatureProductionPlace();
-    assertEquals("myCity", signatureProductionPlace.getCity());
-    assertEquals("myCountry", signatureProductionPlace.getCountry());
-    assertEquals("myPostalCode", signatureProductionPlace.getPostalCode());
-    assertEquals("myState", signatureProductionPlace.getStateOrProvince());
-    List<String> signerRolesReturned = pkcs12Signer.getSignerRoles();
-    assertEquals(2, signerRolesReturned.size());
-    assertEquals(signerRoles.get(0), signerRolesReturned.get(0));
-    assertEquals(signerRoles.get(1), signerRolesReturned.get(1));
-  }
-
-  @Test
-  public void getCity() {
-    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
-    assertEquals("myCity", pkcs12Signer.getCity());
-  }
-
-  @Test
-  public void getCityWhenEmpty() {
-    pkcs12Signer.setSignatureProductionPlace("", "myState", "myPostalCode", "myCountry");
-    assertEquals("", pkcs12Signer.getCity());
-  }
-
-  @Test
-  public void getCityWhenNull() {
-    pkcs12Signer.setSignatureProductionPlace(null, "myState", "myPostalCode", "myCountry");
-    assertNull(pkcs12Signer.getCity());
-  }
-
-  @Test
-  public void getStateOrProvince() {
-    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
-    assertEquals("myState", pkcs12Signer.getStateOrProvince());
-  }
-
-  @Test
-  public void getStateOrProvinceWhenEmpty() {
-    pkcs12Signer.setSignatureProductionPlace("myCity", "", "myPostalCode", "myCountry");
-    assertEquals("", pkcs12Signer.getStateOrProvince());
-  }
-
-  @Test
-  public void getStateOrProvinceWhenNull() {
-    pkcs12Signer.setSignatureProductionPlace("myCity", null, "myPostalCode", "myCountry");
-    assertNull(pkcs12Signer.getStateOrProvince());
-  }
-
-  @Test
-  public void getPostalCode() {
-    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
-    assertEquals("myPostalCode", pkcs12Signer.getPostalCode());
-  }
-
-  @Test
-  public void getPostalCodeWhenEmpty() {
-    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "", "myCountry");
-    assertEquals("", pkcs12Signer.getPostalCode());
-  }
-
-  @Test
-  public void getPostalCodeWhenNull() {
-    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", null, "myCountry");
-    assertNull(pkcs12Signer.getPostalCode());
-  }
-
-  @Test
-  public void getCountry() {
-    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
-    assertEquals("myCountry", pkcs12Signer.getCountry());
-  }
-
-  @Test
-  public void getCountryWhenEmpty() {
-    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "");
-    assertEquals("", pkcs12Signer.getCountry());
-  }
-
-  @Test
-  public void getCountryWhenNull() {
-    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", null);
-    assertNull(pkcs12Signer.getCountry());
-  }
-
-  @Test
-  public void getSignerRoles() {
-    pkcs12Signer.setSignerRoles(asList("Role / Resolution"));
-    Assert.assertEquals(1, pkcs12Signer.getSignerRoles().size());
-    assertEquals("Role / Resolution", pkcs12Signer.getSignerRoles().get(0));
-  }
-
-  @Test
-  public void getMultipleSignerRoles() {
-    pkcs12Signer.setSignerRoles(asList("Role 1", "Role 2"));
-    Assert.assertEquals(2, pkcs12Signer.getSignerRoles().size());
-    assertEquals("Role 1", pkcs12Signer.getSignerRoles().get(0));
-    assertEquals("Role 2", pkcs12Signer.getSignerRoles().get(1));
-  }
-
-  @Test
-  public void addSignatureProductionPlace() throws Exception {
-    SignatureProductionPlace signatureProductionPlace = new SignatureProductionPlace();
-    signatureProductionPlace.setCountry("Country");
-    pkcs12Signer.setSignatureProductionPlace(signatureProductionPlace);
-
-    assertEquals("Country", pkcs12Signer.getCountry());
-    SignatureProductionPlace productionPlaceToTest = pkcs12Signer.getSignatureProductionPlace();
-    assertEquals("Country", productionPlaceToTest.getCountry());
-  }
-
-  @Test
-  public void calculateDigest() throws Exception {
-    Container container = mock(Container.class);
-    when(container.getDigestAlgorithm()).thenReturn(DigestAlgorithm.SHA256);
-
-    byte[] digest = Signer.calculateDigest(container, "TERE".getBytes());
-    assertEquals("ef864d27cdc0ecaf5ec80dbfcba40c07b085c1de32d7f6c0f196424977c10f73", Hex.encodeHexString(digest));
-  }
+//  @Test
+//  public void getCity() {
+//    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
+//    assertEquals("myCity", pkcs12Signer.getCity());
+//  }
+//
+//  @Test
+//  public void getCityWhenEmpty() {
+//    pkcs12Signer.setSignatureProductionPlace("", "myState", "myPostalCode", "myCountry");
+//    assertEquals("", pkcs12Signer.getCity());
+//  }
+//
+//  @Test
+//  public void getCityWhenNull() {
+//    pkcs12Signer.setSignatureProductionPlace(null, "myState", "myPostalCode", "myCountry");
+//    assertNull(pkcs12Signer.getCity());
+//  }
+//
+//  @Test
+//  public void getStateOrProvince() {
+//    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
+//    assertEquals("myState", pkcs12Signer.getStateOrProvince());
+//  }
+//
+//  @Test
+//  public void getStateOrProvinceWhenEmpty() {
+//    pkcs12Signer.setSignatureProductionPlace("myCity", "", "myPostalCode", "myCountry");
+//    assertEquals("", pkcs12Signer.getStateOrProvince());
+//  }
+//
+//  @Test
+//  public void getStateOrProvinceWhenNull() {
+//    pkcs12Signer.setSignatureProductionPlace("myCity", null, "myPostalCode", "myCountry");
+//    assertNull(pkcs12Signer.getStateOrProvince());
+//  }
+//
+//  @Test
+//  public void getPostalCode() {
+//    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
+//    assertEquals("myPostalCode", pkcs12Signer.getPostalCode());
+//  }
+//
+//  @Test
+//  public void getPostalCodeWhenEmpty() {
+//    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "", "myCountry");
+//    assertEquals("", pkcs12Signer.getPostalCode());
+//  }
+//
+//  @Test
+//  public void getPostalCodeWhenNull() {
+//    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", null, "myCountry");
+//    assertNull(pkcs12Signer.getPostalCode());
+//  }
+//
+//  @Test
+//  public void getCountry() {
+//    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
+//    assertEquals("myCountry", pkcs12Signer.getCountry());
+//  }
+//
+//  @Test
+//  public void getCountryWhenEmpty() {
+//    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "");
+//    assertEquals("", pkcs12Signer.getCountry());
+//  }
+//
+//  @Test
+//  public void getCountryWhenNull() {
+//    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", null);
+//    assertNull(pkcs12Signer.getCountry());
+//  }
+//
+//  @Test
+//  public void getSignerRoles() {
+//    pkcs12Signer.setSignerRoles(asList("Role / Resolution"));
+//    Assert.assertEquals(1, pkcs12Signer.getSignerRoles().size());
+//    assertEquals("Role / Resolution", pkcs12Signer.getSignerRoles().get(0));
+//  }
+//
+//  @Test
+//  public void getMultipleSignerRoles() {
+//    pkcs12Signer.setSignerRoles(asList("Role 1", "Role 2"));
+//    Assert.assertEquals(2, pkcs12Signer.getSignerRoles().size());
+//    assertEquals("Role 1", pkcs12Signer.getSignerRoles().get(0));
+//    assertEquals("Role 2", pkcs12Signer.getSignerRoles().get(1));
+//  }
+//
+//  @Test
+//  public void addSignatureProductionPlace() throws Exception {
+//    SignatureProductionPlace signatureProductionPlace = new SignatureProductionPlace();
+//    signatureProductionPlace.setCountry("Country");
+//    pkcs12Signer.setSignatureProductionPlace(signatureProductionPlace);
+//
+//    assertEquals("Country", pkcs12Signer.getCountry());
+//    SignatureProductionPlace productionPlaceToTest = pkcs12Signer.getSignatureProductionPlace();
+//    assertEquals("Country", productionPlaceToTest.getCountry());
+//  }
 }

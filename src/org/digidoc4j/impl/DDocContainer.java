@@ -11,6 +11,7 @@ import org.apache.commons.io.IOUtils;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +42,7 @@ public class DDocContainer extends Container {
   SignedDoc ddoc;
   private ArrayList<DigiDocException> openContainerExceptions = new ArrayList<>();
   private SignatureProfile signatureProfile = SignatureProfile.TM;
+  private SignatureParameters signatureParameters = new SignatureParameters();
 
   /**
    * Create a new container object of DDOC type Container.
@@ -49,6 +51,16 @@ public class DDocContainer extends Container {
     logger.debug("");
     intConfiguration();
     createDDOCContainer();
+  }
+
+  @Override
+  public SignedInfo prepareSigning(X509Certificate signerCert) {
+    throw new NotYetImplementedException();
+  }
+
+  @Override
+  public void setSignatureParameters(SignatureParameters signatureParameters) {
+    this.signatureParameters = signatureParameters;
   }
 
   /**
@@ -304,6 +316,11 @@ public class DDocContainer extends Container {
   }
 
   @Override
+  public Signature signRaw(byte[] rawSignature) {
+    throw new NotYetImplementedException();
+  }
+
+  @Override
   public List<Signature> getSignatures() {
     logger.debug("");
     List<Signature> signatures = new ArrayList<>();
@@ -376,13 +393,16 @@ public class DDocContainer extends Container {
   ee.sk.digidoc.Signature calculateSignature(Signer signer, String signatureId) {
     ee.sk.digidoc.Signature signature;
     try {
-      List<String> signerRoles = signer.getSignerRoles();
-      SignatureProductionPlace productionPlace = new SignatureProductionPlace(signer.getCity(),
-          signer.getStateOrProvince(), signer.getCountry(), signer.getPostalCode());
+
+      List<String> signerRoles = signatureParameters.getRoles();
+      org.digidoc4j.SignatureProductionPlace signatureProductionPlace = signatureParameters.getProductionPlace();
+
+      SignatureProductionPlace productionPlace = new SignatureProductionPlace(signatureProductionPlace.getCity(),
+          signatureProductionPlace.getStateOrProvince(), signatureProductionPlace.getCountry(),
+          signatureProductionPlace.getPostalCode());
 
       signature = ddoc.prepareSignature(signer.getCertificate(),
-          signerRoles.toArray(new String[signerRoles.size()]),
-          productionPlace);
+          signerRoles.toArray(new String[signerRoles.size()]), productionPlace);
 
       if (signatureId != null)
         signature.setId(signatureId);

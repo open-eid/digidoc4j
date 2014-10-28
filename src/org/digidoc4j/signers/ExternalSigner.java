@@ -9,7 +9,7 @@ import java.security.cert.X509Certificate;
 /**
  * Signer for external services for example in web
  */
-public abstract class ExternalSigner extends Signer {
+public abstract class ExternalSigner implements Signer {
 
   private X509Certificate signingCertificate;
 

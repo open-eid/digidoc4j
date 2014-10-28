@@ -21,6 +21,13 @@ public class SignatureProductionPlace implements Serializable {
     logger.debug("");
   }
 
+  public SignatureProductionPlace(String city, String stateOrProvince, String postalCode, String country) {
+    this.city = city;
+    this.stateOrProvince = stateOrProvince;
+    this.postalCode = postalCode;
+    this.country = country;
+  }
+
   public String getCity() {
     logger.debug("");
     return city;
