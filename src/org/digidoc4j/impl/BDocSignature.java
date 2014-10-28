@@ -230,7 +230,13 @@ public class BDocSignature extends Signature {
 
   @Override
   public byte[] getRawSignature() {
-    Document signatureDOM = createDocument(ASiCNamespaces.ASiC, ASiCService.ASICS_NS, origin.getSignatureElement());
-    return DSSXMLUtils.transformDomToByteArray(signatureDOM);
+    logger.debug("");
+    return DSSXMLUtils.transformDomToByteArray(getRawSignatureAsDOM());
+  }
+
+  @Override
+  public Document getRawSignatureAsDOM() {
+    logger.debug("");
+    return createDocument(ASiCNamespaces.ASiC, ASiCService.ASICS_NS, origin.getSignatureElement());
   }
 }

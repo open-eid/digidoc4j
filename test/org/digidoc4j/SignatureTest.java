@@ -19,6 +19,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import static eu.europa.ec.markt.dss.DSSXMLUtils.transformDomToByteArray;
+import static java.util.Arrays.asList;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
@@ -264,5 +267,19 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     deleteFile("getSignatureXMLForBDOC.bdoc");
 
     assertXMLEqual(signatureFromContainer, new String(signature.getRawSignature()));
+  }
+
+  @Test
+  public void getSignatureAsDOMForBDOC() throws Exception {
+    Container container = Container.create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    Signature signature = container.sign(PKCS12_SIGNER);
+
+    container.save("getSignatureXMLForBDOC.bdoc");
+    String signatureFromContainer = Helper.extractSignature("getSignatureXMLForBDOC.bdoc", 0);
+
+    deleteFile("getSignatureXMLForBDOC.bdoc");
+
+    assertXMLEqual(signatureFromContainer, new String(transformDomToByteArray(signature.getRawSignatureAsDOM())));
   }
 }
