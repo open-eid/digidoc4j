@@ -6,6 +6,7 @@ import ee.sk.digidoc.SignedDoc;
 import org.digidoc4j.Container;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.Signer;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
@@ -214,8 +215,12 @@ public class DDocContainerTest {
   public void setsSignatureId() throws Exception {
     DDocContainer container = new DDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER, "SIGNATURE-1");
-    container.sign(PKCS12_SIGNER, "SIGNATURE-2");
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setSignatureId("SIGNATURE-1");
+    container.setSignatureParameters(signatureParameters);
+    container.sign(PKCS12_SIGNER);
+    signatureParameters.setSignatureId("SIGNATURE-2");
+    container.sign(PKCS12_SIGNER);
     container.save("setsSignatureId.ddoc");
 
     container = new DDocContainer("setsSignatureId.ddoc");
@@ -240,9 +245,15 @@ public class DDocContainerTest {
   public void setsSignatureIdWithoutOCSP() throws Exception {
     DDocContainer container = new DDocContainer();
     container.setSignatureProfile(BES);
+
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER, "SIGNATURE-1");
-    container.sign(PKCS12_SIGNER, "SIGNATURE-2");
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setSignatureId("SIGNATURE-1");
+    container.setSignatureParameters(signatureParameters);
+
+    container.sign(PKCS12_SIGNER);
+    signatureParameters.setSignatureId("SIGNATURE-2");
+    container.sign(PKCS12_SIGNER);
     container.save("testSetsSignatureId.ddoc");
 
     container = new DDocContainer("testSetsSignatureId.ddoc");
@@ -407,14 +418,18 @@ public class DDocContainerTest {
     }
 
     @Override
-    ee.sk.digidoc.Signature calculateSignature(Signer signer, String signatureId) {
+    ee.sk.digidoc.Signature calculateSignature(Signer signer) {
       return signature;
     }
 
     @Override
-    public Signature sign(Signer signer, String signatureId) {
+    public Signature sign(Signer signer) {
+      ddocSignature = mock(ee.sk.digidoc.Signature.class);
+      try {
+        doReturn("A".getBytes()).when(ddocSignature).calculateSignedInfoXML();
+      } catch (DigiDocException ignored) {}
       getConfirmationThrowsException();
-      return super.sign(signer, signatureId);
+      return super.sign(signer);
     }
 
     private void getConfirmationThrowsException() {

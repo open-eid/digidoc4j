@@ -1,7 +1,6 @@
 package org.digidoc4j.impl;
 
 import eu.europa.ec.markt.dss.exception.DSSException;
-import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
 import eu.europa.ec.markt.dss.signature.asic.ASiCService;
 import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
@@ -301,8 +300,14 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void setsSignatureId() throws Exception {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER, "SIGNATURE-1");
-    container.sign(PKCS12_SIGNER, "SIGNATURE-2");
+
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setSignatureId("SIGNATURE-1");
+    container.setSignatureParameters(signatureParameters);
+    container.sign(PKCS12_SIGNER);
+
+    signatureParameters.setSignatureId("SIGNATURE-2");
+    container.sign(PKCS12_SIGNER);
     container.save("setsSignatureId.bdoc");
 
     container = new BDocContainer("setsSignatureId.bdoc");
@@ -358,7 +363,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     BDocContainer container = new BDocContainer();
     BDocContainer spy = spy(container);
 
-    SignatureParameters signatureParameters = new SignatureParameters();
+    eu.europa.ec.markt.dss.parameter.SignatureParameters signatureParameters =
+        new eu.europa.ec.markt.dss.parameter.SignatureParameters();
     signatureParameters.setDeterministicId("NotPresentSignature");
     when(spy.getSignatureParameters()).thenReturn(signatureParameters);
 
@@ -789,7 +795,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     public Signature sign(Signer signer) {
       super.asicService = spy(new ASiCService(new CommonCertificateVerifier()));
       doThrow(new DSSException(expected)).when(super.asicService).signDocument(Mockito.any(DSSDocument.class),
-          Mockito.any(SignatureParameters.class), Mockito.any(byte[].class));
+          Mockito.any(eu.europa.ec.markt.dss.parameter.SignatureParameters.class), Mockito.any(byte[].class));
       return super.sign(signer);
     }
   }

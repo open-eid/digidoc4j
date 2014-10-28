@@ -289,15 +289,6 @@ public abstract class Container implements Serializable {
   /**
    * Signs all data files in the container.
    *
-   * @param signer      signer implementation
-   * @param signatureId sets signature id
-   * @return signature
-   */
-  public abstract Signature sign(Signer signer, String signatureId);
-
-  /**
-   * Signs all data files in the container.
-   *
    * @param rawSignature raw signature
    * @return signature
    */

@@ -2,9 +2,11 @@ package org.digidoc4j;
 
 import eu.europa.ec.markt.dss.DSSUtils;
 
+import java.io.Serializable;
+
 import static eu.europa.ec.markt.dss.DigestAlgorithm.forXML;
 
-public class SignedInfo {
+public class SignedInfo implements Serializable {
   private byte[] digest;
   private DigestAlgorithm digestAlgorithm;
 

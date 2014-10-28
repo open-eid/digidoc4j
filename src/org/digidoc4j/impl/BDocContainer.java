@@ -54,7 +54,8 @@ public class BDocContainer extends Container {
   public static final int ONE_MB_IN_BYTES = 1048576;
   private SKCommonCertificateVerifier commonCertificateVerifier;
   protected DocumentSignatureService asicService;
-  private SignatureParameters signatureParameters;
+  private SignatureParameters dssSignatureParameters;
+  private org.digidoc4j.SignatureParameters signatureParameters = new org.digidoc4j.SignatureParameters();
   protected DSSDocument signedDocument;
   private List<Signature> signatures = new ArrayList<>();
   Configuration configuration = null;
@@ -73,7 +74,7 @@ public class BDocContainer extends Container {
 
   @Override
   public SignedInfo prepareSigning(X509Certificate signerCert) {
-    byte[] signedInfo = prepareSigning(signatureParameters.getDeterministicId(), signerCert);
+    byte[] signedInfo = getDataToSign(dssSignatureParameters.getDeterministicId(), signerCert);
 
     return new SignedInfo(signedInfo, getDigestAlgorithm());
   }
@@ -95,16 +96,17 @@ public class BDocContainer extends Container {
 
   @Override
   public void setSignatureParameters(org.digidoc4j.SignatureParameters signatureParameters) {
-    addSignerInformation(signatureParameters.getProductionPlace(), signatureParameters.getRoles());
+    this.signatureParameters = signatureParameters;
+    addSignerInformation();
   }
 
   private void initASiC() {
-    signatureParameters = new SignatureParameters();
-    signatureParameters.setSignatureLevel(ASiC_E_BASELINE_LT);
-    signatureParameters.setSignaturePackaging(DETACHED);
-    signatureParameters.setDigestAlgorithm(SHA256);
-    signatureParameters.aSiC().setUnderlyingForm(XAdES);
-    signatureParameters.aSiC().setZipComment(true);
+    dssSignatureParameters = new SignatureParameters();
+    dssSignatureParameters.setSignatureLevel(ASiC_E_BASELINE_LT);
+    dssSignatureParameters.setSignaturePackaging(DETACHED);
+    dssSignatureParameters.setDigestAlgorithm(SHA256);
+    dssSignatureParameters.aSiC().setUnderlyingForm(XAdES);
+    dssSignatureParameters.aSiC().setZipComment(true);
 
     commonCertificateVerifier = new SKCommonCertificateVerifier();
     asicService = new ASiCService(commonCertificateVerifier);
@@ -222,7 +224,7 @@ public class BDocContainer extends Container {
 
     Reports report = validate(validator);
 
-    signatureParameters.setDigestAlgorithm(report.getDiagnosticData().getSignatureDigestAlgorithm());
+    dssSignatureParameters.setDigestAlgorithm(report.getDiagnosticData().getSignatureDigestAlgorithm());
 
     do {
       SimpleReport simpleReport = report.getSimpleReport();
@@ -241,10 +243,10 @@ public class BDocContainer extends Container {
     List<DigiDoc4JException> validationErrors;
     for (AdvancedSignature advancedSignature : signatureList) {
       validationErrors = new ArrayList<>();
-      String signatureId = advancedSignature.getId();
-      SimpleReport simpleReport = getSimpleReport(simpleReports, signatureId);
+      String reportSignatureId = advancedSignature.getId();
+      SimpleReport simpleReport = getSimpleReport(simpleReports, reportSignatureId);
       if (simpleReport != null) {
-        for (Conclusion.BasicInfo error : simpleReport.getErrors(signatureId)) {
+        for (Conclusion.BasicInfo error : simpleReport.getErrors(reportSignatureId)) {
           String errorMessage = error.toString();
           logger.info(errorMessage);
           validationErrors.add(new DigiDoc4JException(errorMessage));
@@ -254,9 +256,9 @@ public class BDocContainer extends Container {
     }
   }
 
-  private SimpleReport getSimpleReport(Map<String, SimpleReport> simpleReports, String signatureId) {
-    logger.debug("signature id = " + signatureId);
-    SimpleReport simpleReport = simpleReports.get(signatureId);
+  private SimpleReport getSimpleReport(Map<String, SimpleReport> simpleReports, String fromSignatureId) {
+    logger.debug("signature id = " + fromSignatureId);
+    SimpleReport simpleReport = simpleReports.get(fromSignatureId);
     if (simpleReport != null && simpleReports.size() == 1) {
       return simpleReports.values().iterator().next();
     }
@@ -381,13 +383,13 @@ public class BDocContainer extends Container {
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
     DSSDocument signingDocument = getAttachment();
     DSSDocument signature = validator.removeSignature("S" + index);
-    signatureParameters.setDetachedContent(signingDocument);
+    dssSignatureParameters.setDetachedContent(signingDocument);
 
     signedDocument = null;
     do {
-      signatureParameters.aSiC().setSignatureFileName(getSignatureFileName(signature));
+      dssSignatureParameters.aSiC().setSignatureFileName(getSignatureFileName(signature));
       signedDocument = ((ASiCService) asicService).buildASiCContainer(signingDocument, signedDocument,
-          signatureParameters, createBareDocument(signature));
+          dssSignatureParameters, createBareDocument(signature));
       signature = signature.getNextDocument();
     } while (signature != null);
 
@@ -434,30 +436,27 @@ public class BDocContainer extends Container {
   }
 
   @Override
-  public Signature sign(Signer signer, String signatureId) {
+  public Signature sign(Signer signer) {
     logger.debug("");
-
-    byte[] dataToSign = prepareSigning(signatureId, signer.getCertificate());
+    byte[] dataToSign;
+    String signatureId = signatureParameters.getSignatureId();
+    dataToSign = getDataToSign(signatureId != null ? signatureId : "S" + getSignatures().size(),
+        signer.getCertificate());
 
     byte[] signature = signer.sign(this, dataToSign);
     return signRaw(signature);
   }
 
-  private byte[] prepareSigning(String signatureId, X509Certificate signerCertificate) {
-    signatureParameters.clearCertificateChain();
-    signatureParameters.setDeterministicId(signatureId);
-    signatureParameters.aSiC().setSignatureFileName("signatures" + signatures.size() + ".xml");
-    signatureParameters.setSigningCertificate(signerCertificate);
+  private byte[] getDataToSign(String setSignatureId, X509Certificate signerCertificate) {
+    dssSignatureParameters.clearCertificateChain();
+    dssSignatureParameters.setDeterministicId(setSignatureId);
+    dssSignatureParameters.aSiC().setSignatureFileName("signatures" + signatures.size() + ".xml");
+    dssSignatureParameters.setSigningCertificate(signerCertificate);
 
     DSSDocument attachment = getAttachment();
-    signatureParameters.setDetachedContent(attachment);
+    dssSignatureParameters.setDetachedContent(attachment);
 
-    return asicService.getDataToSign(attachment, signatureParameters);
-  }
-
-  @Override
-  public Signature sign(Signer signer) {
-    return sign(signer, "S" + getSignatures().size());
+    return asicService.getDataToSign(attachment, dssSignatureParameters);
   }
 
   @Override
@@ -471,7 +470,7 @@ public class BDocContainer extends Container {
     String deterministicId = getSignatureParameters().getDeterministicId();
 
     try {
-      signedDocument = asicService.signDocument(getSigningDocument(), signatureParameters, rawSignature);
+      signedDocument = asicService.signDocument(getSigningDocument(), dssSignatureParameters, rawSignature);
     } catch (DSSException e) {
       logger.error(e.getMessage());
       if ("OCSP request failed".equals(e.getMessage()))
@@ -546,9 +545,12 @@ public class BDocContainer extends Container {
     return configuration;
   }
 
-  private void addSignerInformation(SignatureProductionPlace signatureProductionPlace, List<String> signerRoles) {
+  private void addSignerInformation() {
     logger.debug("");
-    BLevelParameters bLevelParameters = signatureParameters.bLevel();
+    SignatureProductionPlace signatureProductionPlace = signatureParameters.getProductionPlace();
+    List<String> signerRoles = signatureParameters.getRoles();
+
+    BLevelParameters bLevelParameters = dssSignatureParameters.bLevel();
 
     if (!(isEmpty(signatureProductionPlace.getCity()) && isEmpty(signatureProductionPlace.getStateOrProvince())
         && isEmpty(signatureProductionPlace.getPostalCode())
@@ -631,12 +633,12 @@ public class BDocContainer extends Container {
   @Override
   public void setDigestAlgorithm(DigestAlgorithm algorithm) {
     logger.debug("Algorithm: " + algorithm);
-    signatureParameters.setDigestAlgorithm(forName(algorithm.name(), SHA256));
+    dssSignatureParameters.setDigestAlgorithm(forName(algorithm.name(), SHA256));
   }
 
   @Override
   public DigestAlgorithm getDigestAlgorithm() {
-    return DigestAlgorithm.valueOf(signatureParameters.getDigestAlgorithm().getName());
+    return DigestAlgorithm.valueOf(dssSignatureParameters.getDigestAlgorithm().getName());
   }
 
   @Override
@@ -645,15 +647,15 @@ public class BDocContainer extends Container {
   }
 
   private void extend(SignatureLevel signatureLevel) {
-    if (signatureLevel == signatureParameters.getSignatureLevel())
+    if (signatureLevel == dssSignatureParameters.getSignatureLevel())
       throw new DigiDoc4JException("It is not possible to extend the signature to the same level");
 
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource(configuration));
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
 
-    signatureParameters.setSignatureLevel(signatureLevel);
-    signedDocument = asicService.extendDocument(signedDocument, signatureParameters);
+    dssSignatureParameters.setSignatureLevel(signatureLevel);
+    signedDocument = asicService.extendDocument(signedDocument, dssSignatureParameters);
 
     signatures = new ArrayList<>();
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
@@ -690,18 +692,18 @@ public class BDocContainer extends Container {
       case TM:
         throw new NotYetImplementedException();
       case BES:
-        signatureParameters.setSignatureLevel(ASiC_E_BASELINE_B);
+        dssSignatureParameters.setSignatureLevel(ASiC_E_BASELINE_B);
         break;
       case TSA:
-        signatureParameters.setSignatureLevel(ASiC_E_BASELINE_LTA);
+        dssSignatureParameters.setSignatureLevel(ASiC_E_BASELINE_LTA);
         break;
       default:
-        signatureParameters.setSignatureLevel(ASiC_E_BASELINE_LT);
+        dssSignatureParameters.setSignatureLevel(ASiC_E_BASELINE_LT);
     }
   }
 
   protected SignatureParameters getSignatureParameters() {
     logger.debug("");
-    return signatureParameters;
+    return dssSignatureParameters;
   }
 }

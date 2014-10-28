@@ -11,7 +11,6 @@ import org.apache.commons.io.IOUtils;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +42,7 @@ public class DDocContainer extends Container {
   private ArrayList<DigiDocException> openContainerExceptions = new ArrayList<>();
   private SignatureProfile signatureProfile = SignatureProfile.TM;
   private SignatureParameters signatureParameters = new SignatureParameters();
+  protected ee.sk.digidoc.Signature ddocSignature;
 
   /**
    * Create a new container object of DDOC type Container.
@@ -55,7 +55,27 @@ public class DDocContainer extends Container {
 
   @Override
   public SignedInfo prepareSigning(X509Certificate signerCert) {
-    throw new NotYetImplementedException();
+    logger.debug("");
+
+    List<String> signerRoles = signatureParameters.getRoles();
+    org.digidoc4j.SignatureProductionPlace signatureProductionPlace = signatureParameters.getProductionPlace();
+
+    SignatureProductionPlace productionPlace = new SignatureProductionPlace(signatureProductionPlace.getCity(),
+        signatureProductionPlace.getStateOrProvince(), signatureProductionPlace.getCountry(),
+        signatureProductionPlace.getPostalCode());
+
+    try {
+      ddocSignature = ddoc.prepareSignature(signerCert, signerRoles.toArray(new String[signerRoles.size()]),
+          productionPlace);
+
+      String signatureId = signatureParameters.getSignatureId();
+      if (signatureId != null) ddocSignature.setId(signatureId);
+
+      return new SignedInfo(ddocSignature.calculateSignedInfoXML(), DigestAlgorithm.SHA1);
+    } catch (DigiDocException e) {
+      logger.error(e.getMessage());
+      throw new DigiDoc4JException(e);
+    }
   }
 
   @Override
@@ -118,7 +138,7 @@ public class DDocContainer extends Container {
   /**
    * Create a new container object of DDOC type from a file using specified configuration settings
    *
-   * @param fileName container file name with path
+   * @param fileName      container file name with path
    * @param configuration configuration to use
    */
   public DDocContainer(String fileName, Configuration configuration) {
@@ -296,28 +316,30 @@ public class DDocContainer extends Container {
 
   @Override
   public Signature sign(Signer signer) {
-    return sign(signer, null);
-  }
-
-  @Override
-  public Signature sign(Signer signer, String signatureId) {
     logger.debug("");
-    ee.sk.digidoc.Signature signature = calculateSignature(signer, signatureId);
-    if (signatureProfile == SignatureProfile.TM) {
-      try {
-        signature.getConfirmation();
-      } catch (DigiDocException e) {
-        logger.error(e.getMessage());
-        throw new DigiDoc4JException(e.getNestedException());
+    calculateSignature(signer);
+    try {
+      signRaw(signer.sign(this, ddocSignature.calculateSignedInfoXML()));
+      if (signatureProfile == SignatureProfile.TM) {
+        ddocSignature.getConfirmation();
       }
+    } catch (DigiDocException e) {
+      logger.error(e.getMessage());
+      throw new DigiDoc4JException(e.getNestedException());
     }
 
-    return new DDocSignature(signature);
+    return new DDocSignature(ddocSignature);
   }
 
   @Override
   public Signature signRaw(byte[] rawSignature) {
-    throw new NotYetImplementedException();
+    try {
+      ddocSignature.setSignatureValue(rawSignature);
+      return new DDocSignature(ddocSignature);
+    } catch (DigiDocException e) {
+      logger.error(e.getMessage());
+      throw new DigiDoc4JException(e.getNestedException());
+    }
   }
 
   @Override
@@ -390,30 +412,9 @@ public class DDocContainer extends Container {
     return new ValidationResultForDDoc(exceptions, containerExceptions);
   }
 
-  ee.sk.digidoc.Signature calculateSignature(Signer signer, String signatureId) {
-    ee.sk.digidoc.Signature signature;
-    try {
-
-      List<String> signerRoles = signatureParameters.getRoles();
-      org.digidoc4j.SignatureProductionPlace signatureProductionPlace = signatureParameters.getProductionPlace();
-
-      SignatureProductionPlace productionPlace = new SignatureProductionPlace(signatureProductionPlace.getCity(),
-          signatureProductionPlace.getStateOrProvince(), signatureProductionPlace.getCountry(),
-          signatureProductionPlace.getPostalCode());
-
-      signature = ddoc.prepareSignature(signer.getCertificate(),
-          signerRoles.toArray(new String[signerRoles.size()]), productionPlace);
-
-      if (signatureId != null)
-        signature.setId(signatureId);
-
-      signature.setSignatureValue(signer.sign(this, signature.calculateSignedInfoXML()));
-
-    } catch (DigiDocException e) {
-      logger.error(e.getMessage());
-      throw new DigiDoc4JException(e.getNestedException());
-    }
-    return signature;
+  ee.sk.digidoc.Signature calculateSignature(Signer signer) {
+    prepareSigning(signer.getCertificate());
+    return ddocSignature;
   }
 
   private void addConfirmation() {
