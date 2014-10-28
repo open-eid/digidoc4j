@@ -20,8 +20,6 @@ import java.util.Date;
 import java.util.List;
 
 import static eu.europa.ec.markt.dss.DSSXMLUtils.transformDomToByteArray;
-import static java.util.Arrays.asList;
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
