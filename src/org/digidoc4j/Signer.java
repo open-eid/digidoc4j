@@ -13,14 +13,14 @@ public interface Signer {
    *
    * @return signer certificate
    */
-  public abstract X509Certificate getCertificate();
+  X509Certificate getCertificate();
 
   /**
    * Retrieves private key
    *
    * @return private key
    */
-  public abstract PrivateKey getPrivateKey();
+  PrivateKey getPrivateKey();
 
   /**
    * There must be implemented routines needed for signing
@@ -29,6 +29,6 @@ public interface Signer {
    * @param dataToSign data to sign
    * @return signature raw value
    */
-  public abstract byte[] sign(Container container, byte[] dataToSign);
+  byte[] sign(Container container, byte[] dataToSign);
 
 }
