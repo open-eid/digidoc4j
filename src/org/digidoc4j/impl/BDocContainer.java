@@ -3,7 +3,6 @@ package org.digidoc4j.impl;
 import eu.europa.ec.markt.dss.DSSXMLUtils;
 import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.parameter.BLevelParameters;
-import eu.europa.ec.markt.dss.parameter.SignatureParameters;
 import eu.europa.ec.markt.dss.signature.*;
 import eu.europa.ec.markt.dss.signature.asic.ASiCService;
 import eu.europa.ec.markt.dss.validation102853.AdvancedSignature;
@@ -54,8 +53,8 @@ public class BDocContainer extends Container {
   public static final int ONE_MB_IN_BYTES = 1048576;
   private SKCommonCertificateVerifier commonCertificateVerifier;
   protected DocumentSignatureService asicService;
-  private SignatureParameters dssSignatureParameters;
-  private org.digidoc4j.SignatureParameters signatureParameters = new org.digidoc4j.SignatureParameters();
+  private eu.europa.ec.markt.dss.parameter.SignatureParameters dssSignatureParameters;
+  private SignatureParameters signatureParameters = new SignatureParameters();
   protected DSSDocument signedDocument;
   private List<Signature> signatures = new ArrayList<>();
   Configuration configuration = null;
@@ -76,7 +75,7 @@ public class BDocContainer extends Container {
   public SignedInfo prepareSigning(X509Certificate signerCert) {
     byte[] signedInfo = getDataToSign(dssSignatureParameters.getDeterministicId(), signerCert);
 
-    return new SignedInfo(signedInfo, getDigestAlgorithm());
+    return new SignedInfo(signedInfo, signatureParameters.getDigestAlgorithm());
   }
 
   /**
@@ -95,16 +94,32 @@ public class BDocContainer extends Container {
 
 
   @Override
-  public void setSignatureParameters(org.digidoc4j.SignatureParameters signatureParameters) {
+  public void setSignatureParameters(SignatureParameters signatureParameters) {
     this.signatureParameters = signatureParameters;
+
+    setDigestAlgorithm();
+
     addSignerInformation();
   }
 
+  private void setDigestAlgorithm() {
+    if (signatureParameters.getDigestAlgorithm() == null) {
+      signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
+    }
+    dssSignatureParameters.setDigestAlgorithm(forName(signatureParameters.getDigestAlgorithm().name(), SHA256));
+  }
+
+  @Override
+  public DigestAlgorithm getDigestAlgorithm() {
+    return signatureParameters.getDigestAlgorithm();
+  }
+
   private void initASiC() {
-    dssSignatureParameters = new SignatureParameters();
+    dssSignatureParameters = new eu.europa.ec.markt.dss.parameter.SignatureParameters();
     dssSignatureParameters.setSignatureLevel(ASiC_E_BASELINE_LT);
     dssSignatureParameters.setSignaturePackaging(DETACHED);
     dssSignatureParameters.setDigestAlgorithm(SHA256);
+    signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
     dssSignatureParameters.aSiC().setUnderlyingForm(XAdES);
     dssSignatureParameters.aSiC().setZipComment(true);
 
@@ -205,6 +220,12 @@ public class BDocContainer extends Container {
     //TODO must be changed when extending signature is possible in sd-dss currently is possible to extend whole
     //container and it extend also all signatures
     setSignatureProfile(getSignatures().size() != 0 ? getSignature(0).getProfile() : TS);
+    eu.europa.ec.markt.dss.DigestAlgorithm digestAlgorithm = dssSignatureParameters.getDigestAlgorithm();
+    if (digestAlgorithm != null) {
+      signatureParameters.setDigestAlgorithm(DigestAlgorithm.valueOf(digestAlgorithm.getName()));
+    } else {
+      signatureParameters.setDigestAlgorithm(null);
+    }
 
     logger.debug("New BDoc container created");
   }
@@ -467,7 +488,7 @@ public class BDocContainer extends Container {
     commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource(configuration));
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
 
-    String deterministicId = getSignatureParameters().getDeterministicId();
+    String deterministicId = getDssSignatureParameters().getDeterministicId();
 
     try {
       signedDocument = asicService.signDocument(getSigningDocument(), dssSignatureParameters, rawSignature);
@@ -629,18 +650,6 @@ public class BDocContainer extends Container {
     logger.debug("");
     return DocumentType.BDOC;
   }
-
-  @Override
-  public void setDigestAlgorithm(DigestAlgorithm algorithm) {
-    logger.debug("Algorithm: " + algorithm);
-    dssSignatureParameters.setDigestAlgorithm(forName(algorithm.name(), SHA256));
-  }
-
-  @Override
-  public DigestAlgorithm getDigestAlgorithm() {
-    return DigestAlgorithm.valueOf(dssSignatureParameters.getDigestAlgorithm().getName());
-  }
-
   @Override
   public ValidationResult validate() {
     return verify();
@@ -702,7 +711,7 @@ public class BDocContainer extends Container {
     }
   }
 
-  protected SignatureParameters getSignatureParameters() {
+  protected eu.europa.ec.markt.dss.parameter.SignatureParameters getDssSignatureParameters() {
     logger.debug("");
     return dssSignatureParameters;
   }

@@ -52,21 +52,27 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testSetDigestAlgorithmToSHA256() throws Exception {
     BDocContainer container = new BDocContainer();
-    container.setDigestAlgorithm(SHA256);
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setDigestAlgorithm(SHA256);
+    container.setSignatureParameters(signatureParameters);
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", container.getDigestAlgorithm().toString());
   }
 
   @Test
   public void testSetDigestAlgorithmToSHA1() throws Exception {
     BDocContainer container = new BDocContainer();
-    container.setDigestAlgorithm(SHA1);
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setDigestAlgorithm(SHA1);
+    container.setSignatureParameters(signatureParameters);
     assertEquals("http://www.w3.org/2000/09/xmldsig#sha1", container.getDigestAlgorithm().toString());
   }
 
   @Test
   public void testSetDigestAlgorithmToNotImplementedDigest() throws Exception {
     BDocContainer container = new BDocContainer();
-    container.setDigestAlgorithm(SHA256);
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setDigestAlgorithm(SHA256);
+    container.setSignatureParameters(signatureParameters);
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", container.getDigestAlgorithm().toString());
   }
 
@@ -366,7 +372,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     eu.europa.ec.markt.dss.parameter.SignatureParameters signatureParameters =
         new eu.europa.ec.markt.dss.parameter.SignatureParameters();
     signatureParameters.setDeterministicId("NotPresentSignature");
-    when(spy.getSignatureParameters()).thenReturn(signatureParameters);
+    when(spy.getDssSignatureParameters()).thenReturn(signatureParameters);
 
     spy.addDataFile("testFiles/test.txt", "text/plain");
     spy.sign(PKCS12_SIGNER);

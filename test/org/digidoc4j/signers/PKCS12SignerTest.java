@@ -1,23 +1,18 @@
 package org.digidoc4j.signers;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
-import org.digidoc4j.*;
+import org.digidoc4j.SignatureParameters;
+import org.digidoc4j.X509Cert;
 import org.digidoc4j.impl.BDocContainer;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.security.cert.CertificateEncodingException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-import static java.util.Arrays.asList;
 import static org.digidoc4j.DigestAlgorithm.SHA512;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class PKCS12SignerTest {
   private static PKCS12Signer pkcs12Signer;
@@ -103,7 +98,9 @@ public class PKCS12SignerTest {
         44, -48, -19, 99, -43, 106, -26,
         97, -119, -94, -9, -22, -8, 88, 62, 67, -80, 35, 110, -7, -10, 55, 73, -60, 83, -128, -57, -120, 2};
     BDocContainer container = new BDocContainer();
-    container.setDigestAlgorithm(SHA512);
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setDigestAlgorithm(SHA512);
+    container.setSignatureParameters(signatureParameters);
     assertTrue(Arrays.equals(expected, pkcs12Signer.sign(container, new byte[]{0x41})));
   }
 

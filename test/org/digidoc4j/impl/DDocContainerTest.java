@@ -3,11 +3,7 @@ package org.digidoc4j.impl;
 import ee.sk.digidoc.DataFile;
 import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.SignedDoc;
-import org.digidoc4j.Container;
-import org.digidoc4j.DigestAlgorithm;
-import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureParameters;
-import org.digidoc4j.Signer;
+import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.signers.PKCS12Signer;
@@ -73,13 +69,17 @@ public class DDocContainerTest {
   @Test
   public void testSetDigestAlgorithmSHA1() throws Exception {
     DDocContainer container = new DDocContainer();
-    container.setDigestAlgorithm(DigestAlgorithm.SHA1);
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA1);
+    container.setSignatureParameters(signatureParameters);
   }
 
   @Test(expected = NotSupportedException.class)
   public void testSetDigestAlgorithmOtherThenSHA1() throws Exception {
     DDocContainer container = new DDocContainer();
-    container.setDigestAlgorithm(DigestAlgorithm.SHA224);
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA224);
+    container.setSignatureParameters(signatureParameters);
   }
 
   @Test

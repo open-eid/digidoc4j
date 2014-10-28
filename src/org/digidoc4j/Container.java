@@ -195,6 +195,13 @@ public abstract class Container implements Serializable {
    */
   public abstract void setSignatureParameters(SignatureParameters signatureParameters);
 
+ /**
+   * Get digest algorithm
+   *
+   * @return Signature parameters.
+   */
+  public abstract DigestAlgorithm getDigestAlgorithm();
+
   /**
    * Adds a data file from the file system to the container.
    * <p>
@@ -317,20 +324,6 @@ public abstract class Container implements Serializable {
   public abstract DocumentType getDocumentType();
 
   //--- differences with CPP library
-
-  /**
-   * Sets container digest type
-   *
-   * @param algorithm digest algorithm
-   */
-  public abstract void setDigestAlgorithm(DigestAlgorithm algorithm);
-
-  /**
-   * Gets container digest type
-   *
-   * @return container digest algorithm
-   */
-  public abstract DigestAlgorithm getDigestAlgorithm();
 
   /**
    * Validate container

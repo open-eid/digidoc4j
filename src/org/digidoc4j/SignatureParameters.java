@@ -11,6 +11,7 @@ public class SignatureParameters implements Serializable {
   private SignatureProductionPlace productionPlace = new SignatureProductionPlace();
   private List<String> roles = new ArrayList<>();
   private String signatureId;
+  private DigestAlgorithm digestAlgorithm;
 
   /**
    * Get production place values.
@@ -64,5 +65,23 @@ public class SignatureParameters implements Serializable {
    */
   public String getSignatureId() {
     return signatureId;
+  }
+
+  /**
+   * Sets container digest type
+   *
+   * @param algorithm digest algorithm
+   */
+  public void setDigestAlgorithm(DigestAlgorithm algorithm) {
+    digestAlgorithm = algorithm;
+  }
+
+  /**
+   * Gets container digest type
+   *
+   * @return container digest algorithm
+   */
+  public DigestAlgorithm getDigestAlgorithm() {
+    return digestAlgorithm;
   }
 }

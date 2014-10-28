@@ -34,7 +34,6 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.Container.SignatureProfile.BES;
 import static org.digidoc4j.Container.SignatureProfile.TS;
-import static org.digidoc4j.DigestAlgorithm.SHA224;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -594,14 +593,16 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void mustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224() throws Exception {
     Container container = Container.create();
-    container.setDigestAlgorithm(SHA224);
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA224);
+    container.setSignatureParameters(signatureParameters);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.save("testMustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224.bdoc");
 
     container = Container.open("testMustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224.bdoc");
 
-    assertEquals(SHA224, container.getDigestAlgorithm());
+    assertEquals(DigestAlgorithm.SHA224, container.getDigestAlgorithm());
   }
 
   @Test

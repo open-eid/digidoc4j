@@ -80,7 +80,22 @@ public class DDocContainer extends Container {
 
   @Override
   public void setSignatureParameters(SignatureParameters signatureParameters) {
+
+    DigestAlgorithm algorithm = signatureParameters.getDigestAlgorithm();
+    if (algorithm == null) {
+      signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA1);
+    } else if (algorithm != DigestAlgorithm.SHA1) {
+      NotSupportedException exception = new NotSupportedException("DDOC 1.3 supports only SHA1 as digest "
+          + "algorithm. Specified algorithm is " + algorithm);
+      logger.error(exception.toString());
+      throw exception;
+    }
     this.signatureParameters = signatureParameters;
+  }
+
+  @Override
+  public DigestAlgorithm getDigestAlgorithm() {
+    return signatureParameters.getDigestAlgorithm();
   }
 
   /**
@@ -95,6 +110,7 @@ public class DDocContainer extends Container {
   private void createDDOCContainer() {
     try {
       ddoc = new SignedDoc("DIGIDOC-XML", "1.3");
+      signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA1);
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e.getNestedException());
@@ -385,19 +401,6 @@ public class DDocContainer extends Container {
   public DocumentType getDocumentType() {
     logger.debug("");
     return DocumentType.DDOC;
-  }
-
-  @Override
-  public void setDigestAlgorithm(DigestAlgorithm algorithm) {
-    logger.debug("");
-    if (algorithm != DigestAlgorithm.SHA1)
-      throw new NotSupportedException("DDOC 1.3 supports only SHA1 as digest algorithm");
-  }
-
-  @Override
-  public DigestAlgorithm getDigestAlgorithm() {
-    logger.debug("");
-    return DigestAlgorithm.SHA1;
   }
 
   @SuppressWarnings("unchecked")
