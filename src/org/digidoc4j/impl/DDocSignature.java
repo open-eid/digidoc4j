@@ -106,7 +106,7 @@ public class DDocSignature extends Signature {
   @Override
   public List<String> getSignerRoles() {
     logger.debug("");
-    List<String> roles = new ArrayList<String>();
+    List<String> roles = new ArrayList<>();
     int numberOfRoles = origin.getSignedProperties().countClaimedRoles();
     for (int i = 0; i < numberOfRoles; i++) {
       roles.add(origin.getSignedProperties().getClaimedRole(i));
@@ -153,7 +153,7 @@ public class DDocSignature extends Signature {
   @Override
   public List<DigiDoc4JException> validate() {
     logger.debug("");
-    List<DigiDoc4JException> validationErrors = new ArrayList<DigiDoc4JException>();
+    List<DigiDoc4JException> validationErrors = new ArrayList<>();
     ArrayList validationResult = origin.verify(origin.getSignedDoc(), true, true);
     for (Object exception : validationResult) {
       String errorMessage = exception.toString();

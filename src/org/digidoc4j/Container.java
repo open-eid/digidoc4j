@@ -51,6 +51,12 @@ public abstract class Container implements Serializable {
     return new DDocContainer();
   }
 
+  /**
+   * Create a container of specified type and with specified configuration
+   * @param documentType Type of container to create
+   * @param configuration Configuration to be used
+   * @return new container of specified type
+   */
   public static Container create(DocumentType documentType, Configuration configuration) {
     logger.debug("");
     if (documentType == BDOC)
@@ -137,6 +143,13 @@ public abstract class Container implements Serializable {
     return create(BDOC, configuration);
   }
 
+  /**
+   * Prepare signature.
+   * After preparing the signature the container will have to be signed as well
+   *
+   * @param signerCert X509 Certificate to be used for preparing the signature
+   * @return Signed info
+   */
   public abstract SignedInfo prepareSigning(X509Certificate signerCert);
 
   /**
@@ -175,6 +188,11 @@ public abstract class Container implements Serializable {
     BES
   }
 
+  /**
+   * Set signature parameters
+   *
+   * @param signatureParameters Signature parameters. These are  related to the signing location and signer roles
+   */
   public abstract void setSignatureParameters(SignatureParameters signatureParameters);
 
   /**
@@ -277,6 +295,12 @@ public abstract class Container implements Serializable {
    */
   public abstract Signature sign(Signer signer, String signatureId);
 
+  /**
+   * Signs all data files in the container.
+   *
+   * @param rawSignature raw signature
+   * @return signature
+   */
   public abstract Signature signRaw(byte[] rawSignature);
 
   /**
