@@ -14,6 +14,9 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
+/**
+ * Example for asynchronous signing
+ */
 public class AsyncSigning {
 
   public static void main(String[] args) throws IOException, ClassNotFoundException {
@@ -21,7 +24,6 @@ public class AsyncSigning {
 
     Container container = Container.create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-
 
     X509Certificate signerCert = getSignerCert();
 
@@ -31,8 +33,6 @@ public class AsyncSigning {
 
     //getSignature
     byte[] signature = getExternalSignature(container, signerCert, signedInfo);
-
-
 
     Container deserializedContainer = deserializer();
     deserializedContainer.signRaw(signature);
@@ -71,7 +71,7 @@ public class AsyncSigning {
   private static X509Certificate getSignerCert() {
     try {
       KeyStore keyStore = KeyStore.getInstance("PKCS12");
-      try(FileInputStream stream = new FileInputStream("testFiles/signout.p12")) {
+      try (FileInputStream stream = new FileInputStream("testFiles/signout.p12")) {
         keyStore.load(stream, "test".toCharArray());
       }
       return (X509Certificate) keyStore.getCertificate("1");
