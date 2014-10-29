@@ -616,7 +616,8 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   @Ignore // Fails on Jenkins - need to verify
   public void createContainerWhenAttachmentNameContainsEstonianCharacters() throws Exception {
     Container container = Container.create();
-    container.addDataFile("testFiles/test_õäöü.txt", "text/plain");
+    String s = "testFiles/test_o\u0303a\u0308o\u0308u\u0308.txt";
+    container.addDataFile(s, "text/plain");
     container.sign(PKCS12_SIGNER);
     assertEquals(1, container.getDataFiles().size());
     ValidationResult validate = container.validate();
