@@ -90,7 +90,7 @@ public class DDocContainer extends Container {
       logger.error(exception.toString());
       throw exception;
     }
-    this.signatureParameters = signatureParameters;
+    this.signatureParameters = signatureParameters.copy();
   }
 
   @Override

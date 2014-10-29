@@ -95,7 +95,7 @@ public class BDocContainer extends Container {
 
   @Override
   public void setSignatureParameters(SignatureParameters signatureParameters) {
-    this.signatureParameters = signatureParameters;
+    this.signatureParameters = signatureParameters.copy();
 
     setDigestAlgorithm();
 

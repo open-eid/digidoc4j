@@ -313,6 +313,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.sign(PKCS12_SIGNER);
 
     signatureParameters.setSignatureId("SIGNATURE-2");
+    container.setSignatureParameters(signatureParameters);
     container.sign(PKCS12_SIGNER);
     container.save("setsSignatureId.bdoc");
 

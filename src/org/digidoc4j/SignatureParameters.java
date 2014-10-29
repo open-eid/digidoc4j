@@ -1,6 +1,9 @@
 package org.digidoc4j;
 
-import java.io.Serializable;
+import org.apache.commons.io.IOUtils;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,5 +86,34 @@ public class SignatureParameters implements Serializable {
    */
   public DigestAlgorithm getDigestAlgorithm() {
     return digestAlgorithm;
+  }
+
+  /**
+   * Clones signature parameters
+   *
+   * @return new signature parameters object
+   */
+  public SignatureParameters copy() {
+    ObjectOutputStream oos = null;
+    ObjectInputStream ois = null;
+    SignatureParameters copySignatureParameters = null;
+    // deep copy
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    try {
+      oos = new ObjectOutputStream(bos);
+      oos.writeObject(this);
+      oos.flush();
+      ByteArrayInputStream bin =
+          new ByteArrayInputStream(bos.toByteArray());
+      ois = new ObjectInputStream(bin);
+      copySignatureParameters = (SignatureParameters) ois.readObject();
+    } catch (Exception e) {
+      throw new DigiDoc4JException(e);
+    } finally {
+      IOUtils.closeQuietly(oos);
+      IOUtils.closeQuietly(ois);
+      IOUtils.closeQuietly(bos);
+    }
+    return copySignatureParameters;
   }
 }
