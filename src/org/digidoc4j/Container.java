@@ -23,7 +23,34 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
  * Data files can be added and removed from a container only if the container is not signed.
  * To modify the data list of a signed container by adding or removing datafiles you must first
  * remove all the signatures.
+ * </p><p>
+ * Example of creating and signing a container:
+ *   PKCS12_SIGNER = new PKCS12Signer("my_cert.p12", "password".toCharArray());
+ *   Container container = Container.create();
+ *   container.addDataFile("test.txt", "text/plain");
+ *   container.sign(PKCS12_SIGNER);
+ *   container.save("test.bdoc");
+ * </p><p>
+ * Optionally you can specify certain settings and behavior using the @see SignatureParameters settings.
+ * Example of creating and signing a container with specific signature parameters:
+ *   PKCS12_SIGNER = new PKCS12Signer("my_cert.p12", "password".toCharArray());
+ *   Container container = Container.create();
+ *   container.addDataFile("test.txt", "text/plain");
+ *   SignatureParameters signatureParameters = new SignatureParameters();
+ *   signatureParameters.setSignatureId("S0");
+ *   container.setSignatureParameters(signatureParameters);
+ *   container.sign(PKCS12_SIGNER);
+ *   container.save("test.bdoc");
+ * </p><p>
+ * Example of performing a 2 step signing
+ *   Container container = Container.create();
+ *   container.addDataFile("test.txt", "text/plain");
+ *   SignedInfo signedInfo = container.prepareSigning(signerCertificate);
+ *   byte[] signature = getExternalSignature();
+ *   container.signRaw(signature);
+ *   container.save("deserializedContainer.bdoc");
  * </p>
+ *
  */
 public abstract class Container implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(Container.class);

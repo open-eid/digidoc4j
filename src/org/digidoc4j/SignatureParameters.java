@@ -8,7 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Signature parameters like production place and roles
+ * Signature parameters. Parameter information is used when signing a document. Following items can be specified:
+ * <ul>
+ *   <li>Signature production place</li>
+ *   <li>Roles of the signer</li>
+ *   <li>Signature id</li>
+ *   <li>Digest algorithm</li>
+ * </ul>
  */
 public class SignatureParameters implements Serializable {
   private SignatureProductionPlace productionPlace = new SignatureProductionPlace();
