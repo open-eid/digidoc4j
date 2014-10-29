@@ -48,7 +48,7 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
  *   SignedInfo signedInfo = container.prepareSigning(signerCertificate);
  *   byte[] signature = getExternalSignature();
  *   container.signRaw(signature);
- *   container.save("deserializedContainer.bdoc");
+ *   container.save("test.bdoc");
  * </p>
  *
  */
