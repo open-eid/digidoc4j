@@ -603,7 +603,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
     container = Container.open("testMustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224.bdoc");
 
-    assertEquals(DigestAlgorithm.SHA224, container.getDigestAlgorithm());
+    assertEquals("http://www.w3.org/2001/04/xmldsig-more#sha224", container.getSignature(0).getSignatureMethod());
   }
 
   @Test

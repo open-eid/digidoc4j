@@ -198,7 +198,7 @@ public abstract class Container implements Serializable {
  /**
    * Get digest algorithm
    *
-   * @return Signature parameters.
+   * @return Digest algorithm
    */
   public abstract DigestAlgorithm getDigestAlgorithm();
 
