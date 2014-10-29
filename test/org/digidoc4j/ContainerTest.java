@@ -275,9 +275,9 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testAddOneFileToContainerForBDoc() throws Exception {
-    Container bDocContainer = Container.create();
-    bDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    List<DataFile> dataFiles = bDocContainer.getDataFiles();
+    Container container = Container.create();
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    List<DataFile> dataFiles = container.getDataFiles();
     assertEquals(1, dataFiles.size());
     assertEquals("test.txt", dataFiles.get(0).getName());
     assertEquals(TEXT_MIME_TYPE, dataFiles.get(0).getMediaType());
@@ -569,10 +569,10 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     signatureParameters.setProductionPlace(new SignatureProductionPlace(city, stateOrProvince, postalCode, country));
     signatureParameters.setRoles(asList(signerRoles));
 
-    Container bDocContainer = Container.create();
-    bDocContainer.setSignatureParameters(signatureParameters);
-    bDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    Signature signature = bDocContainer.sign(PKCS12_SIGNER);
+    Container container = Container.create();
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    container.setSignatureParameters(signatureParameters);
+    Signature signature = container.sign(PKCS12_SIGNER);
 
     assertEquals("myCity", signature.getCity());
     assertEquals("myStateOrProvince", signature.getStateOrProvince());
