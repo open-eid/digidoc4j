@@ -221,12 +221,6 @@ public class ContainerTest extends DigiDoc4JTestHelper {
           "    </Object>\n" +
           "  </Signature>";
 
-//  private static String signatureXML =
-//      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-//      "<SignedDoc format=\"DIGIDOC-XML\" version=\"1.3\" xmlns=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
-//          signature +
-//      "</SignedDoc>";
-
   private PKCS12Signer PKCS12_SIGNER;
 
   @Before
