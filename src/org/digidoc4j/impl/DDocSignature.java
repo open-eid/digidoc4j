@@ -60,7 +60,7 @@ public class DDocSignature extends Signature {
   }
 
   @Override
-  public byte[] getNonce() {
+  public byte[] getOcspNonce() {
     logger.debug("");
     return null;
   }
@@ -87,6 +87,11 @@ public class DDocSignature extends Signature {
   public Date getProducedAt() {
     logger.debug("");
     return origin.getSignatureProducedAtTime();
+  }
+
+  @Override
+  public Date getTimeStampCreationTime() {
+    throw new NotYetImplementedException();
   }
 
   @Override

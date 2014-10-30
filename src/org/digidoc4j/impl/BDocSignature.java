@@ -96,7 +96,7 @@ public class BDocSignature extends Signature {
   }
 
   @Override
-  public byte[] getNonce() {
+  public byte[] getOcspNonce() {
     logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
@@ -153,6 +153,11 @@ public class BDocSignature extends Signature {
     Date date = origin.getOCSPSource().getContainedOCSPResponses().get(0).getProducedAt();
     logger.debug("Produced at date: " + date.toString());
     return date;
+  }
+
+  @Override
+  public Date getTimeStampCreationTime() {
+    throw new NotYetImplementedException();
   }
 
   @Override

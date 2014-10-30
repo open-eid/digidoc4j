@@ -221,12 +221,6 @@ public class ContainerTest extends DigiDoc4JTestHelper {
           "    </Object>\n" +
           "  </Signature>";
 
-//  private static String signatureXML =
-//      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-//      "<SignedDoc format=\"DIGIDOC-XML\" version=\"1.3\" xmlns=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
-//          signature +
-//      "</SignedDoc>";
-
   private PKCS12Signer PKCS12_SIGNER;
 
   @Before
@@ -616,7 +610,8 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   @Ignore // Fails on Jenkins - need to verify
   public void createContainerWhenAttachmentNameContainsEstonianCharacters() throws Exception {
     Container container = Container.create();
-    container.addDataFile("testFiles/test_õäöü.txt", "text/plain");
+    String s = "testFiles/test_o\u0303a\u0308o\u0308u\u0308.txt";
+    container.addDataFile(s, "text/plain");
     container.sign(PKCS12_SIGNER);
     assertEquals(1, container.getDataFiles().size());
     ValidationResult validate = container.validate();

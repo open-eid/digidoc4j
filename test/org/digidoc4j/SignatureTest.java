@@ -101,7 +101,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   @Test
   public void testGetNonce() {
     Signature signature = getSignature(DDOC);
-    assertEquals(null, Base64.encodeBase64String(signature.getNonce())); //todo correct nonce is needed
+    assertEquals(null, Base64.encodeBase64String(signature.getOcspNonce())); //todo correct nonce is needed
   }
 
   @Test
@@ -237,7 +237,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   @Test(expected = NotYetImplementedException.class)
   public void testGetNonceForBDoc() {
     Container container = Container.open("testFiles/asics_for_testing.bdoc");
-    container.getSignatures().get(0).getNonce();
+    container.getSignatures().get(0).getOcspNonce();
   }
 
   @Test

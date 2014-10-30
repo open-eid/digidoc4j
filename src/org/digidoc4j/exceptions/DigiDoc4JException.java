@@ -50,7 +50,7 @@ public class DigiDoc4JException extends RuntimeException {
    * @param e parent exception
    */
   public DigiDoc4JException(Exception e) {
-    super(e.getMessage(), e.getCause());
+    super(e);
   }
 
   /**

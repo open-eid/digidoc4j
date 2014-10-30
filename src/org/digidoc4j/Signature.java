@@ -57,7 +57,7 @@ public abstract class Signature implements Serializable {
    *
    * @return OCSP response nonce
    */
-  public abstract byte[] getNonce();
+  public abstract byte[] getOcspNonce();
 
   /**
    * Returns the signature OCSP responder certificate.
@@ -88,6 +88,13 @@ public abstract class Signature implements Serializable {
    * @return producedAt timestamp
    */
   public abstract Date getProducedAt();
+
+  /**
+   * Returns the signature timestamp generation time.
+   *
+   * @return generation timestamp
+   */
+  public abstract Date getTimeStampCreationTime();
 
   /**
    * Returns the signature profile.
