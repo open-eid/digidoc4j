@@ -1,12 +1,16 @@
 package org.digidoc4j.impl;
 
+import eu.europa.ec.markt.dss.DSSUtils;
 import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
 import eu.europa.ec.markt.dss.signature.asic.ASiCService;
+import eu.europa.ec.markt.dss.signature.token.Constants;
 import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.*;
+import org.digidoc4j.signers.ExternalSigner;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -18,6 +22,9 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.util.zip.ZipFile;
 
 import static org.digidoc4j.Container.DocumentType;
@@ -426,7 +433,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.configuration.enableBigFilesSupport(0);
 
     String path = createLargeFile((container.configuration.getMaxDataFileCachedInBytes()) + 100);
-    try(FileInputStream stream = new FileInputStream(new File(path))) {
+    try (FileInputStream stream = new FileInputStream(new File(path))) {
       container.addDataFile(stream, "fileName", "text/plain");
       container.sign(PKCS12_SIGNER);
       container.save("test-large-file.bdoc");
@@ -621,7 +628,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.setSignatureProfile(TM);
   }
 
-  @Test (expected = DigiDoc4JException.class)
+  @Test(expected = DigiDoc4JException.class)
   public void extendToWhenConfirmationAlreadyExists() throws Exception {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
@@ -743,6 +750,61 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void twoStepSigning() {
+    Container container = Container.create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    X509Certificate signerCert = getSignerCert();
+    SignedInfo signedInfo = container.prepareSigning(signerCert);
+    byte[] signature = getExternalSignature(container, signerCert, signedInfo);
+    container.signRaw(signature);
+    container.save("test.bdoc");
+
+    container = container.open("test.bdoc");
+    assertEquals(1, container.getSignatures().size());
+  }
+
+  private static byte[] getExternalSignature(Container container, final X509Certificate signerCert,
+                                             SignedInfo prepareSigningSignature) {
+    Signer externalSigner = new ExternalSigner(signerCert) {
+      @Override
+      public byte[] sign(Container container, byte[] dataToSign) {
+        try {
+          KeyStore keyStore = KeyStore.getInstance("PKCS12");
+          try (FileInputStream stream = new FileInputStream("testFiles/signout.p12")) {
+            keyStore.load(stream, "test".toCharArray());
+          }
+          PrivateKey privateKey = (PrivateKey) keyStore.getKey("1", "test".toCharArray());
+          final String javaSignatureAlgorithm = "NONEwith" + privateKey.getAlgorithm();
+
+          return DSSUtils.encrypt(javaSignatureAlgorithm, privateKey, addPadding(dataToSign));
+        } catch (Exception e) {
+          throw new DigiDoc4JException("Loading private key failed");
+        }
+      }
+
+      private byte[] addPadding(byte[] digest) {
+        return ArrayUtils.addAll(Constants.SHA256_DIGEST_INFO_PREFIX, digest);
+      }
+
+    };
+
+    return externalSigner.sign(container, prepareSigningSignature.getDigest());
+  }
+
+  private static X509Certificate getSignerCert() {
+    try {
+      KeyStore keyStore = KeyStore.getInstance("PKCS12");
+      try (FileInputStream stream = new FileInputStream("testFiles/signout.p12")) {
+        keyStore.load(stream, "test".toCharArray());
+      }
+      return (X509Certificate) keyStore.getCertificate("1");
+    } catch (Exception e) {
+      throw new DigiDoc4JException("Loading signer cert failed");
+    }
+  }
+
+
+  @Test
   public void testContainerCreationAsTSA() throws Exception {
     BDocContainer container = new BDocContainer();
     container.setSignatureProfile(TSA);
@@ -752,7 +814,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNotNull(container.getSignature(0).getOCSPCertificate());
   }
 
-  @Test (expected = DigiDoc4JException.class)
+  @Test(expected = DigiDoc4JException.class)
   public void extensionNotPossibleWhenSignatureLevelIsSame() throws Exception {
     BDocContainer container = new BDocContainer();
     container.setSignatureProfile(TSA);

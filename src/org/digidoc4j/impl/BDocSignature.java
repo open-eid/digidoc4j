@@ -159,9 +159,7 @@ public class BDocSignature extends Signature {
   public SignatureProfile getProfile() {
     logger.debug("");
     SignatureProfile signatureProfile = signatureProfileMap.get(origin.getDataFoundUpToLevel());
-    if (signatureProfile != null)
-      return signatureProfile;
-    return BES;
+    return signatureProfile;
   }
 
   @Override
