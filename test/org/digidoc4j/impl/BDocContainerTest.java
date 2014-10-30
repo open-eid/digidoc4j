@@ -759,11 +759,11 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.signRaw(signature);
     container.save("test.bdoc");
 
-    container = container.open("test.bdoc");
+    container = Container.open("test.bdoc");
     assertEquals(1, container.getSignatures().size());
   }
 
-  private static byte[] getExternalSignature(Container container, final X509Certificate signerCert,
+  static byte[] getExternalSignature(Container container, final X509Certificate signerCert,
                                              SignedInfo prepareSigningSignature) {
     Signer externalSigner = new ExternalSigner(signerCert) {
       @Override
@@ -785,13 +785,12 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
       private byte[] addPadding(byte[] digest) {
         return ArrayUtils.addAll(Constants.SHA256_DIGEST_INFO_PREFIX, digest);
       }
-
     };
 
     return externalSigner.sign(container, prepareSigningSignature.getDigest());
   }
 
-  private static X509Certificate getSignerCert() {
+  static X509Certificate getSignerCert() {
     try {
       KeyStore keyStore = KeyStore.getInstance("PKCS12");
       try (FileInputStream stream = new FileInputStream("testFiles/signout.p12")) {
@@ -803,6 +802,53 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     }
   }
 
+  @Test
+  public void verifySerializationCompletesSuccessfully() throws Exception {
+    Container container = Container.create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+
+    X509Certificate signerCert = getSignerCert();
+
+    SignedInfo signedInfo = container.prepareSigning(signerCert);
+
+    serialize(container);
+
+    byte[] signature = getExternalSignature(container, signerCert, signedInfo);
+
+    Container deserializedContainer = deserializer();
+    deserializedContainer.signRaw(signature);
+    deserializedContainer.save("deserializedContainer.bdoc");
+
+    serialize(deserializedContainer);
+
+    container = Container.open("deserializedContainer.bdoc");
+    ValidationResult validate = container.validate();
+
+    assertEquals(0, validate.getErrors().size());
+    assertEquals(3, validate.getWarnings().size());
+  }
+
+  private static void serialize(Container container) throws IOException {
+
+    FileOutputStream fileOut = new FileOutputStream("container.bin");
+    ObjectOutputStream out = new ObjectOutputStream(fileOut);
+    out.writeObject(container);
+    out.flush();
+    out.close();
+    fileOut.close();
+  }
+
+  private static Container deserializer() throws IOException, ClassNotFoundException {
+    FileInputStream fileIn = new FileInputStream("container.bin");
+    ObjectInputStream in = new ObjectInputStream(fileIn);
+
+    Container container = (Container) in.readObject();
+
+    in.close();
+    fileIn.close();
+
+    return container;
+  }
 
   @Test
   public void testContainerCreationAsTSA() throws Exception {

@@ -18,10 +18,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.digidoc4j.Container.SignatureProfile.*;
+import static org.digidoc4j.impl.BDocContainerTest.getExternalSignature;
+import static org.digidoc4j.impl.BDocContainerTest.getSignerCert;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -402,6 +405,27 @@ public class DDocContainerTest {
     container.sign(PKCS12_SIGNER);
 
     container.extendTo(TM);
+  }
+
+  @Test
+  public void twoStepSigning() {
+    Container container = Container.create(Container.DocumentType.DDOC);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    X509Certificate signerCert = getSignerCert();
+    SignedInfo signedInfo = container.prepareSigning(signerCert);
+    byte[] signature = getExternalSignature(container, signerCert, signedInfo);
+    container.signRaw(signature);
+    container.save("test.ddoc");
+
+    container = Container.open("test.ddoc");
+    assertEquals(1, container.getSignatures().size());
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void prepareSigningThrowsException() {
+    Container container = Container.create(Container.DocumentType.DDOC);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.prepareSigning(null);
   }
 
   private class MockDDocContainer extends DDocContainer {
