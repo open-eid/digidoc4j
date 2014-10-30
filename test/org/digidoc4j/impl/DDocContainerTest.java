@@ -428,6 +428,16 @@ public class DDocContainerTest {
     container.prepareSigning(null);
   }
 
+  @Test (expected = DigiDoc4JException.class)
+  public void signRawThrowsException() {
+    Container container = Container.create(Container.DocumentType.DDOC);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    X509Certificate signerCert = getSignerCert();
+    container.prepareSigning(signerCert);
+
+    container.signRaw(null);
+  }
+
   private class MockDDocContainer extends DDocContainer {
     ee.sk.digidoc.Signature signature = spy(new ee.sk.digidoc.Signature(new SignedDoc()));
 
