@@ -4,7 +4,6 @@ import eu.europa.ec.markt.dss.validation102853.condition.ServiceInfo;
 import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
 import eu.europa.ec.markt.dss.validation102853.loader.Protocol;
-import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -126,7 +125,7 @@ public class Configuration implements Serializable {
   private String configurationInputSourceName;
   private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<>();
   private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
-  private TrustedListsCertificateSource tslCertificateSource;
+  private TSLCertificateSource tslCertificateSource;
 
 
   /**
@@ -650,14 +649,14 @@ public class Configuration implements Serializable {
    *
    * @return TSL source
    */
-  public TrustedListsCertificateSource getTSL() {
+  public TSLCertificateSource getTSL() {
     logger.debug("");
     if (tslCertificateSource != null) {
       logger.debug("Using TSL cached copy");
       return tslCertificateSource;
     }
 
-    tslCertificateSource = new TrustedListsCertificateSource();
+    tslCertificateSource = new TSLCertificateSource();
 
     String tslLocation = getTslLocation();
     if (Protocol.isHttpUrl(tslLocation)) {
@@ -785,7 +784,7 @@ public class Configuration implements Serializable {
     serviceInfo.setStatusStartDate(certificate.getNotBefore());
 
     if (tslCertificateSource == null)
-      tslCertificateSource = new TrustedListsCertificateSource();
+      tslCertificateSource = new TSLCertificateSource();
     tslCertificateSource.addCertificate(certificate, serviceInfo);
   }
 
