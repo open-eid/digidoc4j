@@ -1,7 +1,6 @@
 package org.digidoc4j;
 
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.w3c.dom.Document;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -175,11 +174,4 @@ public abstract class Signature implements Serializable {
    * @return signature as byte array
    */
   public abstract byte[] getRawSignature();
-
-  /**
-   * Returns signature as XAdES XML in DOM format
-   *
-   * @return signature as DOM object
-   */
-  public abstract Document getRawSignatureAsDOM();
 }

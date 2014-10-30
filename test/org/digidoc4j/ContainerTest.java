@@ -1,12 +1,10 @@
 package org.digidoc4j;
 
-import ee.sk.digidoc.SignedDoc;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.BDocContainer;
 import org.digidoc4j.impl.DDocContainer;
-import org.digidoc4j.impl.DDocSignature;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.digidoc4j.utils.Helper;
@@ -24,7 +22,6 @@ import java.nio.file.Paths;
 import java.security.cert.CertificateEncodingException;
 import java.util.List;
 
-import static eu.europa.ec.markt.dss.DSSXMLUtils.transformDomToByteArray;
 import static java.util.Arrays.asList;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -35,8 +32,8 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.Container.SignatureProfile.BES;
 import static org.digidoc4j.Container.SignatureProfile.TS;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 public class ContainerTest extends DigiDoc4JTestHelper {
   public static final String TEXT_MIME_TYPE = "text/plain";
@@ -437,35 +434,6 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void testGetRawSignatureAsDOMForDDoc() throws CertificateEncodingException, IOException, SAXException {
-    Container container = Container.create(DDOC);
-    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    container.sign(PKCS12_SIGNER);
-    container.addRawSignature(signature.getBytes());
-
-    assertEquals(2, container.getSignatures().size());
-    assertEquals(CERTIFICATE.replaceAll("\\s", ""), encodeBase64String(getSigningCertificateAsBytes(container, 1)));
-    assertXMLEqual(signature.trim(),
-        new String(transformDomToByteArray(container.getSignature(1).getRawSignatureAsDOM())));
-  }
-
-  @Test(expected = DigiDoc4JException.class)
-  public void testGetRawSignatureAsDOMForDDocThrowsExceptionForParseFailure()
-      throws CertificateEncodingException, IOException, SAXException {
-
-    Signature spySignature = spy(new DDocSignature(new ee.sk.digidoc.Signature(new SignedDoc())));
-    when(spySignature.getRawSignature()).thenReturn(null);
-
-    Container container = spy(Container.create(DDOC));
-    doReturn(spySignature).when(container).getSignature(0);
-
-    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    container.addRawSignature(signature.getBytes());
-
-    container.getSignature(0).getRawSignatureAsDOM();
-  }
-
-  @Test
   public void throwsErrorWhenCreatesDDOCContainerWithConfiguration() throws Exception {
     Container container = Container.create(DDOC, new Configuration());
     assertEquals(DDOC, container.getDocumentType());
@@ -494,7 +462,6 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
     assertNotNull(container.getSignature(0).getOCSPCertificate());
   }
-
 
   @Test
   @Ignore("possibility of this must be confirmed with dss authors")

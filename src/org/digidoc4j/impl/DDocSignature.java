@@ -7,11 +7,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
@@ -183,17 +179,5 @@ public class DDocSignature extends Signature {
   public byte[] getRawSignature() {
     logger.debug("");
     return origin.getOrigContent();
-  }
-
-  @Override
-  public Document getRawSignatureAsDOM() {
-    logger.debug("");
-    try {
-      DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-      return db.parse(new ByteArrayInputStream(getRawSignature()));
-    } catch (Exception e) {
-      logger.error(e.getMessage());
-      throw new DigiDoc4JException(e.getMessage());
-    }
   }
 }
