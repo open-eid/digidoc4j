@@ -25,31 +25,32 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
  * remove all the signatures.
  * </p><p>
  * Example of creating and signing a container:</p><p>
- *   PKCS12_SIGNER = new PKCS12Signer("my_cert.p12", "password".toCharArray());<br>
- *   Container container = Container.create();<br>
- *   container.addDataFile("test.txt", "text/plain");<br>
- *   container.sign(PKCS12_SIGNER);<br>
- *   container.save("test.bdoc");
+ * PKCS12_SIGNER = new PKCS12Signer("my_cert.p12", "password".toCharArray());<br>
+ * Container container = Container.create();<br>
+ * container.addDataFile("test.txt", "text/plain");<br>
+ * container.sign(PKCS12_SIGNER);<br>
+ * container.save("test.bdoc");
  * </p><p>
  * Optionally you can specify certain settings and behavior using the SignatureParameters settings.<br>
  * Example of creating and signing a container with specific signature parameters:</p><p>
- *   PKCS12_SIGNER = new PKCS12Signer("my_cert.p12", "password".toCharArray());<br>
- *   Container container = Container.create();<br>
- *   container.addDataFile("test.txt", "text/plain");<br>
- *   SignatureParameters signatureParameters = new SignatureParameters();<br>
- *   signatureParameters.setSignatureId("S0");<br>
- *   container.setSignatureParameters(signatureParameters);<br>
- *   container.sign(PKCS12_SIGNER);<br>
- *   container.save("test.bdoc");
+ * PKCS12_SIGNER = new PKCS12Signer("my_cert.p12", "password".toCharArray());<br>
+ * Container container = Container.create();<br>
+ * container.addDataFile("test.txt", "text/plain");<br>
+ * SignatureParameters signatureParameters = new SignatureParameters();<br>
+ * signatureParameters.setSignatureId("S0");<br>
+ * container.setSignatureParameters(signatureParameters);<br>
+ * container.sign(PKCS12_SIGNER);<br>
+ * container.save("test.bdoc");
  * </p><p>
  * Example of performing a 2 step signing</p><p>
- *   Container container = Container.create();<br>
- *   container.addDataFile("test.txt", "text/plain");<br>
- *   SignedInfo signedInfo = container.prepareSigning(signerCertificate);<br>
- *   byte[] signature = getExternalSignature();<br>
- *   container.signRaw(signature);<br>
- *   container.save("test.bdoc");
+ * Container container = Container.create();<br>
+ * container.addDataFile("test.txt", "text/plain");<br>
+ * SignedInfo signedInfo = container.prepareSigning(signerCertificate);<br>
+ * byte[] signature = getExternalSignature();<br>
+ * container.signRaw(signature);<br>
+ * container.save("test.bdoc");
  * </p>
+ *
  * @see SignatureParameters
  */
 public abstract class Container implements Serializable {
@@ -80,7 +81,8 @@ public abstract class Container implements Serializable {
 
   /**
    * Create a container of specified type and with specified configuration
-   * @param documentType Type of container to create
+   *
+   * @param documentType  Type of container to create
    * @param configuration Configuration to be used
    * @return new container of specified type
    */
@@ -162,6 +164,7 @@ public abstract class Container implements Serializable {
 
   /**
    * Creates BDOC container with given configuration
+   *
    * @param configuration configuration used for container creation
    * @return BDOC container
    */
@@ -222,7 +225,7 @@ public abstract class Container implements Serializable {
    */
   public abstract void setSignatureParameters(SignatureParameters signatureParameters);
 
- /**
+  /**
    * Get digest algorithm
    *
    * @return Digest algorithm
@@ -306,9 +309,10 @@ public abstract class Container implements Serializable {
   public abstract void save(String path);
 
   /**
-   * Saves the container to the @see java.io.OutputStream.
+   * Saves the container to the java.io.OutputStream.
    *
    * @param out output stream.
+   * @see java.io.OutputStream
    */
   public abstract void save(OutputStream out);
 
@@ -367,9 +371,11 @@ public abstract class Container implements Serializable {
   public abstract String getVersion();
 
   /**
-   * Extends signature profile to @see SignatureProfile
+   * Extends signature profile to SignatureProfile
+   * *
    *
    * @param profile signature profile
+   * @see SignatureProfile
    */
   public abstract void extendTo(SignatureProfile profile);
 

@@ -801,7 +801,8 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * @return true when configuration is @see Configuration.Mode#TEST
+   * @return true when configuration is Configuration.Mode.TEST
+   * @see Configuration.Mode#TEST
    */
   public boolean isTest() {
     return mode == Mode.TEST;

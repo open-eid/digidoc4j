@@ -204,9 +204,11 @@ public final class DigiDoc4J {
   /**
    * Checks is DigiDoc4JException predefined as warning for DDOC
    *
-   * @param documentFormat format @see SignedDoc
+   * @param documentFormat format SignedDoc
    * @param exception      error to check
    * @return is this exception warning for DDOC utility program
+   *
+   * @see SignedDoc
    */
   public static boolean isWarning(String documentFormat, DigiDoc4JException exception) {
     int errorCode = exception.getErrorCode();
