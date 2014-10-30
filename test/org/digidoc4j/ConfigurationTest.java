@@ -80,6 +80,12 @@ public class ConfigurationTest {
     assertTrue(verify.isValid());
   }
 
+  @Test
+  public void policyFileLocationIsNotDefaultFileLocation() {
+    configuration.setValidationPolicy("moved_constraint.xml");
+    new BDocContainer("testFiles/warning.bdoc", configuration);
+  }
+
   private void addFromFileToTSLCertificate(String fileName) throws IOException, CertificateException {
     FileInputStream fileInputStream = new FileInputStream(fileName);
     X509Certificate certificate = new X509CertImpl(fileInputStream);
