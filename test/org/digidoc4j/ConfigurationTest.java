@@ -69,6 +69,28 @@ public class ConfigurationTest {
   }
 
   @Test
+  public void clearTSLLoadsFromConfiguration() {
+    TrustedListsCertificateSource tsl = configuration.getTSL();
+    int numberOfTSLCertificates = tsl.getCertificates().size();
+    configuration.setTSL(null);
+
+    assertEquals(numberOfTSLCertificates, configuration.getTSL().getCertificates().size());
+  }
+
+  @Test
+  public void setTSL() throws IOException, CertificateException {
+    TSLCertificateSource trustedListsCertificateSource = new TSLCertificateSource();
+    FileInputStream fileInputStream = new FileInputStream("testFiles/Juur-SK.pem.crt");
+    X509Certificate certificate = new X509CertImpl(fileInputStream);
+    trustedListsCertificateSource.addTSLCertificate(certificate);
+
+    configuration.setTSL(trustedListsCertificateSource);
+    fileInputStream.close();
+
+    assertEquals(1, configuration.getTSL().getCertificates().size());
+  }
+
+  @Test
   public void addedTSLIsValid() throws IOException, CertificateException {
     addFromFileToTSLCertificate("testFiles/Juur-SK.pem.crt");
     addFromFileToTSLCertificate("testFiles/EE_Certification_Centre_Root_CA.pem.crt");
@@ -89,7 +111,7 @@ public class ConfigurationTest {
   private void addFromFileToTSLCertificate(String fileName) throws IOException, CertificateException {
     FileInputStream fileInputStream = new FileInputStream(fileName);
     X509Certificate certificate = new X509CertImpl(fileInputStream);
-    configuration.addTSLCertificate(certificate);
+    configuration.getTSL().addTSLCertificate(certificate);
     fileInputStream.close();
   }
 

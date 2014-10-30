@@ -1,6 +1,5 @@
 package org.digidoc4j;
 
-import eu.europa.ec.markt.dss.validation102853.condition.ServiceInfo;
 import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
 import eu.europa.ec.markt.dss.validation102853.loader.Protocol;
@@ -14,7 +13,6 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.cert.X509Certificate;
 import java.util.*;
 
 import static java.util.Arrays.asList;
@@ -645,6 +643,17 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Set the TSL certificate source.
+   *
+   * @param certificateSource TSL certificate source
+   * When certificateSource equals null then getTSL() will load the TSL according to the TSL location specified .
+   *
+   */
+  public void setTSL(TSLCertificateSource certificateSource) {
+    this.tslCertificateSource = certificateSource;
+  }
+
+  /**
    * Loads TSL certificates
    *
    * @return TSL source
@@ -678,9 +687,9 @@ public class Configuration implements Serializable {
    * TSL can be loaded from file (file://) or from web (http://). If file protocol is used then
    * first try is to locate file from this location if file does not exist then it tries to load
    * relatively from classpath.
-   *
+   * <p/>
    * Setting new location clears old values
-   *
+   * <p/>
    * Windows wants it in file:DRIVE:/directories/tsl-file.xml format
    *
    * @param tslLocation TSL Location to be used
@@ -767,25 +776,6 @@ public class Configuration implements Serializable {
     String path = getConfigurationParameter("pkcs11Module");
     logger.debug("PKCS11 module path: " + path);
     return path;
-  }
-
-  /**
-   * Add a certificate to the TSL
-   * <p/>
-   * ServiceTypeIdentifier is http://uri.etsi.org/TrstSvc/Svctype/CA/QC
-   * ServiceStatus is http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision
-   *
-   * @param certificate X509 certificate to be added to the list
-   */
-  public void addTSLCertificate(X509Certificate certificate) {
-    ServiceInfo serviceInfo = new ServiceInfo();
-    serviceInfo.setStatus("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision");
-    serviceInfo.setType("http://uri.etsi.org/TrstSvc/Svctype/CA/QC");
-    serviceInfo.setStatusStartDate(certificate.getNotBefore());
-
-    if (tslCertificateSource == null)
-      tslCertificateSource = new TSLCertificateSource();
-    tslCertificateSource.addCertificate(certificate, serviceInfo);
   }
 
   private void setConfigurationParameter(String key, String value) {
