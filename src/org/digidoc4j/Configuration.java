@@ -655,6 +655,7 @@ public class Configuration implements Serializable {
 
   /**
    * Loads TSL certificates
+   * If configuration mode is TEST then TSL signature is not checked.
    *
    * @return TSL source
    */
@@ -675,7 +676,11 @@ public class Configuration implements Serializable {
     }
 
     tslCertificateSource.setLotlUrl(tslLocation);
-    tslCertificateSource.setCheckSignature(false);
+
+    tslCertificateSource.setLotlCertificate("classpath://tl-mp.crt");
+    tslCertificateSource.setCheckSignature(mode == Mode.PROD);
+//    tslCertificateSource.setLotlCertificate("classpath://tl-test-mp.crt");
+//    tslCertificateSource.setCheckSignature(true);
     tslCertificateSource.init();
 
     return tslCertificateSource;
