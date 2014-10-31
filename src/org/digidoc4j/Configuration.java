@@ -677,10 +677,7 @@ public class Configuration implements Serializable {
 
     tslCertificateSource.setLotlUrl(tslLocation);
 
-    tslCertificateSource.setLotlCertificate("classpath://tl-mp.crt");
-    tslCertificateSource.setCheckSignature(mode == Mode.PROD);
-//    tslCertificateSource.setLotlCertificate("classpath://tl-test-mp.crt");
-//    tslCertificateSource.setCheckSignature(true);
+    tslCertificateSource.setCheckSignature(false);
     tslCertificateSource.init();
 
     return tslCertificateSource;
