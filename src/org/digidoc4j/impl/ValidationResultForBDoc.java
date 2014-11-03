@@ -1,5 +1,6 @@
 package org.digidoc4j.impl;
 
+import eu.europa.ec.markt.dss.DSSXMLUtils;
 import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
 import eu.europa.ec.markt.dss.validation102853.report.Reports;
 import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
@@ -7,7 +8,14 @@ import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,9 +25,9 @@ import java.util.List;
 
 public class ValidationResultForBDoc implements ValidationResult {
   static final Logger logger = LoggerFactory.getLogger(ValidationResultForDDoc.class);
-  private List<DigiDoc4JException> errors = new ArrayList<DigiDoc4JException>();
-  private List<DigiDoc4JException> warnings = new ArrayList<DigiDoc4JException>();
-  private String report;
+  private List<DigiDoc4JException> errors = new ArrayList<>();
+  private List<DigiDoc4JException> warnings = new ArrayList<>();
+  private Document reportDocument;
 
   /**
    * Constructor
@@ -29,11 +37,13 @@ public class ValidationResultForBDoc implements ValidationResult {
   public ValidationResultForBDoc(Reports report) {
     logger.debug("");
 
-    SimpleReport simpleReport = report.getSimpleReport();
+    initializeReportDOM();
 
-    List<String> signatureIds = simpleReport.getSignatureIds();
+    do {
+      SimpleReport simpleReport = report.getSimpleReport();
 
-    for (String signatureId : signatureIds) {
+      String signatureId = simpleReport.getSignatureIds().get(0);
+
       List<Conclusion.BasicInfo> results = simpleReport.getErrors(signatureId);
       for (Conclusion.BasicInfo result : results) {
         String message = result.toString();
@@ -46,10 +56,41 @@ public class ValidationResultForBDoc implements ValidationResult {
         logger.debug("Validation warning: " + message);
         warnings.add(new DigiDoc4JException(message));
       }
+
+      createXMLReport(simpleReport);
+      if (logger.isDebugEnabled()) {
+        logger.debug(simpleReport.toString());
+      }
+      report = report.getNextReports();
+
+    } while (report != null);
+  }
+
+  private void initializeReportDOM() {
+    DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder docBuilder = null;
+    try {
+      docBuilder = docFactory.newDocumentBuilder();
+    } catch (ParserConfigurationException e) {
+      e.printStackTrace();
     }
-    this.report = simpleReport.toString();
-    if (logger.isDebugEnabled()) {
-      logger.debug(simpleReport.toString());
+
+    reportDocument = docBuilder.newDocument();
+    reportDocument.appendChild(reportDocument.createElement("ValidationReport"));
+  }
+
+  private void createXMLReport(SimpleReport simpleReport) {
+
+    Element signatureValidation = reportDocument.createElement("SignatureValidation");
+    signatureValidation.setAttribute("ID", simpleReport.getSignatureIds().get(0));
+    reportDocument.getDocumentElement().appendChild(signatureValidation);
+
+    Element rootElement = simpleReport.getRootElement();
+    NodeList childNodes = rootElement.getChildNodes();
+    for (int i = 0; i < childNodes.getLength(); i++) {
+      Node importNode = reportDocument.importNode(childNodes.item(i), true);
+
+      signatureValidation.appendChild(importNode);
     }
   }
 
@@ -80,6 +121,6 @@ public class ValidationResultForBDoc implements ValidationResult {
 
   @Override
   public String getReport() {
-    return report;
+    return new String(DSSXMLUtils.transformDomToByteArray(reportDocument));
   }
 }

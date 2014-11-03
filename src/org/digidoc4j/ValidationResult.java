@@ -5,7 +5,9 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import java.util.List;
 
 /**
+ * Validation result information.
  *
+ * For BDOC the ValidationResult contains only information for the first signature of each signature XML file
  */
 public interface ValidationResult {
   /**
@@ -45,7 +47,7 @@ public interface ValidationResult {
   boolean isValid();
 
   /**
-   * get validation report
+   * Get validation report.
    *
    * @return report
    */

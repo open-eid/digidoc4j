@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import static junit.framework.Assert.assertEquals;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
@@ -173,6 +174,11 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     assertEquals(0, signature.validate().size());
     signature = container.getSignatures().get(1);
     assertEquals(1, signature.validate().size());
+    ValidationResult validate = container.validate();
+    assertEquals(1, validate.getErrors().size());
+
+    assertTrue(validate.getReport().contains("Id=\"S0\" SignatureFormat=\"XAdES_BASELINE_LT\""));
+    assertTrue(validate.getReport().contains("Id=\"S1\" SignatureFormat=\"XAdES_BASELINE_LT\""));
   }
 
   @Test

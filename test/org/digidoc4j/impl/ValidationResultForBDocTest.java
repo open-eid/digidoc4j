@@ -7,7 +7,9 @@ import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.junit.Test;
+import org.w3c.dom.Element;
 
+import javax.imageio.metadata.IIOMetadataNode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,32 +32,15 @@ public class ValidationResultForBDocTest {
     when(validator.validateDocument()).thenReturn(report);
     when(report.getSimpleReport()).thenReturn(simpleReport);
 
+    Element rootElement = mock(Element.class);
+    when(rootElement.getChildNodes()).thenReturn(new IIOMetadataNode());
+    when(simpleReport.getRootElement()).thenReturn(rootElement);
+
     ValidationResultForBDoc result = new ValidationResultForBDoc(report);
 
     assertFalse(result.hasErrors());
     assertFalse(result.hasWarnings());
   }
-
-  @Test
-  public void testGetReport() {
-    SimpleReport simpleReport = mock(SimpleReport.class);
-    String reportContent = "test report";
-
-    when(simpleReport.toString()).thenReturn(reportContent);
-    when(simpleReport.getSignatureIds()).thenReturn(asList("S0"));
-    when(simpleReport.getErrors("S0")).thenReturn(new ArrayList<Conclusion.BasicInfo>());
-    when(simpleReport.getWarnings("S0")).thenReturn(new ArrayList<Conclusion.BasicInfo>());
-
-    Reports report = mock(Reports.class);
-    ASiCXMLDocumentValidator validator = mock(ASiCXMLDocumentValidator.class);
-    when(validator.validateDocument()).thenReturn(report);
-    when(report.getSimpleReport()).thenReturn(simpleReport);
-
-    ValidationResultForBDoc result = new ValidationResultForBDoc(report);
-
-    assertEquals(reportContent, result.getReport());
-  }
-
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
@@ -70,6 +55,10 @@ public class ValidationResultForBDocTest {
     ASiCXMLDocumentValidator validator = mock(ASiCXMLDocumentValidator.class);
     when(validator.validateDocument()).thenReturn(report);
     when(report.getSimpleReport()).thenReturn(simpleReport);
+
+    Element rootElement = mock(Element.class);
+    when(rootElement.getChildNodes()).thenReturn(new IIOMetadataNode());
+    when(simpleReport.getRootElement()).thenReturn(rootElement);
 
     ValidationResult result = new ValidationResultForBDoc(report);
 
@@ -102,6 +91,10 @@ public class ValidationResultForBDocTest {
     ASiCXMLDocumentValidator validator = mock(ASiCXMLDocumentValidator.class);
     when(validator.validateDocument()).thenReturn(report);
     when(report.getSimpleReport()).thenReturn(simpleReport);
+
+    Element rootElement = mock(Element.class);
+    when(rootElement.getChildNodes()).thenReturn(new IIOMetadataNode());
+    when(simpleReport.getRootElement()).thenReturn(rootElement);
 
     ValidationResult result = new ValidationResultForBDoc(report);
 
