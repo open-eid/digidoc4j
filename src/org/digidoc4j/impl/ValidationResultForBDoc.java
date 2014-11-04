@@ -88,9 +88,22 @@ public class ValidationResultForBDoc implements ValidationResult {
     Element rootElement = simpleReport.getRootElement();
     NodeList childNodes = rootElement.getChildNodes();
     for (int i = 0; i < childNodes.getLength(); i++) {
-      Node importNode = reportDocument.importNode(childNodes.item(i), true);
+      Node node = childNodes.item(i);
+      removeNamespace(node);
+      Node importNode = reportDocument.importNode(node, true);
 
       signatureValidation.appendChild(importNode);
+    }
+  }
+
+  private static void removeNamespace(Node node) {
+    Document document = node.getOwnerDocument();
+    if (node.getNodeType() == Node.ELEMENT_NODE) {
+      document.renameNode(node, null, node.getNodeName());
+    }
+    NodeList list = node.getChildNodes();
+    for (int i = 0; i < list.getLength(); ++i) {
+      removeNamespace(list.item(i));
     }
   }
 
