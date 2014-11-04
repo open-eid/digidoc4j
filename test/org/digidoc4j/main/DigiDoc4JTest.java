@@ -398,7 +398,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
             containsString("Warning: The public key size is to small!"));
       }
     });
-    String[] params = new String[]{"-in", "testFiles/warning.bdoc", "-verify"};
+    String[] params = new String[]{"-in", "testFiles/warning.bdoc", "-verify", "-warnings"};
     copyFile(new File("testFiles/digidoc4j_ForBDocWarningTest.yaml"), new File("digidoc4j.yaml"));
     DigiDoc4J.main(params);
   }

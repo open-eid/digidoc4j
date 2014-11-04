@@ -31,6 +31,7 @@ import static org.digidoc4j.Container.SignatureProfile;
 public final class DigiDoc4J {
 
   private static boolean verboseMode;
+  private static boolean warnings;
   private static final String ANSI_RED = "\033[31m";
   private static final String ANSI_RESET = "\033[0m";
 
@@ -77,6 +78,7 @@ public final class DigiDoc4J {
     boolean fileHasChanged = false;
 
     verboseMode = commandLine.hasOption("verbose");
+    warnings = commandLine.hasOption("warnings");
     String inputFile = commandLine.getOptionValue("in");
     DocumentType type = getContainerType(commandLine);
 
@@ -194,11 +196,16 @@ public final class DigiDoc4J {
       }
     }
 
-    for (DigiDoc4JException warning : validationResult.getWarnings()) {
-      System.out.println("Warning: " + warning.toString());
-    }
-
+    showWarnings(validationResult);
     verboseMessage(validationResult.getReport());
+  }
+
+  private static void showWarnings(ValidationResult validationResult) {
+    if (warnings) {
+      for (DigiDoc4JException warning : validationResult.getWarnings()) {
+        System.out.println("Warning: " + warning.toString());
+      }
+    }
   }
 
   /**
@@ -231,6 +238,7 @@ public final class DigiDoc4J {
     Options options = new Options();
     options.addOption("v", "verify", false, "verify input file");
     options.addOption("verbose", "verbose", false, "verbose output");
+    options.addOption("w", "warnings", false, "show warnings");
 
     options.addOption(type());
     options.addOption(inputFile());
