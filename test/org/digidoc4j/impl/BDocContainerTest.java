@@ -27,6 +27,7 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.zip.ZipFile;
 
+import static java.util.Arrays.asList;
 import static org.digidoc4j.Container.DocumentType;
 import static org.digidoc4j.Container.SignatureProfile.*;
 import static org.digidoc4j.DigestAlgorithm.SHA1;
@@ -783,7 +784,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
       }
 
       private byte[] addPadding(byte[] digest) {
-        return ArrayUtils.addAll(Constants.SHA256_DIGEST_INFO_PREFIX, digest);
+        return ArrayUtils.addAll(Constants.SHA512_DIGEST_INFO_PREFIX, digest);
       }
     };
 
@@ -805,7 +806,16 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void verifySerializationCompletesSuccessfully() throws Exception {
     Container container = Container.create();
+
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA512);
+    signatureParameters.setRoles(asList("manager"));
+    signatureParameters.setProductionPlace(new SignatureProductionPlace("city", "state", "postalCode", "country"));
+    signatureParameters.setSignatureId("S0");
+    container.setSignatureParameters(signatureParameters);
+
     container.addDataFile("testFiles/test.txt", "text/plain");
+    container.setSignatureProfile(BES);
 
     X509Certificate signerCert = getSignerCert();
 
@@ -818,6 +828,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container deserializedContainer = deserializer();
     deserializedContainer.signRaw(signature);
     deserializedContainer.save("deserializedContainer.bdoc");
+
+    deserializedContainer.extendTo(TS);
 
     serialize(deserializedContainer);
 
