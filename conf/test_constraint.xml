@@ -17,9 +17,9 @@
             <IssuerSerialMatch Level="WARN">true</IssuerSerialMatch>
             <Signature Level="FAIL"/>
             <Expiration Level="FAIL"/>
-            <!--<RevocationDataAvailable Level="FAIL"/>-->
-            <!--<RevocationDataIsTrusted Level="FAIL"/>-->
-            <!--<RevocationDataFreshness Level="WARN"/>-->
+            <RevocationDataAvailable Level="FAIL"/>
+            <RevocationDataIsTrusted Level="IGNORE"/>
+            <RevocationDataFreshness Level="WARN"/>
             <ProspectiveCertificateChain Level="FAIL"/>
             <KeyUsage Level="WARN">nonRepudiation</KeyUsage>
             <Revoked Level="FAIL"/>
@@ -53,9 +53,9 @@
         <CACertificate>
             <Signature Level="FAIL"/>
             <Expiration Level="FAIL"/>
-            <!--<RevocationDataAvailable Level="FAIL"/>-->
-            <!--<RevocationDataIsTrusted Level="FAIL"/>-->
-            <!--<RevocationDataFreshness Level="WARN"/>-->
+            <RevocationDataAvailable Level="FAIL"/>
+            <RevocationDataIsTrusted Level="FAIL"/>
+            <RevocationDataFreshness Level="WARN"/>
             <Revoked Level="FAIL"/>
             <Cryptographic Level="FAIL">
                 <AcceptableEncryptionAlgo>
@@ -126,9 +126,9 @@
             <IssuerSerialMatch Level="FAIL">true</IssuerSerialMatch>
             <Signature Level="FAIL"/>
             <Expiration Level="FAIL"/>
-            <!--<RevocationDataAvailable Level="FAIL"/>-->
-            <!--<RevocationDataIsTrusted Level="FAIL"/>-->
-            <!--<RevocationDataFreshness Level="WARN"/>-->
+            <RevocationDataAvailable Level="FAIL"/>
+            <RevocationDataIsTrusted Level="FAIL"/>
+            <RevocationDataFreshness Level="WARN"/>
             <ProspectiveCertificateChain Level="FAIL"/>
             <Revoked Level="FAIL"/>
             <OnHold Level="FAIL"/>
@@ -156,9 +156,9 @@
         <CACertificate>
             <Signature Level="FAIL"/>
             <Expiration Level="FAIL"/>
-            <!--<RevocationDataAvailable Level="FAIL"/>-->
-            <!--<RevocationDataIsTrusted Level="FAIL"/>-->
-            <!--<RevocationDataFreshness Level="WARN"/>-->
+            <RevocationDataAvailable Level="FAIL"/>
+            <RevocationDataIsTrusted Level="FAIL"/>
+            <RevocationDataFreshness Level="WARN"/>
             <Revoked Level="FAIL"/>
             <Cryptographic Level="FAIL">
                 <AcceptableEncryptionAlgo>
@@ -186,9 +186,9 @@
         <SigningCertificate>
             <Signature Level="FAIL"/>
             <Expiration Level="FAIL"/>
-            <!--<RevocationDataAvailable Level="FAIL"/>-->
-            <!--<RevocationDataIsTrusted Level="FAIL"/>-->
-            <!--<RevocationDataFreshness Level="WARN"/>-->
+            <RevocationDataAvailable Level="FAIL"/>
+            <RevocationDataIsTrusted Level="FAIL"/>
+            <RevocationDataFreshness Level="WARN"/>
             <Revoked Level="FAIL"/>
             <Cryptographic Level="WARN">
                 <AcceptableEncryptionAlgo>
@@ -213,9 +213,9 @@
         <CACertificate>
             <Signature Level="FAIL"/>
             <Expiration Level="FAIL"/>
-            <!--<RevocationDataAvailable Level="FAIL"/>-->
-            <!--<RevocationDataIsTrusted Level="FAIL"/>-->
-            <!--<RevocationDataFreshness Level="WARN"/>-->
+            <RevocationDataAvailable Level="FAIL"/>
+            <RevocationDataIsTrusted Level="FAIL"/>
+            <RevocationDataFreshness Level="WARN"/>
             <Revoked Level="FAIL"/>
             <Cryptographic Level="FAIL">
                 <AcceptableEncryptionAlgo>
