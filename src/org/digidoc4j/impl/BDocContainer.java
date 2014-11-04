@@ -73,7 +73,8 @@ public class BDocContainer extends Container {
 
   @Override
   public SignedInfo prepareSigning(X509Certificate signerCert) {
-    byte[] signedInfo = getDataToSign(dssSignatureParameters.getDeterministicId(), signerCert);
+    String signatureId = signatureParameters.getSignatureId();
+    byte[] signedInfo = getDataToSign(signatureId != null ? signatureId : "S" + getSignatures().size(), signerCert);
 
     return new SignedInfo(signedInfo, signatureParameters.getDigestAlgorithm());
   }

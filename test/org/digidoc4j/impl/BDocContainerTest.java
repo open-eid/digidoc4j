@@ -752,7 +752,11 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void twoStepSigning() {
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA512);
+
     Container container = Container.create();
+    container.setSignatureParameters(signatureParameters);
     container.addDataFile("testFiles/test.txt", "text/plain");
     X509Certificate signerCert = getSignerCert();
     SignedInfo signedInfo = container.prepareSigning(signerCert);
@@ -809,12 +813,14 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
     SignatureParameters signatureParameters = new SignatureParameters();
     signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA512);
-    signatureParameters.setRoles(asList("manager"));
+    signatureParameters.setRoles(asList("manager", "employee"));
     signatureParameters.setProductionPlace(new SignatureProductionPlace("city", "state", "postalCode", "country"));
     signatureParameters.setSignatureId("S0");
+
     container.setSignatureParameters(signatureParameters);
 
     container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/test.xml", "text/xml");
     container.setSignatureProfile(BES);
 
     X509Certificate signerCert = getSignerCert();
@@ -827,17 +833,40 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
     Container deserializedContainer = deserializer();
     deserializedContainer.signRaw(signature);
-    deserializedContainer.save("deserializedContainer.bdoc");
 
-    deserializedContainer.extendTo(TS);
+//    signatureParameters.setSignatureId("S1");
+//    signatureParameters.setProductionPlace(new SignatureProductionPlace("city2", "state2", "postalCode2", "country2"));
+//    deserializedContainer.setSignatureParameters(signatureParameters);
+//    signedInfo = container.prepareSigning(signerCert);
+//
+//    signature = getExternalSignature(container, signerCert, signedInfo);
+//
+//    deserializedContainer.signRaw(signature);
+//    deserializedContainer.save("deserializedContainer.bdoc");
+
+    deserializedContainer.extendTo(TSA);
+    deserializedContainer.validate();
 
     serialize(deserializedContainer);
+    deserializedContainer = deserializer();
 
     container = Container.open("deserializedContainer.bdoc");
     ValidationResult validate = container.validate();
 
+    verifySerializationContainer(container, validate);
+
+    verifySerializationContainer(deserializedContainer, validate);
+  }
+
+  private void verifySerializationContainer(Container container, ValidationResult validate) {
     assertEquals(0, validate.getErrors().size());
     assertEquals(3, validate.getWarnings().size());
+    Signature resultSignature = container.getSignature(0);
+    assertEquals("http://www.w3.org/2001/04/xmlenc#sha512", resultSignature.getSignatureMethod());
+    assertEquals("city", resultSignature.getCity());
+    assertEquals("manager", resultSignature.getSignerRoles().get(0));
+    assertEquals("employee", resultSignature.getSignerRoles().get(1));
+    assertEquals("S0", resultSignature.getId());
   }
 
   private static void serialize(Container container) throws IOException {
