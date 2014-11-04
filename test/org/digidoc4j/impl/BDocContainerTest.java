@@ -14,7 +14,6 @@ import org.digidoc4j.signers.ExternalSigner;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -809,7 +808,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  @Ignore
   public void verifySerializationCompletesSuccessfully() throws Exception {
     Container container = Container.create();
 
