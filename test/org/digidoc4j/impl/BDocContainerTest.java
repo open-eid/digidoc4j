@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.*;
+import java.net.URI;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,13 +26,15 @@ import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.List;
 import java.util.zip.ZipFile;
 
 import static java.util.Arrays.asList;
+import static org.digidoc4j.Container.*;
 import static org.digidoc4j.Container.DocumentType;
 import static org.digidoc4j.Container.SignatureProfile.*;
-import static org.digidoc4j.DigestAlgorithm.SHA1;
-import static org.digidoc4j.DigestAlgorithm.SHA256;
+import static org.digidoc4j.DigestAlgorithm.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -127,7 +130,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.addRawSignature(new ByteArrayInputStream(Signatures.XADES_SIGNATURE.getBytes()));
     container.save("test_add_raw_signature.bdoc");
 
-    Container openedContainer = Container.open("test_add_raw_signature.bdoc");
+    Container openedContainer = open("test_add_raw_signature.bdoc");
     assertEquals(1, openedContainer.getSignatures().size());
   }
 
@@ -145,13 +148,29 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         container.getSignatures().get(1).getSigningCertificate().getSerial());
 
-    Container openedContainer = Container.open("testTwoSignatures.bdoc");
+    Container openedContainer = open("testTwoSignatures.bdoc");
 
     assertEquals(2, openedContainer.getSignatures().size());
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         openedContainer.getSignatures().get(0).getSigningCertificate().getSerial());
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         openedContainer.getSignatures().get(1).getSigningCertificate().getSerial());
+  }
+
+  @Test
+  public void testGetDefaultSignatureParameters() {
+    Container container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.save("test.bdoc");
+
+    container = open("test.bdoc");
+    Signature signature = container.getSignature(0);
+    assertNull(signature.getPostalCode());
+    assertNull(signature.getCity());
+    assertNull(signature.getStateOrProvince());
+    assertNull(signature.getCountryName());
+    assertNull(signature.getSignerRoles());
   }
 
   @Test
@@ -166,7 +185,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testAddSignaturesToExistingDocument() throws Exception {
-    Container container = Container.open("testFiles/asics_testing_two_signatures.bdoc");
+    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
     container.sign(PKCS12_SIGNER);
     container.save("testAddMultipleSignatures.bdoc");
 
@@ -174,7 +193,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         container.getSignatures().get(2).getSigningCertificate().getSerial());
 
-    Container openedContainer = Container.open("testAddMultipleSignatures.bdoc");
+    Container openedContainer = open("testAddMultipleSignatures.bdoc");
 
     assertEquals(3, openedContainer.getSignatures().size());
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
@@ -197,7 +216,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testRemoveSignatureWhenTwoSignaturesExist() throws Exception {
-    Container container = Container.open("testFiles/asics_testing_two_signatures.bdoc");
+    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
     container.removeSignature(0);
     container.save("testRemoveSignature.bdoc");
 
@@ -207,7 +226,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testRemoveSignatureWhenThreeSignaturesExist() throws Exception {
-    Container container = Container.open("testFiles/asics_testing_two_signatures.bdoc");
+    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
 
     container.sign(PKCS12_SIGNER);
     container.save("testThreeSignatures.bdoc");
@@ -421,7 +440,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.save("test-large-file.bdoc");
     File file = new File("test-large-file.bdoc");
     FileInputStream fileInputStream = new FileInputStream(file);
-    Container.open(fileInputStream, true);
+    open(fileInputStream, true);
 
     IOUtils.closeQuietly(fileInputStream);
 
@@ -440,7 +459,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
       container.save("test-large-file.bdoc");
       File file = new File("test-large-file.bdoc");
       FileInputStream fileInputStream = new FileInputStream(file);
-      Container.open(fileInputStream, true);
+      open(fileInputStream, true);
       IOUtils.closeQuietly(fileInputStream);
     }
     assertEquals(1, container.getSignatures().size());
@@ -547,7 +566,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.save(out);
     assertTrue(Files.exists(expectedContainerAsFile.toPath()));
 
-    Container containerToTest = Container.open(expectedContainerAsFile.getName());
+    Container containerToTest = open(expectedContainerAsFile.getName());
     assertArrayEquals(new byte[]{0x42}, containerToTest.getDataFiles().get(0).getBytes());
   }
 
@@ -604,7 +623,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNull(container.getSignature(0).getOCSPCertificate());
 
     container = new BDocContainer("testExtendTo.bdoc");
-    container.extendTo(Container.SignatureProfile.TS);
+    container.extendTo(SignatureProfile.TS);
     container.save("testExtendToContainsIt.bdoc");
 
     assertEquals(1, container.getSignatures().size());
@@ -614,7 +633,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void verifySignatureProfileIsTS() throws Exception {
     BDocContainer container = new BDocContainer();
-    container.setSignatureProfile(Container.SignatureProfile.TS);
+    container.setSignatureProfile(SignatureProfile.TS);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.save("testAddConfirmation.bdoc");
@@ -751,150 +770,92 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void twoStepSigning() {
-    SignatureParameters signatureParameters = new SignatureParameters();
-    signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA512);
-
-    Container container = Container.create();
-    container.setSignatureParameters(signatureParameters);
+  public void twoStepSigning() throws IOException {
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     X509Certificate signerCert = getSignerCert();
     SignedInfo signedInfo = container.prepareSigning(signerCert);
-    byte[] signature = getExternalSignature(container, signerCert, signedInfo);
+    byte[] signature = getExternalSignature(container, signerCert, signedInfo, SHA256);
     container.signRaw(signature);
     container.save("test.bdoc");
 
-    container = Container.open("test.bdoc");
+    container = open("test.bdoc");
+
+    assertEquals(SHA256, container.getDigestAlgorithm());
+    ValidationResult validate = container.validate();
+    assertTrue(validate.isValid());
+
     assertEquals(1, container.getSignatures().size());
-  }
+    Signature resultSignature = container.getSignature(0);
+    assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", resultSignature.getSignatureMethod());
+    assertNull(resultSignature.getSignerRoles());
+    assertNull(resultSignature.getCity());
+    assertEquals("S0", resultSignature.getId());
 
-  static byte[] getExternalSignature(Container container, final X509Certificate signerCert,
-                                             SignedInfo prepareSigningSignature) {
-    Signer externalSigner = new ExternalSigner(signerCert) {
-      @Override
-      public byte[] sign(Container container, byte[] dataToSign) {
-        try {
-          KeyStore keyStore = KeyStore.getInstance("PKCS12");
-          try (FileInputStream stream = new FileInputStream("testFiles/signout.p12")) {
-            keyStore.load(stream, "test".toCharArray());
-          }
-          PrivateKey privateKey = (PrivateKey) keyStore.getKey("1", "test".toCharArray());
-          final String javaSignatureAlgorithm = "NONEwith" + privateKey.getAlgorithm();
+    assertNotNull(resultSignature.getOCSPCertificate());
+    assertNotNull(resultSignature.getSigningCertificate());
+    assertNotNull(resultSignature.getRawSignature().length);
+    assertEquals(TS, resultSignature.getProfile());
+    assertNotNull(resultSignature.getTimeStampTokenCertificate());
 
-          return DSSUtils.encrypt(javaSignatureAlgorithm, privateKey, addPadding(dataToSign));
-        } catch (Exception e) {
-          throw new DigiDoc4JException("Loading private key failed");
-        }
-      }
-
-      private byte[] addPadding(byte[] digest) {
-        return ArrayUtils.addAll(Constants.SHA512_DIGEST_INFO_PREFIX, digest);
-      }
-    };
-
-    return externalSigner.sign(container, prepareSigningSignature.getDigest());
-  }
-
-  static X509Certificate getSignerCert() {
-    try {
-      KeyStore keyStore = KeyStore.getInstance("PKCS12");
-      try (FileInputStream stream = new FileInputStream("testFiles/signout.p12")) {
-        keyStore.load(stream, "test".toCharArray());
-      }
-      return (X509Certificate) keyStore.getCertificate("1");
-    } catch (Exception e) {
-      throw new DigiDoc4JException("Loading signer cert failed");
-    }
+    List<DataFile> dataFiles = container.getDataFiles();
+    assertEquals(1, dataFiles.size());
+    DataFile dataFile = dataFiles.get(0);
+    assertEquals("test.txt", dataFile.getName());
+    dataFile.calculateDigest(DigestAlgorithm.SHA384);
+    assertEquals("text/plain", dataFile.getMediaType());
+    assertEquals(new String(Files.readAllBytes(Paths.get("testFiles/test.txt"))), new String(dataFile.getBytes()));
+    assertEquals(15, dataFile.getFileSize());
+    assertEquals("test.txt", dataFile.getId());
   }
 
   @Test
-  public void verifySerializationCompletesSuccessfully() throws Exception {
-    Container container = Container.create();
-
+  public void twoStepSigningVerifySignatureParameters() {
     SignatureParameters signatureParameters = new SignatureParameters();
     signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA512);
     signatureParameters.setRoles(asList("manager", "employee"));
     signatureParameters.setProductionPlace(new SignatureProductionPlace("city", "state", "postalCode", "country"));
-    signatureParameters.setSignatureId("S0");
+    signatureParameters.setSignatureId("S99");
 
+    Container container = create();
     container.setSignatureParameters(signatureParameters);
-
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.addDataFile("testFiles/test.xml", "text/xml");
-    container.setSignatureProfile(BES);
-
     X509Certificate signerCert = getSignerCert();
+    SignedInfo signedInfo = container.prepareSigning(signerCert);
+    byte[] signature = getExternalSignature(container, signerCert, signedInfo,
+        signatureParameters.getDigestAlgorithm());
+    container.signRaw(signature);
+    container.save("test.bdoc");
 
+    container = open("test.bdoc");
+    assertEquals(1, container.getSignatures().size());
+    Signature resultSignature = container.getSignature(0);
+    assertEquals("http://www.w3.org/2001/04/xmlenc#sha512", resultSignature.getSignatureMethod());
+    assertEquals("employee", resultSignature.getSignerRoles().get(1));
+    assertEquals("city", resultSignature.getCity());
+    assertEquals("S99", resultSignature.getId());
+  }
+
+  @Test
+  public void twoStepSigningWithSerialization() throws IOException, ClassNotFoundException {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    X509Certificate signerCert = getSignerCert();
     SignedInfo signedInfo = container.prepareSigning(signerCert);
 
     serialize(container);
+    byte[] signature = getExternalSignature(container, signerCert, signedInfo, SHA256);
 
-    byte[] signature = getExternalSignature(container, signerCert, signedInfo);
+    container = deserializer();
+    container.signRaw(signature);
+    container.save("test.bdoc");
 
-    Container deserializedContainer = deserializer();
-    deserializedContainer.signRaw(signature);
+    container = open("test.bdoc");
 
-    signatureParameters.setSignatureId("S1");
-    signatureParameters.setProductionPlace(new SignatureProductionPlace("city2", "state2", "postalCode2", "country2"));
-    deserializedContainer.setSignatureParameters(signatureParameters);
-    signedInfo = deserializedContainer.prepareSigning(signerCert);
-
-    signature = getExternalSignature(deserializedContainer, signerCert, signedInfo);
-
-    deserializedContainer.signRaw(signature);
-    deserializedContainer.save("deserializedContainer.bdoc");
-
-    deserializedContainer.extendTo(TSA);
-    deserializedContainer.validate();
-
-    serialize(deserializedContainer);
-    deserializedContainer = deserializer();
-
-    container = Container.open("deserializedContainer.bdoc");
     ValidationResult validate = container.validate();
+    assertTrue(validate.isValid());
 
-    verifySerializationContainer(container, validate);
-
-    verifySerializationContainer(deserializedContainer, validate);
-  }
-
-  private void verifySerializationContainer(Container container, ValidationResult validate) {
-    assertEquals(0, validate.getErrors().size());
-    assertEquals(6, validate.getWarnings().size());
-
-    assertEquals(2, container.getSignatures().size());
-    Signature resultSignature = container.getSignature(0);
-    assertEquals("http://www.w3.org/2001/04/xmlenc#sha512", resultSignature.getSignatureMethod());
-    assertEquals("city", resultSignature.getCity());
-    assertEquals("manager", resultSignature.getSignerRoles().get(0));
-    assertEquals("employee", resultSignature.getSignerRoles().get(1));
-    assertEquals("S0", resultSignature.getId());
-
-    resultSignature = container.getSignature(1);
-    assertEquals("city2", resultSignature.getCity());
-    assertEquals("S1", resultSignature.getId());
-  }
-
-  private static void serialize(Container container) throws IOException {
-
-    FileOutputStream fileOut = new FileOutputStream("container.bin");
-    ObjectOutputStream out = new ObjectOutputStream(fileOut);
-    out.writeObject(container);
-    out.flush();
-    out.close();
-    fileOut.close();
-  }
-
-  private static Container deserializer() throws IOException, ClassNotFoundException {
-    FileInputStream fileIn = new FileInputStream("container.bin");
-    ObjectInputStream in = new ObjectInputStream(fileIn);
-
-    Container container = (Container) in.readObject();
-
-    in.close();
-    fileIn.close();
-
-    return container;
+    assertEquals(1, container.getSignatures().size());
   }
 
   @Test
@@ -960,5 +921,312 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
           Mockito.any(eu.europa.ec.markt.dss.parameter.SignatureParameters.class), Mockito.any(byte[].class));
       return super.sign(signer);
     }
+  }
+
+  static byte[] getExternalSignature(Container container, final X509Certificate signerCert,
+                                     SignedInfo prepareSigningSignature, final DigestAlgorithm digestAlgorithm) {
+    Signer externalSigner = new ExternalSigner(signerCert) {
+      @Override
+      public byte[] sign(Container container, byte[] dataToSign) {
+        try {
+          KeyStore keyStore = KeyStore.getInstance("PKCS12");
+          try (FileInputStream stream = new FileInputStream("testFiles/signout.p12")) {
+            keyStore.load(stream, "test".toCharArray());
+          }
+          PrivateKey privateKey = (PrivateKey) keyStore.getKey("1", "test".toCharArray());
+          final String javaSignatureAlgorithm = "NONEwith" + privateKey.getAlgorithm();
+
+          return DSSUtils.encrypt(javaSignatureAlgorithm, privateKey, addPadding(dataToSign));
+        } catch (Exception e) {
+          throw new DigiDoc4JException("Loading private key failed");
+        }
+      }
+
+      private byte[] addPadding(byte[] digest) {
+        byte[] signatureDigest;
+        switch (digestAlgorithm) {
+          case SHA512:
+            signatureDigest = Constants.SHA512_DIGEST_INFO_PREFIX;
+            break;
+          case SHA256:
+            signatureDigest = Constants.SHA256_DIGEST_INFO_PREFIX;
+            break;
+          default:
+            throw new NotYetImplementedException();
+        }
+        return ArrayUtils.addAll(signatureDigest, digest);
+      }
+    };
+
+    return externalSigner.sign(container, prepareSigningSignature.getDigest());
+  }
+
+  static X509Certificate getSignerCert() {
+    try {
+      KeyStore keyStore = KeyStore.getInstance("PKCS12");
+      try (FileInputStream stream = new FileInputStream("testFiles/signout.p12")) {
+        keyStore.load(stream, "test".toCharArray());
+      }
+      return (X509Certificate) keyStore.getCertificate("1");
+    } catch (Exception e) {
+      throw new DigiDoc4JException("Loading signer cert failed");
+    }
+  }
+
+  private static void serialize(Container container) throws IOException {
+
+    FileOutputStream fileOut = new FileOutputStream("container.bin");
+    ObjectOutputStream out = new ObjectOutputStream(fileOut);
+    out.writeObject(container);
+    out.flush();
+    out.close();
+    fileOut.close();
+  }
+
+  private static Container deserializer() throws IOException, ClassNotFoundException {
+    FileInputStream fileIn = new FileInputStream("container.bin");
+    ObjectInputStream in = new ObjectInputStream(fileIn);
+
+    Container container = (Container) in.readObject();
+
+    in.close();
+    fileIn.close();
+
+    return container;
+  }
+
+  @Test
+  public void verifySerialization() throws Exception {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+
+    serialize(container);
+
+    Container deserializedContainer = deserializer();
+
+    assertTrue(deserializedContainer.validate().isValid());
+  }
+
+  @Test
+  public void serializationVerifySpecifiedSignatureParameters() throws Exception {
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA512);
+    signatureParameters.setRoles(asList("manager", "employee"));
+    signatureParameters.setProductionPlace(new SignatureProductionPlace("city", "state", "postalCode", "country"));
+    signatureParameters.setSignatureId("S99");
+
+    Container container = create();
+    container.setSignatureParameters(signatureParameters);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+
+    serialize(container);
+
+    Container deserializedContainer = deserializer();
+
+    Signature signature = deserializedContainer.getSignature(0);
+    assertEquals("postalCode", signature.getPostalCode());
+    assertEquals("city", signature.getCity());
+    assertEquals("state", signature.getStateOrProvince());
+    assertEquals("country", signature.getCountryName());
+    assertEquals("employee", signature.getSignerRoles().get(1));
+    assertEquals("S99", signature.getId());
+    assertEquals("http://www.w3.org/2001/04/xmlenc#sha512", signature.getSignatureMethod());
+  }
+
+  @Test
+  public void serializationVerifyDefaultSignatureParameters() throws Exception {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    serialize(container);
+    Container deserializedContainer = deserializer();
+
+    Signature signature = deserializedContainer.getSignature(0);
+
+    assertNull(signature.getCity());
+    assertNull(signature.getSignerRoles());
+    assertEquals("S0", signature.getId());
+    assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
+  }
+
+  @Test
+  public void serializationGetDigestAlgorithm() throws Exception {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    serialize(container);
+    Container deserializedContainer = deserializer();
+
+    assertEquals(SHA256, deserializedContainer.getDigestAlgorithm());
+  }
+
+  @Test
+  public void serializationGetDocumentType() throws Exception {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    serialize(container);
+    Container deserializedContainer = deserializer();
+
+    assertEquals(container.getDocumentType(), deserializedContainer.getDocumentType());
+  }
+
+  @Test
+  public void serializationGetOCSPCertificate() throws Exception {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    serialize(container);
+    Container deserializedContainer = deserializer();
+
+    byte[] ocspCertBeforeSerialization = container.getSignature(0).getOCSPCertificate().
+        getX509Certificate().getEncoded();
+    byte[] ocspCertAfterSerialization = deserializedContainer.getSignature(0).getOCSPCertificate().
+        getX509Certificate().getEncoded();
+
+    assertArrayEquals(ocspCertBeforeSerialization, ocspCertAfterSerialization);
+  }
+
+  @Test
+  public void serializationGetSigningTime() throws Exception {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    serialize(container);
+    Container deserializedContainer = deserializer();
+
+    Date signingTimeBeforeSerialization = container.getSignature(0).getSigningTime();
+    Date signingTimeAfterSerialization = deserializedContainer.getSignature(0).getSigningTime();
+
+    assertEquals(signingTimeBeforeSerialization, signingTimeAfterSerialization);
+  }
+
+  @Test (expected = NotYetImplementedException.class)
+  public void serializationGetPolicy() throws Exception {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    serialize(container);
+    Container deserializedContainer = deserializer();
+
+    String signaturePolicyBeforeSerialization = container.getSignature(0).getPolicy();
+    String signaturePolicyAfterSerialization = deserializedContainer.getSignature(0).getPolicy();
+
+    assertEquals(signaturePolicyBeforeSerialization, signaturePolicyAfterSerialization);
+  }
+
+  @Test (expected = NotYetImplementedException.class)
+  public void serializationGetSignaturePolicyURI() throws Exception {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    serialize(container);
+    Container deserializedContainer = deserializer();
+
+    URI signaturePolicyURIBeforeSerialization = container.getSignature(0).getSignaturePolicyURI();
+    URI signaturePolicyURIAfterSerialization = deserializedContainer.getSignature(0).getSignaturePolicyURI();
+
+    assertEquals(signaturePolicyURIBeforeSerialization, signaturePolicyURIAfterSerialization);
+  }
+
+  @Test
+  public void serializationGetSigningCertificate() throws Exception {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    serialize(container);
+    Container deserializedContainer = deserializer();
+
+    byte[] signingCertBeforeSerialization = container.getSignature(0).getSigningCertificate().
+        getX509Certificate().getEncoded();
+    byte[] singingCertAfterSerialization = deserializedContainer.getSignature(0).getSigningCertificate().
+        getX509Certificate().getEncoded();
+
+    assertArrayEquals(signingCertBeforeSerialization, singingCertAfterSerialization);
+  }
+
+  @Test
+  public void serializationGetRawSignature() throws Exception {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    serialize(container);
+    Container deserializedContainer = deserializer();
+
+    byte[] rawSignatureBeforeSerialization = container.getSignature(0).getRawSignature();
+    byte[] rawSignatureAfterSerialization = deserializedContainer.getSignature(0).getRawSignature();
+
+    assertArrayEquals(rawSignatureBeforeSerialization, rawSignatureAfterSerialization);
+  }
+
+  @Test
+  public void serializationGetTimeStampTokenCertificate() throws Exception {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    serialize(container);
+    Container deserializedContainer = deserializer();
+
+    byte[] timeStampTokenCertificateBeforeSerialization = container.getSignature(0).
+        getTimeStampTokenCertificate().getX509Certificate().getEncoded();
+    byte[] timeStampTokenCertificateAfterSerialization = deserializedContainer.getSignature(0).
+        getTimeStampTokenCertificate().getX509Certificate().getEncoded();
+
+    assertArrayEquals(timeStampTokenCertificateBeforeSerialization, timeStampTokenCertificateAfterSerialization);
+  }
+
+  @Test
+  public void serializationGetProfile() throws Exception {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    serialize(container);
+    Container deserializedContainer = deserializer();
+
+    SignatureProfile signatureProfileBeforeSerialization = container.getSignature(0).getProfile();
+    SignatureProfile signatureProfileAfterSerialization = deserializedContainer.getSignature(0).getProfile();
+
+    assertEquals(signatureProfileBeforeSerialization, signatureProfileAfterSerialization);
+  }
+
+  @Test
+  public void serializationGetDataFiles() throws Exception {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    serialize(container);
+    Container deserializedContainer = deserializer();
+
+    int nrOfDataFilesBeforeSerialization = container.getDataFiles().size();
+    int nrOfDataFilesAfterSerialization = deserializedContainer.getDataFiles().size();
+
+    assertEquals(nrOfDataFilesBeforeSerialization, nrOfDataFilesAfterSerialization);
+  }
+
+  @Test
+  public void serializationDataFileCheck() throws Exception {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    serialize(container);
+    Container deserializedContainer = deserializer();
+
+    DataFile dataFileBeforeSerialization = container.getDataFile(0);
+    DataFile dataFileAfterSerialization = deserializedContainer.getDataFile(0);
+
+    assertEquals(dataFileBeforeSerialization.getFileSize(), dataFileAfterSerialization.getFileSize());
+    assertArrayEquals(dataFileBeforeSerialization.getBytes(), dataFileAfterSerialization.getBytes());
+    assertEquals(dataFileBeforeSerialization.getId(), dataFileAfterSerialization.getId());
+    assertEquals(dataFileBeforeSerialization.getName(), dataFileAfterSerialization.getName());
+    assertEquals(dataFileBeforeSerialization.getMediaType(), dataFileAfterSerialization.getMediaType());
+
+    byte[] bytesBeforeSerialization = IOUtils.toByteArray(dataFileBeforeSerialization.getStream());
+    byte[] bytesAfterSerialization = IOUtils.toByteArray(dataFileAfterSerialization.getStream());
+
+    assertArrayEquals(bytesBeforeSerialization, bytesAfterSerialization);
+
+    assertArrayEquals(dataFileAfterSerialization.calculateDigest(), dataFileBeforeSerialization.calculateDigest());
   }
 }
