@@ -1,6 +1,8 @@
 package org.digidoc4j.utils;
 
 import org.apache.commons.io.IOUtils;
+import org.digidoc4j.Container;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -92,5 +94,48 @@ public final class Helper {
     inputStream.close();
 
     return signatureContent;
+  }
+
+  /**
+   * Serialize container.
+   *
+   * @param container container to be serialized
+   * @param filename  name of file to store serialized container in
+   */
+  public static void serialize(Container container, String filename) {
+
+    FileOutputStream fileOut = null;
+    try {
+      fileOut = new FileOutputStream(filename);
+      ObjectOutputStream out = new ObjectOutputStream(fileOut);
+      out.writeObject(container);
+      out.flush();
+      out.close();
+      fileOut.close();
+    } catch (Exception e) {
+      throw new DigiDoc4JException(e);
+    }
+
+  }
+
+  /**
+   * Deserialize a previously serialized container
+   *
+   * @param filename name of the file containing the serialized container
+   * @return container
+   */
+  public static Container deserializer(String filename) {
+    FileInputStream fileIn = null;
+    try {
+      fileIn = new FileInputStream(filename);
+      ObjectInputStream in = new ObjectInputStream(fileIn);
+      Container container = (Container) in.readObject();
+      in.close();
+      fileIn.close();
+
+      return container;
+    } catch (Exception e) {
+      throw new DigiDoc4JException(e);
+    }
   }
 }

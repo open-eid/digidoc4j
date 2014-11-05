@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.digidoc4j.Container.SignatureProfile.*;
+import static org.digidoc4j.DigestAlgorithm.*;
 import static org.digidoc4j.impl.BDocContainerTest.getExternalSignature;
 import static org.digidoc4j.impl.BDocContainerTest.getSignerCert;
 import static org.junit.Assert.*;
@@ -73,7 +74,7 @@ public class DDocContainerTest {
   public void testSetDigestAlgorithmSHA1() throws Exception {
     DDocContainer container = new DDocContainer();
     SignatureParameters signatureParameters = new SignatureParameters();
-    signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA1);
+    signatureParameters.setDigestAlgorithm(SHA1);
     container.setSignatureParameters(signatureParameters);
   }
 
@@ -81,7 +82,7 @@ public class DDocContainerTest {
   public void testSetDigestAlgorithmOtherThenSHA1() throws Exception {
     DDocContainer container = new DDocContainer();
     SignatureParameters signatureParameters = new SignatureParameters();
-    signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA224);
+    signatureParameters.setDigestAlgorithm(SHA224);
     container.setSignatureParameters(signatureParameters);
   }
 
@@ -413,7 +414,7 @@ public class DDocContainerTest {
     container.addDataFile("testFiles/test.txt", "text/plain");
     X509Certificate signerCert = getSignerCert();
     SignedInfo signedInfo = container.prepareSigning(signerCert);
-    byte[] signature = getExternalSignature(container, signerCert, signedInfo);
+    byte[] signature = getExternalSignature(container, signerCert, signedInfo, SHA256);
     container.signRaw(signature);
     container.save("test.ddoc");
 
