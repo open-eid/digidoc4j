@@ -35,6 +35,8 @@ import static org.digidoc4j.Container.*;
 import static org.digidoc4j.Container.DocumentType;
 import static org.digidoc4j.Container.SignatureProfile.*;
 import static org.digidoc4j.DigestAlgorithm.*;
+import static org.digidoc4j.utils.Helper.deserializer;
+import static org.digidoc4j.utils.Helper.serialize;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -843,10 +845,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     X509Certificate signerCert = getSignerCert();
     SignedInfo signedInfo = container.prepareSigning(signerCert);
 
-    serialize(container);
+    serialize(container, "container.bin");
     byte[] signature = getExternalSignature(container, signerCert, signedInfo, SHA256);
 
-    container = deserializer();
+    container = deserializer("container.bin");
     container.signRaw(signature);
     container.save("test.bdoc");
 
@@ -973,37 +975,15 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     }
   }
 
-  private static void serialize(Container container) throws IOException {
-
-    FileOutputStream fileOut = new FileOutputStream("container.bin");
-    ObjectOutputStream out = new ObjectOutputStream(fileOut);
-    out.writeObject(container);
-    out.flush();
-    out.close();
-    fileOut.close();
-  }
-
-  private static Container deserializer() throws IOException, ClassNotFoundException {
-    FileInputStream fileIn = new FileInputStream("container.bin");
-    ObjectInputStream in = new ObjectInputStream(fileIn);
-
-    Container container = (Container) in.readObject();
-
-    in.close();
-    fileIn.close();
-
-    return container;
-  }
-
   @Test
   public void verifySerialization() throws Exception {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
 
-    serialize(container);
+    serialize(container, "container.bin");
 
-    Container deserializedContainer = deserializer();
+    Container deserializedContainer = deserializer("container.bin");
 
     assertTrue(deserializedContainer.validate().isValid());
   }
@@ -1021,9 +1001,9 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
 
-    serialize(container);
+    serialize(container, "container.bin");
 
-    Container deserializedContainer = deserializer();
+    Container deserializedContainer = deserializer("container.bin");
 
     Signature signature = deserializedContainer.getSignature(0);
     assertEquals("postalCode", signature.getPostalCode());
@@ -1040,8 +1020,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    serialize(container);
-    Container deserializedContainer = deserializer();
+    serialize(container, "container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     Signature signature = deserializedContainer.getSignature(0);
 
@@ -1056,8 +1036,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    serialize(container);
-    Container deserializedContainer = deserializer();
+    serialize(container, "container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     assertEquals(SHA256, deserializedContainer.getDigestAlgorithm());
   }
@@ -1067,8 +1047,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    serialize(container);
-    Container deserializedContainer = deserializer();
+    serialize(container, "container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     assertEquals(container.getDocumentType(), deserializedContainer.getDocumentType());
   }
@@ -1078,8 +1058,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    serialize(container);
-    Container deserializedContainer = deserializer();
+    serialize(container, "container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     byte[] ocspCertBeforeSerialization = container.getSignature(0).getOCSPCertificate().
         getX509Certificate().getEncoded();
@@ -1094,8 +1074,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    serialize(container);
-    Container deserializedContainer = deserializer();
+    serialize(container, "container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     Date signingTimeBeforeSerialization = container.getSignature(0).getSigningTime();
     Date signingTimeAfterSerialization = deserializedContainer.getSignature(0).getSigningTime();
@@ -1108,8 +1088,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    serialize(container);
-    Container deserializedContainer = deserializer();
+    serialize(container, "container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     String signaturePolicyBeforeSerialization = container.getSignature(0).getPolicy();
     String signaturePolicyAfterSerialization = deserializedContainer.getSignature(0).getPolicy();
@@ -1122,8 +1102,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    serialize(container);
-    Container deserializedContainer = deserializer();
+    serialize(container, "container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     URI signaturePolicyURIBeforeSerialization = container.getSignature(0).getSignaturePolicyURI();
     URI signaturePolicyURIAfterSerialization = deserializedContainer.getSignature(0).getSignaturePolicyURI();
@@ -1136,8 +1116,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    serialize(container);
-    Container deserializedContainer = deserializer();
+    serialize(container, "container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     byte[] signingCertBeforeSerialization = container.getSignature(0).getSigningCertificate().
         getX509Certificate().getEncoded();
@@ -1152,8 +1132,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    serialize(container);
-    Container deserializedContainer = deserializer();
+    serialize(container, "container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     byte[] rawSignatureBeforeSerialization = container.getSignature(0).getRawSignature();
     byte[] rawSignatureAfterSerialization = deserializedContainer.getSignature(0).getRawSignature();
@@ -1166,8 +1146,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    serialize(container);
-    Container deserializedContainer = deserializer();
+    serialize(container, "container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     byte[] timeStampTokenCertificateBeforeSerialization = container.getSignature(0).
         getTimeStampTokenCertificate().getX509Certificate().getEncoded();
@@ -1182,8 +1162,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    serialize(container);
-    Container deserializedContainer = deserializer();
+    serialize(container, "container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     SignatureProfile signatureProfileBeforeSerialization = container.getSignature(0).getProfile();
     SignatureProfile signatureProfileAfterSerialization = deserializedContainer.getSignature(0).getProfile();
@@ -1196,8 +1176,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    serialize(container);
-    Container deserializedContainer = deserializer();
+    serialize(container, "container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     int nrOfDataFilesBeforeSerialization = container.getDataFiles().size();
     int nrOfDataFilesAfterSerialization = deserializedContainer.getDataFiles().size();
@@ -1210,8 +1190,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    serialize(container);
-    Container deserializedContainer = deserializer();
+    serialize(container, "container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     DataFile dataFileBeforeSerialization = container.getDataFile(0);
     DataFile dataFileAfterSerialization = deserializedContainer.getDataFile(0);
