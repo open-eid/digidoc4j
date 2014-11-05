@@ -173,6 +173,7 @@ public class BDocContainer extends Container {
 
     try {
       signedDocument = new FileDocument(path);
+      signedDocument.setMimeType(MimeType.ASICE);
       checkMimeType(path);
     } catch (DSSException e) {
       logger.error(e.getMessage());
@@ -665,7 +666,9 @@ public class BDocContainer extends Container {
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
 
     dssSignatureParameters.setSignatureLevel(signatureLevel);
-    signedDocument = asicService.extendDocument(signedDocument, dssSignatureParameters);
+
+    signedDocument = new InMemoryDocument(asicService.extendDocument(signedDocument, dssSignatureParameters).getBytes(),
+        signedDocument.getName(), signedDocument.getMimeType());
 
     signatures = new ArrayList<>();
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);

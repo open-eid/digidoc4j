@@ -165,6 +165,14 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void notThrowingNPEWhenDOCXFileIsAddedToContainer() {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/word_file.docx", "text/xml");
+    container.sign(PKCS12_SIGNER);
+    assertEquals(1, container.getSignatures().size());
+  }
+
+  @Test
   public void testAddSignaturesToExistingDocument() throws Exception {
     Container container = Container.open("testFiles/asics_testing_two_signatures.bdoc");
     container.sign(PKCS12_SIGNER);
