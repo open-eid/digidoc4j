@@ -80,13 +80,13 @@ public class BDocSignature extends Signature {
   @Override
   public String getCity() {
     logger.debug("");
-    return signerLocation.getCity();
+    return signerLocation == null ? null : signerLocation.getCity();
   }
 
   @Override
   public String getCountryName() {
     logger.debug("");
-    return signerLocation.getCountryName();
+    return signerLocation == null ? null : signerLocation.getCountryName();
   }
 
   @Override
@@ -144,7 +144,7 @@ public class BDocSignature extends Signature {
   @Override
   public String getPostalCode() {
     logger.debug("");
-    return signerLocation.getPostalCode();
+    return signerLocation == null ? null : signerLocation.getPostalCode();
   }
 
   @Override
@@ -179,7 +179,8 @@ public class BDocSignature extends Signature {
   @Override
   public List<String> getSignerRoles() {
     logger.debug("");
-    return Arrays.asList(origin.getClaimedSignerRoles());
+    String[] claimedSignerRoles = origin.getClaimedSignerRoles();
+    return claimedSignerRoles == null ? null : Arrays.asList(claimedSignerRoles);
   }
 
   @Override
@@ -205,7 +206,7 @@ public class BDocSignature extends Signature {
   @Override
   public String getStateOrProvince() {
     logger.debug("");
-    return signerLocation.getStateOrProvince();
+    return signerLocation == null ? null : signerLocation.getStateOrProvince();
   }
 
   @Override
