@@ -5,10 +5,7 @@ import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.SignedDoc;
 import ee.sk.digidoc.factory.DigiDocGenFactory;
 import org.apache.commons.cli.*;
-import org.digidoc4j.Container;
-import org.digidoc4j.Signature;
-import org.digidoc4j.Signer;
-import org.digidoc4j.ValidationResult;
+import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.impl.DDocContainer;
@@ -70,7 +67,7 @@ public final class DigiDoc4J {
   }
 
   private static void showUsage(Options options) {
-    new HelpFormatter().printHelp("digidoc4j", options);
+    new HelpFormatter().printHelp("digidoc4j/" + Version.VERSION, options);
     throw new DigiDoc4JUtilityException(2, "no parameters given");
   }
 

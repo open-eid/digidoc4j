@@ -1,5 +1,7 @@
 package org.digidoc4j.utils;
 
+import eu.europa.ec.markt.dss.signature.MimeType;
+import org.digidoc4j.Container;
 import org.junit.AfterClass;
 import org.junit.Test;
 
@@ -11,6 +13,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static org.digidoc4j.utils.Helper.deleteFile;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
 
 public class HelperTest {
@@ -119,5 +122,17 @@ public class HelperTest {
       zout.write(0x42);
       zout.closeEntry();
     }
+  }
+
+  @Test
+  public void createUserAgentForBDOC() throws Exception {
+    String userAgent = Helper.createUserAgent(Container.create());
+    assertThat(userAgent, containsString(MimeType.ASICE.getCode()));
+  }
+
+  @Test
+  public void createUserAgentForDDOC() throws Exception {
+    String userAgent = Helper.createUserAgent(Container.create(Container.DocumentType.DDOC));
+    assertThat(userAgent, containsString("DDOC"));
   }
 }

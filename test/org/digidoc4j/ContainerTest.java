@@ -1,5 +1,6 @@
 package org.digidoc4j;
 
+import junit.framework.*;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -8,9 +9,8 @@ import org.digidoc4j.impl.DDocContainer;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.digidoc4j.utils.Helper;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.*;
+import org.junit.Assert;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -32,6 +32,7 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.Container.SignatureProfile.BES;
 import static org.digidoc4j.Container.SignatureProfile.TS;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
@@ -328,7 +329,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.save("testOpenCreatedDDocFile.ddoc");
     Container containerForReading = Container.open("testOpenCreatedDDocFile.ddoc");
-    assertEquals(DDOC, containerForReading.getDocumentType());
+    junit.framework.Assert.assertEquals(DDOC, containerForReading.getDocumentType());
 
     assertEquals(1, container.getDataFiles().size());
   }
@@ -436,7 +437,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void throwsErrorWhenCreatesDDOCContainerWithConfiguration() throws Exception {
     Container container = Container.create(DDOC, new Configuration());
-    assertEquals(DDOC, container.getDocumentType());
+    junit.framework.Assert.assertEquals(DDOC, container.getDocumentType());
   }
 
   @Test
@@ -570,7 +571,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void constructorWithConfigurationParameter() throws Exception {
     Container container = Container.create(new Configuration());
-    assertEquals(BDOC, container.getDocumentType());
+    junit.framework.Assert.assertEquals(BDOC, container.getDocumentType());
   }
 
   @Test
@@ -583,6 +584,16 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     assertEquals(1, container.getDataFiles().size());
     ValidationResult validate = container.validate();
     assertTrue(validate.isValid());
+  }
+
+  @Test
+  public void containerTypeStringValueForBDOC() throws Exception {
+    assertEquals("application/vnd.etsi.asic-e+zip", Container.create().getDocumentType().toString());
+  }
+
+  @Test
+  public void containerTypeStringValueForDDOC() throws Exception {
+    assertEquals("DDOC", Container.create(DDOC).getDocumentType().toString());
   }
 }
 

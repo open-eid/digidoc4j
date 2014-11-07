@@ -3,6 +3,7 @@ package eu.europa.ec.markt.dss.validation102853.ocsp;
 import eu.europa.ec.markt.dss.DSSRevocationUtils;
 import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.exception.DSSNullException;
+import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.https.OCSPDataLoader;
 import eu.europa.ec.markt.dss.validation102853.loader.DataLoader;
 import org.bouncycastle.asn1.x509.GeneralName;
@@ -128,4 +129,7 @@ public class SKOnlineOCSPSource implements OCSPSource {
     return null;
   }
 
+  public void setUserAgent(String userAgent) {
+    ((CommonsDataLoader) dataLoader).setUserAgent(userAgent);
+  }
 }

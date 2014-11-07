@@ -6,7 +6,6 @@ import eu.europa.ec.markt.dss.parameter.BLevelParameters;
 import eu.europa.ec.markt.dss.signature.*;
 import eu.europa.ec.markt.dss.signature.asic.ASiCService;
 import eu.europa.ec.markt.dss.validation102853.AdvancedSignature;
-import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCContainerValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
@@ -20,6 +19,7 @@ import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.*;
+import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -487,7 +487,9 @@ public class BDocContainer extends Container {
     logger.debug("");
 
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
-    commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource(configuration));
+    SKOnlineOCSPSource ocspSource = new SKOnlineOCSPSource(configuration);
+    ocspSource.setUserAgent(Helper.createUserAgent(this));
+    commonCertificateVerifier.setOcspSource(ocspSource);
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
 
     String deterministicId = getDssSignatureParameters().getDeterministicId();
@@ -612,15 +614,17 @@ public class BDocContainer extends Container {
 
   private Reports validate(SignedDocumentValidator validator) {
     logger.debug("Validator: " + validator);
-    CommonCertificateVerifier verifier = new CommonCertificateVerifier();
-    verifier.setOcspSource(new SKOnlineOCSPSource(configuration));
+    SKOnlineOCSPSource ocspSource = new SKOnlineOCSPSource(configuration);
+    ocspSource.setUserAgent(Helper.createUserAgent(this));
+    commonCertificateVerifier.setOcspSource(ocspSource);
 
     TrustedListsCertificateSource trustedCertSource = configuration.getTSL();
 
-    verifier.setTrustedCertSource(trustedCertSource);
-    validator.setCertificateVerifier(verifier);
+    commonCertificateVerifier.setTrustedCertSource(trustedCertSource);
+    validator.setCertificateVerifier(commonCertificateVerifier);
 
-    return validator.validateDocument(getValidationPolicyAsStream(getConfiguration().getValidationPolicy()));
+    Reports reports = validator.validateDocument(getValidationPolicyAsStream(getConfiguration().getValidationPolicy()));
+    return reports;
   }
 
   private InputStream getValidationPolicyAsStream(String policyFile) {
@@ -662,7 +666,9 @@ public class BDocContainer extends Container {
       throw new DigiDoc4JException("It is not possible to extend the signature to the same level");
 
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
-    commonCertificateVerifier.setOcspSource(new SKOnlineOCSPSource(configuration));
+    SKOnlineOCSPSource ocspSource = new SKOnlineOCSPSource(configuration);
+    ocspSource.setUserAgent(Helper.createUserAgent(this));
+    commonCertificateVerifier.setOcspSource(ocspSource);
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
 
     dssSignatureParameters.setSignatureLevel(signatureLevel);

@@ -1,5 +1,6 @@
 package org.digidoc4j;
 
+import eu.europa.ec.markt.dss.signature.MimeType;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.BDocContainer;
@@ -193,7 +194,14 @@ public abstract class Container implements Serializable {
     /**
      * DIGIDOC-XML 1.3 container
      */
-    DDOC
+    DDOC;
+
+    @Override
+    public String toString() {
+      if (this == BDOC)
+        return MimeType.ASICE.getCode();
+      return super.toString();
+    }
   }
 
   /**

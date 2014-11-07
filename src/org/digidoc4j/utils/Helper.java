@@ -2,7 +2,9 @@ package org.digidoc4j.utils;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Container;
+import org.digidoc4j.Version;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.BDocContainer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -137,5 +139,38 @@ public final class Helper {
     } catch (Exception e) {
       throw new DigiDoc4JException(e);
     }
+  }
+
+  /** creates user agent value for given container
+   * format is:
+   *    LIB DigiDoc4J/VERSION format: CONTAINER_TYPE signatureProfile: SIGNATURE_PROFILE
+   *    Java: JAVA_VERSION/JAVA_PROVIDER OS: OPERAING_SYSTEM JVM: JVM
+   *
+   * @param container
+   * @return user agent string
+   */
+  public static String createUserAgent(Container container) {
+    StringBuilder ua = new StringBuilder("LIB DigiDoc4j/").append(Version.VERSION == null ? "DEV" : Version.VERSION);
+
+    ua.append(" format: ").append(container.getDocumentType());
+    String version = container.getVersion();
+    if (version != null) {
+      ua.append("/").append(version);
+    }
+
+    ua.append(" signatureProfile: ").append("???");
+
+    ua.append(" Java: ").append(System.getProperty("java.version"));
+    ua.append("/").append(System.getProperty("java.vendor"));
+
+    ua.append(" OS: ").append(System.getProperty("os.name"));
+    ua.append("/").append(System.getProperty("os.arch"));
+    ua.append("/").append(System.getProperty("os.version"));
+
+    ua.append(" JVM: ").append(System.getProperty("java.vm.name"));
+    ua.append("/").append(System.getProperty("java.vm.vendor"));
+    ua.append("/").append(System.getProperty("java.vm.version"));
+
+    return ua.toString();
   }
 }
