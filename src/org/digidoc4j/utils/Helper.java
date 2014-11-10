@@ -4,6 +4,8 @@ import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Container;
 import org.digidoc4j.Version;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -19,6 +21,7 @@ import static java.nio.file.Files.deleteIfExists;
  *
  */
 public final class Helper {
+  private static final Logger logger = LoggerFactory.getLogger(Helper.class);
 
   private static final int ZIP_VERIFICATION_CODE = 0x504b0304;
   private static final int INT_LENGTH = 4;
@@ -156,7 +159,7 @@ public final class Helper {
       ua.append("/").append(version);
     }
 
-    ua.append(" signatureProfile: ").append("???");
+    ua.append(" signatureProfile: ").append(container.getSignatureProfile());
 
     ua.append(" Java: ").append(System.getProperty("java.version"));
     ua.append("/").append(System.getProperty("java.vendor"));
@@ -169,6 +172,9 @@ public final class Helper {
     ua.append("/").append(System.getProperty("java.vm.vendor"));
     ua.append("/").append(System.getProperty("java.vm.version"));
 
-    return ua.toString();
+    String userAgent = ua.toString();
+    logger.debug("User-Agent: " + userAgent);
+
+    return userAgent;
   }
 }

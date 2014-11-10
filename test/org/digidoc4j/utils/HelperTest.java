@@ -135,4 +135,45 @@ public class HelperTest {
     String userAgent = Helper.createUserAgent(Container.create(Container.DocumentType.DDOC));
     assertThat(userAgent, containsString("DDOC"));
   }
+
+  @Test
+  public void  createUserAgentSignatureProfileForBDOC() {
+    Container container = Container.create(Container.DocumentType.BDOC);
+    container.setSignatureProfile(Container.SignatureProfile.TSA);
+    String userAgent = Helper.createUserAgent(container);
+    assertThat(userAgent, containsString("signatureProfile: ASiC_E_BASELINE_LTA"));
+  }
+
+  @Test
+  public void  createUserAgentSignatureProfileForBDOCDefault() {
+    String userAgent = Helper.createUserAgent(Container.create(Container.DocumentType.BDOC));
+    assertThat(userAgent, containsString("signatureProfile: ASiC_E_BASELINE_LT"));
+  }
+
+  @Test
+  public void  createUserAgentSignatureProfileForBDOCFromFile() {
+    String userAgent = Helper.createUserAgent(Container.open("testFiles/asics_testing_two_signatures.bdoc"));
+    assertThat(userAgent, containsString("signatureProfile: ASiC_E_BASELINE_LT"));
+  }
+
+  @Test
+  public void  createUserAgentSignatureProfileForDDOC() {
+    Container container = Container.create(Container.DocumentType.DDOC);
+    String userAgent = Helper.createUserAgent(container);
+    assertThat(userAgent, containsString("signatureProfile: TM"));
+  }
+
+  @Test
+  public void  createUserAgentSignatureVersionForDDOC() {
+    Container container = Container.create(Container.DocumentType.DDOC);
+    String userAgent = Helper.createUserAgent(container);
+    assertThat(userAgent, containsString("format: DDOC/1.3"));
+  }
+
+  @Test
+  public void  createUserAgentSignatureVersionForBDOC() {
+    Container container = Container.create(Container.DocumentType.BDOC);
+    String userAgent = Helper.createUserAgent(container);
+    assertThat(userAgent, containsString("format: application/vnd.etsi.asic-e+zip"));
+  }
 }

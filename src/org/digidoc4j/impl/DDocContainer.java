@@ -79,6 +79,11 @@ public class DDocContainer extends Container {
   }
 
   @Override
+  public String getSignatureProfile() {
+    return signatureProfile.name();
+  }
+
+  @Override
   public void setSignatureParameters(SignatureParameters signatureParameters) {
 
     DigestAlgorithm algorithm = signatureParameters.getDigestAlgorithm();

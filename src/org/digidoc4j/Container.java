@@ -227,6 +227,11 @@ public abstract class Container implements Serializable {
   }
 
   /**
+   * Return signature profile
+   */
+  public abstract String getSignatureProfile();
+
+  /**
    * Set signature parameters
    *
    * @param signatureParameters Signature parameters. These are  related to the signing location and signer roles

@@ -79,6 +79,11 @@ public class BDocContainer extends Container {
     return new SignedInfo(signedInfo, signatureParameters.getDigestAlgorithm());
   }
 
+  @Override
+  public String getSignatureProfile() {
+    return dssSignatureParameters.getSignatureLevel().name();
+  }
+
   /**
    * Create a new container object of type BDOC with given configuration.
    * Configuration is immutable. You cant change already set configuration.
