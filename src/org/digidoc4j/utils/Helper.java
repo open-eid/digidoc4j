@@ -76,13 +76,21 @@ public final class Helper {
   }
 
   /**
-   * @param file aa
-   * @throws IOException aa
+   * @param file file to be deleted
+   * @throws IOException if an IO Exception occurs
    */
   public static void deleteFile(String file) throws IOException {
     deleteIfExists(Paths.get(file));
   }
 
+  /**
+   * Get the signature from a file.
+   *
+   * @param file  file containing the container
+   * @param index index of the signature file
+   * @return signature
+   * @throws IOException when the signature is not found
+   */
   public static String extractSignature(String file, int index) throws IOException {
     ZipFile zipFile = new ZipFile(file);
     String signatureFileName = "META-INF/signatures" + index + ".xml";

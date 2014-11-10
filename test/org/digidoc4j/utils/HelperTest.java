@@ -2,6 +2,7 @@ package org.digidoc4j.utils;
 
 import eu.europa.ec.markt.dss.signature.MimeType;
 import org.digidoc4j.Container;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.junit.AfterClass;
 import org.junit.Test;
 
@@ -12,7 +13,7 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.digidoc4j.utils.Helper.deleteFile;
+import static org.digidoc4j.utils.Helper.*;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
 
@@ -176,4 +177,16 @@ public class HelperTest {
     String userAgent = Helper.createUserAgent(container);
     assertThat(userAgent, containsString("format: application/vnd.etsi.asic-e+zip"));
   }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void deserializeThrowsException() {
+    deserializer(null);
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void serializeThrowsException() {
+    serialize(Container.create(), null);
+  }
+
+
 }
