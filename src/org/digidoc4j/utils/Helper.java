@@ -4,7 +4,6 @@ import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Container;
 import org.digidoc4j.Version;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.BDocContainer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -105,8 +104,7 @@ public final class Helper {
    * @param filename  name of file to store serialized container in
    */
   public static void serialize(Container container, String filename) {
-
-    FileOutputStream fileOut = null;
+    FileOutputStream fileOut;
     try {
       fileOut = new FileOutputStream(filename);
       ObjectOutputStream out = new ObjectOutputStream(fileOut);
@@ -127,7 +125,7 @@ public final class Helper {
    * @return container
    */
   public static Container deserializer(String filename) {
-    FileInputStream fileIn = null;
+    FileInputStream fileIn;
     try {
       fileIn = new FileInputStream(filename);
       ObjectInputStream in = new ObjectInputStream(fileIn);
@@ -144,9 +142,9 @@ public final class Helper {
   /** creates user agent value for given container
    * format is:
    *    LIB DigiDoc4J/VERSION format: CONTAINER_TYPE signatureProfile: SIGNATURE_PROFILE
-   *    Java: JAVA_VERSION/JAVA_PROVIDER OS: OPERAING_SYSTEM JVM: JVM
+   *    Java: JAVA_VERSION/JAVA_PROVIDER OS: OPERATING_SYSTEM JVM: JVM
    *
-   * @param container
+   * @param container  container used for creation user agent
    * @return user agent string
    */
   public static String createUserAgent(Container container) {
