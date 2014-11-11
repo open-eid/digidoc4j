@@ -137,15 +137,17 @@ public class Configuration implements Serializable {
   private void initDefaultValues() {
     logger.debug("");
 
-    configuration.put("tspSource", "http://demo.sk.ee/tsa");
     configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
 
     if (mode == Mode.TEST) {
+      configuration.put("tspSource", "http://demo.sk.ee/tsa");
+      configuration.put("tspSource", "http://tsa.sk.ee");
       configuration.put("tslLocation", "http://10.0.25.57/tsl/trusted-test-mp.xml");
       configuration.put("tslLocation", "file:test-tsl/trusted-test-mp.xml");
       configuration.put("validationPolicy", "conf/test_constraint.xml");
       configuration.put("ocspSource", "http://www.openxades.org/cgi-bin/ocsp.cgi");
     } else {
+      configuration.put("tspSource", "http://tsa.sk.ee");
       configuration.put("tslLocation",
           "https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml");
       configuration.put("validationPolicy", "conf/constraint.xml");
@@ -670,7 +672,9 @@ public class Configuration implements Serializable {
 
     String tslLocation = getTslLocation();
     if (Protocol.isHttpUrl(tslLocation)) {
-      tslCertificateSource.setDataLoader(new FileCacheDataLoader());
+      FileCacheDataLoader dataLoader = new FileCacheDataLoader();
+      dataLoader.setFileCacheDirectory(TSLCertificateSource.fileCacheDirectory);
+      tslCertificateSource.setDataLoader(dataLoader);
     } else {
       tslCertificateSource.setDataLoader(new CommonsDataLoader());
     }
