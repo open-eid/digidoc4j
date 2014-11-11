@@ -1,7 +1,9 @@
 package org.digidoc4j;
 
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
+import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.BDocContainer;
 import org.junit.Before;
 import org.junit.Rule;
@@ -9,9 +11,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import sun.security.x509.X509CertImpl;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
@@ -88,6 +93,37 @@ public class ConfigurationTest {
     fileInputStream.close();
 
     assertEquals(1, configuration.getTSL().getCertificates().size());
+  }
+
+  @Test
+  public void clearTSLCache() throws IOException, CertificateException {
+    Configuration myConfiguration = new Configuration();
+    myConfiguration.setTslLocation("http://10.0.25.57/tsl/trusted-test-mp.xml");
+    TSLCertificateSource tslCertificateSource = myConfiguration.getTSL();
+    File oldCachedFile = TSLCertificateSource.fileCacheDirectory.listFiles()[0];
+    FileTime oldCachedFileDate = (FileTime)Files.getAttribute(oldCachedFile.toPath(),
+        "basic:creationTime");
+
+    tslCertificateSource.invalidateCache();
+
+    FileTime newCachedFileDate = (FileTime)Files.getAttribute(oldCachedFile.toPath(),
+        "basic:creationTime");
+
+    assertTrue(newCachedFileDate.compareTo(oldCachedFileDate) > 0);
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void clearTSLCacheThrowsException() {
+    Configuration myConfiguration = new Configuration();
+    myConfiguration.setTslLocation("http://10.0.25.57/tsl/trusted-test-mp.xml");
+    TSLCertificateSource tslCertificateSource = myConfiguration.getTSL();
+
+    try {
+      FileUtils.deleteDirectory(TSLCertificateSource.fileCacheDirectory);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    tslCertificateSource.invalidateCache();
   }
 
   @Test
