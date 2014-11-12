@@ -95,10 +95,12 @@ public class ConfigurationTest {
     assertEquals(1, configuration.getTSL().getCertificates().size());
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Test
   public void clearTSLCache() throws IOException, CertificateException {
-    Configuration myConfiguration = new Configuration();
-    myConfiguration.setTslLocation("http://10.0.25.57/tsl/trusted-test-mp.xml");
+    Configuration myConfiguration = new Configuration(PROD);
+    FileUtils.cleanDirectory(TSLCertificateSource.fileCacheDirectory);
+
     TSLCertificateSource tslCertificateSource = myConfiguration.getTSL();
     File oldCachedFile = TSLCertificateSource.fileCacheDirectory.listFiles()[0];
     FileTime oldCachedFileDate = (FileTime)Files.getAttribute(oldCachedFile.toPath(),
