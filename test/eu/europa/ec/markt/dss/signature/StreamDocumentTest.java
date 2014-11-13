@@ -52,13 +52,13 @@ public class StreamDocumentTest {
 
   @Test
   public void getMimeType() throws Exception {
-    assertEquals("text/plain", document.getMimeType().getCode());
+    assertEquals("text/plain", document.getMimeType().getMimeTypeString());
   }
 
   @Test
   public void setMimeType() throws Exception {
     document.setMimeType(MimeType.XML);
-    assertEquals("text/xml", document.getMimeType().getCode());
+    assertEquals("text/xml", document.getMimeType().getMimeTypeString());
   }
 
   @Test
@@ -80,7 +80,7 @@ public class StreamDocumentTest {
       DataFile dataFile = new DataFile(byteArrayInputStream, "A.txt", "text/plain");
       StreamDocument streamDocument = new StreamDocument(dataFile.getStream(),
           dataFile.getName(),
-          MimeType.fromCode(dataFile.getMediaType()));
+          MimeType.fromMimeTypeString(dataFile.getMediaType()));
 
       streamDocument.save("createDocumentFromStreamedDataFile.txt");
     }

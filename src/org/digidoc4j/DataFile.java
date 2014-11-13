@@ -3,6 +3,7 @@ package org.digidoc4j;
 import eu.europa.ec.markt.dss.DSSUtils;
 import eu.europa.ec.markt.dss.Digest;
 import eu.europa.ec.markt.dss.DigestAlgorithm;
+import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.signature.*;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -74,14 +75,14 @@ public class DataFile implements Serializable {
 
   private MimeType getMimeType(String mimeType) {
     logger.debug("");
-    MimeType mimeTypeCode = MimeType.fromCode(mimeType);
-    if (mimeTypeCode == null) {
-      DigiDoc4JException exception = new DigiDoc4JException("Unknown mime type");
-      logger.error(exception.toString());
-      throw exception;
+    try {
+      MimeType mimeTypeCode = MimeType.fromMimeTypeString(mimeType);
+      logger.debug("Mime type: ", mimeTypeCode);
+      return mimeTypeCode;
+    } catch (DSSException e) {
+      logger.error(e.getMessage());
+      throw new DigiDoc4JException(e);
     }
-    logger.debug("Mime type: ", mimeTypeCode);
-    return mimeTypeCode;
   }
 
   /**
@@ -188,7 +189,7 @@ public class DataFile implements Serializable {
    */
   public String getMediaType() {
     logger.debug("");
-    String mediaType = document.getMimeType().getCode();
+    String mediaType = document.getMimeType().getMimeTypeString();
     logger.debug("Media type is: " + mediaType);
     return mediaType;
   }

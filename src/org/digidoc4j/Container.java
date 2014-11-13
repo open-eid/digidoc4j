@@ -199,7 +199,7 @@ public abstract class Container implements Serializable {
     @Override
     public String toString() {
       if (this == BDOC)
-        return MimeType.ASICE.getCode();
+        return MimeType.ASICE.getMimeTypeString();
       return super.toString();
     }
   }

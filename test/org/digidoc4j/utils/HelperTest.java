@@ -1,6 +1,5 @@
 package org.digidoc4j.utils;
 
-import eu.europa.ec.markt.dss.signature.MimeType;
 import org.digidoc4j.Container;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.junit.AfterClass;
@@ -13,6 +12,7 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static eu.europa.ec.markt.dss.signature.MimeType.ASICE;
 import static org.digidoc4j.utils.Helper.*;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
@@ -128,7 +128,7 @@ public class HelperTest {
   @Test
   public void createUserAgentForBDOC() throws Exception {
     String userAgent = Helper.createUserAgent(Container.create());
-    assertThat(userAgent, containsString(MimeType.ASICE.getCode()));
+    assertThat(userAgent, containsString(ASICE.getMimeTypeString()));
   }
 
   @Test

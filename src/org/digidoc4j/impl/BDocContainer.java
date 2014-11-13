@@ -191,13 +191,17 @@ public class BDocContainer extends Container {
   }
 
   private void checkMimeType(String path) {
-    String bdocMimeTypeFromZIp = getBdocMimeTypeFromZIp(path).trim();
-    if (!MimeType.ASICE.equals(MimeType.fromCode(bdocMimeTypeFromZIp))) {
-      throw new UnsupportedFormatException(bdocMimeTypeFromZIp);
+    String bdocMimeTypeFromZip = getBdocMimeTypeFromZip(path).trim();
+    try {
+      if (!MimeType.ASICE.equals(MimeType.fromMimeTypeString(bdocMimeTypeFromZip))) {
+        throw new UnsupportedFormatException(bdocMimeTypeFromZip);
+      }
+    } catch (DSSException e) {
+      throw new UnsupportedFormatException(bdocMimeTypeFromZip);
     }
   }
 
-  private String getBdocMimeTypeFromZIp(String path) {
+  private String getBdocMimeTypeFromZip(String path) {
     String mimeType;
     try {
       ZipFile zipFile = new ZipFile(path);
@@ -239,9 +243,9 @@ public class BDocContainer extends Container {
 
   private void loadAttachments(SignedDocumentValidator validator) {
     for (DSSDocument externalContent : validator.getDetachedContents()) {
-      if (!"META-INF/manifest.xml".equals(externalContent.getName())) {
+      if (!"mimetype".equals(externalContent.getName()) && !"META-INF/manifest.xml".equals(externalContent.getName())) {
         dataFiles.put(externalContent.getName(), new DataFile(externalContent.getBytes(), externalContent.getName(),
-            externalContent.getMimeType().getCode()));
+            externalContent.getMimeType().getMimeTypeString()));
       }
     }
   }
@@ -544,7 +548,7 @@ public class BDocContainer extends Container {
 
   private DSSDocument getDssDocumentFromDataFile(DataFile dataFile) {
     DSSDocument attachment;
-    MimeType mimeType = MimeType.fromCode(dataFile.getMediaType());
+    MimeType mimeType = MimeType.fromMimeTypeString(dataFile.getMediaType());
     long cachedFileSizeInMB = configuration.getMaxDataFileCachedInMB();
     if (configuration.isBigFilesSupportEnabled() && dataFile.getFileSize() > cachedFileSizeInMB * ONE_MB_IN_BYTES) {
       attachment = new StreamDocument(dataFile.getStream(), dataFile.getName(), mimeType);
@@ -628,8 +632,7 @@ public class BDocContainer extends Container {
     commonCertificateVerifier.setTrustedCertSource(trustedCertSource);
     validator.setCertificateVerifier(commonCertificateVerifier);
 
-    Reports reports = validator.validateDocument(getValidationPolicyAsStream(getConfiguration().getValidationPolicy()));
-    return reports;
+    return validator.validateDocument(getValidationPolicyAsStream(getConfiguration().getValidationPolicy()));
   }
 
   private InputStream getValidationPolicyAsStream(String policyFile) {
