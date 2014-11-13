@@ -14,6 +14,7 @@ import org.digidoc4j.signers.ExternalSigner;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -32,9 +33,9 @@ import java.util.zip.ZipFile;
 
 import static java.util.Arrays.asList;
 import static org.digidoc4j.Container.*;
-import static org.digidoc4j.Container.DocumentType;
 import static org.digidoc4j.Container.SignatureProfile.*;
-import static org.digidoc4j.DigestAlgorithm.*;
+import static org.digidoc4j.DigestAlgorithm.SHA1;
+import static org.digidoc4j.DigestAlgorithm.SHA256;
 import static org.digidoc4j.utils.Helper.deserializer;
 import static org.digidoc4j.utils.Helper.serialize;
 import static org.junit.Assert.*;
@@ -208,7 +209,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(3, openedContainer.getSignatures().size());
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         openedContainer.getSignatures().get(2).getSigningCertificate().getSerial());
-
   }
 
   @Test
@@ -1217,4 +1217,37 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
     assertArrayEquals(dataFileAfterSerialization.calculateDigest(), dataFileBeforeSerialization.calculateDigest());
   }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
+  public void signatureFileContainsIncorrectFileName() {
+    Container container = Container.open("testFiles/filename_mismatch_signature.asice");
+    ValidationResult validate = container.validate();
+    assertEquals(1, validate.getErrors().size());
+    assertEquals("The reference data object(s) not found!", validate.getErrors().get(0).toString());
+  }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
+  @Ignore //TODO test fails
+  public void manifestFileContainsIncorrectFileName() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    Container container = Container.open("testFiles/filename_mismatch_manifest.asice", configuration);
+    ValidationResult validate = container.validate();
+    assertEquals(1, validate.getErrors().size());
+    assertEquals("errormessage", validate.getErrors().get(0).toString());
+  }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
+  @Ignore //TODO test fails
+  public void signatureFileAndManifestFileContainDifferentMimeTypeForFile() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    Container container = Container.open("testFiles/mimetype_mismatch.asice", configuration);
+    ValidationResult validate = container.validate();
+    assertEquals(1, validate.getErrors().size());
+    assertEquals("errormessage", validate.getErrors().get(0).toString());
+  }
+
+
 }
