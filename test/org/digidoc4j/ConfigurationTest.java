@@ -99,7 +99,11 @@ public class ConfigurationTest {
   @Test
   public void clearTSLCache() throws IOException, CertificateException {
     Configuration myConfiguration = new Configuration(PROD);
-    FileUtils.cleanDirectory(TSLCertificateSource.fileCacheDirectory);
+    try {
+      FileUtils.cleanDirectory(TSLCertificateSource.fileCacheDirectory);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
 
     TSLCertificateSource tslCertificateSource = myConfiguration.getTSL();
     File oldCachedFile = TSLCertificateSource.fileCacheDirectory.listFiles()[0];
