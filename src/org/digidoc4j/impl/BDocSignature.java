@@ -39,6 +39,7 @@ public class BDocSignature extends Signature {
       new HashMap<SignatureLevel, SignatureProfile>() {
         {
           put(SignatureLevel.XAdES_BASELINE_B, BES);
+          put(SignatureLevel.XAdES_BASELINE_T, TS);
           put(SignatureLevel.XAdES_BASELINE_LT, TS);
           put(SignatureLevel.XAdES_BASELINE_LTA, TSA);
           put(SignatureLevel.XAdES_A, TSA);
@@ -162,8 +163,9 @@ public class BDocSignature extends Signature {
 
   @Override
   public SignatureProfile getProfile() {
-    logger.debug("");
-    SignatureProfile signatureProfile = signatureProfileMap.get(origin.getDataFoundUpToLevel());
+    SignatureLevel dataFoundUpToLevel = origin.getDataFoundUpToLevel();
+    logger.debug("getting profile for: " + dataFoundUpToLevel);
+    SignatureProfile signatureProfile = signatureProfileMap.get(dataFoundUpToLevel);
     return signatureProfile;
   }
 
