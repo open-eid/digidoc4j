@@ -1218,6 +1218,17 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertArrayEquals(dataFileAfterSerialization.calculateDigest(), dataFileBeforeSerialization.calculateDigest());
   }
 
+  @Test
+  public void testOCSPRevoked() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setOCSPAccessCertificateFileName("testFiles/ocsp_juurdepaasutoend.p12d");
+    configuration.setOCSPAccessCertificatePassword("0vRsI0XQ".toCharArray());
+
+    Container container = Container.open("testFiles/EE-TS-BpLT-R-001.asice", configuration);
+    ValidationResult result = container.validate();
+    assertFalse(result.isValid());
+  }
+
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void signatureFileContainsIncorrectFileName() {

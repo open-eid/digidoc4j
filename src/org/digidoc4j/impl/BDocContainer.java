@@ -623,9 +623,7 @@ public class BDocContainer extends Container {
 
   private Reports validate(SignedDocumentValidator validator) {
     logger.debug("Validator: " + validator);
-    SKOnlineOCSPSource ocspSource = new SKOnlineOCSPSource(configuration);
-    ocspSource.setUserAgent(Helper.createUserAgent(this));
-    commonCertificateVerifier.setOcspSource(ocspSource);
+    commonCertificateVerifier.setOcspSource(null);
 
     TrustedListsCertificateSource trustedCertSource = configuration.getTSL();
 
@@ -681,7 +679,8 @@ public class BDocContainer extends Container {
 
     dssSignatureParameters.setSignatureLevel(signatureLevel);
 
-    signedDocument = new InMemoryDocument(asicService.extendDocument(signedDocument, dssSignatureParameters).getBytes(),
+    DSSDocument extendedDocument = asicService.extendDocument(signedDocument, dssSignatureParameters);
+    signedDocument = new InMemoryDocument(extendedDocument.getBytes(),
         signedDocument.getName(), signedDocument.getMimeType());
 
     signatures = new ArrayList<>();
