@@ -504,7 +504,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testAddTwoFilesAsFileWithoutOCSP() throws Exception {
     BDocContainer container = new BDocContainer();
-    container.setSignatureProfile(BES);
+    container.setSignatureProfile(B_BES);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.addDataFile("testFiles/test.xml", "text/xml");
     container.sign(PKCS12_SIGNER);
@@ -624,7 +624,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void extendToTS() throws Exception {
     BDocContainer container = new BDocContainer();
-    container.setSignatureProfile(BES);
+    container.setSignatureProfile(B_BES);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.save("testExtendTo.bdoc");
@@ -633,7 +633,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNull(container.getSignature(0).getOCSPCertificate());
 
     container = new BDocContainer("testExtendTo.bdoc");
-    container.extendTo(SignatureProfile.TS);
+    container.extendTo(SignatureProfile.LT);
     container.save("testExtendToContainsIt.bdoc");
 
     assertEquals(1, container.getSignatures().size());
@@ -643,7 +643,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void verifySignatureProfileIsTS() throws Exception {
     BDocContainer container = new BDocContainer();
-    container.setSignatureProfile(SignatureProfile.TS);
+    container.setSignatureProfile(SignatureProfile.LT);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.save("testAddConfirmation.bdoc");
@@ -655,14 +655,14 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test(expected = NotYetImplementedException.class)
   public void signatureProfileTMIsNotSupported() throws Exception {
     BDocContainer container = new BDocContainer();
-    container.setSignatureProfile(TM);
+    container.setSignatureProfile(LT_TM);
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void extendToWhenConfirmationAlreadyExists() throws Exception {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.setSignatureProfile(BES);
+    container.setSignatureProfile(B_BES);
     container.sign(PKCS12_SIGNER);
     container.save("testExtendTo.bdoc");
 
@@ -670,8 +670,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNull(container.getSignature(0).getOCSPCertificate());
 
     container = new BDocContainer("testExtendTo.bdoc");
-    container.extendTo(TS);
-    container.extendTo(TS);
+    container.extendTo(LT);
+    container.extendTo(LT);
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -684,7 +684,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void extendToWithMultipleSignatures() throws Exception {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.setSignatureProfile(BES);
+    container.setSignatureProfile(B_BES);
     container.sign(PKCS12_SIGNER);
     container.sign(PKCS12_SIGNER);
     container.save("testExtendTo.bdoc");
@@ -694,7 +694,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNull(container.getSignature(1).getOCSPCertificate());
 
     container = new BDocContainer("testExtendTo.bdoc");
-    container.extendTo(TS);
+    container.extendTo(LT);
     container.save("testExtendToContainsIt.bdoc");
 
     container = new BDocContainer("testExtendToContainsIt.bdoc");
@@ -707,16 +707,16 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void extendToIsImplementedForTSProfileOtherProfilesThrowException() throws Exception {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.setSignatureProfile(BES);
+    container.setSignatureProfile(B_BES);
     container.sign(PKCS12_SIGNER);
 
-    container.extendTo(TM);
+    container.extendTo(LT_TM);
   }
 
   @Test
   public void extendToWithMultipleSignaturesAndMultipleFiles() throws Exception {
     BDocContainer container = new BDocContainer();
-    container.setSignatureProfile(BES);
+    container.setSignatureProfile(B_BES);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.addDataFile("testFiles/test.xml", "text/xml");
     container.sign(PKCS12_SIGNER);
@@ -729,7 +729,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNull(container.getSignature(1).getOCSPCertificate());
 
     container = new BDocContainer("testAddConfirmation.bdoc");
-    container.extendTo(TS);
+    container.extendTo(LT);
     container.save("testAddConfirmationContainsIt.bdoc");
 
     assertEquals(2, container.getSignatures().size());
@@ -774,7 +774,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
 
-    container.extendTo(TSA);
+    container.extendTo(LTA);
 
     assertNotNull(container.getSignature(0).getOCSPCertificate());
   }
@@ -805,7 +805,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNotNull(resultSignature.getOCSPCertificate());
     assertNotNull(resultSignature.getSigningCertificate());
     assertNotNull(resultSignature.getRawSignature().length);
-    assertEquals(TS, resultSignature.getProfile());
+    assertEquals(LT, resultSignature.getProfile());
     assertNotNull(resultSignature.getTimeStampTokenCertificate());
 
     List<DataFile> dataFiles = container.getDataFiles();
@@ -871,7 +871,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testContainerCreationAsTSA() throws Exception {
     BDocContainer container = new BDocContainer();
-    container.setSignatureProfile(TSA);
+    container.setSignatureProfile(LTA);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
 
@@ -881,10 +881,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test(expected = DigiDoc4JException.class)
   public void extensionNotPossibleWhenSignatureLevelIsSame() throws Exception {
     BDocContainer container = new BDocContainer();
-    container.setSignatureProfile(TSA);
+    container.setSignatureProfile(LTA);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
-    container.extendTo(TSA);
+    container.extendTo(LTA);
   }
 
   private Container createSignedBDocDocument(String fileName) {
@@ -1224,7 +1224,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     configuration.setOCSPAccessCertificateFileName("testFiles/ocsp_juurdepaasutoend.p12d");
     configuration.setOCSPAccessCertificatePassword("0vRsI0XQ".toCharArray());
 
-    Container container = Container.open("testFiles/EE-TS-BpLT-R-001.asice", configuration);
+    Container container = Container.open("testFiles/EE-LT-BpLT-R-001.asice", configuration);
     ValidationResult result = container.validate();
     assertFalse(result.isValid());
   }

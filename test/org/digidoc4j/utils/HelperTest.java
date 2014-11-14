@@ -140,7 +140,7 @@ public class HelperTest {
   @Test
   public void  createUserAgentSignatureProfileForBDOC() {
     Container container = Container.create(Container.DocumentType.BDOC);
-    container.setSignatureProfile(Container.SignatureProfile.TSA);
+    container.setSignatureProfile(Container.SignatureProfile.LTA);
     String userAgent = Helper.createUserAgent(container);
     assertThat(userAgent, containsString("signatureProfile: ASiC_E_BASELINE_LTA"));
   }
@@ -161,7 +161,7 @@ public class HelperTest {
   public void  createUserAgentSignatureProfileForDDOC() {
     Container container = Container.create(Container.DocumentType.DDOC);
     String userAgent = Helper.createUserAgent(container);
-    assertThat(userAgent, containsString("signatureProfile: TM"));
+    assertThat(userAgent, containsString("signatureProfile: LT_TM"));
   }
 
   @Test

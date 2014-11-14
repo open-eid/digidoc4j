@@ -40,7 +40,7 @@ import static eu.europa.ec.markt.dss.signature.SignatureLevel.*;
 import static eu.europa.ec.markt.dss.signature.SignaturePackaging.DETACHED;
 import static eu.europa.ec.markt.dss.validation102853.SignatureForm.XAdES;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.digidoc4j.Container.SignatureProfile.TS;
+import static org.digidoc4j.Container.SignatureProfile.LT;
 
 /**
  * BDOC container implementation
@@ -230,7 +230,7 @@ public class BDocContainer extends Container {
 
     //TODO must be changed when extending signature is possible in sd-dss currently is possible to extend whole
     //container and it extend also all signatures
-    setSignatureProfile(getSignatures().size() != 0 ? getSignature(0).getProfile() : TS);
+    setSignatureProfile(getSignatures().size() != 0 ? getSignature(0).getProfile() : LT);
     eu.europa.ec.markt.dss.DigestAlgorithm digestAlgorithm = dssSignatureParameters.getDigestAlgorithm();
     if (digestAlgorithm != null) {
       signatureParameters.setDigestAlgorithm(DigestAlgorithm.valueOf(digestAlgorithm.getName()));
@@ -701,10 +701,10 @@ public class BDocContainer extends Container {
   @Override
   public void extendTo(SignatureProfile profile) {
     switch (profile) {
-      case TS:
+      case LT:
         extend(ASiC_E_BASELINE_LT);
         break;
-      case TSA:
+      case LTA:
         extend(ASiC_E_BASELINE_LTA);
         break;
       default:
@@ -715,12 +715,12 @@ public class BDocContainer extends Container {
   @Override
   public void setSignatureProfile(SignatureProfile profile) {
     switch (profile) {
-      case TM:
+      case LT_TM:
         throw new NotYetImplementedException();
-      case BES:
+      case B_BES:
         dssSignatureParameters.setSignatureLevel(ASiC_E_BASELINE_B);
         break;
-      case TSA:
+      case LTA:
         dssSignatureParameters.setSignatureLevel(ASiC_E_BASELINE_LTA);
         break;
       default:

@@ -212,19 +212,19 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetProfileForDDoc() {
-    assertEquals(Container.SignatureProfile.TM, getSignature(DDOC).getProfile());
+    assertEquals(Container.SignatureProfile.LT_TM, getSignature(DDOC).getProfile());
   }
 
   @Test
   public void testGetProfileForBDoc_TS() throws Exception {
     Container container = Container.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
-    assertEquals(Container.SignatureProfile.TS, container.getSignatures().get(0).getProfile());
+    assertEquals(Container.SignatureProfile.LT, container.getSignatures().get(0).getProfile());
   }
 
   @Test
   public void testGetProfileForBDoc_None() throws Exception {
     Container container = Container.open("testFiles/asics_for_testing.bdoc");
-    assertEquals(Container.SignatureProfile.BES, container.getSignatures().get(0).getProfile());
+    assertEquals(Container.SignatureProfile.B_BES, container.getSignatures().get(0).getProfile());
   }
 
   @Test(expected = NotYetImplementedException.class)

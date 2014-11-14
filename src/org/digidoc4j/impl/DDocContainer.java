@@ -40,7 +40,7 @@ public class DDocContainer extends Container {
 
   SignedDoc ddoc;
   private ArrayList<DigiDocException> openContainerExceptions = new ArrayList<>();
-  private SignatureProfile signatureProfile = SignatureProfile.TM;
+  private SignatureProfile signatureProfile = SignatureProfile.LT_TM;
   private SignatureParameters signatureParameters = new SignatureParameters();
   protected ee.sk.digidoc.Signature ddocSignature;
 
@@ -341,7 +341,7 @@ public class DDocContainer extends Container {
     calculateSignature(signer);
     try {
       signRaw(signer.sign(this, ddocSignature.calculateSignedInfoXML()));
-      if (signatureProfile == SignatureProfile.TM) {
+      if (signatureProfile == SignatureProfile.LT_TM) {
         ddocSignature.getConfirmation();
       }
     } catch (DigiDocException e) {
@@ -443,14 +443,14 @@ public class DDocContainer extends Container {
 
   @Override
   public void extendTo(SignatureProfile profile) {
-    if (profile != SignatureProfile.TM)
+    if (profile != SignatureProfile.LT_TM)
       throw new NotSupportedException(profile + " profile is not supported for DDOC extension");
     addConfirmation();
   }
 
   @Override
   public void setSignatureProfile(SignatureProfile profile) {
-    if (profile != SignatureProfile.TM && profile != SignatureProfile.BES)
+    if (profile != SignatureProfile.LT_TM && profile != SignatureProfile.B_BES)
       throw new NotSupportedException(profile + " profile is not supported for DDOC");
     signatureProfile = profile;
   }

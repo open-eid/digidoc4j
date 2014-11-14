@@ -38,11 +38,11 @@ public class BDocSignature extends Signature {
   private static final Map<SignatureLevel, SignatureProfile> signatureProfileMap =
       new HashMap<SignatureLevel, SignatureProfile>() {
         {
-          put(SignatureLevel.XAdES_BASELINE_B, BES);
-          put(SignatureLevel.XAdES_BASELINE_T, TS);
-          put(SignatureLevel.XAdES_BASELINE_LT, TS);
-          put(SignatureLevel.XAdES_BASELINE_LTA, TSA);
-          put(SignatureLevel.XAdES_A, TSA);
+          put(SignatureLevel.XAdES_BASELINE_B, B_BES);
+          put(SignatureLevel.XAdES_BASELINE_T, LT);
+          put(SignatureLevel.XAdES_BASELINE_LT, LT);
+          put(SignatureLevel.XAdES_BASELINE_LTA, LTA);
+          put(SignatureLevel.XAdES_A, LTA);
         }
       };
 

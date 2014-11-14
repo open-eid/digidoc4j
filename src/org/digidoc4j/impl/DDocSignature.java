@@ -92,8 +92,8 @@ public class DDocSignature extends Signature {
 
   @Override
   public SignatureProfile getProfile() {
-    logger.debug("Profile is TM");
-    return SignatureProfile.TM;
+    logger.debug("Profile is LT_TM");
+    return SignatureProfile.LT_TM;
   }
 
   @Override

@@ -249,7 +249,7 @@ public class DDocContainerTest {
   @Test
   public void setsSignatureIdWithoutOCSP() throws Exception {
     DDocContainer container = new DDocContainer();
-    container.setSignatureProfile(BES);
+    container.setSignatureProfile(B_BES);
 
     container.addDataFile("testFiles/test.txt", "text/plain");
     SignatureParameters signatureParameters = new SignatureParameters();
@@ -271,7 +271,7 @@ public class DDocContainerTest {
   public void setsDefaultSignatureIdWithoutOCSP() throws Exception {
     DDocContainer container = new DDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.setSignatureProfile(BES);
+    container.setSignatureProfile(B_BES);
     container.sign(PKCS12_SIGNER);
     container.sign(PKCS12_SIGNER);
     container.save("testSetsDefaultSignatureId.ddoc");
@@ -347,35 +347,35 @@ public class DDocContainerTest {
   @Test(expected = NotSupportedException.class)
   public void timeStampProfileIsNotSupported() throws Exception {
     DDocContainer container = new DDocContainer();
-    container.setSignatureProfile(TS);
+    container.setSignatureProfile(LT);
   }
 
   @Test(expected = NotSupportedException.class)
   public void TSAProfileIsNotSupported() throws Exception {
     DDocContainer container = new DDocContainer();
-    container.setSignatureProfile(TSA);
+    container.setSignatureProfile(LTA);
   }
 
   @Test(expected = NotSupportedException.class)
   public void timeStampProfileIsNotSupportedForExtension() throws Exception {
     DDocContainer container = new DDocContainer();
-    container.setSignatureProfile(BES);
+    container.setSignatureProfile(B_BES);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
-    container.extendTo(TS);
+    container.extendTo(LT);
   }
 
   @Test
   public void extendToTM() throws Exception {
     DDocContainer container = new DDocContainer();
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    container.setSignatureProfile(BES);
+    container.setSignatureProfile(B_BES);
     container.sign(PKCS12_SIGNER);
     container.save("testAddConfirmation.ddoc");
     container = (DDocContainer) Container.open("testAddConfirmation.ddoc");
     assertNull(container.getSignature(0).getOCSPCertificate());
 
-    container.extendTo(TM);
+    container.extendTo(LT_TM);
     container.save("testAddedConfirmation.ddoc");
     container = (DDocContainer) Container.open("testAddedConfirmation.ddoc");
     assertNotNull(container.getSignature(0).getOCSPCertificate());
@@ -384,12 +384,12 @@ public class DDocContainerTest {
   @Test(expected = DigiDoc4JException.class)
   public void extendToThrowsExceptionForGetConfirmation() throws Exception {
     MockDDocContainer container = new MockDDocContainer();
-    container.setSignatureProfile(BES);
+    container.setSignatureProfile(B_BES);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
 
     container.sign(PKCS12_SIGNER);
 
-    container.extendTo(TM);
+    container.extendTo(LT_TM);
   }
 
   @Test
@@ -405,7 +405,7 @@ public class DDocContainerTest {
 
     container.sign(PKCS12_SIGNER);
 
-    container.extendTo(TM);
+    container.extendTo(LT_TM);
   }
 
   @Test

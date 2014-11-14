@@ -209,21 +209,22 @@ public abstract class Container implements Serializable {
    */
   public enum SignatureProfile {
     /**
-     * Time-mark.
+     * Time-mark, similar to LT.
      */
-    TM,
+    LT_TM,
     /**
      * Time-stamp and OCSP confirmation
      */
-    TS,
+    LT,
     /**
      * Archive timestamp, same as XAdES LTA (Long Term Archive time-stamp)
      */
-    TSA,
+    LTA,
     /**
      * no profile
      */
-    BES
+    B_BES
+    //TODO: ADD later B_EPES, LTA_TM
   }
 
   /**

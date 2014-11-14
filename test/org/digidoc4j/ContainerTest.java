@@ -1,6 +1,5 @@
 package org.digidoc4j;
 
-import junit.framework.*;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -10,7 +9,6 @@ import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.digidoc4j.utils.Helper;
 import org.junit.*;
-import org.junit.Assert;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -30,8 +28,8 @@ import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
-import static org.digidoc4j.Container.SignatureProfile.BES;
-import static org.digidoc4j.Container.SignatureProfile.TS;
+import static org.digidoc4j.Container.SignatureProfile.B_BES;
+import static org.digidoc4j.Container.SignatureProfile.LT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -444,10 +442,10 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   public void testExtendToForBDOC() {
     Container container = Container.create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.setSignatureProfile(BES);
+    container.setSignatureProfile(B_BES);
     container.sign(PKCS12_SIGNER);
 
-    container.extendTo(TS);
+    container.extendTo(LT);
 
     assertNotNull(container.getSignature(0).getOCSPCertificate());
   }
@@ -456,10 +454,10 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   public void testExtendToForDDOC() {
     Container container = Container.create(DDOC);
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.setSignatureProfile(BES);
+    container.setSignatureProfile(B_BES);
     container.sign(PKCS12_SIGNER);
 
-    container.extendTo(Container.SignatureProfile.TM);
+    container.extendTo(Container.SignatureProfile.LT_TM);
 
     assertNotNull(container.getSignature(0).getOCSPCertificate());
   }

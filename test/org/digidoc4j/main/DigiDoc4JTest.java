@@ -68,12 +68,12 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
 
     String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/test.txt", "text/plain",
-        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "TSA"};
+        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "LTA"};
 
     callMainWithoutSystemExit(params);
 
     Container container = Container.open(fileName);
-    assertEquals(SignatureProfile.TSA, container.getSignature(0).getProfile());
+    assertEquals(SignatureProfile.LTA, container.getSignature(0).getProfile());
   }
 
   @Test
@@ -83,14 +83,14 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
 
     String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/test.txt", "text/plain",
-        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "TS"};
+        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "LT"};
 
     System.setProperty("digidoc4j.mode", "TEST");
     callMainWithoutSystemExit(params);
 
 
     Container container = Container.open(fileName);
-    assertEquals(SignatureProfile.TS, container.getSignature(0).getProfile());
+    assertEquals(SignatureProfile.LT, container.getSignature(0).getProfile());
     System.clearProperty("digidoc4j.mode");
   }
 
@@ -102,12 +102,12 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
 
     String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/test.txt", "text/plain",
-        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "BES"};
+        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "B_BES"};
 
     callMainWithoutSystemExit(params);
 
     Container container = Container.open(fileName);
-    assertEquals(SignatureProfile.BES, container.getSignature(0).getProfile());
+    assertEquals(SignatureProfile.B_BES, container.getSignature(0).getProfile());
   }
 
   @Test
@@ -122,7 +122,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     callMainWithoutSystemExit(params);
 
     Container container = Container.open(fileName);
-    assertEquals(SignatureProfile.TS, container.getSignature(0).getProfile());
+    assertEquals(SignatureProfile.LT, container.getSignature(0).getProfile());
   }
 
 
@@ -133,12 +133,12 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
 
     String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/test.txt", "text/plain",
-        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "TM"};
+        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "LT_TM"};
 
     callMainWithoutSystemExit(params);
 
     Container container = Container.open(fileName);
-    assertEquals(SignatureProfile.TM, container.getSignature(0).getProfile());
+    assertEquals(SignatureProfile.LT_TM, container.getSignature(0).getProfile());
   }
 
   @Test
@@ -150,7 +150,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
 
     String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/test.txt", "text/plain",
-        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "TS"};
+        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "LT"};
 
     DigiDoc4J.main(params);
   }
@@ -164,25 +164,25 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
 
     String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/test.txt", "text/plain",
-        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "TSA"};
+        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "LTA"};
 
     DigiDoc4J.main(params);
   }
 
   @Test
-  @Ignore("JDigiDoc by default returns TM profile but should be BES profile")
+  @Ignore("JDigiDoc by default returns LT_TM profile but should be B_BES profile")
   public void createsContainerWithSignatureProfileBESForDDoc() throws Exception {
     String fileName = "test1.ddoc";
     Files.deleteIfExists(Paths.get(fileName));
 
 
     String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/test.txt", "text/plain",
-        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "BES"};
+        "-pkcs12", "testFiles/signout.p12", "test", "-profile", "B_BES"};
 
     callMainWithoutSystemExit(params);
 
     Container container = Container.open(fileName);
-    assertEquals(SignatureProfile.BES, container.getSignature(0).getProfile());
+    assertEquals(SignatureProfile.B_BES, container.getSignature(0).getProfile());
   }
 
   @Test
