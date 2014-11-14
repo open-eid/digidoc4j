@@ -129,6 +129,11 @@ public class SKOnlineOCSPSource implements OCSPSource {
     return null;
   }
 
+  /**
+   * sets given string as http header User-Agent
+   *
+   * @param userAgent user agent value
+   */
   public void setUserAgent(String userAgent) {
     ((CommonsDataLoader) dataLoader).setUserAgent(userAgent);
   }
