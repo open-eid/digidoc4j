@@ -8,10 +8,7 @@ import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -74,13 +71,16 @@ public class ValidationResultForBDoc implements ValidationResult {
   }
 
   private void addErrorsToXMLReport(List<String> manifestErrors) {
-    for (int i = 0; i < manifestErrors.size(); i++) {
     Element manifestValidation = reportDocument.createElement("ManifestValidation");
-      manifestValidation.setAttribute("Error", Integer.toString(i));
-      Element manifestChild = reportDocument.createElement("ManifestError");
-      manifestChild.setAttribute("Error", manifestErrors.get(i));
-      manifestValidation.appendChild(manifestChild);
-      reportDocument.getDocumentElement().appendChild(manifestValidation);
+    reportDocument.getDocumentElement().appendChild(manifestValidation);
+    for (int i = 0; i < manifestErrors.size(); i++) {
+      Attr attribute = reportDocument.createAttribute("Error");
+      attribute.setValue(Integer.toString(i));
+      manifestValidation.setAttributeNode(attribute);
+
+      Element errorDescription = reportDocument.createElement("Description");
+      errorDescription.appendChild(reportDocument.createTextNode(manifestErrors.get(i)));
+      manifestValidation.appendChild(errorDescription);
     }
   }
 
