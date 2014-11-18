@@ -1316,7 +1316,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void containerHasFileWhichIsNotInManifestAndNotInSignatureFile() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
-    Container container = Container.open("testFiles/extra_file_in_zip.asice", configuration);
+    Container container = Container.open("testFiles/extra_file_in_container.asice", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
