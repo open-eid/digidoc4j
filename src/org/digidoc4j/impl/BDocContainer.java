@@ -130,6 +130,7 @@ public class BDocContainer extends Container {
     dssSignatureParameters.aSiC().setZipComment(true);
 
     commonCertificateVerifier = new SKCommonCertificateVerifier();
+    commonCertificateVerifier.setCrlSource(null);
     asicService = new ASiCService(commonCertificateVerifier);
   }
 
@@ -618,7 +619,9 @@ public class BDocContainer extends Container {
 
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
 
-    return new ValidationResultForBDoc(validate(validator));
+    Reports report = validate(validator);
+    List<String> manifestErrors = new ManifestValidator(validator).validateDocument();
+    return new ValidationResultForBDoc(report, manifestErrors);
   }
 
   private Reports validate(SignedDocumentValidator validator) {

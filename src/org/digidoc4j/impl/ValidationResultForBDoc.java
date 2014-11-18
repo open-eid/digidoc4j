@@ -32,12 +32,17 @@ public class ValidationResultForBDoc implements ValidationResult {
   /**
    * Constructor
    *
-   * @param report add description
+   * @param report creates validation result from report
+   * @param manifestErrors was there any issues with manifest file
    */
-  public ValidationResultForBDoc(Reports report) {
+  public ValidationResultForBDoc(Reports report, List<String> manifestErrors) {
     logger.debug("");
 
     initializeReportDOM();
+
+    for (String manifestError : manifestErrors) {
+      errors.add(new DigiDoc4JException(manifestError));
+    }
 
     do {
       SimpleReport simpleReport = report.getSimpleReport();
@@ -67,16 +72,15 @@ public class ValidationResultForBDoc implements ValidationResult {
   }
 
   private void initializeReportDOM() {
-    DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder docBuilder = null;
     try {
-      docBuilder = docFactory.newDocumentBuilder();
+      DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+      reportDocument = docBuilder.newDocument();
+      reportDocument.appendChild(reportDocument.createElement("ValidationReport"));
     } catch (ParserConfigurationException e) {
       e.printStackTrace();
     }
 
-    reportDocument = docBuilder.newDocument();
-    reportDocument.appendChild(reportDocument.createElement("ValidationReport"));
   }
 
   private void createXMLReport(SimpleReport simpleReport) {

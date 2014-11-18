@@ -14,7 +14,6 @@ import org.digidoc4j.signers.ExternalSigner;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -98,7 +97,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testOpenBDocDocument() throws Exception {
-    BDocContainer container = new BDocContainer("testFiles/asics_for_testing.bdoc");
+    BDocContainer container = new BDocContainer("testFiles/one_signature.bdoc");
     container.verify();
   }
 
@@ -209,6 +208,9 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(3, openedContainer.getSignatures().size());
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         openedContainer.getSignatures().get(2).getSigningCertificate().getSerial());
+
+    ValidationResult validationResult = openedContainer.validate();
+    assertEquals(0, validationResult.getErrors().size());
   }
 
   @Test
@@ -1224,7 +1226,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     configuration.setOCSPAccessCertificateFileName("testFiles/ocsp_juurdepaasutoend.p12d");
     configuration.setOCSPAccessCertificatePassword("0vRsI0XQ".toCharArray());
 
-    Container container = Container.open("testFiles/EE-LT-BpLT-R-001.asice", configuration);
+    Container container = Container.open("testFiles/EE-TS-BpLT-R-001.asice", configuration);
     ValidationResult result = container.validate();
     assertFalse(result.isValid());
   }
@@ -1240,25 +1242,95 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
-  @Ignore //TODO test fails
-  public void manifestFileContainsIncorrectFileName() {
-    Configuration configuration = new Configuration(Configuration.Mode.PROD);
-    Container container = Container.open("testFiles/filename_mismatch_manifest.asice", configuration);
+  public void secondSignatureFileContainsIncorrectFileName() {
+    Container container = Container.open("testFiles/filename_mismatch_second_signature.asice");
     ValidationResult validate = container.validate();
-    assertEquals(1, validate.getErrors().size());
-    assertEquals("errormessage", validate.getErrors().get(0).toString());
+    List<DigiDoc4JException> errors = validate.getErrors();
+    assertEquals(3, errors.size());
+    assertEquals("Manifest file has an entry for file test.txt with mimetype text/plain but the signature file" +
+        " for signature S1 does not.", errors.get(0).toString());
+    assertEquals("Container contains a file named test.txt which is not found in the signature file",
+        errors.get(1).toString());
+    assertEquals("The reference data object(s) is not intact!", errors.get(2).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
-  @Ignore //TODO test fails
+  public void manifestFileContainsIncorrectFileName() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    Container container = Container.open("testFiles/filename_mismatch_manifest.asice", configuration);
+    ValidationResult validate = container.validate();
+    assertEquals(2, validate.getErrors().size());
+    assertEquals("Manifest file has an entry for file incorrect.txt with mimetype text/plain" +
+        " but the signature file for signature S0 does not.", validate.getErrors().get(0).toString());
+    assertEquals("The signature file for signature S0 has an entry for file RELEASE-NOTES.txt with mimetype" +
+        " text/plain but the manifest file does not.", validate.getErrors().get(1).toString());
+  }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
   public void signatureFileAndManifestFileContainDifferentMimeTypeForFile() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     Container container = Container.open("testFiles/mimetype_mismatch.asice", configuration);
     ValidationResult validate = container.validate();
-    assertEquals(1, validate.getErrors().size());
-    assertEquals("errormessage", validate.getErrors().get(0).toString());
+    assertEquals(2, validate.getErrors().size());
+    assertEquals("Manifest file has an entry for file RELEASE-NOTES.txt with mimetype application/pdf" +
+        " but the signature file for signature S0 does not.", validate.getErrors().get(0).toString());
+    assertEquals("The signature file for signature S0 has an entry for file RELEASE-NOTES.txt with mimetype" +
+        " text/plain but the manifest file does not.", validate.getErrors().get(1).toString());
   }
 
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
+  public void dssReturnsEmptySignatureList() {
+    Container container = Container.open("testFiles/filename_mismatch_signature.asice");
+    ValidationResult validate = container.validate();
+    assertEquals(1, validate.getErrors().size());
+    assertEquals("The reference data object(s) not found!", validate.getErrors().get(0).toString());
+  }
 
+  @Test (expected = DigiDoc4JException.class)
+  public void duplicateFileThrowsException() {
+    Container container = Container.open("testFiles/22902_data_files_with_same_names.bdoc");
+    container.validate();
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void duplicateSignatureFileThrowsException() {
+    Container container = Container.open("testFiles/22913_signatures_xml_double.bdoc");
+    container.validate();
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void missingManifestFile() {
+    Container container = Container.open("testFiles/missing_manifest.asice");
+    container.validate();
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void missingMimeTypeFile() {
+    Container container = Container.open("testFiles/missing_mimetype_file.asice");
+  }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
+  public void containerHasFileWhichIsNotInManifestAndNotInSignatureFile() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    Container container = Container.open("testFiles/extra_file_in_zip.asice", configuration);
+    ValidationResult result = container.validate();
+    List<DigiDoc4JException> errors = result.getErrors();
+    assertEquals(1, errors.size());
+    assertEquals("Container contains a file named AdditionalFile.txt which is not found in the signature file",
+        errors.get(0).getMessage());
+  }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
+  public void containerMissesFileWhichIsInManifestAndSignatureFile() {
+    Container container = Container.open("testFiles/zip_misses_file_which_is_in_manifest.asice");
+    ValidationResult result = container.validate();
+    List<DigiDoc4JException> errors = result.getErrors();
+    assertEquals(1, errors.size());
+    assertEquals("The reference data object(s) not found!", errors.get(0).toString());
+  }
 }

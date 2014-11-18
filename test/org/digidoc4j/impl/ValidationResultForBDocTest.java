@@ -36,7 +36,7 @@ public class ValidationResultForBDocTest {
     when(rootElement.getChildNodes()).thenReturn(new IIOMetadataNode());
     when(simpleReport.getRootElement()).thenReturn(rootElement);
 
-    ValidationResultForBDoc result = new ValidationResultForBDoc(report);
+    ValidationResultForBDoc result = new ValidationResultForBDoc(report, new ArrayList<String>());
 
     assertFalse(result.hasErrors());
     assertFalse(result.hasWarnings());
@@ -60,7 +60,7 @@ public class ValidationResultForBDocTest {
     when(rootElement.getChildNodes()).thenReturn(new IIOMetadataNode());
     when(simpleReport.getRootElement()).thenReturn(rootElement);
 
-    ValidationResult result = new ValidationResultForBDoc(report);
+    ValidationResult result = new ValidationResultForBDoc(report, new ArrayList<String>());
 
     List<DigiDoc4JException> errors = result.getErrors();
     List<DigiDoc4JException> warnings = result.getWarnings();
@@ -96,7 +96,7 @@ public class ValidationResultForBDocTest {
     when(rootElement.getChildNodes()).thenReturn(new IIOMetadataNode());
     when(simpleReport.getRootElement()).thenReturn(rootElement);
 
-    ValidationResult result = new ValidationResultForBDoc(report);
+    ValidationResult result = new ValidationResultForBDoc(report, new ArrayList<String>());
 
     List<DigiDoc4JException> errors = result.getErrors();
     List<DigiDoc4JException> warnings = result.getWarnings();
