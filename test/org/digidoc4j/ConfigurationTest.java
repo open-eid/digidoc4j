@@ -101,7 +101,7 @@ public class ConfigurationTest {
     Configuration myConfiguration = new Configuration(PROD);
     try {
       FileUtils.cleanDirectory(TSLCertificateSource.fileCacheDirectory);
-    } catch (IOException e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
 
@@ -126,7 +126,7 @@ public class ConfigurationTest {
 
     try {
       FileUtils.deleteDirectory(TSLCertificateSource.fileCacheDirectory);
-    } catch (IOException e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
     tslCertificateSource.invalidateCache();
