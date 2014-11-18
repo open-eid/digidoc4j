@@ -32,7 +32,7 @@ public class ValidationResultForBDoc implements ValidationResult {
   /**
    * Constructor
    *
-   * @param report creates validation result from report
+   * @param report         creates validation result from report
    * @param manifestErrors was there any issues with manifest file
    */
   public ValidationResultForBDoc(Reports report, List<String> manifestErrors) {
@@ -69,6 +69,19 @@ public class ValidationResultForBDoc implements ValidationResult {
       report = report.getNextReports();
 
     } while (report != null);
+
+    addErrorsToXMLReport(manifestErrors);
+  }
+
+  private void addErrorsToXMLReport(List<String> manifestErrors) {
+    for (int i = 0; i < manifestErrors.size(); i++) {
+    Element manifestValidation = reportDocument.createElement("ManifestValidation");
+      manifestValidation.setAttribute("Error", Integer.toString(i));
+      Element manifestChild = reportDocument.createElement("ManifestError");
+      manifestChild.setAttribute("Error", manifestErrors.get(i));
+      manifestValidation.appendChild(manifestChild);
+      reportDocument.getDocumentElement().appendChild(manifestValidation);
+    }
   }
 
   private void initializeReportDOM() {
