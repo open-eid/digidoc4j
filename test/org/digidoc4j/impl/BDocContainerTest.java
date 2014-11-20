@@ -1342,7 +1342,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
     assertEquals("ASiC_E_BASELINE_LT", container.getSignatureProfile());
     assertEquals(1, errors.size());
-    assertEquals("No revocation data for the certificate [CertificateId=7]", errors.get(0).toString());
+    assertTrue(errors.get(0).toString().contains("No revocation data for the certificate"));
   }
 
   @Test (expected = DigiDoc4JException.class)
