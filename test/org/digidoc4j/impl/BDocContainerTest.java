@@ -1309,7 +1309,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test (expected = DigiDoc4JException.class)
   public void missingMimeTypeFile() {
-    Container container = Container.open("testFiles/missing_mimetype_file.asice");
+    Container.open("testFiles/missing_mimetype_file.asice");
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -1332,5 +1332,21 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
     assertEquals("The reference data object(s) not found!", errors.get(0).toString());
+  }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
+  public void containerMissingOCSPData() {
+    Container container = Container.open("testFiles/TS-06_23634_TS_missing_OCSP_adjusted.asice");
+    List<DigiDoc4JException> errors = container.validate().getErrors();
+
+    assertEquals("ASiC_E_BASELINE_LT", container.getSignatureProfile());
+    assertEquals(1, errors.size());
+    assertEquals("No revocation data for the certificate [CertificateId=7]", errors.get(0).toString());
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void corruptedOCSPDataThrowsException() {
+    Container.open("testFiles/corrupted_ocsp_data.asice");
   }
 }

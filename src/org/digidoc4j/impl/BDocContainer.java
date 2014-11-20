@@ -633,7 +633,12 @@ public class BDocContainer extends Container {
     commonCertificateVerifier.setTrustedCertSource(trustedCertSource);
     validator.setCertificateVerifier(commonCertificateVerifier);
 
-    return validator.validateDocument(getValidationPolicyAsStream(getConfiguration().getValidationPolicy()));
+    try {
+      return validator.validateDocument(getValidationPolicyAsStream(getConfiguration().getValidationPolicy()));
+    } catch (DSSException e) {
+      logger.error(e.getMessage());
+      throw new DigiDoc4JException(e);
+    }
   }
 
   private InputStream getValidationPolicyAsStream(String policyFile) {
@@ -665,6 +670,7 @@ public class BDocContainer extends Container {
     logger.debug("");
     return DocumentType.BDOC;
   }
+
   @Override
   public ValidationResult validate() {
     return verify();
