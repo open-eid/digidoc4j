@@ -19,8 +19,8 @@
       <Signature Level="FAIL"/>
       <Expiration Level="FAIL"/>
       <RevocationDataAvailable Level="FAIL"/>
-      <RevocationDataIsTrusted Level="WARN"/>
-      <RevocationDataFreshness Level="WARN"/>
+      <RevocationDataIsTrusted Level="FAIL"/>
+      <RevocationDataFreshness Level="FAIL"/>
       <ProspectiveCertificateChain Level="FAIL"/>
       <KeyUsage Level="FAIL">nonRepudiation</KeyUsage>
       <Revoked Level="FAIL"/>
@@ -57,7 +57,7 @@
       <Expiration Level="FAIL"/>
       <RevocationDataAvailable Level="FAIL"/>
       <RevocationDataIsTrusted Level="FAIL"/>
-      <RevocationDataFreshness Level="WARN"/>
+      <RevocationDataFreshness Level="FAIL"/>
       <Revoked Level="FAIL"/>
       <Cryptographic Level="FAIL">
         <AcceptableEncryptionAlgo>
@@ -133,7 +133,7 @@
       <Expiration Level="FAIL"/>
       <RevocationDataAvailable Level="FAIL"/>
       <RevocationDataIsTrusted Level="FAIL"/>
-      <RevocationDataFreshness Level="WARN"/>
+      <RevocationDataFreshness Level="FAIL"/>
       <ProspectiveCertificateChain Level="FAIL"/>
       <Revoked Level="FAIL"/>
       <OnHold Level="FAIL"/>
@@ -164,7 +164,7 @@
       <Expiration Level="FAIL"/>
       <RevocationDataAvailable Level="FAIL"/>
       <RevocationDataIsTrusted Level="FAIL"/>
-      <RevocationDataFreshness Level="WARN"/>
+      <RevocationDataFreshness Level="FAIL"/>
       <Revoked Level="FAIL"/>
       <Cryptographic Level="FAIL">
         <AcceptableEncryptionAlgo>
@@ -195,7 +195,7 @@
       <Expiration Level="FAIL"/>
       <RevocationDataAvailable Level="FAIL"/>
       <RevocationDataIsTrusted Level="FAIL"/>
-      <RevocationDataFreshness Level="WARN"/>
+      <RevocationDataFreshness Level="FAIL"/>
       <Revoked Level="FAIL"/>
       <Cryptographic Level="WARN">
         <AcceptableEncryptionAlgo>
@@ -223,7 +223,7 @@
       <Expiration Level="FAIL"/>
       <RevocationDataAvailable Level="FAIL"/>
       <RevocationDataIsTrusted Level="FAIL"/>
-      <RevocationDataFreshness Level="WARN"/>
+      <RevocationDataFreshness Level="FAIL"/>
       <Revoked Level="FAIL"/>
       <Cryptographic Level="FAIL">
         <AcceptableEncryptionAlgo>

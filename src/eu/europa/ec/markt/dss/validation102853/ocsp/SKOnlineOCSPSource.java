@@ -3,6 +3,9 @@ package eu.europa.ec.markt.dss.validation102853.ocsp;
 import eu.europa.ec.markt.dss.DSSRevocationUtils;
 import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.exception.DSSNullException;
+import eu.europa.ec.markt.dss.validation102853.CertificatePool;
+import eu.europa.ec.markt.dss.validation102853.CertificateToken;
+import eu.europa.ec.markt.dss.validation102853.OCSPToken;
 import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.https.OCSPDataLoader;
 import eu.europa.ec.markt.dss.validation102853.loader.DataLoader;
@@ -15,12 +18,16 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Signer;
 import org.digidoc4j.exceptions.ConfigurationException;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.List;
 
 /**
  * SK OCSP source location.
@@ -96,12 +103,34 @@ public class SKOnlineOCSPSource implements OCSPSource {
     }
   }
 
+  /**
+   * sets given string as http header User-Agent
+   *
+   * @param userAgent user agent value
+   */
+  public void setUserAgent(String userAgent) {
+    ((CommonsDataLoader) dataLoader).setUserAgent(userAgent);
+  }
+
   @Override
-  public BasicOCSPResp getOCSPResponse(final X509Certificate certificate, final X509Certificate issuerCertificate) {
+  public OCSPToken getOCSPToken(CertificateToken certificateToken, CertificatePool certificatePool) {
     if (dataLoader == null) {
       throw new DSSNullException(DataLoader.class);
     }
     try {
+      final String dssIdAsString = certificateToken.getDSSIdAsString();
+      if (logger.isTraceEnabled()) {
+        logger.trace("--> OnlineOCSPSource queried for " + dssIdAsString);
+      }
+      final X509Certificate certificate = certificateToken.getCertificate();
+//      final X509Certificate issuerCertificate = certificateToken.getIssuerToken().getCertificate();
+      X500Principal issuerX500Principal = certificateToken.getIssuerX500Principal();
+      List<CertificateToken> issuerTokens = certificatePool.get(issuerX500Principal);
+
+      if (issuerTokens == null || issuerTokens.size() == 0)
+        throw new DSSException("Not possible to find issuer " + issuerX500Principal+ " certificate");
+      final X509Certificate issuerCertificate = issuerTokens.get(0).getCertificate();
+
       final String ocspUri = getAccessLocation();
       if (logger.isDebugEnabled()) {
         logger.debug("OCSP URI: " + ocspUri);
@@ -115,26 +144,36 @@ public class SKOnlineOCSPSource implements OCSPSource {
       final byte[] ocspRespBytes = dataLoader.post(ocspUri, content);
 
       final OCSPResp ocspResp = new OCSPResp(ocspRespBytes);
-      try {
-        return (BasicOCSPResp) ocspResp.getResponseObject();
-      } catch (NullPointerException e) {
-        logger.error("OCSP error: Encountered a case when the OCSPResp is initialised with a null OCSP response...", e);
-      }
-    } catch (OCSPException e) {
+      BasicOCSPResp basicOCSPResp = (BasicOCSPResp) ocspResp.getResponseObject();
+      Date bestUpdate = null;
+      SingleResp bestSingleResp = null;
+      final CertificateID certId = DSSRevocationUtils.getOCSPCertificateID(certificate, issuerCertificate);
+      for (final SingleResp singleResp : basicOCSPResp.getResponses()) {
 
+        if (DSSRevocationUtils.matches(certId, singleResp)) {
+
+          final Date thisUpdate = singleResp.getThisUpdate();
+          if (bestUpdate == null || thisUpdate.after(bestUpdate)) {
+
+            bestSingleResp = singleResp;
+            bestUpdate = thisUpdate;
+          }
+        }
+      }
+      if (bestSingleResp != null) {
+
+        final OCSPToken ocspToken = new OCSPToken(basicOCSPResp, bestSingleResp, certificatePool);
+        ocspToken.setSourceURI(ocspUri);
+        certificateToken.setRevocationToken(ocspToken);
+        return ocspToken;
+      }
+    } catch (NullPointerException e) {
+      logger.error("OCSP error: Encountered a case when the OCSPResp is initialised with a null OCSP response...", e);
+    } catch (OCSPException e) {
       logger.error("OCSP error: " + e.getMessage(), e);
     } catch (IOException e) {
       throw new DSSException(e);
     }
     return null;
-  }
-
-  /**
-   * sets given string as http header User-Agent
-   *
-   * @param userAgent user agent value
-   */
-  public void setUserAgent(String userAgent) {
-    ((CommonsDataLoader) dataLoader).setUserAgent(userAgent);
   }
 }

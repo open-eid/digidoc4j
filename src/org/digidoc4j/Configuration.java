@@ -651,6 +651,7 @@ public class Configuration implements Serializable {
    * When certificateSource equals null then getTSL() will load the TSL according to the TSL location specified .
    *
    */
+
   public void setTSL(TSLCertificateSource certificateSource) {
     this.tslCertificateSource = certificateSource;
   }

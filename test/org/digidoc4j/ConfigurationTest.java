@@ -1,5 +1,6 @@
 package org.digidoc4j;
 
+import eu.europa.ec.markt.dss.DSSUtils;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
@@ -9,7 +10,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import sun.security.x509.X509CertImpl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -86,7 +86,7 @@ public class ConfigurationTest {
   public void setTSL() throws IOException, CertificateException {
     TSLCertificateSource trustedListsCertificateSource = new TSLCertificateSource();
     FileInputStream fileInputStream = new FileInputStream("testFiles/Juur-SK.pem.crt");
-    X509Certificate certificate = new X509CertImpl(fileInputStream);
+    X509Certificate certificate = DSSUtils.loadCertificate(fileInputStream);
     trustedListsCertificateSource.addTSLCertificate(certificate);
 
     configuration.setTSL(trustedListsCertificateSource);
@@ -152,7 +152,7 @@ public class ConfigurationTest {
 
   private void addFromFileToTSLCertificate(String fileName) throws IOException, CertificateException {
     FileInputStream fileInputStream = new FileInputStream(fileName);
-    X509Certificate certificate = new X509CertImpl(fileInputStream);
+    X509Certificate certificate = DSSUtils.loadCertificate(fileInputStream);
     configuration.getTSL().addTSLCertificate(certificate);
     fileInputStream.close();
   }
