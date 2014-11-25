@@ -147,7 +147,7 @@ public class ConfigurationTest {
   @Test
   public void policyFileIsReadFromNonDefaultFileLocation() {
     configuration.setValidationPolicy("moved_constraint.xml");
-    new BDocContainer("testFiles/warning.bdoc", configuration);
+    new BDocContainer("testFiles/asics_for_testing.bdoc", configuration);
   }
 
   private void addFromFileToTSLCertificate(String fileName) throws IOException, CertificateException {
