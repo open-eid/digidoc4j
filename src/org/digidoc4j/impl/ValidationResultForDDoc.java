@@ -149,11 +149,7 @@ public class ValidationResultForDDoc implements ValidationResult {
     return lsSerializer.writeToString(document);
   }
 
-  /**
-   * Get list of exceptions encountered when opening the container
-   *
-   * @return List of exceptions
-   */
+  @Override
   public List<DigiDoc4JException> getContainerErrors() {
     return containerExceptions;
   }

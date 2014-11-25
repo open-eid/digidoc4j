@@ -24,6 +24,7 @@ public class ValidationResultForBDoc implements ValidationResult {
   static final Logger logger = LoggerFactory.getLogger(ValidationResultForDDoc.class);
   private List<DigiDoc4JException> errors = new ArrayList<>();
   private List<DigiDoc4JException> warnings = new ArrayList<>();
+  private List<DigiDoc4JException> manifestValidationExceptions = new ArrayList<>();
   private Document reportDocument;
 
   /**
@@ -38,8 +39,9 @@ public class ValidationResultForBDoc implements ValidationResult {
     initializeReportDOM();
 
     for (String manifestError : manifestErrors) {
-      errors.add(new DigiDoc4JException(manifestError));
+      manifestValidationExceptions.add(new DigiDoc4JException(manifestError));
     }
+    if (manifestValidationExceptions.size() != 0) errors.addAll(manifestValidationExceptions);
 
     do {
       SimpleReport simpleReport = report.getSimpleReport();
@@ -152,5 +154,10 @@ public class ValidationResultForBDoc implements ValidationResult {
   @Override
   public String getReport() {
     return new String(DSSXMLUtils.transformDomToByteArray(reportDocument));
+  }
+
+  @Override
+  public List<DigiDoc4JException> getContainerErrors() {
+    return manifestValidationExceptions;
   }
 }

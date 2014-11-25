@@ -158,18 +158,17 @@ public final class DigiDoc4J {
   private static void verify(Container container) {
     ValidationResult validationResult = container.validate();
 
+    List<DigiDoc4JException> exceptions = validationResult.getContainerErrors();
     boolean isDDoc = container.getDocumentType() == DocumentType.DDOC;
-    if (isDDoc) {
-      List<DigiDoc4JException> exceptions = ((ValidationResultForDDoc) validationResult).getContainerErrors();
-      for (DigiDoc4JException exception : exceptions) {
-        if (isWarning(((DDocContainer) container).getFormat(), exception))
-          System.out.println("\tWarning: " + exception.toString());
-        else
-          System.out.println("\t" + exception.toString());
-      }
-      if (((ValidationResultForDDoc) validationResult).hasFatalErrors()) {
-        return;
-      }
+    for (DigiDoc4JException exception : exceptions) {
+      if (isDDoc && isWarning(((DDocContainer) container).getFormat(), exception))
+        System.out.println("\tWarning: " + exception.toString());
+      else
+        System.out.println((isDDoc ? "\t" : "\tError: ") + exception.toString());
+    }
+
+    if (isDDoc && (((ValidationResultForDDoc) validationResult).hasFatalErrors())) {
+      return;
     }
 
     List<Signature> signatures = container.getSignatures();
@@ -211,7 +210,6 @@ public final class DigiDoc4J {
    * @param documentFormat format SignedDoc
    * @param exception      error to check
    * @return is this exception warning for DDOC utility program
-   *
    * @see SignedDoc
    */
   public static boolean isWarning(String documentFormat, DigiDoc4JException exception) {

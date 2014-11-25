@@ -52,4 +52,14 @@ public interface ValidationResult {
    * @return report
    */
   String getReport();
+
+  /**
+   * Get list container related errors.
+   *
+   * DDOC returns a list of errors encountered when validating meta data
+   * BDOC returns a list of errors encountered when opening the container
+   *
+   * @return List of exceptions
+   */
+  List<DigiDoc4JException> getContainerErrors();
 }

@@ -321,6 +321,19 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void verifyDDocWithManifestErrors() throws Exception {
+    exit.expectSystemExitWithStatus(0);
+    exit.checkAssertionAfterwards(new Assertion() {
+      @Override
+      public void checkAssertion() throws Exception {
+        assertThat(sout.getLog(), containsString("Container contains a file named AdditionalFile.txt which is not found in the signature file"));
+      }
+    });
+    String[] params = new String[]{"-in", "testFiles/manifest_validation_error.asice", "-verify"};
+    DigiDoc4J.main(params);
+  }
+
+  @Test
   public void verboseMode() throws Exception {
     exit.expectSystemExitWithStatus(0);
     exit.checkAssertionAfterwards(new Assertion() {
