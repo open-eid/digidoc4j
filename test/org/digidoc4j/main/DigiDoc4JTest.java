@@ -402,17 +402,16 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  @Ignore
   public void verifyBDocWithWarning() throws IOException {
     exit.expectSystemExitWithStatus(0);
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
         assertThat(sout.getLog(),
-            containsString("Warning: The public key size is to small!"));
+            containsString("The signer's certificate is not supported by SSCD!"));
       }
     });
-    String[] params = new String[]{"-in", "testFiles/warning.bdoc", "-verify", "-warnings"};
+    String[] params = new String[]{"-in", "testFiles/warning.asice", "-verify", "-warnings"};
     copyFile(new File("testFiles/digidoc4j_ForBDocWarningTest.yaml"), new File("digidoc4j.yaml"));
     DigiDoc4J.main(params);
   }
