@@ -5,9 +5,9 @@ import eu.europa.ec.markt.dss.signature.DSSDocument;
 import eu.europa.ec.markt.dss.signature.InMemoryDocument;
 import eu.europa.ec.markt.dss.validation102853.AdvancedSignature;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
-import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
 import org.apache.xml.security.signature.Reference;
 import org.apache.xml.security.signature.reference.ReferenceOctetStreamData;
+import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * For validating meta data within the manifest file and signature files.
@@ -44,19 +47,21 @@ public class ManifestValidator {
   /**
    * Validate the container.
    *
+   * @param signatures list of signatures
+   *
    * @return list of error messages
    */
-  public List<String> validateDocument() {
+  public List<String> validateDocument(List<Signature> signatures) {
     if (manifestFile == null)
       throw new DigiDoc4JException("Container does not contain manifest file.");
 
     List<String> errorMessages = new ArrayList<>();
     Set<ManifestEntry> manifestEntries = getManifestFileItems();
-    List<AdvancedSignature> signatures = asicValidator.getSignatures();
     Set<ManifestEntry> signatureEntries = new HashSet<>();
 
-    for (AdvancedSignature signature : signatures) {
-      signatureEntries = getSignatureEntries(signature);
+    for (Signature signature : signatures) {
+      signatureEntries = getSignatureEntries((BDocSignature) signature);
+
       errorMessages.addAll(validateEntries(manifestEntries, signatureEntries, signature.getId()));
     }
 
@@ -125,9 +130,9 @@ public class ManifestValidator {
     return errorMessages;
   }
 
-  private Set<ManifestEntry> getSignatureEntries(AdvancedSignature signature) {
+  private Set<ManifestEntry> getSignatureEntries(BDocSignature signature) {
     Set<ManifestEntry> signatureEntries = new HashSet<>();
-    List<Reference> references = ((XAdESSignature) signature).getReferences();
+    List<Reference> references = signature.getOrigin().getReferences();
     for (Reference reference : references) {
       if (reference.getType().equals("")) {
         ReferenceOctetStreamData referenceData = (ReferenceOctetStreamData) (reference.getReferenceData());

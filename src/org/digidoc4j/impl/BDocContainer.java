@@ -59,6 +59,7 @@ public class BDocContainer extends Container {
   private List<Signature> signatures = new ArrayList<>();
   Configuration configuration = null;
   private static final MimeType BDOC_MIME_TYPE = MimeType.ASICE;
+  private transient Reports validationReport;
 
   /**
    * Create a new container object of type BDOC.
@@ -320,6 +321,7 @@ public class BDocContainer extends Container {
 
     checkForDuplicateDataFile(path);
 
+    validationReport = null;
     try {
       long cachedFileSizeInBytes = configuration.getMaxDataFileCachedInBytes();
       if (configuration.isBigFilesSupportEnabled() && new File(path).length() > cachedFileSizeInBytes) {
@@ -349,6 +351,7 @@ public class BDocContainer extends Container {
   @Override
   public void addDataFile(InputStream is, String fileName, String mimeType) {
     logger.debug("File name: " + fileName + ", mime type: " + mimeType);
+    validationReport = null;
     try {
       if (configuration.isBigFilesSupportEnabled()) {
         dataFiles.put(fileName, new DataFile(is, fileName, mimeType));
@@ -364,6 +367,7 @@ public class BDocContainer extends Container {
   @Override
   public void addRawSignature(byte[] signature) {
     logger.debug("");
+    validationReport = null;
     InputStream signatureStream = getByteArrayInputStream(signature);
     addRawSignature(signatureStream);
     IOUtils.closeQuietly(signatureStream);
@@ -426,6 +430,7 @@ public class BDocContainer extends Container {
       signature = signature.getNextDocument();
     } while (signature != null);
 
+    validationReport = null;
     signatures.remove(index);
   }
 
@@ -477,6 +482,7 @@ public class BDocContainer extends Container {
         signer.getCertificate());
 
     byte[] signature = signer.sign(this, dataToSign);
+    validationReport = null;
     return signRaw(signature);
   }
 
@@ -515,6 +521,7 @@ public class BDocContainer extends Container {
 
     XAdESSignature xAdESSignature = getSignatureById(deterministicId);
 
+    validationReport = null;
     Signature signature = new BDocSignature(xAdESSignature);
     signatures.add(signature);
 
@@ -620,12 +627,21 @@ public class BDocContainer extends Container {
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
 
     Reports report = validate(validator);
-    List<String> manifestErrors = new ManifestValidator(validator).validateDocument();
+
+    if ((signatures.size() > 0) && (((BDocSignature) signatures.get(0)).getOrigin().getReferences() == null)) {
+      signatures = new ArrayList<>();
+      loadSignatures(validator);
+    }
+    List<String> manifestErrors = new ManifestValidator(validator).validateDocument(signatures);
     return new ValidationResultForBDoc(report, manifestErrors);
   }
 
   private Reports validate(SignedDocumentValidator validator) {
     logger.debug("Validator: " + validator);
+    if (validationReport != null) {
+      return validationReport;
+    }
+
     commonCertificateVerifier.setOcspSource(null);
 
     TrustedListsCertificateSource trustedCertSource = configuration.getTSL();
@@ -634,7 +650,9 @@ public class BDocContainer extends Container {
     validator.setCertificateVerifier(commonCertificateVerifier);
 
     try {
-      return validator.validateDocument(getValidationPolicyAsStream(getConfiguration().getValidationPolicy()));
+      validationReport = validator.validateDocument(getValidationPolicyAsStream(getConfiguration()
+          .getValidationPolicy()));
+      return validationReport;
     } catch (DSSException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
@@ -709,6 +727,7 @@ public class BDocContainer extends Container {
 
   @Override
   public void extendTo(SignatureProfile profile) {
+    validationReport = null;
     switch (profile) {
       case LT:
         extend(ASiC_E_BASELINE_LT);

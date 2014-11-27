@@ -14,6 +14,7 @@ import org.digidoc4j.signers.ExternalSigner;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -643,6 +644,19 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void containerIsLT() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.setSignatureProfile(SignatureProfile.LT);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.save("testLT.bdoc");
+
+    container = new BDocContainer("testLT.bdoc");
+    assertEquals(1, container.getSignatures().size());
+    assertNotNull(container.getSignature(0).getOCSPCertificate());
+  }
+
+  @Test
   public void verifySignatureProfileIsTS() throws Exception {
     BDocContainer container = new BDocContainer();
     container.setSignatureProfile(SignatureProfile.LT);
@@ -1093,7 +1107,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(signingTimeBeforeSerialization, signingTimeAfterSerialization);
   }
 
-  @Test (expected = NotYetImplementedException.class)
+  @Test(expected = NotYetImplementedException.class)
   public void serializationGetPolicy() throws Exception {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
@@ -1107,7 +1121,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(signaturePolicyBeforeSerialization, signaturePolicyAfterSerialization);
   }
 
-  @Test (expected = NotYetImplementedException.class)
+  @Test(expected = NotYetImplementedException.class)
   public void serializationGetSignaturePolicyURI() throws Exception {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
@@ -1289,25 +1303,25 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals("The reference data object(s) not found!", validate.getErrors().get(0).toString());
   }
 
-  @Test (expected = DigiDoc4JException.class)
+  @Test(expected = DigiDoc4JException.class)
   public void duplicateFileThrowsException() {
     Container container = Container.open("testFiles/22902_data_files_with_same_names.bdoc");
     container.validate();
   }
 
-  @Test (expected = DigiDoc4JException.class)
+  @Test(expected = DigiDoc4JException.class)
   public void duplicateSignatureFileThrowsException() {
     Container container = Container.open("testFiles/22913_signatures_xml_double.bdoc");
     container.validate();
   }
 
-  @Test (expected = DigiDoc4JException.class)
+  @Test(expected = DigiDoc4JException.class)
   public void missingManifestFile() {
     Container container = Container.open("testFiles/missing_manifest.asice");
     container.validate();
   }
 
-  @Test (expected = DigiDoc4JException.class)
+  @Test(expected = DigiDoc4JException.class)
   public void missingMimeTypeFile() {
     Container.open("testFiles/missing_mimetype_file.asice");
   }
@@ -1345,8 +1359,22 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertTrue(errors.get(0).toString().contains("No revocation data for the certificate"));
   }
 
-  @Test (expected = DigiDoc4JException.class)
+  @Test(expected = DigiDoc4JException.class)
   public void corruptedOCSPDataThrowsException() {
     Container.open("testFiles/corrupted_ocsp_data.asice");
+  }
+
+  @Test
+  @Ignore //TODO Currently BES container validates with an error: revocation data not found
+  public void containerWithBESProfileHasNoValidationErrors() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.setSignatureProfile(B_BES);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+
+    assertEquals("ASiC_E_BASELINE_B", container.getSignatureProfile());
+    assertNull(container.getSignature(0).getOCSPCertificate());
+    ValidationResult result = container.validate();
+    assertEquals(0, result.getErrors().size());
   }
 }

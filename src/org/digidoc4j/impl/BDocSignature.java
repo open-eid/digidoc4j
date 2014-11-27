@@ -240,4 +240,8 @@ public class BDocSignature extends Signature {
     Document document = createDocument(ASiCNamespaces.ASiC, ASiCService.ASICS_NS, origin.getSignatureElement());
     return DSSXMLUtils.transformDomToByteArray(document);
   }
+
+  XAdESSignature getOrigin() {
+    return origin;
+  }
 }
