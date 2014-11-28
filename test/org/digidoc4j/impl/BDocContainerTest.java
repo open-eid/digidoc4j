@@ -1281,6 +1281,24 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
         " text/plain but the manifest file does not.", validate.getErrors().get(1).toString());
   }
 
+  @Test
+  public void revocationAndTimeStampSmallEnough() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    Container container = Container.open("testFiles/revocation_timestamp_delta_17m.asice", configuration);
+    ValidationResult validate = container.validate();
+    assertEquals(0, validate.getErrors().size());
+  }
+
+  @Test
+  public void revocationAndTimeStampDifferenceTooLarge() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    Container container = Container.open("testFiles/revocation_timestamp_delta_26h.asice", configuration);
+    ValidationResult validate = container.validate();
+    assertEquals(1, validate.getErrors().size());
+    assertEquals("The difference between the revocation time and the siganture time stamp is too large",
+        validate.getErrors().get(0).toString());
+  }
+
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void signatureFileAndManifestFileContainDifferentMimeTypeForFile() {
