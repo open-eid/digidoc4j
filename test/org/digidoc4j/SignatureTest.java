@@ -28,6 +28,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static junit.framework.Assert.assertEquals;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
@@ -36,7 +37,8 @@ import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.Signature.Validate.VALIDATE_FULL;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
 import static org.digidoc4j.utils.Helper.deleteFile;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class SignatureTest extends DigiDoc4JTestHelper {
 
@@ -52,6 +54,24 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     Container container = Container.open("testFiles/asics_for_testing.bdoc");
     byte[] certificate = container.getSignatures().get(0).getSigningCertificate().getX509Certificate().getEncoded();
     assertEquals(Certificates.SIGNING_CERTIFICATE, Base64.encodeBase64String(certificate));
+  }
+
+  @Test
+  public void testTimeStampCreationTimeForBDoc() throws ParseException {
+    Container container = Container.open("testFiles/test.asice");
+    Date timeStampCreationTime = container.getSignature(0).getTimeStampCreationTime();
+    SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d yyyy H:m:s", Locale.ENGLISH);
+    assertEquals(dateFormat.parse("Nov 17 2014 16:11:46"), timeStampCreationTime);
+  }
+
+  @Test
+  public void testTimeStampCreationTimeForBDocWhereNotOCSP() throws ParseException {
+    BDocContainer container = new BDocContainer();
+    container.setSignatureProfile(Container.SignatureProfile.B_BES);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+
+    assertNull(container.getSignature(0).getTimeStampCreationTime());
   }
 
   @Test

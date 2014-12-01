@@ -15,6 +15,7 @@ import eu.europa.ec.markt.dss.DSSXMLUtils;
 import eu.europa.ec.markt.dss.signature.SignatureLevel;
 import eu.europa.ec.markt.dss.signature.asic.ASiCService;
 import eu.europa.ec.markt.dss.validation102853.CertificateToken;
+import eu.europa.ec.markt.dss.validation102853.TimestampToken;
 import eu.europa.ec.markt.dss.validation102853.bean.SignatureProductionPlace;
 import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -168,15 +169,18 @@ public class BDocSignature extends Signature {
 
   @Override
   public Date getTimeStampCreationTime() {
-    throw new NotYetImplementedException();
+    List<TimestampToken> signatureTimestamps = origin.getSignatureTimestamps();
+    if (signatureTimestamps.size() == 0) {
+      return null;
+    }
+    return signatureTimestamps.get(0).getGenerationTime();
   }
 
   @Override
   public SignatureProfile getProfile() {
     SignatureLevel dataFoundUpToLevel = origin.getDataFoundUpToLevel();
     logger.debug("getting profile for: " + dataFoundUpToLevel);
-    SignatureProfile signatureProfile = signatureProfileMap.get(dataFoundUpToLevel);
-    return signatureProfile;
+    return signatureProfileMap.get(dataFoundUpToLevel);
   }
 
   @Override
