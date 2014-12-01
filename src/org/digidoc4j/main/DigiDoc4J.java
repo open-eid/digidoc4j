@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+*
+* This software is released under either the GNU Library General Public
+* License (see LICENSE.LGPL).
+*
+* Note that the only valid version of the LGPL license as far as this
+* project is concerned is the original GNU Library General Public License
+* Version 2.1, February 1999
+*/
+
 package org.digidoc4j.main;
 
 import ee.sk.digidoc.CertValue;
@@ -29,8 +39,8 @@ public final class DigiDoc4J {
 
   private static boolean verboseMode;
   private static boolean warnings;
-  private static final String ANSI_RED = "\033[31m";
-  private static final String ANSI_RESET = "\033[0m";
+  private static final String ANSI_RED = "[31m";
+  private static final String ANSI_RESET = "[0m";
 
   private DigiDoc4J() {
   }
@@ -162,9 +172,9 @@ public final class DigiDoc4J {
     boolean isDDoc = container.getDocumentType() == DocumentType.DDOC;
     for (DigiDoc4JException exception : exceptions) {
       if (isDDoc && isWarning(((DDocContainer) container).getFormat(), exception))
-        System.out.println("\tWarning: " + exception.toString());
+        System.out.println("	Warning: " + exception.toString());
       else
-        System.out.println((isDDoc ? "\t" : "\tError: ") + exception.toString());
+        System.out.println((isDDoc ? "	" : "	Error: ") + exception.toString());
     }
 
     if (isDDoc && (((ValidationResultForDDoc) validationResult).hasFatalErrors())) {
@@ -183,7 +193,7 @@ public final class DigiDoc4J {
       } else {
         System.out.println(ANSI_RED + "Signature " + signature.getId() + " is not valid" + ANSI_RESET);
         for (DigiDoc4JException exception : signatureValidationResult) {
-          System.out.println((isDDoc ? "\t" : "\tError: ")
+          System.out.println((isDDoc ? "	" : "	Error: ")
               + exception.toString());
         }
       }

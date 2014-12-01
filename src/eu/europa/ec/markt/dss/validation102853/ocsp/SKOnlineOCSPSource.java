@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+*
+* This software is released under either the GNU Library General Public
+* License (see LICENSE.LGPL).
+*
+* Note that the only valid version of the LGPL license as far as this
+* project is concerned is the original GNU Library General Public License
+* Version 2.1, February 1999
+*/
+
 package eu.europa.ec.markt.dss.validation102853.ocsp;
 
 import eu.europa.ec.markt.dss.DSSRevocationUtils;
@@ -18,7 +28,6 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Signer;
 import org.digidoc4j.exceptions.ConfigurationException;
-import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +39,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * SK OCSP source location.
- */
+* SK OCSP source location.
+*/
 public class SKOnlineOCSPSource implements OCSPSource {
   final Logger logger = LoggerFactory.getLogger(SKOnlineOCSPSource.class);
 
@@ -128,7 +137,7 @@ public class SKOnlineOCSPSource implements OCSPSource {
       List<CertificateToken> issuerTokens = certificatePool.get(issuerX500Principal);
 
       if (issuerTokens == null || issuerTokens.size() == 0)
-        throw new DSSException("Not possible to find issuer " + issuerX500Principal+ " certificate");
+        throw new DSSException("Not possible to find issuer " + issuerX500Principal + " certificate");
       final X509Certificate issuerCertificate = issuerTokens.get(0).getCertificate();
 
       final String ocspUri = getAccessLocation();

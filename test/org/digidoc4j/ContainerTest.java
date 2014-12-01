@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+*
+* This software is released under either the GNU Library General Public
+* License (see LICENSE.LGPL).
+*
+* Note that the only valid version of the LGPL license as far as this
+* project is concerned is the original GNU Library General Public License
+* Version 2.1, February 1999
+*/
+
 package org.digidoc4j;
 
 import org.apache.commons.codec.binary.Base64;
@@ -8,7 +18,9 @@ import org.digidoc4j.impl.DDocContainer;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.digidoc4j.utils.Helper;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -30,7 +42,6 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.Container.SignatureProfile.B_BES;
 import static org.digidoc4j.Container.SignatureProfile.LT;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
@@ -594,5 +605,3 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     assertEquals("DDOC", Container.create(DDOC).getDocumentType().toString());
   }
 }
-
-
