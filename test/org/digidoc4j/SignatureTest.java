@@ -12,6 +12,7 @@ package org.digidoc4j;
 
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.exceptions.CertificateNotFoundException;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.impl.BDocContainer;
 import org.digidoc4j.impl.Certificates;
@@ -62,6 +63,15 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     Date timeStampCreationTime = container.getSignature(0).getTimeStampCreationTime();
     SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d yyyy H:m:s", Locale.ENGLISH);
     assertEquals(dateFormat.parse("Nov 17 2014 16:11:46"), timeStampCreationTime);
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void testTimeStampCreationTimeForDDoc() throws ParseException {
+    Container container = Container.create(DDOC);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.getSignature(0).getTimeStampCreationTime();
+    container.getSignature(0).getTimeStampCreationTime();
   }
 
   @Test
