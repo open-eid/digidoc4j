@@ -12,3 +12,4 @@ digidoc4j.iml
 password.properties
 copy-dss-jars.sh
 /util
+token
