@@ -13,10 +13,13 @@ package org.digidoc4j.impl;
 import ee.sk.digidoc.DigiDocException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.junit.Assert.*;
 
 public class ValidationResultForDDocTest {
@@ -91,7 +94,7 @@ public class ValidationResultForDDocTest {
   }
 
   @Test
-  public void testReport() {
+  public void testReport() throws IOException, SAXException {
     ArrayList<DigiDocException> exceptions = new ArrayList<DigiDocException>();
     exceptions.add(new DigiDocException(DigiDocException.ERR_UNSUPPORTED, "test", new Throwable("exception1")));
     exceptions.add(new DigiDocException(DigiDocException.ERR_CALCULATE_DIGEST, "test2", new Throwable("exception2")));
@@ -100,7 +103,7 @@ public class ValidationResultForDDocTest {
     exceptions.add(new DigiDocException(DigiDocException.WARN_WEAK_DIGEST, "test2", new Throwable("exception2")));
 
     ValidationResultForDDoc result = new ValidationResultForDDoc(exceptions);
-    assertEquals("<?xml version=\"1.0\" encoding=\"UTF-16\"?>" +
+    assertXMLEqual("<?xml version=\"1.0\" encoding=\"UTF-16\"?>" +
             "<!--DDoc verification result-->" +
             "<root>" +
             "<error Code=\"15\" Message=\"15test; nested exception is: &#10;&#9;java.lang.Throwable: exception1\"/>" +
