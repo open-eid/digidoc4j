@@ -1297,7 +1297,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = Container.open("testFiles/revocation_timestamp_delta_26h.asice", configuration);
     ValidationResult validate = container.validate();
     assertEquals(1, validate.getErrors().size());
-    assertEquals("The difference between the revocation time and the siganture time stamp is too large",
+    assertEquals("The difference between the revocation time and the signature time stamp is too large",
         validate.getErrors().get(0).toString());
   }
 
