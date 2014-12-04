@@ -43,8 +43,9 @@ fi
 
 UPLOAD_URL="https://uploads.github.com/repos/open-eid/digidoc4j/releases/${RELEASE_ID}/assets"
 
-curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-v${VERSION}-beta-javadoc.jar --data-binary @dist/digidoc4j-v${VERSION}.0-beta-javadoc.jar
-curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-v${VERSION}-beta.jar --data-binary @dist/digidoc4j-v${VERSION}.0-beta.jar
-curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-library-v${VERSION}-beta.zip --data-binary @dist/digidoc4j-library-v${VERSION}.0-beta.zip
+echo curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-v${VERSION}.0-beta-javadoc.jar --data-binary @dist/digidoc4j-v${VERSION}.0-beta-javadoc.jar
+curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-v${VERSION}.0-beta-javadoc.jar --data-binary @dist/digidoc4j-v${VERSION}.0-beta-javadoc.jar
+curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-v${VERSION}.0-beta.jar --data-binary @dist/digidoc4j-v${VERSION}.0-beta.jar
+curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-library-v${VERSION}.0-beta.zip --data-binary @dist/digidoc4j-library-v${VERSION}.0-beta.zip
 
 popd

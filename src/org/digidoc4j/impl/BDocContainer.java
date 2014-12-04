@@ -19,6 +19,8 @@ import eu.europa.ec.markt.dss.validation102853.AdvancedSignature;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCContainerValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
+import eu.europa.ec.markt.dss.validation102853.ocsp.BDocTMOcspSource;
+import eu.europa.ec.markt.dss.validation102853.ocsp.BDocTSOcspSource;
 import eu.europa.ec.markt.dss.validation102853.ocsp.SKOnlineOCSPSource;
 import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
 import eu.europa.ec.markt.dss.validation102853.report.Reports;
@@ -70,6 +72,7 @@ public class BDocContainer extends Container {
   Configuration configuration = null;
   private static final MimeType BDOC_MIME_TYPE = MimeType.ASICE;
   private transient Reports validationReport;
+  private boolean isTimeMark = false;
 
   /**
    * Create a new container object of type BDOC.
@@ -513,7 +516,7 @@ public class BDocContainer extends Container {
     logger.debug("");
 
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
-    SKOnlineOCSPSource ocspSource = new SKOnlineOCSPSource(configuration);
+    SKOnlineOCSPSource ocspSource = getOcspSource(rawSignature);
     ocspSource.setUserAgent(Helper.createUserAgent(this));
     commonCertificateVerifier.setOcspSource(ocspSource);
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
@@ -536,6 +539,12 @@ public class BDocContainer extends Container {
     signatures.add(signature);
 
     return signature;
+  }
+
+  private SKOnlineOCSPSource getOcspSource(byte[] signatureValue) {
+    if (isTimeMark && signatureValue != null)
+      return new BDocTMOcspSource(configuration, signatureValue);
+    return new BDocTSOcspSource(configuration);
   }
 
   private DSSDocument getSigningDocument() {
@@ -709,7 +718,7 @@ public class BDocContainer extends Container {
       throw new DigiDoc4JException("It is not possible to extend the signature to the same level");
 
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
-    SKOnlineOCSPSource ocspSource = new SKOnlineOCSPSource(configuration);
+    SKOnlineOCSPSource ocspSource = getOcspSource(null);
     ocspSource.setUserAgent(Helper.createUserAgent(this));
     commonCertificateVerifier.setOcspSource(ocspSource);
     asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
@@ -738,12 +747,17 @@ public class BDocContainer extends Container {
   @Override
   public void extendTo(SignatureProfile profile) {
     validationReport = null;
+    isTimeMark = false;
     switch (profile) {
       case LT:
         extend(ASiC_E_BASELINE_LT);
         break;
       case LTA:
         extend(ASiC_E_BASELINE_LTA);
+        break;
+      case LT_TM:
+        isTimeMark = true;
+        extend(ASiC_E_BASELINE_LT);
         break;
       default:
         throw new NotYetImplementedException();
@@ -752,15 +766,16 @@ public class BDocContainer extends Container {
 
   @Override
   public void setSignatureProfile(SignatureProfile profile) {
+    isTimeMark = false;
     switch (profile) {
-      case LT_TM:
-        throw new NotYetImplementedException();
       case B_BES:
         dssSignatureParameters.setSignatureLevel(ASiC_E_BASELINE_B);
         break;
       case LTA:
         dssSignatureParameters.setSignatureLevel(ASiC_E_BASELINE_LTA);
         break;
+      case LT_TM:
+        isTimeMark = true;
       default:
         dssSignatureParameters.setSignatureLevel(ASiC_E_BASELINE_LT);
     }
