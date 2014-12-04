@@ -1292,21 +1292,22 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void revocationAndTimeStampSmallEnough() {
-    Configuration configuration = new Configuration(Configuration.Mode.PROD);
-    Container container = Container.open("testFiles/revocation_timestamp_delta_17m.asice", configuration);
-    ValidationResult validate = container.validate();
-    assertEquals(0, validate.getErrors().size());
-  }
-
-  @Test
   public void revocationAndTimeStampDifferenceTooLarge() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     Container container = Container.open("testFiles/revocation_timestamp_delta_26h.asice", configuration);
     ValidationResult validate = container.validate();
     assertEquals(1, validate.getErrors().size());
-    assertEquals("The difference between the revocation time and the siganture time stamp is too large",
+    assertEquals("The difference between the revocation time and the signature time stamp is too large",
         validate.getErrors().get(0).toString());
+  }
+
+  @Test
+  public void revocationAndTimeStampDifferenceNotTooLarge() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setValidationPolicy("conf/test_constraint_SigningTimeCreationTimeDeltaIs27H.xml");
+    Container container = Container.open("testFiles/revocation_timestamp_delta_26h.asice", configuration);
+    ValidationResult validate = container.validate();
+    assertEquals(0, validate.getErrors().size());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
