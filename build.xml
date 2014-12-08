@@ -66,7 +66,7 @@
     </copy>
   </target>
 
-  <target name="compile" depends="load-dependencies">
+  <target name="compile" depends="load.dependencies">
     <mkdir dir="${build.dir}"/>
     <copy todir="${build.dir}">
       <fileset dir="resources"/>
@@ -223,7 +223,7 @@
     </delete>
   </target>
 
-  <target name="download-ivy" unless="offline">
+  <target name="download.ivy" unless="offline">
 
     <mkdir dir="${ivy.jar.dir}"/>
     <!-- download Ivy from web site so that it can be used even without any special installation -->
@@ -231,7 +231,7 @@
          dest="${ivy.jar.file}" usetimestamp="true"/>
   </target>
 
-  <target name="init-ivy" depends="download-ivy">
+  <target name="init.ivy" depends="download.ivy">
     <!-- try to load ivy here from ivy home, in case the user has not already dropped
             it into ant's lib dir (note that the latter copy will always take precedence).
             We will not fail as long as local lib dir exists (it may be empty) and
@@ -244,7 +244,7 @@
              uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
   </target>
 
-  <target name="load-dependencies" depends="init-ivy" >
+  <target name="load.dependencies" depends="init.ivy" >
     <ivy:retrieve transitive="false" conf="compile"/>
   </target>
 
