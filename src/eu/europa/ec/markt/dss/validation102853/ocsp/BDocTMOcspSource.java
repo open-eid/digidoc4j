@@ -1,5 +1,6 @@
 package eu.europa.ec.markt.dss.validation102853.ocsp;
 
+import eu.europa.ec.markt.dss.DigestAlgorithm;
 import org.bouncycastle.asn1.ASN1Object;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERSequence;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+import static eu.europa.ec.markt.dss.DSSUtils.digest;
 import static org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers.id_pkix_ocsp_nonce;
 
 public class BDocTMOcspSource extends SKOnlineOCSPSource {
@@ -42,7 +44,7 @@ public class BDocTMOcspSource extends SKOnlineOCSPSource {
   private DERSequence createNoceAsn1Sequence() {
     ASN1Object nonceComponents[] = new ASN1Object[2];
     nonceComponents[0] = new DefaultDigestAlgorithmIdentifierFinder().find("SHA-256").getAlgorithm();
-    nonceComponents[1] = new DEROctetString(signature);
+    nonceComponents[1] = new DEROctetString(digest(DigestAlgorithm.SHA256, signature));
     return new DERSequence(nonceComponents);
   }
 }
