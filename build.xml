@@ -93,7 +93,7 @@
     </jar>
   </target>
 
-  <target name="library" depends="init-ivy">
+  <target name="library" depends="init.ivy">
     <ivy:retrieve transitive="false" conf="runtime" sync="true" pattern="${packaging.lib}/[artifact].[ext]"/>
     <zip destfile="${dist.dir}/digidoc4j-library-${lib.version}${version.suffix}.zip">
       <zipfileset dir="${packaging.lib}" includes="*.jar"/>
@@ -101,7 +101,7 @@
     </zip>
   </target>
 
-  <target name="utility" depends="init-ivy">
+  <target name="utility" depends="init.ivy">
     <ivy:retrieve transitive="false" conf="runtime" sync="true" pattern="${packaging.lib}/[artifact].[ext]"/>
     <mkdir dir="${build.dir}/util"/>
     <jar jarfile="${build.dir}/util/temp.jar">
