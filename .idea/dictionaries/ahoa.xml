@@ -2,6 +2,7 @@
   <dictionary name="ahoa">
     <words>
       <w>asic</w>
+      <w>asice</w>
       <w>asics</w>
       <w>bdoc</w>
       <w>ddoc</w>
@@ -9,6 +10,8 @@
       <w>digidoc</w>
       <w>etsi</w>
       <w>ewith</w>
+      <w>mimetype</w>
+      <w>noce</w>
       <w>ocsp</w>
       <w>opensc</w>
       <w>signout</w>

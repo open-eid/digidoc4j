@@ -678,12 +678,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNotNull(container.getSignature(0).getOCSPCertificate());
   }
 
-  @Test(expected = NotYetImplementedException.class)
-  public void signatureProfileTMIsNotSupported() throws Exception {
-    BDocContainer container = new BDocContainer();
-    container.setSignatureProfile(LT_TM);
-  }
-
   @Test(expected = DigiDoc4JException.class)
   public void extendToWhenConfirmationAlreadyExists() throws Exception {
     BDocContainer container = new BDocContainer();
@@ -727,16 +721,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(2, container.getSignatures().size());
     assertNotNull(container.getSignature(0).getOCSPCertificate());
     assertNotNull(container.getSignature(1).getOCSPCertificate());
-  }
-
-  @Test(expected = NotYetImplementedException.class)
-  public void extendToIsImplementedForTSProfileOtherProfilesThrowException() throws Exception {
-    BDocContainer container = new BDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.setSignatureProfile(B_BES);
-    container.sign(PKCS12_SIGNER);
-
-    container.extendTo(LT_TM);
   }
 
   @Test
@@ -1292,6 +1276,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   public void revocationAndTimeStampDifferenceTooLarge() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     Container container = Container.open("testFiles/revocation_timestamp_delta_26h.asice", configuration);
@@ -1391,6 +1376,15 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test(expected = DigiDoc4JException.class)
   public void corruptedOCSPDataThrowsException() {
     Container.open("testFiles/corrupted_ocsp_data.asice");
+  }
+
+  @Test
+  public void testBDocTM() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.setSignatureProfile(LT_TM);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    assertTrue(container.validate().isValid());
   }
 
   @Test

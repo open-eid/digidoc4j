@@ -41,7 +41,7 @@ import java.util.List;
 /**
 * SK OCSP source location.
 */
-public class SKOnlineOCSPSource implements OCSPSource {
+public abstract class SKOnlineOCSPSource implements OCSPSource {
   final Logger logger = LoggerFactory.getLogger(SKOnlineOCSPSource.class);
 
   /**
@@ -88,12 +88,14 @@ public class SKOnlineOCSPSource implements OCSPSource {
       final CertificateID certId = DSSRevocationUtils.getOCSPCertificateID(signCert, issuerCert);
       final OCSPReqBuilder ocspReqBuilder = new OCSPReqBuilder();
       ocspReqBuilder.addRequest(certId);
+      addNonce(ocspReqBuilder);
 
       if (configuration.hasToBeOCSPRequestSigned()) {
         JcaContentSignerBuilder signerBuilder = new JcaContentSignerBuilder("SHA1withRSA");
 
-        if (!configuration.isOCSPSigningConfigurationAvailable())
+        if (!configuration.isOCSPSigningConfigurationAvailable()) {
           throw new ConfigurationException("Configuration needed for OCSP request signing is not complete.");
+        }
 
         Signer ocspSigner = new PKCS12Signer(configuration.getOCSPAccessCertificateFileName(),
             configuration.getOCSPAccessCertificatePassword());
@@ -103,6 +105,7 @@ public class SKOnlineOCSPSource implements OCSPSource {
         X509CertificateHolder[] chain = {new X509CertificateHolder(ocspSignerCert.getEncoded())};
         GeneralName generalName = new GeneralName(new JcaX509CertificateHolder(ocspSignerCert).getSubject());
         ocspReqBuilder.setRequestorName(generalName);
+
 
         return ocspReqBuilder.build(contentSigner, chain).getEncoded();
       }
@@ -185,4 +188,6 @@ public class SKOnlineOCSPSource implements OCSPSource {
     }
     return null;
   }
+
+  abstract void addNonce(OCSPReqBuilder ocspReqBuilder);
 }
