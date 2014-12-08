@@ -29,8 +29,10 @@ else
     PRERELEASE=false
 fi
 
+echo "Starting to build...."
 ant -q -f jenkins_build.xml sd-dss
 ant -q all -Dlib.version=v${FINAL_VERSION}
+echo "Build done!"
 
 CREATE_RELEASE=$(printf '{"tag_name": "v%s","target_commitish": "master","name": "Release v%s","body": "#Release of version %s","draft": false,"prerelease": %s}' ${FINAL_VERSION} ${FINAL_VERSION} ${FINAL_VERSION} ${PRERELEASE})
 RESPONSE=$(curl --data "${CREATE_RELEASE}" https://api.github.com/repos/open-eid/digidoc4j/releases?access_token=${TOKEN})
@@ -41,10 +43,15 @@ if ! [[ $RELEASE_ID =~ $re ]] ; then
    echo "error: Not a correct id: $RELEASE_ID" >&2; exit 1
 fi
 
+echo "Uploading assets for release ${RELEASE_ID}... "
 UPLOAD_URL="https://uploads.github.com/repos/open-eid/digidoc4j/releases/${RELEASE_ID}/assets"
+
+echo curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-v${VERSION}-beta-javadoc.jar --data-binary @dist/digidoc4j-v${VERSION}.0-beta-javadoc.jar
 
 curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-v${VERSION}-beta-javadoc.jar --data-binary @dist/digidoc4j-v${VERSION}.0-beta-javadoc.jar
 curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-v${VERSION}-beta.jar --data-binary @dist/digidoc4j-v${VERSION}.0-beta.jar
 curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-library-v${VERSION}-beta.zip --data-binary @dist/digidoc4j-library-v${VERSION}.0-beta.zip
 
 popd
+
+echo "Release for GitHub created"

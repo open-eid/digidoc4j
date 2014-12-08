@@ -10,21 +10,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="hamcrest-core-1.3" level="project" />
     <orderEntry type="module" module-name="dss-spi" />
     <orderEntry type="module" module-name="dss-document" />
     <orderEntry type="module" module-name="dss-service" />
-    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.6.6" level="project" />
-    <orderEntry type="library" name="Maven: org.mockito:mockito-all:1.9.5" level="project" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/commons-codec-1.6.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -51,28 +39,56 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="library" name="Maven: org.mockito:mockito-all:1.9.5" level="project" />
-    <orderEntry type="library" name="commons-compress-1.3" level="project" />
-    <orderEntry type="library" name="testcerts" level="project" />
+    <orderEntry type="library" name="activation-1.1.1" level="project" />
+    <orderEntry type="library" name="api-ldap-client-api-1.0.0-M26" level="project" />
+    <orderEntry type="library" name="api-ldap-model-1.0.0-M26" level="project" />
+    <orderEntry type="library" name="asm-5.0.3" level="project" />
+    <orderEntry type="library" name="bcmail-jdk15on-1.51" level="project" />
+    <orderEntry type="library" name="bcpkix-jdk15on-1.51" level="project" />
+    <orderEntry type="library" name="bcprov-jdk15on-1.51" level="project" />
+    <orderEntry type="library" name="commons-cli-1.2" level="project" />
+    <orderEntry type="library" name="commons-codec-1.10" level="project" />
+    <orderEntry type="library" name="commons-dbcp2-2.0.1" level="project" />
     <orderEntry type="library" name="commons-io-2.4" level="project" />
-    <orderEntry type="library" name="xmlunit:xmlunit:1.5" level="project" />
-    <orderEntry type="library" name="commons-cli:commons-cli:1.2" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.3.4" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.3.2" level="project" />
-    <orderEntry type="library" name="log4j-1.2.12" level="project" />
-    <orderEntry type="library" name="system-rules-1.5.0" level="project" />
-    <orderEntry type="library" name="org.codehaus.janino:com.springsource.org.codehaus.janino:2.6.1" level="project" />
-    <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.0.13" level="project" />
-    <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.0.13" level="project" />
-    <orderEntry type="library" name="org.yaml:snakeyaml:1.13" level="project" />
-    <orderEntry type="library" name="Maven: org.bouncycastle:bcmail-jdk15on:1.51" level="project" />
-    <orderEntry type="library" name="Maven: org.bouncycastle:bcpkix-jdk15on:1.51" level="project" />
-    <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.51" level="project" />
+    <orderEntry type="library" name="commons-lang-2.6" level="project" />
+    <orderEntry type="library" name="commons-pool2-2.2" level="project" />
+    <orderEntry type="library" name="fest-assert-1.4" level="project" />
+    <orderEntry type="library" name="fest-util-1.2.5" level="project" />
+    <orderEntry type="library" name="fontbox-0.1.0" level="project" />
+    <orderEntry type="library" name="hamcrest-core-1.3" level="project" />
+    <orderEntry type="library" name="hamcrest-library-1.3" level="project" />
+    <orderEntry type="library" name="hsqldb-1.8.0.10" level="project" />
+    <orderEntry type="library" name="jaxb-api-2.1" level="project" />
+    <orderEntry type="library" name="jaxb-impl-2.1.17" level="project" />
+    <orderEntry type="library" name="jcl-over-slf4j-1.7.7" level="project" />
+    <orderEntry type="library" name="jempbox-1.8.7" level="project" />
     <orderEntry type="library" name="jdigidoc-3.10.1424.BETA" level="project" />
-    <orderEntry type="library" name="org.apache.santuario:xmlsec:2.0.2" level="project" />
-    <orderEntry type="library" name="org.codehaus.janino:com.springsource.org.codehaus.janino:2.6.11" level="project" />
+    <orderEntry type="library" name="jacocoagent" level="project" />
+    <orderEntry type="library" name="log4j-1.2.17" level="project" />
+    <orderEntry type="library" name="mina-core-2.0.9" level="project" />
+    <orderEntry type="library" name="mockito-all-1.10.8" level="project" />
+    <orderEntry type="library" name="pdfbox-1.8.7" level="project" />
+    <orderEntry type="library" name="serializer-2.7.2" level="project" />
     <orderEntry type="library" name="slf4j-api-1.7.7" level="project" />
-    <orderEntry type="library" name="dss-spi-4.3.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="snakeyaml-1.14" level="project" />
+    <orderEntry type="library" name="stax2-api-3.1.4" level="project" />
+    <orderEntry type="library" name="stax-api-1.0.1" level="project" />
+    <orderEntry type="library" name="woodstox-core-asl-4.4.1" level="project" />
+    <orderEntry type="library" name="xalan-2.7.2" level="project" />
+    <orderEntry type="library" name="xercesImpl-2.11.0" level="project" />
+    <orderEntry type="library" name="xml-apis-1.4.01" level="project" />
+    <orderEntry type="library" name="xmlsec-2.0.2" level="project" />
+    <orderEntry type="library" name="xmlunit-1.5" level="project" />
+    <orderEntry type="library" name="commons-compiler-2.6.1" level="project" />
+    <orderEntry type="library" name="commons-compress-1.3" level="project" />
+    <orderEntry type="library" name="commons-logging-1.1.3" level="project" />
+    <orderEntry type="library" name="system-rules-1.5.0" level="project" />
+    <orderEntry type="library" name="janino-2.6.1" level="project" />
+    <orderEntry type="library" name="httpclient-4.3.6" level="project" />
+    <orderEntry type="library" name="httpcore-4.3.3" level="project" />
+    <orderEntry type="library" name="junit-4.11-javadoc" level="project" />
+    <orderEntry type="library" name="logback-classic-1.1.2" level="project" />
+    <orderEntry type="library" name="logback-core-1.1.2" level="project" />
   </component>
 </module>
 

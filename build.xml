@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:jacoco="antlib:org.jacoco.ant"
+<project xmlns:jacoco="antlib:org.jacoco.ant" xmlns:ivy="antlib:org.apache.ivy.ant"
          name="digidoc4j builder" basedir="."
          default="base">
 
@@ -8,6 +8,7 @@
   <property name="junit.dir" value="junit_report"/>
   <property name="coverage.dir" value="coverage"/>
   <property name="dist.dir" value="dist"/>
+  <property name="packaging.lib" value="packaging_jar"/>
   <!--<property name="version" value="0.0.0"/>-->
 
   <target name="version">
@@ -50,13 +51,13 @@
       </packageset>
     </javadoc>
     <jar destfile="${dist.dir}/digidoc4j-${lib.version}${version.suffix}-javadoc.jar" basedir="javadoc"/>
-	<mkdir dir="javadoc/doc-files"/>
-	<copy todir="javadoc/doc-files">
+    <mkdir dir="javadoc/doc-files"/>
+    <copy todir="javadoc/doc-files">
       <fileset dir="doc/images"/>
     </copy>
   </target>
 
-  <target name="compile">
+  <target name="compile" depends="ivy">
     <mkdir dir="${build.dir}"/>
     <copy todir="${build.dir}">
       <fileset dir="resources"/>
@@ -84,17 +85,20 @@
   </target>
 
   <target name="library">
+    <ivy:retrieve transitive="false" conf="runtime" sync="true" pattern="${packaging.lib}/[artifact].[ext]"/>
     <zip destfile="${dist.dir}/digidoc4j-library-${lib.version}${version.suffix}.zip">
-      <zipfileset dir="lib" includes="*.jar" excludes="*-source.jar *-sources.jar *-javadoc.jar"/>
+      <zipfileset dir="${packaging.lib}" includes="*.jar"/>
+      <zipfileset dir="lib" includes="**/dss*.jar **/jdigidoc*.jar"/>
     </zip>
   </target>
 
-  <target name="utility" depends="compile">
+  <target name="utility">
+    <ivy:retrieve transitive="false" conf="runtime" sync="true" pattern="${packaging.lib}/[artifact].[ext]"/>
     <mkdir dir="${build.dir}/util"/>
     <jar jarfile="${build.dir}/util/temp.jar">
+      <zipgroupfileset dir="lib" includes="**/dss*.jar **/jdigidoc*.jar"/>
+      <zipgroupfileset dir="${packaging.lib}" includes="**/*.jar" excludes="bcprov-*.jar"/>
       <zipgroupfileset dir="dist" includes="**/digidoc4j-*.jar" excludes="*-javadoc.jar *-sources.jar"/>
-      <zipgroupfileset dir="lib" includes="**/*.jar"
-                       excludes="*-source.jar *-sources.jar *-javadoc.jar bcprov-*.jar jacoco*.jar mockito*.jar"/>
     </jar>
 
     <jar destfile="${build.dir}/util/digidoc4j-util.jar">
@@ -105,12 +109,12 @@
         <attribute name="Implementation-Title" value="Java BDoc/DigiDoc utility"/>
         <attribute name="Implementation-Version" value="${lib.version}"/>
         <attribute name="Main-Class" value="org.digidoc4j.main.DigiDoc4J"/>
-        <attribute name="Class-Path" value="./ ./bcprov-jdk15on-151.jar"/>
+        <attribute name="Class-Path" value=". ./bcprov-jdk15on.jar"/>
       </manifest>
     </jar>
     <delete file="${build.dir}/util/temp.jar"/>
     <copy todir="${build.dir}/util">
-      <fileset dir="lib" includes="**/bcprov-*.jar"/>
+      <fileset dir="${packaging.lib}" includes="**/bcprov-*.jar"/>
       <fileset dir="." includes="log4j.for.util.properties"/>
     </copy>
     <move file="${build.dir}/util/log4j.for.util.properties" tofile="${build.dir}/util/log4j.properties"/>
@@ -124,7 +128,7 @@
   </target>
 
   <target name="copy.dss.library">
-  <copy todir="lib">
+    <copy todir="lib">
       <fileset dir="sd-dss/apps/dss/core/dss-common/target" includes="dss-common*.jar" excludes="*-sources.jar "/>
       <fileset dir="sd-dss/apps/dss/core/dss-document/target" includes="dss-document*.jar" excludes="*-sources.jar "/>
       <fileset dir="sd-dss/apps/dss/core/dss-service/target" includes="dss-service*.jar" excludes="*-sources.jar "/>
@@ -132,7 +136,7 @@
     </copy>
   </target>
 
-  <target name="base" depends="version, clean, javadoc, source, compile, utility, library"/>
+  <target name="base" depends="version, clean, source, compile, utility, library"/>
 
   <target name="make.utility" depends="version, clean, copy.dss.library, compile, utility"/>
 
@@ -159,6 +163,20 @@
       </fileset>
       <report format="noframes" todir="${junit.dir}/html"/>
     </junitreport>
+  </target>
+
+  <target name="runtest">
+    <junit fork="true">
+      <classpath refid="javac.classpath"/>
+      <classpath>
+        <pathelement location="build"/>
+      </classpath>
+      <batchtest>
+        <fileset dir="${build.dir}" includes="**/*Test.class"/>
+      </batchtest>
+      <formatter type="brief" usefile="false"/>
+      <formatter type="xml"/>
+    </junit>
   </target>
 
   <target name="coverage.report">
@@ -194,6 +212,10 @@
       <fileset dir="${dist.dir}"/>
       <fileset dir="javadoc"/>
     </delete>
+  </target>
+
+  <target name="ivy" >
+    <ivy:retrieve transitive="false" conf="compile"/>
   </target>
 
 </project>
