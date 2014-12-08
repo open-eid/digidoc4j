@@ -149,7 +149,7 @@
 
   <target name="make.utility" depends="version, clean, copy.dss.library, compile, utility"/>
 
-  <target name="all" depends="copy.dss.library, javadoc, test, coverage.report"/>
+  <target name="all" depends="copy.dss.library, test, javadoc, coverage.report"/>
 
   <target name="test" depends="base">
     <mkdir dir="${junit.dir}"/>
