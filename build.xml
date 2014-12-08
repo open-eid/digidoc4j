@@ -9,6 +9,15 @@
   <property name="coverage.dir" value="coverage"/>
   <property name="dist.dir" value="dist"/>
   <property name="packaging.lib" value="packaging_jar"/>
+
+  <property name="ivy.install.version" value="2.1.0" />
+  <condition property="ivy.home" value="${env.IVY_HOME}">
+    <isset property="env.IVY_HOME" />
+  </condition>
+  <property name="ivy.home" value="${user.home}/.ant" />
+  <property name="ivy.jar.dir" value="${ivy.home}/lib" />
+  <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+
   <!--<property name="version" value="0.0.0"/>-->
 
   <target name="version">
@@ -57,7 +66,7 @@
     </copy>
   </target>
 
-  <target name="compile" depends="ivy">
+  <target name="compile" depends="load-dependencies">
     <mkdir dir="${build.dir}"/>
     <copy todir="${build.dir}">
       <fileset dir="resources"/>
@@ -84,7 +93,7 @@
     </jar>
   </target>
 
-  <target name="library">
+  <target name="library" depends="init-ivy">
     <ivy:retrieve transitive="false" conf="runtime" sync="true" pattern="${packaging.lib}/[artifact].[ext]"/>
     <zip destfile="${dist.dir}/digidoc4j-library-${lib.version}${version.suffix}.zip">
       <zipfileset dir="${packaging.lib}" includes="*.jar"/>
@@ -92,7 +101,7 @@
     </zip>
   </target>
 
-  <target name="utility">
+  <target name="utility" depends="init-ivy">
     <ivy:retrieve transitive="false" conf="runtime" sync="true" pattern="${packaging.lib}/[artifact].[ext]"/>
     <mkdir dir="${build.dir}/util"/>
     <jar jarfile="${build.dir}/util/temp.jar">
@@ -214,7 +223,28 @@
     </delete>
   </target>
 
-  <target name="ivy" >
+  <target name="download-ivy" unless="offline">
+
+    <mkdir dir="${ivy.jar.dir}"/>
+    <!-- download Ivy from web site so that it can be used even without any special installation -->
+    <get src="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+         dest="${ivy.jar.file}" usetimestamp="true"/>
+  </target>
+
+  <target name="init-ivy" depends="download-ivy">
+    <!-- try to load ivy here from ivy home, in case the user has not already dropped
+            it into ant's lib dir (note that the latter copy will always take precedence).
+            We will not fail as long as local lib dir exists (it may be empty) and
+            ivy is in at least one of ant's lib dir or the local lib dir. -->
+    <path id="ivy.lib.path">
+      <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+
+    </path>
+    <taskdef resource="org/apache/ivy/ant/antlib.xml"
+             uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+  </target>
+
+  <target name="load-dependencies" depends="init-ivy" >
     <ivy:retrieve transitive="false" conf="compile"/>
   </target>
 
