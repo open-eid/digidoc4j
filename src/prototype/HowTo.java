@@ -18,15 +18,19 @@ import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
 import eu.europa.ec.markt.dss.validation102853.ocsp.OnlineOCSPSource;
 import eu.europa.ec.markt.dss.validation102853.report.Reports;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.signers.PKCS12Signer;
 
 import java.io.File;
 
+import static org.digidoc4j.Configuration.Mode.TEST;
+import static org.digidoc4j.Container.SignatureProfile.*;
+
 public class HowTo {
   public static void main(String[] args) {
-    validate();
+    test();
   }
 
   private static void test() {
@@ -35,7 +39,8 @@ public class HowTo {
 //    configuration.setOCSPAccessCertificatePassword("0vRsI0XQ".toCharArray());
 //    configuration.setValidationPolicy("conf/test_constraint.xml");
 
-    Container container = Container.create();
+    Container container = Container.create(new Configuration(TEST));
+    container.setSignatureProfile(LT_TM);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
 

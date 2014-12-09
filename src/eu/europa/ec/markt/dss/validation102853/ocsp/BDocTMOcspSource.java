@@ -43,7 +43,7 @@ public class BDocTMOcspSource extends SKOnlineOCSPSource {
 
   private DERSequence createNoceAsn1Sequence() {
     ASN1Object nonceComponents[] = new ASN1Object[2];
-    nonceComponents[0] = new DefaultDigestAlgorithmIdentifierFinder().find("SHA-256").getAlgorithm();
+    nonceComponents[0] = new DefaultDigestAlgorithmIdentifierFinder().find("SHA-256");
     nonceComponents[1] = new DEROctetString(digest(DigestAlgorithm.SHA256, signature));
     return new DERSequence(nonceComponents);
   }

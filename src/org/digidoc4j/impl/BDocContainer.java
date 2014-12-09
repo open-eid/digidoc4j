@@ -38,6 +38,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
@@ -51,6 +53,8 @@ import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
 import static eu.europa.ec.markt.dss.signature.SignatureLevel.*;
 import static eu.europa.ec.markt.dss.signature.SignaturePackaging.DETACHED;
 import static eu.europa.ec.markt.dss.validation102853.SignatureForm.XAdES;
+import static java.util.Arrays.asList;
+import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.digidoc4j.Container.SignatureProfile.LT;
 
@@ -146,6 +150,20 @@ public class BDocContainer extends Container {
     commonCertificateVerifier = new SKCommonCertificateVerifier();
     commonCertificateVerifier.setCrlSource(null);
     asicService = new ASiCService(commonCertificateVerifier);
+  }
+
+  private void addSignaturePolicy() {
+    BLevelParameters.Policy signaturePolicy = new BLevelParameters.Policy();
+    signaturePolicy.setId("urn:oid:1.3.6.1.4.1.10015.1000.3.2.1");
+    signaturePolicy.setDigestValue(decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));
+    signaturePolicy.setDigestAlgorithm(SHA256);
+    try {
+      URI uri = new URI("https://www.sk.ee/repository/bdoc-spec21.pdf");
+      List<URI> qualifiers = asList(uri);
+      signaturePolicy.setSigPolicyQualifiers(qualifiers);
+    } catch (URISyntaxException ignore) {
+    }
+    dssSignatureParameters.bLevel().setSignaturePolicy(signaturePolicy);
   }
 
   /**
@@ -514,6 +532,9 @@ public class BDocContainer extends Container {
   @Override
   public Signature signRaw(byte[] rawSignature) {
     logger.debug("");
+
+    if (isTimeMark)
+      addSignaturePolicy();
 
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
     SKOnlineOCSPSource ocspSource = getOcspSource(rawSignature);
