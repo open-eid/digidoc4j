@@ -518,6 +518,9 @@ public class BDocContainer extends Container {
   }
 
   private byte[] getDataToSign(String setSignatureId, X509Certificate signerCertificate) {
+    if (isTimeMark)
+      addSignaturePolicy();
+
     dssSignatureParameters.clearCertificateChain();
     dssSignatureParameters.setDeterministicId(setSignatureId);
     dssSignatureParameters.aSiC().setSignatureFileName("signatures" + signatures.size() + ".xml");
@@ -532,9 +535,6 @@ public class BDocContainer extends Container {
   @Override
   public Signature signRaw(byte[] rawSignature) {
     logger.debug("");
-
-    if (isTimeMark)
-      addSignaturePolicy();
 
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
     SKOnlineOCSPSource ocspSource = getOcspSource(rawSignature);
