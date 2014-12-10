@@ -32,7 +32,7 @@ public class BDocTMOcspSource extends SKOnlineOCSPSource {
     final Extension extension;
 
     try {
-      extension = new Extension(id_pkix_ocsp_nonce, true, createNoceAsn1Sequence().getEncoded());
+      extension = new Extension(id_pkix_ocsp_nonce, true, createNonceAsn1Sequence().getEncoded());
       final Extensions extensions = new Extensions(extension);
       ocspReqBuilder.setRequestExtensions(extensions);
     } catch (IOException e) {
@@ -41,7 +41,7 @@ public class BDocTMOcspSource extends SKOnlineOCSPSource {
     }
   }
 
-  private DERSequence createNoceAsn1Sequence() {
+  private DERSequence createNonceAsn1Sequence() {
     ASN1Object nonceComponents[] = new ASN1Object[2];
     nonceComponents[0] = new DefaultDigestAlgorithmIdentifierFinder().find("SHA-256");
     nonceComponents[1] = new DEROctetString(digest(DigestAlgorithm.SHA256, signature));
