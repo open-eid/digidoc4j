@@ -56,6 +56,7 @@ public class ValidationResultForBDoc implements ValidationResult {
     do {
       SimpleReport simpleReport = report.getSimpleReport();
 
+      //check with several signatures as well in one signature file (in estonia wea are not producing such signatures)
       String signatureId = simpleReport.getSignatureIds().get(0);
 
       List<Conclusion.BasicInfo> results = simpleReport.getErrors(signatureId);
