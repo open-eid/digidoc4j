@@ -16,6 +16,7 @@ import eu.europa.ec.markt.dss.parameter.BLevelParameters;
 import eu.europa.ec.markt.dss.signature.*;
 import eu.europa.ec.markt.dss.signature.asic.ASiCService;
 import eu.europa.ec.markt.dss.validation102853.AdvancedSignature;
+import eu.europa.ec.markt.dss.validation102853.SignaturePolicy;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCContainerValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
@@ -62,7 +63,7 @@ import static org.digidoc4j.Container.SignatureProfile.LT;
  * BDOC container implementation
  */
 public class BDocContainer extends Container {
-
+  private static final String TM_POLICY = "urn:oid:1.3.6.1.4.1.10015.1000.3.2.1";
   final Logger logger = LoggerFactory.getLogger(BDocContainer.class);
 
   private final Map<String, DataFile> dataFiles = new HashMap<>();
@@ -307,7 +308,7 @@ public class BDocContainer extends Container {
 
     List<DigiDoc4JException> validationErrors;
     for (AdvancedSignature advancedSignature : signatureList) {
-      validationErrors = new ArrayList<>();
+      validationErrors = validatePolicy(advancedSignature);
       String reportSignatureId = advancedSignature.getId();
       SimpleReport simpleReport = getSimpleReport(simpleReports, reportSignatureId);
       if (simpleReport != null) {
@@ -319,6 +320,18 @@ public class BDocContainer extends Container {
       }
       signatures.add(new BDocSignature((XAdESSignature) advancedSignature, validationErrors));
     }
+  }
+
+  private List<DigiDoc4JException> validatePolicy(AdvancedSignature advancedSignature) {
+    ArrayList validationErrors = new ArrayList<>();
+    SignaturePolicy policy = advancedSignature.getPolicyId();
+    if (policy != null) {
+      String policyIdentifier = policy.getIdentifier().trim();
+      if (!TM_POLICY.equals(policyIdentifier))
+        validationErrors.add(new DigiDoc4JException("Wrong policy identifier: " + policyIdentifier));
+    }
+
+    return validationErrors;
   }
 
   private SimpleReport getSimpleReport(Map<String, SimpleReport> simpleReports, String fromSignatureId) {
