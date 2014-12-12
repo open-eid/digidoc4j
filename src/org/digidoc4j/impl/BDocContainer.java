@@ -29,6 +29,7 @@ import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
+import eu.europa.ec.markt.dss.validation102853.xades.XPathQueryHolder;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.*;
@@ -56,6 +57,7 @@ import static eu.europa.ec.markt.dss.signature.SignaturePackaging.DETACHED;
 import static eu.europa.ec.markt.dss.validation102853.SignatureForm.XAdES;
 import static java.util.Arrays.asList;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.digidoc4j.Container.SignatureProfile.LT;
 
@@ -64,6 +66,7 @@ import static org.digidoc4j.Container.SignatureProfile.LT;
  */
 public class BDocContainer extends Container {
   private static final String TM_POLICY = "urn:oid:1.3.6.1.4.1.10015.1000.3.2.1";
+  private static final String OIDAS_URN = "OIDAsURN";
   final Logger logger = LoggerFactory.getLogger(BDocContainer.class);
 
   private final Map<String, DataFile> dataFiles = new HashMap<>();
@@ -323,12 +326,29 @@ public class BDocContainer extends Container {
   }
 
   private List<DigiDoc4JException> validatePolicy(AdvancedSignature advancedSignature) {
+
     ArrayList validationErrors = new ArrayList<>();
     SignaturePolicy policy = advancedSignature.getPolicyId();
     if (policy != null) {
       String policyIdentifier = policy.getIdentifier().trim();
-      if (!TM_POLICY.equals(policyIdentifier))
+      if (!TM_POLICY.equals(policyIdentifier)) {
         validationErrors.add(new DigiDoc4JException("Wrong policy identifier: " + policyIdentifier));
+        return validationErrors;
+      }
+      if (isBlank(policy.getUrl()))
+        validationErrors.add(new DigiDoc4JException("Policy url is missing for identifier: " + policyIdentifier));
+
+
+      XPathQueryHolder xPathQueryHolder = ((XAdESSignature) advancedSignature).getXPathQueryHolder();
+      Element signatureElement = ((XAdESSignature) advancedSignature).getSignatureElement();
+      Element element = DSSXMLUtils.getElement(signatureElement, xPathQueryHolder.XPATH_SIGNATURE_POLICY_IDENTIFIER);
+      Element identifier = DSSXMLUtils.getElement(element,
+          "./xades:SignaturePolicyId/xades:SigPolicyId/xades:Identifier");
+      if (!OIDAS_URN.equals(identifier.getAttribute("Qualifier"))) {
+        validationErrors.add(new DigiDoc4JException("Wrong policy identifier qualifier: "
+            + identifier.getAttribute("Qualifier")));
+      }
+
     }
 
     return validationErrors;

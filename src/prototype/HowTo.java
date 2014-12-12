@@ -25,9 +25,6 @@ import org.digidoc4j.signers.PKCS12Signer;
 
 import java.io.File;
 
-import static org.digidoc4j.Configuration.Mode.TEST;
-import static org.digidoc4j.Container.SignatureProfile.*;
-
 public class HowTo {
   public static void main(String[] args) {
     test();
@@ -39,14 +36,15 @@ public class HowTo {
 //    configuration.setOCSPAccessCertificatePassword("0vRsI0XQ".toCharArray());
 //    configuration.setValidationPolicy("conf/test_constraint.xml");
 
-    Container container = Container.create(new Configuration(TEST));
-    container.setSignatureProfile(LT_TM);
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
-
+//    Container container = Container.create(new Configuration(Configuration.Mode.TEST));
+//    container.setSignatureProfile(Container.SignatureProfile.LT_TM);
+//    container.addDataFile("testFiles/test.txt", "text/plain");
+//    container.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
+    Container container = Container.open("util/faulty/bdoc21-bad-nonce-content.bdoc");
+//    container.save("profiling.bdoc");
     ValidationResult result = container.validate();
-    container.save("profiling.bdoc");
-
+    System.out.println(result.getErrors());
+    System.out.println(result.getReport());
 //    Container container = Container.open("BDOC_2.1_TS.bdoc", configuration);
 //    container.extendTo(Container.SignatureProfile.TSA);
 //    container.save("BDOC_2.1_TSA.bdoc");
