@@ -758,6 +758,16 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     new BDocContainer("testFiles/incorrectMimetype.bdoc");
   }
 
+  @Test
+  public void nonStandardMimeType() {
+    Container container = Container.create(DocumentType.BDOC);
+    container.addDataFile("testFiles/test.txt", "text/newtype");
+    container.sign(PKCS12_SIGNER);
+    container.save("testNonStandardMimeType.bdoc");
+    ValidationResult result = container.validate();
+    assertEquals(0, result.getErrors().size());
+  }
+
   @Test(expected = DigiDoc4JException.class)
   public void signingThrowsNormalDSSException() {
     MockBDocContainer container = new MockBDocContainer("Normal DSS Exception");
@@ -1369,8 +1379,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     List<DigiDoc4JException> errors = container.validate().getErrors();
 
     assertEquals("ASiC_E_BASELINE_LT", container.getSignatureProfile());
-    assertEquals(1, errors.size());
-    assertTrue(errors.get(0).toString().contains("No revocation data for the certificate"));
+    assertEquals(3, errors.size());
+    assertTrue(errors.get(2).toString().contains("No revocation data for the certificate"));
   }
 
   @Test(expected = DigiDoc4JException.class)

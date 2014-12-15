@@ -149,7 +149,7 @@ public class ConfigurationTest {
     addFromFileToTSLCertificate("testFiles/ESTEID-SK_2011.pem.crt");
     addFromFileToTSLCertificate("testFiles/SK_OCSP_RESPONDER_2011.pem.cer");
 
-    BDocContainer container = new BDocContainer("testFiles/test_added_tsl.asice", configuration);
+    BDocContainer container = new BDocContainer("testFiles/test.asice", configuration);
     ValidationResult verify = container.verify();
     assertTrue(verify.isValid());
   }
