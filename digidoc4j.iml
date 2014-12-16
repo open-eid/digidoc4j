@@ -89,6 +89,6 @@
     <orderEntry type="library" name="junit-4.11-javadoc" level="project" />
     <orderEntry type="library" name="logback-classic-1.1.2" level="project" />
     <orderEntry type="library" name="logback-core-1.1.2" level="project" />
+    <orderEntry type="library" name="testcerts" level="project" />
   </component>
 </module>
-
