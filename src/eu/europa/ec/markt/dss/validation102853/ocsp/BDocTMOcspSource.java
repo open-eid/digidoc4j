@@ -32,7 +32,7 @@ public class BDocTMOcspSource extends SKOnlineOCSPSource {
     final Extension extension;
 
     try {
-      extension = new Extension(id_pkix_ocsp_nonce, true, createNonceAsn1Sequence().getEncoded());
+      extension = new Extension(id_pkix_ocsp_nonce, false, createNonceAsn1Sequence().getEncoded());
       final Extensions extensions = new Extensions(extension);
       ocspReqBuilder.setRequestExtensions(extensions);
     } catch (IOException e) {
