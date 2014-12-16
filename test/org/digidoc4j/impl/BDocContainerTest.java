@@ -1276,6 +1276,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void manifestFileContainsIncorrectFileName() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setValidationPolicy("conf/test_constraint.xml");
     Container container = Container.open("testFiles/filename_mismatch_manifest.asice", configuration);
     ValidationResult validate = container.validate();
     assertEquals(2, validate.getErrors().size());
@@ -1289,6 +1290,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   public void revocationAndTimeStampDifferenceTooLarge() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setValidationPolicy("conf/test_constraint.xml");
     Container container = Container.open("testFiles/revocation_timestamp_delta_26h.asice", configuration);
     ValidationResult validate = container.validate();
     assertEquals(1, validate.getErrors().size());
@@ -1309,6 +1311,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void signatureFileAndManifestFileContainDifferentMimeTypeForFile() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setValidationPolicy("conf/test_constraint.xml");
     Container container = Container.open("testFiles/mimetype_mismatch.asice", configuration);
     ValidationResult validate = container.validate();
     assertEquals(2, validate.getErrors().size());
@@ -1354,6 +1357,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void containerHasFileWhichIsNotInManifestAndNotInSignatureFile() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setValidationPolicy("conf/test_constraint.xml");
     Container container = Container.open("testFiles/extra_file_in_container.asice", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();

@@ -18,12 +18,13 @@ import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
 import eu.europa.ec.markt.dss.validation102853.ocsp.OnlineOCSPSource;
 import eu.europa.ec.markt.dss.validation102853.report.Reports;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
-import org.digidoc4j.Configuration;
-import org.digidoc4j.Container;
-import org.digidoc4j.ValidationResult;
+import org.digidoc4j.*;
+import org.digidoc4j.Container.SignatureProfile;
 import org.digidoc4j.signers.PKCS12Signer;
 
 import java.io.File;
+
+import static java.util.Arrays.asList;
 
 public class HowTo {
   public static void main(String[] args) {
@@ -36,14 +37,20 @@ public class HowTo {
 //    configuration.setOCSPAccessCertificatePassword("0vRsI0XQ".toCharArray());
 //    configuration.setValidationPolicy("conf/test_constraint.xml");
 
-//    Container container = Container.create(new Configuration(Configuration.Mode.TEST));
-//    container.setSignatureProfile(Container.SignatureProfile.LT_TM);
-//    container.addDataFile("testFiles/test.txt", "text/plain");
-//    container.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
-    Container container = Container.open("util/faulty/bdoc21-bad-nonce-content.bdoc");
-//    container.save("profiling.bdoc");
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    Container container = Container.create(configuration);
+    SignatureParameters signatureParameters = new SignatureParameters();
+    SignatureProductionPlace productionPlace = new SignatureProductionPlace();
+    productionPlace.setCity("Nõmme");
+    signatureParameters.setProductionPlace(productionPlace);
+    signatureParameters.setRoles(asList("manakeri"));
+    container.setSignatureParameters(signatureParameters);
+    container.setSignatureProfile(SignatureProfile.LT_TM);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
+//    Container container = Container.open("util/faulty/bdoc21-bad-nonce-content.bdoc");
+    container.save("prototype.bdoc");
     ValidationResult result = container.validate();
-    System.out.println(result.getErrors());
     System.out.println(result.getReport());
 //    Container container = Container.open("BDOC_2.1_TS.bdoc", configuration);
 //    container.extendTo(Container.SignatureProfile.TSA);
