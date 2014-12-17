@@ -1394,15 +1394,71 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container.open("testFiles/corrupted_ocsp_data.asice");
   }
 
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void invalidNoncePolicyOid() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");
 
-    Container container = Container.open("util/faulty/23608_bdoc21-invalid-nonce-policy-oid.bdoc", configuration);
+    Container container = Container.open("testFiles/23608_bdoc21-invalid-nonce-policy-oid.bdoc", configuration);
     ValidationResult result = container.validate();
-    assertEquals(1, result.getErrors().size());
+    List<DigiDoc4JException> errors = result.getErrors();
+    assertEquals(1, errors.size());
+    assertEquals("Wrong policy identifier: urn:oid:1.3.6.1.4.1.10015.1000.3.4.3", errors.get(0).toString());
+  }
 
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
+  public void noNoncePolicy() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setValidationPolicy("conf/test_constraint.xml");
+
+    Container container = Container.open("testFiles/23608_bdoc21-no-nonce-policy.bdoc", configuration);
+    ValidationResult result = container.validate();
+    List<DigiDoc4JException> errors = result.getErrors();
+    assertEquals(1, errors.size());
+    assertEquals("Policy url is missing for identifier: urn:oid:1.3.6.1.4.1.10015.1000.3.2.1", errors.get(0).toString());
+  }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
+  public void badNonceContent() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setValidationPolicy("conf/test_constraint.xml");
+
+    Container container = Container.open("testFiles/bdoc21-bad-nonce-content.bdoc", configuration);
+    ValidationResult result = container.validate();
+    List<DigiDoc4JException> errors = result.getErrors();
+    assertEquals(1, errors.size());
+    assertEquals("Nonce is invalid", errors.get(0).toString());
+  }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Ignore // pivotal story 84661974, testfile not in git
+  @Test
+  public void noSignedPropRef() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setValidationPolicy("conf/test_constraint.xml");
+
+    Container container = Container.open("testFiles/bdoc21-no-signedpropref.bdoc", configuration);
+    ValidationResult result = container.validate();
+    List<DigiDoc4JException> errors = result.getErrors();
+    assertEquals(1, errors.size());
+    assertEquals("Error Msg", errors.get(0).toString());
+  }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
+  public void nonceIncorrectContent() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setValidationPolicy("conf/test_constraint.xml");
+
+    Container container = Container.open("testFiles/nonce-vale-sisu.bdoc", configuration);
+    ValidationResult result = container.validate();
+    List<DigiDoc4JException> errors = result.getErrors();
+    assertEquals(3, errors.size());
+    assertEquals("Wrong policy identifier: urn:oid:1.3.6.1.4.1.10015.1000.2.10.10", errors.get(1).toString());
+    assertEquals("Nonce is invalid", errors.get(2).toString());
   }
 
   @Test

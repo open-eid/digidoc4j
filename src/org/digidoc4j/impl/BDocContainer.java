@@ -297,8 +297,8 @@ public class BDocContainer extends Container {
 
     do {
       SimpleReport simpleReport = report.getSimpleReport();
-      if (simpleReport.getSignatureIds().size() > 0)
-        simpleReports.put(simpleReport.getSignatureIds().get(0), simpleReport);
+      if (simpleReport.getSignatureIdList().size() > 0)
+        simpleReports.put(simpleReport.getSignatureIdList().get(0), simpleReport);
       report = report.getNextReports();
     } while (report != null);
     return simpleReports;
@@ -706,7 +706,7 @@ public class BDocContainer extends Container {
       loadSignatures(validator);
     }
     List<String> manifestErrors = new ManifestValidator(validator).validateDocument(signatures);
-    return new ValidationResultForBDoc(report, manifestErrors);
+    return new ValidationResultForBDoc(report, signatures, manifestErrors);
   }
 
   private Reports validate(SignedDocumentValidator validator) {

@@ -14,14 +14,14 @@ import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
 import eu.europa.ec.markt.dss.validation102853.report.Reports;
 import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
+import org.digidoc4j.Signature;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.junit.Test;
 import org.w3c.dom.Element;
 
 import javax.imageio.metadata.IIOMetadataNode;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static java.util.Arrays.asList;
 import static junit.framework.TestCase.*;
@@ -33,7 +33,7 @@ public class ValidationResultForBDocTest {
   @Test
   public void testFromValidatorHasNoErrorsAndNoWarnings() {
     SimpleReport simpleReport = mock(SimpleReport.class);
-    when(simpleReport.getSignatureIds()).thenReturn(asList("S0"));
+    when(simpleReport.getSignatureIdList()).thenReturn(asList("S0"));
     when(simpleReport.getErrors("S0")).thenReturn(new ArrayList<Conclusion.BasicInfo>());
     when(simpleReport.getWarnings("S0")).thenReturn(new ArrayList<Conclusion.BasicInfo>());
 
@@ -46,7 +46,8 @@ public class ValidationResultForBDocTest {
     when(rootElement.getChildNodes()).thenReturn(new IIOMetadataNode());
     when(simpleReport.getRootElement()).thenReturn(rootElement);
 
-    ValidationResultForBDoc result = new ValidationResultForBDoc(report, new ArrayList<String>());
+    ValidationResultForBDoc result = new ValidationResultForBDoc(report, new ArrayList<Signature>(),
+        new ArrayList<String>());
 
     assertFalse(result.hasErrors());
     assertFalse(result.hasWarnings());
@@ -56,9 +57,7 @@ public class ValidationResultForBDocTest {
   @Test
   public void testFromValidatorHasErrors() {
     SimpleReport simpleReport = mock(SimpleReport.class);
-    when(simpleReport.getSignatureIds()).thenReturn(asList("S0"));
-    when(simpleReport.getErrors("S0")).thenReturn(asList(new Conclusion.BasicInfo("Error", "Error1"),
-        new Conclusion.BasicInfo("Error", "Error2")));
+    when(simpleReport.getSignatureIdList()).thenReturn(asList("S0"));
     when(simpleReport.getWarnings("S0")).thenReturn(new ArrayList<Conclusion.BasicInfo>());
 
     Reports report = mock(Reports.class);
@@ -70,7 +69,10 @@ public class ValidationResultForBDocTest {
     when(rootElement.getChildNodes()).thenReturn(new IIOMetadataNode());
     when(simpleReport.getRootElement()).thenReturn(rootElement);
 
-    ValidationResult result = new ValidationResultForBDoc(report, new ArrayList<String>());
+    Signature signature = mock(Signature.class);
+    when(signature.validate()).thenReturn(asList(new DigiDoc4JException("Error1"), new DigiDoc4JException("Error2")));
+
+    ValidationResult result = new ValidationResultForBDoc(report, asList(signature), new ArrayList<String>());
 
     List<DigiDoc4JException> errors = result.getErrors();
     List<DigiDoc4JException> warnings = result.getWarnings();
@@ -92,7 +94,7 @@ public class ValidationResultForBDocTest {
   @Test
   public void testFromValidatorHasWarnings() {
     SimpleReport simpleReport = mock(SimpleReport.class);
-    when(simpleReport.getSignatureIds()).thenReturn(asList("S0"));
+    when(simpleReport.getSignatureIdList()).thenReturn(asList("S0"));
     when(simpleReport.getErrors("S0")).thenReturn(new ArrayList<Conclusion.BasicInfo>());
     when(simpleReport.getWarnings("S0")).thenReturn(
         asList(new Conclusion.BasicInfo("Warning", "Warning1"), new Conclusion.BasicInfo("Warning", "Warning2")));
@@ -106,7 +108,8 @@ public class ValidationResultForBDocTest {
     when(rootElement.getChildNodes()).thenReturn(new IIOMetadataNode());
     when(simpleReport.getRootElement()).thenReturn(rootElement);
 
-    ValidationResult result = new ValidationResultForBDoc(report, new ArrayList<String>());
+    ValidationResult result = new ValidationResultForBDoc(report, new ArrayList<Signature>(),
+        new ArrayList<String>());
 
     List<DigiDoc4JException> errors = result.getErrors();
     List<DigiDoc4JException> warnings = result.getWarnings();

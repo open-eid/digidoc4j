@@ -14,6 +14,7 @@ import eu.europa.ec.markt.dss.DSSXMLUtils;
 import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
 import eu.europa.ec.markt.dss.validation102853.report.Reports;
 import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
+import org.digidoc4j.Signature;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
@@ -41,9 +42,10 @@ public class ValidationResultForBDoc implements ValidationResult {
    * Constructor
    *
    * @param report         creates validation result from report
+   * @param signatures     list of signatures
    * @param manifestErrors was there any issues with manifest file
    */
-  public ValidationResultForBDoc(Reports report, List<String> manifestErrors) {
+  public ValidationResultForBDoc(Reports report, List<Signature> signatures, List<String> manifestErrors) {
     logger.debug("");
 
     initializeReportDOM();
@@ -53,19 +55,21 @@ public class ValidationResultForBDoc implements ValidationResult {
     }
     if (manifestValidationExceptions.size() != 0) errors.addAll(manifestValidationExceptions);
 
+    for (Signature signature : signatures) {
+      List<DigiDoc4JException> signatureValidationResult = signature.validate();
+
+      if (signatureValidationResult.size() != 0) {
+        errors.addAll(signatureValidationResult);
+      }
+    }
+
     do {
       SimpleReport simpleReport = report.getSimpleReport();
 
-      //check with several signatures as well in one signature file (in estonia wea are not producing such signatures)
-      String signatureId = simpleReport.getSignatureIds().get(0);
+      //check with several signatures as well in one signature file (in estonia we are not producing such signatures)
+      String signatureId = simpleReport.getSignatureIdList().get(0);
 
-      List<Conclusion.BasicInfo> results = simpleReport.getErrors(signatureId);
-      for (Conclusion.BasicInfo result : results) {
-        String message = result.toString();
-        logger.debug("Validation error: " + message);
-        errors.add(new DigiDoc4JException(message));
-      }
-      results = simpleReport.getWarnings(signatureId);
+      List<Conclusion.BasicInfo> results = simpleReport.getWarnings(signatureId);
       for (Conclusion.BasicInfo result : results) {
         String message = result.toString();
         logger.debug("Validation warning: " + message);
@@ -112,7 +116,7 @@ public class ValidationResultForBDoc implements ValidationResult {
   private void createXMLReport(SimpleReport simpleReport) {
 
     Element signatureValidation = reportDocument.createElement("SignatureValidation");
-    signatureValidation.setAttribute("ID", simpleReport.getSignatureIds().get(0));
+    signatureValidation.setAttribute("ID", simpleReport.getSignatureIdList().get(0));
     reportDocument.getDocumentElement().appendChild(signatureValidation);
 
     Element rootElement = simpleReport.getRootElement();
