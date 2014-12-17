@@ -764,8 +764,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.addDataFile("testFiles/test.txt", "text/newtype");
     container.sign(PKCS12_SIGNER);
     container.save("testNonStandardMimeType.bdoc");
+    container = Container.open("testNonStandardMimeType.bdoc");
     ValidationResult result = container.validate();
     assertEquals(0, result.getErrors().size());
+    assertEquals("text/newtype", container.getDataFile(0).getMediaType());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -1390,6 +1392,17 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test(expected = DigiDoc4JException.class)
   public void corruptedOCSPDataThrowsException() {
     Container.open("testFiles/corrupted_ocsp_data.asice");
+  }
+
+  @Test
+  public void invalidNoncePolicyOid() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setValidationPolicy("conf/test_constraint.xml");
+
+    Container container = Container.open("util/faulty/23608_bdoc21-invalid-nonce-policy-oid.bdoc", configuration);
+    ValidationResult result = container.validate();
+    assertEquals(1, result.getErrors().size());
+
   }
 
   @Test
