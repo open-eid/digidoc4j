@@ -1461,6 +1461,32 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals("Nonce is invalid", errors.get(2).toString());
   }
 
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
+  public void badNoncePolicyOidQualifier() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setValidationPolicy("conf/test_constraint.xml");
+
+    Container container = Container.open("testFiles/SP-03_bdoc21-bad-nonce-policy-oidasuri.bdoc", configuration);
+    ValidationResult result = container.validate();
+    List<DigiDoc4JException> errors = result.getErrors();
+    assertEquals(1, errors.size());
+    assertEquals("Wrong policy identifier qualifier: OIDAsURI", errors.get(0).toString());
+  }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
+  public void noPolicyURI() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setValidationPolicy("conf/test_constraint.xml");
+
+    Container container = Container.open("testFiles/SP-06_bdoc21-no-uri.bdoc", configuration);
+    ValidationResult result = container.validate();
+    List<DigiDoc4JException> errors = result.getErrors();
+    assertEquals(1, errors.size());
+    assertEquals("Policy url is missing for identifier: urn:oid:1.3.6.1.4.1.10015.1000.3.2.1", errors.get(0).toString());
+  }
+
   @Test
   public void testBDocTM() throws Exception {
     BDocContainer container = new BDocContainer();
