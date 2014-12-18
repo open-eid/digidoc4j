@@ -18,12 +18,11 @@
   <property name="ivy.jar.dir" value="${ivy.home}/lib" />
   <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
 
-  <!--<property name="version" value="0.0.0"/>-->
-
+  <!-- needs git client version starting from 2.0 -->
   <target name="version">
     <exec executable="sh" outputproperty="lib.version">
       <arg value="-c"/>
-      <arg value="git tag -l public* | tail -1 | awk -F '-' '{print $2}'"/>
+      <arg value="git tag -l public* --sort=version:refname | tail -1 | awk -F '-' '{print $2}'"/>
       <!--| awk -F '-' '{print $2}'""/>-->
     </exec>
     <echo>Version = ${lib.version}</echo>
