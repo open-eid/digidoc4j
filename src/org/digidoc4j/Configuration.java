@@ -13,6 +13,7 @@ package org.digidoc4j;
 import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
 import eu.europa.ec.markt.dss.validation102853.loader.Protocol;
+import eu.europa.ec.markt.dss.validation102853.tsl.TSLRefreshPolicy;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -680,11 +681,13 @@ public class Configuration implements Serializable {
     }
 
     tslCertificateSource = new TSLCertificateSource();
+    tslCertificateSource.setTslRefreshPolicy(TSLRefreshPolicy.WHEN_NECESSARY);
 
     String tslLocation = getTslLocation();
     if (Protocol.isHttpUrl(tslLocation)) {
       FileCacheDataLoader dataLoader = new FileCacheDataLoader();
       dataLoader.setFileCacheDirectory(TSLCertificateSource.fileCacheDirectory);
+      tslCertificateSource.setTslRefreshPolicy(TSLRefreshPolicy.NEVER);
       tslCertificateSource.setDataLoader(dataLoader);
     } else {
       tslCertificateSource.setDataLoader(new CommonsDataLoader());

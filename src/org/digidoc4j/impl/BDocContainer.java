@@ -327,7 +327,7 @@ public class BDocContainer extends Container {
 
   private List<DigiDoc4JException> validatePolicy(AdvancedSignature advancedSignature) {
 
-    ArrayList validationErrors = new ArrayList<>();
+    ArrayList<DigiDoc4JException> validationErrors = new ArrayList<>();
     SignaturePolicy policy = advancedSignature.getPolicyId();
     if (policy != null) {
       String policyIdentifier = policy.getIdentifier().trim();
