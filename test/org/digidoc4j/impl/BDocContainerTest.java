@@ -16,6 +16,7 @@ import eu.europa.ec.markt.dss.signature.DSSDocument;
 import eu.europa.ec.markt.dss.signature.asic.ASiCService;
 import eu.europa.ec.markt.dss.signature.token.Constants;
 import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
+import eu.europa.ec.markt.dss.validation102853.rules.MessageTag;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.digidoc4j.*;
@@ -1485,6 +1486,17 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
     assertEquals("Policy url is missing for identifier: urn:oid:1.3.6.1.4.1.10015.1000.3.2.1", errors.get(0).toString());
+  }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
+  public void brokenTS() {
+    Container container = Container.open("testFiles/TS_broken_TS.asice");
+    ValidationResult result = container.validate();
+
+    List<DigiDoc4JException> errors = result.getErrors();
+    assertEquals(1, errors.size());
+    assertEquals(MessageTag.ADEST_TSSIG_ANS.getMessage(), errors.get(0).toString());
   }
 
   @Test
