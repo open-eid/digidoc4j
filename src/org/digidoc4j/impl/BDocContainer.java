@@ -569,11 +569,15 @@ public class BDocContainer extends Container {
   public Signature signRaw(byte[] rawSignature) {
     logger.debug("");
 
-    commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
     SKOnlineOCSPSource ocspSource = getOcspSource(rawSignature);
-    ocspSource.setUserAgent(Helper.createUserAgent(this));
+    commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
+    String userAgent = Helper.createUserAgent(this);
+    ocspSource.setUserAgent(userAgent);
+
     commonCertificateVerifier.setOcspSource(ocspSource);
-    asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
+    OnlineTSPSource tspSource = new OnlineTSPSource(getConfiguration().getTspSource());
+    tspSource.setUserAgent(userAgent);
+    asicService.setTspSource(tspSource);
 
     String deterministicId = getDssSignatureParameters().getDeterministicId();
 
@@ -771,11 +775,14 @@ public class BDocContainer extends Container {
     if (signatureLevel == dssSignatureParameters.getSignatureLevel())
       throw new DigiDoc4JException("It is not possible to extend the signature to the same level");
 
-    commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
     SKOnlineOCSPSource ocspSource = getOcspSource(null);
-    ocspSource.setUserAgent(Helper.createUserAgent(this));
+    commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
+    String userAgent = Helper.createUserAgent(this);
+    ocspSource.setUserAgent(userAgent);
     commonCertificateVerifier.setOcspSource(ocspSource);
-    asicService.setTspSource(new OnlineTSPSource(getConfiguration().getTspSource()));
+    OnlineTSPSource tspSource = new OnlineTSPSource(getConfiguration().getTspSource());
+    tspSource.setUserAgent(userAgent);
+    asicService.setTspSource(tspSource);
 
     dssSignatureParameters.setSignatureLevel(signatureLevel);
 
