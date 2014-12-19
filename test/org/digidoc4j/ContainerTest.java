@@ -580,7 +580,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void constructorWithConfigurationParameter() throws Exception {
     Container container = Container.create(new Configuration());
-    junit.framework.Assert.assertEquals(BDOC, container.getDocumentType());
+    assertEquals(BDOC, container.getDocumentType());
   }
 
   @Test
