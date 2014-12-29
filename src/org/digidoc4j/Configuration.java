@@ -10,7 +10,7 @@
 
 package org.digidoc4j;
 
-import eu.europa.ec.markt.dss.exception.DSSNullReturnedException;
+import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
 import eu.europa.ec.markt.dss.validation102853.loader.Protocol;
@@ -660,8 +660,8 @@ public class Configuration implements Serializable {
    * Set the TSL certificate source.
    *
    * @param certificateSource TSL certificate source
-   * When certificateSource equals null then getTSL() will load the TSL according to the TSL location specified .
-   *
+   *                          When certificateSource equals null then getTSL() will load the TSL according to the TSL
+   *                          location specified .
    */
 
   public void setTSL(TSLCertificateSource certificateSource) {
@@ -700,7 +700,7 @@ public class Configuration implements Serializable {
 
     try {
       tslCertificateSource.init();
-    } catch (DSSNullReturnedException e) {
+    } catch (DSSException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e.getMessage());
     }
