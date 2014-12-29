@@ -10,6 +10,7 @@
 
 package org.digidoc4j;
 
+import eu.europa.ec.markt.dss.exception.DSSNullReturnedException;
 import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
 import eu.europa.ec.markt.dss.validation102853.loader.Protocol;
@@ -696,7 +697,13 @@ public class Configuration implements Serializable {
     tslCertificateSource.setLotlUrl(tslLocation);
 
     tslCertificateSource.setCheckSignature(false);
-    tslCertificateSource.init();
+
+    try {
+      tslCertificateSource.init();
+    } catch (DSSNullReturnedException e) {
+      logger.error(e.getMessage());
+      throw new DigiDoc4JException(e.getMessage());
+    }
 
     return tslCertificateSource;
   }

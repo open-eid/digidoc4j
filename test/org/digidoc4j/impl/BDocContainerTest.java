@@ -632,7 +632,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(tspSource, container.configuration.getTspSource());
   }
 
-
   @Test
   public void TSLIsLoadedAfterSettingNewTSLLocation() {
     Configuration configuration = new Configuration();
@@ -644,6 +643,31 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     configuration.setTslLocation("http://10.0.25.57/tsl/trusted-test-mp.xml");
     container = new BDocContainer(configuration);
     assertNotEquals(6, container.configuration.getTSL().getCertificates().size());
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void TSLFileNotFoundThrowsException() {
+    Configuration configuration = new Configuration();
+    configuration.setTslLocation("file:test-tsl/NotExisting.xml");
+    BDocContainer container = new BDocContainer(configuration);
+    container.configuration.getTSL();
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void TSLConnectionFailureThrowsException() {
+    Configuration configuration = new Configuration();
+    configuration.setTslLocation("http://127.0.0.1/tsl/incorrect.xml");
+    BDocContainer container = new BDocContainer(configuration);
+    container.configuration.getTSL();
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  @Ignore // Not running by default to prevent system admin from getting worried
+  public void TSLConnectionFailureIncorrectFileName() {
+    Configuration configuration = new Configuration();
+    configuration.setTslLocation("http://10.0.25.57/tsl/incorrect.xml");
+    BDocContainer container = new BDocContainer(configuration);
+    container.configuration.getTSL();
   }
 
   @Test
