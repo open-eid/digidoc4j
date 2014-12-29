@@ -149,6 +149,17 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void testAddUnknownFileTypeKeepsMimeType() {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.unknown_type", "text/test_type");
+    container.sign(PKCS12_SIGNER);
+    container.save("test_add_unknown_datafile_type.bdoc");
+
+    Container open = Container.open("test_add_unknown_datafile_type.bdoc");
+    assertEquals(open.getDataFile(0).getMediaType(), "text/test_type");
+  }
+
+  @Test
   public void testSaveBDocDocumentWithTwoSignatures() throws Exception {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
