@@ -41,6 +41,7 @@ public class ManifestValidator {
 
   /**
    * Constructor.
+   *
    * @param validator Validator object
    */
   public ManifestValidator(SignedDocumentValidator validator) {
@@ -58,7 +59,6 @@ public class ManifestValidator {
    * Validate the container.
    *
    * @param signatures list of signatures
-   *
    * @return list of error messages
    */
   public List<String> validateDocument(List<Signature> signatures) {
@@ -125,19 +125,37 @@ public class ManifestValidator {
     one.removeAll(signatureEntries);
     two.removeAll(manifestEntries);
 
-
     for (ManifestEntry manifestEntry : one) {
-      errorMessages.add("Manifest file has an entry for file " + manifestEntry.getFileName() + " with mimetype "
-          + manifestEntry.getMimeType() + " but the signature file for signature " + signatureId + " does not.");
+
+      String fileName = manifestEntry.getFileName();
+      ManifestEntry signatureEntry = signatureEntryForFile(fileName, signatureEntries);
+      if (signatureEntry != null) {
+        errorMessages.add("Manifest file has an entry for file " + fileName + " with mimetype " +
+            manifestEntry.getMimeType() + " but the signature file for signature " + signatureId +
+            " indicates the mimetype is " + signatureEntry.getMimeType());
+        two.remove(signatureEntry);
+      } else {
+        errorMessages.add("Manifest file has an entry for file " + fileName + " with mimetype "
+            + manifestEntry.getMimeType() + " but the signature file for signature " + signatureId +
+            " does not have an entry for this file");
+      }
     }
 
     for (ManifestEntry manifestEntry : two) {
       errorMessages.add("The signature file for signature " + signatureId + " has an entry for file "
           + manifestEntry.getFileName() + " with mimetype " + manifestEntry.getMimeType()
-          + " but the manifest file does not.");
+          + " but the manifest file does not have an entry for this file");
     }
-
     return errorMessages;
+  }
+
+  private static ManifestEntry signatureEntryForFile(String fileName, Set<ManifestEntry> signatureEntries) {
+    for (ManifestEntry signatureEntry : signatureEntries) {
+      if (fileName.equals(signatureEntry.getFileName())) {
+        return signatureEntry;
+      }
+    }
+    return null;
   }
 
   private Set<ManifestEntry> getSignatureEntries(BDocSignature signature) {

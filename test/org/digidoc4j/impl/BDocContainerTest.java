@@ -1349,8 +1349,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     ValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
     assertEquals(3, errors.size());
-    assertEquals("Manifest file has an entry for file test.txt with mimetype text/plain but the signature file" +
-        " for signature S1 does not.", errors.get(0).toString());
+    assertEquals("Manifest file has an entry for file test.txt with mimetype text/plain but the signature file for " +
+        "signature S1 does not have an entry for this file", errors.get(0).toString());
     assertEquals("Container contains a file named test.txt which is not found in the signature file",
         errors.get(1).toString());
     assertEquals("The reference data object(s) is not intact!", errors.get(2).toString());
@@ -1364,10 +1364,11 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = Container.open("testFiles/filename_mismatch_manifest.asice", configuration);
     ValidationResult validate = container.validate();
     assertEquals(2, validate.getErrors().size());
-    assertEquals("Manifest file has an entry for file incorrect.txt with mimetype text/plain" +
-        " but the signature file for signature S0 does not.", validate.getErrors().get(0).toString());
-    assertEquals("The signature file for signature S0 has an entry for file RELEASE-NOTES.txt with mimetype" +
-        " text/plain but the manifest file does not.", validate.getErrors().get(1).toString());
+    assertEquals("Manifest file has an entry for file incorrect.txt with mimetype text/plain but the signature file " +
+        "for signature S0 does not have an entry for this file", validate.getErrors().get(0).toString());
+    assertEquals("The signature file for signature S0 has an entry for file RELEASE-NOTES.txt with mimetype " +
+        "text/plain but the manifest file does not have an entry for this file",
+        validate.getErrors().get(1).toString());
   }
 
   @Test
@@ -1398,11 +1399,9 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     configuration.setValidationPolicy("conf/test_constraint.xml");
     Container container = Container.open("testFiles/mimetype_mismatch.asice", configuration);
     ValidationResult validate = container.validate();
-    assertEquals(2, validate.getErrors().size());
-    assertEquals("Manifest file has an entry for file RELEASE-NOTES.txt with mimetype application/pdf" +
-        " but the signature file for signature S0 does not.", validate.getErrors().get(0).toString());
-    assertEquals("The signature file for signature S0 has an entry for file RELEASE-NOTES.txt with mimetype" +
-        " text/plain but the manifest file does not.", validate.getErrors().get(1).toString());
+    assertEquals(1, validate.getErrors().size());
+    assertEquals("Manifest file has an entry for file RELEASE-NOTES.txt with mimetype application/pdf but the " +
+        "signature file for signature S0 indicates the mimetype is text/plain", validate.getErrors().get(0).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -1467,8 +1466,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     List<DigiDoc4JException> errors = container.validate().getErrors();
 
     assertEquals("ASiC_E_BASELINE_LT", container.getSignatureProfile());
-    assertEquals(3, errors.size());
-    assertTrue(errors.get(2).toString().contains("No revocation data for the certificate"));
+    assertEquals(2, errors.size());
+    assertTrue(errors.get(1).toString().contains("No revocation data for the certificate"));
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -1590,7 +1589,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  @Ignore //TODO Currently BES container validates with an error: revocation data not found
   public void containerWithBESProfileHasNoValidationErrors() throws Exception {
     BDocContainer container = new BDocContainer();
     container.setSignatureProfile(B_BES);
