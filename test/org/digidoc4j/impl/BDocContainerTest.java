@@ -636,7 +636,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void extendToTS() throws Exception {
+  public void extendFromB_BESToTS() throws Exception {
     BDocContainer container = new BDocContainer();
     container.setSignatureProfile(B_BES);
     container.addDataFile("testFiles/test.txt", "text/plain");
@@ -652,6 +652,52 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
     assertEquals(1, container.getSignatures().size());
     assertNotNull(container.getSignature(0).getOCSPCertificate());
+  }
+
+  @Test
+  public void extendFromB_BESToLTA() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.setSignatureProfile(B_BES);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.save("testExtendTo.bdoc");
+
+    assertEquals(1, container.getSignatures().size());
+    assertNull(container.getSignature(0).getOCSPCertificate());
+
+    container = new BDocContainer("testExtendTo.bdoc");
+    container.extendTo(SignatureProfile.LTA);
+    container.save("testExtendToContainsIt.bdoc");
+
+    assertEquals(1, container.getSignatures().size());
+    assertNotNull(container.getSignature(0).getOCSPCertificate());
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void extendFromB_BESToLT_TMThrowsException() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.setSignatureProfile(B_BES);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.extendTo(SignatureProfile.LT_TM);
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void extendFromLTToLT_TMThrowsException() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.setSignatureProfile(LT);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.extendTo(SignatureProfile.LT_TM);
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void extendFromLTAToLT_TMThrowsException() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.setSignatureProfile(LTA);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.extendTo(SignatureProfile.LT_TM);
   }
 
   @Test
@@ -792,7 +838,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void testContainerExtensionToTSA() throws Exception {
+  public void testContainerExtensionFromLTtoLTA() throws Exception {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);

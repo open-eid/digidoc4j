@@ -59,7 +59,7 @@ import static java.util.Arrays.asList;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.digidoc4j.Container.SignatureProfile.LT;
+import static org.digidoc4j.Container.SignatureProfile.*;
 
 /**
  * BDOC container implementation
@@ -817,6 +817,12 @@ public class BDocContainer extends Container {
         extend(ASiC_E_BASELINE_LTA);
         break;
       case LT_TM:
+        SignatureLevel currentSignatureLevel = dssSignatureParameters.getSignatureLevel();
+        if (ASiC_E_BASELINE_LT.equals(currentSignatureLevel) ||ASiC_E_BASELINE_LTA.equals(currentSignatureLevel) ||
+            ASiC_E_BASELINE_B.equals(currentSignatureLevel)) {
+          throw new DigiDoc4JException("It is not possible to extend the signature from " + currentSignatureLevel +
+              " to LT_TM");
+        }
         isTimeMark = true;
         extend(ASiC_E_BASELINE_LT);
         break;
