@@ -68,11 +68,12 @@ public class BDocContainer extends Container {
   private static final String TM_POLICY = "urn:oid:1.3.6.1.4.1.10015.1000.3.2.1";
   private static final String OIDAS_URN = "OIDAsURN";
   private static final String XADES_SIGNED_PROPERTIES = "http://uri.etsi.org/01903#SignedProperties";
+  public static final int ONE_MB_IN_BYTES = 1048576;
+
   final Logger logger = LoggerFactory.getLogger(BDocContainer.class);
 
   private final Map<String, DataFile> dataFiles = new HashMap<>();
   private Map<String, List<DigiDoc4JException>> additionalVerificationErrors = new HashMap<>();
-  public static final int ONE_MB_IN_BYTES = 1048576;
   private SKCommonCertificateVerifier commonCertificateVerifier;
   protected DocumentSignatureService asicService;
   private eu.europa.ec.markt.dss.parameter.SignatureParameters dssSignatureParameters;
