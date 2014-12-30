@@ -153,13 +153,18 @@
 <p>In the following subsections, a sample <a href="http://www.id.ee/public/bdoc-spec212-eng.pdf" target="_blank">BDOC 2.1</a> signature creation use case is implemented with digidoc4j API classes and methods.<br>
   <a href="http://www.oracle.com/technetwork/java/codeconv-138413.html"></a></p>
 <h6>Creating a container</h6>
-<p>You can create a new container with a static <code>create()</code> method of <code>{@link org.digidoc4j.Container Container} </code>class. If container format identificator is not provided as an input parameter for the method then a BDOC 2.1 container is created by default. </p>
+<p>You can create a new container with a static <code>create()</code> method of the <code>{@link org.digidoc4j.Container Container} </code>class. If no container format identificator is provided as input parameter for the method then a BDOC 2.1 container is created by default. </p>
 <code>
 {@link org.digidoc4j.Container Container} <strong>container</strong> = {@link org.digidoc4j.Container#create Container.create}({@link org.digidoc4j.Container.DocumentType Container.DocumentType.BDOC}); </code>
 <h6>Adding data files</h6>
-<p>Next, we add a data file (that is going to be signed) to the container. A data file can be added  by reading it from the file system or from an input stream (needed if the data is already in memory, e.g. read from database). The following example shows the case when the file is read from file system:</p>
+<p>Next, we add a data file (that is going to be signed) to the container. A data file can be added by reading it from the file system or from an input stream (needed if the data is already in memory, e.g. read from database). The following example shows the case when the file is read from file system:</p>
 <code>
 <strong>container</strong>.{@link org.digidoc4j.Container#addDataFile addDataFile}("<strong>&lt;input_file_name_and_path&gt;</strong>", "<strong>&lt;mime_type&gt;</strong>"); 
+</code>
+<h6>Using the time-mark protocol</h6>
+<p>To sign a container using the time-mark protocol you need to set the signature profile accordingly before signing</p>
+<code>
+  <strong>container</strong>.{@link org.digidoc4j.Container#setSignatureProfile setSignatureProfile}({@link org.digidoc4j.Container.SignatureProfile Container.SignatureProfile.LT_TM});
 </code>
 <h6>Adding signatures</h6>
 <p>A signature can be added to the container by determining a class that implements communication with the signature token, i.e. a subclass of <code>{@link org.digidoc4j.Signer Signer}</code>. Currently, a PKCS#12 software token implementation is provided by digidoc4j:</p>
