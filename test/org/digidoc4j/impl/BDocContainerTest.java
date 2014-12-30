@@ -1595,6 +1595,16 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
+  public void invalidNonce() {
+    Container container = Container.open("testFiles/23200_weakdigest-wrong-nonce.asice");
+    ValidationResult result = container.validate();
+    List<DigiDoc4JException> errors = result.getErrors();
+    assertEquals(1, errors.size());
+    assertEquals("Nonce is invalid", errors.get(0).toString());
+  }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
   public void noPolicyURI() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");
