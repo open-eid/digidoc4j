@@ -1543,6 +1543,17 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
+  public void multipleSignedProperties() {
+    Container container = Container.open("testFiles/multiple_signed_properties.asice");
+    ValidationResult result = container.validate();
+    List<DigiDoc4JException> errors = result.getErrors();
+    assertEquals(2, errors.size());
+    assertEquals("The signature is not intact!", errors.get(0).toString());
+    assertEquals("Multiple signed properties", errors.get(1).toString());
+  }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
   public void incorrectSignedPropertiesReference() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");

@@ -334,12 +334,14 @@ public class BDocContainer extends Container {
 
   private DigiDoc4JException validateSignedPropertiesReference(AdvancedSignature advancedSignature) {
     List<Element> signatureReferences = ((XAdESSignature) advancedSignature).getSignatureReferences();
+    int nrOfSignedPropertiesReferences = 0;
     for (Element signatureReference : signatureReferences) {
-      if (XADES_SIGNED_PROPERTIES.equals(signatureReference.getAttribute("Type"))) {
-        return null;
-      }
+      if (XADES_SIGNED_PROPERTIES.equals(signatureReference.getAttribute("Type")))
+        nrOfSignedPropertiesReferences++;
     }
-    String errorMessage = "Signed properties missing";
+    if (nrOfSignedPropertiesReferences == 1) return null;
+    String errorMessage;
+    errorMessage = nrOfSignedPropertiesReferences == 0 ?  "Signed properties missing" : "Multiple signed properties";
     logger.info(errorMessage);
     return (new DigiDoc4JException(errorMessage));
   }
