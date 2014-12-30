@@ -47,7 +47,7 @@ public class ValidationResultForBDocTest {
     when(simpleReport.getRootElement()).thenReturn(rootElement);
 
     ValidationResultForBDoc result = new ValidationResultForBDoc(report, new ArrayList<Signature>(),
-        new ArrayList<String>());
+        new ArrayList<String>(), new HashMap<String, List<DigiDoc4JException>>());
 
     assertFalse(result.hasErrors());
     assertFalse(result.hasWarnings());
@@ -72,7 +72,8 @@ public class ValidationResultForBDocTest {
     Signature signature = mock(Signature.class);
     when(signature.validate()).thenReturn(asList(new DigiDoc4JException("Error1"), new DigiDoc4JException("Error2")));
 
-    ValidationResult result = new ValidationResultForBDoc(report, asList(signature), new ArrayList<String>());
+    ValidationResult result = new ValidationResultForBDoc(report, asList(signature), new ArrayList<String>(),
+        new HashMap<String, List<DigiDoc4JException>>());
 
     List<DigiDoc4JException> errors = result.getErrors();
     List<DigiDoc4JException> warnings = result.getWarnings();
@@ -109,7 +110,7 @@ public class ValidationResultForBDocTest {
     when(simpleReport.getRootElement()).thenReturn(rootElement);
 
     ValidationResult result = new ValidationResultForBDoc(report, new ArrayList<Signature>(),
-        new ArrayList<String>());
+        new ArrayList<String>(), new HashMap<String, List<DigiDoc4JException>>());
 
     List<DigiDoc4JException> errors = result.getErrors();
     List<DigiDoc4JException> warnings = result.getWarnings();

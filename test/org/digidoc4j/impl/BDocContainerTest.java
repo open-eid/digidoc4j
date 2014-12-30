@@ -1515,17 +1515,43 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-  @Ignore // pivotal story 84661974, testfile not in git
   @Test
-  public void noSignedPropRef() {
+  public void noSignedPropRefTM() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");
 
-    Container container = Container.open("testFiles/bdoc21-no-signedpropref.bdoc", configuration);
+    Container container = Container.open("testFiles/REF-03_bdoc21-TM-no-signedpropref.bdoc", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
-    assertEquals("Error Msg", errors.get(0).toString());
+    assertEquals("Signed properties missing", errors.get(0).toString());
+    assertEquals(1, container.getSignatures().get(0).validate().size());
+  }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
+  public void noSignedPropRefTS() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setValidationPolicy("conf/test_constraint.xml");
+
+    Container container = Container.open("testFiles/REF-03_bdoc21-TS-no-signedpropref.asice", configuration);
+    ValidationResult result = container.validate();
+    List<DigiDoc4JException> errors = result.getErrors();
+    assertEquals(1, errors.size());
+    assertEquals("Signed properties missing", errors.get(0).toString());
+  }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  @Test
+  public void incorrectSignedPropertiesReference() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setValidationPolicy("conf/test_constraint.xml");
+
+    Container container = Container.open("testFiles/signed_properties_reference_not_found.asice", configuration);
+    ValidationResult result = container.validate();
+    List<DigiDoc4JException> errors = result.getErrors();
+    assertEquals(1, errors.size());
+    assertEquals("The reference data object(s) not found!", errors.get(0).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -1538,8 +1564,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(3, errors.size());
-    assertEquals("Wrong policy identifier: urn:oid:1.3.6.1.4.1.10015.1000.2.10.10", errors.get(1).toString());
-    assertEquals("Nonce is invalid", errors.get(2).toString());
+    assertEquals("Nonce is invalid", errors.get(1).toString());
+    assertEquals("Wrong policy identifier: urn:oid:1.3.6.1.4.1.10015.1000.2.10.10", errors.get(2).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -1553,6 +1579,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
     assertEquals("Wrong policy identifier qualifier: OIDAsURI", errors.get(0).toString());
+    assertEquals(1, container.getSignatures().get(0).validate().size());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")

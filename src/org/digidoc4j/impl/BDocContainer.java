@@ -67,9 +67,11 @@ import static org.digidoc4j.Container.SignatureProfile.*;
 public class BDocContainer extends Container {
   private static final String TM_POLICY = "urn:oid:1.3.6.1.4.1.10015.1000.3.2.1";
   private static final String OIDAS_URN = "OIDAsURN";
+  private static final String XADES_SIGNED_PROPERTIES = "http://uri.etsi.org/01903#SignedProperties";
   final Logger logger = LoggerFactory.getLogger(BDocContainer.class);
 
   private final Map<String, DataFile> dataFiles = new HashMap<>();
+  private Map<String, List<DigiDoc4JException>> additionalVerificationErrors = new HashMap<>();
   public static final int ONE_MB_IN_BYTES = 1048576;
   private SKCommonCertificateVerifier commonCertificateVerifier;
   protected DocumentSignatureService asicService;
@@ -309,10 +311,14 @@ public class BDocContainer extends Container {
     Map<String, SimpleReport> simpleReports = loadValidationResults(validator);
     List<AdvancedSignature> signatureList = validator.getSignatures();
 
-    List<DigiDoc4JException> validationErrors;
+    additionalVerificationErrors = new HashMap<>();
     for (AdvancedSignature advancedSignature : signatureList) {
-      validationErrors = validatePolicy(advancedSignature);
+      List<DigiDoc4JException> validationErrors = new ArrayList<>();
       String reportSignatureId = advancedSignature.getId();
+      additionalVerificationErrors.put(reportSignatureId, validatePolicy(advancedSignature));
+      DigiDoc4JException referenceError = validateSignedPropertiesReference(advancedSignature);
+      if (referenceError != null)
+        additionalVerificationErrors.get(reportSignatureId).add(referenceError);
       SimpleReport simpleReport = getSimpleReport(simpleReports, reportSignatureId);
       if (simpleReport != null) {
         for (Conclusion.BasicInfo error : simpleReport.getErrors(reportSignatureId)) {
@@ -321,8 +327,21 @@ public class BDocContainer extends Container {
           validationErrors.add(new DigiDoc4JException(errorMessage));
         }
       }
+      validationErrors.addAll(additionalVerificationErrors.get(reportSignatureId));
       signatures.add(new BDocSignature((XAdESSignature) advancedSignature, validationErrors));
     }
+  }
+
+  private DigiDoc4JException validateSignedPropertiesReference(AdvancedSignature advancedSignature) {
+    List<Element> signatureReferences = ((XAdESSignature) advancedSignature).getSignatureReferences();
+    for (Element signatureReference : signatureReferences) {
+      if (XADES_SIGNED_PROPERTIES.equals(signatureReference.getAttribute("Type"))) {
+        return null;
+      }
+    }
+    String errorMessage = "Signed properties missing";
+    logger.info(errorMessage);
+    return (new DigiDoc4JException(errorMessage));
   }
 
   private List<DigiDoc4JException> validatePolicy(AdvancedSignature advancedSignature) {
@@ -710,7 +729,7 @@ public class BDocContainer extends Container {
       loadSignatures(validator);
     }
     List<String> manifestErrors = new ManifestValidator(validator).validateDocument(signatures);
-    return new ValidationResultForBDoc(report, signatures, manifestErrors);
+    return new ValidationResultForBDoc(report, signatures, manifestErrors, additionalVerificationErrors);
   }
 
   private Reports validate(SignedDocumentValidator validator) {
@@ -818,7 +837,7 @@ public class BDocContainer extends Container {
         break;
       case LT_TM:
         SignatureLevel currentSignatureLevel = dssSignatureParameters.getSignatureLevel();
-        if (ASiC_E_BASELINE_LT.equals(currentSignatureLevel) ||ASiC_E_BASELINE_LTA.equals(currentSignatureLevel) ||
+        if (ASiC_E_BASELINE_LT.equals(currentSignatureLevel) || ASiC_E_BASELINE_LTA.equals(currentSignatureLevel) ||
             ASiC_E_BASELINE_B.equals(currentSignatureLevel)) {
           throw new DigiDoc4JException("It is not possible to extend the signature from " + currentSignatureLevel +
               " to LT_TM");

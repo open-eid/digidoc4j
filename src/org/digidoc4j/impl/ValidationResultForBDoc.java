@@ -26,6 +26,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Overview of errors and warnings for BDoc
@@ -41,11 +42,13 @@ public class ValidationResultForBDoc implements ValidationResult {
   /**
    * Constructor
    *
-   * @param report         creates validation result from report
-   * @param signatures     list of signatures
-   * @param manifestErrors was there any issues with manifest file
+   * @param report                       creates validation result from report
+   * @param signatures                   list of signatures
+   * @param manifestErrors               manifest verification errors
+   * @param additionalVerificationErrors digidoc4J additional verification errors
    */
-  public ValidationResultForBDoc(Reports report, List<Signature> signatures, List<String> manifestErrors) {
+  public ValidationResultForBDoc(Reports report, List<Signature> signatures, List<String> manifestErrors,
+                                 Map<String, List<DigiDoc4JException>> additionalVerificationErrors) {
     logger.debug("");
 
     initializeReportDOM();
@@ -76,7 +79,7 @@ public class ValidationResultForBDoc implements ValidationResult {
         warnings.add(new DigiDoc4JException(message));
       }
 
-      createXMLReport(simpleReport);
+      createXMLReport(simpleReport, additionalVerificationErrors.get(signatureId));
       if (logger.isDebugEnabled()) {
         logger.debug(simpleReport.toString());
       }
@@ -113,7 +116,7 @@ public class ValidationResultForBDoc implements ValidationResult {
 
   }
 
-  private void createXMLReport(SimpleReport simpleReport) {
+  private void createXMLReport(SimpleReport simpleReport, List<DigiDoc4JException> additionalErrors) {
 
     Element signatureValidation = reportDocument.createElement("SignatureValidation");
     signatureValidation.setAttribute("ID", simpleReport.getSignatureIdList().get(0));
@@ -125,8 +128,27 @@ public class ValidationResultForBDoc implements ValidationResult {
       Node node = childNodes.item(i);
       removeNamespace(node);
       Node importNode = reportDocument.importNode(node, true);
-
       signatureValidation.appendChild(importNode);
+    }
+    addAdditionalErrors(additionalErrors, signatureValidation);
+  }
+
+  private void addAdditionalErrors(List<DigiDoc4JException> additionalErrors, Element signatureValidation) {
+    if (additionalErrors != null) {
+      Element additionalValidation = reportDocument.createElement("AdditionalValidation");
+      signatureValidation.getElementsByTagName("Signature").item(0).appendChild(additionalValidation);
+      if (additionalErrors.size() > 0)
+        signatureValidation.getElementsByTagName("ValidSignaturesCount").item(0).setTextContent("0");
+
+      for (int i = 0; i < additionalErrors.size(); i++) {
+        Attr attribute = reportDocument.createAttribute("Error");
+        attribute.setValue(Integer.toString(i));
+        additionalValidation.setAttributeNode(attribute);
+        Element errorDescription = reportDocument.createElement("Description");
+        //noinspection ThrowableResultOfMethodCallIgnored
+        errorDescription.appendChild(reportDocument.createTextNode(additionalErrors.get(i).getMessage()));
+        additionalValidation.appendChild(errorDescription);
+      }
     }
   }
 
