@@ -258,7 +258,7 @@ public final class DigiDoc4J {
   @SuppressWarnings("AccessStaticViaInstance")
   private static Option signatureProfile() {
     return withArgName("signatureProfile").hasArg()
-        .withDescription("sets signature profile. Profile can be B_BES, LT or LTA").create("profile");
+        .withDescription("sets signature profile. Profile can be B_BES, LT, LT_TM or LTA").create("profile");
   }
 
   private static void verboseMessage(String message) {
