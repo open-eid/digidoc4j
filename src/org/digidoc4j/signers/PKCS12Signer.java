@@ -59,10 +59,7 @@ public class PKCS12Signer implements Signer {
   public byte[] sign(Container container, byte[] dataToSign) {
     org.digidoc4j.DigestAlgorithm digestAlgorithm = container.getDigestAlgorithm();
     logger.debug("Digest algorithm: " + digestAlgorithm);
-    byte[] sign = signatureTokenConnection.sign(dataToSign, DigestAlgorithm.forXML(digestAlgorithm.toString()),
+    return signatureTokenConnection.sign(dataToSign, DigestAlgorithm.forXML(digestAlgorithm.toString()),
         keyEntry);
-    return sign;
   }
-
-
 }

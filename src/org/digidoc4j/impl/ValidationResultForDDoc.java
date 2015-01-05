@@ -34,9 +34,9 @@ import java.util.List;
 public class ValidationResultForDDoc implements ValidationResult {
   static final Logger logger = LoggerFactory.getLogger(ValidationResultForDDoc.class);
 
-  private List<DigiDoc4JException> containerExceptions = new ArrayList<DigiDoc4JException>();
+  private List<DigiDoc4JException> containerExceptions = new ArrayList<>();
   private boolean hasFatalErrors = false;
-  private List<DigiDoc4JException> errors = new ArrayList<DigiDoc4JException>();
+  private List<DigiDoc4JException> errors = new ArrayList<>();
 
   private Document report;
   private Element rootElement;
@@ -129,7 +129,7 @@ public class ValidationResultForDDoc implements ValidationResult {
   @Override
   public List<DigiDoc4JException> getWarnings() {
     logger.debug("");
-    return new ArrayList<DigiDoc4JException>();
+    return new ArrayList<>();
   }
 
   @Override
