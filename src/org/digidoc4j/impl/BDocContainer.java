@@ -59,7 +59,7 @@ import static java.util.Arrays.asList;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.digidoc4j.Container.SignatureProfile.*;
+import static org.digidoc4j.Container.SignatureProfile.LT;
 
 /**
  * BDOC container implementation
@@ -98,6 +98,7 @@ public class BDocContainer extends Container {
 
   @Override
   public SignedInfo prepareSigning(X509Certificate signerCert) {
+    logger.debug("");
     String signatureId = signatureParameters.getSignatureId();
     byte[] signedInfo = getDataToSign(signatureId != null ? signatureId : "S" + getSignatures().size(), signerCert);
 
@@ -106,6 +107,7 @@ public class BDocContainer extends Container {
 
   @Override
   public String getSignatureProfile() {
+    logger.debug("");
     return dssSignatureParameters.getSignatureLevel().name();
   }
 
@@ -126,6 +128,7 @@ public class BDocContainer extends Container {
 
   @Override
   public void setSignatureParameters(SignatureParameters signatureParameters) {
+    logger.debug("");
     this.signatureParameters = signatureParameters.copy();
 
     setDigestAlgorithm();
@@ -134,6 +137,7 @@ public class BDocContainer extends Container {
   }
 
   private void setDigestAlgorithm() {
+    logger.debug("");
     if (signatureParameters.getDigestAlgorithm() == null) {
       signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
     }
@@ -142,10 +146,13 @@ public class BDocContainer extends Container {
 
   @Override
   public DigestAlgorithm getDigestAlgorithm() {
-    return signatureParameters.getDigestAlgorithm();
+    DigestAlgorithm digestAlgorithm = signatureParameters.getDigestAlgorithm();
+    logger.debug("");
+    return digestAlgorithm;
   }
 
   private void initASiC() {
+    logger.debug("");
     dssSignatureParameters = new eu.europa.ec.markt.dss.parameter.SignatureParameters();
     dssSignatureParameters.setSignatureLevel(ASiC_E_BASELINE_LT);
     dssSignatureParameters.setSignaturePackaging(DETACHED);
@@ -160,6 +167,7 @@ public class BDocContainer extends Container {
   }
 
   private void addSignaturePolicy() {
+    logger.debug("");
     BLevelParameters.Policy signaturePolicy = new BLevelParameters.Policy();
     signaturePolicy.setId("urn:oid:1.3.6.1.4.1.10015.1000.3.2.1");
     signaturePolicy.setDigestValue(decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));
@@ -190,9 +198,9 @@ public class BDocContainer extends Container {
    * @see org.digidoc4j.Configuration#isBigFilesSupportEnabled() returns true
    */
   public BDocContainer(InputStream stream, boolean actAsBigFilesSupportEnabled) {
+    logger.debug("");
     this.configuration = new Configuration();
     initASiC();
-    logger.debug("");
     try {
       if (actAsBigFilesSupportEnabled) {
         signedDocument = new StreamDocument(stream, null, BDOC_MIME_TYPE);
@@ -213,8 +221,8 @@ public class BDocContainer extends Container {
    * @param configuration configuration settings
    */
   public BDocContainer(String path, Configuration configuration) {
-    initASiC();
     logger.debug("Opens file: " + path);
+    initASiC();
 
     try {
       signedDocument = new FileDocument(path);
@@ -231,23 +239,28 @@ public class BDocContainer extends Container {
   }
 
   private void checkMimeType(String path) {
+    logger.debug("Check mime type for " + path);
     String bdocMimeTypeFromZip = getBdocMimeTypeFromZip(path).trim();
     try {
       if (!MimeType.ASICE.equals(MimeType.fromMimeTypeString(bdocMimeTypeFromZip))) {
         throw new UnsupportedFormatException(bdocMimeTypeFromZip);
       }
     } catch (DSSException e) {
+      logger.error("Unsupported format: " + bdocMimeTypeFromZip);
       throw new UnsupportedFormatException(bdocMimeTypeFromZip);
     }
   }
 
   private String getBdocMimeTypeFromZip(String path) {
+    logger.debug("Get mime type from zip for " + path);
     String mimeType;
     try {
       ZipFile zipFile = new ZipFile(path);
       ZipEntry entry = zipFile.getEntry("mimetype");
-      if (entry == null)
+      if (entry == null) {
+        logger.error("Unsupported format, mimetype missing");
         throw new UnsupportedFormatException("Not an asic-e document. Mimetype is missing.");
+      }
       InputStream stream = zipFile.getInputStream(entry);
       mimeType = IOUtils.toString(stream);
       stream.close();
@@ -257,6 +270,7 @@ public class BDocContainer extends Container {
       throw new DigiDoc4JException(e);
     }
 
+    logger.debug("Mime type " + mimeType);
     return mimeType;
   }
 
@@ -282,6 +296,7 @@ public class BDocContainer extends Container {
   }
 
   private void loadAttachments(SignedDocumentValidator validator) {
+    logger.debug("");
     for (DSSDocument externalContent : validator.getDetachedContents()) {
       if (!"mimetype".equals(externalContent.getName()) && !"META-INF/manifest.xml".equals(externalContent.getName())) {
         dataFiles.put(externalContent.getName(), new DataFile(externalContent.getBytes(), externalContent.getName(),
@@ -334,6 +349,7 @@ public class BDocContainer extends Container {
   }
 
   private DigiDoc4JException validateSignedPropertiesReference(AdvancedSignature advancedSignature) {
+    logger.debug("");
     List<Element> signatureReferences = ((XAdESSignature) advancedSignature).getSignatureReferences();
     int nrOfSignedPropertiesReferences = 0;
     for (Element signatureReference : signatureReferences) {
@@ -348,7 +364,7 @@ public class BDocContainer extends Container {
   }
 
   private List<DigiDoc4JException> validatePolicy(AdvancedSignature advancedSignature) {
-
+    logger.debug("");
     ArrayList<DigiDoc4JException> validationErrors = new ArrayList<>();
     SignaturePolicy policy = advancedSignature.getPolicyId();
     if (policy != null) {
@@ -360,7 +376,6 @@ public class BDocContainer extends Container {
       if (isBlank(policy.getUrl()))
         validationErrors.add(new DigiDoc4JException("Policy url is missing for identifier: " + policyIdentifier));
 
-
       XPathQueryHolder xPathQueryHolder = ((XAdESSignature) advancedSignature).getXPathQueryHolder();
       Element signatureElement = ((XAdESSignature) advancedSignature).getSignatureElement();
       Element element = DSSXMLUtils.getElement(signatureElement, xPathQueryHolder.XPATH_SIGNATURE_POLICY_IDENTIFIER);
@@ -370,14 +385,13 @@ public class BDocContainer extends Container {
         validationErrors.add(new DigiDoc4JException("Wrong policy identifier qualifier: "
             + identifier.getAttribute("Qualifier")));
       }
-
     }
 
     return validationErrors;
   }
 
   private SimpleReport getSimpleReport(Map<String, SimpleReport> simpleReports, String fromSignatureId) {
-    logger.debug("signature id = " + fromSignatureId);
+    logger.debug("signature id : " + fromSignatureId);
     SimpleReport simpleReport = simpleReports.get(fromSignatureId);
     if (simpleReport != null && simpleReports.size() == 1) {
       return simpleReports.values().iterator().next();
@@ -424,6 +438,7 @@ public class BDocContainer extends Container {
   }
 
   private void checkForDuplicateDataFile(String path) {
+    logger.debug("");
     String fileName = new File(path).getName();
     for (String key : dataFiles.keySet()) {
       if (dataFiles.get(key).getName().equals(fileName)) {
@@ -521,6 +536,7 @@ public class BDocContainer extends Container {
   }
 
   private DSSDocument createBareDocument(DSSDocument signature) {
+    logger.debug("");
     if (signature.getName() == null) return signature;
     Document root = DSSXMLUtils.buildDOM(signature);
     final Element signatureEl = (Element) root.getDocumentElement().getFirstChild();
@@ -528,6 +544,7 @@ public class BDocContainer extends Container {
   }
 
   private String getSignatureFileName(DSSDocument signature) {
+    logger.debug("");
     if (signature.getName() == null)
       return "signatures0.xml";
     return signature.getName().substring(signature.getName().lastIndexOf('/') + 1);
@@ -542,6 +559,7 @@ public class BDocContainer extends Container {
 
   @Override
   public void save(OutputStream out) {
+    logger.debug("");
     try {
       IOUtils.copyLarge(signedDocument.openStream(), out);
     } catch (IOException e) {
@@ -573,6 +591,7 @@ public class BDocContainer extends Container {
   }
 
   private byte[] getDataToSign(String setSignatureId, X509Certificate signerCertificate) {
+    logger.debug("");
     if (isTimeMark)
       addSignaturePolicy();
 
@@ -622,6 +641,7 @@ public class BDocContainer extends Container {
   }
 
   private SKOnlineOCSPSource getOcspSource(byte[] signatureValue) {
+    logger.debug("");
     if (isTimeMark && signatureValue != null)
       return new BDocTMOcspSource(configuration, signatureValue);
     return new BDocTSOcspSource(configuration);
@@ -636,6 +656,7 @@ public class BDocContainer extends Container {
   }
 
   private DSSDocument getAttachment() {
+    logger.debug("");
     DSSDocument attachment;
 
     if (dataFiles.size() == 0) {
@@ -654,6 +675,7 @@ public class BDocContainer extends Container {
   }
 
   private DSSDocument getDssDocumentFromDataFile(DataFile dataFile) {
+    logger.debug("");
     DSSDocument attachment;
     MimeType mimeType = MimeType.fromMimeTypeString(dataFile.getMediaType());
     long cachedFileSizeInMB = configuration.getMaxDataFileCachedInMB();
@@ -759,7 +781,7 @@ public class BDocContainer extends Container {
   }
 
   private InputStream getValidationPolicyAsStream(String policyFile) {
-
+    logger.debug("");
     if (Files.exists(Paths.get(policyFile))) {
       try {
         return new FileInputStream(policyFile);
@@ -779,6 +801,7 @@ public class BDocContainer extends Container {
 
   @Override
   public Signature getSignature(int index) {
+    logger.debug("Get signature for index " + index);
     return getSignatures().get(index);
   }
 
@@ -790,13 +813,17 @@ public class BDocContainer extends Container {
 
   @Override
   public ValidationResult validate() {
+    logger.debug("");
     return verify();
   }
 
   private void extend(SignatureLevel signatureLevel) {
-    if (signatureLevel == dssSignatureParameters.getSignatureLevel())
-      throw new DigiDoc4JException("It is not possible to extend the signature to the same level");
-
+    logger.debug("");
+    if (signatureLevel == dssSignatureParameters.getSignatureLevel()) {
+      String errorMessage = "It is not possible to extend the signature to the same level";
+      logger.error(errorMessage);
+      throw new DigiDoc4JException(errorMessage);
+    }
     SKOnlineOCSPSource ocspSource = getOcspSource(null);
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
     String userAgent = Helper.createUserAgent(this);
@@ -829,6 +856,7 @@ public class BDocContainer extends Container {
 
   @Override
   public void extendTo(SignatureProfile profile) {
+    logger.debug("");
     validationReport = null;
     isTimeMark = false;
     switch (profile) {
@@ -855,6 +883,7 @@ public class BDocContainer extends Container {
 
   @Override
   public void setSignatureProfile(SignatureProfile profile) {
+    logger.debug("");
     isTimeMark = false;
     switch (profile) {
       case B_BES:

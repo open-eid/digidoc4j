@@ -141,6 +141,7 @@ public abstract class Container implements Serializable {
    * @throws DigiDoc4JException when the file is not found or empty
    */
   public static Container open(String path) throws DigiDoc4JException {
+    logger.debug("");
     return open(path, new Configuration());
   }
 
@@ -208,6 +209,7 @@ public abstract class Container implements Serializable {
 
     @Override
     public String toString() {
+      logger.debug("");
       if (this == BDOC)
         return MimeType.ASICE.getMimeTypeString();
       return super.toString();

@@ -10,11 +10,16 @@
 
 package org.digidoc4j.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Date;
 
 public final class DateUtils {
+  private static final Logger logger = LoggerFactory.getLogger(DateUtils.class);
 
   private DateUtils() {
+    logger.debug("");
   }
 
   /**
@@ -24,10 +29,13 @@ public final class DateUtils {
    * @return true if the date is within 60 seconds, otherwise false
    */
   public static boolean isAlmostNow(Date date) {
-    return isInRangeOneMinute(new Date(), date);
+    boolean inRange = isInRangeOneMinute(new Date(), date);
+    logger.debug("Is almost now: " + inRange);
+    return inRange;
   }
 
   private static boolean isInRangeOneMinute(Date date1, Date date2) {
+    logger.debug("");
     final int oneMinuteInSeconds = 60;
     Date latestTime = org.apache.commons.lang.time.DateUtils.addSeconds(date2, oneMinuteInSeconds);
     Date earliestTime = org.apache.commons.lang.time.DateUtils.addSeconds(date2, -oneMinuteInSeconds);

@@ -137,6 +137,7 @@ public class DataFile implements Serializable {
    * @return digest algorithm uri
    */
   public byte[] calculateDigest(org.digidoc4j.DigestAlgorithm digestType) {
+    logger.debug("");
     return calculateDigest(digestType.uri());
   }
 
@@ -252,6 +253,7 @@ public class DataFile implements Serializable {
    * @param dataFileId id for the dataFile
    */
   public void setId(String dataFileId) {
+    logger.debug("");
     this.id = dataFileId;
   }
 }

@@ -32,7 +32,6 @@ import java.util.List;
  * Overview of errors and warnings for DDoc
  */
 public class ValidationResultForDDoc implements ValidationResult {
-
   static final Logger logger = LoggerFactory.getLogger(ValidationResultForDDoc.class);
 
   private List<DigiDoc4JException> containerExceptions = new ArrayList<DigiDoc4JException>();
@@ -62,6 +61,7 @@ public class ValidationResultForDDoc implements ValidationResult {
 
   public ValidationResultForDDoc(List<DigiDocException> exceptions,
                                  List<DigiDocException> openContainerExceptions) {
+    logger.debug("");
     Element childElement;
 
     initXMLReport();
@@ -96,10 +96,12 @@ public class ValidationResultForDDoc implements ValidationResult {
    * @return true if fatal errors have been encountered
    */
   public boolean hasFatalErrors() {
+    logger.debug("Has fatal errors: " + hasFatalErrors);
     return hasFatalErrors;
   }
 
   private void initXMLReport() {
+    logger.debug("");
 
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     try {
@@ -113,6 +115,7 @@ public class ValidationResultForDDoc implements ValidationResult {
       report.insertBefore(comment, rootElement);
 
     } catch (ParserConfigurationException e) {
+      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
@@ -144,16 +147,19 @@ public class ValidationResultForDDoc implements ValidationResult {
 
   @Override
   public boolean isValid() {
+    logger.debug("");
     return !hasErrors();
   }
 
 
   @Override
   public String getReport() {
+    logger.debug("");
     return reportToString(report);
   }
 
   static String reportToString(Document document) {
+    logger.debug("");
     DOMImplementationLS domImplementation = (DOMImplementationLS) document.getImplementation();
     LSSerializer lsSerializer = domImplementation.createLSSerializer();
     return lsSerializer.writeToString(document);
@@ -161,6 +167,7 @@ public class ValidationResultForDDoc implements ValidationResult {
 
   @Override
   public List<DigiDoc4JException> getContainerErrors() {
+    logger.debug("");
     return containerExceptions;
   }
 }

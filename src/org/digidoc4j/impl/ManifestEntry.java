@@ -10,12 +10,16 @@
 
 package org.digidoc4j.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Objects;
 
 /**
  * Contains information of filenames and mimetypes.
  */
 public final class ManifestEntry {
+  final Logger logger = LoggerFactory.getLogger(ManifestEntry.class);
   private String fileName;
   private String mimeType;
 
@@ -30,6 +34,7 @@ public final class ManifestEntry {
    * @return filename
    */
   public String getFileName() {
+    logger.debug("Filename: " + fileName);
     return fileName;
   }
 
@@ -39,11 +44,13 @@ public final class ManifestEntry {
    * @return mimetype
    */
   public String getMimeType() {
+    logger.debug("Mime type: " + mimeType);
     return mimeType;
   }
 
   @Override
   public boolean equals(Object obj) {
+    logger.debug("");
     if (obj instanceof ManifestEntry) {
       if (fileName.equals(((ManifestEntry)obj).getFileName())
           && mimeType.equals(((ManifestEntry)obj).getMimeType())) {
@@ -55,6 +62,7 @@ public final class ManifestEntry {
 
   @Override
   public int hashCode() {
+    logger.debug("");
     return Objects.hash(fileName, mimeType);
   }
 }

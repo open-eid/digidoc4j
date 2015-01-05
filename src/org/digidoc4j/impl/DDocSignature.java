@@ -38,6 +38,7 @@ public class DDocSignature extends Signature {
    * @param signature add description
    */
   public DDocSignature(ee.sk.digidoc.Signature signature) {
+    logger.debug("");
     this.origin = signature;
   }
 
@@ -97,6 +98,7 @@ public class DDocSignature extends Signature {
 
   @Override
   public Date getTimeStampCreationTime() {
+    logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
 

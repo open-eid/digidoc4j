@@ -176,7 +176,9 @@ public class Configuration implements Serializable {
    * @return value indicating if requirements are met
    */
   public boolean isOCSPSigningConfigurationAvailable() {
-    return isNotEmpty(getOCSPAccessCertificateFileName()) && getOCSPAccessCertificatePassword().length != 0;
+    boolean available = isNotEmpty(getOCSPAccessCertificateFileName()) && getOCSPAccessCertificatePassword().length != 0;
+    logger.debug("Is OCSP signing configuration available: " + available);
+    return available;
   }
 
   /**
@@ -295,6 +297,8 @@ public class Configuration implements Serializable {
   }
 
   private Hashtable<String, String> loadConfigurationSettings(InputStream stream) {
+    logger.debug("");
+
     configurationFromFile = new LinkedHashMap();
     Yaml yaml = new Yaml();
 
@@ -314,7 +318,6 @@ public class Configuration implements Serializable {
 
   private InputStream getResourceAsStream(String certFile) {
     logger.debug("");
-
     InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(certFile);
     if (resourceAsStream == null) {
       String message = "File " + certFile + " not found in classpath.";
@@ -353,6 +356,7 @@ public class Configuration implements Serializable {
   }
 
   private void loadCertificateAuthoritiesAndCertificates() {
+    logger.debug("");
     @SuppressWarnings("unchecked")
     ArrayList<LinkedHashMap> digiDocCAs = (ArrayList<LinkedHashMap>) configurationFromFile.get("DIGIDOC_CAS");
     if (digiDocCAs == null) {
@@ -432,6 +436,7 @@ public class Configuration implements Serializable {
   }
 
   private void setJDigiDocConfigurationValue(String key, String defaultValue) {
+    logger.debug("");
     String value = defaultIfNull(key, defaultValue);
     if (value != null) {
       jDigiDocConfiguration.put(key, value);
@@ -458,6 +463,7 @@ public class Configuration implements Serializable {
    * @return is big file support enabled
    */
   public boolean isBigFilesSupportEnabled() {
+    logger.debug("");
     return getMaxDataFileCachedInMB() >= 0;
   }
 
@@ -468,6 +474,7 @@ public class Configuration implements Serializable {
    * @return must be OCSP request signed
    */
   public boolean hasToBeOCSPRequestSigned() {
+    logger.debug("");
     return mode == Mode.PROD;
   }
 
@@ -477,6 +484,7 @@ public class Configuration implements Serializable {
    * @return Size in MB. if size < 0 no caching is used
    */
   public long getMaxDataFileCachedInMB() {
+    logger.debug("");
     String maxDataFileCached = jDigiDocConfiguration.get("DIGIDOC_MAX_DATAFILE_CACHED");
     logger.debug("Maximum datafile cached in MB: " + maxDataFileCached);
 
@@ -490,6 +498,7 @@ public class Configuration implements Serializable {
    * @return Size in MB. if size < 0 no caching is used
    */
   public long getMaxDataFileCachedInBytes() {
+    logger.debug("");
     long maxDataFileCachedInMB = getMaxDataFileCachedInMB();
     if (maxDataFileCachedInMB == CACHE_ALL_DATA_FILES) {
       return CACHE_ALL_DATA_FILES;
@@ -510,7 +519,7 @@ public class Configuration implements Serializable {
   }
 
   private boolean valueIsAllowed(String configParameter, String value) {
-    logger.debug("");
+    logger.debug("Parameter: " + configParameter + ", value: " + value);
 
     List<String> mustBeBooleans =
         asList("SIGN_OCSP_REQUESTS", "KEY_USAGE_CHECK", "DATAFILE_HASHCODE_MODE", "DIGIDOC_USE_LOCAL_TSL");
@@ -529,6 +538,7 @@ public class Configuration implements Serializable {
   }
 
   private boolean isValidBooleanParameter(String configParameter, String value) {
+    logger.debug("");
     if (!("true".equals(value.toLowerCase()) || "false".equals(value.toLowerCase()))) {
       String errorMessage = "Configuration parameter " + configParameter + " should be set to true or false"
           + " but the actual value is: " + value + ".";
@@ -539,6 +549,7 @@ public class Configuration implements Serializable {
   }
 
   private boolean isValidIntegerParameter(String configParameter, String value) {
+    logger.debug("");
     Integer parameterValue;
 
     try {
@@ -561,8 +572,8 @@ public class Configuration implements Serializable {
   }
 
   private void loadOCSPCertificates(LinkedHashMap digiDocCA, String caPrefix) {
-    String errorMessage;
     logger.debug("");
+    String errorMessage;
 
     @SuppressWarnings("unchecked")
     ArrayList<LinkedHashMap> ocsps = (ArrayList<LinkedHashMap>) digiDocCA.get("OCSPS");
@@ -597,6 +608,7 @@ public class Configuration implements Serializable {
   }
 
   private boolean loadOCSPCertificateEntry(String ocspsEntryName, LinkedHashMap ocsp, String prefix) {
+    logger.debug("");
 
     Object ocspEntry = ocsp.get(ocspsEntryName);
     if (ocspEntry == null) return false;
@@ -641,6 +653,7 @@ public class Configuration implements Serializable {
   }
 
   String getTslLocation() {
+    logger.debug("");
     String urlString = getConfigurationParameter("tslLocation");
     if (!Protocol.isFileUrl(urlString)) return urlString;
     try {
@@ -665,6 +678,7 @@ public class Configuration implements Serializable {
    */
 
   public void setTSL(TSLCertificateSource certificateSource) {
+    logger.debug("");
     this.tslCertificateSource = certificateSource;
   }
 
@@ -822,7 +836,9 @@ public class Configuration implements Serializable {
    * @see Configuration.Mode#TEST
    */
   public boolean isTest() {
-    return mode == Mode.TEST;
+    boolean isTest = mode == Mode.TEST;
+    logger.debug("Is test: " + isTest);
+    return isTest;
   }
 
   /**
@@ -831,6 +847,7 @@ public class Configuration implements Serializable {
    * @return new configuration object
    */
   public Configuration copy() {
+    logger.debug("");
     ObjectOutputStream oos = null;
     ObjectInputStream ois = null;
     Configuration copyConfiguration = null;

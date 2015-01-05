@@ -90,12 +90,14 @@ public class DDocContainer extends Container {
 
   @Override
   public String getSignatureProfile() {
-    return signatureProfile.name();
+    String name = signatureProfile.name();
+    logger.debug("Signature profile: " + name);
+    return name;
   }
 
   @Override
   public void setSignatureParameters(SignatureParameters signatureParameters) {
-
+    logger.debug("");
     DigestAlgorithm algorithm = signatureParameters.getDigestAlgorithm();
     if (algorithm == null) {
       signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA1);
@@ -110,7 +112,9 @@ public class DDocContainer extends Container {
 
   @Override
   public DigestAlgorithm getDigestAlgorithm() {
-    return signatureParameters.getDigestAlgorithm();
+    DigestAlgorithm digestAlgorithm = signatureParameters.getDigestAlgorithm();
+    logger.debug("Digest algorithm: " + digestAlgorithm);
+    return digestAlgorithm;
   }
 
   /**
@@ -123,6 +127,7 @@ public class DDocContainer extends Container {
   }
 
   private void createDDOCContainer() {
+    logger.debug("");
     try {
       ddoc = new SignedDoc("DIGIDOC-XML", "1.3");
       signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA1);
@@ -138,6 +143,7 @@ public class DDocContainer extends Container {
    * @param stream description
    */
   public DDocContainer(InputStream stream) {
+    logger.debug("");
     intConfiguration();
     DigiDocFactory digFac = new SAXDigiDocFactory();
     try {
@@ -154,6 +160,7 @@ public class DDocContainer extends Container {
    * @param configuration configuration to use
    */
   public DDocContainer(Configuration configuration) {
+    logger.debug("");
     ConfigManager.init(configuration.getJDigiDocConfiguration());
     ConfigManager.addProvider();
     createDDOCContainer();
@@ -193,6 +200,7 @@ public class DDocContainer extends Container {
   }
 
   private DigiDocException getFatalError() {
+    logger.debug("");
     DigiDocException exception = null;
     for (DigiDocException openContainerException : openContainerExceptions) {
       if (openContainerException.getCode() == DigiDocException.ERR_PARSE_XML) {
@@ -281,6 +289,7 @@ public class DDocContainer extends Container {
 
   @Override
   public DataFile getDataFile(int index) {
+    logger.debug("Get data file for index " + index);
     return getDataFiles().get(index);
   }
 
@@ -364,6 +373,7 @@ public class DDocContainer extends Container {
 
   @Override
   public Signature signRaw(byte[] rawSignature) {
+    logger.debug("");
     try {
       ddocSignature.setSignatureValue(rawSignature);
       return new DDocSignature(ddocSignature);
@@ -395,6 +405,7 @@ public class DDocContainer extends Container {
 
   @Override
   public Signature getSignature(int index) {
+    logger.debug("Get signature for index " + index);
     return getSignatures().get(index);
   }
 
@@ -431,11 +442,13 @@ public class DDocContainer extends Container {
   }
 
   ee.sk.digidoc.Signature calculateSignature(Signer signer) {
+    logger.debug("");
     prepareSigning(signer.getCertificate());
     return ddocSignature;
   }
 
   private void addConfirmation() {
+    logger.debug("");
     for (Object signature : ddoc.getSignatures()) {
       try {
         ((ee.sk.digidoc.Signature) signature).getConfirmation();
@@ -448,20 +461,30 @@ public class DDocContainer extends Container {
 
   @Override
   public String getVersion() {
-    return ddoc.getVersion();
+    String version = ddoc.getVersion();
+    logger.debug("Version: " + version);
+    return version;
   }
 
   @Override
   public void extendTo(SignatureProfile profile) {
-    if (profile != SignatureProfile.LT_TM)
-      throw new NotSupportedException(profile + " profile is not supported for DDOC extension");
+    logger.debug("Extend to " + profile.toString());
+    if (profile != SignatureProfile.LT_TM) {
+      String errorMessage = profile + " profile is not supported for DDOC extension";
+      logger.error(errorMessage);
+      throw new NotSupportedException(errorMessage);
+    }
     addConfirmation();
   }
 
   @Override
   public void setSignatureProfile(SignatureProfile profile) {
-    if (profile != SignatureProfile.LT_TM && profile != SignatureProfile.B_BES)
-      throw new NotSupportedException(profile + " profile is not supported for DDOC");
+    logger.debug("");
+    if (profile != SignatureProfile.LT_TM && profile != SignatureProfile.B_BES) {
+      String errorMessage = profile + " profile is not supported for DDOC";
+      logger.error(errorMessage);
+      throw new NotSupportedException(errorMessage);
+    }
     signatureProfile = profile;
   }
 
@@ -471,6 +494,8 @@ public class DDocContainer extends Container {
    * @return format as string
    */
   public String getFormat() {
-    return ddoc.getFormat();
+    String format = ddoc.getFormat();
+    logger.debug(format);
+    return format;
   }
 }

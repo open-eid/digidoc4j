@@ -169,6 +169,7 @@ public class BDocSignature extends Signature {
 
   @Override
   public Date getTimeStampCreationTime() {
+    logger.debug("");
     List<TimestampToken> signatureTimestamps = origin.getSignatureTimestamps();
     if (signatureTimestamps.size() == 0) {
       return null;

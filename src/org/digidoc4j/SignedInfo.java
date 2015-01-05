@@ -11,12 +11,14 @@
 package org.digidoc4j;
 
 import eu.europa.ec.markt.dss.DSSUtils;
+import org.slf4j.Logger;
 
 import java.io.Serializable;
 
 import static eu.europa.ec.markt.dss.DigestAlgorithm.forXML;
 
 public class SignedInfo implements Serializable {
+  Logger logger = org.slf4j.LoggerFactory.getLogger(SignedInfo.class);
   private byte[] digest;
   private DigestAlgorithm digestAlgorithm;
 
@@ -24,15 +26,18 @@ public class SignedInfo implements Serializable {
   private SignedInfo() {}
 
   public SignedInfo(byte[] signedInfo, DigestAlgorithm digestAlgorithm) {
+    logger.debug("");
     this.digestAlgorithm = digestAlgorithm;
     digest = DSSUtils.digest(forXML(digestAlgorithm.toString()), signedInfo);
   }
 
   public byte[] getDigest() {
+    logger.debug("");
     return digest;
   }
 
   public DigestAlgorithm getDigestAlgorithm() {
+    logger.debug("");
     return digestAlgorithm;
   }
 }

@@ -45,6 +45,7 @@ public class ManifestValidator {
    * @param validator Validator object
    */
   public ManifestValidator(SignedDocumentValidator validator) {
+    logger.debug("");
     asicValidator = validator;
     detachedContents = asicValidator.getDetachedContents();
     for (DSSDocument dssDocument : detachedContents) {
@@ -62,9 +63,12 @@ public class ManifestValidator {
    * @return list of error messages
    */
   public List<String> validateDocument(List<Signature> signatures) {
-    if (manifestFile == null)
-      throw new DigiDoc4JException("Container does not contain manifest file.");
-
+    logger.debug("");
+    if (manifestFile == null) {
+      String errorMessage = "Container does not contain manifest file.";
+      logger.error(errorMessage);
+      throw new DigiDoc4JException(errorMessage);
+    }
     List<String> errorMessages = new ArrayList<>();
     Set<ManifestEntry> manifestEntries = getManifestFileItems();
     Set<ManifestEntry> signatureEntries = new HashSet<>();
@@ -81,6 +85,7 @@ public class ManifestValidator {
   }
 
   private List<String> validateFilesInContainer(Set<ManifestEntry> signatureEntries) {
+    logger.debug("");
     ArrayList<String> errorMessages = new ArrayList<>();
 
     if (signatureEntries.size() == 0)
@@ -102,6 +107,7 @@ public class ManifestValidator {
   }
 
   private List<String> getFileNamesFromManifestEntrySet(Set<ManifestEntry> signatureEntries) {
+    logger.debug("");
     List<String> signatureEntriesFileNames = new ArrayList<>();
 
 
@@ -114,7 +120,7 @@ public class ManifestValidator {
   @SuppressWarnings("unchecked")
   static List<String> validateEntries(Set<ManifestEntry> manifestEntries, Set<ManifestEntry> signatureEntries,
                                       String signatureId) {
-
+    logger.debug("");
     ArrayList<String> errorMessages = new ArrayList<>();
 
     if (signatureEntries.size() == 0)
@@ -146,10 +152,12 @@ public class ManifestValidator {
           + manifestEntry.getFileName() + " with mimetype " + manifestEntry.getMimeType()
           + " but the manifest file does not have an entry for this file");
     }
+
     return errorMessages;
   }
 
   private static ManifestEntry signatureEntryForFile(String fileName, Set<ManifestEntry> signatureEntries) {
+    logger.debug("File name: " + fileName);
     for (ManifestEntry signatureEntry : signatureEntries) {
       if (fileName.equals(signatureEntry.getFileName())) {
         return signatureEntry;
@@ -159,6 +167,7 @@ public class ManifestValidator {
   }
 
   private Set<ManifestEntry> getSignatureEntries(BDocSignature signature) {
+    logger.debug("");
     Set<ManifestEntry> signatureEntries = new HashSet<>();
     List<Reference> references = signature.getOrigin().getReferences();
     for (Reference reference : references) {
@@ -171,7 +180,7 @@ public class ManifestValidator {
   }
 
   private Set<ManifestEntry> getManifestFileItems() {
-
+    logger.debug("");
     Set<ManifestEntry> entries = new HashSet<>();
 
     Element root = DSSXMLUtils.buildDOM(manifestFile).getDocumentElement();
@@ -196,6 +205,7 @@ public class ManifestValidator {
   }
 
   private List<String> getFilesInContainer() {
+    logger.debug("");
     List<String> fileEntries = new ArrayList<>();
 
     List<String> signatureFileNames = getSignatureFileNames();
@@ -211,6 +221,7 @@ public class ManifestValidator {
   }
 
   private List<String> getSignatureFileNames() {
+    logger.debug("");
     List<String> signatureFileNames = new ArrayList<>();
     for (AdvancedSignature signature : asicValidator.getSignatures()) {
       String signatureFileName = "META-INF/signature" + signature.getId().toLowerCase() + ".xml";

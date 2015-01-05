@@ -91,6 +91,7 @@ public class ValidationResultForBDoc implements ValidationResult {
   }
 
   private void addErrorsToXMLReport(List<String> manifestErrors) {
+    logger.debug("");
     Element manifestValidation = reportDocument.createElement("ManifestValidation");
     reportDocument.getDocumentElement().appendChild(manifestValidation);
     for (int i = 0; i < manifestErrors.size(); i++) {
@@ -105,6 +106,7 @@ public class ValidationResultForBDoc implements ValidationResult {
   }
 
   private void initializeReportDOM() {
+    logger.debug("");
     try {
       DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
       DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -117,7 +119,7 @@ public class ValidationResultForBDoc implements ValidationResult {
   }
 
   private void createXMLReport(SimpleReport simpleReport, List<DigiDoc4JException> additionalErrors) {
-
+    logger.debug("");
     Element signatureValidation = reportDocument.createElement("SignatureValidation");
     signatureValidation.setAttribute("ID", simpleReport.getSignatureIdList().get(0));
     reportDocument.getDocumentElement().appendChild(signatureValidation);
@@ -134,6 +136,7 @@ public class ValidationResultForBDoc implements ValidationResult {
   }
 
   private void addAdditionalErrors(List<DigiDoc4JException> additionalErrors, Element signatureValidation) {
+    logger.debug("");
     if (additionalErrors != null) {
       Element additionalValidation = reportDocument.createElement("AdditionalValidation");
       signatureValidation.getElementsByTagName("Signature").item(0).appendChild(additionalValidation);
@@ -153,6 +156,7 @@ public class ValidationResultForBDoc implements ValidationResult {
   }
 
   private static void removeNamespace(Node node) {
+    logger.debug("");
     Document document = node.getOwnerDocument();
     if (node.getNodeType() == Node.ELEMENT_NODE) {
       document.renameNode(node, null, node.getNodeName());
@@ -165,36 +169,43 @@ public class ValidationResultForBDoc implements ValidationResult {
 
   @Override
   public List<DigiDoc4JException> getErrors() {
+    logger.debug("");
     return errors;
   }
 
   @Override
   public List<DigiDoc4JException> getWarnings() {
+    logger.debug("");
     return warnings;
   }
 
   @Override
   public boolean hasErrors() {
+    logger.debug("");
     return (errors.size() != 0);
   }
 
   @Override
   public boolean hasWarnings() {
+    logger.debug("");
     return (warnings.size() != 0);
   }
 
   @Override
   public boolean isValid() {
+    logger.debug("");
     return !hasErrors();
   }
 
   @Override
   public String getReport() {
+    logger.debug("");
     return new String(DSSXMLUtils.transformDomToByteArray(reportDocument));
   }
 
   @Override
   public List<DigiDoc4JException> getContainerErrors() {
+    logger.debug("");
     return manifestValidationExceptions;
   }
 }

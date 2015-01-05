@@ -12,6 +12,8 @@ package org.digidoc4j;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ import java.util.List;
  * </ul>
  */
 public class SignatureParameters implements Serializable {
+  final Logger logger = LoggerFactory.getLogger(SignatureParameters.class);
   private SignatureProductionPlace productionPlace = new SignatureProductionPlace();
   private List<String> roles = new ArrayList<>();
   private String signatureId;
@@ -38,6 +41,7 @@ public class SignatureParameters implements Serializable {
    * @return production place
    */
   public SignatureProductionPlace getProductionPlace() {
+    logger.debug("Production place: " + productionPlace);
     return productionPlace;
   }
 
@@ -47,6 +51,7 @@ public class SignatureParameters implements Serializable {
    * @return signing roles
    */
   public List<String> getRoles() {
+    logger.debug("");
     return roles;
   }
 
@@ -56,6 +61,7 @@ public class SignatureParameters implements Serializable {
    * @param productionPlace production place
    */
   public void setProductionPlace(SignatureProductionPlace productionPlace) {
+    logger.debug("Set production place to " + productionPlace);
     this.productionPlace = productionPlace;
   }
 
@@ -65,6 +71,7 @@ public class SignatureParameters implements Serializable {
    * @param roles signing roles
    */
   public void setRoles(List<String> roles) {
+    logger.debug("");
     this.roles = roles;
   }
 
@@ -74,6 +81,7 @@ public class SignatureParameters implements Serializable {
    * @param signatureId signature ID
    */
   public void setSignatureId(String signatureId) {
+    logger.debug("Set signature id to " + signatureId);
     this.signatureId = signatureId;
   }
 
@@ -83,6 +91,7 @@ public class SignatureParameters implements Serializable {
    * @return signatureId signature ID
    */
   public String getSignatureId() {
+    logger.debug("Get signature id returns " + signatureId);
     return signatureId;
   }
 
@@ -92,6 +101,7 @@ public class SignatureParameters implements Serializable {
    * @param algorithm digest algorithm
    */
   public void setDigestAlgorithm(DigestAlgorithm algorithm) {
+    logger.debug("");
     digestAlgorithm = algorithm;
   }
 
@@ -101,6 +111,7 @@ public class SignatureParameters implements Serializable {
    * @return container digest algorithm
    */
   public DigestAlgorithm getDigestAlgorithm() {
+    logger.debug("");
     return digestAlgorithm;
   }
 
@@ -110,6 +121,7 @@ public class SignatureParameters implements Serializable {
    * @return new signature parameters object
    */
   public SignatureParameters copy() {
+    logger.debug("");
     ObjectOutputStream oos = null;
     ObjectInputStream ois = null;
     SignatureParameters copySignatureParameters = null;
@@ -124,6 +136,7 @@ public class SignatureParameters implements Serializable {
       ois = new ObjectInputStream(bin);
       copySignatureParameters = (SignatureParameters) ois.readObject();
     } catch (Exception e) {
+      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     } finally {
       IOUtils.closeQuietly(oos);
