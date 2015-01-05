@@ -197,5 +197,29 @@
 <p>{@link org.digidoc4j.exceptions.DigiDoc4JException DigiDoc4JException} also wraps any possible exceptions that are thrown by the base libraries of digidoc4j.</p>
 <p>The {@link org.digidoc4j.exceptions.DigiDoc4JException DigiDoc4JException} class itself is subclassed to enable better  handling of a number of the most critical exceptions. See also package {@link org.digidoc4j.exceptions}.</p>
 <p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h1><a id="utility">Utility overview</a></h1>
+<p>The digidoc4j utility is a command line tool that allows easy usage of several API's.
+</p>
+<h2>Setting up the utility</h2>
+<p>The utility is distribute as a zip file with the name digidoc4j-util-version.zip (where version is the actual version number). Unzip the file to a directory of your choice. From that directory you can now run it:</p><p>java -jar digidoc4j-util.jar</p>
+<h2>Sample of using the digidoc4j utility</h2>
+<p>In the following subsection some examples are provided for using the utility.</p>
+<h6>Creating a container</h6>
+<p>A valid BDOC container contains at least one document and is signed. To create such a container:</p>
+<p><code><strong>java -jar digidoc4j-util.jar -in "&lt;output_file_name_and_path&gt;" -add "&lt;input_file_name_and_path&gt;" "&lt;mime_type&gt;" -pkcs12 "&lt;pkcs12_token_file&gt;" "&lt;pkcs12_token_password&gt;"</strong></code>
+</p>
+<h6>Using the time-mark protocol</h6>
+<p>To sign a container using the time-mark protocol you need to specify the signature profile using the -profile option LT_TM:</p>
+<p><code><strong>java -jar digidoc4j-util.jar -in "&lt;output_file_name_and_path&gt;" -add "&lt;input_file_name_and_path&gt;" "&lt;mime_type&gt;" -profile LT_TM -pkcs12 "&lt;pkcs12_token_file&gt;" "&lt;pkcs12_token_password&gt;"</strong></code></p>
+<h6>Validation</h6>
+<p>The utility performs validation when specifying the -v option. The output shows all signatures and their status as well as all errors:</p>
+<p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v</strong></code>
+<p>In order to see validation warnings in addition to the errors you must specify the -w option:</p>
+<p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v -w</strong></code>
+<h6>Verbose</h6>
+<p>For all tasks more detail can be obtained using the -verbose option as in the next example:</p>
+<p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v -verbose</strong></code>
 </body>
 </html>
