@@ -123,6 +123,13 @@ public final class DigiDoc4J {
         }
       }
 
+      if (commandLine.hasOption("encryption")) {
+        String encryption = commandLine.getOptionValue("encryption");
+        SignatureParameters signatureParameters = new SignatureParameters();
+        signatureParameters.setEncryptionAlgorithm(EncryptionAlgorithm.valueOf(encryption));
+        container.setSignatureParameters(signatureParameters);
+      }
+
       if (commandLine.hasOption("pkcs12")) {
         pkcs12Sign(commandLine, container);
         fileHasChanged = true;
@@ -251,6 +258,7 @@ public final class DigiDoc4J {
     options.addOption(removeFile());
     options.addOption(pkcs12Sign());
     options.addOption(signatureProfile());
+    options.addOption(encryptionAlgorithm());
 
     return options;
   }
@@ -259,6 +267,12 @@ public final class DigiDoc4J {
   private static Option signatureProfile() {
     return withArgName("signatureProfile").hasArg()
         .withDescription("sets signature profile. Profile can be B_BES, LT, LT_TM or LTA").create("profile");
+  }
+
+  @SuppressWarnings("AccessStaticViaInstance")
+  private static Option encryptionAlgorithm() {
+    return withArgName("encryptionAlgorithm").hasArg()
+        .withDescription("sets the encryption algorithm (RSA/ECDSA).").withLongOpt("encryption").create("e");
   }
 
   private static void verboseMessage(String message) {
@@ -286,17 +300,13 @@ public final class DigiDoc4J {
 
   @SuppressWarnings("AccessStaticViaInstance")
   private static Option inputFile() {
-    Option inputFile = withArgName("file").hasArg()
-        .withDescription("opens or creates container").create("in");
-    inputFile.setRequired(true);
-    return inputFile;
+    return withArgName("file").hasArg()
+        .withDescription("opens or creates container").isRequired().create("in");
   }
 
   @SuppressWarnings("AccessStaticViaInstance")
   private static Option type() {
-    Option type = withArgName("type").hasArg()
-        .withDescription("sets container type. types can be DDOC or BDOC").create("t");
-    type.setLongOpt("type");
-    return type;
+    return withArgName("type").hasArg()
+        .withDescription("sets container type. types can be DDOC or BDOC").withLongOpt("type").create("t");
   }
 }

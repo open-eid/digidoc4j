@@ -34,6 +34,7 @@ public class SignatureParameters implements Serializable {
   private List<String> roles = new ArrayList<>();
   private String signatureId;
   private DigestAlgorithm digestAlgorithm;
+  private EncryptionAlgorithm encryptionAlgorithm;
 
   /**
    * Get production place values.
@@ -113,6 +114,26 @@ public class SignatureParameters implements Serializable {
   public DigestAlgorithm getDigestAlgorithm() {
     logger.debug("");
     return digestAlgorithm;
+  }
+
+  /**
+   * Get the encryption algorithm
+   *
+   * @return encryption algorithm
+   */
+  public EncryptionAlgorithm getEncryptionAlgorithm() {
+    logger.debug("");
+    return encryptionAlgorithm;
+  }
+
+  /**
+   * Set the encryption algorithm
+   *
+   * @param encryptionAlgorithm encryption algorithm to use
+   */
+  public void setEncryptionAlgorithm(EncryptionAlgorithm encryptionAlgorithm) {
+    logger.debug("");
+    this.encryptionAlgorithm = encryptionAlgorithm;
   }
 
   /**

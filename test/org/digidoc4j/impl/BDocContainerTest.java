@@ -47,6 +47,7 @@ import static org.digidoc4j.Container.*;
 import static org.digidoc4j.Container.SignatureProfile.*;
 import static org.digidoc4j.DigestAlgorithm.SHA1;
 import static org.digidoc4j.DigestAlgorithm.SHA256;
+import static org.digidoc4j.EncryptionAlgorithm.ECDSA;
 import static org.digidoc4j.utils.Helper.deserializer;
 import static org.digidoc4j.utils.Helper.serialize;
 import static org.junit.Assert.*;
@@ -1647,5 +1648,17 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNull(container.getSignature(0).getOCSPCertificate());
     ValidationResult result = container.validate();
     assertEquals(0, result.getErrors().size());
+  }
+
+  @Test
+  public void signWithECCCertificate() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    SignatureParameters signatureParameters = new SignatureParameters();
+    signatureParameters.setEncryptionAlgorithm(ECDSA);
+    container.setSignatureParameters(signatureParameters);
+    container.sign(new PKCS12Signer("testFiles/ec-digiid.p12", "inno".toCharArray()));
+
+    assertTrue(container.validate().isValid());
   }
 }

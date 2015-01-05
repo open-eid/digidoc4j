@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl;
 
-import eu.europa.ec.markt.dss.DSSXMLUtils;
+import eu.europa.ec.markt.dss.*;
 import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.parameter.BLevelParameters;
 import eu.europa.ec.markt.dss.signature.*;
@@ -32,6 +32,8 @@ import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
 import eu.europa.ec.markt.dss.validation102853.xades.XPathQueryHolder;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.*;
+import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.exceptions.*;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
@@ -133,7 +135,15 @@ public class BDocContainer extends Container {
 
     setDigestAlgorithm();
 
+    setEncryptionAlgorithm();
     addSignerInformation();
+  }
+
+  private void setEncryptionAlgorithm() {
+    logger.debug("");
+    if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA) {
+      dssSignatureParameters.setEncryptionAlgorithm(eu.europa.ec.markt.dss.EncryptionAlgorithm.ECDSA);
+    }
   }
 
   private void setDigestAlgorithm() {

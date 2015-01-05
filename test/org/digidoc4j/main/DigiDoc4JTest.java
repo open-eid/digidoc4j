@@ -120,11 +120,37 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     assertEquals(SignatureProfile.B_BES, container.getSignature(0).getProfile());
   }
 
+  @Test (expected = IllegalArgumentException.class)
+  public void createsECCSignatureWithInvalidEncryptionType() throws Exception {
+    String fileName = "createsECCSignatureWithInvalidEncryptionType.bdoc";
+    Files.deleteIfExists(Paths.get(fileName));
+
+
+    String[] params = new String[]{"-in", fileName, "-add", "testFiles/test.txt", "text/plain",
+        "-pkcs12", "testFiles/ec-digiid.p12", "inno", "-e", "INVALID"};
+
+    DigiDoc4J.main(params);
+  }
+
+  @Test
+  public void createsECCSignature() throws Exception {
+    String fileName = "createsECCSignature.bdoc";
+    Files.deleteIfExists(Paths.get(fileName));
+
+    String[] params = new String[]{"-in", fileName, "-add", "testFiles/test.txt", "text/plain",
+        "-pkcs12", "testFiles/ec-digiid.p12", "inno", "-e", "ECDSA"};
+
+    System.setProperty("digidoc4j.mode", "TEST");
+    callMainWithoutSystemExit(params);
+
+    Container container = Container.open(fileName);
+    assertTrue(container.validate().isValid());
+  }
+
   @Test
   public void createsContainerWithUnknownSignatureProfile() throws Exception {
     String fileName = "test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
-
 
     String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/test.txt", "text/plain",
         "-pkcs12", "testFiles/signout.p12", "test", "-profile", "Unknown"};
