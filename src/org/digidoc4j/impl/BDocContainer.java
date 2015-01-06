@@ -169,7 +169,7 @@ public class BDocContainer extends Container {
     dssSignatureParameters.setDigestAlgorithm(SHA256);
     signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
     dssSignatureParameters.aSiC().setUnderlyingForm(XAdES);
-    dssSignatureParameters.aSiC().setZipComment(true);
+    dssSignatureParameters.aSiC().setZipComment(Helper.createUserAgent(this));
 
     commonCertificateVerifier = new SKCommonCertificateVerifier();
     commonCertificateVerifier.setCrlSource(null);

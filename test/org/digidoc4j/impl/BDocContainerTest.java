@@ -23,6 +23,7 @@ import org.digidoc4j.*;
 import org.digidoc4j.exceptions.*;
 import org.digidoc4j.signers.ExternalSigner;
 import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.utils.Helper;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -1660,5 +1661,17 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.sign(new PKCS12Signer("testFiles/ec-digiid.p12", "inno".toCharArray()));
 
     assertTrue(container.validate().isValid());
+  }
+
+  @Test
+  public void zipFileComment() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.save("testZipFileComment.bdoc");
+
+    ZipFile zipFile = new ZipFile("testZipFileComment.bdoc");
+    String expectedComment = Helper.createUserAgent(container);
+    assertEquals(expectedComment, zipFile.getComment());
   }
 }
