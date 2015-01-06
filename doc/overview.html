@@ -11,11 +11,12 @@
 <p>This document provides the following information on digidoc4j:</p>
 <p>- <a href="#functionality">Supported functionality</a><br>
 - <a href="#architecture">Architecture</a><br>
-- <a href="#api">API overview</a></p>
+- <a href="#api">API overview</a><br>
+- <a href="#utility">Utility program overview</a></p>
 <p>&nbsp;</p>
 <h1><a id="functionality">Supported  functionality</a></h1>
 <p>This section gives overview of the main functional features offered by digidoc4j. For more detailed information about the functions (including functionality that is planned for later releases), see the digidoc4j project's <a href="https://www.pivotaltracker.com/n/projects/1110130" target="_blank"><strong>Pivotal Tracker</strong></a>. </p>
-<p>The  digidoc4j utility program digidoc4j-util*.jar can be used for testing a subset of the supported functionality, the program is accessible from the <a href="http://digidoc4j.org/downloads/" target="_blank"><strong>digidoc4j download area</strong></a>.</p>
+<p>The  digidoc4j utility program digidoc4j-util*.jar can be used for testing a subset of the supported functionality, the program is accessible from the <a href="https://github.com/open-eid/digidoc4j/releases" target="_blank"><strong>digidoc4j download area</strong></a>.</p>
 <h6>Creating and handling signature containers</h6>
 <p>digidoc4j enables handling signature containers compliant to ETSI TS 102 918 standard called <a href="http://www.etsi.org/deliver/etsi_ts/102900_102999/102918/01.03.01_60/ts_102918v010301p.pdf" target="_blank">Associated Signature Containers (ASiC)</a>. By default, the digidoc4j implementation uses containers in <a href="http://www.id.ee/public/bdoc-spec212-eng.pdf" target="_blank">BDOC 2.1</a> format, which is a subset of ASiC standard.</p>
 <p>Note:  additionally, an older <a href="http://www.id.ee/public/DigiDoc_format_1.3.pdf" target="_blank">DIGIDOC-XML 1.3</a> container format is supported via <a href="http://id.ee/index.php?id=35783" target="_blank">JDigiDoc</a> base library. </p>
@@ -43,8 +44,8 @@
 </ol>
 <p>* There are two XAdES-LT level compliant signature profiles supported: </p>
 <ol>
-  <li>TS - XAdES-LT signature with time-stamp -  long term validation data is added to the signature in the form of  a RFC3161 compliant time-stamp and RFC6960 compliant OCSP confirmation. The profile can be used in case of BDOC 2.1 format.</li>
-  <li>TM - XAdES-LT signature with time-mark - long term validation data is added to the signature in the form of a time-mark (RFC6960 compliant OCSP confirmation with a special nonce value). The profile can be used in case of BDOC 2.1 and DIGIDOC-XML 1.3 formats.</li>
+  <li>LT - XAdES-LT signature with time-stamp -  long term validation data is added to the signature in the form of  a RFC3161 compliant time-stamp and RFC6960 compliant OCSP confirmation. The profile can be used in case of BDOC 2.1 format.</li>
+  <li>LT_TM - XAdES-LT signature with time-mark - long term validation data is added to the signature in the form of a time-mark (RFC6960 compliant OCSP confirmation with a special nonce value). The profile can be used in case of BDOC 2.1 and DIGIDOC-XML 1.3 formats.</li>
 </ol>
 <p>See also: {@link org.digidoc4j.Container org.digidoc4j.Container} and {@link org.digidoc4j.Signature org.digidoc4j.Signature}</p>
 <h6>Validating signature container and  all of its contents</h6>
@@ -161,8 +162,8 @@
 <code>
 <strong>container</strong>.{@link org.digidoc4j.Container#addDataFile addDataFile}("<strong>&lt;input_file_name_and_path&gt;</strong>", "<strong>&lt;mime_type&gt;</strong>"); 
 </code>
-<h6>Using the time-mark protocol</h6>
-<p>To sign a container using the time-mark protocol you need to set the signature profile accordingly before signing</p>
+<h6>Using the time-mark signature profile</h6>
+<p>By default, the time-stamp  signature profile (referred to as &quot;LT&quot;) is used in case of BDOC 2.1 documents. To sign a container using the time-mark profile you need to set the signature profile accordingly before signing:</p>
 <code>
   <strong>container</strong>.{@link org.digidoc4j.Container#setSignatureProfile setSignatureProfile}({@link org.digidoc4j.Container.SignatureProfile Container.SignatureProfile.LT_TM});
 </code>
@@ -198,28 +199,27 @@
 <p>The {@link org.digidoc4j.exceptions.DigiDoc4JException DigiDoc4JException} class itself is subclassed to enable better  handling of a number of the most critical exceptions. See also package {@link org.digidoc4j.exceptions}.</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
-<p>&nbsp;</p>
-<h1><a id="utility">Utility overview</a></h1>
-<p>The digidoc4j utility is a command line tool that allows easy usage of several API's.
+<h1><a id="utility">Utility program overview</a></h1>
+<p>The digidoc4j utility program is a command line tool that allows easy usage of several API's.
 </p>
 <h2>Setting up the utility</h2>
-<p>The utility is distribute as a zip file with the name digidoc4j-util-version.zip (where version is the actual version number). Unzip the file to a directory of your choice. From that directory you can now run it:</p><p>java -jar digidoc4j-util.jar</p>
+<p>The utility is distributed as a zip file with the name digidoc4j-util-*.zip (where * is the actual version number). Unzip the file to a directory of your choice. From that directory you can now run it:</p><p>java -jar digidoc4j-util.jar</p>
 <h2>Sample of using the digidoc4j utility</h2>
 <p>In the following subsection some examples are provided for using the utility.</p>
 <h6>Creating a container</h6>
 <p>A valid BDOC container contains at least one document and is signed. To create such a container:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;output_file_name_and_path&gt;" -add "&lt;input_file_name_and_path&gt;" "&lt;mime_type&gt;" -pkcs12 "&lt;pkcs12_token_file&gt;" "&lt;pkcs12_token_password&gt;"</strong></code>
 </p>
-<h6>Using the time-mark protocol</h6>
+<h6>Using the time-mark signature profile</h6>
 <p>To sign a container using the time-mark protocol you need to specify the signature profile using the -profile option LT_TM:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;output_file_name_and_path&gt;" -add "&lt;input_file_name_and_path&gt;" "&lt;mime_type&gt;" -profile LT_TM -pkcs12 "&lt;pkcs12_token_file&gt;" "&lt;pkcs12_token_password&gt;"</strong></code></p>
 <h6>Validation</h6>
-<p>The utility performs validation when specifying the -v option. The output shows all signatures and their status as well as all errors:</p>
+<p>The utility performs validation when specifying the -v option. The output shows all signatures and their statuses as well as all errors:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v</strong></code>
 <p>In order to see validation warnings in addition to the errors you must specify the -w option:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v -w</strong></code>
 <h6>Verbose</h6>
-<p>For all tasks more detail can be obtained using the -verbose option as in the next example:</p>
+<p>For all tasks more details can be obtained using the -verbose option as in the next example:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v -verbose</strong></code>
 </body>
 </html>
