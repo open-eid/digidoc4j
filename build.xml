@@ -28,7 +28,7 @@
     <echo>Version = ${lib.version}</echo>
   </target>
 
-  <condition property="version.suffix" value=".${env.BUILD_NUMBER}-beta" else=".LOCAL_BUILD-beta">
+  <condition property="version.suffix" value=".${env.BUILD_NUMBER}" else=".LOCAL_BUILD">
     <isset property="env.BUILD_NUMBER"/>
   </condition>
 
