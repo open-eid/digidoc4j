@@ -161,7 +161,6 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     assertEquals(SignatureProfile.LT, container.getSignature(0).getProfile());
   }
 
-
   @Test
   public void createsContainerWithSignatureProfileIsTMForDDoc() throws Exception {
     String fileName = "test1.bdoc";
