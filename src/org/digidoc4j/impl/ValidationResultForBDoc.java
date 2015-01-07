@@ -156,7 +156,6 @@ public class ValidationResultForBDoc implements ValidationResult {
   }
 
   private static void removeNamespace(Node node) {
-    logger.debug("");
     Document document = node.getOwnerDocument();
     if (node.getNodeType() == Node.ELEMENT_NODE) {
       document.renameNode(node, null, node.getNodeName());
