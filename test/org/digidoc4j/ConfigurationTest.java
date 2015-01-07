@@ -65,16 +65,6 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void TSLIsLoadedAfterSettingNewTSLLocation() {
-    TrustedListsCertificateSource tsl = configuration.getTSL();
-    assertEquals(6, tsl.getCertificates().size());
-
-    configuration.setTslLocation("http://10.0.25.57/tsl/trusted-test-mp.xml");
-    assertNotEquals(6, configuration.getTSL().getCertificates().size());
-  }
-
-
-  @Test
   public void addTSL() throws IOException, CertificateException {
     TrustedListsCertificateSource tsl = configuration.getTSL();
     int numberOfTSLCertificates = tsl.getCertificates().size();
@@ -293,7 +283,7 @@ public class ConfigurationTest {
   public void defaultConstructorWithSetSystemProperty() throws Exception {
     System.setProperty("digidoc4j.mode", "TEST");
     Configuration configuration = new Configuration();
-    assertEquals("file:test-tsl/trusted-test-mp.xml", configuration.getTslLocation());
+    assertEquals("http://10.0.25.57/tsl/trusted-test-mp.xml", configuration.getTslLocation());
   }
 
   @Test
