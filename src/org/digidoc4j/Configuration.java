@@ -154,8 +154,8 @@ public class Configuration implements Serializable {
     if (mode == Mode.TEST) {
       configuration.put("tspSource", "http://demo.sk.ee/tsa");
       configuration.put("tspSource", "http://tsa.sk.ee");
-      configuration.put("tslLocation", "http://10.0.25.57/tsl/trusted-test-mp.xml");
       configuration.put("tslLocation", "file:test-tsl/trusted-test-mp.xml");
+      configuration.put("tslLocation", "http://10.0.25.57/tsl/trusted-test-mp.xml");
       configuration.put("validationPolicy", "conf/test_constraint.xml");
       configuration.put("ocspSource", "http://www.openxades.org/cgi-bin/ocsp.cgi");
     } else {
@@ -436,7 +436,6 @@ public class Configuration implements Serializable {
   }
 
   private void setJDigiDocConfigurationValue(String key, String defaultValue) {
-    logger.debug("");
     String value = defaultIfNull(key, defaultValue);
     if (value != null) {
       jDigiDocConfiguration.put(key, value);
@@ -608,8 +607,6 @@ public class Configuration implements Serializable {
   }
 
   private boolean loadOCSPCertificateEntry(String ocspsEntryName, LinkedHashMap ocsp, String prefix) {
-    logger.debug("");
-
     Object ocspEntry = ocsp.get(ocspsEntryName);
     if (ocspEntry == null) return false;
     jDigiDocConfiguration.put(prefix + "_" + ocspsEntryName, ocspEntry.toString());
@@ -618,7 +615,6 @@ public class Configuration implements Serializable {
 
   @SuppressWarnings("unchecked")
   private boolean getOCSPCertificates(String prefix, LinkedHashMap ocsp) {
-    logger.debug("");
     ArrayList<String> certificates = (ArrayList<String>) ocsp.get("CERTS");
     if (certificates == null) return false;
     for (int j = 0; j < certificates.size(); j++) {
