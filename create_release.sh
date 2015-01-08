@@ -1,5 +1,6 @@
 #!/bin/sh
 RELEASE_BUILD_DIR=release_build
+JAVADOC_TMP_DIR=/tmp/javadoc
 if [[ ! -f token ]]; then
     echo "Token file does not exist. Execution aborted."
     exit 1
@@ -47,10 +48,24 @@ echo "Uploading assets for release ${RELEASE_ID}... "
 UPLOAD_URL="https://uploads.github.com/repos/open-eid/digidoc4j/releases/${RELEASE_ID}/assets"
 
 echo name=digidoc4j-v${FINAL_VERSION}.0-javadoc.jar --data-binary @dist/digidoc4j-v${FINAL_VERSION}.0-javadoc.jar
-curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-v${FINAL_VERSION}.0-beta-javadoc.jar --data-binary @dist/digidoc4j-v${FINAL_VERSION}.0-javadoc.jar
-curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-v${FINAL_VERSION}.0-beta.jar --data-binary @dist/digidoc4j-v${FINAL_VERSION}.0.jar
-curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-library-v${FINAL_VERSION}.0-beta.zip --data-binary @dist/digidoc4j-library-v${FINAL_VERSION}.0.zip
-curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-util-v${FINAL_VERSION}.0-beta.zip --data-binary @dist/digidoc4j-util-v${FINAL_VERSION}.0.zip
+curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-v${FINAL_VERSION}.0-javadoc.jar --data-binary @dist/digidoc4j-v${FINAL_VERSION}.0-javadoc.jar
+curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-v${FINAL_VERSION}.0.jar --data-binary @dist/digidoc4j-v${FINAL_VERSION}.0.jar
+curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-library-v${FINAL_VERSION}.0.zip --data-binary @dist/digidoc4j-library-v${FINAL_VERSION}.0.zip
+curl --fail -s -S -H "Authorization: token ${TOKEN}" -H "Content-Type: application/zip" -X POST ${UPLOAD_URL}?name=digidoc4j-util-v${FINAL_VERSION}.0.zip --data-binary @dist/digidoc4j-util-v${FINAL_VERSION}.0.zip
+
+if [[ -d  ${JAVADOC_TMP_DIR} ]]; then
+    rm -rf ${JAVADOC_TMP_DIR}
+fi
+mkdir ${JAVADOC_TMP_DIR}
+cp -r javadoc/ ${JAVADOC_TMP_DIR}
+
+git checkout --orphan gh-pages
+git reset --hard
+rm -rf *
+cp -r ${JAVADOC_TMP_DIR}/ .
+git add $(git ls-files -o --exclude-standard)
+git commit -m"javadoc"
+git push --set-upstream origin gh-pages
 
 popd
 
