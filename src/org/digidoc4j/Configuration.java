@@ -77,7 +77,7 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
  * <li>CANONICALIZATION_FACTORY_IMPL: Canonicalization factory implementation.<br>
  * Default value: {@value #DEFAULT_FACTORY_IMPLEMENTATION}</li>
  * <li>CONNECTION_TIMEOUT: TSL HTTP Connection timeout (milliseconds).<br>
- * Default value: 6000  </li>
+ * Default value: 1000  </li>
  * <li>DIGIDOC_FACTORY_IMPL: Factory implementation.<br>
  * Default value: {@value #DEFAULT_FACTORY_IMPLEMENTATION}</li>
  * <li>DATAFILE_HASHCODE_MODE: Is the datafile containing only a hash (not the actual file)?
