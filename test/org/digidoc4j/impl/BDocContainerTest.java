@@ -340,6 +340,21 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test(expected = DigiDoc4JException.class)
+  public void testAddingSameFileSeveralTimesViaInputStream() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile(new ByteArrayInputStream("test".getBytes()), "testFiles/test.txt", "text/plain");
+    container.addDataFile(new ByteArrayInputStream("test".getBytes()), "testFiles/test.txt", "text/plain");
+  }
+
+  @Test
+  public void testAddDateFileViaInputStream() throws Exception {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile(new ByteArrayInputStream("test".getBytes()), "testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    assertTrue(container.validate().isValid());
+  }
+
+  @Test(expected = DigiDoc4JException.class)
   public void testAddingSameFileInDifferentContainerSeveralTimes() throws Exception {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");

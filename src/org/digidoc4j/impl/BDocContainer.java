@@ -423,13 +423,7 @@ public class BDocContainer extends Container {
   public void addDataFile(String path, String mimeType) {
     logger.debug("Path: " + path + ", mime type: " + mimeType);
 
-    if (signatures.size() > 0) {
-      String errorMessage = "Datafiles cannot be added to an already signed container";
-      logger.error(errorMessage);
-      throw new DigiDoc4JException(errorMessage);
-    }
-
-    checkForDuplicateDataFile(path);
+    verifyIfAllowedToAddDataFile(path);
 
     validationReport = null;
     try {
@@ -447,6 +441,16 @@ public class BDocContainer extends Container {
     }
   }
 
+  private void verifyIfAllowedToAddDataFile(String path) {
+    if (signatures.size() > 0) {
+      String errorMessage = "Datafiles cannot be added to an already signed container";
+      logger.error(errorMessage);
+      throw new DigiDoc4JException(errorMessage);
+    }
+
+    checkForDuplicateDataFile(path);
+  }
+
   private void checkForDuplicateDataFile(String path) {
     logger.debug("");
     String fileName = new File(path).getName();
@@ -462,6 +466,9 @@ public class BDocContainer extends Container {
   @Override
   public void addDataFile(InputStream is, String fileName, String mimeType) {
     logger.debug("File name: " + fileName + ", mime type: " + mimeType);
+
+    verifyIfAllowedToAddDataFile(fileName);
+
     validationReport = null;
     try {
       if (configuration.isBigFilesSupportEnabled()) {
