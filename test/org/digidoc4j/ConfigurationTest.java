@@ -721,6 +721,24 @@ public class ConfigurationTest {
 
   }
 
+  @Test
+  public void getDefaultConnectionTimeout() throws Exception {
+    assertEquals(1000, configuration.getConnectionTimeout());
+  }
+
+  @Test
+  public void loadConnectionTimeoutFromFile() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf_connection_timeout.yaml");
+    assertEquals(4000, configuration.getConnectionTimeout());
+  }
+
+  @Test
+  public void setConnectionTimeoutFromCode() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf_connection_timeout.yaml");
+    configuration.setConnectionTimeout(2000);
+    assertEquals(2000, configuration.getConnectionTimeout());
+  }
+
   //  // getCACerts is currently only used for testing purposes and not yet updated for multiple CA's
 //  @Test
 //  public void readConfigurationFromPropertiesFile() throws Exception {

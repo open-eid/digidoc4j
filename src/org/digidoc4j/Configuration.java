@@ -76,11 +76,14 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
  * <ul>
  * <li>CANONICALIZATION_FACTORY_IMPL: Canonicalization factory implementation.<br>
  * Default value: {@value #DEFAULT_FACTORY_IMPLEMENTATION}</li>
+ * <li>CONNECTION_TIMEOUT: TSL HTTP Connection timeout (milliseconds).<br>
+ * Default value: 6000  </li>
  * <li>DIGIDOC_FACTORY_IMPL: Factory implementation.<br>
  * Default value: {@value #DEFAULT_FACTORY_IMPLEMENTATION}</li>
  * <li>DATAFILE_HASHCODE_MODE: Is the datafile containing only a hash (not the actual file)?
  * Allowed values: true, false.<br>
  * Default value: {@value #DEFAULT_DATAFILE_HASHCODE_MODE}</li>
+ * <li>DIGIDOC_DF_CACHE_DIR: Temporary directory to use. Default: uses system's default temporary directory</li>
  * <li>DIGIDOC_LOG4J_CONFIG: File containing Log4J configuration parameters.<br>
  * Default value: {@value #DEFAULT_LOG4J_CONFIGURATION}</li>
  * <li>DIGIDOC_MAX_DATAFILE_CACHED: Maximum datafile size that will be cached in MB.
@@ -107,10 +110,10 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
  * <li>TSL_LOCATION: TSL Location</li>
  * <li>TSP_SOURCE: Time Stamp Protocol source address</li>
  * <li>VALIDATION_POLICY: Validation policy source file</li>
- * <li>DIGIDOC_DF_CACHE_DIR: Temporary directory to use. Default: uses system's default temporary directory</li>
  * </ul>
  */
 public class Configuration implements Serializable {
+  private static final int ONE_SECOND = 1000;
   final Logger logger = LoggerFactory.getLogger(Configuration.class);
   public static final long ONE_MB_IN_BYTES = 1048576;
 
@@ -150,6 +153,7 @@ public class Configuration implements Serializable {
     logger.debug("");
 
     configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
+    configuration.put("connectionTimeout", String.valueOf(ONE_SECOND));
 
     if (mode == Mode.TEST) {
       configuration.put("tspSource", "http://demo.sk.ee/tsa");
@@ -424,6 +428,7 @@ public class Configuration implements Serializable {
     setConfigurationValue("OCSP_SOURCE", "ocspSource");
     setConfigurationValue("DIGIDOC_PKCS12_CONTAINER", "OCSPAccessCertificateFile");
     setConfigurationValue("DIGIDOC_PKCS12_PASSWD", "OCSPAccessCertificatePassword");
+    setConfigurationValue("CONNECTION_TIMEOUT", "connectionTimeout");
   }
 
   private void setConfigurationValue(String fileKey, String configurationKey) {
@@ -697,6 +702,7 @@ public class Configuration implements Serializable {
     String tslLocation = getTslLocation();
     if (Protocol.isHttpUrl(tslLocation)) {
       FileCacheDataLoader dataLoader = new FileCacheDataLoader();
+      dataLoader.setConnectTimeout(getConnectionTimeout());
       dataLoader.setFileCacheDirectory(TSLCertificateSource.fileCacheDirectory);
       tslCertificateSource.setTslRefreshPolicy(TSLRefreshPolicy.NEVER);
       tslCertificateSource.setDataLoader(dataLoader);
@@ -747,6 +753,24 @@ public class Configuration implements Serializable {
     String tspSource = getConfigurationParameter("tspSource");
     logger.debug("TSP Source: " + tspSource);
     return tspSource;
+  }
+
+  /**
+   * Set HTTP connection timeout
+   * @param connectionTimeout connection timeout in milliseconds
+   */
+  public void setConnectionTimeout(int connectionTimeout) {
+    logger.debug("Set connection timeout to " + connectionTimeout + " ms");
+    setConfigurationParameter("connectionTimeout", String.valueOf(connectionTimeout));
+  }
+
+  /**
+   * Get HTTP connection timeout
+   *
+   * @return connection timeout in milliseconds
+   */
+  public int getConnectionTimeout() {
+    return Integer.parseInt(getConfigurationParameter("connectionTimeout"));
   }
 
   /**
