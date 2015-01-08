@@ -43,7 +43,10 @@
           <root url="jar://$MODULE_DIR$/lib/httpclient-4.3.6.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://$USER_HOME$/.ideaLibSources/httpclient-4.3.6-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/httpclient-4.3.6-sources.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
