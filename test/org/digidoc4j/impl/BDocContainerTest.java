@@ -896,7 +896,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.sign(PKCS12_SIGNER);
 
     container.extendTo(LTA);
-
     assertNotNull(container.getSignature(0).getOCSPCertificate());
   }
 
