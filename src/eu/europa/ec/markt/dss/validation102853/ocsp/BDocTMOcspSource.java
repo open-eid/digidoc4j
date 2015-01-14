@@ -34,6 +34,7 @@ public class BDocTMOcspSource extends SKOnlineOCSPSource {
     try {
       extension = new Extension(id_pkix_ocsp_nonce, false, createNonceAsn1Sequence().getEncoded());
       final Extensions extensions = new Extensions(extension);
+      nonce = (DEROctetString) extension.getExtnValue();
       ocspReqBuilder.setRequestExtensions(extensions);
     } catch (IOException e) {
       logger.error(e.getMessage());

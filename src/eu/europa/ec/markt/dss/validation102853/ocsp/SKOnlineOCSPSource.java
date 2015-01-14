@@ -19,6 +19,9 @@ import eu.europa.ec.markt.dss.validation102853.OCSPToken;
 import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.https.OCSPDataLoader;
 import eu.europa.ec.markt.dss.validation102853.loader.DataLoader;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
+import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
@@ -28,6 +31,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Signer;
 import org.digidoc4j.exceptions.ConfigurationException;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +54,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   private DataLoader dataLoader;
 
   private Configuration configuration;
+  protected DEROctetString nonce;
 
   /**
    * SK Online OCSP Source constructor
@@ -157,6 +162,9 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
 
       final OCSPResp ocspResp = new OCSPResp(ocspRespBytes);
       BasicOCSPResp basicOCSPResp = (BasicOCSPResp) ocspResp.getResponseObject();
+
+      checkNonce(basicOCSPResp);
+
       Date bestUpdate = null;
       SingleResp bestSingleResp = null;
       final CertificateID certId = DSSRevocationUtils.getOCSPCertificateID(certificate, issuerCertificate);
@@ -187,6 +195,15 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
       throw new DSSException(e);
     }
     return null;
+  }
+
+  protected void checkNonce(BasicOCSPResp basicOCSPResp) {
+    final Extension extension = basicOCSPResp.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
+    final DEROctetString receivedNonce = (DEROctetString) extension.getExtnValue();
+    if (!receivedNonce.equals(nonce)) {
+      throw new DigiDoc4JException("The OCSP request was the victim of replay attack: nonce[sent:" + nonce + "," +
+          " received:" + receivedNonce);
+    }
   }
 
   abstract void addNonce(OCSPReqBuilder ocspReqBuilder);
