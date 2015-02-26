@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="dss-demo-webapp:war">
+    <output-path>$PROJECT_DIR$/sd-dss/apps/dss/demo/dss-demo-webapp/target</output-path>
+    <root id="archive" name="dss-demo-webapp-4.3.0.w09-2-SNAPSHOT.war">
+      <element id="artifact" artifact-name="dss-demo-webapp:war exploded" />
+    </root>
+  </artifact>
+</component>

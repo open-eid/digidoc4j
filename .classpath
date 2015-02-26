@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="resources"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=digidoc4j_development_codeborne&amp;ivyXmlPath=ivy.xml&amp;confs=*"/>
+	<classpathentry kind="lib" path="lib/dss-common-4.3.0-RC.jar"/>
+	<classpathentry kind="lib" path="lib/dss-document-4.3.0-RC.jar" sourcepath="/dss-document"/>
+	<classpathentry kind="lib" path="lib/dss-service-4.3.0-RC.jar"/>
+	<classpathentry kind="lib" path="lib/dss-spi-4.3.0-RC.jar"/>
+	<classpathentry kind="lib" path="lib/jacocoagent.jar"/>
+	<classpathentry kind="lib" path="lib/jacocoant.jar"/>
+	<classpathentry kind="lib" path="lib/jdigidoc-3.10.1424.BETA.jar"/>
+	<classpathentry kind="lib" path="lib/testcerts.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

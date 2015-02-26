@@ -23,11 +23,8 @@ import org.digidoc4j.*;
 import org.digidoc4j.exceptions.*;
 import org.digidoc4j.signers.ExternalSigner;
 import org.digidoc4j.signers.PKCS12Signer;
+import org.junit.*;
 import org.digidoc4j.utils.Helper;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.*;
@@ -251,7 +248,18 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(0, container.getSignatures().size());
   }
 
-  @Test
+    @Test
+    public void testAddFilesWithSpecialCharactersIntoContainer() throws Exception {
+        BDocContainer container = new BDocContainer();
+        container.addDataFile("testFiles/special-char-files/dds_dds_JÜRIÖÖ € žŠ päev.txt", "text/plain");
+        container.addDataFile("testFiles/special-char-files/dds_колючей стерне.docx", "text/plain");
+        container.sign(PKCS12_SIGNER);
+        container.save("testWithSpecialCharFiles.bdoc");
+
+        assertEquals(0, container.verify().getContainerErrors().size());
+    }
+
+    @Test
   public void testRemoveSignatureWhenTwoSignaturesExist() throws Exception {
     Container container = open("testFiles/asics_testing_two_signatures.bdoc");
     container.removeSignature(0);
@@ -337,6 +345,21 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     BDocContainer container = new BDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.addDataFile("testFiles/test.txt", "text/plain");
+  }
+  
+  @Test(expected = DigiDoc4JException.class)
+  public void testAddingSamePreCreatedFileSeveralTimes() {
+    BDocContainer container = new BDocContainer();
+    DataFile dataFile = new DataFile("Hello world!".getBytes(), "test-file.txt", "text/plain");
+    container.addDataFile(dataFile);
+    container.addDataFile(dataFile);
+  }
+
+  @Test
+  public void testAddingDifferentPreCreatedFiles() {
+    BDocContainer container = new BDocContainer();
+    container.addDataFile(new DataFile("Hello world!".getBytes(), "hello.txt", "text/plain"));
+    container.addDataFile(new DataFile("Goodbye world!".getBytes(), "goodbye.txt", "text/plain")); 
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -650,6 +673,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  @Ignore("RIA VPN")
   public void TSLIsLoadedAfterSettingNewTSLLocation() {
     Configuration configuration = new Configuration();
     configuration.setTslLocation("file:test-tsl/trusted-test-mp.xml");
@@ -1055,12 +1079,17 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   static byte[] getExternalSignature(Container container, final X509Certificate signerCert,
                                      SignedInfo prepareSigningSignature, final DigestAlgorithm digestAlgorithm) {
+    return getExternalSignature(container, signerCert, prepareSigningSignature, digestAlgorithm, "testFiles/signout.p12");
+  }
+
+  private static byte[] getExternalSignature(Container container, final X509Certificate signerCert,
+                                             SignedInfo prepareSigningSignature, final DigestAlgorithm digestAlgorithm, final String signerCertFile) {
     Signer externalSigner = new ExternalSigner(signerCert) {
       @Override
       public byte[] sign(Container container, byte[] dataToSign) {
         try {
           KeyStore keyStore = KeyStore.getInstance("PKCS12");
-          try (FileInputStream stream = new FileInputStream("testFiles/signout.p12")) {
+          try (FileInputStream stream = new FileInputStream(signerCertFile)) {
             keyStore.load(stream, "test".toCharArray());
           }
           PrivateKey privateKey = (PrivateKey) keyStore.getKey("1", "test".toCharArray());
@@ -1091,16 +1120,20 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     return externalSigner.sign(container, prepareSigningSignature.getDigest());
   }
 
-  static X509Certificate getSignerCert() {
+  static X509Certificate getSignerCert(String certFile) {
     try {
       KeyStore keyStore = KeyStore.getInstance("PKCS12");
-      try (FileInputStream stream = new FileInputStream("testFiles/signout.p12")) {
+      try (FileInputStream stream = new FileInputStream(certFile)) {
         keyStore.load(stream, "test".toCharArray());
       }
       return (X509Certificate) keyStore.getCertificate("1");
     } catch (Exception e) {
       throw new DigiDoc4JException("Loading signer cert failed");
     }
+  }
+
+  static X509Certificate getSignerCert() {
+    return getSignerCert("testFiles/signout.p12");
   }
 
   @Test
@@ -1338,19 +1371,38 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertArrayEquals(dataFileAfterSerialization.calculateDigest(), dataFileBeforeSerialization.calculateDigest());
   }
 
-  @Test
-  public void testOCSPRevoked() {
-    Configuration configuration = new Configuration(Configuration.Mode.PROD);
-    configuration.setOCSPAccessCertificateFileName("testFiles/ocsp_juurdepaasutoend.p12d");
-    configuration.setOCSPAccessCertificatePassword("0vRsI0XQ".toCharArray());
+  @Test(expected = Exception.class)
+  public void testOCSPUnknown() {
+    try {
+      testSigningWithOCSPCheck("testFiles/20167000013.p12");
+    } catch (Exception e) {
+      assertTrue(e.getMessage().contains("UNKNOWN"));
+      throw e;
+    }
+  }
 
-    Container container = Container.open("testFiles/EE-TS-BpLT-R-001.asice", configuration);
-    ValidationResult result = container.validate();
-    assertFalse(result.isValid());
+  @Test(expected = Exception.class)
+  public void testExpiredCertSign() {
+    try {
+      testSigningWithOCSPCheck("testFiles/expired_signer.p12");
+    } catch (Exception e) {
+      assertTrue(e.getMessage().contains("not in certificate validity range"));
+      throw e;
+    }
+  }
+
+  private void testSigningWithOCSPCheck(String unknownCert) {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    X509Certificate signerCert = getSignerCert(unknownCert);
+    SignedInfo signedInfo = container.prepareSigning(signerCert);
+    byte[] signature = getExternalSignature(container, signerCert, signedInfo, SHA256, unknownCert);
+    container.signRaw(signature);
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
+  @Ignore("Ignored because reference validation is turned off. Turn ON again when fixed")
   public void signatureFileContainsIncorrectFileName() {
     Container container = Container.open("testFiles/filename_mismatch_signature.asice");
     ValidationResult validate = container.validate();
@@ -1425,8 +1477,13 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void dssReturnsEmptySignatureList() {
     Container container = Container.open("testFiles/filename_mismatch_signature.asice");
     ValidationResult validate = container.validate();
-    assertEquals(1, validate.getErrors().size());
-    assertEquals("The reference data object(s) not found!", validate.getErrors().get(0).toString());
+
+    // File name in signature does not match with manifest file info
+    // Actual file inside container is same as in manifest (test.txt)
+    assertEquals(3, validate.getErrors().size());
+
+    // TODO: Ignored because reference validation is turned off. Turn ON again when fixed
+    // assertEquals("The reference data object(s) not found!", validate.getErrors().get(0).toString());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -1467,6 +1524,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
+  @Ignore("Ignored because reference validation is turned off. Turn ON again when fixed")
   public void containerMissesFileWhichIsInManifestAndSignatureFile() {
     Container container = Container.open("testFiles/zip_misses_file_which_is_in_manifest.asice");
     ValidationResult result = container.validate();

@@ -26,6 +26,7 @@ import eu.europa.ec.markt.dss.validation102853.ocsp.SKOnlineOCSPSource;
 import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
 import eu.europa.ec.markt.dss.validation102853.report.Reports;
 import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
+import eu.europa.ec.markt.dss.validation102853.rules.MessageTag;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
@@ -208,21 +209,25 @@ public class BDocContainer extends Container {
    * @see org.digidoc4j.Configuration#isBigFilesSupportEnabled() returns true
    */
   public BDocContainer(InputStream stream, boolean actAsBigFilesSupportEnabled) {
+    this(stream, actAsBigFilesSupportEnabled, new Configuration());
+  }
+
+  public BDocContainer(InputStream stream, boolean actAsBigFilesSupportEnabled, Configuration configuration) {
     logger.debug("");
-    this.configuration = new Configuration();
+    this.configuration = configuration;
     initASiC();
     try {
       if (actAsBigFilesSupportEnabled) {
         signedDocument = new StreamDocument(stream, null, BDOC_MIME_TYPE);
       } else
-        signedDocument = new InMemoryDocument(IOUtils.toByteArray(stream), null, BDOC_MIME_TYPE);
+       signedDocument = new InMemoryDocument(IOUtils.toByteArray(stream), null, BDOC_MIME_TYPE);
     } catch (IOException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
-    }
-
-    readsOpenedDocumentDetails();
   }
+
+  readsOpenedDocumentDetails();
+}
 
   /**
    * Opens container from a file with specified configuration settings
@@ -350,7 +355,10 @@ public class BDocContainer extends Container {
         for (Conclusion.BasicInfo error : simpleReport.getErrors(reportSignatureId)) {
           String errorMessage = error.toString();
           logger.info(errorMessage);
-          validationErrors.add(new DigiDoc4JException(errorMessage));
+          if(errorMessage.contains(MessageTag.BBB_XCV_ISCR_ANS.getMessage()))
+            validationErrors.add(new CertificateRevokedException(errorMessage));
+          else
+            validationErrors.add(new DigiDoc4JException(errorMessage));
         }
       }
       validationErrors.addAll(additionalVerificationErrors.get(reportSignatureId));
@@ -644,7 +652,7 @@ public class BDocContainer extends Container {
     } catch (DSSException e) {
       logger.error(e.getMessage());
       if ("OCSP request failed".equals(e.getMessage()))
-        throw new OCSPRequestFailedException();
+        throw new OCSPRequestFailedException(e);
       throw new DigiDoc4JException(e);
     }
 
@@ -693,6 +701,7 @@ public class BDocContainer extends Container {
 
   private DSSDocument getDssDocumentFromDataFile(DataFile dataFile) {
     logger.debug("");
+
     DSSDocument attachment;
     MimeType mimeType = MimeType.fromMimeTypeString(dataFile.getMediaType());
     long cachedFileSizeInMB = configuration.getMaxDataFileCachedInMB();
@@ -919,5 +928,10 @@ public class BDocContainer extends Container {
   protected eu.europa.ec.markt.dss.parameter.SignatureParameters getDssSignatureParameters() {
     logger.debug("");
     return dssSignatureParameters;
+  }
+
+  public void addDataFile(DataFile dataFile) {
+    checkForDuplicateDataFile(dataFile.getName());
+    dataFiles.put(dataFile.getName(), dataFile);
   }
 }

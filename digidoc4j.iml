@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="IvyIDEA" name="IvyIDEA">
+      <configuration ivyFile="$MODULE_DIR$/ivy.xml" useProjectSettings="false" useCustomIvySettings="false" ivySettingsFile="" onlyResolveSelectedConfigs="false">
+        <propertiesSettings>
+          <propertiesFiles includeProjectLevelPropertiesFiles="true" />
+        </propertiesSettings>
+      </configuration>
+    </facet>
+  </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
@@ -10,21 +19,200 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="dss-spi" />
-    <orderEntry type="module" module-name="dss-document" />
-    <orderEntry type="module" module-name="dss-service" />
     <orderEntry type="module-library">
-      <library>
+      <library name="IvyIDEA">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/commons-lang-2.6.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-cli/commons-cli/jars/commons-cli-1.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-compress/jars/commons-compress-1.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-io/commons-io/jars/commons-io-2.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/log4j/log4j/bundles/log4j-1.2.17.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/ch.qos.logback/logback-classic/jars/logback-classic-1.1.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/ch.qos.logback/logback-core/jars/logback-core-1.1.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-codec/commons-codec/jars/commons-codec-1.10.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-lang/commons-lang/jars/commons-lang-2.6.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-logging/commons-logging/jars/commons-logging-1.1.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpclient/jars/httpclient-4.3.6.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpcore/jars/httpcore-4.3.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.santuario/xmlsec/bundles/xmlsec-2.0.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.woodstox/woodstox-core-asl/jars/woodstox-core-asl-4.4.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/javax.xml.stream/stax-api/jars/stax-api-1.0-2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.woodstox/stax2-api/bundles/stax2-api-3.1.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcmail-jdk15on/jars/bcmail-jdk15on-1.51.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcprov-jdk15on/jars/bcprov-jdk15on-1.51.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcpkix-jdk15on/jars/bcpkix-jdk15on-1.51.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/jul-to-slf4j/jars/jul-to-slf4j-1.6.6.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xalan/serializer/jars/serializer-2.7.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xml-apis/xml-apis/jars/xml-apis-1.3.04.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xalan/xalan/jars/xalan-2.7.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.janino/janino/jars/janino-2.6.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.janino/commons-compiler/jars/commons-compiler-2.6.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.yaml/snakeyaml/bundles/snakeyaml-1.14.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/slf4j-api/jars/slf4j-api-1.7.10.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.hamcrest/hamcrest-core/jars/hamcrest-core-1.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.mockito/mockito-all/jars/mockito-all-1.10.19.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.github.stefanbirkner/system-rules/jars/system-rules-1.5.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/junit/junit/jars/junit-4.11.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xmlunit/xmlunit/jars/xmlunit-1.5.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.hamcrest/hamcrest-library/jars/hamcrest-library-1.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.pdfbox/pdfbox/bundles/pdfbox-1.8.8.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.pdfbox/fontbox/bundles/fontbox-1.8.8.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.pdfbox/jempbox/bundles/jempbox-1.8.8.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.sun.xml.bind/jaxb-impl/jars/jaxb-impl-2.1.17.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.sun.xml.bind/jaxb-xjc/jars/jaxb-xjc-2.1.17.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.sun.xml.fastinfoset/FastInfoset/jars/FastInfoset-1.2.12.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/javax.xml.bind/jsr173_api/jars/jsr173_api-1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/javax.xml.bind/jaxb-api/jars/jaxb-api-2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/javax.activation/activation/jars/activation-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/stax/stax-api/jars/stax-api-1.0.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-model/bundles/api-ldap-model-1.0.0-M28.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-util/bundles/api-util-1.0.0-M28.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-i18n/bundles/api-i18n-1.0.0-M28.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-asn1-api/bundles/api-asn1-api-1.0.0-M28.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-asn1-ber/bundles/api-asn1-ber-1.0.0-M28.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.mina/mina-core/bundles/mina-core-2.0.9.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.servicemix.bundles/org.apache.servicemix.bundles.antlr/bundles/org.apache.servicemix.bundles.antlr-2.7.7_5.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-collections/commons-collections/jars/commons-collections-3.2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xerces/xercesImpl/jars/xercesImpl-2.11.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xml-apis/xml-apis/jars/xml-apis-1.4.01.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.ow2.asm/asm/jars/asm-5.0.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-client-api/bundles/api-ldap-client-api-1.0.0-M28.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-schema-data/jars/api-ldap-schema-data-1.0.0-M28.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-codec-core/bundles/api-ldap-codec-core-1.0.0-M28.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-extras-codec/bundles/api-ldap-extras-codec-1.0.0-M28.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-extras-codec-api/bundles/api-ldap-extras-codec-api-1.0.0-M28.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-pool/commons-pool/jars/commons-pool-1.6.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-dbcp2/jars/commons-dbcp2-2.0.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-pool2/jars/commons-pool2-2.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.easytesting/fest-assert/jars/fest-assert-1.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.easytesting/fest-util/jars/fest-util-1.2.5.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.fontbox/fontbox/jars/fontbox-0.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.hsqldb/hsqldb/jars/hsqldb-1.8.0.10.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/jcl-over-slf4j/jars/jcl-over-slf4j-1.7.7.jar!/" />
         </CLASSES>
-        <JAVADOC />
+        <JAVADOC>
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-cli/commons-cli/javadocs/commons-cli-1.2-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-compress/javadocs/commons-compress-1.3-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-io/commons-io/javadocs/commons-io-2.4-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/log4j/log4j/javadocs/log4j-1.2.17-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/ch.qos.logback/logback-classic/javadocs/logback-classic-1.1.2-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/ch.qos.logback/logback-core/javadocs/logback-core-1.1.2-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-codec/commons-codec/javadocs/commons-codec-1.10-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-lang/commons-lang/javadocs/commons-lang-2.6-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-logging/commons-logging/javadocs/commons-logging-1.1.3-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpclient/javadocs/httpclient-4.3.6-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpcore/javadocs/httpcore-4.3.3-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.santuario/xmlsec/javadocs/xmlsec-2.0.3-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.woodstox/woodstox-core-asl/javadocs/woodstox-core-asl-4.4.1-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.woodstox/stax2-api/javadocs/stax2-api-3.1.4-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcprov-jdk15on/javadocs/bcprov-jdk15on-1.51-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcpkix-jdk15on/javadocs/bcpkix-jdk15on-1.51-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/jul-to-slf4j/javadocs/jul-to-slf4j-1.6.6-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xalan/xalan/javadocs/xalan-2.7.2-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.janino/janino/javadocs/janino-2.6.1-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.janino/commons-compiler/javadocs/commons-compiler-2.6.1-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.yaml/snakeyaml/javadocs/snakeyaml-1.14-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/slf4j-api/javadocs/slf4j-api-1.7.10-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.hamcrest/hamcrest-core/javadocs/hamcrest-core-1.3-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.mockito/mockito-all/javadocs/mockito-all-1.10.19-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.github.stefanbirkner/system-rules/javadocs/system-rules-1.5.0-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/junit/junit/javadocs/junit-4.11-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xmlunit/xmlunit/javadocs/xmlunit-1.5-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.hamcrest/hamcrest-library/javadocs/hamcrest-library-1.3-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.pdfbox/pdfbox/javadocs/pdfbox-1.8.8-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.pdfbox/fontbox/javadocs/fontbox-1.8.8-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.pdfbox/jempbox/javadocs/jempbox-1.8.8-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.sun.xml.bind/jaxb-impl/javadocs/jaxb-impl-2.1.17-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.sun.xml.bind/jaxb-xjc/javadocs/jaxb-xjc-2.1.17-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.sun.xml.fastinfoset/FastInfoset/javadocs/FastInfoset-1.2.12-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-model/javadocs/api-ldap-model-1.0.0-M28-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-util/javadocs/api-util-1.0.0-M28-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-i18n/javadocs/api-i18n-1.0.0-M28-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-asn1-api/javadocs/api-asn1-api-1.0.0-M28-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-asn1-ber/javadocs/api-asn1-ber-1.0.0-M28-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.mina/mina-core/javadocs/mina-core-2.0.9-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-collections/commons-collections/javadocs/commons-collections-3.2.1-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xerces/xercesImpl/javadocs/xercesImpl-2.11.0-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xml-apis/xml-apis/javadocs/xml-apis-1.4.01-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.ow2.asm/asm/javadocs/asm-5.0.3-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-client-api/javadocs/api-ldap-client-api-1.0.0-M28-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-schema-data/javadocs/api-ldap-schema-data-1.0.0-M28-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-codec-core/javadocs/api-ldap-codec-core-1.0.0-M28-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-extras-codec/javadocs/api-ldap-extras-codec-1.0.0-M28-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-extras-codec-api/javadocs/api-ldap-extras-codec-api-1.0.0-M28-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-pool/commons-pool/javadocs/commons-pool-1.6-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-dbcp2/javadocs/commons-dbcp2-2.0.1-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-pool2/javadocs/commons-pool2-2.2-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.easytesting/fest-assert/javadocs/fest-assert-1.4-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.easytesting/fest-util/javadocs/fest-util-1.2.5-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/jcl-over-slf4j/javadocs/jcl-over-slf4j-1.7.7-javadoc.jar!/" />
+        </JAVADOC>
         <SOURCES>
-          <root url="jar://$MAVEN_REPOSITORY$/.ideaLibSources/commons-lang-2.6-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ideaLibSources/commons-lang-2.6-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-cli/commons-cli/sources/commons-cli-1.2-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-compress/sources/commons-compress-1.3-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-io/commons-io/sources/commons-io-2.4-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/log4j/log4j/sources/log4j-1.2.17-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/ch.qos.logback/logback-classic/sources/logback-classic-1.1.2-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/ch.qos.logback/logback-core/sources/logback-core-1.1.2-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-codec/commons-codec/sources/commons-codec-1.10-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-lang/commons-lang/sources/commons-lang-2.6-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-logging/commons-logging/sources/commons-logging-1.1.3-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpclient/sources/httpclient-4.3.6-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpcore/sources/httpcore-4.3.3-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.santuario/xmlsec/sources/xmlsec-2.0.3-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.woodstox/woodstox-core-asl/sources/woodstox-core-asl-4.4.1-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/javax.xml.stream/stax-api/sources/stax-api-1.0-2-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.woodstox/stax2-api/sources/stax2-api-3.1.4-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcmail-jdk15on/sources/bcmail-jdk15on-1.51-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcprov-jdk15on/sources/bcprov-jdk15on-1.51-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcpkix-jdk15on/sources/bcpkix-jdk15on-1.51-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/jul-to-slf4j/sources/jul-to-slf4j-1.6.6-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xml-apis/xml-apis/sources/xml-apis-1.3.04-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xalan/xalan/sources/xalan-2.7.2-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.janino/janino/sources/janino-2.6.1-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.janino/commons-compiler/sources/commons-compiler-2.6.1-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.yaml/snakeyaml/sources/snakeyaml-1.14-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/slf4j-api/sources/slf4j-api-1.7.10-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.hamcrest/hamcrest-core/sources/hamcrest-core-1.3-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.mockito/mockito-all/sources/mockito-all-1.10.19-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.github.stefanbirkner/system-rules/sources/system-rules-1.5.0-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/junit/junit/sources/junit-4.11-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xmlunit/xmlunit/sources/xmlunit-1.5-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.hamcrest/hamcrest-library/sources/hamcrest-library-1.3-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.pdfbox/pdfbox/sources/pdfbox-1.8.8-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.pdfbox/fontbox/sources/fontbox-1.8.8-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.pdfbox/jempbox/sources/jempbox-1.8.8-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.sun.xml.bind/jaxb-impl/sources/jaxb-impl-2.1.17-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.sun.xml.bind/jaxb-xjc/sources/jaxb-xjc-2.1.17-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.sun.xml.fastinfoset/FastInfoset/sources/FastInfoset-1.2.12-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/javax.xml.bind/jaxb-api/sources/jaxb-api-2.1-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/javax.activation/activation/sources/activation-1.1.1-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-model/sources/api-ldap-model-1.0.0-M28-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-util/sources/api-util-1.0.0-M28-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-i18n/sources/api-i18n-1.0.0-M28-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-asn1-api/sources/api-asn1-api-1.0.0-M28-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-asn1-ber/sources/api-asn1-ber-1.0.0-M28-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.mina/mina-core/sources/mina-core-2.0.9-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-collections/commons-collections/sources/commons-collections-3.2.1-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xerces/xercesImpl/sources/xercesImpl-2.11.0-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xml-apis/xml-apis/sources/xml-apis-1.4.01-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.ow2.asm/asm/sources/asm-5.0.3-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-client-api/sources/api-ldap-client-api-1.0.0-M28-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-schema-data/sources/api-ldap-schema-data-1.0.0-M28-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-codec-core/sources/api-ldap-codec-core-1.0.0-M28-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-extras-codec/sources/api-ldap-extras-codec-1.0.0-M28-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.directory.api/api-ldap-extras-codec-api/sources/api-ldap-extras-codec-api-1.0.0-M28-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-pool/commons-pool/sources/commons-pool-1.6-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-dbcp2/sources/commons-dbcp2-2.0.1-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-pool2/sources/commons-pool2-2.2-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.easytesting/fest-assert/sources/fest-assert-1.4-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.easytesting/fest-util/sources/fest-util-1.2.5-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/jcl-over-slf4j/sources/jcl-over-slf4j-1.7.7-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="module" module-name="dss-spi" />
+    <orderEntry type="module" module-name="dss-document" />
+    <orderEntry type="module" module-name="dss-service" />
     <orderEntry type="module-library" scope="TEST">
       <library name="JUnit4">
         <CLASSES>
@@ -39,56 +227,15 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="library" name="activation-1.1.1" level="project" />
-    <orderEntry type="library" name="api-ldap-client-api-1.0.0-M26" level="project" />
-    <orderEntry type="library" name="api-ldap-model-1.0.0-M26" level="project" />
-    <orderEntry type="library" name="asm-5.0.3" level="project" />
-    <orderEntry type="library" name="bcmail-jdk15on-1.51" level="project" />
-    <orderEntry type="library" name="bcpkix-jdk15on-1.51" level="project" />
-    <orderEntry type="library" name="bcprov-jdk15on-1.51" level="project" />
-    <orderEntry type="library" name="commons-cli-1.2" level="project" />
-    <orderEntry type="library" name="commons-codec-1.10" level="project" />
-    <orderEntry type="library" name="commons-dbcp2-2.0.1" level="project" />
-    <orderEntry type="library" name="commons-io-2.4" level="project" />
-    <orderEntry type="library" name="commons-lang-2.6" level="project" />
-    <orderEntry type="library" name="commons-pool2-2.2" level="project" />
-    <orderEntry type="library" name="fest-assert-1.4" level="project" />
-    <orderEntry type="library" name="fest-util-1.2.5" level="project" />
-    <orderEntry type="library" name="fontbox-0.1.0" level="project" />
-    <orderEntry type="library" name="hamcrest-core-1.3" level="project" />
-    <orderEntry type="library" name="hamcrest-library-1.3" level="project" />
-    <orderEntry type="library" name="hsqldb-1.8.0.10" level="project" />
-    <orderEntry type="library" name="jaxb-api-2.1" level="project" />
-    <orderEntry type="library" name="jaxb-impl-2.1.17" level="project" />
-    <orderEntry type="library" name="jcl-over-slf4j-1.7.7" level="project" />
-    <orderEntry type="library" name="jempbox-1.8.7" level="project" />
-    <orderEntry type="library" name="jdigidoc-3.10.1424.BETA" level="project" />
-    <orderEntry type="library" name="jacocoagent" level="project" />
-    <orderEntry type="library" name="log4j-1.2.17" level="project" />
-    <orderEntry type="library" name="mina-core-2.0.9" level="project" />
-    <orderEntry type="library" name="mockito-all-1.10.8" level="project" />
-    <orderEntry type="library" name="pdfbox-1.8.7" level="project" />
-    <orderEntry type="library" name="serializer-2.7.2" level="project" />
-    <orderEntry type="library" name="slf4j-api-1.7.7" level="project" />
-    <orderEntry type="library" name="snakeyaml-1.14" level="project" />
-    <orderEntry type="library" name="stax2-api-3.1.4" level="project" />
-    <orderEntry type="library" name="stax-api-1.0.1" level="project" />
-    <orderEntry type="library" name="woodstox-core-asl-4.4.1" level="project" />
-    <orderEntry type="library" name="xalan-2.7.2" level="project" />
-    <orderEntry type="library" name="xercesImpl-2.11.0" level="project" />
-    <orderEntry type="library" name="xml-apis-1.4.01" level="project" />
-    <orderEntry type="library" name="xmlsec-2.0.2" level="project" />
-    <orderEntry type="library" name="xmlunit-1.5" level="project" />
-    <orderEntry type="library" name="commons-compiler-2.6.1" level="project" />
-    <orderEntry type="library" name="commons-logging-1.1.3" level="project" />
-    <orderEntry type="library" name="system-rules-1.5.0" level="project" />
-    <orderEntry type="library" name="janino-2.6.1" level="project" />
-    <orderEntry type="library" name="httpclient-4.3.6" level="project" />
-    <orderEntry type="library" name="httpcore-4.3.3" level="project" />
-    <orderEntry type="library" name="junit-4.11-javadoc" level="project" />
-    <orderEntry type="library" name="logback-classic-1.1.2" level="project" />
-    <orderEntry type="library" name="logback-core-1.1.2" level="project" />
     <orderEntry type="library" name="testcerts" level="project" />
-    <orderEntry type="library" name="commons-compress-1.3 (2)" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jdigidoc-3.10.1424.BETA.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>

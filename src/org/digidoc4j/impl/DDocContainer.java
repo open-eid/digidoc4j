@@ -154,6 +154,19 @@ public class DDocContainer extends Container {
     }
   }
 
+  public DDocContainer(InputStream stream, Configuration configuration) {
+    logger.debug("");
+    ConfigManager.init(configuration.getJDigiDocConfiguration());
+    ConfigManager.addProvider();
+    DigiDocFactory digFac = new SAXDigiDocFactory();
+    try {
+        ddoc = digFac.readDigiDocFromStream(stream);
+    } catch (DigiDocException e) {
+        logger.error(e.getMessage());
+        throw new DigiDoc4JException(e);
+    }
+  }
+
   /**
    * Create a new container object of DDOC type using specified configuration settings
    *

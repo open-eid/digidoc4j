@@ -437,6 +437,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  @Ignore("RIA VPN")
   public void verifyBDocWithWarning() throws IOException {
     exit.expectSystemExitWithStatus(0);
     exit.checkAssertionAfterwards(new Assertion() {

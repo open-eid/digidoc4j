@@ -16,7 +16,6 @@ import eu.europa.ec.markt.dss.signature.InMemoryDocument;
 import eu.europa.ec.markt.dss.validation102853.AdvancedSignature;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import org.apache.xml.security.signature.Reference;
-import org.apache.xml.security.signature.reference.ReferenceOctetStreamData;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
@@ -25,6 +24,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -172,14 +173,40 @@ public class ManifestValidator {
     List<Reference> references = signature.getOrigin().getReferences();
     for (Reference reference : references) {
       if (reference.getType().equals("")) {
-        ReferenceOctetStreamData referenceData = (ReferenceOctetStreamData) (reference.getReferenceData());
-        signatureEntries.add(new ManifestEntry(referenceData.getURI(), referenceData.getMimeType()));
+        String mimeTypeString = null;
+
+        Node signatureNode = signature.getOrigin().getSignatureElement();
+        Node node = DSSXMLUtils.getNode(signatureNode, "./ds:SignedInfo/ds:Reference[@URI=\"" + reference.getURI() + "\"]");
+        if (node != null) {
+          String referenceId = node.getAttributes().getNamedItem("Id").getNodeValue();
+          mimeTypeString = DSSXMLUtils.getValue(signatureNode,
+              "./ds:Object/xades:QualifyingProperties/xades:SignedProperties/" +
+                  "xades:SignedDataObjectProperties/xades:DataObjectFormat" +
+                  "[@ObjectReference=\"#" + referenceId + "\"]/xades:MimeType");
+        }
+
+        // TODO: mimeTypeString == null ? node == null?
+         String uri = getFileURI(reference);
+         signatureEntries.add(new ManifestEntry(uri, mimeTypeString));
       }
     }
+
     return signatureEntries;
   }
 
-  private Set<ManifestEntry> getManifestFileItems() {
+    private String getFileURI(Reference reference) {
+        String uri = reference.getURI();
+
+        try {
+          uri = new URI(uri).getPath();
+        } catch (URISyntaxException e) {
+          logger.debug("Does not parse as an URI, therefore assuming it's not encoded: '" + uri + "'");
+        }
+
+        return uri;
+    }
+
+    Set<ManifestEntry> getManifestFileItems() {
     logger.debug("");
     Set<ManifestEntry> entries = new HashSet<>();
 

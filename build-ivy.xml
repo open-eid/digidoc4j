@@ -1,0 +1,106 @@
+<?xml version="1.0" ?>
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="digidoc4j ivy tasks" basedir="." default="build-and-publish">
+	
+	<!-- ===================   IVY  ========================== -->
+    <loadproperties srcFile="${basedir}/ivy/ivy.properties"  />
+	<property file="ivy/version.properties"/>
+    <property name="ivy.jar.dir" value="${basedir}/ivy/lib" />
+    <property name="ivy.dep.file" value="${basedir}/ivy/ivy.xml" />
+	
+	<property name="ivy.local.default.root" value="${basedir}/ivy/local"/>	
+	<property name="ivy.shared.default.ivy.pattern" value="[organisation]/[module]/[revision]/ivy.xml"/>
+	<property name="ivy.shared.default.artifact.pattern" value="[organisation]/[module]/[revision]/[artifact](-[classifier])-[revision].[ext]"/>
+	
+	
+	<property name="dist.dir" value="${basedir}/dist"/>
+	
+    
+    <path id="ivy.lib.path">
+        <fileset dir="${ivy.jar.dir}" includes="*.jar" />
+    </path>
+    
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+    
+    <ivy:settings file="${basedir}/ivy/ivysettings.xml" />		
+
+	<target name="resolve" description="retrieve dependencies with ivy">
+		<ivy:retrieve conf="default,test" pattern="lib/ivy/[artifact]-[revision].[ext]" sync="true"/>
+	</target>
+	
+	<target name="test-resolve-shared" depends="clean-cache" description="Tests if dependencies can be resolved using only shared repo.">
+		<ivy:settings id="shared-resolver" file="${basedir}/ivy/ivysettings-shared.xml" />
+		<ivy:resolve conf="default,test" settingsref="shared-resolver"/>		
+	</target>
+	
+	<target name="clean-cache" description="Clean dependencies resolved by ivy from cache">
+		<ivy:cleancache />
+	</target>
+	
+	<target name="clean-local-repo" description="Empties local repo.">
+		<delete dir="${ivy.local.default.root}" failonerror="false"/>
+	</target>
+
+	
+	<target name="report">
+		<ivy:resolve conf="default,test"/>
+		<ivy:report conf="default,test" todir="ivy/report" />
+	</target>
+
+	<target name="publish-to-local" description="Publish build artifacts to user private local repository.">
+		<ivy:resolve revision="${publish.version}" />
+		<ivy:publish resolver="local" overwrite="true" update="true" forcedeliver="true">	
+	        <artifacts pattern="${dist.dir}/[artifact](-[classifier])-[revision].[ext]"/>
+	    </ivy:publish>
+	</target>		
+	
+	<target name="install-to-shared" description="Publish build artifacts to team shared repository, including dependcies.">
+		<ivy:install organisation="org.digidoc4j" module="digidoc4j" revision="${publish.version}" from="local-ivy-m2" to="shared" transitive="false" overwrite="true"/>		        
+	</target>
+	
+	<target name="install-dss-libs-to-shared" description="Publish dss libs from local maven repo to shared.">
+		<ivy:install organisation="eu.europa.ec.joinup.sd-dss" module="dss-common" revision="${dss.version}" from="m2local" to="shared" transitive="false" overwrite="true"/>		
+		<ivy:install organisation="eu.europa.ec.joinup.sd-dss" module="dss-document" revision="${dss.version}" from="m2local" to="shared" transitive="false" overwrite="true"/>
+		<ivy:install organisation="eu.europa.ec.joinup.sd-dss" module="dss-service" revision="${dss.version}" from="m2local" to="shared" transitive="false" overwrite="true"/>
+		<ivy:install organisation="eu.europa.ec.joinup.sd-dss" module="dss-spi" revision="${dss.version}" from="m2local" to="shared" transitive="false" overwrite="true"/>
+	</target>
+	
+	
+	<target name="publish-jar-to-local" description="Publish arbitrary jar to local repository.">
+		<input addproperty="ivy.publish.organisation" defaultvalue="org.digidoc4j" message="Organisation"/>
+		<input addproperty="ivy.publish.module" message="Module"/>		
+		
+		<ivy:buildnumber organisation="${ivy.publish.organisation}" module="${ivy.publish.module}" resolver="shared"/>
+		
+		<input addproperty="ivy.publish.revision" defaultvalue="${ivy.new.revision}" message="Revision"/>		
+		<input addproperty="ivy.publish.jar.path" defaultvalue="lib/${ivy.publish.module}-${ivy.publish.revision}.jar" message="jar path" />
+
+        <copy file="${basedir}/ivy/ivy.publish.template.xml" tofile="${dist.dir}/ivy/ivy-publish.xml" overwrite="true">
+            <filterchain>
+                <replacestring from="##ivy.publish.module##" to="${ivy.publish.module}" />                
+                <replacestring from="##ivy.publish.organisation##" to="${ivy.publish.organisation}" />                
+            </filterchain>
+        </copy>
+
+        <ivy:resolve file="${dist.dir}/ivy/ivy-publish.xml" />
+        <ivy:publish 
+        	pubrevision="${ivy.publish.revision}" 
+        	resolver="local" 
+        	organisation="${ivy.publish.organisation}" 
+        	module="${ivy.publish.module}" 
+        	update="true" 
+        	forcedeliver="true" 
+        	overwrite="false"
+        	srcivypattern="${dist.dir}/ivy/ivy-publish.xml"
+        	status="release">
+            <artifacts pattern="${ivy.publish.jar.path}" />
+        </ivy:publish>
+    </target>
+	
+	<target name="build-and-publish" depends="clean-cache, clean-local-repo" description="Builds and publishes results to ivy repository.">
+        <ant antfile="build.xml" target="base" inheritall="false"/>
+		<antcall target="publish-to-local"/>
+		<antcall target="install-to-shared"/>
+	</target>
+	
+
+</project>

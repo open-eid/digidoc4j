@@ -3,11 +3,9 @@ package eu.europa.ec.markt.dss.validation102853.ocsp;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x509.Extension;
-import org.bouncycastle.asn1.x509.Extensions;
-import org.bouncycastle.cert.ocsp.OCSPReqBuilder;
 import org.digidoc4j.Configuration;
 
-import java.security.SecureRandom;
+import eu.europa.ec.markt.dss.DSSUtils;
 
 public class BDocTSOcspSource extends SKOnlineOCSPSource{
   public BDocTSOcspSource(Configuration configuration) {
@@ -15,12 +13,10 @@ public class BDocTSOcspSource extends SKOnlineOCSPSource{
   }
 
   @Override
-  void addNonce(OCSPReqBuilder ocspReqBuilder) {
-    SecureRandom random = new SecureRandom();
+  Extension createNonce() {
+    final long currentTimeNonce = System.currentTimeMillis();
 
-    this.nonce = new DEROctetString(random.generateSeed(20));
-    final Extension extension = new Extension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, true, this.nonce);
-    final Extensions extensions = new Extensions(extension);
-    ocspReqBuilder.setRequestExtensions(extensions);
+    DEROctetString nonce = new DEROctetString(DSSUtils.toByteArray(currentTimeNonce));
+    return new Extension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, true, nonce);
   }
 }

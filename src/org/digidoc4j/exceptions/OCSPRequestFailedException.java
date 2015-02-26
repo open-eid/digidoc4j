@@ -15,6 +15,10 @@ package org.digidoc4j.exceptions;
  */
 public class OCSPRequestFailedException extends DigiDoc4JException {
 
+  public OCSPRequestFailedException(Throwable e) {
+    super("OCSP request failed", e);
+  }
+  
   /**
    *
    */
