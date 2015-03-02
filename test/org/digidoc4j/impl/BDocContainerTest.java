@@ -16,6 +16,7 @@ import eu.europa.ec.markt.dss.signature.DSSDocument;
 import eu.europa.ec.markt.dss.signature.asic.ASiCService;
 import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
 import eu.europa.ec.markt.dss.validation102853.rules.MessageTag;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -593,10 +594,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
     container = new BDocContainer("testTwoFilesSigned.bdoc");
 
-    assertEquals("test.xml", container.getDataFile(0).getName());
-    assertEquals("test.txt", container.getDataFile(1).getName());
-    assertEquals("test.xml", container.getDataFile(0).getId());
-    assertEquals("test.txt", container.getDataFile(1).getId());
+    assertEquals("test.txt", container.getDataFile(0).getName());
+    assertEquals("test.xml", container.getDataFile(1).getName());
+    assertEquals("test.txt", container.getDataFile(0).getId());
+    assertEquals("test.xml", container.getDataFile(1).getId());
   }
 
   @Test
@@ -1753,6 +1754,39 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(expectedComment, zipFile.getComment());
   }
 
+  @Test
+  public void signingMoreThanTwoFiles() throws Exception {
+      BDocContainer container = new BDocContainer();
+      container.addDataFile("testFiles/special-char-files/dds_dds_JÜRIÖÖ € žŠ päev.txt", "text/plain");
+      container.addDataFile("testFiles/special-char-files/dds_колючей стерне.docx", "text/plain");
+      container.addDataFile("testFiles/special-char-files/dds_pakitud.zip", "text/plain");
+      container.addDataFile("testFiles/special-char-files/dds_SK.jpg", "text/plain");
+      container.addDataFile("testFiles/special-char-files/dds_acrobat.pdf", "text/plain");
+      
+      container.sign(PKCS12_SIGNER);
+      
+      BDocSignature signature = (BDocSignature)container.getSignature(0);
+      assertSignatureContains(signature, "dds_dds_JÜRIÖÖ € žŠ päev.txt");
+      assertSignatureContains(signature, "dds_колючей стерне.docx");
+      assertSignatureContains(signature, "dds_pakitud.zip");
+      assertSignatureContains(signature, "dds_SK.jpg");
+      assertSignatureContains(signature, "dds_acrobat.pdf");
+  }
+
+  private void assertSignatureContains(BDocSignature signature, String name) {
+      assertNotNull(findSignedFile(signature, name));
+  }
+  
+  private DSSDocument findSignedFile(BDocSignature signature, String name) {
+      List<DSSDocument> signedFiles = signature.getOrigin().getDetachedContents();
+      for (DSSDocument signedFile : signedFiles) {
+          if(name.equals(signedFile.getName())) {
+              return signedFile;
+          }
+      }
+      return null;
+  }
+
   private void assertContainsError(String errorMsg, List<DigiDoc4JException> errors) {
     for(DigiDoc4JException e : errors) {
       if(StringUtils.equalsIgnoreCase(errorMsg, e.toString())) {
@@ -1760,5 +1794,4 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
       }
     }
     assertFalse("Expected '" + errorMsg + "' was not found", true);
-  }
 }

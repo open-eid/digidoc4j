@@ -10,10 +10,75 @@
 
 package org.digidoc4j.impl;
 
+import static eu.europa.ec.markt.dss.DigestAlgorithm.SHA256;
+import static eu.europa.ec.markt.dss.DigestAlgorithm.forName;
+import static eu.europa.ec.markt.dss.signature.SignatureLevel.ASiC_E_BASELINE_B;
+import static eu.europa.ec.markt.dss.signature.SignatureLevel.ASiC_E_BASELINE_LT;
+import static eu.europa.ec.markt.dss.signature.SignatureLevel.ASiC_E_BASELINE_LTA;
+import static eu.europa.ec.markt.dss.signature.SignaturePackaging.DETACHED;
+import static eu.europa.ec.markt.dss.validation102853.SignatureForm.XAdES;
+import static java.util.Arrays.asList;
+import static org.apache.commons.codec.binary.Base64.decodeBase64;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.digidoc4j.Container.SignatureProfile.LT;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import org.apache.commons.io.IOUtils;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Container;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.EncryptionAlgorithm;
+import org.digidoc4j.HashcodeDataFile;
+import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureParameters;
+import org.digidoc4j.SignatureProductionPlace;
+import org.digidoc4j.SignedInfo;
+import org.digidoc4j.Signer;
+import org.digidoc4j.ValidationResult;
+import org.digidoc4j.exceptions.CertificateRevokedException;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.exceptions.OCSPRequestFailedException;
+import org.digidoc4j.exceptions.SignatureNotFoundException;
+import org.digidoc4j.exceptions.UnsupportedFormatException;
+import org.digidoc4j.utils.Helper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import eu.europa.ec.markt.dss.DSSXMLUtils;
 import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.parameter.BLevelParameters;
-import eu.europa.ec.markt.dss.signature.*;
+import eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
+import eu.europa.ec.markt.dss.signature.DSSDocument;
+import eu.europa.ec.markt.dss.signature.DocumentSignatureService;
+import eu.europa.ec.markt.dss.signature.FileDocument;
+import eu.europa.ec.markt.dss.signature.InMemoryDocument;
+import eu.europa.ec.markt.dss.signature.MimeType;
+import eu.europa.ec.markt.dss.signature.SignatureLevel;
+import eu.europa.ec.markt.dss.signature.StreamDocument;
 import eu.europa.ec.markt.dss.signature.asic.ASiCService;
 import eu.europa.ec.markt.dss.signature.validation.AdvancedSignature;
 import eu.europa.ec.markt.dss.validation102853.CertificateToken;
@@ -32,36 +97,6 @@ import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
 import eu.europa.ec.markt.dss.validation102853.xades.XPathQueryHolder;
-import org.apache.commons.io.IOUtils;
-import org.digidoc4j.*;
-import org.digidoc4j.exceptions.*;
-import org.digidoc4j.utils.Helper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.cert.X509Certificate;
-import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
-import static eu.europa.ec.markt.dss.DigestAlgorithm.SHA256;
-import static eu.europa.ec.markt.dss.DigestAlgorithm.forName;
-import static eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
-import static eu.europa.ec.markt.dss.signature.SignatureLevel.*;
-import static eu.europa.ec.markt.dss.signature.SignaturePackaging.DETACHED;
-import static eu.europa.ec.markt.dss.validation102853.SignatureForm.XAdES;
-import static java.util.Arrays.asList;
-import static org.apache.commons.codec.binary.Base64.decodeBase64;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.digidoc4j.Container.SignatureProfile.LT;
 
 /**
  * BDOC container implementation
@@ -74,8 +109,8 @@ public class BDocContainer extends Container {
 
   final Logger logger = LoggerFactory.getLogger(BDocContainer.class);
 
-  private final Map<String, DataFile> dataFiles = new HashMap<>();
-  private Map<String, List<DigiDoc4JException>> additionalVerificationErrors = new HashMap<>();
+  private final Map<String, DataFile> dataFiles = new LinkedHashMap<>();
+  private Map<String, List<DigiDoc4JException>> additionalVerificationErrors = new LinkedHashMap<>();
   private SKCommonCertificateVerifier commonCertificateVerifier;
   protected DocumentSignatureService asicService;
   private eu.europa.ec.markt.dss.parameter.SignatureParameters dssSignatureParameters;
@@ -323,7 +358,7 @@ public class BDocContainer extends Container {
 
   private Map<String, SimpleReport> loadValidationResults(SignedDocumentValidator validator) {
     logger.debug("");
-    Map<String, SimpleReport> simpleReports = new HashMap<>();
+    Map<String, SimpleReport> simpleReports = new LinkedHashMap<>();
 
     Reports report = validate(validator);
 
@@ -343,7 +378,7 @@ public class BDocContainer extends Container {
     Map<String, SimpleReport> simpleReports = loadValidationResults(validator);
     List<AdvancedSignature> signatureList = validator.getSignatures();
 
-    additionalVerificationErrors = new HashMap<>();
+    additionalVerificationErrors = new LinkedHashMap<>();
     for (AdvancedSignature advancedSignature : signatureList) {
       List<DigiDoc4JException> validationErrors = new ArrayList<>();
       String reportSignatureId = advancedSignature.getId();
@@ -698,7 +733,6 @@ public class BDocContainer extends Container {
 
   private DSSDocument getAttachment() {
     logger.debug("");
-    DSSDocument attachment;
 
     if (dataFiles.size() == 0) {
       String errorMessage = "Container does not contain any attachments";
@@ -706,13 +740,16 @@ public class BDocContainer extends Container {
       throw new DigiDoc4JException(errorMessage);
     }
     Iterator<String> iterator = dataFiles.keySet().iterator();
-    attachment = getDssDocumentFromDataFile(dataFiles.get(iterator.next()));
+    DSSDocument firstAttachment = getDssDocumentFromDataFile(dataFiles.get(iterator.next()));
+    DSSDocument lastAttachment = firstAttachment; 
     while (iterator.hasNext()) {
       String fileName = iterator.next();
-      attachment.setNextDocument(getDssDocumentFromDataFile(dataFiles.get(fileName)));
+      DSSDocument newAttachment = getDssDocumentFromDataFile(dataFiles.get(fileName));
+      lastAttachment.setNextDocument(newAttachment);
+      lastAttachment = newAttachment;
     }
 
-    return attachment;
+    return firstAttachment;
   }
 
   private DSSDocument getDssDocumentFromDataFile(DataFile dataFile) {
