@@ -46,7 +46,7 @@ public class PKCS12Signer implements Signer {
   @Override
   public X509Certificate getCertificate() {
     logger.debug("");
-    return keyEntry.getCertificate();
+    return keyEntry.getCertificate().getCertificate();
   }
 
   @Override

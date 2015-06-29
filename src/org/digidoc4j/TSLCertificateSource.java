@@ -10,6 +10,7 @@
 
 package org.digidoc4j;
 
+import eu.europa.ec.markt.dss.validation102853.CertificateToken;
 import eu.europa.ec.markt.dss.validation102853.condition.ServiceInfo;
 import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
@@ -43,7 +44,7 @@ public class TSLCertificateSource extends TrustedListsCertificateSource {
     serviceInfo.setType("http://uri.etsi.org/TrstSvc/Svctype/CA/QC");
     serviceInfo.setStatusStartDate(certificate.getNotBefore());
 
-    addCertificate(certificate, serviceInfo);
+    addCertificate(new CertificateToken(certificate), serviceInfo);
   }
 
   /**

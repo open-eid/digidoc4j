@@ -11,7 +11,6 @@
 package prototype.samples;
 
 import eu.europa.ec.markt.dss.DSSUtils;
-import eu.europa.ec.markt.dss.signature.token.Constants;
 import org.apache.commons.lang.ArrayUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
@@ -19,6 +18,7 @@ import org.digidoc4j.SignedInfo;
 import org.digidoc4j.Signer;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.ExternalSigner;
+import org.digidoc4j.utils.DigestInfoPrefix;
 
 import java.io.FileInputStream;
 import java.security.KeyStore;
@@ -64,7 +64,7 @@ public final class ExternalSigning {
       }
 
       private byte[] addPadding(byte[] digest) {
-        return ArrayUtils.addAll(Constants.SHA256_DIGEST_INFO_PREFIX, digest);
+        return ArrayUtils.addAll(DigestInfoPrefix.SHA256, digest);
       }
     };
 

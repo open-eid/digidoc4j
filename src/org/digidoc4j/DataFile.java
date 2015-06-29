@@ -17,6 +17,7 @@ import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.signature.*;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -223,8 +224,13 @@ public class DataFile implements Serializable {
    */
   //TODO exception - method throws DSSException which can be caused by other exceptions
   public void saveAs(String path) {
-    logger.debug("Path: " + path);
-    document.save(path);
+    try {
+      logger.debug("Path: " + path);
+      document.save(path);
+    } catch (IOException e) {
+      logger.error("Failed to save path " + path);
+      throw new TechnicalException("Failed to save path " + path, e);
+    }
   }
 
   /**

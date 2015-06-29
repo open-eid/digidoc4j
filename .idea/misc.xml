@@ -11,6 +11,16 @@
     <option name="excludeFilter" value="" />
   </component>
   <component name="IdProvider" IDEtalkID="7EE7E333A4AFA2BF7204062829185BBA" />
+  <component name="IvyIDEA.ProjectSettings">
+    <option name="artifactTypeSettings">
+      <ArtifactTypeSettings>
+        <option name="classesTypes" value="jar, mar, sar, war, ear, ejb, bundle, test-jar" />
+        <option name="javadocTypes" value="javadoc, doc, docs, apidoc, apidocs, documentation, documents" />
+        <option name="sourcesTypes" value="source, src, sources, srcs" />
+      </ArtifactTypeSettings>
+    </option>
+    <option name="ivySettingsFile" value="$PROJECT_DIR$/ivy.xml" />
+  </component>
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" value="$MAVEN_REPOSITORY$/work/sk/mjb_temp" />
     <option name="OPTION_SCOPE" value="protected" />
@@ -35,8 +45,17 @@
         <option value="$PROJECT_DIR$/sd-dss/apps/dss/core/pom.xml" />
       </list>
     </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common/pom.xml" />
+        <option value="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document/pom.xml" />
+        <option value="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-service/pom.xml" />
+        <option value="$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi/pom.xml" />
+        <option value="$PROJECT_DIR$/sd-dss/apps/dss/core/pom.xml" />
+      </set>
+    </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" assert-keyword="true" jdk-15="true" project-jdk-name="1.7" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" default="false" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="SuppressionsComponent">
@@ -64,4 +83,3 @@
     <option name="mySupportsUserInfoFilter" value="true" />
   </component>
 </project>
-

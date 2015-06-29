@@ -42,7 +42,7 @@ public class PKCS11Signer implements Signer {
 
   @Override
   public X509Certificate getCertificate() {
-    return keyEntry.getCertificate();
+    return keyEntry.getCertificate().getCertificate();
   }
 
   @Override

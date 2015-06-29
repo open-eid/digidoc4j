@@ -8,7 +8,7 @@
       <sourceFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-service/src/main/java" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/dss-service/target" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
       <library>

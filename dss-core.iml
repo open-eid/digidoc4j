@@ -6,8 +6,7 @@
     <content url="file://$MODULE_DIR$/sd-dss/apps/dss/core">
       <excludeFolder url="file://$MODULE_DIR$/sd-dss/apps/dss/core/target" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
-

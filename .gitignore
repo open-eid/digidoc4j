@@ -13,3 +13,5 @@ password.properties
 copy-dss-jars.sh
 /util
 token
+packaging_jar
+lib

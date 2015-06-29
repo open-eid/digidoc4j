@@ -11,9 +11,9 @@
 package prototype;
 
 import eu.europa.ec.markt.dss.DSSUtils;
-import eu.europa.ec.markt.dss.signature.token.Constants;
 import org.apache.commons.lang.ArrayUtils;
 import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.utils.DigestInfoPrefix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +37,6 @@ public class TestSigner extends PKCS12Signer {
   }
 
   private byte[] addPadding(byte []digest) {
-    return ArrayUtils.addAll(Constants.SHA256_DIGEST_INFO_PREFIX, digest);
+    return ArrayUtils.addAll(DigestInfoPrefix.SHA256, digest);
   }
 }

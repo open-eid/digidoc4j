@@ -26,7 +26,7 @@ public class ExternalSignerTest {
 
   @Test
   public void testGetCertificate() throws Exception {
-    X509Certificate cert = DSSUtils.loadCertificate(Base64.decodeBase64(Certificates.SIGNING_CERTIFICATE));
+    X509Certificate cert = DSSUtils.loadCertificate(Base64.decodeBase64(Certificates.SIGNING_CERTIFICATE)).getCertificate();
 
     ExternalSigner externalSigner = new ExternalSigner(cert) {
       @Override
@@ -42,7 +42,7 @@ public class ExternalSignerTest {
   @Test(expected = NotSupportedException.class)
   public void testGetPrivateKey() throws Exception {
 
-    X509Certificate cert = DSSUtils.loadCertificate(Base64.decodeBase64(Certificates.SIGNING_CERTIFICATE));
+    X509Certificate cert = DSSUtils.loadCertificate(Base64.decodeBase64(Certificates.SIGNING_CERTIFICATE)).getCertificate();
 
     ExternalSigner externalSigner = new ExternalSigner(cert) {
       @Override

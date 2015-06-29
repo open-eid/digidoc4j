@@ -15,7 +15,8 @@ import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.parameter.BLevelParameters;
 import eu.europa.ec.markt.dss.signature.*;
 import eu.europa.ec.markt.dss.signature.asic.ASiCService;
-import eu.europa.ec.markt.dss.validation102853.AdvancedSignature;
+import eu.europa.ec.markt.dss.signature.validation.AdvancedSignature;
+import eu.europa.ec.markt.dss.validation102853.CertificateToken;
 import eu.europa.ec.markt.dss.validation102853.SignaturePolicy;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCContainerValidator;
@@ -542,10 +543,15 @@ public class BDocContainer extends Container {
 
     signedDocument = null;
     do {
-      dssSignatureParameters.aSiC().setSignatureFileName(getSignatureFileName(signature));
-      signedDocument = ((ASiCService) asicService).buildASiCContainer(signingDocument, signedDocument,
-          dssSignatureParameters, createBareDocument(signature));
-      signature = signature.getNextDocument();
+      try {
+        dssSignatureParameters.aSiC().setSignatureFileName(getSignatureFileName(signature));
+        signedDocument = ((ASiCService) asicService).buildASiCContainer(signingDocument, signedDocument,
+            dssSignatureParameters, createBareDocument(signature));
+        signature = signature.getNextDocument();
+      } catch (IOException e) {
+        logger.error("Error building asic container: " + e.getMessage());
+        throw new TechnicalException("Error building asic container", e);
+      }
     } while (signature != null);
 
     validationReport = null;
@@ -571,7 +577,12 @@ public class BDocContainer extends Container {
   public void save(String path) {
     logger.debug("Path: " + path);
     documentMustBeInitializedCheck();
-    signedDocument.save(path);
+    try {
+      signedDocument.save(path);
+    } catch (IOException e) {
+      logger.error("Error saving path: " + e.getMessage());
+      throw new TechnicalException("Error saving path " + path, e);
+    }
   }
 
   @Override
@@ -615,7 +626,7 @@ public class BDocContainer extends Container {
     dssSignatureParameters.clearCertificateChain();
     dssSignatureParameters.setDeterministicId(setSignatureId);
     dssSignatureParameters.aSiC().setSignatureFileName("signatures" + signatures.size() + ".xml");
-    dssSignatureParameters.setSigningCertificate(signerCertificate);
+    dssSignatureParameters.setSigningCertificate(new CertificateToken(signerCertificate));
 
     DSSDocument attachment = getAttachment();
     dssSignatureParameters.setDetachedContent(attachment);

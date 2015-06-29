@@ -86,7 +86,7 @@ public class ConfigurationTest {
   public void setTSL() throws IOException, CertificateException {
     TSLCertificateSource trustedListsCertificateSource = new TSLCertificateSource();
     FileInputStream fileInputStream = new FileInputStream("testFiles/Juur-SK.pem.crt");
-    X509Certificate certificate = DSSUtils.loadCertificate(fileInputStream);
+    X509Certificate certificate = DSSUtils.loadCertificate(fileInputStream).getCertificate();
     trustedListsCertificateSource.addTSLCertificate(certificate);
 
     configuration.setTSL(trustedListsCertificateSource);
@@ -152,7 +152,7 @@ public class ConfigurationTest {
 
   private void addFromFileToTSLCertificate(String fileName) throws IOException, CertificateException {
     FileInputStream fileInputStream = new FileInputStream(fileName);
-    X509Certificate certificate = DSSUtils.loadCertificate(fileInputStream);
+    X509Certificate certificate = DSSUtils.loadCertificate(fileInputStream).getCertificate();
     configuration.getTSL().addTSLCertificate(certificate);
     fileInputStream.close();
   }

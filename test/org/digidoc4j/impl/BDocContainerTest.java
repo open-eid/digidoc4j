@@ -14,15 +14,16 @@ import eu.europa.ec.markt.dss.DSSUtils;
 import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
 import eu.europa.ec.markt.dss.signature.asic.ASiCService;
-import eu.europa.ec.markt.dss.signature.token.Constants;
 import eu.europa.ec.markt.dss.validation102853.CommonCertificateVerifier;
 import eu.europa.ec.markt.dss.validation102853.rules.MessageTag;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.*;
 import org.digidoc4j.signers.ExternalSigner;
 import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.utils.DigestInfoPrefix;
 import org.digidoc4j.utils.Helper;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -1076,10 +1077,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
         byte[] signatureDigest;
         switch (digestAlgorithm) {
           case SHA512:
-            signatureDigest = Constants.SHA512_DIGEST_INFO_PREFIX;
+            signatureDigest = DigestInfoPrefix.SHA512;
             break;
           case SHA256:
-            signatureDigest = Constants.SHA256_DIGEST_INFO_PREFIX;
+            signatureDigest = DigestInfoPrefix.SHA256;
             break;
           default:
             throw new NotYetImplementedException();
@@ -1539,9 +1540,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = Container.open("testFiles/REF-03_bdoc21-TM-no-signedpropref.bdoc", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(1, errors.size());
-    assertEquals("Signed properties missing", errors.get(0).toString());
-    assertEquals(1, container.getSignatures().get(0).validate().size());
+    assertEquals(2, errors.size());
+    assertContainsError("Signed properties missing", errors);
+    assertContainsError("The reference data object(s) not found!", errors);
+    assertEquals(2, container.getSignatures().get(0).validate().size());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -1553,8 +1555,9 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = Container.open("testFiles/REF-03_bdoc21-TS-no-signedpropref.asice", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(1, errors.size());
-    assertEquals("Signed properties missing", errors.get(0).toString());
+    assertEquals(2, errors.size());
+    assertContainsError("Signed properties missing", errors);
+    assertContainsError("The reference data object(s) not found!", errors);
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -1687,5 +1690,14 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     ZipFile zipFile = new ZipFile("testZipFileComment.bdoc");
     String expectedComment = Helper.createUserAgent(container);
     assertEquals(expectedComment, zipFile.getComment());
+  }
+
+  private void assertContainsError(String errorMsg, List<DigiDoc4JException> errors) {
+    for(DigiDoc4JException e : errors) {
+      if(StringUtils.equalsIgnoreCase(errorMsg, e.toString())) {
+        return;
+      }
+    }
+    assertFalse("Expected '" + errorMsg + "' was not found", true);
   }
 }

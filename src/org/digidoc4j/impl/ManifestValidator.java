@@ -13,7 +13,7 @@ package org.digidoc4j.impl;
 import eu.europa.ec.markt.dss.DSSXMLUtils;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
 import eu.europa.ec.markt.dss.signature.InMemoryDocument;
-import eu.europa.ec.markt.dss.validation102853.AdvancedSignature;
+import eu.europa.ec.markt.dss.signature.validation.AdvancedSignature;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import org.apache.xml.security.signature.Reference;
 import org.apache.xml.security.signature.reference.ReferenceOctetStreamData;
