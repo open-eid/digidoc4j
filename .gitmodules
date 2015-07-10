@@ -1,4 +1,4 @@
 [submodule "sd-dss"]
 	path = sd-dss
 	url = ../sd-dss.git
-
+	branch = publish

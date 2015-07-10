@@ -12,6 +12,8 @@
       <entry name="!?*.flex" />
       <entry name="!?*.kt" />
       <entry name="!?*.clj" />
+      <entry name="*.yaml" />
+      <entry name="*.xml" />
     </wildcardResourcePatterns>
     <annotationProcessing>
       <profile default="true" name="Default" enabled="false">
@@ -40,14 +42,26 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
+        <module name="dss-demo-applet" />
+        <module name="dss-demo-webapp" />
+        <module name="dss-webservices" />
+        <module name="dss-webservices-client" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="dss-common" target="1.6" />
       <module name="dss-core" target="1.6" />
+      <module name="dss-demo" target="1.6" />
+      <module name="dss-demo-applet" target="1.6" />
+      <module name="dss-demo-applet-package" target="1.6" />
+      <module name="dss-demo-webapp" target="1.6" />
       <module name="dss-document" target="1.6" />
       <module name="dss-service" target="1.6" />
       <module name="dss-spi" target="1.6" />
+      <module name="dss-webservices" target="1.6" />
+      <module name="dss-webservices-client" target="1.6" />
+      <module name="sd-dss" target="1.6" />
+      <module name="sd-dss-app" target="1.6" />
     </bytecodeTargetLevel>
   </component>
 </project>

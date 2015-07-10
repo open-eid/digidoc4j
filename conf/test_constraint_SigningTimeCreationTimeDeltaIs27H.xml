@@ -257,10 +257,10 @@
       <Algo Date="2035-02-24">SHA512</Algo>
       <Algo Date="2017-02-24">DSA128</Algo>
       <Algo Date="2017-02-24">RIPEMD160</Algo>
-      <Algo Date="2015-02-24">RSA1024</Algo>
-      <Algo Date="2015-02-24">RSA1536</Algo>
-      <Algo Date="2020-02-24">RSA2048</Algo>
-      <Algo Date="2020-02-24">RSA3072</Algo>
+      <Algo Date="2018-02-24">RSA1024</Algo>
+	  <Algo Date="2018-02-24">RSA1536</Algo>
+	  <Algo Date="2030-02-24">RSA2048</Algo>            
+      <Algo Date="2030-02-24">RSA3072</Algo>
       <Algo Date="2035-02-24">RSA4096</Algo>
       <Algo Date="2035-02-24">ECDSA192</Algo>
       <Algo Date="2035-02-24">ECDSA256</Algo>
