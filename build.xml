@@ -18,8 +18,10 @@
   <property name="ivy.jar.dir" value="${ivy.home}/lib" />
   <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
 
-  <!-- needs git client version starting from 2.0 -->
-  <target name="version">
+  <property name="publish.version" value="1.0" />
+  <property name="lib.version" value="${publish.version}"/>
+
+  <target name="version" unless="lib.version">
     <exec executable="sh" outputproperty="lib.version">
       <arg value="-c"/>
       <arg value="git tag -l public* --sort=version:refname | tail -1 | awk -F '-' '{print $2}'"/>
@@ -28,7 +30,7 @@
     <echo>Version = ${lib.version}</echo>
   </target>
 
-  <condition property="version.suffix" value=".${env.BUILD_NUMBER}" else=".LOCAL_BUILD">
+  <condition property="version.suffix" value=".${env.BUILD_NUMBER}-beta" else="">
     <isset property="env.BUILD_NUMBER"/>
   </condition>
 
@@ -132,7 +134,7 @@
   </target>
 
   <target name="source">
-    <jar destfile="${dist.dir}/digidoc4j-${lib.version}${version.suffix}-sources.jar" basedir="src"/>
+    <jar destfile="${dist.dir}/digidoc4j-sources-${lib.version}${version.suffix}.jar" basedir="src"/>
   </target>
 
   <target name="copy.dss.library">
@@ -157,6 +159,12 @@
         <classpath refid="javac.classpath"/>
         <classpath>
           <pathelement location="build"/>
+        </classpath>
+        <classpath>
+          <pathelement location="test-tsl"/>
+        </classpath>
+        <classpath>
+          <pathelement location="testFiles"/>
         </classpath>
         <batchtest>
           <fileset dir="${build.dir}" includes="**/*Test.class"/>

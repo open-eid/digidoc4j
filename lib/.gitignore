@@ -1,0 +1,7 @@
+*
+!*/
+!.gitignore
+!dss-*.jar
+!jdigidoc*.jar
+!testcerts.jar
+!jacoco*.jar

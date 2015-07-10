@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/core" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-service" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sd-dss" charset="UTF-8" />
   </component>
 </project>
-

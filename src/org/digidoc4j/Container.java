@@ -169,6 +169,22 @@ public abstract class Container implements Serializable {
     }
   }
 
+  public static Container open(InputStream stream, Configuration configuration) {
+    logger.debug("");
+    BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);
+
+    try {
+        if (Helper.isZipFile(bufferedInputStream))
+            return new BDocContainer(bufferedInputStream, true, configuration);
+        return new DDocContainer(bufferedInputStream, configuration);
+    } catch (IOException e) {
+        logger.error(e.getMessage());
+        throw new DigiDoc4JException(e);
+    } finally {
+        IOUtils.closeQuietly(bufferedInputStream);
+    }
+  }
+
   protected Container() {
     logger.debug("");
   }

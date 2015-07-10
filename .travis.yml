@@ -1,0 +1,28 @@
+language: java
+sudo: false
+
+env:
+  - ENV=$HOME/.ivy2
+
+cache:
+  directories:
+    - $HOME/.m2
+    - $HOME/.ivy2
+
+before_install:
+  - git pull --recurse-submodules origin publish
+  - cd sd-dss
+  - mvn install -q
+  - cd ..
+  - ant copy.dss.library
+
+branches:
+  only:
+    - publish
+
+install: ant
+jdk:
+  - oraclejdk8
+  - oraclejdk7
+  - openjdk7
+
