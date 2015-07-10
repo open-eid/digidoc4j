@@ -45,10 +45,6 @@ public class DigiDoc4JException extends RuntimeException {
     super(message, cause);
   }
 
-  public DigiDoc4JException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
   /**
    * Constructs a new runtime exception with the specified detail message and
    * cause.  <p>Note that the detail message associated with

@@ -677,7 +677,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  @Ignore("RIA VPN")
+  //@Ignore("RIA VPN")
   public void TSLIsLoadedAfterSettingNewTSLLocation() {
     Configuration configuration = new Configuration();
     configuration.setTslLocation("file:test-tsl/trusted-test-mp.xml");
@@ -1406,7 +1406,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
-  @Ignore("Ignored because reference validation is turned off. Turn ON again when fixed")
+  //@Ignore("Ignored because reference validation is turned off. Turn ON again when fixed")
   public void signatureFileContainsIncorrectFileName() {
     Container container = Container.open("testFiles/filename_mismatch_signature.asice");
     ValidationResult validate = container.validate();
@@ -1528,7 +1528,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
-  @Ignore("Ignored because reference validation is turned off. Turn ON again when fixed")
+  //@Ignore("Ignored because reference validation is turned off. Turn ON again when fixed")
   public void containerMissesFileWhichIsInManifestAndSignatureFile() {
     Container container = Container.open("testFiles/zip_misses_file_which_is_in_manifest.asice");
     ValidationResult result = container.validate();

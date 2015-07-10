@@ -2,17 +2,5 @@
 <project version="4">
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
     <file url="file://$PROJECT_DIR$/sd-dss" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/core" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-common" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-document" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-service" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/core/dss-spi" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/demo" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/demo/dss-demo-applet" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/demo/dss-demo-applet-package" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/demo/dss-demo-webapp" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/integration/dss-webservices" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sd-dss/apps/dss/integration/dss-webservices-client" charset="UTF-8" />
   </component>
 </project>

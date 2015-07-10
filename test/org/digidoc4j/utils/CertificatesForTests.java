@@ -9,6 +9,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
+import eu.europa.ec.markt.dss.validation102853.CertificateToken;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
@@ -15890,7 +15891,7 @@ public class CertificatesForTests {
         serviceInfo.setType("http://uri.etsi.org/TrstSvc/Svctype/Certstatus/OCSP/QC");
         serviceInfo.setStatusStartDate(certificate.getNotBefore());
 
-        tslCertificateSource.addCertificate(certificate, serviceInfo);
+        tslCertificateSource.addCertificate(new CertificateToken(certificate), serviceInfo);
     }
 
     private void addTsaCertificate(TrustedListsCertificateSource tslCertificateSource, X509Certificate certificate) {
@@ -15899,7 +15900,7 @@ public class CertificatesForTests {
         serviceInfo.setType("http://uri.etsi.org/TrstSvc/Svctype/TSA");
         serviceInfo.setStatusStartDate(certificate.getNotBefore());
 
-        tslCertificateSource.addCertificate(certificate, serviceInfo);
+        tslCertificateSource.addCertificate(new CertificateToken(certificate), serviceInfo);
     }
 
     public TSLCertificateSource getTslCertificateSource() {

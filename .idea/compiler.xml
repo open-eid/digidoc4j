@@ -42,10 +42,6 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="dss-demo-applet" />
-        <module name="dss-demo-webapp" />
-        <module name="dss-webservices" />
-        <module name="dss-webservices-client" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
