@@ -328,6 +328,12 @@ public abstract class Container implements Serializable {
    * @return data file
    */
   public abstract DataFile getDataFile(int index);
+  
+  /**
+   * Return the count of DataFile objects
+   * @return count of DataFile objects
+   */
+  public abstract int countDataFiles();
 
   /**
    * Removes a data file from the container by data file name. Any corresponding signatures will be deleted.
@@ -388,6 +394,12 @@ public abstract class Container implements Serializable {
    * @return signature
    */
   public abstract Signature getSignature(int index);
+  
+  /**
+   * Return the count of Signature objects
+   * @return count of Signature objects
+   */
+  public abstract int countSignatures();
 
   /**
    * Returns document type ASiC or DDOC
