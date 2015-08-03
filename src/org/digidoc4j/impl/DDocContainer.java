@@ -307,6 +307,14 @@ public class DDocContainer extends Container {
   }
 
   @Override
+  public int countDataFiles() {
+    logger.debug("Get the number of data files");
+    List<DataFile> dataFiles  = getDataFiles();
+    
+    return (dataFiles == null) ? 0 : dataFiles.size();
+  }
+  
+  @Override
   public void removeDataFile(String fileName) {
     logger.debug("File name: " + fileName);
     removeDataFile(new File(fileName));
@@ -422,6 +430,14 @@ public class DDocContainer extends Container {
     return getSignatures().get(index);
   }
 
+  @Override
+  public int countSignatures() {
+    logger.debug("Get the number of signatures");
+    List<Signature> signatures = getSignatures();
+    
+    return (signatures == null) ? 0 : signatures.size();
+  }
+  
   private Signature mapJDigiDocSignatureToDigiDoc4J(ee.sk.digidoc.Signature signature) {
     logger.debug("");
     Signature finalSignature = new DDocSignature(signature);

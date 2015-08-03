@@ -522,6 +522,11 @@ public class BDocContainer extends Container {
     logger.debug("get data file with index: " + index);
     return getDataFiles().get(index);
   }
+  
+  @Override
+  public int countDataFiles() {
+    return (dataFiles == null) ? 0 : dataFiles.size();
+  }
 
   @Override
   public void removeDataFile(String fileName) {
@@ -840,6 +845,11 @@ public class BDocContainer extends Container {
   public Signature getSignature(int index) {
     logger.debug("Get signature for index " + index);
     return getSignatures().get(index);
+  }
+  
+  @Override
+  public int countSignatures() {
+    return (signatures == null) ? 0 : signatures.size();
   }
 
   @Override
