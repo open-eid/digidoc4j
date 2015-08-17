@@ -12,16 +12,15 @@ package org.digidoc4j;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.BDocContainer;
 import org.digidoc4j.impl.DDocContainer;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.digidoc4j.utils.Helper;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import org.xml.sax.SAXException;
 
 import java.io.*;
@@ -230,9 +229,15 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   private PKCS12Signer PKCS12_SIGNER;
 
+  @Rule
+  public TemporaryFolder testFolder = new TemporaryFolder();
+  File tempFile;
+
+
   @Before
   public void setUp() throws Exception {
     PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
+    tempFile = testFolder.newFile("tempFile.txt");
   }
 
   @AfterClass
@@ -603,5 +608,34 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void containerTypeStringValueForDDOC() throws Exception {
     assertEquals("DDOC", Container.create(DDOC).getDocumentType().toString());
+  }
+
+  @Test
+  public void testSigningMultipleFilesInContainer() throws Exception {
+    Container container = Container.create();
+    container.setSignatureProfile(Container.SignatureProfile.LT_TM);
+    container.addDataFile(new ByteArrayInputStream(new byte[] {1, 2, 3}), "1.txt", "text/plain");
+    container.addDataFile(new ByteArrayInputStream(new byte[] {1, 2, 3}), "2.txt", "text/plain");
+    container.addDataFile(new ByteArrayInputStream(new byte[] {1, 2, 3}), "3.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    container.save(tempFile.getPath());
+    assertEquals(3, container.getDataFiles().size());
+    assertContainsDataFile("1.txt", container);
+    assertContainsDataFile("2.txt", container);
+    assertContainsDataFile("3.txt", container);
+    Container openedContainer = Container.open(tempFile.getPath());
+    assertEquals(3, openedContainer.getDataFiles().size());
+    assertContainsDataFile("1.txt", openedContainer);
+    assertContainsDataFile("2.txt", openedContainer);
+    assertContainsDataFile("3.txt", openedContainer);
+  }
+
+  private void assertContainsDataFile(String fileName, Container container) {
+    for(DataFile file: container.getDataFiles()) {
+      if(StringUtils.equals(fileName, file.getName())) {
+        return;
+      }
+    }
+    assertFalse("Data file '" + fileName + "' was not found in the container", true);
   }
 }
