@@ -139,10 +139,12 @@
 
   <target name="copy.dss.library">
     <copy todir="lib">
-      <fileset dir="sd-dss/apps/dss/core/dss-common/target" includes="dss-common*.jar" excludes="*-sources.jar "/>
-      <fileset dir="sd-dss/apps/dss/core/dss-document/target" includes="dss-document*.jar" excludes="*-sources.jar "/>
-      <fileset dir="sd-dss/apps/dss/core/dss-service/target" includes="dss-service*.jar" excludes="*-sources.jar "/>
-      <fileset dir="sd-dss/apps/dss/core/dss-spi/target" includes="dss-spi*.jar" excludes="*-sources.jar "/>
+      <fileset dir="sd-dss/dss-common/target" includes="dss-common*.jar" excludes="*-sources.jar "/>
+      <fileset dir="sd-dss/dss-diagnostic-jaxb/target" includes="dss-diagnostic-jaxb*.jar" excludes="*-sources.jar "/>
+      <fileset dir="sd-dss/dss-document/target" includes="dss-document*.jar" excludes="*-sources.jar "/>
+      <fileset dir="sd-dss/dss-service/target" includes="dss-service*.jar" excludes="*-sources.jar "/>
+      <fileset dir="sd-dss/dss-spi/target" includes="dss-spi*.jar" excludes="*-sources.jar "/>
+      <fileset dir="sd-dss/dss-tsl-jaxb/target" includes="dss-tsl-jaxb*.jar" excludes="*-sources.jar "/>
     </copy>
   </target>
 
