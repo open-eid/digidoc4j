@@ -1788,10 +1788,11 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   private void assertContainsError(String errorMsg, List<DigiDoc4JException> errors) {
-    for(DigiDoc4JException e : errors) {
-      if(StringUtils.equalsIgnoreCase(errorMsg, e.toString())) {
+    for (DigiDoc4JException e : errors) {
+      if (StringUtils.equalsIgnoreCase(errorMsg, e.toString())) {
         return;
       }
     }
     assertFalse("Expected '" + errorMsg + "' was not found", true);
+  }
 }
