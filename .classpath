@@ -13,5 +13,7 @@
 	<classpathentry kind="lib" path="lib/jacocoant.jar"/>
 	<classpathentry kind="lib" path="lib/jdigidoc-3.10.0-777.jar"/>
 	<classpathentry kind="lib" path="lib/testcerts.jar"/>
+	<classpathentry kind="lib" path="lib/dss-diagnostic-jaxb-4.4.RC2.jar"/>
+	<classpathentry kind="lib" path="lib/dss-tsl-jaxb-4.4.RC2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
