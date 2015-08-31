@@ -52,13 +52,25 @@ public class DDocSignature implements Signature {
   @Override
   public String getCity() {
     logger.debug("");
-    return origin.getSignedProperties().getSignatureProductionPlace().getCity();
+    
+    String city = null;
+    if (origin.getSignedProperties().getSignatureProductionPlace() != null) {
+      city = origin.getSignedProperties().getSignatureProductionPlace().getCity();
+    }
+    
+    return city;
   }
 
   @Override
   public String getCountryName() {
     logger.debug("");
-    return origin.getSignedProperties().getSignatureProductionPlace().getCountryName();
+    
+    String countryName = null;
+    if (origin.getSignedProperties().getSignatureProductionPlace() != null) {
+      countryName = origin.getSignedProperties().getSignatureProductionPlace().getCountryName();
+    }
+    
+    return countryName;
   }
 
   @Override
@@ -89,7 +101,13 @@ public class DDocSignature implements Signature {
   @Override
   public String getPostalCode() {
     logger.debug("");
-    return origin.getSignedProperties().getSignatureProductionPlace().getPostalCode();
+    
+    String postalCode = null;
+    if (origin.getSignedProperties().getSignatureProductionPlace() != null) {
+      postalCode = origin.getSignedProperties().getSignatureProductionPlace().getPostalCode();
+    }
+    
+    return postalCode;
   }
 
   @Override
@@ -157,7 +175,13 @@ public class DDocSignature implements Signature {
   @Override
   public String getStateOrProvince() {
     logger.debug("");
-    return origin.getSignedProperties().getSignatureProductionPlace().getStateOrProvince();
+    
+    String stateOrProvince = null;
+    if (origin.getSignedProperties().getSignatureProductionPlace() != null) {
+      stateOrProvince = origin.getSignedProperties().getSignatureProductionPlace().getStateOrProvince();;
+    }
+    
+    return stateOrProvince;
   }
 
   @Override
