@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 
 public class DDocSignatureTest extends DigiDoc4JTestHelper{
 
-  private static DDocContainer container;
+  private static DDocFacade container;
 
   @BeforeClass
   public static void setUp() {
@@ -31,7 +31,7 @@ public class DDocSignatureTest extends DigiDoc4JTestHelper{
     signatureParameters.setProductionPlace(new SignatureProductionPlace("City", "State", "PostalCode", "Country"));
     signatureParameters.setRoles(asList("Role1"));
 
-    container = new DDocContainer();
+    container = new DDocFacade();
     container.setSignatureParameters(signatureParameters);
 
     container.addDataFile("testFiles/test.txt", "text/plain");

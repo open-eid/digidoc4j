@@ -19,7 +19,7 @@ import eu.europa.ec.markt.dss.validation102853.ocsp.OnlineOCSPSource;
 import eu.europa.ec.markt.dss.validation102853.report.Reports;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import org.digidoc4j.*;
-import org.digidoc4j.Container.SignatureProfile;
+import org.digidoc4j.ContainerFacade.SignatureProfile;
 import org.digidoc4j.signers.PKCS12Signer;
 
 import java.io.File;
@@ -38,7 +38,7 @@ public class HowTo {
 //    configuration.setValidationPolicy("conf/test_constraint.xml");
 
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    Container container = Container.create(configuration);
+    ContainerFacade container = ContainerFacade.create(configuration);
     SignatureParameters signatureParameters = new SignatureParameters();
     SignatureProductionPlace productionPlace = new SignatureProductionPlace();
     productionPlace.setCity("Nõmme");
@@ -48,12 +48,12 @@ public class HowTo {
     container.setSignatureProfile(SignatureProfile.LT_TM);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
-//    Container container = Container.open("util/faulty/bdoc21-bad-nonce-content.bdoc");
+//    ContainerFacade container = ContainerFacade.open("util/faulty/bdoc21-bad-nonce-content.bdoc");
     container.save("prototype.bdoc");
     ValidationResult result = container.validate();
     System.out.println(result.getReport());
-//    Container container = Container.open("BDOC_2.1_TS.bdoc", configuration);
-//    container.extendTo(Container.SignatureProfile.TSA);
+//    ContainerFacade container = ContainerFacade.open("BDOC_2.1_TS.bdoc", configuration);
+//    container.extendTo(ContainerFacade.SignatureProfile.TSA);
 //    container.save("BDOC_2.1_TSA.bdoc");
 //    ValidationResult result = container.validate();
 //    if (!result.isValid()) {

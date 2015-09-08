@@ -45,8 +45,8 @@ import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
  * remove all the signatures.
  * </p>
  */
-public class DDocContainer extends Container {
-  Logger logger = LoggerFactory.getLogger(DDocContainer.class);
+public class DDocFacade extends ContainerFacade {
+  Logger logger = LoggerFactory.getLogger(DDocFacade.class);
 
   SignedDoc ddoc;
   private ArrayList<DigiDocException> openContainerExceptions = new ArrayList<>();
@@ -57,7 +57,7 @@ public class DDocContainer extends Container {
   /**
    * Create a new container object of DDOC type Container.
    */
-  public DDocContainer() {
+  public DDocFacade() {
     logger.debug("");
     intConfiguration();
     createDDOCContainer();
@@ -122,7 +122,7 @@ public class DDocContainer extends Container {
    *
    * @param path file path
    */
-  public DDocContainer(String path) {
+  public DDocFacade(String path) {
     this(path, new Configuration());
   }
 
@@ -142,7 +142,7 @@ public class DDocContainer extends Container {
    *
    * @param stream description
    */
-  public DDocContainer(InputStream stream) {
+  public DDocFacade(InputStream stream) {
     logger.debug("");
     intConfiguration();
     DigiDocFactory digFac = new SAXDigiDocFactory();
@@ -154,7 +154,7 @@ public class DDocContainer extends Container {
     }
   }
 
-  public DDocContainer(InputStream stream, Configuration configuration) {
+  public DDocFacade(InputStream stream, Configuration configuration) {
     logger.debug("");
     ConfigManager.init(configuration.getJDigiDocConfiguration());
     ConfigManager.addProvider();
@@ -172,7 +172,7 @@ public class DDocContainer extends Container {
    *
    * @param configuration configuration to use
    */
-  public DDocContainer(Configuration configuration) {
+  public DDocFacade(Configuration configuration) {
     logger.debug("");
     ConfigManager.init(configuration.getJDigiDocConfiguration());
     ConfigManager.addProvider();
@@ -192,7 +192,7 @@ public class DDocContainer extends Container {
    * @param fileName      container file name with path
    * @param configuration configuration to use
    */
-  public DDocContainer(String fileName, Configuration configuration) {
+  public DDocFacade(String fileName, Configuration configuration) {
     logger.debug("File name: " + fileName);
 
     ConfigManager.init(configuration.getJDigiDocConfiguration());
@@ -223,7 +223,7 @@ public class DDocContainer extends Container {
     return exception;
   }
 
-  DDocContainer(SignedDoc ddoc) {
+  DDocFacade(SignedDoc ddoc) {
     logger.debug("");
     intConfiguration();
     this.ddoc = ddoc;

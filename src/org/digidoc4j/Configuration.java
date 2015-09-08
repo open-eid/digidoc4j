@@ -31,7 +31,7 @@ import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 /**
- * Possibility to create custom configurations for {@link Container} implementations.
+ * Possibility to create custom configurations for {@link ContainerFacade} implementations.
  * <p/>
  * You can specify the configuration mode, either {@link Configuration.Mode#TEST} or {@link Configuration.Mode#PROD}
  * configuration. Default is {@link Configuration.Mode#PROD}.

@@ -18,7 +18,7 @@ import org.apache.commons.cli.*;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
-import org.digidoc4j.impl.DDocContainer;
+import org.digidoc4j.impl.DDocFacade;
 import org.digidoc4j.impl.DDocSignature;
 import org.digidoc4j.impl.ValidationResultForDDoc;
 import org.digidoc4j.signers.PKCS12Signer;
@@ -27,10 +27,10 @@ import java.io.File;
 import java.util.List;
 
 import static org.apache.commons.cli.OptionBuilder.withArgName;
-import static org.digidoc4j.Container.DocumentType;
-import static org.digidoc4j.Container.DocumentType.BDOC;
-import static org.digidoc4j.Container.DocumentType.DDOC;
-import static org.digidoc4j.Container.SignatureProfile;
+import static org.digidoc4j.ContainerFacade.DocumentType;
+import static org.digidoc4j.ContainerFacade.DocumentType.BDOC;
+import static org.digidoc4j.ContainerFacade.DocumentType.DDOC;
+import static org.digidoc4j.ContainerFacade.SignatureProfile;
 
 /**
  * Client commandline tool for DigiDoc4J library.
@@ -92,14 +92,14 @@ public final class DigiDoc4J {
     checkSupportedFunctionality(commandLine);
 
     try {
-      Container container;
+      ContainerFacade container;
 
       if (new File(inputFile).exists() || commandLine.hasOption("verify") || commandLine.hasOption("remove")) {
         verboseMessage("Opening container " + inputFile);
-        container = Container.open(inputFile);
+        container = ContainerFacade.open(inputFile);
       } else {
         verboseMessage("Creating new " + type + "container " + inputFile);
-        container = Container.create(type);
+        container = ContainerFacade.create(type);
       }
 
       if (commandLine.hasOption("add")) {
@@ -166,19 +166,19 @@ public final class DigiDoc4J {
     return BDOC;
   }
 
-  private static void pkcs12Sign(CommandLine commandLine, Container container) {
+  private static void pkcs12Sign(CommandLine commandLine, ContainerFacade container) {
     String[] optionValues = commandLine.getOptionValues("pkcs12");
     Signer pkcs12Signer = new PKCS12Signer(optionValues[0], optionValues[1].toCharArray());
     container.sign(pkcs12Signer);
   }
 
-  private static void verify(Container container) {
+  private static void verify(ContainerFacade container) {
     ValidationResult validationResult = container.validate();
 
     List<DigiDoc4JException> exceptions = validationResult.getContainerErrors();
     boolean isDDoc = container.getDocumentType() == DocumentType.DDOC;
     for (DigiDoc4JException exception : exceptions) {
-      if (isDDoc && isWarning(((DDocContainer) container).getFormat(), exception))
+      if (isDDoc && isWarning(((DDocFacade) container).getFormat(), exception))
         System.out.println("	Warning: " + exception.toString());
       else
         System.out.println((isDDoc ? "	" : "	Error: ") + exception.toString());

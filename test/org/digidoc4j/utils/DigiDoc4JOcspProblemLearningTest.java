@@ -15,12 +15,12 @@ import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.Container;
+import org.digidoc4j.ContainerFacade;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignedInfo;
-import org.digidoc4j.impl.BDocContainer;
+import org.digidoc4j.impl.AsicFacade;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -59,7 +59,7 @@ public class DigiDoc4JOcspProblemLearningTest {
     }
 
     protected void sign() {
-        BDocContainer container = (BDocContainer) Container.create(createDigiDoc4JConfiguration());
+        AsicFacade container = (AsicFacade) ContainerFacade.create(createDigiDoc4JConfiguration());
         container.addDataFile(new ByteArrayInputStream("file contents".getBytes()), "file.txt", "application/octet-stream");
         byte[] hashToSign = prepareSigning(container, SIGN_CERT, createSignatureParameters());
         byte[] signatureValue = signWithRsa(PRIVATE_KEY_FOR_SIGN_CERT, hashToSign);
@@ -99,7 +99,7 @@ public class DigiDoc4JOcspProblemLearningTest {
         return newSignature.sign();
     }
 
-    protected byte[] prepareSigning(BDocContainer container, X509Certificate signingCertificate, SignatureParameters signatureParameters) {
+    protected byte[] prepareSigning(AsicFacade container, X509Certificate signingCertificate, SignatureParameters signatureParameters) {
         container.setSignatureParameters(signatureParameters);
         SignedInfo signedInfo = container.prepareSigning(signingCertificate);
         return signedInfo.getDigest();

@@ -12,7 +12,7 @@ package prototype.samples;
 
 import eu.europa.ec.markt.dss.DSSUtils;
 import org.apache.commons.lang.ArrayUtils;
-import org.digidoc4j.Container;
+import org.digidoc4j.ContainerFacade;
 import org.digidoc4j.SignedInfo;
 import org.digidoc4j.Signer;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -32,7 +32,7 @@ public class AsyncSigning {
   public static void main(String[] args) throws IOException, ClassNotFoundException {
     System.setProperty("digidoc4j.mode", "TEST");
 
-    Container container = Container.create();
+    ContainerFacade container = ContainerFacade.create();
     container.addDataFile("testFiles/test.txt", "text/plain");
 
     X509Certificate signerCert = getSignerCert();
@@ -44,7 +44,7 @@ public class AsyncSigning {
     //getSignature
     byte[] signature = getExternalSignature(container, signerCert, signedInfo);
 
-    Container deserializedContainer = deserializer();
+    ContainerFacade deserializedContainer = deserializer();
     deserializedContainer.signRaw(signature);
     deserializedContainer.save("deserializedContainer.bdoc");
 
@@ -52,10 +52,10 @@ public class AsyncSigning {
     serialize(deserializedContainer);
   }
 
-  private static byte[] getExternalSignature(Container container, final X509Certificate signerCert, SignedInfo prepareSigningSignature) {
+  private static byte[] getExternalSignature(ContainerFacade container, final X509Certificate signerCert, SignedInfo prepareSigningSignature) {
     Signer externalSigner = new ExternalSigner(signerCert) {
       @Override
-      public byte[] sign(Container container, byte[] dataToSign) {
+      public byte[] sign(ContainerFacade container, byte[] dataToSign) {
         try {
           KeyStore keyStore = KeyStore.getInstance("PKCS12");
           try (FileInputStream stream = new FileInputStream("testFiles/signout.p12")) {
@@ -90,7 +90,7 @@ public class AsyncSigning {
     }
   }
 
-  private static void serialize(Container container) throws IOException {
+  private static void serialize(ContainerFacade container) throws IOException {
 
     FileOutputStream fileOut = new FileOutputStream("container.bin");
     ObjectOutputStream out = new ObjectOutputStream(fileOut);
@@ -100,11 +100,11 @@ public class AsyncSigning {
     fileOut.close();
   }
 
-  private static Container deserializer() throws IOException, ClassNotFoundException {
+  private static ContainerFacade deserializer() throws IOException, ClassNotFoundException {
     FileInputStream fileIn = new FileInputStream("container.bin");
     ObjectInputStream in = new ObjectInputStream(fileIn);
 
-    Container container = (Container) in.readObject();
+    ContainerFacade container = (ContainerFacade) in.readObject();
 
     in.close();
     fileIn.close();

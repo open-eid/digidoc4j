@@ -13,7 +13,7 @@ import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignedInfo;
-import org.digidoc4j.impl.BDocContainer;
+import org.digidoc4j.impl.AsicFacade;
 
 import ee.sk.utils.ConvertUtils;
 
@@ -51,7 +51,7 @@ public abstract class AbstractSigningTests {
         return newSignature.sign();
     }
 
-    protected byte[] prepareSigning(BDocContainer container, X509Certificate signingCertificate, SignatureParameters signatureParameters) {
+    protected byte[] prepareSigning(AsicFacade container, X509Certificate signingCertificate, SignatureParameters signatureParameters) {
         container.setSignatureParameters(signatureParameters);
         SignedInfo signedInfo = container.prepareSigning(signingCertificate);
         return signedInfo.getDigest();

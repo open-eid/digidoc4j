@@ -39,6 +39,6 @@ public interface Signer {
    * @param dataToSign data to sign
    * @return signature raw value
    */
-  byte[] sign(Container container, byte[] dataToSign);
+  byte[] sign(ContainerFacade container, byte[] dataToSign);
 
 }

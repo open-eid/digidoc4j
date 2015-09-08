@@ -34,8 +34,8 @@ import java.net.URI;
 import java.util.*;
 
 import static eu.europa.ec.markt.dss.DSSXMLUtils.createDocument;
-import static org.digidoc4j.Container.SignatureProfile;
-import static org.digidoc4j.Container.SignatureProfile.*;
+import static org.digidoc4j.ContainerFacade.SignatureProfile;
+import static org.digidoc4j.ContainerFacade.SignatureProfile.*;
 
 
 /**

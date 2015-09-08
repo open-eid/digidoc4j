@@ -14,8 +14,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.BDocContainer;
-import org.digidoc4j.impl.DDocContainer;
+import org.digidoc4j.impl.AsicFacade;
+import org.digidoc4j.impl.DDocFacade;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.digidoc4j.utils.Helper;
@@ -37,14 +37,14 @@ import static junit.framework.Assert.assertTrue;
 import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Configuration.Mode.TEST;
-import static org.digidoc4j.Container.DocumentType.BDOC;
-import static org.digidoc4j.Container.DocumentType.DDOC;
-import static org.digidoc4j.Container.SignatureProfile.B_BES;
-import static org.digidoc4j.Container.SignatureProfile.LT;
+import static org.digidoc4j.ContainerFacade.DocumentType.BDOC;
+import static org.digidoc4j.ContainerFacade.DocumentType.DDOC;
+import static org.digidoc4j.ContainerFacade.SignatureProfile.B_BES;
+import static org.digidoc4j.ContainerFacade.SignatureProfile.LT;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-public class ContainerTest extends DigiDoc4JTestHelper {
+public class ContainerFacadeTest extends DigiDoc4JTestHelper {
   public static final String TEXT_MIME_TYPE = "text/plain";
 
   public static final String CERTIFICATE =
@@ -256,32 +256,32 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createBDocContainersByDefault() {
-    assertTrue(Container.create() instanceof BDocContainer);
+    assertTrue(ContainerFacade.create() instanceof AsicFacade);
   }
 
   @Test
   public void createBDocContainer() {
-    assertTrue(Container.create(BDOC) instanceof BDocContainer);
+    assertTrue(ContainerFacade.create(BDOC) instanceof AsicFacade);
   }
 
   @Test
   public void createDDocContainer() {
-    assertTrue(Container.create(DDOC) instanceof DDocContainer);
+    assertTrue(ContainerFacade.create(DDOC) instanceof DDocFacade);
   }
 
   @Test
   public void openBDocContainerWhenTheFileIsAZipAndTheExtensionIsBDoc() {
-    assertTrue(Container.open("testFiles/zip_file_without_asics_extension.bdoc") instanceof BDocContainer);
+    assertTrue(ContainerFacade.open("testFiles/zip_file_without_asics_extension.bdoc") instanceof AsicFacade);
   }
 
   @Test
   public void openDDocContainerForAllOtherFiles() {
-    assertTrue(Container.open("testFiles/changed_digidoc_test.ddoc") instanceof DDocContainer);
+    assertTrue(ContainerFacade.open("testFiles/changed_digidoc_test.ddoc") instanceof DDocFacade);
   }
 
   @Test
   public void testAddOneFileToContainerForBDoc() throws Exception {
-    Container container = Container.create();
+    ContainerFacade container = ContainerFacade.create();
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     List<DataFile> dataFiles = container.getDataFiles();
     assertEquals(1, dataFiles.size());
@@ -291,7 +291,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testRemovesOneFileFromContainerWhenFileExistsForBDoc() throws Exception {
-    Container bDocContainer = Container.create();
+    ContainerFacade bDocContainer = ContainerFacade.create();
     bDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     bDocContainer.removeDataFile("testFiles/test.txt");
     assertEquals(0, bDocContainer.getDataFiles().size());
@@ -299,7 +299,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testCreateBDocContainerSpecifiedByDocumentTypeForBDoc() throws Exception {
-    Container asicContainer = Container.create(BDOC);
+    ContainerFacade asicContainer = ContainerFacade.create(BDOC);
     asicContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     asicContainer.sign(PKCS12_SIGNER);
     asicContainer.save("test.bdoc");
@@ -308,7 +308,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testCreateDDocContainer() throws Exception {
-    Container dDocContainer = Container.create(DDOC);
+    ContainerFacade dDocContainer = ContainerFacade.create(DDOC);
     dDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     dDocContainer.sign(PKCS12_SIGNER);
     dDocContainer.save("testCreateDDocContainer.ddoc");
@@ -318,7 +318,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testAddOneFileToContainerForDDoc() throws Exception {
-    Container container = Container.create(DDOC);
+    ContainerFacade container = ContainerFacade.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     List<DataFile> dataFiles = container.getDataFiles();
     assertEquals(1, dataFiles.size());
@@ -328,21 +328,21 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testRemovesOneFileFromContainerWhenFileExistsForDDoc() throws Exception {
-    Container container = Container.create(DDOC);
+    ContainerFacade container = ContainerFacade.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.save("testRemovesOneFileFromContainerWhenFileExistsFor.ddoc");
 
-    Container container1 = Container.open("testRemovesOneFileFromContainerWhenFileExistsFor.ddoc");
+    ContainerFacade container1 = ContainerFacade.open("testRemovesOneFileFromContainerWhenFileExistsFor.ddoc");
     container1.removeDataFile("testFiles/test.txt");
     assertEquals(0, container1.getDataFiles().size());
   }
 
   @Test
   public void testOpenCreatedDDocFile() throws Exception {
-    Container container = Container.create(DDOC);
+    ContainerFacade container = ContainerFacade.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.save("testOpenCreatedDDocFile.ddoc");
-    Container containerForReading = Container.open("testOpenCreatedDDocFile.ddoc");
+    ContainerFacade containerForReading = ContainerFacade.open("testOpenCreatedDDocFile.ddoc");
     junit.framework.Assert.assertEquals(DDOC, containerForReading.getDocumentType());
 
     assertEquals(1, container.getDataFiles().size());
@@ -350,36 +350,36 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test(expected = DigiDoc4JException.class)
   public void testOpenInvalidFileReturnsError() {
-    Container.open("testFiles/test.txt");
+    ContainerFacade.open("testFiles/test.txt");
   }
 
   @Test
   public void testValidateDDoc() throws Exception {
-    Container dDocContainer = Container.open("testFiles/ddoc_for_testing.ddoc");
+    ContainerFacade dDocContainer = ContainerFacade.open("testFiles/ddoc_for_testing.ddoc");
     assertFalse(dDocContainer.validate().hasErrors());
     assertFalse(dDocContainer.validate().hasWarnings());
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void testOpenNotExistingFileThrowsException() {
-    Container.open("noFile.ddoc");
+    ContainerFacade.open("noFile.ddoc");
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void testOpenEmptyFileThrowsException() {
-    Container.open("emptyFile.ddoc");
+    ContainerFacade.open("emptyFile.ddoc");
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void testFileTooShortToVerifyIfItIsZipFileThrowsException() {
-    Container.open("testFiles/tooShortToVerifyIfIsZip.ddoc");
+    ContainerFacade.open("testFiles/tooShortToVerifyIfIsZip.ddoc");
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void testOpenFromStreamTooShortToVerifyIfIsZip() {
     try {
       FileInputStream stream = new FileInputStream(new File("testFiles/tooShortToVerifyIfIsZip.ddoc"));
-      Container.open(stream, true);
+      ContainerFacade.open(stream, true);
       IOUtils.closeQuietly(stream);
     } catch (FileNotFoundException e) {
       e.printStackTrace();
@@ -388,7 +388,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testAddFileFromStreamToDDoc() throws IOException {
-    Container container = Container.create(DDOC);
+    ContainerFacade container = ContainerFacade.create(DDOC);
     try (ByteArrayInputStream is = new ByteArrayInputStream(new byte[]{0x42})) {
       container.addDataFile(is, "testFromStream.txt", TEXT_MIME_TYPE);
     }
@@ -399,13 +399,13 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void openContainerFromStreamAsBDoc() throws IOException {
-    Container container = Container.create();
+    ContainerFacade container = ContainerFacade.create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.save("testOpenContainerFromStreamAsBDoc.bdoc");
 
     FileInputStream stream = new FileInputStream("testOpenContainerFromStreamAsBDoc.bdoc");
-    Container containerToTest = Container.open(stream, false);
+    ContainerFacade containerToTest = ContainerFacade.open(stream, false);
     stream.close();
 
     assertEquals(1, containerToTest.getSignatures().size());
@@ -414,7 +414,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void openContainerFromStreamAsDDoc() throws IOException {
     FileInputStream stream = new FileInputStream("testFiles/ddoc_for_testing.ddoc");
-    Container container = Container.open(stream, false);
+    ContainerFacade container = ContainerFacade.open(stream, false);
     stream.close();
 
     assertEquals(1, container.getSignatures().size());
@@ -422,7 +422,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetSignatureFromDDoc() {
-    Container container = Container.create(DDOC);
+    ContainerFacade container = ContainerFacade.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
     List<Signature> signatures = container.getSignatures();
@@ -432,13 +432,13 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test(expected = DigiDoc4JException.class)
   public void testAddRawSignatureThrowsException() {
-    Container container = Container.create(DDOC);
+    ContainerFacade container = ContainerFacade.create(DDOC);
     container.addRawSignature(new byte[]{0x42});
   }
 
   @Test
   public void testAddRawSignatureAsByteArrayForDDoc() throws CertificateEncodingException, IOException, SAXException {
-    Container container = Container.create(DDOC);
+    ContainerFacade container = ContainerFacade.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
     container.addRawSignature(signature.getBytes());
@@ -450,13 +450,13 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void throwsErrorWhenCreatesDDOCContainerWithConfiguration() throws Exception {
-    Container container = Container.create(DDOC, new Configuration());
+    ContainerFacade container = ContainerFacade.create(DDOC, new Configuration());
     junit.framework.Assert.assertEquals(DDOC, container.getDocumentType());
   }
 
   @Test
   public void testExtendToForBDOC() {
-    Container container = Container.create();
+    ContainerFacade container = ContainerFacade.create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.setSignatureProfile(B_BES);
     container.sign(PKCS12_SIGNER);
@@ -468,12 +468,12 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testExtendToForDDOC() {
-    Container container = Container.create(DDOC);
+    ContainerFacade container = ContainerFacade.create(DDOC);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.setSignatureProfile(B_BES);
     container.sign(PKCS12_SIGNER);
 
-    container.extendTo(Container.SignatureProfile.LT_TM);
+    container.extendTo(ContainerFacade.SignatureProfile.LT_TM);
 
     assertNotNull(container.getSignature(0).getOCSPCertificate());
   }
@@ -481,7 +481,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   @Test
   @Ignore("possibility of this must be confirmed with dss authors")
   public void testAddRawSignatureAsByteArrayForBDoc() throws CertificateEncodingException, IOException, SAXException {
-    Container container = Container.create(BDOC);
+    ContainerFacade container = ContainerFacade.create(BDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
     container.addRawSignature(Base64.decodeBase64("fo4aA1PVI//1agzBm2Vcxj7sk9pYQJt+9a7xLFSkfF10RocvGjVPBI65RMqyxGIsje" +
@@ -494,7 +494,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testAddRawSignatureAsStreamArray() throws CertificateEncodingException, IOException {
-    Container container = Container.create(DDOC);
+    ContainerFacade container = ContainerFacade.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     try (ByteArrayInputStream signatureStream = new ByteArrayInputStream(signature.getBytes())) {
       container.addRawSignature(signatureStream);
@@ -504,14 +504,14 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     assertEquals(CERTIFICATE.replaceAll("\\s", ""), encodeBase64String(getSigningCertificateAsBytes(container, 0)));
   }
 
-  private byte[] getSigningCertificateAsBytes(Container container, int index) throws CertificateEncodingException {
+  private byte[] getSigningCertificateAsBytes(ContainerFacade container, int index) throws CertificateEncodingException {
     Signature signature = container.getSignatures().get(index);
     return signature.getSigningCertificate().getX509Certificate().getEncoded();
   }
 
   @Test
   public void testRemoveSignature() throws IOException {
-    Container container = Container.create(DDOC);
+    ContainerFacade container = ContainerFacade.create(DDOC);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
     try (ByteArrayInputStream signatureStream = new ByteArrayInputStream(signature.getBytes())) {
@@ -519,7 +519,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     }
     container.save("testRemoveSignature.ddoc");
 
-    Container containerToRemoveSignature = Container.open("testRemoveSignature.ddoc");
+    ContainerFacade containerToRemoveSignature = ContainerFacade.open("testRemoveSignature.ddoc");
     containerToRemoveSignature.removeSignature(1);
 
     assertEquals(1, containerToRemoveSignature.getSignatures().size());
@@ -528,7 +528,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test(expected = DigiDoc4JException.class)
   public void testRemovingNotExistingSignatureThrowsException() {
-    Container container = Container.create(DDOC);
+    ContainerFacade container = ContainerFacade.create(DDOC);
     container.removeSignature(0);
   }
 
@@ -545,7 +545,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     signatureParameters.setProductionPlace(new SignatureProductionPlace(city, stateOrProvince, postalCode, country));
     signatureParameters.setRoles(asList(signerRoles));
 
-    Container container = Container.create();
+    ContainerFacade container = ContainerFacade.create();
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.setSignatureParameters(signatureParameters);
     Signature signature = container.sign(PKCS12_SIGNER);
@@ -562,14 +562,14 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   public void testSetConfigurationForBDoc() throws Exception {
     Configuration conf = new Configuration(TEST);
     conf.setTslLocation("pole");
-    Container container = Container.create(BDOC, conf);
+    ContainerFacade container = ContainerFacade.create(BDOC, conf);
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
   }
 
   @Test
   public void mustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224() throws Exception {
-    Container container = Container.create();
+    ContainerFacade container = ContainerFacade.create();
     SignatureParameters signatureParameters = new SignatureParameters();
     signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA224);
     container.setSignatureParameters(signatureParameters);
@@ -577,21 +577,21 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     container.sign(PKCS12_SIGNER);
     container.save("testMustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224.bdoc");
 
-    container = Container.open("testMustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224.bdoc");
+    container = ContainerFacade.open("testMustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224.bdoc");
 
     assertEquals("http://www.w3.org/2001/04/xmldsig-more#sha224", container.getSignature(0).getSignatureMethod());
   }
 
   @Test
   public void constructorWithConfigurationParameter() throws Exception {
-    Container container = Container.create(new Configuration());
+    ContainerFacade container = ContainerFacade.create(new Configuration());
     assertEquals(BDOC, container.getDocumentType());
   }
 
   @Test
   @Ignore // Fails on Jenkins - need to verify
   public void createContainerWhenAttachmentNameContainsEstonianCharacters() throws Exception {
-    Container container = Container.create();
+    ContainerFacade container = ContainerFacade.create();
     String s = "testFiles/test_o\u0303a\u0308o\u0308u\u0308.txt";
     container.addDataFile(s, "text/plain");
     container.sign(PKCS12_SIGNER);
@@ -602,18 +602,18 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void containerTypeStringValueForBDOC() throws Exception {
-    assertEquals("application/vnd.etsi.asic-e+zip", Container.create().getDocumentType().toString());
+    assertEquals("application/vnd.etsi.asic-e+zip", ContainerFacade.create().getDocumentType().toString());
   }
 
   @Test
   public void containerTypeStringValueForDDOC() throws Exception {
-    assertEquals("DDOC", Container.create(DDOC).getDocumentType().toString());
+    assertEquals("DDOC", ContainerFacade.create(DDOC).getDocumentType().toString());
   }
 
   @Test
   public void testSigningMultipleFilesInContainer() throws Exception {
-    Container container = Container.create();
-    container.setSignatureProfile(Container.SignatureProfile.LT_TM);
+    ContainerFacade container = ContainerFacade.create();
+    container.setSignatureProfile(ContainerFacade.SignatureProfile.LT_TM);
     container.addDataFile(new ByteArrayInputStream(new byte[] {1, 2, 3}), "1.txt", "text/plain");
     container.addDataFile(new ByteArrayInputStream(new byte[] {1, 2, 3}), "2.txt", "text/plain");
     container.addDataFile(new ByteArrayInputStream(new byte[] {1, 2, 3}), "3.txt", "text/plain");
@@ -623,14 +623,14 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     assertContainsDataFile("1.txt", container);
     assertContainsDataFile("2.txt", container);
     assertContainsDataFile("3.txt", container);
-    Container openedContainer = Container.open(tempFile.getPath());
+    ContainerFacade openedContainer = ContainerFacade.open(tempFile.getPath());
     assertEquals(3, openedContainer.getDataFiles().size());
     assertContainsDataFile("1.txt", openedContainer);
     assertContainsDataFile("2.txt", openedContainer);
     assertContainsDataFile("3.txt", openedContainer);
   }
 
-  private void assertContainsDataFile(String fileName, Container container) {
+  private void assertContainsDataFile(String fileName, ContainerFacade container) {
     for(DataFile file: container.getDataFiles()) {
       if(StringUtils.equals(fileName, file.getName())) {
         return;

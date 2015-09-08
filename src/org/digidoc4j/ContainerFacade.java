@@ -13,8 +13,8 @@ package org.digidoc4j;
 import eu.europa.ec.markt.dss.signature.MimeType;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.BDocContainer;
-import org.digidoc4j.impl.DDocContainer;
+import org.digidoc4j.impl.AsicFacade;
+import org.digidoc4j.impl.DDocFacade;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ import java.io.*;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
-import static org.digidoc4j.Container.DocumentType.BDOC;
+import static org.digidoc4j.ContainerFacade.DocumentType.BDOC;
 
 /**
  * Offers functionality for handling data files and signatures in a container.
@@ -37,7 +37,7 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
  * </p><p>
  * Example of creating and signing a container:</p><p>
  * PKCS12_SIGNER = new PKCS12Signer("my_cert.p12", "password".toCharArray());<br>
- * Container container = Container.create();<br>
+ * ContainerFacade container = ContainerFacade.create();<br>
  * container.addDataFile("test.txt", "text/plain");<br>
  * container.sign(PKCS12_SIGNER);<br>
  * container.save("test.bdoc");
@@ -45,7 +45,7 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
  * Optionally you can specify certain settings and behavior using the SignatureParameters settings.<br>
  * Example of creating and signing a container with specific signature parameters:</p><p>
  * PKCS12_SIGNER = new PKCS12Signer("my_cert.p12", "password".toCharArray());<br>
- * Container container = Container.create();<br>
+ * ContainerFacade container = ContainerFacade.create();<br>
  * container.addDataFile("test.txt", "text/plain");<br>
  * SignatureParameters signatureParameters = new SignatureParameters();<br>
  * signatureParameters.setSignatureId("S0");<br>
@@ -54,7 +54,7 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
  * container.save("test.bdoc");
  * </p><p>
  * Example of performing a 2 step signing</p><p>
- * Container container = Container.create();<br>
+ * ContainerFacade container = ContainerFacade.create();<br>
  * container.addDataFile("test.txt", "text/plain");<br>
  * SignedInfo signedInfo = container.prepareSigning(signerCertificate);<br>
  * byte[] signature = getExternalSignature();<br>
@@ -64,15 +64,15 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
  *
  * @see SignatureParameters
  */
-public abstract class Container implements Serializable {
-  private static final Logger logger = LoggerFactory.getLogger(Container.class);
+public abstract class ContainerFacade implements Serializable {
+  private static final Logger logger = LoggerFactory.getLogger(ContainerFacade.class);
 
   /**
    * Create a BDOC container.
    *
-   * @return new BDOC Container
+   * @return new BDOC ContainerFacade
    */
-  public static Container create() {
+  public static ContainerFacade create() {
     logger.debug("");
     return create(BDOC);
   }
@@ -83,11 +83,11 @@ public abstract class Container implements Serializable {
    * @param documentType Type of container to create
    * @return new container of the specified format
    */
-  public static Container create(DocumentType documentType) {
+  public static ContainerFacade create(DocumentType documentType) {
     logger.debug("");
     if (documentType == BDOC)
-      return new BDocContainer();
-    return new DDocContainer();
+      return new AsicFacade();
+    return new DDocFacade();
   }
 
   /**
@@ -97,11 +97,11 @@ public abstract class Container implements Serializable {
    * @param configuration Configuration to be used
    * @return new container of specified type
    */
-  public static Container create(DocumentType documentType, Configuration configuration) {
+  public static ContainerFacade create(DocumentType documentType, Configuration configuration) {
     logger.debug("");
     if (documentType == BDOC)
-      return new BDocContainer(configuration);
-    return new DDocContainer(configuration);
+      return new AsicFacade(configuration);
+    return new DDocFacade(configuration);
   }
 
   /**
@@ -112,15 +112,15 @@ public abstract class Container implements Serializable {
    * @return container new container of the specified format
    * @throws DigiDoc4JException when the file is not found or empty
    */
-  public static Container open(String path, Configuration configuration) throws DigiDoc4JException {
+  public static ContainerFacade open(String path, Configuration configuration) throws DigiDoc4JException {
     logger.debug("Path: " + path);
-    Container container;
+    ContainerFacade container;
     try {
       if (Helper.isZipFile(new File(path))) {
         configuration.loadConfiguration("digidoc4j.yaml");
-        container = new BDocContainer(path, configuration);
+        container = new AsicFacade(path, configuration);
       } else {
-        container = new DDocContainer(path, configuration);
+        container = new DDocFacade(path, configuration);
       }
       return container;
     } catch (EOFException eof) {
@@ -140,7 +140,7 @@ public abstract class Container implements Serializable {
    * @return container
    * @throws DigiDoc4JException when the file is not found or empty
    */
-  public static Container open(String path) throws DigiDoc4JException {
+  public static ContainerFacade open(String path) throws DigiDoc4JException {
     logger.debug("");
     return open(path, new Configuration());
   }
@@ -153,14 +153,14 @@ public abstract class Container implements Serializable {
    * @return container
    * @see Configuration#isBigFilesSupportEnabled() returns true used for BDOC
    */
-  public static Container open(InputStream stream, boolean actAsBigFilesSupportEnabled) {
+  public static ContainerFacade open(InputStream stream, boolean actAsBigFilesSupportEnabled) {
     logger.debug("");
     BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);
 
     try {
       if (Helper.isZipFile(bufferedInputStream))
-        return new BDocContainer(bufferedInputStream, actAsBigFilesSupportEnabled);
-      return new DDocContainer(bufferedInputStream);
+        return new AsicFacade(bufferedInputStream, actAsBigFilesSupportEnabled);
+      return new DDocFacade(bufferedInputStream);
     } catch (IOException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
@@ -169,14 +169,14 @@ public abstract class Container implements Serializable {
     }
   }
 
-  public static Container open(InputStream stream, Configuration configuration) {
+  public static ContainerFacade open(InputStream stream, Configuration configuration) {
     logger.debug("");
     BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);
 
     try {
         if (Helper.isZipFile(bufferedInputStream))
-            return new BDocContainer(bufferedInputStream, true, configuration);
-        return new DDocContainer(bufferedInputStream, configuration);
+            return new AsicFacade(bufferedInputStream, true, configuration);
+        return new DDocFacade(bufferedInputStream, configuration);
     } catch (IOException e) {
         logger.error(e.getMessage());
         throw new DigiDoc4JException(e);
@@ -185,7 +185,7 @@ public abstract class Container implements Serializable {
     }
   }
 
-  protected Container() {
+  protected ContainerFacade() {
     logger.debug("");
   }
 
@@ -196,7 +196,7 @@ public abstract class Container implements Serializable {
    * @param configuration configuration used for container creation
    * @return BDOC container
    */
-  public static Container create(Configuration configuration) {
+  public static ContainerFacade create(Configuration configuration) {
     logger.debug("");
     return create(BDOC, configuration);
   }

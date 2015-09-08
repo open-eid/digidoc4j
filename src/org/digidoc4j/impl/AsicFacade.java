@@ -21,7 +21,7 @@ import static java.util.Arrays.asList;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.digidoc4j.Container.SignatureProfile.LT;
+import static org.digidoc4j.ContainerFacade.SignatureProfile.LT;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -45,7 +45,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.Container;
+import org.digidoc4j.ContainerFacade;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.EncryptionAlgorithm;
@@ -101,13 +101,13 @@ import eu.europa.ec.markt.dss.validation102853.xades.XPathQueryHolder;
 /**
  * BDOC container implementation
  */
-public class BDocContainer extends Container {
+public class AsicFacade extends ContainerFacade {
   private static final String TM_POLICY = "urn:oid:1.3.6.1.4.1.10015.1000.3.2.1";
   private static final String OIDAS_URN = "OIDAsURN";
   private static final String XADES_SIGNED_PROPERTIES = "http://uri.etsi.org/01903#SignedProperties";
   public static final int ONE_MB_IN_BYTES = 1048576;
 
-  final Logger logger = LoggerFactory.getLogger(BDocContainer.class);
+  final Logger logger = LoggerFactory.getLogger(AsicFacade.class);
 
   private final Map<String, DataFile> dataFiles = new LinkedHashMap<>();
   private Map<String, List<DigiDoc4JException>> additionalVerificationErrors = new LinkedHashMap<>();
@@ -125,7 +125,7 @@ public class BDocContainer extends Container {
   /**
    * Create a new container object of type BDOC.
    */
-  public BDocContainer() {
+  public AsicFacade() {
     logger.debug("");
     this.configuration = new Configuration();
     initASiC();
@@ -154,7 +154,7 @@ public class BDocContainer extends Container {
    *
    * @param configuration sets container configuration
    */
-  public BDocContainer(Configuration configuration) {
+  public AsicFacade(Configuration configuration) {
     logger.debug("");
     initASiC();
     configuration.getTSL();
@@ -233,7 +233,7 @@ public class BDocContainer extends Container {
    *
    * @param path container file name with path
    */
-  public BDocContainer(String path) {
+  public AsicFacade(String path) {
     this(path, new Configuration());
   }
 
@@ -244,11 +244,11 @@ public class BDocContainer extends Container {
    * @param actAsBigFilesSupportEnabled acts as configuration parameter
    * @see org.digidoc4j.Configuration#isBigFilesSupportEnabled() returns true
    */
-  public BDocContainer(InputStream stream, boolean actAsBigFilesSupportEnabled) {
+  public AsicFacade(InputStream stream, boolean actAsBigFilesSupportEnabled) {
     this(stream, actAsBigFilesSupportEnabled, new Configuration());
   }
 
-  public BDocContainer(InputStream stream, boolean actAsBigFilesSupportEnabled, Configuration configuration) {
+  public AsicFacade(InputStream stream, boolean actAsBigFilesSupportEnabled, Configuration configuration) {
     logger.debug("");
     this.configuration = configuration;
     initASiC();
@@ -271,7 +271,7 @@ public class BDocContainer extends Container {
    * @param path          container file name with path
    * @param configuration configuration settings
    */
-  public BDocContainer(String path, Configuration configuration) {
+  public AsicFacade(String path, Configuration configuration) {
     logger.debug("Opens file: " + path);
     initASiC();
 

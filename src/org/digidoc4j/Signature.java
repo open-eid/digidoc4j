@@ -110,7 +110,7 @@ public abstract class Signature implements Serializable {
    *
    * @return profile
    */
-  public abstract Container.SignatureProfile getProfile();
+  public abstract ContainerFacade.SignatureProfile getProfile();
 
   /**
    * Returns the signature method that was used for signing.

@@ -15,7 +15,7 @@ import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.BDocContainer;
+import org.digidoc4j.impl.AsicFacade;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -136,7 +136,7 @@ public class ConfigurationTest {
     addFromFileToTSLCertificate("testFiles/ESTEID-SK_2011.pem.crt");
     addFromFileToTSLCertificate("testFiles/SK_OCSP_RESPONDER_2011.pem.cer");
 
-    BDocContainer container = new BDocContainer("testFiles/test.asice", configuration);
+    AsicFacade container = new AsicFacade("testFiles/test.asice", configuration);
     ValidationResult verify = container.verify();
     assertTrue(verify.isValid());
   }
@@ -145,7 +145,7 @@ public class ConfigurationTest {
   @Ignore("Ignored as this functionality is not used in DDS but this test is broken due to DDS forks custom revocation handling.")
   public void policyFileIsReadFromNonDefaultFileLocation() {
     configuration.setValidationPolicy("moved_constraint.xml");
-    new BDocContainer("testFiles/asics_for_testing.bdoc", configuration);
+    new AsicFacade("testFiles/asics_for_testing.bdoc", configuration);
   }
 
   private void addFromFileToTSLCertificate(String fileName) throws IOException, CertificateException {

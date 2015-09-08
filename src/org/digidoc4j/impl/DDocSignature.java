@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.digidoc4j.Container.SignatureProfile;
+import static org.digidoc4j.ContainerFacade.SignatureProfile;
 
 /**
  * Signature implementation. Provides an interface for handling a signature and the

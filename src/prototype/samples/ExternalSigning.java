@@ -13,7 +13,7 @@ package prototype.samples;
 import eu.europa.ec.markt.dss.DSSUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.Container;
+import org.digidoc4j.ContainerFacade;
 import org.digidoc4j.SignedInfo;
 import org.digidoc4j.Signer;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -39,12 +39,12 @@ public final class ExternalSigning {
   public static void main(String[] args) throws Exception {
     System.setProperty("digidoc4j.mode", "TEST");
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    Container container = Container.create(configuration);
+    ContainerFacade container = ContainerFacade.create(configuration);
     container.addDataFile("testFiles/test.txt", "text/plain");
 
     Signer externalSigner = new ExternalSigner(getSignerCert()) {
       @Override
-      public byte[] sign(Container container, byte[] dataToSign) {
+      public byte[] sign(ContainerFacade container, byte[] dataToSign) {
         // IMPLEMENT YOUR EXTERNAL SIGNING HERE
         SignedInfo signedInfo = container.prepareSigning(getSignerCert());
         byte[] digest = signedInfo.getDigest();

@@ -12,7 +12,7 @@ package org.digidoc4j.main;
 
 import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.SignedDoc;
-import org.digidoc4j.Container;
+import org.digidoc4j.ContainerFacade;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.junit.After;
@@ -31,9 +31,9 @@ import java.security.Permission;
 
 import static org.apache.commons.io.FileUtils.copyFile;
 import static org.digidoc4j.Configuration.Mode;
-import static org.digidoc4j.Container.DocumentType.BDOC;
-import static org.digidoc4j.Container.DocumentType.DDOC;
-import static org.digidoc4j.Container.SignatureProfile;
+import static org.digidoc4j.ContainerFacade.DocumentType.BDOC;
+import static org.digidoc4j.ContainerFacade.DocumentType.DDOC;
+import static org.digidoc4j.ContainerFacade.SignatureProfile;
 import static org.digidoc4j.main.DigiDoc4J.isWarning;
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.hamcrest.core.StringContains.containsString;
@@ -67,7 +67,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
     callMainWithoutSystemExit(params);
 
-    Container container = Container.open(fileName);
+    ContainerFacade container = ContainerFacade.open(fileName);
     assertEquals(DDOC, container.getDocumentType());
   }
 
@@ -82,7 +82,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
     callMainWithoutSystemExit(params);
 
-    Container container = Container.open(fileName);
+    ContainerFacade container = ContainerFacade.open(fileName);
     assertEquals(SignatureProfile.LTA, container.getSignature(0).getProfile());
   }
 
@@ -99,7 +99,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     callMainWithoutSystemExit(params);
 
 
-    Container container = Container.open(fileName);
+    ContainerFacade container = ContainerFacade.open(fileName);
     assertEquals(SignatureProfile.LT, container.getSignature(0).getProfile());
     System.clearProperty("digidoc4j.mode");
   }
@@ -116,7 +116,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
     callMainWithoutSystemExit(params);
 
-    Container container = Container.open(fileName);
+    ContainerFacade container = ContainerFacade.open(fileName);
     assertEquals(SignatureProfile.B_BES, container.getSignature(0).getProfile());
   }
 
@@ -143,7 +143,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     System.setProperty("digidoc4j.mode", "TEST");
     callMainWithoutSystemExit(params);
 
-    Container container = Container.open(fileName);
+    ContainerFacade container = ContainerFacade.open(fileName);
     assertTrue(container.validate().isValid());
   }
 
@@ -157,7 +157,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
     callMainWithoutSystemExit(params);
 
-    Container container = Container.open(fileName);
+    ContainerFacade container = ContainerFacade.open(fileName);
     assertEquals(SignatureProfile.LT, container.getSignature(0).getProfile());
   }
 
@@ -172,7 +172,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
     callMainWithoutSystemExit(params);
 
-    Container container = Container.open(fileName);
+    ContainerFacade container = ContainerFacade.open(fileName);
     assertEquals(SignatureProfile.LT_TM, container.getSignature(0).getProfile());
   }
 
@@ -216,7 +216,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
     callMainWithoutSystemExit(params);
 
-    Container container = Container.open(fileName);
+    ContainerFacade container = ContainerFacade.open(fileName);
     assertEquals(SignatureProfile.B_BES, container.getSignature(0).getProfile());
   }
 
@@ -230,7 +230,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
     callMainWithoutSystemExit(params);
 
-    Container container = Container.open(fileName);
+    ContainerFacade container = ContainerFacade.open(fileName);
     assertEquals(BDOC, container.getDocumentType());
   }
 
@@ -270,7 +270,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
     callMainWithoutSystemExit(params);
 
-    Container container = Container.open(fileName);
+    ContainerFacade container = ContainerFacade.open(fileName);
     assertEquals(DDOC, container.getDocumentType());
   }
 
@@ -284,7 +284,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
     callMainWithoutSystemExit(params);
 
-    Container container = Container.open(fileName);
+    ContainerFacade container = ContainerFacade.open(fileName);
     assertEquals(BDOC, container.getDocumentType());
   }
 
@@ -299,7 +299,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
     callMainWithoutSystemExit(params);
 
-    Container container = Container.open(fileName);
+    ContainerFacade container = ContainerFacade.open(fileName);
     assertEquals(BDOC, container.getDocumentType());
     System.setProperty("digidoc4j.mode", "PROD");
   }
@@ -333,7 +333,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   public void removeFileFromContainer() throws Exception {
     exit.expectSystemExitWithStatus(0);
 
-    Container container = Container.create(DDOC);
+    ContainerFacade container = ContainerFacade.create(DDOC);
     container.addDataFile("testFiles/test.txt", "text/plain");
     Files.deleteIfExists(Paths.get("test1.ddoc"));
     container.save("test1.ddoc");

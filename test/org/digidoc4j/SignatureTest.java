@@ -14,9 +14,9 @@ import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.exceptions.CertificateNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
-import org.digidoc4j.impl.BDocContainer;
+import org.digidoc4j.impl.AsicFacade;
 import org.digidoc4j.impl.Certificates;
-import org.digidoc4j.impl.DDocContainer;
+import org.digidoc4j.impl.DDocFacade;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.signers.PKCS12Signer;
 import org.digidoc4j.utils.Helper;
@@ -33,8 +33,8 @@ import java.util.Locale;
 
 import static junit.framework.Assert.assertEquals;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.digidoc4j.Container.DocumentType.BDOC;
-import static org.digidoc4j.Container.DocumentType.DDOC;
+import static org.digidoc4j.ContainerFacade.DocumentType.BDOC;
+import static org.digidoc4j.ContainerFacade.DocumentType.DDOC;
 import static org.digidoc4j.Signature.Validate.VALIDATE_FULL;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
 import static org.digidoc4j.utils.Helper.deleteFile;
@@ -52,14 +52,14 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetSigningCertificateForBDoc() throws Exception {
-    Container container = Container.open("testFiles/asics_for_testing.bdoc");
+    ContainerFacade container = ContainerFacade.open("testFiles/asics_for_testing.bdoc");
     byte[] certificate = container.getSignatures().get(0).getSigningCertificate().getX509Certificate().getEncoded();
     assertEquals(Certificates.SIGNING_CERTIFICATE, Base64.encodeBase64String(certificate));
   }
 
   @Test
   public void testTimeStampCreationTimeForBDoc() throws ParseException {
-    Container container = Container.open("testFiles/test.asice");
+    ContainerFacade container = ContainerFacade.open("testFiles/test.asice");
     Date timeStampCreationTime = container.getSignature(0).getTimeStampCreationTime();
     SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d yyyy H:m:s", Locale.ENGLISH);
     assertEquals(dateFormat.parse("Nov 17 2014 16:11:46"), timeStampCreationTime);
@@ -67,7 +67,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test (expected = DigiDoc4JException.class)
   public void testTimeStampCreationTimeForDDoc() throws ParseException {
-    Container container = Container.create(DDOC);
+    ContainerFacade container = ContainerFacade.create(DDOC);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.getSignature(0).getTimeStampCreationTime();
@@ -76,8 +76,8 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testTimeStampCreationTimeForBDocWhereNotOCSP() throws ParseException {
-    BDocContainer container = new BDocContainer();
-    container.setSignatureProfile(Container.SignatureProfile.B_BES);
+    AsicFacade container = new AsicFacade();
+    container.setSignatureProfile(ContainerFacade.SignatureProfile.B_BES);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
 
@@ -86,19 +86,19 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetTimeStampTokenCertificateForBDoc() throws Exception {
-    Signature signature = Container.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
+    Signature signature = ContainerFacade.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
     byte[] certificate = signature.getTimeStampTokenCertificate().getX509Certificate().getEncoded();
     assertEquals(Certificates.TS_CERTIFICATE, Base64.encodeBase64String(certificate));
   }
 
   @Test(expected = CertificateNotFoundException.class)
   public void testGetTimeStampTokenCertificateForBDocNoTimeStampExists() throws Exception {
-    Container.open("testFiles/asics_for_testing.bdoc").getSignatures().get(0).getTimeStampTokenCertificate();
+    ContainerFacade.open("testFiles/asics_for_testing.bdoc").getSignatures().get(0).getTimeStampTokenCertificate();
   }
 
   @Test(expected = NotYetImplementedException.class)
   public void testSetCertificateForBDOC() throws Exception {
-    BDocContainer bDocContainer = new BDocContainer();
+    AsicFacade bDocContainer = new AsicFacade();
     bDocContainer.addDataFile("testFiles/test.txt", "text/plain");
     Signature bDocSignature = bDocContainer.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
     bDocSignature.setCertificate(new X509Cert("testFiles/signout.pem"));
@@ -106,7 +106,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test(expected = CertificateNotFoundException.class)
   public void testGetSignerRolesForBDoc_OCSP_Exception() {
-    Container container = Container.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
+    ContainerFacade container = ContainerFacade.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
     List<Signature> signatures = container.getSignatures();
     signatures.get(0).getOCSPCertificate();
   }
@@ -121,7 +121,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     testGetSigningTime(BDOC);
   }
 
-  private void testGetSigningTime(Container.DocumentType ddoc) {
+  private void testGetSigningTime(ContainerFacade.DocumentType ddoc) {
     Signature signature = getSignature(ddoc);
     assertTrue(isAlmostNow(signature.getSigningTime()));
   }
@@ -134,7 +134,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetIdForBDoc() {
-    Container container = Container.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
+    ContainerFacade container = ContainerFacade.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
     assertEquals("id-99E491801522116744419D9357CEFCC5", container.getSignatures().get(0).getId());
   }
 
@@ -177,7 +177,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetProducedAtForBDoc() throws ParseException {
-    Container container = Container.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
+    ContainerFacade container = ContainerFacade.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
     Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse("2014-07-08 12:51:16 +0000");
     assertEquals(date, container.getSignatures().get(0).getProducedAt());
   }
@@ -194,7 +194,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testValidationForBDocDefaultValidation() throws Exception {
-    Container container = Container.open("testFiles/two_signatures.bdoc");
+    ContainerFacade container = ContainerFacade.open("testFiles/two_signatures.bdoc");
     Signature signature = container.getSignatures().get(0);
     assertEquals(0, signature.validate().size());
     signature = container.getSignatures().get(1);
@@ -203,13 +203,13 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testValidationForBDocDefaultValidationWithFailure() throws Exception {
-    Signature signature = Container.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
+    Signature signature = ContainerFacade.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
     assertEquals(1, signature.validate().size());
   }
 
   @Test
   public void testValidationForBDocDefaultValidationWithOneFailing() throws Exception {
-    Container container = Container.open("testFiles/two_signatures_one_invalid.bdoc");
+    ContainerFacade container = ContainerFacade.open("testFiles/two_signatures_one_invalid.bdoc");
     Signature signature = container.getSignatures().get(0);
     assertEquals(0, signature.validate().size());
     signature = container.getSignatures().get(1);
@@ -223,7 +223,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testValidationWithInvalidDDoc() {
-    Signature signature = Container.open("testFiles/changed_digidoc_test.ddoc").getSignatures().get(0);
+    Signature signature = ContainerFacade.open("testFiles/changed_digidoc_test.ddoc").getSignatures().get(0);
     assertEquals(4, signature.validate(VALIDATE_FULL).size());
   }
 
@@ -234,7 +234,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test(expected = NotYetImplementedException.class)
   public void testGetSignaturePolicyURIForBDoc() throws Exception {
-    Container container = Container.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
+    ContainerFacade container = ContainerFacade.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
     assertEquals(new URI(""), container.getSignatures().get(0).getSignaturePolicyURI());
   }
 
@@ -245,26 +245,26 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetSignatureMethodForBDoc() {
-    Container container = Container.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
+    ContainerFacade container = ContainerFacade.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256",
         container.getSignatures().get(0).getSignatureMethod());
   }
 
   @Test
   public void testGetProfileForDDoc() {
-    assertEquals(Container.SignatureProfile.LT_TM, getSignature(DDOC).getProfile());
+    assertEquals(ContainerFacade.SignatureProfile.LT_TM, getSignature(DDOC).getProfile());
   }
 
   @Test
   public void testGetProfileForBDoc_TS() throws Exception {
-    Container container = Container.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
-    assertEquals(Container.SignatureProfile.LT, container.getSignatures().get(0).getProfile());
+    ContainerFacade container = ContainerFacade.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
+    assertEquals(ContainerFacade.SignatureProfile.LT, container.getSignatures().get(0).getProfile());
   }
 
   @Test
   public void testGetProfileForBDoc_None() throws Exception {
-    Container container = Container.open("testFiles/asics_for_testing.bdoc");
-    assertEquals(Container.SignatureProfile.B_BES, container.getSignatures().get(0).getProfile());
+    ContainerFacade container = ContainerFacade.open("testFiles/asics_for_testing.bdoc");
+    assertEquals(ContainerFacade.SignatureProfile.B_BES, container.getSignatures().get(0).getProfile());
   }
 
   @Test(expected = NotYetImplementedException.class)
@@ -272,8 +272,8 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     assertNull(getSignature(DDOC).getTimeStampTokenCertificate());
   }
 
-  private Signature getSignature(Container.DocumentType documentType) {
-    Container container = Container.create(documentType);
+  private Signature getSignature(ContainerFacade.DocumentType documentType) {
+    ContainerFacade container = ContainerFacade.create(documentType);
     container.addDataFile("testFiles/test.txt", "text/plain");
 
     return container.sign(PKCS12_SIGNER);
@@ -281,25 +281,25 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test(expected = NotYetImplementedException.class)
   public void testGetNonceForBDoc() {
-    Container container = Container.open("testFiles/asics_for_testing.bdoc");
+    ContainerFacade container = ContainerFacade.open("testFiles/asics_for_testing.bdoc");
     container.getSignatures().get(0).getOcspNonce();
   }
 
   @Test
   public void testGetSignaturesWhereNoSignaturePresent() throws Exception {
-    DDocContainer container = new DDocContainer();
+    DDocFacade container = new DDocFacade();
     assertNull(container.getSignatures());
   }
 
   @Test
   public void testGetSignaturesWhereSignatureDoesNotHaveLastCertificate() throws Exception {
-    DDocContainer container = new DDocContainer("testFiles/signature_without_last_certificate.ddoc");
+    DDocFacade container = new DDocFacade("testFiles/signature_without_last_certificate.ddoc");
     assertEquals(0, container.getSignatures().size());
   }
 
   @Test
   public void getSignatureXMLForBDOC() throws Exception {
-    Container container = Container.create();
+    ContainerFacade container = ContainerFacade.create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     Signature signature = container.sign(PKCS12_SIGNER);
 

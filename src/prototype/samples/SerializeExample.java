@@ -9,7 +9,7 @@
 */
 package prototype.samples;
 
-import org.digidoc4j.Container;
+import org.digidoc4j.ContainerFacade;
 import org.digidoc4j.signers.PKCS12Signer;
 
 import java.io.*;
@@ -24,7 +24,7 @@ public class SerializeExample {
   private static void serialize() throws IOException {
     System.setProperty("digidoc4j.mode", "TEST");
 
-    Container container = Container.create();
+    ContainerFacade container = ContainerFacade.create();
     container.addDataFile("testFiles/test.txt", "text/plain");
 
     FileOutputStream fileOut = new FileOutputStream("container.bin");
@@ -39,7 +39,7 @@ public class SerializeExample {
     FileInputStream fileIn = new FileInputStream("container.bin");
     ObjectInputStream in = new ObjectInputStream(fileIn);
 
-    Container container = (Container) in.readObject();
+    ContainerFacade container = (ContainerFacade) in.readObject();
 
     container.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
     container.save("SerializeExample.bdoc");
