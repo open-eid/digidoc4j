@@ -63,7 +63,9 @@ import static org.digidoc4j.ContainerFacade.DocumentType.BDOC;
  * </p>
  *
  * @see SignatureParameters
+ * @deprecated will be removed very soon. See {@link ContainerBuilder} and {@link Container}
  */
+@Deprecated
 public abstract class ContainerFacade implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(ContainerFacade.class);
 
@@ -73,6 +75,7 @@ public abstract class ContainerFacade implements Serializable {
    * @return new BDOC ContainerFacade
    * @deprecated use {@link ContainerBuilder#build()}. Will be removed in the future.
    */
+  @Deprecated
   public static ContainerFacade create() {
     logger.debug("");
     return create(BDOC);
@@ -83,7 +86,9 @@ public abstract class ContainerFacade implements Serializable {
    *
    * @param documentType Type of container to create
    * @return new container of the specified format
+   * @deprecated use {@link ContainerBuilder#build()}. Will be removed in the future.
    */
+  @Deprecated
   public static ContainerFacade create(DocumentType documentType) {
     logger.debug("");
     if (documentType == BDOC)
@@ -97,7 +102,9 @@ public abstract class ContainerFacade implements Serializable {
    * @param documentType  Type of container to create
    * @param configuration Configuration to be used
    * @return new container of specified type
+   * @deprecated use {@link ContainerBuilder#build()}. Will be removed in the future.
    */
+  @Deprecated
   public static ContainerFacade create(DocumentType documentType, Configuration configuration) {
     logger.debug("");
     if (documentType == BDOC)
@@ -112,7 +119,9 @@ public abstract class ContainerFacade implements Serializable {
    * @param configuration configuration settings
    * @return container new container of the specified format
    * @throws DigiDoc4JException when the file is not found or empty
+   * @deprecated use {@link ContainerOpener#open(String, Configuration)}. Will be removed in the future.
    */
+  @Deprecated
   public static ContainerFacade open(String path, Configuration configuration) throws DigiDoc4JException {
     logger.debug("Path: " + path);
     ContainerFacade container;
@@ -140,7 +149,9 @@ public abstract class ContainerFacade implements Serializable {
    * @param path file name and path.
    * @return container
    * @throws DigiDoc4JException when the file is not found or empty
+   * @deprecated use {@link ContainerOpener#open(String)}. Will be removed in the future.
    */
+  @Deprecated
   public static ContainerFacade open(String path) throws DigiDoc4JException {
     logger.debug("");
     return open(path, new Configuration());
@@ -153,7 +164,9 @@ public abstract class ContainerFacade implements Serializable {
    * @param actAsBigFilesSupportEnabled acts as configuration parameter
    * @return container
    * @see Configuration#isBigFilesSupportEnabled() returns true used for BDOC
+   * @deprecated use {@link ContainerOpener#open(InputStream, boolean)}. Will be removed in the future.
    */
+  @Deprecated
   public static ContainerFacade open(InputStream stream, boolean actAsBigFilesSupportEnabled) {
     logger.debug("");
     BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);
@@ -170,6 +183,14 @@ public abstract class ContainerFacade implements Serializable {
     }
   }
 
+  /**
+   *
+   * @param stream
+   * @param configuration
+   * @return
+   * @deprecated use {@link ContainerOpener#open(InputStream, Configuration)}. Will be removed in the future.
+   */
+  @Deprecated
   public static ContainerFacade open(InputStream stream, Configuration configuration) {
     logger.debug("");
     BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);
@@ -196,7 +217,9 @@ public abstract class ContainerFacade implements Serializable {
    *
    * @param configuration configuration used for container creation
    * @return BDOC container
+   * @deprecated use {@link ContainerBuilder#build()}. Will be removed in the future.
    */
+  @Deprecated
   public static ContainerFacade create(Configuration configuration) {
     logger.debug("");
     return create(BDOC, configuration);
