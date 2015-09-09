@@ -10,6 +10,9 @@
 
 package org.digidoc4j.utils;
 
+import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.exceptions.NotSupportedException;
+
 public class DigestInfoPrefix{
     public static final byte[] SHA1 = new byte[] { 0x30, 0x1f, 0x30, 0x07, 0x06, 0x05, 0x2b, 0x0e, 0x03, 0x02, 0x1a, 0x04, 0x14 };
 
@@ -28,4 +31,15 @@ public class DigestInfoPrefix{
     public static final byte[] RIPEMD256 = new byte[] { 0x30, 0x2b, 0x30, 0x07, 0x06, 0x05, 0x2b, 0x24, 0x03, 0x02, 0x03, 0x04, 0x20 };
 
     public static final byte[] MD5 = new byte[] { 0x30, 0x20, 0x30, 0x0c, 0x06, 0x08, 0x2a, (byte) 0x86, 0x48, (byte) 0x86, (byte) 0xf7, 0x0d, 0x02, 0x05, 0x05, 0x00, 0x04, 0x10 };
+
+    public static byte[] getDigestInfoPrefix(DigestAlgorithm digestAlgorithm) throws NotSupportedException {
+        switch (digestAlgorithm) {
+            case SHA1: return SHA1;
+            case SHA224: return SHA224;
+            case SHA256: return SHA256;
+            case SHA384: return SHA384;
+            case SHA512: return SHA512;
+            default: throw new NotSupportedException(digestAlgorithm.name() + " does not have corresponding digest info prefix");
+        }
+    }
 }

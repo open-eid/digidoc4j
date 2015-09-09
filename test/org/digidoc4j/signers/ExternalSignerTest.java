@@ -12,7 +12,7 @@ package org.digidoc4j.signers;
 
 import eu.europa.ec.markt.dss.DSSUtils;
 import org.apache.commons.codec.binary.Base64;
-import org.digidoc4j.ContainerFacade;
+import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.Certificates;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class ExternalSignerTest {
 
     ExternalSigner externalSigner = new ExternalSigner(cert) {
       @Override
-      public byte[] sign(ContainerFacade container, byte[] dataToSign) {
+      public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
         return new byte[0];
       }
     };
@@ -46,7 +46,7 @@ public class ExternalSignerTest {
 
     ExternalSigner externalSigner = new ExternalSigner(cert) {
       @Override
-      public byte[] sign(ContainerFacade container, byte[] dataToSign) {
+      public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
         return new byte[0];
       }
     };

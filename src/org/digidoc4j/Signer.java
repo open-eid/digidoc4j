@@ -35,10 +35,10 @@ public interface Signer {
   /**
    * There must be implemented routines needed for signing
    *
-   * @param container  provides needed information for signing
+   * @param digestAlgorithm  provides needed information for signing
    * @param dataToSign data to sign
    * @return signature raw value
    */
-  byte[] sign(ContainerFacade container, byte[] dataToSign);
+  byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign);
 
 }

@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,21 +30,57 @@ import java.util.List;
  * </ul>
  */
 public class SignatureParameters implements Serializable {
-  final Logger logger = LoggerFactory.getLogger(SignatureParameters.class);
+  private final static Logger logger = LoggerFactory.getLogger(SignatureParameters.class);
   private SignatureProductionPlace productionPlace = new SignatureProductionPlace();
   private List<String> roles = new ArrayList<>();
   private String signatureId;
   private DigestAlgorithm digestAlgorithm;
   private EncryptionAlgorithm encryptionAlgorithm;
+  private SignatureProfile signatureProfile;
+  private Container container;
+  private X509Certificate signingCertificate;
 
   /**
    * Get production place values.
    *
    * @return production place
+   * @deprecated
    */
   public SignatureProductionPlace getProductionPlace() {
     logger.debug("Production place: " + productionPlace);
     return productionPlace;
+  }
+
+  public String getCity() {
+    return productionPlace.getCity();
+  }
+
+  public void setCity(String city) {
+    productionPlace.setCity(city);
+  }
+
+  public String getStateOrProvince() {
+    return productionPlace.getStateOrProvince();
+  }
+
+  public void setStateOrProvince(String stateOrProvince) {
+    productionPlace.setStateOrProvince(stateOrProvince);
+  }
+
+  public String getPostalCode() {
+    return productionPlace.getPostalCode();
+  }
+
+  public void setPostalCode(String postalCode) {
+    productionPlace.setPostalCode(postalCode);
+  }
+
+  public String getCountry() {
+    return productionPlace.getCountry();
+  }
+
+  public void setCountry(String country) {
+    productionPlace.setCountry(country);
   }
 
   /**
@@ -60,6 +97,7 @@ public class SignatureParameters implements Serializable {
    * Set the production place.
    *
    * @param productionPlace production place
+   * @deprecated
    */
   public void setProductionPlace(SignatureProductionPlace productionPlace) {
     logger.debug("Set production place to " + productionPlace);
@@ -134,6 +172,37 @@ public class SignatureParameters implements Serializable {
   public void setEncryptionAlgorithm(EncryptionAlgorithm encryptionAlgorithm) {
     logger.debug("");
     this.encryptionAlgorithm = encryptionAlgorithm;
+  }
+
+  public SignatureProfile getSignatureProfile() {
+    return signatureProfile;
+  }
+
+  public void setSignatureProfile(SignatureProfile signatureProfile) {
+    this.signatureProfile = signatureProfile;
+  }
+
+  public Container getContainer() {
+    return container;
+  }
+
+  public void setContainer(Container container) {
+    this.container = container;
+  }
+
+  public void setSigningCertificate(X509Certificate signingCertificate) {
+    this.signingCertificate = signingCertificate;
+  }
+
+  public X509Certificate getSigningCertificate() {
+    return signingCertificate;
+  }
+
+  public boolean isTimeMark() {
+    if(getSignatureProfile() == SignatureProfile.LT_TM) {
+      return true;
+    }
+    return false;
   }
 
   /**

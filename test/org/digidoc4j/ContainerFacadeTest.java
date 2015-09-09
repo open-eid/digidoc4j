@@ -39,8 +39,8 @@ import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.digidoc4j.ContainerFacade.DocumentType.BDOC;
 import static org.digidoc4j.ContainerFacade.DocumentType.DDOC;
-import static org.digidoc4j.ContainerFacade.SignatureProfile.B_BES;
-import static org.digidoc4j.ContainerFacade.SignatureProfile.LT;
+import static org.digidoc4j.SignatureProfile.B_BES;
+import static org.digidoc4j.SignatureProfile.LT;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
@@ -473,7 +473,7 @@ public class ContainerFacadeTest extends DigiDoc4JTestHelper {
     container.setSignatureProfile(B_BES);
     container.sign(PKCS12_SIGNER);
 
-    container.extendTo(ContainerFacade.SignatureProfile.LT_TM);
+    container.extendTo(SignatureProfile.LT_TM);
 
     assertNotNull(container.getSignature(0).getOCSPCertificate());
   }
@@ -613,7 +613,7 @@ public class ContainerFacadeTest extends DigiDoc4JTestHelper {
   @Test
   public void testSigningMultipleFilesInContainer() throws Exception {
     ContainerFacade container = ContainerFacade.create();
-    container.setSignatureProfile(ContainerFacade.SignatureProfile.LT_TM);
+    container.setSignatureProfile(SignatureProfile.LT_TM);
     container.addDataFile(new ByteArrayInputStream(new byte[] {1, 2, 3}), "1.txt", "text/plain");
     container.addDataFile(new ByteArrayInputStream(new byte[] {1, 2, 3}), "2.txt", "text/plain");
     container.addDataFile(new ByteArrayInputStream(new byte[] {1, 2, 3}), "3.txt", "text/plain");

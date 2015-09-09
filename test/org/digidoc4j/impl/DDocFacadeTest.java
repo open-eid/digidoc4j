@@ -32,7 +32,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.digidoc4j.ContainerFacade.SignatureProfile.*;
+import static org.digidoc4j.SignatureProfile.*;
 import static org.digidoc4j.DigestAlgorithm.*;
 import static org.digidoc4j.impl.AsicFacadeTest.getExternalSignature;
 import static org.digidoc4j.impl.AsicFacadeTest.getSignerCert;
@@ -192,7 +192,7 @@ public class DDocFacadeTest {
   @Test
   public void testGetDataFilesWhenNoDataFileExists() {
     DDocFacade container = new DDocFacade();
-    assertNull(container.getDataFiles());
+    assertTrue(container.getDataFiles().isEmpty());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -351,7 +351,7 @@ public class DDocFacadeTest {
   @Test
   public void getSignatureWhenNotSigned() {
     DDocFacade container = new DDocFacade();
-    assertNull(container.getSignatures());
+    assertTrue(container.getSignatures().isEmpty());
   }
 
   @Test(expected = NotSupportedException.class)

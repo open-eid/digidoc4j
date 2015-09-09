@@ -27,6 +27,7 @@ import org.w3c.dom.Node;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -63,7 +64,7 @@ public class ManifestValidator {
    * @param signatures list of signatures
    * @return list of error messages
    */
-  public List<String> validateDocument(List<Signature> signatures) {
+  public List<String> validateDocument(Collection<Signature> signatures) {
     logger.debug("");
     if (manifestFile == null) {
       String errorMessage = "Container does not contain manifest file.";

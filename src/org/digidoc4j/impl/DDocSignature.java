@@ -23,16 +23,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.digidoc4j.ContainerFacade.SignatureProfile;
+import org.digidoc4j.SignatureProfile;
 
 /**
  * Signature implementation. Provides an interface for handling a signature and the
  * corresponding OCSP response properties.
  */
-public class DDocSignature extends Signature {
+public class DDocSignature implements Signature {
   final Logger logger = LoggerFactory.getLogger(DDocSignature.class);
   private X509Cert certificate;
   private final ee.sk.digidoc.Signature origin;
+  private int indexInArray;
 
   /**
    * @param signature add description
@@ -79,6 +80,7 @@ public class DDocSignature extends Signature {
   }
 
   @Override
+  @Deprecated
   public String getPolicy() {
     logger.debug("");
     return "";
@@ -91,9 +93,15 @@ public class DDocSignature extends Signature {
   }
 
   @Override
-  public Date getProducedAt() {
+  public Date getOCSPResponseCreationTime() {
     logger.debug("");
     return origin.getSignatureProducedAtTime();
+  }
+
+  @Override
+  @Deprecated
+  public Date getProducedAt() {
+    return getOCSPResponseCreationTime();
   }
 
   @Override
@@ -140,6 +148,7 @@ public class DDocSignature extends Signature {
   }
 
   @Override
+  @Deprecated
   public URI getSignaturePolicyURI() {
     logger.debug("");
     return null;
@@ -191,5 +200,13 @@ public class DDocSignature extends Signature {
   public byte[] getRawSignature() {
     logger.debug("");
     return origin.getOrigContent();
+  }
+
+  public int getIndexInArray() {
+    return indexInArray;
+  }
+
+  public void setIndexInArray(int indexInArray) {
+    this.indexInArray = indexInArray;
   }
 }

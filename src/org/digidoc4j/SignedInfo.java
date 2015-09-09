@@ -11,33 +11,57 @@
 package org.digidoc4j;
 
 import eu.europa.ec.markt.dss.DSSUtils;
+
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
 import static eu.europa.ec.markt.dss.DigestAlgorithm.forXML;
 
 public class SignedInfo implements Serializable {
-  Logger logger = org.slf4j.LoggerFactory.getLogger(SignedInfo.class);
-  private byte[] digest;
+
+  private static final Logger logger = LoggerFactory.getLogger(SignedInfo.class);
+
+  private byte[] digestToSign;
+  @Deprecated
   private DigestAlgorithm digestAlgorithm;
+  private SignatureParameters signatureParameters;
 
-  @SuppressWarnings("UnusedDeclaration")
-  private SignedInfo() {}
+  public SignedInfo() {
+  }
 
+  @Deprecated
   public SignedInfo(byte[] signedInfo, DigestAlgorithm digestAlgorithm) {
     logger.debug("");
     this.digestAlgorithm = digestAlgorithm;
-    digest = DSSUtils.digest(forXML(digestAlgorithm.toString()), signedInfo);
+    digestToSign = DSSUtils.digest(forXML(digestAlgorithm.toString()), signedInfo);
+  }
+
+  public SignedInfo(byte[] dataToDigest, SignatureParameters signatureParameters) {
+    DigestAlgorithm digestAlgorithm = signatureParameters.getDigestAlgorithm();
+    digestToSign = DSSUtils.digest(forXML(digestAlgorithm.toString()), dataToDigest);
+    this.signatureParameters = signatureParameters;
   }
 
   public byte[] getDigest() {
     logger.debug("");
-    return digest;
+    return getDigestToSign();
+  }
+
+  public byte[] getDigestToSign() {
+    return digestToSign;
   }
 
   public DigestAlgorithm getDigestAlgorithm() {
     logger.debug("");
+    if(digestAlgorithm == null) {
+      return signatureParameters.getDigestAlgorithm();
+    }
     return digestAlgorithm;
+  }
+
+  public SignatureParameters getSignatureParameters() {
+    return signatureParameters;
   }
 }

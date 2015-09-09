@@ -19,7 +19,7 @@ import eu.europa.ec.markt.dss.validation102853.ocsp.OnlineOCSPSource;
 import eu.europa.ec.markt.dss.validation102853.report.Reports;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import org.digidoc4j.*;
-import org.digidoc4j.ContainerFacade.SignatureProfile;
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.signers.PKCS12Signer;
 
 import java.io.File;

@@ -111,7 +111,7 @@ public class PKCS12SignerTest {
     SignatureParameters signatureParameters = new SignatureParameters();
     signatureParameters.setDigestAlgorithm(SHA512);
     container.setSignatureParameters(signatureParameters);
-    assertTrue(Arrays.equals(expected, pkcs12Signer.sign(container, new byte[]{0x41})));
+    assertTrue(Arrays.equals(expected, pkcs12Signer.sign(SHA512, new byte[]{0x41})));
   }
 
 //  @Test

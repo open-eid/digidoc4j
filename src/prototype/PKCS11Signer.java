@@ -14,7 +14,7 @@ import eu.europa.ec.markt.dss.signature.token.AbstractSignatureTokenConnection;
 import eu.europa.ec.markt.dss.signature.token.DSSPrivateKeyEntry;
 import eu.europa.ec.markt.dss.signature.token.Pkcs11SignatureToken;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.ContainerFacade;
+import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signer;
 
 import java.security.PrivateKey;
@@ -51,7 +51,7 @@ public class PKCS11Signer implements Signer {
   }
 
   @Override
-  public byte[] sign(ContainerFacade container, byte[] dataToSign) {
+  public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
     return new byte[0];
   }
 }

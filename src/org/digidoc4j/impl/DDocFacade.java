@@ -81,7 +81,7 @@ public class DDocFacade extends ContainerFacade {
       String signatureId = signatureParameters.getSignatureId();
       if (signatureId != null) ddocSignature.setId(signatureId);
 
-      return new SignedInfo(ddocSignature.calculateSignedInfoXML(), DigestAlgorithm.SHA1);
+      return new SignedInfo(ddocSignature.calculateSignedInfoXML(), signatureParameters);
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
@@ -108,6 +108,7 @@ public class DDocFacade extends ContainerFacade {
       throw exception;
     }
     this.signatureParameters = signatureParameters.copy();
+    this.signatureParameters.setContainer(signatureParameters.getContainer());
   }
 
   @Override
@@ -230,10 +231,11 @@ public class DDocFacade extends ContainerFacade {
   }
 
   @Override
-  public void addDataFile(String path, String mimeType) {
+  public DataFile addDataFile(String path, String mimeType) {
     logger.debug("Path: " + path + ", mime type " + mimeType);
     try {
       ddoc.addDataFile(new File(path), mimeType, CONTENT_EMBEDDED_BASE64);
+      return new DataFile(path, mimeType);
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e.getNestedException());
@@ -241,7 +243,7 @@ public class DDocFacade extends ContainerFacade {
   }
 
   @Override
-  public void addDataFile(InputStream is, String fileName, String mimeType) {
+  public DataFile addDataFile(InputStream is, String fileName, String mimeType) {
     logger.debug("File name: " + fileName + ", mime type: " + mimeType);
     try {
       ee.sk.digidoc.DataFile dataFile = new ee.sk.digidoc.DataFile(ddoc.getNewDataFileId(),
@@ -249,6 +251,7 @@ public class DDocFacade extends ContainerFacade {
           fileName, mimeType, ddoc);
       dataFile.setBodyFromStream(is);
       ddoc.addDataFile(dataFile);
+      return new DataFile(is, fileName, mimeType);
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
@@ -279,7 +282,7 @@ public class DDocFacade extends ContainerFacade {
     logger.debug("");
     List<DataFile> dataFiles = new ArrayList<>();
     ArrayList ddocDataFiles = ddoc.getDataFiles();
-    if (ddocDataFiles == null) return null;
+    if (ddocDataFiles == null) return dataFiles;
     for (Object ddocDataFile : ddocDataFiles) {
       ee.sk.digidoc.DataFile dataFile = (ee.sk.digidoc.DataFile) ddocDataFile;
       try {
@@ -300,6 +303,9 @@ public class DDocFacade extends ContainerFacade {
     return dataFiles;
   }
 
+  /**
+   * @deprecated will be removed in the future.
+   */
   @Override
   public DataFile getDataFile(int index) {
     logger.debug("Get data file for index " + index);
@@ -310,10 +316,10 @@ public class DDocFacade extends ContainerFacade {
   public int countDataFiles() {
     logger.debug("Get the number of data files");
     List<DataFile> dataFiles  = getDataFiles();
-    
+
     return (dataFiles == null) ? 0 : dataFiles.size();
   }
-  
+
   @Override
   public void removeDataFile(String fileName) {
     logger.debug("File name: " + fileName);
@@ -342,6 +348,9 @@ public class DDocFacade extends ContainerFacade {
     }
   }
 
+  /**
+   * @deprecated will be removed in the future.
+   */
   @Override
   public void removeSignature(int index) {
     logger.debug("Index: " + index);
@@ -380,7 +389,7 @@ public class DDocFacade extends ContainerFacade {
     logger.debug("");
     calculateSignature(signer);
     try {
-      signRaw(signer.sign(this, ddocSignature.calculateSignedInfoXML()));
+      signRaw(signer.sign(getDigestAlgorithm(), ddocSignature.calculateSignedInfoXML()));
       if (signatureProfile == SignatureProfile.LT_TM) {
         ddocSignature.getConfirmation();
       }
@@ -397,11 +406,17 @@ public class DDocFacade extends ContainerFacade {
     logger.debug("");
     try {
       ddocSignature.setSignatureValue(rawSignature);
-      return new DDocSignature(ddocSignature);
+      DDocSignature signature = new DDocSignature(ddocSignature);
+      signature.setIndexInArray(getSignatureIndexInArray());
+      return signature;
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e.getNestedException());
     }
+  }
+
+  private int getSignatureIndexInArray() {
+    return ddoc.getSignatures().size() - 1;
   }
 
   @Override
@@ -412,18 +427,24 @@ public class DDocFacade extends ContainerFacade {
     ArrayList dDocSignatures = ddoc.getSignatures();
 
     if (dDocSignatures == null) {
-      return null;
+      return signatures;
     }
 
+    int signatureIndexInArray = 0;
     for (Object signature : dDocSignatures) {
-      Signature finalSignature = mapJDigiDocSignatureToDigiDoc4J((ee.sk.digidoc.Signature) signature);
+      DDocSignature finalSignature = mapJDigiDocSignatureToDigiDoc4J((ee.sk.digidoc.Signature) signature);
       if (finalSignature != null) {
+        finalSignature.setIndexInArray(signatureIndexInArray);
         signatures.add(finalSignature);
+        signatureIndexInArray++;
       }
     }
     return signatures;
   }
 
+  /**
+   * @deprecated will be removed in the future.
+   */
   @Override
   public Signature getSignature(int index) {
     logger.debug("Get signature for index " + index);
@@ -434,13 +455,13 @@ public class DDocFacade extends ContainerFacade {
   public int countSignatures() {
     logger.debug("Get the number of signatures");
     List<Signature> signatures = getSignatures();
-    
+
     return (signatures == null) ? 0 : signatures.size();
   }
-  
-  private Signature mapJDigiDocSignatureToDigiDoc4J(ee.sk.digidoc.Signature signature) {
+
+  private DDocSignature mapJDigiDocSignatureToDigiDoc4J(ee.sk.digidoc.Signature signature) {
     logger.debug("");
-    Signature finalSignature = new DDocSignature(signature);
+    DDocSignature finalSignature = new DDocSignature(signature);
 
     KeyInfo keyInfo = signature.getKeyInfo();
     if (keyInfo == null) {

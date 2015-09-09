@@ -14,7 +14,7 @@ import eu.europa.ec.markt.dss.DSSUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ContainerFacade;
-import org.digidoc4j.SignedInfo;
+import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signer;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.ExternalSigner;
@@ -39,15 +39,14 @@ public final class ExternalSigning {
   public static void main(String[] args) throws Exception {
     System.setProperty("digidoc4j.mode", "TEST");
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    ContainerFacade container = ContainerFacade.create(configuration);
+    final ContainerFacade container = ContainerFacade.create(configuration);
     container.addDataFile("testFiles/test.txt", "text/plain");
 
     Signer externalSigner = new ExternalSigner(getSignerCert()) {
       @Override
-      public byte[] sign(ContainerFacade container, byte[] dataToSign) {
+      public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
+
         // IMPLEMENT YOUR EXTERNAL SIGNING HERE
-        SignedInfo signedInfo = container.prepareSigning(getSignerCert());
-        byte[] digest = signedInfo.getDigest();
 
         try {
           KeyStore keyStore = KeyStore.getInstance("PKCS12");
@@ -57,7 +56,7 @@ public final class ExternalSigning {
           PrivateKey privateKey = (PrivateKey) keyStore.getKey("1", "test".toCharArray());
           final String javaSignatureAlgorithm = "NONEwith" + privateKey.getAlgorithm();
 
-          return DSSUtils.encrypt(javaSignatureAlgorithm, privateKey, addPadding(digest));
+          return DSSUtils.encrypt(javaSignatureAlgorithm, privateKey, addPadding(dataToSign));
         } catch (Exception e) {
           throw new DigiDoc4JException("Loading private key failed");
         }

@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * Signature interface. Provides an interface for handling a signature and the corresponding OCSP response properties.
  */
-public abstract class Signature implements Serializable {
+public interface Signature extends Serializable {
 
   /**
    * Sets signer certificate
@@ -27,12 +27,12 @@ public abstract class Signature implements Serializable {
    *
    * @param cert signers certificate
    */
-  public abstract void setCertificate(X509Cert cert);
+  void setCertificate(X509Cert cert);
 
   /**
    * Signature validation types.
    */
-  public enum Validate {
+  enum Validate {
     VALIDATE_TM,
     VALIDATE_POLICY,
     VALIDATE_FULL
@@ -43,21 +43,21 @@ public abstract class Signature implements Serializable {
    *
    * @return production city
    */
-  public abstract String getCity();
+  String getCity();
 
   /**
    * Returns the signature production country.
    *
    * @return production country
    */
-  public abstract String getCountryName();
+  String getCountryName();
 
   /**
    * Returns the signature id.
    *
    * @return id
    */
-  public abstract String getId();
+  String getId();
 
   /**
    * Returns the signature OCSP response nonce.
@@ -66,14 +66,14 @@ public abstract class Signature implements Serializable {
    *
    * @return OCSP response nonce
    */
-  public abstract byte[] getOcspNonce();
+  byte[] getOcspNonce();
 
   /**
    * Returns the signature OCSP responder certificate.
    *
    * @return OCSP responder certificate
    */
-  public abstract X509Cert getOCSPCertificate();
+  X509Cert getOCSPCertificate();
 
   /**
    * If the container is DDOC then it returns an empty string.
@@ -81,79 +81,87 @@ public abstract class Signature implements Serializable {
    * For a BDOC Signature it throws a NotYetImplementedException.
    *
    * @return signature policy
+   * @deprecated will be removed in the future
    */
-  public abstract String getPolicy();
+  @Deprecated
+  String getPolicy();
 
   /**
    * Returns the signature production postal code.
    *
    * @return postal code
    */
-  public abstract String getPostalCode();
+  String getPostalCode();
 
   /**
    * Returns the signature OCSP producedAt timestamp.
    *
    * @return producedAt timestamp
+   * @deprecated use {@link Signature#getOCSPResponseCreationTime()} instead. Will be removed in the future.
    */
-  public abstract Date getProducedAt();
+  @Deprecated
+  Date getProducedAt();
+
+  Date getOCSPResponseCreationTime();
 
   /**
    * Returns the signature timestamp generation time.
    *
    * @return generation timestamp
    */
-  public abstract Date getTimeStampCreationTime();
+  Date getTimeStampCreationTime();
 
   /**
    * Returns the signature profile.
    *
    * @return profile
    */
-  public abstract ContainerFacade.SignatureProfile getProfile();
+  SignatureProfile getProfile();
 
   /**
    * Returns the signature method that was used for signing.
    *
    * @return signature method
    */
-  public abstract String getSignatureMethod();
+  String getSignatureMethod();
 
   /**
    * Returns the signer's roles.
    *
    * @return signer roles
    */
-  public abstract List<String> getSignerRoles();
+  List<String> getSignerRoles();
 
   /**
    * Returns the signature certificate that was used for signing.
    *
    * @return signature certificate
    */
-  public abstract X509Cert getSigningCertificate();
+  X509Cert getSigningCertificate();
 
   /**
    * Returns the computer's time of signing.
    *
    * @return signing time
    */
-  public abstract Date getSigningTime();
+  Date getSigningTime();
 
   /**
    * If the container is DDoc then it returns an empty string.
    * For a BDOC Signature it throws a NotYetImplementedException.
    *
    * @return signature policy uri
+   * @deprecated will be removed in the future
    */
-  public abstract java.net.URI getSignaturePolicyURI();
+  @Deprecated
+  java.net.URI getSignaturePolicyURI();
 
   /**
    * Returns the signature production state or province.
    *
    * @return production state or province
    */
-  public abstract String getStateOrProvince();
+  String getStateOrProvince();
 
   /**
    * Returns the signature TimeStampToken certificate.
@@ -161,7 +169,7 @@ public abstract class Signature implements Serializable {
    *
    * @return TimeStampToken certificate
    */
-  public abstract X509Cert getTimeStampTokenCertificate();
+  X509Cert getTimeStampTokenCertificate();
 
   /**
    * Validates the signature.
@@ -169,19 +177,19 @@ public abstract class Signature implements Serializable {
    * @param validationType type of validation
    * @return list of Digidoc4JExceptions
    */
-  public abstract List<DigiDoc4JException> validate(Validate validationType);
+  List<DigiDoc4JException> validate(Validate validationType);
 
   /**
    * Validates the signature using Validate.VALIDATE_FULL method.
    *
    * @return list of Digidoc4JExceptions
    */
-  public abstract List<DigiDoc4JException> validate();
+  List<DigiDoc4JException> validate();
 
   /**
    * Returns signature as XAdES XML
    *
    * @return signature as byte array
    */
-  public abstract byte[] getRawSignature();
+  byte[] getRawSignature();
 }

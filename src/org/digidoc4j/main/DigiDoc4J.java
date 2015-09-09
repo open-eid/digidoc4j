@@ -30,7 +30,8 @@ import static org.apache.commons.cli.OptionBuilder.withArgName;
 import static org.digidoc4j.ContainerFacade.DocumentType;
 import static org.digidoc4j.ContainerFacade.DocumentType.BDOC;
 import static org.digidoc4j.ContainerFacade.DocumentType.DDOC;
-import static org.digidoc4j.ContainerFacade.SignatureProfile;
+
+import org.digidoc4j.SignatureProfile;
 
 /**
  * Client commandline tool for DigiDoc4J library.

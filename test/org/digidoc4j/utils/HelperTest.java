@@ -11,6 +11,7 @@
 package org.digidoc4j.utils;
 
 import org.digidoc4j.ContainerFacade;
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.junit.AfterClass;
 import org.junit.Test;
@@ -150,7 +151,7 @@ public class HelperTest {
   @Test
   public void  createUserAgentSignatureProfileForBDOC() {
     ContainerFacade container = ContainerFacade.create(ContainerFacade.DocumentType.BDOC);
-    container.setSignatureProfile(ContainerFacade.SignatureProfile.LTA);
+    container.setSignatureProfile(SignatureProfile.LTA);
     String userAgent = Helper.createUserAgent(container);
     assertThat(userAgent, containsString("signatureProfile: ASiC_E_BASELINE_LTA"));
   }

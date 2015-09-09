@@ -76,6 +76,9 @@ public class DigiDoc4JException extends RuntimeException {
     super(e);
   }
 
+  public DigiDoc4JException() {
+  }
+
   /**
    * Get the error code of the exception
    *

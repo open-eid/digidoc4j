@@ -25,6 +25,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +48,7 @@ public class ValidationResultForBDoc implements ValidationResult {
    * @param manifestErrors               manifest verification errors
    * @param additionalVerificationErrors digidoc4J additional verification errors
    */
-  public ValidationResultForBDoc(Reports report, List<Signature> signatures, List<String> manifestErrors,
+  public ValidationResultForBDoc(Reports report, Collection<Signature> signatures, List<String> manifestErrors,
                                  Map<String, List<DigiDoc4JException>> additionalVerificationErrors) {
     logger.debug("");
 

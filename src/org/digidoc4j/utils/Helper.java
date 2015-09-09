@@ -25,7 +25,10 @@ import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import static eu.europa.ec.markt.dss.signature.SignatureLevel.ASiC_E_BASELINE_LT;
 import static java.nio.file.Files.deleteIfExists;
+
+import eu.europa.ec.markt.dss.signature.MimeType;
 
 /**
  *
@@ -169,15 +172,21 @@ public final class Helper {
    * @return user agent string
    */
   public static String createUserAgent(ContainerFacade container) {
+    String documentType = container.getDocumentType().toString();
+    String version = container.getVersion();
+    String signatureProfile = container.getSignatureProfile();
+    return createUserAgent(documentType, version, signatureProfile);
+  }
+
+  public static String createUserAgent(String documentType, String version, String signatureProfile) {
     StringBuilder ua = new StringBuilder("LIB DigiDoc4j/").append(Version.VERSION == null ? "DEV" : Version.VERSION);
 
-    ua.append(" format: ").append(container.getDocumentType());
-    String version = container.getVersion();
+    ua.append(" format: ").append(documentType);
     if (version != null) {
       ua.append("/").append(version);
     }
 
-    ua.append(" signatureProfile: ").append(container.getSignatureProfile());
+    ua.append(" signatureProfile: ").append(signatureProfile);
 
     ua.append(" Java: ").append(System.getProperty("java.version"));
     ua.append("/").append(System.getProperty("java.vendor"));
@@ -194,5 +203,9 @@ public final class Helper {
     logger.debug("User-Agent: " + userAgent);
 
     return userAgent;
+  }
+
+  public static String createBDocUserAgent() {
+    return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, ASiC_E_BASELINE_LT.name());
   }
 }

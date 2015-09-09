@@ -33,7 +33,8 @@ import static org.apache.commons.io.FileUtils.copyFile;
 import static org.digidoc4j.Configuration.Mode;
 import static org.digidoc4j.ContainerFacade.DocumentType.BDOC;
 import static org.digidoc4j.ContainerFacade.DocumentType.DDOC;
-import static org.digidoc4j.ContainerFacade.SignatureProfile;
+
+import org.digidoc4j.SignatureProfile;
 import static org.digidoc4j.main.DigiDoc4J.isWarning;
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.hamcrest.core.StringContains.containsString;

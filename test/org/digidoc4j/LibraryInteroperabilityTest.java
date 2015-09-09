@@ -43,7 +43,8 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
     private void createSignedContainerWithDigiDoc4j(String containerFilePath) {
         ContainerFacade container = ContainerFacade.create();
         container.addDataFile("testFiles/test.txt", "text/plain");
-        container.setSignatureProfile(ContainerFacade.SignatureProfile.LT_TM);
+        container.setSignatureProfile(SignatureProfile.LT_TM);
+        container.sign(PKCS12_SIGNER);
         container.sign(PKCS12_SIGNER);
         logger.debug("Saving test file temporarily to " + containerFilePath);
         container.save(containerFilePath);

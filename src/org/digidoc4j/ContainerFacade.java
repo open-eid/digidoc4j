@@ -71,6 +71,7 @@ public abstract class ContainerFacade implements Serializable {
    * Create a BDOC container.
    *
    * @return new BDOC ContainerFacade
+   * @deprecated use {@link ContainerBuilder#build()}. Will be removed in the future.
    */
   public static ContainerFacade create() {
     logger.debug("");
@@ -233,29 +234,6 @@ public abstract class ContainerFacade implements Serializable {
   }
 
   /**
-   * Signature profile format.
-   */
-  public enum SignatureProfile {
-    /**
-     * Time-mark, similar to LT.
-     */
-    LT_TM,
-    /**
-     * Time-stamp and OCSP confirmation
-     */
-    LT,
-    /**
-     * Archive timestamp, same as XAdES LTA (Long Term Archive time-stamp)
-     */
-    LTA,
-    /**
-     * no profile
-     */
-    B_BES
-    //TODO: ADD later B_EPES, LTA_TM
-  }
-
-  /**
    * Return signature profile
    */
   public abstract String getSignatureProfile();
@@ -284,7 +262,7 @@ public abstract class ContainerFacade implements Serializable {
    * @param path     data file to be added to the container
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
    */
-  public abstract void addDataFile(String path, String mimeType);
+  public abstract DataFile addDataFile(String path, String mimeType);
 
   /**
    * Adds a data file from the input stream (i.e. the date file content can be read from the internal memory buffer).
@@ -297,7 +275,7 @@ public abstract class ContainerFacade implements Serializable {
    * @param fileName data file name in the container
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
    */
-  public abstract void addDataFile(InputStream is, String fileName, String mimeType);
+  public abstract DataFile addDataFile(InputStream is, String fileName, String mimeType);
 
   /**
    * Adds a signature to the container.
@@ -326,9 +304,10 @@ public abstract class ContainerFacade implements Serializable {
    *
    * @param index index number of the data file to return
    * @return data file
+   * @deprecated will be removed in the future.
    */
   public abstract DataFile getDataFile(int index);
-  
+
   /**
    * Return the count of DataFile objects
    * @return count of DataFile objects
@@ -346,6 +325,7 @@ public abstract class ContainerFacade implements Serializable {
    * Removes the signature with the given signature id from the container.
    *
    * @param signatureId id of the signature to be removed
+   * @deprecated will be removed in the future.
    */
   public abstract void removeSignature(int signatureId);
 
@@ -392,9 +372,10 @@ public abstract class ContainerFacade implements Serializable {
    *
    * @param index index number of the signature to return
    * @return signature
+   * @deprecated will be removed in the future.
    */
   public abstract Signature getSignature(int index);
-  
+
   /**
    * Return the count of Signature objects
    * @return count of Signature objects

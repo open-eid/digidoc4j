@@ -9,10 +9,10 @@ import java.security.cert.X509Certificate;
 import java.util.Collections;
 
 import org.digidoc4j.Configuration;
+import org.digidoc4j.SignedInfo;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.SignatureParameters;
-import org.digidoc4j.SignedInfo;
 import org.digidoc4j.impl.AsicFacade;
 
 import ee.sk.utils.ConvertUtils;

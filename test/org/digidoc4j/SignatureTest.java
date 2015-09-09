@@ -77,7 +77,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   @Test
   public void testTimeStampCreationTimeForBDocWhereNotOCSP() throws ParseException {
     AsicFacade container = new AsicFacade();
-    container.setSignatureProfile(ContainerFacade.SignatureProfile.B_BES);
+    container.setSignatureProfile(SignatureProfile.B_BES);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
 
@@ -252,19 +252,19 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetProfileForDDoc() {
-    assertEquals(ContainerFacade.SignatureProfile.LT_TM, getSignature(DDOC).getProfile());
+    assertEquals(SignatureProfile.LT_TM, getSignature(DDOC).getProfile());
   }
 
   @Test
   public void testGetProfileForBDoc_TS() throws Exception {
     ContainerFacade container = ContainerFacade.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
-    assertEquals(ContainerFacade.SignatureProfile.LT, container.getSignatures().get(0).getProfile());
+    assertEquals(SignatureProfile.LT, container.getSignatures().get(0).getProfile());
   }
 
   @Test
   public void testGetProfileForBDoc_None() throws Exception {
     ContainerFacade container = ContainerFacade.open("testFiles/asics_for_testing.bdoc");
-    assertEquals(ContainerFacade.SignatureProfile.B_BES, container.getSignatures().get(0).getProfile());
+    assertEquals(SignatureProfile.B_BES, container.getSignatures().get(0).getProfile());
   }
 
   @Test(expected = NotYetImplementedException.class)
@@ -288,7 +288,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   @Test
   public void testGetSignaturesWhereNoSignaturePresent() throws Exception {
     DDocFacade container = new DDocFacade();
-    assertNull(container.getSignatures());
+    assertTrue(container.getSignatures().isEmpty());
   }
 
   @Test

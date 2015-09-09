@@ -21,7 +21,7 @@ import static java.util.Arrays.asList;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.digidoc4j.ContainerFacade.SignatureProfile.LT;
+import static org.digidoc4j.SignatureProfile.LT;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -38,8 +38,10 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -52,6 +54,7 @@ import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProductionPlace;
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignedInfo;
 import org.digidoc4j.Signer;
 import org.digidoc4j.ValidationResult;
@@ -71,7 +74,6 @@ import org.w3c.dom.Element;
 import eu.europa.ec.markt.dss.DSSXMLUtils;
 import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.parameter.BLevelParameters;
-import eu.europa.ec.markt.dss.parameter.BLevelParameters.SignerLocation;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
 import eu.europa.ec.markt.dss.signature.DocumentSignatureService;
 import eu.europa.ec.markt.dss.signature.FileDocument;
@@ -102,22 +104,23 @@ import eu.europa.ec.markt.dss.validation102853.xades.XPathQueryHolder;
  * BDOC container implementation
  */
 public class AsicFacade extends ContainerFacade {
+
+  private static final Logger logger = LoggerFactory.getLogger(AsicFacade.class);
+
   private static final String TM_POLICY = "urn:oid:1.3.6.1.4.1.10015.1000.3.2.1";
   private static final String OIDAS_URN = "OIDAsURN";
   private static final String XADES_SIGNED_PROPERTIES = "http://uri.etsi.org/01903#SignedProperties";
-  public static final int ONE_MB_IN_BYTES = 1048576;
-
-  final Logger logger = LoggerFactory.getLogger(AsicFacade.class);
+  private static final int ONE_MB_IN_BYTES = 1048576;
 
   private final Map<String, DataFile> dataFiles = new LinkedHashMap<>();
   private Map<String, List<DigiDoc4JException>> additionalVerificationErrors = new LinkedHashMap<>();
   private SKCommonCertificateVerifier commonCertificateVerifier;
-  protected DocumentSignatureService asicService;
+  private DocumentSignatureService asicService;
   private eu.europa.ec.markt.dss.parameter.SignatureParameters dssSignatureParameters;
   private SignatureParameters signatureParameters = new SignatureParameters();
-  protected DSSDocument signedDocument;
-  private List<Signature> signatures = new ArrayList<>();
-  Configuration configuration = null;
+  private DSSDocument signedDocument;
+  private Set<Signature> signatures = new LinkedHashSet<>();
+  protected Configuration configuration = null;
   private static final MimeType BDOC_MIME_TYPE = MimeType.ASICE;
   private transient Reports validationReport;
   private boolean isTimeMark = false;
@@ -137,9 +140,10 @@ public class AsicFacade extends ContainerFacade {
   public SignedInfo prepareSigning(X509Certificate signerCert) {
     logger.debug("");
     String signatureId = signatureParameters.getSignatureId();
-    byte[] signedInfo = getDataToSign(signatureId != null ? signatureId : "S" + getSignatures().size(), signerCert);
+    byte[] bytesToSign = getDataToSign(signatureId != null ? signatureId : "S" + getSignatures().size(), signerCert);
 
-    return new SignedInfo(signedInfo, signatureParameters.getDigestAlgorithm());
+    SignedInfo signedInfo = new SignedInfo(bytesToSign, signatureParameters);
+    return signedInfo;
   }
 
   @Override
@@ -167,6 +171,7 @@ public class AsicFacade extends ContainerFacade {
   public void setSignatureParameters(SignatureParameters signatureParameters) {
     logger.debug("");
     this.signatureParameters = signatureParameters.copy();
+    this.signatureParameters.setContainer(signatureParameters.getContainer());
 
     setDigestAlgorithm();
 
@@ -204,7 +209,7 @@ public class AsicFacade extends ContainerFacade {
     dssSignatureParameters.setDigestAlgorithm(SHA256);
     signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
     dssSignatureParameters.aSiC().setUnderlyingForm(XAdES);
-    dssSignatureParameters.aSiC().setZipComment(Helper.createUserAgent(this));
+    dssSignatureParameters.aSiC().setZipComment(Helper.createBDocUserAgent());
     dssSignatureParameters.bLevel().setSigningCertificateDigestMethod(eu.europa.ec.markt.dss.DigestAlgorithm.SHA256);
     //dssSignatureParameters.setSignedInfoCanonicalizationMethod(Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS);
 
@@ -464,7 +469,7 @@ public class AsicFacade extends ContainerFacade {
   }
 
   @Override
-  public void addDataFile(String path, String mimeType) {
+  public DataFile addDataFile(String path, String mimeType) {
     logger.debug("Path: " + path + ", mime type: " + mimeType);
 
     verifyIfAllowedToAddDataFile(path);
@@ -473,11 +478,15 @@ public class AsicFacade extends ContainerFacade {
     try {
       long cachedFileSizeInBytes = configuration.getMaxDataFileCachedInBytes();
       if (configuration.isBigFilesSupportEnabled() && new File(path).length() > cachedFileSizeInBytes) {
-        dataFiles.put(path, new DataFile(path, mimeType));
+        DataFile dataFile = new DataFile(path, mimeType);
+        dataFiles.put(path, dataFile);
+        return dataFile;
       } else {
         InputStream is = Files.newInputStream(Paths.get(path));
-        dataFiles.put(path, new DataFile(IOUtils.toByteArray(is), path, mimeType));
+        DataFile dataFile = new DataFile(IOUtils.toByteArray(is), path, mimeType);
+        dataFiles.put(path, dataFile);
         is.close();
+        return dataFile;
       }
     } catch (IOException e) {
       logger.error(e.getMessage());
@@ -508,7 +517,7 @@ public class AsicFacade extends ContainerFacade {
   }
 
   @Override
-  public void addDataFile(InputStream is, String fileName, String mimeType) {
+  public DataFile addDataFile(InputStream is, String fileName, String mimeType) {
     logger.debug("File name: " + fileName + ", mime type: " + mimeType);
 
     verifyIfAllowedToAddDataFile(fileName);
@@ -516,9 +525,13 @@ public class AsicFacade extends ContainerFacade {
     validationReport = null;
     try {
       if (configuration.isBigFilesSupportEnabled()) {
-        dataFiles.put(fileName, new DataFile(is, fileName, mimeType));
+        DataFile dataFile = new DataFile(is, fileName, mimeType);
+        dataFiles.put(fileName, dataFile);
+        return dataFile;
       } else {
-        dataFiles.put(fileName, new DataFile(IOUtils.toByteArray(is), fileName, mimeType));
+        DataFile dataFile = new DataFile(IOUtils.toByteArray(is), fileName, mimeType);
+        dataFiles.put(fileName, dataFile);
+        return dataFile;
       }
     } catch (IOException e) {
       logger.error(e.getMessage());
@@ -557,7 +570,7 @@ public class AsicFacade extends ContainerFacade {
     logger.debug("get data file with index: " + index);
     return getDataFiles().get(index);
   }
-  
+
   @Override
   public int countDataFiles() {
     return (dataFiles == null) ? 0 : dataFiles.size();
@@ -581,12 +594,24 @@ public class AsicFacade extends ContainerFacade {
   }
 
   @Override
+  @Deprecated
   public void removeSignature(int index) {
     logger.debug("Index: " + index);
+    String signatureId = "S" + index;
+    buildContainerWithoutSignature(signatureId);
+    signatures.remove(index);
+  }
 
+  public void removeSignature(Signature signature) {
+    logger.debug("Removing signature " + signature.getId());
+    buildContainerWithoutSignature(signature.getId());
+    signatures.remove(signature);
+  }
+
+  private void buildContainerWithoutSignature(String signatureId) {
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
     DSSDocument signingDocument = getAttachment();
-    DSSDocument signature = validator.removeSignature("S" + index);
+    DSSDocument signature = validator.removeSignature(signatureId);
     dssSignatureParameters.setDetachedContent(signingDocument);
 
     signedDocument = null;
@@ -603,7 +628,6 @@ public class AsicFacade extends ContainerFacade {
     } while (signature != null);
 
     validationReport = null;
-    signatures.remove(index);
   }
 
   private DSSDocument createBareDocument(DSSDocument signature) {
@@ -644,6 +668,10 @@ public class AsicFacade extends ContainerFacade {
     }
   }
 
+  public InputStream saveAsStream() {
+    return signedDocument.openStream();
+  }
+
   //TODO NotYetImplementedException
   private void documentMustBeInitializedCheck() {
     logger.debug("");
@@ -661,7 +689,7 @@ public class AsicFacade extends ContainerFacade {
     dataToSign = getDataToSign(signatureId != null ? signatureId : "S" + getSignatures().size(),
         signer.getCertificate());
 
-    byte[] signature = signer.sign(this, dataToSign);
+    byte[] signature = signer.sign(getDigestAlgorithm(), dataToSign);
     validationReport = null;
     return signRaw(signature);
   }
@@ -688,7 +716,7 @@ public class AsicFacade extends ContainerFacade {
 
     SKOnlineOCSPSource ocspSource = getOcspSource(rawSignature);
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
-    String userAgent = Helper.createUserAgent(this);
+    String userAgent = Helper.createBDocUserAgent();
     ocspSource.setUserAgent(userAgent);
 
     commonCertificateVerifier.setOcspSource(ocspSource);
@@ -741,7 +769,7 @@ public class AsicFacade extends ContainerFacade {
     }
     Iterator<String> iterator = dataFiles.keySet().iterator();
     DSSDocument firstAttachment = getDssDocumentFromDataFile(dataFiles.get(iterator.next()));
-    DSSDocument lastAttachment = firstAttachment; 
+    DSSDocument lastAttachment = firstAttachment;
     while (iterator.hasNext()) {
       String fileName = iterator.next();
       DSSDocument newAttachment = getDssDocumentFromDataFile(dataFiles.get(fileName));
@@ -782,7 +810,7 @@ public class AsicFacade extends ContainerFacade {
     throw exception;
   }
 
-  private Configuration getConfiguration() {
+  public Configuration getConfiguration() {
     logger.debug("");
     return configuration;
   }
@@ -798,7 +826,7 @@ public class AsicFacade extends ContainerFacade {
         && isEmpty(signatureProductionPlace.getPostalCode())
         && isEmpty(signatureProductionPlace.getCountry()))) {
 
-      SignerLocation signerLocation = new SignerLocation();
+      BLevelParameters.SignerLocation signerLocation = new BLevelParameters.SignerLocation();
 
       if (!isEmpty(signatureProductionPlace.getCity()))
         signerLocation.setCity(signatureProductionPlace.getCity());
@@ -828,8 +856,8 @@ public class AsicFacade extends ContainerFacade {
 
     Reports report = validate(validator);
 
-    if ((signatures.size() > 0) && (((BDocSignature) signatures.get(0)).getOrigin().getReferences() == null)) {
-      signatures = new ArrayList<>();
+    if ((signatures.size() > 0) && (((BDocSignature) signatures.iterator().next()).getOrigin().getReferences() == null)) {
+      signatures = new LinkedHashSet<>();
       loadSignatures(validator);
     }
     List<String> manifestErrors = new ManifestValidator(validator).validateDocument(signatures);
@@ -875,15 +903,23 @@ public class AsicFacade extends ContainerFacade {
   @Override
   public List<Signature> getSignatures() {
     logger.debug("");
-    return signatures;
+    return new ArrayList<>(signatures);
   }
 
+  /**
+   * @deprecated will be removed in the future.
+   */
   @Override
+  @Deprecated
   public Signature getSignature(int index) {
     logger.debug("Get signature for index " + index);
     return getSignatures().get(index);
   }
-  
+
+  public void addSignature(Signature signature) {
+    signatures.add(signature);
+  }
+
   @Override
   public int countSignatures() {
     return (signatures == null) ? 0 : signatures.size();
@@ -910,7 +946,7 @@ public class AsicFacade extends ContainerFacade {
     }
     SKOnlineOCSPSource ocspSource = getOcspSource(null);
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
-    String userAgent = Helper.createUserAgent(this);
+    String userAgent = Helper.createBDocUserAgent();
     ocspSource.setUserAgent(userAgent);
     commonCertificateVerifier.setOcspSource(ocspSource);
     OnlineTSPSource tspSource = new OnlineTSPSource(getConfiguration().getTspSource());
@@ -923,7 +959,7 @@ public class AsicFacade extends ContainerFacade {
     signedDocument = new InMemoryDocument(extendedDocument.getBytes(),
         signedDocument.getName(), signedDocument.getMimeType());
 
-    signatures = new ArrayList<>();
+    signatures = new LinkedHashSet<>();
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
     validate(validator);
 

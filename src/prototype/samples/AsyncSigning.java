@@ -14,6 +14,7 @@ import eu.europa.ec.markt.dss.DSSUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.digidoc4j.ContainerFacade;
 import org.digidoc4j.SignedInfo;
+import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signer;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.ExternalSigner;
@@ -42,7 +43,7 @@ public class AsyncSigning {
     serialize(container);
 
     //getSignature
-    byte[] signature = getExternalSignature(container, signerCert, signedInfo);
+    byte[] signature = getExternalSignature(signerCert, signedInfo);
 
     ContainerFacade deserializedContainer = deserializer();
     deserializedContainer.signRaw(signature);
@@ -52,10 +53,10 @@ public class AsyncSigning {
     serialize(deserializedContainer);
   }
 
-  private static byte[] getExternalSignature(ContainerFacade container, final X509Certificate signerCert, SignedInfo prepareSigningSignature) {
+  private static byte[] getExternalSignature(X509Certificate signerCert, SignedInfo prepareSigningSignature) {
     Signer externalSigner = new ExternalSigner(signerCert) {
       @Override
-      public byte[] sign(ContainerFacade container, byte[] dataToSign) {
+      public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
         try {
           KeyStore keyStore = KeyStore.getInstance("PKCS12");
           try (FileInputStream stream = new FileInputStream("testFiles/signout.p12")) {
@@ -69,13 +70,14 @@ public class AsyncSigning {
           throw new DigiDoc4JException("Loading private key failed");
         }
       }
+
       private byte[] addPadding(byte[] digest) {
         return ArrayUtils.addAll(DigestInfoPrefix.SHA256, digest);
       }
 
     };
 
-    return externalSigner.sign(container, prepareSigningSignature.getDigest());
+    return externalSigner.sign(prepareSigningSignature.getDigestAlgorithm(), prepareSigningSignature.getDigest());
   }
 
   private static X509Certificate getSignerCert() {

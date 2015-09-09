@@ -16,6 +16,7 @@ import java.io.Serializable;
 
 /**
  * Optional additional information about the signer
+ * @deprecated use {@link org.digidoc4j.SignatureParameters} instead.
  */
 public class SignatureProductionPlace implements Serializable {
   Logger logger = org.slf4j.LoggerFactory.getLogger(SignatureProductionPlace.class);

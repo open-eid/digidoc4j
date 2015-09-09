@@ -44,6 +44,10 @@ public enum DigestAlgorithm {
     return uri;
   }
 
+  public eu.europa.ec.markt.dss.DigestAlgorithm getDssDigestAlgorithm() {
+    return eu.europa.ec.markt.dss.DigestAlgorithm.forXML(uri.toString());
+  }
+
   /**
    * Get value as string
    *

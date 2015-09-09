@@ -20,8 +20,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateNotYetValidException;
@@ -106,7 +108,7 @@ public class X509Cert implements Serializable {
    * @param path X509 certificate path
    * @throws Exception throws an exception if the X509 certificate parsing fails
    */
-  X509Cert(String path) throws Exception {
+  X509Cert(String path) throws CertificateException, IOException {
     logger.debug("");
     CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
     try (FileInputStream inStream = new FileInputStream(new File(path))) {

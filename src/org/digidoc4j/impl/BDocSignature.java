@@ -34,15 +34,16 @@ import java.net.URI;
 import java.util.*;
 
 import static eu.europa.ec.markt.dss.DSSXMLUtils.createDocument;
-import static org.digidoc4j.ContainerFacade.SignatureProfile;
-import static org.digidoc4j.ContainerFacade.SignatureProfile.*;
+
+import org.digidoc4j.SignatureProfile;
+import static org.digidoc4j.SignatureProfile.*;
 
 
 /**
  * BDoc signature implementation.
  */
-public class BDocSignature extends Signature {
-  final Logger logger = LoggerFactory.getLogger(BDocSignature.class);
+public class BDocSignature implements Signature {
+  private static final Logger logger = LoggerFactory.getLogger(BDocSignature.class);
   private XAdESSignature origin;
   private SignatureProductionPlace signerLocation;
   private List<DigiDoc4JException> validationErrors = new ArrayList<>();
@@ -148,6 +149,7 @@ public class BDocSignature extends Signature {
   }
 
   @Override
+  @Deprecated
   public String getPolicy() {
     logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
@@ -160,11 +162,17 @@ public class BDocSignature extends Signature {
   }
 
   @Override
-  public Date getProducedAt() {
+  public Date getOCSPResponseCreationTime() {
     logger.debug("");
     Date date = origin.getOCSPSource().getContainedOCSPResponses().get(0).getProducedAt();
     logger.debug("Produced at date: " + date.toString());
     return date;
+  }
+
+  @Override
+  @Deprecated
+  public Date getProducedAt() {
+    return getOCSPResponseCreationTime();
   }
 
   @Override
@@ -215,6 +223,7 @@ public class BDocSignature extends Signature {
   }
 
   @Override
+  @Deprecated
   public URI getSignaturePolicyURI() {
     logger.warn("Not yet implemented");
     throw new NotYetImplementedException();

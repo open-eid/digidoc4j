@@ -14,7 +14,7 @@ import eu.europa.ec.markt.dss.DigestAlgorithm;
 import eu.europa.ec.markt.dss.signature.token.AbstractSignatureTokenConnection;
 import eu.europa.ec.markt.dss.signature.token.DSSPrivateKeyEntry;
 import eu.europa.ec.markt.dss.signature.token.Pkcs12SignatureToken;
-import org.digidoc4j.ContainerFacade;
+
 import org.digidoc4j.Signer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,10 +56,9 @@ public class PKCS12Signer implements Signer {
   }
 
   @Override
-  public byte[] sign(ContainerFacade container, byte[] dataToSign) {
-    org.digidoc4j.DigestAlgorithm digestAlgorithm = container.getDigestAlgorithm();
+  public byte[] sign(org.digidoc4j.DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
     logger.debug("Digest algorithm: " + digestAlgorithm);
     return signatureTokenConnection.sign(dataToSign, DigestAlgorithm.forXML(digestAlgorithm.toString()),
-        keyEntry);
+            keyEntry);
   }
 }
