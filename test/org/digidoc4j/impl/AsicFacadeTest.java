@@ -20,7 +20,7 @@ import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.*;
 import org.digidoc4j.signers.ExternalSigner;
-import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.utils.DigestInfoPrefix;
 import org.digidoc4j.utils.Helper;
 import org.junit.AfterClass;
@@ -54,11 +54,11 @@ import static org.mockito.Mockito.*;
 
 public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
-  private PKCS12Signer PKCS12_SIGNER;
+  private PKCS12SignatureToken PKCS12_SIGNER;
 
   @Before
   public void setUp() throws Exception {
-    PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
+    PKCS12_SIGNER = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
   }
 
   @AfterClass
@@ -1070,7 +1070,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     }
 
     @Override
-    public Signature sign(Signer signer) {
+    public Signature sign(SignatureToken signer) {
       super.asicService = spy(new ASiCService(new CommonCertificateVerifier()));
       doThrow(new DSSException(expected)).when(super.asicService).signDocument(Mockito.any(DSSDocument.class),
           Mockito.any(eu.europa.ec.markt.dss.parameter.SignatureParameters.class), Mockito.any(byte[].class));
@@ -1084,7 +1084,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   }
 
   private static byte[] getExternalSignature(X509Certificate signerCert, SignedInfo prepareSigningSignature, final DigestAlgorithm digestAlgorithm, final String signerCertFile) {
-    Signer externalSigner = new ExternalSigner(signerCert) {
+    SignatureToken externalSigner = new ExternalSigner(signerCert) {
       @Override
       public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
         try {
@@ -1732,7 +1732,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     SignatureParameters signatureParameters = new SignatureParameters();
     signatureParameters.setEncryptionAlgorithm(ECDSA);
     container.setSignatureParameters(signatureParameters);
-    container.sign(new PKCS12Signer("testFiles/ec-digiid.p12", "inno".toCharArray()));
+    container.sign(new PKCS12SignatureToken("testFiles/ec-digiid.p12", "inno".toCharArray()));
 
     assertTrue(container.validate().isValid());
   }

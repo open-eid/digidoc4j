@@ -12,18 +12,18 @@ package prototype;
 
 import eu.europa.ec.markt.dss.DSSUtils;
 import org.apache.commons.lang.ArrayUtils;
-import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.utils.DigestInfoPrefix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 
-public class TestSigner extends PKCS12Signer {
+public class TestSignatureToken extends PKCS12SignatureToken {
 
-  final Logger logger = LoggerFactory.getLogger(TestSigner.class);
+  final Logger logger = LoggerFactory.getLogger(TestSignatureToken.class);
 
-  public TestSigner(String fileName, char[] password) {
+  public TestSignatureToken(String fileName, char[] password) {
     super(fileName, password);
   }
 

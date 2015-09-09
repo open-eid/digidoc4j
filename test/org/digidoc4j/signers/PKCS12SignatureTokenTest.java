@@ -24,12 +24,12 @@ import static org.digidoc4j.DigestAlgorithm.SHA512;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class PKCS12SignerTest {
-  private static PKCS12Signer pkcs12Signer;
+public class PKCS12SignatureTokenTest {
+  private static PKCS12SignatureToken pkcs12Signer;
 
   @BeforeClass
   public static void setUp() {
-    pkcs12Signer = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
+    pkcs12Signer = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
   }
 
   @Test

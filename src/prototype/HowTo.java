@@ -20,7 +20,7 @@ import eu.europa.ec.markt.dss.validation102853.report.Reports;
 import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import org.digidoc4j.*;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.signers.PKCS12SignatureToken;
 
 import java.io.File;
 
@@ -47,7 +47,7 @@ public class HowTo {
     container.setSignatureParameters(signatureParameters);
     container.setSignatureProfile(SignatureProfile.LT_TM);
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
+    container.sign(new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray()));
 //    ContainerFacade container = ContainerFacade.open("util/faulty/bdoc21-bad-nonce-content.bdoc");
     container.save("prototype.bdoc");
     ValidationResult result = container.validate();

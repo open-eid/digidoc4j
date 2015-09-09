@@ -55,8 +55,8 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProductionPlace;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
-import org.digidoc4j.Signer;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.CertificateRevokedException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -682,14 +682,14 @@ public class AsicFacade extends ContainerFacade {
   }
 
   @Override
-  public Signature sign(Signer signer) {
+  public Signature sign(SignatureToken signatureToken) {
     logger.debug("");
     byte[] dataToSign;
     String signatureId = signatureParameters.getSignatureId();
     dataToSign = getDataToSign(signatureId != null ? signatureId : "S" + getSignatures().size(),
-        signer.getCertificate());
+        signatureToken.getCertificate());
 
-    byte[] signature = signer.sign(getDigestAlgorithm(), dataToSign);
+    byte[] signature = signatureToken.sign(getDigestAlgorithm(), dataToSign);
     validationReport = null;
     return signRaw(signature);
   }

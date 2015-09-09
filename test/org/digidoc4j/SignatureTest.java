@@ -18,7 +18,7 @@ import org.digidoc4j.impl.AsicFacade;
 import org.digidoc4j.impl.Certificates;
 import org.digidoc4j.impl.DDocFacade;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
-import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.utils.Helper;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,11 +43,11 @@ import static org.junit.Assert.assertTrue;
 
 public class SignatureTest extends DigiDoc4JTestHelper {
 
-  private PKCS12Signer PKCS12_SIGNER;
+  private PKCS12SignatureToken PKCS12_SIGNER;
 
   @Before
   public void setUp() throws Exception {
-    PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
+    PKCS12_SIGNER = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
   }
 
   @Test
@@ -100,7 +100,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   public void testSetCertificateForBDOC() throws Exception {
     AsicFacade bDocContainer = new AsicFacade();
     bDocContainer.addDataFile("testFiles/test.txt", "text/plain");
-    Signature bDocSignature = bDocContainer.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
+    Signature bDocSignature = bDocContainer.sign(new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray()));
     bDocSignature.setCertificate(new X509Cert("testFiles/signout.pem"));
   }
 

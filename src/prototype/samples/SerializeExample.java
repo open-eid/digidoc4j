@@ -10,7 +10,7 @@
 package prototype.samples;
 
 import org.digidoc4j.ContainerFacade;
-import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.signers.PKCS12SignatureToken;
 
 import java.io.*;
 
@@ -41,7 +41,7 @@ public class SerializeExample {
 
     ContainerFacade container = (ContainerFacade) in.readObject();
 
-    container.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
+    container.sign(new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray()));
     container.save("SerializeExample.bdoc");
 
     in.close();

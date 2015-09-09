@@ -4,7 +4,7 @@ import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.factory.DigiDocFactory;
 import ee.sk.utils.ConfigManager;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
-import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,11 +25,11 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
     private File tempFile;
-    private PKCS12Signer PKCS12_SIGNER;
+    private PKCS12SignatureToken PKCS12_SIGNER;
 
     @Before
     public void setUp() throws Exception {
-        PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
+        PKCS12_SIGNER = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
         tempFile = testFolder.newFile("test.bdoc");
     }
 

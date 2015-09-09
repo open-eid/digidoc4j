@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 import java.security.cert.X509Certificate;
 
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
-import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.junit.Rule;
@@ -72,7 +72,7 @@ public class SignatureBuilderTest {
   @Test
   public void signContainerWithSignatureToken() throws Exception {
     Container container = TestDataBuilder.createContainerWithFile(testFolder);
-    PKCS12Signer signatureToken = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
+    PKCS12SignatureToken signatureToken = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
 
     Signature signature = SignatureBuilder.
         aSignature().
@@ -93,7 +93,7 @@ public class SignatureBuilderTest {
 
   @Test
   public void signDDocContainerWithSignatureToken() throws Exception {
-    PKCS12Signer signatureToken = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
+    PKCS12SignatureToken signatureToken = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
     Container container = TestDataBuilder.createContainerWithFile(testFolder, "DDOC");
     assertEquals("DDOC", container.getType());
 

@@ -17,7 +17,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.AsicFacade;
 import org.digidoc4j.impl.DDocFacade;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
-import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.utils.Helper;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
@@ -227,7 +227,7 @@ public class ContainerFacadeTest extends DigiDoc4JTestHelper {
           "    </Object>\n" +
           "  </Signature>";
 
-  private PKCS12Signer PKCS12_SIGNER;
+  private PKCS12SignatureToken PKCS12_SIGNER;
 
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
@@ -236,7 +236,7 @@ public class ContainerFacadeTest extends DigiDoc4JTestHelper {
 
   @Before
   public void setUp() throws Exception {
-    PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
+    PKCS12_SIGNER = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
     tempFile = testFolder.newFile("tempFile.txt");
   }
 

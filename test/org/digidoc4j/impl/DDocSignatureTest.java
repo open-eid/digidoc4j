@@ -12,7 +12,7 @@ package org.digidoc4j.impl;
 
 import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProductionPlace;
-import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ public class DDocSignatureTest extends DigiDoc4JTestHelper{
     container.setSignatureParameters(signatureParameters);
 
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(new PKCS12Signer("testFiles/signout.p12", "test".toCharArray()));
+    container.sign(new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray()));
   }
 
   @Test

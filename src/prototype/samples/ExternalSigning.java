@@ -15,7 +15,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ContainerFacade;
 import org.digidoc4j.DigestAlgorithm;
-import org.digidoc4j.Signer;
+import org.digidoc4j.SignatureToken;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.ExternalSigner;
 import org.digidoc4j.utils.DigestInfoPrefix;
@@ -42,7 +42,7 @@ public final class ExternalSigning {
     final ContainerFacade container = ContainerFacade.create(configuration);
     container.addDataFile("testFiles/test.txt", "text/plain");
 
-    Signer externalSigner = new ExternalSigner(getSignerCert()) {
+    SignatureToken externalSigner = new ExternalSigner(getSignerCert()) {
       @Override
       public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
 

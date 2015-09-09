@@ -31,10 +31,10 @@ import org.bouncycastle.cert.ocsp.*;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.Signer;
+import org.digidoc4j.SignatureToken;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +107,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
           throw new ConfigurationException("Configuration needed for OCSP request signing is not complete.");
         }
 
-        Signer ocspSigner = new PKCS12Signer(configuration.getOCSPAccessCertificateFileName(),
+        SignatureToken ocspSigner = new PKCS12SignatureToken(configuration.getOCSPAccessCertificateFileName(),
             configuration.getOCSPAccessCertificatePassword());
 
         ContentSigner contentSigner = signerBuilder.build(ocspSigner.getPrivateKey());

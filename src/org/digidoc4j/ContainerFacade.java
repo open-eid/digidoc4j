@@ -36,7 +36,7 @@ import static org.digidoc4j.ContainerFacade.DocumentType.BDOC;
  * remove all the signatures.
  * </p><p>
  * Example of creating and signing a container:</p><p>
- * PKCS12_SIGNER = new PKCS12Signer("my_cert.p12", "password".toCharArray());<br>
+ * PKCS12_SIGNER = new PKCS12SignatureToken("my_cert.p12", "password".toCharArray());<br>
  * ContainerFacade container = ContainerFacade.create();<br>
  * container.addDataFile("test.txt", "text/plain");<br>
  * container.sign(PKCS12_SIGNER);<br>
@@ -44,7 +44,7 @@ import static org.digidoc4j.ContainerFacade.DocumentType.BDOC;
  * </p><p>
  * Optionally you can specify certain settings and behavior using the SignatureParameters settings.<br>
  * Example of creating and signing a container with specific signature parameters:</p><p>
- * PKCS12_SIGNER = new PKCS12Signer("my_cert.p12", "password".toCharArray());<br>
+ * PKCS12_SIGNER = new PKCS12SignatureToken("my_cert.p12", "password".toCharArray());<br>
  * ContainerFacade container = ContainerFacade.create();<br>
  * container.addDataFile("test.txt", "text/plain");<br>
  * SignatureParameters signatureParameters = new SignatureParameters();<br>
@@ -347,10 +347,10 @@ public abstract class ContainerFacade implements Serializable {
   /**
    * Signs all data files in the container.
    *
-   * @param signer signer implementation
+   * @param signatureToken signatureToken implementation
    * @return signature
    */
-  public abstract Signature sign(Signer signer);
+  public abstract Signature sign(SignatureToken signatureToken);
 
   /**
    * Signs all data files in the container.

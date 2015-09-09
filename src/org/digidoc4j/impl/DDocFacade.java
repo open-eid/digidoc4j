@@ -385,7 +385,7 @@ public class DDocFacade extends ContainerFacade {
   }
 
   @Override
-  public Signature sign(Signer signer) {
+  public Signature sign(SignatureToken signer) {
     logger.debug("");
     calculateSignature(signer);
     try {
@@ -491,7 +491,7 @@ public class DDocFacade extends ContainerFacade {
     return new ValidationResultForDDoc(exceptions, containerExceptions);
   }
 
-  ee.sk.digidoc.Signature calculateSignature(Signer signer) {
+  ee.sk.digidoc.Signature calculateSignature(SignatureToken signer) {
     logger.debug("");
     prepareSigning(signer.getCertificate());
     return ddocSignature;

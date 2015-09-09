@@ -23,7 +23,7 @@ public class SignatureBuilder {
 
   private final static Logger logger = LoggerFactory.getLogger(SignatureBuilder.class);
   private SignatureParameters signatureParameters = new SignatureParameters();
-  private Signer signatureToken;
+  private SignatureToken signatureToken;
 
   public static SignatureBuilder aSignature() {
     return new SignatureBuilder();
@@ -137,7 +137,7 @@ public class SignatureBuilder {
     return this;
   }
 
-  public SignatureBuilder withSignatureToken(Signer signatureToken) {
+  public SignatureBuilder withSignatureToken(SignatureToken signatureToken) {
     this.signatureToken = signatureToken;
     return this;
   }

@@ -11,7 +11,7 @@
 package prototype;
 
 import org.digidoc4j.ContainerFacade;
-import org.digidoc4j.Signer;
+import org.digidoc4j.SignatureToken;
 
 import java.security.NoSuchAlgorithmException;
 
@@ -19,7 +19,7 @@ public class PKCS11SignerTestMain {
 
   public static void signWithIDCard() throws NoSuchAlgorithmException {
     ContainerFacade container = ContainerFacade.create(ContainerFacade.DocumentType.BDOC);
-    Signer pkcs11Signer = new PKCS11Signer("01497".toCharArray());
+    SignatureToken pkcs11Signer = new PKCS11Signer("01497".toCharArray());
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(pkcs11Signer);
     container.save("signWithIDCard.ddoc");

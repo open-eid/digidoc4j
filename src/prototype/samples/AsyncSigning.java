@@ -15,7 +15,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.digidoc4j.ContainerFacade;
 import org.digidoc4j.SignedInfo;
 import org.digidoc4j.DigestAlgorithm;
-import org.digidoc4j.Signer;
+import org.digidoc4j.SignatureToken;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.ExternalSigner;
 import org.digidoc4j.utils.DigestInfoPrefix;
@@ -54,7 +54,7 @@ public class AsyncSigning {
   }
 
   private static byte[] getExternalSignature(X509Certificate signerCert, SignedInfo prepareSigningSignature) {
-    Signer externalSigner = new ExternalSigner(signerCert) {
+    SignatureToken externalSigner = new ExternalSigner(signerCert) {
       @Override
       public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
         try {

@@ -15,7 +15,7 @@ import eu.europa.ec.markt.dss.signature.token.AbstractSignatureTokenConnection;
 import eu.europa.ec.markt.dss.signature.token.DSSPrivateKeyEntry;
 import eu.europa.ec.markt.dss.signature.token.Pkcs12SignatureToken;
 
-import org.digidoc4j.Signer;
+import org.digidoc4j.SignatureToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +25,8 @@ import java.security.cert.X509Certificate;
 /**
  * Implements PKCS12 signer.
  */
-public class PKCS12Signer implements Signer {
-  final Logger logger = LoggerFactory.getLogger(PKCS12Signer.class);
+public class PKCS12SignatureToken implements SignatureToken {
+  final Logger logger = LoggerFactory.getLogger(PKCS12SignatureToken.class);
   protected AbstractSignatureTokenConnection signatureTokenConnection = null;
   protected DSSPrivateKeyEntry keyEntry = null;
 
@@ -37,7 +37,7 @@ public class PKCS12Signer implements Signer {
    * @param fileName .p12 file name and path
    * @param password keystore password
    */
-  public PKCS12Signer(String fileName, char[] password) {
+  public PKCS12SignatureToken(String fileName, char[] password) {
     logger.debug("File name: " + fileName);
     signatureTokenConnection = new Pkcs12SignatureToken(password, fileName);
     keyEntry = signatureTokenConnection.getKeys().get(0);

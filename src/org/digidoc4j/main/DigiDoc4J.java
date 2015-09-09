@@ -21,7 +21,7 @@ import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.impl.DDocFacade;
 import org.digidoc4j.impl.DDocSignature;
 import org.digidoc4j.impl.ValidationResultForDDoc;
-import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.signers.PKCS12SignatureToken;
 
 import java.io.File;
 import java.util.List;
@@ -169,7 +169,7 @@ public final class DigiDoc4J {
 
   private static void pkcs12Sign(CommandLine commandLine, ContainerFacade container) {
     String[] optionValues = commandLine.getOptionValues("pkcs12");
-    Signer pkcs12Signer = new PKCS12Signer(optionValues[0], optionValues[1].toCharArray());
+    SignatureToken pkcs12Signer = new PKCS12SignatureToken(optionValues[0], optionValues[1].toCharArray());
     container.sign(pkcs12Signer);
   }
 

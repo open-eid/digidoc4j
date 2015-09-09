@@ -16,7 +16,7 @@ import java.security.cert.X509Certificate;
 /**
  * Abstract class providing signing interface
  */
-public interface Signer {
+public interface SignatureToken {
 
   /**
    * Returns signer certificate

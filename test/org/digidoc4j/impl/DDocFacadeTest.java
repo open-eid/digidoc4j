@@ -16,7 +16,7 @@ import ee.sk.digidoc.SignedDoc;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.signers.PKCS12Signer;
+import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.*;
 
 public class DDocFacadeTest {
   public static final String TEXT_MIME_TYPE = "text/plain";
-  private PKCS12Signer PKCS12_SIGNER;
+  private PKCS12SignatureToken PKCS12_SIGNER;
 
   @BeforeClass
   public static void setTestMode() {
@@ -51,7 +51,7 @@ public class DDocFacadeTest {
 
   @Before
   public void setUp() throws Exception {
-    PKCS12_SIGNER = new PKCS12Signer("testFiles/signout.p12", "test".toCharArray());
+    PKCS12_SIGNER = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
   }
 
   @AfterClass
@@ -465,18 +465,18 @@ public class DDocFacadeTest {
     }
 
     @Override
-    ee.sk.digidoc.Signature calculateSignature(Signer signer) {
+    ee.sk.digidoc.Signature calculateSignature(SignatureToken signatureToken) {
       return signature;
     }
 
     @Override
-    public Signature sign(Signer signer) {
+    public Signature sign(SignatureToken signatureToken) {
       ddocSignature = mock(ee.sk.digidoc.Signature.class);
       try {
         doReturn("A".getBytes()).when(ddocSignature).calculateSignedInfoXML();
       } catch (DigiDocException ignored) {}
       getConfirmationThrowsException();
-      return super.sign(signer);
+      return super.sign(signatureToken);
     }
 
     private void getConfirmationThrowsException() {

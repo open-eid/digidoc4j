@@ -10,7 +10,7 @@
 
 package org.digidoc4j.signers;
 
-import org.digidoc4j.Signer;
+import org.digidoc4j.SignatureToken;
 import org.digidoc4j.exceptions.NotSupportedException;
 
 import java.security.PrivateKey;
@@ -19,7 +19,7 @@ import java.security.cert.X509Certificate;
 /**
  * Signer for external services for example in web
  */
-public abstract class ExternalSigner implements Signer {
+public abstract class ExternalSigner implements SignatureToken {
 
   private X509Certificate signingCertificate;
 
