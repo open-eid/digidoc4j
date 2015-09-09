@@ -13,7 +13,7 @@ import org.digidoc4j.SignedInfo;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.SignatureParameters;
-import org.digidoc4j.impl.AsicFacade;
+import org.digidoc4j.impl.bdoc.AsicFacade;
 
 import ee.sk.utils.ConvertUtils;
 

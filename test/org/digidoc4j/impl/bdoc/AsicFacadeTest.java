@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl;
+package org.digidoc4j.impl.bdoc;
 
 import eu.europa.ec.markt.dss.DSSUtils;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
@@ -19,6 +19,10 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.*;
+import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.impl.Signatures;
+import org.digidoc4j.impl.bdoc.AsicFacade;
+import org.digidoc4j.impl.bdoc.BDocSignature;
 import org.digidoc4j.signers.ExternalSigner;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.utils.DigestInfoPrefix;

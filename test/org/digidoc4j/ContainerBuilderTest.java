@@ -12,13 +12,7 @@ import java.io.InputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.digidoc4j.Configuration;
-import org.digidoc4j.Container;
-import org.digidoc4j.ContainerBuilder;
-import org.digidoc4j.DigestAlgorithm;
-import org.digidoc4j.Signature;
-import org.digidoc4j.ValidationResult;
-import org.digidoc4j.impl.DDocSignature;
+import org.digidoc4j.impl.ddoc.DDocSignature;
 import org.digidoc4j.impl.bdoc.BDocContainer;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.junit.Rule;

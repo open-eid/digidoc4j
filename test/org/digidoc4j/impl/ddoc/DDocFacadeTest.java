@@ -8,21 +8,34 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl;
+package org.digidoc4j.impl.ddoc;
 
-import ee.sk.digidoc.DataFile;
-import ee.sk.digidoc.DigiDocException;
-import ee.sk.digidoc.SignedDoc;
-import org.digidoc4j.*;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.signers.PKCS12SignatureToken;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.digidoc4j.DigestAlgorithm.SHA1;
+import static org.digidoc4j.DigestAlgorithm.SHA224;
+import static org.digidoc4j.DigestAlgorithm.SHA256;
+import static org.digidoc4j.SignatureProfile.B_BES;
+import static org.digidoc4j.SignatureProfile.LT;
+import static org.digidoc4j.SignatureProfile.LTA;
+import static org.digidoc4j.SignatureProfile.LT_TM;
+import static org.digidoc4j.testutils.TestSigningHelper.getSigningCert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,13 +45,25 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.digidoc4j.SignatureProfile.*;
-import static org.digidoc4j.DigestAlgorithm.*;
-import static org.digidoc4j.impl.AsicFacadeTest.getExternalSignature;
-import static org.digidoc4j.impl.AsicFacadeTest.getSignerCert;
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import org.digidoc4j.ContainerFacade;
+import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureParameters;
+import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.SignatureToken;
+import org.digidoc4j.SignedInfo;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.signers.PKCS12SignatureToken;
+import org.digidoc4j.testutils.TestSigningHelper;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import ee.sk.digidoc.DataFile;
+import ee.sk.digidoc.DigiDocException;
+import ee.sk.digidoc.SignedDoc;
 
 public class DDocFacadeTest {
   public static final String TEXT_MIME_TYPE = "text/plain";
@@ -422,9 +447,9 @@ public class DDocFacadeTest {
   public void twoStepSigning() {
     ContainerFacade container = ContainerFacade.create(ContainerFacade.DocumentType.DDOC);
     container.addDataFile("testFiles/test.txt", "text/plain");
-    X509Certificate signerCert = getSignerCert();
+    X509Certificate signerCert = getSigningCert();
     SignedInfo signedInfo = container.prepareSigning(signerCert);
-    byte[] signature = getExternalSignature(container, signerCert, signedInfo, SHA256);
+    byte[] signature = getExternalSignature(signedInfo, SHA256);
     container.signRaw(signature);
     container.save("test.ddoc");
 
@@ -443,10 +468,14 @@ public class DDocFacadeTest {
   public void signRawThrowsException() {
     ContainerFacade container = ContainerFacade.create(ContainerFacade.DocumentType.DDOC);
     container.addDataFile("testFiles/test.txt", "text/plain");
-    X509Certificate signerCert = getSignerCert();
+    X509Certificate signerCert = getSigningCert();
     container.prepareSigning(signerCert);
 
     container.signRaw(null);
+  }
+
+  private byte[] getExternalSignature(SignedInfo signedInfo, DigestAlgorithm digestAlgorithm) {
+    return TestSigningHelper.sign(signedInfo.getDigestToSign(), digestAlgorithm);
   }
 
   private class MockDDocFacade extends DDocFacade {

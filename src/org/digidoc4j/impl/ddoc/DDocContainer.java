@@ -11,8 +11,6 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
-import org.digidoc4j.impl.DDocFacade;
-import org.digidoc4j.impl.DDocSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

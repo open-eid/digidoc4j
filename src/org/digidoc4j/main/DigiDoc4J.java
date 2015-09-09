@@ -18,9 +18,9 @@ import org.apache.commons.cli.*;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
-import org.digidoc4j.impl.DDocFacade;
-import org.digidoc4j.impl.DDocSignature;
-import org.digidoc4j.impl.ValidationResultForDDoc;
+import org.digidoc4j.impl.ddoc.DDocFacade;
+import org.digidoc4j.impl.ddoc.DDocSignature;
+import org.digidoc4j.impl.ddoc.ValidationResultForDDoc;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 
 import java.io.File;

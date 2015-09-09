@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl;
+package org.digidoc4j.impl.bdoc;
 
 import static eu.europa.ec.markt.dss.DigestAlgorithm.SHA256;
 import static eu.europa.ec.markt.dss.DigestAlgorithm.forName;

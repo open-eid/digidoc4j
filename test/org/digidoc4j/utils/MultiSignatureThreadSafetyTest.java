@@ -3,7 +3,7 @@ package org.digidoc4j.utils;
 import java.io.ByteArrayInputStream;
 
 import org.digidoc4j.ContainerFacade;
-import org.digidoc4j.impl.AsicFacade;
+import org.digidoc4j.impl.bdoc.AsicFacade;
 import org.junit.Test;
 
 /** 

@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl;
+package org.digidoc4j.impl.ddoc;
 
 import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.SignedDoc;

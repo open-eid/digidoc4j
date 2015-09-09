@@ -8,8 +8,9 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl;
+package org.digidoc4j.impl.bdoc;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -32,7 +33,7 @@ public class ManifestValidatorTest {
       add(new ManifestEntry("2", "b"));
     }};
 
-    assertEquals(0, ManifestValidator.validateEntries(entriesFromManifest, entriesFromSignature, "").size());
+    Assert.assertEquals(0, ManifestValidator.validateEntries(entriesFromManifest, entriesFromSignature, "").size());
   }
 
   @Test

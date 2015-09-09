@@ -1,4 +1,4 @@
-package org.digidoc4j.impl;
+package org.digidoc4j.impl.bdoc;
 
 import static org.junit.Assert.assertEquals;
 

@@ -8,10 +8,11 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl;
+package org.digidoc4j.impl.ddoc;
 
 import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProductionPlace;
+import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,7 +22,7 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
-public class DDocSignatureTest extends DigiDoc4JTestHelper{
+public class DDocSignatureTest extends DigiDoc4JTestHelper {
 
   private static DDocFacade container;
 

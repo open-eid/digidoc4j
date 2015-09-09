@@ -9,7 +9,6 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
-import org.digidoc4j.impl.AsicFacade;
 
 public class BDocContainer implements Container {
 

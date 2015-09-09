@@ -15,7 +15,7 @@ import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.AsicFacade;
+import org.digidoc4j.impl.bdoc.AsicFacade;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;

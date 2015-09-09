@@ -3,7 +3,6 @@ package org.digidoc4j.impl.ddoc;
 import org.digidoc4j.DataToSign;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureParameters;
-import org.digidoc4j.impl.DDocFacade;
 
 public class DDocDataToSign extends DataToSign {
 

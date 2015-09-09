@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl;
+package org.digidoc4j.impl.bdoc;
 
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
@@ -17,6 +17,7 @@ import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import org.digidoc4j.Signature;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.bdoc.ValidationResultForBDoc;
 import org.junit.Test;
 import org.w3c.dom.Element;
 

@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.digidoc4j.impl.AsicFacade;
-import org.digidoc4j.impl.DDocFacade;
+import org.digidoc4j.impl.bdoc.AsicFacade;
+import org.digidoc4j.impl.ddoc.DDocFacade;
 import org.digidoc4j.impl.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 

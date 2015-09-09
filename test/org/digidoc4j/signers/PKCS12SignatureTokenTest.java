@@ -13,7 +13,7 @@ package org.digidoc4j.signers;
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.X509Cert;
-import org.digidoc4j.impl.AsicFacade;
+import org.digidoc4j.impl.bdoc.AsicFacade;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
