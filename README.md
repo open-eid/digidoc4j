@@ -8,13 +8,13 @@ cd digidoc4j
 ant
 ```
 
-User stories are described here: 
-[https://www.pivotaltracker.com/s/projects/1110130](Pivotal tracker)
+User stories are described in 
+[Pivotal tracker](https://www.pivotaltracker.com/s/projects/1110130)
 
 To load libraries (including new and updated libraries) without 
 performing a complete build: ant load.dependencies
 
-javadoc you can find: [http://open-eid.github.io/digidoc4j/](JavaDoc files)
+API is available via [JavaDoc](http://open-eid.github.io/digidoc4j/)
 
 To run tests:
 
