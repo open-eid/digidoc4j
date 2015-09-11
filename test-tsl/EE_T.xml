@@ -208,7 +208,7 @@
                   <tsl:ServiceStatus>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision</tsl:ServiceStatus>
                   <tsl:StatusStartingTime>2011-03-08T22:00:00Z</tsl:StatusStartingTime>
                   <tsl:ServiceSupplyPoints>
-                     <tsl:ServiceSupplyPoint>http://www.openxades.org/cgi-bin/ocsp.cgi</tsl:ServiceSupplyPoint>
+                     <tsl:ServiceSupplyPoint>http://demo.sk.ee/ocsp</tsl:ServiceSupplyPoint>
                   </tsl:ServiceSupplyPoints>
                   <tsl:ServiceInformationExtensions>
                      <tsl:Extension Critical="true">

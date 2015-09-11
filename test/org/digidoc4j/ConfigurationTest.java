@@ -267,7 +267,7 @@ public class ConfigurationTest {
 
   @Test
   public void defaultOcspSource() throws Exception {
-    assertEquals("http://www.openxades.org/cgi-bin/ocsp.cgi", configuration.getOcspSource());
+    assertEquals("http://demo.sk.ee/ocsp", configuration.getOcspSource());
   }
 
   @Test

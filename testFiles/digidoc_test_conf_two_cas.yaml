@@ -24,7 +24,7 @@ DIGIDOC_CAS:
         CN: TEST of SK OCSP RESPONDER 2011
         CERTS:
          - jar://certs/TEST SK OCSP 2011.crt
-        URL: http://www.openxades.org/cgi-bin/ocsp.cgi
+        URL: http://demo.sk.ee/ocsp
 - DIGIDOC_CA:
     NAME: Second CA
     TRADENAME: CA_2
@@ -47,4 +47,4 @@ DIGIDOC_CAS:
         CN: TEST of SK OCSP RESPONDER 2011
         CERTS:
          - jar://certs/TEST.crt
-        URL: http://www.openxades.org/cgi-bin/ocsp.cgi
+        URL: http://demo.sk.ee/ocsp

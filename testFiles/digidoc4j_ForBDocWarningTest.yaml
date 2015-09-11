@@ -128,28 +128,28 @@ DIGIDOC_CAS:
         CN: TEST-SK OCSP RESPONDER 2005
         CA_CERT: jar://certs/TEST-SK.crt
         CA_CN: TEST-SK
-        URL: http://www.openxades.org/cgi-bin/ocsp.cgi
+        URL: http://demo.sk.ee/ocsp
       - OCSP:
         CERTS:
          - jar://certs/TEST SK OCSP 2011.crt
         CN: TEST of SK OCSP RESPONDER 2011
         CA_CERT: jar://certs/TEST EECCRCA.crt
         CA_CN: TEST of EE Certification Centre Root CA
-        URL: http://www.openxades.org/cgi-bin/ocsp.cgi
+        URL: http://demo.sk.ee/ocsp
       - OCSP:
         CA_CN: TEST of ESTEID-SK 2011
         CA_CERT: jar://certs/TEST ESTEID-SK 2011.crt
         CN: TEST of SK OCSP RESPONDER 2011
         CERTS:
          - jar://certs/TEST SK OCSP 2011.crt
-        URL: http://www.openxades.org/cgi-bin/ocsp.cgi
+        URL: http://demo.sk.ee/ocsp
       - OCSP:
         CERTS:
          - jar://certs/TEST SK OCSP 2011.crt
         CN: TEST of SK OCSP RESPONDER 2011
         CA_CERT: jar://certs/KLASS3-SK 2010.crt
         CA_CN: KLASS3-SK 2010
-        URL: http://www.openxades.org/cgi-bin/ocsp.cgi
+        URL: http://demo.sk.ee/ocsp
       - OCSP:
         CERTS:
          - jar://certs/SK_proxy_OCSP_responder_2009.pem.cer

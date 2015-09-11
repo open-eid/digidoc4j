@@ -85,7 +85,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
    */
   public String getAccessLocation() {
     logger.debug("");
-    String location = "http://www.openxades.org/cgi-bin/ocsp.cgi";
+    String location = Configuration.TEST_OCSP_URL;
     if (configuration != null)
       location = configuration.getOcspSource();
     logger.debug("OCSP Access location: " + location);

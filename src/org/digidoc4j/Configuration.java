@@ -133,6 +133,8 @@ public class Configuration implements Serializable {
   public static final long CACHE_ALL_DATA_FILES = -1;
   public static final long CACHE_NO_DATA_FILES = 0;
 
+  public static final String TEST_OCSP_URL = "http://demo.sk.ee/ocsp";
+
   private final Mode mode;
   private LinkedHashMap configurationFromFile;
   private String configurationInputSourceName;
@@ -161,7 +163,7 @@ public class Configuration implements Serializable {
       configuration.put("tslLocation", "http://10.0.25.57/tsl/trusted-test-mp.xml");
       configuration.put("tslLocation", "file:test-tsl/trusted-test-mp.xml");
       configuration.put("validationPolicy", "conf/test_constraint.xml");
-      configuration.put("ocspSource", "http://www.openxades.org/cgi-bin/ocsp.cgi");
+      configuration.put("ocspSource", TEST_OCSP_URL);
     } else {
       configuration.put("tspSource", "http://tsa.sk.ee");
       configuration.put("tslLocation",
