@@ -45,7 +45,9 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.digidoc4j.ContainerFacade;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureParameters;
@@ -60,6 +62,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import ee.sk.digidoc.DataFile;
 import ee.sk.digidoc.DigiDocException;
@@ -127,7 +130,7 @@ public class DDocFacadeTest {
     dDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     dDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     dDocContainer.save("test_ddoc_file.ddoc");
-    ContainerFacade container = ContainerFacade.open("test_ddoc_file.ddoc");
+    Container container = ContainerOpener.open("test_ddoc_file.ddoc");
     List<org.digidoc4j.DataFile> dataFiles = container.getDataFiles();
     assertEquals(2, dataFiles.size());
     assertEquals("test.txt", dataFiles.get(0).getName());
@@ -154,7 +157,7 @@ public class DDocFacadeTest {
     new File("test_empty.txt").createNewFile();
     dDocContainer.addDataFile("test_empty.txt", TEXT_MIME_TYPE);
     dDocContainer.save("test_empty.ddoc");
-    ContainerFacade container = ContainerFacade.open("test_empty.ddoc");
+    Container container = ContainerOpener.open("test_empty.ddoc");
     List<org.digidoc4j.DataFile> dataFiles = container.getDataFiles();
     assertEquals(1, dataFiles.size());
     assertEquals(0, dataFiles.get(0).getFileSize());
@@ -407,12 +410,12 @@ public class DDocFacadeTest {
     container.setSignatureProfile(B_BES);
     container.sign(PKCS12_SIGNER);
     container.save("testAddConfirmation.ddoc");
-    container = (DDocFacade) ContainerFacade.open("testAddConfirmation.ddoc");
+    container = open("testAddConfirmation.ddoc");
     assertNull(container.getSignature(0).getOCSPCertificate());
 
     container.extendTo(LT_TM);
     container.save("testAddedConfirmation.ddoc");
-    container = (DDocFacade) ContainerFacade.open("testAddedConfirmation.ddoc");
+    container = open("testAddedConfirmation.ddoc");
     assertNotNull(container.getSignature(0).getOCSPCertificate());
   }
 
@@ -445,7 +448,7 @@ public class DDocFacadeTest {
 
   @Test
   public void twoStepSigning() {
-    ContainerFacade container = ContainerFacade.create(ContainerFacade.DocumentType.DDOC);
+    Container container = createDDoc();
     container.addDataFile("testFiles/test.txt", "text/plain");
     X509Certificate signerCert = getSigningCert();
     SignedInfo signedInfo = container.prepareSigning(signerCert);
@@ -453,20 +456,20 @@ public class DDocFacadeTest {
     container.signRaw(signature);
     container.save("test.ddoc");
 
-    container = ContainerFacade.open("test.ddoc");
+    container = ContainerOpener.open("test.ddoc");
     assertEquals(1, container.getSignatures().size());
   }
 
   @Test (expected = DigiDoc4JException.class)
   public void prepareSigningThrowsException() {
-    ContainerFacade container = ContainerFacade.create(ContainerFacade.DocumentType.DDOC);
+    Container container = createDDoc();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.prepareSigning(null);
   }
 
   @Test (expected = DigiDoc4JException.class)
   public void signRawThrowsException() {
-    ContainerFacade container = ContainerFacade.create(ContainerFacade.DocumentType.DDOC);
+    Container container = createDDoc();
     container.addDataFile("testFiles/test.txt", "text/plain");
     X509Certificate signerCert = getSigningCert();
     container.prepareSigning(signerCert);
@@ -478,6 +481,18 @@ public class DDocFacadeTest {
     return TestSigningHelper.sign(signedInfo.getDigestToSign(), digestAlgorithm);
   }
 
+  private Container createDDoc() {
+    return ContainerBuilder.
+        aContainer().
+        withType("DDOC").
+        build();
+  }
+
+  private DDocFacade open(String path) {
+    DDocContainer container = (DDocContainer)ContainerOpener.open(path);
+    return container.getJDigiDocFacade();
+  }
+
   private class MockDDocFacade extends DDocFacade {
     ee.sk.digidoc.Signature signature = spy(new ee.sk.digidoc.Signature(new SignedDoc()));
 
@@ -485,10 +500,7 @@ public class DDocFacadeTest {
     public void extendTo(SignatureProfile profile) {
       super.ddoc = spy(new SignedDoc());
       getConfirmationThrowsException();
-
-      ArrayList<ee.sk.digidoc.Signature> signatures = new ArrayList<>();
-      signatures.add(signature);
-      doReturn(signatures).when(ddoc).getSignatures();
+      doReturnSignatureList();
 
       super.extendTo(profile);
     }
@@ -500,7 +512,10 @@ public class DDocFacadeTest {
 
     @Override
     public Signature sign(SignatureToken signatureToken) {
+      super.ddoc = spy(new SignedDoc());
       ddocSignature = mock(ee.sk.digidoc.Signature.class);
+      doReturnSignatureList();
+
       try {
         doReturn("A".getBytes()).when(ddocSignature).calculateSignedInfoXML();
       } catch (DigiDocException ignored) {}
@@ -514,6 +529,12 @@ public class DDocFacadeTest {
       } catch (DigiDocException e) {
         e.printStackTrace();
       }
+    }
+
+    private void doReturnSignatureList() {
+      ArrayList<ee.sk.digidoc.Signature> signatures = new ArrayList<>();
+      signatures.add(signature);
+      doReturn(signatures).when(ddoc).getSignatures();
     }
   }
 }

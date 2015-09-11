@@ -2,8 +2,8 @@ package org.digidoc4j.utils;
 
 import java.io.ByteArrayInputStream;
 
-import org.digidoc4j.ContainerFacade;
-import org.digidoc4j.impl.bdoc.AsicFacade;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerBuilder;
 import org.junit.Test;
 
 /** 
@@ -20,8 +20,13 @@ public class MultiSignatureThreadSafetyTest extends AbstractSigningTests {
     }
 
     protected void sign() {
-        AsicFacade container = (AsicFacade) ContainerFacade.create(createDigiDoc4JConfiguration());
-        container.addDataFile(new ByteArrayInputStream("file contents".getBytes()), "file.txt", "application/octet-stream");
+        Container container = ContainerBuilder.
+            aContainer().
+            withType("BDOC").
+            withConfiguration(createDigiDoc4JConfiguration()).
+            withDataFile(new ByteArrayInputStream("file contents".getBytes()), "file.txt", "application/octet-stream").
+            build();
+
         byte[] hashToSign = prepareSigning(container, CertificatesForTests.SIGN_CERT, createSignatureParameters());
         byte[] signatureValue = signWithRsa(CertificatesForTests.PRIVATE_KEY_FOR_SIGN_CERT, hashToSign);
         container.signRaw(signatureValue);

@@ -11,7 +11,7 @@
 package org.digidoc4j.utils;
 
 import org.apache.commons.io.IOUtils;
-import org.digidoc4j.ContainerFacade;
+import org.digidoc4j.Container;
 import org.digidoc4j.Version;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
@@ -127,7 +127,7 @@ public final class Helper {
    * @param container container to be serialized
    * @param filename  name of file to store serialized container in
    */
-  public static void serialize(ContainerFacade container, String filename) {
+  public static void serialize(Container container, String filename) {
     FileOutputStream fileOut;
     try {
       fileOut = new FileOutputStream(filename);
@@ -148,12 +148,12 @@ public final class Helper {
    * @param filename name of the file containing the serialized container
    * @return container
    */
-  public static ContainerFacade deserializer(String filename) {
+  public static Container deserializer(String filename) {
     FileInputStream fileIn;
     try {
       fileIn = new FileInputStream(filename);
       ObjectInputStream in = new ObjectInputStream(fileIn);
-      ContainerFacade container = (ContainerFacade) in.readObject();
+      Container container = (Container) in.readObject();
       in.close();
       fileIn.close();
 
@@ -171,7 +171,7 @@ public final class Helper {
    * @param container  container used for creation user agent
    * @return user agent string
    */
-  public static String createUserAgent(ContainerFacade container) {
+  public static String createUserAgent(Container container) {
     String documentType = container.getDocumentType().toString();
     String version = container.getVersion();
     String signatureProfile = container.getSignatureProfile();

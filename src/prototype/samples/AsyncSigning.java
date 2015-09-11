@@ -12,7 +12,10 @@ package prototype.samples;
 
 import eu.europa.ec.markt.dss.DSSUtils;
 import org.apache.commons.lang.ArrayUtils;
-import org.digidoc4j.ContainerFacade;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.DataToSign;
+import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignedInfo;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.SignatureToken;
@@ -33,27 +36,34 @@ public class AsyncSigning {
   public static void main(String[] args) throws IOException, ClassNotFoundException {
     System.setProperty("digidoc4j.mode", "TEST");
 
-    ContainerFacade container = ContainerFacade.create();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    Container container = ContainerBuilder.
+        aContainer().
+        withDataFile("testFiles/test.txt", "text/plain").
+        build();
 
     X509Certificate signerCert = getSignerCert();
 
-    SignedInfo signedInfo = container.prepareSigning(signerCert);
+    DataToSign dataToSign = SignatureBuilder.
+        aSignature().
+        withContainer(container).
+        withSigningCertificate(signerCert).
+        buildDataToSign();
 
     serialize(container);
 
     //getSignature
-    byte[] signature = getExternalSignature(signerCert, signedInfo);
+    byte[] signature = getExternalSignature(signerCert, dataToSign);
 
-    ContainerFacade deserializedContainer = deserializer();
+    Container deserializedContainer = deserializer();
+
     deserializedContainer.signRaw(signature);
-    deserializedContainer.save("deserializedContainer.bdoc");
+    deserializedContainer.saveAsFile("deserializedContainer.bdoc");
 
     //serialize container
     serialize(deserializedContainer);
   }
 
-  private static byte[] getExternalSignature(X509Certificate signerCert, SignedInfo prepareSigningSignature) {
+  private static byte[] getExternalSignature(X509Certificate signerCert, DataToSign dataToSign) {
     SignatureToken externalSigner = new ExternalSigner(signerCert) {
       @Override
       public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
@@ -77,7 +87,7 @@ public class AsyncSigning {
 
     };
 
-    return externalSigner.sign(prepareSigningSignature.getDigestAlgorithm(), prepareSigningSignature.getDigest());
+    return externalSigner.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDigestToSign());
   }
 
   private static X509Certificate getSignerCert() {
@@ -92,7 +102,7 @@ public class AsyncSigning {
     }
   }
 
-  private static void serialize(ContainerFacade container) throws IOException {
+  private static void serialize(Container container) throws IOException {
 
     FileOutputStream fileOut = new FileOutputStream("container.bin");
     ObjectOutputStream out = new ObjectOutputStream(fileOut);
@@ -102,11 +112,11 @@ public class AsyncSigning {
     fileOut.close();
   }
 
-  private static ContainerFacade deserializer() throws IOException, ClassNotFoundException {
+  private static Container deserializer() throws IOException, ClassNotFoundException {
     FileInputStream fileIn = new FileInputStream("container.bin");
     ObjectInputStream in = new ObjectInputStream(fileIn);
 
-    ContainerFacade container = (ContainerFacade) in.readObject();
+    Container container = (Container) in.readObject();
 
     in.close();
     fileIn.close();

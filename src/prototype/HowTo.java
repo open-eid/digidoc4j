@@ -38,18 +38,23 @@ public class HowTo {
 //    configuration.setValidationPolicy("conf/test_constraint.xml");
 
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    ContainerFacade container = ContainerFacade.create(configuration);
-    SignatureParameters signatureParameters = new SignatureParameters();
-    SignatureProductionPlace productionPlace = new SignatureProductionPlace();
-    productionPlace.setCity("Nõmme");
-    signatureParameters.setProductionPlace(productionPlace);
-    signatureParameters.setRoles(asList("manakeri"));
-    container.setSignatureParameters(signatureParameters);
-    container.setSignatureProfile(SignatureProfile.LT_TM);
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray()));
+    Container container = ContainerBuilder.
+        aContainer().
+        withConfiguration(configuration).
+        withDataFile("testFiles/test.txt", "text/plain").
+        build();
+
+    Signature signature = SignatureBuilder.
+        aSignature().
+        withCity("Nömme").
+        withRoles("manakeri").
+        withSignatureProfile(SignatureProfile.LT_TM).
+        withSignatureToken(new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray())).
+        invokeSigning();
+    container.addSignature(signature);
+
 //    ContainerFacade container = ContainerFacade.open("util/faulty/bdoc21-bad-nonce-content.bdoc");
-    container.save("prototype.bdoc");
+    container.saveAsFile("prototype.bdoc");
     ValidationResult result = container.validate();
     System.out.println(result.getReport());
 //    ContainerFacade container = ContainerFacade.open("BDOC_2.1_TS.bdoc", configuration);

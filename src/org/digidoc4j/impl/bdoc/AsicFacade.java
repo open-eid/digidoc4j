@@ -30,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -47,7 +48,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.ContainerFacade;
+import org.digidoc4j.Container;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.EncryptionAlgorithm;
@@ -103,7 +104,7 @@ import eu.europa.ec.markt.dss.validation102853.xades.XPathQueryHolder;
 /**
  * BDOC container implementation
  */
-public class AsicFacade extends ContainerFacade {
+public class AsicFacade implements Serializable {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicFacade.class);
 
@@ -136,7 +137,6 @@ public class AsicFacade extends ContainerFacade {
     logger.debug("New BDoc container created");
   }
 
-  @Override
   public SignedInfo prepareSigning(X509Certificate signerCert) {
     logger.debug("");
     String signatureId = signatureParameters.getSignatureId();
@@ -146,7 +146,6 @@ public class AsicFacade extends ContainerFacade {
     return signedInfo;
   }
 
-  @Override
   public String getSignatureProfile() {
     logger.debug("");
     return dssSignatureParameters.getSignatureLevel().name();
@@ -167,7 +166,6 @@ public class AsicFacade extends ContainerFacade {
   }
 
 
-  @Override
   public void setSignatureParameters(SignatureParameters signatureParameters) {
     logger.debug("");
     this.signatureParameters = signatureParameters.copy();
@@ -177,6 +175,7 @@ public class AsicFacade extends ContainerFacade {
 
     setEncryptionAlgorithm();
     addSignerInformation();
+    addSignatureProfile(signatureParameters);
   }
 
   private void setEncryptionAlgorithm() {
@@ -194,7 +193,6 @@ public class AsicFacade extends ContainerFacade {
     dssSignatureParameters.setDigestAlgorithm(forName(signatureParameters.getDigestAlgorithm().name(), SHA256));
   }
 
-  @Override
   public DigestAlgorithm getDigestAlgorithm() {
     DigestAlgorithm digestAlgorithm = signatureParameters.getDigestAlgorithm();
     logger.debug("");
@@ -468,7 +466,6 @@ public class AsicFacade extends ContainerFacade {
     configuration.loadConfiguration(fileName);
   }
 
-  @Override
   public DataFile addDataFile(String path, String mimeType) {
     logger.debug("Path: " + path + ", mime type: " + mimeType);
 
@@ -516,7 +513,6 @@ public class AsicFacade extends ContainerFacade {
     }
   }
 
-  @Override
   public DataFile addDataFile(InputStream is, String fileName, String mimeType) {
     logger.debug("File name: " + fileName + ", mime type: " + mimeType);
 
@@ -539,7 +535,6 @@ public class AsicFacade extends ContainerFacade {
     }
   }
 
-  @Override
   public void addRawSignature(byte[] signature) {
     logger.debug("");
     validationReport = null;
@@ -553,30 +548,27 @@ public class AsicFacade extends ContainerFacade {
     return new ByteArrayInputStream(signature);
   }
 
-  @Override //TODO NotYetImplementedException
+  //TODO NotYetImplementedException
   public void addRawSignature(InputStream signatureStream) {
     logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
-  @Override
   public List<DataFile> getDataFiles() {
     logger.debug("");
     return new ArrayList<>(dataFiles.values());
   }
 
-  @Override
+  @Deprecated
   public DataFile getDataFile(int index) {
     logger.debug("get data file with index: " + index);
     return getDataFiles().get(index);
   }
 
-  @Override
   public int countDataFiles() {
     return (dataFiles == null) ? 0 : dataFiles.size();
   }
 
-  @Override
   public void removeDataFile(String fileName) {
     logger.debug("File name: " + fileName);
 
@@ -593,7 +585,6 @@ public class AsicFacade extends ContainerFacade {
     }
   }
 
-  @Override
   @Deprecated
   public void removeSignature(int index) {
     logger.debug("Index: " + index);
@@ -645,7 +636,6 @@ public class AsicFacade extends ContainerFacade {
     return signature.getName().substring(signature.getName().lastIndexOf('/') + 1);
   }
 
-  @Override
   public void save(String path) {
     logger.debug("Path: " + path);
     documentMustBeInitializedCheck();
@@ -657,7 +647,6 @@ public class AsicFacade extends ContainerFacade {
     }
   }
 
-  @Override
   public void save(OutputStream out) {
     logger.debug("");
     try {
@@ -681,7 +670,6 @@ public class AsicFacade extends ContainerFacade {
     }
   }
 
-  @Override
   public Signature sign(SignatureToken signatureToken) {
     logger.debug("");
     byte[] dataToSign;
@@ -710,7 +698,6 @@ public class AsicFacade extends ContainerFacade {
     return asicService.getDataToSign(attachment, dssSignatureParameters);
   }
 
-  @Override
   public Signature signRaw(byte[] rawSignature) {
     logger.debug("");
 
@@ -900,7 +887,6 @@ public class AsicFacade extends ContainerFacade {
     return getClass().getClassLoader().getResourceAsStream(policyFile);
   }
 
-  @Override
   public List<Signature> getSignatures() {
     logger.debug("");
     return new ArrayList<>(signatures);
@@ -909,7 +895,6 @@ public class AsicFacade extends ContainerFacade {
   /**
    * @deprecated will be removed in the future.
    */
-  @Override
   @Deprecated
   public Signature getSignature(int index) {
     logger.debug("Get signature for index " + index);
@@ -920,18 +905,15 @@ public class AsicFacade extends ContainerFacade {
     signatures.add(signature);
   }
 
-  @Override
   public int countSignatures() {
     return (signatures == null) ? 0 : signatures.size();
   }
 
-  @Override
-  public DocumentType getDocumentType() {
+  public Container.DocumentType getDocumentType() {
     logger.debug("");
-    return DocumentType.BDOC;
+    return Container.DocumentType.BDOC;
   }
 
-  @Override
   public ValidationResult validate() {
     logger.debug("");
     return verify();
@@ -969,12 +951,10 @@ public class AsicFacade extends ContainerFacade {
     }
   }
 
-  @Override
   public String getVersion() {
     return null;
   }
 
-  @Override
   public void extendTo(SignatureProfile profile) {
     logger.debug("");
     validationReport = null;
@@ -1001,7 +981,6 @@ public class AsicFacade extends ContainerFacade {
     }
   }
 
-  @Override
   public void setSignatureProfile(SignatureProfile profile) {
     logger.debug("");
     isTimeMark = false;
@@ -1027,5 +1006,11 @@ public class AsicFacade extends ContainerFacade {
   public void addDataFile(DataFile dataFile) {
     checkForDuplicateDataFile(dataFile.getName());
     dataFiles.put(dataFile.getName(), dataFile);
+  }
+
+  private void addSignatureProfile(SignatureParameters signatureParameters) {
+    if(signatureParameters.getSignatureProfile() != null) {
+      setSignatureProfile(signatureParameters.getSignatureProfile());
+    }
   }
 }

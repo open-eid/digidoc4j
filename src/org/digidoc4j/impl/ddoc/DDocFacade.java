@@ -28,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,7 @@ import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
  * remove all the signatures.
  * </p>
  */
-public class DDocFacade extends ContainerFacade {
+public class DDocFacade implements Serializable {
   Logger logger = LoggerFactory.getLogger(DDocFacade.class);
 
   SignedDoc ddoc;
@@ -63,7 +64,6 @@ public class DDocFacade extends ContainerFacade {
     createDDOCContainer();
   }
 
-  @Override
   public SignedInfo prepareSigning(X509Certificate signerCert) {
     logger.debug("");
 
@@ -88,14 +88,12 @@ public class DDocFacade extends ContainerFacade {
     }
   }
 
-  @Override
   public String getSignatureProfile() {
     String name = signatureProfile.name();
     logger.debug("Signature profile: " + name);
     return name;
   }
 
-  @Override
   public void setSignatureParameters(SignatureParameters signatureParameters) {
     logger.debug("");
     DigestAlgorithm algorithm = signatureParameters.getDigestAlgorithm();
@@ -107,11 +105,17 @@ public class DDocFacade extends ContainerFacade {
       logger.error(exception.toString());
       throw exception;
     }
+    addSignatureProfile(signatureParameters);
     this.signatureParameters = signatureParameters.copy();
     this.signatureParameters.setContainer(signatureParameters.getContainer());
   }
 
-  @Override
+  private void addSignatureProfile(SignatureParameters signatureParameters) {
+    if(signatureParameters.getSignatureProfile() != null) {
+      setSignatureProfile(signatureParameters.getSignatureProfile());
+    }
+  }
+
   public DigestAlgorithm getDigestAlgorithm() {
     DigestAlgorithm digestAlgorithm = signatureParameters.getDigestAlgorithm();
     logger.debug("Digest algorithm: " + digestAlgorithm);
@@ -230,7 +234,6 @@ public class DDocFacade extends ContainerFacade {
     this.ddoc = ddoc;
   }
 
-  @Override
   public DataFile addDataFile(String path, String mimeType) {
     logger.debug("Path: " + path + ", mime type " + mimeType);
     try {
@@ -242,7 +245,6 @@ public class DDocFacade extends ContainerFacade {
     }
   }
 
-  @Override
   public DataFile addDataFile(InputStream is, String fileName, String mimeType) {
     logger.debug("File name: " + fileName + ", mime type: " + mimeType);
     try {
@@ -258,7 +260,6 @@ public class DDocFacade extends ContainerFacade {
     }
   }
 
-  @Override
   public void addRawSignature(byte[] signatureBytes) {
     logger.debug("");
     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(signatureBytes);
@@ -266,7 +267,6 @@ public class DDocFacade extends ContainerFacade {
     IOUtils.closeQuietly(byteArrayInputStream);
   }
 
-  @Override
   public void addRawSignature(InputStream signatureStream) {
     logger.debug("");
     try {
@@ -277,7 +277,6 @@ public class DDocFacade extends ContainerFacade {
     }
   }
 
-  @Override
   public List<DataFile> getDataFiles() {
     logger.debug("");
     List<DataFile> dataFiles = new ArrayList<>();
@@ -306,13 +305,12 @@ public class DDocFacade extends ContainerFacade {
   /**
    * @deprecated will be removed in the future.
    */
-  @Override
+  @Deprecated
   public DataFile getDataFile(int index) {
     logger.debug("Get data file for index " + index);
     return getDataFiles().get(index);
   }
 
-  @Override
   public int countDataFiles() {
     logger.debug("Get the number of data files");
     List<DataFile> dataFiles  = getDataFiles();
@@ -320,7 +318,6 @@ public class DDocFacade extends ContainerFacade {
     return (dataFiles == null) ? 0 : dataFiles.size();
   }
 
-  @Override
   public void removeDataFile(String fileName) {
     logger.debug("File name: " + fileName);
     removeDataFile(new File(fileName));
@@ -351,7 +348,6 @@ public class DDocFacade extends ContainerFacade {
   /**
    * @deprecated will be removed in the future.
    */
-  @Override
   public void removeSignature(int index) {
     logger.debug("Index: " + index);
     try {
@@ -362,7 +358,6 @@ public class DDocFacade extends ContainerFacade {
     }
   }
 
-  @Override
   public void save(String path) {
     logger.debug("Path: " + path);
     try {
@@ -373,7 +368,6 @@ public class DDocFacade extends ContainerFacade {
     }
   }
 
-  @Override
   public void save(OutputStream out) {
     logger.debug("Saves to " + out.getClass());
     try {
@@ -384,7 +378,6 @@ public class DDocFacade extends ContainerFacade {
     }
   }
 
-  @Override
   public Signature sign(SignatureToken signer) {
     logger.debug("");
     calculateSignature(signer);
@@ -401,7 +394,6 @@ public class DDocFacade extends ContainerFacade {
     return new DDocSignature(ddocSignature);
   }
 
-  @Override
   public Signature signRaw(byte[] rawSignature) {
     logger.debug("");
     try {
@@ -419,7 +411,6 @@ public class DDocFacade extends ContainerFacade {
     return ddoc.getSignatures().size() - 1;
   }
 
-  @Override
   public List<Signature> getSignatures() {
     logger.debug("");
     List<Signature> signatures = new ArrayList<>();
@@ -445,13 +436,11 @@ public class DDocFacade extends ContainerFacade {
   /**
    * @deprecated will be removed in the future.
    */
-  @Override
   public Signature getSignature(int index) {
     logger.debug("Get signature for index " + index);
     return getSignatures().get(index);
   }
 
-  @Override
   public int countSignatures() {
     logger.debug("Get the number of signatures");
     List<Signature> signatures = getSignatures();
@@ -473,14 +462,12 @@ public class DDocFacade extends ContainerFacade {
     return finalSignature;
   }
 
-  @Override
-  public DocumentType getDocumentType() {
+  public Container.DocumentType getDocumentType() {
     logger.debug("");
-    return DocumentType.DDOC;
+    return Container.DocumentType.DDOC;
   }
 
   @SuppressWarnings("unchecked")
-  @Override
   public ValidationResult validate() {
     logger.debug("");
 
@@ -509,14 +496,12 @@ public class DDocFacade extends ContainerFacade {
     }
   }
 
-  @Override
   public String getVersion() {
     String version = ddoc.getVersion();
     logger.debug("Version: " + version);
     return version;
   }
 
-  @Override
   public void extendTo(SignatureProfile profile) {
     logger.debug("Extend to " + profile.toString());
     if (profile != SignatureProfile.LT_TM) {
@@ -527,9 +512,8 @@ public class DDocFacade extends ContainerFacade {
     addConfirmation();
   }
 
-  @Override
   public void setSignatureProfile(SignatureProfile profile) {
-    logger.debug("");
+    logger.debug("Adding signature profile " + profile);
     if (profile != SignatureProfile.LT_TM && profile != SignatureProfile.B_BES) {
       String errorMessage = profile + " profile is not supported for DDOC";
       logger.error(errorMessage);

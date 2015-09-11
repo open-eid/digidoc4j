@@ -30,6 +30,7 @@ public class SignatureBuilderTest {
 
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
+  private final PKCS12SignatureToken testSignatureToken = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
 
   @Test
   public void buildingDataToSign_shouldContainSignatureParameters() throws Exception {
@@ -82,7 +83,6 @@ public class SignatureBuilderTest {
   @Test
   public void signContainerWithSignatureToken() throws Exception {
     Container container = TestDataBuilder.createContainerWithFile(testFolder);
-    PKCS12SignatureToken signatureToken = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
 
     Signature signature = SignatureBuilder.
         aSignature().
@@ -93,7 +93,7 @@ public class SignatureBuilderTest {
         withRoles("Manager", "Suspicious Fisherman").
         withDigestAlgorithm(DigestAlgorithm.SHA256).
         withSignatureProfile(SignatureProfile.LT_TM).
-        withSignatureToken(signatureToken).
+        withSignatureToken(testSignatureToken).
         withContainer(container).
         invokeSigning();
 
@@ -103,14 +103,13 @@ public class SignatureBuilderTest {
 
   @Test
   public void signDDocContainerWithSignatureToken() throws Exception {
-    PKCS12SignatureToken signatureToken = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
     Container container = TestDataBuilder.createContainerWithFile(testFolder, "DDOC");
     assertEquals("DDOC", container.getType());
 
     Signature signature = SignatureBuilder.
         aSignature().
         withDigestAlgorithm(DigestAlgorithm.SHA1).
-        withSignatureToken(signatureToken).
+        withSignatureToken(testSignatureToken).
         withContainer(container).
         invokeSigning();
 
@@ -153,10 +152,25 @@ public class SignatureBuilderTest {
     container.saveAsFile(testFolder.newFile("test-container.bdoc").getPath());
   }
 
+  @Test
+  public void signatureProfileShouldBeSetProperlyForBDoc() throws Exception {
+    Container container = TestDataBuilder.createContainerWithFile(testFolder);
+
+    Signature signature = SignatureBuilder.
+        aSignature().
+        withSignatureToken(testSignatureToken).
+        withSignatureProfile(SignatureProfile.B_BES).
+        withContainer(container).
+        invokeSigning();
+    container.addSignature(signature);
+
+    assertEquals(SignatureProfile.B_BES, signature.getProfile());
+  }
+
   private void assertSignatureIsValid(Signature signature) {
     assertNotNull(signature.getProducedAt());
-    //TODO check why it doesn't match
-    //assertEquals(SignatureProfile.LT_TM, signature.getProfile());
+    //TODO check why it doesn't match, should be LT_TM
+    assertEquals(SignatureProfile.LT, signature.getProfile());
     assertNotNull(signature.getSigningTime());
     assertNotNull(signature.getRawSignature());
     assertTrue(signature.getRawSignature().length > 1);

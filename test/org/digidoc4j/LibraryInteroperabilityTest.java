@@ -51,13 +51,27 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
     }
 
     private void createSignedContainerWithDigiDoc4j(String containerFilePath) {
-        ContainerFacade container = ContainerFacade.create();
-        container.addDataFile("testFiles/test.txt", "text/plain");
-        container.setSignatureProfile(SignatureProfile.LT_TM);
-        container.sign(PKCS12_SIGNER);
-        container.sign(PKCS12_SIGNER);
+        Configuration configuration = new Configuration(Configuration.Mode.TEST);
+        Container container = ContainerBuilder.
+            aContainer().
+            withConfiguration(configuration).
+            withType("BDOC").
+            withDataFile("testFiles/test.txt", "text/plain").
+            build();
+        signContainer(container, PKCS12_SIGNER);
+        signContainer(container, PKCS12_SIGNER);
         logger.debug("Saving test file temporarily to " + containerFilePath);
-        container.save(containerFilePath);
+        container.saveAsFile(containerFilePath);
+    }
+
+    private void signContainer(Container container, PKCS12SignatureToken signatureToken) {
+        Signature signature = SignatureBuilder.
+            aSignature().
+            withContainer(container).
+            withSignatureProfile(SignatureProfile.LT_TM).
+            withSignatureToken(signatureToken).
+            invokeSigning();
+        container.addSignature(signature);
     }
 
     private void validateContainerWithJDigiDoc(String containerFilePath) throws DigiDocException {

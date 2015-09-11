@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.zip.ZipFile;
 
 import static java.util.Arrays.asList;
-import static org.digidoc4j.ContainerFacade.*;
+import static org.digidoc4j.Container.*;
 import static org.digidoc4j.SignatureProfile.*;
 import static org.digidoc4j.DigestAlgorithm.SHA1;
 import static org.digidoc4j.DigestAlgorithm.SHA256;
@@ -148,7 +148,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     container.addRawSignature(new ByteArrayInputStream(Signatures.XADES_SIGNATURE.getBytes()));
     container.save("test_add_raw_signature.bdoc");
 
-    ContainerFacade openedContainer = open("test_add_raw_signature.bdoc");
+    AsicFacade openedContainer = open("test_add_raw_signature.bdoc");
     assertEquals(1, openedContainer.getSignatures().size());
   }
 
@@ -159,7 +159,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     container.sign(PKCS12_SIGNER);
     container.save("test_add_unknown_datafile_type.bdoc");
 
-    ContainerFacade open = ContainerFacade.open("test_add_unknown_datafile_type.bdoc");
+    Container open = ContainerOpener.open("test_add_unknown_datafile_type.bdoc");
     assertEquals(open.getDataFile(0).getMediaType(), "text/test_type");
   }
 
@@ -177,7 +177,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         container.getSignatures().get(1).getSigningCertificate().getSerial());
 
-    ContainerFacade openedContainer = open("testTwoSignatures.bdoc");
+    AsicFacade openedContainer = open("testTwoSignatures.bdoc");
 
     assertEquals(2, openedContainer.getSignatures().size());
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
@@ -188,7 +188,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetDefaultSignatureParameters() {
-    ContainerFacade container = new AsicFacade();
+    AsicFacade container = new AsicFacade();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.save("test.bdoc");
@@ -222,7 +222,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testAddSignaturesToExistingDocument() throws Exception {
-    ContainerFacade container = open("testFiles/asics_testing_two_signatures.bdoc");
+    AsicFacade container = open("testFiles/asics_testing_two_signatures.bdoc");
     container.sign(PKCS12_SIGNER);
     container.save("testAddMultipleSignatures.bdoc");
 
@@ -230,7 +230,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         container.getSignatures().get(2).getSigningCertificate().getSerial());
 
-    ContainerFacade openedContainer = open("testAddMultipleSignatures.bdoc");
+    AsicFacade openedContainer = open("testAddMultipleSignatures.bdoc");
 
     assertEquals(3, openedContainer.getSignatures().size());
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
@@ -266,7 +266,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
     @Test
   public void testRemoveSignatureWhenTwoSignaturesExist() throws Exception {
-    ContainerFacade container = open("testFiles/asics_testing_two_signatures.bdoc");
+    AsicFacade container = (AsicFacade)open("testFiles/asics_testing_two_signatures.bdoc");
     container.removeSignature(0);
     container.save("testRemoveSignature.bdoc");
 
@@ -276,7 +276,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testRemoveSignatureWhenThreeSignaturesExist() throws Exception {
-    ContainerFacade container = open("testFiles/asics_testing_two_signatures.bdoc");
+    AsicFacade container = open("testFiles/asics_testing_two_signatures.bdoc");
 
     container.sign(PKCS12_SIGNER);
     container.save("testThreeSignatures.bdoc");
@@ -313,7 +313,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   @Test(expected = DigiDoc4JException.class)
   public void testRemoveDataFileAfterSigning() throws Exception {
     createSignedBDocDocument("testRemoveDataFile.bdoc");
-    ContainerFacade container = new AsicFacade("testRemoveDataFile.bdoc");
+    AsicFacade container = new AsicFacade("testRemoveDataFile.bdoc");
     assertEquals("test.txt", container.getDataFiles().get(0).getName());
     assertEquals(1, container.getDataFiles().size());
     container.removeDataFile("test.txt");
@@ -322,7 +322,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testRemoveDataFile() throws Exception {
-    ContainerFacade container = new AsicFacade();
+    AsicFacade container = new AsicFacade();
     container.addDataFile("testFiles/test.txt", "text/plain");
     assertEquals("test.txt", container.getDataFiles().get(0).getName());
     assertEquals(1, container.getDataFiles().size());
@@ -334,7 +334,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   @Test(expected = DigiDoc4JException.class)
   public void testAddDataFileAfterSigning() throws Exception {
     createSignedBDocDocument("testAddDataFile.bdoc");
-    ContainerFacade container = new AsicFacade("testAddDataFile.bdoc");
+    AsicFacade container = new AsicFacade("testAddDataFile.bdoc");
     container.addDataFile("testFiles/test.txt", "text/plain");
   }
 
@@ -405,7 +405,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     container.sign(PKCS12_SIGNER);
     container.save("testAddFileAsStream.bdoc");
 
-    ContainerFacade containerToTest = new AsicFacade("testAddFileAsStream.bdoc");
+    AsicFacade containerToTest = new AsicFacade("testAddFileAsStream.bdoc");
     assertEquals("test1.txt", containerToTest.getDataFiles().get(0).getName());
   }
 
@@ -560,7 +560,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void testGetDocumentType() throws Exception {
     createSignedBDocDocument("testGetDocumentType.bdoc");
     AsicFacade container = new AsicFacade("testGetDocumentType.bdoc");
-    assertEquals(DocumentType.BDOC, container.getDocumentType());
+    assertEquals(Container.DocumentType.BDOC, container.getDocumentType());
   }
 
   @Test
@@ -646,7 +646,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     container.save(out);
     assertTrue(Files.exists(expectedContainerAsFile.toPath()));
 
-    ContainerFacade containerToTest = open(expectedContainerAsFile.getName());
+    AsicFacade containerToTest = open(expectedContainerAsFile.getName());
     assertArrayEquals(new byte[]{0x42}, containerToTest.getDataFiles().get(0).getBytes());
   }
 
@@ -888,11 +888,11 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void nonStandardMimeType() {
-    ContainerFacade container = ContainerFacade.create(DocumentType.BDOC);
+    Container container = ContainerBuilder.aContainer().withType("BDOC").build();
     container.addDataFile("testFiles/test.txt", "text/newtype");
     container.sign(PKCS12_SIGNER);
     container.save("testNonStandardMimeType.bdoc");
-    container = ContainerFacade.open("testNonStandardMimeType.bdoc");
+    container = ContainerOpener.open("testNonStandardMimeType.bdoc");
     ValidationResult result = container.validate();
     assertEquals(0, result.getErrors().size());
     assertEquals("text/newtype", container.getDataFile(0).getMediaType());
@@ -930,7 +930,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void twoStepSigning() throws IOException {
-    ContainerFacade container = create();
+    Container container = ContainerBuilder.aContainer().withType("BDOC").build();
     container.addDataFile("testFiles/test.txt", "text/plain");
     X509Certificate signerCert = getSignerCert();
     SignedInfo signedInfo = container.prepareSigning(signerCert);
@@ -938,7 +938,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     container.signRaw(signature);
     container.save("test.bdoc");
 
-    container = open("test.bdoc");
+    container = ContainerOpener.open("test.bdoc");
 
     assertEquals(SHA256, container.getDigestAlgorithm());
     ValidationResult validate = container.validate();
@@ -976,7 +976,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     signatureParameters.setProductionPlace(new SignatureProductionPlace("city", "state", "postalCode", "country"));
     signatureParameters.setSignatureId("S99");
 
-    ContainerFacade container = create();
+    Container container = ContainerBuilder.aContainer().withType("BDOC").build();
     container.setSignatureParameters(signatureParameters);
     container.addDataFile("testFiles/test.txt", "text/plain");
     X509Certificate signerCert = getSignerCert();
@@ -986,7 +986,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     container.signRaw(signature);
     container.save("test.bdoc");
 
-    container = open("test.bdoc");
+    container = ContainerOpener.open("test.bdoc");
     assertEquals(1, container.getSignatures().size());
     Signature resultSignature = container.getSignature(0);
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha512", resultSignature.getSignatureMethod());
@@ -997,7 +997,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void twoStepSigningWithSerialization() throws IOException, ClassNotFoundException {
-    ContainerFacade container = create();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     X509Certificate signerCert = getSignerCert();
     SignedInfo signedInfo = container.prepareSigning(signerCert);
@@ -1009,7 +1009,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     container.signRaw(signature);
     container.save("test.bdoc");
 
-    container = open("test.bdoc");
+    container = ContainerOpener.open("test.bdoc");
 
     ValidationResult validate = container.validate();
     assertTrue(validate.isValid());
@@ -1036,7 +1036,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     container.extendTo(LTA);
   }
 
-  private ContainerFacade createSignedBDocDocument(String fileName) {
+  private AsicFacade createSignedBDocDocument(String fileName) {
     AsicFacade container = new AsicFacade();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
@@ -1082,7 +1082,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     }
   }*/
 
-  static byte[] getExternalSignature(ContainerFacade container, final X509Certificate signerCert,
+  static byte[] getExternalSignature(Container container, final X509Certificate signerCert,
                                      SignedInfo prepareSigningSignature, final DigestAlgorithm digestAlgorithm) {
     return getExternalSignature(signerCert, prepareSigningSignature, digestAlgorithm, "testFiles/signout.p12");
   }
@@ -1142,13 +1142,13 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void verifySerialization() throws Exception {
-    ContainerFacade container = create();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
 
     serialize(container, "container.bin");
 
-    ContainerFacade deserializedContainer = deserializer("container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     assertTrue(deserializedContainer.validate().isValid());
   }
@@ -1161,14 +1161,14 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     signatureParameters.setProductionPlace(new SignatureProductionPlace("city", "state", "postalCode", "country"));
     signatureParameters.setSignatureId("S99");
 
-    ContainerFacade container = create();
+    Container container = create();
     container.setSignatureParameters(signatureParameters);
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
 
     serialize(container, "container.bin");
 
-    ContainerFacade deserializedContainer = deserializer("container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     Signature signature = deserializedContainer.getSignature(0);
     assertEquals("postalCode", signature.getPostalCode());
@@ -1182,11 +1182,11 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void serializationVerifyDefaultSignatureParameters() throws Exception {
-    ContainerFacade container = create();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     serialize(container, "container.bin");
-    ContainerFacade deserializedContainer = deserializer("container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     Signature signature = deserializedContainer.getSignature(0);
 
@@ -1198,33 +1198,33 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void serializationGetDigestAlgorithm() throws Exception {
-    ContainerFacade container = create();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     serialize(container, "container.bin");
-    ContainerFacade deserializedContainer = deserializer("container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     assertEquals(SHA256, deserializedContainer.getDigestAlgorithm());
   }
 
   @Test
   public void serializationGetDocumentType() throws Exception {
-    ContainerFacade container = create();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     serialize(container, "container.bin");
-    ContainerFacade deserializedContainer = deserializer("container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     assertEquals(container.getDocumentType(), deserializedContainer.getDocumentType());
   }
 
   @Test
   public void serializationGetOCSPCertificate() throws Exception {
-    ContainerFacade container = create();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     serialize(container, "container.bin");
-    ContainerFacade deserializedContainer = deserializer("container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     byte[] ocspCertBeforeSerialization = container.getSignature(0).getOCSPCertificate().
         getX509Certificate().getEncoded();
@@ -1236,11 +1236,11 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void serializationGetSigningTime() throws Exception {
-    ContainerFacade container = create();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     serialize(container, "container.bin");
-    ContainerFacade deserializedContainer = deserializer("container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     Date signingTimeBeforeSerialization = container.getSignature(0).getSigningTime();
     Date signingTimeAfterSerialization = deserializedContainer.getSignature(0).getSigningTime();
@@ -1250,11 +1250,11 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test(expected = NotYetImplementedException.class)
   public void serializationGetPolicy() throws Exception {
-    ContainerFacade container = create();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     serialize(container, "container.bin");
-    ContainerFacade deserializedContainer = deserializer("container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     String signaturePolicyBeforeSerialization = container.getSignature(0).getPolicy();
     String signaturePolicyAfterSerialization = deserializedContainer.getSignature(0).getPolicy();
@@ -1264,11 +1264,11 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test(expected = NotYetImplementedException.class)
   public void serializationGetSignaturePolicyURI() throws Exception {
-    ContainerFacade container = create();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     serialize(container, "container.bin");
-    ContainerFacade deserializedContainer = deserializer("container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     URI signaturePolicyURIBeforeSerialization = container.getSignature(0).getSignaturePolicyURI();
     URI signaturePolicyURIAfterSerialization = deserializedContainer.getSignature(0).getSignaturePolicyURI();
@@ -1278,11 +1278,11 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void serializationGetSigningCertificate() throws Exception {
-    ContainerFacade container = create();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     serialize(container, "container.bin");
-    ContainerFacade deserializedContainer = deserializer("container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     byte[] signingCertBeforeSerialization = container.getSignature(0).getSigningCertificate().
         getX509Certificate().getEncoded();
@@ -1294,11 +1294,11 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void serializationGetRawSignature() throws Exception {
-    ContainerFacade container = create();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     serialize(container, "container.bin");
-    ContainerFacade deserializedContainer = deserializer("container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     byte[] rawSignatureBeforeSerialization = container.getSignature(0).getRawSignature();
     byte[] rawSignatureAfterSerialization = deserializedContainer.getSignature(0).getRawSignature();
@@ -1308,11 +1308,11 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void serializationGetTimeStampTokenCertificate() throws Exception {
-    ContainerFacade container = create();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     serialize(container, "container.bin");
-    ContainerFacade deserializedContainer = deserializer("container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     byte[] timeStampTokenCertificateBeforeSerialization = container.getSignature(0).
         getTimeStampTokenCertificate().getX509Certificate().getEncoded();
@@ -1324,11 +1324,11 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void serializationGetProfile() throws Exception {
-    ContainerFacade container = create();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     serialize(container, "container.bin");
-    ContainerFacade deserializedContainer = deserializer("container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     SignatureProfile signatureProfileBeforeSerialization = container.getSignature(0).getProfile();
     SignatureProfile signatureProfileAfterSerialization = deserializedContainer.getSignature(0).getProfile();
@@ -1338,11 +1338,11 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void serializationGetDataFiles() throws Exception {
-    ContainerFacade container = create();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     serialize(container, "container.bin");
-    ContainerFacade deserializedContainer = deserializer("container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     int nrOfDataFilesBeforeSerialization = container.getDataFiles().size();
     int nrOfDataFilesAfterSerialization = deserializedContainer.getDataFiles().size();
@@ -1352,11 +1352,11 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void serializationDataFileCheck() throws Exception {
-    ContainerFacade container = create();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     serialize(container, "container.bin");
-    ContainerFacade deserializedContainer = deserializer("container.bin");
+    Container deserializedContainer = deserializer("container.bin");
 
     DataFile dataFileBeforeSerialization = container.getDataFile(0);
     DataFile dataFileAfterSerialization = deserializedContainer.getDataFile(0);
@@ -1396,7 +1396,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   }
 
   private void testSigningWithOCSPCheck(String unknownCert) {
-    ContainerFacade container = create();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     X509Certificate signerCert = getSignerCert(unknownCert);
     SignedInfo signedInfo = container.prepareSigning(signerCert);
@@ -1408,7 +1408,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   @Test
   //@Ignore("Ignored because reference validation is turned off. Turn ON again when fixed")
   public void signatureFileContainsIncorrectFileName() {
-    ContainerFacade container = ContainerFacade.open("testFiles/filename_mismatch_signature.asice");
+    Container container = ContainerOpener.open("testFiles/filename_mismatch_signature.asice");
     ValidationResult validate = container.validate();
     assertEquals(1, validate.getErrors().size());
     assertEquals("The reference data object(s) not found!", validate.getErrors().get(0).toString());
@@ -1417,7 +1417,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void secondSignatureFileContainsIncorrectFileName() {
-    ContainerFacade container = ContainerFacade.open("testFiles/filename_mismatch_second_signature.asice");
+    Container container = ContainerOpener.open("testFiles/filename_mismatch_second_signature.asice");
     ValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
     assertEquals(3, errors.size());
@@ -1433,7 +1433,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void manifestFileContainsIncorrectFileName() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");
-    ContainerFacade container = ContainerFacade.open("testFiles/filename_mismatch_manifest.asice", configuration);
+    Container container = ContainerOpener.open("testFiles/filename_mismatch_manifest.asice", configuration);
     ValidationResult validate = container.validate();
     assertEquals(2, validate.getErrors().size());
     assertEquals("Manifest file has an entry for file incorrect.txt with mimetype text/plain but the signature file " +
@@ -1448,7 +1448,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void revocationAndTimeStampDifferenceTooLarge() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");
-    ContainerFacade container = ContainerFacade.open("testFiles/revocation_timestamp_delta_26h.asice", configuration);
+    Container container = ContainerOpener.open("testFiles/revocation_timestamp_delta_26h.asice", configuration);
     ValidationResult validate = container.validate();
     assertEquals(1, validate.getErrors().size());
     assertEquals("The difference between the revocation time and the signature time stamp is too large",
@@ -1459,7 +1459,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void revocationAndTimeStampDifferenceNotTooLarge() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint_SigningTimeCreationTimeDeltaIs27H.xml");
-    ContainerFacade container = ContainerFacade.open("testFiles/revocation_timestamp_delta_26h.asice", configuration);
+    Container container = ContainerOpener.open("testFiles/revocation_timestamp_delta_26h.asice", configuration);
     ValidationResult validate = container.validate();
     assertEquals(0, validate.getErrors().size());
   }
@@ -1469,7 +1469,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void signatureFileAndManifestFileContainDifferentMimeTypeForFile() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");
-    ContainerFacade container = ContainerFacade.open("testFiles/mimetype_mismatch.asice", configuration);
+    Container container = ContainerOpener.open("testFiles/mimetype_mismatch.asice", configuration);
     ValidationResult validate = container.validate();
     assertEquals(1, validate.getErrors().size());
     assertEquals("Manifest file has an entry for file RELEASE-NOTES.txt with mimetype application/pdf but the " +
@@ -1479,7 +1479,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void dssReturnsEmptySignatureList() {
-    ContainerFacade container = ContainerFacade.open("testFiles/filename_mismatch_signature.asice");
+    Container container = ContainerOpener.open("testFiles/filename_mismatch_signature.asice");
     ValidationResult validate = container.validate();
 
     // File name in signature does not match with manifest file info
@@ -1492,25 +1492,25 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test(expected = DigiDoc4JException.class)
   public void duplicateFileThrowsException() {
-    ContainerFacade container = ContainerFacade.open("testFiles/22902_data_files_with_same_names.bdoc");
+    Container container = ContainerOpener.open("testFiles/22902_data_files_with_same_names.bdoc");
     container.validate();
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void duplicateSignatureFileThrowsException() {
-    ContainerFacade container = ContainerFacade.open("testFiles/22913_signatures_xml_double.bdoc");
+    Container container = ContainerOpener.open("testFiles/22913_signatures_xml_double.bdoc");
     container.validate();
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void missingManifestFile() {
-    ContainerFacade container = ContainerFacade.open("testFiles/missing_manifest.asice");
+    Container container = ContainerOpener.open("testFiles/missing_manifest.asice");
     container.validate();
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void missingMimeTypeFile() {
-    ContainerFacade.open("testFiles/missing_mimetype_file.asice");
+    ContainerOpener.open("testFiles/missing_mimetype_file.asice");
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -1518,7 +1518,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void containerHasFileWhichIsNotInManifestAndNotInSignatureFile() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");
-    ContainerFacade container = ContainerFacade.open("testFiles/extra_file_in_container.asice", configuration);
+    Container container = ContainerOpener.open("testFiles/extra_file_in_container.asice", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -1530,7 +1530,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   @Test
   //@Ignore("Ignored because reference validation is turned off. Turn ON again when fixed")
   public void containerMissesFileWhichIsInManifestAndSignatureFile() {
-    ContainerFacade container = ContainerFacade.open("testFiles/zip_misses_file_which_is_in_manifest.asice");
+    Container container = ContainerOpener.open("testFiles/zip_misses_file_which_is_in_manifest.asice");
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -1540,7 +1540,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void containerMissingOCSPData() {
-    ContainerFacade container = ContainerFacade.open("testFiles/TS-06_23634_TS_missing_OCSP_adjusted.asice");
+    Container container = ContainerOpener.open("testFiles/TS-06_23634_TS_missing_OCSP_adjusted.asice");
     List<DigiDoc4JException> errors = container.validate().getErrors();
 
     assertEquals("ASiC_E_BASELINE_LT", container.getSignatureProfile());
@@ -1550,7 +1550,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test(expected = DigiDoc4JException.class)
   public void corruptedOCSPDataThrowsException() {
-    ContainerFacade.open("testFiles/corrupted_ocsp_data.asice");
+    ContainerOpener.open("testFiles/corrupted_ocsp_data.asice");
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -1559,7 +1559,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");
 
-    ContainerFacade container = ContainerFacade.open("testFiles/23608_bdoc21-invalid-nonce-policy-oid.bdoc", configuration);
+    Container container = ContainerOpener.open("testFiles/23608_bdoc21-invalid-nonce-policy-oid.bdoc", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -1572,7 +1572,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");
 
-    ContainerFacade container = ContainerFacade.open("testFiles/23608_bdoc21-no-nonce-policy.bdoc", configuration);
+    Container container = ContainerOpener.open("testFiles/23608_bdoc21-no-nonce-policy.bdoc", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -1585,7 +1585,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");
 
-    ContainerFacade container = ContainerFacade.open("testFiles/bdoc21-bad-nonce-content.bdoc", configuration);
+    Container container = ContainerOpener.open("testFiles/bdoc21-bad-nonce-content.bdoc", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -1598,7 +1598,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");
 
-    ContainerFacade container = ContainerFacade.open("testFiles/REF-03_bdoc21-TM-no-signedpropref.bdoc", configuration);
+    Container container = ContainerOpener.open("testFiles/REF-03_bdoc21-TM-no-signedpropref.bdoc", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(2, errors.size());
@@ -1613,7 +1613,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");
 
-    ContainerFacade container = ContainerFacade.open("testFiles/REF-03_bdoc21-TS-no-signedpropref.asice", configuration);
+    Container container = ContainerOpener.open("testFiles/REF-03_bdoc21-TS-no-signedpropref.asice", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(2, errors.size());
@@ -1624,7 +1624,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void multipleSignedProperties() {
-    ContainerFacade container = ContainerFacade.open("testFiles/multiple_signed_properties.asice");
+    Container container = ContainerOpener.open("testFiles/multiple_signed_properties.asice");
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(2, errors.size());
@@ -1638,7 +1638,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");
 
-    ContainerFacade container = ContainerFacade.open("testFiles/signed_properties_reference_not_found.asice", configuration);
+    Container container = ContainerOpener.open("testFiles/signed_properties_reference_not_found.asice", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -1651,7 +1651,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");
 
-    ContainerFacade container = ContainerFacade.open("testFiles/nonce-vale-sisu.bdoc", configuration);
+    Container container = ContainerOpener.open("testFiles/nonce-vale-sisu.bdoc", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(3, errors.size());
@@ -1665,7 +1665,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");
 
-    ContainerFacade container = ContainerFacade.open("testFiles/SP-03_bdoc21-bad-nonce-policy-oidasuri.bdoc", configuration);
+    Container container = ContainerOpener.open("testFiles/SP-03_bdoc21-bad-nonce-policy-oidasuri.bdoc", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -1676,7 +1676,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void invalidNonce() {
-    ContainerFacade container = ContainerFacade.open("testFiles/23200_weakdigest-wrong-nonce.asice");
+    Container container = ContainerOpener.open("testFiles/23200_weakdigest-wrong-nonce.asice");
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -1689,7 +1689,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setValidationPolicy("conf/test_constraint.xml");
 
-    ContainerFacade container = ContainerFacade.open("testFiles/SP-06_bdoc21-no-uri.bdoc", configuration);
+    Container container = ContainerOpener.open("testFiles/SP-06_bdoc21-no-uri.bdoc", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -1699,7 +1699,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void brokenTS() {
-    ContainerFacade container = ContainerFacade.open("testFiles/TS_broken_TS.asice");
+    Container container = ContainerOpener.open("testFiles/TS_broken_TS.asice");
     ValidationResult result = container.validate();
 
     List<DigiDoc4JException> errors = result.getErrors();
@@ -1749,7 +1749,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     container.save("testZipFileComment.bdoc");
 
     ZipFile zipFile = new ZipFile("testZipFileComment.bdoc");
-    String expectedComment = Helper.createUserAgent(container);
+    String expectedComment = Helper.createBDocUserAgent();
     assertEquals(expectedComment, zipFile.getComment());
   }
 
@@ -1793,5 +1793,19 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
       }
     }
     assertFalse("Expected '" + errorMsg + "' was not found", true);
+  }
+
+  private AsicFacade open(String path) {
+    BDocContainer container = (BDocContainer)ContainerOpener.open(path);
+    return container.getAsicFacade();
+  }
+
+  private AsicFacade open(InputStream fileInputStream, boolean actAsBigFilesSupportEnabled) {
+    BDocContainer container = (BDocContainer)ContainerOpener.open(fileInputStream, actAsBigFilesSupportEnabled);
+    return container.getAsicFacade();
+  }
+
+  private Container create() {
+    return ContainerBuilder.aContainer().withType("BDOC").build();
   }
 }

@@ -9,6 +9,7 @@ import java.security.cert.X509Certificate;
 import java.util.Collections;
 
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Container;
 import org.digidoc4j.SignedInfo;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.EncryptionAlgorithm;
@@ -30,7 +31,7 @@ public abstract class AbstractSigningTests {
 
     protected Configuration createDigiDoc4JConfiguration() {
         Configuration result = new ConfigurationWithIpBasedAccess();
-        result.setOcspSource("http://www.openxades.org/cgi-bin/ocsp.cgi");
+        result.setOcspSource(Configuration.TEST_OCSP_URL);
         result.setTSL(new CertificatesForTests().getTslCertificateSource());
         return result;
     }
@@ -51,7 +52,7 @@ public abstract class AbstractSigningTests {
         return newSignature.sign();
     }
 
-    protected byte[] prepareSigning(AsicFacade container, X509Certificate signingCertificate, SignatureParameters signatureParameters) {
+    protected byte[] prepareSigning(Container container, X509Certificate signingCertificate, SignatureParameters signatureParameters) {
         container.setSignatureParameters(signatureParameters);
         SignedInfo signedInfo = container.prepareSigning(signingCertificate);
         return signedInfo.getDigest();

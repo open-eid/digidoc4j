@@ -13,8 +13,11 @@ package prototype.samples;
 import eu.europa.ec.markt.dss.DSSUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.ContainerFacade;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.ExternalSigner;
@@ -39,8 +42,11 @@ public final class ExternalSigning {
   public static void main(String[] args) throws Exception {
     System.setProperty("digidoc4j.mode", "TEST");
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    final ContainerFacade container = ContainerFacade.create(configuration);
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    Container container = ContainerBuilder.
+        aContainer().
+        withConfiguration(configuration).
+        withDataFile("testFiles/test.txt", "text/plain").
+        build();
 
     SignatureToken externalSigner = new ExternalSigner(getSignerCert()) {
       @Override
@@ -67,7 +73,13 @@ public final class ExternalSigning {
       }
     };
 
-    container.sign(externalSigner);
+    Signature signature = SignatureBuilder.
+        aSignature().
+        withContainer(container).
+        withSignatureToken(externalSigner).
+        invokeSigning();
+
+    container.addSignature(signature);
     container.save("prototype.bdoc");
   }
 

@@ -15,9 +15,11 @@ import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.SignedDoc;
 import ee.sk.digidoc.factory.DigiDocGenFactory;
 import org.apache.commons.cli.*;
+import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
+import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.impl.ddoc.DDocFacade;
 import org.digidoc4j.impl.ddoc.DDocSignature;
 import org.digidoc4j.impl.ddoc.ValidationResultForDDoc;
@@ -27,9 +29,9 @@ import java.io.File;
 import java.util.List;
 
 import static org.apache.commons.cli.OptionBuilder.withArgName;
-import static org.digidoc4j.ContainerFacade.DocumentType;
-import static org.digidoc4j.ContainerFacade.DocumentType.BDOC;
-import static org.digidoc4j.ContainerFacade.DocumentType.DDOC;
+import static org.digidoc4j.Container.DocumentType;
+import static org.digidoc4j.Container.DocumentType.BDOC;
+import static org.digidoc4j.Container.DocumentType.DDOC;
 
 import org.digidoc4j.SignatureProfile;
 
@@ -93,14 +95,14 @@ public final class DigiDoc4J {
     checkSupportedFunctionality(commandLine);
 
     try {
-      ContainerFacade container;
+      Container container;
 
       if (new File(inputFile).exists() || commandLine.hasOption("verify") || commandLine.hasOption("remove")) {
         verboseMessage("Opening container " + inputFile);
-        container = ContainerFacade.open(inputFile);
+        container = ContainerOpener.open(inputFile);
       } else {
         verboseMessage("Creating new " + type + "container " + inputFile);
-        container = ContainerFacade.create(type);
+        container = ContainerBuilder.aContainer().withType(type.name()).build();
       }
 
       if (commandLine.hasOption("add")) {
@@ -137,7 +139,7 @@ public final class DigiDoc4J {
       }
 
       if (fileHasChanged)
-        container.save(inputFile);
+        container.saveAsFile(inputFile);
 
       if (commandLine.hasOption("verify"))
         verify(container);
@@ -167,19 +169,19 @@ public final class DigiDoc4J {
     return BDOC;
   }
 
-  private static void pkcs12Sign(CommandLine commandLine, ContainerFacade container) {
+  private static void pkcs12Sign(CommandLine commandLine, Container container) {
     String[] optionValues = commandLine.getOptionValues("pkcs12");
     SignatureToken pkcs12Signer = new PKCS12SignatureToken(optionValues[0], optionValues[1].toCharArray());
     container.sign(pkcs12Signer);
   }
 
-  private static void verify(ContainerFacade container) {
+  private static void verify(Container container) {
     ValidationResult validationResult = container.validate();
 
     List<DigiDoc4JException> exceptions = validationResult.getContainerErrors();
-    boolean isDDoc = container.getDocumentType() == DocumentType.DDOC;
+    boolean isDDoc = StringUtils.equalsIgnoreCase("DDOC", container.getType());
     for (DigiDoc4JException exception : exceptions) {
-      if (isDDoc && isWarning(((DDocFacade) container).getFormat(), exception))
+      if (isDDoc && isWarning(((DDocContainer) container).getFormat(), exception))
         System.out.println("	Warning: " + exception.toString());
       else
         System.out.println((isDDoc ? "	" : "	Error: ") + exception.toString());
