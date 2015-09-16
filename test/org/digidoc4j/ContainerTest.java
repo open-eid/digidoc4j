@@ -41,6 +41,8 @@ import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
+import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
+import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 import static org.digidoc4j.SignatureProfile.B_BES;
 import static org.digidoc4j.SignatureProfile.LT;
 import static org.junit.Assert.assertFalse;
@@ -268,8 +270,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   private BDocContainer createBDoc() {
     Container container = ContainerBuilder.
-        aContainer().
-        withType("BDOC").
+        aContainer(BDOC_CONTAINER_TYPE).
         build();
     return (BDocContainer) container;
   }
@@ -461,8 +462,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void throwsErrorWhenCreatesDDOCContainerWithConfiguration() throws Exception {
     Container container = ContainerBuilder.
-        aContainer().
-        withType("DDOC").
+        aContainer(DDOC_CONTAINER_TYPE).
         withConfiguration(new Configuration()).
         build();
 
@@ -578,9 +578,8 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     Configuration conf = new Configuration(TEST);
     conf.setTslLocation("pole");
     Container container = ContainerBuilder.
-        aContainer().
+        aContainer(BDOC_CONTAINER_TYPE).
         withConfiguration(conf).
-        withType("BDOC").
         build();
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.sign(PKCS12_SIGNER);
@@ -636,9 +635,9 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   public void testSigningMultipleFilesInContainer() throws Exception {
     Container container = createContainer();
     container.setSignatureProfile(SignatureProfile.LT_TM);
-    container.addDataFile(new ByteArrayInputStream(new byte[] {1, 2, 3}), "1.txt", "text/plain");
-    container.addDataFile(new ByteArrayInputStream(new byte[] {1, 2, 3}), "2.txt", "text/plain");
-    container.addDataFile(new ByteArrayInputStream(new byte[] {1, 2, 3}), "3.txt", "text/plain");
+    container.addDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "1.txt", "text/plain");
+    container.addDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "2.txt", "text/plain");
+    container.addDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "3.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.save(tempFile.getPath());
     assertEquals(3, container.getDataFiles().size());
@@ -653,8 +652,8 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   }
 
   private void assertContainsDataFile(String fileName, Container container) {
-    for(DataFile file: container.getDataFiles()) {
-      if(StringUtils.equals(fileName, file.getName())) {
+    for (DataFile file : container.getDataFiles()) {
+      if (StringUtils.equals(fileName, file.getName())) {
         return;
       }
     }
@@ -667,8 +666,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   private DDocContainer createDDoc() {
     Container container = ContainerBuilder.
-        aContainer().
-        withType("DDOC").
+        aContainer(DDOC_CONTAINER_TYPE).
         build();
     return (DDocContainer) container;
   }

@@ -11,6 +11,8 @@
 package org.digidoc4j;
 
 import static java.util.Arrays.asList;
+import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
+import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 
 import java.security.cert.X509Certificate;
 
@@ -40,9 +42,9 @@ public class SignatureBuilder {
   }
 
   public DataToSign buildDataToSign() throws SignerCertificateRequiredException, ContainerRequiredException, ContainerWithoutFilesException, NotSupportedException {
-    if (isContainerType("BDOC")) {
+    if (isContainerType(BDOC_CONTAINER_TYPE)) {
       return buildDataToSignForBDoc();
-    } else if (isContainerType("DDOC")) {
+    } else if (isContainerType(DDOC_CONTAINER_TYPE)) {
       return buildDataToSignForDDoc();
     } else {
       logger.error("Unknown container type: " + signatureParameters.getContainer().getType());
@@ -55,9 +57,9 @@ public class SignatureBuilder {
       logger.error("Cannot invoke signing without signature token. Add 'withSignatureToken()' method call or call 'buildDataToSign() instead.'");
       throw new SignatureTokenMissingException();
     }
-    if (isContainerType("BDOC")) {
+    if (isContainerType(BDOC_CONTAINER_TYPE)) {
       return invokeBDocSigning();
-    } else if (isContainerType("DDOC")) {
+    } else if (isContainerType(DDOC_CONTAINER_TYPE)) {
       return invokeDDocSigning();
     } else {
       logger.error("Unknown container type: " + signatureParameters.getContainer().getType());

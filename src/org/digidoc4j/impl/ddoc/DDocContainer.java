@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
@@ -38,6 +39,14 @@ public class DDocContainer implements Container {
 
   public DDocContainer(DDocFacade jDigiDocFacade) {
     this.jDigiDocFacade = jDigiDocFacade;
+  }
+
+  public DDocContainer() {
+    jDigiDocFacade = new DDocFacade();
+  }
+
+  public DDocContainer(Configuration configuration) {
+    jDigiDocFacade = new DDocFacade(configuration);
   }
 
   @Override

@@ -10,12 +10,14 @@
 
 package org.digidoc4j;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import java.io.File;
 import java.io.FileInputStream;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ContainerOpenerTest {
@@ -27,31 +29,27 @@ public class ContainerOpenerTest {
   @Test
   public void openBDocContainer() throws Exception {
     Container container = ContainerOpener.open(BDOC_TEST_FILE, configuration);
-    assertFalse(container.getDataFiles().isEmpty());
-    assertFalse(container.getSignatures().isEmpty());
+    assertContainerOpened(container, "BDOC");
   }
 
   @Test
   public void openDDocContainer() throws Exception {
     Container container = ContainerOpener.open(DDOC_TEST_FILE, configuration);
-    assertFalse(container.getDataFiles().isEmpty());
-    assertFalse(container.getSignatures().isEmpty());
+    assertContainerOpened(container, "DDOC");
   }
 
   @Test
   public void openBDocContainerAsStream() throws Exception {
     FileInputStream stream = FileUtils.openInputStream(new File(BDOC_TEST_FILE));
     Container container = ContainerOpener.open(stream, configuration);
-    assertFalse(container.getDataFiles().isEmpty());
-    assertFalse(container.getSignatures().isEmpty());
+    assertContainerOpened(container, "BDOC");
   }
 
   @Test
   public void openDDocContainerAsStream() throws Exception {
     FileInputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE));
     Container container = ContainerOpener.open(stream, configuration);
-    assertFalse(container.getDataFiles().isEmpty());
-    assertFalse(container.getSignatures().isEmpty());
+    assertContainerOpened(container, "DDOC");
   }
 
   @Test
@@ -59,8 +57,12 @@ public class ContainerOpenerTest {
     boolean bigFilesSupportEnabled = false;
     FileInputStream stream = FileUtils.openInputStream(new File(BDOC_TEST_FILE));
     Container container = ContainerOpener.open(stream, bigFilesSupportEnabled);
+    assertContainerOpened(container, "BDOC");
+  }
+
+  private void assertContainerOpened(Container container, String containerType) {
+    assertEquals(containerType, container.getType());
     assertFalse(container.getDataFiles().isEmpty());
     assertFalse(container.getSignatures().isEmpty());
-
   }
 }

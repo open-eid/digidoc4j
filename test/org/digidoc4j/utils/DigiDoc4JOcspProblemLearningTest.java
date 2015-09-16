@@ -1,5 +1,7 @@
 package org.digidoc4j.utils;
 
+import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Reader;
@@ -61,8 +63,7 @@ public class DigiDoc4JOcspProblemLearningTest {
 
     protected void sign() {
         Container container = ContainerBuilder.
-            aContainer().
-            withType("BDOC").
+            aContainer(BDOC_CONTAINER_TYPE).
             withConfiguration(createDigiDoc4JConfiguration()).
             withDataFile(new ByteArrayInputStream("file contents".getBytes()), "file.txt", "application/octet-stream").
             build();

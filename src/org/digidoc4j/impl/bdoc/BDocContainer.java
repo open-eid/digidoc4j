@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
@@ -32,6 +33,14 @@ public class BDocContainer implements Container {
 
   public BDocContainer(AsicFacade asicFacade) {
     this.asicFacade = asicFacade;
+  }
+
+  public BDocContainer() {
+    asicFacade = new AsicFacade();
+  }
+
+  public BDocContainer(Configuration configuration) {
+    asicFacade = new AsicFacade(configuration);
   }
 
   @Override

@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.ddoc;
 
+import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 import static org.digidoc4j.DigestAlgorithm.SHA1;
 import static org.digidoc4j.DigestAlgorithm.SHA224;
 import static org.digidoc4j.DigestAlgorithm.SHA256;
@@ -62,7 +63,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import ee.sk.digidoc.DataFile;
 import ee.sk.digidoc.DigiDocException;
@@ -483,8 +483,7 @@ public class DDocFacadeTest {
 
   private Container createDDoc() {
     return ContainerBuilder.
-        aContainer().
-        withType("DDOC").
+        aContainer(DDOC_CONTAINER_TYPE).
         build();
   }
 

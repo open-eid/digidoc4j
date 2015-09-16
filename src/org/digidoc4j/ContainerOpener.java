@@ -42,9 +42,7 @@ public class ContainerOpener {
     logger.debug("Path: " + path);
     try {
       if (Helper.isZipFile(new File(path))) {
-        configuration.loadConfiguration("digidoc4j.yaml");
-        AsicFacade facade = new AsicFacade(path, configuration);
-        return new BDocContainer(facade);
+        return openBDocContainer(path, configuration);
       } else {
         DDocFacade facade = new DDocFacade(path, configuration);
         return new DDocContainer(facade);
@@ -117,5 +115,11 @@ public class ContainerOpener {
     } finally {
       IOUtils.closeQuietly(bufferedInputStream);
     }
+  }
+
+  private static Container openBDocContainer(String path, Configuration configuration) {
+    configuration.loadConfiguration("digidoc4j.yaml");
+    AsicFacade facade = new AsicFacade(path, configuration);
+    return new BDocContainer(facade);
   }
 }

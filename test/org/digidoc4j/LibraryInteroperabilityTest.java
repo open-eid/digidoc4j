@@ -26,6 +26,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.junit.Assert.assertTrue;
 
 public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
@@ -53,9 +54,8 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
     private void createSignedContainerWithDigiDoc4j(String containerFilePath) {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         Container container = ContainerBuilder.
-            aContainer().
+            aContainer(BDOC_CONTAINER_TYPE).
             withConfiguration(configuration).
-            withType("BDOC").
             withDataFile("testFiles/test.txt", "text/plain").
             build();
         signContainer(container, PKCS12_SIGNER);

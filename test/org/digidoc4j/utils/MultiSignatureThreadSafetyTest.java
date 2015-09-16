@@ -21,8 +21,7 @@ public class MultiSignatureThreadSafetyTest extends AbstractSigningTests {
 
     protected void sign() {
         Container container = ContainerBuilder.
-            aContainer().
-            withType("BDOC").
+            aContainer("BDOC").
             withConfiguration(createDigiDoc4JConfiguration()).
             withDataFile(new ByteArrayInputStream("file contents".getBytes()), "file.txt", "application/octet-stream").
             build();

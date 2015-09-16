@@ -22,8 +22,7 @@ public class PKCS11SignerTestMain {
 
   public static void signWithIDCard() throws NoSuchAlgorithmException {
     Container container = ContainerBuilder.
-        aContainer().
-        withType("BDOC").
+        aContainer(ContainerBuilder.BDOC_CONTAINER_TYPE).
         withDataFile("testFiles/test.txt", "text/plain").
         build();
     SignatureToken pkcs11Signer = new PKCS11Signer("01497".toCharArray());

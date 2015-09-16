@@ -35,6 +35,7 @@ import static junit.framework.Assert.assertEquals;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
+import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 import static org.digidoc4j.Signature.Validate.VALIDATE_FULL;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
 import static org.digidoc4j.utils.Helper.deleteFile;
@@ -65,7 +66,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     assertEquals(dateFormat.parse("Nov 17 2014 16:11:46"), timeStampCreationTime);
   }
 
-  @Test (expected = DigiDoc4JException.class)
+  @Test(expected = DigiDoc4JException.class)
   public void testTimeStampCreationTimeForDDoc() throws ParseException {
     Container container = createDDoc();
     container.addDataFile("testFiles/test.txt", "text/plain");
@@ -274,8 +275,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   private Signature getSignature(Container.DocumentType documentType) {
     Container container = ContainerBuilder.
-        aContainer().
-        withType(documentType.name()).
+        aContainer(documentType.name()).
         withDataFile("testFiles/test.txt", "text/plain").
         build();
 
@@ -332,8 +332,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   private Container createDDoc() {
     return ContainerBuilder.
-        aContainer().
-        withType("DDOC").
+        aContainer(DDOC_CONTAINER_TYPE).
         build();
   }
 }

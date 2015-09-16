@@ -31,15 +31,15 @@ import org.junit.rules.TemporaryFolder;
 public class TestDataBuilder {
 
   public static Container createContainerWithFile(TemporaryFolder testFolder) throws IOException {
-    ContainerBuilder builder = createNewContainerBuilderWithFile(testFolder);
-    Container container = builder.build();
+    ContainerBuilder builder = ContainerBuilder.aContainer();
+    Container container = populateContainerBuilderWithFile(builder, testFolder);
     return container;
   }
 
   public static Container createContainerWithFile(TemporaryFolder testFolder, String containerType) throws IOException {
-    ContainerBuilder builder = createNewContainerBuilderWithFile(testFolder);
-    builder.withType(containerType);
-    return builder.build();
+    ContainerBuilder builder = ContainerBuilder.aContainer(containerType);
+    Container container = populateContainerBuilderWithFile(builder, testFolder);
+    return container;
   }
 
   public static Signature signContainer(Container container) {
@@ -75,14 +75,14 @@ public class TestDataBuilder {
     return builder.buildDataToSign();
   }
 
-  private static ContainerBuilder createNewContainerBuilderWithFile(TemporaryFolder testFolder) throws IOException {
+  private static Container populateContainerBuilderWithFile(ContainerBuilder builder, TemporaryFolder testFolder) throws IOException {
     File testFile = testFolder.newFile("testFile.txt");
     FileUtils.writeStringToFile(testFile, "Banana Pancakes");
-    ContainerBuilder builder = ContainerBuilder.
-        aContainer().
+    Container container = builder.
         withConfiguration(new Configuration(Configuration.Mode.TEST)).
-        withDataFile(testFile.getPath(), "text/plain");
-    return builder;
+        withDataFile(testFile.getPath(), "text/plain")
+        .build();
+    return container;
   }
 
   private static SignatureBuilder prepareDataToSign(Container container) {

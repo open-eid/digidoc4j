@@ -12,43 +12,67 @@ package org.digidoc4j;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.digidoc4j.impl.bdoc.AsicFacade;
-import org.digidoc4j.impl.ddoc.DDocFacade;
+import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.CustomContainerBuilder;
 import org.digidoc4j.impl.bdoc.BDocContainer;
+import org.digidoc4j.impl.bdoc.BDocContainerBuilder;
 import org.digidoc4j.impl.ddoc.DDocContainer;
+import org.digidoc4j.impl.ddoc.DDocContainerBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class ContainerBuilder {
+public abstract class ContainerBuilder {
+
+  private static final Logger logger = LoggerFactory.getLogger(ContainerBuilder.class);
 
   public static final String BDOC_CONTAINER_TYPE = "BDOC";
   public static final String DDOC_CONTAINER_TYPE = "DDOC";
-  private String containerType = BDOC_CONTAINER_TYPE;
-  private Configuration configuration;
-  private List<ContainerDataFile> dataFiles = new ArrayList<>();
+  protected static Map<String, Class<? extends Container>> containerImplementations = new HashMap<>();
+  protected Configuration configuration;
+  protected List<ContainerDataFile> dataFiles = new ArrayList<>();
+  protected String containerFilePath;
+  protected InputStream containerInputStream;
+
+  protected abstract Container createNewContainer();
+
+  protected abstract Container openContainerFromFile();
+
+  protected abstract Container openContainerFromStream();
 
   public static ContainerBuilder aContainer() {
-    return new ContainerBuilder();
+    return new BDocContainerBuilder();
+  }
+
+  public static ContainerBuilder aContainer(String containerType) {
+    if (isCustomContainerType(containerType)) {
+      return new CustomContainerBuilder(containerType);
+    }
+    switch (containerType) {
+      case BDOC_CONTAINER_TYPE:
+        return new BDocContainerBuilder();
+      case DDOC_CONTAINER_TYPE:
+        return new DDocContainerBuilder();
+    }
+    throw new NotSupportedException("Container type is not supported: " + containerType);
   }
 
   public Container build() {
-    Container container;
-    if (StringUtils.equalsIgnoreCase(containerType, DDOC_CONTAINER_TYPE)) {
-      DDocFacade containerImpl = createDDocContainer();
-      container = new DDocContainer(containerImpl);
-    } else {
-      AsicFacade asicFacade = createBDocContainer();
-      container = new BDocContainer(asicFacade);
+    if (shouldOpenContainerFromFile()) {
+      return openContainerFromFile();
+    } else if (shouldOpenContainerFromStream()) {
+      return openContainerFromStream();
     }
+    Container container = createNewContainer();
     addDataFilesToContainer(container);
     return container;
-  }
-
-  public ContainerBuilder withType(String containerType) {
-    this.containerType = containerType;
-    return this;
   }
 
   public ContainerBuilder withConfiguration(Configuration configuration) {
@@ -71,23 +95,31 @@ public class ContainerBuilder {
     return this;
   }
 
-  private AsicFacade createBDocContainer() {
-    if (configuration == null) {
-      return new AsicFacade();
-    } else {
-      return new AsicFacade(configuration);
-    }
+  public ContainerBuilder fromExistingFile(String filePath) {
+    this.containerFilePath = filePath;
+    return this;
   }
 
-  private DDocFacade createDDocContainer() {
-    if (configuration == null) {
-      return new DDocFacade();
-    } else {
-      return new DDocFacade(configuration);
-    }
+  public ContainerBuilder fromStream(InputStream containerInputStream) {
+    this.containerInputStream = containerInputStream;
+    return this;
   }
 
-  private void addDataFilesToContainer(Container container) {
+  public static <T extends Container> void setContainerImplementation(String containerType, Class<T> containerClass) {
+    logger.info("Using " + containerClass.getName() + "for container type " + containerType);
+    containerImplementations.put(containerType, containerClass);
+  }
+
+  private static boolean isCustomContainerType(String containerType) {
+    return containerImplementations.containsKey(containerType);
+  }
+
+  public static void removeCustomContainerImplementations() {
+    logger.info("Removing custom container implementations");
+    containerImplementations.clear();
+  }
+
+  protected void addDataFilesToContainer(Container container) {
     for (ContainerDataFile file : dataFiles) {
       if (file.isStream) {
         container.addDataFile(file.inputStream, file.filePath, file.mimeType);
@@ -95,6 +127,14 @@ public class ContainerBuilder {
         container.addDataFile(file.filePath, file.mimeType);
       }
     }
+  }
+
+  protected boolean shouldOpenContainerFromFile() {
+    return StringUtils.isNotBlank(containerFilePath);
+  }
+
+  protected boolean shouldOpenContainerFromStream() {
+    return containerInputStream != null;
   }
 
   private class ContainerDataFile {

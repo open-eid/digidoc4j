@@ -54,6 +54,7 @@ public class DDocFacade implements Serializable {
   private SignatureProfile signatureProfile = SignatureProfile.LT_TM;
   private SignatureParameters signatureParameters = new SignatureParameters();
   protected ee.sk.digidoc.Signature ddocSignature;
+  private Configuration configuration;
 
   /**
    * Create a new container object of DDOC type Container.
@@ -161,6 +162,7 @@ public class DDocFacade implements Serializable {
 
   public DDocFacade(InputStream stream, Configuration configuration) {
     logger.debug("");
+    this.configuration = configuration;
     ConfigManager.init(configuration.getJDigiDocConfiguration());
     ConfigManager.addProvider();
     DigiDocFactory digFac = new SAXDigiDocFactory();
@@ -179,6 +181,7 @@ public class DDocFacade implements Serializable {
    */
   public DDocFacade(Configuration configuration) {
     logger.debug("");
+    this.configuration = configuration;
     ConfigManager.init(configuration.getJDigiDocConfiguration());
     ConfigManager.addProvider();
     createDDOCContainer();
@@ -186,7 +189,7 @@ public class DDocFacade implements Serializable {
 
   private void intConfiguration() {
     logger.debug("");
-    Configuration configuration = new Configuration();
+    configuration = new Configuration();
     ConfigManager.init(configuration.getJDigiDocConfiguration());
     ConfigManager.addProvider();
   }
@@ -200,6 +203,7 @@ public class DDocFacade implements Serializable {
   public DDocFacade(String fileName, Configuration configuration) {
     logger.debug("File name: " + fileName);
 
+    this.configuration = configuration;
     ConfigManager.init(configuration.getJDigiDocConfiguration());
     ConfigManager.addProvider();
 
@@ -531,5 +535,9 @@ public class DDocFacade implements Serializable {
     String format = ddoc.getFormat();
     logger.debug(format);
     return format;
+  }
+
+  public Configuration getConfiguration() {
+    return configuration;
   }
 }

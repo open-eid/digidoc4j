@@ -36,6 +36,8 @@ import static org.apache.commons.io.FileUtils.copyFile;
 import static org.digidoc4j.Configuration.Mode;
 
 import org.digidoc4j.SignatureProfile;
+
+import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 import static org.digidoc4j.main.DigiDoc4J.isWarning;
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.hamcrest.core.StringContains.containsString;
@@ -336,8 +338,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     exit.expectSystemExitWithStatus(0);
 
     Container container = ContainerBuilder.
-        aContainer().
-        withType("DDOC").
+        aContainer(DDOC_CONTAINER_TYPE).
         build();
     container.addDataFile("testFiles/test.txt", "text/plain");
     Files.deleteIfExists(Paths.get("test1.ddoc"));

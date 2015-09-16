@@ -47,6 +47,7 @@ import java.util.zip.ZipFile;
 
 import static java.util.Arrays.asList;
 import static org.digidoc4j.Container.*;
+import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.SignatureProfile.*;
 import static org.digidoc4j.DigestAlgorithm.SHA1;
 import static org.digidoc4j.DigestAlgorithm.SHA256;
@@ -888,7 +889,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void nonStandardMimeType() {
-    Container container = ContainerBuilder.aContainer().withType("BDOC").build();
+    Container container = ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
     container.addDataFile("testFiles/test.txt", "text/newtype");
     container.sign(PKCS12_SIGNER);
     container.save("testNonStandardMimeType.bdoc");
@@ -930,7 +931,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void twoStepSigning() throws IOException {
-    Container container = ContainerBuilder.aContainer().withType("BDOC").build();
+    Container container = ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
     container.addDataFile("testFiles/test.txt", "text/plain");
     X509Certificate signerCert = getSignerCert();
     SignedInfo signedInfo = container.prepareSigning(signerCert);
@@ -976,7 +977,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     signatureParameters.setProductionPlace(new SignatureProductionPlace("city", "state", "postalCode", "country"));
     signatureParameters.setSignatureId("S99");
 
-    Container container = ContainerBuilder.aContainer().withType("BDOC").build();
+    Container container = ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
     container.setSignatureParameters(signatureParameters);
     container.addDataFile("testFiles/test.txt", "text/plain");
     X509Certificate signerCert = getSignerCert();
@@ -1806,6 +1807,6 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   }
 
   private Container create() {
-    return ContainerBuilder.aContainer().withType("BDOC").build();
+    return ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
   }
 }

@@ -102,7 +102,7 @@ public final class DigiDoc4J {
         container = ContainerOpener.open(inputFile);
       } else {
         verboseMessage("Creating new " + type + "container " + inputFile);
-        container = ContainerBuilder.aContainer().withType(type.name()).build();
+        container = ContainerBuilder.aContainer(type.name()).build();
       }
 
       if (commandLine.hasOption("add")) {
