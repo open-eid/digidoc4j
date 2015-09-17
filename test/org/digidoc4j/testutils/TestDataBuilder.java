@@ -87,10 +87,9 @@ public class TestDataBuilder {
 
   private static SignatureBuilder prepareDataToSign(Container container) {
     return SignatureBuilder.
-        aSignature().
+        aSignature(container).
         withDigestAlgorithm(DigestAlgorithm.SHA256).
         withSignatureProfile(SignatureProfile.LT_TM).
-        withSigningCertificate(getSigningCert()).
-        withContainer(container);
+        withSigningCertificate(getSigningCert());
   }
 }

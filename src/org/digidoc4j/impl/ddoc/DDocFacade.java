@@ -21,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.impl.SignatureFinalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
  * remove all the signatures.
  * </p>
  */
-public class DDocFacade implements Serializable {
+public class DDocFacade implements SignatureFinalizer, Serializable {
   Logger logger = LoggerFactory.getLogger(DDocFacade.class);
 
   SignedDoc ddoc;
@@ -539,5 +540,10 @@ public class DDocFacade implements Serializable {
 
   public Configuration getConfiguration() {
     return configuration;
+  }
+
+  @Override
+  public Signature finalizeSignature(byte[] signatureValue) {
+    return signRaw(signatureValue);
   }
 }

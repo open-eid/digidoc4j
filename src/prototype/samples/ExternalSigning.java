@@ -74,8 +74,7 @@ public final class ExternalSigning {
     };
 
     Signature signature = SignatureBuilder.
-        aSignature().
-        withContainer(container).
+        aSignature(container).
         withSignatureToken(externalSigner).
         invokeSigning();
 

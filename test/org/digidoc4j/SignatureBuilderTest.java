@@ -10,6 +10,7 @@
 
 package org.digidoc4j;
 
+import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.testutils.TestSigningHelper.getSigningCert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -18,10 +19,15 @@ import static org.junit.Assert.assertTrue;
 
 import java.security.cert.X509Certificate;
 
+import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
+import org.digidoc4j.testutils.TestSignatureBuilder;
 import org.digidoc4j.signers.PKCS12SignatureToken;
+import org.digidoc4j.testutils.TestContainer;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.testutils.TestSigningHelper;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -32,12 +38,18 @@ public class SignatureBuilderTest {
   public TemporaryFolder testFolder = new TemporaryFolder();
   private final PKCS12SignatureToken testSignatureToken = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
 
+  @After
+  public void tearDown() throws Exception {
+    ContainerBuilder.removeCustomContainerImplementations();
+    SignatureBuilder.removeCustomSignatureBuilders();
+  }
+
   @Test
   public void buildingDataToSign_shouldContainSignatureParameters() throws Exception {
     Container container = TestDataBuilder.createContainerWithFile(testFolder);
     X509Certificate signerCert = getSigningCert();
     SignatureBuilder builder = SignatureBuilder.
-        aSignature().
+        aSignature(container).
         withCity("San Pedro").
         withStateOrProvince("Puerto Vallarta").
         withPostalCode("13456").
@@ -46,8 +58,7 @@ public class SignatureBuilderTest {
         withDigestAlgorithm(DigestAlgorithm.SHA256).
         withSignatureProfile(SignatureProfile.LT_TM).
         withSignatureId("S0").
-        withSigningCertificate(signerCert).
-        withContainer(container);
+        withSigningCertificate(signerCert);
     DataToSign dataToSign = builder.buildDataToSign();
     SignatureParameters parameters = dataToSign.getSignatureParameters();
     assertEquals("San Pedro", parameters.getCity());
@@ -85,7 +96,7 @@ public class SignatureBuilderTest {
     Container container = TestDataBuilder.createContainerWithFile(testFolder);
 
     Signature signature = SignatureBuilder.
-        aSignature().
+        aSignature(container).
         withCity("Tallinn").
         withStateOrProvince("Harjumaa").
         withPostalCode("13456").
@@ -94,7 +105,6 @@ public class SignatureBuilderTest {
         withDigestAlgorithm(DigestAlgorithm.SHA256).
         withSignatureProfile(SignatureProfile.LT_TM).
         withSignatureToken(testSignatureToken).
-        withContainer(container).
         invokeSigning();
 
     container.addSignature(signature);
@@ -107,10 +117,9 @@ public class SignatureBuilderTest {
     assertEquals("DDOC", container.getType());
 
     Signature signature = SignatureBuilder.
-        aSignature().
+        aSignature(container).
         withDigestAlgorithm(DigestAlgorithm.SHA1).
         withSignatureToken(testSignatureToken).
-        withContainer(container).
         invokeSigning();
 
     container.addSignature(signature);
@@ -120,8 +129,7 @@ public class SignatureBuilderTest {
   public void signContainerWithMissingSignatureToken_shouldThrowException() throws Exception {
     Container container = TestDataBuilder.createContainerWithFile(testFolder);
     SignatureBuilder.
-        aSignature().
-        withContainer(container).
+        aSignature(container).
         invokeSigning();
   }
 
@@ -130,9 +138,8 @@ public class SignatureBuilderTest {
     Container container = TestDataBuilder.createContainerWithFile(testFolder, "DDOC");
     X509Certificate signingCert = getSigningCert();
     DataToSign dataToSign = SignatureBuilder.
-        aSignature().
+        aSignature(container).
         withSigningCertificate(signingCert).
-        withContainer(container).
         buildDataToSign();
 
     assertEquals(DigestAlgorithm.SHA1, dataToSign.getDigestAlgorithm());
@@ -157,14 +164,58 @@ public class SignatureBuilderTest {
     Container container = TestDataBuilder.createContainerWithFile(testFolder);
 
     Signature signature = SignatureBuilder.
-        aSignature().
+        aSignature(container).
         withSignatureToken(testSignatureToken).
         withSignatureProfile(SignatureProfile.B_BES).
-        withContainer(container).
         invokeSigning();
     container.addSignature(signature);
 
     assertEquals(SignatureProfile.B_BES, signature.getProfile());
+  }
+
+  @Test(expected = NotSupportedException.class)
+  public void signUnknownContainerFormat_shouldThrowException() throws Exception {
+    ContainerBuilder.setContainerImplementation("TEST-FORMAT", TestContainer.class);
+    Container container = TestDataBuilder.createContainerWithFile(testFolder, "TEST-FORMAT");
+    TestDataBuilder.buildDataToSign(container);
+  }
+
+  @Test
+  public void signCustomContainer() throws Exception {
+    ContainerBuilder.setContainerImplementation("TEST-FORMAT", TestContainer.class);
+    SignatureBuilder.setSignatureBuilderForContainerType("TEST-FORMAT", TestSignatureBuilder.class);
+    Container container = TestDataBuilder.createContainerWithFile(testFolder, "TEST-FORMAT");
+    DataToSign dataToSign = TestDataBuilder.buildDataToSign(container);
+    assertNotNull(dataToSign);
+    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDigestToSign(), dataToSign.getDigestAlgorithm());
+    Signature signature = dataToSign.finalize(signatureValue);
+    assertNotNull(signature);
+  }
+
+  @Test
+  public void invokeSigningForCustomContainer() throws Exception {
+    ContainerBuilder.setContainerImplementation("TEST-FORMAT", TestContainer.class);
+    SignatureBuilder.setSignatureBuilderForContainerType("TEST-FORMAT", TestSignatureBuilder.class);
+    Container container = TestDataBuilder.createContainerWithFile(testFolder, "TEST-FORMAT");
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureToken(testSignatureToken).
+        invokeSigning();
+    assertNotNull(signature);
+  }
+
+  @Test
+  public void invokeSigning_whenOverridingBDocContainerFormat() throws Exception {
+    TestContainer.type = BDOC_CONTAINER_TYPE;
+    ContainerBuilder.setContainerImplementation(BDOC_CONTAINER_TYPE, TestContainer.class);
+    SignatureBuilder.setSignatureBuilderForContainerType(BDOC_CONTAINER_TYPE, TestSignatureBuilder.class);
+    Container container = TestDataBuilder.createContainerWithFile(testFolder, BDOC_CONTAINER_TYPE);
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureToken(testSignatureToken).
+        invokeSigning();
+    assertNotNull(signature);
+    TestContainer.resetType();
   }
 
   private void assertSignatureIsValid(Signature signature) {

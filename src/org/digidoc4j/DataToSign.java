@@ -12,14 +12,21 @@ package org.digidoc4j;
 
 import java.io.Serializable;
 
-public abstract class DataToSign implements Serializable {
+import org.digidoc4j.impl.SignatureFinalizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public class DataToSign implements Serializable {
+
+  private final static Logger logger = LoggerFactory.getLogger(DataToSign.class);
   private byte[] digestToSign;
   private SignatureParameters signatureParameters;
+  private SignatureFinalizer signatureFinalizer;
 
-  protected DataToSign(byte[] digestToSign, SignatureParameters signatureParameters) {
+  public DataToSign(byte[] digestToSign, SignatureParameters signatureParameters, SignatureFinalizer signatureFinalizer) {
     this.digestToSign = digestToSign;
     this.signatureParameters = signatureParameters;
+    this.signatureFinalizer = signatureFinalizer;
   }
 
   public SignatureParameters getSignatureParameters() {
@@ -34,5 +41,8 @@ public abstract class DataToSign implements Serializable {
     return digestToSign;
   }
 
-  public abstract Signature finalize(byte[] signatureValue);
+  public Signature finalize(byte[] signatureValue) {
+    logger.debug("Finalizing signature");
+    return signatureFinalizer.finalizeSignature(signatureValue);
+  }
 }

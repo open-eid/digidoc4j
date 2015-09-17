@@ -35,6 +35,7 @@ public class TestContainer implements Container {
   Configuration configuration;
   String openedFromFile;
   InputStream openedFromStream;
+  public static String type = "TEST-FORMAT";
 
   public TestContainer() {
   }
@@ -63,7 +64,11 @@ public class TestContainer implements Container {
 
   @Override
   public String getType() {
-    return "TEST-FORMAT";
+    return type;
+  }
+
+  public static void resetType() {
+    type = "TEST-FORMAT";
   }
 
   public Configuration getConfiguration() {

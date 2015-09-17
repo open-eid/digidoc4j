@@ -27,8 +27,7 @@ public class PKCS11SignerTestMain {
         build();
     SignatureToken pkcs11Signer = new PKCS11Signer("01497".toCharArray());
     Signature signature = SignatureBuilder.
-        aSignature().
-        withContainer(container).
+        aSignature(container).
         withSignatureToken(pkcs11Signer).
         invokeSigning();
     container.addSignature(signature);

@@ -280,8 +280,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
         build();
 
     Signature signature = SignatureBuilder.
-        aSignature().
-        withContainer(container).
+        aSignature(container).
         withSignatureToken(PKCS12_SIGNER).
         invokeSigning();
     container.addSignature(signature);
@@ -315,8 +314,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
         build();
 
     Signature signature = SignatureBuilder.
-        aSignature().
-        withContainer(container).
+        aSignature(container).
         withSignatureToken(PKCS12_SIGNER).
         invokeSigning();
     container.addSignature(signature);

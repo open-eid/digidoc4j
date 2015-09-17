@@ -66,6 +66,7 @@ import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
+import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,7 +105,7 @@ import eu.europa.ec.markt.dss.validation102853.xades.XPathQueryHolder;
 /**
  * BDOC container implementation
  */
-public class AsicFacade implements Serializable {
+public class AsicFacade implements SignatureFinalizer, Serializable {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicFacade.class);
 
@@ -1012,5 +1013,10 @@ public class AsicFacade implements Serializable {
     if(signatureParameters.getSignatureProfile() != null) {
       setSignatureProfile(signatureParameters.getSignatureProfile());
     }
+  }
+
+  @Override
+  public Signature finalizeSignature(byte[] signatureValue) {
+    return signRaw(signatureValue);
   }
 }

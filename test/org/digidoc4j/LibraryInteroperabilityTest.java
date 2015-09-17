@@ -66,8 +66,7 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
 
     private void signContainer(Container container, PKCS12SignatureToken signatureToken) {
         Signature signature = SignatureBuilder.
-            aSignature().
-            withContainer(container).
+            aSignature(container).
             withSignatureProfile(SignatureProfile.LT_TM).
             withSignatureToken(signatureToken).
             invokeSigning();

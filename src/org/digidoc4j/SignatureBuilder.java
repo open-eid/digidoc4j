@@ -15,84 +15,61 @@ import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.digidoc4j.exceptions.ContainerRequiredException;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
-import org.digidoc4j.impl.bdoc.AsicFacade;
-import org.digidoc4j.impl.ddoc.DDocFacade;
-import org.digidoc4j.impl.bdoc.BDocContainer;
-import org.digidoc4j.impl.bdoc.BDocDataToSign;
-import org.digidoc4j.impl.ddoc.DDocContainer;
-import org.digidoc4j.impl.ddoc.DDocDataToSign;
+import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.bdoc.BDocSignatureBuilder;
+import org.digidoc4j.impl.ddoc.DDocSignatureBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SignatureBuilder {
+public abstract class SignatureBuilder {
 
   private final static Logger logger = LoggerFactory.getLogger(SignatureBuilder.class);
-  private SignatureParameters signatureParameters = new SignatureParameters();
-  private SignatureToken signatureToken;
+  protected SignatureParameters signatureParameters = new SignatureParameters();
+  protected SignatureToken signatureToken;
+  protected static Map<String, Class<? extends SignatureBuilder>> customSignatureBuilders = new HashMap<>();
 
-  public static SignatureBuilder aSignature() {
-    return new SignatureBuilder();
+  public static SignatureBuilder aSignature(Container container) {
+    SignatureBuilder builder = createBuilder(container);
+    builder.setContainer(container);
+    return builder;
   }
 
-  public DataToSign buildDataToSign() throws SignerCertificateRequiredException, ContainerRequiredException, ContainerWithoutFilesException, NotSupportedException {
-    if (isContainerType(BDOC_CONTAINER_TYPE)) {
-      return buildDataToSignForBDoc();
-    } else if (isContainerType(DDOC_CONTAINER_TYPE)) {
-      return buildDataToSignForDDoc();
+  private static SignatureBuilder createBuilder(Container container) {
+    String containerType = container.getType();
+    if(isCustomContainerType(containerType)) {
+      return createCustomSignatureBuilder(containerType);
+    } else if (isContainerType(containerType, BDOC_CONTAINER_TYPE)) {
+      return new BDocSignatureBuilder();
+    } else if (isContainerType(containerType, DDOC_CONTAINER_TYPE)) {
+      return new DDocSignatureBuilder();
     } else {
-      logger.error("Unknown container type: " + signatureParameters.getContainer().getType());
-      throw new NotSupportedException("Unknown container type: " + signatureParameters.getContainer().getType());
+      logger.error("Unknown container type: " + container.getType());
+      throw new NotSupportedException("Unknown container type: " + container.getType());
     }
   }
 
-  public Signature invokeSigning() throws SignatureTokenMissingException, NotSupportedException, ContainerRequiredException {
+  public Signature invokeSigning() throws SignatureTokenMissingException {
     if (signatureToken == null) {
       logger.error("Cannot invoke signing without signature token. Add 'withSignatureToken()' method call or call 'buildDataToSign() instead.'");
       throw new SignatureTokenMissingException();
     }
-    if (isContainerType(BDOC_CONTAINER_TYPE)) {
-      return invokeBDocSigning();
-    } else if (isContainerType(DDOC_CONTAINER_TYPE)) {
-      return invokeDDocSigning();
-    } else {
-      logger.error("Unknown container type: " + signatureParameters.getContainer().getType());
-      throw new NotSupportedException("Unknown container type: " + signatureParameters.getContainer().getType());
-    }
+    return invokeSigningProcess();
   }
 
-  private DataToSign buildDataToSignForBDoc() {
-    AsicFacade asicFacade = getAsicFacade();
-    asicFacade.setSignatureParameters(signatureParameters);
-    SignedInfo signedInfo = asicFacade.prepareSigning(signatureParameters.getSigningCertificate());
-    BDocDataToSign signature = new BDocDataToSign(signedInfo.getDigestToSign(), signedInfo.getSignatureParameters(), asicFacade);
-    return signature;
+  public static <T extends SignatureBuilder> void setSignatureBuilderForContainerType(String containerType, Class<T> signatureBuilderClass) {
+    customSignatureBuilders.put(containerType, signatureBuilderClass);
   }
 
-  private DataToSign buildDataToSignForDDoc() {
-    DDocFacade ddocFacade = getJDigiDocFacade();
-    ddocFacade.setSignatureParameters(signatureParameters);
-    X509Certificate signingCertificate = signatureParameters.getSigningCertificate();
-    SignedInfo signedInfo = ddocFacade.prepareSigning(signingCertificate);
-    return new DDocDataToSign(signedInfo.getDigestToSign(), signatureParameters, ddocFacade);
-  }
-
-  private Signature invokeBDocSigning() {
-    AsicFacade asicFacade = getAsicFacade();
-    asicFacade.setSignatureParameters(signatureParameters);
-    return asicFacade.sign(signatureToken);
-  }
-
-  private Signature invokeDDocSigning() {
-    DDocFacade ddocFacade = getJDigiDocFacade();
-    ddocFacade.setSignatureParameters(signatureParameters);
-    return ddocFacade.sign(signatureToken);
+  public static void removeCustomSignatureBuilders() {
+    customSignatureBuilders.clear();
   }
 
   public SignatureBuilder withCity(String cityName) {
@@ -134,9 +111,8 @@ public class SignatureBuilder {
     return this;
   }
 
-  public SignatureBuilder withContainer(Container container) {
+  protected void setContainer(Container container) {
     signatureParameters.setContainer(container);
-    return this;
   }
 
   public SignatureBuilder withSigningCertificate(X509Certificate certificate) {
@@ -154,17 +130,26 @@ public class SignatureBuilder {
     return this;
   }
 
-  private boolean isContainerType(String type) {
-    return StringUtils.equalsIgnoreCase(signatureParameters.getContainer().getType(), type);
+  public abstract DataToSign buildDataToSign() throws SignerCertificateRequiredException, ContainerWithoutFilesException;
+
+  protected abstract Signature invokeSigningProcess();
+
+  private static boolean isCustomContainerType(String containerType) {
+    return customSignatureBuilders.containsKey(containerType);
   }
 
-  private AsicFacade getAsicFacade() {
-    BDocContainer container = (BDocContainer) signatureParameters.getContainer();
-    return container.getAsicFacade();
+  private static boolean isContainerType(String containerType, String ddocContainerType) {
+    return StringUtils.equalsIgnoreCase(ddocContainerType, containerType);
   }
 
-  private DDocFacade getJDigiDocFacade() {
-    DDocContainer container = (DDocContainer) signatureParameters.getContainer();
-    return container.getJDigiDocFacade();
+  private static SignatureBuilder createCustomSignatureBuilder(String containerType) {
+    Class<? extends SignatureBuilder> builderClass = customSignatureBuilders.get(containerType);
+    try {
+      logger.debug("Instantiating signature builder class " + builderClass.getName() + " for container type " + containerType);
+      return builderClass.newInstance();
+    } catch (ReflectiveOperationException e) {
+      logger.error("Unable to instantiate custom signature builder class " + builderClass.getName() + " for type " + containerType);
+      throw new TechnicalException("Unable to instantiate custom signature builder class " + builderClass.getName() + " for type " + containerType, e);
+    }
   }
 }

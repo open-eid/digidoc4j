@@ -8,7 +8,14 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.exceptions;
+package org.digidoc4j.impl;
 
-public class ContainerRequiredException extends DigiDoc4JException {
+import java.io.Serializable;
+
+import org.digidoc4j.Signature;
+
+public interface SignatureFinalizer extends Serializable {
+
+  Signature finalizeSignature(byte[] signatureValue);
+
 }

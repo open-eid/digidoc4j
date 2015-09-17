@@ -44,8 +44,7 @@ public class AsyncSigning {
     X509Certificate signerCert = getSignerCert();
 
     DataToSign dataToSign = SignatureBuilder.
-        aSignature().
-        withContainer(container).
+        aSignature(container).
         withSigningCertificate(signerCert).
         buildDataToSign();
 

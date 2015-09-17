@@ -48,8 +48,7 @@ public class SerializeExample {
     Container container = (Container) in.readObject();
 
     Signature signature = SignatureBuilder.
-        aSignature().
-        withContainer(container).
+        aSignature(container).
         withSignatureToken(new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray())).
         invokeSigning();
     container.addSignature(signature);
