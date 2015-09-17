@@ -29,11 +29,9 @@ public class SignatureProductionPlace implements Serializable {
    * empty constructor
    */
   public SignatureProductionPlace() {
-    logger.debug("");
   }
 
   public SignatureProductionPlace(String city, String stateOrProvince, String postalCode, String country) {
-    logger.debug("");
     this.city = city;
     this.stateOrProvince = stateOrProvince;
     this.postalCode = postalCode;
@@ -41,7 +39,6 @@ public class SignatureProductionPlace implements Serializable {
   }
 
   public String getCity() {
-    logger.debug("");
     return city;
   }
 
@@ -51,7 +48,6 @@ public class SignatureProductionPlace implements Serializable {
   }
 
   public String getStateOrProvince() {
-    logger.debug("");
     return stateOrProvince;
   }
 
@@ -61,7 +57,6 @@ public class SignatureProductionPlace implements Serializable {
   }
 
   public String getPostalCode() {
-    logger.debug("");
     return postalCode;
   }
 
@@ -71,7 +66,6 @@ public class SignatureProductionPlace implements Serializable {
   }
 
   public String getCountry() {
-    logger.debug("");
     return country;
   }
 

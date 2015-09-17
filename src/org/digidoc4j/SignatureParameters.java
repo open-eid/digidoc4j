@@ -47,7 +47,6 @@ public class SignatureParameters implements Serializable {
    * @deprecated
    */
   public SignatureProductionPlace getProductionPlace() {
-    logger.debug("Production place: " + productionPlace);
     return productionPlace;
   }
 
@@ -89,7 +88,6 @@ public class SignatureParameters implements Serializable {
    * @return signing roles
    */
   public List<String> getRoles() {
-    logger.debug("");
     return roles;
   }
 
@@ -100,7 +98,6 @@ public class SignatureParameters implements Serializable {
    * @deprecated
    */
   public void setProductionPlace(SignatureProductionPlace productionPlace) {
-    logger.debug("Set production place to " + productionPlace);
     this.productionPlace = productionPlace;
   }
 
@@ -110,7 +107,6 @@ public class SignatureParameters implements Serializable {
    * @param roles signing roles
    */
   public void setRoles(List<String> roles) {
-    logger.debug("");
     this.roles = roles;
   }
 
@@ -130,7 +126,6 @@ public class SignatureParameters implements Serializable {
    * @return signatureId signature ID
    */
   public String getSignatureId() {
-    logger.debug("Get signature id returns " + signatureId);
     return signatureId;
   }
 
@@ -140,7 +135,6 @@ public class SignatureParameters implements Serializable {
    * @param algorithm digest algorithm
    */
   public void setDigestAlgorithm(DigestAlgorithm algorithm) {
-    logger.debug("");
     digestAlgorithm = algorithm;
   }
 
@@ -150,7 +144,6 @@ public class SignatureParameters implements Serializable {
    * @return container digest algorithm
    */
   public DigestAlgorithm getDigestAlgorithm() {
-    logger.debug("");
     return digestAlgorithm;
   }
 
@@ -160,7 +153,6 @@ public class SignatureParameters implements Serializable {
    * @return encryption algorithm
    */
   public EncryptionAlgorithm getEncryptionAlgorithm() {
-    logger.debug("");
     return encryptionAlgorithm;
   }
 
@@ -170,7 +162,6 @@ public class SignatureParameters implements Serializable {
    * @param encryptionAlgorithm encryption algorithm to use
    */
   public void setEncryptionAlgorithm(EncryptionAlgorithm encryptionAlgorithm) {
-    logger.debug("");
     this.encryptionAlgorithm = encryptionAlgorithm;
   }
 

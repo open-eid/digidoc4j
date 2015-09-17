@@ -243,8 +243,6 @@ public class Configuration implements Serializable {
    * Create new configuration
    */
   public Configuration() {
-    logger.debug("");
-
     mode = ("TEST".equalsIgnoreCase(System.getProperty("digidoc4j.mode")) ? Mode.TEST : Mode.PROD);
     loadConfiguration("digidoc4j.yaml");
 
@@ -273,7 +271,6 @@ public class Configuration implements Serializable {
    * @return configuration hashtable
    */
   public Hashtable<String, String> loadConfiguration(InputStream stream) {
-    logger.debug("");
     configurationInputSourceName = "stream";
 
     return loadConfigurationSettings(stream);
@@ -303,8 +300,6 @@ public class Configuration implements Serializable {
   }
 
   private Hashtable<String, String> loadConfigurationSettings(InputStream stream) {
-    logger.debug("");
-
     configurationFromFile = new LinkedHashMap();
     Yaml yaml = new Yaml();
 
@@ -323,7 +318,6 @@ public class Configuration implements Serializable {
   }
 
   private InputStream getResourceAsStream(String certFile) {
-    logger.debug("");
     InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(certFile);
     if (resourceAsStream == null) {
       String message = "File " + certFile + " not found in classpath.";
@@ -434,7 +428,6 @@ public class Configuration implements Serializable {
   }
 
   private void setConfigurationValue(String fileKey, String configurationKey) {
-    logger.debug("");
     if (configurationFromFile == null) return;
     Object fileValue = configurationFromFile.get(fileKey);
     if (fileValue != null) {
@@ -469,7 +462,6 @@ public class Configuration implements Serializable {
    * @return is big file support enabled
    */
   public boolean isBigFilesSupportEnabled() {
-    logger.debug("");
     return getMaxDataFileCachedInMB() >= 0;
   }
 
@@ -480,7 +472,6 @@ public class Configuration implements Serializable {
    * @return must be OCSP request signed
    */
   public boolean hasToBeOCSPRequestSigned() {
-    logger.debug("");
     return mode == Mode.PROD;
   }
 
@@ -490,7 +481,6 @@ public class Configuration implements Serializable {
    * @return Size in MB. if size < 0 no caching is used
    */
   public long getMaxDataFileCachedInMB() {
-    logger.debug("");
     String maxDataFileCached = jDigiDocConfiguration.get("DIGIDOC_MAX_DATAFILE_CACHED");
     logger.debug("Maximum datafile cached in MB: " + maxDataFileCached);
 
@@ -504,7 +494,6 @@ public class Configuration implements Serializable {
    * @return Size in MB. if size < 0 no caching is used
    */
   public long getMaxDataFileCachedInBytes() {
-    logger.debug("");
     long maxDataFileCachedInMB = getMaxDataFileCachedInMB();
     if (maxDataFileCachedInMB == CACHE_ALL_DATA_FILES) {
       return CACHE_ALL_DATA_FILES;
@@ -544,7 +533,6 @@ public class Configuration implements Serializable {
   }
 
   private boolean isValidBooleanParameter(String configParameter, String value) {
-    logger.debug("");
     if (!("true".equals(value.toLowerCase()) || "false".equals(value.toLowerCase()))) {
       String errorMessage = "Configuration parameter " + configParameter + " should be set to true or false"
           + " but the actual value is: " + value + ".";
@@ -555,7 +543,6 @@ public class Configuration implements Serializable {
   }
 
   private boolean isValidIntegerParameter(String configParameter, String value) {
-    logger.debug("");
     Integer parameterValue;
 
     try {
@@ -651,12 +638,10 @@ public class Configuration implements Serializable {
 
   @SuppressWarnings("unchecked")
   private ArrayList<String> getCACertsAsArray(LinkedHashMap digiDocCa) {
-    logger.debug("");
     return (ArrayList<String>) digiDocCa.get("CERTS");
   }
 
   String getTslLocation() {
-    logger.debug("");
     String urlString = getConfigurationParameter("tslLocation");
     if (!Protocol.isFileUrl(urlString)) return urlString;
     try {
@@ -681,7 +666,6 @@ public class Configuration implements Serializable {
    */
 
   public void setTSL(TSLCertificateSource certificateSource) {
-    logger.debug("");
     this.tslCertificateSource = certificateSource;
   }
 
@@ -692,7 +676,6 @@ public class Configuration implements Serializable {
    * @return TSL source
    */
   public TSLCertificateSource getTSL() {
-    logger.debug("");
     if (tslCertificateSource != null) {
       logger.debug("Using TSL cached copy");
       return tslCertificateSource;
@@ -751,7 +734,6 @@ public class Configuration implements Serializable {
    * @return TSP Source
    */
   public String getTspSource() {
-    logger.debug("");
     String tspSource = getConfigurationParameter("tspSource");
     logger.debug("TSP Source: " + tspSource);
     return tspSource;
@@ -791,7 +773,6 @@ public class Configuration implements Serializable {
    * @return OCSP Source
    */
   public String getOcspSource() {
-    logger.debug("");
     String ocspSource = getConfigurationParameter("ocspSource");
     logger.debug("OCSP source: " + ocspSource);
     return ocspSource;
@@ -813,7 +794,6 @@ public class Configuration implements Serializable {
    * @return Validation policy
    */
   public String getValidationPolicy() {
-    logger.debug("");
     String validationPolicy = getConfigurationParameter("validationPolicy");
     logger.debug("Validation policy: " + validationPolicy);
     return validationPolicy;
@@ -835,7 +815,6 @@ public class Configuration implements Serializable {
    * @return path
    */
   public String getPKCS11ModulePath() {
-    logger.debug("");
     String path = getConfigurationParameter("pkcs11Module");
     logger.debug("PKCS11 module path: " + path);
     return path;
@@ -869,7 +848,6 @@ public class Configuration implements Serializable {
    * @return new configuration object
    */
   public Configuration copy() {
-    logger.debug("");
     ObjectOutputStream oos = null;
     ObjectInputStream ois = null;
     Configuration copyConfiguration = null;
