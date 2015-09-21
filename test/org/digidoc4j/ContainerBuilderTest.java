@@ -25,6 +25,7 @@ import java.io.InputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.impl.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.impl.ddoc.DDocSignature;
@@ -85,22 +86,64 @@ public class ContainerBuilderTest {
   @Test
   public void buildBDocContainerWithDataFiles() throws Exception {
     File testFile1 = createTestFile("testFile.txt");
+    File testFile2 = createTestFile("testFile2.txt");
     Container container = ContainerBuilder.
         aContainer().
         withDataFile(testFile1.getPath(), "text/plain").
         withDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "streamFile.txt", "text/plain").
         withDataFile(createTestFile("ExampleFile.txt"), "text/plain").
+        withDataFile(new DataFile(testFile2.getPath(), "text/plain")).
         build();
-    assertEquals(3, container.getDataFiles().size());
+    assertEquals(4, container.getDataFiles().size());
     assertEquals("testFile.txt", container.getDataFiles().get(0).getName());
     assertEquals("streamFile.txt", container.getDataFiles().get(1).getName());
     assertEquals("ExampleFile.txt", container.getDataFiles().get(2).getName());
+    assertEquals("testFile2.txt", container.getDataFiles().get(3).getName());
   }
 
-  private File createTestFile(String fileName) throws IOException {
-    File testFile1 = testFolder.newFile(fileName);
-    FileUtils.writeStringToFile(testFile1, "Banana Pancakes");
-    return testFile1;
+  @Test
+  public void buildDDocContainerWithDataFiles() throws Exception {
+    File testFile1 = createTestFile("testFile.txt");
+    File testFile2 = createTestFile("testFile2.txt");
+    Container container = ContainerBuilder.
+        aContainer(DDOC_CONTAINER_TYPE).
+        withDataFile(testFile1.getPath(), "text/plain").
+        withDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "streamFile.txt", "text/plain").
+        withDataFile(createTestFile("ExampleFile.txt"), "text/plain").
+        withDataFile(new DataFile(testFile2.getPath(), "text/plain")).
+        build();
+    assertEquals(4, container.getDataFiles().size());
+    assertEquals("testFile.txt", container.getDataFiles().get(0).getName());
+    assertEquals("streamFile.txt", container.getDataFiles().get(1).getName());
+    assertEquals("ExampleFile.txt", container.getDataFiles().get(2).getName());
+    assertEquals("testFile2.txt", container.getDataFiles().get(3).getName());
+  }
+
+  @Test(expected = InvalidDataFileException.class)
+  public void buildContainer_withNullFilePath_shouldThrowException() throws Exception {
+    String path = null;
+    ContainerBuilder.
+        aContainer().
+        withDataFile(path, "text/plain").
+        build();
+  }
+
+  @Test(expected = InvalidDataFileException.class)
+  public void buildContainer_withStreamDocAndNullFileName_shouldThrowException() throws Exception {
+    String name = null;
+    ContainerBuilder.
+        aContainer().
+        withDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), name, "text/plain").
+        build();
+  }
+
+  @Test(expected = InvalidDataFileException.class)
+  public void buildContainer_withInvalidMimeType_shouldThrowException() throws Exception {
+    String mimeType = null;
+    ContainerBuilder.
+        aContainer().
+        withDataFile("testFile.txt", mimeType).
+        build();
   }
 
   @Test
@@ -380,6 +423,12 @@ public class ContainerBuilderTest {
     assertEquals("TEST-FORMAT", container.getType());
     assertSame(stream, ((TestContainer) container).getOpenedFromStream());
     assertSame(TEST_CONFIGURATION, ((TestContainer) container).getConfiguration());
+  }
+
+  private File createTestFile(String fileName) throws IOException {
+    File testFile1 = testFolder.newFile(fileName);
+    FileUtils.writeStringToFile(testFile1, "Banana Pancakes");
+    return testFile1;
   }
 
   private void assertContainerOpened(Container container, String containerType) {

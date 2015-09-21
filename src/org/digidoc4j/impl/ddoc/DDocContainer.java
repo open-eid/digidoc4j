@@ -66,6 +66,11 @@ public class DDocContainer implements Container {
   }
 
   @Override
+  public void addDataFile(DataFile dataFile) {
+    jDigiDocFacade.addDataFile(dataFile);
+  }
+
+  @Override
   public void addSignature(Signature signature) {
     logger.debug("Ignoring separate add signature call for DDoc containers, because signatures are added to container during signing process");
   }

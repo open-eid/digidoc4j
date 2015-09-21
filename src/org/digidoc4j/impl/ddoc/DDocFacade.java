@@ -265,6 +265,10 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
     }
   }
 
+  public void addDataFile(DataFile dataFile) {
+    addDataFile(dataFile.getStream(), dataFile.getName(), dataFile.getMediaType());
+  }
+
   public void addRawSignature(byte[] signatureBytes) {
     logger.debug("");
     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(signatureBytes);

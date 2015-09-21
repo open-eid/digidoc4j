@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.CustomContainerBuilder;
@@ -80,18 +81,23 @@ public abstract class ContainerBuilder {
     return this;
   }
 
-  public ContainerBuilder withDataFile(String filePath, String mimeType) {
+  public ContainerBuilder withDataFile(String filePath, String mimeType) throws InvalidDataFileException {
     dataFiles.add(new ContainerDataFile(filePath, mimeType));
     return this;
   }
 
-  public ContainerBuilder withDataFile(InputStream inputStream, String fileName, String mimeType) {
+  public ContainerBuilder withDataFile(InputStream inputStream, String fileName, String mimeType) throws InvalidDataFileException {
     dataFiles.add(new ContainerDataFile(inputStream, fileName, mimeType));
     return this;
   }
 
-  public ContainerBuilder withDataFile(File file, String mimeType) {
+  public ContainerBuilder withDataFile(File file, String mimeType) throws InvalidDataFileException {
     dataFiles.add(new ContainerDataFile(file.getPath(), mimeType));
+    return this;
+  }
+
+  public ContainerBuilder withDataFile(DataFile dataFile) {
+    dataFiles.add(new ContainerDataFile(dataFile));
     return this;
   }
 
@@ -123,6 +129,8 @@ public abstract class ContainerBuilder {
     for (ContainerDataFile file : dataFiles) {
       if (file.isStream) {
         container.addDataFile(file.inputStream, file.filePath, file.mimeType);
+      } else if (file.isDataFile()) {
+        container.addDataFile(file.dataFile);
       } else {
         container.addDataFile(file.filePath, file.mimeType);
       }
@@ -142,12 +150,14 @@ public abstract class ContainerBuilder {
     String filePath;
     String mimeType;
     InputStream inputStream;
+    DataFile dataFile;
     boolean isStream;
 
     public ContainerDataFile(String filePath, String mimeType) {
       this.filePath = filePath;
       this.mimeType = mimeType;
       isStream = false;
+      validateDataFile();
     }
 
     public ContainerDataFile(InputStream inputStream, String filePath, String mimeType) {
@@ -155,6 +165,26 @@ public abstract class ContainerBuilder {
       this.mimeType = mimeType;
       this.inputStream = inputStream;
       isStream = true;
+      validateDataFile();
+    }
+
+
+    public ContainerDataFile(DataFile dataFile) {
+      this.dataFile = dataFile;
+      isStream = false;
+    }
+
+    public boolean isDataFile() {
+      return dataFile != null;
+    }
+
+    private void validateDataFile() {
+      if(StringUtils.isBlank(filePath)) {
+        throw new InvalidDataFileException("File name/path cannot be empty");
+      }
+      if(StringUtils.isBlank(mimeType)) {
+        throw new InvalidDataFileException("Mime type cannot be empty");
+      }
     }
   }
 }

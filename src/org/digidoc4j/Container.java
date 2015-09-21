@@ -58,6 +58,8 @@ public interface Container extends Serializable {
 
   DataFile addDataFile(File file, String mimeType);
 
+  void addDataFile(DataFile dataFile);
+
   void addSignature(Signature signature);
 
   /**

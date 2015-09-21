@@ -99,6 +99,10 @@ public class TestContainer implements Container {
   }
 
   @Override
+  public void addDataFile(DataFile dataFile) {
+  }
+
+  @Override
   public void addSignature(Signature signature) {
 
   }

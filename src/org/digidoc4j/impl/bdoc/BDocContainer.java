@@ -59,6 +59,11 @@ public class BDocContainer implements Container {
   }
 
   @Override
+  public void addDataFile(DataFile dataFile) {
+    asicFacade.addDataFile(dataFile);
+  }
+
+  @Override
   public void addSignature(Signature signature) {
     asicFacade.addSignature(signature);
   }
