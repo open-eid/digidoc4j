@@ -170,7 +170,6 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   public void setSignatureParameters(SignatureParameters signatureParameters) {
     logger.debug("");
     this.signatureParameters = signatureParameters.copy();
-    this.signatureParameters.setContainer(signatureParameters.getContainer());
 
     setDigestAlgorithm();
 

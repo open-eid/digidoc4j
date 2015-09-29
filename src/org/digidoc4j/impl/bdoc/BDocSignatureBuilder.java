@@ -43,7 +43,6 @@ public class BDocSignatureBuilder extends SignatureBuilder {
   }
 
   private AsicFacade getAsicFacade() {
-    BDocContainer container = (BDocContainer) signatureParameters.getContainer();
-    return container.getAsicFacade();
+    return ((BDocContainer)container).getAsicFacade();
   }
 }

@@ -19,17 +19,19 @@ import java.net.URL;
  * Supported algorithms
  */
 public enum DigestAlgorithm {
-  SHA1("http://www.w3.org/2000/09/xmldsig#sha1"),
-  SHA224("http://www.w3.org/2001/04/xmldsig-more#sha224"),
-  SHA256("http://www.w3.org/2001/04/xmlenc#sha256"),
-  SHA384("http://www.w3.org/2001/04/xmldsig-more#sha384"),
-  SHA512("http://www.w3.org/2001/04/xmlenc#sha512");
+  SHA1("http://www.w3.org/2000/09/xmldsig#sha1", new byte[] { 0x30, 0x1f, 0x30, 0x07, 0x06, 0x05, 0x2b, 0x0e, 0x03, 0x02, 0x1a, 0x04, 0x14 }),
+  SHA224("http://www.w3.org/2001/04/xmldsig-more#sha224", new byte[] { 0x30, 0x2b, 0x30, 0x0b, 0x06, 0x09, 0x60, (byte) 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x04, 0x04, 0x1c }),
+  SHA256("http://www.w3.org/2001/04/xmlenc#sha256", new byte[] { 0x30, 0x2f, 0x30, 0x0b, 0x06, 0x09, 0x60, (byte) 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x04, 0x20 }),
+  SHA384("http://www.w3.org/2001/04/xmldsig-more#sha384", new byte[] { 0x30, 0x3f, 0x30, 0x0b, 0x06, 0x09, 0x60, (byte) 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x02, 0x04, 0x30 }),
+  SHA512("http://www.w3.org/2001/04/xmlenc#sha512", new byte[] { 0x30, 0x4f, 0x30, 0x0b, 0x06, 0x09, 0x60, (byte) 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03, 0x04, 0x40 });
 
   private URL uri;
+  private byte[] digestInfoPrefix;
 
-  private DigestAlgorithm(String uri) {
+  private DigestAlgorithm(String uri, byte[] digestInfoPrefix) {
     try {
       this.uri = new URL(uri);
+      this.digestInfoPrefix = digestInfoPrefix;
     } catch (MalformedURLException e) {
       throw new DigiDoc4JException(e);
     }
@@ -42,6 +44,10 @@ public enum DigestAlgorithm {
    */
   public URL uri() {
     return uri;
+  }
+
+  public byte[] digestInfoPrefix() {
+    return digestInfoPrefix;
   }
 
   public eu.europa.ec.markt.dss.DigestAlgorithm getDssDigestAlgorithm() {

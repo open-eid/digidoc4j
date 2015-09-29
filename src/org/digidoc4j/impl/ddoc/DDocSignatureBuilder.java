@@ -12,6 +12,7 @@ package org.digidoc4j.impl.ddoc;
 
 import java.security.cert.X509Certificate;
 
+import org.digidoc4j.Container;
 import org.digidoc4j.DataToSign;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
@@ -43,7 +44,6 @@ public class DDocSignatureBuilder extends SignatureBuilder {
   }
 
   private DDocFacade getJDigiDocFacade() {
-    DDocContainer container = (DDocContainer) signatureParameters.getContainer();
-    return container.getJDigiDocFacade();
+    return ((DDocContainer)container).getJDigiDocFacade();
   }
 }

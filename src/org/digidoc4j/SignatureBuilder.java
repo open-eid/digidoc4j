@@ -34,6 +34,7 @@ public abstract class SignatureBuilder {
   private final static Logger logger = LoggerFactory.getLogger(SignatureBuilder.class);
   protected SignatureParameters signatureParameters = new SignatureParameters();
   protected SignatureToken signatureToken;
+  protected Container container;
   protected static Map<String, Class<? extends SignatureBuilder>> customSignatureBuilders = new HashMap<>();
 
   public static SignatureBuilder aSignature(Container container) {
@@ -112,7 +113,7 @@ public abstract class SignatureBuilder {
   }
 
   protected void setContainer(Container container) {
-    signatureParameters.setContainer(container);
+    this.container = container;
   }
 
   public SignatureBuilder withSigningCertificate(X509Certificate certificate) {

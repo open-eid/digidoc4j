@@ -18,7 +18,6 @@ import java.security.cert.X509Certificate;
 import org.apache.commons.lang.ArrayUtils;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.utils.DigestInfoPrefix;
 
 import eu.europa.ec.markt.dss.DSSUtils;
 
@@ -55,6 +54,6 @@ public class TestSigningHelper {
   }
 
   private static byte[] addPadding(byte[] digest, DigestAlgorithm digestAlgorithm) {
-    return ArrayUtils.addAll(DigestInfoPrefix.getDigestInfoPrefix(digestAlgorithm), digest);
+    return ArrayUtils.addAll(digestAlgorithm.digestInfoPrefix(), digest);
   }
 }

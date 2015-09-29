@@ -37,7 +37,6 @@ public class SignatureParameters implements Serializable {
   private DigestAlgorithm digestAlgorithm;
   private EncryptionAlgorithm encryptionAlgorithm;
   private SignatureProfile signatureProfile;
-  private Container container;
   private X509Certificate signingCertificate;
 
   /**
@@ -171,14 +170,6 @@ public class SignatureParameters implements Serializable {
 
   public void setSignatureProfile(SignatureProfile signatureProfile) {
     this.signatureProfile = signatureProfile;
-  }
-
-  public Container getContainer() {
-    return container;
-  }
-
-  public void setContainer(Container container) {
-    this.container = container;
   }
 
   public void setSigningCertificate(X509Certificate signingCertificate) {

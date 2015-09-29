@@ -109,7 +109,6 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
     }
     addSignatureProfile(signatureParameters);
     this.signatureParameters = signatureParameters.copy();
-    this.signatureParameters.setContainer(signatureParameters.getContainer());
   }
 
   private void addSignatureProfile(SignatureParameters signatureParameters) {

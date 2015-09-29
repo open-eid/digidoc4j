@@ -21,11 +21,8 @@ import org.digidoc4j.*;
 import org.digidoc4j.exceptions.*;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.impl.Signatures;
-import org.digidoc4j.impl.bdoc.AsicFacade;
-import org.digidoc4j.impl.bdoc.BDocSignature;
 import org.digidoc4j.signers.ExternalSigner;
 import org.digidoc4j.signers.PKCS12SignatureToken;
-import org.digidoc4j.utils.DigestInfoPrefix;
 import org.digidoc4j.utils.Helper;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -46,7 +43,6 @@ import java.util.List;
 import java.util.zip.ZipFile;
 
 import static java.util.Arrays.asList;
-import static org.digidoc4j.Container.*;
 import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.SignatureProfile.*;
 import static org.digidoc4j.DigestAlgorithm.SHA1;
@@ -1107,17 +1103,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
       }
 
       private byte[] addPadding(byte[] digest) {
-        byte[] signatureDigest;
-        switch (digestAlgorithm) {
-          case SHA512:
-            signatureDigest = DigestInfoPrefix.SHA512;
-            break;
-          case SHA256:
-            signatureDigest = DigestInfoPrefix.SHA256;
-            break;
-          default:
-            throw new NotYetImplementedException();
-        }
+        byte[] signatureDigest = digestAlgorithm.digestInfoPrefix();
         return ArrayUtils.addAll(signatureDigest, digest);
       }
     };

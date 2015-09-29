@@ -10,14 +10,16 @@
 
 package prototype;
 
-import eu.europa.ec.markt.dss.DSSUtils;
+import static org.digidoc4j.DigestAlgorithm.SHA256;
+
+import java.io.UnsupportedEncodingException;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.digidoc4j.signers.PKCS12SignatureToken;
-import org.digidoc4j.utils.DigestInfoPrefix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
+import eu.europa.ec.markt.dss.DSSUtils;
 
 public class TestSignatureToken extends PKCS12SignatureToken {
 
@@ -37,6 +39,6 @@ public class TestSignatureToken extends PKCS12SignatureToken {
   }
 
   private byte[] addPadding(byte []digest) {
-    return ArrayUtils.addAll(DigestInfoPrefix.SHA256, digest);
+    return ArrayUtils.addAll(SHA256.digestInfoPrefix(), digest);
   }
 }

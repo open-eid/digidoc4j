@@ -70,7 +70,6 @@ public class SignatureBuilderTest {
     assertEquals(SignatureProfile.LT_TM, parameters.getSignatureProfile());
     assertEquals("S0", parameters.getSignatureId());
     assertSame(signerCert, parameters.getSigningCertificate());
-    assertSame(container, parameters.getContainer());
     byte[] bytesToSign = dataToSign.getDigestToSign();
     assertNotNull(bytesToSign);
     assertTrue(bytesToSign.length > 1);
