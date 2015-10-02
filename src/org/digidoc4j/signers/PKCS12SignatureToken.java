@@ -19,7 +19,6 @@ import org.digidoc4j.SignatureToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
 /**
@@ -47,12 +46,6 @@ public class PKCS12SignatureToken implements SignatureToken {
   public X509Certificate getCertificate() {
     logger.debug("");
     return keyEntry.getCertificate().getCertificate();
-  }
-
-  @Override
-  public final PrivateKey getPrivateKey() {
-    logger.debug("");
-    return keyEntry.getPrivateKey();
   }
 
   @Override

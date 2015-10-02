@@ -13,6 +13,8 @@ package eu.europa.ec.markt.dss.validation102853.ocsp;
 import eu.europa.ec.markt.dss.DSSRevocationUtils;
 import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.exception.DSSNullException;
+import eu.europa.ec.markt.dss.signature.token.DSSPrivateKeyEntry;
+import eu.europa.ec.markt.dss.signature.token.Pkcs12SignatureToken;
 import eu.europa.ec.markt.dss.validation102853.CertificatePool;
 import eu.europa.ec.markt.dss.validation102853.CertificateToken;
 import eu.europa.ec.markt.dss.validation102853.OCSPToken;
@@ -31,16 +33,15 @@ import org.bouncycastle.cert.ocsp.*;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.SignatureToken;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.x500.X500Principal;
 
 import java.io.IOException;
+import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.List;
@@ -107,11 +108,11 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
           throw new ConfigurationException("Configuration needed for OCSP request signing is not complete.");
         }
 
-        SignatureToken ocspSigner = new PKCS12SignatureToken(configuration.getOCSPAccessCertificateFileName(),
-            configuration.getOCSPAccessCertificatePassword());
+        DSSPrivateKeyEntry keyEntry = getOCSPAccessCertificatePrivateKey();
+        PrivateKey privateKey = keyEntry.getPrivateKey();
+        X509Certificate ocspSignerCert = keyEntry.getCertificate().getCertificate();
 
-        ContentSigner contentSigner = signerBuilder.build(ocspSigner.getPrivateKey());
-        X509Certificate ocspSignerCert = ocspSigner.getCertificate();
+        ContentSigner contentSigner = signerBuilder.build(privateKey);
         X509CertificateHolder[] chain = {new X509CertificateHolder(ocspSignerCert.getEncoded())};
         GeneralName generalName = new GeneralName(new JcaX509CertificateHolder(ocspSignerCert).getSubject());
         ocspReqBuilder.setRequestorName(generalName);
@@ -147,7 +148,6 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
         logger.trace("--> OnlineOCSPSource queried for " + dssIdAsString);
       }
       final X509Certificate certificate = certificateToken.getCertificate();
-//      final X509Certificate issuerCertificate = certificateToken.getIssuerToken().getCertificate();
       X500Principal issuerX500Principal = certificateToken.getIssuerX500Principal();
       List<CertificateToken> issuerTokens = certificatePool.get(issuerX500Principal);
 
@@ -216,10 +216,15 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   }
 
   abstract Extension createNonce();
-  
+
   public interface Listener {
 
     void onGetOCSPToken(CertificateToken certificateToken, CertificatePool certificatePool);
-      
+
+  }
+
+  private DSSPrivateKeyEntry getOCSPAccessCertificatePrivateKey() {
+    Pkcs12SignatureToken signatureTokenConnection = new Pkcs12SignatureToken(configuration.getOCSPAccessCertificatePassword(), configuration.getOCSPAccessCertificateFileName());
+    return signatureTokenConnection.getKeys().get(0);
   }
 }

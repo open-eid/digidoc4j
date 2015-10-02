@@ -79,7 +79,7 @@ public class DDocSignature implements Signature {
   }
 
   @Override
-  public byte[] getOcspNonce() {
+  public byte[] getOCSPNonce() {
     logger.debug("");
     return null;
   }

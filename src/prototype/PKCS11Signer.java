@@ -17,7 +17,6 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.SignatureToken;
 
-import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
 /**
@@ -43,11 +42,6 @@ public class PKCS11Signer implements SignatureToken {
   @Override
   public X509Certificate getCertificate() {
     return keyEntry.getCertificate().getCertificate();
-  }
-
-  @Override
-  public PrivateKey getPrivateKey() {
-    return keyEntry.getPrivateKey();
   }
 
   @Override

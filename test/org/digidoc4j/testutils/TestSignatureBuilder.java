@@ -67,7 +67,7 @@ public class TestSignatureBuilder extends SignatureBuilder {
     }
 
     @Override
-    public byte[] getOcspNonce() {
+    public byte[] getOCSPNonce() {
       return new byte[0];
     }
 

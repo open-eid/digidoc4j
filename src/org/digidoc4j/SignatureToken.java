@@ -10,7 +10,6 @@
 
 package org.digidoc4j;
 
-import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
 /**
@@ -24,13 +23,6 @@ public interface SignatureToken {
    * @return signer certificate
    */
   X509Certificate getCertificate();
-
-  /**
-   * Retrieves private key
-   *
-   * @return private key
-   */
-  PrivateKey getPrivateKey();
 
   /**
    * There must be implemented routines needed for signing

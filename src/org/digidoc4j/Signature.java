@@ -49,7 +49,7 @@ public interface Signature extends Serializable {
    *
    * @return OCSP response nonce
    */
-  byte[] getOcspNonce();
+  byte[] getOCSPNonce();
 
   /**
    * Returns the signature OCSP responder certificate.

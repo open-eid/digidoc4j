@@ -103,7 +103,7 @@ public class BDocSignature implements Signature {
   }
 
   @Override
-  public byte[] getOcspNonce() {
+  public byte[] getOCSPNonce() {
     logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }

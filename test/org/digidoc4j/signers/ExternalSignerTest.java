@@ -38,19 +38,4 @@ public class ExternalSignerTest {
 
     assertEquals(Certificates.SIGNING_CERTIFICATE, Base64.encodeBase64String(certificateBytes));
   }
-
-  @Test(expected = NotSupportedException.class)
-  public void testGetPrivateKey() throws Exception {
-
-    X509Certificate cert = DSSUtils.loadCertificate(Base64.decodeBase64(Certificates.SIGNING_CERTIFICATE)).getCertificate();
-
-    ExternalSigner externalSigner = new ExternalSigner(cert) {
-      @Override
-      public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
-        return new byte[0];
-      }
-    };
-
-    externalSigner.getPrivateKey();
-  }
 }
