@@ -180,13 +180,6 @@ public class SignatureParameters implements Serializable {
     return signingCertificate;
   }
 
-  public boolean isTimeMark() {
-    if(getSignatureProfile() == SignatureProfile.LT_TM) {
-      return true;
-    }
-    return false;
-  }
-
   /**
    * Clones signature parameters
    *

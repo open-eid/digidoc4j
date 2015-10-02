@@ -27,7 +27,6 @@ import org.digidoc4j.testutils.TestContainer;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -55,7 +54,7 @@ public class SignatureBuilderTest {
         withPostalCode("13456").
         withCountry("Val Verde").
         withRoles("Manager", "Suspicious Fisherman").
-        withDigestAlgorithm(DigestAlgorithm.SHA256).
+        withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
         withSignatureProfile(SignatureProfile.LT_TM).
         withSignatureId("S0").
         withSigningCertificate(signerCert);
@@ -101,7 +100,7 @@ public class SignatureBuilderTest {
         withPostalCode("13456").
         withCountry("Estonia").
         withRoles("Manager", "Suspicious Fisherman").
-        withDigestAlgorithm(DigestAlgorithm.SHA256).
+        withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
         withSignatureProfile(SignatureProfile.LT_TM).
         withSignatureToken(testSignatureToken).
         invokeSigning();
@@ -117,7 +116,7 @@ public class SignatureBuilderTest {
 
     Signature signature = SignatureBuilder.
         aSignature(container).
-        withDigestAlgorithm(DigestAlgorithm.SHA1).
+        withSignatureDigestAlgorithm(DigestAlgorithm.SHA1).
         withSignatureToken(testSignatureToken).
         invokeSigning();
 
@@ -152,7 +151,7 @@ public class SignatureBuilderTest {
 
     Signature signature = dataToSign.finalize(signatureValue);
     assertNotNull(signature);
-    assertNotNull(signature.getSigningTime());
+    assertNotNull(signature.getClaimedSigningTime());
 
     container.addSignature(signature);
     container.saveAsFile(testFolder.newFile("test-container.bdoc").getPath());
@@ -221,7 +220,7 @@ public class SignatureBuilderTest {
     assertNotNull(signature.getProducedAt());
     //TODO check why it doesn't match, should be LT_TM
     assertEquals(SignatureProfile.LT, signature.getProfile());
-    assertNotNull(signature.getSigningTime());
+    assertNotNull(signature.getClaimedSigningTime());
     assertNotNull(signature.getRawSignature());
     assertTrue(signature.getRawSignature().length > 1);
     assertTrue(signature.validate().isEmpty());

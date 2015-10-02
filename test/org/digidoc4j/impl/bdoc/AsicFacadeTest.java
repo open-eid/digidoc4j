@@ -1229,8 +1229,8 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     serialize(container, "container.bin");
     Container deserializedContainer = deserializer("container.bin");
 
-    Date signingTimeBeforeSerialization = container.getSignature(0).getSigningTime();
-    Date signingTimeAfterSerialization = deserializedContainer.getSignature(0).getSigningTime();
+    Date signingTimeBeforeSerialization = container.getSignature(0).getClaimedSigningTime();
+    Date signingTimeAfterSerialization = deserializedContainer.getSignature(0).getClaimedSigningTime();
 
     assertEquals(signingTimeBeforeSerialization, signingTimeAfterSerialization);
   }

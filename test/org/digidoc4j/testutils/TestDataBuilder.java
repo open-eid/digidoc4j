@@ -49,7 +49,7 @@ public class TestDataBuilder {
 
   public static Signature signContainer(Container container, DigestAlgorithm digestAlgorithm) {
     DataToSign dataToSign = prepareDataToSign(container).
-        withDigestAlgorithm(digestAlgorithm).
+        withSignatureDigestAlgorithm(digestAlgorithm).
         buildDataToSign();
     return makeSignature(container, dataToSign);
   }
@@ -88,7 +88,7 @@ public class TestDataBuilder {
   private static SignatureBuilder prepareDataToSign(Container container) {
     return SignatureBuilder.
         aSignature(container).
-        withDigestAlgorithm(DigestAlgorithm.SHA256).
+        withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
         withSignatureProfile(SignatureProfile.LT_TM).
         withSigningCertificate(getSigningCert());
   }

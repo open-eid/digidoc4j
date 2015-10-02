@@ -85,12 +85,6 @@ public class BDocSignature implements Signature {
   }
 
   @Override
-  public void setCertificate(X509Cert cert) {
-    logger.warn("Not yet implemented");
-    throw new NotYetImplementedException();
-  }
-
-  @Override
   public String getCity() {
     logger.debug("");
     return signerLocation == null ? null : signerLocation.getCity();
@@ -215,11 +209,16 @@ public class BDocSignature implements Signature {
   }
 
   @Override
-  public Date getSigningTime() {
+  public Date getClaimedSigningTime() {
     logger.debug("");
     Date signingTime = origin.getSigningTime();
     logger.debug("Signing time: " + signingTime);
     return signingTime;
+  }
+
+  @Override
+  public Date getSigningTime() {
+    return getClaimedSigningTime();
   }
 
   @Override
@@ -247,15 +246,9 @@ public class BDocSignature implements Signature {
   }
 
   @Override
-  public List<DigiDoc4JException> validate(Validate validationType) {
-    logger.debug("");
-    return validationErrors;
-  }
-
-  @Override
   public List<DigiDoc4JException> validate() {
     logger.debug("");
-    return validate(Validate.VALIDATE_FULL);
+    return validationErrors;
   }
 
   @Override

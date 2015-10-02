@@ -36,7 +36,6 @@ import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
-import static org.digidoc4j.Signature.Validate.VALIDATE_FULL;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.assertNull;
@@ -97,14 +96,6 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     ContainerOpener.open("testFiles/asics_for_testing.bdoc").getSignatures().get(0).getTimeStampTokenCertificate();
   }
 
-  @Test(expected = NotYetImplementedException.class)
-  public void testSetCertificateForBDOC() throws Exception {
-    AsicFacade bDocContainer = new AsicFacade();
-    bDocContainer.addDataFile("testFiles/test.txt", "text/plain");
-    Signature bDocSignature = bDocContainer.sign(new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray()));
-    bDocSignature.setCertificate(new X509Cert("testFiles/signout.pem"));
-  }
-
   @Test(expected = CertificateNotFoundException.class)
   public void testGetSignerRolesForBDoc_OCSP_Exception() {
     Container container = ContainerOpener.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
@@ -124,7 +115,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   private void testGetSigningTime(Container.DocumentType ddoc) {
     Signature signature = getSignature(ddoc);
-    assertTrue(isAlmostNow(signature.getSigningTime()));
+    assertTrue(isAlmostNow(signature.getClaimedSigningTime()));
   }
 
   @Test
@@ -185,7 +176,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testValidationForDDoc() {
-    assertEquals(0, getSignature(DDOC).validate(VALIDATE_FULL).size());
+    assertEquals(0, getSignature(DDOC).validate().size());
   }
 
   @Test
@@ -225,7 +216,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   @Test
   public void testValidationWithInvalidDDoc() {
     Signature signature = ContainerOpener.open("testFiles/changed_digidoc_test.ddoc").getSignatures().get(0);
-    assertEquals(4, signature.validate(VALIDATE_FULL).size());
+    assertEquals(4, signature.validate().size());
   }
 
   @Test

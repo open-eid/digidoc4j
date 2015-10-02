@@ -40,7 +40,9 @@ public interface ValidationResult {
    * Are there any validation errors.
    *
    * @return value indicating if any errors exist
+   * @deprecated use {@link ValidationResult#isValid()} instead.
    */
+  @Deprecated
   boolean hasErrors();
 
   /**

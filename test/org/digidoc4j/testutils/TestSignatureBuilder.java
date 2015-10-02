@@ -50,10 +50,6 @@ public class TestSignatureBuilder extends SignatureBuilder {
   }
 
   private static class TestSignature implements Signature {
-    @Override
-    public void setCertificate(X509Cert cert) {
-
-    }
 
     @Override
     public String getCity() {
@@ -126,6 +122,11 @@ public class TestSignatureBuilder extends SignatureBuilder {
     }
 
     @Override
+    public Date getClaimedSigningTime() {
+      return null;
+    }
+
+    @Override
     public Date getSigningTime() {
       return null;
     }
@@ -142,11 +143,6 @@ public class TestSignatureBuilder extends SignatureBuilder {
 
     @Override
     public X509Cert getTimeStampTokenCertificate() {
-      return null;
-    }
-
-    @Override
-    public List<DigiDoc4JException> validate(Validate validationType) {
       return null;
     }
 

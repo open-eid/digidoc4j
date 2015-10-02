@@ -92,16 +92,6 @@ public class X509Cert implements Serializable {
     originalCert = cert;
   }
 
-//  /**
-//   * Creates an X509 certificate from bytes.
-//   *
-//   * @param bytes  X509 certificate in bytes
-//   * @param format input bytes format
-//   * @throws Exception throws an exception if the X509 certificate parsing fails
-//   */
-//  public X509Cert(byte[] bytes, Format format) throws Exception {
-//  }
-
   /**
    * Creates an X509 certificate from a path.
    *

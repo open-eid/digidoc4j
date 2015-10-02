@@ -43,7 +43,6 @@ public class DDocSignature implements Signature {
     this.origin = signature;
   }
 
-  @Override
   public void setCertificate(X509Cert cert) {
     logger.debug("");
     this.certificate = cert;
@@ -142,9 +141,14 @@ public class DDocSignature implements Signature {
   }
 
   @Override
-  public Date getSigningTime() {
+  public Date getClaimedSigningTime() {
     logger.debug("");
     return origin.getSignedProperties().getSigningTime();
+  }
+
+  @Override
+  public Date getSigningTime() {
+    return getClaimedSigningTime();
   }
 
   @Override
@@ -164,12 +168,6 @@ public class DDocSignature implements Signature {
   public X509Cert getTimeStampTokenCertificate() {
     logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
-  }
-
-  @Override
-  public List<DigiDoc4JException> validate(Validate validationType) {
-    logger.debug("");
-    return validate();
   }
 
   @Override

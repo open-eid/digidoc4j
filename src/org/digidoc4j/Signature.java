@@ -22,23 +22,6 @@ import java.util.List;
 public interface Signature extends Serializable {
 
   /**
-   * Sets signer certificate
-   * For a BDOC Signature it throws a NotYetImplementedException.
-   *
-   * @param cert signers certificate
-   */
-  void setCertificate(X509Cert cert);
-
-  /**
-   * Signature validation types.
-   */
-  enum Validate {
-    VALIDATE_TM,
-    VALIDATE_POLICY,
-    VALIDATE_FULL
-  }
-
-  /**
    * Returns the signature production city.
    *
    * @return production city
@@ -144,6 +127,15 @@ public interface Signature extends Serializable {
    *
    * @return signing time
    */
+  Date getClaimedSigningTime();
+
+  /**
+   * Returns the computer's time of signing.
+   *
+   * @return signing time
+   * @deprecated use {@link Signature#getClaimedSigningTime()} instead. Will be removed in the future.
+   */
+  @Deprecated
   Date getSigningTime();
 
   /**
@@ -170,14 +162,6 @@ public interface Signature extends Serializable {
    * @return TimeStampToken certificate
    */
   X509Cert getTimeStampTokenCertificate();
-
-  /**
-   * Validates the signature.
-   *
-   * @param validationType type of validation
-   * @return list of Digidoc4JExceptions
-   */
-  List<DigiDoc4JException> validate(Validate validationType);
 
   /**
    * Validates the signature using Validate.VALIDATE_FULL method.

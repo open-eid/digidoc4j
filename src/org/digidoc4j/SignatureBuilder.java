@@ -102,7 +102,7 @@ public abstract class SignatureBuilder {
     return this;
   }
 
-  public SignatureBuilder withDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+  public SignatureBuilder withSignatureDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
     signatureParameters.setDigestAlgorithm(digestAlgorithm);
     return this;
   }

@@ -32,11 +32,6 @@ public class HowTo {
   }
 
   private static void test() {
-//    Configuration configuration = new Configuration(Configuration.Mode.PROD);
-//    configuration.setOCSPAccessCertificateFileName("testFiles/ocsp_juurdepaasutoend.p12d");
-//    configuration.setOCSPAccessCertificatePassword("0vRsI0XQ".toCharArray());
-//    configuration.setValidationPolicy("conf/test_constraint.xml");
-
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
     Container container = ContainerBuilder.
         aContainer().
@@ -53,28 +48,16 @@ public class HowTo {
         invokeSigning();
     container.addSignature(signature);
 
-//    ContainerFacade container = ContainerFacade.open("util/faulty/bdoc21-bad-nonce-content.bdoc");
     container.saveAsFile("prototype.bdoc");
     ValidationResult result = container.validate();
     System.out.println(result.getReport());
-//    ContainerFacade container = ContainerFacade.open("BDOC_2.1_TS.bdoc", configuration);
-//    container.extendTo(ContainerFacade.SignatureProfile.TSA);
-//    container.save("BDOC_2.1_TSA.bdoc");
-//    ValidationResult result = container.validate();
-//    if (!result.isValid()) {
-//      System.out.println(result.getReport());
-//    }
   }
 
   public static void validate() {
     DSSDocument toValidateDocument = new FileDocument("util/plugtest_asice/Signature-A-EE_CBTS-1.asice");
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(toValidateDocument);
-//    CommonsDataLoader commonsDataLoader = new CommonsDataLoader();
     CommonCertificateVerifier verifier = new CommonCertificateVerifier();
 
-//    OnlineCRLSource crlSource = new OnlineCRLSource();
-//    crlSource.setDataLoader(commonsDataLoader);
-//    verifier.setCrlSource(null);
     OnlineOCSPSource ocspSource = new OnlineOCSPSource();
     verifier.setOcspSource(ocspSource);
 
