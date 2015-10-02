@@ -19,9 +19,12 @@ import org.digidoc4j.impl.Certificates;
 import org.digidoc4j.impl.ddoc.DDocFacade;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.signers.PKCS12SignatureToken;
+import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.utils.Helper;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.net.URI;
 import java.security.cert.CertificateEncodingException;
@@ -32,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
@@ -44,6 +48,9 @@ import static org.junit.Assert.assertTrue;
 public class SignatureTest extends DigiDoc4JTestHelper {
 
   private PKCS12SignatureToken PKCS12_SIGNER;
+
+  @Rule
+  public TemporaryFolder testFolder = new TemporaryFolder();
 
   @Before
   public void setUp() throws Exception {
@@ -264,6 +271,14 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     assertNull(getSignature(DDOC).getTimeStampTokenCertificate());
   }
 
+  @Test
+  public void signature_withoutProductionPlace_shouldNotThrowException() throws Exception {
+    Container bdocContainer = TestDataBuilder.createContainerWithFile(testFolder, "BDOC");
+    Container ddocContainer = TestDataBuilder.createContainerWithFile(testFolder, "DDOC");
+    verifySignatureWithoutProductionPlaceDoesntThrow(bdocContainer);
+    verifySignatureWithoutProductionPlaceDoesntThrow(ddocContainer);
+  }
+
   private Signature getSignature(Container.DocumentType documentType) {
     Container container = ContainerBuilder.
         aContainer(documentType.name()).
@@ -323,5 +338,20 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     return ContainerBuilder.
         aContainer(DDOC_CONTAINER_TYPE).
         build();
+  }
+
+  private void verifySignatureWithoutProductionPlaceDoesntThrow(Container container) {
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureToken(PKCS12_SIGNER).
+        invokeSigning();
+    assertProductionPlaceIsNull(signature);
+  }
+
+  private void assertProductionPlaceIsNull(Signature signature) {
+    assertNull(signature.getCity());
+    assertNull(signature.getCountryName());
+    assertNull(signature.getPostalCode());
+    assertNull(signature.getStateOrProvince());
   }
 }

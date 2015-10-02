@@ -76,8 +76,7 @@ public class TestDataBuilder {
   }
 
   private static Container populateContainerBuilderWithFile(ContainerBuilder builder, TemporaryFolder testFolder) throws IOException {
-    File testFile = testFolder.newFile("testFile.txt");
-    FileUtils.writeStringToFile(testFile, "Banana Pancakes");
+    File testFile = createTestFile(testFolder);
     Container container = builder.
         withConfiguration(new Configuration(Configuration.Mode.TEST)).
         withDataFile(testFile.getPath(), "text/plain")
@@ -91,5 +90,11 @@ public class TestDataBuilder {
         withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
         withSignatureProfile(SignatureProfile.LT_TM).
         withSigningCertificate(getSigningCert());
+  }
+
+  private static File createTestFile(TemporaryFolder testFolder) throws IOException {
+    File testFile = testFolder.newFile();
+    FileUtils.writeStringToFile(testFile, "Banana Pancakes");
+    return testFile;
   }
 }
