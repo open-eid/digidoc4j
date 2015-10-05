@@ -159,7 +159,7 @@ public class BDocSignature implements Signature {
   public Date getOCSPResponseCreationTime() {
     logger.debug("");
     Date date = origin.getOCSPSource().getContainedOCSPResponses().get(0).getProducedAt();
-    logger.debug("Produced at date: " + date.toString());
+    logger.debug("Produced at date: " + date);
     return date;
   }
 
@@ -176,11 +176,27 @@ public class BDocSignature implements Signature {
     if (signatureTimestamps.size() == 0) {
       return null;
     }
-    return signatureTimestamps.get(0).getGenerationTime();
+    Date date = signatureTimestamps.get(0).getGenerationTime();
+    logger.debug("Time stamp creation time: " + date);
+    return date;
+  }
+
+  @Override
+  public Date getTrustedSigningTime() {
+    if(getProfile() == B_BES) {
+      return null;
+    }
+    //TODO trusted signing time should be taken based on the profile: LT_TM should return OCSP response creation time and LT should return TS creation time when getProfile() gets fixed.
+    Date timeStampCreationTime = getTimeStampCreationTime();
+    if(timeStampCreationTime != null) {
+      return timeStampCreationTime;
+    }
+    return getOCSPResponseCreationTime();
   }
 
   @Override
   public SignatureProfile getProfile() {
+    //FIXME LT_TM and LT both return LT, because they both have XAdES-BASELINE-LT. LT_TM should return LT_TM.
     SignatureLevel dataFoundUpToLevel = origin.getDataFoundUpToLevel();
     logger.debug("getting profile for: " + dataFoundUpToLevel);
     return signatureProfileMap.get(dataFoundUpToLevel);

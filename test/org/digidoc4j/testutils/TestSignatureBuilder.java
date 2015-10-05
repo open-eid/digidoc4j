@@ -102,6 +102,11 @@ public class TestSignatureBuilder extends SignatureBuilder {
     }
 
     @Override
+    public Date getTrustedSigningTime() {
+      return null;
+    }
+
+    @Override
     public SignatureProfile getProfile() {
       return null;
     }

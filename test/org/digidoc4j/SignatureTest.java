@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.io.IOException;
 import java.net.URI;
 import java.security.cert.CertificateEncodingException;
 import java.text.ParseException;
@@ -39,6 +40,7 @@ import static junit.framework.Assert.assertNotNull;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
+import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
 import static org.digidoc4j.utils.Helper.deleteFile;
@@ -271,29 +273,6 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     assertNull(getSignature(DDOC).getTimeStampTokenCertificate());
   }
 
-  @Test
-  public void signature_withoutProductionPlace_shouldNotThrowException() throws Exception {
-    Container bdocContainer = TestDataBuilder.createContainerWithFile(testFolder, "BDOC");
-    Container ddocContainer = TestDataBuilder.createContainerWithFile(testFolder, "DDOC");
-    verifySignatureWithoutProductionPlaceDoesntThrow(bdocContainer);
-    verifySignatureWithoutProductionPlaceDoesntThrow(ddocContainer);
-  }
-
-  private Signature getSignature(Container.DocumentType documentType) {
-    Container container = ContainerBuilder.
-        aContainer(documentType.name()).
-        withDataFile("testFiles/test.txt", "text/plain").
-        build();
-
-    Signature signature = SignatureBuilder.
-        aSignature(container).
-        withSignatureToken(PKCS12_SIGNER).
-        invokeSigning();
-    container.addSignature(signature);
-
-    return signature;
-  }
-
   @Test(expected = NotYetImplementedException.class)
   public void testGetNonceForBDoc() {
     Container container = ContainerOpener.open("testFiles/asics_for_testing.bdoc");
@@ -334,6 +313,69 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     assertXMLEqual(signatureFromContainer, new String(signature.getRawSignature()));
   }
 
+  @Test
+  public void signature_withoutProductionPlace_shouldNotThrowException() throws Exception {
+    Container bdocContainer = TestDataBuilder.createContainerWithFile(testFolder, BDOC_CONTAINER_TYPE);
+    Container ddocContainer = TestDataBuilder.createContainerWithFile(testFolder, DDOC_CONTAINER_TYPE);
+    verifySignatureWithoutProductionPlaceDoesntThrow(bdocContainer);
+    verifySignatureWithoutProductionPlaceDoesntThrow(ddocContainer);
+  }
+
+  @Test
+  public void bDocBESSignature_TrustedSigningTime_shouldReturnNull() throws Exception {
+    Signature signature = createSignatureFor(BDOC_CONTAINER_TYPE, SignatureProfile.B_BES);
+    assertNull(signature.getTrustedSigningTime());
+  }
+
+  @Test
+  public void dDocBESSignature_TrustedSigningTime_shouldReturnNull() throws Exception {
+    Signature signature = createSignatureFor(DDOC_CONTAINER_TYPE, SignatureProfile.B_BES);
+    assertNull(signature.getTrustedSigningTime());
+  }
+
+  @Test
+  public void bDocTimeMarkSignature_TrustedSigningTime_shouldReturnOCSPResponseCreationTime() throws Exception {
+    Signature signature = createSignatureFor(BDOC_CONTAINER_TYPE, SignatureProfile.LT_TM);
+    assertNotNull(signature.getTrustedSigningTime());
+    assertEquals(signature.getOCSPResponseCreationTime(), signature.getTrustedSigningTime());
+  }
+
+  @Test
+  public void dDocTimeMarkSignature_TrustedSigningTime_shouldReturnOCSPResponseCreationTime() throws Exception {
+    Signature signature = createSignatureFor(DDOC_CONTAINER_TYPE, SignatureProfile.LT_TM);
+    assertNotNull(signature.getTrustedSigningTime());
+    assertEquals(signature.getOCSPResponseCreationTime(), signature.getTrustedSigningTime());
+  }
+
+  @Test
+  public void bDocTimeStampSignature_TrustedSigningTime_shouldReturnTimeStampCreationTime() throws Exception {
+    Signature signature = createSignatureFor(BDOC_CONTAINER_TYPE, SignatureProfile.LT);
+    assertNotNull(signature.getTrustedSigningTime());
+    assertEquals(signature.getTimeStampCreationTime(), signature.getTrustedSigningTime());
+  }
+
+  @Test
+  public void bDocLTASignature_TrustedSigningTime_shouldReturnTimeStampCreationTime() throws Exception {
+    Signature signature = createSignatureFor(BDOC_CONTAINER_TYPE, SignatureProfile.LTA);
+    assertNotNull(signature.getTrustedSigningTime());
+    assertEquals(signature.getTimeStampCreationTime(), signature.getTrustedSigningTime());
+  }
+
+  private Signature getSignature(Container.DocumentType documentType) {
+    Container container = ContainerBuilder.
+        aContainer(documentType.name()).
+        withDataFile("testFiles/test.txt", "text/plain").
+        build();
+
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureToken(PKCS12_SIGNER).
+        invokeSigning();
+    container.addSignature(signature);
+
+    return signature;
+  }
+
   private Container createDDoc() {
     return ContainerBuilder.
         aContainer(DDOC_CONTAINER_TYPE).
@@ -353,5 +395,15 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     assertNull(signature.getCountryName());
     assertNull(signature.getPostalCode());
     assertNull(signature.getStateOrProvince());
+  }
+
+  private Signature createSignatureFor(String containerType, SignatureProfile signatureProfile) throws IOException {
+    Container container = TestDataBuilder.createContainerWithFile(testFolder, containerType);
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureToken(PKCS12_SIGNER).
+        withSignatureProfile(signatureProfile).
+        invokeSigning();
+    return signature;
   }
 }

@@ -112,7 +112,9 @@ public class DDocSignature implements Signature {
   @Override
   public Date getOCSPResponseCreationTime() {
     logger.debug("");
-    return origin.getSignatureProducedAtTime();
+    Date date = origin.getSignatureProducedAtTime();
+    logger.debug("OCSP response creation time: " + date);
+    return date;
   }
 
   @Override
@@ -125,6 +127,11 @@ public class DDocSignature implements Signature {
   public Date getTimeStampCreationTime() {
     logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
+  }
+
+  @Override
+  public Date getTrustedSigningTime() {
+    return getOCSPResponseCreationTime();
   }
 
   @Override

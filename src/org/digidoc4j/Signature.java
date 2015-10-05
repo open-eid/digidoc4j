@@ -95,6 +95,18 @@ public interface Signature extends Serializable {
   Date getTimeStampCreationTime();
 
   /**
+   * Returns signature creation time confirmed by OCSP or TimeStamp authority.
+   *
+   * Returns OCSP response creation time in case of LT_TM (TimeMark) signatures or
+   * Time Stamp creation time in case of LT/LTA (TimeStamp) signatures. Returns null for B_BES signatures.
+   *
+   * This is much more secure than using signer's computer time that {@link Signature#getClaimedSigningTime()} returns.
+   *
+   * @return signature creation time confirmed by OCSP or TimeStamp authority.
+   */
+  Date getTrustedSigningTime();
+
+  /**
    * Returns the signature profile.
    *
    * @return profile
@@ -124,6 +136,8 @@ public interface Signature extends Serializable {
 
   /**
    * Returns the computer's time of signing.
+   *
+   * See also {@link Signature#getTrustedSigningTime()}
    *
    * @return signing time
    */
