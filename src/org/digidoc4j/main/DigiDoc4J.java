@@ -34,12 +34,15 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 
 import org.digidoc4j.SignatureProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Client commandline tool for DigiDoc4J library.
  */
 public final class DigiDoc4J {
 
+  private final static Logger logger = LoggerFactory.getLogger(DigiDoc4J.class);
   private static boolean verboseMode;
   private static boolean warnings;
   private static final String ANSI_RED = "[31m";
@@ -62,6 +65,7 @@ public final class DigiDoc4J {
       System.err.print(e.getMessage());
       System.exit(e.getErrorCode());
     }
+    logger.info("Successfully finished running utility method");
     System.exit(0);
   }
 
