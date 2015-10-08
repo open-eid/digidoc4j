@@ -56,10 +56,34 @@ public interface Container extends Serializable {
    */
   DataFile addDataFile(InputStream is, String fileName, String mimeType);
 
+  /**
+   * Adds a data file from the file system to the container.
+   * <p>
+   * Note:
+   * Data files can be removed from a container only after all signatures have been removed.
+   * </p>
+   *
+   * @param file     data file to be added to the container
+   * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
+   */
   DataFile addDataFile(File file, String mimeType);
 
+  /**
+   * Adds a data file from the file system to the container.
+   * <p>
+   * Note:
+   * Data files can be removed from a container only after all signatures have been removed.
+   * </p>
+   *
+   * @param dataFile data file to be added to the container
+   */
   void addDataFile(DataFile dataFile);
 
+  /**
+   * Adds a new signature to the container.
+   *
+   * @param signature signature to be added.
+   */
   void addSignature(Signature signature);
 
   /**
@@ -81,14 +105,42 @@ public interface Container extends Serializable {
    */
   List<Signature> getSignatures();
 
+  /**
+   * Removes the data file from the container.
+   * <p>
+   * Note:
+   * Data files can be removed from a container only after all signatures have been removed.
+   * </p>
+   * @param file data file to be removed from the container.
+   */
   void removeDataFile(DataFile file);
 
+  /**
+   * Removes the signature from the container
+   * @param signature signature to be removed.
+   */
   void removeSignature(Signature signature);
 
+  /**
+   * Extends signature profile to SignatureProfile
+   *
+   * @param profile signature profile
+   * @see SignatureProfile
+   */
   void extendSignatureProfile(SignatureProfile profile);
 
+  /**
+   * Saves the container to the specified location.
+   *
+   * @param filePath file name and path.
+   */
   File saveAsFile(String filePath);
 
+  /**
+   * Saves the container as a stream.
+   *
+   * @return stream of the container.
+   */
   InputStream saveAsStream();
 
   /**
@@ -191,7 +243,7 @@ public interface Container extends Serializable {
   /**
    * Return the count of DataFile objects
    * @return count of DataFile objects
-   * @deprecated will be removed in the future.
+   * @deprecated will be removed in the future. Use {@link Container#getDataFiles()} to get the size of data files in the container.
    */
   @Deprecated
   int countDataFiles();
@@ -200,7 +252,7 @@ public interface Container extends Serializable {
    * Removes a data file from the container by data file name. Any corresponding signatures will be deleted.
    *
    * @param fileName name of the data file to be removed
-   * @deprecated will be removed in the future.
+   * @deprecated will be removed in the future. Use {@link Container#removeDataFile(DataFile)} instead.
    */
   @Deprecated
   void removeDataFile(String fileName);
@@ -210,6 +262,7 @@ public interface Container extends Serializable {
    *
    * @param signatureId id of the signature to be removed
    * @deprecated will be removed in the future.
+   * @see Container#removeSignature(Signature)
    */
   @Deprecated
   void removeSignature(int signatureId);
@@ -219,6 +272,7 @@ public interface Container extends Serializable {
    *
    * @param path file name and path.
    * @deprecated will be removed in the future.
+   * @see Container#saveAsFile(String)
    */
   @Deprecated
   void save(String path);
@@ -229,6 +283,7 @@ public interface Container extends Serializable {
    * @param out output stream.
    * @see java.io.OutputStream
    * @deprecated will be removed in the future.
+   * @see Container#saveAsStream()
    */
   @Deprecated
   void save(OutputStream out);
@@ -266,7 +321,7 @@ public interface Container extends Serializable {
   /**
    * Return the count of Signature objects
    * @return count of Signature objects
-   * @deprecated will be removed in the future.
+   * @deprecated will be removed in the future. Use {@link Container#getSignatures()} to get the size of signatures in the container.
    */
   @Deprecated
   int countSignatures();
@@ -276,6 +331,7 @@ public interface Container extends Serializable {
    *
    * @return document type
    * @deprecated will be removed in the future.
+   * @see Container#getType()
    */
   @Deprecated
   DocumentType getDocumentType();
@@ -297,6 +353,7 @@ public interface Container extends Serializable {
    * @param profile signature profile
    * @see SignatureProfile
    * @deprecated will be removed in the future.
+   * @see Container#extendSignatureProfile(SignatureProfile)
    */
   @Deprecated
   void extendTo(SignatureProfile profile);

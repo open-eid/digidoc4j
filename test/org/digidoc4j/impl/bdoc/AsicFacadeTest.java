@@ -950,7 +950,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
     assertNotNull(resultSignature.getOCSPCertificate());
     assertNotNull(resultSignature.getSigningCertificate());
-    assertNotNull(resultSignature.getRawSignature().length);
+    assertNotNull(resultSignature.getAdESSignature().length);
     assertEquals(LT, resultSignature.getProfile());
     assertNotNull(resultSignature.getTimeStampTokenCertificate());
 
@@ -1287,8 +1287,8 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     serialize(container, "container.bin");
     Container deserializedContainer = deserializer("container.bin");
 
-    byte[] rawSignatureBeforeSerialization = container.getSignature(0).getRawSignature();
-    byte[] rawSignatureAfterSerialization = deserializedContainer.getSignature(0).getRawSignature();
+    byte[] rawSignatureBeforeSerialization = container.getSignature(0).getAdESSignature();
+    byte[] rawSignatureAfterSerialization = deserializedContainer.getSignature(0).getAdESSignature();
 
     assertArrayEquals(rawSignatureBeforeSerialization, rawSignatureAfterSerialization);
   }

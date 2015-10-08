@@ -221,8 +221,8 @@ public class SignatureBuilderTest {
     //TODO check why it doesn't match, should be LT_TM
     assertEquals(SignatureProfile.LT, signature.getProfile());
     assertNotNull(signature.getClaimedSigningTime());
-    assertNotNull(signature.getRawSignature());
-    assertTrue(signature.getRawSignature().length > 1);
+    assertNotNull(signature.getAdESSignature());
+    assertTrue(signature.getAdESSignature().length > 1);
     assertTrue(signature.validate().isEmpty());
   }
 }

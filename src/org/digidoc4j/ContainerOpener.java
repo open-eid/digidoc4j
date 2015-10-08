@@ -26,17 +26,24 @@ import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Helper class for opening containers. The proper way of opening containers would be using {@link ContainerBuilder},
+ * for example using {@link ContainerBuilder#fromExistingFile(String)} and {@link ContainerBuilder#fromStream(InputStream)}.
+ *
+ * @see ContainerBuilder
+ */
 public class ContainerOpener {
 
   private final static Logger logger = LoggerFactory.getLogger(ContainerOpener.class);
 
   /**
-   * Open container from a file
+   * Open container from a file. Use {@link ContainerBuilder#fromExistingFile(String)} instead.
    *
    * @param path          file name and path.
    * @param configuration configuration settings
    * @return container new container of the specified format
    * @throws DigiDoc4JException when the file is not found or empty
+   * @see ContainerBuilder
    */
   public static Container open(String path, Configuration configuration) throws DigiDoc4JException {
     logger.debug("Path: " + path);
@@ -58,11 +65,12 @@ public class ContainerOpener {
   }
 
   /**
-   * Open container from a file
+   * Open container from a file. Use {@link ContainerBuilder#fromExistingFile(String)} instead.
    *
    * @param path file name and path.
    * @return container
    * @throws DigiDoc4JException when the file is not found or empty
+   * @see ContainerBuilder
    */
   public static Container open(String path) throws DigiDoc4JException {
     logger.debug("");
@@ -70,12 +78,13 @@ public class ContainerOpener {
   }
 
   /**
-   * Open container from a stream
+   * Open container from a stream. Use {@link ContainerBuilder#fromStream(InputStream)} instead.
    *
    * @param stream                      input stream
    * @param actAsBigFilesSupportEnabled acts as configuration parameter
    * @return container
    * @see Configuration#isBigFilesSupportEnabled() returns true used for BDOC
+   * @see ContainerBuilder
    */
   public static Container open(InputStream stream, boolean actAsBigFilesSupportEnabled) {
     logger.debug("");
@@ -97,6 +106,14 @@ public class ContainerOpener {
     }
   }
 
+  /**
+   * Open container from a stream. Use {@link ContainerBuilder#fromStream(InputStream)} instead.
+   *
+   * @param stream stream of a container to open.
+   * @param configuration configuration settings.
+   * @return opened container.
+   * @see ContainerBuilder
+   */
   public static Container open(InputStream stream, Configuration configuration) {
     logger.debug("");
     BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);

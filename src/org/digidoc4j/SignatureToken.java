@@ -13,7 +13,7 @@ package org.digidoc4j;
 import java.security.cert.X509Certificate;
 
 /**
- * Abstract class providing signing interface
+ * Signing interface.
  */
 public interface SignatureToken {
 

@@ -157,6 +157,11 @@ public class TestSignatureBuilder extends SignatureBuilder {
     }
 
     @Override
+    public byte[] getAdESSignature() {
+      return new byte[0];
+    }
+
+    @Override
     public byte[] getRawSignature() {
       return new byte[0];
     }

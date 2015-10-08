@@ -30,9 +30,6 @@ import static java.nio.file.Files.deleteIfExists;
 
 import eu.europa.ec.markt.dss.signature.MimeType;
 
-/**
- *
- */
 public final class Helper {
   private static final Logger logger = LoggerFactory.getLogger(Helper.class);
 

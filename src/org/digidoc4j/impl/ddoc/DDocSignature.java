@@ -226,9 +226,15 @@ public class DDocSignature implements Signature {
   }
 
   @Override
-  public byte[] getRawSignature() {
+  public byte[] getAdESSignature() {
     logger.debug("");
     return origin.getOrigContent();
+  }
+
+  @Override
+  @Deprecated
+  public byte[] getRawSignature() {
+    return getAdESSignature();
   }
 
   public int getIndexInArray() {

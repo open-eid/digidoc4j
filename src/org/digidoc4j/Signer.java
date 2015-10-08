@@ -13,6 +13,7 @@ package org.digidoc4j;
 /**
  * This interface has been renamed to SignatureToken. Use {@link SignatureToken} instead.
  * @deprecated
+ * @see SignatureToken
  */
 @Deprecated
 public interface Signer extends SignatureToken{

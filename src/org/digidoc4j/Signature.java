@@ -85,6 +85,11 @@ public interface Signature extends Serializable {
   @Deprecated
   Date getProducedAt();
 
+  /**
+   * Returns the signature OCSP producedAt timestamp.
+   *
+   * @return producedAt timestamp
+   */
   Date getOCSPResponseCreationTime();
 
   /**
@@ -178,7 +183,7 @@ public interface Signature extends Serializable {
   X509Cert getTimeStampTokenCertificate();
 
   /**
-   * Validates the signature using Validate.VALIDATE_FULL method.
+   * Validates the signature.
    *
    * @return list of Digidoc4JExceptions
    */
@@ -189,5 +194,12 @@ public interface Signature extends Serializable {
    *
    * @return signature as byte array
    */
+  byte[] getAdESSignature();
+
+  /**
+   * @return signature as byte array
+   * @deprecated use {@link Signature#getAdESSignature()} instead.
+   */
+  @Deprecated
   byte[] getRawSignature();
 }

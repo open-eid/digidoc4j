@@ -55,7 +55,7 @@ public enum DigestAlgorithm {
   }
 
   /**
-   * Get value as string
+   * Get uri string
    *
    * @return uri
    */

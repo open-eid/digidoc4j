@@ -35,8 +35,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
@@ -44,8 +42,10 @@ import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
 import static org.digidoc4j.utils.Helper.deleteFile;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 
 public class SignatureTest extends DigiDoc4JTestHelper {
 
@@ -310,7 +310,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
     deleteFile("getSignatureXMLForBDOC.bdoc");
 
-    assertXMLEqual(signatureFromContainer, new String(signature.getRawSignature()));
+    assertXMLEqual(signatureFromContainer, new String(signature.getAdESSignature()));
   }
 
   @Test
@@ -364,6 +364,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   private Signature getSignature(Container.DocumentType documentType) {
     Container container = ContainerBuilder.
         aContainer(documentType.name()).
+        withConfiguration(new Configuration(Configuration.Mode.TEST)).
         withDataFile("testFiles/test.txt", "text/plain").
         build();
 

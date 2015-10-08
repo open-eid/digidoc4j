@@ -14,10 +14,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.bdoc.AsicFacade;
 import org.digidoc4j.impl.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
-import org.digidoc4j.impl.ddoc.DDocFacade;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.utils.Helper;
@@ -34,18 +32,17 @@ import java.security.cert.CertificateEncodingException;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
 import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Configuration.Mode.TEST;
-import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 import static org.digidoc4j.SignatureProfile.B_BES;
 import static org.digidoc4j.SignatureProfile.LT;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
 public class ContainerTest extends DigiDoc4JTestHelper {
@@ -354,7 +351,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
     container.save("testOpenCreatedDDocFile.ddoc");
     Container containerForReading = ContainerOpener.open("testOpenCreatedDDocFile.ddoc");
-    junit.framework.Assert.assertEquals(DDOC, containerForReading.getDocumentType());
+    assertEquals(DDOC, containerForReading.getDocumentType());
 
     assertEquals(1, container.getDataFiles().size());
   }
@@ -456,7 +453,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
     assertEquals(2, container.getSignatures().size());
     assertEquals(CERTIFICATE.replaceAll("\\s", ""), encodeBase64String(getSigningCertificateAsBytes(container, 1)));
-    assertXMLEqual(signature.trim(), new String(container.getSignatures().get(1).getRawSignature()));
+    assertXMLEqual(signature.trim(), new String(container.getSignatures().get(1).getAdESSignature()));
   }
 
   @Test

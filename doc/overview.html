@@ -29,7 +29,7 @@
   <li>Adding and removing signatures</li>
   <li>Input/output operations with containers</li>
 </ol>
-<p>See also: {@link org.digidoc4j.Container org.digidoc4j.Container}</p>
+<p>See also: {@link org.digidoc4j.ContainerBuilder org.digidoc4j.ContainerBuilder} and {@link org.digidoc4j.Container}</p>
 <h6>Creating and handling digital signatures </h6>
 <p>digidoc4j enables handling digital signatures based  on ETSI TS 101 903 standard called <a href="http://www.etsi.org/deliver/etsi_ts/101900_101999/101903/01.04.02_60/ts_101903v010402p.pdf" target="_blank">XML Advanced Electronic Signatures (XAdES)</a>. By default, the digidoc4j implementation uses signatures in <a href="http://www.id.ee/public/bdoc-spec212-eng.pdf" target="_blank">BDOC 2.1</a> format, which is a subset of XAdES standard. </p>
 <p>Note:  additionally, an older XAdES-based <a href="http://www.id.ee/public/DigiDoc_format_1.3.pdf" target="_blank">DIGIDOC-XML 1.3</a> signature format is supported via <a href="http://id.ee/index.php?id=35783" target="_blank">JDigiDoc</a> base library. </p>
@@ -39,7 +39,7 @@
   <li>Adding  meta-data to the signature: e.g. signature creation location and signer's role</li>
   <li>Calculating  the hash to be signed - e.g. for calculating the raw signature value with a plug-in in browser </li>
   <li>Calculating the  raw RSA signature  value</li>
-  <li>Adding  a raw signature value that is calculated in an external system (e.g. with plugin  when signing in browser) to the signature's XML content.</li>
+  <li>Adding  a raw signature value that is calculated in an external system (e.g. with plugin  when signing in browser) to the signature's XML content. Note that this is currently supported only by DDoc.</li>
   <li>Adding long term validation data according to the signature profile: either time-mark or time-stamp and OCSP confirmation* </li>
 </ol>
 <p>* There are two XAdES-LT level compliant signature profiles supported: </p>
@@ -47,7 +47,7 @@
   <li>LT - XAdES-LT signature with time-stamp -  long term validation data is added to the signature in the form of  a RFC3161 compliant time-stamp and RFC6960 compliant OCSP confirmation. The profile can be used in case of BDOC 2.1 format.</li>
   <li>LT_TM - XAdES-LT signature with time-mark - long term validation data is added to the signature in the form of a time-mark (RFC6960 compliant OCSP confirmation with a special nonce value). The profile can be used in case of BDOC 2.1 and DIGIDOC-XML 1.3 formats.</li>
 </ol>
-<p>See also: {@link org.digidoc4j.Container org.digidoc4j.Container} and {@link org.digidoc4j.Signature org.digidoc4j.Signature}</p>
+<p>See also: {@link org.digidoc4j.SignatureBuilder org.digidoc4j.SignatureBuilder}, {@link org.digidoc4j.Signature Signature}, {@link org.digidoc4j.ContainerBuilder ContainerBuilder} and {@link org.digidoc4j.Container Container}</p>
 <h6>Validating signature container and  all of its contents</h6>
 <p>The signature validation process is based on ETSI TS 102 853 standard called <a href="http://www.etsi.org/deliver/etsi_ts/102800_102899/102853/01.01.02_60/ts_102853v010102p.pdf" target="_blank">Signature validation procedures and policies</a>. </p>
 <p>The main use cases regarding validation are:</p>
@@ -69,7 +69,7 @@
 <ol>
   <li>PKCS#12 token (software token)</li>
 </ol>
-<p>See also: {@link org.digidoc4j.Signer org.digidoc4j.Signer}</p>
+<p>See also: {@link org.digidoc4j.SignatureToken org.digidoc4j.SignatureToken} and {@link org.digidoc4j.signers.PKCS12SignatureToken org.digidoc4j.signers.PKCS12SignatureToken}</p>
 <p>&nbsp;</p>
 <h1><a id="architecture">Architecture</a></h1>
 <h2>Component diagram</h2>
@@ -153,35 +153,194 @@
 <h2>Sample of using digidoc4j API</h2>
 <p>In the following subsections, a sample <a href="http://www.id.ee/public/bdoc-spec212-eng.pdf" target="_blank">BDOC 2.1</a> signature creation use case is implemented with digidoc4j API classes and methods.<br>
   <a href="http://www.oracle.com/technetwork/java/codeconv-138413.html"></a></p>
-<h6>Creating a container</h6>
-<p>You can create a new container with a static <code>create()</code> method of the <code>{@link org.digidoc4j.Container Container} </code>class. If no container format identificator is provided as input parameter for the method then a BDOC 2.1 container is created by default. </p>
-<code>
-{@link org.digidoc4j.Container Container} <strong>container</strong> = {@link org.digidoc4j.Container#create Container.create}({@link org.digidoc4j.Container.DocumentType Container.DocumentType.BDOC}); </code>
-<h6>Adding data files</h6>
-<p>Next, we add a data file (that is going to be signed) to the container. A data file can be added by reading it from the file system or from an input stream (needed if the data is already in memory, e.g. read from database). The following example shows the case when the file is read from file system:</p>
-<code>
-<strong>container</strong>.{@link org.digidoc4j.Container#addDataFile addDataFile}("<strong>&lt;input_file_name_and_path&gt;</strong>", "<strong>&lt;mime_type&gt;</strong>"); 
-</code>
-<h6>Using the time-mark signature profile</h6>
-<p>By default, the time-stamp  signature profile (referred to as &quot;LT&quot;) is used in case of BDOC 2.1 documents. To sign a container using the time-mark profile you need to set the signature profile accordingly before signing:</p>
-<code>
-  <strong>container</strong>.{@link org.digidoc4j.Container#setSignatureProfile setSignatureProfile}({@link org.digidoc4j.Container.SignatureProfile Container.SignatureProfile.LT_TM});
-</code>
-<h6>Adding signatures</h6>
-<p>A signature can be added to the container by determining a class that implements communication with the signature token, i.e. a subclass of <code>{@link org.digidoc4j.Signer Signer}</code>. Currently, a PKCS#12 software token implementation is provided by digidoc4j:</p>
-<p><code>
-  <strong>container</strong>.{@link org.digidoc4j.Container#sign sign}(new PKCS12Signer("<strong>&lt;pkcs12_token_file&gt;</strong>", "<strong>&lt;pkcs12_token_password&gt;</strong>".toCharArray()));</code>
+
+<h3>Configuration</h3>
+<p>
+  It is possible switch between testing and production environment by using {@link org.digidoc4j.Configuration} class or <code>digidoc4j.mode</code> system property.
+  Default environment is production.
+  More detailed configuration can be modified in the <code>digidoc4j.yaml</code> file.
 </p>
-<p>In the sample above, the PKCS#12 token container's location and password is given as input parameters to the <code>{@link org.digidoc4j.signers.PKCS12Signer PKCS12Signer}</code> class.
+<code>
+  {@link org.digidoc4j.Configuration} <strong>configuration</strong> = new {@link org.digidoc4j.Configuration#Configuration Configuration}({@link org.digidoc4j.Configuration.Mode#TEST Configuration.Mode.TEST});
+</code>
+<p>
+  The example above creates a configuration with test environment for using test OCSP, Time Stamp etc servers. The same can
+  be achieved by setting the system property <code>digidoc4j.mode</code> with value <code>"TEST"</code>.
 </p>
-<h6>Reading and writing containers</h6>
+<h3>Creating a container</h3>
+<p>
+  <code>
+    {@link org.digidoc4j.Container Container} <strong>container</strong> = {@link org.digidoc4j.ContainerBuilder ContainerBuilder}. <br/>
+      &nbsp;&nbsp; {@link org.digidoc4j.ContainerBuilder#aContainer(String) aContainer}(<strong>"BDOC"</strong>). // Supported types are BDOC and DDOC. Default is BDOC<br/>
+      &nbsp;&nbsp; {@link org.digidoc4j.ContainerBuilder#withConfiguration(Configuration) withConfiguration}(<strong>configuration</strong>).  // {@link org.digidoc4j.Configuration} settings <br/>
+      &nbsp;&nbsp; {@link org.digidoc4j.ContainerBuilder#withDataFile(String, String) withDataFile}(<strong>"testFiles/legal_contract_1.txt"</strong>, <strong>"text/plain"</strong>).  // Adding a document from a hard drive <br/>
+      &nbsp;&nbsp; {@link org.digidoc4j.ContainerBuilder#withDataFile(InputStream, String, String) withDataFile}(<strong>inputStream</strong>, <strong>"legal_contract_2.txt"</strong>, <strong>"text/plain"</strong>).  // Adding a document from a stream <br/>
+      &nbsp;&nbsp; {@link org.digidoc4j.ContainerBuilder#build() build()}; <br/>
+    </code>
+</p>
+<p>You can use {@link org.digidoc4j.ContainerBuilder#aContainer() ContainerBuilder.aContainer()} to create a new container builder,
+  populate the builder with data and finally call {@link org.digidoc4j.ContainerBuilder#build() build()} to create the container with the populated data.
+</p>
+<p>
+  In the example above, a container builder is used to create a BDOC container with specific configuration parameters and
+  two data files: one from hard drive (legal_contract_1.txt) and other from input stream (legal_contract_2.txt).
+</p>
+<p>
+  {@link org.digidoc4j.ContainerBuilder#aContainer(String) ContainerBuilder.aContainer(String containerType)} can be used
+  for creating a container of a particular type. Currently supported types are BDOC and DDOC. Default is BDOC 2.1 if no type is provided.
+</p>
+
+<h4>Adding data files</h4>
+<p>
+  A data file can be added by reading it from the file system or from an input stream (needed if the data is already
+  in memory, e.g. read from database). The following example shows the case when the file is read from file system:</p>
+<code>
+  <strong>containerBuilder</strong>.{@link org.digidoc4j.ContainerBuilder#withDataFile withDataFile}("<strong>&lt;input_file_name_and_path&gt;</strong>", "<strong>&lt;mime_type&gt;</strong>");
+</code>
+
+<h4>Reading and writing containers</h4>
 <p>A created container can be written to the file system as follows:</p>
-<p><code><strong>container</strong>.{@link org.digidoc4j.Container#save save}("<strong>&lt;output_file_name_and_path&gt;</strong>");</code>
+<p><code><strong>container</strong>.{@link org.digidoc4j.Container#saveAsFile saveAsFile}("<strong>&lt;output_file_name_and_path&gt;</strong>");</code>
 </p>
 <p>An existing container can be read as follows: </p>
-<p><code>{@link org.digidoc4j.Container Container} <strong>container</strong> = {@link org.digidoc4j.Container Container}.{@link org.digidoc4j.Container#open open}("<strong>&lt;input_file_name_and_path&gt;</strong>");</code>
+<p><code>{@link org.digidoc4j.Container Container} <strong>container</strong> = {@link org.digidoc4j.Container ContainerBuilder}. <br/>
+  &nbsp;&nbsp; {@link org.digidoc4j.ContainerBuilder#aContainer() aContainer()}. <br/>
+  &nbsp;&nbsp; {@link org.digidoc4j.ContainerBuilder#fromExistingFile fromExistingFile}("<strong>&lt;input_file_name_and_path&gt;</strong>"). <br/>
+  &nbsp;&nbsp; {@link org.digidoc4j.ContainerBuilder#build() build()}; <br/>
+</code>
 </p>
-<h6>Validation </h6>
+
+<h3>Adding signatures</h3>
+<p>
+  A signature can be added to the container by determining a class that implements communication with the signature token,
+  i.e. a subclass of <code>{@link org.digidoc4j.SignatureToken SignatureToken}</code>.
+  Currently, a PKCS#12 software token implementation is provided by digidoc4j in the
+  {@link org.digidoc4j.signers.PKCS12SignatureToken} class.
+</p>
+<h4>Using a signature token</h4>
+<p>
+  <code>
+    String <strong>privateKeyPath</strong> = "testFiles/signout.p12"; <br/>
+    char[] <strong>password</strong> = "test".toCharArray(); <br/>
+    {@link org.digidoc4j.signers.PKCS12SignatureToken} <strong>signatureToken</strong> = new {@link org.digidoc4j.signers.PKCS12SignatureToken#PKCS12SignatureToken PKCS12SignatureToken}(privateKeyPath, password);
+  </code>
+</p>
+<p>
+  In the sample above, the PKCS#12 token container's location and password is given as input parameters
+  to the <code>{@link org.digidoc4j.signers.PKCS12SignatureToken}</code> class. The private key is stored in the
+  <code>"signout.p12"</code> file and the password is <code>"test"</code>.
+</p>
+<h4>Creating a new signature</h4>
+<p>
+  Next we create a new signature with the signature token.
+</p>
+<p>
+  <code>
+    {@link org.digidoc4j.Signature} <strong>signature</strong> = {@link org.digidoc4j.SignatureBuilder}. <br/>
+    &nbsp;&nbsp; {@link org.digidoc4j.SignatureBuilder#aSignature aSignature}(<strong>container</strong>). <br/>
+    &nbsp;&nbsp; {@link org.digidoc4j.SignatureBuilder#withSignatureDigestAlgorithm withSignatureDigestAlgorithm}({@link org.digidoc4j.DigestAlgorithm DigestAlgorithm.SHA256}). <br/>
+    &nbsp;&nbsp; {@link org.digidoc4j.SignatureBuilder#withSignatureToken withSignatureToken}(<strong>signatureToken</strong>). <br/>
+    &nbsp;&nbsp; {@link org.digidoc4j.SignatureBuilder#invokeSigning invokeSigning()};
+  </code>
+</p>
+<p>
+  Finally we add the signature to the container. Signature must be added to the container otherwise the signature remains detached from the container.
+</p>
+<p>
+  <code>
+    <strong>container</strong>.{@link org.digidoc4j.Container#addSignature addSignature}(<strong>signature</strong>);
+  </code>
+</p>
+
+<h3>Signing externally</h3>
+<p>
+  It is possible to sign the container externally.
+  A typical use case would be signing in the Web using a browser plugin:
+  <ol>
+    <li>Create a container with data files</li>
+    <li>Calculate a digest of the container to be signed</li>
+    <li>Sign the digest externally (e.g. via browser plugin)</li>
+    <li>Finalize the signature with the signature value, OCSP response etc</li>
+    <li>Add the finalized signature to the container</li>
+  </ol>
+</p>
+
+<h4>Getting data to sign</h4>
+<p>First we need to get the signer's certificate that is used in signing (via browser plugin for example).</p>
+<p>
+  <code>
+    {@link java.security.cert.X509Certificate} <strong>signingCert</strong> = getSignerCertSomewhere();
+  </code>
+</p>
+<p>
+  Then we need to calculate a digest to be signed externally.
+</p>
+<p>
+  <code>
+    {@link org.digidoc4j.DataToSign} <strong>dataToSign</strong> = {@link org.digidoc4j.SignatureBuilder}. <br/>
+    &nbsp;&nbsp; {@link org.digidoc4j.SignatureBuilder#aSignature aSignature}(<strong>container</strong>). <br/>
+    &nbsp;&nbsp; {@link org.digidoc4j.SignatureBuilder#withSigningCertificate withSigningCertificate}(<strong>signingCert</strong>). <br/>
+    &nbsp;&nbsp; {@link org.digidoc4j.SignatureBuilder#withSignatureDigestAlgorithm withSignatureDigestAlgorithm}({@link org.digidoc4j.DigestAlgorithm DigestAlgorithm.SHA256}). <br/>
+    &nbsp;&nbsp; {@link org.digidoc4j.SignatureBuilder#buildDataToSign buildDataToSign()};
+  </code>
+</p>
+<h4>External signing</h4>
+<p>
+  Now we have a digest that can be used for external signing. {@link org.digidoc4j.DataToSign} class contains {@link org.digidoc4j.DataToSign#getDigestToSign} method
+  for getting digest to be signed. {@link org.digidoc4j.DataToSign#getDigestAlgorithm} method can be used for getting the digest algorithm to be used in the signing process.
+</p>
+<p>
+  <code>
+    byte[] <strong>digestToSign</strong> = <strong>dataToSign</strong>.{@link org.digidoc4j.DataToSign#getDigestToSign getDigestToSign()}; //Get the digest that should be signed <br/>
+    byte[] <strong>signatureValue</strong> = signDigestSomewhereRemotely(<strong>digestToSign</strong>, DigestAlgorithm.SHA256); //Sign the digest
+  </code>
+</p>
+<h4>Finalizing signature</h4>
+<p>
+  Next we have to finalize the signature with the signature value (<code><strong>signatureValue</strong></code>) we got from an external signing process.
+</p>
+<p>
+  <code>
+    {@link org.digidoc4j.Signature} <strong>signature</strong> = <strong>dataToSign</strong>.{@link org.digidoc4j.DataToSign#finalize finalize}(<strong>signatureValue</strong>); //Finalize the signature with OCSP response etc
+  </code>
+</p>
+<p>
+  Finally we add the signature to the container. Signature must be added to the container otherwise the signature remains detached from the container.
+</p>
+<p>
+  <code>
+    <strong>container</strong>.{@link org.digidoc4j.Container#addSignature addSignature}(<strong>signature</strong>);
+  </code>
+</p>
+
+<h3>Using Time Mark signature profile</h3>
+<p>
+  By default, the Time Stamp  signature profile (referred to as &quot;LT&quot;) is used in case of BDOC 2.1 documents.
+  It is possible to use use a different signature profile by using signature builder's {@link org.digidoc4j.SignatureBuilder#withSignatureProfile} method.
+  For signing a container using the Time Mark profile you need to set the signature profile as in the following example:</p>
+<code>
+  {@link org.digidoc4j.SignatureBuilder} <strong>signatureBuilder</strong> = {@link org.digidoc4j.SignatureBuilder}. <br>
+  &nbsp;&nbsp; {@link org.digidoc4j.SignatureBuilder#aSignature aSignature}(<strong>container</strong>). <br>
+  &nbsp;&nbsp; {@link org.digidoc4j.SignatureBuilder#withSignatureProfile withSignatureProfile}({@link org.digidoc4j.SignatureProfile#LT_TM SignatureProfile.LT_TM}); // Signature profile is Time Mark
+</code>
+<h3>Signer role and production place</h3>
+<p>
+  We can add signer roles and production place to signature by using {@link org.digidoc4j.SignatureBuilder}.
+</p>
+<code>
+  {@link org.digidoc4j.SignatureBuilder} <strong>signatureBuilder</strong> = {@link org.digidoc4j.SignatureBuilder}. <br>
+  &nbsp;&nbsp; {@link org.digidoc4j.SignatureBuilder#aSignature aSignature}(<strong>container</strong>). <br>
+  &nbsp;&nbsp; {@link org.digidoc4j.SignatureBuilder#withCity withCity}("San Pedro"). <br>
+  &nbsp;&nbsp; {@link org.digidoc4j.SignatureBuilder#withStateOrProvince withStateOrProvince}("Puerto Vallarta"). <br>
+  &nbsp;&nbsp; {@link org.digidoc4j.SignatureBuilder#withPostalCode withPostalCode}("13456"). <br>
+  &nbsp;&nbsp; {@link org.digidoc4j.SignatureBuilder#withCountry withCountry}("Val Verde"). <br>
+  &nbsp;&nbsp; {@link org.digidoc4j.SignatureBuilder#withRoles withRoles}("Manager", "Suspicious Fisherman");
+</code>
+<p>
+  The example above the signer is from the city of San Pedro, in the state of Puerto Vallarta, with postal code 13456 and
+  from country called Val Verde. The signer's roles are Manager and Suspicious Fisherman.
+</p>
+<h3>Validation </h3>
 <p>Validation process of a container and all of its contents can be initiated as follows:</p>
 <p><code>{@link org.digidoc4j.ValidationResult ValidationResult} <strong>result</strong> = <strong>container</strong>.{@link org.digidoc4j.Container#validate validate()};</code>
 </p>
@@ -193,7 +352,7 @@
 &nbsp;&nbsp;  } <br>
  } </code>
 </p>
-<h6>Exception handling</h6>
+<h3>Exception handling</h3>
 <p>digidoc4j uses a generic exception class {@link org.digidoc4j.exceptions.DigiDoc4JException org.digidoc4j.exceptions.DigiDoc4JException}  that is a subclass of  java.lang.RuntimeException. </p>
 <p>{@link org.digidoc4j.exceptions.DigiDoc4JException DigiDoc4JException} also wraps any possible exceptions that are thrown by the base libraries of digidoc4j.</p>
 <p>The {@link org.digidoc4j.exceptions.DigiDoc4JException DigiDoc4JException} class itself is subclassed to enable better  handling of a number of the most critical exceptions. See also package {@link org.digidoc4j.exceptions}.</p>

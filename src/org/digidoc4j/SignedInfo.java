@@ -24,18 +24,9 @@ public class SignedInfo implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(SignedInfo.class);
 
   private byte[] digestToSign;
-  @Deprecated
-  private DigestAlgorithm digestAlgorithm;
   private SignatureParameters signatureParameters;
 
   public SignedInfo() {
-  }
-
-  @Deprecated
-  public SignedInfo(byte[] signedInfo, DigestAlgorithm digestAlgorithm) {
-    logger.debug("");
-    this.digestAlgorithm = digestAlgorithm;
-    digestToSign = DSSUtils.digest(forXML(digestAlgorithm.toString()), signedInfo);
   }
 
   public SignedInfo(byte[] dataToDigest, SignatureParameters signatureParameters) {
@@ -55,10 +46,7 @@ public class SignedInfo implements Serializable {
 
   public DigestAlgorithm getDigestAlgorithm() {
     logger.debug("");
-    if(digestAlgorithm == null) {
-      return signatureParameters.getDigestAlgorithm();
-    }
-    return digestAlgorithm;
+    return signatureParameters.getDigestAlgorithm();
   }
 
   public SignatureParameters getSignatureParameters() {

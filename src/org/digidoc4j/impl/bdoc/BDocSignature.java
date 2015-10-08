@@ -268,10 +268,16 @@ public class BDocSignature implements Signature {
   }
 
   @Override
-  public byte[] getRawSignature() {
+  public byte[] getAdESSignature() {
     logger.debug("");
     Document document = createDocument(ASiCNamespaces.ASiC, ASiCService.ASICS_NS, origin.getSignatureElement());
     return DSSXMLUtils.transformDomToByteArray(document);
+  }
+
+  @Override
+  @Deprecated
+  public byte[] getRawSignature() {
+    return getAdESSignature();
   }
 
   XAdESSignature getOrigin() {
