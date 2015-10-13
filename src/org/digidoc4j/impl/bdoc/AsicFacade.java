@@ -126,6 +126,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   private static final MimeType BDOC_MIME_TYPE = MimeType.ASICE;
   private transient Reports validationReport;
   private boolean isTimeMark = false;
+  private Integer currentUsedSignatureFileIndex;
 
   /**
    * Create a new container object of type BDOC.
@@ -345,6 +346,8 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     } else {
       signatureParameters.setDigestAlgorithm(null);
     }
+
+    currentUsedSignatureFileIndex = new AsicContainerParser(signedDocument).findCurrentSignatureFileIndex();
 
     logger.debug("New BDoc container created");
   }
@@ -689,7 +692,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
 
     dssSignatureParameters.clearCertificateChain();
     dssSignatureParameters.setDeterministicId(setSignatureId);
-    dssSignatureParameters.aSiC().setSignatureFileName("signatures" + signatures.size() + ".xml");
+    dssSignatureParameters.aSiC().setSignatureFileName(calculateNextSignatureFileName());
     dssSignatureParameters.setSigningCertificate(new CertificateToken(signerCertificate));
 
     DSSDocument attachment = getAttachment();
@@ -1012,6 +1015,14 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     if(signatureParameters.getSignatureProfile() != null) {
       setSignatureProfile(signatureParameters.getSignatureProfile());
     }
+  }
+
+  private String calculateNextSignatureFileName() {
+    if(currentUsedSignatureFileIndex == null) {
+      currentUsedSignatureFileIndex = signatures.size() - 1;
+    }
+    currentUsedSignatureFileIndex++;
+    return "signatures" + currentUsedSignatureFileIndex + ".xml";
   }
 
   @Override

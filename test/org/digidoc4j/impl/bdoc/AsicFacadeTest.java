@@ -1759,6 +1759,34 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
       assertSignatureContains(signature, "dds_acrobat.pdf");
   }
 
+  @Test
+  public void signatureFileNamesShouldBeInSequence() throws Exception {
+    AsicFacade container = new AsicFacade();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.sign(PKCS12_SIGNER);
+    assertNotNull(container.getDssSignatureParameters().aSiC().getSignatureFileName());
+    assertEquals("signatures0.xml", container.getDssSignatureParameters().aSiC().getSignatureFileName());
+    container.sign(PKCS12_SIGNER);
+    assertEquals("signatures1.xml", container.getDssSignatureParameters().aSiC().getSignatureFileName());
+    container.sign(PKCS12_SIGNER);
+    assertEquals("signatures2.xml", container.getDssSignatureParameters().aSiC().getSignatureFileName());
+  }
+
+  @Test
+  public void whenSigningExistingContainer_withTwoSignatures_shouldCreateSignatureFileName_signatures2() throws Exception {
+    AsicFacade container = new AsicFacade("testFiles/asics_testing_two_signatures.bdoc");
+    container.sign(PKCS12_SIGNER);
+    assertEquals("signatures2.xml", container.getDssSignatureParameters().aSiC().getSignatureFileName());
+  }
+
+  @Test
+  public void whenSigningExistingContainer_with_signatures1_xml_shouldCreateSignatureFileName_signatures2() throws Exception {
+    AsicFacade container = new AsicFacade("testFiles/DigiDocService_spec_est.pdf-TM-j.bdoc");
+    container.sign(PKCS12_SIGNER);
+    assertEquals("signatures2.xml", container.getDssSignatureParameters().aSiC().getSignatureFileName());
+
+  }
+
   private void assertSignatureContains(BDocSignature signature, String name) {
       assertNotNull(findSignedFile(signature, name));
   }

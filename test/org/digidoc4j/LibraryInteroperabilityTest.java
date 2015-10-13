@@ -15,6 +15,7 @@ import ee.sk.digidoc.factory.DigiDocFactory;
 import ee.sk.utils.ConfigManager;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.signers.PKCS12SignatureToken;
+import org.digidoc4j.testutils.TestDataBuilder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,11 +37,11 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
     private File tempFile;
-    private PKCS12SignatureToken PKCS12_SIGNER;
+    private PKCS12SignatureToken signatureToken;
 
     @Before
     public void setUp() throws Exception {
-        PKCS12_SIGNER = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
+        signatureToken = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
         tempFile = testFolder.newFile("test.bdoc");
     }
 
@@ -62,6 +63,16 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
         assertTrue(result.isValid());
     }
 
+    @Test
+    public void verifyAddingSignatureToJDigiDocContainer() {
+        Container container = ContainerBuilder.
+            aContainer(BDOC_CONTAINER_TYPE).
+            fromExistingFile("testFiles/DigiDocService_spec_est.pdf-TM-j.bdoc").
+            withConfiguration(new Configuration(Configuration.Mode.PROD)).
+            build();
+        TestDataBuilder.signContainer(container);
+    }
+
     private void createSignedContainerWithDigiDoc4j(String containerFilePath) {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         Container container = ContainerBuilder.
@@ -69,8 +80,8 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
             withConfiguration(configuration).
             withDataFile("testFiles/test.txt", "text/plain").
             build();
-        signContainer(container, PKCS12_SIGNER);
-        signContainer(container, PKCS12_SIGNER);
+        signContainer(container, signatureToken);
+        signContainer(container, signatureToken);
         logger.debug("Saving test file temporarily to " + containerFilePath);
         container.saveAsFile(containerFilePath);
     }
