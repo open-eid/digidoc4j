@@ -11,7 +11,8 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
 * See the full [DigiDoc4j API](http://open-eid.github.io/digidoc4j/) description
 * Explore the [Wiki](https://github.com/open-eid/digidoc4j/wiki) section
 * Download the latest [release](https://github.com/open-eid/digidoc4j/releases)
-* See [library development guide](https://github.com/open-eid/digidoc4j/wiki/Development)
+* See the [library development guide](https://github.com/open-eid/digidoc4j/wiki/Development). Your contribution and pull requests are more than welcome
+* The list of user stories and issues are tracked in [Pivotal Tracker](https://www.pivotaltracker.com/n/projects/1110130)
 
 # BDOC container format
 * Has **.bdoc** extension
