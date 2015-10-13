@@ -1,60 +1,50 @@
-How to start digidoc4j development
-===
+# DigiDoc4j
+DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers of signed documents.
 
-```bash
-git clone --recursive https://github.com/open-eid/digidoc4j.git
+# Features
+* Creating BDOC and DDOC containers
+* Digitally signing containers in XAdES format
+* Validating BDOC and DDOC containers
 
-cd digidoc4j
-ant
-```
+# How to use it
+* Take a look at the [examples](https://github.com/open-eid/digidoc4j/wiki/Examples-of-using-it)
+* See the full [DigiDoc4j API](http://open-eid.github.io/digidoc4j/) description
+* Explore the [Wiki](https://github.com/open-eid/digidoc4j/wiki) section
+* Download the latest [release](https://github.com/open-eid/digidoc4j/releases)
+* See [library development guide](https://github.com/open-eid/digidoc4j/wiki/Development)
 
-User stories are described in 
-[Pivotal tracker](https://www.pivotaltracker.com/s/projects/1110130)
+# BDOC container format
+* Has **.bdoc** extension
+* BDOC is a new digital signature format developed in 2014 to replace the old, DDOC (DigiDoc) digital signature format. 
+* The benefits of the new format include the higher security level, the long-term integrity of the signed documents, as well as the better compliance with international standards.
+* Supports two signature formats: **BDOC-TM** and **BDOC-TS**
+* **BDOC-TM** signature format with a **time-mark** ensuring long-term proofability of the authenticity of the signature. This format has been used as a default digital signature format in Estonia since 2015. It is based on ASiC-E LT-TM signature format.
+* **BDOC-TS** signature format with a **time-stamp**. In contrast to the BDOC-TM format, long-term proofability of the authenticity of the signature is ensured by time-stamps. It is based on the ASiC-E LT signature format which is highly compliant with the international standards.
+* To ensure better compliance with international standards, it's recommended to sign documents with the **BDOC-TS time-stamp** signature profile.
+* Signatures are stored in **XAdES** format.
+* A **.bdoc** file is in fact a ZIP container with the signed files, the signatures and the protocol control information and can basically be opened by any program that recognizes the ZIP format.
+* See the [BDOC 2.1.2 specification](http://id.ee/public/bdoc-spec212-eng.pdf)
+* See more information about [digital signature formats](http://www.id.ee/index.php?id=36108)
 
-To load libraries (including new and updated libraries) without 
-performing a complete build: ant load.dependencies
+# DDOC container format
+* Has **.ddoc** extension
+* An old DigiDoc digital signature format
+* Since year 2015 it's recommended not to sign documents in the DDOC format
+* It is based on XML Advanced Electronic Signatures (**XAdES**) format, corresponding to  profile XAdES-X-L
+* The DigiDoc container includes the source files (the files that were signed) as well as the signatures that are related to the signed file(s)
+* Every signature contains the certificate, validity confirmation and the validity confirmation service certificate.
+* See the [DigiDoc format description](http://www.id.ee/public/DigiDoc_format_1.3.pdf)
 
-API is available via [JavaDoc](http://open-eid.github.io/digidoc4j/)
+# Requirements
+* Java 1.7
+* Internet access to external verification services
+ * OCSP (Online Certificate Status Protocol) - http://ocsp.sk.ee
+ * EU TSL (European Commission's Trusted Status List) - https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml
+ * TSA (Time Stamping Authority) - http://tsa.sk.ee
 
-To run tests:
-
-```bash
-ant tests
-```
-
-To build and run tests inside IDEA
------
-
-When using IDEA You only need to install IvyIDEA plugin.
-
-Steps to install IvyIDEA plugin:
-
-1. Preferences -> Plugins
-2. Click Browse repositories
-3. Search for IvyIDEA
-4. Click green Install Plugin button 
-5. Repeat steps 3 and 4 to install CheckStyle-IDEA plugin
-6. Restart IDEA
-
-Now You need to update Ivy dependencies:
-
-1. Right click on __digidoc4j__
-2. Choose __IvyIDEA -> Resolve for 'digidoc4j' module__
-
-Finally setup CheckStyle rules like so:
-
-1. Open __CheckStyle tool window__ 
-2. Change rules to: __RIA__
-3. Now press run and check that CheckStyle did not find any problems
-
-Now You should be ready to run tests within IDEA.
-
-__Note:__ ClearTSLCache takes long time so please be patient
-
-Instructions for Eclipse users
-----
-
-__TODO:__ Will be added soon
+# Licence
+* LGPL (GNU Library General Public License, see LICENSE.LGPL)
+* © Estonian Information System Authority
 
 ## Support
 Official builds are provided through official distribution point [installer.id.ee](https://installer.id.ee). If you want support, you need to be using official builds. Contact for assistance by email [abi@id.ee](mailto:abi@id.ee) or [www.id.ee](http://www.id.ee).
