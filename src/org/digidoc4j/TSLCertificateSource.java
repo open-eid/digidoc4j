@@ -38,7 +38,6 @@ public class TSLCertificateSource extends TrustedListsCertificateSource {
    * @param certificate X509 certificate to be added to the list
    */
   public void addTSLCertificate(X509Certificate certificate) {
-    logger.debug("");
     ServiceInfo serviceInfo = new ServiceInfo();
     serviceInfo.setStatus("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision");
     serviceInfo.setType("http://uri.etsi.org/TrstSvc/Svctype/CA/QC");

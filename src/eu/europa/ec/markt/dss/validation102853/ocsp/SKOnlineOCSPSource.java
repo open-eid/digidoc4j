@@ -171,6 +171,10 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
 
       final OCSPResp ocspResp = new OCSPResp(ocspRespBytes);
       BasicOCSPResp basicOCSPResp = (BasicOCSPResp) ocspResp.getResponseObject();
+      if(basicOCSPResp == null) {
+        logger.error("OCSP response is empty");
+        return null;
+      }
 
       checkNonce(basicOCSPResp, nonceExtension);
 
@@ -196,8 +200,6 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
         certificateToken.setRevocationToken(ocspToken);
         return ocspToken;
       }
-    } catch (NullPointerException e) {
-      logger.error("OCSP error: Encountered a case when the OCSPResp is initialised with a null OCSP response...", e);
     } catch (OCSPException e) {
       logger.error("OCSP error: " + e.getMessage(), e);
     } catch (IOException e) {
@@ -227,5 +229,9 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   private DSSPrivateKeyEntry getOCSPAccessCertificatePrivateKey() {
     Pkcs12SignatureToken signatureTokenConnection = new Pkcs12SignatureToken(configuration.getOCSPAccessCertificatePassword(), configuration.getOCSPAccessCertificateFileName());
     return signatureTokenConnection.getKeys().get(0);
+  }
+
+  void setDataLoader(DataLoader dataLoader) {
+    this.dataLoader = dataLoader;
   }
 }
