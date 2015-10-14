@@ -83,6 +83,7 @@ public class ManifestValidator {
 
     errorMessages.addAll(validateFilesInContainer(signatureEntries));
 
+    logger.info("Validation of meta data within the manifest file and signature files error count: " + errorMessages.size());
     return errorMessages;
   }
 

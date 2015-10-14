@@ -46,7 +46,7 @@ public class ContainerOpener {
    * @see ContainerBuilder
    */
   public static Container open(String path, Configuration configuration) throws DigiDoc4JException {
-    logger.debug("Path: " + path);
+    logger.debug("Opening container from path: " + path);
     try {
       if (Helper.isZipFile(new File(path))) {
         return openBDocContainer(path, configuration);
@@ -87,7 +87,7 @@ public class ContainerOpener {
    * @see ContainerBuilder
    */
   public static Container open(InputStream stream, boolean actAsBigFilesSupportEnabled) {
-    logger.debug("");
+    logger.debug("Opening container from stream");
     BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);
 
     try {
@@ -115,7 +115,7 @@ public class ContainerOpener {
    * @see ContainerBuilder
    */
   public static Container open(InputStream stream, Configuration configuration) {
-    logger.debug("");
+    logger.debug("Opening container from stream");
     BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);
 
     try {

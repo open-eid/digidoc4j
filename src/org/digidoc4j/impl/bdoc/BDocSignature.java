@@ -263,7 +263,9 @@ public class BDocSignature implements Signature {
 
   @Override
   public List<DigiDoc4JException> validate() {
-    logger.debug("");
+    if(validationErrors != null) {
+      logger.info("Signature has " + validationErrors.size() + " validation errors");
+    }
     return validationErrors;
   }
 

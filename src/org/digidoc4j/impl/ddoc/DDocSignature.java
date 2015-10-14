@@ -211,6 +211,7 @@ public class DDocSignature implements Signature {
       logger.info(errorMessage);
       validationErrors.add(new DigiDoc4JException(errorMessage));
     }
+    logger.info("Signature has " + validationErrors.size() + " validation errors");
     return validationErrors;
   }
 

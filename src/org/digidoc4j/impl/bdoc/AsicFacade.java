@@ -136,7 +136,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     this.configuration = new Configuration();
     initASiC();
 
-    logger.debug("New BDoc container created");
+    logger.info("New BDoc container created");
   }
 
   public SignedInfo prepareSigning(X509Certificate signerCert) {
@@ -164,7 +164,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     initASiC();
     configuration.getTSL();
     this.configuration = configuration.copy();
-    logger.debug("New BDoc container created");
+    logger.info("New BDoc container created");
   }
 
 
@@ -253,7 +253,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   }
 
   public AsicFacade(InputStream stream, boolean actAsBigFilesSupportEnabled, Configuration configuration) {
-    logger.debug("");
+    logger.info("Opening BDoc container from stream");
     this.configuration = configuration;
     initASiC();
     try {
@@ -276,7 +276,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
    * @param configuration configuration settings
    */
   public AsicFacade(String path, Configuration configuration) {
-    logger.debug("Opens file: " + path);
+    logger.info("Opening BDoc container from file: " + path);
     initASiC();
 
     try {
@@ -349,7 +349,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
 
     currentUsedSignatureFileIndex = new AsicContainerParser(signedDocument).findCurrentSignatureFileIndex();
 
-    logger.debug("New BDoc container created");
+    logger.info("Finished reading BDoc container details");
   }
 
   private void loadAttachments(SignedDocumentValidator validator) {
@@ -470,7 +470,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   }
 
   public DataFile addDataFile(String path, String mimeType) {
-    logger.debug("Path: " + path + ", mime type: " + mimeType);
+    logger.info("Adding data file: " + path + ", mime type: " + mimeType);
 
     verifyIfAllowedToAddDataFile(path);
 
@@ -517,7 +517,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   }
 
   public DataFile addDataFile(InputStream is, String fileName, String mimeType) {
-    logger.debug("File name: " + fileName + ", mime type: " + mimeType);
+    logger.info("Adding data file: " + fileName + ", mime type: " + mimeType);
 
     verifyIfAllowedToAddDataFile(fileName);
 
@@ -573,7 +573,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   }
 
   public void removeDataFile(String fileName) {
-    logger.debug("File name: " + fileName);
+    logger.info("Removing data file: " + fileName);
 
     if (signatures.size() > 0) {
       String errorMessage = "Datafiles cannot be removed from an already signed container";
@@ -590,14 +590,14 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
 
   @Deprecated
   public void removeSignature(int index) {
-    logger.debug("Index: " + index);
+    logger.info("Removing signature index: " + index);
     String signatureId = "S" + index;
     buildContainerWithoutSignature(signatureId);
     signatures.remove(index);
   }
 
   public void removeSignature(Signature signature) {
-    logger.debug("Removing signature " + signature.getId());
+    logger.info("Removing signature " + signature.getId());
     buildContainerWithoutSignature(signature.getId());
     signatures.remove(signature);
   }
@@ -640,7 +640,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   }
 
   public void save(String path) {
-    logger.debug("Path: " + path);
+    logger.info("Saving container to file: " + path);
     documentMustBeInitializedCheck();
     try {
       signedDocument.save(path);
@@ -651,7 +651,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   }
 
   public void save(OutputStream out) {
-    logger.debug("");
+    logger.info("Saving container to outputstream");
     try {
       IOUtils.copyLarge(signedDocument.openStream(), out);
     } catch (IOException e) {
@@ -661,6 +661,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   }
 
   public InputStream saveAsStream() {
+    logger.info("Saving container as stream");
     return signedDocument.openStream();
   }
 
@@ -674,7 +675,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   }
 
   public Signature sign(SignatureToken signatureToken) {
-    logger.debug("");
+    logger.info("Signing BDoc container");
     byte[] dataToSign;
     String signatureId = signatureParameters.getSignatureId();
     dataToSign = getDataToSign(signatureId != null ? signatureId : "S" + getSignatures().size(),
@@ -686,7 +687,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   }
 
   private byte[] getDataToSign(String setSignatureId, X509Certificate signerCertificate) {
-    logger.debug("");
+    logger.info("Getting data to sign");
     if (isTimeMark)
       addSignaturePolicy();
 
@@ -702,7 +703,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   }
 
   public Signature signRaw(byte[] rawSignature) {
-    logger.debug("");
+    logger.info("Finalizing BDoc signature");
 
     SKOnlineOCSPSource ocspSource = getOcspSource(rawSignature);
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
@@ -731,6 +732,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     Signature signature = new BDocSignature(xAdESSignature);
     signatures.add(signature);
 
+    logger.info("Signing BDoc successfully completed");
     return signature;
   }
 
@@ -801,7 +803,6 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   }
 
   public Configuration getConfiguration() {
-    logger.debug("");
     return configuration;
   }
 
@@ -839,7 +840,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
    * @return result of the verification
    */
   public ValidationResult verify() {
-    logger.debug("");
+    logger.info("Verifying BDoc container");
     documentMustBeInitializedCheck();
 
     SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
@@ -851,7 +852,9 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
       loadSignatures(validator);
     }
     List<String> manifestErrors = new ManifestValidator(validator).validateDocument(signatures);
-    return new ValidationResultForBDoc(report, signatures, manifestErrors, additionalVerificationErrors);
+    ValidationResultForBDoc result = new ValidationResultForBDoc(report, signatures, manifestErrors, additionalVerificationErrors);
+    logger.info("BDoc container is valid: " + result.isValid());
+    return result;
   }
 
   private Reports validate(SignedDocumentValidator validator) {
@@ -959,7 +962,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   }
 
   public void extendTo(SignatureProfile profile) {
-    logger.debug("");
+    logger.info("Extending signature profile to " + profile.name());
     validationReport = null;
     isTimeMark = false;
     switch (profile) {
@@ -1007,6 +1010,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   }
 
   public void addDataFile(DataFile dataFile) {
+    logger.info("Adding data file " + dataFile.getName());
     checkForDuplicateDataFile(dataFile.getName());
     dataFiles.put(dataFile.getName(), dataFile);
   }

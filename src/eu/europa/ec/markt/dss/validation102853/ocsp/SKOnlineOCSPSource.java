@@ -96,12 +96,14 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   private byte[] buildOCSPRequest(final X509Certificate signCert, final X509Certificate issuerCert, Extension nonceExtension) throws
       DSSException {
     try {
+      logger.debug("Building OCSP request");
       final CertificateID certId = DSSRevocationUtils.getOCSPCertificateID(signCert, issuerCert);
       final OCSPReqBuilder ocspReqBuilder = new OCSPReqBuilder();
       ocspReqBuilder.addRequest(certId);
       ocspReqBuilder.setRequestExtensions(new Extensions(nonceExtension));
 
       if (configuration.hasToBeOCSPRequestSigned()) {
+        logger.info("Using signed OCSP request");
         JcaContentSignerBuilder signerBuilder = new JcaContentSignerBuilder("SHA1withRSA");
 
         if (!configuration.isOCSPSigningConfigurationAvailable()) {
@@ -136,6 +138,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
 
   @Override
   public OCSPToken getOCSPToken(CertificateToken certificateToken, CertificatePool certificatePool) {
+    logger.debug("Getting OCSP token");
     if(listener != null) {
       listener.onGetOCSPToken(certificateToken, certificatePool);
     }
@@ -156,9 +159,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
       final X509Certificate issuerCertificate = issuerTokens.get(0).getCertificate();
 
       final String ocspUri = getAccessLocation();
-      if (logger.isDebugEnabled()) {
-        logger.debug("OCSP URI: " + ocspUri);
-      }
+      logger.info("Getting OCSP token from URI: " + ocspUri);
       if (ocspUri == null) {
 
         return null;

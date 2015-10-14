@@ -62,10 +62,11 @@ public final class DigiDoc4J {
         System.setProperty("digidoc4j.mode", "PROD");
       run(args);
     } catch (DigiDoc4JUtilityException e) {
+      logger.error("Errors occurred when running utility method: " + e.getMessage());
       System.err.print(e.getMessage());
       System.exit(e.getErrorCode());
     }
-    logger.info("Successfully finished running utility method");
+    logger.info("Finished running utility method");
     System.exit(0);
   }
 
@@ -142,8 +143,15 @@ public final class DigiDoc4J {
         fileHasChanged = true;
       }
 
-      if (fileHasChanged)
+      if (fileHasChanged) {
         container.saveAsFile(inputFile);
+        if(new File(inputFile).exists()) {
+          logger.debug("Container has been successfully saved to " + inputFile);
+        }
+        else {
+          logger.warn("Container was NOT saved to " + inputFile);
+        }
+      }
 
       if (commandLine.hasOption("verify"))
         verify(container);
@@ -218,6 +226,12 @@ public final class DigiDoc4J {
 
     showWarnings(validationResult);
     verboseMessage(validationResult.getReport());
+
+    if(validationResult.isValid()) {
+      logger.info("Validation was successful. Container is valid");
+    } else {
+      logger.info("Validation finished. Container is NOT valid!");
+    }
   }
 
   private static void showWarnings(ValidationResult validationResult) {

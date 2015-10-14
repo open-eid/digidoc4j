@@ -37,7 +37,7 @@ public class PKCS12SignatureToken implements SignatureToken {
    * @param password keystore password
    */
   public PKCS12SignatureToken(String fileName, char[] password) {
-    logger.debug("File name: " + fileName);
+    logger.info("Using PKCS#12 signature token from file: " + fileName);
     signatureTokenConnection = new Pkcs12SignatureToken(password, fileName);
     keyEntry = signatureTokenConnection.getKeys().get(0);
   }
@@ -50,7 +50,7 @@ public class PKCS12SignatureToken implements SignatureToken {
 
   @Override
   public byte[] sign(org.digidoc4j.DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
-    logger.debug("Digest algorithm: " + digestAlgorithm);
+    logger.info("Signing with PKCS#12 signature token, using digest algorithm: " + digestAlgorithm.name());
     return signatureTokenConnection.sign(dataToSign, DigestAlgorithm.forXML(digestAlgorithm.toString()),
             keyEntry);
   }

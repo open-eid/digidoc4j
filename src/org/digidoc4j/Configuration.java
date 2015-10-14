@@ -262,6 +262,8 @@ public class Configuration implements Serializable {
     loadConfiguration("digidoc4j.yaml");
 
     initDefaultValues();
+
+    logger.info("Configuration loaded for " + mode + " mode");
   }
 
   /**
@@ -283,7 +285,7 @@ public class Configuration implements Serializable {
    * @return configuration hashtable
    */
   public Hashtable<String, String> loadConfiguration(String file) {
-    logger.debug("File " + file);
+    logger.info("Loading configuration from file " + file);
     configurationInputSourceName = file;
     InputStream resourceAsStream = null;
 
