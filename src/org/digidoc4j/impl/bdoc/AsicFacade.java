@@ -61,6 +61,7 @@ import org.digidoc4j.SignedInfo;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.CertificateRevokedException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
@@ -356,6 +357,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     logger.debug("");
     for (DSSDocument externalContent : validator.getDetachedContents()) {
       if (!"mimetype".equals(externalContent.getName()) && !"META-INF/manifest.xml".equals(externalContent.getName())) {
+        checkForDuplicateDataFile(externalContent.getName());
         dataFiles.put(externalContent.getName(), new DataFile(externalContent.getBytes(), externalContent.getName(),
             externalContent.getMimeType().getMimeTypeString()));
       }
@@ -511,7 +513,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
       if (dataFiles.get(key).getName().equals(fileName)) {
         String errorMessage = "Data file " + fileName + " already exists";
         logger.error(errorMessage);
-        throw new DigiDoc4JException(errorMessage);
+        throw new DuplicateDataFileException(errorMessage);
       }
     }
   }

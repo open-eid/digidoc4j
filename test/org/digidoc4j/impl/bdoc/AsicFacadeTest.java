@@ -342,14 +342,14 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     container.removeDataFile("test1.txt");
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test(expected = DuplicateDataFileException.class)
   public void testAddingSameFileSeveralTimes() throws Exception {
     AsicFacade container = new AsicFacade();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.addDataFile("testFiles/test.txt", "text/plain");
   }
   
-  @Test(expected = DigiDoc4JException.class)
+  @Test(expected = DuplicateDataFileException.class)
   public void testAddingSamePreCreatedFileSeveralTimes() {
     AsicFacade container = new AsicFacade();
     DataFile dataFile = new DataFile("Hello world!".getBytes(), "test-file.txt", "text/plain");
@@ -364,7 +364,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     container.addDataFile(new DataFile("Goodbye world!".getBytes(), "goodbye.txt", "text/plain")); 
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test(expected = DuplicateDataFileException.class)
   public void testAddingSameFileSeveralTimesViaInputStream() throws Exception {
     AsicFacade container = new AsicFacade();
     container.addDataFile(new ByteArrayInputStream("test".getBytes()), "testFiles/test.txt", "text/plain");
@@ -379,7 +379,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     assertTrue(container.validate().isValid());
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test(expected = DuplicateDataFileException.class)
   public void testAddingSameFileInDifferentContainerSeveralTimes() throws Exception {
     AsicFacade container = new AsicFacade();
     container.addDataFile("testFiles/test.txt", "text/plain");
@@ -1477,7 +1477,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     // assertEquals("The reference data object(s) not found!", validate.getErrors().get(0).toString());
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test(expected = DuplicateDataFileException.class)
   public void duplicateFileThrowsException() {
     Container container = ContainerOpener.open("testFiles/22902_data_files_with_same_names.bdoc");
     container.validate();
@@ -1785,6 +1785,14 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     container.sign(PKCS12_SIGNER);
     assertEquals("signatures2.xml", container.getDssSignatureParameters().aSiC().getSignatureFileName());
 
+  }
+
+  @Test(expected = DuplicateDataFileException.class)
+  public void whenOpeningContainer_withTwoDataFilesWithSameName_andWithSingleReferenceInManifest_shouldThrowException() {
+    Container container = ContainerBuilder.aContainer()
+        .fromExistingFile("testFiles/KS-19_IB-3721_bdoc21-TM-2fil-samename-1sig3.bdoc")
+        .withConfiguration(new Configuration(Configuration.Mode.TEST))
+        .build();
   }
 
   private void assertSignatureContains(BDocSignature signature, String name) {
