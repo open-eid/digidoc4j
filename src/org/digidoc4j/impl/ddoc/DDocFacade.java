@@ -394,9 +394,6 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
     calculateSignature(signer);
     try {
       signRaw(signer.sign(getDigestAlgorithm(), ddocSignature.calculateSignedInfoXML()));
-      if (signatureProfile == SignatureProfile.LT_TM) {
-        ddocSignature.getConfirmation();
-      }
     } catch (DigiDocException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e.getNestedException());
@@ -410,6 +407,9 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
     try {
       ddocSignature.setSignatureValue(rawSignature);
       DDocSignature signature = new DDocSignature(ddocSignature);
+      if (signatureProfile == SignatureProfile.LT_TM) {
+        ddocSignature.getConfirmation();
+      }
       signature.setIndexInArray(getSignatureIndexInArray());
       logger.info("Signing DDoc successfully completed");
       return signature;

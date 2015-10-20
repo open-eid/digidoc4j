@@ -477,6 +477,31 @@ public class DDocFacadeTest {
     container.signRaw(null);
   }
 
+  @Test
+  public void signRawWithLT_TMSignatureProfileAddsOCSP() {
+    String dDocFileName = "testOCSPAddedWithRawSignature.ddoc";
+    signRawDDocContainer(LT_TM).saveAsFile(dDocFileName);
+    assertNotNull(ContainerOpener.open(dDocFileName).getSignatures().get(0).getOCSPCertificate());
+  }
+
+  @Test
+  public void signRawWithNoSignatureProfileDoesNotAddOCSP() {
+    String dDocFileName = "testOCSPNotAddedWithRawSignatureWhenNoProfile.ddoc";
+    signRawDDocContainer(B_BES).saveAsFile(dDocFileName);
+    assertNull(ContainerOpener.open(dDocFileName).getSignatures().get(0).getOCSPCertificate());
+  }
+
+  private Container signRawDDocContainer(SignatureProfile signatureProfile) {
+    Container container = createDDoc();
+    container.setSignatureProfile(signatureProfile);
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    X509Certificate signerCert = getSigningCert();
+    SignedInfo signedInfo = container.prepareSigning(signerCert);
+    byte[] signature = getExternalSignature(signedInfo, SHA256);
+    container.signRaw(signature);
+    return container;
+  }
+
   private byte[] getExternalSignature(SignedInfo signedInfo, DigestAlgorithm digestAlgorithm) {
     return TestSigningHelper.sign(signedInfo.getDigestToSign(), digestAlgorithm);
   }
