@@ -28,6 +28,10 @@ import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.junit.rules.TemporaryFolder;
 
+import eu.europa.ec.markt.dss.signature.DSSDocument;
+import eu.europa.ec.markt.dss.signature.FileDocument;
+import eu.europa.ec.markt.dss.signature.MimeType;
+
 public class TestDataBuilder {
 
   public static Container createContainerWithFile(TemporaryFolder testFolder) throws IOException {
@@ -73,6 +77,12 @@ public class TestDataBuilder {
     SignatureBuilder builder = prepareDataToSign(container);
     builder.withSignatureId(signatureId);
     return builder.buildDataToSign();
+  }
+
+  public static DSSDocument createAsicContainer(String path) {
+    DSSDocument container = new FileDocument(path);
+    container.setMimeType(MimeType.ASICE);
+    return container;
   }
 
   private static Container populateContainerBuilderWithFile(ContainerBuilder builder, TemporaryFolder testFolder) throws IOException {

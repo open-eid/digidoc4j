@@ -10,12 +10,11 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import org.digidoc4j.testutils.TestDataBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 
 import eu.europa.ec.markt.dss.signature.DSSDocument;
-import eu.europa.ec.markt.dss.signature.FileDocument;
-import eu.europa.ec.markt.dss.signature.MimeType;
 
 public class AsicContainerParserTest {
 
@@ -44,8 +43,7 @@ public class AsicContainerParserTest {
   }
 
   private AsicContainerParser createParser(String path) {
-    DSSDocument container = new FileDocument(path);
-    container.setMimeType(MimeType.ASICE);
+    DSSDocument container = TestDataBuilder.createAsicContainer(path);
     return new AsicContainerParser(container);
   }
 }

@@ -19,14 +19,11 @@ import static eu.europa.ec.markt.dss.signature.SignaturePackaging.DETACHED;
 import static eu.europa.ec.markt.dss.validation102853.SignatureForm.XAdES;
 import static java.util.Arrays.asList;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
-import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.digidoc4j.SignatureProfile.LT;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -59,12 +56,10 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
 import org.digidoc4j.ValidationResult;
-import org.digidoc4j.exceptions.CertificateRevokedException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
-import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.SignatureFinalizer;
@@ -85,23 +80,15 @@ import eu.europa.ec.markt.dss.signature.MimeType;
 import eu.europa.ec.markt.dss.signature.SignatureLevel;
 import eu.europa.ec.markt.dss.signature.StreamDocument;
 import eu.europa.ec.markt.dss.signature.asic.ASiCService;
-import eu.europa.ec.markt.dss.signature.validation.AdvancedSignature;
 import eu.europa.ec.markt.dss.validation102853.CertificateToken;
-import eu.europa.ec.markt.dss.validation102853.SignaturePolicy;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
-import eu.europa.ec.markt.dss.validation102853.asic.ASiCContainerValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.ocsp.BDocTMOcspSource;
 import eu.europa.ec.markt.dss.validation102853.ocsp.BDocTSOcspSource;
 import eu.europa.ec.markt.dss.validation102853.ocsp.SKOnlineOCSPSource;
-import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
 import eu.europa.ec.markt.dss.validation102853.report.Reports;
-import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
-import eu.europa.ec.markt.dss.validation102853.rules.MessageTag;
-import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
 import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
-import eu.europa.ec.markt.dss.validation102853.xades.XPathQueryHolder;
 
 /**
  * BDOC container implementation
@@ -109,14 +96,9 @@ import eu.europa.ec.markt.dss.validation102853.xades.XPathQueryHolder;
 public class AsicFacade implements SignatureFinalizer, Serializable {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicFacade.class);
-
-  private static final String TM_POLICY = "urn:oid:1.3.6.1.4.1.10015.1000.3.2.1";
-  private static final String OIDAS_URN = "OIDAsURN";
-  private static final String XADES_SIGNED_PROPERTIES = "http://uri.etsi.org/01903#SignedProperties";
   private static final int ONE_MB_IN_BYTES = 1048576;
 
   private final Map<String, DataFile> dataFiles = new LinkedHashMap<>();
-  private Map<String, List<DigiDoc4JException>> additionalVerificationErrors = new LinkedHashMap<>();
   private SKCommonCertificateVerifier commonCertificateVerifier;
   private DocumentSignatureService asicService;
   private eu.europa.ec.markt.dss.parameter.SignatureParameters dssSignatureParameters;
@@ -333,10 +315,12 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   private void readsOpenedDocumentDetails() {
     logger.debug("");
 
-    SignedDocumentValidator validator = ASiCContainerValidator.fromDocument(signedDocument);
+    AsicContainerValidationResult validationResult = new AsicContainerValidator(signedDocument, commonCertificateVerifier, configuration).loadContainerDetails();
+    validationReport = validationResult.getValidationReport();
+    dssSignatureParameters.setDigestAlgorithm(validationResult.getContainerDigestAlgorithm());
+    signatures = validationResult.getSignatures();
 
-    loadSignatures(validator);
-    loadAttachments(validator);
+    loadAttachments(validationResult.getSignedDocuments());
 
     //TODO must be changed when extending signature is possible in sd-dss currently is possible to extend whole
     //container and it extend also all signatures
@@ -353,112 +337,15 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     logger.info("Finished reading BDoc container details");
   }
 
-  private void loadAttachments(SignedDocumentValidator validator) {
+  private void loadAttachments(List<DSSDocument> signedDocuments) {
     logger.debug("");
-    for (DSSDocument externalContent : validator.getDetachedContents()) {
+    for (DSSDocument externalContent : signedDocuments) {
       if (!"mimetype".equals(externalContent.getName()) && !"META-INF/manifest.xml".equals(externalContent.getName())) {
         checkForDuplicateDataFile(externalContent.getName());
         dataFiles.put(externalContent.getName(), new DataFile(externalContent.getBytes(), externalContent.getName(),
             externalContent.getMimeType().getMimeTypeString()));
       }
     }
-  }
-
-  private Map<String, SimpleReport> loadValidationResults(SignedDocumentValidator validator) {
-    logger.debug("");
-    Map<String, SimpleReport> simpleReports = new LinkedHashMap<>();
-
-    Reports report = validate(validator);
-
-    dssSignatureParameters.setDigestAlgorithm(report.getDiagnosticData().getSignatureDigestAlgorithm());
-
-    do {
-      SimpleReport simpleReport = report.getSimpleReport();
-      if (simpleReport.getSignatureIdList().size() > 0)
-        simpleReports.put(simpleReport.getSignatureIdList().get(0), simpleReport);
-      report = report.getNextReports();
-    } while (report != null);
-    return simpleReports;
-  }
-
-  private void loadSignatures(SignedDocumentValidator validator) {
-    logger.debug("");
-    Map<String, SimpleReport> simpleReports = loadValidationResults(validator);
-    List<AdvancedSignature> signatureList = validator.getSignatures();
-
-    additionalVerificationErrors = new LinkedHashMap<>();
-    for (AdvancedSignature advancedSignature : signatureList) {
-      List<DigiDoc4JException> validationErrors = new ArrayList<>();
-      String reportSignatureId = advancedSignature.getId();
-      additionalVerificationErrors.put(reportSignatureId, validatePolicy(advancedSignature));
-      DigiDoc4JException referenceError = validateSignedPropertiesReference(advancedSignature);
-      if (referenceError != null)
-        additionalVerificationErrors.get(reportSignatureId).add(referenceError);
-      SimpleReport simpleReport = getSimpleReport(simpleReports, reportSignatureId);
-      if (simpleReport != null) {
-        for (Conclusion.BasicInfo error : simpleReport.getErrors(reportSignatureId)) {
-          String errorMessage = error.toString();
-          logger.info(errorMessage);
-          if(errorMessage.contains(MessageTag.BBB_XCV_ISCR_ANS.getMessage()))
-            validationErrors.add(new CertificateRevokedException(errorMessage));
-          else
-            validationErrors.add(new DigiDoc4JException(errorMessage));
-        }
-      }
-      validationErrors.addAll(additionalVerificationErrors.get(reportSignatureId));
-      signatures.add(new BDocSignature((XAdESSignature) advancedSignature, validationErrors));
-    }
-  }
-
-  private DigiDoc4JException validateSignedPropertiesReference(AdvancedSignature advancedSignature) {
-    logger.debug("");
-    List<Element> signatureReferences = ((XAdESSignature) advancedSignature).getSignatureReferences();
-    int nrOfSignedPropertiesReferences = 0;
-    for (Element signatureReference : signatureReferences) {
-      if (XADES_SIGNED_PROPERTIES.equals(signatureReference.getAttribute("Type")))
-        nrOfSignedPropertiesReferences++;
-    }
-    if (nrOfSignedPropertiesReferences == 1) return null;
-    String errorMessage;
-    errorMessage = nrOfSignedPropertiesReferences == 0 ?  "Signed properties missing" : "Multiple signed properties";
-    logger.info(errorMessage);
-    return (new DigiDoc4JException(errorMessage));
-  }
-
-  private List<DigiDoc4JException> validatePolicy(AdvancedSignature advancedSignature) {
-    logger.debug("");
-    ArrayList<DigiDoc4JException> validationErrors = new ArrayList<>();
-    SignaturePolicy policy = advancedSignature.getPolicyId();
-    if (policy != null) {
-      String policyIdentifier = policy.getIdentifier().trim();
-      if (!TM_POLICY.equals(policyIdentifier)) {
-        validationErrors.add(new DigiDoc4JException("Wrong policy identifier: " + policyIdentifier));
-        return validationErrors;
-      }
-      if (isBlank(policy.getUrl()))
-        validationErrors.add(new DigiDoc4JException("Policy url is missing for identifier: " + policyIdentifier));
-
-      XPathQueryHolder xPathQueryHolder = ((XAdESSignature) advancedSignature).getXPathQueryHolder();
-      Element signatureElement = ((XAdESSignature) advancedSignature).getSignatureElement();
-      Element element = DSSXMLUtils.getElement(signatureElement, xPathQueryHolder.XPATH_SIGNATURE_POLICY_IDENTIFIER);
-      Element identifier = DSSXMLUtils.getElement(element,
-          "./xades:SignaturePolicyId/xades:SigPolicyId/xades:Identifier");
-      if (!OIDAS_URN.equals(identifier.getAttribute("Qualifier"))) {
-        validationErrors.add(new DigiDoc4JException("Wrong policy identifier qualifier: "
-            + identifier.getAttribute("Qualifier")));
-      }
-    }
-
-    return validationErrors;
-  }
-
-  private SimpleReport getSimpleReport(Map<String, SimpleReport> simpleReports, String fromSignatureId) {
-    logger.debug("signature id : " + fromSignatureId);
-    SimpleReport simpleReport = simpleReports.get(fromSignatureId);
-    if (simpleReport != null && simpleReports.size() == 1) {
-      return simpleReports.values().iterator().next();
-    }
-    return simpleReport;
   }
 
   /**
@@ -613,7 +500,8 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     signedDocument = null;
     do {
       try {
-        dssSignatureParameters.aSiC().setSignatureFileName(getSignatureFileName(signature));
+        String signatureFileName = getSignatureFileName(signature);
+        dssSignatureParameters.aSiC().setSignatureFileName(signatureFileName);
         signedDocument = ((ASiCService) asicService).buildASiCContainer(signingDocument, signedDocument,
             dssSignatureParameters, createBareDocument(signature));
         signature = signature.getNextDocument();
@@ -728,7 +616,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
       throw new DigiDoc4JException(e);
     }
 
-    XAdESSignature xAdESSignature = getSignatureById(deterministicId);
+    XAdESSignature xAdESSignature = new AsicContainerValidator(signedDocument, commonCertificateVerifier, configuration).findXadesSignature(deterministicId);
 
     validationReport = null;
     Signature signature = new BDocSignature(xAdESSignature);
@@ -788,22 +676,6 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     return attachment;
   }
 
-  private XAdESSignature getSignatureById(String deterministicId) {
-    logger.debug("Id: " + deterministicId);
-    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
-    validate(validator);
-    List<AdvancedSignature> signatureList = validator.getSignatures();
-    for (AdvancedSignature advancedSignature : signatureList) {
-      if (advancedSignature.getId().equals(deterministicId)) {
-        logger.debug("Signature found");
-        return (XAdESSignature) advancedSignature;
-      }
-    }
-    SignatureNotFoundException exception = new SignatureNotFoundException();
-    logger.info(exception.getMessage());
-    throw exception;
-  }
-
   public Configuration getConfiguration() {
     return configuration;
   }
@@ -845,54 +717,10 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     logger.info("Verifying BDoc container");
     documentMustBeInitializedCheck();
 
-    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
+    AsicContainerValidationResult result = new AsicContainerValidator(signedDocument, commonCertificateVerifier, configuration).validate();
 
-    Reports report = validate(validator);
-
-    if ((signatures.size() > 0) && (((BDocSignature) signatures.iterator().next()).getOrigin().getReferences() == null)) {
-      signatures = new LinkedHashSet<>();
-      loadSignatures(validator);
-    }
-    List<String> manifestErrors = new ManifestValidator(validator).validateDocument(signatures);
-    ValidationResultForBDoc result = new ValidationResultForBDoc(report, signatures, manifestErrors, additionalVerificationErrors);
     logger.info("BDoc container is valid: " + result.isValid());
-    return result;
-  }
-
-  private Reports validate(SignedDocumentValidator validator) {
-    logger.debug("Validator: " + validator);
-    if (validationReport != null) {
-      return validationReport;
-    }
-
-    commonCertificateVerifier.setOcspSource(null);
-
-    TrustedListsCertificateSource trustedCertSource = configuration.getTSL();
-
-    commonCertificateVerifier.setTrustedCertSource(trustedCertSource);
-    validator.setCertificateVerifier(commonCertificateVerifier);
-
-    try {
-      validationReport = validator.validateDocument(getValidationPolicyAsStream(getConfiguration()
-          .getValidationPolicy()));
-      return validationReport;
-    } catch (DSSException e) {
-      logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
-    }
-  }
-
-  private InputStream getValidationPolicyAsStream(String policyFile) {
-    logger.debug("");
-    if (Files.exists(Paths.get(policyFile))) {
-      try {
-        return new FileInputStream(policyFile);
-      } catch (FileNotFoundException ignore) {
-        logger.warn(ignore.getMessage());
-      }
-    }
-
-    return getClass().getClassLoader().getResourceAsStream(policyFile);
+    return result.getbDocValidationResult();
   }
 
   public List<Signature> getSignatures() {
@@ -949,14 +777,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     signedDocument = new InMemoryDocument(extendedDocument.getBytes(),
         signedDocument.getName(), signedDocument.getMimeType());
 
-    signatures = new LinkedHashSet<>();
-    SignedDocumentValidator validator = ASiCXMLDocumentValidator.fromDocument(signedDocument);
-    validate(validator);
-
-    List<AdvancedSignature> signatureList = validator.getSignatures();
-    for (AdvancedSignature advancedSignature : signatureList) {
-      signatures.add(new BDocSignature((XAdESSignature) advancedSignature));
-    }
+    signatures = new AsicContainerValidator(signedDocument, commonCertificateVerifier, configuration).loadSignaturesWithoutValidation();
   }
 
   public String getVersion() {

@@ -26,6 +26,7 @@ import java.io.InputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.InvalidDataFileException;
+import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.impl.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.impl.ddoc.DDocSignature;
@@ -36,7 +37,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class ContainerBuilderTest {
+public class ContainerBuilderTest extends DigiDoc4JTestHelper {
 
   public static final Configuration TEST_CONFIGURATION = new Configuration(Configuration.Mode.TEST);
   private static final String BDOC_TEST_FILE = "testFiles/asics_for_testing.bdoc";
