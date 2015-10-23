@@ -50,7 +50,6 @@ public final class ManifestEntry {
 
   @Override
   public boolean equals(Object obj) {
-    logger.debug("");
     if (obj instanceof ManifestEntry) {
       if (fileName.equals(((ManifestEntry)obj).getFileName())
           && mimeType.equals(((ManifestEntry)obj).getMimeType())) {
@@ -62,7 +61,6 @@ public final class ManifestEntry {
 
   @Override
   public int hashCode() {
-    logger.debug("");
     return Objects.hash(fileName, mimeType);
   }
 }

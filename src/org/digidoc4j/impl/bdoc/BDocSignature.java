@@ -86,19 +86,16 @@ public class BDocSignature implements Signature {
 
   @Override
   public String getCity() {
-    logger.debug("");
     return signerLocation == null ? null : signerLocation.getCity();
   }
 
   @Override
   public String getCountryName() {
-    logger.debug("");
     return signerLocation == null ? null : signerLocation.getCountryName();
   }
 
   @Override
   public String getId() {
-    logger.debug("");
     return origin.getId();
   }
 
@@ -128,7 +125,6 @@ public class BDocSignature implements Signature {
   }
 
   private String getOCSPCommonName() {
-    logger.debug("");
     RespID responderId = origin.getOCSPSource().getContainedOCSPResponses().get(0).getResponderId();
     String commonName = getCN(responderId.toASN1Object().getName());
     logger.debug("OCSP common name: " + commonName);
@@ -136,7 +132,6 @@ public class BDocSignature implements Signature {
   }
 
   private String getCN(X500Name x500Name) {
-    logger.debug("");
     String name = x500Name.getRDNs(new ASN1ObjectIdentifier("2.5.4.3"))[0].getTypesAndValues()[0].getValue().toString();
     logger.debug("Common name: " + name);
     return name;
@@ -151,13 +146,11 @@ public class BDocSignature implements Signature {
 
   @Override
   public String getPostalCode() {
-    logger.debug("");
     return signerLocation == null ? null : signerLocation.getPostalCode();
   }
 
   @Override
   public Date getOCSPResponseCreationTime() {
-    logger.debug("");
     Date date = origin.getOCSPSource().getContainedOCSPResponses().get(0).getProducedAt();
     logger.debug("Produced at date: " + date);
     return date;
@@ -171,7 +164,6 @@ public class BDocSignature implements Signature {
 
   @Override
   public Date getTimeStampCreationTime() {
-    logger.debug("");
     List<TimestampToken> signatureTimestamps = origin.getSignatureTimestamps();
     if (signatureTimestamps.size() == 0) {
       return null;
@@ -204,8 +196,6 @@ public class BDocSignature implements Signature {
 
   @Override
   public String getSignatureMethod() {
-    logger.debug("");
-
     String xmlId = origin.getDigestAlgorithm().getXmlId();
     logger.debug("Signature method: " + xmlId);
     return xmlId;
@@ -213,20 +203,17 @@ public class BDocSignature implements Signature {
 
   @Override
   public List<String> getSignerRoles() {
-    logger.debug("");
     String[] claimedSignerRoles = origin.getClaimedSignerRoles();
     return claimedSignerRoles == null ? null : Arrays.asList(claimedSignerRoles);
   }
 
   @Override
   public X509Cert getSigningCertificate() {
-    logger.debug("");
     return new X509Cert(origin.getSigningCertificateToken().getCertificate());
   }
 
   @Override
   public Date getClaimedSigningTime() {
-    logger.debug("");
     Date signingTime = origin.getSigningTime();
     logger.debug("Signing time: " + signingTime);
     return signingTime;
@@ -246,7 +233,6 @@ public class BDocSignature implements Signature {
 
   @Override
   public String getStateOrProvince() {
-    logger.debug("");
     return signerLocation == null ? null : signerLocation.getStateOrProvince();
   }
 

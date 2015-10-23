@@ -15,24 +15,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.digidoc4j.Signature;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.ddoc.ValidationResultForDDoc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
-import eu.europa.ec.markt.dss.validation102853.report.DetailedReport;
 import eu.europa.ec.markt.dss.validation102853.report.Reports;
 import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 
@@ -41,7 +30,7 @@ import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
  */
 
 public class ValidationResultForBDoc implements ValidationResult {
-  static final Logger logger = LoggerFactory.getLogger(ValidationResultForDDoc.class);
+  private final static Logger logger = LoggerFactory.getLogger(ValidationResultForBDoc.class);
   private List<DigiDoc4JException> errors = new ArrayList<>();
   private List<DigiDoc4JException> warnings = new ArrayList<>();
   private List<DigiDoc4JException> manifestValidationExceptions = new ArrayList<>();
@@ -95,43 +84,36 @@ public class ValidationResultForBDoc implements ValidationResult {
 
   @Override
   public List<DigiDoc4JException> getErrors() {
-    logger.debug("");
     return errors;
   }
 
   @Override
   public List<DigiDoc4JException> getWarnings() {
-    logger.debug("");
     return warnings;
   }
 
   @Override
   public boolean hasErrors() {
-    logger.debug("");
     return (errors.size() != 0);
   }
 
   @Override
   public boolean hasWarnings() {
-    logger.debug("");
     return (warnings.size() != 0);
   }
 
   @Override
   public boolean isValid() {
-    logger.debug("");
     return !hasErrors();
   }
 
   @Override
   public String getReport() {
-    logger.debug("");
     return reportBuilder.buildXmlReport();
   }
 
   @Override
   public List<DigiDoc4JException> getContainerErrors() {
-    logger.debug("");
     return manifestValidationExceptions;
   }
 }

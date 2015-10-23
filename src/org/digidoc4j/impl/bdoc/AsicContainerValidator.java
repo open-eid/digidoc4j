@@ -30,6 +30,7 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.CertificateRevokedException;
 import org.digidoc4j.exceptions.ContainerWithoutSignaturesException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.InvalidTimestampException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
@@ -46,6 +47,7 @@ import eu.europa.ec.markt.dss.validation102853.SignaturePolicy;
 import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.asic.ASiCContainerValidator;
 import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
+import eu.europa.ec.markt.dss.validation102853.report.DiagnosticData;
 import eu.europa.ec.markt.dss.validation102853.report.Reports;
 import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
 import eu.europa.ec.markt.dss.validation102853.rules.MessageTag;
@@ -180,6 +182,7 @@ public class AsicContainerValidator {
       String validationPolicy = configuration.getValidationPolicy();
       InputStream validationPolicyAsStream = getValidationPolicyAsStream(validationPolicy);
       validationReport = validator.validateDocument(validationPolicyAsStream);
+      printReport(validationReport);
       return validationReport;
     } catch (DSSException e) {
       logger.error(e.getMessage());
@@ -212,8 +215,30 @@ public class AsicContainerValidator {
         }
       }
       validationErrors.addAll(additionalVerificationErrors.get(reportSignatureId));
+      addTimestampErrors(validationErrors, reportSignatureId);
       signatures.add(new BDocSignature((XAdESSignature) advancedSignature, validationErrors));
     }
+  }
+
+  private void addTimestampErrors(List<DigiDoc4JException> validationErrors, String signatureId) {
+    if(!isTimestampValidForSignature(signatureId)) {
+      logger.error("Signature " + signatureId + " has an invalid timestamp");
+      validationErrors.add(new InvalidTimestampException("Signature " + signatureId + " has an invalid timestamp"));
+    }
+  }
+
+  private boolean isTimestampValidForSignature(String signatureId) {
+    logger.debug("Finding timestamp errors for signature " + signatureId);
+    DiagnosticData diagnosticData = validationReport.getDiagnosticData();
+    if (diagnosticData == null) {
+      return true;
+    }
+    List<String> timestampIdList = diagnosticData.getTimestampIdList(signatureId);
+    if(timestampIdList == null || timestampIdList.isEmpty()) {
+      return true;
+    }
+    String timestampId = timestampIdList.get(0);
+    return diagnosticData.isTimestampMessageImprintIntact(timestampId);
   }
 
   private List<DigiDoc4JException> validatePolicy(AdvancedSignature advancedSignature) {
@@ -285,5 +310,20 @@ public class AsicContainerValidator {
     validationResult.setContainerDigestAlgorithm(containerDigestAlgorithm);
     validationResult.setValidationReport(validationReport);
     return validationResult;
+  }
+
+  private void printReport(Reports report) {
+    if(logger.isTraceEnabled()) {
+      Reports currentReports = report;
+      do {
+        logger.trace("----------------Validation report---------------");
+        logger.trace(currentReports.getDetailedReport().toString());
+
+        logger.trace("----------------Simple report-------------------");
+        logger.trace(currentReports.getSimpleReport().toString());
+
+        currentReports = currentReports.getNextReports();
+      } while (currentReports != null);
+    }
   }
 }

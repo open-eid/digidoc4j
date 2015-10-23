@@ -110,7 +110,6 @@ public class ManifestValidator {
   }
 
   private List<String> getFileNamesFromManifestEntrySet(Set<ManifestEntry> signatureEntries) {
-    logger.debug("");
     List<String> signatureEntriesFileNames = new ArrayList<>();
 
 
@@ -170,7 +169,6 @@ public class ManifestValidator {
   }
 
   private Set<ManifestEntry> getSignatureEntries(BDocSignature signature) {
-    logger.debug("");
     Set<ManifestEntry> signatureEntries = new HashSet<>();
     List<Reference> references = signature.getOrigin().getReferences();
     for (Reference reference : references) {
@@ -209,7 +207,6 @@ public class ManifestValidator {
     }
 
     Set<ManifestEntry> getManifestFileItems() {
-    logger.debug("");
     Set<ManifestEntry> entries = new HashSet<>();
 
     Element root = DSSXMLUtils.buildDOM(manifestFile).getDocumentElement();
@@ -234,7 +231,6 @@ public class ManifestValidator {
   }
 
   private List<String> getFilesInContainer() {
-    logger.debug("");
     List<String> fileEntries = new ArrayList<>();
 
     List<String> signatureFileNames = getSignatureFileNames();
@@ -250,7 +246,6 @@ public class ManifestValidator {
   }
 
   private List<String> getSignatureFileNames() {
-    logger.debug("");
     List<String> signatureFileNames = new ArrayList<>();
     for (AdvancedSignature signature : asicValidator.getSignatures()) {
       String signatureFileName = "META-INF/signature" + signature.getId().toLowerCase() + ".xml";

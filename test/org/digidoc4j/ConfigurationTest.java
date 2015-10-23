@@ -100,7 +100,9 @@ public class ConfigurationTest {
   @Test
   public void clearTSLCache() throws IOException, CertificateException {
     Configuration myConfiguration = new Configuration(PROD);
-    FileUtils.cleanDirectory(TSLCertificateSource.fileCacheDirectory);    
+    if(TSLCertificateSource.fileCacheDirectory.exists()) {
+      FileUtils.cleanDirectory(TSLCertificateSource.fileCacheDirectory);
+    }
 
     TSLCertificateSource tslCertificateSource = myConfiguration.getTSL();
     File oldCachedFile = TSLCertificateSource.fileCacheDirectory.listFiles()[0];

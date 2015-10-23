@@ -110,6 +110,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   private transient Reports validationReport;
   private boolean isTimeMark = false;
   private Integer currentUsedSignatureFileIndex;
+  private String userAgent;
 
   /**
    * Create a new container object of type BDOC.
@@ -144,9 +145,9 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
    */
   public AsicFacade(Configuration configuration) {
     logger.debug("");
-    initASiC();
     configuration.getTSL();
     this.configuration = configuration.copy();
+    initASiC();
     logger.info("New BDoc container created");
   }
 
@@ -185,19 +186,23 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
 
   private void initASiC() {
     logger.debug("");
+    userAgent = Helper.createBDocUserAgent();
     dssSignatureParameters = new eu.europa.ec.markt.dss.parameter.SignatureParameters();
     dssSignatureParameters.setSignatureLevel(ASiC_E_BASELINE_LT);
     dssSignatureParameters.setSignaturePackaging(DETACHED);
     dssSignatureParameters.setDigestAlgorithm(SHA256);
     signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
     dssSignatureParameters.aSiC().setUnderlyingForm(XAdES);
-    dssSignatureParameters.aSiC().setZipComment(Helper.createBDocUserAgent());
+    dssSignatureParameters.aSiC().setZipComment(userAgent);
     dssSignatureParameters.bLevel().setSigningCertificateDigestMethod(eu.europa.ec.markt.dss.DigestAlgorithm.SHA256);
     //dssSignatureParameters.setSignedInfoCanonicalizationMethod(Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS);
 
     commonCertificateVerifier = new SKCommonCertificateVerifier();
     commonCertificateVerifier.setCrlSource(null);
     asicService = new ASiCService(commonCertificateVerifier);
+    OnlineTSPSource tspSource = new OnlineTSPSource(configuration.getTspSource());
+    tspSource.setUserAgent(userAgent);
+    asicService.setTspSource(tspSource);
   }
 
   private void addSignaturePolicy() {
@@ -260,6 +265,8 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
    */
   public AsicFacade(String path, Configuration configuration) {
     logger.info("Opening BDoc container from file: " + path);
+    configuration.getTSL();
+    this.configuration = configuration.copy();
     initASiC();
 
     try {
@@ -271,8 +278,6 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
       throw new DigiDoc4JException(e);
     }
 
-    configuration.getTSL();
-    this.configuration = configuration.copy();
     readsOpenedDocumentDetails();
   }
 
@@ -597,13 +602,8 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
 
     SKOnlineOCSPSource ocspSource = getOcspSource(rawSignature);
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
-    String userAgent = Helper.createBDocUserAgent();
     ocspSource.setUserAgent(userAgent);
-
     commonCertificateVerifier.setOcspSource(ocspSource);
-    OnlineTSPSource tspSource = new OnlineTSPSource(getConfiguration().getTspSource());
-    tspSource.setUserAgent(userAgent);
-    asicService.setTspSource(tspSource);
 
     String deterministicId = getDssSignatureParameters().getDeterministicId();
 
@@ -764,12 +764,8 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     }
     SKOnlineOCSPSource ocspSource = getOcspSource(null);
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
-    String userAgent = Helper.createBDocUserAgent();
     ocspSource.setUserAgent(userAgent);
     commonCertificateVerifier.setOcspSource(ocspSource);
-    OnlineTSPSource tspSource = new OnlineTSPSource(getConfiguration().getTspSource());
-    tspSource.setUserAgent(userAgent);
-    asicService.setTspSource(tspSource);
 
     dssSignatureParameters.setSignatureLevel(signatureLevel);
 

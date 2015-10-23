@@ -205,7 +205,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   @Test
   public void testValidationForBDocDefaultValidationWithFailure() throws Exception {
     Signature signature = ContainerOpener.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
-    assertEquals(1, signature.validate().size());
+    assertEquals(2, signature.validate().size());
   }
 
   @Test
