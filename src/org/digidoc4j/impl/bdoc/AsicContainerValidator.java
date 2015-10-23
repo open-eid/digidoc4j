@@ -15,14 +15,13 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.Configuration;
@@ -55,7 +54,7 @@ import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource
 import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
 import eu.europa.ec.markt.dss.validation102853.xades.XPathQueryHolder;
 
-public class AsicContainerValidator {
+public class AsicContainerValidator implements Serializable {
 
   private final static Logger logger = LoggerFactory.getLogger(AsicContainerValidator.class);
   private static final String TM_POLICY = "urn:oid:1.3.6.1.4.1.10015.1000.3.2.1";
@@ -65,9 +64,9 @@ public class AsicContainerValidator {
   private CertificateVerifier certificateVerifier;
   private Configuration configuration;
   private DigestAlgorithm containerDigestAlgorithm;
-  private Set<Signature> signatures = new LinkedHashSet<>();
+  private List<Signature> signatures = new ArrayList<>();
   private Map<String, List<DigiDoc4JException>> additionalVerificationErrors = new LinkedHashMap<>();
-  private Reports validationReport;
+  private transient Reports validationReport;
 
   public AsicContainerValidator(DSSDocument asicContainer, CertificateVerifier certificateVerifier, Configuration configuration) {
     this.signedDocument = asicContainer;
@@ -99,6 +98,7 @@ public class AsicContainerValidator {
   }
 
   public AsicContainerValidationResult loadContainerDetails() throws ContainerWithoutSignaturesException {
+    logger.debug("Loading container details");
     SignedDocumentValidator validator = openValidator();
     loadSignatures(validator);
     AsicContainerValidationResult validationResult = createContainerValidationResult();
@@ -106,8 +106,9 @@ public class AsicContainerValidator {
     return validationResult;
   }
 
-  public Set<Signature> loadSignaturesWithoutValidation() throws ContainerWithoutSignaturesException {
-    signatures = new LinkedHashSet<>();
+  public List<Signature> loadSignaturesWithoutValidation() throws ContainerWithoutSignaturesException {
+    logger.debug("Loading signatures without validation");
+    signatures = new ArrayList<>();
     SignedDocumentValidator validator = openValidator();
     validate(validator);
 
@@ -120,6 +121,7 @@ public class AsicContainerValidator {
   }
 
   public XAdESSignature findXadesSignature(String deterministicId) throws SignatureNotFoundException, ContainerWithoutSignaturesException {
+    logger.debug("Finding xades signature with id " + deterministicId);
     logger.debug("Id: " + deterministicId);
     SignedDocumentValidator validator = openValidator();
     validate(validator);

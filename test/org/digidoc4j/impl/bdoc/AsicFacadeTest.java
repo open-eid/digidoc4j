@@ -263,7 +263,8 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
     @Test
   public void testRemoveSignatureWhenTwoSignaturesExist() throws Exception {
-    AsicFacade container = (AsicFacade)open("testFiles/asics_testing_two_signatures.bdoc");
+    AsicFacade container = open("testFiles/asics_testing_two_signatures.bdoc");
+    assertEquals(2, container.getSignatures().size());
     container.removeSignature(0);
     container.save("testRemoveSignature.bdoc");
 
@@ -700,15 +701,6 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void TSLConnectionFailureThrowsException() {
     Configuration configuration = new Configuration();
     configuration.setTslLocation("http://127.0.0.1/tsl/incorrect.xml");
-    AsicFacade container = new AsicFacade(configuration);
-    container.configuration.getTSL();
-  }
-
-  @Test (expected = DigiDoc4JException.class)
-  @Ignore // Not running by default to prevent system admin from getting worried
-  public void TSLConnectionFailureIncorrectFileName() {
-    Configuration configuration = new Configuration();
-    configuration.setTslLocation("http://10.0.25.57/tsl/incorrect.xml");
     AsicFacade container = new AsicFacade(configuration);
     container.configuration.getTSL();
   }
@@ -1391,9 +1383,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     container.signRaw(signature);
   }
 
-  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
-  //@Ignore("Ignored because reference validation is turned off. Turn ON again when fixed")
   public void signatureFileContainsIncorrectFileName() {
     Container container = ContainerOpener.open("testFiles/filename_mismatch_signature.asice");
     ValidationResult validate = container.validate();
@@ -1451,7 +1441,6 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     assertEquals(0, validate.getErrors().size());
   }
 
-  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void signatureFileAndManifestFileContainDifferentMimeTypeForFile() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
@@ -1463,7 +1452,6 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
         "signature file for signature S0 indicates the mimetype is text/plain", validate.getErrors().get(0).toString());
   }
 
-  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void dssReturnsEmptySignatureList() {
     Container container = ContainerOpener.open("testFiles/filename_mismatch_signature.asice");
@@ -1471,10 +1459,8 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
     // File name in signature does not match with manifest file info
     // Actual file inside container is same as in manifest (test.txt)
-    assertEquals(3, validate.getErrors().size());
-
-    // TODO: Ignored because reference validation is turned off. Turn ON again when fixed
-    // assertEquals("The reference data object(s) not found!", validate.getErrors().get(0).toString());
+    assertEquals(1, validate.getErrors().size());
+    assertEquals("The reference data object(s) not found!", validate.getErrors().get(0).toString());
   }
 
   @Test(expected = DuplicateDataFileException.class)
@@ -1500,7 +1486,6 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     ContainerOpener.open("testFiles/missing_mimetype_file.asice");
   }
 
-  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void containerHasFileWhichIsNotInManifestAndNotInSignatureFile() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);

@@ -104,7 +104,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   private eu.europa.ec.markt.dss.parameter.SignatureParameters dssSignatureParameters;
   private SignatureParameters signatureParameters = new SignatureParameters();
   private DSSDocument signedDocument;
-  private Set<Signature> signatures = new LinkedHashSet<>();
+  private List<Signature> signatures = new ArrayList<>();
   protected Configuration configuration = null;
   private static final MimeType BDOC_MIME_TYPE = MimeType.ASICE;
   private transient Reports validationReport;
@@ -569,7 +569,19 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     }
   }
 
+  /**
+   * Use <code>invokeSigning</code> method instead.
+   * Method preserved for backwards compatibility. Adds signature to the container after signing.
+   */
+  @Deprecated
   public Signature sign(SignatureToken signatureToken) {
+    Signature signature = invokeSigning(signatureToken);
+    logger.debug("Adding signature to the signatures list");
+    signatures.add(signature);
+    return signature;
+  }
+
+  public Signature invokeSigning(SignatureToken signatureToken) {
     logger.info("Signing BDoc container");
     byte[] dataToSign;
     String signatureId = signatureParameters.getSignatureId();
@@ -578,7 +590,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
 
     byte[] signature = signatureToken.sign(getDigestAlgorithm(), dataToSign);
     validationReport = null;
-    return signRaw(signature);
+    return finalizeSignature(signature);
   }
 
   private byte[] getDataToSign(String setSignatureId, X509Certificate signerCertificate) {
@@ -597,10 +609,11 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     return asicService.getDataToSign(attachment, dssSignatureParameters);
   }
 
-  public Signature signRaw(byte[] rawSignature) {
+  @Override
+  public Signature finalizeSignature(byte[] signatureValue) {
     logger.info("Finalizing BDoc signature");
 
-    SKOnlineOCSPSource ocspSource = getOcspSource(rawSignature);
+    SKOnlineOCSPSource ocspSource = getOcspSource(signatureValue);
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
     ocspSource.setUserAgent(userAgent);
     commonCertificateVerifier.setOcspSource(ocspSource);
@@ -608,7 +621,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     String deterministicId = getDssSignatureParameters().getDeterministicId();
 
     try {
-      signedDocument = asicService.signDocument(getSigningDocument(), dssSignatureParameters, rawSignature);
+      signedDocument = asicService.signDocument(getSigningDocument(), dssSignatureParameters, signatureValue);
     } catch (DSSException e) {
       logger.error(e.getMessage());
       if ("OCSP request failed".equals(e.getMessage()))
@@ -620,9 +633,20 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
 
     validationReport = null;
     Signature signature = new BDocSignature(xAdESSignature);
-    signatures.add(signature);
 
     logger.info("Signing BDoc successfully completed");
+    return signature;
+  }
+
+  /**
+   * Use <code>finalizeSignature</code> method instead.
+   * Method preserved for backwards compatibility. Adds signature to the container after signing.
+   */
+  @Deprecated
+  public Signature signRaw(byte[] rawSignature) {
+    Signature signature = finalizeSignature(rawSignature);
+    logger.debug("Adding signature to the signatures list");
+    signatures.add(signature);
     return signature;
   }
 
@@ -846,10 +870,5 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     }
     currentUsedSignatureFileIndex++;
     return "signatures" + currentUsedSignatureFileIndex + ".xml";
-  }
-
-  @Override
-  public Signature finalizeSignature(byte[] signatureValue) {
-    return signRaw(signatureValue);
   }
 }

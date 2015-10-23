@@ -58,6 +58,13 @@ public class TestDataBuilder {
     return makeSignature(container, dataToSign);
   }
 
+  public static Signature signContainer(Container container, SignatureProfile signatureProfile) {
+    DataToSign dataToSign = prepareDataToSign(container).
+        withSignatureProfile(signatureProfile).
+        buildDataToSign();
+    return makeSignature(container, dataToSign);
+  }
+
   public static Signature makeSignature(Container container, DataToSign dataToSign) {
     byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDigestToSign(), dataToSign.getDigestAlgorithm());
     assertNotNull(signatureValue);

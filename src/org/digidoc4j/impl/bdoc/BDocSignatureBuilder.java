@@ -30,8 +30,8 @@ public class BDocSignatureBuilder extends SignatureBuilder {
     AsicFacade asicFacade = getAsicFacade();
     asicFacade.setSignatureParameters(signatureParameters);
     SignedInfo signedInfo = asicFacade.prepareSigning(signatureParameters.getSigningCertificate());
-    DataToSign signature = new DataToSign(signedInfo.getDigestToSign(), signedInfo.getSignatureParameters(), asicFacade);
-    return signature;
+    DataToSign dataToSign = new DataToSign(signedInfo.getDigestToSign(), signedInfo.getSignatureParameters(), asicFacade);
+    return dataToSign;
   }
 
   @Override
@@ -39,7 +39,7 @@ public class BDocSignatureBuilder extends SignatureBuilder {
     logger.debug("Invoking signing");
     AsicFacade asicFacade = getAsicFacade();
     asicFacade.setSignatureParameters(signatureParameters);
-    return asicFacade.sign(signatureToken);
+    return asicFacade.invokeSigning(signatureToken);
   }
 
   private AsicFacade getAsicFacade() {

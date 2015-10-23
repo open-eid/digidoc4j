@@ -200,7 +200,7 @@ public final class DigiDoc4J {
     }
 
     if (isDDoc && (((ValidationResultForDDoc) validationResult).hasFatalErrors())) {
-      return;
+      throw new DigiDoc4JException("DDoc container has fatal errors");
     }
 
     List<Signature> signatures = container.getSignatures();
@@ -231,6 +231,7 @@ public final class DigiDoc4J {
       logger.info("Validation was successful. Container is valid");
     } else {
       logger.info("Validation finished. Container is NOT valid!");
+      throw new DigiDoc4JException("Container is NOT valid");
     }
   }
 

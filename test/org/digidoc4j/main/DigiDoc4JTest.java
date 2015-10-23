@@ -363,7 +363,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void verifyDDocWithManifestErrors() throws Exception {
-    exit.expectSystemExitWithStatus(0);
+    exit.expectSystemExitWithStatus(1);
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
@@ -390,7 +390,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void verifyInValidDDoc() throws Exception {
-    exit.expectSystemExitWithStatus(0);
+    exit.expectSystemExitWithStatus(1);
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
@@ -404,7 +404,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void verifyDDocWithFatalError() throws Exception {
-    exit.expectSystemExitWithStatus(0);
+    exit.expectSystemExitWithStatus(1);
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
@@ -473,7 +473,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void verifyDDocWithWarning() {
-    exit.expectSystemExitWithStatus(0);
+    exit.expectSystemExitWithStatus(1);
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {

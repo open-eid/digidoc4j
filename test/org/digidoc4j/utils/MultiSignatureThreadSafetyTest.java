@@ -4,7 +4,13 @@ import java.io.ByteArrayInputStream;
 
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.testutils.TestDataBuilder;
+import org.digidoc4j.testutils.TestSigningHelper;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** 
  * This test was created when SKOnlineOCSPSource had a thread safety problem with its nonce checking code;
@@ -12,6 +18,7 @@ import org.junit.Test;
  * Now that the cause is fixed, this test may need to be simplified or deleted. 
  */
 public class MultiSignatureThreadSafetyTest extends AbstractSigningTests {
+
     @Test
     public void signingTwiceDoesNotCauseAThreadingProblemWithSkOnlineOCSPSource() throws InterruptedException {
         for(int i = 0; i < 2; i++) {
@@ -19,15 +26,13 @@ public class MultiSignatureThreadSafetyTest extends AbstractSigningTests {
         }
     }
 
-    protected void sign() {
+    private void sign() {
         Container container = ContainerBuilder.
             aContainer("BDOC").
             withConfiguration(createDigiDoc4JConfiguration()).
             withDataFile(new ByteArrayInputStream("file contents".getBytes()), "file.txt", "application/octet-stream").
             build();
 
-        byte[] hashToSign = prepareSigning(container, CertificatesForTests.SIGN_CERT, createSignatureParameters());
-        byte[] signatureValue = signWithRsa(CertificatesForTests.PRIVATE_KEY_FOR_SIGN_CERT, hashToSign);
-        container.signRaw(signatureValue);
+        TestDataBuilder.signContainer(container, SignatureProfile.LT);
     }
 }
