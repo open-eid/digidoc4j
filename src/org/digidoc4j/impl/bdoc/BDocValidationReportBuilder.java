@@ -36,14 +36,14 @@ public class BDocValidationReportBuilder {
   private Document reportDocument;
   private Reports report;
   private List<String> manifestErrors;
-  private Map<String, List<DigiDoc4JException>> additionalVerificationErrors;
+  private Map<String, List<DigiDoc4JException>> signatureVerificationErrors;
   private String reportInXml;
 
-  public BDocValidationReportBuilder(Reports report, List<String> manifestErrors, Map<String, List<DigiDoc4JException>> additionalVerificationErrors) {
+  public BDocValidationReportBuilder(Reports report, List<String> manifestErrors, Map<String, List<DigiDoc4JException>> signatureVerificationErrors) {
     logger.debug("Initializing BDoc validation report builder");
     this.report = report;
     this.manifestErrors = manifestErrors;
-    this.additionalVerificationErrors = additionalVerificationErrors;
+    this.signatureVerificationErrors = signatureVerificationErrors;
   }
 
   public String buildXmlReport() {
@@ -66,7 +66,7 @@ public class BDocValidationReportBuilder {
       SimpleReport simpleReport = report.getSimpleReport();
       //check with several signatures as well in one signature file (in estonia we are not producing such signatures)
       String signatureId = simpleReport.getSignatureIdList().get(0);
-      createXMLReport(simpleReport, additionalVerificationErrors.get(signatureId));
+      createXMLReport(simpleReport, signatureVerificationErrors.get(signatureId));
       report = report.getNextReports();
     } while (report != null);
   }

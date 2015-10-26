@@ -1600,8 +1600,8 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(2, errors.size());
-    assertEquals("The signature is not intact!", errors.get(0).toString());
-    assertEquals("Multiple signed properties", errors.get(1).toString());
+    assertEquals("Multiple signed properties", errors.get(0).toString());
+    assertEquals("The signature is not intact!", errors.get(1).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -1627,8 +1627,8 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(3, errors.size());
-    assertEquals("Nonce is invalid", errors.get(1).toString());
-    assertEquals("Wrong policy identifier: urn:oid:1.3.6.1.4.1.10015.1000.2.10.10", errors.get(2).toString());
+    assertEquals("Wrong policy identifier: urn:oid:1.3.6.1.4.1.10015.1000.2.10.10", errors.get(1).toString());
+    assertEquals("Nonce is invalid", errors.get(2).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
