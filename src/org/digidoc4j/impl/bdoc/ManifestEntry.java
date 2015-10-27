@@ -19,7 +19,7 @@ import java.util.Objects;
  * Contains information of filenames and mimetypes.
  */
 public final class ManifestEntry {
-  final Logger logger = LoggerFactory.getLogger(ManifestEntry.class);
+  final static Logger logger = LoggerFactory.getLogger(ManifestEntry.class);
   private String fileName;
   private String mimeType;
 
