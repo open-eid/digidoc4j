@@ -25,7 +25,7 @@ import java.security.cert.X509Certificate;
  * Implements PKCS12 signer.
  */
 public class PKCS12SignatureToken implements SignatureToken {
-  final static Logger logger = LoggerFactory.getLogger(PKCS12SignatureToken.class);
+  private static final Logger logger = LoggerFactory.getLogger(PKCS12SignatureToken.class);
   protected AbstractSignatureTokenConnection signatureTokenConnection = null;
   protected DSSPrivateKeyEntry keyEntry = null;
 

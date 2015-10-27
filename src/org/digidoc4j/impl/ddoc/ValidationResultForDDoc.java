@@ -32,7 +32,7 @@ import java.util.List;
  * Overview of errors and warnings for DDoc
  */
 public class ValidationResultForDDoc implements ValidationResult {
-  static final Logger logger = LoggerFactory.getLogger(ValidationResultForDDoc.class);
+  private static final Logger logger = LoggerFactory.getLogger(ValidationResultForDDoc.class);
 
   private List<DigiDoc4JException> containerExceptions = new ArrayList<>();
   private boolean hasFatalErrors = false;

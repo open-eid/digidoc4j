@@ -19,7 +19,7 @@ import static eu.europa.ec.markt.dss.DSSUtils.digest;
 import static org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers.id_pkix_ocsp_nonce;
 
 public class BDocTMOcspSource extends SKOnlineOCSPSource {
-  final static Logger logger = LoggerFactory.getLogger(SKOnlineOCSPSource.class);
+  private static final Logger logger = LoggerFactory.getLogger(SKOnlineOCSPSource.class);
   private final byte[] signature;
 
   public BDocTMOcspSource(Configuration configuration, byte[] signature) {

@@ -35,7 +35,7 @@ import java.util.*;
  * Wrapper for java.security.cert.X509Certificate object.
  */
 public class X509Cert implements Serializable {
-  final static Logger logger = LoggerFactory.getLogger(X509Cert.class);
+  private static final Logger logger = LoggerFactory.getLogger(X509Cert.class);
   private X509Certificate originalCert;
   private Map<String, String> issuerPartMap;
   private Map<String, String> subjectNamePartMap;

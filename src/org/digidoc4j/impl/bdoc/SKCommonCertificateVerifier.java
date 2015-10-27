@@ -27,7 +27,7 @@ import java.io.Serializable;
  * Delegate class for SD-DSS CommonCertificateVerifier. Needed for making serialization possible
  */
 public class SKCommonCertificateVerifier implements Serializable, CertificateVerifier {
-  static final Logger logger = LoggerFactory.getLogger(SKCommonCertificateVerifier.class);
+  private static final Logger logger = LoggerFactory.getLogger(SKCommonCertificateVerifier.class);
   private transient CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
 
   private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {

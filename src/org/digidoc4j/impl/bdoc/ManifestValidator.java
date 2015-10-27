@@ -36,7 +36,7 @@ import java.util.Set;
  * For validating meta data within the manifest file and signature files.
  */
 public class ManifestValidator {
-  static final Logger logger = LoggerFactory.getLogger(ManifestValidator.class);
+  private static final Logger logger = LoggerFactory.getLogger(ManifestValidator.class);
   private InMemoryDocument manifestFile;
   private SignedDocumentValidator asicValidator;
   private List<DSSDocument> detachedContents;

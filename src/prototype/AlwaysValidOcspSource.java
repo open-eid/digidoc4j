@@ -47,7 +47,7 @@ import java.util.Date;
 
 public class AlwaysValidOcspSource implements OCSPSource {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AlwaysValidOcspSource.class);
+  private static final Logger logger = LoggerFactory.getLogger(AlwaysValidOcspSource.class);
 
   private final PrivateKey privateKey;
 
@@ -62,7 +62,7 @@ public class AlwaysValidOcspSource implements OCSPSource {
 
       Security.addProvider(new BouncyCastleProvider());
     } catch (Throwable e) {
-      LOG.error(e.getMessage(), e);
+      logger.error(e.getMessage(), e);
     }
   }
 
@@ -91,11 +91,11 @@ public class AlwaysValidOcspSource implements OCSPSource {
       final String alias = keyStore.aliases().nextElement();
       signingCert = (X509Certificate) keyStore.getCertificate(alias);
       privateKey = (PrivateKey) keyStore.getKey(alias, password.toCharArray());
-      if (LOG.isTraceEnabled()) {
+      if (logger.isTraceEnabled()) {
 
         final CommonCertificateSource certificateSource = new CommonCertificateSource();
         final CertificateToken certificateToken = certificateSource.addCertificate(new CertificateToken(signingCert));
-        LOG.trace("OCSP mockup with signing certificate:\n" + certificateToken);
+        logger.trace("OCSP mockup with signing certificate:\n" + certificateToken);
       }
     } catch (Exception e) {
 

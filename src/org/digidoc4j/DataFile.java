@@ -30,7 +30,7 @@ import java.nio.file.Paths;
  * Data file wrapper providing methods for handling signed files or files to be signed in Container.
  */
 public class DataFile implements Serializable {
-  final static Logger logger = LoggerFactory.getLogger(DataFile.class);
+  private static final Logger logger = LoggerFactory.getLogger(DataFile.class);
 
   DSSDocument document = null;
   private Digest digest = null;

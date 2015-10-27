@@ -25,7 +25,7 @@ import java.io.*;
  * files.
  */
 public class StreamDocument implements DSSDocument {
-  final static Logger logger = LoggerFactory.getLogger(StreamDocument.class);
+  private static final Logger logger = LoggerFactory.getLogger(StreamDocument.class);
 
   private static final int MAX_SIZE_IN_MEMORY = 1024 * 5;
   String documentName;

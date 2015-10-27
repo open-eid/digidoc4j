@@ -30,7 +30,7 @@ import org.digidoc4j.SignatureProfile;
  * corresponding OCSP response properties.
  */
 public class DDocSignature implements Signature {
-  final static Logger logger = LoggerFactory.getLogger(DDocSignature.class);
+  private static final Logger logger = LoggerFactory.getLogger(DDocSignature.class);
   private X509Cert certificate;
   private final ee.sk.digidoc.Signature origin;
   private int indexInArray;
