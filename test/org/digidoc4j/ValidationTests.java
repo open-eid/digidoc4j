@@ -10,9 +10,12 @@
 
 package org.digidoc4j;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import org.digidoc4j.exceptions.ContainerWithoutSignaturesException;
+import org.digidoc4j.exceptions.InvalidTimestampException;
+import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.junit.Test;
 
@@ -22,12 +25,20 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   public void asicValidationShouldFail_ifTimeStampHashDoesntMatchSignature() throws Exception {
     ValidationResult result = validateContainer("testFiles/TS-02_23634_TS_wrong_SignatureValue.asice");
     assertFalse(result.isValid());
+    assertEquals(InvalidTimestampException.MESSAGE, result.getErrors().get(0).getMessage());
   }
 
   @Test(expected = ContainerWithoutSignaturesException.class)
   public void asicContainerWithoutSignatures_isNotValid() throws Exception {
     ValidationResult result = validateContainer("testFiles/asics_without_signatures.bdoc");
     assertFalse(result.isValid());
+  }
+
+  @Test
+  public void asicOcspTimeShouldBeAfterTimestamp() throws Exception {
+    ValidationResult result = validateContainer("testFiles/TS-08_23634_TS_OCSP_before_TS.asice");
+    assertFalse(result.isValid());
+    assertEquals(TimestampAfterOCSPResponseTimeException.MESSAGE,result.getErrors().get(0).getMessage());
   }
 
   private ValidationResult validateContainer(String containerPath) {

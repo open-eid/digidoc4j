@@ -13,17 +13,20 @@ package org.digidoc4j.impl.bdoc;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.exceptions.CertificateRevokedException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidTimestampException;
 import org.digidoc4j.exceptions.MiltipleSignedPropertiesException;
 import org.digidoc4j.exceptions.PolicyUrlMissingException;
 import org.digidoc4j.exceptions.SignedPropertiesMissingException;
+import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
 import org.slf4j.Logger;
@@ -31,7 +34,9 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 import eu.europa.ec.markt.dss.DSSXMLUtils;
+import eu.europa.ec.markt.dss.signature.SignatureLevel;
 import eu.europa.ec.markt.dss.signature.validation.AdvancedSignature;
+import eu.europa.ec.markt.dss.signature.validation.TimestampToken;
 import eu.europa.ec.markt.dss.validation102853.SignaturePolicy;
 import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
 import eu.europa.ec.markt.dss.validation102853.report.DiagnosticData;
@@ -63,6 +68,7 @@ public class XadesSignatureValidator {
     addSignedPropertiesReferenceValidationErrors(validationErrors, advancedSignature);
     addReportedErrors(validationErrors, signatureId);
     addTimestampErrors(validationErrors, signatureId);
+    addSigningTimeErrors(validationErrors, advancedSignature);
     return validationErrors;
   }
 
@@ -137,7 +143,7 @@ public class XadesSignatureValidator {
   private void addTimestampErrors(List<DigiDoc4JException> validationErrors, String signatureId) {
     if(!isTimestampValidForSignature(signatureId)) {
       logger.error("Signature " + signatureId + " has an invalid timestamp");
-      validationErrors.add(new InvalidTimestampException("Signature " + signatureId + " has an invalid timestamp"));
+      validationErrors.add(new InvalidTimestampException());
     }
   }
 
@@ -173,6 +179,30 @@ public class XadesSignatureValidator {
       return simpleReports.values().iterator().next();
     }
     return simpleReport;
+  }
+
+  private void addSigningTimeErrors(List<DigiDoc4JException> validationErrors, XAdESSignature signature) {
+    SignatureLevel signatureLevel = signature.getDataFoundUpToLevel();
+    if(signatureLevel == SignatureLevel.XAdES_BASELINE_B) {
+      return;
+    }
+    List<TimestampToken> signatureTimestamps = signature.getSignatureTimestamps();
+    if (signatureTimestamps == null || signatureTimestamps.isEmpty()) {
+      return;
+    }
+    Date timestamp = signatureTimestamps.get(0).getGenerationTime();
+    if(timestamp == null) {
+      return;
+    }
+    List<BasicOCSPResp> ocspResponses = signature.getOCSPSource().getContainedOCSPResponses();
+    if (ocspResponses == null || ocspResponses.isEmpty()) {
+      return;
+    }
+    Date ocspTime = ocspResponses.get(0).getProducedAt();
+    if (ocspTime != null && ocspTime.before(timestamp)) {
+      logger.error("OCSP response production time is before timestamp time");
+      validationErrors.add(new TimestampAfterOCSPResponseTimeException());
+    }
   }
 
 }
