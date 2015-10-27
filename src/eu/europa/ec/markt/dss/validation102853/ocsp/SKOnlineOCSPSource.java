@@ -50,7 +50,7 @@ import java.util.List;
 * SK OCSP source location.
 */
 public abstract class SKOnlineOCSPSource implements OCSPSource {
-  final Logger logger = LoggerFactory.getLogger(SKOnlineOCSPSource.class);
+  final static Logger logger = LoggerFactory.getLogger(SKOnlineOCSPSource.class);
 
   // TODO: A hack for testing, to be removed later
   public static volatile Listener listener = null;

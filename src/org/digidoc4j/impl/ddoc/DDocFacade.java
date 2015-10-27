@@ -48,7 +48,7 @@ import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
  * </p>
  */
 public class DDocFacade implements SignatureFinalizer, Serializable {
-  Logger logger = LoggerFactory.getLogger(DDocFacade.class);
+  final static Logger logger = LoggerFactory.getLogger(DDocFacade.class);
 
   SignedDoc ddoc;
   private ArrayList<DigiDocException> openContainerExceptions = new ArrayList<>();

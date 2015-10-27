@@ -22,7 +22,7 @@ import java.net.URL;
  *
  */
 public class DigiDoc4JDataLoader extends CommonsDataLoader {
-  Logger logger = LoggerFactory.getLogger(DigiDoc4JDataLoader.class);
+  final static Logger logger = LoggerFactory.getLogger(DigiDoc4JDataLoader.class);
 
   @Override
   public byte[] get(String urlString) throws DSSCannotFetchDataException {

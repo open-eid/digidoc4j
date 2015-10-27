@@ -23,7 +23,7 @@ import eu.europa.ec.markt.dss.DSSUtils;
 
 public class TestSignatureToken extends PKCS12SignatureToken {
 
-  final Logger logger = LoggerFactory.getLogger(TestSignatureToken.class);
+  final static Logger logger = LoggerFactory.getLogger(TestSignatureToken.class);
 
   public TestSignatureToken(String fileName, char[] password) {
     super(fileName, password);

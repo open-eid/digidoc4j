@@ -11,6 +11,7 @@
 package org.digidoc4j;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
@@ -19,7 +20,7 @@ import java.io.Serializable;
  * @deprecated use {@link org.digidoc4j.SignatureParameters} instead.
  */
 public class SignatureProductionPlace implements Serializable {
-  Logger logger = org.slf4j.LoggerFactory.getLogger(SignatureProductionPlace.class);
+  final static Logger logger = LoggerFactory.getLogger(SignatureProductionPlace.class);
   private String city;
   private String stateOrProvince;
   private String postalCode;

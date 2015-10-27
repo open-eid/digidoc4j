@@ -114,7 +114,7 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
  */
 public class Configuration implements Serializable {
   private static final int ONE_SECOND = 1000;
-  final Logger logger = LoggerFactory.getLogger(Configuration.class);
+  final static Logger logger = LoggerFactory.getLogger(Configuration.class);
   public static final long ONE_MB_IN_BYTES = 1048576;
 
   public static final String DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION
