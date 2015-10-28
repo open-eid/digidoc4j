@@ -17,6 +17,7 @@ public class BDocTSOcspSource extends SKOnlineOCSPSource{
     final long currentTimeNonce = System.currentTimeMillis();
 
     DEROctetString nonce = new DEROctetString(DSSUtils.toByteArray(currentTimeNonce));
-    return new Extension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, true, nonce);
+    boolean critical = false;
+    return new Extension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, critical, nonce);
   }
 }

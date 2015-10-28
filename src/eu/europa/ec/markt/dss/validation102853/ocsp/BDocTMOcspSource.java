@@ -30,7 +30,8 @@ public class BDocTMOcspSource extends SKOnlineOCSPSource {
   @Override
   Extension createNonce() {
     try {
-      return new Extension(id_pkix_ocsp_nonce, false, createNonceAsn1Sequence().getEncoded());
+      boolean critical = false;
+      return new Extension(id_pkix_ocsp_nonce, critical, createNonceAsn1Sequence().getEncoded());
     } catch (IOException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
