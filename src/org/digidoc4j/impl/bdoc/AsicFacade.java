@@ -198,7 +198,8 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     //dssSignatureParameters.setSignedInfoCanonicalizationMethod(Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS);
 
     commonCertificateVerifier = new SKCommonCertificateVerifier();
-    commonCertificateVerifier.setCrlSource(null);
+    commonCertificateVerifier.setCrlSource(null); //Disable CRL checks
+    commonCertificateVerifier.setSignatureCRLSource(null); //Disable CRL checks
     asicService = new ASiCService(commonCertificateVerifier);
     OnlineTSPSource tspSource = new OnlineTSPSource(configuration.getTspSource());
     tspSource.setUserAgent(userAgent);
