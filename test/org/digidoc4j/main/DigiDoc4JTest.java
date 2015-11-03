@@ -76,6 +76,22 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void signDDocContainerTwice() throws Exception {
+    String fileName = "test1.bdoc";
+    Files.deleteIfExists(Paths.get(fileName));
+
+    String[] signNewContainerParams = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/test.txt", "text/plain",
+        "-pkcs12", "testFiles/signout.p12", "test"};
+    String[] signExistingContainerParams = new String[]{"-in", fileName, "-pkcs12", "testFiles/signout.p12", "test"};
+
+    callMainWithoutSystemExit(signNewContainerParams);
+    callMainWithoutSystemExit(signExistingContainerParams);
+
+    Container container = ContainerOpener.open(fileName);
+    assertEquals(2, container.getSignatures().size());
+  }
+
+  @Test
   public void createsContainerWithSignatureProfileIsTSAForBDoc() throws Exception {
     String fileName = "test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));

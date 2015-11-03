@@ -478,6 +478,13 @@ public class DDocFacadeTest {
   }
 
   @Test
+  public void signExistingContainer() throws Exception {
+    DDocFacade container = new DDocFacade("testFiles/ddoc_for_testing.ddoc");
+    container.sign(PKCS12_SIGNER);
+    assertEquals(2, container.getSignatures().size());
+  }
+
+  @Test
   public void signRawWithLT_TMSignatureProfileAddsOCSP() {
     String dDocFileName = "testOCSPAddedWithRawSignature.ddoc";
     signRawDDocContainer(LT_TM).saveAsFile(dDocFileName);

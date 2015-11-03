@@ -76,6 +76,10 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
         signatureProductionPlace.getStateOrProvince(), signatureProductionPlace.getCountry(),
         signatureProductionPlace.getPostalCode());
 
+    if(signatureParameters.getDigestAlgorithm() == null) {
+      signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA1);
+    }
+
     try {
       ddocSignature = ddoc.prepareSignature(signerCert, signerRoles.toArray(new String[signerRoles.size()]),
           productionPlace);
