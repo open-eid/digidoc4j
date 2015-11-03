@@ -18,6 +18,7 @@ import org.digidoc4j.impl.bdoc.AsicFacade;
 import org.digidoc4j.impl.Certificates;
 import org.digidoc4j.impl.ddoc.DDocFacade;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.impl.ddoc.DDocOpener;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.utils.Helper;
@@ -287,7 +288,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetSignaturesWhereSignatureDoesNotHaveLastCertificate() throws Exception {
-    DDocFacade container = new DDocFacade("testFiles/signature_without_last_certificate.ddoc");
+    Container container = new DDocOpener().open("testFiles/signature_without_last_certificate.ddoc");
     assertEquals(0, container.getSignatures().size());
   }
 

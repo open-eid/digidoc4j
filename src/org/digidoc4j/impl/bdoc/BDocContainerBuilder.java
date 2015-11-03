@@ -13,8 +13,12 @@ package org.digidoc4j.impl.bdoc;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BDocContainerBuilder extends ContainerBuilder {
+
+  private static final Logger logger = LoggerFactory.getLogger(BDocContainerBuilder.class);
 
   protected BDocContainer createNewContainer() {
     if (configuration == null) {
@@ -38,5 +42,11 @@ public class BDocContainerBuilder extends ContainerBuilder {
       return ContainerOpener.open(containerInputStream, actAsBigFilesSupportEnabled);
     }
     return ContainerOpener.open(containerInputStream, configuration);
+  }
+
+  @Override
+  public ContainerBuilder usingTempDirectory(String temporaryDirectoryPath) {
+    logger.warn("BDoc containers don't support setting temp directories");
+    return this;
   }
 }

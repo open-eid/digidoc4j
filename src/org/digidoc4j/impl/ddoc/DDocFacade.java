@@ -10,20 +10,7 @@
 
 package org.digidoc4j.impl.ddoc;
 
-import ee.sk.digidoc.DigiDocException;
-import ee.sk.digidoc.KeyInfo;
-import ee.sk.digidoc.SignatureProductionPlace;
-import ee.sk.digidoc.SignedDoc;
-import ee.sk.digidoc.factory.DigiDocFactory;
-import ee.sk.digidoc.factory.SAXDigiDocFactory;
-import ee.sk.utils.ConfigManager;
-import org.apache.commons.io.IOUtils;
-import org.digidoc4j.*;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.impl.SignatureFinalizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -34,7 +21,28 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
+import org.apache.commons.io.IOUtils;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Container;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureParameters;
+import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.SignatureToken;
+import org.digidoc4j.SignedInfo;
+import org.digidoc4j.ValidationResult;
+import org.digidoc4j.X509Cert;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.impl.SignatureFinalizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ee.sk.digidoc.DigiDocException;
+import ee.sk.digidoc.KeyInfo;
+import ee.sk.digidoc.SignatureProductionPlace;
+import ee.sk.digidoc.SignedDoc;
 
 /**
  * Offers functionality for handling data files and signatures in a container.
@@ -56,14 +64,25 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
   private SignatureParameters signatureParameters = new SignatureParameters();
   protected ee.sk.digidoc.Signature ddocSignature;
   private Configuration configuration;
+  static ConfigManagerInitializer configManagerInitializer = new ConfigManagerInitializer();
 
-  /**
-   * Create a new container object of DDOC type Container.
-   */
   public DDocFacade() {
     logger.debug("");
     intConfiguration();
     createDDOCContainer();
+  }
+
+  public DDocFacade(Configuration configuration) {
+    logger.debug("");
+    this.configuration = configuration;
+    initConfigManager(configuration);
+    createDDOCContainer();
+  }
+
+  DDocFacade(SignedDoc ddoc) {
+    logger.debug("");
+    intConfiguration();
+    this.ddoc = ddoc;
   }
 
   public SignedInfo prepareSigning(X509Certificate signerCert) {
@@ -127,13 +146,10 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
     return digestAlgorithm;
   }
 
-  /**
-   * Create a new container object of DDOC type from a file
-   *
-   * @param path file path
-   */
-  public DDocFacade(String path) {
-    this(path, new Configuration());
+  private void intConfiguration() {
+    logger.debug("");
+    configuration = new Configuration();
+    initConfigManager(configuration);
   }
 
   private void createDDOCContainer() {
@@ -146,103 +162,6 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e.getNestedException());
     }
-  }
-
-  /**
-   * Create a new container object of DDOC type from a stream
-   *
-   * @param stream description
-   */
-  public DDocFacade(InputStream stream) {
-    logger.debug("");
-    intConfiguration();
-    DigiDocFactory digFac = new SAXDigiDocFactory();
-    try {
-      ddoc = digFac.readDigiDocFromStream(stream);
-    } catch (DigiDocException e) {
-      logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
-    }
-    logger.info("DDoc container opened from stream");
-  }
-
-  public DDocFacade(InputStream stream, Configuration configuration) {
-    logger.debug("");
-    this.configuration = configuration;
-    ConfigManager.init(configuration.getJDigiDocConfiguration());
-    ConfigManager.addProvider();
-    DigiDocFactory digFac = new SAXDigiDocFactory();
-    try {
-        ddoc = digFac.readDigiDocFromStream(stream);
-    } catch (DigiDocException e) {
-        logger.error(e.getMessage());
-        throw new DigiDoc4JException(e);
-    }
-    logger.info("DDoc container opened from stream");
-  }
-
-  /**
-   * Create a new container object of DDOC type using specified configuration settings
-   *
-   * @param configuration configuration to use
-   */
-  public DDocFacade(Configuration configuration) {
-    logger.debug("");
-    this.configuration = configuration;
-    ConfigManager.init(configuration.getJDigiDocConfiguration());
-    ConfigManager.addProvider();
-    createDDOCContainer();
-  }
-
-  private void intConfiguration() {
-    logger.debug("");
-    configuration = new Configuration();
-    ConfigManager.init(configuration.getJDigiDocConfiguration());
-    ConfigManager.addProvider();
-  }
-
-  /**
-   * Create a new container object of DDOC type from a file using specified configuration settings
-   *
-   * @param fileName      container file name with path
-   * @param configuration configuration to use
-   */
-  public DDocFacade(String fileName, Configuration configuration) {
-    logger.info("Opening DDoc container from file: " + fileName);
-
-    this.configuration = configuration;
-    ConfigManager.init(configuration.getJDigiDocConfiguration());
-    ConfigManager.addProvider();
-
-    DigiDocFactory digFac = new SAXDigiDocFactory();
-    try {
-      ddoc = digFac.readSignedDocOfType(fileName, false, openContainerExceptions);
-    } catch (DigiDocException e) {
-      logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
-    }
-    if (SignedDoc.hasFatalErrs(openContainerExceptions)) {
-      DigiDocException fatalError = getFatalError();
-      logger.error("Container has a fatal error: " + fatalError.getMessage());
-      throw new DigiDoc4JException(fatalError);
-    }
-  }
-
-  private DigiDocException getFatalError() {
-    logger.debug("");
-    DigiDocException exception = null;
-    for (DigiDocException openContainerException : openContainerExceptions) {
-      if (openContainerException.getCode() == DigiDocException.ERR_PARSE_XML) {
-        exception = openContainerException;
-      }
-    }
-    return exception;
-  }
-
-  DDocFacade(SignedDoc ddoc) {
-    logger.debug("");
-    intConfiguration();
-    this.ddoc = ddoc;
   }
 
   public DataFile addDataFile(String path, String mimeType) {
@@ -558,5 +477,17 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
   @Override
   public Signature finalizeSignature(byte[] signatureValue) {
     return signRaw(signatureValue);
+  }
+
+  private void initConfigManager(Configuration configuration) {
+    configManagerInitializer.initConfigManager(configuration);
+  }
+
+  protected void setSignedDoc(SignedDoc signedDoc) {
+    ddoc = signedDoc;
+  }
+
+  protected void setContainerOpeningExceptions(ArrayList<DigiDocException> openContainerExceptions) {
+    this.openContainerExceptions = openContainerExceptions;
   }
 }

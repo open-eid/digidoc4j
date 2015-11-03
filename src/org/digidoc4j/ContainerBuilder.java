@@ -12,7 +12,6 @@ package org.digidoc4j;
 
 import java.io.File;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,11 +20,8 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.CustomContainerBuilder;
-import org.digidoc4j.impl.bdoc.BDocContainer;
 import org.digidoc4j.impl.bdoc.BDocContainerBuilder;
-import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -237,6 +233,8 @@ public abstract class ContainerBuilder {
   protected boolean shouldOpenContainerFromStream() {
     return containerInputStream != null;
   }
+
+  public abstract ContainerBuilder usingTempDirectory(String temporaryDirectoryPath);
 
   private static boolean isCustomContainerType(String containerType) {
     return containerImplementations.containsKey(containerType);

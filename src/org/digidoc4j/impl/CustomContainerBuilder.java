@@ -55,6 +55,12 @@ public class CustomContainerBuilder extends ContainerBuilder {
     return instantiateContainer(parameterTypes, constructorArguments);
   }
 
+  @Override
+  public ContainerBuilder usingTempDirectory(String temporaryDirectoryPath) {
+    logger.warn("Custom containers don't support setting temp directories");
+    return this;
+  }
+
   private Container instantiateContainer(Object... constructorArguments) {
     Class<?>[] parameterTypes = assembleParameterTypes(constructorArguments);
     return instantiateContainer(parameterTypes, constructorArguments);

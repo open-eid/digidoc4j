@@ -21,6 +21,7 @@ import java.security.cert.X509Certificate;
 
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
+import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.testutils.TestSignatureBuilder;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TestContainer;
@@ -31,7 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class SignatureBuilderTest {
+public class SignatureBuilderTest extends DigiDoc4JTestHelper {
 
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();

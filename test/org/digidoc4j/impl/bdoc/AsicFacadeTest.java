@@ -26,7 +26,6 @@ import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.utils.Helper;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.*;
@@ -682,7 +681,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     configuration.setTslLocation("file:test-tsl/trusted-test-mp.xml");
     AsicFacade container = new AsicFacade(configuration);
     container.configuration.getTSL();
-    assertEquals(6, container.configuration.getTSL().getCertificates().size());
+    assertEquals(5, container.configuration.getTSL().getCertificates().size());
 
     configuration.setTslLocation("http://10.0.25.57/tsl/trusted-test-mp.xml");
     container = new AsicFacade(configuration);

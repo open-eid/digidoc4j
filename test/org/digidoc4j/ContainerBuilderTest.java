@@ -33,6 +33,7 @@ import org.digidoc4j.impl.ddoc.DDocSignature;
 import org.digidoc4j.testutils.TestContainer;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -42,10 +43,15 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
   public static final Configuration TEST_CONFIGURATION = new Configuration(Configuration.Mode.TEST);
   private static final String BDOC_TEST_FILE = "testFiles/asics_for_testing.bdoc";
   private static final String DDOC_TEST_FILE = "testFiles/ddoc_for_testing.ddoc";
+  private File tempFolder;
 
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
 
+  @Before
+  public void setUp() throws Exception {
+    tempFolder = testFolder.newFolder();
+  }
 
   @After
   public void tearDown() throws Exception {
@@ -424,6 +430,55 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
     assertEquals("TEST-FORMAT", container.getType());
     assertSame(stream, ((TestContainer) container).getOpenedFromStream());
     assertSame(TEST_CONFIGURATION, ((TestContainer) container).getConfiguration());
+  }
+
+  @Test
+  public void openDDocContainerWithTempDirectory() throws Exception {
+    assertTrue(tempFolder.exists());
+    assertTrue(tempFolder.list().length == 0);
+    ContainerBuilder.
+        aContainer(DDOC_CONTAINER_TYPE).
+        fromExistingFile("testFiles/ddoc_for_testing.ddoc").
+        usingTempDirectory(tempFolder.getPath()).
+        build();
+    assertTrue(tempFolder.list().length > 0);
+  }
+
+  @Test
+  public void openDDocContainerWithTempDirectoryAndConfiguration() throws Exception {
+    assertTrue(tempFolder.list().length == 0);
+    ContainerBuilder.
+        aContainer(DDOC_CONTAINER_TYPE).
+        fromExistingFile("testFiles/ddoc_for_testing.ddoc").
+        withConfiguration(TEST_CONFIGURATION).
+        usingTempDirectory(tempFolder.getPath()).
+        build();
+    assertTrue(tempFolder.list().length > 0);
+  }
+
+  @Test
+  public void openDDocContainerFromStreamWithTempDirectory() throws Exception {
+    assertTrue(tempFolder.list().length == 0);
+    InputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE));
+    ContainerBuilder.
+        aContainer("DDOC").
+        fromStream(stream).
+        usingTempDirectory(tempFolder.getPath()).
+        build();
+    assertTrue(tempFolder.list().length > 0);
+  }
+
+  @Test
+  public void openDDocContainerFromStreamWithTempDirectoryAndConfiguration() throws Exception {
+    assertTrue(tempFolder.list().length == 0);
+    InputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE));
+    ContainerBuilder.
+        aContainer("DDOC").
+        withConfiguration(TEST_CONFIGURATION).
+        fromStream(stream).
+        usingTempDirectory(tempFolder.getPath()).
+        build();
+    assertTrue(tempFolder.list().length > 0);
   }
 
   private File createTestFile(String fileName) throws IOException {

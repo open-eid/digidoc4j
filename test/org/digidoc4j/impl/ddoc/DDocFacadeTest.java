@@ -20,6 +20,7 @@ import static org.digidoc4j.SignatureProfile.LTA;
 import static org.digidoc4j.SignatureProfile.LT_TM;
 import static org.digidoc4j.testutils.TestSigningHelper.getSigningCert;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -46,6 +47,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
@@ -103,7 +105,7 @@ public class DDocFacadeTest {
 
   @Test
   public void testGetDataFileSize() {
-    DDocFacade container = new DDocFacade("testFiles/ddoc_for_testing.ddoc");
+    DDocFacade container = openDocFacade("testFiles/ddoc_for_testing.ddoc");
     org.digidoc4j.DataFile dataFile = container.getDataFile(0);
     assertEquals(16, dataFile.getFileSize());
   }
@@ -250,7 +252,7 @@ public class DDocFacadeTest {
 
   @Test(expected = DigiDoc4JException.class)
   public void containerWithFileNameThrowsException() throws Exception {
-    new DDocFacade("file_not_exists");
+    openDocFacade("file_not_exists");
   }
 
   @Test
@@ -266,7 +268,7 @@ public class DDocFacadeTest {
     container.sign(PKCS12_SIGNER);
     container.save("setsSignatureId.ddoc");
 
-    container = new DDocFacade("setsSignatureId.ddoc");
+    container = openDocFacade("setsSignatureId.ddoc");
     assertEquals("SIGNATURE-1", container.getSignature(0).getId());
     assertEquals("SIGNATURE-2", container.getSignature(1).getId());
   }
@@ -279,7 +281,7 @@ public class DDocFacadeTest {
     container.sign(PKCS12_SIGNER);
     container.save("testSetsDefaultSignatureId.ddoc");
 
-    container = new DDocFacade("testSetsDefaultSignatureId.ddoc");
+    container = openDocFacade("testSetsDefaultSignatureId.ddoc");
     assertEquals("S0", container.getSignature(0).getId());
     assertEquals("S1", container.getSignature(1).getId());
   }
@@ -300,7 +302,7 @@ public class DDocFacadeTest {
     container.sign(PKCS12_SIGNER);
     container.save("testSetsSignatureId.ddoc");
 
-    container = new DDocFacade("testSetsSignatureId.ddoc");
+    container = openDocFacade("testSetsSignatureId.ddoc");
     assertEquals("SIGNATURE-1", container.getSignature(0).getId());
     assertEquals("SIGNATURE-2", container.getSignature(1).getId());
   }
@@ -314,7 +316,7 @@ public class DDocFacadeTest {
     container.sign(PKCS12_SIGNER);
     container.save("testSetsDefaultSignatureId.ddoc");
 
-    container = new DDocFacade("testSetsDefaultSignatureId.ddoc");
+    container = openDocFacade("testSetsDefaultSignatureId.ddoc");
     assertEquals("S0", container.getSignature(0).getId());
     assertEquals("S1", container.getSignature(1).getId());
   }
@@ -347,7 +349,7 @@ public class DDocFacadeTest {
   public void openFromStreamThrowsException() throws IOException {
     FileInputStream stream = new FileInputStream(new File("testFiles/test.txt"));
     stream.close();
-    new DDocFacade(stream);
+    new DDocOpener().open(stream);
   }
 
   @Test
@@ -479,7 +481,7 @@ public class DDocFacadeTest {
 
   @Test
   public void signExistingContainer() throws Exception {
-    DDocFacade container = new DDocFacade("testFiles/ddoc_for_testing.ddoc");
+    DDocFacade container = openDocFacade("testFiles/ddoc_for_testing.ddoc");
     container.sign(PKCS12_SIGNER);
     assertEquals(2, container.getSignatures().size());
   }
@@ -496,6 +498,27 @@ public class DDocFacadeTest {
     String dDocFileName = "testOCSPNotAddedWithRawSignatureWhenNoProfile.ddoc";
     signRawDDocContainer(B_BES).saveAsFile(dDocFileName);
     assertNull(ContainerOpener.open(dDocFileName).getSignatures().get(0).getOCSPCertificate());
+  }
+
+  @Test
+  public void configManagerShouldBeInitializedOnlyOnce() throws Exception {
+    DDocFacade.configManagerInitializer = new ConfigManagerInitializerSpy();
+    assertFalse(ConfigManagerInitializer.isConfigManagerInitialized());
+    assertEquals(0, ConfigManagerInitializerSpy.configManagerCallCount);
+    DDocFacade container1 = new DDocFacade();
+    assertTrue(ConfigManagerInitializer.isConfigManagerInitialized());
+    assertEquals(1, ConfigManagerInitializerSpy.configManagerCallCount);
+    DDocFacade container2 = new DDocFacade();
+    assertTrue(ConfigManagerInitializer.isConfigManagerInitialized());
+    assertEquals(1, ConfigManagerInitializerSpy.configManagerCallCount);
+    String path = "testFiles/ddoc_for_testing.ddoc";
+    DDocFacade container3 = openDocFacade(path);
+    assertTrue(ConfigManagerInitializer.isConfigManagerInitialized());
+    assertEquals(1, ConfigManagerInitializerSpy.configManagerCallCount);
+  }
+
+  private DDocFacade openDocFacade(String path) {
+    return new DDocOpener().open(path).getJDigiDocFacade();
   }
 
   private Container signRawDDocContainer(SignatureProfile signatureProfile) {
@@ -566,6 +589,19 @@ public class DDocFacadeTest {
       ArrayList<ee.sk.digidoc.Signature> signatures = new ArrayList<>();
       signatures.add(signature);
       doReturn(signatures).when(ddoc).getSignatures();
+    }
+  }
+
+  private static class ConfigManagerInitializerSpy extends ConfigManagerInitializer {
+    static int configManagerCallCount = 0;
+    static {
+      configManagerInitialized = false;
+    }
+
+    @Override
+    void initializeJDigidocConfigManager(Configuration configuration) {
+      super.initializeJDigidocConfigManager(configuration);
+      configManagerCallCount++;
     }
   }
 }

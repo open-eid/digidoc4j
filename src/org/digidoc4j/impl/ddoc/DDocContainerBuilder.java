@@ -10,11 +10,13 @@
 
 package org.digidoc4j.impl.ddoc;
 
-import org.digidoc4j.Container;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
 import org.digidoc4j.ContainerBuilder;
-import org.digidoc4j.ContainerOpener;
 
 public class DDocContainerBuilder extends ContainerBuilder {
+
+  private String temporaryDirectoryPath;
 
   protected DDocContainer createNewContainer() {
     if (configuration == null) {
@@ -24,19 +26,34 @@ public class DDocContainerBuilder extends ContainerBuilder {
     }
   }
 
-  protected Container openContainerFromFile() {
+  protected DDocContainer openContainerFromFile() {
+    DDocOpener opener = createDocOpener();
     if (configuration == null) {
-      return ContainerOpener.open(containerFilePath);
+      return opener.open(containerFilePath);
     } else {
-      return ContainerOpener.open(containerFilePath, configuration);
+      return opener.open(containerFilePath, configuration);
     }
   }
 
-  protected Container openContainerFromStream() {
+  protected DDocContainer openContainerFromStream() {
+    DDocOpener opener = createDocOpener();
     if (configuration == null) {
-      boolean actAsBigFilesSupportEnabled = true; //Doesn't have any meaning for DDOC containers. Opportunity to refactor
-      return ContainerOpener.open(containerInputStream, actAsBigFilesSupportEnabled);
+      return opener.open(containerInputStream);
     }
-    return ContainerOpener.open(containerInputStream, configuration);
+    return opener.open(containerInputStream, configuration);
+  }
+
+  @Override
+  public ContainerBuilder usingTempDirectory(String temporaryDirectoryPath) {
+    this.temporaryDirectoryPath = temporaryDirectoryPath;
+    return this;
+  }
+
+  private DDocOpener createDocOpener() {
+    DDocOpener opener = new DDocOpener();
+    if(isNotBlank(temporaryDirectoryPath)) {
+      opener.useTemporaryDirectoryPath(temporaryDirectoryPath);
+    }
+    return opener;
   }
 }

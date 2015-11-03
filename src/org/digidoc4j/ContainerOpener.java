@@ -20,8 +20,7 @@ import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.bdoc.AsicFacade;
 import org.digidoc4j.impl.bdoc.BDocContainer;
-import org.digidoc4j.impl.ddoc.DDocContainer;
-import org.digidoc4j.impl.ddoc.DDocFacade;
+import org.digidoc4j.impl.ddoc.DDocOpener;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +50,7 @@ public class ContainerOpener {
       if (Helper.isZipFile(new File(path))) {
         return openBDocContainer(path, configuration);
       } else {
-        DDocFacade facade = new DDocFacade(path, configuration);
-        return new DDocContainer(facade);
+        return new DDocOpener().open(path, configuration);
       }
     } catch (EOFException eof) {
       String msg = "File is not valid.";
@@ -95,8 +93,7 @@ public class ContainerOpener {
         AsicFacade facade = new AsicFacade(bufferedInputStream, actAsBigFilesSupportEnabled);
         return new BDocContainer(facade);
       } else {
-        DDocFacade facade = new DDocFacade(bufferedInputStream);
-        return new DDocContainer(facade);
+        return new DDocOpener().open(bufferedInputStream);
       }
     } catch (IOException e) {
       logger.error(e.getMessage());
@@ -123,8 +120,7 @@ public class ContainerOpener {
         AsicFacade facade = new AsicFacade(bufferedInputStream, true, configuration);
         return new BDocContainer(facade);
       } else {
-        DDocFacade facade = new DDocFacade(bufferedInputStream, configuration);
-        return new DDocContainer(facade);
+        return new DDocOpener().open(bufferedInputStream, configuration);
       }
     } catch (IOException e) {
       logger.error(e.getMessage());
