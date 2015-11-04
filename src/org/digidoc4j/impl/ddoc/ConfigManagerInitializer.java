@@ -31,7 +31,7 @@ public class ConfigManagerInitializer implements Serializable{
     }
   }
 
-  public static void forceInitConfigManager(Configuration configuration) {
+  public static synchronized void forceInitConfigManager(Configuration configuration) {
     logger.info("Initializing DDoc configuration manager");
     ConfigManager.init(configuration.getJDigiDocConfiguration());
     ConfigManager.addProvider();
