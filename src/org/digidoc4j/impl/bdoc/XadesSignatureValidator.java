@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import static org.apache.commons.lang.StringUtils.containsOnly;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 import java.util.ArrayList;
@@ -42,7 +43,9 @@ import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
 import eu.europa.ec.markt.dss.validation102853.report.DiagnosticData;
 import eu.europa.ec.markt.dss.validation102853.report.Reports;
 import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
+import eu.europa.ec.markt.dss.validation102853.rules.Indication;
 import eu.europa.ec.markt.dss.validation102853.rules.MessageTag;
+import eu.europa.ec.markt.dss.validation102853.rules.SubIndication;
 import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
 import eu.europa.ec.markt.dss.validation102853.xades.XPathQueryHolder;
 
@@ -158,7 +161,17 @@ public class XadesSignatureValidator {
       return true;
     }
     String timestampId = timestampIdList.get(0);
-    return diagnosticData.isTimestampMessageImprintIntact(timestampId);
+    return diagnosticData.isTimestampMessageImprintIntact(timestampId) && !isIndeterminateTimestamp(signatureId);
+  }
+
+  private boolean isIndeterminateTimestamp(String signatureId) {
+    SimpleReport simpleReport = getSimpleReport(signatureId);
+    String indication = simpleReport.getIndication(signatureId);
+    String subIndication = simpleReport.getSubIndication(signatureId);
+    if (Indication.INDETERMINATE.equals(indication)) {
+      return SubIndication.NO_VALID_TIMESTAMP.equals(subIndication);
+    }
+    return false;
   }
 
   private Map<String, SimpleReport> extractSimpleReports(Reports report) {

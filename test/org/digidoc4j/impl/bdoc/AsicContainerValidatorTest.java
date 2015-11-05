@@ -13,9 +13,11 @@ package org.digidoc4j.impl.bdoc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.ContainerWithoutSignaturesException;
+import org.digidoc4j.exceptions.InvalidTimestampException;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.junit.Test;
 
@@ -57,9 +59,21 @@ public class AsicContainerValidatorTest {
     assertFalse(result.isValid());
   }
 
+  @Test
+  public void validateTimestampWithUnknownTSAShouldBeInvalid() throws Exception {
+    AsicContainerValidator validator = createAsicContainerValidator("testFiles/TS-05_23634_TS_unknown_TSA.asice");
+    AsicContainerValidationResult result = validator.validate();
+    assertFalse(result.isValid());
+    assertEquals(result.getbDocValidationResult().getErrors().get(0).getMessage(), InvalidTimestampException.MESSAGE);
+  }
+
   private AsicContainerValidator createAsicContainerValidator(String containerPath) {
-    DSSDocument container = TestDataBuilder.createAsicContainer(containerPath);
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    return createAsicContainerValidator(containerPath, configuration);
+  }
+
+  private AsicContainerValidator createAsicContainerValidator(String containerPath, Configuration configuration) {
+    DSSDocument container = TestDataBuilder.createAsicContainer(containerPath);
     SKCommonCertificateVerifier commonCertificateVerifier = new SKCommonCertificateVerifier();
     commonCertificateVerifier.setCrlSource(null);
     commonCertificateVerifier.setOcspSource(null);

@@ -137,7 +137,7 @@ public class ConfigurationTest {
     addFromFileToTSLCertificate("testFiles/EE_Certification_Centre_Root_CA.pem.crt");
     addFromFileToTSLCertificate("testFiles/ESTEID-SK_2011.pem.crt");
     addFromFileToTSLCertificate("testFiles/SK_OCSP_RESPONDER_2011.pem.cer");
-
+    addFromFileToTSLCertificate("testFiles/SK_TSA.pem.crt");
     AsicFacade container = new AsicFacade("testFiles/test.asice", configuration);
     ValidationResult verify = container.verify();
     assertTrue(verify.isValid());

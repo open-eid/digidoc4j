@@ -129,8 +129,6 @@
     <RightOrder Level="FAIL"/>
     <SigningCertificate>
       <Recognition Level="FAIL"/>
-      <DigestValueMatch Level="FAIL">true</DigestValueMatch>
-      <IssuerSerialMatch Level="FAIL">true</IssuerSerialMatch>
       <Signature Level="FAIL"/>
       <Expiration Level="FAIL"/>
       <RevocationDataAvailable Level="FAIL"/>

@@ -23,6 +23,7 @@ import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.impl.Signatures;
 import org.digidoc4j.signers.ExternalSigner;
 import org.digidoc4j.signers.PKCS12SignatureToken;
+import org.digidoc4j.testutils.TSLHelper;
 import org.digidoc4j.utils.Helper;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -36,6 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.List;
@@ -685,7 +687,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
     configuration.setTslLocation("http://10.0.25.57/tsl/trusted-test-mp.xml");
     container = new AsicFacade(configuration);
-    assertNotEquals(6, container.configuration.getTSL().getCertificates().size());
+    assertNotEquals(5, container.configuration.getTSL().getCertificates().size());
   }
 
   @Test (expected = DigiDoc4JException.class)
@@ -1392,8 +1394,10 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
-  public void secondSignatureFileContainsIncorrectFileName() {
-    Container container = ContainerOpener.open("testFiles/filename_mismatch_second_signature.asice");
+  public void secondSignatureFileContainsIncorrectFileName() throws IOException, CertificateException {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    TSLHelper.addSK_TSACertificateToTSL(configuration);
+    Container container = ContainerOpener.open("testFiles/filename_mismatch_second_signature.asice", configuration);
     ValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
     assertEquals(3, errors.size());

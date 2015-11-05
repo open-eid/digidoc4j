@@ -10,22 +10,17 @@
 
 package org.digidoc4j;
 
-import org.apache.commons.codec.binary.Base64;
-import org.digidoc4j.exceptions.CertificateNotFoundException;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
-import org.digidoc4j.impl.bdoc.AsicFacade;
-import org.digidoc4j.impl.Certificates;
-import org.digidoc4j.impl.ddoc.DDocFacade;
-import org.digidoc4j.impl.DigiDoc4JTestHelper;
-import org.digidoc4j.impl.ddoc.DDocOpener;
-import org.digidoc4j.signers.PKCS12SignatureToken;
-import org.digidoc4j.testutils.TestDataBuilder;
-import org.digidoc4j.utils.Helper;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+import static org.digidoc4j.Container.DocumentType.BDOC;
+import static org.digidoc4j.Container.DocumentType.DDOC;
+import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
+import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
+import static org.digidoc4j.utils.DateUtils.isAlmostNow;
+import static org.digidoc4j.utils.Helper.deleteFile;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URI;
@@ -36,17 +31,23 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.digidoc4j.Container.DocumentType.BDOC;
-import static org.digidoc4j.Container.DocumentType.DDOC;
-import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
-import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
-import static org.digidoc4j.utils.DateUtils.isAlmostNow;
-import static org.digidoc4j.utils.Helper.deleteFile;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
+import org.apache.commons.codec.binary.Base64;
+import org.digidoc4j.exceptions.CertificateNotFoundException;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.impl.bdoc.AsicFacade;
+import org.digidoc4j.impl.Certificates;
+import org.digidoc4j.impl.ddoc.DDocFacade;
+import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.impl.ddoc.DDocOpener;
+import org.digidoc4j.signers.PKCS12SignatureToken;
+import org.digidoc4j.testutils.TSLHelper;
+import org.digidoc4j.testutils.TestDataBuilder;
+import org.digidoc4j.utils.Helper;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class SignatureTest extends DigiDoc4JTestHelper {
 
@@ -196,7 +197,9 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testValidationForBDocDefaultValidation() throws Exception {
-    Container container = ContainerOpener.open("testFiles/two_signatures.bdoc");
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    TSLHelper.addSK_TSACertificateToTSL(configuration);
+    Container container = ContainerOpener.open("testFiles/two_signatures.bdoc", configuration);
     Signature signature = container.getSignatures().get(0);
     assertEquals(0, signature.validate().size());
     signature = container.getSignatures().get(1);
