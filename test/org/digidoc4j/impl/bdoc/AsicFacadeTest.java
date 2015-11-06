@@ -1396,7 +1396,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   @Test
   public void secondSignatureFileContainsIncorrectFileName() throws IOException, CertificateException {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    TSLHelper.addSK_TSACertificateToTSL(configuration);
+    TSLHelper.addSkTsaCertificateToTsl(configuration);
     Container container = ContainerOpener.open("testFiles/filename_mismatch_second_signature.asice", configuration);
     ValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();

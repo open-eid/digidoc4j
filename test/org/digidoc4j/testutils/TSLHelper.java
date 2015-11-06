@@ -18,11 +18,11 @@ public class TSLHelper {
    * @throws IOException
    * @throws CertificateException
    */
-  public static Configuration addSK_TSACertificateToTSL(Configuration configuration) throws IOException, CertificateException {
-    return addCertificateFromFileToTSL(configuration, "testFiles/SK_TSA.pem.crt");
+  public static Configuration addSkTsaCertificateToTsl(Configuration configuration) throws IOException, CertificateException {
+    return addCertificateFromFileToTsl(configuration, "testFiles/SK_TSA.pem.crt");
   }
 
-  public static Configuration addCertificateFromFileToTSL(Configuration configuration, String fileName) throws IOException, CertificateException {
+  public static Configuration addCertificateFromFileToTsl(Configuration configuration, String fileName) throws IOException, CertificateException {
     FileInputStream fileInputStream = new FileInputStream(fileName);
     X509Certificate certificate = DSSUtils.loadCertificate(fileInputStream).getCertificate();
     configuration.getTSL().addTSLCertificate(certificate);

@@ -198,7 +198,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   @Test
   public void testValidationForBDocDefaultValidation() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    TSLHelper.addSK_TSACertificateToTSL(configuration);
+    TSLHelper.addSkTsaCertificateToTsl(configuration);
     Container container = ContainerOpener.open("testFiles/two_signatures.bdoc", configuration);
     Signature signature = container.getSignatures().get(0);
     assertEquals(0, signature.validate().size());
