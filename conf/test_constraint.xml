@@ -17,7 +17,7 @@
       <IssuerSerialMatch Level="WARN">true</IssuerSerialMatch>
       <Signed Level="FAIL"/>
       <Signature Level="FAIL"/>
-      <Expiration Level="IGNORE"/>
+      <Expiration Level="FAIL"/>
       <RevocationDataAvailable Level="FAIL"/>
       <RevocationDataIsTrusted Level="WARN"/>
       <RevocationDataFreshness Level="WARN"/>

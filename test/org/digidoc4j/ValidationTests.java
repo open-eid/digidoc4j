@@ -20,7 +20,6 @@ import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 
 import org.junit.Test;
-
 public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test
@@ -42,6 +41,18 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     assertFalse(result.isValid());
     assertTrue(result.getErrors().size() >= 1);
     assertTrue(containsErrorMessage(result.getErrors(), TimestampAfterOCSPResponseTimeException.MESSAGE));
+  }
+
+  @Test
+  public void containerWithTMProfile_SignedWithExpiredCertificate_shouldBeInvalid() throws Exception {
+    assertFalse(validateContainer("testFiles/invalid_bdoc_tm_old-sig-sigat-NOK-prodat-NOK.bdoc").isValid());
+    assertFalse(validateContainer("testFiles/invalid_bdoc_tm_old-sig-sigat-OK-prodat-NOK.bdoc").isValid());
+  }
+
+  @Test
+  public void containerWithTSProfile_SignedWithExpiredCertificate_shouldBeInvalid() throws Exception {
+    ValidationResult result = validateContainer("testFiles/invalid_bdoc21-TS-old-cert.bdoc");
+    assertFalse(result.isValid());
   }
 
   private ValidationResult validateContainer(String containerPath) {

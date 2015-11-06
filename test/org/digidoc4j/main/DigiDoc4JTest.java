@@ -459,7 +459,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  //@Ignore("RIA VPN")
+  @Ignore("Bug report at https://www.pivotaltracker.com/story/show/107563624")
   public void verifyBDocWithWarning() throws IOException {
     exit.expectSystemExitWithStatus(0);
     exit.checkAssertionAfterwards(new Assertion() {
