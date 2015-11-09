@@ -10,16 +10,16 @@
 
 package org.digidoc4j;
 
+import static org.digidoc4j.testutils.TestHelpers.containsErrorMessage;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.digidoc4j.testutils.TestHelpers.*;
 
 import org.digidoc4j.exceptions.ContainerWithoutSignaturesException;
 import org.digidoc4j.exceptions.InvalidTimestampException;
 import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
-
 import org.junit.Test;
+
 public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test

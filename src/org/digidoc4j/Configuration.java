@@ -16,6 +16,7 @@ import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
 import eu.europa.ec.markt.dss.validation102853.loader.Protocol;
 import eu.europa.ec.markt.dss.validation102853.tsl.TSLRefreshPolicy;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
@@ -134,6 +135,7 @@ public class Configuration implements Serializable {
   public static final long CACHE_NO_DATA_FILES = 0;
 
   public static final String TEST_OCSP_URL = "http://demo.sk.ee/ocsp";
+  public static final String SIGN_OCSP_REQUESTS = "SIGN_OCSP_REQUESTS";
 
   private final Mode mode;
   private LinkedHashMap configurationFromFile;
@@ -141,7 +143,7 @@ public class Configuration implements Serializable {
   private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<>();
   private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
   private TSLCertificateSource tslCertificateSource;
-
+  Map<String, String> configuration = new HashMap<>();
 
   /**
    * Application mode
@@ -149,6 +151,7 @@ public class Configuration implements Serializable {
   public enum Mode {
     TEST,
     PROD
+
   }
 
   private void initDefaultValues() {
@@ -162,12 +165,14 @@ public class Configuration implements Serializable {
       configuration.put("tslLocation", "file:test-tsl/trusted-test-mp.xml");
       configuration.put("validationPolicy", "conf/test_constraint.xml");
       configuration.put("ocspSource", TEST_OCSP_URL);
+      configuration.put(SIGN_OCSP_REQUESTS, "false");
     } else {
       configuration.put("tspSource", "http://tsa.sk.ee");
       configuration.put("tslLocation",
           "https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml");
       configuration.put("validationPolicy", "conf/constraint.xml");
       configuration.put("ocspSource", "http://ocsp.sk.ee/");
+      configuration.put(SIGN_OCSP_REQUESTS, "true");
     }
     logger.debug(mode + "configuration:\n" + configuration);
 
@@ -235,7 +240,12 @@ public class Configuration implements Serializable {
     logger.debug("OCSPAccessCertificatePassword is set");
   }
 
-  Map<String, String> configuration = new HashMap<>();
+  public void setSignOCSPRequests(boolean shouldSignOcspRequests) {
+    logger.debug("Should sign OCSP requests: " + shouldSignOcspRequests);
+    String valueToSet = String.valueOf(shouldSignOcspRequests);
+    setConfigurationParameter(SIGN_OCSP_REQUESTS, valueToSet);
+    setJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS, valueToSet);
+  }
 
   /**
    * Create new configuration
@@ -402,7 +412,7 @@ public class Configuration implements Serializable {
   private void loadInitialConfigurationValues() {
     logger.debug("");
     setJDigiDocConfigurationValue("DIGIDOC_LOG4J_CONFIG", DEFAULT_LOG4J_CONFIGURATION);
-    setJDigiDocConfigurationValue("SIGN_OCSP_REQUESTS", Boolean.toString(mode == Mode.PROD));
+    setJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS, Boolean.toString(hasToBeOCSPRequestSigned()));
     setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER", DEFAULT_SECURITY_PROVIDER);
     setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER_NAME", DEFAULT_SECURITY_PROVIDER_NAME);
     setJDigiDocConfigurationValue("KEY_USAGE_CHECK", DEFAULT_KEY_USAGE_CHECK);
@@ -425,6 +435,7 @@ public class Configuration implements Serializable {
     setConfigurationValue("DIGIDOC_PKCS12_CONTAINER", "OCSPAccessCertificateFile");
     setConfigurationValue("DIGIDOC_PKCS12_PASSWD", "OCSPAccessCertificatePassword");
     setConfigurationValue("CONNECTION_TIMEOUT", "connectionTimeout");
+    setConfigurationValue(SIGN_OCSP_REQUESTS, SIGN_OCSP_REQUESTS);
   }
 
   private void setConfigurationValue(String fileKey, String configurationKey) {
@@ -472,7 +483,8 @@ public class Configuration implements Serializable {
    * @return must be OCSP request signed
    */
   public boolean hasToBeOCSPRequestSigned() {
-    return mode == Mode.PROD;
+    String signOcspRequests = getConfigurationParameter(SIGN_OCSP_REQUESTS);
+    return StringUtils.equalsIgnoreCase("true", signOcspRequests);
   }
 
   /**
@@ -517,7 +529,7 @@ public class Configuration implements Serializable {
     logger.debug("Parameter: " + configParameter + ", value: " + value);
 
     List<String> mustBeBooleans =
-        asList("SIGN_OCSP_REQUESTS", "KEY_USAGE_CHECK", "DATAFILE_HASHCODE_MODE", "DIGIDOC_USE_LOCAL_TSL");
+        asList(SIGN_OCSP_REQUESTS, "KEY_USAGE_CHECK", "DATAFILE_HASHCODE_MODE", "DIGIDOC_USE_LOCAL_TSL");
     List<String> mustBeIntegers =
         asList("DIGIDOC_MAX_DATAFILE_CACHED");
 

@@ -21,6 +21,7 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,6 +44,9 @@ public class ConfigurationTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
+  public TemporaryFolder testFolder = new TemporaryFolder();
 
   @Before
   public void setUp() {
@@ -265,6 +269,55 @@ public class ConfigurationTest {
     char[] newPassword = "New password".toCharArray();
     configuration.setOCSPAccessCertificatePassword(newPassword);
     assertArrayEquals(newPassword, configuration.getOCSPAccessCertificatePassword());
+  }
+
+  @Test
+  public void signingOcspRequest_ShouldBeEnabled_InProdByDefault() throws Exception {
+    Configuration configuration = new Configuration(Mode.PROD);
+    assertTrue(configuration.hasToBeOCSPRequestSigned());
+  }
+
+  @Test
+  public void signingOcspRequest_ShouldBeDisabled_InTestByDefault() throws Exception {
+    Configuration configuration = new Configuration(Mode.TEST);
+    assertFalse(configuration.hasToBeOCSPRequestSigned());
+  }
+
+  @Test
+  public void disableSigningOcspRequestsInProd() throws Exception {
+    Configuration configuration = new Configuration(Mode.PROD);
+    configuration.setSignOCSPRequests(false);
+    assertFalse(configuration.hasToBeOCSPRequestSigned());
+  }
+
+  @Test
+  public void enableSigningOcspRequestsInTest() throws Exception {
+    Configuration configuration = new Configuration(Mode.TEST);
+    configuration.setSignOCSPRequests(true);
+    assertTrue(configuration.hasToBeOCSPRequestSigned());
+  }
+
+  @Test
+  public void loadDisableSigningOcspRequestFromConfFileInProd() throws Exception {
+    Configuration configuration = new Configuration(Mode.PROD);
+    configuration.loadConfiguration("testFiles/digidoc_test_all_optional_settings.yaml");
+    assertFalse(configuration.hasToBeOCSPRequestSigned());
+  }
+
+  @Test
+  public void loadDisableSigningOcspRequestFromConfFile() throws Exception {
+    File confFile = createConfFileWithParameter("SIGN_OCSP_REQUESTS: false");
+    Configuration configuration = new Configuration();
+    configuration.loadConfiguration(confFile.getPath());
+    assertFalse(configuration.hasToBeOCSPRequestSigned());
+  }
+
+  @Test
+  public void loadEnableSigningOcspRequestFromConfFile() throws Exception {
+    File confFile = createConfFileWithParameter("SIGN_OCSP_REQUESTS: true");
+    Configuration configuration = new Configuration();
+    configuration.loadConfiguration(confFile.getPath());
+    assertTrue(configuration.hasToBeOCSPRequestSigned());
   }
 
   @Test
@@ -737,6 +790,28 @@ public class ConfigurationTest {
     configuration.loadConfiguration("testFiles/digidoc_test_conf_connection_timeout.yaml");
     configuration.setConnectionTimeout(2000);
     assertEquals(2000, configuration.getConnectionTimeout());
+  }
+
+  private File createConfFileWithParameter(String parameter) throws IOException {
+    File confFile = testFolder.newFile();
+    FileUtils.writeStringToFile(confFile, parameter);
+    String defaultConfParameters = "\n"+
+        "DIGIDOC_CAS:\n" +
+        "- DIGIDOC_CA:\n" +
+        "    NAME: AS Sertifitseerimiskeskus\n" +
+        "    TRADENAME: SK\n" +
+        "    CERTS:\n" +
+        "      - jar://certs/EID-SK.crt\n" +
+        "    OCSPS:\n" +
+        "      - OCSP:\n" +
+        "        CA_CN: ESTEID-SK\n" +
+        "        CA_CERT: jar://certs/ESTEID-SK 2007.crt\n" +
+        "        CN: ESTEID-SK 2007 OCSP RESPONDER\n" +
+        "        CERTS:\n" +
+        "         - jar://certs/ESTEID-SK 2007 OCSP.crt\n" +
+        "        URL: http://ocsp.sk.ee";
+    FileUtils.writeStringToFile(confFile, defaultConfParameters, true);
+    return confFile;
   }
 
   //  // getCACerts is currently only used for testing purposes and not yet updated for multiple CA's
