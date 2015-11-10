@@ -64,23 +64,8 @@ public class BDocSignature implements Signature {
    * @param signature XAdES signature to use for the BDoc signature
    */
   public BDocSignature(XAdESSignature signature) {
-    logger.debug("");
     origin = signature;
     signerLocation = signature.getSignatureProductionPlace();
-    logger.debug("New BDoc signature created");
-  }
-
-  /**
-   * * Create a new BDOC signature.
-   *
-   * @param signature        XAdES signature to use for the BDoc signature
-   * @param validationErrors list of DigiDoc4J exceptions to add to the signature
-   */
-  public BDocSignature(XAdESSignature signature, List<DigiDoc4JException> validationErrors) {
-    logger.debug("");
-    origin = signature;
-    signerLocation = signature.getSignatureProductionPlace();
-    this.validationErrors = validationErrors;
     logger.debug("New BDoc signature created");
   }
 
@@ -270,5 +255,13 @@ public class BDocSignature implements Signature {
 
   XAdESSignature getOrigin() {
     return origin;
+  }
+
+  List<DigiDoc4JException> getValidationErrors() {
+    return validationErrors;
+  }
+
+  void setValidationErrors(List<DigiDoc4JException> validationErrors) {
+    this.validationErrors = validationErrors;
   }
 }

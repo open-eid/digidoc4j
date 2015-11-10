@@ -119,12 +119,11 @@ public class AsicContainerValidator implements Serializable {
     signatureVerificationErrors = new LinkedHashMap<>();
     loadValidationResults(validator);
     List<AdvancedSignature> signatureList = validator.getSignatures();
-    XadesSignatureValidator signatureValidator = new XadesSignatureValidator(validationReport);
     for (AdvancedSignature advancedSignature : signatureList) {
-      String reportSignatureId = advancedSignature.getId();
-      List<DigiDoc4JException> errors = signatureValidator.extractErrors((XAdESSignature) advancedSignature);
-      signatureVerificationErrors.put(reportSignatureId, errors);
-      signatures.add(new BDocSignature((XAdESSignature) advancedSignature, errors));
+      XadesSignatureValidator signatureValidator = new XadesSignatureValidator(validationReport, (XAdESSignature) advancedSignature);
+      BDocSignature signature = signatureValidator.extractValidatedSignature();
+      signatureVerificationErrors.put(signature.getId(), signature.getValidationErrors());
+      signatures.add(signature);
     }
   }
 

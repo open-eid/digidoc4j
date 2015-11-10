@@ -18,6 +18,7 @@ import org.digidoc4j.exceptions.ContainerWithoutSignaturesException;
 import org.digidoc4j.exceptions.InvalidTimestampException;
 import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.testutils.TSLHelper;
 import org.junit.Test;
 
 public class ValidationTests extends DigiDoc4JTestHelper {
@@ -53,6 +54,20 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   public void containerWithTSProfile_SignedWithExpiredCertificate_shouldBeInvalid() throws Exception {
     ValidationResult result = validateContainer("testFiles/invalid_bdoc21-TS-old-cert.bdoc");
     assertFalse(result.isValid());
+  }
+
+  @Test
+  public void bdocTM_signedWithValidCert_isExpiredByNow_shouldBeValid() throws Exception {
+    String containerPath = "testFiles/valid_bdoc_tm_signed_with_valid_cert_expired_by_now.bdoc";
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    TSLHelper.addCertificateFromFileToTsl(configuration, "testFiles/certs/ESTEID-SK_2007_prod.pem.crt");
+    Container container = ContainerBuilder.
+        aContainer("BDOC").
+        fromExistingFile(containerPath).
+        withConfiguration(configuration).
+        build();
+    ValidationResult result = container.validate();
+    assertTrue(result.isValid());
   }
 
   private ValidationResult validateContainer(String containerPath) {

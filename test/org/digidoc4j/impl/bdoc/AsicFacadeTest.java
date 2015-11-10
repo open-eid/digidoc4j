@@ -1537,7 +1537,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     Container container = ContainerOpener.open("testFiles/23608_bdoc21-invalid-nonce-policy-oid.bdoc", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(2, errors.size());
+    assertEquals(1, errors.size());
     assertEquals("Wrong policy identifier: urn:oid:1.3.6.1.4.1.10015.1000.3.4.3", errors.get(0).toString());
   }
 
