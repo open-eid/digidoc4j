@@ -15,6 +15,7 @@ import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.impl.bdoc.AsicFacade;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -32,6 +33,9 @@ import java.nio.file.attribute.FileTime;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import static org.digidoc4j.Configuration.*;
 import static org.digidoc4j.Configuration.Mode.PROD;
@@ -121,6 +125,33 @@ public class ConfigurationTest {
     assertTrue(newCachedFileDate.compareTo(oldCachedFileDate) > 0);
   }
 
+  @Test
+  public void lotlValidationFailsWithWrongCertsInKeystore() {
+    Configuration myConfiguration = new Configuration(PROD);
+    myConfiguration.setTslKeyStoreLocation("keystore/test-keystore.jks");
+    try {
+      myConfiguration.getTSL();
+    } catch (TslCertificateSourceInitializationException e) {
+      assertEquals("Not ETSI compliant signature. The signature is not valid.", e.getMessage());
+    }
+  }
+
+  @Test
+  public void tslValidationSucceeds() {
+    Configuration myConfiguration = new Configuration(PROD);
+    Map<String, String> diagnosticInfo = myConfiguration.getTSL().getDiagnosticInfo();
+    Set<Entry<String, String>> entries = diagnosticInfo.entrySet();
+    for (Entry<String, String> entrie : entries) {
+      if (!isNorway(entrie.getKey())) {
+        assertFalse(entrie.getValue().contains("The signature is not valid"));
+      }
+    }
+  }
+
+  private boolean isNorway(String entrieKey) {
+    return entrieKey.contains("http://www.nkom.no");
+  }
+
   @Test (expected = DigiDoc4JException.class)
   public void clearTSLCacheThrowsException() {
     Configuration myConfiguration = new Configuration();
@@ -161,7 +192,6 @@ public class ConfigurationTest {
     fileInputStream.close();
   }
 
-
   @Test
   public void whenTSLLocationIsMalformedURLNoErrorIsRaisedAndThisSameValueIsReturned() throws Exception {
     Configuration configuration = new Configuration();
@@ -179,7 +209,6 @@ public class ConfigurationTest {
 
     assertThat(configuration.getTslLocation(), endsWith(tslFilePath));
   }
-
 
   @Test
   public void getTSLLocationFileDoesNotExistReturnsUrlPath() {
@@ -454,7 +483,6 @@ public class ConfigurationTest {
     configuration.loadConfiguration("testFiles/not_exists.yaml");
   }
 
-
   @Test
   public void digiDocSecurityProviderDefaultValue() throws Exception {
     Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("digidoc4j.yaml");
@@ -673,6 +701,36 @@ public class ConfigurationTest {
   }
 
   @Test
+  public void getTslKeystoreLocationFromConfigurationFile() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertEquals("keystore", configuration.getTslKeyStoreLocation());
+  }
+
+  @Test
+  public void testDefaultTslKeystoreLocation() throws Exception {
+    Configuration conf = new Configuration(PROD);
+    assertEquals("keystore/keystore.jks", conf.getTslKeyStoreLocation());
+  }
+
+  @Test
+  public void testDefaultTestTslKeystoreLocation() throws Exception {
+    Configuration conf = new Configuration(TEST);
+    assertEquals("keystore/test-keystore.jks", conf.getTslKeyStoreLocation());
+  }
+
+  @Test
+  public void testDefaultTslKeystorePassword() throws Exception {
+    Configuration conf = new Configuration(PROD);
+    assertEquals("digidoc4j-password", conf.getTslKeyStorePassword());
+  }
+
+  @Test
+  public void getTslKeystorePasswordFromConfigurationFile() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertEquals("password", configuration.getTslKeyStorePassword());
+  }
+
+  @Test
   public void loadMultipleCAsFromConfigurationFile() throws Exception {
     Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf_two_cas" +
         ".yaml");
@@ -719,7 +777,6 @@ public class ConfigurationTest {
     Configuration configuration = new Configuration(PROD);
     assertFalse(configuration.isTest());
   }
-
 
   @Test
   public void verifyAllOptionalConfigurationSettingsAreLoadedFromFile() throws Exception {

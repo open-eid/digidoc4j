@@ -11,6 +11,7 @@
 package org.digidoc4j;
 
 import eu.europa.ec.markt.dss.exception.DSSException;
+import eu.europa.ec.markt.dss.validation102853.KeyStoreCertificateSource;
 import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
 import eu.europa.ec.markt.dss.validation102853.loader.Protocol;
@@ -19,6 +20,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -111,6 +113,8 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
  * <li>TSL_LOCATION: TSL Location</li>
  * <li>TSP_SOURCE: Time Stamp Protocol source address</li>
  * <li>VALIDATION_POLICY: Validation policy source file</li>
+ * <li>TSL_KEYSTORE_LOCATION: keystore location for tsl signing certificates</li>
+ * <li>TSL_KEYSTORE_PASSWORD: keystore password for the keystore in TSL_KEYSTORE_LOCATION</li>
  * </ul>
  */
 public class Configuration implements Serializable {
@@ -151,7 +155,6 @@ public class Configuration implements Serializable {
   public enum Mode {
     TEST,
     PROD
-
   }
 
   private void initDefaultValues() {
@@ -159,10 +162,12 @@ public class Configuration implements Serializable {
 
     configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
     configuration.put("connectionTimeout", String.valueOf(ONE_SECOND));
+    configuration.put("tslKeyStorePassword", "digidoc4j-password");
 
     if (mode == Mode.TEST) {
       configuration.put("tspSource", "http://demo.sk.ee/tsa");
       configuration.put("tslLocation", "file:test-tsl/trusted-test-mp.xml");
+      configuration.put("tslKeyStoreLocation", "keystore/test-keystore.jks");
       configuration.put("validationPolicy", "conf/test_constraint.xml");
       configuration.put("ocspSource", TEST_OCSP_URL);
       configuration.put(SIGN_OCSP_REQUESTS, "false");
@@ -170,6 +175,7 @@ public class Configuration implements Serializable {
       configuration.put("tspSource", "http://tsa.sk.ee");
       configuration.put("tslLocation",
           "https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml");
+      configuration.put("tslKeyStoreLocation", "keystore/keystore.jks");
       configuration.put("validationPolicy", "conf/constraint.xml");
       configuration.put("ocspSource", "http://ocsp.sk.ee/");
       configuration.put(SIGN_OCSP_REQUESTS, "true");
@@ -436,6 +442,8 @@ public class Configuration implements Serializable {
     setConfigurationValue("DIGIDOC_PKCS12_PASSWD", "OCSPAccessCertificatePassword");
     setConfigurationValue("CONNECTION_TIMEOUT", "connectionTimeout");
     setConfigurationValue(SIGN_OCSP_REQUESTS, SIGN_OCSP_REQUESTS);
+    setConfigurationValue("TSL_KEYSTORE_LOCATION", "tslKeyStoreLocation");
+    setConfigurationValue("TSL_KEYSTORE_PASSWORD", "tslKeyStorePassword");
   }
 
   private void setConfigurationValue(String fileKey, String configurationKey) {
@@ -708,14 +716,17 @@ public class Configuration implements Serializable {
     }
 
     tslCertificateSource.setLotlUrl(tslLocation);
-
-    tslCertificateSource.setCheckSignature(false);
+    KeyStoreCertificateSource keyStoreCertificateSource = new KeyStoreCertificateSource(
+        getTslKeyStoreLocation(), getTslKeyStorePassword());
+    tslCertificateSource.setKeyStoreCertificateSource(keyStoreCertificateSource);
+    boolean checkSignature = mode == Mode.TEST ? false : true;
+    tslCertificateSource.setCheckSignature(checkSignature);
 
     try {
       tslCertificateSource.init();
     } catch (DSSException e) {
       logger.error(e.getMessage());
-      throw new DigiDoc4JException(e.getMessage());
+      throw new TslCertificateSourceInitializationException(e.getMessage());
     }
 
     return tslCertificateSource;
@@ -788,6 +799,44 @@ public class Configuration implements Serializable {
     String ocspSource = getConfigurationParameter("ocspSource");
     logger.debug("OCSP source: " + ocspSource);
     return ocspSource;
+  }
+
+  /**
+   * Set the KeyStore Location that holds potential TSL Signing certificates
+   * @param tslKeyStoreLocation KeyStore location to use
+   */
+  public void setTslKeyStoreLocation(String tslKeyStoreLocation) {
+    logger.debug("Set tsl KeyStore Location: " + tslKeyStoreLocation);
+    setConfigurationParameter("tslKeyStoreLocation", tslKeyStoreLocation);
+  }
+
+  /**
+   * Get the Location to Keystore that holds potential TSL Signing certificates
+   * @return KeyStore Location
+   */
+  public String getTslKeyStoreLocation() {
+    String keystoreLocation = getConfigurationParameter("tslKeyStoreLocation");
+    logger.debug("tsl KeyStore Location: " + keystoreLocation);
+    return keystoreLocation;
+  }
+
+  /**
+   * Set the password for Keystore that holds potential TSL Signing certificates
+   * @param tslKeyStorePassword Keystore password
+   */
+  public void setTslKeyStorePassword(String tslKeyStorePassword) {
+    logger.debug("Set tsl KeyStore Password: " + tslKeyStorePassword);
+    setConfigurationParameter("tslKeyStorePassword", tslKeyStorePassword);
+  }
+
+  /**
+   * Get the password for Keystore that holds potential TSL Signing certificates
+   * @return Tsl Keystore password
+   */
+  public String getTslKeyStorePassword() {
+    String keystorePassword = getConfigurationParameter("tslKeyStorePassword");
+    logger.debug("tsl KeyStore Password: " + keystorePassword);
+    return keystorePassword;
   }
 
   /**
