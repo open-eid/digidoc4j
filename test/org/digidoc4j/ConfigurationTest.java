@@ -31,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
+import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
@@ -702,12 +703,6 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void getShouldValidateTslSignatureFromConfigurationFile() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
-    assertFalse(configuration.shouldValidateTslSignature());
-  }
-
-  @Test
   public void getTslKeystoreLocationFromConfigurationFile() throws Exception {
     configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
     assertEquals("keystore", configuration.getTslKeyStoreLocation());
@@ -800,7 +795,6 @@ public class ConfigurationTest {
     configuration.setOCSPAccessCertificatePassword("Set password".toCharArray());
     configuration.setOcspSource("Set OCSP source");
     configuration.setValidationPolicy("Set validation policy");
-    configuration.setShouldValidateTslSignature(true);
 
     configuration.loadConfiguration("testFiles/digidoc_test_all_optional_settings.yaml");
 
@@ -829,7 +823,6 @@ public class ConfigurationTest {
     assertEquals("TEST_TSP_SOURCE", configuration.configuration.get("tspSource"));
     assertEquals("TEST_VALIDATION_POLICY", configuration.configuration.get("validationPolicy"));
     assertEquals("TEST_TSL_LOCATION", configuration.configuration.get("tslLocation"));
-    assertFalse(configuration.shouldValidateTslSignature());
 
     configuration.setTslLocation("Set TSL location");
     configuration.setTspSource("Set TSP source");
@@ -837,7 +830,6 @@ public class ConfigurationTest {
     configuration.setOCSPAccessCertificatePassword("Set password".toCharArray());
     configuration.setOcspSource("Set OCSP source");
     configuration.setValidationPolicy("Set validation policy");
-    configuration.setShouldValidateTslSignature(true);
 
     assertEquals("Set TSL location", configuration.getTslLocation());
     assertEquals("Set TSP source", configuration.getTspSource());
@@ -845,7 +837,6 @@ public class ConfigurationTest {
     assertEquals("Set password", configuration.configuration.get("OCSPAccessCertificatePassword"));
     assertEquals("Set OCSP source", configuration.getOcspSource());
     assertEquals("Set validation policy", configuration.getValidationPolicy());
-    assertTrue(configuration.shouldValidateTslSignature());
 
   }
 
