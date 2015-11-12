@@ -120,6 +120,7 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
  * <li>VALIDATION_POLICY: Validation policy source file</li>
  * <li>TSL_KEYSTORE_LOCATION: keystore location for tsl signing certificates</li>
  * <li>TSL_KEYSTORE_PASSWORD: keystore password for the keystore in TSL_KEYSTORE_LOCATION</li>
+ * <li>VALIDATE_TSL_SIGNATURE: Validate TSL signature? Allowed values: true, false VALIDATE_TSL_SIGNATURE</li>
  * </ul>
  */
 public class Configuration implements Serializable {
@@ -146,6 +147,7 @@ public class Configuration implements Serializable {
 
   public static final String TEST_OCSP_URL = "http://demo.sk.ee/ocsp";
   public static final String SIGN_OCSP_REQUESTS = "SIGN_OCSP_REQUESTS";
+  public static final String VALIDATE_TSL_SIGNATURE = "VALIDATE_TSL_SIGNATURE";
 
   private final Mode mode;
   private LinkedHashMap configurationFromFile;
@@ -177,6 +179,7 @@ public class Configuration implements Serializable {
       configuration.put("validationPolicy", "conf/test_constraint.xml");
       configuration.put("ocspSource", TEST_OCSP_URL);
       configuration.put(SIGN_OCSP_REQUESTS, "false");
+      configuration.put(VALIDATE_TSL_SIGNATURE, "false");
     } else {
       configuration.put("tspSource", "http://tsa.sk.ee");
       configuration.put("tslLocation",
@@ -185,6 +188,7 @@ public class Configuration implements Serializable {
       configuration.put("validationPolicy", "conf/constraint.xml");
       configuration.put("ocspSource", "http://ocsp.sk.ee/");
       configuration.put(SIGN_OCSP_REQUESTS, "true");
+      configuration.put(VALIDATE_TSL_SIGNATURE, "true");
     }
     logger.debug(mode + "configuration:\n" + configuration);
 
@@ -450,6 +454,7 @@ public class Configuration implements Serializable {
     setConfigurationValue(SIGN_OCSP_REQUESTS, SIGN_OCSP_REQUESTS);
     setConfigurationValue("TSL_KEYSTORE_LOCATION", "tslKeyStoreLocation");
     setConfigurationValue("TSL_KEYSTORE_PASSWORD", "tslKeyStorePassword");
+    setConfigurationValue(VALIDATE_TSL_SIGNATURE, VALIDATE_TSL_SIGNATURE);
   }
 
   private void setConfigurationValue(String fileKey, String configurationKey) {
@@ -722,9 +727,7 @@ public class Configuration implements Serializable {
     }
 
     tslCertificateSource.setLotlUrl(tslLocation);
-
-    boolean checkSignature = mode == Mode.TEST ? false : true;
-    tslCertificateSource.setCheckSignature(checkSignature);
+    tslCertificateSource.setCheckSignature(shouldValidateTslSignature());
 
     try {
       KeyStoreCertificateSource keyStoreCertificateSource = new KeyStoreCertificateSource(
@@ -826,6 +829,24 @@ public class Configuration implements Serializable {
     String ocspSource = getConfigurationParameter("ocspSource");
     logger.debug("OCSP source: " + ocspSource);
     return ocspSource;
+  }
+
+  /**
+   * Returns configuration item should validate TSL signature. Reads it from configuration parameter VALIDATE_TSL_SIGNATURE.
+   * Default value is true for {@link Configuration.Mode#PROD} and false for {@link Configuration.Mode#TEST}
+   *
+   * @return should validate TSL signature
+   */
+  public boolean shouldValidateTslSignature() {
+    String validateTsl = getConfigurationParameter(VALIDATE_TSL_SIGNATURE);
+    return StringUtils.equalsIgnoreCase("true", validateTsl);
+  }
+
+  public void setShouldValidateTslSignature(boolean shouldValidateTslSignature) {
+    logger.debug("Should validate TSL Signature: " + shouldValidateTslSignature);
+    String valueToSet = String.valueOf(shouldValidateTslSignature);
+    setConfigurationParameter(VALIDATE_TSL_SIGNATURE, valueToSet);
+    setJDigiDocConfigurationValue(VALIDATE_TSL_SIGNATURE, valueToSet);
   }
 
   /**
