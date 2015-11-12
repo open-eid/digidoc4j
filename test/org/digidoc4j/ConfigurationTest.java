@@ -16,6 +16,7 @@ import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
+import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
 import org.digidoc4j.impl.bdoc.AsicFacade;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -30,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
+import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
@@ -704,6 +706,13 @@ public class ConfigurationTest {
   public void getTslKeystoreLocationFromConfigurationFile() throws Exception {
     configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
     assertEquals("keystore", configuration.getTslKeyStoreLocation());
+  }
+
+  @Test (expected = TslKeyStoreNotFoundException.class)
+  public void exceptionIsThrownWhenTslKeystoreIsNotFound() throws IOException {
+    Configuration conf = new Configuration(PROD);
+    conf.setTslKeyStoreLocation("not/existing/path");
+    conf.getTSL();
   }
 
   @Test

@@ -16,11 +16,14 @@ import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
 import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
 import eu.europa.ec.markt.dss.validation102853.loader.Protocol;
 import eu.europa.ec.markt.dss.validation102853.tsl.TSLRefreshPolicy;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
+import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -28,6 +31,8 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static java.util.Arrays.asList;
@@ -134,6 +139,7 @@ public class Configuration implements Serializable {
   public static final String DEFAULT_DATAFILE_HASHCODE_MODE = "false";
   public static final String DEFAULT_USE_LOCAL_TSL = "true";
   public static final String DEFAULT_MAX_DATAFILE_CACHED = "-1";
+  public static final String DEFAULT_TSL_KEYSTORE_LOCATION = "keystore/keystore.jks";
 
   public static final long CACHE_ALL_DATA_FILES = -1;
   public static final long CACHE_NO_DATA_FILES = 0;
@@ -175,7 +181,7 @@ public class Configuration implements Serializable {
       configuration.put("tspSource", "http://tsa.sk.ee");
       configuration.put("tslLocation",
           "https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml");
-      configuration.put("tslKeyStoreLocation", "keystore/keystore.jks");
+      configuration.put("tslKeyStoreLocation", DEFAULT_TSL_KEYSTORE_LOCATION);
       configuration.put("validationPolicy", "conf/constraint.xml");
       configuration.put("ocspSource", "http://ocsp.sk.ee/");
       configuration.put(SIGN_OCSP_REQUESTS, "true");
@@ -716,11 +722,18 @@ public class Configuration implements Serializable {
     }
 
     tslCertificateSource.setLotlUrl(tslLocation);
-    KeyStoreCertificateSource keyStoreCertificateSource = new KeyStoreCertificateSource(
-        getTslKeyStoreLocation(), getTslKeyStorePassword());
-    tslCertificateSource.setKeyStoreCertificateSource(keyStoreCertificateSource);
+
     boolean checkSignature = mode == Mode.TEST ? false : true;
     tslCertificateSource.setCheckSignature(checkSignature);
+
+    try {
+      KeyStoreCertificateSource keyStoreCertificateSource = new KeyStoreCertificateSource(
+          getTslKeystoreFile(), getTslKeyStorePassword());
+      tslCertificateSource.setKeyStoreCertificateSource(keyStoreCertificateSource);
+    } catch (IOException e) {
+      logger.error(e.getMessage());
+      throw new TslKeyStoreNotFoundException(e.getMessage());
+    }
 
     try {
       tslCertificateSource.init();
@@ -732,6 +745,20 @@ public class Configuration implements Serializable {
     return tslCertificateSource;
   }
 
+  private File getTslKeystoreFile() throws IOException{
+    String keystoreLocation = getTslKeyStoreLocation();
+    if (Files.exists(Paths.get(keystoreLocation))) {
+      return new File(keystoreLocation);
+    }
+    File tempFile = File.createTempFile("temp-tsl-keystore", ".jks");
+    InputStream in = getClass().getClassLoader().getResourceAsStream(keystoreLocation);
+    if (in == null) {
+      logger.error("keystore not found in location " + keystoreLocation);
+      throw new TslKeyStoreNotFoundException("keystore not found in location " + keystoreLocation);
+    }
+    FileUtils.copyInputStreamToFile(in, tempFile);
+    return tempFile;
+  }
 
   /**
    * Set the TSL location.

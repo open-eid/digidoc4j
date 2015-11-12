@@ -90,6 +90,7 @@
       </fileset>
       <fileset dir=".">
         <include name="conf/*.*"/>
+        <include name="keystore/*.*"/>
       </fileset>
     </jar>
   </target>
