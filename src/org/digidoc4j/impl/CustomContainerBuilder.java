@@ -46,13 +46,9 @@ public class CustomContainerBuilder extends ContainerBuilder {
 
   protected Container openContainerFromStream() {
     if (configuration == null) {
-      Class<?>[] parameterTypes = new Class[]{InputStream.class};
-      Object[] constructorArguments = new Object[]{containerInputStream};
-      return instantiateContainer(parameterTypes, constructorArguments);
+      return instantiateContainer(containerInputStream);
     }
-    Class<?>[] parameterTypes = new Class[]{InputStream.class, Configuration.class};
-    Object[] constructorArguments = new Object[]{containerInputStream, configuration};
-    return instantiateContainer(parameterTypes, constructorArguments);
+    return instantiateContainer(containerInputStream, configuration);
   }
 
   @Override
@@ -61,8 +57,37 @@ public class CustomContainerBuilder extends ContainerBuilder {
     return this;
   }
 
-  private Container instantiateContainer(Object... constructorArguments) {
-    Class<?>[] parameterTypes = assembleParameterTypes(constructorArguments);
+  private Container instantiateContainer() {
+    return instantiateContainer((Class<?>[])null, (Object[])null);
+  }
+  
+  private Container instantiateContainer(Configuration configuration) {
+    Class<?>[] parameterTypes = new Class[] { Configuration.class };
+    Object[] constructorArguments = new Object[] { configuration };
+    return instantiateContainer(parameterTypes, constructorArguments);
+  }
+  
+  private Container instantiateContainer(String containerFilePath) {
+    Class<?>[] parameterTypes = new Class[] { String.class };
+    Object[] constructorArguments = new Object[] { containerFilePath };
+    return instantiateContainer(parameterTypes, constructorArguments);
+  }
+  
+  private Container instantiateContainer(String containerFilePath, Configuration configuration) {
+    Class<?>[] parameterTypes = new Class[] { String.class, Configuration.class };
+    Object[] constructorArguments = new Object[] { containerFilePath, configuration };
+    return instantiateContainer(parameterTypes, constructorArguments);
+  }
+  
+  private Container instantiateContainer(InputStream containerInputStream) {
+    Class<?>[] parameterTypes = new Class[] { InputStream.class };
+    Object[] constructorArguments = new Object[] { containerFilePath };
+    return instantiateContainer(parameterTypes, constructorArguments);
+  }
+  
+  private Container instantiateContainer(InputStream containerInputStream, Configuration configuration) {
+    Class<?>[] parameterTypes = new Class[] { InputStream.class, Configuration.class };
+    Object[] constructorArguments = new Object[] { containerInputStream, configuration };
     return instantiateContainer(parameterTypes, constructorArguments);
   }
 
@@ -84,16 +109,6 @@ public class CustomContainerBuilder extends ContainerBuilder {
       logger.error("Unable to instantiate " + containerType + " container from class " + containerClass.getName());
       throw new TechnicalException("Unable to instantiate " + containerType + " container from class " + containerClass.getName(), e);
     }
-  }
-
-  private Class<?>[] assembleParameterTypes(Object[] constructorArguments) {
-    Class<?>[] paramTypes = new Class<?>[constructorArguments.length];
-    int index = 0;
-    for (Object argument : constructorArguments) {
-      paramTypes[index] = argument.getClass();
-      index++;
-    }
-    return paramTypes;
   }
 
   private Class<? extends Container> getContainerClass() {
