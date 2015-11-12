@@ -30,6 +30,7 @@ import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.impl.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.impl.ddoc.DDocSignature;
+import org.digidoc4j.testutils.CustomConfiguration;
 import org.digidoc4j.testutils.TestContainer;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.junit.After;
@@ -270,6 +271,18 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
         build();
     assertEquals("TEST-FORMAT", container.getType());
     assertSame(TEST_CONFIGURATION, ((TestContainer) container).getConfiguration());
+  }
+  
+  @Test
+  public void createCustomContainerWithCustomConfiguration() throws Exception {
+    ContainerBuilder.setContainerImplementation("TEST-FORMAT", TestContainer.class);
+    CustomConfiguration configuration = new CustomConfiguration();
+    Container container = ContainerBuilder.
+        aContainer("TEST-FORMAT").
+        withConfiguration(configuration).
+        build();
+    assertEquals("TEST-FORMAT", container.getType());
+    assertSame(configuration, ((TestContainer) container).getConfiguration());
   }
 
   @Test
