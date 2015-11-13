@@ -30,6 +30,7 @@ import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.impl.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.impl.ddoc.DDocSignature;
+import org.digidoc4j.testutils.CustomConfiguration;
 import org.digidoc4j.testutils.TestContainer;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.junit.After;
@@ -271,6 +272,18 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
     assertEquals("TEST-FORMAT", container.getType());
     assertSame(TEST_CONFIGURATION, ((TestContainer) container).getConfiguration());
   }
+  
+  @Test
+  public void createCustomContainerWithCustomConfiguration() throws Exception {
+    ContainerBuilder.setContainerImplementation("TEST-FORMAT", TestContainer.class);
+    CustomConfiguration configuration = new CustomConfiguration();
+    Container container = ContainerBuilder.
+        aContainer("TEST-FORMAT").
+        withConfiguration(configuration).
+        build();
+    assertEquals("TEST-FORMAT", container.getType());
+    assertSame(configuration, ((TestContainer) container).getConfiguration());
+  }
 
   @Test
   public void openDefaultContainerFromFile() throws Exception {
@@ -336,6 +349,21 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
     assertEquals("TEST-FORMAT", container.getType());
     assertEquals(testFile.getPath(), ((TestContainer) container).getOpenedFromFile());
     assertSame(TEST_CONFIGURATION, ((TestContainer) container).getConfiguration());
+  }
+
+  @Test
+  public void openCustomContainerFromFile_withCustomConfiguration() throws Exception {
+    CustomConfiguration configuration = new CustomConfiguration(Configuration.Mode.TEST);
+    File testFile = createTestFile("testFile.txt");
+    ContainerBuilder.setContainerImplementation("TEST-FORMAT", TestContainer.class);
+    Container container = ContainerBuilder.
+        aContainer("TEST-FORMAT").
+        withConfiguration(configuration).
+        fromExistingFile(testFile.getPath()).
+        build();
+    assertEquals("TEST-FORMAT", container.getType());
+    assertEquals(testFile.getPath(), ((TestContainer) container).getOpenedFromFile());
+    assertSame(configuration, ((TestContainer) container).getConfiguration());
   }
 
   @Test
@@ -430,6 +458,21 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
     assertEquals("TEST-FORMAT", container.getType());
     assertSame(stream, ((TestContainer) container).getOpenedFromStream());
     assertSame(TEST_CONFIGURATION, ((TestContainer) container).getConfiguration());
+  }
+
+  @Test
+  public void openCustomContainerFromStream_withCustomConfiguration() throws Exception {
+    CustomConfiguration configuration = new CustomConfiguration();
+    InputStream stream = FileUtils.openInputStream(createTestFile("testFile.txt"));
+    ContainerBuilder.setContainerImplementation("TEST-FORMAT", TestContainer.class);
+    Container container = ContainerBuilder.
+        aContainer("TEST-FORMAT").
+        withConfiguration(configuration).
+        fromStream(stream).
+        build();
+    assertEquals("TEST-FORMAT", container.getType());
+    assertSame(stream, ((TestContainer) container).getOpenedFromStream());
+    assertSame(configuration, ((TestContainer) container).getConfiguration());
   }
 
   @Test
