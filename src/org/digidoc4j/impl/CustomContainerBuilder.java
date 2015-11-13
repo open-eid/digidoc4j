@@ -81,7 +81,7 @@ public class CustomContainerBuilder extends ContainerBuilder {
   
   private Container instantiateContainer(InputStream containerInputStream) {
     Class<?>[] parameterTypes = new Class[] { InputStream.class };
-    Object[] constructorArguments = new Object[] { containerFilePath };
+    Object[] constructorArguments = new Object[] { containerInputStream };
     return instantiateContainer(parameterTypes, constructorArguments);
   }
   

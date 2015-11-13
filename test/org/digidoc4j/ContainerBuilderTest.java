@@ -352,6 +352,21 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void openCustomContainerFromFile_withCustomConfiguration() throws Exception {
+    CustomConfiguration configuration = new CustomConfiguration(Configuration.Mode.TEST);
+    File testFile = createTestFile("testFile.txt");
+    ContainerBuilder.setContainerImplementation("TEST-FORMAT", TestContainer.class);
+    Container container = ContainerBuilder.
+        aContainer("TEST-FORMAT").
+        withConfiguration(configuration).
+        fromExistingFile(testFile.getPath()).
+        build();
+    assertEquals("TEST-FORMAT", container.getType());
+    assertEquals(testFile.getPath(), ((TestContainer) container).getOpenedFromFile());
+    assertSame(configuration, ((TestContainer) container).getConfiguration());
+  }
+
+  @Test
   public void openBDocContainerFromStream() throws Exception {
     InputStream stream = FileUtils.openInputStream(new File(BDOC_TEST_FILE));
     Container container = ContainerBuilder.
@@ -443,6 +458,21 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
     assertEquals("TEST-FORMAT", container.getType());
     assertSame(stream, ((TestContainer) container).getOpenedFromStream());
     assertSame(TEST_CONFIGURATION, ((TestContainer) container).getConfiguration());
+  }
+
+  @Test
+  public void openCustomContainerFromStream_withCustomConfiguration() throws Exception {
+    CustomConfiguration configuration = new CustomConfiguration();
+    InputStream stream = FileUtils.openInputStream(createTestFile("testFile.txt"));
+    ContainerBuilder.setContainerImplementation("TEST-FORMAT", TestContainer.class);
+    Container container = ContainerBuilder.
+        aContainer("TEST-FORMAT").
+        withConfiguration(configuration).
+        fromStream(stream).
+        build();
+    assertEquals("TEST-FORMAT", container.getType());
+    assertSame(stream, ((TestContainer) container).getOpenedFromStream());
+    assertSame(configuration, ((TestContainer) container).getConfiguration());
   }
 
   @Test
