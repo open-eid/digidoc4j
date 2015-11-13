@@ -39,7 +39,7 @@ import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 /**
- * Possibility to create custom configurations for {@link ContainerFacade} implementations.
+ * Possibility to create custom configurations for {@link Container} implementations.
  * <p/>
  * You can specify the configuration mode, either {@link Configuration.Mode#TEST} or {@link Configuration.Mode#PROD}
  * configuration. Default is {@link Configuration.Mode#PROD}.
@@ -145,7 +145,9 @@ public class Configuration implements Serializable {
   public static final long CACHE_NO_DATA_FILES = 0;
 
   public static final String TEST_OCSP_URL = "http://demo.sk.ee/ocsp";
-  public static final String SIGN_OCSP_REQUESTS = "SIGN_OCSP_REQUESTS";
+  private static final String SIGN_OCSP_REQUESTS = "SIGN_OCSP_REQUESTS";
+  private static final String OCSP_PKCS_12_CONTAINER = "DIGIDOC_PKCS12_CONTAINER";
+  private static final String OCSP_PKCS_12_PASSWD = "DIGIDOC_PKCS12_PASSWD";
 
   private final Mode mode;
   private LinkedHashMap configurationFromFile;
@@ -177,6 +179,7 @@ public class Configuration implements Serializable {
       configuration.put("validationPolicy", "conf/test_constraint.xml");
       configuration.put("ocspSource", TEST_OCSP_URL);
       configuration.put(SIGN_OCSP_REQUESTS, "false");
+      jDigiDocConfiguration.put(SIGN_OCSP_REQUESTS, "false");
     } else {
       configuration.put("tspSource", "http://tsa.sk.ee");
       configuration.put("tslLocation",
@@ -185,6 +188,7 @@ public class Configuration implements Serializable {
       configuration.put("validationPolicy", "conf/constraint.xml");
       configuration.put("ocspSource", "http://ocsp.sk.ee/");
       configuration.put(SIGN_OCSP_REQUESTS, "true");
+      jDigiDocConfiguration.put(SIGN_OCSP_REQUESTS, "true");
     }
     logger.debug(mode + "configuration:\n" + configuration);
 
@@ -238,6 +242,7 @@ public class Configuration implements Serializable {
   public void setOCSPAccessCertificateFileName(String fileName) {
     logger.debug("Setting OCSPAccessCertificateFileName: " + fileName);
     setConfigurationParameter("OCSPAccessCertificateFile", fileName);
+    jDigiDocConfiguration.put(OCSP_PKCS_12_CONTAINER, fileName);
     logger.debug("OCSPAccessCertificateFile is set");
   }
 
@@ -248,7 +253,9 @@ public class Configuration implements Serializable {
    */
   public void setOCSPAccessCertificatePassword(char[] password) {
     logger.debug("Setting OCSPAccessCertificatePassword: ");
-    setConfigurationParameter("OCSPAccessCertificatePassword", String.valueOf(password));
+    String value = String.valueOf(password);
+    setConfigurationParameter("OCSPAccessCertificatePassword", value);
+    jDigiDocConfiguration.put(OCSP_PKCS_12_PASSWD, value);
     logger.debug("OCSPAccessCertificatePassword is set");
   }
 
@@ -256,7 +263,7 @@ public class Configuration implements Serializable {
     logger.debug("Should sign OCSP requests: " + shouldSignOcspRequests);
     String valueToSet = String.valueOf(shouldSignOcspRequests);
     setConfigurationParameter(SIGN_OCSP_REQUESTS, valueToSet);
-    setJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS, valueToSet);
+    jDigiDocConfiguration.put(SIGN_OCSP_REQUESTS, valueToSet);
   }
 
   /**
@@ -424,7 +431,6 @@ public class Configuration implements Serializable {
   private void loadInitialConfigurationValues() {
     logger.debug("");
     setJDigiDocConfigurationValue("DIGIDOC_LOG4J_CONFIG", DEFAULT_LOG4J_CONFIGURATION);
-    setJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS, Boolean.toString(hasToBeOCSPRequestSigned()));
     setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER", DEFAULT_SECURITY_PROVIDER);
     setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER_NAME", DEFAULT_SECURITY_PROVIDER_NAME);
     setJDigiDocConfigurationValue("KEY_USAGE_CHECK", DEFAULT_KEY_USAGE_CHECK);
@@ -444,12 +450,17 @@ public class Configuration implements Serializable {
     setConfigurationValue("VALIDATION_POLICY", "validationPolicy");
     setConfigurationValue("PKCS11_MODULE", "pkcs11Module");
     setConfigurationValue("OCSP_SOURCE", "ocspSource");
-    setConfigurationValue("DIGIDOC_PKCS12_CONTAINER", "OCSPAccessCertificateFile");
-    setConfigurationValue("DIGIDOC_PKCS12_PASSWD", "OCSPAccessCertificatePassword");
+    setConfigurationValue(OCSP_PKCS_12_CONTAINER, "OCSPAccessCertificateFile");
+    setConfigurationValue(OCSP_PKCS_12_PASSWD, "OCSPAccessCertificatePassword");
     setConfigurationValue("CONNECTION_TIMEOUT", "connectionTimeout");
     setConfigurationValue(SIGN_OCSP_REQUESTS, SIGN_OCSP_REQUESTS);
     setConfigurationValue("TSL_KEYSTORE_LOCATION", "tslKeyStoreLocation");
     setConfigurationValue("TSL_KEYSTORE_PASSWORD", "tslKeyStorePassword");
+
+    setJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS, Boolean.toString(hasToBeOCSPRequestSigned()));
+    setJDigiDocConfigurationValue(OCSP_PKCS_12_CONTAINER, getOCSPAccessCertificateFileName());
+
+    initOcspAccessCertPasswordForJDigidoc();
   }
 
   private void setConfigurationValue(String fileKey, String configurationKey) {
@@ -957,6 +968,13 @@ public class Configuration implements Serializable {
       IOUtils.closeQuietly(bos);
     }
     return copyConfiguration;
+  }
+
+  private void initOcspAccessCertPasswordForJDigidoc() {
+    char[] ocspAccessCertificatePassword = getOCSPAccessCertificatePassword();
+    if(ocspAccessCertificatePassword != null && ocspAccessCertificatePassword.length > 0) {
+      setJDigiDocConfigurationValue(OCSP_PKCS_12_PASSWD, String.valueOf(ocspAccessCertificatePassword));
+    }
   }
 }
 
