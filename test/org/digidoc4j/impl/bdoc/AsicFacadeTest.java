@@ -11,6 +11,7 @@
 package org.digidoc4j.impl.bdoc;
 
 import eu.europa.ec.markt.dss.DSSUtils;
+import eu.europa.ec.markt.dss.exception.DSSException;
 import eu.europa.ec.markt.dss.signature.DSSDocument;
 import eu.europa.ec.markt.dss.validation102853.rules.MessageTag;
 
@@ -24,10 +25,14 @@ import org.digidoc4j.impl.Signatures;
 import org.digidoc4j.signers.ExternalSigner;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TSLHelper;
+import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.utils.Helper;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.*;
 import java.net.URI;
@@ -57,6 +62,9 @@ import static org.mockito.Mockito.*;
 public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   private PKCS12SignatureToken PKCS12_SIGNER;
+
+  @Rule
+  public TemporaryFolder testFolder = new TemporaryFolder();
 
   @Before
   public void setUp() throws Exception {
@@ -1782,6 +1790,21 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
         .fromExistingFile("testFiles/KS-19_IB-3721_bdoc21-TM-2fil-samename-1sig3.bdoc")
         .withConfiguration(new Configuration(Configuration.Mode.TEST))
         .build();
+  }
+
+  @Test(expected = OCSPRequestFailedException.class)
+  public void signingContainer_withFailedOcspResponse_shouldThrowException() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    configuration.setSignOCSPRequests(true);
+    configuration.setOCSPAccessCertificateFileName("testFiles/signout.p12");
+    configuration.setOCSPAccessCertificatePassword("test".toCharArray());
+    Container container = ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        withConfiguration(configuration).
+        withDataFile("testFiles/test.txt", "text/plain").
+        build();
+
+    TestDataBuilder.signContainer(container, LT_TM);
   }
 
   private void assertSignatureContains(BDocSignature signature, String name) {

@@ -145,6 +145,7 @@ public class Configuration implements Serializable {
   public static final long CACHE_NO_DATA_FILES = 0;
 
   public static final String TEST_OCSP_URL = "http://demo.sk.ee/ocsp";
+  public static final String PROD_OCSP_URL = "http://ocsp.sk.ee/";
   private static final String SIGN_OCSP_REQUESTS = "SIGN_OCSP_REQUESTS";
   private static final String OCSP_PKCS_12_CONTAINER = "DIGIDOC_PKCS12_CONTAINER";
   private static final String OCSP_PKCS_12_PASSWD = "DIGIDOC_PKCS12_PASSWD";
@@ -186,7 +187,7 @@ public class Configuration implements Serializable {
           "https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml");
       configuration.put("tslKeyStoreLocation", DEFAULT_TSL_KEYSTORE_LOCATION);
       configuration.put("validationPolicy", "conf/constraint.xml");
-      configuration.put("ocspSource", "http://ocsp.sk.ee/");
+      configuration.put("ocspSource", PROD_OCSP_URL);
       configuration.put(SIGN_OCSP_REQUESTS, "true");
       jDigiDocConfiguration.put(SIGN_OCSP_REQUESTS, "true");
     }
