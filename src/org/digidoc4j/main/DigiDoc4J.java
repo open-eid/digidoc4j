@@ -73,20 +73,26 @@ public final class DigiDoc4J {
   private static void run(String[] args) {
     Options options = createParameters();
 
-    CommandLine commandLine = null;
-
     try {
-      commandLine = new BasicParser().parse(options, args);
+      CommandLine commandLine = new BasicParser().parse(options, args);
+      if(commandLine.hasOption("version")) {
+        showVersion();
+      }
+      if(commandLine.hasOption("in")) {
+        execute(commandLine);
+      }
+      if(!commandLine.hasOption("version") && !commandLine.hasOption("in")) {
+        showUsage(options);
+      }
     } catch (ParseException e) {
+      logger.error(e.getMessage());
       showUsage(options);
     }
-
-    execute(commandLine);
   }
 
   private static void showUsage(Options options) {
     new HelpFormatter().printHelp("digidoc4j/" + Version.VERSION, options);
-    throw new DigiDoc4JUtilityException(2, "no parameters given");
+    throw new DigiDoc4JUtilityException(2, "wrong parameters given");
   }
 
   private static void execute(CommandLine commandLine) {
@@ -273,6 +279,7 @@ public final class DigiDoc4J {
     options.addOption("v", "verify", false, "verify input file");
     options.addOption("verbose", "verbose", false, "verbose output");
     options.addOption("w", "warnings", false, "show warnings");
+    options.addOption("version", "version", false, "show version");
 
     options.addOption(type());
     options.addOption(inputFile());
@@ -324,12 +331,16 @@ public final class DigiDoc4J {
   @SuppressWarnings("AccessStaticViaInstance")
   private static Option inputFile() {
     return withArgName("file").hasArg()
-        .withDescription("opens or creates container").isRequired().create("in");
+        .withDescription("opens or creates container").create("in");
   }
 
   @SuppressWarnings("AccessStaticViaInstance")
   private static Option type() {
     return withArgName("type").hasArg()
         .withDescription("sets container type. types can be DDOC or BDOC").withLongOpt("type").create("t");
+  }
+
+  private static void showVersion() {
+    System.out.println("DigiDoc4j version " + Version.VERSION);
   }
 }

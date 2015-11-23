@@ -531,6 +531,19 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
         new DigiDoc4JException(DigiDocException.WARN_WEAK_DIGEST, "test")));
   }
 
+  @Test
+  public void showVersion() throws Exception {
+    exit.expectSystemExitWithStatus(0);
+    exit.checkAssertionAfterwards(new Assertion() {
+      @Override
+      public void checkAssertion() throws Exception {
+        assertThat(sout.getLog(), containsString("DigiDoc4j version"));
+      }
+    });
+    String[] params = {"--version"};
+    DigiDoc4J.main(params);
+  }
+
   private static void forbidSystemExitCall() {
     final SecurityManager preventExitSecurityManager = new SecurityManager() {
       public void checkPermission(Permission permission) {

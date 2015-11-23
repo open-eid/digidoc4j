@@ -3,6 +3,7 @@
          name="digidoc4j builder" basedir="."
          default="base">
 
+  <property file="build.properties"/>
   <property environment="env"/>
   <property name="build.dir" value="build"/>
   <property name="junit.dir" value="junit_report"/>
