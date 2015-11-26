@@ -36,6 +36,7 @@ import static org.apache.commons.io.FileUtils.copyFile;
 import static org.digidoc4j.Configuration.Mode;
 
 import org.digidoc4j.SignatureProfile;
+import org.junit.rules.TemporaryFolder;
 
 import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 import static org.digidoc4j.main.DigiDoc4J.isWarning;
@@ -51,6 +52,9 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Rule
   public final StandardOutputStreamLog sout = new StandardOutputStreamLog();
+
+  @Rule
+  public TemporaryFolder testFolder = new TemporaryFolder();
 
   @After
   public void cleanUp() throws Exception {
@@ -541,6 +545,44 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
       }
     });
     String[] params = {"--version"};
+    DigiDoc4J.main(params);
+  }
+
+  @Test
+  public void extractDataFileFromBdoc() throws Exception {
+    testExtractingDataFile("testFiles/one_signature.bdoc", "test.txt");
+  }
+
+  @Test
+  public void extractDataFileFromDdoc() throws Exception {
+    testExtractingDataFile("testFiles/ddoc_for_testing.ddoc", "test.txt");
+  }
+
+  private void testExtractingDataFile(String containerPath, String fileToExtract) throws IOException {
+    final String outputPath = testFolder.newFolder().getPath() + "/output.txt";
+    exit.expectSystemExitWithStatus(0);
+    exit.checkAssertionAfterwards(new Assertion() {
+      @Override
+      public void checkAssertion() throws Exception {
+        assertTrue(new File(outputPath).exists());
+      }
+    });
+    String[] params = new String[]{"-in", containerPath, "-extract", fileToExtract, outputPath};
+    DigiDoc4J.main(params);
+  }
+
+  @Test
+  public void extractDataFile_withIncorrectParameters_shouldThrowException() throws Exception {
+    exit.expectSystemExitWithStatus(3);
+    String[] params = new String[]{"-in", "testFiles/one_signature.bdoc", "-extract", "test.txt"};
+    DigiDoc4J.main(params);
+  }
+
+  @Test
+  public void extractDataFile_withNonExistingFile_shouldThrowException() throws Exception {
+    final String outputPath = testFolder.newFolder().getPath() + "/output.txt";
+    exit.expectSystemExitWithStatus(4);
+    String[] params = new String[]{"-in", "testFiles/one_signature.bdoc", "-extract", "notExistingFile.dmc", outputPath};
     DigiDoc4J.main(params);
   }
 

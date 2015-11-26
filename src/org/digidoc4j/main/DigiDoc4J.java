@@ -47,6 +47,7 @@ public final class DigiDoc4J {
   private static boolean warnings;
   private static final String ANSI_RED = "[31m";
   private static final String ANSI_RESET = "[0m";
+  private static final String EXTRACT_CMD = "extract";
 
   private DigiDoc4J() {
   }
@@ -127,6 +128,11 @@ public final class DigiDoc4J {
         fileHasChanged = true;
       }
 
+      if(commandLine.hasOption(EXTRACT_CMD)) {
+        logger.debug("Extracting data file");
+        extractDataFile(container, commandLine);
+      }
+
       if (commandLine.hasOption("profile")) {
         String profile = commandLine.getOptionValue("profile");
         try {
@@ -161,6 +167,8 @@ public final class DigiDoc4J {
 
       if (commandLine.hasOption("verify"))
         verify(container);
+    } catch (DigiDoc4JUtilityException e) {
+      throw e;
     } catch (DigiDoc4JException e) {
       throw new DigiDoc4JUtilityException(1, e.getMessage());
     }
@@ -171,6 +179,12 @@ public final class DigiDoc4J {
       String[] optionValues = commandLine.getOptionValues("add");
       if (optionValues.length != 2) {
         throw new DigiDoc4JUtilityException(2, "Incorrect add command");
+      }
+    }
+    if (commandLine.hasOption(EXTRACT_CMD)) {
+      String[] optionValues = commandLine.getOptionValues(EXTRACT_CMD);
+      if (optionValues.length != 2) {
+        throw new DigiDoc4JUtilityException(3, "Incorrect extract command");
       }
     }
   }
@@ -288,6 +302,7 @@ public final class DigiDoc4J {
     options.addOption(pkcs12Sign());
     options.addOption(signatureProfile());
     options.addOption(encryptionAlgorithm());
+    options.addOption(extractDataFile());
 
     return options;
   }
@@ -340,7 +355,30 @@ public final class DigiDoc4J {
         .withDescription("sets container type. types can be DDOC or BDOC").withLongOpt("type").create("t");
   }
 
+  @SuppressWarnings("AccessStaticViaInstance")
+  private static Option extractDataFile() {
+    return withArgName("fileName destination").hasArgs(2)
+        .withDescription("extracts the file from the container to the specified destination").create(EXTRACT_CMD);
+  }
+
   private static void showVersion() {
     System.out.println("DigiDoc4j version " + Version.VERSION);
+  }
+
+  private static void extractDataFile(Container container, CommandLine commandLine) {
+    String[] optionValues = commandLine.getOptionValues(EXTRACT_CMD);
+    String fileNameToExtract = optionValues[0];
+    String extractPath = optionValues[1];
+    boolean fileFound = false;
+    for (DataFile dataFile : container.getDataFiles()) {
+      if(StringUtils.equalsIgnoreCase(fileNameToExtract, dataFile.getName())) {
+        logger.info("Extracting " + dataFile.getName() + " to " + extractPath);
+        dataFile.saveAs(extractPath);
+        fileFound = true;
+      }
+    }
+    if(!fileFound) {
+      throw new DigiDoc4JUtilityException(4, "Data file " + fileNameToExtract + " was not found in the container");
+    }
   }
 }
