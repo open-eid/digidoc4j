@@ -17,8 +17,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.Signature;
 import java.security.cert.X509Certificate;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -30,8 +32,6 @@ import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.ExternalSigner;
-
-import eu.europa.ec.markt.dss.DSSUtils;
 
 /**
  * Example for asynchronous signing
@@ -79,7 +79,7 @@ public class AsyncSigning {
           PrivateKey privateKey = (PrivateKey) keyStore.getKey("1", "test".toCharArray());
           final String javaSignatureAlgorithm = "NONEwith" + privateKey.getAlgorithm();
 
-          return DSSUtils.encrypt(javaSignatureAlgorithm, privateKey, addPadding(dataToSign));
+          return encrypt(javaSignatureAlgorithm, privateKey, addPadding(dataToSign));
         } catch (Exception e) {
           throw new DigiDoc4JException("Loading private key failed");
         }
@@ -126,6 +126,32 @@ public class AsyncSigning {
     fileIn.close();
 
     return container;
+  }
+
+  /**
+   * This method digest and encrypt the given {@code InputStream} with indicated private key and signature algorithm. To find the signature object
+   * the list of registered security Providers, starting with the most preferred Provider is traversed.
+   *
+   * This method returns an array of bytes representing the signature value. Signature object that implements the specified signature algorithm. It traverses the list of
+   * registered security Providers, starting with the most preferred Provider. A new Signature object encapsulating the SignatureSpi implementation from the first Provider
+   * that supports the specified algorithm is returned. The {@code NoSuchAlgorithmException} exception is wrapped in a DSSException.
+   *
+   * @param javaSignatureAlgorithm signature algorithm under JAVA form.
+   * @param privateKey             private key to use
+   * @param bytes                  the data to digest
+   * @return digested and encrypted array of bytes
+   */
+  @Deprecated
+  public static byte[] encrypt(final String javaSignatureAlgorithm, final PrivateKey privateKey, final byte[] bytes) {
+    try {
+      final Signature signature = Signature.getInstance(javaSignatureAlgorithm);
+      signature.initSign(privateKey);
+      signature.update(bytes);
+      final byte[] signatureValue = signature.sign();
+      return signatureValue;
+    } catch (GeneralSecurityException e) {
+      throw new RuntimeException(e);
+    }
   }
 
 }

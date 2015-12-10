@@ -10,11 +10,6 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import eu.europa.ec.markt.dss.DSSUtils;
-import eu.europa.ec.markt.dss.exception.DSSException;
-import eu.europa.ec.markt.dss.signature.DSSDocument;
-import eu.europa.ec.markt.dss.validation102853.rules.MessageTag;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -33,6 +28,9 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import java.io.*;
 import java.net.URI;
@@ -58,6 +56,20 @@ import static org.digidoc4j.utils.Helper.deserializer;
 import static org.digidoc4j.utils.Helper.serialize;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSXMLUtils;
+import eu.europa.esig.dss.XPathQueryHolder;
+import eu.europa.esig.dss.asic.ASiCSignatureParameters;
+import eu.europa.esig.dss.validation.policy.rules.MessageTag;
+import eu.europa.esig.dss.xades.validation.XAdESSignature;
+import prototype.samples.AsyncSigning;
 
 public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
@@ -484,8 +496,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     AsicFacade container = new AsicFacade();
     AsicFacade spy = spy(container);
 
-    eu.europa.ec.markt.dss.parameter.SignatureParameters signatureParameters =
-        new eu.europa.ec.markt.dss.parameter.SignatureParameters();
+    ASiCSignatureParameters signatureParameters = new ASiCSignatureParameters();
     signatureParameters.setDeterministicId("NotPresentSignature");
     when(spy.getDssSignatureParameters()).thenReturn(signatureParameters);
 
@@ -1097,7 +1108,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
           PrivateKey privateKey = (PrivateKey) keyStore.getKey("1", "test".toCharArray());
           final String javaSignatureAlgorithm = "NONEwith" + privateKey.getAlgorithm();
 
-          return DSSUtils.encrypt(javaSignatureAlgorithm, privateKey, addPadding(dataToSign));
+          return AsyncSigning.encrypt(javaSignatureAlgorithm, privateKey, addPadding(dataToSign));
         } catch (Exception e) {
           throw new DigiDoc4JException("Loading private key failed");
         }
@@ -1687,7 +1698,8 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(2, errors.size());
-    assertEquals(MessageTag.ADEST_TSSIG_ANS.getMessage(), errors.get(0).toString());
+    //TODO add this error to DSS
+    //assertEquals(MessageTag.ADEST_TSSIG_ANS.getMessage(), errors.get(0).toString());
     assertEquals(TimestampAfterOCSPResponseTimeException.MESSAGE, errors.get(1).toString());
   }
 
@@ -1807,6 +1819,19 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     TestDataBuilder.signContainer(container, LT_TM);
   }
 
+  /**
+   * This is necessary for jDigidoc compatibility. This requirement not in BDoc specification
+   */
+  @Test
+  public void bdocTM_OcspResponderCert_shouldContainResponderCertIdAttribute() throws Exception {
+    AsicFacade container = new AsicFacade();
+    container.setSignatureProfile(LT_TM);
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    BDocSignature signature = (BDocSignature)container.sign(PKCS12_SIGNER);
+    XAdESSignature xAdESSignature = signature.getOrigin();
+    assertTrue(signatureContainsOcspResponderCertificate(xAdESSignature));
+  }
+
   private void assertSignatureContains(BDocSignature signature, String name) {
       assertNotNull(findSignedFile(signature, name));
   }
@@ -1842,5 +1867,27 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   private Container create() {
     return ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
+  }
+
+  private boolean signatureContainsOcspResponderCertificate(XAdESSignature xAdESSignature) {
+    XPathQueryHolder xPathQueryHolder = xAdESSignature.getXPathQueryHolder();
+    String xPath = xPathQueryHolder.XPATH_CERTIFICATE_VALUES;
+    Element certificateValues = DSSXMLUtils.getElement(xAdESSignature.getSignatureElement(), xPath);
+    return certificateValuesContainResponderCertId(certificateValues);
+  }
+
+  private boolean certificateValuesContainResponderCertId(Element certificateValues) {
+    NodeList certificates = certificateValues.getChildNodes();
+    for(int i = 0;i < certificates.getLength(); i++) {
+      Node cert = certificates.item(i);
+      Node certId = cert.getAttributes().getNamedItem("Id");
+      if(certId != null) {
+        String idValue = certId.getNodeValue();
+        if(StringUtils.endsWithIgnoreCase(idValue, "RESPONDER_CERT")) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }

@@ -10,13 +10,15 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import eu.europa.ec.markt.dss.signature.FileDocument;
-import eu.europa.ec.markt.dss.signature.asic.Manifest;
+import org.digidoc4j.dss.asic.Manifest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+
+import eu.europa.esig.dss.FileDocument;
 
 public class ManifestTest {
 

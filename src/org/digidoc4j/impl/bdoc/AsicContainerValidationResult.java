@@ -15,9 +15,9 @@ import java.util.List;
 
 import org.digidoc4j.Signature;
 
-import eu.europa.ec.markt.dss.DigestAlgorithm;
-import eu.europa.ec.markt.dss.signature.DSSDocument;
-import eu.europa.ec.markt.dss.validation102853.report.Reports;
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.validation.report.Reports;
 
 public class AsicContainerValidationResult implements Serializable {
 

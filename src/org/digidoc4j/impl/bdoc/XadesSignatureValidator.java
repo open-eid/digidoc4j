@@ -35,20 +35,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-import eu.europa.ec.markt.dss.DSSXMLUtils;
-import eu.europa.ec.markt.dss.signature.SignatureLevel;
-import eu.europa.ec.markt.dss.signature.validation.TimestampToken;
-import eu.europa.ec.markt.dss.validation102853.CertificateToken;
-import eu.europa.ec.markt.dss.validation102853.SignaturePolicy;
-import eu.europa.ec.markt.dss.validation102853.report.Conclusion;
-import eu.europa.ec.markt.dss.validation102853.report.DiagnosticData;
-import eu.europa.ec.markt.dss.validation102853.report.Reports;
-import eu.europa.ec.markt.dss.validation102853.report.SimpleReport;
-import eu.europa.ec.markt.dss.validation102853.rules.Indication;
-import eu.europa.ec.markt.dss.validation102853.rules.MessageTag;
-import eu.europa.ec.markt.dss.validation102853.rules.SubIndication;
-import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
-import eu.europa.ec.markt.dss.validation102853.xades.XPathQueryHolder;
+import eu.europa.esig.dss.DSSXMLUtils;
+import eu.europa.esig.dss.SignatureLevel;
+import eu.europa.esig.dss.XPathQueryHolder;
+import eu.europa.esig.dss.validation.TimestampToken;
+import eu.europa.esig.dss.validation.policy.rules.Indication;
+import eu.europa.esig.dss.validation.policy.rules.MessageTag;
+import eu.europa.esig.dss.validation.policy.rules.SubIndication;
+import eu.europa.esig.dss.validation.report.Conclusion;
+import eu.europa.esig.dss.validation.report.DiagnosticData;
+import eu.europa.esig.dss.validation.report.Reports;
+import eu.europa.esig.dss.validation.report.SimpleReport;
+import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.x509.SignaturePolicy;
+import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class XadesSignatureValidator {
 

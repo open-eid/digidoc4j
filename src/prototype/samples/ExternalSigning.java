@@ -28,7 +28,7 @@ import org.digidoc4j.SignatureToken;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.ExternalSigner;
 
-import eu.europa.ec.markt.dss.DSSUtils;
+import eu.europa.esig.dss.DSSUtils;
 
 /**
  * example code
@@ -64,7 +64,7 @@ public final class ExternalSigning {
           PrivateKey privateKey = (PrivateKey) keyStore.getKey("1", "test".toCharArray());
           final String javaSignatureAlgorithm = "NONEwith" + privateKey.getAlgorithm();
 
-          return DSSUtils.encrypt(javaSignatureAlgorithm, privateKey, addPadding(dataToSign));
+          return AsyncSigning.encrypt(javaSignatureAlgorithm, privateKey, addPadding(dataToSign));
         } catch (Exception e) {
           throw new DigiDoc4JException("Loading private key failed");
         }

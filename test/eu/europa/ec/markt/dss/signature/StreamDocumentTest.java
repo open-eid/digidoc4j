@@ -10,8 +10,6 @@
 
 package eu.europa.ec.markt.dss.signature;
 
-import eu.europa.ec.markt.dss.DigestAlgorithm;
-import eu.europa.ec.markt.dss.exception.DSSException;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.utils.Helper;
@@ -24,6 +22,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static org.junit.Assert.*;
+
+import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.MimeType;
 
 public class StreamDocumentTest {
   StreamDocument document;

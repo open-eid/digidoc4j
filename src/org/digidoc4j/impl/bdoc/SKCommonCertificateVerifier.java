@@ -10,18 +10,22 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import eu.europa.ec.markt.dss.validation102853.*;
-import eu.europa.ec.markt.dss.validation102853.crl.CRLSource;
-import eu.europa.ec.markt.dss.validation102853.crl.ListCRLSource;
-import eu.europa.ec.markt.dss.validation102853.loader.DataLoader;
-import eu.europa.ec.markt.dss.validation102853.ocsp.ListOCSPSource;
-import eu.europa.ec.markt.dss.validation102853.ocsp.OCSPSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import eu.europa.esig.dss.client.http.DataLoader;
+import eu.europa.esig.dss.validation.CertificateVerifier;
+import eu.europa.esig.dss.validation.CommonCertificateVerifier;
+import eu.europa.esig.dss.x509.CertificatePool;
+import eu.europa.esig.dss.x509.CertificateSource;
+import eu.europa.esig.dss.x509.crl.CRLSource;
+import eu.europa.esig.dss.x509.crl.ListCRLSource;
+import eu.europa.esig.dss.x509.ocsp.ListOCSPSource;
+import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 
 /**
  * Delegate class for SD-DSS CommonCertificateVerifier. Needed for making serialization possible
@@ -36,7 +40,7 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   }
 
   @Override
-  public TrustedCertificateSource getTrustedCertSource() {
+  public CertificateSource getTrustedCertSource() {
     logger.debug("");
     return commonCertificateVerifier.getTrustedCertSource();
   }
@@ -66,7 +70,7 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   }
 
   @Override
-  public void setTrustedCertSource(final TrustedCertificateSource trustedCertSource) {
+  public void setTrustedCertSource(final CertificateSource trustedCertSource) {
     logger.debug("");
     commonCertificateVerifier.setTrustedCertSource(trustedCertSource);
   }

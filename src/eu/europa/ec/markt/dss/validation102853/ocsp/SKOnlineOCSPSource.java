@@ -10,17 +10,10 @@
 
 package eu.europa.ec.markt.dss.validation102853.ocsp;
 
-import eu.europa.ec.markt.dss.DSSRevocationUtils;
-import eu.europa.ec.markt.dss.exception.DSSException;
-import eu.europa.ec.markt.dss.exception.DSSNullException;
-import eu.europa.ec.markt.dss.signature.token.DSSPrivateKeyEntry;
-import eu.europa.ec.markt.dss.signature.token.Pkcs12SignatureToken;
-import eu.europa.ec.markt.dss.validation102853.CertificatePool;
-import eu.europa.ec.markt.dss.validation102853.CertificateToken;
-import eu.europa.ec.markt.dss.validation102853.OCSPToken;
-import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
-import eu.europa.ec.markt.dss.validation102853.https.OCSPDataLoader;
-import eu.europa.ec.markt.dss.validation102853.loader.DataLoader;
+import java.io.IOException;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
+import java.util.Date;
 
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
@@ -29,31 +22,36 @@ import org.bouncycastle.asn1.x509.Extensions;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
-import org.bouncycastle.cert.ocsp.*;
+import org.bouncycastle.cert.ocsp.BasicOCSPResp;
+import org.bouncycastle.cert.ocsp.CertificateID;
+import org.bouncycastle.cert.ocsp.OCSPException;
+import org.bouncycastle.cert.ocsp.OCSPReqBuilder;
+import org.bouncycastle.cert.ocsp.OCSPResp;
+import org.bouncycastle.cert.ocsp.SingleResp;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.bdoc.SKOcspDataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.x500.X500Principal;
-
-import java.io.IOException;
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
-import java.util.Date;
-import java.util.List;
+import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.DSSRevocationUtils;
+import eu.europa.esig.dss.client.http.DataLoader;
+import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
+import eu.europa.esig.dss.token.KSPrivateKeyEntry;
+import eu.europa.esig.dss.token.Pkcs12SignatureToken;
+import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.x509.OCSPToken;
+import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 
 /**
 * SK OCSP source location.
 */
 public abstract class SKOnlineOCSPSource implements OCSPSource {
   private static final Logger logger = LoggerFactory.getLogger(SKOnlineOCSPSource.class);
-
-  // TODO: A hack for testing, to be removed later
-  public static volatile Listener listener = null;
   
   /**
    * The data loader used to retrieve the OCSP response.
@@ -76,7 +74,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
    * SK Online OCSP Source constructor
    */
   public SKOnlineOCSPSource() {
-    dataLoader = new OCSPDataLoader();
+    dataLoader = new SKOcspDataLoader();
   }
 
   /**
@@ -111,7 +109,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
         }
 
         DSSPrivateKeyEntry keyEntry = getOCSPAccessCertificatePrivateKey();
-        PrivateKey privateKey = keyEntry.getPrivateKey();
+        PrivateKey privateKey = ((KSPrivateKeyEntry)keyEntry).getPrivateKey();
         X509Certificate ocspSignerCert = keyEntry.getCertificate().getCertificate();
 
         ContentSigner contentSigner = signerBuilder.build(privateKey);
@@ -127,23 +125,11 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     }
   }
 
-  /**
-   * sets given string as http header User-Agent
-   *
-   * @param userAgent user agent value
-   */
-  public void setUserAgent(String userAgent) {
-    ((CommonsDataLoader) dataLoader).setUserAgent(userAgent);
-  }
-
   @Override
-  public OCSPToken getOCSPToken(CertificateToken certificateToken, CertificatePool certificatePool) {
+  public OCSPToken getOCSPToken(CertificateToken certificateToken, CertificateToken issuerCertificateToken) {
     logger.debug("Getting OCSP token");
-    if(listener != null) {
-      listener.onGetOCSPToken(certificateToken, certificatePool);
-    }
     if (dataLoader == null) {
-      throw new DSSNullException(DataLoader.class);
+      throw new RuntimeException("Data loader is null");
     }
     try {
       final String dssIdAsString = certificateToken.getDSSIdAsString();
@@ -151,15 +137,10 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
         logger.trace("--> OnlineOCSPSource queried for " + dssIdAsString);
       }
       final X509Certificate certificate = certificateToken.getCertificate();
-      X500Principal issuerX500Principal = certificateToken.getIssuerX500Principal();
-      List<CertificateToken> issuerTokens = certificatePool.get(issuerX500Principal);
-
-      if (issuerTokens == null || issuerTokens.size() == 0)
-        throw new DSSException("Not possible to find issuer " + issuerX500Principal + " certificate");
-      final X509Certificate issuerCertificate = issuerTokens.get(0).getCertificate();
+      final X509Certificate issuerCertificate = issuerCertificateToken.getCertificate();
 
       final String ocspUri = getAccessLocation();
-      logger.info("Getting OCSP token from URI: " + ocspUri);
+      logger.debug("Getting OCSP token from URI: " + ocspUri);
       if (ocspUri == null) {
 
         return null;
@@ -195,7 +176,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
       }
       if (bestSingleResp != null) {
 
-        final OCSPToken ocspToken = new OCSPToken(basicOCSPResp, bestSingleResp, certificatePool);
+        final OCSPToken ocspToken = new OCSPToken(basicOCSPResp, bestSingleResp);
         ocspToken.setSourceURI(ocspUri);
         certificateToken.setRevocationToken(ocspToken);
         return ocspToken;
@@ -219,12 +200,6 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   }
 
   abstract Extension createNonce();
-
-  public interface Listener {
-
-    void onGetOCSPToken(CertificateToken certificateToken, CertificatePool certificatePool);
-
-  }
 
   private DSSPrivateKeyEntry getOCSPAccessCertificatePrivateKey() {
     Pkcs12SignatureToken signatureTokenConnection = new Pkcs12SignatureToken(configuration.getOCSPAccessCertificatePassword(), configuration.getOCSPAccessCertificateFileName());

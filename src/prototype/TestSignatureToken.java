@@ -19,7 +19,7 @@ import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.ec.markt.dss.DSSUtils;
+import eu.europa.esig.dss.DSSUtils;
 
 public class TestSignatureToken extends PKCS12SignatureToken {
 
@@ -35,7 +35,7 @@ public class TestSignatureToken extends PKCS12SignatureToken {
     } catch (UnsupportedEncodingException ignore) {
     }
     final String javaSignatureAlgorithm = "NONEwith" + keyEntry.getEncryptionAlgorithm();
-    return DSSUtils.encrypt(javaSignatureAlgorithm, keyEntry.getPrivateKey(), addPadding(digest));
+    return null;//DSSUtils.encrypt(javaSignatureAlgorithm, keyEntry.getPrivateKey(), addPadding(digest));
   }
 
   private byte[] addPadding(byte []digest) {

@@ -10,14 +10,14 @@
 
 package org.digidoc4j;
 
-import eu.europa.ec.markt.dss.DSSUtils;
+import eu.europa.esig.dss.DSSUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
-import static eu.europa.ec.markt.dss.DigestAlgorithm.forXML;
+import static eu.europa.esig.dss.DigestAlgorithm.forXML;
 
 public class SignedInfo implements Serializable {
 

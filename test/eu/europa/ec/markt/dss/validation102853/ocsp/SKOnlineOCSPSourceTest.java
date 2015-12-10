@@ -5,11 +5,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.security.auth.x500.X500Principal;
-
 import org.digidoc4j.Configuration;
 import org.digidoc4j.utils.CertificatesForTests;
 import org.junit.Rule;
@@ -19,10 +14,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import eu.europa.ec.markt.dss.validation102853.CertificatePool;
-import eu.europa.ec.markt.dss.validation102853.CertificateToken;
-import eu.europa.ec.markt.dss.validation102853.OCSPToken;
-import eu.europa.ec.markt.dss.validation102853.loader.DataLoader;
+import eu.europa.esig.dss.client.http.DataLoader;
+import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.x509.OCSPToken;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -32,28 +26,20 @@ public class SKOnlineOCSPSourceTest {
   public TemporaryFolder testFolder = new TemporaryFolder();
 
   @Mock
-  CertificatePool certificatePool;
+  CertificateToken issuerCertificate;
 
   @Mock
   DataLoader dataLoader;
-
   Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
   @Test
   public void gettingOCSPToken_shouldReturnNull_whenOCSPResponseIsEmpty() throws Exception {
-    mockCertificatePool();
     mockDataLoader();
     SKOnlineOCSPSource ocspSource = new BDocTSOcspSource(configuration);
     ocspSource.setDataLoader(dataLoader);
     CertificateToken certificateToken = new CertificateToken(CertificatesForTests.SIGN_CERT);
-    OCSPToken ocspToken = ocspSource.getOCSPToken(certificateToken, certificatePool);
+    OCSPToken ocspToken = ocspSource.getOCSPToken(certificateToken, issuerCertificate);
     assertNull(ocspToken);
-  }
-
-  private void mockCertificatePool() {
-    List<CertificateToken> issuerList = new ArrayList<>();
-    issuerList.add(new CertificateToken(CertificatesForTests.SIGN_CERT));
-    when(certificatePool.get(any(X500Principal.class))).thenReturn(issuerList);
   }
 
   private void mockDataLoader() {

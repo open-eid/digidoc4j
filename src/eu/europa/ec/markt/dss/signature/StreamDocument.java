@@ -11,9 +11,13 @@
 package eu.europa.ec.markt.dss.signature;
 
 
-import eu.europa.ec.markt.dss.DSSUtils;
-import eu.europa.ec.markt.dss.DigestAlgorithm;
-import eu.europa.ec.markt.dss.exception.DSSException;
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.MimeType;
+
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 
 /**
- * @see eu.europa.ec.markt.dss.signature.DSSDocument implementation to handle big files. It writes data to temporary
+ * @see eu.europa.esig.dss.DSSDocument implementation to handle big files. It writes data to temporary
  * files.
  */
 public class StreamDocument implements DSSDocument {
@@ -105,6 +109,11 @@ public class StreamDocument implements DSSDocument {
   }
 
   @Override
+  public void setName(String s) {
+
+  }
+
+  @Override
   public String getAbsolutePath() {
     logger.debug("");
     return temporaryFile.getAbsolutePath();
@@ -148,7 +157,12 @@ public class StreamDocument implements DSSDocument {
       logger.error(e.getMessage());
       throw new DSSException(e);
     }
-    return DSSUtils.base64Encode(digestBytes);
+    return Base64.encodeBase64String(digestBytes);
+  }
+
+  @Override
+  public String getBase64Encoded() {
+    return null;
   }
 
   @Override

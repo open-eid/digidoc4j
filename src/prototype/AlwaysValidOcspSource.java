@@ -10,13 +10,6 @@
 
 package prototype;
 
-import eu.europa.ec.markt.dss.DSSUtils;
-import eu.europa.ec.markt.dss.exception.DSSException;
-import eu.europa.ec.markt.dss.validation102853.CertificatePool;
-import eu.europa.ec.markt.dss.validation102853.CertificateToken;
-import eu.europa.ec.markt.dss.validation102853.CommonCertificateSource;
-import eu.europa.ec.markt.dss.validation102853.OCSPToken;
-import eu.europa.ec.markt.dss.validation102853.ocsp.OCSPSource;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x509.CRLReason;
@@ -28,12 +21,13 @@ import org.bouncycastle.cert.ocsp.jcajce.JcaBasicOCSPRespBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.DigestCalculator;
+import org.bouncycastle.operator.DigestCalculatorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.x500.X500Principal;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -43,6 +37,13 @@ import java.security.Security;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+
+import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.x509.CommonCertificateSource;
+import eu.europa.esig.dss.x509.OCSPToken;
+import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 
 
 public class AlwaysValidOcspSource implements OCSPSource {
@@ -142,7 +143,7 @@ public class AlwaysValidOcspSource implements OCSPSource {
 
     try {
 
-      final DigestCalculator digestCalculator = DSSUtils.getSHA1DigestCalculator();
+      final DigestCalculator digestCalculator = getSHA1DigestCalculator();
       // Generate the getFileId for the certificate we are looking for
       CertificateID id = new CertificateID(digestCalculator, new X509CertificateHolder(issuerCert.getEncoded()), serialNumber);
 
@@ -172,15 +173,14 @@ public class AlwaysValidOcspSource implements OCSPSource {
   }
 
   @Override
-  public OCSPToken getOCSPToken(CertificateToken certificateToken, CertificatePool certificatePool) {
+  public OCSPToken getOCSPToken(CertificateToken certificateToken, CertificateToken issuerCertificateToken) {
     try {
       final X509Certificate cert = certificateToken.getCertificate();
       final BigInteger serialNumber = cert.getSerialNumber();
-      X500Principal issuerX500Principal = certificateToken.getIssuerX500Principal();
-      final X509Certificate issuerCert = certificatePool.get(issuerX500Principal).get(0).getCertificate();
+      final X509Certificate issuerCert = issuerCertificateToken.getCertificate();
       final OCSPReq ocspReq = generateOCSPRequest(issuerCert, serialNumber);
 
-      final DigestCalculator digestCalculator = DSSUtils.getSHA1DigestCalculator();
+      final DigestCalculator digestCalculator = getSHA1DigestCalculator();
       final BasicOCSPRespBuilder basicOCSPRespBuilder = new JcaBasicOCSPRespBuilder(issuerCert.getPublicKey(), digestCalculator);
       final Extension extension = ocspReq.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
       if (extension != null) {
@@ -212,7 +212,7 @@ public class AlwaysValidOcspSource implements OCSPSource {
       BasicOCSPResp basicResp = basicOCSPRespBuilder.build(contentSigner, chain, ocspDate);
       SingleResp singleResp = basicResp.getResponses()[0];
 
-      final OCSPToken ocspToken = new OCSPToken(basicResp, singleResp, certificatePool);
+      final OCSPToken ocspToken = new OCSPToken(basicResp, singleResp);
       certificateToken.setRevocationToken(ocspToken);
 
       return ocspToken;
@@ -222,6 +222,19 @@ public class AlwaysValidOcspSource implements OCSPSource {
       throw new DSSException(e);
     } catch (CertificateEncodingException e) {
       throw new DSSException(e);
+    } catch (OperatorCreationException e) {
+      throw new DSSException(e);
+    }
+  }
+
+  public static DigestCalculator getSHA1DigestCalculator() throws DSSException {
+
+    try {
+      JcaDigestCalculatorProviderBuilder jcaDigestCalculatorProviderBuilder = new JcaDigestCalculatorProviderBuilder();
+      jcaDigestCalculatorProviderBuilder.setProvider("BC");
+      final DigestCalculatorProvider digestCalculatorProvider = jcaDigestCalculatorProviderBuilder.build();
+      final DigestCalculator digestCalculator = digestCalculatorProvider.get(CertificateID.HASH_SHA1);
+      return digestCalculator;
     } catch (OperatorCreationException e) {
       throw new DSSException(e);
     }

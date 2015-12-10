@@ -50,8 +50,8 @@ public enum DigestAlgorithm {
     return digestInfoPrefix;
   }
 
-  public eu.europa.ec.markt.dss.DigestAlgorithm getDssDigestAlgorithm() {
-    return eu.europa.ec.markt.dss.DigestAlgorithm.forXML(uri.toString());
+  public eu.europa.esig.dss.DigestAlgorithm getDssDigestAlgorithm() {
+    return eu.europa.esig.dss.DigestAlgorithm.forXML(uri.toString());
   }
 
   /**

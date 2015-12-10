@@ -10,17 +10,16 @@
 
 package org.digidoc4j;
 
-import eu.europa.ec.markt.dss.validation102853.CertificateToken;
-import eu.europa.ec.markt.dss.validation102853.condition.ServiceInfo;
-import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
-import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
-import org.apache.commons.io.FileUtils;
-import org.digidoc4j.exceptions.DigiDoc4JException;
+import java.io.File;
+import java.security.cert.X509Certificate;
+
+import org.digidoc4j.impl.bdoc.TslLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.security.cert.X509Certificate;
+import eu.europa.esig.dss.tsl.ServiceInfo;
+import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
+import eu.europa.esig.dss.x509.CertificateToken;
 
 /**
  * Trusted List certificates
@@ -28,6 +27,14 @@ import java.security.cert.X509Certificate;
 public class TSLCertificateSource extends TrustedListsCertificateSource {
   private static final Logger logger = LoggerFactory.getLogger(TSLCertificateSource.class);
   protected static final File fileCacheDirectory = new File(System.getProperty("java.io.tmpdir") + "/digidoc4jTSLCache");
+  private TslLoader tslLoader;
+
+  public TSLCertificateSource() {
+  }
+
+  public TSLCertificateSource(TslLoader tslLoader) {
+    this.tslLoader = tslLoader;
+  }
 
   /**
    * Add a certificate to the TSL
@@ -53,15 +60,14 @@ public class TSLCertificateSource extends TrustedListsCertificateSource {
    *
    */
   public void invalidateCache() {
-    logger.debug("");
-    if (dataLoader instanceof FileCacheDataLoader) {
-      try {
-        FileUtils.cleanDirectory(fileCacheDirectory);
-      } catch (Exception e) {
-        logger.error(e.getMessage());
-        throw new DigiDoc4JException(e);
-      }
-      init();
+    logger.debug("Invalidating TSL cache");
+    if(tslLoader != null) {
+      tslLoader.invalidateCache();
+      tslLoader.refresh();
+    } else {
+      logger.warn("TSL Loader is null, skipping TSL cache invalidation");
     }
   }
+
+
 }

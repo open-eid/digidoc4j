@@ -31,15 +31,15 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.ec.markt.dss.DigestAlgorithm;
-import eu.europa.ec.markt.dss.exception.DSSException;
-import eu.europa.ec.markt.dss.signature.DSSDocument;
-import eu.europa.ec.markt.dss.signature.validation.AdvancedSignature;
-import eu.europa.ec.markt.dss.validation102853.CertificateVerifier;
-import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
-import eu.europa.ec.markt.dss.validation102853.asic.ASiCContainerValidator;
-import eu.europa.ec.markt.dss.validation102853.report.Reports;
-import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.asic.validation.ASiCContainerValidator;
+import eu.europa.esig.dss.validation.AdvancedSignature;
+import eu.europa.esig.dss.validation.CertificateVerifier;
+import eu.europa.esig.dss.validation.SignedDocumentValidator;
+import eu.europa.esig.dss.validation.report.Reports;
+import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class AsicContainerValidator implements Serializable {
 
@@ -110,7 +110,7 @@ public class AsicContainerValidator implements Serializable {
         return (XAdESSignature) advancedSignature;
       }
     }
-    logger.warn("Signature " + deterministicId + " was not found");
+    logger.error("Signature " + deterministicId + " was not found");
     throw new SignatureNotFoundException();
   }
 
@@ -132,6 +132,9 @@ public class AsicContainerValidator implements Serializable {
       return ASiCContainerValidator.fromDocument(signedDocument);
     } catch (DSSException e) {
       if (StringUtils.equalsIgnoreCase("This is not an ASiC container. The signature cannot be found!", e.getMessage())) {
+        throw new ContainerWithoutSignaturesException();
+      }
+      if (StringUtils.equalsIgnoreCase("Document format not recognized/handled", e.getMessage())) {
         throw new ContainerWithoutSignaturesException();
       }
       logger.error("Error validating container: " + e.getMessage());

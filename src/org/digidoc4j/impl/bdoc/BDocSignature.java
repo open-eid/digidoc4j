@@ -10,18 +10,24 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import eu.europa.ec.markt.dss.ASiCNamespaces;
-import eu.europa.ec.markt.dss.DSSXMLUtils;
-import eu.europa.ec.markt.dss.signature.SignatureLevel;
-import eu.europa.ec.markt.dss.signature.asic.ASiCService;
-import eu.europa.ec.markt.dss.signature.validation.TimestampToken;
-import eu.europa.ec.markt.dss.validation102853.CertificateToken;
-import eu.europa.ec.markt.dss.validation102853.bean.SignatureProductionPlace;
-import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
+import static eu.europa.esig.dss.DSSXMLUtils.createDocument;
+import static org.digidoc4j.SignatureProfile.B_BES;
+import static org.digidoc4j.SignatureProfile.LT;
+import static org.digidoc4j.SignatureProfile.LTA;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.ocsp.RespID;
 import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.CertificateNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -30,13 +36,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-import java.net.URI;
-import java.util.*;
-
-import static eu.europa.ec.markt.dss.DSSXMLUtils.createDocument;
-
-import org.digidoc4j.SignatureProfile;
-import static org.digidoc4j.SignatureProfile.*;
+import eu.europa.esig.dss.ASiCNamespaces;
+import eu.europa.esig.dss.DSSXMLUtils;
+import eu.europa.esig.dss.SignatureLevel;
+import eu.europa.esig.dss.asic.signature.ASiCService;
+import eu.europa.esig.dss.validation.SignatureProductionPlace;
+import eu.europa.esig.dss.validation.TimestampToken;
+import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 
 /**

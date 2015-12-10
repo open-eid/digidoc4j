@@ -10,20 +10,13 @@
 
 package org.digidoc4j;
 
-import eu.europa.ec.markt.dss.exception.DSSException;
-import eu.europa.ec.markt.dss.validation102853.KeyStoreCertificateSource;
-import eu.europa.ec.markt.dss.validation102853.https.CommonsDataLoader;
-import eu.europa.ec.markt.dss.validation102853.https.FileCacheDataLoader;
-import eu.europa.ec.markt.dss.validation102853.loader.Protocol;
-import eu.europa.ec.markt.dss.validation102853.tsl.TSLRefreshPolicy;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
+import org.digidoc4j.impl.bdoc.TslLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -37,6 +30,8 @@ import java.util.*;
 
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
+
+import eu.europa.esig.dss.client.http.Protocol;
 
 /**
  * Possibility to create custom configurations for {@link Container} implementations.
@@ -175,7 +170,7 @@ public class Configuration implements Serializable {
 
     if (mode == Mode.TEST) {
       configuration.put("tspSource", "http://demo.sk.ee/tsa");
-      configuration.put("tslLocation", "file:test-tsl/trusted-test-mp.xml");
+      configuration.put("tslLocation", "http://10.0.25.57/tsl/trusted-test-mp.xml");
       configuration.put("tslKeyStoreLocation", "keystore/test-keystore.jks");
       configuration.put("validationPolicy", "conf/test_constraint.xml");
       configuration.put("ocspSource", TEST_OCSP_URL);
@@ -718,58 +713,36 @@ public class Configuration implements Serializable {
       logger.debug("Using TSL cached copy");
       return tslCertificateSource;
     }
-
-    tslCertificateSource = new TSLCertificateSource();
-    tslCertificateSource.setTslRefreshPolicy(TSLRefreshPolicy.WHEN_NECESSARY);
-
     String tslLocation = getTslLocation();
-    if (Protocol.isHttpUrl(tslLocation)) {
-      FileCacheDataLoader dataLoader = new FileCacheDataLoader();
-      dataLoader.setConnectTimeout(getConnectionTimeout());
-      dataLoader.setFileCacheDirectory(TSLCertificateSource.fileCacheDirectory);
-      tslCertificateSource.setTslRefreshPolicy(TSLRefreshPolicy.NEVER);
-      tslCertificateSource.setDataLoader(dataLoader);
-    } else {
-      tslCertificateSource.setDataLoader(new CommonsDataLoader());
-    }
-
-    tslCertificateSource.setLotlUrl(tslLocation);
-
+    File tslKeystoreFile = getTslKeystoreFile();
+    String tslKeyStorePassword = getTslKeyStorePassword();
     boolean checkSignature = mode == Mode.TEST ? false : true;
-    tslCertificateSource.setCheckSignature(checkSignature);
 
+    TslLoader tslLoader = new TslLoader(tslLocation, tslKeystoreFile, tslKeyStorePassword);
+    tslLoader.setCheckSignature(checkSignature);
+    tslLoader.setConnectionTimeout(getConnectionTimeout());
+    tslCertificateSource = tslLoader.createTSL();
+    return tslCertificateSource;
+  }
+
+  private File getTslKeystoreFile() throws TslKeyStoreNotFoundException{
     try {
-      KeyStoreCertificateSource keyStoreCertificateSource = new KeyStoreCertificateSource(
-          getTslKeystoreFile(), getTslKeyStorePassword());
-      tslCertificateSource.setKeyStoreCertificateSource(keyStoreCertificateSource);
+      String keystoreLocation = getTslKeyStoreLocation();
+      if (Files.exists(Paths.get(keystoreLocation))) {
+        return new File(keystoreLocation);
+      }
+      File tempFile = File.createTempFile("temp-tsl-keystore", ".jks");
+      InputStream in = getClass().getClassLoader().getResourceAsStream(keystoreLocation);
+      if (in == null) {
+        logger.error("keystore not found in location " + keystoreLocation);
+        throw new TslKeyStoreNotFoundException("keystore not found in location " + keystoreLocation);
+      }
+      FileUtils.copyInputStreamToFile(in, tempFile);
+      return tempFile;
     } catch (IOException e) {
       logger.error(e.getMessage());
       throw new TslKeyStoreNotFoundException(e.getMessage());
     }
-
-    try {
-      tslCertificateSource.init();
-    } catch (DSSException e) {
-      logger.error(e.getMessage());
-      throw new TslCertificateSourceInitializationException(e.getMessage());
-    }
-
-    return tslCertificateSource;
-  }
-
-  private File getTslKeystoreFile() throws IOException{
-    String keystoreLocation = getTslKeyStoreLocation();
-    if (Files.exists(Paths.get(keystoreLocation))) {
-      return new File(keystoreLocation);
-    }
-    File tempFile = File.createTempFile("temp-tsl-keystore", ".jks");
-    InputStream in = getClass().getClassLoader().getResourceAsStream(keystoreLocation);
-    if (in == null) {
-      logger.error("keystore not found in location " + keystoreLocation);
-      throw new TslKeyStoreNotFoundException("keystore not found in location " + keystoreLocation);
-    }
-    FileUtils.copyInputStreamToFile(in, tempFile);
-    return tempFile;
   }
 
   /**

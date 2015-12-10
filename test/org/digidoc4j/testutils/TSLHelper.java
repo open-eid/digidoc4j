@@ -2,13 +2,12 @@ package org.digidoc4j.testutils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import org.digidoc4j.Configuration;
 
-import eu.europa.ec.markt.dss.DSSUtils;
-import eu.europa.ec.markt.dss.exception.DSSException;
+import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.DSSUtils;
 
 public class TSLHelper {
 

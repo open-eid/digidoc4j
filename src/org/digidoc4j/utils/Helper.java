@@ -25,10 +25,10 @@ import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import static eu.europa.ec.markt.dss.signature.SignatureLevel.ASiC_E_BASELINE_LT;
+import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_LT;
 import static java.nio.file.Files.deleteIfExists;
 
-import eu.europa.ec.markt.dss.signature.MimeType;
+import eu.europa.esig.dss.MimeType;
 
 public final class Helper {
   private static final Logger logger = LoggerFactory.getLogger(Helper.class);

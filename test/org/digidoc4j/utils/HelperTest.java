@@ -10,7 +10,7 @@
 
 package org.digidoc4j.utils;
 
-import static eu.europa.ec.markt.dss.signature.MimeType.ASICE;
+import static eu.europa.esig.dss.MimeType.ASICE;
 import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 import static org.digidoc4j.utils.Helper.deleteFile;

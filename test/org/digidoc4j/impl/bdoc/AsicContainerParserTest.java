@@ -14,7 +14,7 @@ import org.digidoc4j.testutils.TestDataBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 
-import eu.europa.ec.markt.dss.signature.DSSDocument;
+import eu.europa.esig.dss.DSSDocument;
 
 public class AsicContainerParserTest {
 

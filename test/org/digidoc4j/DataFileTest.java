@@ -10,10 +10,8 @@
 
 package org.digidoc4j;
 
-import eu.europa.ec.markt.dss.DSSUtils;
-import eu.europa.ec.markt.dss.signature.InMemoryDocument;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +26,8 @@ import java.nio.file.Paths;
 
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.*;
+
+import eu.europa.esig.dss.InMemoryDocument;
 
 public class DataFileTest {
   private static DataFile dataFile;
@@ -60,18 +60,18 @@ public class DataFileTest {
 
   @Test
   public void testCalculateDigest() throws Exception {
-    assertEquals("RqDqtqi3rTsWj07rrWc5kATAZIw7T1XHP/NPLCF05RU=", DSSUtils.base64Encode(dataFile.calculateDigest()));
+    assertEquals("RqDqtqi3rTsWj07rrWc5kATAZIw7T1XHP/NPLCF05RU=", Base64.encodeBase64String(dataFile.calculateDigest()));
   }
 
   @Test
   public void testCalculateDigestWithEnumTypeSHA256() throws Exception {
     assertEquals("RqDqtqi3rTsWj07rrWc5kATAZIw7T1XHP/NPLCF05RU=",
-        DSSUtils.base64Encode(dataFile.calculateDigest(DigestAlgorithm.SHA256)));
+        Base64.encodeBase64String(dataFile.calculateDigest(DigestAlgorithm.SHA256)));
   }
 
   @Test
   public void testCalculateDigestWithEnumTypeSHA1() throws Exception {
-    assertEquals("OQj17m9Rt2vPXYrry+v/KHpf98Q=", DSSUtils.base64Encode(dataFile.calculateDigest(DigestAlgorithm.SHA1)));
+    assertEquals("OQj17m9Rt2vPXYrry+v/KHpf98Q=", Base64.encodeBase64String(dataFile.calculateDigest(DigestAlgorithm.SHA1)));
   }
 
   @Test

@@ -5,7 +5,6 @@ import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x509.Extension;
 import org.digidoc4j.Configuration;
 
-import eu.europa.ec.markt.dss.DSSUtils;
 
 public class BDocTSOcspSource extends SKOnlineOCSPSource{
   public BDocTSOcspSource(Configuration configuration) {
@@ -16,7 +15,7 @@ public class BDocTSOcspSource extends SKOnlineOCSPSource{
   Extension createNonce() {
     final long currentTimeNonce = System.currentTimeMillis();
 
-    DEROctetString nonce = new DEROctetString(DSSUtils.toByteArray(currentTimeNonce));
+    DEROctetString nonce = new DEROctetString(String.valueOf(currentTimeNonce).getBytes());
     boolean critical = false;
     return new Extension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, critical, nonce);
   }

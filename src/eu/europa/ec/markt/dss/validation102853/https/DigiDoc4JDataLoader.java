@@ -10,13 +10,15 @@
 
 package eu.europa.ec.markt.dss.validation102853.https;
 
-import eu.europa.ec.markt.dss.DSSUtils;
-import eu.europa.ec.markt.dss.exception.DSSCannotFetchDataException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
+
+import eu.europa.esig.dss.DSSCannotFetchDataException;
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
 
 /**
  *

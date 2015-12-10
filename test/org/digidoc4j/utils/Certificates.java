@@ -5,11 +5,11 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
-import eu.europa.ec.markt.dss.validation102853.CertificateToken;
 import org.digidoc4j.TSLCertificateSource;
 
-import eu.europa.ec.markt.dss.validation102853.condition.ServiceInfo;
-import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
+import eu.europa.esig.dss.tsl.ServiceInfo;
+import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
+import eu.europa.esig.dss.x509.CertificateToken;
 
 public class Certificates {
     private TSLCertificateSource tslCertificateSource = new TSLCertificateSource();

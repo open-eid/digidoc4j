@@ -13,7 +13,6 @@ package org.digidoc4j.impl.bdoc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.ContainerWithoutSignaturesException;
@@ -21,9 +20,9 @@ import org.digidoc4j.exceptions.InvalidTimestampException;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.junit.Test;
 
-import eu.europa.ec.markt.dss.DigestAlgorithm;
-import eu.europa.ec.markt.dss.signature.DSSDocument;
-import eu.europa.ec.markt.dss.validation102853.tsl.TrustedListsCertificateSource;
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
 
 public class AsicContainerValidatorTest {
 

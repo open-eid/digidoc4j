@@ -10,14 +10,15 @@
 
 package prototype;
 
-import eu.europa.ec.markt.dss.signature.token.AbstractSignatureTokenConnection;
-import eu.europa.ec.markt.dss.signature.token.DSSPrivateKeyEntry;
-import eu.europa.ec.markt.dss.signature.token.Pkcs11SignatureToken;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.SignatureToken;
 
 import java.security.cert.X509Certificate;
+
+import eu.europa.esig.dss.token.AbstractSignatureTokenConnection;
+import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
+import eu.europa.esig.dss.token.Pkcs11SignatureToken;
 
 /**
  * This signer implementation is for testing purposes

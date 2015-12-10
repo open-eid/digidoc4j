@@ -19,7 +19,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 
-import eu.europa.ec.markt.dss.DSSUtils;
+import prototype.samples.AsyncSigning;
 
 public class TestSigningHelper {
 
@@ -47,7 +47,7 @@ public class TestSigningHelper {
       PrivateKey privateKey = (PrivateKey) keyStore.getKey("1", "test".toCharArray());
       final String javaSignatureAlgorithm = "NONEwith" + privateKey.getAlgorithm();
 
-      return DSSUtils.encrypt(javaSignatureAlgorithm, privateKey, addPadding(dataToSign, digestAlgorithm));
+      return AsyncSigning.encrypt(javaSignatureAlgorithm, privateKey, addPadding(dataToSign, digestAlgorithm));
     } catch (Exception e) {
       throw new DigiDoc4JException("Loading private key failed");
     }

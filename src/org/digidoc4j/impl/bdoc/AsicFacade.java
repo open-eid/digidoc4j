@@ -10,14 +10,13 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import static eu.europa.ec.markt.dss.DigestAlgorithm.SHA256;
-import static eu.europa.ec.markt.dss.DigestAlgorithm.forName;
-import static eu.europa.ec.markt.dss.signature.SignatureLevel.ASiC_E_BASELINE_B;
-import static eu.europa.ec.markt.dss.signature.SignatureLevel.ASiC_E_BASELINE_LT;
-import static eu.europa.ec.markt.dss.signature.SignatureLevel.ASiC_E_BASELINE_LTA;
-import static eu.europa.ec.markt.dss.signature.SignaturePackaging.DETACHED;
-import static eu.europa.ec.markt.dss.validation102853.SignatureForm.XAdES;
-import static java.util.Arrays.asList;
+import static eu.europa.esig.dss.DigestAlgorithm.SHA256;
+import static eu.europa.esig.dss.DigestAlgorithm.forName;
+import static eu.europa.esig.dss.SignatureForm.XAdES;
+import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_B;
+import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_LT;
+import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_LTA;
+import static eu.europa.esig.dss.SignaturePackaging.DETACHED;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.digidoc4j.SignatureProfile.LT;
@@ -28,18 +27,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -63,32 +58,36 @@ import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.SignatureFinalizer;
-import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import eu.europa.ec.markt.dss.DSSXMLUtils;
-import eu.europa.ec.markt.dss.exception.DSSException;
-import eu.europa.ec.markt.dss.parameter.BLevelParameters;
-import eu.europa.ec.markt.dss.signature.DSSDocument;
-import eu.europa.ec.markt.dss.signature.DocumentSignatureService;
-import eu.europa.ec.markt.dss.signature.FileDocument;
-import eu.europa.ec.markt.dss.signature.InMemoryDocument;
-import eu.europa.ec.markt.dss.signature.MimeType;
-import eu.europa.ec.markt.dss.signature.SignatureLevel;
 import eu.europa.ec.markt.dss.signature.StreamDocument;
-import eu.europa.ec.markt.dss.signature.asic.ASiCService;
-import eu.europa.ec.markt.dss.validation102853.CertificateToken;
-import eu.europa.ec.markt.dss.validation102853.SignedDocumentValidator;
-import eu.europa.ec.markt.dss.validation102853.asic.ASiCXMLDocumentValidator;
 import eu.europa.ec.markt.dss.validation102853.ocsp.BDocTMOcspSource;
 import eu.europa.ec.markt.dss.validation102853.ocsp.BDocTSOcspSource;
 import eu.europa.ec.markt.dss.validation102853.ocsp.SKOnlineOCSPSource;
-import eu.europa.ec.markt.dss.validation102853.report.Reports;
-import eu.europa.ec.markt.dss.validation102853.tsp.OnlineTSPSource;
-import eu.europa.ec.markt.dss.validation102853.xades.XAdESSignature;
+import eu.europa.esig.dss.BLevelParameters;
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.DSSXMLUtils;
+import eu.europa.esig.dss.FileDocument;
+import eu.europa.esig.dss.InMemoryDocument;
+import eu.europa.esig.dss.MimeType;
+import eu.europa.esig.dss.Policy;
+import eu.europa.esig.dss.SignatureLevel;
+import eu.europa.esig.dss.SignatureValue;
+import eu.europa.esig.dss.SignerLocation;
+import eu.europa.esig.dss.ToBeSigned;
+import eu.europa.esig.dss.asic.ASiCSignatureParameters;
+import eu.europa.esig.dss.asic.signature.ASiCService;
+import eu.europa.esig.dss.asic.validation.ASiCXMLDocumentValidator;
+import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.signature.DocumentSignatureService;
+import eu.europa.esig.dss.validation.SignedDocumentValidator;
+import eu.europa.esig.dss.validation.report.Reports;
+import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 /**
  * BDOC container implementation
@@ -101,7 +100,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   private final Map<String, DataFile> dataFiles = new LinkedHashMap<>();
   private SKCommonCertificateVerifier commonCertificateVerifier;
   private DocumentSignatureService asicService;
-  private eu.europa.ec.markt.dss.parameter.SignatureParameters dssSignatureParameters;
+  private ASiCSignatureParameters dssSignatureParameters;
   private SignatureParameters signatureParameters = new SignatureParameters();
   private DSSDocument signedDocument;
   private List<Signature> signatures = new ArrayList<>();
@@ -110,7 +109,6 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   private transient Reports validationReport;
   private boolean isTimeMark = false;
   private Integer currentUsedSignatureFileIndex;
-  private String userAgent;
 
   /**
    * Create a new container object of type BDOC.
@@ -166,7 +164,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   private void setEncryptionAlgorithm() {
     logger.debug("");
     if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA) {
-      dssSignatureParameters.setEncryptionAlgorithm(eu.europa.ec.markt.dss.EncryptionAlgorithm.ECDSA);
+      dssSignatureParameters.setEncryptionAlgorithm(eu.europa.esig.dss.EncryptionAlgorithm.ECDSA);
     }
   }
 
@@ -186,15 +184,15 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
 
   private void initASiC() {
     logger.debug("");
-    userAgent = Helper.createBDocUserAgent();
-    dssSignatureParameters = new eu.europa.ec.markt.dss.parameter.SignatureParameters();
+    dssSignatureParameters = new ASiCSignatureParameters();
     dssSignatureParameters.setSignatureLevel(ASiC_E_BASELINE_LT);
     dssSignatureParameters.setSignaturePackaging(DETACHED);
     dssSignatureParameters.setDigestAlgorithm(SHA256);
     signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
     dssSignatureParameters.aSiC().setUnderlyingForm(XAdES);
-    dssSignatureParameters.aSiC().setZipComment(userAgent);
-    dssSignatureParameters.bLevel().setSigningCertificateDigestMethod(eu.europa.ec.markt.dss.DigestAlgorithm.SHA256);
+    //TODO set zip comment and digest algorithm
+    //dssSignatureParameters.aSiC().setZipComment(userAgent);
+    //dssSignatureParameters.bLevel().setSigningCertificateDigestMethod(eu.europa.ec.markt.dss.DigestAlgorithm.SHA256);
     //dssSignatureParameters.setSignedInfoCanonicalizationMethod(Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS);
 
     commonCertificateVerifier = new SKCommonCertificateVerifier();
@@ -202,22 +200,18 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     commonCertificateVerifier.setSignatureCRLSource(null); //Disable CRL checks
     asicService = new ASiCService(commonCertificateVerifier);
     OnlineTSPSource tspSource = new OnlineTSPSource(configuration.getTspSource());
-    tspSource.setUserAgent(userAgent);
+    SKTimestampDataLoader dataLoader = new SKTimestampDataLoader();
+    tspSource.setDataLoader(dataLoader);
     asicService.setTspSource(tspSource);
   }
 
   private void addSignaturePolicy() {
     logger.debug("");
-    BLevelParameters.Policy signaturePolicy = new BLevelParameters.Policy();
+    Policy signaturePolicy = new Policy();
     signaturePolicy.setId("urn:oid:1.3.6.1.4.1.10015.1000.3.2.1");
     signaturePolicy.setDigestValue(decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));
     signaturePolicy.setDigestAlgorithm(SHA256);
-    try {
-      URI uri = new URI("https://www.sk.ee/repository/bdoc-spec21.pdf");
-      List<URI> qualifiers = asList(uri);
-      signaturePolicy.setSigPolicyQualifiers(qualifiers);
-    } catch (URISyntaxException ignore) {
-    }
+    signaturePolicy.setSpuri("https://www.sk.ee/repository/bdoc-spec21.pdf");
     dssSignatureParameters.bLevel().setSignaturePolicy(signaturePolicy);
   }
 
@@ -331,7 +325,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     //TODO must be changed when extending signature is possible in sd-dss currently is possible to extend whole
     //container and it extend also all signatures
     setSignatureProfile(getSignatures().size() != 0 ? getSignature(0).getProfile() : LT);
-    eu.europa.ec.markt.dss.DigestAlgorithm digestAlgorithm = dssSignatureParameters.getDigestAlgorithm();
+    eu.europa.esig.dss.DigestAlgorithm digestAlgorithm = dssSignatureParameters.getDigestAlgorithm();
     if (digestAlgorithm != null) {
       signatureParameters.setDigestAlgorithm(DigestAlgorithm.valueOf(digestAlgorithm.getName()));
     } else {
@@ -607,7 +601,8 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     DSSDocument attachment = getAttachment();
     dssSignatureParameters.setDetachedContent(attachment);
 
-    return asicService.getDataToSign(attachment, dssSignatureParameters);
+    ToBeSigned dataToSign = asicService.getDataToSign(attachment, dssSignatureParameters);
+    return dataToSign.getBytes();
   }
 
   @Override
@@ -616,13 +611,13 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
 
     SKOnlineOCSPSource ocspSource = getOcspSource(signatureValue);
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
-    ocspSource.setUserAgent(userAgent);
     commonCertificateVerifier.setOcspSource(ocspSource);
 
     String deterministicId = getDssSignatureParameters().getDeterministicId();
 
     try {
-      signedDocument = asicService.signDocument(getSigningDocument(), dssSignatureParameters, signatureValue);
+      SignatureValue signature = new SignatureValue(dssSignatureParameters.getSignatureAlgorithm(), signatureValue);
+      signedDocument = asicService.signDocument(getSigningDocument(), dssSignatureParameters, signature);
     } catch (DSSException e) {
       logger.error(e.getMessage());
       if ("OCSP request failed".equals(e.getMessage()))
@@ -693,10 +688,12 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     DSSDocument attachment;
     MimeType mimeType = MimeType.fromMimeTypeString(dataFile.getMediaType());
     long cachedFileSizeInMB = configuration.getMaxDataFileCachedInMB();
+    String dataFileName = dataFile.getName();
+
     if (configuration.isBigFilesSupportEnabled() && dataFile.getFileSize() > cachedFileSizeInMB * ONE_MB_IN_BYTES) {
-      attachment = new StreamDocument(dataFile.getStream(), dataFile.getName(), mimeType);
+      attachment = new StreamDocument(dataFile.getStream(), dataFileName, mimeType);
     } else {
-      attachment = new InMemoryDocument(dataFile.getBytes(), dataFile.getName(), mimeType);
+      attachment = new InMemoryDocument(dataFile.getBytes(), dataFileName, mimeType);
     }
     return attachment;
   }
@@ -716,10 +713,10 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
         && isEmpty(signatureProductionPlace.getPostalCode())
         && isEmpty(signatureProductionPlace.getCountry()))) {
 
-      BLevelParameters.SignerLocation signerLocation = new BLevelParameters.SignerLocation();
+      SignerLocation signerLocation = new SignerLocation();
 
       if (!isEmpty(signatureProductionPlace.getCity()))
-        signerLocation.setCity(signatureProductionPlace.getCity());
+        signerLocation.setLocality(signatureProductionPlace.getCity());
       if (!isEmpty(signatureProductionPlace.getStateOrProvince()))
         signerLocation.setStateOrProvince(signatureProductionPlace.getStateOrProvince());
       if (!isEmpty(signatureProductionPlace.getPostalCode()))
@@ -789,7 +786,6 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     }
     SKOnlineOCSPSource ocspSource = getOcspSource(null);
     commonCertificateVerifier.setTrustedCertSource(configuration.getTSL());
-    ocspSource.setUserAgent(userAgent);
     commonCertificateVerifier.setOcspSource(ocspSource);
 
     dssSignatureParameters.setSignatureLevel(signatureLevel);
@@ -848,7 +844,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     }
   }
 
-  protected eu.europa.ec.markt.dss.parameter.SignatureParameters getDssSignatureParameters() {
+  protected ASiCSignatureParameters getDssSignatureParameters() {
     logger.debug("");
     return dssSignatureParameters;
   }
