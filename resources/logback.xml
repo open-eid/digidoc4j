@@ -4,7 +4,7 @@
   <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <File>digidoc4j.log</File>
     <encoder>
-      <pattern>%d{dd.MM.yyyy HH:mm:ss.SSS} %-5p [%logger{36}.%method:%line] - %m%n</pattern>
+      <pattern>%d{dd.MM.yyyy HH:mm:ss.SSS} %-5p [%thread] [%logger{36}.%method:%line] - %m%n</pattern>
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
       <level>INFO</level>
@@ -18,7 +18,7 @@
   <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
     <Target>System.out</Target>
     <encoder>
-      <pattern>%d{dd.MM.yyyy HH:mm:ss.SSS} %-5p [%logger{36}.%method:%line] - %m%n</pattern>
+      <pattern>%d{dd.MM.yyyy HH:mm:ss.SSS} %-5p [%thread] [%logger{36}.%method:%line] - %m%n</pattern>
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
       <level>DEBUG</level>
