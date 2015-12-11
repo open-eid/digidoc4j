@@ -2,6 +2,7 @@
 !*/
 !.gitignore
 !dss-*.jar
+!validation-policy*.jar
 !jdigidoc*.jar
 !testcerts.jar
 !jacoco*.jar
