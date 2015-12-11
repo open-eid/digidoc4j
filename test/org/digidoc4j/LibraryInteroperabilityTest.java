@@ -68,7 +68,7 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
         Container container = ContainerBuilder.
             aContainer(BDOC_CONTAINER_TYPE).
             fromExistingFile("testFiles/DigiDocService_spec_est.pdf-TM-j.bdoc").
-            withConfiguration(new Configuration(Configuration.Mode.PROD)).
+            withConfiguration(new Configuration(Configuration.Mode.TEST)).
             build();
         TestDataBuilder.signContainer(container);
     }

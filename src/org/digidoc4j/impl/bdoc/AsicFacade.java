@@ -626,6 +626,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     }
 
     XAdESSignature xAdESSignature = new AsicContainerValidator(signedDocument, commonCertificateVerifier, configuration).findXadesSignature(deterministicId);
+    validateOcspResponse(xAdESSignature);
 
     validationReport = null;
     Signature signature = new BDocSignature(xAdESSignature);
@@ -867,5 +868,14 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     }
     currentUsedSignatureFileIndex++;
     return "signatures" + currentUsedSignatureFileIndex + ".xml";
+  }
+
+  private void validateOcspResponse(XAdESSignature xAdESSignature) {
+    boolean isBesSignatureProfile = SignatureLevel.ASiC_E_BASELINE_B == dssSignatureParameters.getSignatureLevel();
+    boolean isOcspResponseEmpty = xAdESSignature.getOCSPSource().getContainedOCSPResponses().isEmpty();
+    if(!isBesSignatureProfile && isOcspResponseEmpty) {
+      logger.error("Signature does not contain OCSP response");
+      throw new OCSPRequestFailedException();
+    }
   }
 }
