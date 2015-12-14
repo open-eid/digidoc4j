@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.exceptions.CertificateRevokedException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.InvalidOcspNonceException;
 import org.digidoc4j.exceptions.InvalidTimestampException;
 import org.digidoc4j.exceptions.MiltipleSignedPropertiesException;
 import org.digidoc4j.exceptions.PolicyUrlMissingException;
@@ -78,6 +79,7 @@ public class XadesSignatureValidator {
     addTimestampErrors();
     addSigningTimeErrors();
     addCertificateExpirationError(signature);
+    addOcspNonceErrors();
     signature.setValidationErrors(validationErrors);
     return signature;
   }
@@ -237,6 +239,13 @@ public class XadesSignatureValidator {
     if(!isCertValid) {
       logger.error("Signature has been created with expired certificate");
       validationErrors.add(new SignedWithExpiredCertificateException());
+    }
+  }
+
+  private void addOcspNonceErrors() {
+    if(!new OcspNonceValidator(xAdESSignature).isValid()) {
+      logger.error("OCSP nonce is invalid");
+      validationErrors.add(new InvalidOcspNonceException());
     }
   }
 
