@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.CertificateRevokedException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidOcspNonceException;
@@ -30,8 +31,10 @@ import org.digidoc4j.exceptions.PolicyUrlMissingException;
 import org.digidoc4j.exceptions.SignedPropertiesMissingException;
 import org.digidoc4j.exceptions.SignedWithExpiredCertificateException;
 import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
+import org.digidoc4j.exceptions.TimestampAndOcspResponseTimeDeltaTooLargeException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
+import org.digidoc4j.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -62,11 +65,13 @@ public class XadesSignatureValidator {
   private XAdESSignature xAdESSignature;
   private List<DigiDoc4JException> validationErrors = new ArrayList<>();
   private String signatureId;
+  private Configuration configuration;
 
-  public XadesSignatureValidator(Reports validationReport, XAdESSignature xAdESSignature) {
+  public XadesSignatureValidator(Reports validationReport, XAdESSignature xAdESSignature, Configuration configuration) {
     this.validationReport = validationReport;
     this.xAdESSignature = xAdESSignature;
     this.simpleReports = extractSimpleReports(validationReport);
+    this.configuration = configuration;
     signatureId = xAdESSignature.getId();
   }
 
@@ -221,7 +226,14 @@ public class XadesSignatureValidator {
       return;
     }
     Date ocspTime = ocspResponses.get(0).getProducedAt();
-    if (ocspTime != null && ocspTime.before(timestamp)) {
+    if(ocspTime == null) {
+      return;
+    }
+    if(!DateUtils.isInRangeMinutes(timestamp, ocspTime, configuration.getRevocationAndTimestampDeltaInMinutes())) {
+      logger.error("The difference between the OCSP response production time and the signature time stamp is too large");
+      validationErrors.add(new TimestampAndOcspResponseTimeDeltaTooLargeException());
+    }
+    if (ocspTime.before(timestamp)) {
       logger.error("OCSP response production time is before timestamp time");
       validationErrors.add(new TimestampAfterOCSPResponseTimeException());
     }

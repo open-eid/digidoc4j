@@ -10,6 +10,8 @@
 
 package org.digidoc4j.utils;
 
+import static org.apache.commons.lang.time.DateUtils.addSeconds;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +39,17 @@ public final class DateUtils {
   private static boolean isInRangeOneMinute(Date date1, Date date2) {
     logger.debug("");
     final int oneMinuteInSeconds = 60;
-    Date latestTime = org.apache.commons.lang.time.DateUtils.addSeconds(date2, oneMinuteInSeconds);
-    Date earliestTime = org.apache.commons.lang.time.DateUtils.addSeconds(date2, -oneMinuteInSeconds);
+    return isInRangeSeconds(date1, date2, oneMinuteInSeconds);
+  }
+
+  public static boolean isInRangeMinutes(Date date1, Date date2, int rangeInMinutes) {
+    int rangeInSeconds = rangeInMinutes * 60;
+    return isInRangeSeconds(date1, date2, rangeInSeconds);
+  }
+
+  private static boolean isInRangeSeconds(Date date1, Date date2, int rangeInSeconds) {
+    Date latestTime = addSeconds(date2, rangeInSeconds);
+    Date earliestTime = addSeconds(date2, -rangeInSeconds);
     return date1.before(latestTime) && date1.after(earliestTime);
   }
 }

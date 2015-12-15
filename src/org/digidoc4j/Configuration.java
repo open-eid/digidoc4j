@@ -120,6 +120,7 @@ import eu.europa.esig.dss.client.http.Protocol;
 public class Configuration implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
   private static final int ONE_SECOND = 1000;
+  private static final int ONE_DAY_IN_MINUTES = 24 * 60;
   public static final long ONE_MB_IN_BYTES = 1048576;
 
   public static final String DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION
@@ -167,6 +168,7 @@ public class Configuration implements Serializable {
     configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
     configuration.put("connectionTimeout", String.valueOf(ONE_SECOND));
     configuration.put("tslKeyStorePassword", "digidoc4j-password");
+    configuration.put("revocationAndTimestampDeltaInMinutes", String.valueOf(ONE_DAY_IN_MINUTES));
 
     if (mode == Mode.TEST) {
       configuration.put("tspSource", "http://demo.sk.ee/tsa");
@@ -452,6 +454,7 @@ public class Configuration implements Serializable {
     setConfigurationValue(SIGN_OCSP_REQUESTS, SIGN_OCSP_REQUESTS);
     setConfigurationValue("TSL_KEYSTORE_LOCATION", "tslKeyStoreLocation");
     setConfigurationValue("TSL_KEYSTORE_PASSWORD", "tslKeyStorePassword");
+    setConfigurationValue("REVOCATION_AND_TIMESTAMP_DELTA_IN_MINUTES", "revocationAndTimestampDeltaInMinutes");
 
     setJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS, Boolean.toString(hasToBeOCSPRequestSigned()));
     setJDigiDocConfigurationValue(OCSP_PKCS_12_CONTAINER, getOCSPAccessCertificateFileName());
@@ -891,6 +894,16 @@ public class Configuration implements Serializable {
     String path = getConfigurationParameter("pkcs11Module");
     logger.debug("PKCS11 module path: " + path);
     return path;
+  }
+
+  public int getRevocationAndTimestampDeltaInMinutes() {
+    String timeDelta = getConfigurationParameter("revocationAndTimestampDeltaInMinutes");
+    logger.debug("Revocation and timestamp delta in minutes: " + timeDelta);
+    return Integer.parseInt(timeDelta);
+  }
+  public void setRevocationAndTimestampDeltaInMinutes(int timeInMinutes) {
+    logger.debug("Set revocation and timestamp delta in minutes: " + timeInMinutes);
+    setConfigurationParameter("revocationAndTimestampDeltaInMinutes", String.valueOf(timeInMinutes));
   }
 
   private void setConfigurationParameter(String key, String value) {

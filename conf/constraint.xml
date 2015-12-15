@@ -190,7 +190,6 @@
   </Timestamp>
   <Revocation>
     <RevocationFreshness Unit="DAYS">0</RevocationFreshness>
-    <RevocationAndTimestampDelta Unit="DAYS">1</RevocationAndTimestampDelta>
     <SigningCertificate>
       <Signature Level="FAIL"/>
       <Expiration Level="FAIL"/>

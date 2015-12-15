@@ -873,6 +873,25 @@ public class ConfigurationTest {
     assertEquals(2000, configuration.getConnectionTimeout());
   }
 
+  @Test
+   public void revocationAndTimestampDelta_shouldBeOneDay() throws Exception {
+    int oneDayInMinutes = 24 * 60;
+    assertEquals(oneDayInMinutes, configuration.getRevocationAndTimestampDeltaInMinutes());
+  }
+
+  @Test
+  public void testSettingRevocationAndTimestampDelta() throws Exception {
+    int twoDaysInMinutes = 48 * 60;
+    configuration.setRevocationAndTimestampDeltaInMinutes(twoDaysInMinutes);
+    assertEquals(twoDaysInMinutes, configuration.getRevocationAndTimestampDeltaInMinutes());
+  }
+
+  @Test
+  public void testLoadingRevocationAndTimestampDeltaFromConf() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_all_optional_settings.yaml");
+    assertEquals(1337, configuration.getRevocationAndTimestampDeltaInMinutes());
+  }
+
   private File createConfFileWithParameter(String parameter) throws IOException {
     File confFile = testFolder.newFile();
     FileUtils.writeStringToFile(confFile, parameter);

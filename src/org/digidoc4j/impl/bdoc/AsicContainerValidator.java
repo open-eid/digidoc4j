@@ -120,7 +120,7 @@ public class AsicContainerValidator implements Serializable {
     loadValidationResults(validator);
     List<AdvancedSignature> signatureList = validator.getSignatures();
     for (AdvancedSignature advancedSignature : signatureList) {
-      XadesSignatureValidator signatureValidator = new XadesSignatureValidator(validationReport, (XAdESSignature) advancedSignature);
+      XadesSignatureValidator signatureValidator = new XadesSignatureValidator(validationReport, (XAdESSignature) advancedSignature, configuration);
       BDocSignature signature = signatureValidator.extractValidatedSignature();
       signatureVerificationErrors.put(signature.getId(), signature.getValidationErrors());
       signatures.add(signature);

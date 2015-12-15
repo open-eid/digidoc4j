@@ -1446,7 +1446,6 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   public void revocationAndTimeStampDifferenceTooLarge() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
-    configuration.setValidationPolicy("conf/test_constraint.xml");
     Container container = ContainerOpener.open("testFiles/revocation_timestamp_delta_26h.asice", configuration);
     ValidationResult validate = container.validate();
     assertEquals(1, validate.getErrors().size());
@@ -1457,7 +1456,8 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   @Test
   public void revocationAndTimeStampDifferenceNotTooLarge() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
-    configuration.setValidationPolicy("conf/test_constraint_SigningTimeCreationTimeDeltaIs27H.xml");
+    int delta27Hours = 27 * 60;
+    configuration.setRevocationAndTimestampDeltaInMinutes(delta27Hours);
     Container container = ContainerOpener.open("testFiles/revocation_timestamp_delta_26h.asice", configuration);
     ValidationResult validate = container.validate();
     assertEquals(0, validate.getErrors().size());
