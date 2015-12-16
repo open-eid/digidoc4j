@@ -570,7 +570,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     assertEquals("myRole / myResolution", signature.getSignerRoles().get(0));
   }
 
-  @Test(expected = StringIndexOutOfBoundsException.class)
+  @Test(expected = NullPointerException.class)
   public void testSetConfigurationForBDoc() throws Exception {
     Configuration conf = new Configuration(TEST);
     conf.setTslLocation("pole");

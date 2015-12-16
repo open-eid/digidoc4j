@@ -58,6 +58,7 @@ import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.SignatureFinalizer;
+import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -190,8 +191,9 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     dssSignatureParameters.setDigestAlgorithm(SHA256);
     signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
     dssSignatureParameters.aSiC().setUnderlyingForm(XAdES);
-    //TODO set zip comment and digest algorithm
-    //dssSignatureParameters.aSiC().setZipComment(userAgent);
+    dssSignatureParameters.aSiC().setZipComment(true);
+    dssSignatureParameters.aSiC().setZipCommentValue(Helper.createBDocUserAgent());
+    //TODO set digest algorithm
     //dssSignatureParameters.bLevel().setSigningCertificateDigestMethod(eu.europa.ec.markt.dss.DigestAlgorithm.SHA256);
     //dssSignatureParameters.setSignedInfoCanonicalizationMethod(Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS);
 
