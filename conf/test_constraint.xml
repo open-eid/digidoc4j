@@ -1,4 +1,4 @@
-<ConstraintsParameters Name="QES AdESQC TL based" xmlns="http://dss.markt.ec.europa.eu/validation/diagnostic">
+<ConstraintsParameters Name="QES AdESQC TL based" xmlns="http://dss.esig.europa.eu/validation/diagnostic">
   <Description>RIA customized validation policy
   </Description>
   <MainSignature>
@@ -6,15 +6,15 @@
       <Id>ANY_POLICY</Id>
       <Id>NO_POLICY</Id>
     </AcceptablePolicies>
-    <ReferenceDataExistence Level="FAIL">true</ReferenceDataExistence>
-    <ReferenceDataIntact Level="FAIL">true</ReferenceDataIntact>
-    <SignatureIntact Level="FAIL">true</SignatureIntact>
+    <ReferenceDataExistence Level="FAIL"/>
+    <ReferenceDataIntact Level="FAIL"/>
+    <SignatureIntact Level="FAIL"/>
     <SigningCertificate>
       <Recognition Level="FAIL"/>
       <AttributePresent Level="FAIL"/>
       <DigestValuePresent Level="FAIL"/>
-      <DigestValueMatch Level="FAIL">true</DigestValueMatch>
-      <IssuerSerialMatch Level="WARN">true</IssuerSerialMatch>
+      <DigestValueMatch Level="FAIL"/>
+      <IssuerSerialMatch Level="WARN"/>
       <Signed Level="FAIL"/>
       <Signature Level="FAIL"/>
       <Expiration Level="INFORM"/>
