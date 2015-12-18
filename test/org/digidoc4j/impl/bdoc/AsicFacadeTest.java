@@ -1374,6 +1374,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     assertArrayEquals(dataFileAfterSerialization.calculateDigest(), dataFileBeforeSerialization.calculateDigest());
   }
 
+  @Ignore("Unable to test if OCSP responds with unknown, because the signing certificate is expired")
   @Test(expected = Exception.class)
   public void testOCSPUnknown() {
     try {
@@ -1522,7 +1523,6 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
-  //@Ignore("Ignored because reference validation is turned off. Turn ON again when fixed")
   public void containerMissesFileWhichIsInManifestAndSignatureFile() {
     Container container = ContainerOpener.open("testFiles/zip_misses_file_which_is_in_manifest.asice");
     ValidationResult result = container.validate();
@@ -1542,6 +1542,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     assertTrue(errors.get(1).toString().contains("No revocation data for the certificate"));
   }
 
+  @Ignore("This signature has two OCSP responses: one correct and one is technically corrupted. Opening a container should not throw an exception")
   @Test(expected = DigiDoc4JException.class)
   public void corruptedOCSPDataThrowsException() {
     ContainerOpener.open("testFiles/corrupted_ocsp_data.asice");
