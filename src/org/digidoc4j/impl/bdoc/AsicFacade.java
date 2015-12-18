@@ -98,7 +98,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   private static final Logger logger = LoggerFactory.getLogger(AsicFacade.class);
   private static final int ONE_MB_IN_BYTES = 1048576;
 
-  private final Map<String, DataFile> dataFiles = new LinkedHashMap<>();
+  private Map<String, DataFile> dataFiles = new LinkedHashMap<>();
   private SKCommonCertificateVerifier commonCertificateVerifier;
   private DocumentSignatureService asicService;
   private ASiCSignatureParameters dssSignatureParameters;
@@ -321,8 +321,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     validationReport = validationResult.getValidationReport();
     dssSignatureParameters.setDigestAlgorithm(validationResult.getContainerDigestAlgorithm());
     signatures = validationResult.getSignatures();
-
-    loadAttachments(validationResult.getSignedDocuments());
+    dataFiles = validationResult.getDataFiles();
 
     //TODO must be changed when extending signature is possible in sd-dss currently is possible to extend whole
     //container and it extend also all signatures
@@ -337,17 +336,6 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     currentUsedSignatureFileIndex = new AsicContainerParser(signedDocument).findCurrentSignatureFileIndex();
 
     logger.info("Finished reading BDoc container details");
-  }
-
-  private void loadAttachments(List<DSSDocument> signedDocuments) {
-    logger.debug("");
-    for (DSSDocument externalContent : signedDocuments) {
-      if (!"mimetype".equals(externalContent.getName()) && !"META-INF/manifest.xml".equals(externalContent.getName())) {
-        checkForDuplicateDataFile(externalContent.getName());
-        dataFiles.put(externalContent.getName(), new DataFile(externalContent.getBytes(), externalContent.getName(),
-            externalContent.getMimeType().getMimeTypeString()));
-      }
-    }
   }
 
   /**

@@ -12,7 +12,9 @@ package org.digidoc4j.impl.bdoc;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
+import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 
 import eu.europa.esig.dss.DSSDocument;
@@ -25,7 +27,7 @@ public class AsicContainerValidationResult implements Serializable {
   private DigestAlgorithm containerDigestAlgorithm;
   private ValidationResultForBDoc bDocValidationResult;
   private Reports validationReport;
-  private List<DSSDocument> signedDocuments;
+  private Map<String, DataFile> dataFiles;
 
   public boolean isValid() {
     return bDocValidationResult.isValid();
@@ -63,11 +65,11 @@ public class AsicContainerValidationResult implements Serializable {
     this.validationReport = validationReport;
   }
 
-  public List<DSSDocument> getSignedDocuments() {
-    return signedDocuments;
+  public Map<String, DataFile> getDataFiles() {
+    return dataFiles;
   }
 
-  public void setSignedDocuments(List<DSSDocument> signedDocuments) {
-    this.signedDocuments = signedDocuments;
+  public void setDataFiles(Map<String, DataFile> dataFiles) {
+    this.dataFiles = dataFiles;
   }
 }

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.xml.security.signature.Reference;
@@ -23,13 +24,10 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSXMLUtils;
-import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.validation.AdvancedSignature;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 
@@ -38,9 +36,11 @@ import eu.europa.esig.dss.validation.SignedDocumentValidator;
  */
 public class ManifestValidator {
   private static final Logger logger = LoggerFactory.getLogger(ManifestValidator.class);
-  private InMemoryDocument manifestFile;
+  public static final String MANIFEST_PATH = "META-INF/manifest.xml";
+  public static final String MIMETYPE_PATH = "mimetype";
   private SignedDocumentValidator asicValidator;
   private List<DSSDocument> detachedContents;
+  private ManifestParser manifestParser;
 
   /**
    * Constructor.
@@ -51,12 +51,7 @@ public class ManifestValidator {
     logger.debug("");
     asicValidator = validator;
     detachedContents = asicValidator.getDetachedContents();
-    for (DSSDocument dssDocument : detachedContents) {
-      if ("META-INF/manifest.xml".equals(dssDocument.getName())) {
-        manifestFile = (InMemoryDocument) dssDocument;
-        break;
-      }
-    }
+    manifestParser = ManifestParser.findAndOpenManifestFile(detachedContents);
   }
 
   /**
@@ -67,13 +62,13 @@ public class ManifestValidator {
    */
   public List<String> validateDocument(Collection<Signature> signatures) {
     logger.debug("");
-    if (manifestFile == null) {
+    if (!manifestParser.containsManifestFile()) {
       String errorMessage = "Container does not contain manifest file.";
       logger.error(errorMessage);
       throw new DigiDoc4JException(errorMessage);
     }
     List<String> errorMessages = new ArrayList<>();
-    Set<ManifestEntry> manifestEntries = getManifestFileItems();
+    Map<String, ManifestEntry> manifestEntries = manifestParser.getManifestFileItems();
     Set<ManifestEntry> signatureEntries = new HashSet<>();
 
     for (Signature signature : signatures) {
@@ -121,7 +116,7 @@ public class ManifestValidator {
   }
 
   @SuppressWarnings("unchecked")
-  static List<String> validateEntries(Set<ManifestEntry> manifestEntries, Set<ManifestEntry> signatureEntries,
+  static List<String> validateEntries(Map<String, ManifestEntry> manifestEntries, Set<ManifestEntry> signatureEntries,
                                       String signatureId) {
     logger.debug("");
     ArrayList<String> errorMessages = new ArrayList<>();
@@ -129,10 +124,10 @@ public class ManifestValidator {
     if (signatureEntries.size() == 0)
       return errorMessages;
 
-    Set<ManifestEntry> one = new HashSet(manifestEntries);
+    Set<ManifestEntry> one = new HashSet(manifestEntries.values());
     Set<ManifestEntry> two = new HashSet(signatureEntries);
     one.removeAll(signatureEntries);
-    two.removeAll(manifestEntries);
+    two.removeAll(manifestEntries.values());
 
     for (ManifestEntry manifestEntry : one) {
 
@@ -207,30 +202,6 @@ public class ManifestValidator {
         return uri;
     }
 
-    Set<ManifestEntry> getManifestFileItems() {
-    Set<ManifestEntry> entries = new HashSet<>();
-
-    Element root = DSSXMLUtils.buildDOM(manifestFile).getDocumentElement();
-    Node firstChild = root.getFirstChild();
-    while (firstChild != null) {
-      String nodeName = firstChild.getNodeName();
-      if ("manifest:file-entry".equals(nodeName)) {
-        NamedNodeMap attributes = firstChild.getAttributes();
-        String textContent = attributes.getNamedItem("manifest:full-path").getTextContent();
-        String mimeType = attributes.getNamedItem("manifest:media-type").getTextContent();
-        if (!"/".equals(textContent))
-          if (!entries.add(new ManifestEntry(textContent, mimeType))) {
-            DigiDoc4JException digiDoc4JException = new DigiDoc4JException("duplicate entry in manifest file");
-            logger.error(digiDoc4JException.getMessage());
-            throw digiDoc4JException;
-          }
-      }
-      firstChild = firstChild.getNextSibling();
-    }
-
-    return entries;
-  }
-
   private List<String> getFilesInContainer() {
     List<String> fileEntries = new ArrayList<>();
 
@@ -238,7 +209,7 @@ public class ManifestValidator {
 
     for (DSSDocument detachedContent : detachedContents) {
       String name = detachedContent.getName();
-      if (!("META-INF/manifest.xml".equals(name) || ("META-INF/".equals(name)) || ("mimetype".equals(name)
+      if (!(MANIFEST_PATH.equals(name) || ("META-INF/".equals(name)) || (MIMETYPE_PATH.equals(name)
           || signatureFileNames.contains(name)))) {
         fileEntries.add(name);
       }

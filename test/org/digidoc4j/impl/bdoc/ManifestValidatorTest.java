@@ -13,8 +13,10 @@ package org.digidoc4j.impl.bdoc;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -23,9 +25,9 @@ public class ManifestValidatorTest {
 
   @Test
   public void validateEntries() throws Exception {
-    Set<ManifestEntry> entriesFromManifest = new HashSet<ManifestEntry>() {{
-      add(new ManifestEntry("1", "a"));
-      add(new ManifestEntry("2", "b"));
+    Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
+      put("1", new ManifestEntry("1", "a"));
+      put("2", new ManifestEntry("2", "b"));
     }};
 
     Set<ManifestEntry> entriesFromSignature = new HashSet<ManifestEntry>() {{
@@ -38,9 +40,9 @@ public class ManifestValidatorTest {
 
   @Test
   public void validateEntriesUnOrdered() throws Exception {
-    Set<ManifestEntry> entriesFromManifest = new HashSet<ManifestEntry>() {{
-      add(new ManifestEntry("1", "a"));
-      add(new ManifestEntry("2", "b"));
+    Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
+      put("1", new ManifestEntry("1", "a"));
+      put("2", new ManifestEntry("2", "b"));
     }};
 
     Set<ManifestEntry> entriesFromSignature = new HashSet<ManifestEntry>() {{
@@ -53,10 +55,10 @@ public class ManifestValidatorTest {
 
   @Test
   public void validateEntriesNotEqual() throws Exception {
-    Set<ManifestEntry> entriesFromManifest = new HashSet<ManifestEntry>() {{
-      add(new ManifestEntry("1", "a"));
-      add(new ManifestEntry("2", "b"));
-      add(new ManifestEntry("2", "f"));
+    Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
+      put("1", new ManifestEntry("1", "a"));
+      put("2", new ManifestEntry("2", "b"));
+      put("2", new ManifestEntry("2", "f"));
     }};
 
     Set<ManifestEntry> entriesFromSignature = new HashSet<ManifestEntry>() {{
@@ -72,9 +74,9 @@ public class ManifestValidatorTest {
 
   @Test
   public void validateEntriesNotEqualValueSwapped() throws Exception {
-    Set<ManifestEntry> entriesFromManifest = new HashSet<ManifestEntry>() {{
-      add(new ManifestEntry("1", "a"));
-      add(new ManifestEntry("2", "b"));
+    Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
+      put("1", new ManifestEntry("1", "a"));
+      put("2", new ManifestEntry("2", "b"));
     }};
 
     Set<ManifestEntry> entriesFromSignature = new HashSet<ManifestEntry>() {{
@@ -92,10 +94,10 @@ public class ManifestValidatorTest {
 
   @Test
   public void validateEntriesMissingEntryInSignature() throws Exception {
-    Set<ManifestEntry> entriesFromManifest = new HashSet<ManifestEntry>() {{
-      add(new ManifestEntry("1", "a"));
-      add(new ManifestEntry("2", "b"));
-      add(new ManifestEntry("3", "c"));
+    Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
+      put("1", new ManifestEntry("1", "a"));
+      put("2", new ManifestEntry("2", "b"));
+      put("3", new ManifestEntry("3", "c"));
     }};
 
     Set<ManifestEntry> entriesFromSignature = new HashSet<ManifestEntry>() {{
@@ -111,9 +113,9 @@ public class ManifestValidatorTest {
 
   @Test
   public void validateEntriesMissingEntryInManifest() throws Exception {
-    Set<ManifestEntry> entriesFromManifest = new HashSet<ManifestEntry>() {{
-      add(new ManifestEntry("1", "a"));
-      add(new ManifestEntry("3", "c"));
+    Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
+      put("1", new ManifestEntry("1", "a"));
+      put("3", new ManifestEntry("3", "c"));
     }};
 
     Set<ManifestEntry> entriesFromSignature = new HashSet<ManifestEntry>() {{

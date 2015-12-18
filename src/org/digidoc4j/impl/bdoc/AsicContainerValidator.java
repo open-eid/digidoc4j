@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.ContainerWithoutSignaturesException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -67,7 +68,6 @@ public class AsicContainerValidator implements Serializable {
       ValidationResultForBDoc bDocValidationResult = new ValidationResultForBDoc(validationReport, signatures, manifestErrors, signatureVerificationErrors);
       AsicContainerValidationResult validationResult = createContainerValidationResult();
       validationResult.setbDocValidationResult(bDocValidationResult);
-      validationResult.setSignedDocuments(validator.getDetachedContents());
       return validationResult;
     } catch (DSSException e) {
       if (StringUtils.equalsIgnoreCase("This is not an ASiC container. The signature cannot be found!", e.getMessage())) {
@@ -83,7 +83,8 @@ public class AsicContainerValidator implements Serializable {
     SignedDocumentValidator validator = openValidator();
     loadSignatures(validator);
     AsicContainerValidationResult validationResult = createContainerValidationResult();
-    validationResult.setSignedDocuments(validator.getDetachedContents());
+    Map<String, DataFile> dataFiles = new BDocDataFilesLoader(validator).loadDataFiles();
+    validationResult.setDataFiles(dataFiles);
     return validationResult;
   }
 

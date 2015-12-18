@@ -178,7 +178,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     container.save("test_add_unknown_datafile_type.bdoc");
 
     Container open = ContainerOpener.open("test_add_unknown_datafile_type.bdoc");
-    assertEquals(open.getDataFile(0).getMediaType(), "text/test_type");
+    assertEquals("text/test_type", open.getDataFiles().get(0).getMediaType());
   }
 
   @Test
