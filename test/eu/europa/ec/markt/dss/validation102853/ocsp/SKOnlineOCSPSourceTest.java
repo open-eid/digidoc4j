@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.utils.CertificatesForTests;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -32,6 +33,7 @@ public class SKOnlineOCSPSourceTest {
   DataLoader dataLoader;
   Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
+  @Ignore("Test is missing bouncycastle dependency")
   @Test
   public void gettingOCSPToken_shouldReturnNull_whenOCSPResponseIsEmpty() throws Exception {
     mockDataLoader();

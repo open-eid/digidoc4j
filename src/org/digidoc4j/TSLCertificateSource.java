@@ -54,7 +54,7 @@ public class TSLCertificateSource extends TrustedListsCertificateSource {
   }
 
   /**
-   * Invalidates cache and reloads TSL.
+   * Invalidates cache
    *
    * Only applicable when cache is used.
    *
@@ -63,7 +63,6 @@ public class TSLCertificateSource extends TrustedListsCertificateSource {
     logger.debug("Invalidating TSL cache");
     if(tslLoader != null) {
       tslLoader.invalidateCache();
-      tslLoader.refresh();
     } else {
       logger.warn("TSL Loader is null, skipping TSL cache invalidation");
     }

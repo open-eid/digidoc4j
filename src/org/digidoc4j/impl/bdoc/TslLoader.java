@@ -81,10 +81,6 @@ public class TslLoader implements Serializable {
     }
   }
 
-  public void refresh() {
-    //TODO
-  }
-
   public void setConnectionTimeout(Integer connectionTimeout) {
     this.connectionTimeout = connectionTimeout;
   }
