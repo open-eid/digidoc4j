@@ -858,19 +858,23 @@ public class ConfigurationTest {
   @Test
   public void getDefaultConnectionTimeout() throws Exception {
     assertEquals(1000, configuration.getConnectionTimeout());
+    assertEquals(1000, configuration.getSocketTimeout());
   }
 
   @Test
   public void loadConnectionTimeoutFromFile() throws Exception {
     configuration.loadConfiguration("testFiles/digidoc_test_conf_connection_timeout.yaml");
     assertEquals(4000, configuration.getConnectionTimeout());
+    assertEquals(2000, configuration.getSocketTimeout());
   }
 
   @Test
   public void setConnectionTimeoutFromCode() throws Exception {
     configuration.loadConfiguration("testFiles/digidoc_test_conf_connection_timeout.yaml");
     configuration.setConnectionTimeout(2000);
+    configuration.setSocketTimeout(5000);
     assertEquals(2000, configuration.getConnectionTimeout());
+    assertEquals(5000, configuration.getSocketTimeout());
   }
 
   @Test

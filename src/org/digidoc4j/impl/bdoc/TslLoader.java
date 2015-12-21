@@ -38,6 +38,7 @@ public class TslLoader implements Serializable {
   private File tslKeystoreFile;
   private String tslKeyStorePassword;
   private Integer connectionTimeout;
+  private Integer socketTimeout;
 
   public TslLoader(String tslLocation, File tslKeystoreFile, String tslKeyStorePassword) {
     this.tslKeystoreFile = tslKeystoreFile;
@@ -88,6 +89,10 @@ public class TslLoader implements Serializable {
     this.connectionTimeout = connectionTimeout;
   }
 
+  public void setSocketTimeout(Integer socketTimeout) {
+    this.socketTimeout = socketTimeout;
+  }
+
   public void setCheckSignature(boolean checkSignature) {
     this.checkSignature = checkSignature;
   }
@@ -97,6 +102,9 @@ public class TslLoader implements Serializable {
       FileCacheDataLoader dataLoader = new FileCacheDataLoader();
       if(connectionTimeout != null) {
         dataLoader.setTimeoutConnection(connectionTimeout);
+      }
+      if(socketTimeout != null) {
+        dataLoader.setTimeoutSocket(socketTimeout);
       }
       dataLoader.setFileCacheDirectory(fileCacheDirectory);
       return dataLoader;

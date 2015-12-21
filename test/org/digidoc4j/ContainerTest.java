@@ -14,6 +14,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.impl.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
@@ -570,7 +571,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     assertEquals("myRole / myResolution", signature.getSignerRoles().get(0));
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = TslCertificateSourceInitializationException.class)
   public void testSetConfigurationForBDoc() throws Exception {
     Configuration conf = new Configuration(TEST);
     conf.setTslLocation("pole");

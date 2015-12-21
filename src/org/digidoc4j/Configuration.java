@@ -167,6 +167,7 @@ public class Configuration implements Serializable {
 
     configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
     configuration.put("connectionTimeout", String.valueOf(ONE_SECOND));
+    configuration.put("socketTimeout", String.valueOf(ONE_SECOND));
     configuration.put("tslKeyStorePassword", "digidoc4j-password");
     configuration.put("revocationAndTimestampDeltaInMinutes", String.valueOf(ONE_DAY_IN_MINUTES));
 
@@ -451,6 +452,7 @@ public class Configuration implements Serializable {
     setConfigurationValue(OCSP_PKCS_12_CONTAINER, "OCSPAccessCertificateFile");
     setConfigurationValue(OCSP_PKCS_12_PASSWD, "OCSPAccessCertificatePassword");
     setConfigurationValue("CONNECTION_TIMEOUT", "connectionTimeout");
+    setConfigurationValue("SOCKET_TIMEOUT", "socketTimeout");
     setConfigurationValue(SIGN_OCSP_REQUESTS, SIGN_OCSP_REQUESTS);
     setConfigurationValue("TSL_KEYSTORE_LOCATION", "tslKeyStoreLocation");
     setConfigurationValue("TSL_KEYSTORE_PASSWORD", "tslKeyStorePassword");
@@ -719,11 +721,12 @@ public class Configuration implements Serializable {
     String tslLocation = getTslLocation();
     File tslKeystoreFile = getTslKeystoreFile();
     String tslKeyStorePassword = getTslKeyStorePassword();
-    boolean checkSignature = mode == Mode.TEST ? false : true;
+    boolean checkSignature = mode != Mode.TEST;
 
     TslLoader tslLoader = new TslLoader(tslLocation, tslKeystoreFile, tslKeyStorePassword);
     tslLoader.setCheckSignature(checkSignature);
     tslLoader.setConnectionTimeout(getConnectionTimeout());
+    tslLoader.setSocketTimeout(getSocketTimeout());
     tslCertificateSource = tslLoader.createTSL();
     return tslCertificateSource;
   }
@@ -787,12 +790,30 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Set HTTP socket timeout
+   * @param socketTimeoutMilliseconds socket timeout in milliseconds
+   */
+  public void setSocketTimeout(int socketTimeoutMilliseconds) {
+    logger.debug("Set socket timeout to " + socketTimeoutMilliseconds + " ms");
+    setConfigurationParameter("socketTimeout", String.valueOf(socketTimeoutMilliseconds));
+  }
+
+  /**
    * Get HTTP connection timeout
    *
    * @return connection timeout in milliseconds
    */
   public int getConnectionTimeout() {
     return Integer.parseInt(getConfigurationParameter("connectionTimeout"));
+  }
+
+  /**
+   * Get HTTP socket timeout
+   *
+   * @return socket timeout in milliseconds
+   */
+  public int getSocketTimeout() {
+    return Integer.parseInt(getConfigurationParameter("socketTimeout"));
   }
 
   /**
