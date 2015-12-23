@@ -70,12 +70,30 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     assertTrue(result.isValid());
   }
 
+  @Test
+  public void bDoc_withoutOcspResponse_shouldBeInvalid() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    assertFalse(validateContainer("testFiles/23608-bdoc21-no-ocsp.bdoc", configuration).isValid());
+
+  }
+
   private ValidationResult validateContainer(String containerPath) {
-    Container container = ContainerBuilder.
-        aContainer("BDOC").
-        fromExistingFile(containerPath).
+    Container container = openContainerBuilder(containerPath).
         build();
     return container.validate();
+  }
+
+  private ValidationResult validateContainer(String containerPath, Configuration configuration) {
+    Container container = openContainerBuilder(containerPath).
+        withConfiguration(configuration).
+        build();
+    return container.validate();
+  }
+
+  private ContainerBuilder openContainerBuilder(String containerPath) {
+    return ContainerBuilder.
+        aContainer("BDOC").
+        fromExistingFile(containerPath);
   }
 
 

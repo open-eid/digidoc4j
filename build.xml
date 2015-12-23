@@ -100,7 +100,7 @@
     <ivy:retrieve transitive="false" conf="runtime" sync="true" pattern="${packaging.lib}/[artifact].[ext]"/>
     <zip destfile="${dist.dir}/digidoc4j-library-${lib.version}${version.suffix}.zip">
       <zipfileset dir="${packaging.lib}" includes="*.jar"/>
-      <zipfileset dir="lib" includes="**/dss*.jar **/jdigidoc*.jar"/>
+      <zipfileset dir="lib" includes="**/dss*.jar **/validation-policy*.jar **/jdigidoc*.jar"/>
     </zip>
   </target>
 
@@ -108,7 +108,7 @@
     <ivy:retrieve transitive="false" conf="runtime" sync="true" pattern="${packaging.lib}/[artifact].[ext]"/>
     <mkdir dir="${build.dir}/util"/>
     <jar jarfile="${build.dir}/util/temp.jar">
-      <zipgroupfileset dir="lib" includes="**/dss*.jar **/jdigidoc*.jar"/>
+      <zipgroupfileset dir="lib" includes="**/dss*.jar **/validation-policy*.jar **/jdigidoc*.jar"/>
       <zipgroupfileset dir="${packaging.lib}" includes="**/*.jar" excludes="bcprov-*.jar"/>
       <zipgroupfileset dir="dist" includes="**/digidoc4j-*.jar" excludes="*-javadoc.jar *-sources.jar"/>
     </jar>

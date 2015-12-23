@@ -1699,8 +1699,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(2, errors.size());
-    //TODO add this error to DSS
-    //assertEquals(MessageTag.ADEST_TSSIG_ANS.getMessage(), errors.get(0).toString());
+    assertEquals(InvalidTimestampException.MESSAGE, errors.get(0).toString());
     assertEquals(TimestampAfterOCSPResponseTimeException.MESSAGE, errors.get(1).toString());
   }
 

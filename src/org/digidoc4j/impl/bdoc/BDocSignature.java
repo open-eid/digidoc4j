@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.RespID;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
@@ -143,7 +144,12 @@ public class BDocSignature implements Signature {
 
   @Override
   public Date getOCSPResponseCreationTime() {
-    Date date = origin.getOCSPSource().getContainedOCSPResponses().get(0).getProducedAt();
+    List<BasicOCSPResp> ocspResponses = origin.getOCSPSource().getContainedOCSPResponses();
+    if(ocspResponses.isEmpty()) {
+      logger.warn("Signature is missing OCSP response");
+      return null;
+    }
+    Date date = ocspResponses.get(0).getProducedAt();
     logger.debug("Produced at date: " + date);
     return date;
   }

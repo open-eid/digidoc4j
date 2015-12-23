@@ -243,8 +243,11 @@ public class XadesSignatureValidator {
     if(signature.getProfile() == B_BES) {
       return;
     }
-    CertificateToken signerCert = xAdESSignature.getSigningCertificateToken();
     Date signingTime = signature.getTrustedSigningTime();
+    if(signingTime == null) {
+      return;
+    }
+    CertificateToken signerCert = xAdESSignature.getSigningCertificateToken();
     Date notBefore = signerCert.getNotBefore();
     Date notAfter = signerCert.getNotAfter();
     boolean isCertValid = signingTime.compareTo(notBefore) >= 0 && signingTime.compareTo(notAfter) <= 0;
