@@ -14,6 +14,7 @@ import static eu.europa.esig.dss.DSSXMLUtils.createDocument;
 import static org.digidoc4j.SignatureProfile.B_BES;
 import static org.digidoc4j.SignatureProfile.LT;
 import static org.digidoc4j.SignatureProfile.LTA;
+import static org.digidoc4j.SignatureProfile.LT_TM;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
@@ -44,6 +46,7 @@ import eu.europa.esig.dss.asic.signature.ASiCService;
 import eu.europa.esig.dss.validation.SignatureProductionPlace;
 import eu.europa.esig.dss.validation.TimestampToken;
 import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.x509.SignaturePolicy;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 
@@ -171,22 +174,30 @@ public class BDocSignature implements Signature {
     return date;
   }
 
+  /**
+   * Trusted signing time should be taken based on the profile:
+   * BES should return null,
+   * LT_TM should return OCSP response creation time and
+   * LT should return Timestamp creation time.
+   *
+   * @return signing time backed by a trusted service (not just a user's computer clock time).
+   */
   @Override
   public Date getTrustedSigningTime() {
     if(getProfile() == B_BES) {
       return null;
     }
-    //TODO trusted signing time should be taken based on the profile: LT_TM should return OCSP response creation time and LT should return TS creation time when getProfile() gets fixed.
-    Date timeStampCreationTime = getTimeStampCreationTime();
-    if(timeStampCreationTime != null) {
-      return timeStampCreationTime;
+    if(getProfile() == LT_TM) {
+      return getOCSPResponseCreationTime();
     }
-    return getOCSPResponseCreationTime();
+    return getTimestampOrOcspResponseTime();
   }
 
   @Override
   public SignatureProfile getProfile() {
-    //FIXME LT_TM and LT both return LT, because they both have XAdES-BASELINE-LT. LT_TM should return LT_TM.
+    if (isTimeMarkSignature()) {
+      return LT_TM;
+    }
     SignatureLevel dataFoundUpToLevel = origin.getDataFoundUpToLevel();
     logger.debug("getting profile for: " + dataFoundUpToLevel);
     return signatureProfileMap.get(dataFoundUpToLevel);
@@ -276,5 +287,25 @@ public class BDocSignature implements Signature {
 
   void setValidationErrors(List<DigiDoc4JException> validationErrors) {
     this.validationErrors = validationErrors;
+  }
+
+  private boolean isTimeMarkSignature() {
+    SignaturePolicy policyId = origin.getPolicyId();
+    if(policyId == null) {
+      return false;
+    }
+    return StringUtils.equals(XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
+  }
+
+  private Date getTimestampOrOcspResponseTime() {
+    Date timeStampCreationTime = getTimeStampCreationTime();
+    if(timeStampCreationTime != null) {
+      return timeStampCreationTime;
+    }
+    Date ocspResponseTime = getOCSPResponseCreationTime();
+    if(ocspResponseTime != null) {
+      return ocspResponseTime;
+    }
+    return null;
   }
 }

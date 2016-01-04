@@ -57,7 +57,7 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 public class XadesSignatureValidator {
 
   private final static Logger logger = LoggerFactory.getLogger(XadesSignatureValidator.class);
-  private static final String TM_POLICY = "urn:oid:1.3.6.1.4.1.10015.1000.3.2.1";
+  public static final String TM_POLICY = "urn:oid:1.3.6.1.4.1.10015.1000.3.2.1";
   private static final String OIDAS_URN = "OIDAsURN";
   private static final String XADES_SIGNED_PROPERTIES = "http://uri.etsi.org/01903#SignedProperties";
   private Reports validationReport;

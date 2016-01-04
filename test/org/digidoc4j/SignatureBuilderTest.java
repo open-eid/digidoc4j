@@ -17,6 +17,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.security.cert.X509Certificate;
 
 import org.digidoc4j.exceptions.NotSupportedException;
@@ -108,6 +109,8 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
 
     container.addSignature(signature);
     container.saveAsFile(testFolder.newFile("test-container2.bdoc").getPath());
+
+    assertSignatureIsValid(signature);
   }
 
   @Test
@@ -160,16 +163,20 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
 
   @Test
   public void signatureProfileShouldBeSetProperlyForBDoc() throws Exception {
-    Container container = TestDataBuilder.createContainerWithFile(testFolder);
-
-    Signature signature = SignatureBuilder.
-        aSignature(container).
-        withSignatureToken(testSignatureToken).
-        withSignatureProfile(SignatureProfile.B_BES).
-        invokeSigning();
-    container.addSignature(signature);
-
+    Signature signature = createBDocSignatureWithProfile(SignatureProfile.B_BES);
     assertEquals(SignatureProfile.B_BES, signature.getProfile());
+  }
+
+  @Test
+  public void signatureProfileShouldBeSetProperlyForBDocTS() throws Exception {
+    Signature signature = createBDocSignatureWithProfile(SignatureProfile.LT);
+    assertEquals(SignatureProfile.LT, signature.getProfile());
+  }
+
+  @Test
+  public void signatureProfileShouldBeSetProperlyForBDocTM() throws Exception {
+    Signature signature = createBDocSignatureWithProfile(SignatureProfile.LT_TM);
+    assertEquals(SignatureProfile.LT_TM, signature.getProfile());
   }
 
   @Test(expected = NotSupportedException.class)
@@ -217,10 +224,20 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
     TestContainer.resetType();
   }
 
+  private Signature createBDocSignatureWithProfile(SignatureProfile profile) throws IOException {
+    Container container = TestDataBuilder.createContainerWithFile(testFolder);
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureToken(testSignatureToken).
+        withSignatureProfile(profile).
+        invokeSigning();
+    container.addSignature(signature);
+    return signature;
+  }
+
   private void assertSignatureIsValid(Signature signature) {
     assertNotNull(signature.getProducedAt());
-    //TODO check why it doesn't match, should be LT_TM
-    assertEquals(SignatureProfile.LT, signature.getProfile());
+    assertEquals(SignatureProfile.LT_TM, signature.getProfile());
     assertNotNull(signature.getClaimedSigningTime());
     assertNotNull(signature.getAdESSignature());
     assertTrue(signature.getAdESSignature().length > 1);
