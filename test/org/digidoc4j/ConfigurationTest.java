@@ -145,23 +145,6 @@ public class ConfigurationTest {
     }
   }
 
-  @Test
-  @Ignore
-  public void tslValidationSucceeds() {
-    /*Configuration myConfiguration = new Configuration(PROD);
-    Map<String, String> diagnosticInfo = myConfiguration.getTSL().getDiagnosticInfo();
-    Set<Entry<String, String>> entries = diagnosticInfo.entrySet();
-    for (Entry<String, String> entrie : entries) {
-      if (!isNorway(entrie.getKey())) {
-        assertFalse(entrie.getValue().contains("The signature is not valid"));
-      }
-    }*/
-  }
-
-  private boolean isNorway(String entrieKey) {
-    return entrieKey.contains("http://www.nkom.no");
-  }
-
   @Test (expected = DigiDoc4JException.class)
   public void clearTSLCacheThrowsException() {
     Configuration myConfiguration = new Configuration();

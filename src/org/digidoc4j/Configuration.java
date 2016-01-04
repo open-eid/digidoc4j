@@ -679,7 +679,7 @@ public class Configuration implements Serializable {
     return (ArrayList<String>) digiDocCa.get("CERTS");
   }
 
-  String getTslLocation() {
+  public String getTslLocation() {
     String urlString = getConfigurationParameter("tslLocation");
     if (!Protocol.isFileUrl(urlString)) return urlString;
     try {

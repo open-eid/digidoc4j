@@ -5,9 +5,18 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.Security;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.utils.CertificatesForTests;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -27,25 +36,40 @@ public class SKOnlineOCSPSourceTest {
   public TemporaryFolder testFolder = new TemporaryFolder();
 
   @Mock
-  CertificateToken issuerCertificate;
+  CertificateToken issuerCertToken;
 
   @Mock
   DataLoader dataLoader;
+
+  X509Certificate issuerCert;
   Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
-  @Ignore("Test is missing bouncycastle dependency")
+  @Before
+  public void setUp() throws Exception {
+    Security.addProvider(new BouncyCastleProvider());
+    issuerCert = openX509Cert("testFiles/Juur-SK.pem.crt"); //Any certificate will do
+    when(issuerCertToken.getCertificate()).thenReturn(issuerCert);
+  }
+
   @Test
   public void gettingOCSPToken_shouldReturnNull_whenOCSPResponseIsEmpty() throws Exception {
     mockDataLoader();
     SKOnlineOCSPSource ocspSource = new BDocTSOcspSource(configuration);
     ocspSource.setDataLoader(dataLoader);
     CertificateToken certificateToken = new CertificateToken(CertificatesForTests.SIGN_CERT);
-    OCSPToken ocspToken = ocspSource.getOCSPToken(certificateToken, issuerCertificate);
+    OCSPToken ocspToken = ocspSource.getOCSPToken(certificateToken, issuerCertToken);
     assertNull(ocspToken);
   }
 
   private void mockDataLoader() {
     byte[] emptyOcspResponse = {48, 3, 10, 1, 6};
     when(dataLoader.post(anyString(), any(byte[].class))).thenReturn(emptyOcspResponse);
+  }
+
+  private X509Certificate openX509Cert(String path) throws CertificateException, IOException {
+    CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+    try (FileInputStream inStream = new FileInputStream(new File(path))) {
+      return  (X509Certificate) certificateFactory.generateCertificate(inStream);
+    }
   }
 }

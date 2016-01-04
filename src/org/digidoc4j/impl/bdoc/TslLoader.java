@@ -39,6 +39,7 @@ public class TslLoader implements Serializable {
   private String tslKeyStorePassword;
   private Integer connectionTimeout;
   private Integer socketTimeout;
+  private transient TSLRepository tslRepository;
 
   public TslLoader(String tslLocation, File tslKeystoreFile, String tslKeyStorePassword) {
     this.tslKeystoreFile = tslKeystoreFile;
@@ -49,7 +50,7 @@ public class TslLoader implements Serializable {
   public TSLCertificateSource createTSL() {
     try {
       TSLCertificateSource tslCertificateSource = new TSLCertificateSource(this);
-      TSLRepository tslRepository = new TSLRepository();
+      tslRepository = new TSLRepository();
       tslRepository.setTrustedListsCertificateSource(tslCertificateSource);
 
       TSLValidationJob tslValidationJob = new TSLValidationJob();
@@ -91,6 +92,10 @@ public class TslLoader implements Serializable {
 
   public void setCheckSignature(boolean checkSignature) {
     this.checkSignature = checkSignature;
+  }
+
+  protected TSLRepository getTslRepository() {
+    return tslRepository;
   }
 
   private DataLoader createDataLoader() {
