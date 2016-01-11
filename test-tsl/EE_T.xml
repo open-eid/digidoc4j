@@ -46,7 +46,7 @@
                   </tsl:DigitalId>
                </tsl:ServiceDigitalIdentity>
              </tsl:ServiceDigitalIdentities>
-            <tsl:TSLLocation>https://demo.sk.ee/TSL/tl-mp-test-EE.xml</tsl:TSLLocation>
+            <tsl:TSLLocation>file:test-tsl/trusted-test-mp.xml</tsl:TSLLocation>
             <tsl:AdditionalInformation>
                <tsl:OtherInformation>
                   <tsl:TSLType>http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUlistofthelists</tsl:TSLType>
@@ -75,7 +75,7 @@
          <tsl:dateTime>2020-08-20T21:00:00Z</tsl:dateTime>
       </tsl:NextUpdate>
       <tsl:DistributionPoints>
-         <tsl:URI>https://demo.sk.ee/TSL/EE_T.xml</tsl:URI>
+         <tsl:URI>file:test-tsl/EE_T.xml</tsl:URI>
       </tsl:DistributionPoints>
    </tsl:SchemeInformation>
    <tsl:TrustServiceProviderList>

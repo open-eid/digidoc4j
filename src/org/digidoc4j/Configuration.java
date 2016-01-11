@@ -173,7 +173,7 @@ public class Configuration implements Serializable {
 
     if (mode == Mode.TEST) {
       configuration.put("tspSource", "http://demo.sk.ee/tsa");
-      configuration.put("tslLocation", "http://10.0.25.57/tsl/trusted-test-mp.xml");
+      configuration.put("tslLocation", "file:test-tsl/trusted-test-mp.xml");
       configuration.put("tslKeyStoreLocation", "keystore/test-keystore.jks");
       configuration.put("validationPolicy", "conf/test_constraint.xml");
       configuration.put("ocspSource", TEST_OCSP_URL);
