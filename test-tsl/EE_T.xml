@@ -32,7 +32,7 @@
          <tsl:URI xml:lang="en">http://uri.etsi.org/TrstSvc/TrustedList/schemerules/EUcommon</tsl:URI>
          <tsl:URI xml:lang="en">http://uri.etsi.org/TrstSvc/TrustedList/schemerules/EE</tsl:URI>
       </tsl:SchemeTypeCommunityRules>
-      <tsl:SchemeTerritory>EE</tsl:SchemeTerritory>
+      <tsl:SchemeTerritory>EE_T</tsl:SchemeTerritory>
       <tsl:PolicyOrLegalNotice>
          <tsl:TSLLegalNotice xml:lang="en">The present TSL implementation of test certificates is not applicable to any legal frameworks</tsl:TSLLegalNotice>
       </tsl:PolicyOrLegalNotice>
@@ -62,7 +62,7 @@
                   </tsl:SchemeTypeCommunityRules>
                </tsl:OtherInformation>
                <tsl:OtherInformation>
-                  <tsl:SchemeTerritory>EE</tsl:SchemeTerritory>
+                  <tsl:SchemeTerritory>EE_T</tsl:SchemeTerritory>
                </tsl:OtherInformation>
                <tsl:OtherInformation>
                   <tslx:MimeType>application/vnd.etsi.tsl+xml</tslx:MimeType>

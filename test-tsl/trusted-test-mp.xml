@@ -30,7 +30,7 @@
       <SchemeTypeCommunityRules>
          <URI xml:lang="en">http://uri.etsi.org/TrstSvc/TrustedList/schemerules/EUlistofthelists</URI>
       </SchemeTypeCommunityRules>
-      <SchemeTerritory>EE</SchemeTerritory>
+      <SchemeTerritory>EU</SchemeTerritory>
       <PolicyOrLegalNotice>
          <TSLLegalNotice xml:lang="en">The present TSL implementation of ponters to test TSL lists is not applicable to any legal frameworks</TSLLegalNotice>
       </PolicyOrLegalNotice>

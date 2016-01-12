@@ -59,7 +59,7 @@ public class TslLoader implements Serializable {
       KeyStoreCertificateSource keyStoreCertificateSource = new KeyStoreCertificateSource(tslKeystoreFile, tslKeyStorePassword);
       tslValidationJob.setDssKeyStore(keyStoreCertificateSource);
       tslValidationJob.setLotlUrl(tslLocation);
-      tslValidationJob.setLotlCode("EE");
+      tslValidationJob.setLotlCode("EU");
       tslValidationJob.setRepository(tslRepository);
       tslValidationJob.setCheckLOTLSignature(checkSignature);
       tslValidationJob.setCheckTSLSignatures(checkSignature);
