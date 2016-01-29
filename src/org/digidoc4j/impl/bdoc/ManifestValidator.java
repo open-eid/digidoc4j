@@ -28,7 +28,6 @@ import org.w3c.dom.Node;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSXMLUtils;
-import eu.europa.esig.dss.validation.AdvancedSignature;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 
 /**
@@ -38,29 +37,36 @@ public class ManifestValidator {
   private static final Logger logger = LoggerFactory.getLogger(ManifestValidator.class);
   public static final String MANIFEST_PATH = "META-INF/manifest.xml";
   public static final String MIMETYPE_PATH = "mimetype";
-  private SignedDocumentValidator asicValidator;
+  //private SignedDocumentValidator asicValidator;
   private List<DSSDocument> detachedContents;
   private ManifestParser manifestParser;
+  private Collection<Signature> signatures;
 
   /**
    * Constructor.
    *
    * @param validator Validator object
    */
+  @Deprecated
   public ManifestValidator(SignedDocumentValidator validator) {
     logger.debug("");
-    asicValidator = validator;
-    detachedContents = asicValidator.getDetachedContents();
+    //asicValidator = validator;
+    //detachedContents = asicValidator.getDetachedContents();
     manifestParser = ManifestParser.findAndOpenManifestFile(detachedContents);
+  }
+
+  public ManifestValidator(ManifestParser manifestParser, List<DSSDocument> detachedContents, Collection<Signature> signatures) {
+    this.manifestParser = manifestParser;
+    this.detachedContents = detachedContents;
+    this.signatures = signatures;
   }
 
   /**
    * Validate the container.
    *
-   * @param signatures list of signatures
    * @return list of error messages
    */
-  public List<String> validateDocument(Collection<Signature> signatures) {
+  public List<String> validateDocument() {
     logger.debug("");
     if (!manifestParser.containsManifestFile()) {
       String errorMessage = "Container does not contain manifest file.";
@@ -217,9 +223,11 @@ public class ManifestValidator {
     return fileEntries;
   }
 
+  @Deprecated
+  //Not needed anymore as getFilesInContainer iterates over data files only
   private List<String> getSignatureFileNames() {
     List<String> signatureFileNames = new ArrayList<>();
-    for (AdvancedSignature signature : asicValidator.getSignatures()) {
+    for (Signature signature :signatures) {
       String signatureFileName = "META-INF/signature" + signature.getId().toLowerCase() + ".xml";
 
       if (signatureFileNames.contains(signatureFileName)) {

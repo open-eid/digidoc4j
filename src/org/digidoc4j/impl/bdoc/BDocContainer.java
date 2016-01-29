@@ -11,11 +11,15 @@
 package org.digidoc4j.impl.bdoc;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.DataFile;
@@ -26,51 +30,134 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
 import org.digidoc4j.ValidationResult;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.DuplicateDataFileException;
+import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.bdoc.asic.BDocContainerValidator;
+import org.digidoc4j.impl.bdoc.asic.AsicContainerCreator;
+import org.digidoc4j.impl.bdoc.asic.AsicParseResult;
+import org.digidoc4j.impl.bdoc.xades.SignatureExtender;
+import org.digidoc4j.impl.bdoc.xades.XadesSignatureParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import eu.europa.esig.dss.DSSDocument;
 
 public class BDocContainer implements Container {
 
-  private AsicFacade asicFacade;
+  private static final Logger logger = LoggerFactory.getLogger(BDocContainer.class);
+  private List<Signature> signatures = new ArrayList<>();
+  private List<DataFile> dataFiles = new ArrayList<>();
+  private Configuration configuration;
+  private ValidationResult validationResult;
+  private AsicParseResult containerParseResult;
 
-  public BDocContainer(AsicFacade asicFacade) {
-    this.asicFacade = asicFacade;
-  }
 
   public BDocContainer() {
-    asicFacade = new AsicFacade();
+    logger.debug("Instantiating BDoc container");
+    configuration = new Configuration();
   }
 
   public BDocContainer(Configuration configuration) {
-    asicFacade = new AsicFacade(configuration);
+    logger.debug("Instantiating BDoc container with configuration");
+    this.configuration = configuration;
+  }
+
+  public BDocContainer(String containerPath) {
+    this(containerPath, new Configuration());
+  }
+
+  public BDocContainer(String containerPath, Configuration configuration) {
+    logger.debug("Opening container from " + containerPath);
+    this.configuration = configuration;
+    openContainer(containerPath);
+  }
+
+  public BDocContainer(InputStream stream) {
+    this(stream, new Configuration());
+  }
+
+  public BDocContainer(InputStream stream, Configuration configuration) {
+    logger.debug("Opening container from stream");
+    this.configuration = configuration;
+    openContainer(stream);
+  }
+
+  private void openContainer(String containerPath) {
+    containerParseResult = new AsicContainerParser(containerPath).read();
+    populateContainerWithParseResult(containerParseResult);
+  }
+
+  private void openContainer(InputStream inputStream) {
+    containerParseResult = new AsicContainerParser(inputStream).read();
+    populateContainerWithParseResult(containerParseResult);
+  }
+
+  private void populateContainerWithParseResult(AsicParseResult parseResult) {
+    dataFiles = parseResult.getDataFiles();
+    List<DSSDocument> signatureFiles = parseResult.getSignatures();
+    List<DSSDocument> detachedContents = parseResult.getDetachedContents();
+    parseSignatureFiles(signatureFiles, detachedContents);
+  }
+
+  private void parseSignatureFiles(List<DSSDocument> signatureFiles, List<DSSDocument> detachedContents) {
+    XadesSignatureParser signatureParser = new XadesSignatureParser(detachedContents, configuration);
+    for(DSSDocument signatureFile: signatureFiles) {
+      List<BDocSignature> bDocSignatures = signatureParser.parse(signatureFile);
+      signatures.addAll(bDocSignatures);
+    }
   }
 
   @Override
   public DataFile addDataFile(String path, String mimeType) {
-    return asicFacade.addDataFile(path, mimeType);
+    String fileName = new File(path).getName();
+    verifyIfAllowedToAddDataFile(fileName);
+    DataFile dataFile = new DataFile(path, mimeType);
+    dataFiles.add(dataFile);
+    return dataFile;
   }
 
   @Override
-  public DataFile addDataFile(InputStream is, String fileName, String mimeType) {
-    return asicFacade.addDataFile(is, fileName, mimeType);
+  public DataFile addDataFile(InputStream inputStream, String fileName, String mimeType) {
+    fileName = new File(fileName).getName();
+    verifyIfAllowedToAddDataFile(fileName);
+    DataFile dataFile = new DataFile(inputStream, fileName, mimeType);
+    dataFiles.add(dataFile);
+    return dataFile;
   }
 
   @Override
   public DataFile addDataFile(File file, String mimeType) {
-    return asicFacade.addDataFile(file.getPath(), mimeType);
+    verifyIfAllowedToAddDataFile(file.getName());
+    DataFile dataFile = new DataFile(file.getPath(), mimeType);
+    dataFiles.add(dataFile);
+    return dataFile;
   }
 
   @Override
   public void addDataFile(DataFile dataFile) {
-    asicFacade.addDataFile(dataFile);
+    verifyIfAllowedToAddDataFile(dataFile.getName());
+    dataFiles.add(dataFile);
   }
 
   @Override
   public void addSignature(Signature signature) {
-    asicFacade.addSignature(signature);
+    if(!(signature instanceof BDocSignature)) {
+      throw new TechnicalException("BDoc signature must be an instance of BDocSignature");
+    }
+    signatures.add(signature);
   }
 
   @Override
   public List<DataFile> getDataFiles() {
-    return asicFacade.getDataFiles();
+    return dataFiles;
+  }
+
+  @Override
+  @Deprecated
+  public DataFile getDataFile(int index) {
+    return getDataFiles().get(index);
   }
 
   @Override
@@ -80,290 +167,250 @@ public class BDocContainer implements Container {
 
   @Override
   public List<Signature> getSignatures() {
-    return asicFacade.getSignatures();
+    return signatures;
+  }
+
+  @Override
+  @Deprecated
+  public Signature getSignature(int index) {
+    return getSignatures().get(index);
   }
 
   @Override
   public void removeDataFile(DataFile file) {
-    asicFacade.removeDataFile(file.getName());
+    logger.info("Removing data file: " + file.getName());
+    validateDataFilesRemoval();
+    boolean wasRemovalSuccessful = dataFiles.remove(file);
+
+    if(!wasRemovalSuccessful) {
+      throwDataFileNotFoundException(file.getName());
+    }
+  }
+
+  @Override
+  @Deprecated
+  public void removeDataFile(String fileName) {
+    logger.info("Removing data file: " + fileName);
+    validateDataFilesRemoval();
+
+    for(DataFile dataFile: dataFiles) {
+      String name = dataFile.getName();
+      if(StringUtils.equals(fileName, name)) {
+        dataFiles.remove(dataFile);
+        logger.debug("Data file has been removed");
+        return;
+      }
+    }
+
+    throwDataFileNotFoundException(fileName);
   }
 
   @Override
   public void removeSignature(Signature signature) {
-    asicFacade.removeSignature(signature);
+    signatures.remove(signature);
+  }
+
+  @Override
+  @Deprecated
+  public void removeSignature(int signatureId) {
+    signatures.remove(signatureId);
   }
 
   @Override
   public void extendSignatureProfile(SignatureProfile profile) {
-    asicFacade.extendTo(profile);
+    logger.info("Extending all signatures' profile to " + profile.name());
+    validatePossibilityToExtendTo(profile);
+    List<DSSDocument> signaturesToExtend = containerParseResult.getSignatures();
+    DSSDocument detachedContent = containerParseResult.getDetachedContent();
+    SignatureExtender signatureExtender = new SignatureExtender(configuration, detachedContent);
+    List<DSSDocument> extendedSignatures = signatureExtender.extend(signaturesToExtend, profile);
+    this.signatures.clear();
+    parseSignatureFiles(extendedSignatures, containerParseResult.getDetachedContents());
   }
 
   @Override
   public File saveAsFile(String filePath) {
-    asicFacade.save(filePath);
-    return new File(filePath);
+    logger.info("Saving container to file: " + filePath);
+    File file = new File(filePath);
+    AsicContainerCreator zipCreator = new AsicContainerCreator(file);
+    writeAsicContainer(zipCreator);
+    return file;
   }
 
   @Override
   public InputStream saveAsStream() {
-    return asicFacade.saveAsStream();
+    AsicContainerCreator zipCreator = new AsicContainerCreator();
+    writeAsicContainer(zipCreator);
+    return zipCreator.fetchInputStreamOfFinalizedContainer();
+  }
+
+  @Override
+  @Deprecated
+  public void save(String path) {
+    saveAsFile(path);
+  }
+
+  @Override
+  @Deprecated
+  public void save(OutputStream out) {
+    try {
+      InputStream inputStream = saveAsStream();
+      IOUtils.copy(inputStream, out);
+    } catch (IOException e) {
+      logger.error("Error saving container input stream to output stream: " + e.getMessage());
+      throw new TechnicalException("Error saving container input stream to output stream", e);
+    }
   }
 
   @Override
   public ValidationResult validate() {
-    return asicFacade.validate();
+    if(validationResult == null) {
+      validationResult = new BDocContainerValidator(signatures, containerParseResult).validate();
+    }
+    return validationResult;
   }
 
-  /**
-   * Prepare signature.
-   * After preparing the signature the container will have to be signed as well
-   *
-   * @param signerCert X509 Certificate to be used for preparing the signature
-   * @return Signed info
-   * @deprecated will be removed in the future.
-   */
   @Override
   @Deprecated
   public SignedInfo prepareSigning(X509Certificate signerCert) {
-    return asicFacade.prepareSigning(signerCert);
+    return null;
   }
 
-  /**
-   * Return signature profile
-   *
-   * @deprecated will be removed in the future.
-   */
   @Override
   @Deprecated
   public String getSignatureProfile() {
-    return asicFacade.getSignatureProfile();
+    return null;
   }
 
-  /**
-   * Set signature parameters
-   *
-   * @param signatureParameters Signature parameters. These are  related to the signing location and signer roles
-   * @deprecated will be removed in the future.
-   */
   @Override
   @Deprecated
   public void setSignatureParameters(SignatureParameters signatureParameters) {
-    asicFacade.setSignatureParameters(signatureParameters);
+
   }
 
-  /**
-   * Get digest algorithm
-   *
-   * @return Digest algorithm
-   * @deprecated will be removed in the future.
-   */
   @Override
   @Deprecated
   public DigestAlgorithm getDigestAlgorithm() {
-    return asicFacade.getDigestAlgorithm();
+    return null;
   }
 
-  /**
-   * Adds a signature to the container.
-   *
-   * @param signature signature to be added to the container
-   * @deprecated will be removed in the future.
-   */
   @Override
   @Deprecated
   public void addRawSignature(byte[] signature) {
-    asicFacade.addRawSignature(signature);
+    logger.warn("Not yet implemented");
+    throw new NotYetImplementedException();
   }
 
-  /**
-   * Adds signature from the input stream to the container.
-   * For BDOC it throws a NotYetImplementedException().
-   *
-   * @param signatureStream signature to be added to the container
-   * @deprecated will be removed in the future.
-   */
   @Override
   @Deprecated
   public void addRawSignature(InputStream signatureStream) {
-    asicFacade.addRawSignature(signatureStream);
+    logger.warn("Not yet implemented");
+    throw new NotYetImplementedException();
   }
 
-  /**
-   * Returns a data file
-   *
-   * @param index index number of the data file to return
-   * @return data file
-   * @deprecated will be removed in the future.
-   */
-  @Override
-  @Deprecated
-  public DataFile getDataFile(int index) {
-    return asicFacade.getDataFile(index);
-  }
-
-  /**
-   * Return the count of DataFile objects
-   *
-   * @return count of DataFile objects
-   * @deprecated will be removed in the future.
-   */
   @Override
   @Deprecated
   public int countDataFiles() {
-    return asicFacade.countDataFiles();
+    return getDataFiles().size();
   }
 
-  /**
-   * Removes a data file from the container by data file name. Any corresponding signatures will be deleted.
-   *
-   * @param fileName name of the data file to be removed
-   * @deprecated will be removed in the future.
-   */
-  @Override
-  @Deprecated
-  public void removeDataFile(String fileName) {
-    asicFacade.removeDataFile(fileName);
-  }
-
-  /**
-   * Removes the signature with the given signature id from the container.
-   *
-   * @param signatureId id of the signature to be removed
-   * @deprecated will be removed in the future.
-   */
-  @Override
-  @Deprecated
-  public void removeSignature(int signatureId) {
-    asicFacade.removeSignature(signatureId);
-  }
-
-  /**
-   * Saves the container to the specified location.
-   *
-   * @param path file name and path.
-   * @deprecated will be removed in the future.
-   */
-  @Override
-  @Deprecated
-  public void save(String path) {
-    asicFacade.save(path);
-  }
-
-  /**
-   * Saves the container to the java.io.OutputStream.
-   *
-   * @param out output stream.
-   * @see OutputStream
-   * @deprecated will be removed in the future.
-   */
-  @Override
-  @Deprecated
-  public void save(OutputStream out) {
-    asicFacade.save(out);
-  }
-
-  /**
-   * Signs all data files in the container.
-   *
-   * @param signatureToken signatureToken implementation
-   * @return signature
-   * @deprecated will be removed in the future.
-   */
   @Override
   @Deprecated
   public Signature sign(SignatureToken signatureToken) {
-    return asicFacade.sign(signatureToken);
+    return null;
   }
 
-  /**
-   * Signs all data files in the container.
-   *
-   * @param rawSignature raw signature
-   * @return signature
-   * @deprecated will be removed in the future.
-   */
   @Override
   @Deprecated
   public Signature signRaw(byte[] rawSignature) {
-    return asicFacade.signRaw(rawSignature);
+    return null;
   }
 
-  /**
-   * Return signature
-   *
-   * @param index index number of the signature to return
-   * @return signature
-   * @deprecated will be removed in the future.
-   */
-  @Override
-  @Deprecated
-  public Signature getSignature(int index) {
-    return asicFacade.getSignature(index);
-  }
-
-  /**
-   * Return the count of Signature objects
-   *
-   * @return count of Signature objects
-   * @deprecated will be removed in the future.
-   */
   @Override
   @Deprecated
   public int countSignatures() {
-    return asicFacade.countSignatures();
+    return getSignatures().size();
   }
 
-  /**
-   * Returns document type ASiC or DDOC
-   *
-   * @return document type
-   * @deprecated will be removed in the future.
-   */
   @Override
   @Deprecated
   public DocumentType getDocumentType() {
-    return asicFacade.getDocumentType();
+    return Container.DocumentType.BDOC;
   }
 
-  /**
-   * Returns container version in case of DDOC. BDOC does not have a version and it returns null
-   *
-   * @return version
-   * @deprecated will be removed in the future.
-   */
   @Override
   @Deprecated
   public String getVersion() {
-    return asicFacade.getVersion();
+    return null;
   }
 
-  /**
-   * Extends signature profile to SignatureProfile
-   * *
-   *
-   * @param profile signature profile
-   * @see SignatureProfile
-   * @deprecated will be removed in the future.
-   */
   @Override
   @Deprecated
   public void extendTo(SignatureProfile profile) {
-    asicFacade.extendTo(profile);
+    extendSignatureProfile(profile);
   }
 
-  /**
-   * Extends signature profile to @see SignatureProfile
-   *
-   * @param profile signature profile
-   * @deprecated will be removed in the future.
-   */
   @Override
   @Deprecated
   public void setSignatureProfile(SignatureProfile profile) {
-    asicFacade.setSignatureProfile(profile);
+
   }
 
-  public AsicFacade getAsicFacade() {
-    return asicFacade;
+  public Configuration getConfiguration() {
+    return configuration;
+  }
+
+  private void validateDataFilesRemoval() {
+    if(!signatures.isEmpty()) {
+      logger.error("Datafiles cannot be removed from an already signed container");
+      throw new DigiDoc4JException("Datafiles cannot be removed from an already signed container");
+    }
+  }
+
+  private void throwDataFileNotFoundException(String fileName) {
+    DigiDoc4JException exception = new DigiDoc4JException("File not found: " + fileName);
+    logger.error(exception.getMessage());
+    throw exception;
+  }
+
+  private void verifyIfAllowedToAddDataFile(String fileName) {
+    if (signatures.size() > 0) {
+      String errorMessage = "Datafiles cannot be added to an already signed container";
+      logger.error(errorMessage);
+      throw new DigiDoc4JException(errorMessage);
+    }
+
+    checkForDuplicateDataFile(fileName);
+  }
+
+  private void checkForDuplicateDataFile(String fileName) {
+    logger.debug("");
+    for (DataFile dataFile : dataFiles) {
+      String dataFileName = dataFile.getName();
+      if (StringUtils.equals(dataFileName, fileName)) {
+        String errorMessage = "Data file " + fileName + " already exists";
+        logger.error(errorMessage);
+        throw new DuplicateDataFileException(errorMessage);
+      }
+    }
+  }
+
+  private void writeAsicContainer(AsicContainerCreator zipCreator) {
+    zipCreator.writeAsiceMimeType();
+    zipCreator.writeManifest(dataFiles);
+    zipCreator.writeDataFiles(dataFiles);
+    zipCreator.writeSignatures(signatures);
+    zipCreator.finalizeZipFile();
+  }
+
+  private void validatePossibilityToExtendTo(SignatureProfile profile) {
+    logger.debug("Validating if it's possible to extend all the signatures to " + profile);
+    for(Signature signature: signatures) {
+      if (profile == signature.getProfile()) {
+        String errorMessage = "It is not possible to extend the signature to the same level";
+        logger.error(errorMessage);
+        throw new DigiDoc4JException(errorMessage);
+      }
+    }
   }
 }

@@ -18,7 +18,6 @@ import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.bdoc.AsicFacade;
 import org.digidoc4j.impl.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocOpener;
 import org.digidoc4j.utils.Helper;
@@ -90,8 +89,8 @@ public class ContainerOpener {
 
     try {
       if (Helper.isZipFile(bufferedInputStream)) {
-        AsicFacade facade = new AsicFacade(bufferedInputStream, actAsBigFilesSupportEnabled);
-        return new BDocContainer(facade);
+        //TODO support big file support flag
+        return new BDocContainer(bufferedInputStream);
       } else {
         return new DDocOpener().open(bufferedInputStream);
       }
@@ -117,8 +116,7 @@ public class ContainerOpener {
 
     try {
       if (Helper.isZipFile(bufferedInputStream)) {
-        AsicFacade facade = new AsicFacade(bufferedInputStream, true, configuration);
-        return new BDocContainer(facade);
+        return new BDocContainer(bufferedInputStream, configuration);
       } else {
         return new DDocOpener().open(bufferedInputStream, configuration);
       }
@@ -132,7 +130,6 @@ public class ContainerOpener {
 
   private static Container openBDocContainer(String path, Configuration configuration) {
     configuration.loadConfiguration("digidoc4j.yaml");
-    AsicFacade facade = new AsicFacade(path, configuration);
-    return new BDocContainer(facade);
+    return new BDocContainer(path, configuration);
   }
 }

@@ -11,23 +11,15 @@
 package org.digidoc4j.impl.bdoc;
 
 import static eu.europa.esig.dss.DSSXMLUtils.createDocument;
-import static org.digidoc4j.SignatureProfile.B_BES;
-import static org.digidoc4j.SignatureProfile.LT;
-import static org.digidoc4j.SignatureProfile.LTA;
-import static org.digidoc4j.SignatureProfile.LT_TM;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.RespID;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
@@ -35,48 +27,47 @@ import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.CertificateNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.impl.bdoc.xades.XadesSignatureWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import eu.europa.esig.dss.ASiCNamespaces;
 import eu.europa.esig.dss.DSSXMLUtils;
-import eu.europa.esig.dss.SignatureLevel;
+import eu.europa.esig.dss.DigestAlgorithm;
 import eu.europa.esig.dss.asic.signature.ASiCService;
 import eu.europa.esig.dss.validation.SignatureProductionPlace;
-import eu.europa.esig.dss.validation.TimestampToken;
 import eu.europa.esig.dss.x509.CertificateToken;
-import eu.europa.esig.dss.x509.SignaturePolicy;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
-
 
 /**
  * BDoc signature implementation.
  */
 public class BDocSignature implements Signature {
   private static final Logger logger = LoggerFactory.getLogger(BDocSignature.class);
-  private XAdESSignature origin;
   private SignatureProductionPlace signerLocation;
-  private List<DigiDoc4JException> validationErrors = new ArrayList<>();
-  private static final Map<SignatureLevel, SignatureProfile> signatureProfileMap =
-      new HashMap<SignatureLevel, SignatureProfile>() {
-        {
-          put(SignatureLevel.XAdES_BASELINE_B, B_BES);
-          put(SignatureLevel.XAdES_BASELINE_T, LT);
-          put(SignatureLevel.XAdES_BASELINE_LT, LT);
-          put(SignatureLevel.XAdES_BASELINE_LTA, LTA);
-          put(SignatureLevel.XAdES_A, LTA);
-        }
-      };
+  private List<DigiDoc4JException> validationErrors;
+  private XadesSignatureWrapper signatureWrapper;
+  private XadesSignatureValidator validator;
 
   /**
    * Create a new BDoc signature.
    *
    * @param signature XAdES signature to use for the BDoc signature
    */
+  @Deprecated
   public BDocSignature(XAdESSignature signature) {
-    origin = signature;
     signerLocation = signature.getSignatureProductionPlace();
+
+    this.signatureWrapper = new XadesSignatureWrapper(signature);
+    validationErrors = new ArrayList<>();
+    logger.debug("New BDoc signature created");
+  }
+
+  public BDocSignature(XadesSignatureWrapper signatureWrapper, XadesSignatureValidator validator) {
+    this.signatureWrapper = signatureWrapper;
+    this.validator = validator;
+    this.signerLocation = signatureWrapper.getSignatureProductionPlace();
     logger.debug("New BDoc signature created");
   }
 
@@ -92,7 +83,7 @@ public class BDocSignature implements Signature {
 
   @Override
   public String getId() {
-    return origin.getId();
+    return getOrigin().getId();
   }
 
   @Override
@@ -105,11 +96,11 @@ public class BDocSignature implements Signature {
   public X509Cert getOCSPCertificate() {
     logger.debug("");
 
-    if (origin.getOCSPSource().getContainedOCSPResponses().size() == 0)
+    if (getOrigin().getOCSPSource().getContainedOCSPResponses().size() == 0)
       return null;
 
     String ocspCN = getOCSPCommonName();
-    for (CertificateToken cert : origin.getCertPool().getCertificateTokens()) {
+    for (CertificateToken cert : getOrigin().getCertPool().getCertificateTokens()) {
       String value = getCN(new X500Name(cert.getSubjectX500Principal().getName()));
       if (value.equals(ocspCN))
         return new X509Cert(cert.getCertificate());
@@ -121,7 +112,7 @@ public class BDocSignature implements Signature {
   }
 
   private String getOCSPCommonName() {
-    RespID responderId = origin.getOCSPSource().getContainedOCSPResponses().get(0).getResponderId();
+    RespID responderId = getOrigin().getOCSPSource().getContainedOCSPResponses().get(0).getResponderId();
     String commonName = getCN(responderId.toASN1Object().getName());
     logger.debug("OCSP common name: " + commonName);
     return commonName;
@@ -147,14 +138,7 @@ public class BDocSignature implements Signature {
 
   @Override
   public Date getOCSPResponseCreationTime() {
-    List<BasicOCSPResp> ocspResponses = origin.getOCSPSource().getContainedOCSPResponses();
-    if(ocspResponses.isEmpty()) {
-      logger.warn("Signature is missing OCSP response");
-      return null;
-    }
-    Date date = ocspResponses.get(0).getProducedAt();
-    logger.debug("Produced at date: " + date);
-    return date;
+    return signatureWrapper.getOCSPResponseCreationTime();
   }
 
   @Override
@@ -165,13 +149,7 @@ public class BDocSignature implements Signature {
 
   @Override
   public Date getTimeStampCreationTime() {
-    List<TimestampToken> signatureTimestamps = origin.getSignatureTimestamps();
-    if (signatureTimestamps.size() == 0) {
-      return null;
-    }
-    Date date = signatureTimestamps.get(0).getGenerationTime();
-    logger.debug("Time stamp creation time: " + date);
-    return date;
+    return signatureWrapper.getTimeStampCreationTime();
   }
 
   /**
@@ -184,46 +162,35 @@ public class BDocSignature implements Signature {
    */
   @Override
   public Date getTrustedSigningTime() {
-    if(getProfile() == B_BES) {
-      return null;
-    }
-    if(getProfile() == LT_TM) {
-      return getOCSPResponseCreationTime();
-    }
-    return getTimestampOrOcspResponseTime();
+    return signatureWrapper.getTrustedSigningTime();
   }
 
   @Override
   public SignatureProfile getProfile() {
-    if (isTimeMarkSignature()) {
-      return LT_TM;
-    }
-    SignatureLevel dataFoundUpToLevel = origin.getDataFoundUpToLevel();
-    logger.debug("getting profile for: " + dataFoundUpToLevel);
-    return signatureProfileMap.get(dataFoundUpToLevel);
+    return signatureWrapper.getProfile();
   }
 
   @Override
   public String getSignatureMethod() {
-    String xmlId = origin.getDigestAlgorithm().getXmlId();
+    String xmlId = getOrigin().getDigestAlgorithm().getXmlId();
     logger.debug("Signature method: " + xmlId);
     return xmlId;
   }
 
   @Override
   public List<String> getSignerRoles() {
-    String[] claimedSignerRoles = origin.getClaimedSignerRoles();
+    String[] claimedSignerRoles = getOrigin().getClaimedSignerRoles();
     return claimedSignerRoles == null ? null : Arrays.asList(claimedSignerRoles);
   }
 
   @Override
   public X509Cert getSigningCertificate() {
-    return new X509Cert(origin.getSigningCertificateToken().getCertificate());
+    return new X509Cert(getOrigin().getSigningCertificateToken().getCertificate());
   }
 
   @Override
   public Date getClaimedSigningTime() {
-    Date signingTime = origin.getSigningTime();
+    Date signingTime = getOrigin().getSigningTime();
     logger.debug("Signing time: " + signingTime);
     return signingTime;
   }
@@ -248,18 +215,22 @@ public class BDocSignature implements Signature {
   @Override
   public X509Cert getTimeStampTokenCertificate() {
     logger.debug("");
-    if (origin.getSignatureTimestamps() == null || origin.getSignatureTimestamps().size() == 0) {
+    if (getOrigin().getSignatureTimestamps() == null || getOrigin().getSignatureTimestamps().size() == 0) {
       CertificateNotFoundException exception = new CertificateNotFoundException("TimeStamp certificate not found");
       logger.error(exception.getMessage());
       throw exception;
     }
-    return new X509Cert(origin.getSignatureTimestamps().get(0).getIssuerToken().getCertificate());
+    return new X509Cert(getOrigin().getSignatureTimestamps().get(0).getIssuerToken().getCertificate());
   }
 
   @Override
   public List<DigiDoc4JException> validate() {
-    if(validationErrors != null) {
+    logger.debug("Validating signature");
+    if(validationErrors == null) {
+      validationErrors = validator.extractValidationErrors();
       logger.info("Signature has " + validationErrors.size() + " validation errors");
+    } else {
+      logger.debug("Using existing validation errors with error count: " + validationErrors.size());
     }
     return validationErrors;
   }
@@ -267,7 +238,7 @@ public class BDocSignature implements Signature {
   @Override
   public byte[] getAdESSignature() {
     logger.debug("");
-    Document document = createDocument(ASiCNamespaces.ASiC, ASiCService.ASICS_NS, origin.getSignatureElement());
+    Document document = createDocument(ASiCNamespaces.ASiC, ASiCService.ASICS_NS, getOrigin().getSignatureElement());
     return DSSXMLUtils.transformDomToByteArray(document);
   }
 
@@ -278,7 +249,7 @@ public class BDocSignature implements Signature {
   }
 
   XAdESSignature getOrigin() {
-    return origin;
+    return signatureWrapper.getOrigin();
   }
 
   List<DigiDoc4JException> getValidationErrors() {
@@ -289,23 +260,7 @@ public class BDocSignature implements Signature {
     this.validationErrors = validationErrors;
   }
 
-  private boolean isTimeMarkSignature() {
-    SignaturePolicy policyId = origin.getPolicyId();
-    if(policyId == null) {
-      return false;
-    }
-    return StringUtils.equals(XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
-  }
-
-  private Date getTimestampOrOcspResponseTime() {
-    Date timeStampCreationTime = getTimeStampCreationTime();
-    if(timeStampCreationTime != null) {
-      return timeStampCreationTime;
-    }
-    Date ocspResponseTime = getOCSPResponseCreationTime();
-    if(ocspResponseTime != null) {
-      return ocspResponseTime;
-    }
-    return null;
+  DigestAlgorithm getSignatureDigestAlgorithm() {
+    return getOrigin().getDigestAlgorithm();
   }
 }

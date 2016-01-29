@@ -64,7 +64,7 @@ public class AsicContainerValidator implements Serializable {
     try {
       SignedDocumentValidator validator = openValidator();
       loadSignatures(validator);
-      List<String> manifestErrors = new ManifestValidator(validator).validateDocument(signatures);
+      List<String> manifestErrors = new ManifestValidator(validator).validateDocument();
       ValidationResultForBDoc bDocValidationResult = new ValidationResultForBDoc(validationReport, signatures, manifestErrors, signatureVerificationErrors);
       AsicContainerValidationResult validationResult = createContainerValidationResult();
       validationResult.setbDocValidationResult(bDocValidationResult);

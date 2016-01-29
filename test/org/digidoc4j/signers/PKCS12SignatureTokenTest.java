@@ -11,9 +11,7 @@
 package org.digidoc4j.signers;
 
 import org.apache.commons.codec.binary.Base64;
-import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.X509Cert;
-import org.digidoc4j.impl.bdoc.AsicFacade;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -80,10 +78,6 @@ public class PKCS12SignatureTokenTest {
         -85, 96, -23, -115, 107, -106, 57, 105, 27, -106, 75, -111, -41, 59, -23, 113, -55, 86, 70, 64, -118, -80,
         44, -48, -19, 99, -43, 106, -26,
         97, -119, -94, -9, -22, -8, 88, 62, 67, -80, 35, 110, -7, -10, 55, 73, -60, 83, -128, -57, -120, 2};
-    AsicFacade container = new AsicFacade();
-    SignatureParameters signatureParameters = new SignatureParameters();
-    signatureParameters.setDigestAlgorithm(SHA512);
-    container.setSignatureParameters(signatureParameters);
     assertTrue(Arrays.equals(expected, pkcs12Signer.sign(SHA512, new byte[]{0x41})));
   }
 

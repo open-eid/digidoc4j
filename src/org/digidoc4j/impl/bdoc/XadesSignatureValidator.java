@@ -13,6 +13,7 @@ package org.digidoc4j.impl.bdoc;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.digidoc4j.SignatureProfile.B_BES;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -34,6 +35,8 @@ import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.exceptions.TimestampAndOcspResponseTimeDeltaTooLargeException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
+import org.digidoc4j.impl.bdoc.xades.XadesSignatureWrapper;
+import org.digidoc4j.impl.bdoc.xades.XadesValidationReportGenerator;
 import org.digidoc4j.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,39 +57,65 @@ import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.x509.SignaturePolicy;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
-public class XadesSignatureValidator {
+public class XadesSignatureValidator implements Serializable {
 
   private final static Logger logger = LoggerFactory.getLogger(XadesSignatureValidator.class);
   public static final String TM_POLICY = "urn:oid:1.3.6.1.4.1.10015.1000.3.2.1";
   private static final String OIDAS_URN = "OIDAsURN";
   private static final String XADES_SIGNED_PROPERTIES = "http://uri.etsi.org/01903#SignedProperties";
-  private Reports validationReport;
-  private Map<String, SimpleReport> simpleReports;
+  private transient Reports validationReport;
+  private transient Map<String, SimpleReport> simpleReports;
   private XAdESSignature xAdESSignature;
   private List<DigiDoc4JException> validationErrors = new ArrayList<>();
   private String signatureId;
   private Configuration configuration;
 
+  private XadesValidationReportGenerator reportGenerator;
+  private XadesSignatureWrapper signatureWrapper;
+
+  @Deprecated
   public XadesSignatureValidator(Reports validationReport, XAdESSignature xAdESSignature, Configuration configuration) {
     this.validationReport = validationReport;
     this.xAdESSignature = xAdESSignature;
     this.simpleReports = extractSimpleReports(validationReport);
     this.configuration = configuration;
+    this.signatureWrapper = new XadesSignatureWrapper(xAdESSignature);
     signatureId = xAdESSignature.getId();
   }
 
+  public XadesSignatureValidator(XadesValidationReportGenerator reportGenerator, XadesSignatureWrapper signatureWrapper, Configuration configuration) {
+    this.reportGenerator = reportGenerator;
+    this.xAdESSignature = signatureWrapper.getOrigin();
+    this.configuration = configuration;
+    this.signatureWrapper = signatureWrapper;
+    signatureId = xAdESSignature.getId();
+  }
+
+  public List<DigiDoc4JException> extractValidationErrors() {
+    logger.debug("Extracting validation errors");
+    validationReport = reportGenerator.openValidationReport();
+    simpleReports = extractSimpleReports(validationReport);
+    populateValidationErrors();
+    return validationErrors;
+  }
+
+  @Deprecated
   public BDocSignature extractValidatedSignature() {
     logger.debug("Extracting errors for signature " + signatureId);
     BDocSignature signature = new BDocSignature(xAdESSignature);
+    populateValidationErrors();
+    signature.setValidationErrors(validationErrors);
+    return signature;
+  }
+
+  private void populateValidationErrors() {
     addPolicyValidationErrors();
     addSignedPropertiesReferenceValidationErrors();
     addReportedErrors();
     addTimestampErrors();
     addSigningTimeErrors();
-    addCertificateExpirationError(signature);
+    addCertificateExpirationError();
     addOcspNonceErrors();
-    signature.setValidationErrors(validationErrors);
-    return signature;
   }
 
   private void addPolicyValidationErrors() {
@@ -239,11 +268,11 @@ public class XadesSignatureValidator {
     }
   }
 
-  private void addCertificateExpirationError(BDocSignature signature) {
-    if(signature.getProfile() == B_BES) {
+  private void addCertificateExpirationError() {
+    if(signatureWrapper.getProfile() == B_BES) {
       return;
     }
-    Date signingTime = signature.getTrustedSigningTime();
+    Date signingTime = signatureWrapper.getTrustedSigningTime();
     if(signingTime == null) {
       return;
     }

@@ -8,13 +8,15 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.exceptions;
+package org.digidoc4j.impl.bdoc.asic;
 
-public class ContainerWithoutFilesException extends DigiDoc4JException {
+import org.digidoc4j.DataFile;
 
-  public static final String MESSAGE = "Container does not contain any data files";
+import eu.europa.esig.dss.DSSDocument;
 
-  public ContainerWithoutFilesException() {
-    super(MESSAGE);
+public class AsicDataFile extends DataFile {
+
+  public AsicDataFile(DSSDocument document) {
+    super(document);
   }
 }

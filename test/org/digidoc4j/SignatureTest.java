@@ -35,7 +35,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.exceptions.CertificateNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
-import org.digidoc4j.impl.bdoc.AsicFacade;
 import org.digidoc4j.impl.Certificates;
 import org.digidoc4j.impl.ddoc.DDocFacade;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
@@ -86,13 +85,9 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void testTimeStampCreationTimeForBDocWhereNotOCSP() throws ParseException {
-    AsicFacade container = new AsicFacade();
-    container.setSignatureProfile(SignatureProfile.B_BES);
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
-
-    assertNull(container.getSignature(0).getTimeStampCreationTime());
+  public void testTimeStampCreationTimeForBDocWhereNotOCSP() throws ParseException, IOException {
+    Signature signature = createSignatureFor(BDOC_CONTAINER_TYPE, SignatureProfile.B_BES);
+    assertNull(signature.getTimeStampCreationTime());
   }
 
   @Test

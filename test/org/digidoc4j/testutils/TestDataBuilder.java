@@ -10,6 +10,7 @@
 
 package org.digidoc4j.testutils;
 
+import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.testutils.TestSigningHelper.getSigningCert;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -43,6 +44,15 @@ public class TestDataBuilder {
   public static Container createContainerWithFile(TemporaryFolder testFolder, String containerType) throws IOException {
     ContainerBuilder builder = ContainerBuilder.aContainer(containerType);
     Container container = populateContainerBuilderWithFile(builder, testFolder);
+    return container;
+  }
+
+  public static Container createContainerWithFile(String dataFilePath) {
+    Container container = ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        withConfiguration(new Configuration(Configuration.Mode.TEST)).
+        withDataFile(dataFilePath, "text/plain")
+        .build();
     return container;
   }
 
@@ -109,7 +119,7 @@ public class TestDataBuilder {
         withSigningCertificate(getSigningCert());
   }
 
-  private static File createTestFile(TemporaryFolder testFolder) throws IOException {
+  public static File createTestFile(TemporaryFolder testFolder) throws IOException {
     File testFile = testFolder.newFile();
     FileUtils.writeStringToFile(testFile, "Banana Pancakes");
     return testFile;

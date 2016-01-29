@@ -20,7 +20,6 @@ import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.impl.ddoc.DDocContainer;
-import org.digidoc4j.impl.ddoc.DDocFacade;
 import org.digidoc4j.impl.ddoc.DDocSignature;
 import org.digidoc4j.impl.ddoc.ValidationResultForDDoc;
 import org.digidoc4j.signers.PKCS12SignatureToken;
@@ -108,6 +107,7 @@ public final class DigiDoc4J {
 
     try {
       Container container;
+      SignatureBuilder signatureBuilder;
 
       if (new File(inputFile).exists() || commandLine.hasOption("verify") || commandLine.hasOption("remove")) {
         verboseMessage("Opening container " + inputFile);
@@ -116,6 +116,8 @@ public final class DigiDoc4J {
         verboseMessage("Creating new " + type + "container " + inputFile);
         container = ContainerBuilder.aContainer(type.name()).build();
       }
+
+      signatureBuilder = SignatureBuilder.aSignature(container);
 
       if (commandLine.hasOption("add")) {
         String[] optionValues = commandLine.getOptionValues("add");
@@ -137,7 +139,7 @@ public final class DigiDoc4J {
         String profile = commandLine.getOptionValue("profile");
         try {
           SignatureProfile signatureProfile = SignatureProfile.valueOf(profile);
-          container.setSignatureProfile(signatureProfile);
+          signatureBuilder.withSignatureProfile(signatureProfile);
         } catch (IllegalArgumentException e) {
           System.out.println("Signature profile \"" + profile + "\" is unknown and will be ignored");
         }
@@ -151,7 +153,7 @@ public final class DigiDoc4J {
       }
 
       if (commandLine.hasOption("pkcs12")) {
-        pkcs12Sign(commandLine, container);
+        pkcs12Sign(commandLine, container, signatureBuilder);
         fileHasChanged = true;
       }
 
@@ -201,10 +203,13 @@ public final class DigiDoc4J {
     return BDOC;
   }
 
-  private static void pkcs12Sign(CommandLine commandLine, Container container) {
+  private static void pkcs12Sign(CommandLine commandLine, Container container, SignatureBuilder signatureBuilder) {
     String[] optionValues = commandLine.getOptionValues("pkcs12");
     SignatureToken pkcs12Signer = new PKCS12SignatureToken(optionValues[0], optionValues[1].toCharArray());
-    container.sign(pkcs12Signer);
+    Signature signature = signatureBuilder.
+        withSignatureToken(pkcs12Signer).
+        invokeSigning();
+    container.addSignature(signature);
   }
 
   private static void verify(Container container) {

@@ -15,6 +15,7 @@ import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -22,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -88,7 +90,7 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
         build();
     BDocContainer bDocContainer = (BDocContainer) container;
     assertEquals("BDOC", container.getType());
-    assertEquals("test-value", bDocContainer.getAsicFacade().getConfiguration().getTspSource());
+    assertEquals("test-value", bDocContainer.getConfiguration().getTspSource());
   }
 
   @Test
@@ -167,12 +169,28 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void saveContainerWithoutSignaturesToFile() throws Exception {
+    File dataFile = TestDataBuilder.createTestFile(testFolder);
+    Container container = TestDataBuilder.createContainerWithFile(dataFile.getPath());
+    String filePath = testFolder.newFile("test-container.bdoc").getPath();
+    File containerFile = container.saveAsFile(filePath);
+    assertTrue(FileUtils.sizeOf(containerFile) > 0);
+    ZipFile zip = new ZipFile(filePath);
+    assertNotNull(zip.getEntry("mimetype"));
+    assertNotNull(zip.getEntry("META-INF/manifest.xml"));
+    assertNotNull(zip.getEntry(dataFile.getName()));
+  }
+
+  @Test
   public void signAndSaveContainerToFile() throws Exception {
     Container container = TestDataBuilder.createContainerWithFile(testFolder);
     TestDataBuilder.signContainer(container);
+    assertEquals(1, container.getSignatures().size());
     String filePath = testFolder.newFile("test-container.bdoc").getPath();
     File file = container.saveAsFile(filePath);
     assertTrue(FileUtils.sizeOf(file) > 0);
+    ZipFile zip = new ZipFile(filePath);
+    assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
   }
 
   @Test
@@ -304,7 +322,7 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
         withConfiguration(configuration).
         build();
     assertContainerOpened(container, "BDOC");
-    assertEquals("test-value", ((BDocContainer) container).getAsicFacade().getConfiguration().getTspSource());
+    assertEquals("test-value", ((BDocContainer) container).getConfiguration().getTspSource());
   }
 
   @Test
@@ -387,7 +405,7 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
         fromStream(stream).
         build();
     assertContainerOpened(container, "BDOC");
-    assertEquals("test-value", ((BDocContainer) container).getAsicFacade().getConfiguration().getTspSource());
+    assertEquals("test-value", ((BDocContainer) container).getConfiguration().getTspSource());
   }
 
   @Test

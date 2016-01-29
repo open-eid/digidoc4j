@@ -32,7 +32,6 @@ import java.nio.file.Paths;
 import java.security.cert.CertificateEncodingException;
 import java.util.List;
 
-import static java.util.Arrays.asList;
 import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.digidoc4j.Configuration.Mode.TEST;
@@ -266,11 +265,11 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     assertTrue(createBDoc() instanceof BDocContainer);
   }
 
-  private BDocContainer createBDoc() {
+  private Container createBDoc() {
     Container container = ContainerBuilder.
         aContainer(BDOC_CONTAINER_TYPE).
         build();
-    return (BDocContainer) container;
+    return container;
   }
 
   @Test
@@ -302,7 +301,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   public void testRemovesOneFileFromContainerWhenFileExistsForBDoc() throws Exception {
     Container bDocContainer = createContainer();
     bDocContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    bDocContainer.removeDataFile("testFiles/test.txt");
+    bDocContainer.removeDataFile("test.txt");
     assertEquals(0, bDocContainer.getDataFiles().size());
   }
 
@@ -410,10 +409,15 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   public void openContainerFromStreamAsBDoc() throws IOException {
     Container container = createContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
-    container.save("testOpenContainerFromStreamAsBDoc.bdoc");
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureToken(PKCS12_SIGNER).
+        invokeSigning();
+    container.addSignature(signature);
+    String containerPath = testFolder.newFile().getPath();
+    container.save(containerPath);
 
-    FileInputStream stream = new FileInputStream("testOpenContainerFromStreamAsBDoc.bdoc");
+    FileInputStream stream = new FileInputStream(containerPath);
     Container containerToTest = ContainerOpener.open(stream, false);
     stream.close();
 
@@ -471,8 +475,12 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   public void testExtendToForBDOC() {
     Container container = createContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.setSignatureProfile(B_BES);
-    container.sign(PKCS12_SIGNER);
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureProfile(B_BES).
+        withSignatureToken(PKCS12_SIGNER).
+        invokeSigning();
+    container.addSignature(signature);
 
     container.extendTo(LT);
 
@@ -548,20 +556,18 @@ public class ContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testSigningWithSignerInfo() throws Exception {
-    String city = "myCity";
-    String stateOrProvince = "myStateOrProvince";
-    String postalCode = "myPostalCode";
-    String country = "myCountry";
-    String signerRoles = "myRole / myResolution";
-
-    SignatureParameters signatureParameters = new SignatureParameters();
-    signatureParameters.setProductionPlace(new SignatureProductionPlace(city, stateOrProvince, postalCode, country));
-    signatureParameters.setRoles(asList(signerRoles));
-
     Container container = createContainer();
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    container.setSignatureParameters(signatureParameters);
-    Signature signature = container.sign(PKCS12_SIGNER);
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withCity("myCity").
+        withStateOrProvince("myStateOrProvince").
+        withPostalCode("myPostalCode").
+        withCountry("myCountry").
+        withRoles("myRole / myResolution").
+        withSignatureToken(PKCS12_SIGNER).
+        invokeSigning();
+    container.addSignature(signature);
 
     assertEquals("myCity", signature.getCity());
     assertEquals("myStateOrProvince", signature.getStateOrProvince());
@@ -578,22 +584,28 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     Container container = ContainerBuilder.
         aContainer(BDOC_CONTAINER_TYPE).
         withConfiguration(conf).
+        withDataFile("testFiles/test.txt", TEXT_MIME_TYPE).
         build();
-    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    container.sign(PKCS12_SIGNER);
+    SignatureBuilder.
+        aSignature(container).
+        withSignatureToken(PKCS12_SIGNER).
+        invokeSigning();
   }
 
   @Test
   public void mustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224() throws Exception {
     Container container = createContainer();
-    SignatureParameters signatureParameters = new SignatureParameters();
-    signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA224);
-    container.setSignatureParameters(signatureParameters);
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
-    container.save("testMustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224.bdoc");
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureDigestAlgorithm(DigestAlgorithm.SHA224).
+        withSignatureToken(PKCS12_SIGNER).
+        invokeSigning();
+    container.addSignature(signature);
 
-    container = ContainerOpener.open("testMustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224.bdoc");
+    String containerPath = testFolder.newFile().getPath();
+    container.saveAsFile(containerPath);
+    container = ContainerOpener.open(containerPath);
 
     assertEquals("http://www.w3.org/2001/04/xmldsig-more#sha224", container.getSignature(0).getSignatureMethod());
   }

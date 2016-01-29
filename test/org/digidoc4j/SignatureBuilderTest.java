@@ -46,6 +46,21 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void buildingDataToSign_shouldReturnDigestToSign() throws Exception {
+    Container container = TestDataBuilder.createContainerWithFile(testFolder);
+    X509Certificate signerCert = getSigningCert();
+    SignatureBuilder builder = SignatureBuilder.
+        aSignature(container).
+        withSigningCertificate(signerCert);
+    DataToSign dataToSign = builder.buildDataToSign();
+    assertNotNull(dataToSign);
+    assertNotNull(dataToSign.getDigestToSign());
+    assertNotNull(dataToSign.getSignatureParameters());
+    assertEquals(32, dataToSign.getDigestToSign().length); //SHA256 is always 256 bits long, equivalent to 32 bytes
+    assertEquals(DigestAlgorithm.SHA256, dataToSign.getDigestAlgorithm());
+  }
+
+  @Test
   public void buildingDataToSign_shouldContainSignatureParameters() throws Exception {
     Container container = TestDataBuilder.createContainerWithFile(testFolder);
     X509Certificate signerCert = getSigningCert();
@@ -108,9 +123,18 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
         invokeSigning();
 
     container.addSignature(signature);
+    assertTrue(signature.validate().isEmpty());
+
     container.saveAsFile(testFolder.newFile("test-container2.bdoc").getPath());
 
     assertSignatureIsValid(signature);
+    assertEquals("Tallinn", signature.getCity());
+    assertEquals("Harjumaa", signature.getStateOrProvince());
+    assertEquals("13456", signature.getPostalCode());
+    assertEquals("Estonia", signature.getCountryName());
+    assertEquals(2, signature.getSignerRoles().size());
+    assertEquals("Manager", signature.getSignerRoles().get(0));
+    assertEquals("Suspicious Fisherman", signature.getSignerRoles().get(1));
   }
 
   @Test

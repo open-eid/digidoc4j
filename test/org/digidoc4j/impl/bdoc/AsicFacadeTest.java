@@ -11,16 +11,15 @@
 package org.digidoc4j.impl.bdoc;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.*;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.impl.Signatures;
-import org.digidoc4j.signers.ExternalSigner;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TSLHelper;
 import org.digidoc4j.testutils.TestDataBuilder;
+import org.digidoc4j.testutils.TestSigningHelper;
 import org.digidoc4j.utils.Helper;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -39,37 +38,28 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
-import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.List;
 import java.util.zip.ZipFile;
 
-import static java.util.Arrays.asList;
 import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
+import static org.digidoc4j.DigestAlgorithm.SHA224;
 import static org.digidoc4j.SignatureProfile.*;
 import static org.digidoc4j.DigestAlgorithm.SHA1;
 import static org.digidoc4j.DigestAlgorithm.SHA256;
 import static org.digidoc4j.EncryptionAlgorithm.ECDSA;
+import static org.digidoc4j.testutils.TestDataBuilder.signContainer;
 import static org.digidoc4j.utils.Helper.deserializer;
 import static org.digidoc4j.utils.Helper.serialize;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSXMLUtils;
 import eu.europa.esig.dss.XPathQueryHolder;
-import eu.europa.esig.dss.asic.ASiCSignatureParameters;
-import eu.europa.esig.dss.validation.policy.rules.MessageTag;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
-import prototype.samples.AsyncSigning;
 
 public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
@@ -98,83 +88,84 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testSetDigestAlgorithmToSHA256() throws Exception {
-    AsicFacade container = new AsicFacade();
-    SignatureParameters signatureParameters = new SignatureParameters();
-    signatureParameters.setDigestAlgorithm(SHA256);
-    container.setSignatureParameters(signatureParameters);
-    assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", container.getDigestAlgorithm().toString());
+    assertSettingDigestAlgorithm("http://www.w3.org/2001/04/xmlenc#sha256", SHA256);
   }
 
   @Test
   public void testSetDigestAlgorithmToSHA1() throws Exception {
-    AsicFacade container = new AsicFacade();
-    SignatureParameters signatureParameters = new SignatureParameters();
-    signatureParameters.setDigestAlgorithm(SHA1);
-    container.setSignatureParameters(signatureParameters);
-    assertEquals("http://www.w3.org/2000/09/xmldsig#sha1", container.getDigestAlgorithm().toString());
+    assertSettingDigestAlgorithm("http://www.w3.org/2000/09/xmldsig#sha1", SHA1);
   }
 
   @Test
-  public void testSetDigestAlgorithmToNotImplementedDigest() throws Exception {
-    AsicFacade container = new AsicFacade();
-    SignatureParameters signatureParameters = new SignatureParameters();
-    signatureParameters.setDigestAlgorithm(SHA256);
-    container.setSignatureParameters(signatureParameters);
-    assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", container.getDigestAlgorithm().toString());
+  public void testSetDigestAlgorithmToSHA224() throws Exception {
+    assertSettingDigestAlgorithm("http://www.w3.org/2001/04/xmldsig-more#sha224", SHA224);
+  }
+
+  private void assertSettingDigestAlgorithm(String expectedDigestAlgorithm, DigestAlgorithm actualDigestAlgorithm) throws IOException {
+    Container container = TestDataBuilder.createContainerWithFile(testFolder);
+    BDocSignature signature = (BDocSignature)SignatureBuilder.
+        aSignature(container).
+        withSignatureDigestAlgorithm(actualDigestAlgorithm).
+        withSignatureToken(PKCS12_SIGNER).
+        invokeSigning();
+    container.addSignature(signature);
+    assertEquals(expectedDigestAlgorithm, signature.getSignatureDigestAlgorithm().getXmlId());
   }
 
   @Test
   public void testDefaultDigestAlgorithm() throws Exception {
-    AsicFacade container = new AsicFacade();
-    assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", container.getDigestAlgorithm().toString());
+    Container container = TestDataBuilder.createContainerWithFile(testFolder);
+    BDocSignature signature = (BDocSignature)SignatureBuilder.
+        aSignature(container).
+        withSignatureToken(PKCS12_SIGNER).
+        invokeSigning();
+    container.addSignature(signature);
+    assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureDigestAlgorithm().getXmlId());
   }
 
   @Test
   public void testOpenBDocDocument() throws Exception {
-    AsicFacade container = new AsicFacade("testFiles/one_signature.bdoc");
-    container.verify();
+    Container container = open("testFiles/one_signature.bdoc");
+    container.validate();
   }
 
   @Test
   public void testOpenBDocDocumentWithTwoSignatures() throws Exception {
-    AsicFacade container = new AsicFacade("testFiles/two_signatures.bdoc");
-    container.verify();
+    Container container = open("testFiles/two_signatures.bdoc");
+    container.validate();
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void testAddDataFileWhenFileDoesNotExist() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("notExisting.txt", "text/plain");
+    Container container = createContainerWithFile("notExisting.txt", "text/plain");
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void testAddDataFileFromInputStreamWithByteArrayConversionFailure() throws Exception {
-    AsicFacade container = new AsicFacade();
+    Container container = create();
     container.addDataFile(new MockInputStream(), "test.txt", "text/plain");
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void testAddRawSignature() throws Exception {
-    AsicFacade container = new AsicFacade();
+    Container container = create();
     container.addRawSignature(new byte[]{});
   }
 
   @Test(expected = NotYetImplementedException.class)
   public void testAddRawSignatureFromInputStream() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
     container.addRawSignature(new ByteArrayInputStream(Signatures.XADES_SIGNATURE.getBytes()));
     container.save("test_add_raw_signature.bdoc");
 
-    AsicFacade openedContainer = open("test_add_raw_signature.bdoc");
+    Container openedContainer = open("test_add_raw_signature.bdoc");
     assertEquals(1, openedContainer.getSignatures().size());
   }
 
   @Test
   public void testAddUnknownFileTypeKeepsMimeType() {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.unknown_type", "text/test_type");
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.unknown_type", "text/test_type");
+    signContainer(container);
     container.save("test_add_unknown_datafile_type.bdoc");
 
     Container open = ContainerOpener.open("test_add_unknown_datafile_type.bdoc");
@@ -183,10 +174,9 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testSaveBDocDocumentWithTwoSignatures() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container);
+    signContainer(container);
     container.save("testTwoSignatures.bdoc");
 
     assertEquals(2, container.getSignatures().size());
@@ -195,7 +185,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         container.getSignatures().get(1).getSigningCertificate().getSerial());
 
-    AsicFacade openedContainer = open("testTwoSignatures.bdoc");
+    Container openedContainer = open("testTwoSignatures.bdoc");
 
     assertEquals(2, openedContainer.getSignatures().size());
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
@@ -206,9 +196,8 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetDefaultSignatureParameters() {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container);
     container.save("test.bdoc");
 
     container = open("test.bdoc");
@@ -222,33 +211,31 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void getSignatureByIndex() {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container);
+    signContainer(container);
 
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12", container.getSignature(1).getSigningCertificate().getSerial());
   }
 
   @Test
   public void notThrowingNPEWhenDOCXFileIsAddedToContainer() {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/word_file.docx", "text/xml");
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/word_file.docx", "text/xml");
+    signContainer(container);
     assertEquals(1, container.getSignatures().size());
   }
 
   @Test
   public void testAddSignaturesToExistingDocument() throws Exception {
-    AsicFacade container = open("testFiles/asics_testing_two_signatures.bdoc");
-    container.sign(PKCS12_SIGNER);
+    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
+    signContainer(container);
     container.save("testAddMultipleSignatures.bdoc");
 
     assertEquals(3, container.getSignatures().size());
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
         container.getSignatures().get(2).getSigningCertificate().getSerial());
 
-    AsicFacade openedContainer = open("testAddMultipleSignatures.bdoc");
+    Container openedContainer = open("testAddMultipleSignatures.bdoc");
 
     assertEquals(3, openedContainer.getSignatures().size());
     assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
@@ -260,53 +247,51 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testRemoveSignatureWhenOneSignatureExists() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container);
     container.removeSignature(0);
     container.save("testRemoveSignature.bdoc");
     assertEquals(0, container.getSignatures().size());
 
-    container = new AsicFacade("testRemoveSignature.bdoc");
+    container = open("testRemoveSignature.bdoc");
     assertEquals(0, container.getSignatures().size());
   }
 
     @Test
     public void testAddFilesWithSpecialCharactersIntoContainer() throws Exception {
-        AsicFacade container = new AsicFacade();
-        container.addDataFile("testFiles/special-char-files/dds_dds_JÜRIÖÖ € žŠ päev.txt", "text/plain");
-        container.addDataFile("testFiles/special-char-files/dds_колючей стерне.docx", "text/plain");
-        container.sign(PKCS12_SIGNER);
-        container.save("testWithSpecialCharFiles.bdoc");
+      Container container = createContainerWithFile("testFiles/special-char-files/dds_dds_JÜRIÖÖ € žŠ päev.txt", "text/plain");
+      container.addDataFile("testFiles/special-char-files/dds_колючей стерне.docx", "text/plain");
+      signContainer(container);
+      container.saveAsFile("testWithSpecialCharFiles.bdoc");
 
-        assertEquals(0, container.verify().getContainerErrors().size());
+      assertEquals(0, container.validate().getContainerErrors().size());
     }
 
     @Test
   public void testRemoveSignatureWhenTwoSignaturesExist() throws Exception {
-    AsicFacade container = open("testFiles/asics_testing_two_signatures.bdoc");
+    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
     assertEquals(2, container.getSignatures().size());
     container.removeSignature(0);
     container.save("testRemoveSignature.bdoc");
 
-    container = new AsicFacade("testRemoveSignature.bdoc");
+    container = open("testRemoveSignature.bdoc");
     assertEquals(1, container.getSignatures().size());
   }
 
   @Test
   public void testRemoveSignatureWhenThreeSignaturesExist() throws Exception {
-    AsicFacade container = open("testFiles/asics_testing_two_signatures.bdoc");
+    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
 
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     container.save("testThreeSignatures.bdoc");
-    container = new AsicFacade("testThreeSignatures.bdoc");
+    container = open("testThreeSignatures.bdoc");
     assertEquals(3, container.getSignatures().size());
 
     container.removeSignature(1);
 
     container.save("testRemoveSignature.bdoc");
 
-    container = new AsicFacade("testRemoveSignature.bdoc");
+    container = open("testRemoveSignature.bdoc");
     assertEquals(2, container.getSignatures().size());
   }
 
@@ -318,21 +303,21 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testVerifySignedDocument() throws Exception {
-    AsicFacade container = (AsicFacade) createSignedBDocDocument("testSaveBDocDocumentWithOneSignature.bdoc");
-    ValidationResult result = container.verify();
+    Container container = createSignedBDocDocument("testSaveBDocDocumentWithOneSignature.bdoc");
+    ValidationResult result = container.validate();
     assertFalse(result.hasErrors());
   }
 
   @Test
   public void testTestVerifyOnInvalidDocument() throws Exception {
-    AsicFacade container = new AsicFacade("testFiles/invalid_container.bdoc");
-    assertTrue(container.verify().hasErrors());
+    Container container = open("testFiles/invalid_container.bdoc");
+    assertTrue(container.validate().hasErrors());
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void testRemoveDataFileAfterSigning() throws Exception {
     createSignedBDocDocument("testRemoveDataFile.bdoc");
-    AsicFacade container = new AsicFacade("testRemoveDataFile.bdoc");
+    Container container = open("testRemoveDataFile.bdoc");
     assertEquals("test.txt", container.getDataFiles().get(0).getName());
     assertEquals(1, container.getDataFiles().size());
     container.removeDataFile("test.txt");
@@ -341,39 +326,36 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testRemoveDataFile() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
     assertEquals("test.txt", container.getDataFiles().get(0).getName());
     assertEquals(1, container.getDataFiles().size());
-    container.removeDataFile("testFiles/test.txt");
+    container.removeDataFile("test.txt");
     assertEquals(0, container.getDataFiles().size());
   }
-
 
   @Test(expected = DigiDoc4JException.class)
   public void testAddDataFileAfterSigning() throws Exception {
     createSignedBDocDocument("testAddDataFile.bdoc");
-    AsicFacade container = new AsicFacade("testAddDataFile.bdoc");
+    Container container = open("testAddDataFile.bdoc");
     container.addDataFile("testFiles/test.txt", "text/plain");
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void testRemovingNonExistingFile() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
     container.removeDataFile("test1.txt");
   }
 
+
   @Test(expected = DuplicateDataFileException.class)
   public void testAddingSameFileSeveralTimes() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
     container.addDataFile("testFiles/test.txt", "text/plain");
   }
-  
+
   @Test(expected = DuplicateDataFileException.class)
   public void testAddingSamePreCreatedFileSeveralTimes() {
-    AsicFacade container = new AsicFacade();
+    Container container = create();
     DataFile dataFile = new DataFile("Hello world!".getBytes(), "test-file.txt", "text/plain");
     container.addDataFile(dataFile);
     container.addDataFile(dataFile);
@@ -381,69 +363,72 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testAddingDifferentPreCreatedFiles() {
-    AsicFacade container = new AsicFacade();
+    Container container = create();
     container.addDataFile(new DataFile("Hello world!".getBytes(), "hello.txt", "text/plain"));
-    container.addDataFile(new DataFile("Goodbye world!".getBytes(), "goodbye.txt", "text/plain")); 
+    container.addDataFile(new DataFile("Goodbye world!".getBytes(), "goodbye.txt", "text/plain"));
   }
 
   @Test(expected = DuplicateDataFileException.class)
   public void testAddingSameFileSeveralTimesViaInputStream() throws Exception {
-    AsicFacade container = new AsicFacade();
+    Container container = create();
     container.addDataFile(new ByteArrayInputStream("test".getBytes()), "testFiles/test.txt", "text/plain");
     container.addDataFile(new ByteArrayInputStream("test".getBytes()), "testFiles/test.txt", "text/plain");
   }
 
   @Test
   public void testAddDateFileViaInputStream() throws Exception {
-    AsicFacade container = new AsicFacade();
+    Container container = create();
     container.addDataFile(new ByteArrayInputStream("test".getBytes()), "testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     assertTrue(container.validate().isValid());
   }
 
   @Test(expected = DuplicateDataFileException.class)
   public void testAddingSameFileInDifferentContainerSeveralTimes() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
     container.addDataFile("testFiles/sub/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     container.save("testAddSameFile.bdoc");
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void testAddingNotExistingFile() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("notExistingFile.txt", "text/plain");
+    Container container = createContainerWithFile("notExistingFile.txt", "text/plain");
   }
 
   @Test
   public void testAddFileAsStream() throws Exception {
-    AsicFacade container = new AsicFacade();
+    Container container = create();
     ByteArrayInputStream stream = new ByteArrayInputStream("tere, tere".getBytes());
     container.addDataFile(stream, "test1.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     container.save("testAddFileAsStream.bdoc");
 
-    AsicFacade containerToTest = new AsicFacade("testAddFileAsStream.bdoc");
+    Container containerToTest = open("testAddFileAsStream.bdoc");
     assertEquals("test1.txt", containerToTest.getDataFiles().get(0).getName());
   }
 
   @Test
   public void setsSignatureId() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
 
-    SignatureParameters signatureParameters = new SignatureParameters();
-    signatureParameters.setSignatureId("SIGNATURE-1");
-    container.setSignatureParameters(signatureParameters);
-    container.sign(PKCS12_SIGNER);
+    Signature signature1 = SignatureBuilder.
+        aSignature(container).
+        withSignatureId("SIGNATURE-1").
+        withSignatureToken(PKCS12_SIGNER).
+        invokeSigning();
+    container.addSignature(signature1);
 
-    signatureParameters.setSignatureId("SIGNATURE-2");
-    container.setSignatureParameters(signatureParameters);
-    container.sign(PKCS12_SIGNER);
-    container.save("setsSignatureId.bdoc");
+    Signature signature2 = SignatureBuilder.
+        aSignature(container).
+        withSignatureId("SIGNATURE-2").
+        withSignatureToken(PKCS12_SIGNER).
+        invokeSigning();
+    container.addSignature(signature2);
 
-    container = new AsicFacade("setsSignatureId.bdoc");
+    container.saveAsFile("setsSignatureId.bdoc");
+
+    container = open("setsSignatureId.bdoc");
     assertEquals("SIGNATURE-1", container.getSignature(0).getId());
     assertEquals("SIGNATURE-2", container.getSignature(1).getId());
 
@@ -454,13 +439,12 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void setsDefaultSignatureId() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container);
+    signContainer(container);
     container.save("testSetsDefaultSignatureId.bdoc");
 
-    container = new AsicFacade("testSetsDefaultSignatureId.bdoc");
+    container = open("testSetsDefaultSignatureId.bdoc");
     assertEquals("S0", container.getSignature(0).getId());
     assertEquals("S1", container.getSignature(1).getId());
 
@@ -471,42 +455,15 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void getDataFileByIndex() {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container);
 
     assertEquals("test.txt", container.getDataFile(0).getName());
   }
 
-  @Test
-  public void rawSignatureDoesNotThrowExceptionInCloseError() throws IOException {
-    AsicFacade container = spy(new AsicFacade());
-    byte[] signature = {0x41};
-    MockInputStream value = new MockInputStream();
-
-    doNothing().when(container).addRawSignature(value);
-    when(container.getByteArrayInputStream(signature)).thenReturn(value);
-
-    container.addRawSignature(signature);
-  }
-
-
-  @Test(expected = SignatureNotFoundException.class)
-  public void testSignatureNotFoundException() throws Exception {
-    AsicFacade container = new AsicFacade();
-    AsicFacade spy = spy(container);
-
-    ASiCSignatureParameters signatureParameters = new ASiCSignatureParameters();
-    signatureParameters.setDeterministicId("NotPresentSignature");
-    when(spy.getDssSignatureParameters()).thenReturn(signatureParameters);
-
-    spy.addDataFile("testFiles/test.txt", "text/plain");
-    spy.sign(PKCS12_SIGNER);
-  }
-
   @Test(expected = DigiDoc4JException.class)
   public void openNonExistingFileThrowsError() {
-    new AsicFacade("non-existing.bdoc");
+    open("non-existing.bdoc");
   }
 
 
@@ -514,27 +471,28 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void openClosedStreamThrowsException() throws IOException {
     FileInputStream stream = new FileInputStream(new File("testFiles/test.txt"));
     stream.close();
-    new AsicFacade(stream, false);
+    open(stream, false);
   }
 
   @Test
   public void testLargeFileSigning() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.configuration.enableBigFilesSupport(10);
-    String path = createLargeFile((container.configuration.getMaxDataFileCachedInBytes()) + 100);
+    BDocContainer container = (BDocContainer)create();
+    container.getConfiguration().enableBigFilesSupport(10);
+    String path = createLargeFile((container.getConfiguration().getMaxDataFileCachedInBytes()) + 100);
     container.addDataFile(path, "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
   }
+
 
   @Test
   public void openLargeFileFromStream() throws FileNotFoundException {
 
-    AsicFacade container = new AsicFacade();
-    container.configuration.enableBigFilesSupport(0);
+    BDocContainer container = (BDocContainer)create();
+    container.getConfiguration().enableBigFilesSupport(0);
 
-    String path = createLargeFile((container.configuration.getMaxDataFileCachedInBytes()) + 100);
+    String path = createLargeFile((container.getConfiguration().getMaxDataFileCachedInBytes()) + 100);
     container.addDataFile(path, "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     container.save("test-large-file.bdoc");
     File file = new File("test-large-file.bdoc");
     FileInputStream fileInputStream = new FileInputStream(file);
@@ -547,13 +505,13 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void openAddFileFromStream() throws IOException {
-    AsicFacade container = new AsicFacade();
-    container.configuration.enableBigFilesSupport(0);
+    BDocContainer container = (BDocContainer) create();
+    container.getConfiguration().enableBigFilesSupport(0);
 
-    String path = createLargeFile((container.configuration.getMaxDataFileCachedInBytes()) + 100);
+    String path = createLargeFile((container.getConfiguration().getMaxDataFileCachedInBytes()) + 100);
     try (FileInputStream stream = new FileInputStream(new File(path))) {
       container.addDataFile(stream, "fileName", "text/plain");
-      container.sign(PKCS12_SIGNER);
+      signContainer(container);
       container.save("test-large-file.bdoc");
       File file = new File("test-large-file.bdoc");
       FileInputStream fileInputStream = new FileInputStream(file);
@@ -577,13 +535,13 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   @Test
   public void testGetDocumentType() throws Exception {
     createSignedBDocDocument("testGetDocumentType.bdoc");
-    AsicFacade container = new AsicFacade("testGetDocumentType.bdoc");
+    Container container = open("testGetDocumentType.bdoc");
     assertEquals(Container.DocumentType.BDOC, container.getDocumentType());
   }
 
   @Test
   public void testAddTwoFilesAsStream() throws Exception {
-    AsicFacade container = new AsicFacade();
+    Container container = create();
     ByteArrayInputStream stream = new ByteArrayInputStream("tere, tere".getBytes());
     container.addDataFile(stream, "test1.txt", "text/plain");
     container.addDataFile(stream, "test2.txt", "text/plain");
@@ -591,26 +549,24 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testAddTwoFilesAsFileWithoutOCSP() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.setSignatureProfile(B_BES);
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     container.addDataFile("testFiles/test.xml", "text/xml");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container, B_BES);
     container.save("testTwoFilesSigned.bdoc");
 
-    container = new AsicFacade("testTwoFilesSigned.bdoc");
+    container = open("testTwoFilesSigned.bdoc");
     assertEquals(2, container.getDataFiles().size());
   }
 
   @Test
   public void testGetFileNameAndID() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
     container.addDataFile("testFiles/test.xml", "text/xml");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     container.save("testTwoFilesSigned.bdoc");
 
-    container = new AsicFacade("testTwoFilesSigned.bdoc");
+    container = open("testTwoFilesSigned.bdoc");
 
     assertEquals("test.txt", container.getDataFile(0).getName());
     assertEquals("test.xml", container.getDataFile(1).getName());
@@ -620,59 +576,57 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testAddTwoFilesAsFileWithOCSP() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
     container.addDataFile("testFiles/test.xml", "text/xml");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     container.save("testTwoFilesSigned.bdoc");
 
-    container = new AsicFacade("testTwoFilesSigned.bdoc");
+    container = open("testTwoFilesSigned.bdoc");
     assertEquals(2, container.getDataFiles().size());
   }
 
-  @Test(expected = NotYetImplementedException.class)
+  @Test
   public void testValidateEmptyDocument() {
-    AsicFacade container = new AsicFacade();
-    container.validate();
+    Container container = create();
+    ValidationResult result = container.validate();
+    assertTrue(result.isValid());
   }
 
   @Test
   public void testValidate() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container);
     ValidationResult validationResult = container.validate();
     assertEquals(0, validationResult.getErrors().size());
   }
 
   @Test
   public void testLoadConfiguration() throws Exception {
-    AsicFacade container = new AsicFacade();
-    assertFalse(container.configuration.isBigFilesSupportEnabled());
-    container.loadConfiguration("testFiles/digidoc_test_conf.yaml");
-    assertTrue(container.configuration.isBigFilesSupportEnabled());
-    assertEquals(8192, container.configuration.getMaxDataFileCachedInMB());
+    BDocContainer container = (BDocContainer) create();
+    assertFalse(container.getConfiguration().isBigFilesSupportEnabled());
+    container.getConfiguration().loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertTrue(container.getConfiguration().isBigFilesSupportEnabled());
+    assertEquals(8192, container.getConfiguration().getMaxDataFileCachedInMB());
   }
 
   @Test
   public void saveToStream() throws Exception {
-    AsicFacade container = new AsicFacade();
+    Container container = create();
     container.addDataFile(new ByteArrayInputStream(new byte[]{0x42}), "test_bytes.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     File expectedContainerAsFile = new File("testSaveToStreamTest.bdoc");
     OutputStream out = new FileOutputStream(expectedContainerAsFile);
     container.save(out);
     assertTrue(Files.exists(expectedContainerAsFile.toPath()));
 
-    AsicFacade containerToTest = open(expectedContainerAsFile.getName());
+    Container containerToTest = open(expectedContainerAsFile.getName());
     assertArrayEquals(new byte[]{0x42}, containerToTest.getDataFiles().get(0).getBytes());
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void saveToStreamThrowsException() throws IOException {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container);
     File expectedContainerAsFile = new File("testSaveToStreamTest.bdoc");
     OutputStream out = new FileOutputStream(expectedContainerAsFile);
     out.close();
@@ -680,19 +634,19 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  @Ignore("This feature should not be implemented. It's a bug not a feature")
   public void configurationImmutabilityWhenLoadingFromFile() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container);
     container.save("test_immutable.bdoc");
 
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
     String tspSource = configuration.getTspSource();
 
-    container = new AsicFacade("test_immutable.bdoc", configuration);
+    container = open("test_immutable.bdoc", configuration);
     configuration.setTspSource("changed_tsp_source");
 
-    assertEquals(tspSource, container.configuration.getTspSource());
+    assertEquals(tspSource, ((BDocContainer)container).getConfiguration().getTspSource());
   }
 
   @Test
@@ -700,43 +654,53 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void TSLIsLoadedAfterSettingNewTSLLocation() {
     Configuration configuration = new Configuration();
     configuration.setTslLocation("file:test-tsl/trusted-test-mp.xml");
-    AsicFacade container = new AsicFacade(configuration);
-    container.configuration.getTSL();
-    assertEquals(5, container.configuration.getTSL().getCertificates().size());
+    BDocContainer container = (BDocContainer) ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        withConfiguration(configuration).
+        build();
+    container.getConfiguration().getTSL();
+    assertEquals(5, container.getConfiguration().getTSL().getCertificates().size());
 
     configuration.setTslLocation("http://10.0.25.57/tsl/trusted-test-mp.xml");
-    container = new AsicFacade(configuration);
-    assertNotEquals(5, container.configuration.getTSL().getCertificates().size());
+    container = (BDocContainer) ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        withConfiguration(configuration).
+        build();
+    assertNotEquals(5, container.getConfiguration().getTSL().getCertificates().size());
   }
 
   @Test (expected = DigiDoc4JException.class)
   public void TSLFileNotFoundThrowsException() {
     Configuration configuration = new Configuration();
     configuration.setTslLocation("file:test-tsl/NotExisting.xml");
-    AsicFacade container = new AsicFacade(configuration);
-    container.configuration.getTSL();
+    BDocContainer container = (BDocContainer) ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        withConfiguration(configuration).
+        build();
+    container.getConfiguration().getTSL();
   }
 
   @Test (expected = DigiDoc4JException.class)
   public void TSLConnectionFailureThrowsException() {
     Configuration configuration = new Configuration();
     configuration.setTslLocation("http://127.0.0.1/tsl/incorrect.xml");
-    AsicFacade container = new AsicFacade(configuration);
-    container.configuration.getTSL();
+    BDocContainer container = (BDocContainer) ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        withConfiguration(configuration).
+        build();
+    container.getConfiguration().getTSL();
   }
 
   @Test
   public void extendFromB_BESToTS() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.setSignatureProfile(B_BES);
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container, B_BES);
     container.save("testExtendTo.bdoc");
 
     assertEquals(1, container.getSignatures().size());
     assertNull(container.getSignature(0).getOCSPCertificate());
 
-    container = new AsicFacade("testExtendTo.bdoc");
+    container = open("testExtendTo.bdoc");
     container.extendTo(SignatureProfile.LT);
     container.save("testExtendToContainsIt.bdoc");
 
@@ -746,16 +710,14 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void extendFromB_BESToLTA() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.setSignatureProfile(B_BES);
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container, B_BES);
     container.save("testExtendTo.bdoc");
 
     assertEquals(1, container.getSignatures().size());
     assertNull(container.getSignature(0).getOCSPCertificate());
 
-    container = new AsicFacade("testExtendTo.bdoc");
+    container = open("testExtendTo.bdoc");
     container.extendTo(SignatureProfile.LTA);
     container.save("testExtendToContainsIt.bdoc");
 
@@ -765,51 +727,40 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test (expected = DigiDoc4JException.class)
   public void extendFromB_BESToLT_TMThrowsException() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.setSignatureProfile(B_BES);
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container, B_BES);
     container.extendTo(SignatureProfile.LT_TM);
   }
 
   @Test (expected = DigiDoc4JException.class)
   public void extendFromLTToLT_TMThrowsException() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.setSignatureProfile(LT);
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container, LT);
     container.extendTo(SignatureProfile.LT_TM);
   }
 
   @Test (expected = DigiDoc4JException.class)
   public void extendFromLTAToLT_TMThrowsException() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.setSignatureProfile(LTA);
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container, LTA);
     container.extendTo(SignatureProfile.LT_TM);
   }
 
   @Test
   public void containerIsLT() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.setSignatureProfile(SignatureProfile.LT);
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
-    container.save("testLT.bdoc");
-
-    container = new AsicFacade("testLT.bdoc");
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container, LT);
+    container.saveAsFile("testLT.bdoc");
+    container = open("testLT.bdoc");
     assertEquals(1, container.getSignatures().size());
     assertNotNull(container.getSignature(0).getOCSPCertificate());
   }
 
   @Test
   public void verifySignatureProfileIsTS() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.setSignatureProfile(SignatureProfile.LT);
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
-    container.save("testAddConfirmation.bdoc");
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container, LT);
+    container.saveAsFile("testAddConfirmation.bdoc");
 
     assertEquals(1, container.getSignatures().size());
     assertNotNull(container.getSignature(0).getOCSPCertificate());
@@ -817,44 +768,40 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test(expected = DigiDoc4JException.class)
   public void extendToWhenConfirmationAlreadyExists() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.setSignatureProfile(B_BES);
-    container.sign(PKCS12_SIGNER);
-    container.save("testExtendTo.bdoc");
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container, B_BES);
+    container.saveAsFile("testExtendTo.bdoc");
 
     assertEquals(1, container.getSignatures().size());
     assertNull(container.getSignature(0).getOCSPCertificate());
 
-    container = new AsicFacade("testExtendTo.bdoc");
+    container = open("testExtendTo.bdoc");
     container.extendTo(LT);
     container.extendTo(LT);
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void signWithoutDataFile() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.sign(PKCS12_SIGNER);
+    Container container = create();
+    signContainer(container);
   }
 
   @Test
   public void extendToWithMultipleSignatures() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.setSignatureProfile(B_BES);
-    container.sign(PKCS12_SIGNER);
-    container.sign(PKCS12_SIGNER);
-    container.save("testExtendTo.bdoc");
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container, B_BES);
+    signContainer(container, B_BES);
+    container.saveAsFile("testExtendTo.bdoc");
 
     assertEquals(2, container.getSignatures().size());
     assertNull(container.getSignature(0).getOCSPCertificate());
     assertNull(container.getSignature(1).getOCSPCertificate());
 
-    container = new AsicFacade("testExtendTo.bdoc");
+    container = open("testExtendTo.bdoc");
     container.extendTo(LT);
     container.save("testExtendToContainsIt.bdoc");
 
-    container = new AsicFacade("testExtendToContainsIt.bdoc");
+    container = open("testExtendToContainsIt.bdoc");
     assertEquals(2, container.getSignatures().size());
     assertNotNull(container.getSignature(0).getOCSPCertificate());
     assertNotNull(container.getSignature(1).getOCSPCertificate());
@@ -862,20 +809,18 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void extendToWithMultipleSignaturesAndMultipleFiles() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.setSignatureProfile(B_BES);
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
     container.addDataFile("testFiles/test.xml", "text/xml");
-    container.sign(PKCS12_SIGNER);
-    container.sign(PKCS12_SIGNER);
-    container.save("testAddConfirmation.bdoc");
+    signContainer(container, B_BES);
+    signContainer(container, B_BES);
+    container.saveAsFile("testAddConfirmation.bdoc");
 
     assertEquals(2, container.getSignatures().size());
     assertEquals(2, container.getDataFiles().size());
     assertNull(container.getSignature(0).getOCSPCertificate());
     assertNull(container.getSignature(1).getOCSPCertificate());
 
-    container = new AsicFacade("testAddConfirmation.bdoc");
+    container = open("testAddConfirmation.bdoc");
     container.extendTo(LT);
     container.save("testAddConfirmationContainsIt.bdoc");
 
@@ -887,19 +832,19 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test(expected = UnsupportedFormatException.class)
   public void notBDocThrowsException() {
-    new AsicFacade("testFiles/notABDoc.bdoc");
+    open("testFiles/notABDoc.bdoc");
   }
 
   @Test(expected = UnsupportedFormatException.class)
   public void incorrectMimetypeThrowsException() {
-    new AsicFacade("testFiles/incorrectMimetype.bdoc");
+    open("testFiles/incorrectMimetype.bdoc");
   }
 
   @Test
   public void nonStandardMimeType() {
     Container container = ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
     container.addDataFile("testFiles/test.txt", "text/newtype");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     container.save("testNonStandardMimeType.bdoc");
     container = ContainerOpener.open("testNonStandardMimeType.bdoc");
     ValidationResult result = container.validate();
@@ -923,15 +868,14 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void getVersion() {
-    AsicFacade container = new AsicFacade();
+    Container container = create();
     assertNull(container.getVersion());
   }
 
   @Test
   public void testContainerExtensionFromLTtoLTA() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container);
 
     container.extendTo(LTA);
     assertNotNull(container.getSignature(0).getOCSPCertificate());
@@ -939,17 +883,20 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void twoStepSigning() throws IOException {
-    Container container = ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     X509Certificate signerCert = getSignerCert();
-    SignedInfo signedInfo = container.prepareSigning(signerCert);
-    byte[] signature = getExternalSignature(container, signerCert, signedInfo, SHA256);
-    container.signRaw(signature);
-    container.save("test.bdoc");
+    DataToSign dataToSign = SignatureBuilder.
+        aSignature(container).
+        withSigningCertificate(signerCert).
+        buildDataToSign();
+    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDigestToSign(), dataToSign.getDigestAlgorithm());
+    Signature signature = dataToSign.finalize(signatureValue);
+    container.addSignature(signature);
+    container.saveAsFile("test.bdoc");
 
     container = ContainerOpener.open("test.bdoc");
 
-    assertEquals(SHA256, container.getDigestAlgorithm());
     ValidationResult validate = container.validate();
     assertTrue(validate.isValid());
 
@@ -979,21 +926,24 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void twoStepSigningVerifySignatureParameters() {
-    SignatureParameters signatureParameters = new SignatureParameters();
-    signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA512);
-    signatureParameters.setRoles(asList("manager", "employee"));
-    signatureParameters.setProductionPlace(new SignatureProductionPlace("city", "state", "postalCode", "country"));
-    signatureParameters.setSignatureId("S99");
-
     Container container = ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
-    container.setSignatureParameters(signatureParameters);
     container.addDataFile("testFiles/test.txt", "text/plain");
     X509Certificate signerCert = getSignerCert();
-    SignedInfo signedInfo = container.prepareSigning(signerCert);
-    byte[] signature = getExternalSignature(container, signerCert, signedInfo,
-        signatureParameters.getDigestAlgorithm());
-    container.signRaw(signature);
-    container.save("test.bdoc");
+    DataToSign dataToSign = SignatureBuilder.
+        aSignature(container).
+        withSignatureDigestAlgorithm(DigestAlgorithm.SHA512).
+        withSigningCertificate(signerCert).
+        withSignatureId("S99").
+        withRoles("manager", "employee").
+        withCity("city").
+        withStateOrProvince("state").
+        withPostalCode("postalCode").
+        withCountry("country").
+        buildDataToSign();
+    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDigestToSign(), dataToSign.getDigestAlgorithm());
+    Signature signature = dataToSign.finalize(signatureValue);
+    container.addSignature(signature);
+    container.saveAsFile("test.bdoc");
 
     container = ContainerOpener.open("test.bdoc");
     assertEquals(1, container.getSignatures().size());
@@ -1009,14 +959,18 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     X509Certificate signerCert = getSignerCert();
-    SignedInfo signedInfo = container.prepareSigning(signerCert);
+    DataToSign dataToSign = SignatureBuilder.
+        aSignature(container).
+        withSigningCertificate(signerCert).
+        buildDataToSign();
 
     serialize(container, "container.bin");
-    byte[] signature = getExternalSignature(container, signerCert, signedInfo, SHA256);
+    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDigestToSign(), dataToSign.getDigestAlgorithm());
 
     container = deserializer("container.bin");
-    container.signRaw(signature);
-    container.save("test.bdoc");
+    Signature signature = dataToSign.finalize(signatureValue);
+    container.addSignature(signature);
+    container.saveAsFile("test.bdoc");
 
     container = ContainerOpener.open("test.bdoc");
 
@@ -1028,27 +982,24 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testContainerCreationAsTSA() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.setSignatureProfile(LTA);
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container, LTA);
 
     assertNotNull(container.getSignature(0).getOCSPCertificate());
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void extensionNotPossibleWhenSignatureLevelIsSame() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.setSignatureProfile(LTA);
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container, LTA);
     container.extendTo(LTA);
   }
 
-  private AsicFacade createSignedBDocDocument(String fileName) {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+  private Container createSignedBDocDocument(String fileName) {
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container);
     container.save(fileName);
     return container;
   }
@@ -1072,55 +1023,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     public void close() throws IOException {
       throw new IOException();
     }
-  }
 
-  /*private class MockAsicFacade extends AsicFacade {
-    private String expected;
-
-    public MockAsicFacade(String expected) {
-      super();
-      this.expected = expected;
-    }
-
-    @Override
-    public Signature sign(SignatureToken signer) {
-      super.asicService = spy(new ASiCService(new CommonCertificateVerifier()));
-      doThrow(new DSSException(expected)).when(super.asicService).signDocument(Mockito.any(DSSDocument.class),
-          Mockito.any(eu.europa.ec.markt.dss.parameter.SignatureParameters.class), Mockito.any(byte[].class));
-      return super.sign(signer);
-    }
-  }*/
-
-  static byte[] getExternalSignature(Container container, final X509Certificate signerCert,
-                                     SignedInfo prepareSigningSignature, final DigestAlgorithm digestAlgorithm) {
-    return getExternalSignature(signerCert, prepareSigningSignature, digestAlgorithm, "testFiles/signout.p12");
-  }
-
-  private static byte[] getExternalSignature(X509Certificate signerCert, SignedInfo prepareSigningSignature, final DigestAlgorithm digestAlgorithm, final String signerCertFile) {
-    SignatureToken externalSigner = new ExternalSigner(signerCert) {
-      @Override
-      public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
-        try {
-          KeyStore keyStore = KeyStore.getInstance("PKCS12");
-          try (FileInputStream stream = new FileInputStream(signerCertFile)) {
-            keyStore.load(stream, "test".toCharArray());
-          }
-          PrivateKey privateKey = (PrivateKey) keyStore.getKey("1", "test".toCharArray());
-          final String javaSignatureAlgorithm = "NONEwith" + privateKey.getAlgorithm();
-
-          return AsyncSigning.encrypt(javaSignatureAlgorithm, privateKey, addPadding(dataToSign));
-        } catch (Exception e) {
-          throw new DigiDoc4JException("Loading private key failed");
-        }
-      }
-
-      private byte[] addPadding(byte[] digest) {
-        byte[] signatureDigest = digestAlgorithm.digestInfoPrefix();
-        return ArrayUtils.addAll(signatureDigest, digest);
-      }
-    };
-
-    return externalSigner.sign(prepareSigningSignature.getDigestAlgorithm(), prepareSigningSignature.getDigest());
   }
 
   static X509Certificate getSignerCert(String certFile) {
@@ -1143,7 +1046,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void verifySerialization() throws Exception {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
 
     serialize(container, "container.bin");
 
@@ -1154,36 +1057,40 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void serializationVerifySpecifiedSignatureParameters() throws Exception {
-    SignatureParameters signatureParameters = new SignatureParameters();
-    signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA512);
-    signatureParameters.setRoles(asList("manager", "employee"));
-    signatureParameters.setProductionPlace(new SignatureProductionPlace("city", "state", "postalCode", "country"));
-    signatureParameters.setSignatureId("S99");
-
     Container container = create();
-    container.setSignatureParameters(signatureParameters);
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureDigestAlgorithm(DigestAlgorithm.SHA512).
+        withSignatureToken(PKCS12_SIGNER).
+        withSignatureId("S99").
+        withRoles("manager", "employee").
+        withCity("city").
+        withStateOrProvince("state").
+        withPostalCode("postalCode").
+        withCountry("country").
+        invokeSigning();
+    container.addSignature(signature);
 
     serialize(container, "container.bin");
 
     Container deserializedContainer = deserializer("container.bin");
 
-    Signature signature = deserializedContainer.getSignature(0);
-    assertEquals("postalCode", signature.getPostalCode());
-    assertEquals("city", signature.getCity());
-    assertEquals("state", signature.getStateOrProvince());
-    assertEquals("country", signature.getCountryName());
-    assertEquals("employee", signature.getSignerRoles().get(1));
-    assertEquals("S99", signature.getId());
-    assertEquals("http://www.w3.org/2001/04/xmlenc#sha512", signature.getSignatureMethod());
+    Signature deserializedSignature = deserializedContainer.getSignature(0);
+    assertEquals("postalCode", deserializedSignature.getPostalCode());
+    assertEquals("city", deserializedSignature.getCity());
+    assertEquals("state", deserializedSignature.getStateOrProvince());
+    assertEquals("country", deserializedSignature.getCountryName());
+    assertEquals("employee", deserializedSignature.getSignerRoles().get(1));
+    assertEquals("S99", deserializedSignature.getId());
+    assertEquals("http://www.w3.org/2001/04/xmlenc#sha512", deserializedSignature.getSignatureMethod());
   }
 
   @Test
   public void serializationVerifyDefaultSignatureParameters() throws Exception {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     serialize(container, "container.bin");
     Container deserializedContainer = deserializer("container.bin");
 
@@ -1196,21 +1103,10 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void serializationGetDigestAlgorithm() throws Exception {
-    Container container = create();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
-    serialize(container, "container.bin");
-    Container deserializedContainer = deserializer("container.bin");
-
-    assertEquals(SHA256, deserializedContainer.getDigestAlgorithm());
-  }
-
-  @Test
   public void serializationGetDocumentType() throws Exception {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     serialize(container, "container.bin");
     Container deserializedContainer = deserializer("container.bin");
 
@@ -1221,7 +1117,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void serializationGetOCSPCertificate() throws Exception {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     serialize(container, "container.bin");
     Container deserializedContainer = deserializer("container.bin");
 
@@ -1237,7 +1133,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void serializationGetSigningTime() throws Exception {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     serialize(container, "container.bin");
     Container deserializedContainer = deserializer("container.bin");
 
@@ -1251,7 +1147,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void serializationGetPolicy() throws Exception {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     serialize(container, "container.bin");
     Container deserializedContainer = deserializer("container.bin");
 
@@ -1265,7 +1161,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void serializationGetSignaturePolicyURI() throws Exception {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     serialize(container, "container.bin");
     Container deserializedContainer = deserializer("container.bin");
 
@@ -1279,7 +1175,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void serializationGetSigningCertificate() throws Exception {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     serialize(container, "container.bin");
     Container deserializedContainer = deserializer("container.bin");
 
@@ -1295,7 +1191,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void serializationGetRawSignature() throws Exception {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     serialize(container, "container.bin");
     Container deserializedContainer = deserializer("container.bin");
 
@@ -1309,7 +1205,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void serializationGetTimeStampTokenCertificate() throws Exception {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     serialize(container, "container.bin");
     Container deserializedContainer = deserializer("container.bin");
 
@@ -1325,7 +1221,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void serializationGetProfile() throws Exception {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     serialize(container, "container.bin");
     Container deserializedContainer = deserializer("container.bin");
 
@@ -1339,7 +1235,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void serializationGetDataFiles() throws Exception {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     serialize(container, "container.bin");
     Container deserializedContainer = deserializer("container.bin");
 
@@ -1353,7 +1249,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   public void serializationDataFileCheck() throws Exception {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container);
     serialize(container, "container.bin");
     Container deserializedContainer = deserializer("container.bin");
 
@@ -1399,9 +1295,12 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
     X509Certificate signerCert = getSignerCert(unknownCert);
-    SignedInfo signedInfo = container.prepareSigning(signerCert);
-    byte[] signature = getExternalSignature(signerCert, signedInfo, SHA256, unknownCert);
-    container.signRaw(signature);
+    DataToSign dataToSign = SignatureBuilder.
+        aSignature(container).
+        withSigningCertificate(signerCert).
+        buildDataToSign();
+    byte[] signature = TestSigningHelper.sign(dataToSign.getDigestToSign(), dataToSign.getDigestAlgorithm());
+    dataToSign.finalize(signature);
   }
 
   @Test
@@ -1537,7 +1436,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     Container container = ContainerOpener.open("testFiles/TS-06_23634_TS_missing_OCSP_adjusted.asice");
     List<DigiDoc4JException> errors = container.validate().getErrors();
 
-    assertEquals("ASiC_E_BASELINE_LT", container.getSignatureProfile());
+    assertEquals(LT, container.getSignatures().get(0).getProfile());
     assertEquals(2, errors.size());
     assertTrue(errors.get(1).toString().contains("No revocation data for the certificate"));
   }
@@ -1650,7 +1549,8 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(3, errors.size());
-    assertEquals("Wrong policy identifier: urn:oid:1.3.6.1.4.1.10015.1000.2.10.10", errors.get(1).toString());
+    assertEquals("Wrong policy identifier: urn:oid:1.3.6.1.4.1.10015.1000.2.10.10", errors.get(0).toString());
+    assertEquals("The reference data object(s) is not intact!", errors.get(1).toString());
     assertEquals("Nonce is invalid", errors.get(2).toString());
   }
 
@@ -1705,21 +1605,27 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testBDocTM() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.setSignatureProfile(LT_TM);
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container, LT_TM);
+    assertTrue(container.validate().isValid());
+  }
+
+  @Test
+  public void testBDocTS() throws Exception {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    signContainer(container, LT);
     assertTrue(container.validate().isValid());
   }
 
   @Test
   public void containerWithBESProfileHasNoValidationErrors() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.setSignatureProfile(B_BES);
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    signContainer(container, B_BES);
 
-    assertEquals("ASiC_E_BASELINE_B", container.getSignatureProfile());
+    assertEquals(B_BES, container.getSignatures().get(0).getProfile());
     assertNull(container.getSignature(0).getOCSPCertificate());
     ValidationResult result = container.validate();
     assertEquals(0, result.getErrors().size());
@@ -1727,21 +1633,20 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void signWithECCCertificate() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
     SignatureParameters signatureParameters = new SignatureParameters();
     signatureParameters.setEncryptionAlgorithm(ECDSA);
     container.setSignatureParameters(signatureParameters);
     container.sign(new PKCS12SignatureToken("testFiles/ec-digiid.p12", "inno".toCharArray()));
 
     assertTrue(container.validate().isValid());
+    throw new NotYetImplementedException();
   }
 
   @Test
   public void zipFileComment() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container);
     container.save("testZipFileComment.bdoc");
 
     ZipFile zipFile = new ZipFile("testZipFileComment.bdoc");
@@ -1751,15 +1656,14 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void signingMoreThanTwoFiles() throws Exception {
-      AsicFacade container = new AsicFacade();
-      container.addDataFile("testFiles/special-char-files/dds_dds_JÜRIÖÖ € žŠ päev.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/special-char-files/dds_dds_JÜRIÖÖ € žŠ päev.txt", "text/plain");
       container.addDataFile("testFiles/special-char-files/dds_колючей стерне.docx", "text/plain");
       container.addDataFile("testFiles/special-char-files/dds_pakitud.zip", "text/plain");
       container.addDataFile("testFiles/special-char-files/dds_SK.jpg", "text/plain");
       container.addDataFile("testFiles/special-char-files/dds_acrobat.pdf", "text/plain");
-      
-      container.sign(PKCS12_SIGNER);
-      
+
+      signContainer(container);
+
       BDocSignature signature = (BDocSignature)container.getSignature(0);
       assertSignatureContains(signature, "dds_dds_JÜRIÖÖ € žŠ päev.txt");
       assertSignatureContains(signature, "dds_колючей стерне.docx");
@@ -1770,30 +1674,46 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void signatureFileNamesShouldBeInSequence() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
-    assertNotNull(container.getDssSignatureParameters().aSiC().getSignatureFileName());
-    assertEquals("signatures0.xml", container.getDssSignatureParameters().aSiC().getSignatureFileName());
-    container.sign(PKCS12_SIGNER);
-    assertEquals("signatures1.xml", container.getDssSignatureParameters().aSiC().getSignatureFileName());
-    container.sign(PKCS12_SIGNER);
-    assertEquals("signatures2.xml", container.getDssSignatureParameters().aSiC().getSignatureFileName());
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container);
+    signContainer(container);
+    signContainer(container);
+    String containerPath = testFolder.newFile().getPath();
+    container.saveAsFile(containerPath);
+    ZipFile zip = new ZipFile(containerPath);
+    assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures2.xml"));
   }
 
   @Test
   public void whenSigningExistingContainer_withTwoSignatures_shouldCreateSignatureFileName_signatures2() throws Exception {
-    AsicFacade container = new AsicFacade("testFiles/asics_testing_two_signatures.bdoc");
-    container.sign(PKCS12_SIGNER);
-    assertEquals("signatures2.xml", container.getDssSignatureParameters().aSiC().getSignatureFileName());
+    ZipFile zip = new ZipFile("testFiles/asics_testing_two_signatures.bdoc");
+    assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
+    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
+    signContainer(container);
+    String containerPath = testFolder.newFile().getPath();
+    container.saveAsFile(containerPath);
+    zip = new ZipFile(containerPath);
+    assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures2.xml"));
   }
 
   @Test
   public void whenSigningExistingContainer_with_signatures1_xml_shouldCreateSignatureFileName_signatures2() throws Exception {
-    AsicFacade container = new AsicFacade("testFiles/DigiDocService_spec_est.pdf-TM-j.bdoc");
-    container.sign(PKCS12_SIGNER);
-    assertEquals("signatures2.xml", container.getDssSignatureParameters().aSiC().getSignatureFileName());
-
+    ZipFile zip = new ZipFile("testFiles/DigiDocService_spec_est.pdf-TM-j.bdoc");
+    assertNull(zip.getEntry("META-INF/signatures0.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
+    Container container = open("testFiles/DigiDocService_spec_est.pdf-TM-j.bdoc");
+    signContainer(container);
+    String containerPath = testFolder.newFile().getPath();
+    container.saveAsFile(containerPath);
+    zip = new ZipFile(containerPath);
+    assertNull(zip.getEntry("META-INF/signatures0.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures2.xml"));
   }
 
   @Test(expected = DuplicateDataFileException.class)
@@ -1816,7 +1736,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
         withDataFile("testFiles/test.txt", "text/plain").
         build();
 
-    TestDataBuilder.signContainer(container, LT_TM);
+    signContainer(container, LT_TM);
   }
 
   /**
@@ -1824,10 +1744,9 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
    */
   @Test
   public void bdocTM_OcspResponderCert_shouldContainResponderCertIdAttribute() throws Exception {
-    AsicFacade container = new AsicFacade();
-    container.setSignatureProfile(LT_TM);
+    Container container = create();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    BDocSignature signature = (BDocSignature)container.sign(PKCS12_SIGNER);
+    BDocSignature signature = (BDocSignature) signContainer(container, LT_TM);
     XAdESSignature xAdESSignature = signature.getOrigin();
     assertTrue(signatureContainsOcspResponderCertificate(xAdESSignature));
   }
@@ -1835,7 +1754,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   private void assertSignatureContains(BDocSignature signature, String name) {
       assertNotNull(findSignedFile(signature, name));
   }
-  
+
   private DSSDocument findSignedFile(BDocSignature signature, String name) {
       List<DSSDocument> signedFiles = signature.getOrigin().getDetachedContents();
       for (DSSDocument signedFile : signedFiles) {
@@ -1855,20 +1774,42 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     assertFalse("Expected '" + errorMsg + "' was not found", true);
   }
 
-  private AsicFacade open(String path) {
-    BDocContainer container = (BDocContainer)ContainerOpener.open(path);
-    return container.getAsicFacade();
+  private Container open(String path) {
+    Container container = ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        fromExistingFile(path).
+        build();
+    return container;
   }
 
-  private AsicFacade open(InputStream fileInputStream, boolean actAsBigFilesSupportEnabled) {
-    BDocContainer container = (BDocContainer)ContainerOpener.open(fileInputStream, actAsBigFilesSupportEnabled);
-    return container.getAsicFacade();
+  private Container open(String path, Configuration configuration) {
+    Container container = ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        withConfiguration(configuration).
+        fromExistingFile(path).
+        build();
+    return container;
+  }
+
+  private Container open(InputStream fileInputStream, boolean actAsBigFilesSupportEnabled) {
+    Container container = ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        fromStream(fileInputStream).
+        build();
+    return container;
   }
 
   private Container create() {
     return ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
   }
 
+  private Container createContainerWithFile(String path, String mimeType) {
+    Container container = ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        withDataFile(path, mimeType).
+        build();
+    return container;
+  }
   private boolean signatureContainsOcspResponderCertificate(XAdESSignature xAdESSignature) {
     XPathQueryHolder xPathQueryHolder = xAdESSignature.getXPathQueryHolder();
     String xPath = xPathQueryHolder.XPATH_CERTIFICATE_VALUES;

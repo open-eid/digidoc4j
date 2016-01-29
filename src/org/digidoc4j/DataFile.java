@@ -94,6 +94,10 @@ public class DataFile implements Serializable {
     }
   }
 
+  protected DataFile(DSSDocument document) {
+    this.document = document;
+  }
+
   private MimeType getMimeType(String mimeType) {
     logger.debug("");
     try {
@@ -214,6 +218,11 @@ public class DataFile implements Serializable {
     String mediaType = document.getMimeType().getMimeTypeString();
     logger.debug("Media type is: " + mediaType);
     return mediaType;
+  }
+
+  public void setMediaType(String mediaType) {
+    MimeType mimeType = getMimeType(mediaType);
+    document.setMimeType(mimeType);
   }
 
   /**

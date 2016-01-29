@@ -15,7 +15,6 @@ import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
-import org.digidoc4j.impl.bdoc.AsicFacade;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -29,13 +28,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
-import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import static org.digidoc4j.Configuration.*;
 import static org.digidoc4j.Configuration.Mode.PROD;
@@ -166,8 +161,8 @@ public class ConfigurationTest {
     addFromFileToTSLCertificate("testFiles/ESTEID-SK_2011.pem.crt");
     addFromFileToTSLCertificate("testFiles/SK_OCSP_RESPONDER_2011.pem.cer");
     addFromFileToTSLCertificate("testFiles/SK_TSA.pem.crt");
-    AsicFacade container = new AsicFacade("testFiles/test.asice", configuration);
-    ValidationResult verify = container.verify();
+    Container container = ContainerOpener.open("testFiles/test.asice", configuration);
+    ValidationResult verify = container.validate();
     assertTrue(verify.isValid());
   }
 
@@ -175,7 +170,7 @@ public class ConfigurationTest {
   @Ignore("Ignored as this functionality is not used in DDS but this test is broken due to DDS forks custom revocation handling.")
   public void policyFileIsReadFromNonDefaultFileLocation() {
     configuration.setValidationPolicy("moved_constraint.xml");
-    new AsicFacade("testFiles/asics_for_testing.bdoc", configuration);
+    ContainerOpener.open("testFiles/asics_for_testing.bdoc", configuration);
   }
 
   private void addFromFileToTSLCertificate(String fileName) throws IOException, CertificateException {

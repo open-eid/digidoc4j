@@ -93,6 +93,7 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 /**
  * BDOC container implementation
  */
+@Deprecated
 public class AsicFacade implements SignatureFinalizer, Serializable {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicFacade.class);
@@ -114,6 +115,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
   /**
    * Create a new container object of type BDOC.
    */
+  @Deprecated
   public AsicFacade() {
     logger.debug("");
     this.configuration = new Configuration();
@@ -142,6 +144,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
    *
    * @param configuration sets container configuration
    */
+  @Deprecated
   public AsicFacade(Configuration configuration) {
     logger.debug("");
     configuration.getTSL();
@@ -222,6 +225,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
    *
    * @param path container file name with path
    */
+  @Deprecated
   public AsicFacade(String path) {
     this(path, new Configuration());
   }
@@ -233,10 +237,12 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
    * @param actAsBigFilesSupportEnabled acts as configuration parameter
    * @see org.digidoc4j.Configuration#isBigFilesSupportEnabled() returns true
    */
+  @Deprecated
   public AsicFacade(InputStream stream, boolean actAsBigFilesSupportEnabled) {
     this(stream, actAsBigFilesSupportEnabled, new Configuration());
   }
 
+  @Deprecated
   public AsicFacade(InputStream stream, boolean actAsBigFilesSupportEnabled, Configuration configuration) {
     logger.info("Opening BDoc container from stream");
     this.configuration = configuration;
@@ -260,6 +266,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
    * @param path          container file name with path
    * @param configuration configuration settings
    */
+  @Deprecated
   public AsicFacade(String path, Configuration configuration) {
     logger.info("Opening BDoc container from file: " + path);
     configuration.getTSL();

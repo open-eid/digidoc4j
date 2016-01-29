@@ -10,40 +10,64 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import org.digidoc4j.testutils.TestDataBuilder;
+import static org.junit.Assert.assertEquals;
+
+import java.io.FileInputStream;
+
+import org.digidoc4j.impl.bdoc.asic.AsicParseResult;
 import org.junit.Assert;
 import org.junit.Test;
-
-import eu.europa.esig.dss.DSSDocument;
 
 public class AsicContainerParserTest {
 
   @Test
   public void findingNextSignatureFileIndex_onEmptyContainer_shouldReturn_null() throws Exception {
-    AsicContainerParser containerParser = createParser("testFiles/asics_without_signatures.bdoc");
-    Assert.assertEquals(null, containerParser.findCurrentSignatureFileIndex());
+    AsicParseResult result = parseContainer("testFiles/asics_without_signatures.bdoc");
+    assertEquals(null, result.getCurrentUsedSignatureFileIndex());
   }
 
   @Test
   public void findingNextSignatureFileIndex_onContainerWithOneSignature_withoutIndex_shouldReturn_null() throws Exception {
-    AsicContainerParser containerParser = createParser("testFiles/asics_for_testing.bdoc");
-    Assert.assertEquals(null, containerParser.findCurrentSignatureFileIndex());
+    AsicParseResult result = parseContainer("testFiles/asics_for_testing.bdoc");
+    assertEquals(null, result.getCurrentUsedSignatureFileIndex());
   }
 
   @Test
   public void findingNextSignatureFileIndex_onContainerWithOneSignature_withIndex0_shouldReturn_0() throws Exception {
-    AsicContainerParser containerParser = createParser("testFiles/asics_with_one_signature.bdoc");
-    Assert.assertEquals(Integer.valueOf(0), containerParser.findCurrentSignatureFileIndex());
+    AsicParseResult result = parseContainer("testFiles/asics_with_one_signature.bdoc");
+    assertEquals(Integer.valueOf(0), result.getCurrentUsedSignatureFileIndex());
   }
 
   @Test
   public void findingNextSignatureFileIndex_onContainerWithTwoSignature_shouldReturn_1() throws Exception {
-    AsicContainerParser containerParser = createParser("testFiles/asics_testing_two_signatures.bdoc");
-    Assert.assertEquals(Integer.valueOf(1), containerParser.findCurrentSignatureFileIndex());
+    AsicParseResult result = parseContainer("testFiles/asics_testing_two_signatures.bdoc");
+    assertEquals(Integer.valueOf(1), result.getCurrentUsedSignatureFileIndex());
   }
 
-  private AsicContainerParser createParser(String path) {
-    DSSDocument container = TestDataBuilder.createAsicContainer(path);
-    return new AsicContainerParser(container);
+  @Test
+  public void parseBdocContainer() throws Exception {
+    AsicParseResult result = parseContainer("testFiles/two_signatures.bdoc");
+    assertParseResultValid(result);
+  }
+
+  @Test
+  public void parseBdocContainerStream() throws Exception {
+    AsicContainerParser parser = new AsicContainerParser(new FileInputStream("testFiles/two_signatures.bdoc"));
+    AsicParseResult result = parser.read();
+    assertParseResultValid(result);
+  }
+
+  private AsicParseResult parseContainer(String path) {
+    AsicContainerParser parser = new AsicContainerParser(path);
+    AsicParseResult result = parser.read();
+    return result;
+  }
+
+  private void assertParseResultValid(AsicParseResult result) {
+    assertEquals("test.txt", result.getDataFiles().get(0).getName());
+    assertEquals("META-INF/signatures0.xml", result.getSignatures().get(0).getName());
+    assertEquals("META-INF/signatures1.xml", result.getSignatures().get(1).getName());
+    assertEquals(Integer.valueOf(1), result.getCurrentUsedSignatureFileIndex());
+    Assert.assertTrue(result.getManifestParser().containsManifestFile());
   }
 }
