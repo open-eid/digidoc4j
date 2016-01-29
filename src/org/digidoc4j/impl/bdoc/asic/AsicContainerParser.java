@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl.bdoc;
+package org.digidoc4j.impl.bdoc.asic;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,8 +27,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.impl.bdoc.asic.AsicDataFile;
-import org.digidoc4j.impl.bdoc.asic.AsicParseResult;
+import org.digidoc4j.impl.bdoc.manifest.ManifestEntry;
+import org.digidoc4j.impl.bdoc.manifest.ManifestParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

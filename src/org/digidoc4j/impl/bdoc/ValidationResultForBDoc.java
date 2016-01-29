@@ -28,7 +28,7 @@ import eu.europa.esig.dss.validation.report.SimpleReport;
 /**
  * Overview of errors and warnings for BDoc
  */
-
+@Deprecated
 public class ValidationResultForBDoc implements ValidationResult {
   private final static Logger logger = LoggerFactory.getLogger(ValidationResultForBDoc.class);
   private List<DigiDoc4JException> errors = new ArrayList<>();

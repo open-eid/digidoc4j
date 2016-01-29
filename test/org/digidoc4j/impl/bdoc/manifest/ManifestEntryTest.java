@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl.bdoc;
+package org.digidoc4j.impl.bdoc.manifest;
 
 import org.junit.Test;
 

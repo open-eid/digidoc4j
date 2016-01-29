@@ -14,7 +14,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.digidoc4j.DataFile;
-import org.digidoc4j.impl.bdoc.ManifestParser;
+import org.digidoc4j.impl.bdoc.manifest.ManifestParser;
 
 import eu.europa.esig.dss.DSSDocument;
 

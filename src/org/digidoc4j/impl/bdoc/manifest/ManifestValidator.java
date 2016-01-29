@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl.bdoc;
+package org.digidoc4j.impl.bdoc.manifest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -22,6 +22,7 @@ import java.util.Set;
 import org.apache.xml.security.signature.Reference;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.bdoc.BDocSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;

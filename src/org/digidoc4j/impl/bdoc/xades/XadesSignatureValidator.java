@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl.bdoc;
+package org.digidoc4j.impl.bdoc.xades;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.digidoc4j.SignatureProfile.B_BES;
@@ -35,8 +35,8 @@ import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.exceptions.TimestampAndOcspResponseTimeDeltaTooLargeException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
-import org.digidoc4j.impl.bdoc.xades.XadesSignatureWrapper;
-import org.digidoc4j.impl.bdoc.xades.XadesValidationReportGenerator;
+import org.digidoc4j.impl.bdoc.BDocSignature;
+import org.digidoc4j.impl.bdoc.OcspNonceValidator;
 import org.digidoc4j.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

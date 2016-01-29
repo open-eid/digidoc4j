@@ -8,13 +8,12 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl.bdoc;
+package org.digidoc4j.impl.bdoc.asic;
 
 import static org.junit.Assert.assertEquals;
 
 import java.io.FileInputStream;
 
-import org.digidoc4j.impl.bdoc.asic.AsicParseResult;
 import org.junit.Assert;
 import org.junit.Test;
 

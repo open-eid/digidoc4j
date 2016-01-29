@@ -16,7 +16,6 @@ import java.util.List;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.bdoc.BDocSignature;
 import org.digidoc4j.impl.bdoc.SKCommonCertificateVerifier;
-import org.digidoc4j.impl.bdoc.XadesSignatureValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

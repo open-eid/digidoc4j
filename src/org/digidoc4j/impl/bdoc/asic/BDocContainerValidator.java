@@ -18,8 +18,9 @@ import java.util.List;
 import org.digidoc4j.Signature;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.bdoc.ManifestParser;
-import org.digidoc4j.impl.bdoc.ManifestValidator;
+import org.digidoc4j.impl.bdoc.BDocValidationResult;
+import org.digidoc4j.impl.bdoc.manifest.ManifestParser;
+import org.digidoc4j.impl.bdoc.manifest.ManifestValidator;
 
 import eu.europa.esig.dss.DSSDocument;
 

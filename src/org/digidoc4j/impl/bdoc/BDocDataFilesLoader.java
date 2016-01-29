@@ -10,8 +10,8 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import static org.digidoc4j.impl.bdoc.ManifestValidator.MANIFEST_PATH;
-import static org.digidoc4j.impl.bdoc.ManifestValidator.MIMETYPE_PATH;
+import static org.digidoc4j.impl.bdoc.manifest.ManifestValidator.MANIFEST_PATH;
+import static org.digidoc4j.impl.bdoc.manifest.ManifestValidator.MIMETYPE_PATH;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -19,12 +19,15 @@ import java.util.Map;
 
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
+import org.digidoc4j.impl.bdoc.manifest.ManifestEntry;
+import org.digidoc4j.impl.bdoc.manifest.ManifestParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 
+@Deprecated
 public class BDocDataFilesLoader {
 
   private final static Logger logger = LoggerFactory.getLogger(BDocDataFilesLoader.class);

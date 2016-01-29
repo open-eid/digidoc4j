@@ -34,6 +34,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.bdoc.asic.AsicContainerParser;
 import org.digidoc4j.impl.bdoc.asic.BDocContainerValidator;
 import org.digidoc4j.impl.bdoc.asic.AsicContainerCreator;
 import org.digidoc4j.impl.bdoc.asic.AsicParseResult;

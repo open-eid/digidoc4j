@@ -24,6 +24,7 @@ import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DigestAlgorithm;
 import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
 
+@Deprecated
 public class AsicContainerValidatorTest {
 
   @Test(expected = ContainerWithoutSignaturesException.class)

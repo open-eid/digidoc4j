@@ -24,7 +24,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.impl.bdoc.XadesSignatureValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

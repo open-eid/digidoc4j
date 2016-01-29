@@ -58,6 +58,7 @@ import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.SignatureFinalizer;
+import org.digidoc4j.impl.bdoc.asic.AsicContainerParser;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

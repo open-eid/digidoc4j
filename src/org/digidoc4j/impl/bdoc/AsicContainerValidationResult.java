@@ -21,6 +21,7 @@ import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DigestAlgorithm;
 import eu.europa.esig.dss.validation.report.Reports;
 
+@Deprecated
 public class AsicContainerValidationResult implements Serializable {
 
   private List<Signature> signatures;

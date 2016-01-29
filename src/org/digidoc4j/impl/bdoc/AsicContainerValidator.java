@@ -29,6 +29,8 @@ import org.digidoc4j.exceptions.ContainerWithoutSignaturesException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.bdoc.manifest.ManifestValidator;
+import org.digidoc4j.impl.bdoc.xades.XadesSignatureValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +44,7 @@ import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.report.Reports;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
+@Deprecated
 public class AsicContainerValidator implements Serializable {
 
   private final static Logger logger = LoggerFactory.getLogger(AsicContainerValidator.class);

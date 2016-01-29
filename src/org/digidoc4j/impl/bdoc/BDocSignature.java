@@ -27,6 +27,7 @@ import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.CertificateNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.impl.bdoc.xades.XadesSignatureValidator;
 import org.digidoc4j.impl.bdoc.xades.XadesSignatureWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -248,7 +249,7 @@ public class BDocSignature implements Signature {
     return getAdESSignature();
   }
 
-  XAdESSignature getOrigin() {
+  public XAdESSignature getOrigin() {
     return signatureWrapper.getOrigin();
   }
 
@@ -256,7 +257,7 @@ public class BDocSignature implements Signature {
     return validationErrors;
   }
 
-  void setValidationErrors(List<DigiDoc4JException> validationErrors) {
+  public void setValidationErrors(List<DigiDoc4JException> validationErrors) {
     this.validationErrors = validationErrors;
   }
 
