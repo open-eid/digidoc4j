@@ -147,9 +147,8 @@ public final class DigiDoc4J {
 
       if (commandLine.hasOption("encryption")) {
         String encryption = commandLine.getOptionValue("encryption");
-        SignatureParameters signatureParameters = new SignatureParameters();
-        signatureParameters.setEncryptionAlgorithm(EncryptionAlgorithm.valueOf(encryption));
-        container.setSignatureParameters(signatureParameters);
+        EncryptionAlgorithm encryptionAlgorithm = EncryptionAlgorithm.valueOf(encryption);
+        signatureBuilder.withEncryptionAlgorithm(encryptionAlgorithm);
       }
 
       if (commandLine.hasOption("pkcs12")) {

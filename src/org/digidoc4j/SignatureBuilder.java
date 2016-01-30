@@ -257,6 +257,11 @@ public abstract class SignatureBuilder {
     return this;
   }
 
+  public SignatureBuilder withEncryptionAlgorithm(EncryptionAlgorithm encryptionAlgorithm) {
+    signatureParameters.setEncryptionAlgorithm(encryptionAlgorithm);
+    return this;
+  }
+
   protected void setContainer(Container container) {
     this.container = container;
   }

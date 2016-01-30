@@ -203,6 +203,18 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
     assertEquals(SignatureProfile.LT_TM, signature.getProfile());
   }
 
+  @Test
+  public void signWithEccCertificate() throws Exception {
+    PKCS12SignatureToken eccSignatureToken = new PKCS12SignatureToken("testFiles/ec-digiid.p12", "inno".toCharArray());
+    Container container = TestDataBuilder.createContainerWithFile(testFolder, "BDOC");
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureToken(eccSignatureToken).
+        withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA).
+        invokeSigning();
+    assertTrue(signature.validate().isEmpty());
+  }
+
   @Test(expected = NotSupportedException.class)
   public void signUnknownContainerFormat_shouldThrowException() throws Exception {
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", TestContainer.class);

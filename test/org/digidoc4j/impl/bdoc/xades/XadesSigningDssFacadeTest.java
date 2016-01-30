@@ -26,9 +26,9 @@ import java.util.List;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import eu.europa.ec.markt.dss.validation102853.ocsp.BDocTSOcspSource;
@@ -80,10 +80,15 @@ public class XadesSigningDssFacadeTest {
   }
 
   @Test
-  @Ignore("Sign with ECC not with RSA. Invalid ASN.1 format of ECDSA signature")
   public void signDocumentWithECC() throws Exception {
+    PKCS12SignatureToken eccSignatureToken = new PKCS12SignatureToken("testFiles/ec-digiid.p12", "inno".toCharArray());
+    X509Certificate signingCert = eccSignatureToken.getCertificate();
     facade.setEncryptionAlgorithm(EncryptionAlgorithm.ECDSA);
-    DSSDocument signedDocument = signTestData(DigestAlgorithm.SHA256);
+    facade.setSigningCertificate(signingCert);
+    List<DataFile> dataFilesToSign = createDataFilesToSign();
+    byte[] dataToSign = facade.getDataToSign(dataFilesToSign);
+    byte[] signatureValue = eccSignatureToken.sign(DigestAlgorithm.SHA256, dataToSign);
+    DSSDocument signedDocument = facade.signDocument(signatureValue, dataFilesToSign);
     assertDocumentSigned(signedDocument);
   }
 

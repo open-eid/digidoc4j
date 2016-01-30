@@ -1634,13 +1634,14 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
   @Test
   public void signWithECCCertificate() throws Exception {
     Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
-    SignatureParameters signatureParameters = new SignatureParameters();
-    signatureParameters.setEncryptionAlgorithm(ECDSA);
-    container.setSignatureParameters(signatureParameters);
-    container.sign(new PKCS12SignatureToken("testFiles/ec-digiid.p12", "inno".toCharArray()));
-
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureToken(new PKCS12SignatureToken("testFiles/ec-digiid.p12", "inno".toCharArray())).
+        withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA).
+        invokeSigning();
+    container.addSignature(signature);
+    assertEquals(1, container.getSignatures().size());
     assertTrue(container.validate().isValid());
-    throw new NotYetImplementedException();
   }
 
   @Test
