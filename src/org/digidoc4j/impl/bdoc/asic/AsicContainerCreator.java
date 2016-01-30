@@ -27,6 +27,7 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.bdoc.manifest.AsicManifest;
+import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,7 @@ public class AsicContainerCreator {
   private final static String ZIP_ENTRY_MIMETYPE = "mimetype";
   private ZipOutputStream zipOutputStream;
   private ByteArrayOutputStream outputStream;
+  private static final String ZIP_COMMENT = Helper.createBDocUserAgent();
 
   public AsicContainerCreator(File containerPathToSave) {
     logger.debug("Starting to save bdoc zip container to " + containerPathToSave);
@@ -124,6 +126,7 @@ public class AsicContainerCreator {
 
   private void writeZipEntry(ZipEntry zipEntry, byte[] entryBytes) {
     try {
+      zipEntry.setComment(ZIP_COMMENT);
       zipOutputStream.putNextEntry(zipEntry);
       zipOutputStream.write(entryBytes);
       zipOutputStream.closeEntry();

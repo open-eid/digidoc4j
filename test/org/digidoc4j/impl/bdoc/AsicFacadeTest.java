@@ -1650,9 +1650,13 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     signContainer(container);
     container.save("testZipFileComment.bdoc");
 
-    ZipFile zipFile = new ZipFile("testZipFileComment.bdoc");
     String expectedComment = Helper.createBDocUserAgent();
-    assertEquals(expectedComment, zipFile.getComment());
+    ZipFile zipFile = new ZipFile("testZipFileComment.bdoc");
+    assertEquals(expectedComment, zipFile.getEntry("mimetype").getComment());
+    assertEquals(expectedComment, zipFile.getEntry("META-INF/manifest.xml").getComment());
+    assertEquals(expectedComment, zipFile.getEntry("META-INF/manifest.xml").getComment());
+    assertEquals(expectedComment, zipFile.getEntry("META-INF/signatures0.xml").getComment());
+    assertEquals(expectedComment, zipFile.getEntry("test.txt").getComment());
   }
 
   @Test
