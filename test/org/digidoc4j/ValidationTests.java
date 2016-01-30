@@ -14,11 +14,11 @@ import static org.digidoc4j.testutils.TestHelpers.containsErrorMessage;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.digidoc4j.exceptions.ContainerWithoutSignaturesException;
 import org.digidoc4j.exceptions.InvalidTimestampException;
 import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.testutils.TSLHelper;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ValidationTests extends DigiDoc4JTestHelper {
@@ -28,12 +28,6 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     ValidationResult result = validateContainer("testFiles/TS-02_23634_TS_wrong_SignatureValue.asice");
     assertFalse(result.isValid());
     assertTrue(containsErrorMessage(result.getErrors(), InvalidTimestampException.MESSAGE));
-  }
-
-  @Test(expected = ContainerWithoutSignaturesException.class)
-  public void asicContainerWithoutSignatures_isNotValid() throws Exception {
-    ValidationResult result = validateContainer("testFiles/asics_without_signatures.bdoc");
-    assertFalse(result.isValid());
   }
 
   @Test

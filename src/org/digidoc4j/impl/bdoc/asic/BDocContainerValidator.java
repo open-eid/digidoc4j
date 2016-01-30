@@ -12,20 +12,25 @@ package org.digidoc4j.impl.bdoc.asic;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.digidoc4j.Signature;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.bdoc.BDocValidationResult;
 import org.digidoc4j.impl.bdoc.manifest.ManifestParser;
 import org.digidoc4j.impl.bdoc.manifest.ManifestValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
 
 public class BDocContainerValidator implements Serializable {
 
+  private final static Logger logger = LoggerFactory.getLogger(BDocContainerValidator.class);
   private List<DigiDoc4JException> errors = new ArrayList<>();
   private List<Signature> signatures;
   private AsicParseResult containerParseResult;
@@ -38,24 +43,30 @@ public class BDocContainerValidator implements Serializable {
   public ValidationResult validate() {
     BDocValidationResult result = new BDocValidationResult();
 
-    List<DigiDoc4JException> manifestErrors = findManifestErrors();
-    errors.addAll(manifestErrors);
-
     for (Signature signature : signatures) {
       List<DigiDoc4JException> signatureErrors = signature.validate();
       errors.addAll(signatureErrors);
     }
+
+    List<DigiDoc4JException> manifestErrors = findManifestErrors();
+    errors.addAll(manifestErrors);
 
     result.setErrors(errors);
     return result;
   }
 
   private List<DigiDoc4JException> findManifestErrors() {
-    if (containerParseResult == null || containerParseResult.getManifestParser() == null) {
+    if (containerParseResult == null) {
       return Collections.emptyList();
     }
-    List<DigiDoc4JException> manifestExceptions = new ArrayList<>();
     ManifestParser manifestParser = containerParseResult.getManifestParser();
+    if (manifestParser == null || !manifestParser.containsManifestFile()) {
+      logger.error("Container is missing manifest.xml");
+      List<DigiDoc4JException> manifestExceptions = new ArrayList<>();
+      manifestExceptions.add(new UnsupportedFormatException("Container does not contain a manifest file"));
+      return manifestExceptions;
+    }
+    List<DigiDoc4JException> manifestExceptions = new ArrayList<>();
     List<DSSDocument> detachedContents = containerParseResult.getDetachedContents();
     List<String> manifestErrors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
     for (String manifestError : manifestErrors) {

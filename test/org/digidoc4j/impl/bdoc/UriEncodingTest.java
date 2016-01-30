@@ -31,7 +31,7 @@ public class UriEncodingTest extends AbstractSigningTests {
     @Test
     public void signatureReferencesUseUriEncodingButManifestUsesPlainUtf8() throws InterruptedException {
         Signature signature = sign();
-        
+        signature.validate();
         List<Reference> referencesInSignature = ((BDocSignature)signature).getOrigin().getReferences();
         assertEquals("dds_J%C3%9CRI%C3%96%C3%96%20%E2%82%AC%20%C5%BE%C5%A0%20p%C3%A4ev.txt", referencesInSignature.get(0).getURI());
         // TODO: Also write an assertion to verify that the manifest file does NOT use URI encoding

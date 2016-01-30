@@ -17,9 +17,7 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.exceptions.ContainerWithoutSignaturesException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
@@ -63,17 +61,11 @@ public class XadesValidationReportGenerator implements Serializable {
     return validationReport;
   }
 
-  private SignedDocumentValidator openValidator() throws ContainerWithoutSignaturesException {
+  private SignedDocumentValidator openValidator() {
     logger.debug("Opening xades signature validator");
     try {
       return XMLDocumentValidator.fromDocument(xadesSignatureFile);
     } catch (DSSException e) {
-      if (StringUtils.equalsIgnoreCase("This is not an ASiC container. The signature cannot be found!", e.getMessage())) {
-        throw new ContainerWithoutSignaturesException();
-      }
-      if (StringUtils.equalsIgnoreCase("Document format not recognized/handled", e.getMessage())) {
-        throw new ContainerWithoutSignaturesException();
-      }
       logger.error("Error validating container: " + e.getMessage());
       throw new TechnicalException("Error validating container: " + e.getMessage(), e);
     }

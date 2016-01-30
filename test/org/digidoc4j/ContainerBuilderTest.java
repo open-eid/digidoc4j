@@ -44,7 +44,7 @@ import org.junit.rules.TemporaryFolder;
 public class ContainerBuilderTest extends DigiDoc4JTestHelper {
 
   public static final Configuration TEST_CONFIGURATION = new Configuration(Configuration.Mode.TEST);
-  private static final String BDOC_TEST_FILE = "testFiles/asics_for_testing.bdoc";
+  private static final String BDOC_TEST_FILE = "testFiles/one_signature.bdoc";
   private static final String DDOC_TEST_FILE = "testFiles/ddoc_for_testing.ddoc";
   private File tempFolder;
 

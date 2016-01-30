@@ -49,7 +49,6 @@ import static org.digidoc4j.DigestAlgorithm.SHA224;
 import static org.digidoc4j.SignatureProfile.*;
 import static org.digidoc4j.DigestAlgorithm.SHA1;
 import static org.digidoc4j.DigestAlgorithm.SHA256;
-import static org.digidoc4j.EncryptionAlgorithm.ECDSA;
 import static org.digidoc4j.testutils.TestDataBuilder.signContainer;
 import static org.digidoc4j.utils.Helper.deserializer;
 import static org.digidoc4j.utils.Helper.serialize;
@@ -905,7 +904,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", resultSignature.getSignatureMethod());
     assertNull(resultSignature.getSignerRoles());
     assertNull(resultSignature.getCity());
-    assertEquals("S0", resultSignature.getId());
+    assertTrue(StringUtils.isNotBlank(resultSignature.getId()));
 
     assertNotNull(resultSignature.getOCSPCertificate());
     assertNotNull(resultSignature.getSigningCertificate());
@@ -1305,7 +1304,8 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
   @Test
   public void signatureFileContainsIncorrectFileName() {
-    Container container = ContainerOpener.open("testFiles/filename_mismatch_signature.asice");
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    Container container = ContainerOpener.open("testFiles/filename_mismatch_signature.asice", configuration);
     ValidationResult validate = container.validate();
     assertEquals(1, validate.getErrors().size());
     assertEquals("The reference data object(s) not found!", validate.getErrors().get(0).toString());
@@ -1320,11 +1320,11 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     ValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
     assertEquals(3, errors.size());
+    assertEquals("The reference data object(s) is not intact!", errors.get(0).toString());
     assertEquals("Manifest file has an entry for file test.txt with mimetype text/plain but the signature file for " +
-        "signature S1 does not have an entry for this file", errors.get(0).toString());
+        "signature S1 does not have an entry for this file", errors.get(1).toString());
     assertEquals("Container contains a file named test.txt which is not found in the signature file",
-        errors.get(1).toString());
-    assertEquals("The reference data object(s) is not intact!", errors.get(2).toString());
+        errors.get(2).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -1397,10 +1397,13 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     container.validate();
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void missingManifestFile() {
-    Container container = ContainerOpener.open("testFiles/missing_manifest.asice");
-    container.validate();
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    Container container = ContainerOpener.open("testFiles/missing_manifest.asice", configuration);
+    ValidationResult result = container.validate();
+    assertFalse(result.isValid());
+    assertEquals("Unsupported format: Container does not contain a manifest file", result.getErrors().get(0).getMessage());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -1427,7 +1430,7 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
-    assertEquals("The reference data object(s) not found!", errors.get(0).toString());
+    assertEquals("The reference data object(s) is not intact!", errors.get(0).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -1438,7 +1441,8 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
 
     assertEquals(LT, container.getSignatures().get(0).getProfile());
     assertEquals(2, errors.size());
-    assertTrue(errors.get(1).toString().contains("No revocation data for the certificate"));
+    assertTrue(errors.get(0).toString().contains("No revocation data for the certificate"));
+    assertEquals("Manifest file has an entry for file test.txt with mimetype text/plain but the signature file for signature S0 indicates the mimetype is application/octet-stream", errors.get(1).toString());
   }
 
   @Ignore("This signature has two OCSP responses: one correct and one is technically corrupted. Opening a container should not throw an exception")
@@ -1548,10 +1552,11 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     Container container = ContainerOpener.open("testFiles/nonce-vale-sisu.bdoc", configuration);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(3, errors.size());
+    assertEquals(4, errors.size());
     assertEquals("Wrong policy identifier: urn:oid:1.3.6.1.4.1.10015.1000.2.10.10", errors.get(0).toString());
     assertEquals("The reference data object(s) is not intact!", errors.get(1).toString());
     assertEquals("Nonce is invalid", errors.get(2).toString());
+    assertEquals("The signature file for signature S0 has an entry for file META-INF/manifest.xml with mimetype application/xml but the manifest file does not have an entry for this file", errors.get(3).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")

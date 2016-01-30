@@ -27,6 +27,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.bdoc.manifest.ManifestEntry;
 import org.digidoc4j.impl.bdoc.manifest.ManifestParser;
 import org.slf4j.Logger;
@@ -57,6 +58,7 @@ public class AsicContainerParser {
   private DSSDocument firstDetachedContent;
   private DSSDocument lastDetachedContent;
   private Integer currentSignatureFileIndex;
+  private String mimeType;
   private Map<String, ManifestEntry> manifestFileItems = Collections.emptyMap();
   private ManifestParser manifestParser;
 
@@ -80,6 +82,7 @@ public class AsicContainerParser {
       parseZipStream();
       updateDataFilesMimeType();
     }
+    validateParseResult();
     populateParseResult();
     return parseResult;
   }
@@ -141,7 +144,7 @@ public class AsicContainerParser {
       return;
     }
     if(isMimeType(entryName)) {
-      //TODO verify mime type
+      extractMimeType(entry);
     } else if(isManifest(entryName) && !isZipFile()) {
       parseManifestEntry(entry);
     } else if(isSignaturesFile(entryName)) {
@@ -150,6 +153,16 @@ public class AsicContainerParser {
       extractSignature(entry);
     } else if(isDataFile(entryName)) {
       extractDataFile(entry);
+    }
+  }
+
+  private void extractMimeType(ZipEntry entry) {
+    try {
+      InputStream zipFileInputStream = getZipEntryInputStream(entry);
+      mimeType = StringUtils.trim(IOUtils.toString(zipFileInputStream));
+    } catch (IOException e) {
+      logger.error("Error parsing container mime type: " + e.getMessage());
+      throw new TechnicalException("Error parsing container mime type: " + e.getMessage(), e);
     }
   }
 
@@ -189,6 +202,13 @@ public class AsicContainerParser {
       String fileName = dataFile.getName();
       String mimeType = getDataFileMimeType(fileName);
       dataFile.setMediaType(mimeType);
+    }
+  }
+
+  private void validateParseResult() {
+    if(!StringUtils.equalsIgnoreCase(MimeType.ASICE.getMimeTypeString(), mimeType)) {
+      logger.error("Container mime type is not " + MimeType.ASICE.getMimeTypeString() + " but is " + mimeType);
+      throw new UnsupportedFormatException("Container mime type is not " + MimeType.ASICE.getMimeTypeString() + " but is " + mimeType);
     }
   }
 

@@ -21,11 +21,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
-import org.digidoc4j.exceptions.ContainerWithoutSignaturesException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.exceptions.TechnicalException;
@@ -62,7 +60,7 @@ public class AsicContainerValidator implements Serializable {
     this.configuration = configuration;
   }
 
-  public AsicContainerValidationResult validate() throws ContainerWithoutSignaturesException {
+  public AsicContainerValidationResult validate() {
     logger.debug("Validating asic container");
     try {
       SignedDocumentValidator validator = openValidator();
@@ -73,15 +71,12 @@ public class AsicContainerValidator implements Serializable {
       validationResult.setbDocValidationResult(bDocValidationResult);
       return validationResult;
     } catch (DSSException e) {
-      if (StringUtils.equalsIgnoreCase("This is not an ASiC container. The signature cannot be found!", e.getMessage())) {
-        throw new ContainerWithoutSignaturesException();
-      }
       logger.error("Error validating container: " + e.getMessage());
       throw new TechnicalException("Error validating container: " + e.getMessage(), e);
     }
   }
 
-  public AsicContainerValidationResult loadContainerDetails() throws ContainerWithoutSignaturesException {
+  public AsicContainerValidationResult loadContainerDetails() {
     logger.debug("Loading container details");
     SignedDocumentValidator validator = openValidator();
     loadSignatures(validator);
@@ -91,7 +86,7 @@ public class AsicContainerValidator implements Serializable {
     return validationResult;
   }
 
-  public List<Signature> loadSignaturesWithoutValidation() throws ContainerWithoutSignaturesException {
+  public List<Signature> loadSignaturesWithoutValidation() {
     logger.debug("Loading signatures without validation");
     signatures = new ArrayList<>();
     SignedDocumentValidator validator = openValidator();
@@ -103,7 +98,7 @@ public class AsicContainerValidator implements Serializable {
     return signatures;
   }
 
-  public XAdESSignature findXadesSignature(String deterministicId) throws SignatureNotFoundException, ContainerWithoutSignaturesException {
+  public XAdESSignature findXadesSignature(String deterministicId) throws SignatureNotFoundException {
     logger.debug("Finding xades signature with id " + deterministicId);
     SignedDocumentValidator validator = openValidator();
     validate(validator);
@@ -131,16 +126,10 @@ public class AsicContainerValidator implements Serializable {
     }
   }
 
-  private SignedDocumentValidator openValidator() throws ContainerWithoutSignaturesException {
+  private SignedDocumentValidator openValidator() {
     try {
       return ASiCContainerValidator.fromDocument(signedDocument);
     } catch (DSSException e) {
-      if (StringUtils.equalsIgnoreCase("This is not an ASiC container. The signature cannot be found!", e.getMessage())) {
-        throw new ContainerWithoutSignaturesException();
-      }
-      if (StringUtils.equalsIgnoreCase("Document format not recognized/handled", e.getMessage())) {
-        throw new ContainerWithoutSignaturesException();
-      }
       logger.error("Error validating container: " + e.getMessage());
       throw new TechnicalException("Error validating container: " + e.getMessage(), e);
     }
