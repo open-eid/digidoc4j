@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.*;
@@ -22,6 +23,7 @@ import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.digidoc4j.utils.Helper;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -1759,6 +1761,23 @@ public class AsicFacadeTest extends DigiDoc4JTestHelper {
     BDocSignature signature = (BDocSignature) signContainer(container, LT_TM);
     XAdESSignature xAdESSignature = signature.getOrigin();
     assertTrue(signatureContainsOcspResponderCertificate(xAdESSignature));
+  }
+
+  @Test
+  public void savingContainerWithoutSignatures_shouldNotThrowException() throws Exception {
+    Container container = create();
+    container.addDataFile("testFiles/test.txt", "text/plain");
+    assertTrue(container.getSignatures().isEmpty());
+    assertEquals(1, container.getDataFiles().size());
+    assertTrue(container.validate().isValid());
+    String containerPath = testFolder.newFile().getPath();
+    container.saveAsFile(containerPath);
+    Container savedContainer = open(containerPath);
+    assertTrue(savedContainer.getSignatures().isEmpty());
+    assertEquals(1, container.getDataFiles().size());
+    byte[] expectedDataFileBytes = FileUtils.readFileToByteArray(new File("testFiles/test.txt"));
+    byte[] actualDataFileBytes = savedContainer.getDataFiles().get(0).getBytes();
+    Assert.assertArrayEquals(expectedDataFileBytes, actualDataFileBytes);
   }
 
   private void assertSignatureContains(BDocSignature signature, String name) {
