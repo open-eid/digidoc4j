@@ -8,40 +8,56 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl.bdoc.xades;
+package org.digidoc4j.impl.bdoc;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.utils.Helper;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
-import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
-public class XadesSignatureParserTest {
+public class BDocSignatureOpenerTest {
 
-  private final static Logger logger = LoggerFactory.getLogger(XadesSignatureParserTest.class);
+  private final static Logger logger = LoggerFactory.getLogger(BDocSignatureOpenerTest.class);
+  static Configuration configuration = new Configuration(Configuration.Mode.TEST);
+  private BDocSignatureOpener signatureOpener;
 
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
 
+  @Before
+  public void setUp() throws Exception {
+    DSSDocument signedFile = new FileDocument("testFiles/test.txt");
+    List<DSSDocument> detachedContents = Arrays.asList(signedFile);
+    signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
+  }
+
   @Test
-  public void parseBesSignature() throws Exception {
-    XAdESSignature dssSignature = openXadesSignature("testFiles/xades/test-bes-signature.xml");
-    XadesSignature signature = new XadesSignatureParser().parse(dssSignature);
+  public void openBesSignature() throws Exception {
+    DSSDocument xadesDoc = new FileDocument("testFiles/xades/test-bes-signature.xml");
+    List<BDocSignature> signatures = signatureOpener.parse(xadesDoc);
+    assertEquals(1, signatures.size());
+    BDocSignature signature = signatures.get(0);
+    assertEquals("id-693869a500c60f0dc262f7287f033d5d", signature.getId());
     assertEquals(SignatureProfile.B_BES, signature.getProfile());
     logger.debug("Getting signature id");
     assertEquals("id-693869a500c60f0dc262f7287f033d5d", signature.getId());
@@ -78,74 +94,33 @@ public class XadesSignatureParserTest {
   }
 
   @Test
-  public void parseBDocTmSignature() throws Exception {
-    XAdESSignature dssSignature = openXadesSignature("testFiles/xades/test-bdoc-tm.xml");
-    XadesSignature signature = new XadesSignatureParser().parse(dssSignature);
-    assertEquals(SignatureProfile.LT_TM, signature.getProfile());
-    assertEquals("id-a4fc49d6d0d7f647f6f2f4edde485943", signature.getId());
-    logger.debug("Getting OCSP certificate");
-    assertNotNull(signature.getOCSPCertificate());
-    assertTrue(StringUtils.startsWith(signature.getOCSPCertificate().getSubjectName(), "C=EE,O=AS Sertifitseerimiskeskus,OU=OCSP"));
-    logger.debug("Getting OCSP time");
-    assertNotNull(signature.getOCSPResponseCreationTime());
-    assertEquals(new Date(1454685580000L), signature.getOCSPResponseCreationTime());
-    logger.debug("Getting trusted signing time");
-    assertEquals(signature.getOCSPResponseCreationTime(), signature.getTrustedSigningTime());
-    assertNull(signature.getTimeStampTokenCertificate());
-    assertNull(signature.getTimeStampCreationTime());
-    logger.debug("Finished testing Timemark signature");
-  }
-
-  @Test
-  public void parseBdocTsSignature() throws Exception {
-    XAdESSignature dssSignature = openXadesSignature("testFiles/xades/test-bdoc-ts.xml");
-    XadesSignature signature = new XadesSignatureParser().parse(dssSignature);
-    assertEquals(SignatureProfile.LT, signature.getProfile());
+  public void openXadesSignature() throws Exception {
+    DSSDocument xadesDoc = new FileDocument("testFiles/xades/test-bdoc-ts.xml");
+    List<BDocSignature> signatures = signatureOpener.parse(xadesDoc);
+    BDocSignature signature = signatures.get(0);
+    assertNotNull(signature);
     assertEquals("S0", signature.getId());
-    logger.debug("Getting timestamp time");
-    assertEquals(new Date(1454090316000L), signature.getTimeStampCreationTime());
-    logger.debug("Getting timestamp token certificate");
-    assertNotNull(signature.getTimeStampTokenCertificate());
-    logger.debug("Checking timestamp token certificate subject name");
-    assertTrue(StringUtils.startsWith(signature.getTimeStampTokenCertificate().getSubjectName(), "C=EE,O=AS Sertifitseerimiskeskus,OU=TSA"));
-    logger.debug("Checking trusted time");
-    assertEquals(signature.getTimeStampCreationTime(), signature.getTrustedSigningTime());
-    logger.debug("Finished testing Timestamp signature");
-  }
-
-  @Test
-  public void parseBDocTsaSignature() throws Exception {
-    XAdESSignature dssSignature = openXadesSignature("testFiles/xades/test-bdoc-tsa.xml");
-    XadesSignature signature = new XadesSignatureParser().parse(dssSignature);
-    assertEquals(SignatureProfile.LTA, signature.getProfile());
-    assertEquals("id-168ef7d05729874fab1a88705b09b5bb", signature.getId());
+    assertEquals(SignatureProfile.LT, signature.getProfile());
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
-    assertEquals(new Date(1455032287000L), signature.getSigningTime());
+    assertEquals(new Date(1454090315000L), signature.getSigningTime());
     assertTrue(StringUtils.startsWith(signature.getSigningCertificate().issuerName(), "C=EE,O=AS Sertifitseerimiskeskus"));
     assertNotNull(signature.getOCSPCertificate());
     assertTrue(StringUtils.startsWith(signature.getOCSPCertificate().getSubjectName(), "C=EE,O=AS Sertifitseerimiskeskus,OU=OCSP"));
-    assertEquals(new Date(1455032289000L), signature.getOCSPResponseCreationTime());
-    assertEquals(new Date(1455032288000L), signature.getTimeStampCreationTime());
+    assertEquals(new Date(1454090317000L), signature.getOCSPResponseCreationTime());
+    assertEquals(new Date(1454090316000L), signature.getTimeStampCreationTime());
     assertNotNull(signature.getTimeStampTokenCertificate());
     assertTrue(StringUtils.startsWith(signature.getTimeStampTokenCertificate().getSubjectName(), "C=EE,O=AS Sertifitseerimiskeskus,OU=TSA"));
     assertEquals(signature.getTimeStampCreationTime(), signature.getTrustedSigningTime());
   }
 
   @Test
-  public void serializeSignature() throws Exception {
-    XAdESSignature dssSignature = openXadesSignature("testFiles/xades/test-bdoc-tsa.xml");
-    XadesSignature signature = new XadesSignatureParser().parse(dssSignature);
+  public void serializeBDocSignature() throws Exception {
+    DSSDocument xadesDoc = new FileDocument("testFiles/xades/test-bdoc-ts.xml");
+    List<BDocSignature> signatures = signatureOpener.parse(xadesDoc);
+    BDocSignature signature = signatures.get(0);
     String serializedPath = testFolder.newFile().getPath();
     Helper.serialize(signature, serializedPath);
     signature = Helper.deserializer(serializedPath);
-    assertEquals("id-168ef7d05729874fab1a88705b09b5bb", signature.getId());
-  }
-
-  private XAdESSignature openXadesSignature(String signaturePath) {
-    logger.debug("Openig xades signature");
-    SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(new FileDocument(signaturePath));
-    XAdESSignature xAdESSignature = (XAdESSignature) validator.getSignatures().get(0);
-    logger.debug("Finished opening xades signature");
-    return xAdESSignature;
+    assertEquals("S0", signature.getId());
   }
 }

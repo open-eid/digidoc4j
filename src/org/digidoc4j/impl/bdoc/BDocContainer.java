@@ -34,12 +34,11 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.impl.bdoc.asic.AsicContainerParser;
-import org.digidoc4j.impl.bdoc.asic.BDocContainerValidator;
 import org.digidoc4j.impl.bdoc.asic.AsicContainerCreator;
+import org.digidoc4j.impl.bdoc.asic.AsicContainerParser;
 import org.digidoc4j.impl.bdoc.asic.AsicParseResult;
+import org.digidoc4j.impl.bdoc.asic.BDocContainerValidator;
 import org.digidoc4j.impl.bdoc.xades.SignatureExtender;
-import org.digidoc4j.impl.bdoc.xades.XadesSignatureParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,9 +102,9 @@ public class BDocContainer implements Container {
   }
 
   private void parseSignatureFiles(List<DSSDocument> signatureFiles, List<DSSDocument> detachedContents) {
-    XadesSignatureParser signatureParser = new XadesSignatureParser(detachedContents, configuration);
+    BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
     for(DSSDocument signatureFile: signatureFiles) {
-      List<BDocSignature> bDocSignatures = signatureParser.parse(signatureFile);
+      List<BDocSignature> bDocSignatures = signatureOpener.parse(signatureFile);
       signatures.addAll(bDocSignatures);
     }
   }

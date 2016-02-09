@@ -35,7 +35,6 @@ import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.exceptions.TimestampAndOcspResponseTimeDeltaTooLargeException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
-import org.digidoc4j.impl.bdoc.BDocSignature;
 import org.digidoc4j.impl.bdoc.OcspNonceValidator;
 import org.digidoc4j.utils.DateUtils;
 import org.slf4j.Logger;
@@ -71,23 +70,13 @@ public class XadesSignatureValidator implements Serializable {
   private Configuration configuration;
 
   private XadesValidationReportGenerator reportGenerator;
-  private XadesSignatureWrapper signatureWrapper;
+  private XadesSignature signature;
 
-  @Deprecated
-  public XadesSignatureValidator(Reports validationReport, XAdESSignature xAdESSignature, Configuration configuration) {
-    this.validationReport = validationReport;
-    this.xAdESSignature = xAdESSignature;
-    this.simpleReports = extractSimpleReports(validationReport);
-    this.configuration = configuration;
-    this.signatureWrapper = new XadesSignatureWrapper(xAdESSignature);
-    signatureId = xAdESSignature.getId();
-  }
-
-  public XadesSignatureValidator(XadesValidationReportGenerator reportGenerator, XadesSignatureWrapper signatureWrapper, Configuration configuration) {
+  public XadesSignatureValidator(XadesValidationReportGenerator reportGenerator, XAdESSignature xAdESSignature, XadesSignature signature, Configuration configuration) {
     this.reportGenerator = reportGenerator;
-    this.xAdESSignature = signatureWrapper.getOrigin();
+    this.xAdESSignature = xAdESSignature;
     this.configuration = configuration;
-    this.signatureWrapper = signatureWrapper;
+    this.signature = signature;
     signatureId = xAdESSignature.getId();
   }
 
@@ -97,15 +86,6 @@ public class XadesSignatureValidator implements Serializable {
     simpleReports = extractSimpleReports(validationReport);
     populateValidationErrors();
     return validationErrors;
-  }
-
-  @Deprecated
-  public BDocSignature extractValidatedSignature() {
-    logger.debug("Extracting errors for signature " + signatureId);
-    BDocSignature signature = new BDocSignature(xAdESSignature);
-    populateValidationErrors();
-    signature.setValidationErrors(validationErrors);
-    return signature;
   }
 
   private void populateValidationErrors() {
@@ -269,10 +249,10 @@ public class XadesSignatureValidator implements Serializable {
   }
 
   private void addCertificateExpirationError() {
-    if(signatureWrapper.getProfile() == B_BES) {
+    if(signature.getProfile() == B_BES) {
       return;
     }
-    Date signingTime = signatureWrapper.getTrustedSigningTime();
+    Date signingTime = signature.getTrustedSigningTime();
     if(signingTime == null) {
       return;
     }

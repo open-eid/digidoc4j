@@ -37,7 +37,6 @@ import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.impl.bdoc.xades.XadesSigningDssFacade;
-import org.digidoc4j.impl.bdoc.xades.XadesSignatureParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,9 +101,9 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     Configuration configuration = getConfiguration();
     List<DSSDocument> detachedContents = getDetachedContents();
     //TODO store detached contents and reuse it when building data to sign and finalizing the signature
-    XadesSignatureParser signatureParser = new XadesSignatureParser(detachedContents, configuration);
-    List<BDocSignature> signatureList = signatureParser.parse(signedDocument);
-    BDocSignature signature = signatureList.get(0);
+    BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
+    List<BDocSignature> signatureList = signatureOpener.parse(signedDocument);
+    BDocSignature signature = signatureList.get(0); //Only one signature was created
     validateOcspResponse(signature.getOrigin());
     logger.info("Signing BDoc successfully completed");
     return signature;

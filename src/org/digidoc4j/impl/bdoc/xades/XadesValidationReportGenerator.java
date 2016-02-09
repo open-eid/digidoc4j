@@ -17,61 +17,27 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSException;
-import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.report.Reports;
-import eu.europa.esig.dss.xades.validation.XMLDocumentValidator;
 
 public class XadesValidationReportGenerator implements Serializable {
 
   private final static Logger logger = LoggerFactory.getLogger(XadesValidationReportGenerator.class);
-  private DSSDocument xadesSignatureFile;
-  private CertificateVerifier certificateVerifier;
-  private Configuration configuration;
-  private transient SignedDocumentValidator validator;
+  private SignedDocumentValidator validator;
   private transient Reports validationReport;
+  private String policyFile;
 
-  public XadesValidationReportGenerator(SignedDocumentValidator validator, CertificateVerifier certificateVerifier, Configuration configuration) {
-    this.certificateVerifier = certificateVerifier;
-    this.configuration = configuration;
+  public XadesValidationReportGenerator(SignedDocumentValidator validator, String policyFile) {
     this.validator = validator;
-  }
-
-  public XadesValidationReportGenerator(Reports validationReport) {
-    this.validationReport = validationReport;
+    this.policyFile = policyFile;
   }
 
   public Reports openValidationReport() {
-    if (validationReport != null) {
-      logger.debug("Using existing validation report");
-      return validationReport;
-    }
-    if (validator == null) {
-      validator = openValidator();
-    }
-    generateReport();
-    return validationReport;
-  }
-
-  private SignedDocumentValidator openValidator() {
-    logger.debug("Opening xades signature validator");
-    try {
-      return XMLDocumentValidator.fromDocument(xadesSignatureFile);
-    } catch (DSSException e) {
-      logger.error("Error validating container: " + e.getMessage());
-      throw new TechnicalException("Error validating container: " + e.getMessage(), e);
-    }
-  }
-
-  private Reports generateReport() {
     if (validationReport != null) {
       logger.debug("Using existing validation report");
       return validationReport;
@@ -84,23 +50,15 @@ public class XadesValidationReportGenerator implements Serializable {
   private Reports createNewValidationReport() {
     try {
       logger.debug("Creating a new validation report");
-      //prepareValidator();
       InputStream validationPolicyAsStream = getValidationPolicyAsStream();
       return validator.validateDocument(validationPolicyAsStream);
     } catch (DSSException e) {
-      logger.error(e.getMessage());
+      logger.error("Error creating a new validation report: " + e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
 
-  private void prepareValidator() {
-    certificateVerifier.setOcspSource(null);
-    certificateVerifier.setTrustedCertSource(configuration.getTSL());
-    validator.setCertificateVerifier(certificateVerifier);
-  }
-
   private InputStream getValidationPolicyAsStream() {
-    String policyFile = configuration.getValidationPolicy();
     if (Files.exists(Paths.get(policyFile))) {
       try {
         return new FileInputStream(policyFile);

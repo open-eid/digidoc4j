@@ -97,16 +97,17 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     assertEquals(Certificates.TS_CERTIFICATE, Base64.encodeBase64String(certificate));
   }
 
-  @Test(expected = CertificateNotFoundException.class)
+  @Test
   public void testGetTimeStampTokenCertificateForBDocNoTimeStampExists() throws Exception {
-    ContainerOpener.open("testFiles/asics_for_testing.bdoc").getSignatures().get(0).getTimeStampTokenCertificate();
+    Signature signature = ContainerOpener.open("testFiles/asics_for_testing.bdoc").getSignatures().get(0);
+    assertNull(signature.getTimeStampTokenCertificate());
   }
 
-  @Test(expected = CertificateNotFoundException.class)
+  @Test
   public void testGetSignerRolesForBDoc_OCSP_Exception() {
     Container container = ContainerOpener.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
     List<Signature> signatures = container.getSignatures();
-    signatures.get(0).getOCSPCertificate();
+    assertNull(signatures.get(0).getOCSPCertificate());
   }
 
   @Test

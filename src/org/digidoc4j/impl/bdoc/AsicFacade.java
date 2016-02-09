@@ -627,7 +627,7 @@ public class AsicFacade implements SignatureFinalizer, Serializable {
     validateOcspResponse(xAdESSignature);
 
     validationReport = null;
-    Signature signature = new BDocSignature(xAdESSignature);
+    Signature signature = new BDocSignature(null, null);
 
     logger.info("Signing BDoc successfully completed");
     return signature;

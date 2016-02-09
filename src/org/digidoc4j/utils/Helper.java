@@ -119,17 +119,17 @@ public final class Helper {
   }
 
   /**
-   * Serialize container.
+   * Serialize object.
    *
-   * @param container container to be serialized
-   * @param filename  name of file to store serialized container in
+   * @param object object to be serialized
+   * @param filename  name of file to store serialized object in
    */
-  public static void serialize(Container container, String filename) {
+  public static <T> void serialize(T object, String filename) {
     FileOutputStream fileOut;
     try {
       fileOut = new FileOutputStream(filename);
       ObjectOutputStream out = new ObjectOutputStream(fileOut);
-      out.writeObject(container);
+      out.writeObject(object);
       out.flush();
       out.close();
       fileOut.close();
@@ -145,16 +145,16 @@ public final class Helper {
    * @param filename name of the file containing the serialized container
    * @return container
    */
-  public static Container deserializer(String filename) {
+  public static <T> T deserializer(String filename) {
     FileInputStream fileIn;
     try {
       fileIn = new FileInputStream(filename);
       ObjectInputStream in = new ObjectInputStream(fileIn);
-      Container container = (Container) in.readObject();
+      T object = (T) in.readObject();
       in.close();
       fileIn.close();
 
-      return container;
+      return object;
     } catch (Exception e) {
       throw new DigiDoc4JException(e);
     }
