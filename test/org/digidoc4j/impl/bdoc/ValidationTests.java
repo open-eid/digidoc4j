@@ -8,12 +8,16 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j;
+package org.digidoc4j.impl.bdoc;
 
 import static org.digidoc4j.testutils.TestHelpers.containsErrorMessage;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.InvalidTimestampException;
 import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;

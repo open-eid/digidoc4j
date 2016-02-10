@@ -27,6 +27,7 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.DataToSign;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.junit.rules.TemporaryFolder;
 
 import eu.europa.esig.dss.DSSDocument;
@@ -34,6 +35,12 @@ import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.MimeType;
 
 public class TestDataBuilder {
+
+  public static final PKCS12SignatureToken PKCS12_SIGNER = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
+
+  public static Container createEmptyBDocContainer() {
+    return ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
+  }
 
   public static Container createContainerWithFile(TemporaryFolder testFolder) throws IOException {
     ContainerBuilder builder = ContainerBuilder.aContainer();
@@ -48,10 +55,14 @@ public class TestDataBuilder {
   }
 
   public static Container createContainerWithFile(String dataFilePath) {
+    return createContainerWithFile(dataFilePath, "text/plain");
+  }
+
+  public static Container createContainerWithFile(String dataFilePath, String mimeType) {
     Container container = ContainerBuilder.
         aContainer(BDOC_CONTAINER_TYPE).
         withConfiguration(new Configuration(Configuration.Mode.TEST)).
-        withDataFile(dataFilePath, "text/plain")
+        withDataFile(dataFilePath, mimeType)
         .build();
     return container;
   }
@@ -99,6 +110,14 @@ public class TestDataBuilder {
   public static DSSDocument createAsicContainer(String path) {
     DSSDocument container = new FileDocument(path);
     container.setMimeType(MimeType.ASICE);
+    return container;
+  }
+
+  public static Container open(String path) {
+    Container container = ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        fromExistingFile(path).
+        build();
     return container;
   }
 

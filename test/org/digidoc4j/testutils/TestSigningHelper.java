@@ -27,10 +27,14 @@ public class TestSigningHelper {
   public static final String TEST_PKI_CONTAINER_PASSWORD = "test";
 
   public static X509Certificate getSigningCert() {
+    return getSigningCert(TEST_PKI_CONTAINER, TEST_PKI_CONTAINER_PASSWORD);
+  }
+
+  public static X509Certificate getSigningCert(String pkiContainer, String pkiContainerPassword) {
     try {
       KeyStore keyStore = KeyStore.getInstance("PKCS12");
-      try (FileInputStream stream = new FileInputStream(TEST_PKI_CONTAINER)) {
-        keyStore.load(stream, TEST_PKI_CONTAINER_PASSWORD.toCharArray());
+      try (FileInputStream stream = new FileInputStream(pkiContainer)) {
+        keyStore.load(stream, pkiContainerPassword.toCharArray());
       }
       return (X509Certificate) keyStore.getCertificate("1");
     } catch (Exception e) {

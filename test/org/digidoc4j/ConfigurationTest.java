@@ -15,6 +15,7 @@ import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
+import org.digidoc4j.impl.bdoc.BDocContainer;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -35,6 +36,7 @@ import java.util.Hashtable;
 import static org.digidoc4j.Configuration.*;
 import static org.digidoc4j.Configuration.Mode.PROD;
 import static org.digidoc4j.Configuration.Mode.TEST;
+import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.hamcrest.Matchers.endsWith;
 import static org.junit.Assert.*;
 
@@ -166,6 +168,13 @@ public class ConfigurationTest {
     assertTrue(verify.isValid());
   }
 
+  private void addFromFileToTSLCertificate(String fileName) throws IOException, CertificateException {
+    FileInputStream fileInputStream = new FileInputStream(fileName);
+    X509Certificate certificate = DSSUtils.loadCertificate(fileInputStream).getCertificate();
+    configuration.getTSL().addTSLCertificate(certificate);
+    fileInputStream.close();
+  }
+
   @Test
   @Ignore("Ignored as this functionality is not used in DDS but this test is broken due to DDS forks custom revocation handling.")
   public void policyFileIsReadFromNonDefaultFileLocation() {
@@ -173,11 +182,46 @@ public class ConfigurationTest {
     ContainerOpener.open("testFiles/asics_for_testing.bdoc", configuration);
   }
 
-  private void addFromFileToTSLCertificate(String fileName) throws IOException, CertificateException {
-    FileInputStream fileInputStream = new FileInputStream(fileName);
-    X509Certificate certificate = DSSUtils.loadCertificate(fileInputStream).getCertificate();
-    configuration.getTSL().addTSLCertificate(certificate);
-    fileInputStream.close();
+  @Test
+  //@Ignore("RIA VPN")
+  public void TSLIsLoadedAfterSettingNewTSLLocation() {
+    Configuration configuration = new Configuration();
+    configuration.setTslLocation("file:test-tsl/trusted-test-mp.xml");
+    BDocContainer container = (BDocContainer) ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        withConfiguration(configuration).
+        build();
+    container.getConfiguration().getTSL();
+    assertEquals(5, container.getConfiguration().getTSL().getCertificates().size());
+
+    configuration.setTslLocation("http://10.0.25.57/tsl/trusted-test-mp.xml");
+    container = (BDocContainer) ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        withConfiguration(configuration).
+        build();
+    assertNotEquals(5, container.getConfiguration().getTSL().getCertificates().size());
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void TSLFileNotFoundThrowsException() {
+    Configuration configuration = new Configuration();
+    configuration.setTslLocation("file:test-tsl/NotExisting.xml");
+    BDocContainer container = (BDocContainer) ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        withConfiguration(configuration).
+        build();
+    container.getConfiguration().getTSL();
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void TSLConnectionFailureThrowsException() {
+    Configuration configuration = new Configuration();
+    configuration.setTslLocation("http://127.0.0.1/tsl/incorrect.xml");
+    BDocContainer container = (BDocContainer) ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        withConfiguration(configuration).
+        build();
+    container.getConfiguration().getTSL();
   }
 
   @Test
