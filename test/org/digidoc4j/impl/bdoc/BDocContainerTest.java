@@ -10,21 +10,69 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
+import static org.digidoc4j.DigestAlgorithm.SHA1;
+import static org.digidoc4j.DigestAlgorithm.SHA224;
+import static org.digidoc4j.DigestAlgorithm.SHA256;
+import static org.digidoc4j.SignatureProfile.B_BES;
+import static org.digidoc4j.SignatureProfile.LT;
+import static org.digidoc4j.SignatureProfile.LTA;
+import static org.digidoc4j.SignatureProfile.LT_TM;
+import static org.digidoc4j.testutils.TestDataBuilder.PKCS12_SIGNER;
+import static org.digidoc4j.testutils.TestDataBuilder.createEmptyBDocContainer;
+import static org.digidoc4j.testutils.TestDataBuilder.signContainer;
+import static org.digidoc4j.testutils.TestSigningHelper.getSigningCert;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.cert.X509Certificate;
+import java.util.List;
+import java.util.zip.ZipFile;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.digidoc4j.*;
-import org.digidoc4j.exceptions.*;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.ContainerOpener;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.DataToSign;
+import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.EncryptionAlgorithm;
+import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureBuilder;
+import org.digidoc4j.ValidationResult;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.DuplicateDataFileException;
+import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.impl.Signatures;
 import org.digidoc4j.signers.PKCS12SignatureToken;
-import org.digidoc4j.testutils.TSLHelper;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.digidoc4j.utils.Helper;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,32 +80,6 @@ import org.junit.rules.TemporaryFolder;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import java.io.*;
-import java.net.URI;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.KeyStore;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.Date;
-import java.util.List;
-import java.util.zip.ZipFile;
-
-import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
-import static org.digidoc4j.DigestAlgorithm.SHA224;
-import static org.digidoc4j.SignatureProfile.*;
-import static org.digidoc4j.DigestAlgorithm.SHA1;
-import static org.digidoc4j.DigestAlgorithm.SHA256;
-import static org.digidoc4j.testutils.TestDataBuilder.PKCS12_SIGNER;
-import static org.digidoc4j.testutils.TestDataBuilder.createEmptyBDocContainer;
-import static org.digidoc4j.testutils.TestDataBuilder.signContainer;
-import static org.digidoc4j.testutils.TestSigningHelper.getSigningCert;
-import static org.digidoc4j.utils.Helper.deserializer;
-import static org.digidoc4j.utils.Helper.serialize;
-import static org.junit.Assert.*;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSXMLUtils;
@@ -191,6 +213,58 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void saveContainerWithoutSignatures() throws Exception {
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    String path = testFolder.newFile("container.bdoc").getPath();
+    container.saveAsFile(path);
+    container = open(path);
+    assertEquals(1, container.getDataFiles().size());
+    assertEquals("test.txt", container.getDataFiles().get(0).getName());
+  }
+
+  @Test
+  public void openContainer_withoutSignatures_andAddMoreDataFiles() throws Exception {
+    Container container = open("testFiles/container_without_signatures.bdoc");
+    assertEquals(1, container.getDataFiles().size());
+    container.addDataFile("testFiles/test.xml", "text/xml");
+    container.addDataFile("testFiles/word_file.docx", "application/octet-stream");
+    assertEquals(3, container.getDataFiles().size());
+    String path = testFolder.newFile("container.bdoc").getPath();
+    container.saveAsFile(path);
+    container = open(path);
+    assertEquals(3, container.getDataFiles().size());
+  }
+
+  @Test
+  public void openContainerFromStream_withoutSignatures_andAddMoreDataFiles() throws Exception {
+    FileInputStream stream = new FileInputStream("testFiles/container_without_signatures.bdoc");
+    Container container = open(stream);
+    assertEquals(1, container.getDataFiles().size());
+    container.addDataFile("testFiles/test.xml", "text/xml");
+    container.addDataFile("testFiles/word_file.docx", "application/octet-stream");
+    assertEquals(3, container.getDataFiles().size());
+    String path = testFolder.newFile("container.bdoc").getPath();
+    container.saveAsFile(path);
+    stream = new FileInputStream(path);
+    container = open(stream);
+    assertEquals(3, container.getDataFiles().size());
+  }
+
+  @Test
+  public void openContainerWithoutSignatures_addDataFileAndSignContainer() throws Exception {
+    Container container = open("testFiles/container_without_signatures.bdoc");
+    assertEquals(1, container.getDataFiles().size());
+    container.addDataFile("testFiles/test.xml", "text/xml");
+    signContainer(container);
+    assertEquals(1, container.getSignatures().size());
+    assertTrue(container.validate().isValid());
+    String path = testFolder.newFile("container.bdoc").getPath();
+    container.saveAsFile(path);
+    container = open(path);
+    assertTrue(container.validate().isValid());
+  }
+
+  @Test
   public void testGetDefaultSignatureParameters() {
     Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
     signContainer(container);
@@ -289,6 +363,28 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
     container = open("testRemoveSignature.bdoc");
     assertEquals(2, container.getSignatures().size());
+  }
+
+  @Test
+  public void removeNewlyAddedSignatureFromExistingContainer() throws Exception {
+    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
+    assertEquals(2, container.getSignatures().size());
+    signContainer(container);
+    assertEquals(3, container.getSignatures().size());
+    container.removeSignature(container.getSignatures().get(0));
+    assertEquals(2, container.getSignatures().size());
+  }
+
+  @Test
+  public void removeSignatureFromExistingContainer() throws Exception {
+    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
+    assertEquals(2, container.getSignatures().size());
+    container.removeSignature(container.getSignatures().get(0));
+    assertEquals(1, container.getSignatures().size());
+    String path = testFolder.newFile("container.bdoc").getPath();
+    container.saveAsFile(path);
+    container = open(path);
+    assertEquals(1, container.getSignatures().size());
   }
 
   @Test
@@ -567,15 +663,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void testLoadConfiguration() throws Exception {
-    BDocContainer container = (BDocContainer) createEmptyBDocContainer();
-    assertFalse(container.getConfiguration().isBigFilesSupportEnabled());
-    container.getConfiguration().loadConfiguration("testFiles/digidoc_test_conf.yaml");
-    assertTrue(container.getConfiguration().isBigFilesSupportEnabled());
-    assertEquals(8192, container.getConfiguration().getMaxDataFileCachedInMB());
-  }
-
-  @Test
   public void saveToStream() throws Exception {
     Container container = createEmptyBDocContainer();
     container.addDataFile(new ByteArrayInputStream(new byte[]{0x42}), "test_bytes.txt", "text/plain");
@@ -587,6 +674,20 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
     Container containerToTest = open(expectedContainerAsFile.getName());
     assertArrayEquals(new byte[]{0x42}, containerToTest.getDataFiles().get(0).getBytes());
+  }
+
+  @Test
+  public void saveExistingContainerToStream() throws Exception {
+    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
+    signContainer(container);
+    assertEquals(3, container.getSignatures().size());
+    InputStream inputStream = container.saveAsStream();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    IOUtils.copy(inputStream, outputStream);
+    ByteArrayInputStream savedContainerStream = new ByteArrayInputStream(outputStream.toByteArray());
+    container = open(savedContainerStream);
+    assertEquals(3, container.getSignatures().size());
+    assertEquals(1, container.getDataFiles().size());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -984,6 +1085,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   private Container open(InputStream fileInputStream, boolean actAsBigFilesSupportEnabled) {
+    return open(fileInputStream);
+  }
+
+  private Container open(InputStream fileInputStream) {
     Container container = ContainerBuilder.
         aContainer(BDOC_CONTAINER_TYPE).
         fromStream(fileInputStream).

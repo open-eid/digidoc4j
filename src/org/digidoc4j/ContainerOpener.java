@@ -18,7 +18,7 @@ import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.bdoc.BDocContainer;
+import org.digidoc4j.impl.bdoc.ExistingBDocContainer;
 import org.digidoc4j.impl.ddoc.DDocOpener;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
@@ -90,7 +90,7 @@ public class ContainerOpener {
     try {
       if (Helper.isZipFile(bufferedInputStream)) {
         //TODO support big file support flag
-        return new BDocContainer(bufferedInputStream);
+        return new ExistingBDocContainer(bufferedInputStream);
       } else {
         return new DDocOpener().open(bufferedInputStream);
       }
@@ -116,7 +116,7 @@ public class ContainerOpener {
 
     try {
       if (Helper.isZipFile(bufferedInputStream)) {
-        return new BDocContainer(bufferedInputStream, configuration);
+        return new ExistingBDocContainer(bufferedInputStream, configuration);
       } else {
         return new DDocOpener().open(bufferedInputStream, configuration);
       }
@@ -130,6 +130,6 @@ public class ContainerOpener {
 
   private static Container openBDocContainer(String path, Configuration configuration) {
     configuration.loadConfiguration("digidoc4j.yaml");
-    return new BDocContainer(path, configuration);
+    return new ExistingBDocContainer(path, configuration);
   }
 }

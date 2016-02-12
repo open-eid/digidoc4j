@@ -59,6 +59,8 @@ public class AsicContainerParser {
   private DSSDocument lastDetachedContent;
   private Integer currentSignatureFileIndex;
   private String mimeType;
+  private String zipFileComment;
+  private List<AsicEntry> asicEntries = new ArrayList<>();
   private Map<String, ManifestEntry> manifestFileItems = Collections.emptyMap();
   private ManifestParser manifestParser;
 
@@ -90,6 +92,7 @@ public class AsicContainerParser {
   private void parseZipFile() {
     logger.debug("Parsing zip file");
     try {
+      zipFileComment = zipFile.getComment();
       parseZipFileManifest();
       Enumeration<? extends ZipEntry> entries = zipFile.entries();
       while (entries.hasMoreElements()) {
@@ -140,26 +143,28 @@ public class AsicContainerParser {
   private void parseEntry(ZipEntry entry) {
     String entryName = entry.getName();
     logger.debug("Paring zip entry " + entryName + " with comment: " + entry.getComment());
-    if(entry.isDirectory()) {
-      return;
-    }
     if(isMimeType(entryName)) {
       extractMimeType(entry);
-    } else if(isManifest(entryName) && !isZipFile()) {
-      parseManifestEntry(entry);
+    } else if(isManifest(entryName)) {
+      if(!isZipFile()) {
+        parseManifestEntry(entry);
+      }
     } else if(isSignaturesFile(entryName)) {
-      logger.debug("Signatures file name: " + entryName);
       determineCurrentSignatureFileIndex(entryName);
       extractSignature(entry);
     } else if(isDataFile(entryName)) {
       extractDataFile(entry);
+    } else {
+      extractAsicEntry(entry);
     }
   }
 
   private void extractMimeType(ZipEntry entry) {
     try {
       InputStream zipFileInputStream = getZipEntryInputStream(entry);
-      mimeType = StringUtils.trim(IOUtils.toString(zipFileInputStream));
+      DSSDocument document = new InMemoryDocument(zipFileInputStream);
+      mimeType = StringUtils.trim(IOUtils.toString(document.getBytes(), "UTF-8"));
+      extractAsicEntry(entry, document);
     } catch (IOException e) {
       logger.error("Error parsing container mime type: " + e.getMessage());
       throw new TechnicalException("Error parsing container mime type: " + e.getMessage(), e);
@@ -172,19 +177,38 @@ public class AsicContainerParser {
     String fileName = entry.getName();
     InMemoryDocument document = new InMemoryDocument(zipFileInputStream, fileName);
     signatures.add(document);
+    extractAsicEntry(entry, document);
   }
 
   private void extractDataFile(ZipEntry entry) {
     logger.debug("Extracting data file");
-    InputStream zipFileInputStream = getZipEntryInputStream(entry);
-    String fileName = entry.getName();
-    String mimeType = getDataFileMimeType(fileName);
-    MimeType mimeTypeCode = MimeType.fromMimeTypeString(mimeType);
-    DSSDocument document = new StreamDocument(zipFileInputStream, fileName, mimeTypeCode);
+    DSSDocument document = extractStreamDocument(entry);
     DataFile dataFile = new AsicDataFile(document);
     dataFiles.add(dataFile);
     detachedContents.add(document);
     updateDetachedContent(document);
+    extractAsicEntry(entry, document);
+  }
+
+  private DSSDocument extractStreamDocument(ZipEntry entry) {
+    InputStream zipFileInputStream = getZipEntryInputStream(entry);
+    String fileName = entry.getName();
+    String mimeType = getDataFileMimeType(fileName);
+    MimeType mimeTypeCode = MimeType.fromMimeTypeString(mimeType);
+    return new StreamDocument(zipFileInputStream, fileName, mimeTypeCode);
+  }
+
+  private void extractAsicEntry(ZipEntry entry) {
+    logger.debug("Extracting asic entry");
+    DSSDocument document = extractStreamDocument(entry);
+    extractAsicEntry(entry, document);
+  }
+
+  private void extractAsicEntry(ZipEntry zipEntry, DSSDocument document) {
+    AsicEntry asicEntry = new AsicEntry();
+    asicEntry.setZipEntry(zipEntry);
+    asicEntry.setContent(document);
+    asicEntries.add(asicEntry);
   }
 
   private String getDataFileMimeType(String fileName) {
@@ -219,6 +243,8 @@ public class AsicContainerParser {
     parseResult.setDetachedContents(detachedContents);
     parseResult.setDetachedContent(firstDetachedContent);
     parseResult.setManifestParser(manifestParser);
+    parseResult.setZipFileComment(zipFileComment);
+    parseResult.setAsicEntries(asicEntries);
   }
 
   @Deprecated

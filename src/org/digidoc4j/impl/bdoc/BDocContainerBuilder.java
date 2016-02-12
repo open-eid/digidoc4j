@@ -22,9 +22,9 @@ public class BDocContainerBuilder extends ContainerBuilder {
 
   protected BDocContainer createNewContainer() {
     if (configuration == null) {
-      return new BDocContainer();
+      return new NewBDocContainer();
     } else {
-      return new BDocContainer(configuration);
+      return new NewBDocContainer(configuration);
     }
   }
 

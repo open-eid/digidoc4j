@@ -31,6 +31,7 @@ import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.MimeType;
 
 public class AsicContainerCreator {
@@ -101,9 +102,9 @@ public class AsicContainerCreator {
   }
 
 
-  public void writeSignatures(Collection<Signature> signatures) {
+  public void writeSignatures(Collection<Signature> signatures, int nextSignatureFileNameIndex) {
     logger.debug("Adding signatures to the bdoc zip container");
-    int index = 0;
+    int index = nextSignatureFileNameIndex;
     for (Signature signature : signatures) {
       String signatureFileName = "META-INF/signatures" + index + ".xml";
       ZipEntry entryDocument = new ZipEntry(signatureFileName);
@@ -111,6 +112,20 @@ public class AsicContainerCreator {
       writeZipEntry(entryDocument, entryBytes);
       index++;
     }
+  }
+
+  public void writeExistingEntries(Collection<AsicEntry> asicEntries) {
+    logger.debug("Writing existing zip container entries");
+    for (AsicEntry asicEntry : asicEntries) {
+      DSSDocument content = asicEntry.getContent();
+      byte[] entryBytes = content.getBytes();
+      writeZipEntry(asicEntry.getZipEntry(), entryBytes);
+    }
+  }
+
+  public void writeContainerComment(String comment) {
+    logger.debug("Writing container comment: " + comment);
+    zipOutputStream.setComment(comment);
   }
 
   private ZipEntry getAsicMimeTypeZipEntry(byte[] mimeTypeBytes) {

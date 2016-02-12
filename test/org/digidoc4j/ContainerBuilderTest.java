@@ -30,6 +30,7 @@ import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.impl.bdoc.BDocContainer;
+import org.digidoc4j.impl.bdoc.NewBDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.impl.ddoc.DDocSignature;
 import org.digidoc4j.testutils.CustomConfiguration;
@@ -290,7 +291,7 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
     assertEquals("TEST-FORMAT", container.getType());
     assertSame(TEST_CONFIGURATION, ((TestContainer) container).getConfiguration());
   }
-  
+
   @Test
   public void createCustomContainerWithCustomConfiguration() throws Exception {
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", TestContainer.class);
@@ -554,7 +555,7 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
     assertFalse(container.getSignatures().isEmpty());
   }
 
-  public static class ExtendedBDocContainer extends BDocContainer {
+  public static class ExtendedBDocContainer extends NewBDocContainer {
 
     @Override
     public String getType() {

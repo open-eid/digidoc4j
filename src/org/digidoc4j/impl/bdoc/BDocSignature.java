@@ -24,6 +24,7 @@ import org.digidoc4j.impl.bdoc.xades.XadesSignatureValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DigestAlgorithm;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
@@ -35,6 +36,7 @@ public class BDocSignature implements Signature {
   private List<DigiDoc4JException> validationErrors;
   private XadesSignature xadesSignature;
   private XadesSignatureValidator validator;
+  private DSSDocument signatureDocument;
 
   public BDocSignature(XadesSignature xadesSignature, XadesSignatureValidator validator) {
     this.xadesSignature = xadesSignature;
@@ -159,7 +161,7 @@ public class BDocSignature implements Signature {
   @Override
   public List<DigiDoc4JException> validate() {
     logger.debug("Validating signature");
-    if(validationErrors == null) {
+    if (validationErrors == null) {
       validationErrors = validator.extractValidationErrors();
       logger.info("Signature has " + validationErrors.size() + " validation errors");
     } else {
@@ -170,6 +172,7 @@ public class BDocSignature implements Signature {
 
   @Override
   public byte[] getAdESSignature() {
+    logger.debug("Getting full XAdES signature byte array");
     return xadesSignature.getAdESSignature();
   }
 
@@ -181,6 +184,14 @@ public class BDocSignature implements Signature {
 
   public XAdESSignature getOrigin() {
     return xadesSignature.getDssSignature();
+  }
+
+  public void setSignatureDocument(DSSDocument signatureDocument) {
+    this.signatureDocument = signatureDocument;
+  }
+
+  DSSDocument getSignatureDocument() {
+    return signatureDocument;
   }
 
   DigestAlgorithm getSignatureDigestAlgorithm() {

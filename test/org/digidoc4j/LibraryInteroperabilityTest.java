@@ -59,8 +59,7 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
             fromExistingFile("testFiles/Libdigidoc_created_tsa_signature_TS.bdoc").
             withConfiguration(new Configuration(Configuration.Mode.PROD)).
             build();
-        ValidationResult result = container.validate();
-        assertTrue(result.isValid());
+        validateContainer(container);
     }
 
     @Test
@@ -71,6 +70,10 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
             withConfiguration(new Configuration(Configuration.Mode.TEST)).
             build();
         TestDataBuilder.signContainer(container);
+        validateContainer(container);
+        container.saveAsFile(tempFile.getPath());
+        container = TestDataBuilder.open(tempFile.getPath());
+        validateContainer(container);
     }
 
     private void createSignedContainerWithDigiDoc4j(String containerFilePath) {
@@ -103,6 +106,11 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
         DigiDocFactory digFac = ConfigManager.instance().getDigiDocFactory();
         digFac.readSignedDocOfType(containerFilePath, isBdoc, errors);
         assertTrue(getJDigiDocErrorMessage(errors), errors.isEmpty());
+    }
+
+    protected void validateContainer(Container container) {
+        ValidationResult result = container.validate();
+        assertTrue(result.isValid());
     }
 
     private String getJDigiDocErrorMessage(List errors) {

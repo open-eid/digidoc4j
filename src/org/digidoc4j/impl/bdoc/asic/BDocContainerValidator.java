@@ -12,7 +12,6 @@ package org.digidoc4j.impl.bdoc.asic;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,15 +31,19 @@ public class BDocContainerValidator implements Serializable {
 
   private final static Logger logger = LoggerFactory.getLogger(BDocContainerValidator.class);
   private List<DigiDoc4JException> errors = new ArrayList<>();
-  private List<Signature> signatures;
   private AsicParseResult containerParseResult;
+  private boolean validateManifest;
 
-  public BDocContainerValidator(List<Signature> signatures, AsicParseResult containerParseResult) {
-    this.signatures = signatures;
-    this.containerParseResult = containerParseResult;
+  public BDocContainerValidator() {
+    validateManifest = false;
   }
 
-  public ValidationResult validate() {
+  public BDocContainerValidator(AsicParseResult containerParseResult) {
+    this.containerParseResult = containerParseResult;
+    validateManifest = true;
+  }
+
+  public ValidationResult validate(List<Signature> signatures) {
     BDocValidationResult result = new BDocValidationResult();
 
     for (Signature signature : signatures) {
@@ -48,15 +51,19 @@ public class BDocContainerValidator implements Serializable {
       errors.addAll(signatureErrors);
     }
 
-    List<DigiDoc4JException> manifestErrors = findManifestErrors();
+    List<DigiDoc4JException> manifestErrors = findManifestErrors(signatures);
     errors.addAll(manifestErrors);
 
     result.setErrors(errors);
     return result;
   }
 
-  private List<DigiDoc4JException> findManifestErrors() {
-    if (containerParseResult == null) {
+  public void setValidateManifest(boolean validateManifest) {
+    this.validateManifest = validateManifest;
+  }
+
+  private List<DigiDoc4JException> findManifestErrors(List<Signature> signatures) {
+    if (!validateManifest || containerParseResult == null) {
       return Collections.emptyList();
     }
     ManifestParser manifestParser = containerParseResult.getManifestParser();

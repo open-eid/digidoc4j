@@ -19,6 +19,7 @@ import org.digidoc4j.impl.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.signers.PKCS12SignatureToken;
+import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.utils.Helper;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
@@ -309,7 +310,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   public void testCreateBDocContainerSpecifiedByDocumentTypeForBDoc() throws Exception {
     Container asicContainer = createBDoc();
     asicContainer.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    asicContainer.sign(PKCS12_SIGNER);
+    TestDataBuilder.signContainer(asicContainer);
     asicContainer.save("test.bdoc");
     assertTrue(Helper.isZipFile(new File("test.bdoc")));
   }
@@ -644,11 +645,10 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testSigningMultipleFilesInContainer() throws Exception {
     Container container = createContainer();
-    container.setSignatureProfile(SignatureProfile.LT_TM);
     container.addDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "1.txt", "text/plain");
     container.addDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "2.txt", "text/plain");
     container.addDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "3.txt", "text/plain");
-    container.sign(PKCS12_SIGNER);
+    TestDataBuilder.signContainer(container);
     container.save(tempFile.getPath());
     assertEquals(3, container.getDataFiles().size());
     assertContainsDataFile("1.txt", container);

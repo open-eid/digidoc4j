@@ -47,6 +47,7 @@ public class BDocSignatureOpener {
     List<AdvancedSignature> signatureList = openXadesSignatureList(xadesDocument);
     for (AdvancedSignature advancedSignature : signatureList) {
       BDocSignature bDocSignature = createBDocSignature((XAdESSignature) advancedSignature);
+      bDocSignature.setSignatureDocument(xadesDocument);
       signatures.add(bDocSignature);
     }
     return signatures;
