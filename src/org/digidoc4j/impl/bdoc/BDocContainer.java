@@ -15,6 +15,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -35,8 +39,12 @@ import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.bdoc.asic.AsicContainerCreator;
+import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
+import org.digidoc4j.impl.bdoc.xades.SignatureExtender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.europa.esig.dss.DSSDocument;
 
 public abstract class BDocContainer implements Container {
 
@@ -72,12 +80,6 @@ public abstract class BDocContainer implements Container {
   }
 
   @Override
-  public void extendSignatureProfile(SignatureProfile profile) {
-    logger.info("Extending all signatures' profile to " + profile.name());
-
-  }
-
-  @Override
   public File saveAsFile(String filePath) {
     logger.debug("Saving container to file: " + filePath);
     File file = new File(filePath);
@@ -101,21 +103,35 @@ public abstract class BDocContainer implements Container {
     return configuration;
   }
 
+  protected List<Signature> parseSignatureFiles(List<DSSDocument> signatureFiles, List<DSSDocument> detachedContents) {
+    Configuration configuration = getConfiguration();
+    BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
+    List<Signature> signatures = new ArrayList<>(signatureFiles.size());
+    for (DSSDocument signatureFile : signatureFiles) {
+      List<BDocSignature> bDocSignatures = signatureOpener.parse(signatureFile);
+      signatures.addAll(bDocSignatures);
+    }
+    return signatures;
+  }
+
   protected void validateIncomingSignature(Signature signature) {
     if (!(signature instanceof BDocSignature)) {
       throw new TechnicalException("BDoc signature must be an instance of BDocSignature");
     }
   }
 
-  protected void validatePossibilityToExtendTo(SignatureProfile profile) {
-    logger.debug("Validating if it's possible to extend all the signatures to " + profile);
-    for (Signature signature : getSignatures()) {
-      if (profile == signature.getProfile()) {
-        String errorMessage = "It is not possible to extend the signature to the same level";
-        logger.error(errorMessage);
-        throw new DigiDoc4JException(errorMessage);
-      }
-    }
+  protected List<Signature> extendAllSignaturesProfile(SignatureProfile profile, List<Signature> signatures, List<DataFile> dataFiles) {
+    logger.info("Extending all signatures' profile to " + profile.name());
+    validatePossibilityToExtendTo(profile);
+    DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
+    DSSDocument firstDetachedContent = detachedContentCreator.getFirstDetachedContent();
+    List<DSSDocument> detachedContentList = detachedContentCreator.getDetachedContentList();
+    SignatureExtender signatureExtender = new SignatureExtender(getConfiguration(), firstDetachedContent);
+    Collection<DSSDocument> signatureDocuments = generateSignatureDocumentsList(signatures);
+    List<DSSDocument> extendedSignatureDocuments = signatureExtender.extend(signatureDocuments, profile);
+    List<Signature> extendedSignatures = parseSignatureFiles(extendedSignatureDocuments, detachedContentList);
+    logger.debug("Finished extending all signatures");
+    return extendedSignatures;
   }
 
   protected void validateDataFilesRemoval() {
@@ -144,6 +160,26 @@ public abstract class BDocContainer implements Container {
         throw new DuplicateDataFileException(errorMessage);
       }
     }
+  }
+
+  private void validatePossibilityToExtendTo(SignatureProfile profile) {
+    logger.debug("Validating if it's possible to extend all the signatures to " + profile);
+    for (Signature signature : getSignatures()) {
+      if (profile == signature.getProfile()) {
+        String errorMessage = "It is not possible to extend the signature to the same level";
+        logger.error(errorMessage);
+        throw new DigiDoc4JException(errorMessage);
+      }
+    }
+  }
+
+  private Collection<DSSDocument> generateSignatureDocumentsList(List<Signature> signatures) {
+    List<DSSDocument> signatureDocuments = new ArrayList<>();
+    for(Signature signature: signatures) {
+      DSSDocument document = ((BDocSignature) signature).getSignatureDocument();
+      signatureDocuments.add(document);
+    }
+    return signatureDocuments;
   }
 
   @Override

@@ -13,7 +13,6 @@ package org.digidoc4j.impl.bdoc;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -28,7 +27,6 @@ import org.digidoc4j.impl.bdoc.asic.AsicContainerParser;
 import org.digidoc4j.impl.bdoc.asic.AsicEntry;
 import org.digidoc4j.impl.bdoc.asic.AsicParseResult;
 import org.digidoc4j.impl.bdoc.asic.BDocContainerValidator;
-import org.digidoc4j.impl.bdoc.xades.SignatureExtender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +35,6 @@ import eu.europa.esig.dss.DSSDocument;
 public class ExistingBDocContainer extends BDocContainer {
 
   private static final Logger logger = LoggerFactory.getLogger(ExistingBDocContainer.class);
-  private List<Signature> existingSignatures = new ArrayList<>();
   private List<Signature> newSignatures = new ArrayList<>();
   private List<Signature> allSignatures = new ArrayList<>();
   private List<DataFile> allDataFiles = new ArrayList<>();
@@ -72,32 +69,41 @@ public class ExistingBDocContainer extends BDocContainer {
   }
 
   @Override
+  public void extendSignatureProfile(SignatureProfile profile) {
+    removeAllExistingSignaturesFromContainer();
+    List<Signature> signatures = extendAllSignaturesProfile(profile, allSignatures, allDataFiles);
+    allSignatures = signatures;
+    newSignatures = new ArrayList<>(signatures);
+  }
+
+  @Override
   public DataFile addDataFile(String path, String mimeType) {
-    String fileName = new File(path).getName();
     DataFile dataFile = new DataFile(path, mimeType);
-    addDataFile(dataFile, fileName);
+    addDataFile(dataFile);
     return dataFile;
   }
 
   @Override
   public DataFile addDataFile(InputStream inputStream, String fileName, String mimeType) {
-    fileName = new File(fileName).getName();
     DataFile dataFile = new DataFile(inputStream, fileName, mimeType);
-    addDataFile(dataFile, fileName);
+    addDataFile(dataFile);
     return dataFile;
   }
 
   @Override
   public DataFile addDataFile(File file, String mimeType) {
     DataFile dataFile = new DataFile(file.getPath(), mimeType);
-    addDataFile(dataFile, file.getName());
+    addDataFile(dataFile);
     return dataFile;
   }
 
   @Override
   public void addDataFile(DataFile dataFile) {
     String fileName = dataFile.getName();
-    addDataFile(dataFile, fileName);
+    verifyIfAllowedToAddDataFile(fileName);
+    allDataFiles.add(dataFile);
+    newDataFiles.add(dataFile);
+    dataFilesHaveChanged = true;
   }
 
   @Override
@@ -151,34 +157,10 @@ public class ExistingBDocContainer extends BDocContainer {
     }
   }
 
-  protected AsicParseResult getContainerParseResult() {
-    return containerParseResult;
-  }
-
-  protected List<DataFile> getNewDataFiles() {
-    return newDataFiles;
-  }
-
-  protected List<Signature> getNewSignatures() {
-    return newSignatures;
-  }
-
-  protected int determineNextSignatureFileIndex() {
-    Integer currentUsedSignatureFileIndex = containerParseResult.getCurrentUsedSignatureFileIndex();
-    if (currentUsedSignatureFileIndex == null) {
-      return 0;
-    }
-    return currentUsedSignatureFileIndex + 1;
-  }
-
   protected void writeAsicContainer(AsicContainerCreator zipCreator) {
-    AsicParseResult containerParseResult = getContainerParseResult();
-    Collection<Signature> newSignatures = getNewSignatures();
-    Collection<DataFile> newDataFiles = getNewDataFiles();
     int nextSignatureFileIndex = determineNextSignatureFileIndex();
-    Collection<DataFile> dataFiles = getDataFiles();
     zipCreator.writeExistingEntries(containerParseResult.getAsicEntries());
-    zipCreator.writeManifest(dataFiles);
+    zipCreator.writeManifest(allDataFiles);
     zipCreator.writeSignatures(newSignatures, nextSignatureFileIndex);
     zipCreator.writeDataFiles(newDataFiles);
     if (StringUtils.isNotBlank(containerParseResult.getZipFileComment())) {
@@ -204,24 +186,8 @@ public class ExistingBDocContainer extends BDocContainer {
     getDataFiles().addAll(parseResult.getDataFiles());
     List<DSSDocument> signatureFiles = parseResult.getSignatures();
     List<DSSDocument> detachedContents = parseResult.getDetachedContents();
-    parseSignatureFiles(signatureFiles, detachedContents);
-  }
-
-  private void parseSignatureFiles(List<DSSDocument> signatureFiles, List<DSSDocument> detachedContents) {
-    Configuration configuration = getConfiguration();
-    BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
-    for (DSSDocument signatureFile : signatureFiles) {
-      List<BDocSignature> bDocSignatures = signatureOpener.parse(signatureFile);
-      existingSignatures.addAll(bDocSignatures);
-      allSignatures.addAll(bDocSignatures);
-    }
-  }
-
-  private void addDataFile(DataFile dataFile, String fileName) {
-    verifyIfAllowedToAddDataFile(fileName);
-    allDataFiles.add(dataFile);
-    newDataFiles.add(dataFile);
-    dataFilesHaveChanged = true;
+    List<Signature> bDocSignatures = parseSignatureFiles(signatureFiles, detachedContents);
+    allSignatures.addAll(bDocSignatures);
   }
 
   private void removeExistingSignature(BDocSignature signature) {
@@ -240,20 +206,23 @@ public class ExistingBDocContainer extends BDocContainer {
       if (StringUtils.equalsIgnoreCase(fileName, entryFileName)) {
         logger.debug("Removing file from the container: " + fileName);
         asicEntries.remove(entry);
+        break;
       }
     }
   }
 
-  @Override
-  public void extendSignatureProfile(SignatureProfile profile) {
-    logger.info("Extending all signatures' profile to " + profile.name());
-    validatePossibilityToExtendTo(profile);
-    List<DSSDocument> signaturesToExtend = containerParseResult.getSignatures();
-    DSSDocument detachedContent = containerParseResult.getDetachedContent();
-    SignatureExtender signatureExtender = new SignatureExtender(getConfiguration(), detachedContent);
-    List<DSSDocument> extendedSignatures = signatureExtender.extend(signaturesToExtend, profile);
-    existingSignatures.clear();
-    allSignatures.clear();
-    parseSignatureFiles(extendedSignatures, containerParseResult.getDetachedContents());
+  private void removeAllExistingSignaturesFromContainer() {
+    logger.debug("Removing all existing signatures");
+    for (Signature signature : allSignatures) {
+      removeExistingSignature((BDocSignature) signature);
+    }
+  }
+
+  private int determineNextSignatureFileIndex() {
+    Integer currentUsedSignatureFileIndex = containerParseResult.getCurrentUsedSignatureFileIndex();
+    if (currentUsedSignatureFileIndex == null) {
+      return 0;
+    }
+    return currentUsedSignatureFileIndex + 1;
   }
 }

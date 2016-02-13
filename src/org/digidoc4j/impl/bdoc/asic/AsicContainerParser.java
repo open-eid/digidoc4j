@@ -55,8 +55,6 @@ public class AsicContainerParser {
   private List<DSSDocument> signatures = new ArrayList<>();
   private List<DataFile> dataFiles = new ArrayList<>();
   private List<DSSDocument> detachedContents = new ArrayList<>();
-  private DSSDocument firstDetachedContent;
-  private DSSDocument lastDetachedContent;
   private Integer currentSignatureFileIndex;
   private String mimeType;
   private String zipFileComment;
@@ -177,7 +175,7 @@ public class AsicContainerParser {
     String fileName = entry.getName();
     InMemoryDocument document = new InMemoryDocument(zipFileInputStream, fileName);
     signatures.add(document);
-    extractAsicEntry(entry, document);
+    extractSignatureAsicEntry(entry, document);
   }
 
   private void extractDataFile(ZipEntry entry) {
@@ -186,7 +184,6 @@ public class AsicContainerParser {
     DataFile dataFile = new AsicDataFile(document);
     dataFiles.add(dataFile);
     detachedContents.add(document);
-    updateDetachedContent(document);
     extractAsicEntry(entry, document);
   }
 
@@ -204,11 +201,17 @@ public class AsicContainerParser {
     extractAsicEntry(entry, document);
   }
 
-  private void extractAsicEntry(ZipEntry zipEntry, DSSDocument document) {
+  private AsicEntry extractAsicEntry(ZipEntry zipEntry, DSSDocument document) {
     AsicEntry asicEntry = new AsicEntry();
     asicEntry.setZipEntry(zipEntry);
     asicEntry.setContent(document);
     asicEntries.add(asicEntry);
+    return asicEntry;
+  }
+
+  private void extractSignatureAsicEntry(ZipEntry entry, DSSDocument document) {
+    AsicEntry asicEntry = extractAsicEntry(entry, document);
+    asicEntry.setSignature(true);
   }
 
   private String getDataFileMimeType(String fileName) {
@@ -241,7 +244,6 @@ public class AsicContainerParser {
     parseResult.setSignatures(signatures);
     parseResult.setCurrentUsedSignatureFileIndex(currentSignatureFileIndex);
     parseResult.setDetachedContents(detachedContents);
-    parseResult.setDetachedContent(firstDetachedContent);
     parseResult.setManifestParser(manifestParser);
     parseResult.setZipFileComment(zipFileComment);
     parseResult.setAsicEntries(asicEntries);
@@ -320,15 +322,6 @@ public class AsicContainerParser {
 
     public InvalidAsicContainerException(Exception e) {
       super(e);
-    }
-  }
-  private void updateDetachedContent(DSSDocument dataFile) {
-    if(firstDetachedContent == null || lastDetachedContent == null) {
-      firstDetachedContent = dataFile;
-      lastDetachedContent = dataFile;
-    } else {
-      lastDetachedContent.setNextDocument(dataFile);
-      lastDetachedContent = dataFile;
     }
   }
 }

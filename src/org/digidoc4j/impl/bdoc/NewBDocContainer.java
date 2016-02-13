@@ -19,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DataFileNotFoundException;
 import org.digidoc4j.impl.bdoc.asic.AsicContainerCreator;
@@ -46,28 +47,29 @@ public class NewBDocContainer extends BDocContainer {
   }
 
   @Override
+  public void extendSignatureProfile(SignatureProfile profile) {
+    signatures = extendAllSignaturesProfile(profile, signatures, dataFiles);
+  }
+
+
+  @Override
   public DataFile addDataFile(String path, String mimeType) {
-    String fileName = new File(path).getName();
-    verifyIfAllowedToAddDataFile(fileName);
     DataFile dataFile = new DataFile(path, mimeType);
-    getDataFiles().add(dataFile);
+    addDataFile(dataFile);
     return dataFile;
   }
 
   @Override
   public DataFile addDataFile(InputStream inputStream, String fileName, String mimeType) {
-    fileName = new File(fileName).getName();
-    verifyIfAllowedToAddDataFile(fileName);
     DataFile dataFile = new DataFile(inputStream, fileName, mimeType);
-    getDataFiles().add(dataFile);
+    addDataFile(dataFile);
     return dataFile;
   }
 
   @Override
   public DataFile addDataFile(File file, String mimeType) {
-    verifyIfAllowedToAddDataFile(file.getName());
     DataFile dataFile = new DataFile(file.getPath(), mimeType);
-    getDataFiles().add(dataFile);
+    addDataFile(dataFile);
     return dataFile;
   }
 

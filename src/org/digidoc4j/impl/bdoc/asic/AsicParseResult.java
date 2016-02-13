@@ -23,7 +23,6 @@ public class AsicParseResult implements Serializable {
   private List<DSSDocument> signatures;
   private List<DataFile> dataFiles;
   private List<DSSDocument> detachedContents;
-  private DSSDocument detachedContent;
   private Integer currentUsedSignatureFileIndex;
   private String zipFileComment;
   private List<AsicEntry> asicEntries;
@@ -51,14 +50,6 @@ public class AsicParseResult implements Serializable {
 
   public void setDetachedContents(List<DSSDocument> detachedContents) {
     this.detachedContents = detachedContents;
-  }
-
-  public DSSDocument getDetachedContent() {
-    return detachedContent;
-  }
-
-  public void setDetachedContent(DSSDocument detachedContent) {
-    this.detachedContent = detachedContent;
   }
 
   public Integer getCurrentUsedSignatureFileIndex() {

@@ -11,6 +11,7 @@
 package eu.europa.ec.markt.dss.signature;
 
 
+import eu.europa.esig.dss.CommonDocument;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.DSSUtils;
@@ -28,7 +29,7 @@ import java.io.*;
  * @see eu.europa.esig.dss.DSSDocument implementation to handle big files. It writes data to temporary
  * files.
  */
-public class StreamDocument implements DSSDocument {
+public class StreamDocument extends CommonDocument {
   private static final Logger logger = LoggerFactory.getLogger(StreamDocument.class);
 
   private static final int MAX_SIZE_IN_MEMORY = 1024 * 5;
@@ -163,15 +164,5 @@ public class StreamDocument implements DSSDocument {
   @Override
   public String getBase64Encoded() {
     return null;
-  }
-
-  @Override
-  public DSSDocument getNextDocument() {
-    return null;
-  }
-
-  @Override
-  public void setNextDocument(DSSDocument nextDocument) {
-
   }
 }

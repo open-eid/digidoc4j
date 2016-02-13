@@ -23,6 +23,7 @@ import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.TechnicalException;
@@ -119,7 +120,11 @@ public class AsicContainerCreator {
     for (AsicEntry asicEntry : asicEntries) {
       DSSDocument content = asicEntry.getContent();
       byte[] entryBytes = content.getBytes();
-      writeZipEntry(asicEntry.getZipEntry(), entryBytes);
+      ZipEntry newZipEntry = cloneZipEntry(asicEntry.getZipEntry());
+      if(!StringUtils.equalsIgnoreCase(ZIP_ENTRY_MIMETYPE, newZipEntry.getName())) {
+        zipOutputStream.setLevel(ZipEntry.DEFLATED);
+      }
+      writeZipEntryWithoutComment(newZipEntry, entryBytes);
     }
   }
 
@@ -140,8 +145,12 @@ public class AsicContainerCreator {
   }
 
   private void writeZipEntry(ZipEntry zipEntry, byte[] entryBytes) {
+    zipEntry.setComment(ZIP_COMMENT);
+    writeZipEntryWithoutComment(zipEntry, entryBytes);
+  }
+
+  private void writeZipEntryWithoutComment(ZipEntry zipEntry, byte[] entryBytes) {
     try {
-      zipEntry.setComment(ZIP_COMMENT);
       zipOutputStream.putNextEntry(zipEntry);
       zipOutputStream.write(entryBytes);
       zipOutputStream.closeEntry();
@@ -149,5 +158,13 @@ public class AsicContainerCreator {
       logger.error("Unable to write Zip entry to BDoc container: " + e.getMessage());
       throw new TechnicalException("Unable to write Zip entry to BDoc container", e);
     }
+  }
+
+  private ZipEntry cloneZipEntry(ZipEntry zipEntry) {
+    ZipEntry newZipEntry = new ZipEntry(zipEntry.getName());
+    newZipEntry.setComment(zipEntry.getComment());
+    newZipEntry.setExtra(zipEntry.getExtra());
+    newZipEntry.setCreationTime(zipEntry.getCreationTime());
+    return newZipEntry;
   }
 }

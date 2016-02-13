@@ -281,4 +281,8 @@ public class DataFile implements Serializable {
     logger.debug("");
     this.id = dataFileId;
   }
+
+  public DSSDocument getDocument() {
+    return document;
+  }
 }

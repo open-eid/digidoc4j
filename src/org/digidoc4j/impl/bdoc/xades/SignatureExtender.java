@@ -48,6 +48,7 @@ public class SignatureExtender {
       DSSDocument extendedSignature = extendingFacade.extendSignature(xadesSignature, detachedContent);
       extendedSignatures.add(extendedSignature);
     }
+    logger.debug("Finished extending signatures");
     return extendedSignatures;
   }
 

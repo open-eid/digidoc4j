@@ -19,6 +19,7 @@ public class AsicEntry implements Serializable {
 
   private ZipEntry zipEntry;
   private DSSDocument content;
+  private boolean isSignature;
 
   public DSSDocument getContent() {
     return content;
@@ -34,5 +35,13 @@ public class AsicEntry implements Serializable {
 
   public void setZipEntry(ZipEntry zipEntry) {
     this.zipEntry = zipEntry;
+  }
+
+  public boolean isSignature() {
+    return isSignature;
+  }
+
+  public void setSignature(boolean signature) {
+    isSignature = signature;
   }
 }
