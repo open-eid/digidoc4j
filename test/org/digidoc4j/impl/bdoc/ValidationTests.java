@@ -130,8 +130,17 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   public void signatureFileContainsIncorrectFileName() {
     Container container = ContainerOpener.open("testFiles/filename_mismatch_signature.asice", PROD_CONFIGURATION);
     ValidationResult validate = container.validate();
+    assertEquals(2, validate.getErrors().size());
+    assertEquals("Manifest file has an entry for file test.txt with mimetype application/pdf but the signature file for signature S0 does not have an entry for this file", validate.getErrors().get(0).toString());
+    assertEquals("The signature file for signature S0 has an entry for file 0123456789~#%&()=`@{[]}'.txt with mimetype application/pdf but the manifest file does not have an entry for this file", validate.getErrors().get(1).toString());
+  }
+
+  @Test
+  public void validateContainer_withChangedDataFileContent_isInvalid() throws Exception {
+    Container container = ContainerOpener.open("testFiles/invalid-data-file.bdoc");
+    ValidationResult validate = container.validate();
     assertEquals(1, validate.getErrors().size());
-    assertEquals("The reference data object(s) not found!", validate.getErrors().get(0).toString());
+    assertEquals("The reference data object(s) is not intact!", validate.getErrors().get(0).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
