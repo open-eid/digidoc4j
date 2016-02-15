@@ -12,6 +12,7 @@ package org.digidoc4j.utils;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Container;
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.Version;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
@@ -25,10 +26,14 @@ import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_B;
 import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_LT;
+import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_LTA;
+import static eu.europa.esig.dss.SignatureLevel.ASiC_S_BASELINE_B;
 import static java.nio.file.Files.deleteIfExists;
 
 import eu.europa.esig.dss.MimeType;
+import eu.europa.esig.dss.SignatureLevel;
 
 public final class Helper {
   private static final Logger logger = LoggerFactory.getLogger(Helper.class);
@@ -183,7 +188,9 @@ public final class Helper {
       ua.append("/").append(version);
     }
 
-    ua.append(" signatureProfile: ").append(signatureProfile);
+    if(signatureProfile != null) {
+      ua.append(" signatureProfile: ").append(signatureProfile);
+    }
 
     ua.append(" Java: ").append(System.getProperty("java.version"));
     ua.append("/").append(System.getProperty("java.vendor"));
@@ -204,5 +211,24 @@ public final class Helper {
 
   public static String createBDocUserAgent() {
     return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, ASiC_E_BASELINE_LT.name());
+  }
+
+  public static String createBDocUserAgent(SignatureProfile signatureProfile) {
+    SignatureLevel signatureLevel = determineSignatureLevel(signatureProfile);
+    return createBDocUserAgent(signatureLevel);
+  }
+
+  public static String createBDocUserAgent(SignatureLevel signatureLevel) {
+    return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, signatureLevel.name());
+  }
+
+  private static SignatureLevel determineSignatureLevel(SignatureProfile signatureProfile) {
+    if(signatureProfile == SignatureProfile.B_BES) {
+      return ASiC_E_BASELINE_B;
+    } else if(signatureProfile == SignatureProfile.LTA) {
+      return ASiC_E_BASELINE_LTA;
+    } else {
+      return ASiC_E_BASELINE_LT;
+    }
   }
 }

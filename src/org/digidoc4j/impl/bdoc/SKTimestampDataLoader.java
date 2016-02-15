@@ -17,11 +17,13 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import org.apache.commons.io.IOUtils;
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.SignatureLevel;
 import eu.europa.esig.dss.client.http.NativeHTTPDataLoader;
 
 public class SKTimestampDataLoader extends NativeHTTPDataLoader {
@@ -61,5 +63,9 @@ public class SKTimestampDataLoader extends NativeHTTPDataLoader {
       IOUtils.closeQuietly(inputStream);
     }
     return result;
+  }
+
+  public void setUserAgentSignatureProfile(SignatureLevel signatureLevel) {
+    userAgent = Helper.createBDocUserAgent(signatureLevel);
   }
 }

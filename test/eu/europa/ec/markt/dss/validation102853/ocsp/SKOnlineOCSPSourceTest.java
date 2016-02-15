@@ -15,6 +15,7 @@ import java.security.cert.X509Certificate;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.impl.bdoc.SKOcspDataLoader;
 import org.digidoc4j.utils.CertificatesForTests;
 import org.junit.Before;
 import org.junit.Rule;
@@ -24,7 +25,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import eu.europa.esig.dss.client.http.DataLoader;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.x509.OCSPToken;
 
@@ -39,7 +39,7 @@ public class SKOnlineOCSPSourceTest {
   CertificateToken issuerCertToken;
 
   @Mock
-  DataLoader dataLoader;
+  SKOcspDataLoader dataLoader;
 
   X509Certificate issuerCert;
   Configuration configuration = new Configuration(Configuration.Mode.TEST);

@@ -41,7 +41,9 @@ public class SignatureExtender {
     SignatureLevel signatureLevel = getSignatureLevel(profile);
     XadesSigningDssFacade extendingFacade = new XadesSigningDssFacade(configuration.getTspSource());
     extendingFacade.setCertificateSource(configuration.getTSL());
-    extendingFacade.setOcspSource(new BDocTSOcspSource(configuration));
+    BDocTSOcspSource ocspSource = new BDocTSOcspSource(configuration);
+    ocspSource.setUserAgentSignatureProfile(profile);
+    extendingFacade.setOcspSource(ocspSource);
     extendingFacade.setSignatureLevel(signatureLevel);
     List<DSSDocument> extendedSignatures = new ArrayList<>();
     for (DSSDocument xadesSignature : signaturesToExtend) {

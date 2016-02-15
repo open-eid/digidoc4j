@@ -137,11 +137,14 @@ public class NewBDocContainer extends BDocContainer {
 
   protected void writeAsicContainer(AsicContainerCreator zipCreator) {
     int startingSignatureFileIndex = 0;
+    String userAgent = createUserAgent();
+    zipCreator.setZipComment(userAgent);
     zipCreator.writeAsiceMimeType();
     zipCreator.writeManifest(dataFiles);
     zipCreator.writeDataFiles(dataFiles);
     zipCreator.writeSignatures(signatures, startingSignatureFileIndex);
-    zipCreator.writeContainerComment(Helper.createBDocUserAgent());
+    zipCreator.writeContainerComment(userAgent);
     zipCreator.finalizeZipFile();
   }
+
 }

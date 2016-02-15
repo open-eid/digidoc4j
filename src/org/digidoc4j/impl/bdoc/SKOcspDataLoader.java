@@ -20,11 +20,13 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.util.EntityUtils;
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.SignatureLevel;
 import eu.europa.esig.dss.client.http.commons.OCSPDataLoader;
 
 public class SKOcspDataLoader extends OCSPDataLoader {
@@ -75,5 +77,9 @@ public class SKOcspDataLoader extends OCSPDataLoader {
         EntityUtils.consumeQuietly(httpResponse.getEntity());
       }
     }
+  }
+
+  public void setUserAgentSignatureProfile(SignatureProfile signatureProfile) {
+    userAgent = Helper.createBDocUserAgent(signatureProfile);
   }
 }

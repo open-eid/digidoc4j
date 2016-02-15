@@ -56,6 +56,7 @@ public class XadesSigningDssFacade {
   private String timestampServerUrl;
   private long cachedFileSizeInMB;
   private boolean bigFilesSupportEnabled = false;
+  private SKTimestampDataLoader dataLoader;
 
   public XadesSigningDssFacade(String timestampServerUrl) {
     this.timestampServerUrl = timestampServerUrl;
@@ -135,6 +136,7 @@ public class XadesSigningDssFacade {
 
   public void setSignatureLevel(SignatureLevel signatureLevel) {
     xAdESSignatureParameters.setSignatureLevel(signatureLevel);
+    dataLoader.setUserAgentSignatureProfile(signatureLevel);
   }
 
   public void setSignatureId(String signatureId) {
@@ -157,7 +159,7 @@ public class XadesSigningDssFacade {
   private void initXadesService() {
     service = new XAdESService(certificateVerifier);
     OnlineTSPSource tspSource = new OnlineTSPSource(timestampServerUrl);
-    SKTimestampDataLoader dataLoader = new SKTimestampDataLoader();
+    dataLoader = new SKTimestampDataLoader();
     tspSource.setDataLoader(dataLoader);
     service.setTspSource(tspSource);
   }

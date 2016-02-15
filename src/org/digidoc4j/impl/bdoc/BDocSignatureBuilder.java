@@ -161,9 +161,14 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   private SKOnlineOCSPSource getOcspSource(byte[] signatureValue) {
     logger.debug("Getting OCSP source");
     Configuration configuration = getConfiguration();
-    if (isTimeMark && signatureValue != null)
-      return new BDocTMOcspSource(configuration, signatureValue);
-    return new BDocTSOcspSource(configuration);
+    SKOnlineOCSPSource ocspSource;
+    if (isTimeMark && signatureValue != null) {
+      ocspSource = new BDocTMOcspSource(configuration, signatureValue);
+    } else {
+      ocspSource = new BDocTSOcspSource(configuration);
+    }
+    ocspSource.setUserAgentSignatureProfile(signatureParameters.getSignatureProfile());
+    return ocspSource;
   }
 
   private void setDigestAlgorithm() {

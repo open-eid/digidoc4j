@@ -41,6 +41,7 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.bdoc.asic.AsicContainerCreator;
 import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
 import org.digidoc4j.impl.bdoc.xades.SignatureExtender;
+import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,6 +133,14 @@ public abstract class BDocContainer implements Container {
     List<Signature> extendedSignatures = parseSignatureFiles(extendedSignatureDocuments, detachedContentList);
     logger.debug("Finished extending all signatures");
     return extendedSignatures;
+  }
+
+  protected String createUserAgent() {
+    if(!getSignatures().isEmpty()) {
+      SignatureProfile profile = getSignatures().get(0).getProfile();
+      return Helper.createBDocUserAgent(profile);
+    }
+    return Helper.createBDocUserAgent();
   }
 
   protected void validateDataFilesRemoval() {

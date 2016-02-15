@@ -61,6 +61,7 @@ import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
@@ -934,7 +935,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     signContainer(container);
     container.save("testZipFileComment.bdoc");
 
-    String expectedComment = Helper.createBDocUserAgent();
+    String expectedComment = Helper.createBDocUserAgent(SignatureProfile.LT_TM);
     ZipFile zipFile = new ZipFile("testZipFileComment.bdoc");
     assertEquals(expectedComment, zipFile.getEntry("mimetype").getComment());
     assertEquals(expectedComment, zipFile.getEntry("META-INF/manifest.xml").getComment());

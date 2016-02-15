@@ -161,6 +161,8 @@ public class ExistingBDocContainer extends BDocContainer {
 
   protected void writeAsicContainer(AsicContainerCreator zipCreator) {
     int nextSignatureFileIndex = determineNextSignatureFileIndex();
+    String userAgent = createUserAgent();
+    zipCreator.setZipComment(userAgent);
     zipCreator.writeExistingEntries(containerParseResult.getAsicEntries());
     if(dataFilesHaveChanged) {
       zipCreator.writeManifest(allDataFiles);

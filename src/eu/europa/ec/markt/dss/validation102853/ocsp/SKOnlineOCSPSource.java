@@ -31,6 +31,7 @@ import org.bouncycastle.cert.ocsp.SingleResp;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.bdoc.SKOcspDataLoader;
@@ -39,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.DSSRevocationUtils;
-import eu.europa.esig.dss.client.http.DataLoader;
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
 import eu.europa.esig.dss.token.KSPrivateKeyEntry;
 import eu.europa.esig.dss.token.Pkcs12SignatureToken;
@@ -56,7 +56,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   /**
    * The data loader used to retrieve the OCSP response.
    */
-  private DataLoader dataLoader;
+  private SKOcspDataLoader dataLoader;
 
   private Configuration configuration;
 
@@ -206,7 +206,11 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     return signatureTokenConnection.getKeys().get(0);
   }
 
-  void setDataLoader(DataLoader dataLoader) {
+  void setDataLoader(SKOcspDataLoader dataLoader) {
     this.dataLoader = dataLoader;
+  }
+
+  public void setUserAgentSignatureProfile(SignatureProfile signatureProfile) {
+    dataLoader.setUserAgentSignatureProfile(signatureProfile);
   }
 }

@@ -147,7 +147,7 @@ public class HelperTest {
 
   @Test
   public void createUserAgentForBDOC() throws Exception {
-    String userAgent = Helper.createUserAgent(ContainerBuilder.aContainer().build());
+    String userAgent = Helper.createBDocUserAgent();
     assertThat(userAgent, containsString(ASICE.getMimeTypeString()));
   }
 
@@ -159,21 +159,13 @@ public class HelperTest {
 
   @Test
   public void  createUserAgentSignatureProfileForBDOC() {
-    Container container = ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
-    container.setSignatureProfile(SignatureProfile.LTA);
-    String userAgent = Helper.createUserAgent(container);
+    String userAgent = Helper.createBDocUserAgent(SignatureProfile.LTA);
     assertThat(userAgent, containsString("signatureProfile: ASiC_E_BASELINE_LTA"));
   }
 
   @Test
   public void  createUserAgentSignatureProfileForBDOCDefault() {
-    String userAgent = Helper.createUserAgent(ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build());
-    assertThat(userAgent, containsString("signatureProfile: ASiC_E_BASELINE_LT"));
-  }
-
-  @Test
-  public void  createUserAgentSignatureProfileForBDOCFromFile() {
-    String userAgent = Helper.createUserAgent(ContainerOpener.open("testFiles/asics_testing_two_signatures.bdoc"));
+    String userAgent = Helper.createBDocUserAgent();
     assertThat(userAgent, containsString("signatureProfile: ASiC_E_BASELINE_LT"));
   }
 
@@ -193,8 +185,7 @@ public class HelperTest {
 
   @Test
   public void  createUserAgentSignatureVersionForBDOC() {
-    Container container = ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
-    String userAgent = Helper.createUserAgent(container);
+    String userAgent = Helper.createBDocUserAgent();
     assertThat(userAgent, containsString("format: application/vnd.etsi.asic-e+zip"));
   }
 
