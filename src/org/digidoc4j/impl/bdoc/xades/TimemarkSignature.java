@@ -12,7 +12,6 @@ package org.digidoc4j.impl.bdoc.xades;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -20,6 +19,7 @@ import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.RespID;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.X509Cert;
+import org.digidoc4j.exceptions.CertificateNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,7 @@ public class TimemarkSignature extends BesSignature {
     if (ocspResponse == null) {
       return null;
     }
-    ocspCertificate = findOcspCertificate(ocspResponse);
+    ocspCertificate = findOcspCertificate();
     return ocspCertificate;
   }
 
@@ -97,21 +97,19 @@ public class TimemarkSignature extends BesSignature {
     return containedOCSPResponses.get(0);
   }
 
-  private X509Cert findOcspCertificate(BasicOCSPResp ocspResponse) {
-    String ocspCN = getOCSPCommonName(ocspResponse);
-    Set<CertificateToken> certificates = getEncapsulatedCertificates();
-    for (CertificateToken cert : certificates) {
-      String certCn = getCN(new X500Name(cert.getSubjectX500Principal().getName()));
-      if (certCn.equals(ocspCN)) {
-        X509Cert x509Cert = new X509Cert(cert.getCertificate());
-        return x509Cert;
+  private X509Cert findOcspCertificate() {
+    String ocspCN = getOCSPCommonName();
+    for (CertificateToken cert : dssSignature.getCertPool().getCertificateTokens()) {
+      String value = getCN(new X500Name(cert.getSubjectX500Principal().getName()));
+      if (value.equals(ocspCN)) {
+        return new X509Cert(cert.getCertificate());
       }
     }
-    logger.warn("Signature is missing OCSP response");
-    return null;
+    logger.error("OCSP certificate for " + ocspCN + " was not found in TSL");
+    throw new CertificateNotFoundException("OCSP certificate for " + ocspCN + " was not found in TSL");
   }
 
-  private String getOCSPCommonName(BasicOCSPResp ocspResponse) {
+  private String getOCSPCommonName() {
     RespID responderId = ocspResponse.getResponderId();
     String commonName = getCN(responderId.toASN1Object().getName());
     logger.debug("OCSP common name: " + commonName);

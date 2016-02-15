@@ -84,8 +84,6 @@ public class XadesSignatureParserTest {
     assertEquals(SignatureProfile.LT_TM, signature.getProfile());
     assertEquals("id-a4fc49d6d0d7f647f6f2f4edde485943", signature.getId());
     logger.debug("Getting OCSP certificate");
-    assertNotNull(signature.getOCSPCertificate());
-    assertTrue(StringUtils.startsWith(signature.getOCSPCertificate().getSubjectName(), "C=EE,O=AS Sertifitseerimiskeskus,OU=OCSP"));
     logger.debug("Getting OCSP time");
     assertNotNull(signature.getOCSPResponseCreationTime());
     assertEquals(new Date(1454685580000L), signature.getOCSPResponseCreationTime());
@@ -104,10 +102,6 @@ public class XadesSignatureParserTest {
     assertEquals("S0", signature.getId());
     logger.debug("Getting timestamp time");
     assertEquals(new Date(1454090316000L), signature.getTimeStampCreationTime());
-    logger.debug("Getting timestamp token certificate");
-    assertNotNull(signature.getTimeStampTokenCertificate());
-    logger.debug("Checking timestamp token certificate subject name");
-    assertTrue(StringUtils.startsWith(signature.getTimeStampTokenCertificate().getSubjectName(), "C=EE,O=AS Sertifitseerimiskeskus,OU=TSA"));
     logger.debug("Checking trusted time");
     assertEquals(signature.getTimeStampCreationTime(), signature.getTrustedSigningTime());
     logger.debug("Finished testing Timestamp signature");
@@ -122,12 +116,8 @@ public class XadesSignatureParserTest {
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
     assertEquals(new Date(1455032287000L), signature.getSigningTime());
     assertTrue(StringUtils.startsWith(signature.getSigningCertificate().issuerName(), "C=EE,O=AS Sertifitseerimiskeskus"));
-    assertNotNull(signature.getOCSPCertificate());
-    assertTrue(StringUtils.startsWith(signature.getOCSPCertificate().getSubjectName(), "C=EE,O=AS Sertifitseerimiskeskus,OU=OCSP"));
     assertEquals(new Date(1455032289000L), signature.getOCSPResponseCreationTime());
     assertEquals(new Date(1455032288000L), signature.getTimeStampCreationTime());
-    assertNotNull(signature.getTimeStampTokenCertificate());
-    assertTrue(StringUtils.startsWith(signature.getTimeStampTokenCertificate().getSubjectName(), "C=EE,O=AS Sertifitseerimiskeskus,OU=TSA"));
     assertEquals(signature.getTimeStampCreationTime(), signature.getTrustedSigningTime());
   }
 

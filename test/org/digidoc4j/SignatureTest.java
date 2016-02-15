@@ -103,7 +103,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     assertNull(signature.getTimeStampTokenCertificate());
   }
 
-  @Test
+  @Test(expected = CertificateNotFoundException.class)
   public void testGetSignerRolesForBDoc_OCSP_Exception() {
     Container container = ContainerOpener.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc");
     List<Signature> signatures = container.getSignatures();

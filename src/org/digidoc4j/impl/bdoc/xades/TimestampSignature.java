@@ -10,16 +10,15 @@
 
 package org.digidoc4j.impl.bdoc.xades;
 
+import java.security.cert.X509Certificate;
 import java.util.Date;
-import java.util.Set;
 
 import org.apache.commons.codec.binary.Base64;
-import org.bouncycastle.asn1.x509.Certificate;
-import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.X509Cert;
+import org.digidoc4j.exceptions.CertificateNotFoundException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +29,7 @@ import org.w3c.dom.NodeList;
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.DSSXMLUtils;
 import eu.europa.esig.dss.XPathQueryHolder;
+import eu.europa.esig.dss.validation.TimestampToken;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
@@ -57,13 +57,17 @@ public class TimestampSignature extends TimemarkSignature {
     if (timestampTokenCertificate != null) {
       return timestampTokenCertificate;
     }
-    if (timeStampToken == null) {
-      timeStampToken = findTimestampToken();
+    XAdESSignature origin = getDssSignature();
+    if (origin.getSignatureTimestamps() == null || origin.getSignatureTimestamps().isEmpty()) {
+      throwTimestampNotFoundException();
     }
-    if (timeStampToken == null) {
-      logger.warn("Timestamp token was not found");
+    TimestampToken timestampToken = origin.getSignatureTimestamps().get(0);
+    CertificateToken issuerToken = timestampToken.getIssuerToken();
+    if (issuerToken == null) {
+      return throwTimestampNotFoundException();
     }
-    timestampTokenCertificate = findTimestampTokenCertificate(timeStampToken);
+    X509Certificate certificate = issuerToken.getCertificate();
+    timestampTokenCertificate = new X509Cert(certificate);
     return timestampTokenCertificate;
   }
 
@@ -116,22 +120,8 @@ public class TimestampSignature extends TimemarkSignature {
     }
   }
 
-  private X509Cert findTimestampTokenCertificate(TimeStampToken timeStamp) {
-    logger.debug("Finding timestamp token certificate");
-    Set<CertificateToken> certs = getEncapsulatedCertificates();
-    for (CertificateToken certificateToken : certs) {
-      X509CertificateHolder x509CertificateHolder = createX509CertificateHolder(certificateToken);
-      if (timeStamp.getSID().match(x509CertificateHolder)) {
-        return new X509Cert(certificateToken.getCertificate());
-      }
-    }
-    logger.warn("Timestamp token certificate was not found");
-    return null;
-  }
-
-  private X509CertificateHolder createX509CertificateHolder(CertificateToken certificateToken) {
-    byte[] encoded = certificateToken.getEncoded();
-    Certificate certificate = Certificate.getInstance(encoded);
-    return new X509CertificateHolder(certificate);
+  private X509Cert throwTimestampNotFoundException() {
+    logger.error("TimeStamp certificate not found");
+    throw new CertificateNotFoundException("TimeStamp certificate not found");
   }
 }
