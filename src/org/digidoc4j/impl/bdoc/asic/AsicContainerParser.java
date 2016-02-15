@@ -13,8 +13,10 @@ package org.digidoc4j.impl.bdoc.asic;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -26,6 +28,7 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.DataFile;
+import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.bdoc.manifest.ManifestEntry;
@@ -53,7 +56,7 @@ public class AsicContainerParser {
   private ZipFile zipFile;
   private ZipInputStream zipInputStream;
   private List<DSSDocument> signatures = new ArrayList<>();
-  private List<DataFile> dataFiles = new ArrayList<>();
+  private LinkedHashMap<String, DataFile> dataFiles = new LinkedHashMap<>();
   private List<DSSDocument> detachedContents = new ArrayList<>();
   private Integer currentSignatureFileIndex;
   private String mimeType;
@@ -181,9 +184,11 @@ public class AsicContainerParser {
 
   private void extractDataFile(ZipEntry entry) {
     logger.debug("Extracting data file");
+    String fileName = entry.getName();
+    validateDataFile(fileName);
     DSSDocument document = extractStreamDocument(entry);
     DataFile dataFile = new AsicDataFile(document);
-    dataFiles.add(dataFile);
+    dataFiles.put(fileName, dataFile);
     detachedContents.add(document);
     extractAsicEntry(entry, document);
   }
@@ -226,7 +231,7 @@ public class AsicContainerParser {
   }
 
   private void updateDataFilesMimeType() {
-    for(DataFile dataFile: dataFiles) {
+    for(DataFile dataFile: dataFiles.values()) {
       String fileName = dataFile.getName();
       String mimeType = getDataFileMimeType(fileName);
       dataFile.setMediaType(mimeType);
@@ -240,8 +245,16 @@ public class AsicContainerParser {
     }
   }
 
+  private void validateDataFile(String fileName) {
+    if(dataFiles.containsKey(fileName)) {
+      logger.error("Container contains duplicate data file: " + fileName);
+      throw new DuplicateDataFileException("Container contains duplicate data file: " + fileName);
+    }
+  }
+
   private void populateParseResult() {
-    parseResult.setDataFiles(dataFiles);
+    Collection<DataFile> files = dataFiles.values();
+    parseResult.setDataFiles(new ArrayList<>(files));
     parseResult.setSignatures(signatures);
     parseResult.setCurrentUsedSignatureFileIndex(currentSignatureFileIndex);
     parseResult.setDetachedContents(detachedContents);
