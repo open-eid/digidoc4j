@@ -21,6 +21,7 @@ public class BDocValidationResult implements ValidationResult {
   private List<DigiDoc4JException> errors = new ArrayList<>();
   private List<DigiDoc4JException> warnings = new ArrayList<>();
   private List<DigiDoc4JException> containerErrorsOnly = new ArrayList<>();
+  private BDocValidationReportBuilder reportBuilder;
 
   @Override
   public List<DigiDoc4JException> getErrors() {
@@ -50,7 +51,7 @@ public class BDocValidationResult implements ValidationResult {
 
   @Override
   public String getReport() {
-    return "";
+    return reportBuilder.buildXmlReport();
   }
 
   @Override
@@ -68,5 +69,9 @@ public class BDocValidationResult implements ValidationResult {
 
   public void setWarnings(List<DigiDoc4JException> warnings) {
     this.warnings = warnings;
+  }
+
+  public void setReportBuilder(BDocValidationReportBuilder reportBuilder) {
+    this.reportBuilder = reportBuilder;
   }
 }

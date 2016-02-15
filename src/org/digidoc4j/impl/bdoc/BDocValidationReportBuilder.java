@@ -34,14 +34,14 @@ public class BDocValidationReportBuilder {
 
   private final static Logger logger = LoggerFactory.getLogger(BDocValidationReportBuilder.class);
   private Document reportDocument;
-  private Reports report;
-  private List<String> manifestErrors;
+  private List<Reports> validationReports;
+  private List<DigiDoc4JException> manifestErrors;
   private Map<String, List<DigiDoc4JException>> signatureVerificationErrors;
   private String reportInXml;
 
-  public BDocValidationReportBuilder(Reports report, List<String> manifestErrors, Map<String, List<DigiDoc4JException>> signatureVerificationErrors) {
+  public BDocValidationReportBuilder(List<Reports> validationReports, List<DigiDoc4JException> manifestErrors, Map<String, List<DigiDoc4JException>> signatureVerificationErrors) {
     logger.debug("Initializing BDoc validation report builder");
-    this.report = report;
+    this.validationReports = validationReports;
     this.manifestErrors = manifestErrors;
     this.signatureVerificationErrors = signatureVerificationErrors;
   }
@@ -56,12 +56,18 @@ public class BDocValidationReportBuilder {
   private String generateNewReport() {
     logger.debug("Generating BDoc validation report in XML");
     initializeReportDOM();
-    addErrorsForEachReport();
+    addErrorsInEveryReport();
     addManifestErrorsToXmlReport();
     return getReportAsXmlString();
   }
 
-  private void addErrorsForEachReport() {
+  private void addErrorsInEveryReport() {
+    for(Reports report: validationReports) {
+      addErrorsForEachReport(report);
+    }
+  }
+
+  private void addErrorsForEachReport(Reports report) {
     do {
       SimpleReport simpleReport = report.getSimpleReport();
       //check with several signatures as well in one signature file (in estonia we are not producing such signatures)
@@ -91,7 +97,8 @@ public class BDocValidationReportBuilder {
       manifestValidation.setAttributeNode(attribute);
 
       Element errorDescription = reportDocument.createElement("Description");
-      errorDescription.appendChild(reportDocument.createTextNode(manifestErrors.get(i)));
+      DigiDoc4JException manifestError = manifestErrors.get(i);
+      errorDescription.appendChild(reportDocument.createTextNode(manifestError.getMessage()));
       manifestValidation.appendChild(errorDescription);
     }
   }

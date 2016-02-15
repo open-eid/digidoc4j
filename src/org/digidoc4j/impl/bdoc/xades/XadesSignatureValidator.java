@@ -88,6 +88,10 @@ public class XadesSignatureValidator implements Serializable {
     return validationErrors;
   }
 
+  public Reports getDssValidationReport() {
+    return reportGenerator.openValidationReport();
+  }
+
   private void populateValidationErrors() {
     addPolicyValidationErrors();
     addSignedPropertiesReferenceValidationErrors();

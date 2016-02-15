@@ -13,12 +13,16 @@ package org.digidoc4j.impl.bdoc.asic;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.digidoc4j.Signature;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
+import org.digidoc4j.impl.bdoc.BDocSignature;
+import org.digidoc4j.impl.bdoc.BDocValidationReportBuilder;
 import org.digidoc4j.impl.bdoc.BDocValidationResult;
 import org.digidoc4j.impl.bdoc.manifest.ManifestParser;
 import org.digidoc4j.impl.bdoc.manifest.ManifestValidator;
@@ -26,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.validation.report.Reports;
 
 public class BDocContainerValidator implements Serializable {
 
@@ -33,6 +38,10 @@ public class BDocContainerValidator implements Serializable {
   private List<DigiDoc4JException> errors = new ArrayList<>();
   private AsicParseResult containerParseResult;
   private boolean validateManifest;
+  private transient Map<String, List<DigiDoc4JException>> signatureVerificationErrors;
+  private transient List<Reports> validationReports;
+  private transient List<DigiDoc4JException> manifestErrors;
+  private transient BDocValidationReportBuilder reportBuilder;
 
   public BDocContainerValidator() {
     validateManifest = false;
@@ -44,22 +53,41 @@ public class BDocContainerValidator implements Serializable {
   }
 
   public ValidationResult validate(List<Signature> signatures) {
-    BDocValidationResult result = new BDocValidationResult();
-
+    signatureVerificationErrors = new HashMap<>();
+    validationReports = new ArrayList<>();
     for (Signature signature : signatures) {
-      List<DigiDoc4JException> signatureErrors = signature.validate();
-      errors.addAll(signatureErrors);
+      extractSignatureErrors(signature);
     }
+    extractManifestErrors(signatures);
+    reportBuilder = new BDocValidationReportBuilder(validationReports, manifestErrors, signatureVerificationErrors);
 
-    List<DigiDoc4JException> manifestErrors = findManifestErrors(signatures);
-    errors.addAll(manifestErrors);
-
-    result.setErrors(errors);
+    BDocValidationResult result = createValidationResult();
     return result;
   }
 
   public void setValidateManifest(boolean validateManifest) {
     this.validateManifest = validateManifest;
+  }
+
+  private void extractSignatureErrors(Signature signature) {
+    List<DigiDoc4JException> signatureErrors = signature.validate();
+    errors.addAll(signatureErrors);
+    signatureVerificationErrors.put(signature.getId(), signatureErrors);
+    Reports dssValidationReport = ((BDocSignature) signature).getDssValidationReport();
+    validationReports.add(dssValidationReport);
+  }
+
+  private void extractManifestErrors(List<Signature> signatures) {
+    manifestErrors = findManifestErrors(signatures);
+    errors.addAll(manifestErrors);
+  }
+
+  private BDocValidationResult createValidationResult() {
+    BDocValidationResult result = new BDocValidationResult();
+    result.setErrors(errors);
+    result.setContainerErrorsOnly(manifestErrors);
+    result.setReportBuilder(reportBuilder);
+    return result;
   }
 
   private List<DigiDoc4JException> findManifestErrors(List<Signature> signatures) {

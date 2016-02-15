@@ -44,14 +44,12 @@ public class ValidationResultForBDoc implements ValidationResult {
    * @param manifestErrors               manifest verification errors
    * @param additionalVerificationErrors digidoc4J additional verification errors
    */
-  public ValidationResultForBDoc(Reports report, Collection<Signature> signatures, List<String> manifestErrors,
+  public ValidationResultForBDoc(Reports report, Collection<Signature> signatures, List<DigiDoc4JException> manifestErrors,
                                  Map<String, List<DigiDoc4JException>> additionalVerificationErrors) {
     logger.debug("");
-    reportBuilder = new BDocValidationReportBuilder(report, manifestErrors, additionalVerificationErrors);
+    reportBuilder = new BDocValidationReportBuilder(null, manifestErrors, additionalVerificationErrors);
+    manifestValidationExceptions = manifestErrors;
 
-    for (String manifestError : manifestErrors) {
-      manifestValidationExceptions.add(new DigiDoc4JException(manifestError));
-    }
     if (manifestValidationExceptions.size() != 0) errors.addAll(manifestValidationExceptions);
 
     for (Signature signature : signatures) {
