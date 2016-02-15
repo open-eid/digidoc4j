@@ -118,7 +118,6 @@ public class AsicContainerParser {
   }
 
   private void parseZipFileManifest() {
-    logger.debug("Parsing manifest");
     ZipEntry entry = zipFile.getEntry(MANIFEST);
     if(entry == null) {
       return;
@@ -127,11 +126,13 @@ public class AsicContainerParser {
   }
 
   private void parseManifestEntry(ZipEntry entry) {
+    logger.debug("Parsing manifest");
     try {
       InputStream manifestStream = getZipEntryInputStream(entry);
       InMemoryDocument manifestFile = new InMemoryDocument(IOUtils.toByteArray(manifestStream));
       manifestParser = new ManifestParser(manifestFile);
       manifestFileItems = manifestParser.getManifestFileItems();
+      extractAsicEntry(entry, manifestFile);
     } catch (IOException e) {
       logger.error("Error parsing manifest file: " + e.getMessage());
       throw new TechnicalException("Error parsing manifest file", e);

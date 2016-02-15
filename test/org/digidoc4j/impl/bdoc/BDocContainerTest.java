@@ -24,6 +24,7 @@ import static org.digidoc4j.testutils.TestDataBuilder.signContainer;
 import static org.digidoc4j.testutils.TestSigningHelper.getSigningCert;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -524,8 +525,11 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.save("testSetsDefaultSignatureId.bdoc");
 
     container = open("testSetsDefaultSignatureId.bdoc");
-    assertEquals("S0", container.getSignature(0).getId());
-    assertEquals("S1", container.getSignature(1).getId());
+    String signature1Id = container.getSignatures().get(0).getId();
+    String signature2Id = container.getSignatures().get(1).getId();
+    assertFalse(StringUtils.equals(signature1Id, signature2Id));
+    assertTrue(signature1Id.startsWith("id-"));
+    assertTrue(signature2Id.startsWith("id-"));
 
     ZipFile zip = new ZipFile("testSetsDefaultSignatureId.bdoc");
     assertNotNull(zip.getEntry("META-INF/signatures0.xml"));

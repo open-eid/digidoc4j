@@ -164,7 +164,6 @@ public class AsicContainerCreator {
     ZipEntry newZipEntry = new ZipEntry(zipEntry.getName());
     newZipEntry.setComment(zipEntry.getComment());
     newZipEntry.setExtra(zipEntry.getExtra());
-    newZipEntry.setCreationTime(zipEntry.getCreationTime());
     return newZipEntry;
   }
 }

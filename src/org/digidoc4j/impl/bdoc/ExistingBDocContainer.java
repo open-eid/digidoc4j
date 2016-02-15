@@ -21,6 +21,7 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
+import org.digidoc4j.dss.asic.Manifest;
 import org.digidoc4j.exceptions.RemovingDataFileException;
 import org.digidoc4j.impl.bdoc.asic.AsicContainerCreator;
 import org.digidoc4j.impl.bdoc.asic.AsicContainerParser;
@@ -104,6 +105,7 @@ public class ExistingBDocContainer extends BDocContainer {
     allDataFiles.add(dataFile);
     newDataFiles.add(dataFile);
     dataFilesHaveChanged = true;
+    removeExistingFileFromContainer(Manifest.XML_PATH);
   }
 
   @Override
@@ -160,7 +162,9 @@ public class ExistingBDocContainer extends BDocContainer {
   protected void writeAsicContainer(AsicContainerCreator zipCreator) {
     int nextSignatureFileIndex = determineNextSignatureFileIndex();
     zipCreator.writeExistingEntries(containerParseResult.getAsicEntries());
-    zipCreator.writeManifest(allDataFiles);
+    if(dataFilesHaveChanged) {
+      zipCreator.writeManifest(allDataFiles);
+    }
     zipCreator.writeSignatures(newSignatures, nextSignatureFileIndex);
     zipCreator.writeDataFiles(newDataFiles);
     if (StringUtils.isNotBlank(containerParseResult.getZipFileComment())) {
@@ -199,13 +203,14 @@ public class ExistingBDocContainer extends BDocContainer {
     removeExistingFileFromContainer(signatureFileName);
   }
 
-  private void removeExistingFileFromContainer(String fileName) {
+  private void removeExistingFileFromContainer(String filePath) {
+    logger.debug("Removing file from the container: " + filePath);
     List<AsicEntry> asicEntries = containerParseResult.getAsicEntries();
     for (AsicEntry entry : asicEntries) {
-      String entryFileName = entry.getContent().getName();
-      if (StringUtils.equalsIgnoreCase(fileName, entryFileName)) {
-        logger.debug("Removing file from the container: " + fileName);
+      String entryFileName = entry.getZipEntry().getName();
+      if (StringUtils.equalsIgnoreCase(filePath, entryFileName)) {
         asicEntries.remove(entry);
+        logger.debug("File was successfully removed");
         break;
       }
     }
