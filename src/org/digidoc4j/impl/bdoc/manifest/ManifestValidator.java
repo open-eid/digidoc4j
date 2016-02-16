@@ -38,23 +38,9 @@ public class ManifestValidator {
   private static final Logger logger = LoggerFactory.getLogger(ManifestValidator.class);
   public static final String MANIFEST_PATH = "META-INF/manifest.xml";
   public static final String MIMETYPE_PATH = "mimetype";
-  //private SignedDocumentValidator asicValidator;
   private List<DSSDocument> detachedContents;
   private ManifestParser manifestParser;
   private Collection<Signature> signatures;
-
-  /**
-   * Constructor.
-   *
-   * @param validator Validator object
-   */
-  @Deprecated
-  public ManifestValidator(SignedDocumentValidator validator) {
-    logger.debug("");
-    //asicValidator = validator;
-    //detachedContents = asicValidator.getDetachedContents();
-    manifestParser = ManifestParser.findAndOpenManifestFile(detachedContents);
-  }
 
   public ManifestValidator(ManifestParser manifestParser, List<DSSDocument> detachedContents, Collection<Signature> signatures) {
     this.manifestParser = manifestParser;

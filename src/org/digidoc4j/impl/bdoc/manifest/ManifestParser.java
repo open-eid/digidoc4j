@@ -10,7 +10,6 @@
 
 package org.digidoc4j.impl.bdoc.manifest;
 
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,16 +31,10 @@ public class ManifestParser implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(ManifestParser.class);
   public static final String MANIFEST_PATH = "META-INF/manifest.xml";
   private DSSDocument manifestFile;
-  private InputStream manifestStream;
   private Map<String, ManifestEntry> entries;
 
   public ManifestParser(DSSDocument manifestFile) {
     this.manifestFile = manifestFile;
-  }
-
-  @Deprecated
-  public ManifestParser(InputStream manifestFile) {
-    this.manifestStream = manifestFile;
   }
 
   public static ManifestParser findAndOpenManifestFile(List<DSSDocument> detachedContents) {
@@ -50,7 +43,7 @@ public class ManifestParser implements Serializable {
   }
 
   public boolean containsManifestFile() {
-    return manifestFile != null || manifestStream != null;
+    return manifestFile != null;
   }
 
   public Map<String, ManifestEntry> getManifestFileItems() {
@@ -75,9 +68,6 @@ public class ManifestParser implements Serializable {
   }
 
   private Element loadManifestXml() {
-    if(manifestStream != null) {
-      return DSSXMLUtils.buildDOM(manifestStream).getDocumentElement();
-    }
     return DSSXMLUtils.buildDOM(manifestFile).getDocumentElement();
   }
 

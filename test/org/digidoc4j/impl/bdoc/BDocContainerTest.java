@@ -706,22 +706,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  @Ignore("This feature should not be implemented. It's a bug not a feature")
-  public void configurationImmutabilityWhenLoadingFromFile() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
-    signContainer(container);
-    container.save("test_immutable.bdoc");
-
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    String tspSource = configuration.getTspSource();
-
-    container = open("test_immutable.bdoc", configuration);
-    configuration.setTspSource("changed_tsp_source");
-
-    assertEquals(tspSource, ((BDocContainer)container).getConfiguration().getTspSource());
-  }
-
-  @Test
   public void containerIsLT() throws Exception {
     Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
     signContainer(container, LT);

@@ -48,10 +48,6 @@ public class AsicContainerParser {
   private static final String SIGNATURES_FILE_REGEX = "META-INF/(.*)signatures(\\d*).xml";
   private static final Pattern SIGNATURE_FILE_ENDING_PATTERN = Pattern.compile("(\\d+).xml");
   private static final String MANIFEST = "META-INF/manifest.xml";
-  @Deprecated
-  private DSSDocument asicContainer;
-
-
   private AsicParseResult parseResult = new AsicParseResult();
   private ZipFile zipFile;
   private ZipInputStream zipInputStream;
@@ -79,7 +75,7 @@ public class AsicContainerParser {
   }
 
   public AsicParseResult read() {
-    if(isZipFile()) {
+    if (isZipFile()) {
       parseZipFile();
     } else {
       parseZipStream();
@@ -109,7 +105,7 @@ public class AsicContainerParser {
     logger.debug("Parsing zip stream");
     try {
       ZipEntry entry;
-      while((entry = zipInputStream.getNextEntry()) != null) {
+      while ((entry = zipInputStream.getNextEntry()) != null) {
         parseEntry(entry);
       }
     } catch (IOException e) {
@@ -122,7 +118,7 @@ public class AsicContainerParser {
 
   private void parseZipFileManifest() {
     ZipEntry entry = zipFile.getEntry(MANIFEST);
-    if(entry == null) {
+    if (entry == null) {
       return;
     }
     parseManifestEntry(entry);
@@ -145,16 +141,16 @@ public class AsicContainerParser {
   private void parseEntry(ZipEntry entry) {
     String entryName = entry.getName();
     logger.debug("Paring zip entry " + entryName + " with comment: " + entry.getComment());
-    if(isMimeType(entryName)) {
+    if (isMimeType(entryName)) {
       extractMimeType(entry);
-    } else if(isManifest(entryName)) {
-      if(!isZipFile()) {
+    } else if (isManifest(entryName)) {
+      if (!isZipFile()) {
         parseManifestEntry(entry);
       }
-    } else if(isSignaturesFile(entryName)) {
+    } else if (isSignaturesFile(entryName)) {
       determineCurrentSignatureFileIndex(entryName);
       extractSignature(entry);
-    } else if(isDataFile(entryName)) {
+    } else if (isDataFile(entryName)) {
       extractDataFile(entry);
     } else {
       extractAsicEntry(entry);
@@ -221,7 +217,7 @@ public class AsicContainerParser {
   }
 
   private String getDataFileMimeType(String fileName) {
-    if(manifestFileItems.containsKey(fileName)) {
+    if (manifestFileItems.containsKey(fileName)) {
       ManifestEntry manifestEntry = manifestFileItems.get(fileName);
       return manifestEntry.getMimeType();
     } else {
@@ -231,7 +227,7 @@ public class AsicContainerParser {
   }
 
   private void updateDataFilesMimeType() {
-    for(DataFile dataFile: dataFiles.values()) {
+    for (DataFile dataFile : dataFiles.values()) {
       String fileName = dataFile.getName();
       String mimeType = getDataFileMimeType(fileName);
       dataFile.setMediaType(mimeType);
@@ -239,14 +235,14 @@ public class AsicContainerParser {
   }
 
   private void validateParseResult() {
-    if(!StringUtils.equalsIgnoreCase(MimeType.ASICE.getMimeTypeString(), mimeType)) {
+    if (!StringUtils.equalsIgnoreCase(MimeType.ASICE.getMimeTypeString(), mimeType)) {
       logger.error("Container mime type is not " + MimeType.ASICE.getMimeTypeString() + " but is " + mimeType);
       throw new UnsupportedFormatException("Container mime type is not " + MimeType.ASICE.getMimeTypeString() + " but is " + mimeType);
     }
   }
 
   private void validateDataFile(String fileName) {
-    if(dataFiles.containsKey(fileName)) {
+    if (dataFiles.containsKey(fileName)) {
       logger.error("Container contains duplicate data file: " + fileName);
       throw new DuplicateDataFileException("Container contains duplicate data file: " + fileName);
     }
@@ -261,29 +257,6 @@ public class AsicContainerParser {
     parseResult.setManifestParser(manifestParser);
     parseResult.setZipFileComment(zipFileComment);
     parseResult.setAsicEntries(asicEntries);
-  }
-
-  @Deprecated
-  public AsicContainerParser(DSSDocument asicContainer) {
-    this.asicContainer = asicContainer;
-  }
-
-  @Deprecated
-  public Integer findCurrentSignatureFileIndex() throws InvalidAsicContainerException {
-    logger.debug("Finding the current signature file index of the container");
-    try {
-      ZipInputStream docStream = new ZipInputStream(asicContainer.openStream());
-      ZipEntry entry = docStream.getNextEntry();
-      while (entry != null) {
-        determineCurrentSignatureFileIndex(entry.getName());
-        entry = docStream.getNextEntry();
-      }
-      logger.debug("The current signature file index is " + currentSignatureFileIndex);
-    } catch (IOException e) {
-      logger.error("Invalid asic container: " + e.getMessage());
-      throw new InvalidAsicContainerException(e);
-    }
-    return currentSignatureFileIndex;
   }
 
   private boolean isMimeType(String entryName) {
@@ -305,11 +278,11 @@ public class AsicContainerParser {
   private void determineCurrentSignatureFileIndex(String entryName) {
     Matcher fileEndingMatcher = SIGNATURE_FILE_ENDING_PATTERN.matcher(entryName);
     boolean fileEndingFound = fileEndingMatcher.find();
-    if(fileEndingFound) {
+    if (fileEndingFound) {
       String fileEnding = fileEndingMatcher.group();
       String indexNumber = fileEnding.replace(".xml", "");
       int fileIndex = Integer.parseInt(indexNumber);
-      if(currentSignatureFileIndex == null || currentSignatureFileIndex <= fileIndex) {
+      if (currentSignatureFileIndex == null || currentSignatureFileIndex <= fileIndex) {
         currentSignatureFileIndex = fileIndex;
       }
     }
@@ -317,7 +290,7 @@ public class AsicContainerParser {
 
   private InputStream getZipEntryInputStream(ZipEntry entry) {
     try {
-      if(isZipFile()) {
+      if (isZipFile()) {
         return zipFile.getInputStream(entry);
       } else {
         return zipInputStream;
@@ -330,12 +303,5 @@ public class AsicContainerParser {
 
   private boolean isZipFile() {
     return zipFile != null;
-  }
-
-  public static class InvalidAsicContainerException extends RuntimeException {
-
-    public InvalidAsicContainerException(Exception e) {
-      super(e);
-    }
   }
 }
