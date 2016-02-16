@@ -107,12 +107,6 @@ public class TestDataBuilder {
     return builder.buildDataToSign();
   }
 
-  public static DSSDocument createAsicContainer(String path) {
-    DSSDocument container = new FileDocument(path);
-    container.setMimeType(MimeType.ASICE);
-    return container;
-  }
-
   public static Container open(String path) {
     Container container = ContainerBuilder.
         aContainer(BDOC_CONTAINER_TYPE).

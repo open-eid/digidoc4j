@@ -17,6 +17,7 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;
 import org.digidoc4j.impl.bdoc.xades.XadesSignatureParser;
 import org.digidoc4j.impl.bdoc.xades.XadesSignatureValidator;
+import org.digidoc4j.impl.bdoc.xades.XadesValidationDssFacade;
 import org.digidoc4j.impl.bdoc.xades.XadesValidationReportGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,54 +31,41 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 public class BDocSignatureOpener {
 
   private final static Logger logger = LoggerFactory.getLogger(BDocSignatureOpener.class);
+  private final List<DSSDocument> detachedContents;
   private SignedDocumentValidator validator;
-  private List<DSSDocument> detachedContents;
   private Configuration configuration;
   private XadesSignatureParser xadesSignatureParser = new XadesSignatureParser();
-  private CertificateVerifier certificateVerifier;
+  private XadesValidationDssFacade validationDssFacade;
 
   public BDocSignatureOpener(List<DSSDocument> detachedContents, Configuration configuration) {
-    this.detachedContents = detachedContents;
     this.configuration = configuration;
-    certificateVerifier = createCertificateVerifier();
+    this.detachedContents = detachedContents;
+    validationDssFacade = new XadesValidationDssFacade(detachedContents, configuration);
   }
 
   public List<BDocSignature> parse(DSSDocument xadesDocument) {
+    logger.debug("Parsing xades document");
     List<BDocSignature> signatures = new ArrayList<>();
     List<AdvancedSignature> signatureList = openXadesSignatureList(xadesDocument);
     for (AdvancedSignature advancedSignature : signatureList) {
-      BDocSignature bDocSignature = createBDocSignature((XAdESSignature) advancedSignature);
+      BDocSignature bDocSignature = createBDocSignature((XAdESSignature) advancedSignature, xadesDocument);
       bDocSignature.setSignatureDocument(xadesDocument);
       signatures.add(bDocSignature);
     }
     return signatures;
   }
 
-  private BDocSignature createBDocSignature(XAdESSignature xAdESSignature) {
+  private BDocSignature createBDocSignature(XAdESSignature xAdESSignature, DSSDocument xadesDocument) {
     XadesSignature signature = xadesSignatureParser.parse(xAdESSignature);
-    XadesValidationReportGenerator xadesReportGenerator = new XadesValidationReportGenerator(validator, configuration.getValidationPolicy());
+    XadesValidationReportGenerator xadesReportGenerator = new XadesValidationReportGenerator(xadesDocument, detachedContents, configuration);
+    xadesReportGenerator.setValidator(validator);
     XadesSignatureValidator xadesValidator = new XadesSignatureValidator(xadesReportGenerator, xAdESSignature, signature, configuration);
     return new BDocSignature(signature, xadesValidator);
   }
 
   private List<AdvancedSignature> openXadesSignatureList(DSSDocument signature) {
-    logger.debug("Opening signature validator");
-    validator = SignedDocumentValidator.fromDocument(signature);
-    logger.debug("Finished opening signature validator");
-    validator.setDetachedContents(detachedContents);
-    validator.setCertificateVerifier(certificateVerifier);
+    validator = validationDssFacade.openXadesValidator(signature);
     List<AdvancedSignature> signatureList = validator.getSignatures();
     return signatureList;
-  }
-
-  private CertificateVerifier createCertificateVerifier() {
-    logger.debug("Creating new certificate verifier");
-    CertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
-    certificateVerifier.setCrlSource(null); //Disable CRL checks
-    certificateVerifier.setSignatureCRLSource(null); //Disable CRL checks
-    logger.debug("Setting trusted cert source to the certificate verifier");
-    certificateVerifier.setTrustedCertSource(configuration.getTSL());
-    logger.debug("Finished creating certificate verifier");
-    return certificateVerifier;
   }
 }

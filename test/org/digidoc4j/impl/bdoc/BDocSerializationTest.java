@@ -140,7 +140,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
 
     assertNull(signature.getCity());
     assertNull(signature.getSignerRoles());
-    assertEquals("S0", signature.getId());
+    assertTrue(signature.getId().startsWith("id-"));
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
   }
 
@@ -247,7 +247,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   public void serializationGetTimeStampTokenCertificate() throws Exception {
     Container container = createEmptyBDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
-    signContainer(container);
+    signContainer(container, SignatureProfile.LT);
     serialize(container, serializedContainerPath);
     Container deserializedContainer = deserializer(serializedContainerPath);
 
