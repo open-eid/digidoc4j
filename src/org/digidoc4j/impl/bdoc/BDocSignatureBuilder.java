@@ -19,7 +19,6 @@ import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,18 +35,16 @@ import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.impl.SignatureFinalizer;
+import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
 import org.digidoc4j.impl.bdoc.xades.XadesSigningDssFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.ec.markt.dss.signature.StreamDocument;
 import eu.europa.ec.markt.dss.validation102853.ocsp.BDocTMOcspSource;
 import eu.europa.ec.markt.dss.validation102853.ocsp.BDocTSOcspSource;
 import eu.europa.ec.markt.dss.validation102853.ocsp.SKOnlineOCSPSource;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.InMemoryDocument;
-import eu.europa.esig.dss.MimeType;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignerLocation;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
@@ -55,7 +52,6 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 public class BDocSignatureBuilder extends SignatureBuilder implements SignatureFinalizer {
 
   private final static Logger logger = LoggerFactory.getLogger(BDocSignatureBuilder.class);
-  private static final int ONE_MB_IN_BYTES = 1048576;
   private boolean isTimeMark = false;
   private XadesSigningDssFacade facade;
 
@@ -83,6 +79,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     SKOnlineOCSPSource ocspSource = getOcspSource(signatureValueBytes);
     facade.setOcspSource(ocspSource);
     Collection<DataFile> dataFilesToSign = getDataFiles();
+    validateDataFilesToSign(dataFilesToSign);
     DSSDocument signedDocument = facade.signDocument(signatureValueBytes, dataFilesToSign);
     return createSignature(signedDocument);
   }
@@ -91,16 +88,14 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     if(facade == null) {
       Configuration configuration = getConfiguration();
       facade = new XadesSigningDssFacade(configuration.getTspSource());
-      facade.setBigFilesSupportEnabled(configuration.isBigFilesSupportEnabled());
-      facade.setCachedFileSizeInMB(configuration.getMaxDataFileCachedInMB());
     }
   }
 
   private Signature createSignature(DSSDocument signedDocument) {
     logger.debug("Opening signed document validator");
     Configuration configuration = getConfiguration();
-    List<DSSDocument> detachedContents = getDetachedContents();
-    //TODO store detached contents and reuse it when building data to sign and finalizing the signature
+    DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(getDataFiles());
+    List<DSSDocument> detachedContents = detachedContentCreator.getDetachedContentList();
     BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
     List<BDocSignature> signatureList = signatureOpener.parse(signedDocument);
     BDocSignature signature = signatureList.get(0); //Only one signature was created
@@ -116,6 +111,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     X509Certificate signingCert = signatureParameters.getSigningCertificate();
     facade.setSigningCertificate(signingCert);
     Collection<DataFile> dataFilesToSign = getDataFiles();
+    validateDataFilesToSign(dataFilesToSign);
     byte[] dataToSign = facade.getDataToSign(dataFilesToSign);
     return dataToSign;
   }
@@ -243,30 +239,10 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     facade.setSignerRoles(signerRoles);
   }
 
-  @Deprecated
-  private List<DSSDocument> getDetachedContents() {
-    List<DSSDocument> detachedContents = new ArrayList<>();
-    for(DataFile dataFile: getDataFiles()) {
-      DSSDocument dssDocument = getDssDocumentFromDataFile(dataFile);
-      detachedContents.add(dssDocument);
+  private void validateDataFilesToSign(Collection<DataFile> dataFilesToSign) {
+    if (dataFilesToSign.isEmpty()) {
+      logger.error("Container does not contain any data files");
+      throw new ContainerWithoutFilesException();
     }
-    return detachedContents;
-  }
-
-  @Deprecated
-  private DSSDocument getDssDocumentFromDataFile(DataFile dataFile) {
-    logger.debug("");
-    Configuration configuration = getConfiguration();
-    DSSDocument attachment;
-    MimeType mimeType = MimeType.fromMimeTypeString(dataFile.getMediaType());
-    long cachedFileSizeInMB = configuration.getMaxDataFileCachedInMB();
-    String dataFileName = dataFile.getName();
-
-    if (configuration.isBigFilesSupportEnabled() && dataFile.getFileSize() > cachedFileSizeInMB * ONE_MB_IN_BYTES) {
-      attachment = new StreamDocument(dataFile.getStream(), dataFileName, mimeType);
-    } else {
-      attachment = new InMemoryDocument(dataFile.getBytes(), dataFileName, mimeType);
-    }
-    return attachment;
   }
 }

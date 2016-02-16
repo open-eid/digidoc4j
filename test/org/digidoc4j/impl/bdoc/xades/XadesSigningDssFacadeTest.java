@@ -47,17 +47,13 @@ public class XadesSigningDssFacadeTest {
   @Before
   public void setUp() throws Exception {
     facade = new XadesSigningDssFacade(configuration.getTspSource());
-    facade.setBigFilesSupportEnabled(configuration.isBigFilesSupportEnabled());
-    facade.setCachedFileSizeInMB(configuration.getMaxDataFileCachedInMB());
     facade.setCertificateSource(configuration.getTSL());
     facade.setOcspSource(new BDocTSOcspSource(configuration));
   }
 
   @Test
   public void getDataToSign() throws Exception {
-    XadesSigningDssFacade facade = new XadesSigningDssFacade(configuration.getTspSource());
-    facade.setBigFilesSupportEnabled(configuration.isBigFilesSupportEnabled());
-    facade.setCachedFileSizeInMB(configuration.getMaxDataFileCachedInMB());
+    facade = new XadesSigningDssFacade(configuration.getTspSource());
     List<DataFile> dataFilesToSign = createDataFilesToSign();
     byte[] dataToSign = getDataToSign(dataFilesToSign);
     assertNotNull(dataToSign);

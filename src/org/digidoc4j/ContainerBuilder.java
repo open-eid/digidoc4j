@@ -63,7 +63,7 @@ public abstract class ContainerBuilder {
    * @return builder for creating or opening a container.
    */
   public static ContainerBuilder aContainer() {
-    return new BDocContainerBuilder();
+    return aContainer(BDOC_CONTAINER_TYPE);
   }
 
   /**
