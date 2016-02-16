@@ -201,17 +201,6 @@ public class ValidationTests extends DigiDoc4JTestHelper {
         "signature file for signature S0 indicates the mimetype is text/plain", validate.getErrors().get(0).toString());
   }
 
-  @Test
-  public void dssReturnsEmptySignatureList() {
-    Container container = ContainerOpener.open("testFiles/filename_mismatch_signature.asice");
-    ValidationResult validate = container.validate();
-
-    // File name in signature does not match with manifest file info
-    // Actual file inside container is same as in manifest (test.txt)
-    assertEquals(1, validate.getErrors().size());
-    assertEquals("The reference data object(s) not found!", validate.getErrors().get(0).toString());
-  }
-
   @Test(expected = DuplicateDataFileException.class)
   public void duplicateFileThrowsException() {
     Container container = ContainerOpener.open("testFiles/22902_data_files_with_same_names.bdoc");
