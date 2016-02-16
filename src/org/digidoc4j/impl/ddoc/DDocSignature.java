@@ -12,6 +12,7 @@ package org.digidoc4j.impl.ddoc;
 
 import ee.sk.digidoc.CertValue;
 import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
@@ -202,7 +203,7 @@ public class DDocSignature implements Signature {
   }
 
   @Override
-  public List<DigiDoc4JException> validate() {
+  public SignatureValidationResult validateSignature() {
     logger.debug("");
     List<DigiDoc4JException> validationErrors = new ArrayList<>();
     ArrayList validationResult = origin.verify(origin.getSignedDoc(), true, true);
@@ -212,7 +213,15 @@ public class DDocSignature implements Signature {
       validationErrors.add(new DigiDoc4JException(errorMessage));
     }
     logger.info("Signature has " + validationErrors.size() + " validation errors");
-    return validationErrors;
+    SignatureValidationResult result = new SignatureValidationResult();
+    result.setErrors(validationErrors);
+    return result;
+  }
+
+  @Override
+  @Deprecated
+  public List<DigiDoc4JException> validate() {
+    return validateSignature().getErrors();
   }
 
   /**

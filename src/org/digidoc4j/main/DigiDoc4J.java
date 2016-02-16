@@ -233,7 +233,7 @@ public final class DigiDoc4J {
     }
 
     for (Signature signature : signatures) {
-      List<DigiDoc4JException> signatureValidationResult = signature.validate();
+      List<DigiDoc4JException> signatureValidationResult = signature.validateSignature().getErrors();
       if (signatureValidationResult.size() == 0) {
         System.out.println("Signature " + signature.getId() + " is valid");
       } else {

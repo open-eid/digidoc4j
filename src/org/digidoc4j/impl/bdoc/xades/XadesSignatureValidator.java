@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.CertificateRevokedException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidOcspNonceException;
@@ -66,6 +67,7 @@ public class XadesSignatureValidator implements Serializable {
   private transient Map<String, SimpleReport> simpleReports;
   private XAdESSignature xAdESSignature;
   private List<DigiDoc4JException> validationErrors = new ArrayList<>();
+  private List<DigiDoc4JException> validationWarnings = new ArrayList<>();
   private String signatureId;
   private Configuration configuration;
 
@@ -80,12 +82,12 @@ public class XadesSignatureValidator implements Serializable {
     signatureId = xAdESSignature.getId();
   }
 
-  public List<DigiDoc4JException> extractValidationErrors() {
+  public SignatureValidationResult extractValidationErrors() {
     logger.debug("Extracting validation errors");
     validationReport = reportGenerator.openValidationReport();
     simpleReports = extractSimpleReports(validationReport);
     populateValidationErrors();
-    return validationErrors;
+    return createValidationResult();
   }
 
   public Reports getDssValidationReport() {
@@ -96,6 +98,7 @@ public class XadesSignatureValidator implements Serializable {
     addPolicyValidationErrors();
     addSignedPropertiesReferenceValidationErrors();
     addReportedErrors();
+    addReportedWarnings();
     addTimestampErrors();
     addSigningTimeErrors();
     addCertificateExpirationError();
@@ -166,6 +169,17 @@ public class XadesSignatureValidator implements Serializable {
           validationErrors.add(new CertificateRevokedException(error.toString()));
         else
           validationErrors.add(new DigiDoc4JException(error.toString()));
+      }
+    }
+  }
+
+  private void addReportedWarnings() {
+    SimpleReport simpleReport = getSimpleReport();
+    if (simpleReport != null) {
+      for (Conclusion.BasicInfo warning : simpleReport.getWarnings(signatureId)) {
+        String message = warning.toString();
+        logger.warn(message);
+        validationWarnings.add(new DigiDoc4JException(warning.toString()));
       }
     }
   }
@@ -275,6 +289,13 @@ public class XadesSignatureValidator implements Serializable {
       logger.error("OCSP nonce is invalid");
       validationErrors.add(new InvalidOcspNonceException());
     }
+  }
+
+  private SignatureValidationResult createValidationResult() {
+    SignatureValidationResult result = new SignatureValidationResult();
+    result.setErrors(validationErrors);
+    result.setWarnings(validationWarnings);
+    return result;
   }
 
 }

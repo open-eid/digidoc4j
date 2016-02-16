@@ -184,9 +184,17 @@ public interface Signature extends Serializable {
 
   /**
    * Validates the signature.
+   * @return the validation result.
+   */
+  SignatureValidationResult validateSignature();
+
+  /**
+   * Validates the signature.
    *
    * @return list of Digidoc4JExceptions
+   * @deprecated use {@Link Signature#validateSignature()} instead.
    */
+  @Deprecated
   List<DigiDoc4JException> validate();
 
   /**

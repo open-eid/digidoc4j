@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
@@ -36,6 +37,7 @@ public class BDocContainerValidator implements Serializable {
 
   private final static Logger logger = LoggerFactory.getLogger(BDocContainerValidator.class);
   private List<DigiDoc4JException> errors = new ArrayList<>();
+  private List<DigiDoc4JException> warnings = new ArrayList<>();
   private AsicParseResult containerParseResult;
   private boolean validateManifest;
   private transient Map<String, List<DigiDoc4JException>> signatureVerificationErrors;
@@ -70,8 +72,10 @@ public class BDocContainerValidator implements Serializable {
   }
 
   private void extractSignatureErrors(Signature signature) {
-    List<DigiDoc4JException> signatureErrors = signature.validate();
+    SignatureValidationResult validationResult = signature.validateSignature();
+    List<DigiDoc4JException> signatureErrors = validationResult.getErrors();
     errors.addAll(signatureErrors);
+    warnings.addAll(validationResult.getWarnings());
     signatureVerificationErrors.put(signature.getId(), signatureErrors);
     Reports dssValidationReport = ((BDocSignature) signature).getDssValidationReport();
     validationReports.add(dssValidationReport);
@@ -85,6 +89,7 @@ public class BDocContainerValidator implements Serializable {
   private BDocValidationResult createValidationResult() {
     BDocValidationResult result = new BDocValidationResult();
     result.setErrors(errors);
+    result.setWarnings(warnings);
     result.setContainerErrorsOnly(manifestErrors);
     result.setReportBuilder(reportBuilder);
     return result;

@@ -18,6 +18,8 @@ import org.digidoc4j.DataToSign;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.ValidationResult;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -148,6 +150,11 @@ public class TestSignatureBuilder extends SignatureBuilder {
 
     @Override
     public X509Cert getTimeStampTokenCertificate() {
+      return null;
+    }
+
+    @Override
+    public SignatureValidationResult validateSignature() {
       return null;
     }
 

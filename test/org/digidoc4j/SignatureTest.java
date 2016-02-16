@@ -183,12 +183,12 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testValidationForDDoc() {
-    assertEquals(0, getSignature(DDOC).validate().size());
+    assertEquals(0, getSignature(DDOC).validateSignature().getErrors().size());
   }
 
   @Test
   public void testValidationNoParametersForDDoc() {
-    assertEquals(0, getSignature(DDOC).validate().size());
+    assertEquals(0, getSignature(DDOC).validateSignature().getErrors().size());
   }
 
   @Test
@@ -197,24 +197,24 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     TSLHelper.addSkTsaCertificateToTsl(configuration);
     Container container = ContainerOpener.open("testFiles/two_signatures.bdoc", configuration);
     Signature signature = container.getSignatures().get(0);
-    assertEquals(0, signature.validate().size());
+    assertEquals(0, signature.validateSignature().getErrors().size());
     signature = container.getSignatures().get(1);
-    assertEquals(0, signature.validate().size());
+    assertEquals(0, signature.validateSignature().getErrors().size());
   }
 
   @Test
   public void testValidationForBDocDefaultValidationWithFailure() throws Exception {
     Signature signature = ContainerOpener.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
-    assertEquals(2, signature.validate().size());
+    assertEquals(2, signature.validateSignature().getErrors().size());
   }
 
   @Test
   public void testValidationForBDocDefaultValidationWithOneFailing() throws Exception {
     Container container = ContainerOpener.open("testFiles/two_signatures_one_invalid.bdoc");
     Signature signature = container.getSignatures().get(0);
-    assertEquals(0, signature.validate().size());
+    assertEquals(0, signature.validateSignature().getErrors().size());
     signature = container.getSignatures().get(1);
-    assertEquals(1, signature.validate().size());
+    assertEquals(1, signature.validateSignature().getErrors().size());
     ValidationResult validate = container.validate();
     assertEquals(1, validate.getErrors().size());
 
@@ -228,7 +228,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   @Test
   public void testValidationWithInvalidDDoc() {
     Signature signature = ContainerOpener.open("testFiles/changed_digidoc_test.ddoc").getSignatures().get(0);
-    assertEquals(4, signature.validate().size());
+    assertEquals(4, signature.validateSignature().getErrors().size());
   }
 
   @Test

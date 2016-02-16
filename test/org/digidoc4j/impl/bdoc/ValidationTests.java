@@ -314,7 +314,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     assertEquals(2, errors.size());
     assertContainsError("Signed properties missing", errors);
     assertContainsError("The reference data object(s) not found!", errors);
-    assertEquals(2, container.getSignatures().get(0).validate().size());
+    assertEquals(2, container.getSignatures().get(0).validateSignature().getErrors().size());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -370,7 +370,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
     assertEquals("Wrong policy identifier qualifier: OIDAsURI", errors.get(0).toString());
-    assertEquals(1, container.getSignatures().get(0).validate().size());
+    assertEquals(1, container.getSignatures().get(0).validateSignature().getErrors().size());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")

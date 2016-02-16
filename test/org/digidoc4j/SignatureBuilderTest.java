@@ -123,7 +123,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
         invokeSigning();
 
     container.addSignature(signature);
-    assertTrue(signature.validate().isEmpty());
+    assertTrue(signature.validateSignature().isValid());
 
     container.saveAsFile(testFolder.newFile("test-container2.bdoc").getPath());
 
@@ -212,7 +212,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
         withSignatureToken(eccSignatureToken).
         withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA).
         invokeSigning();
-    assertTrue(signature.validate().isEmpty());
+    assertTrue(signature.validateSignature().isValid());
   }
 
   @Test(expected = NotSupportedException.class)
@@ -277,6 +277,6 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
     assertNotNull(signature.getClaimedSigningTime());
     assertNotNull(signature.getAdESSignature());
     assertTrue(signature.getAdESSignature().length > 1);
-    assertTrue(signature.validate().isEmpty());
+    assertTrue(signature.validateSignature().isValid());
   }
 }

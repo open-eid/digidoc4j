@@ -19,6 +19,7 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;
 import org.digidoc4j.impl.bdoc.xades.XadesSignatureValidator;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
  */
 public class BDocSignature implements Signature {
   private static final Logger logger = LoggerFactory.getLogger(BDocSignature.class);
-  private List<DigiDoc4JException> validationErrors;
+  private SignatureValidationResult validationResult;
   private XadesSignature xadesSignature;
   private XadesSignatureValidator validator;
   private DSSDocument signatureDocument;
@@ -160,15 +161,21 @@ public class BDocSignature implements Signature {
   }
 
   @Override
-  public List<DigiDoc4JException> validate() {
+  public SignatureValidationResult validateSignature() {
     logger.debug("Validating signature");
-    if (validationErrors == null) {
-      validationErrors = validator.extractValidationErrors();
-      logger.info("Signature has " + validationErrors.size() + " validation errors");
+    if (validationResult == null) {
+      validationResult = validator.extractValidationErrors();
+      logger.info("Signature has " + validationResult.getErrors().size() + " validation errors and " + validationResult.getWarnings().size() + " warnings");
     } else {
-      logger.debug("Using existing validation errors with error count: " + validationErrors.size());
+      logger.debug("Using existing validation errors with " + validationResult.getErrors().size() + " validation errors and " + validationResult.getWarnings().size() + " warnings");
     }
-    return validationErrors;
+    return validationResult;
+  }
+
+  @Override
+  @Deprecated
+  public List<DigiDoc4JException> validate() {
+    return validateSignature().getErrors();
   }
 
   @Override
