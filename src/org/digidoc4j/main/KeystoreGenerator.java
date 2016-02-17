@@ -30,10 +30,13 @@ import eu.europa.esig.dss.x509.CertificateToken;
  */
 public class KeystoreGenerator {
 
-  private static final String DEFAULT_KEYSTORE_CERTIFICATES_FILEPATH = "keystore_certs";
-  private static final String DEFAULT_KEYSTORE_FILEPATH = "keystore.jks";
+  private static final String DEFAULT_KEYSTORE_CERTIFICATES_FILEPATH = "keystore/keystore_certs";
+  private static final String DEFAULT_KEYSTORE_FILEPATH = "keystore/keystore.jks";
   private static final String DEFAULT_KEYSTORE_PASSWORD = "digidoc4j-password";
   private static final String DEFAULT_KEYSTORE_TYPE = "JKS";
+
+  private static final String TEST_KEYSTORE_CERTIFICATES_FILEPATH = "keystore/test_keystore_certs/";
+  private static final String TEST_KEYSTORE_FILEPATH = "keystore/test-keystore.jks";
 
   private String keyStoreCertificateFilepath;
   private String keyStoreFilepath;
@@ -42,8 +45,8 @@ public class KeystoreGenerator {
   public static void main(String[] args) {
     try {
       KeystoreGenerator.aGenerator()
-          .withCertificateDirectory("keystore/test_keystore_certs/")
-          .withKeyStoreFilepath("keystore/test-keystore.jks")
+          .withCertificateDirectory(TEST_KEYSTORE_CERTIFICATES_FILEPATH)
+          .withKeyStoreFilepath(TEST_KEYSTORE_FILEPATH)
           .generateKeystore();
     } catch (CertificateException | NoSuchAlgorithmException | IOException | KeyStoreException e) {
       e.printStackTrace();
