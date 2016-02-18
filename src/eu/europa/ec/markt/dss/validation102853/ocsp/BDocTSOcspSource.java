@@ -1,5 +1,7 @@
 package eu.europa.ec.markt.dss.validation102853.ocsp;
 
+import java.security.SecureRandom;
+
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x509.Extension;
@@ -13,10 +15,16 @@ public class BDocTSOcspSource extends SKOnlineOCSPSource{
 
   @Override
   Extension createNonce() {
-    final long currentTimeNonce = System.currentTimeMillis();
-
-    DEROctetString nonce = new DEROctetString(String.valueOf(currentTimeNonce).getBytes());
+    byte[] bytes = generateRandomNonce();
+    DEROctetString nonce = new DEROctetString(bytes);
     boolean critical = false;
     return new Extension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, critical, nonce);
+  }
+
+  private byte[] generateRandomNonce() {
+    SecureRandom random = new SecureRandom();
+    byte[] nonceBytes = new byte[20];
+    random.nextBytes(nonceBytes);
+    return nonceBytes;
   }
 }
