@@ -35,7 +35,7 @@ public class PKCS11Signer implements SignatureToken {
    * @param password password
    */
   public PKCS11Signer(char[] password) {
-    Configuration configuration = new Configuration();
+    Configuration configuration = Configuration.getInstance();
     signatureTokenConnection = new Pkcs11SignatureToken(configuration.getPKCS11ModulePath(), password, 2);
     keyEntry = signatureTokenConnection.getKeys().get(0);
   }

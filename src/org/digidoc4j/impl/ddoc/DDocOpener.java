@@ -32,7 +32,7 @@ public class DDocOpener implements Serializable {
   private String temporaryDirectoryPath;
 
   public DDocContainer open(String path) {
-    return open(path, new Configuration());
+    return open(path, Configuration.getInstance());
   }
 
   public DDocContainer open(String fileName, Configuration configuration) {

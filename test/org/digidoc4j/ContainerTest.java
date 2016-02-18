@@ -466,7 +466,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   public void throwsErrorWhenCreatesDDOCContainerWithConfiguration() throws Exception {
     Container container = ContainerBuilder.
         aContainer(DDOC_CONTAINER_TYPE).
-        withConfiguration(new Configuration()).
+        withConfiguration(Configuration.getInstance()).
         build();
 
     assertEquals("DDOC", container.getType());
@@ -615,7 +615,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   public void constructorWithConfigurationParameter() throws Exception {
     Container container = ContainerBuilder.
         aContainer().
-        withConfiguration(new Configuration()).
+        withConfiguration(Configuration.getInstance()).
         build();
     assertEquals("BDOC", container.getType());
   }

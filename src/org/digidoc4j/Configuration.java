@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
+import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.impl.bdoc.TslLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,6 +161,10 @@ public class Configuration implements Serializable {
   public enum Mode {
     TEST,
     PROD
+  }
+
+  public static Configuration getInstance() {
+    return ConfigurationSingeltonHolder.getInstance();
   }
 
   private void initDefaultValues() {

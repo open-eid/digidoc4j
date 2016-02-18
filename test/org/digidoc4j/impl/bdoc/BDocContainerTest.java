@@ -75,7 +75,6 @@ import org.digidoc4j.testutils.TestSigningHelper;
 import org.digidoc4j.utils.Helper;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -559,7 +558,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testLargeFileSigning() throws Exception {
-    BDocContainer container = (BDocContainer) createEmptyBDocContainer();
+    BDocContainer container = (BDocContainer) ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        withConfiguration(new Configuration(Configuration.Mode.TEST)).
+        build();
     container.getConfiguration().enableBigFilesSupport(10);
     String path = createLargeFile((container.getConfiguration().getMaxDataFileCachedInBytes()) + 100);
     container.addDataFile(path, "text/plain");
@@ -568,8 +570,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void openLargeFileFromStream() throws FileNotFoundException {
-
-    BDocContainer container = (BDocContainer) createEmptyBDocContainer();
+    BDocContainer container = (BDocContainer) ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        withConfiguration(new Configuration(Configuration.Mode.TEST)).
+        build();
     container.getConfiguration().enableBigFilesSupport(0);
 
     String path = createLargeFile((container.getConfiguration().getMaxDataFileCachedInBytes()) + 100);
@@ -587,7 +591,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void openAddFileFromStream() throws IOException {
-    BDocContainer container = (BDocContainer) createEmptyBDocContainer();
+    BDocContainer container = (BDocContainer) ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        withConfiguration(new Configuration(Configuration.Mode.TEST)).
+        build();
     container.getConfiguration().enableBigFilesSupport(0);
 
     String path = createLargeFile((container.getConfiguration().getMaxDataFileCachedInBytes()) + 100);

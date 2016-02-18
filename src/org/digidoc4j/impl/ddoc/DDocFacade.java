@@ -148,7 +148,7 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
 
   private void intConfiguration() {
     logger.debug("");
-    configuration = new Configuration();
+    configuration = Configuration.getInstance();
     initConfigManager(configuration);
   }
 

@@ -37,7 +37,6 @@ import static org.digidoc4j.Configuration.*;
 import static org.digidoc4j.Configuration.Mode.PROD;
 import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
-import static org.digidoc4j.testutils.TestDataBuilder.createEmptyBDocContainer;
 import static org.hamcrest.Matchers.endsWith;
 import static org.junit.Assert.*;
 
@@ -227,7 +226,10 @@ public class ConfigurationTest {
 
   @Test
   public void testLoadConfiguration() throws Exception {
-    BDocContainer container = (BDocContainer) createEmptyBDocContainer();
+    BDocContainer container = (BDocContainer) ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        withConfiguration(new Configuration(Configuration.Mode.TEST)).
+        build();
     assertFalse(container.getConfiguration().isBigFilesSupportEnabled());
     container.getConfiguration().loadConfiguration("testFiles/digidoc_test_conf.yaml");
     assertTrue(container.getConfiguration().isBigFilesSupportEnabled());

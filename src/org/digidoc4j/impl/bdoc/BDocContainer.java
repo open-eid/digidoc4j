@@ -17,7 +17,6 @@ import java.io.OutputStream;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -55,7 +54,7 @@ public abstract class BDocContainer implements Container {
 
   public BDocContainer() {
     logger.debug("Instantiating BDoc container");
-    configuration = new Configuration();
+    configuration = Configuration.getInstance();
   }
 
   public BDocContainer(Configuration configuration) {

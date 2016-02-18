@@ -55,6 +55,7 @@ public class BDocContainerValidator implements Serializable {
   }
 
   public ValidationResult validate(List<Signature> signatures) {
+    logger.debug("Validating container");
     signatureVerificationErrors = new HashMap<>();
     validationReports = new ArrayList<>();
     for (Signature signature : signatures) {
@@ -64,6 +65,7 @@ public class BDocContainerValidator implements Serializable {
     reportBuilder = new BDocValidationReportBuilder(validationReports, manifestErrors, signatureVerificationErrors);
 
     BDocValidationResult result = createValidationResult();
+    logger.info("Is container valid: " + result.isValid());
     return result;
   }
 
