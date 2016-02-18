@@ -723,17 +723,29 @@ public class Configuration implements Serializable {
       logger.debug("Using TSL cached copy");
       return tslCertificateSource;
     }
-    String tslLocation = getTslLocation();
-    File tslKeystoreFile = getTslKeystoreFile();
-    String tslKeyStorePassword = getTslKeyStorePassword();
-    boolean checkSignature = mode != Mode.TEST;
-
-    TslLoader tslLoader = new TslLoader(tslLocation, tslKeystoreFile, tslKeyStorePassword);
-    tslLoader.setCheckSignature(checkSignature);
-    tslLoader.setConnectionTimeout(getConnectionTimeout());
-    tslLoader.setSocketTimeout(getSocketTimeout());
-    tslCertificateSource = tslLoader.createTSL();
+    loadTsl();
     return tslCertificateSource;
+  }
+
+  /**
+   * Loading TSL in a single thread in a synchronized block to avoid duplicate TSL loading by multiple threads.
+   */
+  private synchronized void loadTsl() {
+    //Using double-checked locking to avoid other threads to start loading TSL
+    if(tslCertificateSource == null) {
+      logger.debug("Loading TSL in a synchronized block");
+      String tslLocation = getTslLocation();
+      File tslKeystoreFile = getTslKeystoreFile();
+      String tslKeyStorePassword = getTslKeyStorePassword();
+      boolean checkSignature = mode != Mode.TEST;
+
+      TslLoader tslLoader = new TslLoader(tslLocation, tslKeystoreFile, tslKeyStorePassword);
+      tslLoader.setCheckSignature(checkSignature);
+      tslLoader.setConnectionTimeout(getConnectionTimeout());
+      tslLoader.setSocketTimeout(getSocketTimeout());
+      tslCertificateSource = tslLoader.createTSL();
+      logger.debug("Finished loading TSL in a synchronized block");
+    }
   }
 
   private File getTslKeystoreFile() throws TslKeyStoreNotFoundException{

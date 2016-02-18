@@ -42,7 +42,10 @@ public class ConfigManagerInitializer implements Serializable{
     return configManagerInitialized;
   }
 
-  void initializeJDigidocConfigManager(Configuration configuration) {
-    forceInitConfigManager(configuration);
+  synchronized void initializeJDigidocConfigManager(Configuration configuration) {
+    //Using double-checked locking to avoid other threads to start initialization
+    if(!configManagerInitialized) {
+      forceInitConfigManager(configuration);
+    }
   }
 }
