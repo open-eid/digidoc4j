@@ -27,12 +27,14 @@ DIGIDOC_CAS:
       - jar://certs/KLASS3-SK.crt
       - jar://certs/EECCRCA.crt
       - jar://certs/ESTEID-SK 2011.crt
+      - jar://certs/ESTEID-SK 2015.crt
       - jar://certs/EID-SK 2011.crt
       - jar://certs/KLASS3-SK 2010.crt
       - jar://certs/KLASS3-SK 2010 EECCRCA.crt
       - jar://certs/TEST-SK.crt
       - jar://certs/TEST EECCRCA.crt
       - jar://certs/TEST ESTEID-SK 2011.crt
+      - jar://certs/TEST ESTEID-SK 2015.crt
       - jar://certs/TEST EID-SK 2011.crt
       - jar://certs/TEST KLASS3 2010.crt
       - jar://certs/TEST Juur-SK.crt
@@ -47,6 +49,13 @@ DIGIDOC_CAS:
       - OCSP:
         CA_CN: TEST of ESTEID-SK 2011
         CA_CERT: jar://certs/TEST ESTEID-SK 2011.crt
+        CN: TEST of SK OCSP RESPONDER 2011
+        CERTS:
+         - jar://certs/TEST SK OCSP 2011.crt
+        URL: http://demo.sk.ee/ocsp
+      - OCSP:
+        CA_CN: TEST of ESTEID-SK 2015
+        CA_CERT: jar://certs/TEST ESTEID-SK 2015.crt
         CN: TEST of SK OCSP RESPONDER 2011
         CERTS:
          - jar://certs/TEST SK OCSP 2011.crt
