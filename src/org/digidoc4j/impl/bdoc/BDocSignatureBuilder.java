@@ -20,6 +20,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -53,7 +54,8 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
 
   private final static Logger logger = LoggerFactory.getLogger(BDocSignatureBuilder.class);
   private boolean isTimeMark = false;
-  private XadesSigningDssFacade facade;
+  private transient XadesSigningDssFacade facade;
+  private Date signingDate;
 
   @Override
   protected Signature invokeSigningProcess() {
@@ -74,21 +76,11 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   @Override
   public Signature finalizeSignature(byte[] signatureValueBytes) {
     logger.info("Finalizing BDoc signature");
-    Configuration configuration = getConfiguration();
-    facade.setCertificateSource(configuration.getTSL());
-    SKOnlineOCSPSource ocspSource = getOcspSource(signatureValueBytes);
-    facade.setOcspSource(ocspSource);
+    populateParametersForFinalizingSignature(signatureValueBytes);
     Collection<DataFile> dataFilesToSign = getDataFiles();
     validateDataFilesToSign(dataFilesToSign);
     DSSDocument signedDocument = facade.signDocument(signatureValueBytes, dataFilesToSign);
     return createSignature(signedDocument);
-  }
-
-  private void initSigningFacade() {
-    if(facade == null) {
-      Configuration configuration = getConfiguration();
-      facade = new XadesSigningDssFacade(configuration.getTspSource());
-    }
   }
 
   private Signature createSignature(DSSDocument signedDocument) {
@@ -108,11 +100,11 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     logger.info("Getting data to sign");
     initSigningFacade();
     populateSignatureParameters();
-    X509Certificate signingCert = signatureParameters.getSigningCertificate();
-    facade.setSigningCertificate(signingCert);
     Collection<DataFile> dataFilesToSign = getDataFiles();
     validateDataFilesToSign(dataFilesToSign);
     byte[] dataToSign = facade.getDataToSign(dataFilesToSign);
+    String signatureId = facade.getSignatureId();
+    signatureParameters.setSignatureId(signatureId);
     return dataToSign;
   }
 
@@ -125,6 +117,26 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     if (isTimeMark) {
       setSignaturePolicy();
     }
+    setSigningCertificate();
+    setSigningDate();
+  }
+
+  private void populateParametersForFinalizingSignature(byte[] signatureValueBytes) {
+    if (facade == null) {
+      initSigningFacade();
+      populateSignatureParameters();
+    }
+    Configuration configuration = getConfiguration();
+    facade.setCertificateSource(configuration.getTSL());
+    SKOnlineOCSPSource ocspSource = getOcspSource(signatureValueBytes);
+    facade.setOcspSource(ocspSource);
+  }
+
+  private void initSigningFacade() {
+    if (facade == null) {
+      Configuration configuration = getConfiguration();
+      facade = new XadesSigningDssFacade(configuration.getTspSource());
+    }
   }
 
   private byte[] calculateDigestToSign(byte[] dataToDigest) {
@@ -133,7 +145,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   private Configuration getConfiguration() {
-    return ((BDocContainer)container).getConfiguration();
+    return ((BDocContainer) container).getConfiguration();
   }
 
   private List<DataFile> getDataFiles() {
@@ -148,7 +160,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
 
     boolean isBesSignatureProfile = signatureParameters.getSignatureProfile() != null && SignatureProfile.B_BES == signatureParameters.getSignatureProfile();
     boolean isOcspResponseEmpty = xAdESSignature.getOCSPSource().getContainedOCSPResponses().isEmpty();
-    if(!isBesSignatureProfile && isOcspResponseEmpty) {
+    if (!isBesSignatureProfile && isOcspResponseEmpty) {
       logger.error("Signature does not contain OCSP response");
       throw new OCSPRequestFailedException();
     }
@@ -168,7 +180,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   private void setDigestAlgorithm() {
-    if(signatureParameters.getDigestAlgorithm() == null) {
+    if (signatureParameters.getDigestAlgorithm() == null) {
       signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
     }
     facade.setSignatureDigestAlgorithm(signatureParameters.getDigestAlgorithm());
@@ -181,7 +193,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   private void setSignatureProfile() {
-    if(signatureParameters.getSignatureProfile() != null) {
+    if (signatureParameters.getSignatureProfile() != null) {
       setSignatureProfile(signatureParameters.getSignatureProfile());
     }
   }
@@ -212,7 +224,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   private void setSignatureId() {
-    if(StringUtils.isNotBlank(signatureParameters.getSignatureId())) {
+    if (StringUtils.isNotBlank(signatureParameters.getSignatureId())) {
       facade.setSignatureId(signatureParameters.getSignatureId());
     }
   }
@@ -237,6 +249,19 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
       facade.setSignerLocation(signerLocation);
     }
     facade.setSignerRoles(signerRoles);
+  }
+
+  private void setSigningCertificate() {
+    X509Certificate signingCert = signatureParameters.getSigningCertificate();
+    facade.setSigningCertificate(signingCert);
+  }
+
+  private void setSigningDate() {
+    if (signingDate == null) {
+      signingDate = new Date();
+    }
+    facade.setSigningDate(signingDate);
+    logger.debug("Signing date is going to be " + signingDate);
   }
 
   private void validateDataFilesToSign(Collection<DataFile> dataFilesToSign) {

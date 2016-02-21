@@ -62,6 +62,7 @@ public class XadesSigningDssFacade {
     logger.debug("Getting data to sign from DSS");
     DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
     DSSDocument dssDocumentToSign = detachedContentCreator.getFirstDetachedContent();
+    logger.debug("Signature parameters: " + xAdESSignatureParameters.toString());
     ToBeSigned dataToSign = service.getDataToSign(dssDocumentToSign, xAdESSignatureParameters);
     logger.debug("Got data to sign from DSS");
     return dataToSign.getBytes();
@@ -72,6 +73,7 @@ public class XadesSigningDssFacade {
     SignatureValue dssSignatureValue = new SignatureValue(xAdESSignatureParameters.getSignatureAlgorithm(), signatureValue);
     DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
     DSSDocument dssDocument = detachedContentCreator.getFirstDetachedContent();
+    logger.debug("Signature parameters: " + xAdESSignatureParameters.toString());
     DSSDocument signedDocument = service.signDocument(dssDocument, xAdESSignatureParameters, dssSignatureValue);
     logger.debug("Finished signing document with DSS");
     return signedDocument;
@@ -127,7 +129,16 @@ public class XadesSigningDssFacade {
   }
 
   public void setSignatureId(String signatureId) {
+    logger.debug("Setting deterministic id: " + signatureId);
     xAdESSignatureParameters.setDeterministicId(signatureId);
+  }
+
+  public String getSignatureId() {
+    return xAdESSignatureParameters.getDeterministicId();
+  }
+
+  public void setSigningDate(Date signingDate) {
+    xAdESSignatureParameters.getBLevelParams().setSigningDate(signingDate);
   }
 
   private void initDefaultXadesParameters() {

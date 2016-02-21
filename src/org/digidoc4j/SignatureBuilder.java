@@ -14,6 +14,7 @@ import static java.util.Arrays.asList;
 import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 
+import java.io.Serializable;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +55,7 @@ import org.slf4j.LoggerFactory;
  *   must be provided with {@link SignatureBuilder#withSigningCertificate(X509Certificate)}.
  * </p>
  */
-public abstract class SignatureBuilder {
+public abstract class SignatureBuilder implements Serializable {
 
   private final static Logger logger = LoggerFactory.getLogger(SignatureBuilder.class);
   protected SignatureParameters signatureParameters = new SignatureParameters();

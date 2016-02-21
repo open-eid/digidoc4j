@@ -60,6 +60,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
 
   @Test
   public void twoStepSigningWithSerialization() throws IOException, ClassNotFoundException {
+    String serializedDataToSignPath = testFolder.newFile().getPath();
     Container container = createEmptyBDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
     X509Certificate signerCert = getSigningCert();
@@ -69,6 +70,8 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
         buildDataToSign();
 
     serialize(container, serializedContainerPath);
+    serialize(dataToSign, serializedDataToSignPath);
+    dataToSign = deserializer(serializedDataToSignPath);
     byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDigestToSign(), dataToSign.getDigestAlgorithm());
 
     container = deserializer(serializedContainerPath);

@@ -20,7 +20,6 @@ import java.io.ObjectOutputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
-import java.security.Signature;
 import java.security.cert.X509Certificate;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -28,6 +27,7 @@ import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.DataToSign;
 import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -53,18 +53,22 @@ public class AsyncSigning {
         withSigningCertificate(signerCert).
         buildDataToSign();
 
-    serialize(container);
+    serialize(container, "container.bin");
+    serialize(dataToSign, "dataToSign.bin");
 
     //getSignature
-    byte[] signature = getExternalSignature(signerCert, dataToSign);
+    byte[] signatureValue = getExternalSignature(signerCert, dataToSign);
 
-    Container deserializedContainer = deserializer();
+    Container deserializedContainer = deserializer("container.bin");
+    DataToSign deserializedDataToSign = deserializer("dataToSign.bin");
 
-    deserializedContainer.signRaw(signature);
+    Signature signature = deserializedDataToSign.finalize(signatureValue);
+    deserializedContainer.addSignature(signature);
     deserializedContainer.saveAsFile("deserializedContainer.bdoc");
 
     //serialize container
-    serialize(deserializedContainer);
+    serialize(deserializedContainer, "container.bin");
+    serialize(deserializedDataToSign, "dataToSign.bin");
   }
 
   private static byte[] getExternalSignature(X509Certificate signerCert, DataToSign dataToSign) {
@@ -106,9 +110,9 @@ public class AsyncSigning {
     }
   }
 
-  private static void serialize(Container container) throws IOException {
+  private static <T> void serialize(T container, String path) throws IOException {
 
-    FileOutputStream fileOut = new FileOutputStream("container.bin");
+    FileOutputStream fileOut = new FileOutputStream(path);
     ObjectOutputStream out = new ObjectOutputStream(fileOut);
     out.writeObject(container);
     out.flush();
@@ -116,11 +120,11 @@ public class AsyncSigning {
     fileOut.close();
   }
 
-  private static Container deserializer() throws IOException, ClassNotFoundException {
-    FileInputStream fileIn = new FileInputStream("container.bin");
+  private static <T> T deserializer(String path) throws IOException, ClassNotFoundException {
+    FileInputStream fileIn = new FileInputStream(path);
     ObjectInputStream in = new ObjectInputStream(fileIn);
 
-    Container container = (Container) in.readObject();
+    T container = (T) in.readObject();
 
     in.close();
     fileIn.close();
@@ -144,7 +148,7 @@ public class AsyncSigning {
   @Deprecated
   public static byte[] encrypt(final String javaSignatureAlgorithm, final PrivateKey privateKey, final byte[] bytes) {
     try {
-      final Signature signature = Signature.getInstance(javaSignatureAlgorithm);
+      java.security.Signature signature = java.security.Signature.getInstance(javaSignatureAlgorithm);
       signature.initSign(privateKey);
       signature.update(bytes);
       final byte[] signatureValue = signature.sign();
