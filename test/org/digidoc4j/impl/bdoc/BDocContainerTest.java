@@ -297,6 +297,19 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void signPdfDataFile() throws Exception {
+    Container container = createContainerWithFile("testFiles/special-char-files/dds_acrobat.pdf", "application/pdf");
+    signContainer(container);
+    assertEquals(1, container.getDataFiles().size());
+    assertEquals(1, container.getSignatures().size());
+    String containerPath = testFolder.newFile("container.bdoc").getPath();
+    container.saveAsFile(containerPath);
+    container = open(containerPath);
+    assertEquals(1, container.getDataFiles().size());
+    assertTrue(container.validate().isValid());
+  }
+
+  @Test
   public void testAddSignaturesToExistingDocument() throws Exception {
     Container container = open("testFiles/asics_testing_two_signatures.bdoc");
     signContainer(container);
