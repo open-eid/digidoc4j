@@ -26,6 +26,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
@@ -160,7 +161,8 @@ public class AsicContainerParser {
   private void extractMimeType(ZipEntry entry) {
     try {
       InputStream zipFileInputStream = getZipEntryInputStream(entry);
-      DSSDocument document = new InMemoryDocument(zipFileInputStream);
+      BOMInputStream bomInputStream = new BOMInputStream(zipFileInputStream);
+      DSSDocument document = new InMemoryDocument(bomInputStream);
       mimeType = StringUtils.trim(IOUtils.toString(document.getBytes(), "UTF-8"));
       extractAsicEntry(entry, document);
     } catch (IOException e) {

@@ -448,6 +448,11 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     assertFalse(validateContainer("testFiles/23608-bdoc21-no-ocsp.bdoc", PROD_CONFIGURATION).isValid());
   }
 
+  @Test
+  public void validateContainerWithBomSymbolsInMimeType_shouldBeValid() throws Exception {
+    assertTrue(validateContainer("testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM.bdoc", PROD_CONFIGURATION).isValid());
+  }
+
   private void testSigningWithOCSPCheck(String unknownCert) {
     Container container = createEmptyBDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
