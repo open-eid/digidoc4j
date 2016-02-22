@@ -13,7 +13,10 @@ package org.digidoc4j.impl.bdoc.xades;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
+import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.RespID;
@@ -100,8 +103,8 @@ public class TimemarkSignature extends BesSignature {
   private X509Cert findOcspCertificate() {
     String ocspCN = getOCSPCommonName();
     for (CertificateToken cert : dssSignature.getCertPool().getCertificateTokens()) {
-      String value = getCN(new X500Name(cert.getSubjectX500Principal().getName()));
-      if (value.equals(ocspCN)) {
+      String certCn = getCN(new X500Name(cert.getSubjectX500Principal().getName()));
+      if (StringUtils.equals(certCn, ocspCN)) {
         return new X509Cert(cert.getCertificate());
       }
     }
@@ -117,7 +120,15 @@ public class TimemarkSignature extends BesSignature {
   }
 
   private String getCN(X500Name x500Name) {
-    String name = x500Name.getRDNs(new ASN1ObjectIdentifier("2.5.4.3"))[0].getTypesAndValues()[0].getValue().toString();
+    RDN[] rdNs = x500Name.getRDNs(new ASN1ObjectIdentifier("2.5.4.3"));
+    if (rdNs == null || rdNs.length == 0) {
+      return null;
+    }
+    AttributeTypeAndValue[] typesAndValues = rdNs[0].getTypesAndValues();
+    if (typesAndValues == null || typesAndValues.length == 0) {
+      return null;
+    }
+    String name = typesAndValues[0].getValue().toString();
     return name;
   }
 }
