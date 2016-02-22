@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifiest:manifest xmlns:manifiest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0">
+    <manifiest:file-entry manifiest:full-path="/" manifiest:media-type="application/vnd.etsi.asic-e+zip"/>
+    <manifiest:file-entry manifiest:full-path="datafile.txt" manifiest:media-type="text/plain"/>
+</manifiest:manifest>

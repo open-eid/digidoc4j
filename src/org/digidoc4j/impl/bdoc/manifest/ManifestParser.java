@@ -28,6 +28,7 @@ import eu.europa.esig.dss.DSSXMLUtils;
 public class ManifestParser implements Serializable {
 
   private static final Logger logger = LoggerFactory.getLogger(ManifestParser.class);
+  private static final String NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:manifest:1.0";
   private DSSDocument manifestFile;
   private Map<String, ManifestEntry> entries;
 
@@ -52,8 +53,8 @@ public class ManifestParser implements Serializable {
     Element root = loadManifestXml();
     Node firstChild = root.getFirstChild();
     while (firstChild != null) {
-      String nodeName = firstChild.getNodeName();
-      if ("manifest:file-entry".equals(nodeName)) {
+      String nodeName = firstChild.getLocalName();
+      if ("file-entry".equals(nodeName)) {
         addFileEntry(firstChild);
       }
       firstChild = firstChild.getNextSibling();
@@ -66,8 +67,8 @@ public class ManifestParser implements Serializable {
 
   private void addFileEntry(Node firstChild) {
     NamedNodeMap attributes = firstChild.getAttributes();
-    String filePath = attributes.getNamedItem("manifest:full-path").getTextContent();
-    String mimeType = attributes.getNamedItem("manifest:media-type").getTextContent();
+    String filePath = attributes.getNamedItemNS(NAMESPACE, "full-path").getTextContent();
+    String mimeType = attributes.getNamedItemNS(NAMESPACE, "media-type").getTextContent();
     if (!"/".equals(filePath)) {
       validateNotDuplicateFile(filePath);
       entries.put(filePath, new ManifestEntry(filePath, mimeType));

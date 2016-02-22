@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0">
+    <manifest:file-entry manifest:full-path="/" manifest:media-type="application/vnd.etsi.asic-e+zip"/>
+    <manifest:file-entry manifest:full-path="DigiDocService_spec_est.pdf" manifest:media-type="text/plain"/>
+    <manifest:file-entry manifest:full-path="sample_file.pdf" manifest:media-type="application/pdf"/>
+</manifest:manifest>
