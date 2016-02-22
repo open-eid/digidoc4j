@@ -186,7 +186,7 @@ public class ConfigurationTest {
   //@Ignore("RIA VPN")
   public void TSLIsLoadedAfterSettingNewTSLLocation() {
     Configuration configuration = new Configuration();
-    configuration.setTslLocation("file:test-tsl/trusted-test-mp.xml");
+    configuration.setTslLocation("https://demo.sk.ee/TSL/tl-mp-test-EE.xml");
     BDocContainer container = (BDocContainer) ContainerBuilder.
         aContainer(BDOC_CONTAINER_TYPE).
         withConfiguration(configuration).
@@ -243,15 +243,6 @@ public class ConfigurationTest {
     configuration.setTslLocation(tslLocation);
 
     assertEquals(tslLocation, configuration.getTslLocation());
-  }
-
-  @Test
-  public void getTSLLocationWhenFileDoesNotExistInDefaultLocation() {
-    Configuration configuration = new Configuration();
-    String tslFilePath = ("conf/tsl-location-test.xml");
-    configuration.setTslLocation("file:" + tslFilePath);
-
-    assertThat(configuration.getTslLocation(), endsWith(tslFilePath));
   }
 
   @Test
@@ -423,7 +414,7 @@ public class ConfigurationTest {
   public void defaultConstructorWithSetSystemProperty() throws Exception {
     System.setProperty("digidoc4j.mode", "TEST");
     Configuration configuration = new Configuration();
-    assertEquals("file:test-tsl/trusted-test-mp.xml", configuration.getTslLocation());
+    assertEquals("https://demo.sk.ee/TSL/tl-mp-test-EE.xml", configuration.getTslLocation());
   }
 
   @Test

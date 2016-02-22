@@ -108,6 +108,7 @@ public class TslLoader implements Serializable {
         dataLoader.setTimeoutSocket(socketTimeout);
       }
       dataLoader.setFileCacheDirectory(fileCacheDirectory);
+      logger.debug("Using file cache directory for storing TSL: " + fileCacheDirectory);
       return dataLoader;
     } else {
       return new CommonsDataLoader();
