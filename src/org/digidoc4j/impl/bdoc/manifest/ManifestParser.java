@@ -13,7 +13,6 @@ package org.digidoc4j.impl.bdoc.manifest;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.digidoc4j.exceptions.DuplicateDataFileException;
@@ -29,17 +28,11 @@ import eu.europa.esig.dss.DSSXMLUtils;
 public class ManifestParser implements Serializable {
 
   private static final Logger logger = LoggerFactory.getLogger(ManifestParser.class);
-  public static final String MANIFEST_PATH = "META-INF/manifest.xml";
   private DSSDocument manifestFile;
   private Map<String, ManifestEntry> entries;
 
   public ManifestParser(DSSDocument manifestFile) {
     this.manifestFile = manifestFile;
-  }
-
-  public static ManifestParser findAndOpenManifestFile(List<DSSDocument> detachedContents) {
-    DSSDocument manifestFile = findManifestFile(detachedContents);
-    return new ManifestParser(manifestFile);
   }
 
   public boolean containsManifestFile() {
@@ -87,14 +80,5 @@ public class ManifestParser implements Serializable {
       logger.error(digiDoc4JException.getMessage());
       throw digiDoc4JException;
     }
-  }
-
-  private static DSSDocument findManifestFile(List<DSSDocument> detachedContents) {
-    for (DSSDocument dssDocument : detachedContents) {
-      if (MANIFEST_PATH.equals(dssDocument.getName())) {
-        return dssDocument;
-      }
-    }
-    return null;
   }
 }

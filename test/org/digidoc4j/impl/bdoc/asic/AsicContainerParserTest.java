@@ -11,8 +11,10 @@
 package org.digidoc4j.impl.bdoc.asic;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.FileInputStream;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -67,6 +69,22 @@ public class AsicContainerParserTest {
     assertEquals("META-INF/signatures0.xml", result.getSignatures().get(0).getName());
     assertEquals("META-INF/signatures1.xml", result.getSignatures().get(1).getName());
     assertEquals(Integer.valueOf(1), result.getCurrentUsedSignatureFileIndex());
-    Assert.assertTrue(result.getManifestParser().containsManifestFile());
+    assertTrue(result.getManifestParser().containsManifestFile());
+    assertFirstAsicEntryIsMimeType(result);
+    assertContainsManifest(result);
+  }
+
+  private void assertFirstAsicEntryIsMimeType(AsicParseResult result) {
+    List<AsicEntry> asicEntries = result.getAsicEntries();
+    assertEquals("mimetype", asicEntries.get(0).getZipEntry().getName());
+  }
+
+  private void assertContainsManifest(AsicParseResult result) {
+    for(AsicEntry entry: result.getAsicEntries()) {
+      if(entry.getZipEntry().getName().equals("META-INF/manifest.xml")) {
+        return;
+      }
+    }
+    assertTrue("Parse result does not contain manifest.xml", false);
   }
 }

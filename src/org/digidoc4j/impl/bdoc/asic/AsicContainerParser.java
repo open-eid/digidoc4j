@@ -121,21 +121,20 @@ public class AsicContainerParser {
     if (entry == null) {
       return;
     }
-    parseManifestEntry(entry);
-  }
-
-  private void parseManifestEntry(ZipEntry entry) {
-    logger.debug("Parsing manifest");
     try {
       InputStream manifestStream = getZipEntryInputStream(entry);
       InMemoryDocument manifestFile = new InMemoryDocument(IOUtils.toByteArray(manifestStream));
-      manifestParser = new ManifestParser(manifestFile);
-      manifestFileItems = manifestParser.getManifestFileItems();
-      extractAsicEntry(entry, manifestFile);
+      parseManifestEntry(manifestFile);
     } catch (IOException e) {
       logger.error("Error parsing manifest file: " + e.getMessage());
       throw new TechnicalException("Error parsing manifest file", e);
     }
+  }
+
+  private void parseManifestEntry(DSSDocument manifestFile) {
+    logger.debug("Parsing manifest");
+    manifestParser = new ManifestParser(manifestFile);
+    manifestFileItems = manifestParser.getManifestFileItems();
   }
 
   private void parseEntry(ZipEntry entry) {
@@ -144,8 +143,9 @@ public class AsicContainerParser {
     if (isMimeType(entryName)) {
       extractMimeType(entry);
     } else if (isManifest(entryName)) {
+      AsicEntry asicEntry = extractAsicEntry(entry);
       if (!isZipFile()) {
-        parseManifestEntry(entry);
+        parseManifestEntry(asicEntry.getContent());
       }
     } else if (isSignaturesFile(entryName)) {
       determineCurrentSignatureFileIndex(entryName);
@@ -197,10 +197,10 @@ public class AsicContainerParser {
     return new StreamDocument(zipFileInputStream, fileName, mimeTypeCode);
   }
 
-  private void extractAsicEntry(ZipEntry entry) {
+  private AsicEntry extractAsicEntry(ZipEntry entry) {
     logger.debug("Extracting asic entry");
     DSSDocument document = extractStreamDocument(entry);
-    extractAsicEntry(entry, document);
+    return extractAsicEntry(entry, document);
   }
 
   private AsicEntry extractAsicEntry(ZipEntry zipEntry, DSSDocument document) {

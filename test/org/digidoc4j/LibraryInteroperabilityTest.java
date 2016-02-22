@@ -63,7 +63,7 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
     }
 
     @Test
-    public void verifyAddingSignatureToJDigiDocContainer() {
+    public void verifyAddingSignatureToJDigiDocContainer() throws Exception {
         Container container = ContainerBuilder.
             aContainer(BDOC_CONTAINER_TYPE).
             fromExistingFile("testFiles/DigiDocService_spec_est.pdf-TM-j.bdoc").
@@ -74,6 +74,7 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
         container.saveAsFile(tempFile.getPath());
         container = TestDataBuilder.open(tempFile.getPath());
         validateContainer(container);
+        validateContainerWithJDigiDoc(tempFile.getPath());
     }
 
     private void createSignedContainerWithDigiDoc4j(String containerFilePath) {
