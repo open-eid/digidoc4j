@@ -38,6 +38,7 @@ import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.InvalidTimestampException;
 import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
+import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.testutils.TSLHelper;
 import org.digidoc4j.testutils.TestSigningHelper;
@@ -433,6 +434,13 @@ public class ValidationTests extends DigiDoc4JTestHelper {
         build();
     ValidationResult result = container.validate();
     assertTrue(result.isValid());
+  }
+
+  @Test
+  public void signaturesWithCrlShouldBeInvalid() throws Exception {
+    ValidationResult validationResult = validateContainer("testFiles/invalid-containers/asic-with-crl-and-without-ocsp.asice", PROD_CONFIGURATION);
+    assertFalse(validationResult.isValid());
+    assertTrue(validationResult.getErrors().get(0) instanceof UntrustedRevocationSourceException);
   }
 
   @Test

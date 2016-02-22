@@ -34,6 +34,7 @@ import org.digidoc4j.exceptions.SignedPropertiesMissingException;
 import org.digidoc4j.exceptions.SignedWithExpiredCertificateException;
 import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.exceptions.TimestampAndOcspResponseTimeDeltaTooLargeException;
+import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
 import org.digidoc4j.impl.bdoc.OcspNonceValidator;
@@ -103,6 +104,7 @@ public class XadesSignatureValidator implements Serializable {
     addSigningTimeErrors();
     addCertificateExpirationError();
     addOcspNonceErrors();
+    addRevocationErrors();
   }
 
   private void addPolicyValidationErrors() {
@@ -288,6 +290,23 @@ public class XadesSignatureValidator implements Serializable {
     if(!new OcspNonceValidator(xAdESSignature).isValid()) {
       logger.error("OCSP nonce is invalid");
       validationErrors.add(new InvalidOcspNonceException());
+    }
+  }
+
+  private void addRevocationErrors() {
+    if(signature.getProfile() == B_BES) {
+      return;
+    }
+    DiagnosticData diagnosticData = validationReport.getDiagnosticData();
+    if (diagnosticData == null) {
+      return;
+    }
+    String signingCertificateId = diagnosticData.getSigningCertificateId();
+    String certificateRevocationSource = diagnosticData.getCertificateRevocationSource(signingCertificateId);
+    logger.debug("Revocation source is " + certificateRevocationSource);
+    if(StringUtils.equalsIgnoreCase("CRLToken", certificateRevocationSource)) {
+      logger.error("Signing certificate revocation source is CRL instead of OCSP");
+      validationErrors.add(new UntrustedRevocationSourceException());
     }
   }
 
