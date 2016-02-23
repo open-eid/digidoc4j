@@ -444,6 +444,11 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void validateBDoc_withWrongMimeType_shouldBeValid() throws Exception {
+    assertTrue(validateContainer("testFiles/valid-containers/INC166120_wrong_mime_slash.bdoc", PROD_CONFIGURATION).isValid());
+  }
+
+  @Test
   public void bDoc_withoutOcspResponse_shouldBeInvalid() throws Exception {
     assertFalse(validateContainer("testFiles/23608-bdoc21-no-ocsp.bdoc", PROD_CONFIGURATION).isValid());
   }

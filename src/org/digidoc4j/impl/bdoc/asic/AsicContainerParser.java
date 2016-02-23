@@ -195,8 +195,14 @@ public class AsicContainerParser {
     InputStream zipFileInputStream = getZipEntryInputStream(entry);
     String fileName = entry.getName();
     String mimeType = getDataFileMimeType(fileName);
+    mimeType = fixMimeTypeSlash(mimeType);
     MimeType mimeTypeCode = MimeType.fromMimeTypeString(mimeType);
     return new StreamDocument(zipFileInputStream, fileName, mimeTypeCode);
+  }
+
+  private String fixMimeTypeSlash(String mimeType) {
+    mimeType = mimeType.replaceAll("\\\\", "/");
+    return mimeType;
   }
 
   private AsicEntry extractAsicEntry(ZipEntry entry) {
