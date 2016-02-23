@@ -15,4 +15,8 @@ public class InvalidDataFileException extends DigiDoc4JException {
   public InvalidDataFileException(String message) {
     super(message);
   }
+
+  public InvalidDataFileException(Throwable e) {
+    super(e);
+  }
 }

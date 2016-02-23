@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,7 @@ public class DataFile implements Serializable {
       document.setMimeType(getMimeType(mimeType));
     } catch (Exception e) {
       logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
+      throw new InvalidDataFileException(e);
     }
   }
 
@@ -90,7 +91,7 @@ public class DataFile implements Serializable {
       document = new StreamDocument(stream, fileName, getMimeType(mimeType));
     } catch (Exception e) {
       logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
+      throw new InvalidDataFileException(e);
     }
   }
 
@@ -106,7 +107,7 @@ public class DataFile implements Serializable {
       return mimeTypeCode;
     } catch (DSSException e) {
       logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
+      throw new InvalidDataFileException(e);
     }
   }
 

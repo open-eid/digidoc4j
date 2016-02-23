@@ -149,11 +149,20 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
   }
 
   @Test(expected = InvalidDataFileException.class)
-  public void buildContainer_withInvalidMimeType_shouldThrowException() throws Exception {
+  public void buildContainer_withNullMimeType_shouldThrowException() throws Exception {
     String mimeType = null;
     ContainerBuilder.
         aContainer().
         withDataFile("testFile.txt", mimeType).
+        build();
+  }
+
+  @Test(expected = InvalidDataFileException.class)
+  public void buildContainer_withInvalidMimeType_shouldThrowException() throws Exception {
+    String mimeType = "application\\rtf";
+    ContainerBuilder.
+        aContainer().
+        withDataFile("testFiles/test.txt", mimeType).
         build();
   }
 
