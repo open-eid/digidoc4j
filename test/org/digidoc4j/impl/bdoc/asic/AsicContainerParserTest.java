@@ -53,13 +53,13 @@ public class AsicContainerParserTest {
 
   @Test
   public void parseBdocContainerStream() throws Exception {
-    AsicContainerParser parser = new AsicContainerParser(new FileInputStream("testFiles/two_signatures.bdoc"));
+    AsicContainerParser parser = new AsicStreamContainerParser(new FileInputStream("testFiles/two_signatures.bdoc"));
     AsicParseResult result = parser.read();
     assertParseResultValid(result);
   }
 
   private AsicParseResult parseContainer(String path) {
-    AsicContainerParser parser = new AsicContainerParser(path);
+    AsicContainerParser parser = new AsicFileContainerParser(path);
     AsicParseResult result = parser.read();
     return result;
   }
