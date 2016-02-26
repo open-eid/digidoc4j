@@ -36,10 +36,18 @@ import eu.europa.esig.dss.client.http.Protocol;
 
 /**
  * Possibility to create custom configurations for {@link Container} implementations.
+ * <p>
+ * It is possible to get the default Configuration object used in all containers by using
+ * {@link Configuration#getInstance()}. This will return a singelton Configuration object used by default
+ * if no configuration is provided.
+ * </p>
  * <p/>
  * You can specify the configuration mode, either {@link Configuration.Mode#TEST} or {@link Configuration.Mode#PROD}
  * configuration. Default is {@link Configuration.Mode#PROD}.
  * <p/>
+ * <p>
+ * It is a good idea to use only a single configuration object for all the containers so the operation times would be faster.
+ * </p>
  * It is also possible to set the mode using the System property. Setting the property "digidoc4j.mode" to "TEST" forces
  * the default mode to {@link Configuration.Mode#TEST} mode
  * <p/>
@@ -163,6 +171,14 @@ public class Configuration implements Serializable {
     PROD
   }
 
+  /**
+   * Getting the default Configuration object. <br/>
+   *
+   * The default configuration object is a singelton, meaning that all the containers will use the same configuration object.
+   * It is a good idea to use only a single configuration object for all the containers so the operation times would be faster.
+   *
+   * @return default configuration.
+   */
   public static Configuration getInstance() {
     return ConfigurationSingeltonHolder.getInstance();
   }
