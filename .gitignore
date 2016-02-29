@@ -1,0 +1,9 @@
+bin
+build
+coverage
+dist
+javadoc
+junit_report
+lib
+out
+packaging_jar
