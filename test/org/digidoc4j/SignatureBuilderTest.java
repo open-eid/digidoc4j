@@ -28,6 +28,7 @@ import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TestContainer;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.testutils.TestSigningHelper;
+import org.digidoc4j.utils.TokenAlgorithmSupport;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -213,6 +214,26 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
         withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA).
         invokeSigning();
     assertTrue(signature.validateSignature().isValid());
+  }
+
+  @Test
+  public void signWithDeterminedSignatureDigestAlgorithm() throws Exception {
+    Container container = TestDataBuilder.createContainerWithFile(testFolder);
+
+    X509Certificate certificate = testSignatureToken.getCertificate();
+    DigestAlgorithm digestAlgorithm = TokenAlgorithmSupport.determineSignatureDigestAlgorithm(certificate);
+    DataToSign dataToSign = SignatureBuilder.
+        aSignature(container).
+        withSignatureDigestAlgorithm(digestAlgorithm).
+        withSigningCertificate(certificate).
+        buildDataToSign();
+
+    SignatureParameters signatureParameters = dataToSign.getSignatureParameters();
+    assertEquals(DigestAlgorithm.SHA256, signatureParameters.getDigestAlgorithm());
+
+    Signature signature = TestDataBuilder.makeSignature(container, dataToSign);
+    assertEquals(DigestAlgorithm.SHA256.toString(), signature.getSignatureMethod());
+    assertTrue(container.validate().isValid());
   }
 
   @Test(expected = NotSupportedException.class)
