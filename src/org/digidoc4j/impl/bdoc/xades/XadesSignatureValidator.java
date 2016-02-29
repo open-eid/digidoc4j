@@ -11,18 +11,14 @@
 package org.digidoc4j.impl.bdoc.xades;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.digidoc4j.SignatureProfile.B_BES;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.bouncycastle.cert.ocsp.BasicOCSPResp;
-import org.digidoc4j.Configuration;
 import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.CertificateRevokedException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -31,22 +27,15 @@ import org.digidoc4j.exceptions.InvalidTimestampException;
 import org.digidoc4j.exceptions.MiltipleSignedPropertiesException;
 import org.digidoc4j.exceptions.PolicyUrlMissingException;
 import org.digidoc4j.exceptions.SignedPropertiesMissingException;
-import org.digidoc4j.exceptions.SignedWithExpiredCertificateException;
-import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
-import org.digidoc4j.exceptions.TimestampAndOcspResponseTimeDeltaTooLargeException;
-import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
 import org.digidoc4j.impl.bdoc.OcspNonceValidator;
-import org.digidoc4j.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 import eu.europa.esig.dss.DSSXMLUtils;
-import eu.europa.esig.dss.SignatureLevel;
 import eu.europa.esig.dss.XPathQueryHolder;
-import eu.europa.esig.dss.validation.TimestampToken;
 import eu.europa.esig.dss.validation.policy.rules.Indication;
 import eu.europa.esig.dss.validation.policy.rules.MessageTag;
 import eu.europa.esig.dss.validation.policy.rules.SubIndication;
@@ -54,7 +43,6 @@ import eu.europa.esig.dss.validation.report.Conclusion;
 import eu.europa.esig.dss.validation.report.DiagnosticData;
 import eu.europa.esig.dss.validation.report.Reports;
 import eu.europa.esig.dss.validation.report.SimpleReport;
-import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.x509.SignaturePolicy;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
@@ -70,16 +58,11 @@ public class XadesSignatureValidator implements Serializable {
   private List<DigiDoc4JException> validationErrors = new ArrayList<>();
   private List<DigiDoc4JException> validationWarnings = new ArrayList<>();
   private String signatureId;
-  private Configuration configuration;
-
   private XadesValidationReportGenerator reportGenerator;
-  private XadesSignature signature;
 
-  public XadesSignatureValidator(XadesValidationReportGenerator reportGenerator, XAdESSignature xAdESSignature, XadesSignature signature, Configuration configuration) {
+  public XadesSignatureValidator(XadesValidationReportGenerator reportGenerator, XadesSignature signature) {
     this.reportGenerator = reportGenerator;
-    this.xAdESSignature = xAdESSignature;
-    this.configuration = configuration;
-    this.signature = signature;
+    xAdESSignature = signature.getDssSignature();
     signatureId = xAdESSignature.getId();
   }
 
@@ -95,16 +78,13 @@ public class XadesSignatureValidator implements Serializable {
     return reportGenerator.openValidationReport();
   }
 
-  private void populateValidationErrors() {
+  protected void populateValidationErrors() {
     addPolicyValidationErrors();
     addSignedPropertiesReferenceValidationErrors();
     addReportedErrors();
     addReportedWarnings();
     addTimestampErrors();
-    addSigningTimeErrors();
-    addCertificateExpirationError();
     addOcspNonceErrors();
-    addRevocationErrors();
   }
 
   private void addPolicyValidationErrors() {
@@ -113,10 +93,10 @@ public class XadesSignatureValidator implements Serializable {
     if(policy != null) {
       String policyIdentifier = policy.getIdentifier().trim();
       if (!StringUtils.equals(TM_POLICY, policyIdentifier)) {
-        validationErrors.add(new WrongPolicyIdentifierException("Wrong policy identifier: " + policyIdentifier));
+        addValidationError(new WrongPolicyIdentifierException("Wrong policy identifier: " + policyIdentifier));
       } else {
         if (isBlank(policy.getUrl())) {
-          validationErrors.add(new PolicyUrlMissingException("Policy url is missing for identifier: " + policyIdentifier));
+          addValidationError(new PolicyUrlMissingException("Policy url is missing for identifier: " + policyIdentifier));
         }
         addPolicyIdentifierQualifierValidationErrors();
       }
@@ -131,7 +111,7 @@ public class XadesSignatureValidator implements Serializable {
     Element identifier = DSSXMLUtils.getElement(element, "./xades:SignaturePolicyId/xades:SigPolicyId/xades:Identifier");
     String qualifier = identifier.getAttribute("Qualifier");
     if (!StringUtils.equals(OIDAS_URN, qualifier)) {
-      validationErrors.add(new WrongPolicyIdentifierQualifierException("Wrong policy identifier qualifier: " + qualifier));
+      addValidationError(new WrongPolicyIdentifierQualifierException("Wrong policy identifier qualifier: " + qualifier));
     }
   }
 
@@ -141,11 +121,12 @@ public class XadesSignatureValidator implements Serializable {
     String signatureId = xAdESSignature.getId();
     if(propertiesReferencesCount == 0) {
       logger.error("Signed properties are missing for signature " + signatureId);
-      validationErrors.add(new SignedPropertiesMissingException("Signed properties missing"));
+      addValidationError(new SignedPropertiesMissingException("Signed properties missing"));
     }
     if (propertiesReferencesCount > 1) {
       logger.error("Multiple signed properties for signature " + signatureId);
-      validationErrors.add(new MiltipleSignedPropertiesException("Multiple signed properties"));
+      DigiDoc4JException error = new MiltipleSignedPropertiesException("Multiple signed properties");
+      addValidationError(error);
     }
   }
 
@@ -168,9 +149,9 @@ public class XadesSignatureValidator implements Serializable {
         String errorMessage = error.toString();
         logger.error(errorMessage);
         if(errorMessage.contains(MessageTag.BBB_XCV_ISCR_ANS.getMessage()))
-          validationErrors.add(new CertificateRevokedException(error.toString()));
+          addValidationError(new CertificateRevokedException(error.toString()));
         else
-          validationErrors.add(new DigiDoc4JException(error.toString()));
+          addValidationError(new DigiDoc4JException(error.toString()));
       }
     }
   }
@@ -189,7 +170,7 @@ public class XadesSignatureValidator implements Serializable {
   private void addTimestampErrors() {
     if(!isTimestampValidForSignature()) {
       logger.error("Signature " + signatureId + " has an invalid timestamp");
-      validationErrors.add(new InvalidTimestampException());
+      addValidationError(new InvalidTimestampException());
     }
   }
 
@@ -237,76 +218,10 @@ public class XadesSignatureValidator implements Serializable {
     return simpleReport;
   }
 
-  private void addSigningTimeErrors() {
-    SignatureLevel signatureLevel = xAdESSignature.getDataFoundUpToLevel();
-    if(signatureLevel == SignatureLevel.XAdES_BASELINE_B) {
-      return;
-    }
-    List<TimestampToken> signatureTimestamps = xAdESSignature.getSignatureTimestamps();
-    if (signatureTimestamps == null || signatureTimestamps.isEmpty()) {
-      return;
-    }
-    Date timestamp = signatureTimestamps.get(0).getGenerationTime();
-    if(timestamp == null) {
-      return;
-    }
-    List<BasicOCSPResp> ocspResponses = xAdESSignature.getOCSPSource().getContainedOCSPResponses();
-    if (ocspResponses == null || ocspResponses.isEmpty()) {
-      return;
-    }
-    Date ocspTime = ocspResponses.get(0).getProducedAt();
-    if(ocspTime == null) {
-      return;
-    }
-    if(!DateUtils.isInRangeMinutes(timestamp, ocspTime, configuration.getRevocationAndTimestampDeltaInMinutes())) {
-      logger.error("The difference between the OCSP response production time and the signature time stamp is too large");
-      validationErrors.add(new TimestampAndOcspResponseTimeDeltaTooLargeException());
-    }
-    if (ocspTime.before(timestamp)) {
-      logger.error("OCSP response production time is before timestamp time");
-      validationErrors.add(new TimestampAfterOCSPResponseTimeException());
-    }
-  }
-
-  private void addCertificateExpirationError() {
-    if(signature.getProfile() == B_BES) {
-      return;
-    }
-    Date signingTime = signature.getTrustedSigningTime();
-    if(signingTime == null) {
-      return;
-    }
-    CertificateToken signerCert = xAdESSignature.getSigningCertificateToken();
-    Date notBefore = signerCert.getNotBefore();
-    Date notAfter = signerCert.getNotAfter();
-    boolean isCertValid = signingTime.compareTo(notBefore) >= 0 && signingTime.compareTo(notAfter) <= 0;
-    if(!isCertValid) {
-      logger.error("Signature has been created with expired certificate");
-      validationErrors.add(new SignedWithExpiredCertificateException());
-    }
-  }
-
   private void addOcspNonceErrors() {
     if(!new OcspNonceValidator(xAdESSignature).isValid()) {
       logger.error("OCSP nonce is invalid");
-      validationErrors.add(new InvalidOcspNonceException());
-    }
-  }
-
-  private void addRevocationErrors() {
-    if(signature.getProfile() == B_BES) {
-      return;
-    }
-    DiagnosticData diagnosticData = validationReport.getDiagnosticData();
-    if (diagnosticData == null) {
-      return;
-    }
-    String signingCertificateId = diagnosticData.getSigningCertificateId();
-    String certificateRevocationSource = diagnosticData.getCertificateRevocationSource(signingCertificateId);
-    logger.debug("Revocation source is " + certificateRevocationSource);
-    if(StringUtils.equalsIgnoreCase("CRLToken", certificateRevocationSource)) {
-      logger.error("Signing certificate revocation source is CRL instead of OCSP");
-      validationErrors.add(new UntrustedRevocationSourceException());
+      addValidationError(new InvalidOcspNonceException());
     }
   }
 
@@ -317,4 +232,11 @@ public class XadesSignatureValidator implements Serializable {
     return result;
   }
 
+  protected void addValidationError(DigiDoc4JException error) {
+    validationErrors.add(error);
+  }
+
+  protected Reports getValidationReport() {
+    return validationReport;
+  }
 }

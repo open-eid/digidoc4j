@@ -167,6 +167,15 @@
   The example above creates a configuration with test environment for using test OCSP, Time Stamp etc servers. The same can
   be achieved by setting the system property <code>digidoc4j.mode</code> with value <code>"TEST"</code>.
 </p>
+<p>
+  It is a good idea to use only a single configuration object for all the containers so the operation times would be faster.
+  For example, TSL is cached within a configuration object and TSL loading is a time consuming operation.
+</p>
+<p>
+  The default configuration object is a singelton, meaning that all the containers will use the same configuration object
+  (unless specified otherwise). The default singelton configuration object can be accessed by
+  {@link org.digidoc4j.Configuration} <strong>configuration</strong> = {@link org.digidoc4j.Configuration}.{@link org.digidoc4j.Configuration#getInstance() getInstance()};
+</p>
 <h3>Creating a container</h3>
 <p>
   <code>

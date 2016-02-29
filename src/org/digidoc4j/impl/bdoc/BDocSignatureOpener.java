@@ -19,6 +19,7 @@ import org.digidoc4j.impl.bdoc.xades.XadesSignatureParser;
 import org.digidoc4j.impl.bdoc.xades.XadesSignatureValidator;
 import org.digidoc4j.impl.bdoc.xades.XadesValidationDssFacade;
 import org.digidoc4j.impl.bdoc.xades.XadesValidationReportGenerator;
+import org.digidoc4j.impl.bdoc.xades.validation.XadesSignatureValidatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,9 +58,7 @@ public class BDocSignatureOpener {
 
   private BDocSignature createBDocSignature(XAdESSignature xAdESSignature, DSSDocument xadesDocument) {
     XadesSignature signature = xadesSignatureParser.parse(xAdESSignature);
-    XadesValidationReportGenerator xadesReportGenerator = new XadesValidationReportGenerator(xadesDocument, detachedContents, configuration);
-    xadesReportGenerator.setValidator(validator);
-    XadesSignatureValidator xadesValidator = new XadesSignatureValidator(xadesReportGenerator, xAdESSignature, signature, configuration);
+    XadesSignatureValidator xadesValidator = createSignatureValidator(xadesDocument, signature);
     return new BDocSignature(signature, xadesValidator);
   }
 
@@ -67,5 +66,16 @@ public class BDocSignatureOpener {
     validator = validationDssFacade.openXadesValidator(signature);
     List<AdvancedSignature> signatureList = validator.getSignatures();
     return signatureList;
+  }
+
+  private XadesSignatureValidator createSignatureValidator(DSSDocument xadesDocument, XadesSignature signature) {
+    XadesSignatureValidatorFactory validatorFactory = new XadesSignatureValidatorFactory();
+    validatorFactory.setValidator(validator);
+    validatorFactory.setConfiguration(configuration);
+    validatorFactory.setDetachedContents(detachedContents);
+    validatorFactory.setSignature(signature);
+    validatorFactory.setXadesDocument(xadesDocument);
+    XadesSignatureValidator xadesValidator = validatorFactory.create();
+    return xadesValidator;
   }
 }

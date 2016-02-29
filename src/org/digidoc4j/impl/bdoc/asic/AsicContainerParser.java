@@ -42,16 +42,14 @@ import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.MimeType;
 
-public class AsicContainerParser {
+public abstract class AsicContainerParser {
 
   private final static Logger logger = LoggerFactory.getLogger(AsicContainerParser.class);
   //Matches META-INF/*signatures*.xml where the last * is a number
   private static final String SIGNATURES_FILE_REGEX = "META-INF/(.*)signatures(\\d*).xml";
   private static final Pattern SIGNATURE_FILE_ENDING_PATTERN = Pattern.compile("(\\d+).xml");
-  private static final String MANIFEST = "META-INF/manifest.xml";
+  public static final String MANIFEST = "META-INF/manifest.xml";
   private AsicParseResult parseResult = new AsicParseResult();
-  private ZipFile zipFile;
-  private ZipInputStream zipInputStream;
   private List<DSSDocument> signatures = new ArrayList<>();
   private LinkedHashMap<String, DataFile> dataFiles = new LinkedHashMap<>();
   private List<DSSDocument> detachedContents = new ArrayList<>();
@@ -62,92 +60,35 @@ public class AsicContainerParser {
   private Map<String, ManifestEntry> manifestFileItems = Collections.emptyMap();
   private ManifestParser manifestParser;
 
-  public AsicContainerParser(String containerPath) {
-    try {
-      zipFile = new ZipFile(containerPath);
-    } catch (IOException e) {
-      logger.error("Error reading container from " + containerPath + " - " + e.getMessage());
-      throw new RuntimeException("Error reading container from " + containerPath);
-    }
-  }
-
-  public AsicContainerParser(InputStream inputStream) {
-    zipInputStream = new ZipInputStream(inputStream);
+  protected AsicContainerParser() {
   }
 
   public AsicParseResult read() {
-    if (isZipFile()) {
-      parseZipFile();
-    } else {
-      parseZipStream();
-      updateDataFilesMimeType();
-    }
+    parseContainer();
     validateParseResult();
     populateParseResult();
     return parseResult;
   }
 
-  private void parseZipFile() {
-    logger.debug("Parsing zip file");
-    try {
-      zipFileComment = zipFile.getComment();
-      parseZipFileManifest();
-      Enumeration<? extends ZipEntry> entries = zipFile.entries();
-      while (entries.hasMoreElements()) {
-        ZipEntry zipEntry = entries.nextElement();
-        parseEntry(zipEntry);
-      }
-    } finally {
-      IOUtils.closeQuietly(zipFile);
-    }
-  }
+  protected abstract void parseContainer();
 
-  private void parseZipStream() {
-    logger.debug("Parsing zip stream");
-    try {
-      ZipEntry entry;
-      while ((entry = zipInputStream.getNextEntry()) != null) {
-        parseEntry(entry);
-      }
-    } catch (IOException e) {
-      logger.error("Error reading bdoc container stream: " + e.getMessage());
-      throw new TechnicalException("Error reading bdoc container stream: ", e);
-    } finally {
-      IOUtils.closeQuietly(zipInputStream);
-    }
-  }
+  protected abstract void extractManifest(ZipEntry entry);
 
-  private void parseZipFileManifest() {
-    ZipEntry entry = zipFile.getEntry(MANIFEST);
-    if (entry == null) {
-      return;
-    }
-    try {
-      InputStream manifestStream = getZipEntryInputStream(entry);
-      InMemoryDocument manifestFile = new InMemoryDocument(IOUtils.toByteArray(manifestStream));
-      parseManifestEntry(manifestFile);
-    } catch (IOException e) {
-      logger.error("Error parsing manifest file: " + e.getMessage());
-      throw new TechnicalException("Error parsing manifest file", e);
-    }
-  }
+  protected abstract InputStream getZipEntryInputStream(ZipEntry entry);
 
-  private void parseManifestEntry(DSSDocument manifestFile) {
+  protected void parseManifestEntry(DSSDocument manifestFile) {
     logger.debug("Parsing manifest");
     manifestParser = new ManifestParser(manifestFile);
     manifestFileItems = manifestParser.getManifestFileItems();
   }
 
-  private void parseEntry(ZipEntry entry) {
+  protected void parseEntry(ZipEntry entry) {
     String entryName = entry.getName();
     logger.debug("Paring zip entry " + entryName + " with comment: " + entry.getComment());
     if (isMimeType(entryName)) {
       extractMimeType(entry);
     } else if (isManifest(entryName)) {
-      AsicEntry asicEntry = extractAsicEntry(entry);
-      if (!isZipFile()) {
-        parseManifestEntry(asicEntry.getContent());
-      }
+      extractManifest(entry);
     } else if (isSignaturesFile(entryName)) {
       determineCurrentSignatureFileIndex(entryName);
       extractSignature(entry);
@@ -199,7 +140,7 @@ public class AsicContainerParser {
     return new StreamDocument(zipFileInputStream, fileName, mimeTypeCode);
   }
 
-  private AsicEntry extractAsicEntry(ZipEntry entry) {
+  protected AsicEntry extractAsicEntry(ZipEntry entry) {
     logger.debug("Extracting asic entry");
     DSSDocument document = extractStreamDocument(entry);
     return extractAsicEntry(entry, document);
@@ -218,21 +159,13 @@ public class AsicContainerParser {
     asicEntry.setSignature(true);
   }
 
-  private String getDataFileMimeType(String fileName) {
+  protected String getDataFileMimeType(String fileName) {
     if (manifestFileItems.containsKey(fileName)) {
       ManifestEntry manifestEntry = manifestFileItems.get(fileName);
       return manifestEntry.getMimeType();
     } else {
       MimeType mimeType = MimeType.fromFileName(fileName);
       return mimeType.getMimeTypeString();
-    }
-  }
-
-  private void updateDataFilesMimeType() {
-    for (DataFile dataFile : dataFiles.values()) {
-      String fileName = dataFile.getName();
-      String mimeType = getDataFileMimeType(fileName);
-      dataFile.setMediaType(mimeType);
     }
   }
 
@@ -290,20 +223,11 @@ public class AsicContainerParser {
     }
   }
 
-  private InputStream getZipEntryInputStream(ZipEntry entry) {
-    try {
-      if (isZipFile()) {
-        return zipFile.getInputStream(entry);
-      } else {
-        return zipInputStream;
-      }
-    } catch (IOException e) {
-      logger.error("Error reading data file '" + entry.getName() + "' from the bdoc container: " + e.getMessage());
-      throw new TechnicalException("Error reading data file '" + entry.getName() + "' from the bdoc container", e);
-    }
+  void setZipFileComment(String zipFileComment) {
+    this.zipFileComment = zipFileComment;
   }
 
-  private boolean isZipFile() {
-    return zipFile != null;
+  LinkedHashMap<String, DataFile> getDataFiles() {
+    return dataFiles;
   }
 }
