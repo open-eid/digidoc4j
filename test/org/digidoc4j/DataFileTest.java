@@ -14,6 +14,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -159,6 +160,7 @@ public class DataFileTest {
     }
   }
 
+  @Ignore("Data files are not written on disk")
   @Test(expected = DigiDoc4JException.class)
   public void askingDataFileSizeWhenTemporoaryFileIsDeleted() throws Exception {
     try(ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {

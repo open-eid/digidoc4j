@@ -27,7 +27,7 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.ec.markt.dss.signature.StreamDocument;
+import org.digidoc4j.impl.StreamDocument;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.DSSUtils;
@@ -88,7 +88,7 @@ public class DataFile implements Serializable {
   public DataFile(InputStream stream, String fileName, String mimeType) {
     logger.debug("File name: " + fileName + ", mime type: " + mimeType);
     try {
-      document = new StreamDocument(stream, fileName, getMimeType(mimeType));
+      document = new InMemoryDocument(stream, fileName, getMimeType(mimeType));
     } catch (Exception e) {
       logger.error(e.getMessage());
       throw new InvalidDataFileException(e);

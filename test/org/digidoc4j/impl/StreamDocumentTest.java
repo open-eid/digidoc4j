@@ -8,10 +8,11 @@
 * Version 2.1, February 1999
 */
 
-package eu.europa.ec.markt.dss.signature;
+package org.digidoc4j.impl;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.DataFile;
+import org.digidoc4j.impl.StreamDocument;
 import org.digidoc4j.utils.Helper;
 import org.junit.AfterClass;
 import org.junit.Before;

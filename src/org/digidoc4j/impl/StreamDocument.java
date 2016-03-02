@@ -8,11 +8,10 @@
 * Version 2.1, February 1999
 */
 
-package eu.europa.ec.markt.dss.signature;
+package org.digidoc4j.impl;
 
 
 import eu.europa.esig.dss.CommonDocument;
-import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.DigestAlgorithm;

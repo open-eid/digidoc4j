@@ -15,15 +15,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
@@ -37,7 +34,6 @@ import org.digidoc4j.impl.bdoc.manifest.ManifestParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.ec.markt.dss.signature.StreamDocument;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.MimeType;
@@ -137,7 +133,8 @@ public abstract class AsicContainerParser {
     String fileName = entry.getName();
     String mimeType = getDataFileMimeType(fileName);
     MimeType mimeTypeCode = MimeType.fromMimeTypeString(mimeType);
-    return new StreamDocument(zipFileInputStream, fileName, mimeTypeCode);
+    InMemoryDocument document = new InMemoryDocument(zipFileInputStream, fileName, mimeTypeCode);
+    return document;
   }
 
   protected AsicEntry extractAsicEntry(ZipEntry entry) {
