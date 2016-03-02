@@ -66,15 +66,9 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
    * @param configuration configuration to use for this source
    */
   public SKOnlineOCSPSource(Configuration configuration) {
-    this();
     this.configuration = configuration;
-  }
-
-  /**
-   * SK Online OCSP Source constructor
-   */
-  public SKOnlineOCSPSource() {
     dataLoader = new SKOcspDataLoader();
+    logger.debug("Initialized SK Online OCSP source");
   }
 
   /**

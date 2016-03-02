@@ -29,6 +29,7 @@
   <logger name="eu.europa" level="INFO"/>
   <logger name="eu.europa.ec.markt.dss.validation102853.CertificatePool" level="INFO"/>
   <logger name="org.digidoc4j.Configuration" level="INFO"/>
+  <logger name="eu.europa.ec.markt.dss.validation102853.ocsp" level="DEBUG"/>
 
   <root level="INFO">
     <appender-ref ref="file"/>

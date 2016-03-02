@@ -6,11 +6,17 @@ import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x509.Extension;
 import org.digidoc4j.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class BDocTSOcspSource extends SKOnlineOCSPSource{
+
+  private static final Logger logger = LoggerFactory.getLogger(BDocTSOcspSource.class);
+
   public BDocTSOcspSource(Configuration configuration) {
     super(configuration);
+    logger.debug("Using TS OCSP source");
   }
 
   @Override

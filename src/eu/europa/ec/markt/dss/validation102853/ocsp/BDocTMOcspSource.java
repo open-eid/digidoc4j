@@ -25,6 +25,7 @@ public class BDocTMOcspSource extends SKOnlineOCSPSource {
   public BDocTMOcspSource(Configuration configuration, byte[] signature) {
     super(configuration);
     this.signature = signature;
+    logger.debug("Using TM OCSP source");
   }
 
   @Override
