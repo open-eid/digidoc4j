@@ -31,7 +31,7 @@ import org.digidoc4j.testutils.TestSigningHelper;
 import org.junit.Before;
 import org.junit.Test;
 
-import eu.europa.ec.markt.dss.validation102853.ocsp.BDocTSOcspSource;
+import org.digidoc4j.impl.bdoc.ocsp.BDocTSOcspSource;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.EncryptionAlgorithm;

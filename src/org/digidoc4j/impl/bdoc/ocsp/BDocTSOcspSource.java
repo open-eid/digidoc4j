@@ -1,4 +1,4 @@
-package eu.europa.ec.markt.dss.validation102853.ocsp;
+package org.digidoc4j.impl.bdoc.ocsp;
 
 import java.security.SecureRandom;
 
@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class BDocTSOcspSource extends SKOnlineOCSPSource{
+public class BDocTSOcspSource extends SKOnlineOCSPSource {
 
   private static final Logger logger = LoggerFactory.getLogger(BDocTSOcspSource.class);
 

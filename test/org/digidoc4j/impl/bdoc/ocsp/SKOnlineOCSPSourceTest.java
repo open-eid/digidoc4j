@@ -1,4 +1,4 @@
-package eu.europa.ec.markt.dss.validation102853.ocsp;
+package org.digidoc4j.impl.bdoc.ocsp;
 
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
@@ -16,6 +16,8 @@ import java.security.cert.X509Certificate;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.bdoc.SKOcspDataLoader;
+import org.digidoc4j.impl.bdoc.ocsp.BDocTSOcspSource;
+import org.digidoc4j.impl.bdoc.ocsp.SKOnlineOCSPSource;
 import org.digidoc4j.utils.CertificatesForTests;
 import org.junit.Before;
 import org.junit.Rule;

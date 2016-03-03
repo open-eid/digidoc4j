@@ -1,4 +1,4 @@
-package eu.europa.ec.markt.dss.validation102853.ocsp;
+package org.digidoc4j.impl.bdoc.ocsp;
 
 
 import org.bouncycastle.asn1.ASN1Object;

@@ -41,9 +41,9 @@ import org.digidoc4j.impl.bdoc.xades.XadesSigningDssFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.ec.markt.dss.validation102853.ocsp.BDocTMOcspSource;
-import eu.europa.ec.markt.dss.validation102853.ocsp.BDocTSOcspSource;
-import eu.europa.ec.markt.dss.validation102853.ocsp.SKOnlineOCSPSource;
+import org.digidoc4j.impl.bdoc.ocsp.BDocTMOcspSource;
+import org.digidoc4j.impl.bdoc.ocsp.BDocTSOcspSource;
+import org.digidoc4j.impl.bdoc.ocsp.SKOnlineOCSPSource;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.Policy;

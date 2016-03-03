@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package eu.europa.ec.markt.dss.validation102853.ocsp;
+package org.digidoc4j.impl.bdoc.ocsp;
 
 import java.io.IOException;
 import java.security.PrivateKey;

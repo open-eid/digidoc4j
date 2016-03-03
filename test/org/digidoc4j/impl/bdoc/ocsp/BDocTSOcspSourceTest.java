@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package eu.europa.ec.markt.dss.validation102853.ocsp;
+package org.digidoc4j.impl.bdoc.ocsp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x509.Extension;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.impl.bdoc.ocsp.BDocTSOcspSource;
 import org.junit.Test;
 
 public class BDocTSOcspSourceTest {

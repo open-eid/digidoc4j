@@ -21,7 +21,7 @@ import org.digidoc4j.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.ec.markt.dss.validation102853.ocsp.BDocTSOcspSource;
+import org.digidoc4j.impl.bdoc.ocsp.BDocTSOcspSource;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.SignatureLevel;
 
