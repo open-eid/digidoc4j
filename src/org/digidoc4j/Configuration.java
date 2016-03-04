@@ -506,8 +506,10 @@ public class Configuration implements Serializable {
    * <p/>
    * Used by DigiDoc4J and by JDigiDoc.
    *
-   * @param maxFileSizeCachedInMB Maximum size in MB
+   * @param maxFileSizeCachedInMB Maximum size in MB.
+   * @deprecated obnoxious naming. Use {@link Configuration#setMaxFileSizeCachedInMemoryInMB(long)} instead.
    */
+  @Deprecated
   public void enableBigFilesSupport(long maxFileSizeCachedInMB) {
     logger.debug("Set maximum datafile cached to: " + maxFileSizeCachedInMB);
     String value = Long.toString(maxFileSizeCachedInMB);
@@ -517,10 +519,33 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * @return is big file support enabled
+   * Sets limit in MB when handling files are creating temporary file for streaming in
+   * container creation and adding data files.
+   * <p/>
+   * Used by DigiDoc4J and by JDigiDoc.
+   *
+   * @param maxFileSizeCachedInMB maximum data file size in MB stored in memory.
    */
+  public void setMaxFileSizeCachedInMemoryInMB(long maxFileSizeCachedInMB) {
+    enableBigFilesSupport(maxFileSizeCachedInMB);
+  }
+
+  /**
+   * @return is big file support enabled
+   * @deprecated obnoxious naming. Use {@link Configuration#storeDataFilesOnlyInMemory()} instead.
+   */
+  @Deprecated
   public boolean isBigFilesSupportEnabled() {
     return getMaxDataFileCachedInMB() >= 0;
+  }
+
+  /**
+   * If all the data files should be stored in memory. Default is true (data files are temporarily stored only in memory).
+   * @return true if everything is stored in memory, and false if data is temporarily stored on disk.
+   */
+  public boolean storeDataFilesOnlyInMemory() {
+    long maxDataFileCachedInMB = getMaxDataFileCachedInMB();
+    return maxDataFileCachedInMB == -1 || maxDataFileCachedInMB == Long.MAX_VALUE;
   }
 
   /**

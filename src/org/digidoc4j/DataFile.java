@@ -43,7 +43,7 @@ import eu.europa.esig.dss.MimeType;
 public class DataFile implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(DataFile.class);
 
-  DSSDocument document = null;
+  private DSSDocument document = null;
   private Digest digest = null;
   private String id;
 
@@ -79,7 +79,7 @@ public class DataFile implements Serializable {
   }
 
   /**
-   * Creates in streamed document container.
+   * Creates in memory document container.
    *
    * @param stream   file content from stream
    * @param fileName file name with path
@@ -99,8 +99,10 @@ public class DataFile implements Serializable {
     this.document = document;
   }
 
-  private MimeType getMimeType(String mimeType) {
-    logger.debug("");
+  protected DataFile() {
+  }
+
+  protected MimeType getMimeType(String mimeType) {
     try {
       MimeType mimeTypeCode = MimeType.fromMimeTypeString(mimeType);
       logger.debug("Mime type: ", mimeTypeCode);
@@ -168,10 +170,9 @@ public class DataFile implements Serializable {
    * @return filename
    */
   public String getName() {
-    logger.debug("");
     String documentName = document.getName();
     String name = new File(documentName).getName();
-    logger.debug("File name: for document " + documentName + " is " + name);
+    logger.trace("File name: for document " + documentName + " is " + name);
     return name;
   }
 
@@ -285,5 +286,9 @@ public class DataFile implements Serializable {
 
   public DSSDocument getDocument() {
     return document;
+  }
+
+  protected void setDocument(DSSDocument document) {
+    this.document = document;
   }
 }

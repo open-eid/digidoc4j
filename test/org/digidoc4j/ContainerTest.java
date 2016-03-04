@@ -187,6 +187,29 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void addLargeFileToBDoc() throws Exception {
+    DataFile dataFile = new LargeDataFile(new ByteArrayInputStream(new byte[]{0, 1, 2, 3}), "large-doc.txt", TEXT_MIME_TYPE);
+    Container container = createBDoc();
+    container.addDataFile(dataFile);
+    assertEquals(1, container.getDataFiles().size());
+    container.saveAsFile(tempFile.getPath());
+    container = ContainerOpener.open(tempFile.getPath());
+    assertEquals(1, container.getDataFiles().size());
+    assertEquals("large-doc.txt", container.getDataFiles().get(0).getName());
+  }
+
+  @Test
+  public void addLargeFileToDDoc() throws Exception {
+    DataFile dataFile = new DataFile(new ByteArrayInputStream(new byte[]{0, 1, 2, 3}), "large-doc.txt", TEXT_MIME_TYPE);
+    Container container = createDDoc();
+    container.addDataFile(dataFile);
+    container.sign(PKCS12_SIGNER);
+    assertEquals(1, container.getDataFiles().size());
+    assertEquals("large-doc.txt", container.getDataFiles().get(0).getName());
+    container.saveAsFile(tempFile.getPath());
+  }
+
+  @Test
   public void testOpenCreatedDDocFile() throws Exception {
     Container container = createDDoc();
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);

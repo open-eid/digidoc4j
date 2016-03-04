@@ -25,10 +25,12 @@ import java.util.zip.ZipEntry;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang.StringUtils;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
+import org.digidoc4j.impl.StreamDocument;
 import org.digidoc4j.impl.bdoc.manifest.ManifestEntry;
 import org.digidoc4j.impl.bdoc.manifest.ManifestParser;
 import org.slf4j.Logger;
@@ -55,8 +57,12 @@ public abstract class AsicContainerParser {
   private List<AsicEntry> asicEntries = new ArrayList<>();
   private Map<String, ManifestEntry> manifestFileItems = Collections.emptyMap();
   private ManifestParser manifestParser;
+  private boolean storeDataFilesOnlyInMemory;
+  private long maxDataFileCachedInBytes;
 
-  protected AsicContainerParser() {
+  protected AsicContainerParser(Configuration configuration) {
+    storeDataFilesOnlyInMemory = configuration.storeDataFilesOnlyInMemory();
+    maxDataFileCachedInBytes = configuration.getMaxDataFileCachedInBytes();
   }
 
   public AsicParseResult read() {
@@ -129,11 +135,17 @@ public abstract class AsicContainerParser {
   }
 
   private DSSDocument extractStreamDocument(ZipEntry entry) {
+    logger.debug("Zip entry size is " + entry.getSize() + " bytes");
     InputStream zipFileInputStream = getZipEntryInputStream(entry);
     String fileName = entry.getName();
     String mimeType = getDataFileMimeType(fileName);
     MimeType mimeTypeCode = MimeType.fromMimeTypeString(mimeType);
-    InMemoryDocument document = new InMemoryDocument(zipFileInputStream, fileName, mimeTypeCode);
+    DSSDocument document;
+    if(storeDataFilesOnlyInMemory || entry.getSize() <= maxDataFileCachedInBytes) {
+      document = new InMemoryDocument(zipFileInputStream, fileName, mimeTypeCode);
+    } else {
+      document = new StreamDocument(zipFileInputStream, fileName, mimeTypeCode);
+    }
     return document;
   }
 

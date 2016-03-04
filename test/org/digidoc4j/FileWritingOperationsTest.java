@@ -10,6 +10,8 @@
 
 package org.digidoc4j;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -34,6 +36,8 @@ public class FileWritingOperationsTest extends DigiDoc4JTestHelper {
 
   @Rule
   public RestrictedFileWritingRule rule = new RestrictedFileWritingRule(new File(tslCacheDirectoryPath).getPath());
+
+  private static Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
   @Test(expected = FileWritingRestrictedException.class)
   public void writingToFileIsNotAllowed() throws IOException {
@@ -82,10 +86,54 @@ public class FileWritingOperationsTest extends DigiDoc4JTestHelper {
         withDataFile(streamDataFile).
         build();
 
-    Assert.assertEquals(3, container.getDataFiles().size());
+    assertEquals(3, container.getDataFiles().size());
     TestDataBuilder.signContainer(container);
     InputStream inputStream = container.saveAsStream();
     assertContainerStream(inputStream);
+  }
+
+  @Test(expected = FileWritingRestrictedException.class)
+  public void creatingLargeDataFile_shouldStoreFileOnDisk() throws Throwable {
+    InputStream dataFileInputStream = new ByteArrayInputStream(new byte[]{1, 2, 3});
+    try {
+      DataFile dataFile = new LargeDataFile(dataFileInputStream, "stream-file.txt", MimeType.TEXT.getMimeTypeString());
+      assertFalse("Did not create a temporary file", true);
+    } catch (Exception e) {
+      throw e.getCause();
+    }
+  }
+
+  @Test(expected = FileWritingRestrictedException.class)
+  public void openingExistingContainer_withStoringDataFilesOnDisk() throws Exception {
+    configuration.setMaxFileSizeCachedInMemoryInMB(0);
+    Container container = ContainerBuilder.
+        aContainer(ContainerBuilder.BDOC_CONTAINER_TYPE).
+        fromExistingFile("testFiles/one_signature.bdoc").
+        withConfiguration(configuration).
+        build();
+    assertEquals(1, container.getDataFiles().size());
+  }
+
+  @Test(expected = FileWritingRestrictedException.class)
+  public void openingExistingContainer_withLarge2MbFile_shouldStoreDataFilesOnDisk() throws Exception {
+    configuration.setMaxFileSizeCachedInMemoryInMB(1);
+    Container container = ContainerBuilder.
+        aContainer(ContainerBuilder.BDOC_CONTAINER_TYPE).
+        fromExistingFile("testFiles/valid-containers/bdoc-ts-with-large-data-file.bdoc").
+        withConfiguration(configuration).
+        build();
+    assertEquals(1, container.getDataFiles().size());
+  }
+
+  @Test
+  public void openingExistingContainer_withLarge2MbFile_shouldNotStoreDataFilesOnDisk() throws Exception {
+    configuration.setMaxFileSizeCachedInMemoryInMB(4);
+    Container container = ContainerBuilder.
+        aContainer(ContainerBuilder.BDOC_CONTAINER_TYPE).
+        fromExistingFile("testFiles/valid-containers/bdoc-ts-with-large-data-file.bdoc").
+        withConfiguration(configuration).
+        build();
+    assertEquals(1, container.getDataFiles().size());
   }
 
   private void assertContainerStream(InputStream inputStream) throws IOException {

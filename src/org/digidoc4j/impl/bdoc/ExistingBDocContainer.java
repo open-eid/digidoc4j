@@ -24,7 +24,6 @@ import org.digidoc4j.ValidationResult;
 import org.digidoc4j.dss.asic.Manifest;
 import org.digidoc4j.exceptions.RemovingDataFileException;
 import org.digidoc4j.impl.bdoc.asic.AsicContainerCreator;
-import org.digidoc4j.impl.bdoc.asic.AsicContainerParser;
 import org.digidoc4j.impl.bdoc.asic.AsicEntry;
 import org.digidoc4j.impl.bdoc.asic.AsicFileContainerParser;
 import org.digidoc4j.impl.bdoc.asic.AsicParseResult;
@@ -179,13 +178,13 @@ public class ExistingBDocContainer extends BDocContainer {
 
   private void openContainer(String containerPath) {
     logger.debug("Opening container from " + containerPath);
-    AsicParseResult containerParseResult = new AsicFileContainerParser(containerPath).read();
+    AsicParseResult containerParseResult = new AsicFileContainerParser(containerPath, getConfiguration()).read();
     populateContainerWithParseResult(containerParseResult);
   }
 
   private void openContainer(InputStream inputStream) {
     logger.debug("Opening container from stream");
-    AsicParseResult containerParseResult = new AsicStreamContainerParser(inputStream).read();
+    AsicParseResult containerParseResult = new AsicStreamContainerParser(inputStream, getConfiguration()).read();
     populateContainerWithParseResult(containerParseResult);
   }
 

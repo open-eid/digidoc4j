@@ -17,6 +17,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,8 @@ public class AsicFileContainerParser extends AsicContainerParser{
   private final static Logger logger = LoggerFactory.getLogger(AsicFileContainerParser.class);
   private ZipFile zipFile;
 
-  public AsicFileContainerParser(String containerPath) {
+  public AsicFileContainerParser(String containerPath, Configuration configuration) {
+    super(configuration);
     try {
       zipFile = new ZipFile(containerPath);
     } catch (IOException e) {

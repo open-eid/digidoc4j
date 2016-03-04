@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.*;
 
+import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.InMemoryDocument;
 
 public class DataFileTest {
@@ -165,7 +166,7 @@ public class DataFileTest {
   public void askingDataFileSizeWhenTemporoaryFileIsDeleted() throws Exception {
     try(ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
       DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
-      Files.deleteIfExists(Paths.get(dataFile.document.getAbsolutePath()));
+      Files.deleteIfExists(Paths.get(dataFile.getDocument().getAbsolutePath()));
       dataFile.getFileSize();
     }
   }
@@ -179,7 +180,8 @@ public class DataFileTest {
   private class MockDataFile extends DataFile {
     public MockDataFile(byte[] data, String fileName, String mimeType) {
       super(data, fileName, mimeType);
-      document = new InMemoryDocument(data, mimeType);
+      DSSDocument document = new InMemoryDocument(data, mimeType);
+      setDocument(document);
     }
   }
 }

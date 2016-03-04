@@ -98,18 +98,21 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
   public void buildBDocContainerWithDataFiles() throws Exception {
     File testFile1 = createTestFile("testFile.txt");
     File testFile2 = createTestFile("testFile2.txt");
+    LargeDataFile largeDataFile = new LargeDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "largeStreamFile.txt", "text/plain");
     Container container = ContainerBuilder.
         aContainer().
         withDataFile(testFile1.getPath(), "text/plain").
         withDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "streamFile.txt", "text/plain").
         withDataFile(createTestFile("ExampleFile.txt"), "text/plain").
         withDataFile(new DataFile(testFile2.getPath(), "text/plain")).
+        withDataFile(largeDataFile).
         build();
-    assertEquals(4, container.getDataFiles().size());
+    assertEquals(5, container.getDataFiles().size());
     assertEquals("testFile.txt", container.getDataFiles().get(0).getName());
     assertEquals("streamFile.txt", container.getDataFiles().get(1).getName());
     assertEquals("ExampleFile.txt", container.getDataFiles().get(2).getName());
     assertEquals("testFile2.txt", container.getDataFiles().get(3).getName());
+    assertEquals("largeStreamFile.txt", container.getDataFiles().get(4).getName());
   }
 
   @Test

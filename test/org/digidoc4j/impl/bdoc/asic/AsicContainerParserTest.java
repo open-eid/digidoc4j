@@ -16,6 +16,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.FileInputStream;
 import java.util.List;
 
+import org.digidoc4j.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -53,13 +54,13 @@ public class AsicContainerParserTest {
 
   @Test
   public void parseBdocContainerStream() throws Exception {
-    AsicContainerParser parser = new AsicStreamContainerParser(new FileInputStream("testFiles/two_signatures.bdoc"));
+    AsicContainerParser parser = new AsicStreamContainerParser(new FileInputStream("testFiles/two_signatures.bdoc"), Configuration.getInstance());
     AsicParseResult result = parser.read();
     assertParseResultValid(result);
   }
 
   private AsicParseResult parseContainer(String path) {
-    AsicContainerParser parser = new AsicFileContainerParser(path);
+    AsicContainerParser parser = new AsicFileContainerParser(path, Configuration.getInstance());
     AsicParseResult result = parser.read();
     return result;
   }
