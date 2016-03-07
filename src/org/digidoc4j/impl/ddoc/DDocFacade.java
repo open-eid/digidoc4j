@@ -14,6 +14,7 @@ import static ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -181,10 +182,11 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
       ee.sk.digidoc.DataFile dataFile = new ee.sk.digidoc.DataFile(ddoc.getNewDataFileId(),
           ee.sk.digidoc.DataFile.CONTENT_EMBEDDED_BASE64,
           fileName, mimeType, ddoc);
-      dataFile.setBodyFromStream(is);
+      byte[] data = IOUtils.toByteArray(is);
+      dataFile.setBody(data);
       ddoc.addDataFile(dataFile);
       return new DataFile(is, fileName, mimeType);
-    } catch (DigiDocException e) {
+    } catch (DigiDocException | IOException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
