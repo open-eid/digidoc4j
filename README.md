@@ -56,6 +56,17 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
  * EU TSL (European Commission's Trusted Status List) - https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml
  * TSA (Time Stamping Authority) - http://tsa.sk.ee
 
+## Maven
+You can use the library as a Maven dependency from the Maven Central (http://mvnrepository.com/artifact/org.digidoc4j/digidoc4j)
+
+```xml
+<dependency>
+	<groupId>org.digidoc4j</groupId>
+	<artifactId>digidoc4j</artifactId>
+	<version>1.x.x</version>
+</dependency>
+```
+
 # Known issues
 The list of user stories and issues are tracked in [Pivotal Tracker](https://www.pivotaltracker.com/n/projects/1110130)
 
