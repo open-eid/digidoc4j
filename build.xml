@@ -22,6 +22,8 @@
   <property name="publish.version" value="1.0" />
   <property name="lib.version" value="${publish.version}"/>
 
+  <property name="dss-maven-version" value="4.6.RC1.d4j.2" />
+
   <target name="version" unless="lib.version">
     <exec executable="sh" outputproperty="lib.version">
       <arg value="-c"/>
@@ -34,6 +36,8 @@
   <condition property="version.suffix" value=".${env.BUILD_NUMBER}-beta" else="">
     <isset property="env.BUILD_NUMBER"/>
   </condition>
+
+  <property name="artifact.name" value="digidoc4j-${lib.version}${version.suffix}"/>
 
   <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
     <classpath path="lib/jacocoant.jar"/>
@@ -61,7 +65,7 @@
         <include name="org/digidoc4j/signers"/>
       </packageset>
     </javadoc>
-    <jar destfile="${dist.dir}/digidoc4j-${lib.version}${version.suffix}-javadoc.jar" basedir="javadoc"/>
+    <jar destfile="${dist.dir}/${artifact.name}-javadoc.jar" basedir="javadoc"/>
     <mkdir dir="javadoc/doc-files"/>
     <copy todir="javadoc/doc-files">
       <fileset dir="doc/images"/>
@@ -78,7 +82,7 @@
       <src path="test"/>
       <classpath refid="${classpath}"/>
     </javac>
-    <jar destfile="${dist.dir}/digidoc4j-${lib.version}${version.suffix}.jar">
+    <jar destfile="${dist.dir}/${artifact.name}.jar">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Implementation-Vendor" value="Republic of Estonia Information System Authority"/>
@@ -96,9 +100,34 @@
     </jar>
   </target>
 
+  <!--
+  makes a pom for the project based off the ivy.xml file
+  -->
+  <target name="make.pom" depends="init.ivy">
+    <ivy:makepom ivyfile="ivy.xml" pomfile="${dist.dir}/${artifact.name}.pom" templatefile="ivy-pom-template.pom" conf="runtime">
+      <mapping conf="default" scope="compile"/>
+      <mapping conf="compile " scope="compile"/>
+      <mapping conf="runtime" scope="compile"/>
+      <mapping conf="test" scope="test"/>
+      <dependency group="ee.sk.digidoc" artifact="jdigidoc" version="3.12.0" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-asic" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-cades" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-diagnostic-jaxb" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-document" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-model" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-service" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-spi" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-token" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-tsl-jaxb" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-tsl-validation" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-xades" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="validation-policy" version="${dss-maven-version}" scope="compile"/>
+    </ivy:makepom>
+  </target>
+
   <target name="library" depends="init.ivy">
     <ivy:retrieve transitive="false" conf="runtime" sync="true" pattern="${packaging.lib}/[artifact].[ext]"/>
-    <zip destfile="${dist.dir}/digidoc4j-library-${lib.version}${version.suffix}.zip">
+    <zip destfile="${dist.dir}/${artifact.name}-library.zip">
       <zipfileset dir="${packaging.lib}" includes="*.jar"/>
       <zipfileset dir="lib" includes="**/dss*.jar **/validation-policy*.jar **/jdigidoc*.jar"/>
     </zip>
@@ -130,16 +159,16 @@
       <fileset dir="." includes="log4j.for.util.properties"/>
     </copy>
     <move file="${build.dir}/util/log4j.for.util.properties" tofile="${build.dir}/util/log4j.properties"/>
-    <zip destfile="${dist.dir}/digidoc4j-util-${lib.version}${version.suffix}.zip"
+    <zip destfile="${dist.dir}/${artifact.name}-util.zip"
          basedir="${build.dir}/util"/>
     <delete dir="${build.dir}/util"/>
   </target>
 
   <target name="source">
-    <jar destfile="${dist.dir}/digidoc4j-sources-${lib.version}${version.suffix}.jar" basedir="src"/>
+    <jar destfile="${dist.dir}/${artifact.name}-sources.jar" basedir="src"/>
   </target>
 
-  <target name="base" depends="version, clean, source, compile, utility, library"/>
+  <target name="base" depends="version, clean, source, compile, utility, library, make.pom"/>
 
   <target name="make.utility" depends="version, clean, compile, utility"/>
 

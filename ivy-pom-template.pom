@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>${ivy.pom.groupId}</groupId>
+    <artifactId>${ivy.pom.artifactId}</artifactId>
+    <packaging>${ivy.pom.packaging}</packaging>
+    <version>${ivy.pom.version}</version>
+    <name>DigiDoc4j</name>
+    <description>DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers of signed documents</description>
+    <url>https://github.com/open-eid/digidoc4j</url>
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License, Version 2.1</name>
+            <url>http://www.gnu.org/licenses/lgpl-2.1.html</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Rainer Villido</name>
+            <email>Rainer.Villido at Nortal.com</email>
+            <organization>Nortal</organization>
+            <organizationUrl>http://www.nortal.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Aho Augasmägi</name>
+            <email>aho at codeborne.com</email>
+            <organization>Codeborne</organization>
+            <organizationUrl>http://www.codeborne.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Allan Juhanson</name>
+            <email>Allan.Juhanson at Nortal.com</email>
+            <organization>Nortal</organization>
+            <organizationUrl>http://www.nortal.com</organizationUrl>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:git@github.com:open-eid/digidoc4j.git</connection>
+        <developerConnection>scm:git:git@github.com:open-eid/digidoc4j.git</developerConnection>
+        <url>https://github.com/open-eid/digidoc4j.git</url>
+    </scm>
+    <issueManagement>
+        <system>Pivotal</system>
+        <url>https://www.pivotaltracker.com/n/projects/1110130</url>
+    </issueManagement>
+</project>
