@@ -10,14 +10,12 @@
 
 package org.digidoc4j.impl.bdoc.manifest;
 
-import org.digidoc4j.dss.asic.Manifest;
-import org.junit.Test;
-
-import java.io.ByteArrayOutputStream;
-
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 
-import eu.europa.esig.dss.FileDocument;
+import java.util.Arrays;
+
+import org.digidoc4j.DataFile;
+import org.junit.Test;
 
 public class ManifestTest {
 
@@ -28,13 +26,11 @@ public class ManifestTest {
         "<manifest:file-entry manifest:media-type=\"application/vnd.etsi.asic-e+zip\" manifest:full-path=\"/\" />" +
         "<manifest:file-entry manifest:media-type=\"text/plain\" manifest:full-path=\"test.txt\" />" +
         "</manifest:manifest>";
-    try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
-      Manifest manifest = new Manifest();
-      manifest.addFileEntry(new FileDocument("testFiles/test.txt"));
-      manifest.save(out);
+    AsicManifest manifest = new AsicManifest();
+    manifest.addFileEntry(Arrays.asList(new DataFile("testFiles/test.txt", "text/plain")));
+    byte[] manifestBytes = manifest.getBytes();
 
-      assertXMLEqual(expectedResult, new String(out.toByteArray()));
-    }
+    assertXMLEqual(expectedResult, new String(manifestBytes));
   }
 }

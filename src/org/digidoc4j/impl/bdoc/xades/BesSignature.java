@@ -32,7 +32,6 @@ import eu.europa.esig.dss.ASiCNamespaces;
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.DSSXMLUtils;
 import eu.europa.esig.dss.XPathQueryHolder;
-import eu.europa.esig.dss.asic.signature.ASiCService;
 import eu.europa.esig.dss.validation.SignatureProductionPlace;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
@@ -40,6 +39,7 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 public class BesSignature implements XadesSignature {
 
   private final static Logger logger = LoggerFactory.getLogger(BesSignature.class);
+  private final static String ASICS_NS = "asic:XAdESSignatures";
   private XAdESSignature dssSignature;
   private SignatureProductionPlace signerLocation;
   private Element signatureElement;
@@ -118,7 +118,7 @@ public class BesSignature implements XadesSignature {
   @Override
   public byte[] getAdESSignature() {
     logger.debug("Getting signature byte array");
-    Document document = createDocument(ASiCNamespaces.ASiC, ASiCService.ASICS_NS, signatureElement);
+    Document document = createDocument(ASiCNamespaces.ASiC, ASICS_NS, signatureElement);
     return DSSXMLUtils.transformDomToByteArray(document);
   }
 

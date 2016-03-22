@@ -110,8 +110,6 @@
       <mapping conf="runtime" scope="compile"/>
       <mapping conf="test" scope="test"/>
       <dependency group="ee.sk.digidoc" artifact="jdigidoc" version="3.12.0" scope="compile"/>
-      <dependency group="org.digidoc4j.dss" artifact="dss-asic" version="${dss-maven-version}" scope="compile"/>
-      <dependency group="org.digidoc4j.dss" artifact="dss-cades" version="${dss-maven-version}" scope="compile"/>
       <dependency group="org.digidoc4j.dss" artifact="dss-diagnostic-jaxb" version="${dss-maven-version}" scope="compile"/>
       <dependency group="org.digidoc4j.dss" artifact="dss-document" version="${dss-maven-version}" scope="compile"/>
       <dependency group="org.digidoc4j.dss" artifact="dss-model" version="${dss-maven-version}" scope="compile"/>

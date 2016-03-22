@@ -21,7 +21,6 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
-import org.digidoc4j.dss.asic.Manifest;
 import org.digidoc4j.exceptions.RemovingDataFileException;
 import org.digidoc4j.impl.bdoc.asic.AsicContainerCreator;
 import org.digidoc4j.impl.bdoc.asic.AsicEntry;
@@ -29,6 +28,7 @@ import org.digidoc4j.impl.bdoc.asic.AsicFileContainerParser;
 import org.digidoc4j.impl.bdoc.asic.AsicParseResult;
 import org.digidoc4j.impl.bdoc.asic.AsicStreamContainerParser;
 import org.digidoc4j.impl.bdoc.asic.BDocContainerValidator;
+import org.digidoc4j.impl.bdoc.manifest.AsicManifest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +106,7 @@ public class ExistingBDocContainer extends BDocContainer {
     allDataFiles.add(dataFile);
     newDataFiles.add(dataFile);
     dataFilesHaveChanged = true;
-    removeExistingFileFromContainer(Manifest.XML_PATH);
+    removeExistingFileFromContainer(AsicManifest.XML_PATH);
   }
 
   @Override
