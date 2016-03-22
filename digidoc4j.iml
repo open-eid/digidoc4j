@@ -72,15 +72,11 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpcore/jars/httpcore-4.3.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-logging/commons-logging/jars/commons-logging-1.1.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.santuario/xmlsec/bundles/xmlsec-2.0.6.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.woodstox/woodstox-core-asl/jars/woodstox-core-asl-4.4.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/javax.xml.stream/stax-api/jars/stax-api-1.0-2.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.woodstox/stax2-api/bundles/stax2-api-3.1.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-codec/commons-codec/jars/commons-codec-1.10.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcprov-jdk15on/jars/bcprov-jdk15on-1.51.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcpkix-jdk15on/jars/bcpkix-jdk15on-1.51.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/xalan/xalan/jars/xalan-2.7.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/xalan/serializer/jars/serializer-2.7.2.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/xml-apis/xml-apis/jars/xml-apis-1.3.04.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.yaml/snakeyaml/bundles/snakeyaml-1.14.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/slf4j-api/jars/slf4j-api-1.7.19.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.mockito/mockito-all/jars/mockito-all-1.10.19.jar!/" />
@@ -90,6 +86,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/xmlunit/xmlunit/jars/xmlunit-1.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.hamcrest/hamcrest-library/jars/hamcrest-library-1.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcmail-jdk15on/jars/bcmail-jdk15on-1.51.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/ee.sk.digidoc/jdigidoc/jars/jdigidoc-3.12.0.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-cli/commons-cli/javadocs/commons-cli-1.2-javadoc.jar!/" />
@@ -104,8 +101,6 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpcore/javadocs/httpcore-4.3.3-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-logging/commons-logging/javadocs/commons-logging-1.1.3-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.santuario/xmlsec/javadocs/xmlsec-2.0.6-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.woodstox/woodstox-core-asl/javadocs/woodstox-core-asl-4.4.1-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.woodstox/stax2-api/javadocs/stax2-api-3.1.4-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-codec/commons-codec/javadocs/commons-codec-1.10-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcprov-jdk15on/javadocs/bcprov-jdk15on-1.51-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcpkix-jdk15on/javadocs/bcpkix-jdk15on-1.51-javadoc.jar!/" />
@@ -120,6 +115,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/xmlunit/xmlunit/javadocs/xmlunit-1.5-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.hamcrest/hamcrest-library/javadocs/hamcrest-library-1.3-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcmail-jdk15on/javadocs/bcmail-jdk15on-1.51-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/ee.sk.digidoc/jdigidoc/javadocs/jdigidoc-3.12.0-javadoc.jar!/" />
         </JAVADOC>
         <SOURCES>
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-cli/commons-cli/sources/commons-cli-1.2-sources.jar!/" />
@@ -134,15 +130,11 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpcore/sources/httpcore-4.3.3-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-logging/commons-logging/sources/commons-logging-1.1.3-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.santuario/xmlsec/sources/xmlsec-2.0.6-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.woodstox/woodstox-core-asl/sources/woodstox-core-asl-4.4.1-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/javax.xml.stream/stax-api/sources/stax-api-1.0-2-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.woodstox/stax2-api/sources/stax2-api-3.1.4-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-codec/commons-codec/sources/commons-codec-1.10-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcprov-jdk15on/sources/bcprov-jdk15on-1.51-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcpkix-jdk15on/sources/bcpkix-jdk15on-1.51-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/xalan/xalan/sources/xalan-2.7.2-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/xalan/serializer/sources/serializer-2.7.2-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/xml-apis/xml-apis/sources/xml-apis-1.3.04-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.yaml/snakeyaml/sources/snakeyaml-1.14-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/slf4j-api/sources/slf4j-api-1.7.19-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.mockito/mockito-all/sources/mockito-all-1.10.19-sources.jar!/" />
@@ -152,6 +144,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/xmlunit/xmlunit/sources/xmlunit-1.5-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.hamcrest/hamcrest-library/sources/hamcrest-library-1.3-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcmail-jdk15on/sources/bcmail-jdk15on-1.51-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/ee.sk.digidoc/jdigidoc/sources/jdigidoc-3.12.0-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

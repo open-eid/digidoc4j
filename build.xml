@@ -22,7 +22,7 @@
   <property name="publish.version" value="1.0" />
   <property name="lib.version" value="${publish.version}"/>
 
-  <property name="dss-maven-version" value="4.6.RC1.d4j.2" />
+  <property name="dss-maven-version" value="4.6.d4j.1" />
 
   <target name="version" unless="lib.version">
     <exec executable="sh" outputproperty="lib.version">
@@ -109,7 +109,6 @@
       <mapping conf="compile " scope="compile"/>
       <mapping conf="runtime" scope="compile"/>
       <mapping conf="test" scope="test"/>
-      <dependency group="ee.sk.digidoc" artifact="jdigidoc" version="3.12.0" scope="compile"/>
       <dependency group="org.digidoc4j.dss" artifact="dss-diagnostic-jaxb" version="${dss-maven-version}" scope="compile"/>
       <dependency group="org.digidoc4j.dss" artifact="dss-document" version="${dss-maven-version}" scope="compile"/>
       <dependency group="org.digidoc4j.dss" artifact="dss-model" version="${dss-maven-version}" scope="compile"/>
@@ -127,7 +126,7 @@
     <ivy:retrieve transitive="false" conf="runtime" sync="true" pattern="${packaging.lib}/[artifact].[ext]"/>
     <zip destfile="${dist.dir}/${artifact.name}-library.zip">
       <zipfileset dir="${packaging.lib}" includes="*.jar"/>
-      <zipfileset dir="lib" includes="**/dss*.jar **/validation-policy*.jar **/jdigidoc*.jar"/>
+      <zipfileset dir="lib" includes="**/dss*.jar **/validation-policy*.jar"/>
     </zip>
   </target>
 
@@ -135,7 +134,7 @@
     <ivy:retrieve transitive="false" conf="runtime" sync="true" pattern="${packaging.lib}/[artifact].[ext]"/>
     <mkdir dir="${build.dir}/util"/>
     <jar jarfile="${build.dir}/util/temp.jar">
-      <zipgroupfileset dir="lib" includes="**/dss*.jar **/validation-policy*.jar **/jdigidoc*.jar"/>
+      <zipgroupfileset dir="lib" includes="**/dss*.jar **/validation-policy*.jar"/>
       <zipgroupfileset dir="${packaging.lib}" includes="**/*.jar" excludes="bcprov-*.jar"/>
       <zipgroupfileset dir="dist" includes="**/digidoc4j-*.jar" excludes="*-javadoc.jar *-sources.jar"/>
     </jar>
