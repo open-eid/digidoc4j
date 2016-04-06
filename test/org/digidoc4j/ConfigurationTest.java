@@ -16,6 +16,9 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
 import org.digidoc4j.impl.bdoc.BDocContainer;
+import org.digidoc4j.impl.bdoc.tsl.TSLCertificateSourceImpl;
+import org.digidoc4j.impl.bdoc.tsl.TslLoader;
+import org.digidoc4j.testutils.TSLHelper;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -37,11 +40,9 @@ import static org.digidoc4j.Configuration.*;
 import static org.digidoc4j.Configuration.Mode.PROD;
 import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
-import static org.hamcrest.Matchers.endsWith;
 import static org.junit.Assert.*;
 
 import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
 
 public class ConfigurationTest {
   private static final String SIGN_OCSP_REQUESTS = "SIGN_OCSP_REQUESTS";
@@ -72,13 +73,13 @@ public class ConfigurationTest {
 
   @Test
   public void TSLIsLoadedOnlyOnceForGlobalConfiguration() {
-    TrustedListsCertificateSource tsl = configuration.getTSL();
+    TSLCertificateSource tsl = configuration.getTSL();
     assertEquals(tsl, configuration.getTSL());
   }
 
   @Test
   public void addTSL() throws IOException, CertificateException {
-    TrustedListsCertificateSource tsl = configuration.getTSL();
+    TSLCertificateSource tsl = configuration.getTSL();
     int numberOfTSLCertificates = tsl.getCertificates().size();
     addFromFileToTSLCertificate("testFiles/Juur-SK.pem.crt");
 
@@ -87,7 +88,7 @@ public class ConfigurationTest {
 
   @Test
   public void clearTSLLoadsFromConfiguration() {
-    TrustedListsCertificateSource tsl = configuration.getTSL();
+    TSLCertificateSource tsl = configuration.getTSL();
     int numberOfTSLCertificates = tsl.getCertificates().size();
     configuration.setTSL(null);
 
@@ -96,7 +97,7 @@ public class ConfigurationTest {
 
   @Test
   public void setTSL() throws IOException, CertificateException {
-    TSLCertificateSource trustedListsCertificateSource = new TSLCertificateSource();
+    TSLCertificateSource trustedListsCertificateSource = new TSLCertificateSourceImpl();
     FileInputStream fileInputStream = new FileInputStream("testFiles/Juur-SK.pem.crt");
     X509Certificate certificate = DSSUtils.loadCertificate(fileInputStream).getCertificate();
     trustedListsCertificateSource.addTSLCertificate(certificate);
@@ -111,24 +112,56 @@ public class ConfigurationTest {
   @Test
   public void clearTSLCache() throws IOException, CertificateException {
     Configuration myConfiguration = new Configuration(PROD);
-    File fileCacheDirectory = TSLCertificateSource.fileCacheDirectory;
+    File fileCacheDirectory = TslLoader.fileCacheDirectory;
     if(fileCacheDirectory.exists()) {
-      FileUtils.cleanDirectory(TSLCertificateSource.fileCacheDirectory);
+      FileUtils.cleanDirectory(fileCacheDirectory);
     }
 
     TSLCertificateSource tslCertificateSource = myConfiguration.getTSL();
-    File oldCachedFile = TSLCertificateSource.fileCacheDirectory.listFiles()[0];
+    tslCertificateSource.refresh();
+    File oldCachedFile = fileCacheDirectory.listFiles()[0];
     FileTime oldCachedFileDate = (FileTime)Files.getAttribute(oldCachedFile.toPath(),
         "basic:creationTime");
 
     tslCertificateSource.invalidateCache();
     myConfiguration.setTSL(null);
-    myConfiguration.getTSL();
+    tslCertificateSource = myConfiguration.getTSL();
+    tslCertificateSource.refresh();
 
-    File newCachedFile = TSLCertificateSource.fileCacheDirectory.listFiles()[0];
+    File newCachedFile = fileCacheDirectory.listFiles()[0];
     FileTime newCachedFileDate = (FileTime)Files.getAttribute(newCachedFile.toPath(), "basic:creationTime");
 
     assertTrue(newCachedFileDate.compareTo(oldCachedFileDate) > 0);
+  }
+
+  @Test
+  public void getTsl_whenCacheIsNotExpired_shouldUseCachedTsl() throws Exception {
+    deleteTSLCache();
+    configuration.setTslCacheExpirationTime(10000L);
+    TSLCertificateSource tsl = configuration.getTSL();
+    tsl.refresh();
+    long lastModified = getCacheModificationTime();
+    waitOneSecond();
+    TSLCertificateSource newTsl = configuration.getTSL();
+    newTsl.refresh();
+    long newModificationTime = getCacheModificationTime();
+    assertEquals(lastModified, newModificationTime);
+    assertSame(tsl, newTsl);
+  }
+
+  @Test
+  public void getTsl_whenCacheIsExpired_shouldDownloadNewTsl() throws Exception {
+    deleteTSLCache();
+    configuration.setTslCacheExpirationTime(500L);
+    TSLCertificateSource tsl = configuration.getTSL();
+    tsl.refresh();
+    long lastModified = getCacheModificationTime();
+    waitOneSecond();
+    TSLCertificateSource newTsl = configuration.getTSL();
+    newTsl.refresh();
+    long newModificationTime = getCacheModificationTime();
+    assertTrue(lastModified < newModificationTime);
+    assertSame(tsl, newTsl);
   }
 
   @Test
@@ -140,20 +173,6 @@ public class ConfigurationTest {
     } catch (TslCertificateSourceInitializationException e) {
       assertEquals("Not ETSI compliant signature. The signature is not valid.", e.getMessage());
     }
-  }
-
-  @Test (expected = DigiDoc4JException.class)
-  public void clearTSLCacheThrowsException() {
-    Configuration myConfiguration = new Configuration();
-    myConfiguration.setTslLocation("http://10.0.25.57/tsl/trusted-test-mp.xml");
-    TSLCertificateSource tslCertificateSource = myConfiguration.getTSL();
-
-    try {
-      FileUtils.deleteDirectory(TSLCertificateSource.fileCacheDirectory);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    tslCertificateSource.invalidateCache();
   }
 
   @Test
@@ -185,14 +204,14 @@ public class ConfigurationTest {
   @Test
   //@Ignore("RIA VPN")
   public void TSLIsLoadedAfterSettingNewTSLLocation() {
-    Configuration configuration = new Configuration();
+    Configuration configuration = new Configuration(TEST);
     configuration.setTslLocation("https://demo.sk.ee/TSL/tl-mp-test-EE.xml");
     BDocContainer container = (BDocContainer) ContainerBuilder.
         aContainer(BDOC_CONTAINER_TYPE).
         withConfiguration(configuration).
         build();
     container.getConfiguration().getTSL();
-    assertEquals(5, container.getConfiguration().getTSL().getCertificates().size());
+    assertEquals(6, container.getConfiguration().getTSL().getCertificates().size());
 
     configuration.setTslLocation("http://10.0.25.57/tsl/trusted-test-mp.xml");
     container = (BDocContainer) ContainerBuilder.
@@ -210,7 +229,7 @@ public class ConfigurationTest {
         aContainer(BDOC_CONTAINER_TYPE).
         withConfiguration(configuration).
         build();
-    container.getConfiguration().getTSL();
+    container.getConfiguration().getTSL().refresh();
   }
 
   @Test (expected = DigiDoc4JException.class)
@@ -221,7 +240,7 @@ public class ConfigurationTest {
         aContainer(BDOC_CONTAINER_TYPE).
         withConfiguration(configuration).
         build();
-    container.getConfiguration().getTSL();
+    container.getConfiguration().getTSL().refresh();
   }
 
   @Test
@@ -787,6 +806,25 @@ public class ConfigurationTest {
   }
 
   @Test
+  public void setTslCacheExpirationTime() throws Exception {
+    configuration.setTslCacheExpirationTime(1337);
+    assertEquals(1337, configuration.getTslCacheExpirationTime());
+  }
+
+  @Test
+  public void defaultTslCacheExpirationTime_shouldBeOneDay() throws Exception {
+    long oneDayInMs = 1000*60*60*24;
+    assertEquals(oneDayInMs, configuration.getTslCacheExpirationTime());
+    assertEquals(oneDayInMs, new Configuration(Mode.PROD).getTslCacheExpirationTime());
+  }
+
+  @Test
+  public void getTslCacheExpirationTimeFromConfigurationFile() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertEquals(1776, configuration.getTslCacheExpirationTime());
+  }
+
+  @Test
   public void loadMultipleCAsFromConfigurationFile() throws Exception {
     Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf_two_cas" +
         ".yaml");
@@ -950,24 +988,16 @@ public class ConfigurationTest {
     return configuration.getJDigiDocConfiguration().get(key);
   }
 
-  //  // getCACerts is currently only used for testing purposes and not yet updated for multiple CA's
-//  @Test
-//  public void readConfigurationFromPropertiesFile() throws Exception {
-//    configuration.loadConfiguration("digidoc4j.yaml");
-//    List<X509Certificate> certificates = configuration.getCACerts();
-//    assertEquals(17, certificates.size());
-//  }
-//
-//  @Test
-//  public void readConfigurationFromPropertiesFileThrowsException() throws Exception {
-//    Configuration configuration = spy(new Configuration(Mode.TEST));
-//    doThrow(new CertificateException()).when(configuration).getX509CertificateFromFile(anyString());
-//    doCallRealMethod().when(configuration).loadConfiguration(anyString());
-//
-//    configuration.loadConfiguration("digidoc4j.yaml");
-//
-//    assertEquals(0, configuration.getCACerts().size());
-//  }
-//
+  private void waitOneSecond() throws InterruptedException {
+    Thread.sleep(1000L); //Waiting is necessary to check changes in the cached files modification time
+  }
+
+  private long getCacheModificationTime() {
+    return TSLHelper.getCacheLastModificationTime();
+  }
+
+  private void deleteTSLCache() {
+    TSLHelper.deleteTSLCache();
+  }
 
 }

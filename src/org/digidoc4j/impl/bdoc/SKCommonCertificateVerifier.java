@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
+import org.digidoc4j.impl.bdoc.tsl.LazyCertificatePool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,7 @@ import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 public class SKCommonCertificateVerifier implements Serializable, CertificateVerifier {
   private static final Logger logger = LoggerFactory.getLogger(SKCommonCertificateVerifier.class);
   private transient CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
+  private transient CertificateSource trustedCertSource;
 
   private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
@@ -72,6 +74,7 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   @Override
   public void setTrustedCertSource(final CertificateSource trustedCertSource) {
     logger.debug("");
+    this.trustedCertSource = trustedCertSource;
     commonCertificateVerifier.setTrustedCertSource(trustedCertSource);
   }
 
@@ -126,6 +129,9 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   @Override
   public CertificatePool createValidationPool() {
     logger.debug("");
-    return commonCertificateVerifier.createValidationPool();
+    if(trustedCertSource == null) {
+      return commonCertificateVerifier.createValidationPool();
+    }
+    return new LazyCertificatePool(trustedCertSource);
   }
 }

@@ -28,6 +28,7 @@
   <logger name="org.digidoc4j" level="DEBUG"/>
   <logger name="eu.europa" level="INFO"/>
   <logger name="org.digidoc4j.Configuration" level="INFO"/>
+  <logger name="eu.europa.esig.dss.client.http.commons" level="DEBUG"/>
 
   <root level="INFO">
     <appender-ref ref="file"/>

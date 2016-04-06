@@ -8,13 +8,12 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl.bdoc;
+package org.digidoc4j.impl.bdoc.tsl;
 
 import java.io.File;
 import java.io.Serializable;
 
 import org.apache.commons.io.FileUtils;
-import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.slf4j.Logger;
@@ -32,14 +31,17 @@ import eu.europa.esig.dss.x509.KeyStoreCertificateSource;
 public class TslLoader implements Serializable {
 
   private static final Logger logger = LoggerFactory.getLogger(TslLoader.class);
-  protected static final File fileCacheDirectory = new File(System.getProperty("java.io.tmpdir") + "/digidoc4jTSLCache");
+  public static final File fileCacheDirectory = new File(System.getProperty("java.io.tmpdir") + "/digidoc4jTSLCache");
   private boolean checkSignature = true;
   private String tslLocation;
   private File tslKeystoreFile;
   private String tslKeyStorePassword;
   private Integer connectionTimeout;
   private Integer socketTimeout;
+  private Long cacheExpirationTime;
   private transient TSLRepository tslRepository;
+  private transient TSLCertificateSourceImpl tslCertificateSource;
+  private transient TSLValidationJob tslValidationJob;
 
   public TslLoader(String tslLocation, File tslKeystoreFile, String tslKeyStorePassword) {
     this.tslKeystoreFile = tslKeystoreFile;
@@ -47,13 +49,13 @@ public class TslLoader implements Serializable {
     this.tslLocation = tslLocation;
   }
 
-  public TSLCertificateSource createTSL() {
+  public void prepareTsl() {
     try {
-      TSLCertificateSource tslCertificateSource = new TSLCertificateSource(this);
+      tslCertificateSource = new TSLCertificateSourceImpl();
       tslRepository = new TSLRepository();
       tslRepository.setTrustedListsCertificateSource(tslCertificateSource);
 
-      TSLValidationJob tslValidationJob = new TSLValidationJob();
+      tslValidationJob = new TSLValidationJob();
       DataLoader dataLoader = createDataLoader();
       tslValidationJob.setDataLoader(dataLoader);
       KeyStoreCertificateSource keyStoreCertificateSource = new KeyStoreCertificateSource(tslKeystoreFile, tslKeyStorePassword);
@@ -63,19 +65,20 @@ public class TslLoader implements Serializable {
       tslValidationJob.setRepository(tslRepository);
       tslValidationJob.setCheckLOTLSignature(checkSignature);
       tslValidationJob.setCheckTSLSignatures(checkSignature);
-
-      tslValidationJob.refresh();
-
-      return tslCertificateSource;
     } catch (DSSException e) {
       logger.error("Unable to load TSL: " + e.getMessage());
       throw new TslCertificateSourceInitializationException(e.getMessage());
     }
   }
 
-  public void invalidateCache() {
+  public static void invalidateCache() {
+    logger.info("Cleaning TSL cache directory at " + fileCacheDirectory.getPath());
     try {
-      FileUtils.cleanDirectory(fileCacheDirectory);
+      if(fileCacheDirectory.exists()) {
+        FileUtils.cleanDirectory(fileCacheDirectory);
+      } else {
+        logger.debug("TSL cache directory doesn't exist");
+      }
     } catch (Exception e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
@@ -94,6 +97,18 @@ public class TslLoader implements Serializable {
     this.checkSignature = checkSignature;
   }
 
+  public void setCacheExpirationTime(long cacheExpirationTime) {
+    this.cacheExpirationTime = cacheExpirationTime;
+  }
+
+  public TSLCertificateSourceImpl getTslCertificateSource() {
+    return tslCertificateSource;
+  }
+
+  public TSLValidationJob getTslValidationJob() {
+    return tslValidationJob;
+  }
+
   protected TSLRepository getTslRepository() {
     return tslRepository;
   }
@@ -106,6 +121,9 @@ public class TslLoader implements Serializable {
       }
       if(socketTimeout != null) {
         dataLoader.setTimeoutSocket(socketTimeout);
+      }
+      if(cacheExpirationTime != null) {
+        dataLoader.setCacheExpirationTime(cacheExpirationTime);
       }
       dataLoader.setFileCacheDirectory(fileCacheDirectory);
       logger.debug("Using file cache directory for storing TSL: " + fileCacheDirectory);

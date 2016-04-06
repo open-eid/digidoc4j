@@ -6,13 +6,14 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
 import org.digidoc4j.TSLCertificateSource;
+import org.digidoc4j.impl.bdoc.tsl.TSLCertificateSourceImpl;
 
 import eu.europa.esig.dss.tsl.ServiceInfo;
 import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
 import eu.europa.esig.dss.x509.CertificateToken;
 
 public class Certificates {
-    private TSLCertificateSource tslCertificateSource = new TSLCertificateSource();
+    private TSLCertificateSource tslCertificateSource = new TSLCertificateSourceImpl();
 
     public Certificates() {
         addCaCertificate("-----BEGIN CERTIFICATE-----\r\n" + "MIIGUjCCBDqgAwIBAgIRAIPltLipqP/bdIxj7uueYFgwDQYJKoZIhvcNAQEFBQAw\r\n"
@@ -15826,7 +15827,7 @@ public class Certificates {
         }
     }
 
-    private void addOcspCertificate(TrustedListsCertificateSource tslCertificateSource, X509Certificate certificate) {
+    private void addOcspCertificate(TSLCertificateSource tslCertificateSource, X509Certificate certificate) {
         ServiceInfo serviceInfo = new ServiceInfo();
         serviceInfo.setStatus("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision");
         serviceInfo.setType("http://uri.etsi.org/TrstSvc/Svctype/Certstatus/OCSP/QC");

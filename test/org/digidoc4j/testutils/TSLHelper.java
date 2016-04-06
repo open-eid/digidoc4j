@@ -1,10 +1,12 @@
 package org.digidoc4j.testutils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 
 import org.digidoc4j.Configuration;
+import org.digidoc4j.impl.bdoc.tsl.TslLoader;
 
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.DSSUtils;
@@ -30,5 +32,39 @@ public class TSLHelper {
     } catch (DSSException | IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static long getCacheLastModificationTime() {
+    File cachedFile = getCachedFile(TslLoader.fileCacheDirectory);
+    return cachedFile.lastModified();
+  }
+
+  public static boolean isTslCacheEmpty() {
+    if(!TslLoader.fileCacheDirectory.exists()) {
+      return true;
+    }
+    File[] cachedFiles = TslLoader.fileCacheDirectory.listFiles();
+    return cachedFiles == null || cachedFiles.length == 0;
+  }
+
+  public static void deleteTSLCache() {
+    TslLoader.invalidateCache();
+  }
+
+  private static File getCachedFile(File cacheDirectory) {
+    File cachedFile = null;
+    if(cacheDirectory.exists()) {
+      File[] files = cacheDirectory.listFiles();
+      if(files != null && files.length > 0) {
+        cachedFile = files[0];
+        long modificationTime = cachedFile.lastModified();
+        for(File file: files) {
+          if(file.lastModified() > modificationTime) {
+            cachedFile = file;
+          }
+        }
+      }
+    }
+    return cachedFile;
   }
 }

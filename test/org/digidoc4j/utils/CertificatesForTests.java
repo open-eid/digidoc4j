@@ -13,13 +13,14 @@ import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.digidoc4j.TSLCertificateSource;
+import org.digidoc4j.impl.bdoc.tsl.TSLCertificateSourceImpl;
 
 import eu.europa.esig.dss.tsl.ServiceInfo;
 import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
 import eu.europa.esig.dss.x509.CertificateToken;
 
 public class CertificatesForTests {
-    private TSLCertificateSource tslCertificateSource = new TSLCertificateSource();
+    private TSLCertificateSource tslCertificateSource = new TSLCertificateSourceImpl();
 
     public static final X509Certificate SIGN_CERT = CertificatesForTests.getCertFromPEMFormat("-----BEGIN CERTIFICATE-----\r\n" + 
             "MIIEqDCCA5CgAwIBAgIQXZSW5EBkctNPfCkprF2XsTANBgkqhkiG9w0BAQUFADBs\r\n" + 
@@ -15885,7 +15886,7 @@ public class CertificatesForTests {
         }
     }
 
-    private void addOcspCertificate(TrustedListsCertificateSource tslCertificateSource, X509Certificate certificate) {
+    private void addOcspCertificate(TSLCertificateSource tslCertificateSource, X509Certificate certificate) {
         ServiceInfo serviceInfo = new ServiceInfo();
         serviceInfo.setStatus("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision");
         serviceInfo.setType("http://uri.etsi.org/TrstSvc/Svctype/Certstatus/OCSP/QC");
@@ -15894,7 +15895,7 @@ public class CertificatesForTests {
         tslCertificateSource.addCertificate(new CertificateToken(certificate), serviceInfo);
     }
 
-    private void addTsaCertificate(TrustedListsCertificateSource tslCertificateSource, X509Certificate certificate) {
+    private void addTsaCertificate(TSLCertificateSource tslCertificateSource, X509Certificate certificate) {
         ServiceInfo serviceInfo = new ServiceInfo();
         serviceInfo.setStatus("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision");
         serviceInfo.setType("http://uri.etsi.org/TrstSvc/Svctype/TSA");

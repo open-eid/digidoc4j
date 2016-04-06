@@ -33,6 +33,7 @@ import static org.junit.Assert.assertTrue;
 public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
 
     private final static Logger logger = LoggerFactory.getLogger(LibraryInteroperabilityTest.class);
+    private static final Configuration TEST_CONF = new Configuration(Configuration.Mode.TEST);
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
@@ -67,7 +68,7 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
         Container container = ContainerBuilder.
             aContainer(BDOC_CONTAINER_TYPE).
             fromExistingFile("testFiles/DigiDocService_spec_est.pdf-TM-j.bdoc").
-            withConfiguration(new Configuration(Configuration.Mode.TEST)).
+            withConfiguration(TEST_CONF).
             build();
         TestDataBuilder.signContainer(container);
         validateContainer(container);
@@ -78,10 +79,9 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
     }
 
     private void createSignedContainerWithDigiDoc4j(String containerFilePath) {
-        Configuration configuration = new Configuration(Configuration.Mode.TEST);
         Container container = ContainerBuilder.
             aContainer(BDOC_CONTAINER_TYPE).
-            withConfiguration(configuration).
+            withConfiguration(TEST_CONF).
             withDataFile("testFiles/test.txt", "text/plain").
             build();
         signContainer(container, signatureToken);

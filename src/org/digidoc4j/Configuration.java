@@ -10,14 +10,12 @@
 
 package org.digidoc4j;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
-import org.digidoc4j.impl.bdoc.TslLoader;
+import org.digidoc4j.impl.bdoc.tsl.TslManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -25,8 +23,6 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 import static java.util.Arrays.asList;
@@ -124,11 +120,13 @@ import eu.europa.esig.dss.client.http.Protocol;
  * <li>VALIDATION_POLICY: Validation policy source file</li>
  * <li>TSL_KEYSTORE_LOCATION: keystore location for tsl signing certificates</li>
  * <li>TSL_KEYSTORE_PASSWORD: keystore password for the keystore in TSL_KEYSTORE_LOCATION</li>
+ * <li>TSL_CACHE_EXPIRATION_TIME: TSL cache expiration time in milliseconds</li>
  * </ul>
  */
 public class Configuration implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
   private static final int ONE_SECOND = 1000;
+  private static final int ONE_DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
   private static final int ONE_DAY_IN_MINUTES = 24 * 60;
   public static final long ONE_MB_IN_BYTES = 1048576;
 
@@ -160,7 +158,7 @@ public class Configuration implements Serializable {
   private String configurationInputSourceName;
   private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<>();
   private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
-  private TSLCertificateSource tslCertificateSource;
+  private TslManager tslManager;
   Map<String, String> configuration = new HashMap<>();
 
   /**
@@ -185,12 +183,14 @@ public class Configuration implements Serializable {
 
   private void initDefaultValues() {
     logger.debug("");
+    tslManager = new TslManager(this);
 
     configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
     configuration.put("connectionTimeout", String.valueOf(ONE_SECOND));
     configuration.put("socketTimeout", String.valueOf(ONE_SECOND));
     configuration.put("tslKeyStorePassword", "digidoc4j-password");
     configuration.put("revocationAndTimestampDeltaInMinutes", String.valueOf(ONE_DAY_IN_MINUTES));
+    configuration.put("tslCacheExpirationTime", String.valueOf(ONE_DAY_IN_MILLISECONDS));
 
     if (mode == Mode.TEST) {
       configuration.put("tspSource", "http://demo.sk.ee/tsa");
@@ -477,6 +477,7 @@ public class Configuration implements Serializable {
     setConfigurationValue(SIGN_OCSP_REQUESTS, SIGN_OCSP_REQUESTS);
     setConfigurationValue("TSL_KEYSTORE_LOCATION", "tslKeyStoreLocation");
     setConfigurationValue("TSL_KEYSTORE_PASSWORD", "tslKeyStorePassword");
+    setConfigurationValue("TSL_CACHE_EXPIRATION_TIME", "tslCacheExpirationTime");
     setConfigurationValue("REVOCATION_AND_TIMESTAMP_DELTA_IN_MINUTES", "revocationAndTimestampDeltaInMinutes");
 
     setJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS, Boolean.toString(hasToBeOCSPRequestSigned()));
@@ -750,7 +751,7 @@ public class Configuration implements Serializable {
    */
 
   public void setTSL(TSLCertificateSource certificateSource) {
-    this.tslCertificateSource = certificateSource;
+    tslManager.setTsl(certificateSource);
   }
 
   /**
@@ -760,53 +761,11 @@ public class Configuration implements Serializable {
    * @return TSL source
    */
   public TSLCertificateSource getTSL() {
-    if (tslCertificateSource != null) {
-      logger.debug("Using TSL cached copy");
-      return tslCertificateSource;
-    }
-    loadTsl();
-    return tslCertificateSource;
+    return tslManager.getTsl();
   }
 
-  /**
-   * Loading TSL in a single thread in a synchronized block to avoid duplicate TSL loading by multiple threads.
-   */
-  private synchronized void loadTsl() {
-    //Using double-checked locking to avoid other threads to start loading TSL
-    if(tslCertificateSource == null) {
-      logger.debug("Loading TSL in a synchronized block");
-      String tslLocation = getTslLocation();
-      File tslKeystoreFile = getTslKeystoreFile();
-      String tslKeyStorePassword = getTslKeyStorePassword();
-      boolean checkSignature = mode != Mode.TEST;
-
-      TslLoader tslLoader = new TslLoader(tslLocation, tslKeystoreFile, tslKeyStorePassword);
-      tslLoader.setCheckSignature(checkSignature);
-      tslLoader.setConnectionTimeout(getConnectionTimeout());
-      tslLoader.setSocketTimeout(getSocketTimeout());
-      tslCertificateSource = tslLoader.createTSL();
-      logger.debug("Finished loading TSL in a synchronized block");
-    }
-  }
-
-  private File getTslKeystoreFile() throws TslKeyStoreNotFoundException{
-    try {
-      String keystoreLocation = getTslKeyStoreLocation();
-      if (Files.exists(Paths.get(keystoreLocation))) {
-        return new File(keystoreLocation);
-      }
-      File tempFile = File.createTempFile("temp-tsl-keystore", ".jks");
-      InputStream in = getClass().getClassLoader().getResourceAsStream(keystoreLocation);
-      if (in == null) {
-        logger.error("keystore not found in location " + keystoreLocation);
-        throw new TslKeyStoreNotFoundException("keystore not found in location " + keystoreLocation);
-      }
-      FileUtils.copyInputStreamToFile(in, tempFile);
-      return tempFile;
-    } catch (IOException e) {
-      logger.error(e.getMessage());
-      throw new TslKeyStoreNotFoundException(e.getMessage());
-    }
+  public boolean shouldValidateTslSignature() {
+    return mode != Mode.TEST;
   }
 
   /**
@@ -824,7 +783,7 @@ public class Configuration implements Serializable {
   public void setTslLocation(String tslLocation) {
     logger.debug("Set TSL location: " + tslLocation);
     setConfigurationParameter("tslLocation", tslLocation);
-    tslCertificateSource = null;
+    tslManager.setTsl(null);
   }
 
   /**
@@ -931,6 +890,29 @@ public class Configuration implements Serializable {
     String keystorePassword = getConfigurationParameter("tslKeyStorePassword");
     logger.debug("tsl KeyStore Password: " + keystorePassword);
     return keystorePassword;
+  }
+
+  /**
+   * Sets the expiration time for TSL cache in milliseconds.
+   * If more time has passed from the cache's creation time time, then a fresh TSL is downloaded and cached,
+   * otherwise a cached copy is used.
+   *
+   * @param cacheExpirationTimeInMilliseconds cache expiration time in milliseconds
+   */
+  public void setTslCacheExpirationTime(long cacheExpirationTimeInMilliseconds) {
+    logger.debug("Setting TSL cache expiration time in milliseconds: " + cacheExpirationTimeInMilliseconds);
+    setConfigurationParameter("tslCacheExpirationTime", String.valueOf(cacheExpirationTimeInMilliseconds));
+  }
+
+  /**
+   * Returns TSL cache expiration time in milliseconds.
+   *
+   * @return TSL cache expiration time in milliseconds.
+   */
+  public long getTslCacheExpirationTime() {
+    String tslCacheExpirationTime = getConfigurationParameter("tslCacheExpirationTime");
+    logger.debug("TSL cache expiration time in milliseconds: " + tslCacheExpirationTime);
+    return Long.parseLong(tslCacheExpirationTime);
   }
 
   /**
