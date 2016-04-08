@@ -250,7 +250,8 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void containerMissingOCSPData() {
-    Container container = ContainerOpener.open("testFiles/TS-06_23634_TS_missing_OCSP_adjusted.asice");
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    Container container = ContainerOpener.open("testFiles/TS-06_23634_TS_missing_OCSP_adjusted.asice", configuration);
     List<DigiDoc4JException> errors = container.validate().getErrors();
 
     assertEquals(LT, container.getSignatures().get(0).getProfile());
