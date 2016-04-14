@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 
 import org.apache.xml.security.signature.Reference;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.Signature;
@@ -39,7 +40,7 @@ public class UriEncodingTest extends AbstractSigningTests {
     protected Signature sign() {
         Container container = ContainerBuilder.
             aContainer().
-            withConfiguration(createDigiDoc4JConfiguration()).
+            withConfiguration(new Configuration(Configuration.Mode.TEST)).
             withDataFile(new ByteArrayInputStream("file contents".getBytes()), "dds_JÜRIÖÖ € žŠ päev.txt", "application/octet-stream").
             build();
         Signature signature = TestDataBuilder.signContainer(container);

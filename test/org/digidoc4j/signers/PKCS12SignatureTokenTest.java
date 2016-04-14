@@ -33,149 +33,45 @@ public class PKCS12SignatureTokenTest {
   @Test
   public void getCertificate() throws CertificateEncodingException {
     X509Cert x509Cert = new X509Cert(pkcs12Signer.getCertificate());
-    assertEquals("MIIFEzCCA/ugAwIBAgIQSXxaK/qTYahTT77Z9I56EjANBgkqhkiG9w0BAQUFADBsMQswC" +
-            "QYDVQQGEwJFRTEiMCAGA1UECgwZQVMgU2VydGlmaXRzZWVyaW1pc2tlc2t1czEfMB0GA1UEAwwWVEV" +
-            "TVCBvZiBFU1RFSUQtU0sgMjAxMTEYMBYGCSqGSIb3DQEJARYJcGtpQHNrLmVlMB4XDTE0MDQxNzExN" +
-            "DUyOVoXDTE2MDQxMjIwNTk1OVowgbQxCzAJBgNVBAYTAkVFMQ8wDQYDVQQKDAZFU1RFSUQxGjAYBgN" +
-            "VBAsMEWRpZ2l0YWwgc2lnbmF0dXJlMTEwLwYDVQQDDCjFvcOVUklOw5xXxaBLWSxNw4RSw5wtTMOWw" +
-            "5ZaLDExNDA0MTc2ODY1MRcwFQYDVQQEDA7FvcOVUklOw5xXxaBLWTEWMBQGA1UEKgwNTcOEUsOcLUz" +
-            "DlsOWWjEUMBIGA1UEBRMLMTE0MDQxNzY4NjUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBA" +
-            "QChn9qVaA+x3RkDBrD5ujwfnreK5/Nb+Nvo9Vg5OLMn3JKUoUhFX6A/q5lBUylK/CU/lNRTv/kicqn" +
-            "u1aCyAiW0XVYk8jrOI1wRbHeyBMq/5gVm/vbbRtMi/XGLkgMZ5UDxY0QZfmu8wlRJ8164zRNocuUJL" +
-            "LXWOB6vda2RRXC3Cix4TDvQwGmPrQQJ8dzDIJEkLS7NCLBTcndm7buQegRc043gKMjUmRhGZEzF4oJ" +
-            "a4pMfXqeSa+PUtrNyNNNQaOwTH29R8aFfGU2xorVvxoUieNipyWMEz8BTUGwwIceapWi77loBV/VQf" +
-            "StXnQNu/s6BC04ss43O6sK70MB1qlRZAgMBAAGjggFmMIIBYjAJBgNVHRMEAjAAMA4GA1UdDwEB/wQ" +
-            "EAwIGQDCBmQYDVR0gBIGRMIGOMIGLBgorBgEEAc4fAwEBMH0wWAYIKwYBBQUHAgIwTB5KAEEAaQBuA" +
-            "HUAbAB0ACAAdABlAHMAdABpAG0AaQBzAGUAawBzAC4AIABPAG4AbAB5ACAAZgBvAHIAIAB0AGUAcwB" +
-            "0AGkAbgBnAC4wIQYIKwYBBQUHAgEWFWh0dHA6Ly93d3cuc2suZWUvY3BzLzAdBgNVHQ4EFgQUEjVsO" +
-            "kaNOGG0GlcF4icqxL0u4YcwIgYIKwYBBQUHAQMEFjAUMAgGBgQAjkYBATAIBgYEAI5GAQQwHwYDVR0" +
-            "jBBgwFoAUQbb+xbGxtFMTjPr6YtA0bW0iNAowRQYDVR0fBD4wPDA6oDigNoY0aHR0cDovL3d3dy5za" +
-            "y5lZS9yZXBvc2l0b3J5L2NybHMvdGVzdF9lc3RlaWQyMDExLmNybDANBgkqhkiG9w0BAQUFAAOCAQE" +
-            "AYTJLbScA3+Xh/s29Qoc0cLjXW3SVkFP/U71/CCIBQ0ygmCAXiQIp/7X7JonY4aDz5uTmq742zZgq5" +
-            "FA3c3b4NtRzoiJXFUWQWZOPE6Ep4Y07Lpbn04sypRKbVEN9TZwDy3elVq84BcX/7oQYliTgj5EaUvp" +
-            "e7MIvkK4DWwrk2ffx9GRW+qQzzjn+OLhFJbT/QWi81Q2CrX34GmYGrDTC/thqr5WoPELKRg6a0v3mv" +
-            "OCVtfIxJx7NKK4B6PGhuTl83hGzTc+Wwbaxwjqzl/SUwCNd2R8GV8EkhYH8Kay3Ac7Qx3agrJJ6H8j" +
-            "+h+nCKLjIdYImvnznKyR0N2CRc/zQ+g==",
+    assertEquals("MIIFrjCCA5agAwIBAgIQUwvkG7xZfERXDit8E7z6DDANBgkqhkiG9w0BAQsFADBr" +
+            "MQswCQYDVQQGEwJFRTEiMCAGA1UECgwZQVMgU2VydGlmaXRzZWVyaW1pc2tlc2t1" +
+            "czEXMBUGA1UEYQwOTlRSRUUtMTA3NDcwMTMxHzAdBgNVBAMMFlRFU1Qgb2YgRVNU" +
+            "RUlELVNLIDIwMTUwHhcNMTYwNDEzMTEyMDI4WhcNMjEwNDEyMjA1OTU5WjCBtDEL" +
+            "MAkGA1UEBhMCRUUxDzANBgNVBAoMBkVTVEVJRDEaMBgGA1UECwwRZGlnaXRhbCBz" +
+            "aWduYXR1cmUxMTAvBgNVBAMMKMW9w5VSSU7DnFfFoEtZLE3DhFLDnC1Mw5bDllos" +
+            "MTE0MDQxNzY4NjUxFzAVBgNVBAQMDsW9w5VSSU7DnFfFoEtZMRYwFAYDVQQqDA1N" +
+            "w4RSw5wtTMOWw5ZaMRQwEgYDVQQFEwsxMTQwNDE3Njg2NTCCASIwDQYJKoZIhvcN" +
+            "AQEBBQADggEPADCCAQoCggEBAJrWrja4BY6nlDXf/46So37NcJoDAB8d6pZr2XxM" +
+            "4cCv3MqAKAuf8oew38jc+/20oBiMo9bSWfTrjCtunuyJxBi6/xX1SwXqXpCIcAeA" +
+            "tL8SA4NRuWQGEFxGRJtPUNpzVkiIBI5u+yENpxvGFOW7777u0E7E3p/Jx6Y6HflI" +
+            "CQPm48zjzeBytJ+m6v6EdObnOpeJtusaZ+Yg/hmrCRRgJeRtnjJIw5LmLrjqm185" +
+            "BFtgwFH0J8iAr18FSua5yLP343s4vZx8np1NqmdJrlHt5IjX2D3+QAObJmh/U+id" +
+            "oNdThlJlst/cj5/y496vR+PhSWIWzqv//xYH41qIkXDjD+UCAwEAAaOCAQIwgf8w" +
+            "CQYDVR0TBAIwADAOBgNVHQ8BAf8EBAMCBkAwOwYDVR0gBDQwMjAwBgkrBgEEAc4f" +
+            "AwEwIzAhBggrBgEFBQcCARYVaHR0cHM6Ly93d3cuc2suZWUvY3BzMB0GA1UdDgQW" +
+            "BBQ27kyYhup5RKLxTM1gxY+BDz/N0jAiBggrBgEFBQcBAwQWMBQwCAYGBACORgEB" +
+            "MAgGBgQAjkYBBDAfBgNVHSMEGDAWgBRJwPJEOWXVm0Y7DThgg7HWLSiGpjBBBgNV" +
+            "HR8EOjA4MDagNKAyhjBodHRwOi8vd3d3LnNrLmVlL2NybHMvZXN0ZWlkL3Rlc3Rf" +
+            "ZXN0ZWlkMjAxNS5jcmwwDQYJKoZIhvcNAQELBQADggIBAHUUiGcIgXB3INd78mGF" +
+            "yIz+u8+TLPON0va0mRuugy1TEH0eWZqNhv2+7vvzd8CLoOp4aHrUwvx7zGaND/bO" +
+            "w4dC1dO5zsXh1EziNAfaNqzYP2QQ4BckqZeGl0+d7OVyP5/HgZOYI90qYLvkjWSn" +
+            "eSFXZ2BN8Jku6l0dUnhsQqCoLKl0j4F+1u+GwC9pjzm2aVoYRs3CcNgkAa1O3SKK" +
+            "9PXpz/chFE1dfvT8xPagroVkzDCZ4o6Rp+8OPBPYacQhdIH6DyagPcbdKz1S0EC8" +
+            "q+7qm1C8bM05oyYfkoBLU6afgRGHcpRMFQRBnsu7o1LQIMsRF5dWWTqL4FLLw6iF" +
+            "exZA6z3HMilu+yolLxURaD3oWMcWzLKi0Ic88T8LNyz5ksWDDZXAoso0ZDTAh/Da" +
+            "FEdeQs9MnOkGzrvswrEG2MUs33XHhp988TWgRQGAJU/JZQR057I/UxfikYRhZ5oM" +
+            "7qPBy4oDh3VlhMsY5yHuK400Xi202xoXVS+VG33xB7KCvbwuemZSlVewxTX0ZJg5" +
+            "qTcwIXRMlsWffqyVWpnxjnvWmqO01nrbgjlpBAbDDT2R/JXPOjVpgjhQGEmNmVj3" +
+            "OvfjvLlXXP7CZ4Vxwxy0aBPPvVHoyWjFycsqm4EFGSGkcB17NcP3dlj7ZwloBobg" +
+            "ittrqXcLf8qik7sGgHnaa7Cc",
         Base64.encodeBase64String(x509Cert.getX509Certificate().getEncoded()));
   }
 
   @Test
   public void sign() {                                //TODO know expected value
-    byte[] expected = new byte[]{121, 39, -126, -87, -118, -7, -79, 13, -52, -109, -8, -77, -15, 77, 12, 3, -10, -56,
-        74, 112, -21, 54, -75,
-        28, -19, -104, 2, -77, 41, -32, -93, 64, -119, 54, -98, -50, -88, 24, -85, -48, 24, -93, -18, -86, -24, -127,
-        87, -125, -94, -21, 77, 87, 95,
-        95, 22, -64, -104, 90, -13, -29, 113, -25, -21, 40, -50, -24, -5, -111, -83, -98, 62, 46, 68, -127, -100,
-        112, 45, 82, -2, 51, 90, 65, -72,
-        18, -67, 9, 40, 122, -55, 59, -83, -17, -63, 11, 117, -97, 25, 116, -93, -49, 88, -127, 92, -123, 23, 12, 5,
-        -16, -91, -96, -30, 51, -77, 116,
-        -36, 97, -73, -20, -80, 98, -5, -123, 118, -19, 59, -84, -30, 52, -25, -82, -104, -118, -80, -91, -8, 100,
-        -19, 105, 65, -83, -2, 73, -101,
-        -54, 90, -20, 95, -78, 113, -95, 81, 42, 93, 10, -121, 12, 99, 31, 29, 61, -99, 60, -82, 100, -39, 86, -81,
-        68, -42, 75, 100, 60, -80, 99, -31,
-        109, 48, -80, -22, -7, 34, -110, 103, -114, 63, 30, -34, 92, 11, 51, -22, 75, 52, 9, -103, 108, -113, 11,
-        -96, -73, -14, -122, -18, 105, 38,
-        -85, 96, -23, -115, 107, -106, 57, 105, 27, -106, 75, -111, -41, 59, -23, 113, -55, 86, 70, 64, -118, -80,
-        44, -48, -19, 99, -43, 106, -26,
-        97, -119, -94, -9, -22, -8, 88, 62, 67, -80, 35, 110, -7, -10, 55, 73, -60, 83, -128, -57, -120, 2};
-    assertTrue(Arrays.equals(expected, pkcs12Signer.sign(SHA512, new byte[]{0x41})));
+    byte[] expected = new byte[]{40,-84,-43,-95,-8,46,-27,-2,41,80,-96,-74,125,37,-11,85,-22,64,-87,122,41,-29,91,-35,104,60,86,-98,-65,-101,81,74,-10,35,-24,-115,-14,115,-58,-53,-28,-53,47,-82,74,-21,88,-111,-31,47,112,71,41,-32,120,119,109,34,-96,124,-61,-5,112,114,122,1,30,-105,112,67,116,-32,-44,-123,-43,26,63,-28,-41,82,-79,-32,98,93,20,-76,-94,105,40,-95,-1,-97,-33,88,31,92,-115,-114,118,-94,3,126,-25,-100,-84,72,-84,51,-122,-59,-72,0,123,68,-116,91,-105,7,81,-106,10,58,-39,53,109,-48,-121,4,-111,32,-127,-74,-3,-73,-57,-12,114,126,-20,-40,76,-58,119,-108,85,-124,97,-55,-82,-120,-94,-40,-10,-96,-60,29,84,55,12,77,27,-117,-3,84,39,-24,-66,-89,-5,51,-64,-53,-16,-43,-53,63,-59,-32,48,82,-85,-124,-107,-85,43,37,62,-63,42,-8,86,-79,42,-119,-37,30,6,-71,30,-63,98,109,56,74,69,-14,-44,104,86,-87,37,109,91,59,-58,33,81,-69,-50,-82,121,69,-99,18,51,-63,116,-56,-26,96,-81,-17,-106,-57,45,-15,11,-39,-24,121,-59,-38,83,-3,21,-104,-102,116,44,108,-7,79,-49,-106,28,-82};
+    byte[] actual = pkcs12Signer.sign(SHA512, new byte[]{0x41});
+    assertTrue(Arrays.equals(expected, actual));
   }
 
-//  @Test
-//  public void getCity() {
-//    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
-//    assertEquals("myCity", pkcs12Signer.getCity());
-//  }
-//
-//  @Test
-//  public void getCityWhenEmpty() {
-//    pkcs12Signer.setSignatureProductionPlace("", "myState", "myPostalCode", "myCountry");
-//    assertEquals("", pkcs12Signer.getCity());
-//  }
-//
-//  @Test
-//  public void getCityWhenNull() {
-//    pkcs12Signer.setSignatureProductionPlace(null, "myState", "myPostalCode", "myCountry");
-//    assertNull(pkcs12Signer.getCity());
-//  }
-//
-//  @Test
-//  public void getStateOrProvince() {
-//    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
-//    assertEquals("myState", pkcs12Signer.getStateOrProvince());
-//  }
-//
-//  @Test
-//  public void getStateOrProvinceWhenEmpty() {
-//    pkcs12Signer.setSignatureProductionPlace("myCity", "", "myPostalCode", "myCountry");
-//    assertEquals("", pkcs12Signer.getStateOrProvince());
-//  }
-//
-//  @Test
-//  public void getStateOrProvinceWhenNull() {
-//    pkcs12Signer.setSignatureProductionPlace("myCity", null, "myPostalCode", "myCountry");
-//    assertNull(pkcs12Signer.getStateOrProvince());
-//  }
-//
-//  @Test
-//  public void getPostalCode() {
-//    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
-//    assertEquals("myPostalCode", pkcs12Signer.getPostalCode());
-//  }
-//
-//  @Test
-//  public void getPostalCodeWhenEmpty() {
-//    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "", "myCountry");
-//    assertEquals("", pkcs12Signer.getPostalCode());
-//  }
-//
-//  @Test
-//  public void getPostalCodeWhenNull() {
-//    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", null, "myCountry");
-//    assertNull(pkcs12Signer.getPostalCode());
-//  }
-//
-//  @Test
-//  public void getCountry() {
-//    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "myCountry");
-//    assertEquals("myCountry", pkcs12Signer.getCountry());
-//  }
-//
-//  @Test
-//  public void getCountryWhenEmpty() {
-//    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", "");
-//    assertEquals("", pkcs12Signer.getCountry());
-//  }
-//
-//  @Test
-//  public void getCountryWhenNull() {
-//    pkcs12Signer.setSignatureProductionPlace("myCity", "myState", "myPostalCode", null);
-//    assertNull(pkcs12Signer.getCountry());
-//  }
-//
-//  @Test
-//  public void getSignerRoles() {
-//    pkcs12Signer.setSignerRoles(asList("Role / Resolution"));
-//    Assert.assertEquals(1, pkcs12Signer.getSignerRoles().size());
-//    assertEquals("Role / Resolution", pkcs12Signer.getSignerRoles().get(0));
-//  }
-//
-//  @Test
-//  public void getMultipleSignerRoles() {
-//    pkcs12Signer.setSignerRoles(asList("Role 1", "Role 2"));
-//    Assert.assertEquals(2, pkcs12Signer.getSignerRoles().size());
-//    assertEquals("Role 1", pkcs12Signer.getSignerRoles().get(0));
-//    assertEquals("Role 2", pkcs12Signer.getSignerRoles().get(1));
-//  }
-//
-//  @Test
-//  public void addSignatureProductionPlace() throws Exception {
-//    SignatureProductionPlace signatureProductionPlace = new SignatureProductionPlace();
-//    signatureProductionPlace.setCountry("Country");
-//    pkcs12Signer.setSignatureProductionPlace(signatureProductionPlace);
-//
-//    assertEquals("Country", pkcs12Signer.getCountry());
-//    SignatureProductionPlace productionPlaceToTest = pkcs12Signer.getSignatureProductionPlace();
-//    assertEquals("Country", productionPlaceToTest.getCountry());
-//  }
 }

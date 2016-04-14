@@ -359,7 +359,7 @@ public class DDocFacadeTest {
     container.sign(PKCS12_SIGNER);
     container.sign(PKCS12_SIGNER);
 
-    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12", container.getSignature(1).getSigningCertificate().getSerial());
+    assertEquals("530be41bbc597c44570e2b7c13bcfa0c", container.getSignature(1).getSigningCertificate().getSerial());
   }
 
   @Test(expected = DigiDoc4JException.class)

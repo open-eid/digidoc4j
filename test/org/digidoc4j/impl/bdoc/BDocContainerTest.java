@@ -199,17 +199,17 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.save("testTwoSignatures.bdoc");
 
     assertEquals(2, container.getSignatures().size());
-    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
+    assertEquals("530be41bbc597c44570e2b7c13bcfa0c",
         container.getSignatures().get(0).getSigningCertificate().getSerial());
-    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
+    assertEquals("530be41bbc597c44570e2b7c13bcfa0c",
         container.getSignatures().get(1).getSigningCertificate().getSerial());
 
     Container openedContainer = open("testTwoSignatures.bdoc");
 
     assertEquals(2, openedContainer.getSignatures().size());
-    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
+    assertEquals("530be41bbc597c44570e2b7c13bcfa0c",
         openedContainer.getSignatures().get(0).getSigningCertificate().getSerial());
-    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
+    assertEquals("530be41bbc597c44570e2b7c13bcfa0c",
         openedContainer.getSignatures().get(1).getSigningCertificate().getSerial());
   }
 
@@ -286,7 +286,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     signContainer(container);
     signContainer(container);
 
-    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12", container.getSignature(1).getSigningCertificate().getSerial());
+    assertEquals("530be41bbc597c44570e2b7c13bcfa0c", container.getSignature(1).getSigningCertificate().getSerial());
   }
 
   @Test
@@ -316,13 +316,13 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.save("testAddMultipleSignatures.bdoc");
 
     assertEquals(3, container.getSignatures().size());
-    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
+    assertEquals("530be41bbc597c44570e2b7c13bcfa0c",
         container.getSignatures().get(2).getSigningCertificate().getSerial());
 
     Container openedContainer = open("testAddMultipleSignatures.bdoc");
 
     assertEquals(3, openedContainer.getSignatures().size());
-    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12",
+    assertEquals("530be41bbc597c44570e2b7c13bcfa0c",
         openedContainer.getSignatures().get(2).getSigningCertificate().getSerial());
 
     ValidationResult validationResult = openedContainer.validate();

@@ -14,6 +14,7 @@ import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.factory.DigiDocFactory;
 import ee.sk.utils.ConfigManager;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.junit.Before;
@@ -34,6 +35,7 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
 
     private final static Logger logger = LoggerFactory.getLogger(LibraryInteroperabilityTest.class);
     private static final Configuration TEST_CONF = new Configuration(Configuration.Mode.TEST);
+    private static final ConfigManagerInitializer configManagerInitializer = new ConfigManagerInitializer();
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
@@ -44,6 +46,7 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
     public void setUp() throws Exception {
         signatureToken = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
         tempFile = testFolder.newFile("test.bdoc");
+        configManagerInitializer.initConfigManager(TEST_CONF);
     }
 
     @Test
@@ -100,8 +103,6 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
     }
 
     private void validateContainerWithJDigiDoc(String containerFilePath) throws DigiDocException {
-        String cfgFile = "testFiles/jdigidoc.cfg";
-        ConfigManager.init(cfgFile);
         boolean isBdoc = true;
         List errors = new ArrayList();
         DigiDocFactory digFac = ConfigManager.instance().getDigiDocFactory();

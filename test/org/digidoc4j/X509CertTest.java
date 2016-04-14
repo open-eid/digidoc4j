@@ -48,20 +48,20 @@ public class X509CertTest {
 
   @Test
   public void testGetSerialNumber() {
-    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12", cert.getSerial());
+    assertEquals("530be41bbc597c44570e2b7c13bcfa0c", cert.getSerial());
   }
 
   @Test
   public void testGetIssuerName() {
-    assertEquals("emailaddress=pki@sk.ee, cn=test of esteid-sk 2011, o=as sertifitseerimiskeskus, c=ee",
+    assertEquals("cn=test of esteid-sk 2015, oid.2.5.4.97=ntree-10747013, o=as sertifitseerimiskeskus, c=ee",
         cert.issuerName().toLowerCase());
   }
 
   @Test
   public void testGetIssuerNameByPart() {
-    assertEquals("pki@sk.ee", cert.issuerName(X509Cert.Issuer.EMAILADDRESS).toLowerCase());
+    assertNull(cert.issuerName(X509Cert.Issuer.EMAILADDRESS));
     assertEquals("as sertifitseerimiskeskus", cert.issuerName(X509Cert.Issuer.O).toLowerCase());
-    assertEquals("test of esteid-sk 2011", cert.issuerName(X509Cert.Issuer.CN).toLowerCase());
+    assertEquals("test of esteid-sk 2015", cert.issuerName(X509Cert.Issuer.CN).toLowerCase());
     assertEquals("ee", cert.issuerName(X509Cert.Issuer.C).toLowerCase());
   }
 
