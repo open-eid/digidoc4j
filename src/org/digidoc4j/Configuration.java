@@ -126,7 +126,7 @@ import eu.europa.esig.dss.client.http.Protocol;
 public class Configuration implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
   private static final int ONE_SECOND = 1000;
-  private static final int ONE_DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
+  private static final long ONE_DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
   private static final int ONE_DAY_IN_MINUTES = 24 * 60;
   public static final long ONE_MB_IN_BYTES = 1048576;
 

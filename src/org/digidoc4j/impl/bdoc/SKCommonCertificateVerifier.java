@@ -14,7 +14,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
+import org.apache.commons.lang.SerializationUtils;
+import org.digidoc4j.impl.bdoc.tsl.ClonedTslCertificateSource;
 import org.digidoc4j.impl.bdoc.tsl.LazyCertificatePool;
+import org.digidoc4j.impl.bdoc.tsl.LazyTslCertificateSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,8 +77,9 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   @Override
   public void setTrustedCertSource(final CertificateSource trustedCertSource) {
     logger.debug("");
-    this.trustedCertSource = trustedCertSource;
-    commonCertificateVerifier.setTrustedCertSource(trustedCertSource);
+    ClonedTslCertificateSource clonedTslCertificateSource = new ClonedTslCertificateSource(trustedCertSource);
+    this.trustedCertSource = clonedTslCertificateSource;
+    commonCertificateVerifier.setTrustedCertSource(clonedTslCertificateSource);
   }
 
   @Override

@@ -250,8 +250,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void containerMissingOCSPData() {
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    Container container = ContainerOpener.open("testFiles/TS-06_23634_TS_missing_OCSP_adjusted.asice", configuration);
+    Container container = ContainerOpener.open("testFiles/TS-06_23634_TS_missing_OCSP_adjusted.asice");
     List<DigiDoc4JException> errors = container.validate().getErrors();
 
     assertEquals(LT, container.getSignatures().get(0).getProfile());
@@ -447,6 +446,14 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @Test
   public void bDoc_withoutOcspResponse_shouldBeInvalid() throws Exception {
     assertFalse(validateContainer("testFiles/23608-bdoc21-no-ocsp.bdoc", PROD_CONFIGURATION).isValid());
+  }
+
+  @Test
+  public void ocspResponseShouldNotBeTakenFromPreviouslyValidatedSignatures_whenOcspResponseIsMissing() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    assertFalse(validateContainer("testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc", configuration).isValid());
+    assertTrue(validateContainer("testFiles/valid-containers/valid-bdoc-tm.bdoc", configuration).isValid());
+    assertFalse(validateContainer("testFiles/invalid-containers/invalid-bdoc-tm-missing-revoked-ocsp.bdoc", configuration).isValid());
   }
 
   @Test

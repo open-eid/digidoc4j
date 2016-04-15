@@ -41,9 +41,9 @@ import eu.europa.esig.dss.x509.CertificateToken;
 public class LazyTslCertificateSource implements TSLCertificateSource {
 
   private static final Logger logger = LoggerFactory.getLogger(LazyTslCertificateSource.class);
-  private transient TSLCertificateSource certificateSource;
+  private TSLCertificateSource certificateSource;
   private transient TSLValidationJob tslValidationJob;
-  private transient Long lastCacheReloadingTime;
+  private Long lastCacheReloadingTime;
   private Long cacheExpirationTime;
   private TslLoader tslLoader;
 
@@ -97,6 +97,12 @@ public class LazyTslCertificateSource implements TSLCertificateSource {
     this.cacheExpirationTime = cacheExpirationTime;
   }
 
+  protected void refreshIfCacheExpired() {
+    if(isCacheExpired()) {
+      initTsl();
+    }
+  }
+
   Long getCacheExpirationTime() {
     return cacheExpirationTime;
   }
@@ -107,9 +113,7 @@ public class LazyTslCertificateSource implements TSLCertificateSource {
 
   private TSLCertificateSource getCertificateSource() {
     logger.debug("Accessing TSL");
-    if(isCacheExpired()) {
-      initTsl();
-    }
+    refreshIfCacheExpired();
     return certificateSource;
   }
 

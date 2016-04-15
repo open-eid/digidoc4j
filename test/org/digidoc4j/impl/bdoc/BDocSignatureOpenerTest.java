@@ -105,11 +105,11 @@ public class BDocSignatureOpenerTest {
     assertEquals(new Date(1454090315000L), signature.getSigningTime());
     assertTrue(StringUtils.startsWith(signature.getSigningCertificate().issuerName(), "C=EE,O=AS Sertifitseerimiskeskus"));
     assertNotNull(signature.getOCSPCertificate());
-    assertTrue(StringUtils.startsWith(signature.getOCSPCertificate().getSubjectName(), "C=EE,O=AS Sertifitseerimiskeskus,OU=OCSP"));
+    assertTrue(StringUtils.contains(signature.getOCSPCertificate().getSubjectName(), "OU=OCSP"));
     assertEquals(new Date(1454090317000L), signature.getOCSPResponseCreationTime());
     assertEquals(new Date(1454090316000L), signature.getTimeStampCreationTime());
     assertNotNull(signature.getTimeStampTokenCertificate());
-    assertTrue(StringUtils.startsWith(signature.getTimeStampTokenCertificate().getSubjectName(), "C=EE,O=AS Sertifitseerimiskeskus,OU=TSA"));
+    assertTrue(StringUtils.contains(signature.getTimeStampTokenCertificate().getSubjectName(), "OU=TSA"));
     assertEquals(signature.getTimeStampCreationTime(), signature.getTrustedSigningTime());
   }
 
