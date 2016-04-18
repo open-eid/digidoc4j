@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.security.cert.CertificateException;
@@ -29,7 +28,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.*;
-
 
 /**
  * Wrapper for java.security.cert.X509Certificate object.
@@ -287,7 +285,7 @@ public class X509Cert implements Serializable {
    */
   public String getSubjectName() {
     logger.debug("");
-    String subjectName = originalCert.getSubjectDN().toString();
+    String subjectName = originalCert.getSubjectX500Principal().toString();
     logger.debug("Subject name: " + subjectName);
     return subjectName;
   }

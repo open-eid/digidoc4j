@@ -15,6 +15,9 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
+import static org.digidoc4j.X509Cert.SubjectName.GIVENNAME;
+import static org.digidoc4j.X509Cert.SubjectName.SERIALNUMBER;
+import static org.digidoc4j.X509Cert.SubjectName.SURNAME;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.assertEquals;
@@ -362,6 +365,16 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     Signature signature = createSignatureFor(BDOC_CONTAINER_TYPE, SignatureProfile.LTA);
     assertNotNull(signature.getTrustedSigningTime());
     assertEquals(signature.getTimeStampCreationTime(), signature.getTrustedSigningTime());
+  }
+
+  @Test
+  public void getSignatureSigningCertificateDetails() throws Exception {
+    Container container = TestDataBuilder.open("testFiles/valid-containers/valid-bdoc-tm.bdoc");
+    Signature signature = container.getSignatures().get(0);
+    X509Cert cert = signature.getSigningCertificate();
+    assertEquals("11404176865", cert.getSubjectName(SERIALNUMBER));
+    assertEquals("märü-lööz", cert.getSubjectName(GIVENNAME).toLowerCase());
+    assertEquals("žõrinüwšky", cert.getSubjectName(SURNAME).toLowerCase());
   }
 
   private Signature getSignature(Container.DocumentType documentType) {
