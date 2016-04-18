@@ -726,6 +726,23 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void saveExistingContainer() throws Exception {
+    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
+    String containerPath = testFolder.newFile("test-container.asice").getPath();
+    container.saveAsFile(containerPath);
+    Container savedContainer = open(containerPath);
+    assertTrue(savedContainer.validate().isValid());
+    assertEquals(1, savedContainer.getDataFiles().size());
+    assertEquals(2, savedContainer.getSignatures().size());
+    ZipFile zip = new ZipFile(containerPath);
+    assertNotNull(zip.getEntry("mimetype"));
+    assertNotNull(zip.getEntry("test.txt"));
+    assertNotNull(zip.getEntry("META-INF/manifest.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
+  }
+
+  @Test
   public void containerIsLT() throws Exception {
     Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
     signContainer(container, LT);

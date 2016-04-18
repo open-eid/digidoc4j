@@ -38,6 +38,7 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.junit.Before;
 import org.junit.Rule;
@@ -98,6 +99,15 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
     Container deserializedContainer = deserializer(serializedContainerPath);
 
     assertTrue(deserializedContainer.validate().isValid());
+  }
+
+  @Test
+  public void serializeExistingContainer() throws Exception {
+    Container container = TestDataBuilder.open("testFiles/valid-containers/valid-bdoc-tm.bdoc");
+    serialize(container, serializedContainerPath);
+    Container deserializedContainer = deserializer(serializedContainerPath);
+    assertEquals(1, deserializedContainer.getDataFiles().size());
+    assertEquals(1, deserializedContainer.getSignatures().size());
   }
 
   @Test

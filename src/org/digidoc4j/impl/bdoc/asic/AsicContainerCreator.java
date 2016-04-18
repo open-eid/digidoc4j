@@ -119,11 +119,11 @@ public class AsicContainerCreator {
     for (AsicEntry asicEntry : asicEntries) {
       DSSDocument content = asicEntry.getContent();
       byte[] entryBytes = content.getBytes();
-      ZipEntry newZipEntry = cloneZipEntry(asicEntry.getZipEntry());
-      if(!StringUtils.equalsIgnoreCase(ZIP_ENTRY_MIMETYPE, newZipEntry.getName())) {
+      ZipEntry zipEntry = asicEntry.getZipEntry();
+      if(!StringUtils.equalsIgnoreCase(ZIP_ENTRY_MIMETYPE, zipEntry.getName())) {
         zipOutputStream.setLevel(ZipEntry.DEFLATED);
       }
-      writeZipEntryWithoutComment(newZipEntry, entryBytes);
+      writeZipEntryWithoutComment(zipEntry, entryBytes);
     }
   }
 
@@ -161,12 +161,5 @@ public class AsicContainerCreator {
       logger.error("Unable to write Zip entry to BDoc container: " + e.getMessage());
       throw new TechnicalException("Unable to write Zip entry to BDoc container", e);
     }
-  }
-
-  private ZipEntry cloneZipEntry(ZipEntry zipEntry) {
-    ZipEntry newZipEntry = new ZipEntry(zipEntry.getName());
-    newZipEntry.setComment(zipEntry.getComment());
-    newZipEntry.setExtra(zipEntry.getExtra());
-    return newZipEntry;
   }
 }

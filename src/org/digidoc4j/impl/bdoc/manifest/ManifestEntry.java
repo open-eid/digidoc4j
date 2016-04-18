@@ -13,12 +13,13 @@ package org.digidoc4j.impl.bdoc.manifest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * Contains information of filenames and mimetypes.
  */
-public final class ManifestEntry {
+public final class ManifestEntry implements Serializable{
   private static final Logger logger = LoggerFactory.getLogger(ManifestEntry.class);
   private String fileName;
   private String mimeType;

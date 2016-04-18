@@ -156,8 +156,7 @@ public abstract class AsicContainerParser {
   }
 
   private AsicEntry extractAsicEntry(ZipEntry zipEntry, DSSDocument document) {
-    AsicEntry asicEntry = new AsicEntry();
-    asicEntry.setZipEntry(zipEntry);
+    AsicEntry asicEntry = new AsicEntry(zipEntry);
     asicEntry.setContent(document);
     asicEntries.add(asicEntry);
     return asicEntry;

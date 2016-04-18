@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.bdoc.xades.validation;
 
+import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
@@ -22,19 +23,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.validation.report.DiagnosticData;
-import eu.europa.esig.dss.x509.CertificateToken;
-import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class TimemarkSignatureValidator extends XadesSignatureValidator {
 
   private final static Logger logger = LoggerFactory.getLogger(TimemarkSignatureValidator.class);
-  private XAdESSignature xAdESSignature;
   private XadesSignature signature;
 
   public TimemarkSignatureValidator(XadesValidationReportGenerator reportGenerator, XadesSignature signature) {
     super(reportGenerator, signature);
     this.signature = signature;
-    xAdESSignature = signature.getDssSignature();
   }
 
   @Override
@@ -49,7 +46,7 @@ public class TimemarkSignatureValidator extends XadesSignatureValidator {
     if (signingTime == null) {
       return;
     }
-    CertificateToken signerCert = xAdESSignature.getSigningCertificateToken();
+    X509Certificate signerCert = signature.getSigningCertificate().getX509Certificate();
     Date notBefore = signerCert.getNotBefore();
     Date notAfter = signerCert.getNotAfter();
     boolean isCertValid = signingTime.compareTo(notBefore) >= 0 && signingTime.compareTo(notAfter) <= 0;
