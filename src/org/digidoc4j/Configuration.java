@@ -92,8 +92,6 @@ import eu.europa.esig.dss.client.http.Protocol;
  * Allowed values: true, false.<br>
  * Default value: {@value #DEFAULT_DATAFILE_HASHCODE_MODE}</li>
  * <li>DIGIDOC_DF_CACHE_DIR: Temporary directory to use. Default: uses system's default temporary directory</li>
- * <li>DIGIDOC_LOG4J_CONFIG: File containing Log4J configuration parameters.<br>
- * Default value: {@value #DEFAULT_LOG4J_CONFIGURATION}</li>
  * <li>DIGIDOC_MAX_DATAFILE_CACHED: Maximum datafile size that will be cached in MB.
  * Must be numeric. Set to -1 to cache all files. Set to 0 to prevent caching for all files<br>
  * Default value: {@value #DEFAULT_MAX_DATAFILE_CACHED}</li>
@@ -134,7 +132,6 @@ public class Configuration implements Serializable {
       = "ee.sk.digidoc.c14n.TinyXMLCanonicalizer";
   public static final String DEFAULT_SECURITY_PROVIDER = "org.bouncycastle.jce.provider.BouncyCastleProvider";
   public static final String DEFAULT_SECURITY_PROVIDER_NAME = "BC";
-  public static final String DEFAULT_LOG4J_CONFIGURATION = "./log4j.properties";
   public static final String DEFAULT_NOTARY_IMPLEMENTATION = "ee.sk.digidoc.factory.BouncyCastleNotaryFactory";
   public static final String DEFAULT_TSL_FACTORY_IMPLEMENTATION = "ee.sk.digidoc.tsl.DigiDocTrustServiceFactory";
   public static final String DEFAULT_FACTORY_IMPLEMENTATION = "ee.sk.digidoc.factory.SAXDigiDocFactory";
@@ -450,7 +447,6 @@ public class Configuration implements Serializable {
 
   private void loadInitialConfigurationValues() {
     logger.debug("");
-    setJDigiDocConfigurationValue("DIGIDOC_LOG4J_CONFIG", DEFAULT_LOG4J_CONFIGURATION);
     setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER", DEFAULT_SECURITY_PROVIDER);
     setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER_NAME", DEFAULT_SECURITY_PROVIDER_NAME);
     setJDigiDocConfigurationValue("KEY_USAGE_CHECK", DEFAULT_KEY_USAGE_CHECK);

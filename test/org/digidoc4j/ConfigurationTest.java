@@ -504,7 +504,6 @@ public class ConfigurationTest {
     assertEquals("jar://certs/KLASS3-SK OCSP 2006.crt", jDigiDocConf.get("DIGIDOC_CA_1_OCSP2_CERT_1"));
     assertEquals("jar://certs/EID-SK OCSP 2006.crt", jDigiDocConf.get("DIGIDOC_CA_1_OCSP13_CERT_1"));
     assertEquals("jar://certs/TEST Juur-SK.crt", jDigiDocConf.get("DIGIDOC_CA_1_CERT19"));
-    assertEquals(DEFAULT_LOG4J_CONFIGURATION, jDigiDocConf.get("DIGIDOC_LOG4J_CONFIG"));
     assertEquals(DEFAULT_SECURITY_PROVIDER, jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER"));
     assertEquals(DEFAULT_SECURITY_PROVIDER_NAME, jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER_NAME"));
     assertEquals("false", jDigiDocConf.get("DATAFILE_HASHCODE_MODE"));
@@ -883,7 +882,6 @@ public class ConfigurationTest {
 
     configuration.loadConfiguration("testFiles/digidoc_test_all_optional_settings.yaml");
 
-    assertEquals("TEST_DIGIDOC_LOG4J_CONFIG", getJDigiDocConfValue(configuration, "DIGIDOC_LOG4J_CONFIG"));
     assertEquals("123876", getJDigiDocConfValue(configuration, "DIGIDOC_MAX_DATAFILE_CACHED"));
     assertEquals("TEST_DIGIDOC_NOTARY_IMPL", getJDigiDocConfValue(configuration, "DIGIDOC_NOTARY_IMPL"));
     assertEquals("TEST_DIGIDOC_OCSP_SIGN_CERT_SERIAL", getJDigiDocConfValue(configuration, "DIGIDOC_OCSP_SIGN_CERT_SERIAL"));
