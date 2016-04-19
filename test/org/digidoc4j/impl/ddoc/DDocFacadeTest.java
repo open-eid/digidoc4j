@@ -57,6 +57,7 @@ import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
+import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.signers.PKCS12SignatureToken;
@@ -515,6 +516,14 @@ public class DDocFacadeTest {
     DDocFacade container3 = openDocFacade(path);
     assertTrue(ConfigManagerInitializer.isConfigManagerInitialized());
     assertEquals(1, ConfigManagerInitializerSpy.configManagerCallCount);
+  }
+
+  @Test (expected = ConfigurationException.class)
+  public void openingDDoc_withoutCAConfiguration_shouldThrowException() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    configuration.loadConfiguration("testFiles/digidoc_test_conf_no_ca.yaml");
+    ConfigManagerInitializer.forceInitConfigManager(configuration);
+    ContainerOpener.open("testFiles/ddoc_for_testing.ddoc", configuration);
   }
 
   private DDocFacade openDocFacade(String path) {

@@ -1079,6 +1079,14 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Assert.assertArrayEquals(expectedDataFileBytes, actualDataFileBytes);
   }
 
+  @Test
+  public void openBDoc_withoutCAConfiguration_shouldNotThrowException() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    configuration.loadConfiguration("testFiles/digidoc_test_conf_no_ca.yaml");
+    ExistingBDocContainer container = new ExistingBDocContainer("testFiles/valid-containers/valid-bdoc-tm.bdoc", configuration);
+    assertTrue(container.validate().isValid());
+  }
+
   private void assertSignatureContains(BDocSignature signature, String name) {
       assertNotNull(findSignedFile(signature, name));
   }

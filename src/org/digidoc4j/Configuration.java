@@ -380,6 +380,8 @@ public class Configuration implements Serializable {
    * @return configuration values
    */
   public Hashtable<String, String> getJDigiDocConfiguration() {
+    loadCertificateAuthoritiesAndCertificates();
+    reportFileParseErrors();
     return jDigiDocConfiguration;
   }
 
@@ -395,7 +397,6 @@ public class Configuration implements Serializable {
     inputSourceParseErrors = new ArrayList<>();
 
     loadInitialConfigurationValues();
-    loadCertificateAuthoritiesAndCertificates();
     reportFileParseErrors();
 
     return jDigiDocConfiguration;

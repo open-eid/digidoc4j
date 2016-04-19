@@ -499,6 +499,7 @@ public class ConfigurationTest {
   @Test
   public void generateJDigiDocConfig() throws Exception {
     Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("digidoc4j.yaml");
+    configuration.getJDigiDocConfiguration();
 
     assertEquals("jar://certs/ESTEID-SK.crt", jDigiDocConf.get("DIGIDOC_CA_1_CERT2"));
     assertEquals("jar://certs/KLASS3-SK OCSP 2006.crt", jDigiDocConf.get("DIGIDOC_CA_1_OCSP2_CERT_1"));
@@ -625,6 +626,7 @@ public class ConfigurationTest {
     expectedException.expectMessage("No OCSPS entry found or OCSPS entry is empty. Configuration from: " + fileName);
 
     configuration.loadConfiguration(fileName);
+    configuration.getJDigiDocConfiguration();
   }
 
   @Test
@@ -634,6 +636,7 @@ public class ConfigurationTest {
     expectedException.expectMessage("No OCSPS entry found or OCSPS entry is empty. Configuration from: " + fileName);
 
     configuration.loadConfiguration(fileName);
+    configuration.getJDigiDocConfiguration();
   }
 
   @Test
@@ -644,6 +647,7 @@ public class ConfigurationTest {
         "OCSPS list entry 2 does not have an entry for CA_CN or the entry is empty\n");
 
     configuration.loadConfiguration(fileName);
+    configuration.getJDigiDocConfiguration();
   }
 
   @Test
@@ -658,6 +662,7 @@ public class ConfigurationTest {
     expectedException.expectMessage(expectedErrorMessage);
 
     configuration.loadConfiguration(fileName);
+    configuration.getJDigiDocConfiguration();
   }
 
   @Test
@@ -672,6 +677,7 @@ public class ConfigurationTest {
     expectedException.expectMessage(expectedErrorMessage);
 
     configuration.loadConfiguration(fileName);
+    configuration.getJDigiDocConfiguration();
   }
 
   @Test
@@ -683,6 +689,7 @@ public class ConfigurationTest {
     expectedException.expectMessage(expectedErrorMessage);
 
     configuration.loadConfiguration(fileName);
+    configuration.getJDigiDocConfiguration();
   }
 
   @Test
@@ -694,6 +701,7 @@ public class ConfigurationTest {
     expectedException.expectMessage(expectedErrorMessage);
 
     configuration.loadConfiguration(fileName);
+    configuration.getJDigiDocConfiguration();
   }
 
   @Test
@@ -827,6 +835,7 @@ public class ConfigurationTest {
   public void loadMultipleCAsFromConfigurationFile() throws Exception {
     Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf_two_cas" +
         ".yaml");
+    configuration.getJDigiDocConfiguration();
 
     assertEquals("AS Sertifitseerimiskeskus", jDigiDocConf.get("DIGIDOC_CA_1_NAME"));
     assertEquals("jar://certs/ESTEID-SK.crt", jDigiDocConf.get("DIGIDOC_CA_1_CERT2"));
@@ -836,15 +845,21 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void missingCAThrowsException() throws Exception {
+  public void missingCA_shouldNotThrowException() throws Exception {
+    String fileName = "testFiles/digidoc_test_conf_no_ca.yaml";
+    configuration.loadConfiguration(fileName);
+  }
+
+  @Test
+  public void missingCA_shouldThrowException_whenUsingDDoc() throws Exception {
     String fileName = "testFiles/digidoc_test_conf_no_ca.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "Empty or no DIGIDOC_CAS entry";
-
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage(expectedErrorMessage);
 
     configuration.loadConfiguration(fileName);
+    configuration.getJDigiDocConfiguration();
   }
 
   @Test
@@ -857,6 +872,7 @@ public class ConfigurationTest {
     expectedException.expectMessage(expectedErrorMessage);
 
     configuration.loadConfiguration(fileName);
+    configuration.getJDigiDocConfiguration();
   }
 
   @Test
