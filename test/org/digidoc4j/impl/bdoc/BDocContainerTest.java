@@ -1059,7 +1059,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.addDataFile("testFiles/test.txt", "text/plain");
     BDocSignature signature = (BDocSignature) signContainer(container, LT_TM);
     XAdESSignature xAdESSignature = signature.getOrigin();
-    assertTrue(signatureContainsOcspResponderCertificate(xAdESSignature));
+    assertEquals(1, countOcspResponderCertificates(xAdESSignature));
   }
 
   @Test
@@ -1138,25 +1138,26 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     return container;
   }
 
-  private boolean signatureContainsOcspResponderCertificate(XAdESSignature xAdESSignature) {
+  private int countOcspResponderCertificates(XAdESSignature xAdESSignature) {
     XPathQueryHolder xPathQueryHolder = xAdESSignature.getXPathQueryHolder();
     String xPath = xPathQueryHolder.XPATH_CERTIFICATE_VALUES;
     Element certificateValues = DSSXMLUtils.getElement(xAdESSignature.getSignatureElement(), xPath);
-    return certificateValuesContainResponderCertId(certificateValues);
+    return countResponderCertIdInsCertificateValues(certificateValues);
   }
 
-  private boolean certificateValuesContainResponderCertId(Element certificateValues) {
+  private int countResponderCertIdInsCertificateValues(Element certificateValues) {
+    int responderCertCount = 0;
     NodeList certificates = certificateValues.getChildNodes();
     for(int i = 0;i < certificates.getLength(); i++) {
       Node cert = certificates.item(i);
       Node certId = cert.getAttributes().getNamedItem("Id");
       if(certId != null) {
         String idValue = certId.getNodeValue();
-        if(StringUtils.endsWithIgnoreCase(idValue, "RESPONDER_CERT")) {
-          return true;
+        if(StringUtils.containsIgnoreCase(idValue, "RESPONDER_CERT")) {
+          responderCertCount++;
         }
       }
     }
-    return false;
+    return responderCertCount;
   }
 }
