@@ -111,6 +111,14 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void validateAfterSerializingExistingContainer() throws Exception {
+    Container container = TestDataBuilder.open("testFiles/valid-containers/valid-bdoc-tm.bdoc");
+    serialize(container, serializedContainerPath);
+    Container deserializedContainer = deserializer(serializedContainerPath);
+    assertTrue(deserializedContainer.validate().isValid());
+  }
+
+  @Test
   public void serializationVerifySpecifiedSignatureParameters() throws Exception {
     Container container = createEmptyBDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");

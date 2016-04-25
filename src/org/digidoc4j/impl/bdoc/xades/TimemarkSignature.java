@@ -27,19 +27,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.x509.CertificateToken;
-import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class TimemarkSignature extends BesSignature {
 
   private final static Logger logger = LoggerFactory.getLogger(TimemarkSignature.class);
-  private XAdESSignature dssSignature;
   private X509Cert ocspCertificate;
   private BasicOCSPResp ocspResponse;
   private Date ocspResponseTime;
 
-  public TimemarkSignature(XAdESSignature dssSignature) {
-    super(dssSignature);
-    this.dssSignature = dssSignature;
+  public TimemarkSignature(XadesValidationReportGenerator xadesReportGenerator) {
+    super(xadesReportGenerator);
   }
 
   @Override
@@ -89,7 +86,7 @@ public class TimemarkSignature extends BesSignature {
 
   private BasicOCSPResp findOcspResponse() {
     logger.debug("Finding OCSP response");
-    List<BasicOCSPResp> containedOCSPResponses = dssSignature.getOCSPSource().getContainedOCSPResponses();
+    List<BasicOCSPResp> containedOCSPResponses = getDssSignature().getOCSPSource().getContainedOCSPResponses();
     if (containedOCSPResponses.isEmpty()) {
       logger.debug("Contained OCSP responses is empty");
       return null;
@@ -102,7 +99,7 @@ public class TimemarkSignature extends BesSignature {
 
   private X509Cert findOcspCertificate() {
     String ocspCN = getOCSPCommonName();
-    for (CertificateToken cert : dssSignature.getCertPool().getCertificateTokens()) {
+    for (CertificateToken cert : getDssSignature().getCertPool().getCertificateTokens()) {
       String certCn = getCN(new X500Name(cert.getSubjectX500Principal().getName()));
       if (StringUtils.equals(certCn, ocspCN)) {
         return new X509Cert(cert.getCertificate());

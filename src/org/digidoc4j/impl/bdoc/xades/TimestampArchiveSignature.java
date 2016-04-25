@@ -12,12 +12,10 @@ package org.digidoc4j.impl.bdoc.xades;
 
 import org.digidoc4j.SignatureProfile;
 
-import eu.europa.esig.dss.xades.validation.XAdESSignature;
-
 public class TimestampArchiveSignature extends TimestampSignature {
 
-  public TimestampArchiveSignature(XAdESSignature dssSignature) {
-    super(dssSignature);
+  public TimestampArchiveSignature(XadesValidationReportGenerator xadesReportGenerator) {
+    super(xadesReportGenerator);
   }
 
   @Override

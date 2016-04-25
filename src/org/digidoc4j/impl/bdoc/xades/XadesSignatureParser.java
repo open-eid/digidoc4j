@@ -22,20 +22,21 @@ public class XadesSignatureParser {
 
   private final static Logger logger = LoggerFactory.getLogger(XadesSignatureParser.class);
 
-  public XadesSignature parse(XAdESSignature xAdESSignature) {
+  public XadesSignature parse(XadesValidationReportGenerator xadesReportGenerator) {
     logger.debug("Parsing XAdES signature");
+    XAdESSignature xAdESSignature = xadesReportGenerator.openDssSignature();
     SignatureLevel signatureLevel = xAdESSignature.getDataFoundUpToLevel();
     logger.debug("Signature profile is " + signatureLevel);
     if(isBesSignature(signatureLevel)) {
-      return new BesSignature(xAdESSignature);
+      return new BesSignature(xadesReportGenerator);
     }
     if(isTimeMarkSignature(xAdESSignature)) {
-      return new TimemarkSignature(xAdESSignature);
+      return new TimemarkSignature(xadesReportGenerator);
     }
     if (isTimestampArchiveSignature(signatureLevel)) {
-      return new TimestampArchiveSignature(xAdESSignature);
+      return new TimestampArchiveSignature(xadesReportGenerator);
     }
-    return new TimestampSignature(xAdESSignature);
+    return new TimestampSignature(xadesReportGenerator);
   }
 
   private boolean isBesSignature(SignatureLevel signatureLevel) {

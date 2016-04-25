@@ -36,19 +36,19 @@ import eu.europa.esig.dss.validation.SignatureProductionPlace;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
-public class BesSignature implements XadesSignature {
+public class BesSignature extends DssXadesSignature {
 
   private final static Logger logger = LoggerFactory.getLogger(BesSignature.class);
   private final static String ASICS_NS = "asic:XAdESSignatures";
-  private XAdESSignature dssSignature;
   private SignatureProductionPlace signerLocation;
   private Element signatureElement;
   private XPathQueryHolder xPathQueryHolder; // This variable contains the XPathQueryHolder adapted to the signature schema.
   private X509Cert signingCertificate;
   private Set<CertificateToken> encapsulatedCertificates;
 
-  public BesSignature(XAdESSignature dssSignature) {
-    this.dssSignature = dssSignature;
+  public BesSignature(XadesValidationReportGenerator xadesReportGenerator) {
+    super(xadesReportGenerator);
+    XAdESSignature dssSignature = xadesReportGenerator.openDssSignature();
     this.signatureElement = dssSignature.getSignatureElement();
     this.xPathQueryHolder = dssSignature.getXPathQueryHolder();
     logger.debug("Using xpath query holder: " + xPathQueryHolder.getClass());
@@ -56,17 +56,17 @@ public class BesSignature implements XadesSignature {
 
   @Override
   public String getId() {
-    return dssSignature.getId();
+    return getDssSignature().getId();
   }
 
   @Override
   public String getSignatureMethod() {
-    return dssSignature.getDigestAlgorithm().getXmlId();
+    return getDssSignature().getDigestAlgorithm().getXmlId();
   }
 
   @Override
   public Date getSigningTime() {
-    return dssSignature.getSigningTime();
+    return getDssSignature().getSigningTime();
   }
 
   @Override
@@ -91,7 +91,7 @@ public class BesSignature implements XadesSignature {
 
   @Override
   public List<String> getSignerRoles() {
-    String[] claimedSignerRoles = dssSignature.getClaimedSignerRoles();
+    String[] claimedSignerRoles = getDssSignature().getClaimedSignerRoles();
     return claimedSignerRoles == null ? null : Arrays.asList(claimedSignerRoles);
   }
 
@@ -177,11 +177,6 @@ public class BesSignature implements XadesSignature {
     return null;
   }
 
-  @Override
-  public XAdESSignature getDssSignature() {
-    return dssSignature;
-  }
-
   protected Element getSignatureElement() {
     return signatureElement;
   }
@@ -235,7 +230,7 @@ public class BesSignature implements XadesSignature {
   private SignatureProductionPlace getSignerLocation() {
     if (signerLocation == null) {
       logger.debug("Getting signature production place");
-      signerLocation = dssSignature.getSignatureProductionPlace();
+      signerLocation = getDssSignature().getSignatureProductionPlace();
     }
     return signerLocation;
   }

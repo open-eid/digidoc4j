@@ -18,7 +18,6 @@ import org.digidoc4j.exceptions.SignedWithExpiredCertificateException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;
 import org.digidoc4j.impl.bdoc.xades.XadesSignatureValidator;
-import org.digidoc4j.impl.bdoc.xades.XadesValidationReportGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,8 +28,8 @@ public class TimemarkSignatureValidator extends XadesSignatureValidator {
   private final static Logger logger = LoggerFactory.getLogger(TimemarkSignatureValidator.class);
   private XadesSignature signature;
 
-  public TimemarkSignatureValidator(XadesValidationReportGenerator reportGenerator, XadesSignature signature) {
-    super(reportGenerator, signature);
+  public TimemarkSignatureValidator(XadesSignature signature) {
+    super(signature);
     this.signature = signature;
   }
 
@@ -57,7 +56,7 @@ public class TimemarkSignatureValidator extends XadesSignatureValidator {
   }
 
   private void addRevocationErrors() {
-    DiagnosticData diagnosticData = getValidationReport().getDiagnosticData();
+    DiagnosticData diagnosticData = getDssValidationReport().getDiagnosticData();
     if (diagnosticData == null) {
       return;
     }

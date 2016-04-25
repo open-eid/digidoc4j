@@ -14,7 +14,6 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +29,7 @@ import org.digidoc4j.exceptions.SignedPropertiesMissingException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
 import org.digidoc4j.impl.bdoc.OcspNonceValidator;
+import org.digidoc4j.impl.bdoc.xades.validation.XadesValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -53,29 +53,32 @@ public class XadesSignatureValidator implements Serializable {
   private static final String OIDAS_URN = "OIDAsURN";
   private static final String XADES_SIGNED_PROPERTIES = "http://uri.etsi.org/01903#SignedProperties";
   private transient Reports validationReport;
-  private transient Map<String, SimpleReport> simpleReports;
-  private XAdESSignature xAdESSignature;
+  private transient SimpleReport simpleReport;
   private List<DigiDoc4JException> validationErrors = new ArrayList<>();
   private List<DigiDoc4JException> validationWarnings = new ArrayList<>();
   private String signatureId;
-  private XadesValidationReportGenerator reportGenerator;
+  private XadesSignature signature;
 
-  public XadesSignatureValidator(XadesValidationReportGenerator reportGenerator, XadesSignature signature) {
-    this.reportGenerator = reportGenerator;
-    xAdESSignature = signature.getDssSignature();
-    signatureId = xAdESSignature.getId();
+  public XadesSignatureValidator(XadesSignature signature) {
+    this.signature = signature;
+    signatureId = signature.getId();
   }
 
   public SignatureValidationResult extractValidationErrors() {
     logger.debug("Extracting validation errors");
-    validationReport = reportGenerator.openValidationReport();
-    simpleReports = extractSimpleReports(validationReport);
+    XadesValidationResult validationResult = signature.validate();
+    validationReport = validationResult.getReport();
+    Map<String, SimpleReport> simpleReports = validationResult.extractSimpleReports();
+    simpleReport = getSimpleReport(simpleReports);
     populateValidationErrors();
     return createValidationResult();
   }
 
   public Reports getDssValidationReport() {
-    return reportGenerator.openValidationReport();
+    if(validationReport == null) {
+      validationReport = signature.validate().getReport();
+    }
+    return validationReport;
   }
 
   protected void populateValidationErrors() {
@@ -89,7 +92,7 @@ public class XadesSignatureValidator implements Serializable {
 
   private void addPolicyValidationErrors() {
     logger.debug("Extracting policy validation errors");
-    SignaturePolicy policy = xAdESSignature.getPolicyId();
+    SignaturePolicy policy = getDssSignature().getPolicyId();
     if(policy != null) {
       String policyIdentifier = policy.getIdentifier().trim();
       if (!StringUtils.equals(TM_POLICY, policyIdentifier)) {
@@ -105,8 +108,8 @@ public class XadesSignatureValidator implements Serializable {
 
   private void addPolicyIdentifierQualifierValidationErrors() {
     logger.debug("Extracting policy identifier qualifier validation errors");
-    XPathQueryHolder xPathQueryHolder = xAdESSignature.getXPathQueryHolder();
-    Element signatureElement = xAdESSignature.getSignatureElement();
+    XPathQueryHolder xPathQueryHolder = getDssSignature().getXPathQueryHolder();
+    Element signatureElement = getDssSignature().getSignatureElement();
     Element element = DSSXMLUtils.getElement(signatureElement, xPathQueryHolder.XPATH_SIGNATURE_POLICY_IDENTIFIER);
     Element identifier = DSSXMLUtils.getElement(element, "./xades:SignaturePolicyId/xades:SigPolicyId/xades:Identifier");
     String qualifier = identifier.getAttribute("Qualifier");
@@ -118,7 +121,7 @@ public class XadesSignatureValidator implements Serializable {
   private void addSignedPropertiesReferenceValidationErrors() {
     logger.debug("Extracting signed properties reference validation errors");
     int propertiesReferencesCount = findSignedPropertiesReferencesCount();
-    String signatureId = xAdESSignature.getId();
+    String signatureId = getDssSignature().getId();
     if(propertiesReferencesCount == 0) {
       logger.error("Signed properties are missing for signature " + signatureId);
       addValidationError(new SignedPropertiesMissingException("Signed properties missing"));
@@ -131,7 +134,7 @@ public class XadesSignatureValidator implements Serializable {
   }
 
   private int findSignedPropertiesReferencesCount() {
-    List<Element> signatureReferences = xAdESSignature.getSignatureReferences();
+    List<Element> signatureReferences = getDssSignature().getSignatureReferences();
     int nrOfSignedPropertiesReferences = 0;
     for (Element signatureReference : signatureReferences) {
       String type = signatureReference.getAttribute("Type");
@@ -143,7 +146,6 @@ public class XadesSignatureValidator implements Serializable {
 
   private void addReportedErrors() {
     logger.debug("Extracting reported errors");
-    SimpleReport simpleReport = getSimpleReport();
     if (simpleReport != null) {
       for (Conclusion.BasicInfo error : simpleReport.getErrors(signatureId)) {
         String errorMessage = error.toString();
@@ -157,7 +159,6 @@ public class XadesSignatureValidator implements Serializable {
   }
 
   private void addReportedWarnings() {
-    SimpleReport simpleReport = getSimpleReport();
     if (simpleReport != null) {
       for (Conclusion.BasicInfo warning : simpleReport.getWarnings(signatureId)) {
         String message = warning.toString();
@@ -189,7 +190,6 @@ public class XadesSignatureValidator implements Serializable {
   }
 
   private boolean isIndeterminateTimestamp() {
-    SimpleReport simpleReport = getSimpleReport();
     String indication = simpleReport.getIndication(signatureId);
     String subIndication = simpleReport.getSubIndication(signatureId);
     if (Indication.INDETERMINATE.equals(indication)) {
@@ -198,19 +198,7 @@ public class XadesSignatureValidator implements Serializable {
     return false;
   }
 
-  private Map<String, SimpleReport> extractSimpleReports(Reports report) {
-    Map<String, SimpleReport> simpleReports = new LinkedHashMap<>();
-    do {
-      SimpleReport simpleReport = report.getSimpleReport();
-      if (simpleReport.getSignatureIdList().size() > 0) {
-        simpleReports.put(simpleReport.getSignatureIdList().get(0), simpleReport);
-      }
-      report = report.getNextReports();
-    } while (report != null);
-    return simpleReports;
-  }
-
-  private SimpleReport getSimpleReport() {
+  private SimpleReport getSimpleReport(Map<String, SimpleReport> simpleReports) {
     SimpleReport simpleReport = simpleReports.get(signatureId);
     if (simpleReport != null && simpleReports.size() == 1) {
       return simpleReports.values().iterator().next();
@@ -219,7 +207,7 @@ public class XadesSignatureValidator implements Serializable {
   }
 
   private void addOcspNonceErrors() {
-    if(!new OcspNonceValidator(xAdESSignature).isValid()) {
+    if(!new OcspNonceValidator(getDssSignature()).isValid()) {
       logger.error("OCSP nonce is invalid");
       addValidationError(new InvalidOcspNonceException());
     }
@@ -236,7 +224,7 @@ public class XadesSignatureValidator implements Serializable {
     validationErrors.add(error);
   }
 
-  protected Reports getValidationReport() {
-    return validationReport;
+  private XAdESSignature getDssSignature() {
+    return signature.getDssSignature();
   }
 }

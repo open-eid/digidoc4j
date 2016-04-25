@@ -18,7 +18,6 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.exceptions.TimestampAndOcspResponseTimeDeltaTooLargeException;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;
-import org.digidoc4j.impl.bdoc.xades.XadesValidationReportGenerator;
 import org.digidoc4j.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,13 +28,13 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 public class TimestampSignatureValidator extends TimemarkSignatureValidator {
 
   private final static Logger logger = LoggerFactory.getLogger(TimemarkSignatureValidator.class);
-  private XAdESSignature xAdESSignature;
+  private XadesSignature signature;
   private Configuration configuration;
 
-  public TimestampSignatureValidator(XadesValidationReportGenerator reportGenerator, XadesSignature signature, Configuration configuration) {
-    super(reportGenerator, signature);
+  public TimestampSignatureValidator(XadesSignature signature, Configuration configuration) {
+    super(signature);
+    this.signature = signature;
     this.configuration = configuration;
-    xAdESSignature = signature.getDssSignature();
   }
 
   @Override
@@ -45,6 +44,7 @@ public class TimestampSignatureValidator extends TimemarkSignatureValidator {
   }
 
   private void addSigningTimeErrors() {
+    XAdESSignature xAdESSignature = signature.getDssSignature();
     List<TimestampToken> signatureTimestamps = xAdESSignature.getSignatureTimestamps();
     if (signatureTimestamps == null || signatureTimestamps.isEmpty()) {
       return;

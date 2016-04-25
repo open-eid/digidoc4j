@@ -41,8 +41,8 @@ public class TimestampSignature extends TimemarkSignature {
   private TimeStampToken timeStampToken;
   private X509Cert timestampTokenCertificate;
 
-  public TimestampSignature(XAdESSignature dssSignature) {
-    super(dssSignature);
+  public TimestampSignature(XadesValidationReportGenerator xadesReportGenerator) {
+    super(xadesReportGenerator);
     this.xPathQueryHolder = getxPathQueryHolder();
     this.signatureElement = getSignatureElement();
   }

@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.X509Cert;
+import org.digidoc4j.impl.bdoc.xades.validation.XadesValidationResult;
 
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
@@ -54,5 +55,7 @@ public interface XadesSignature extends Serializable {
   byte[] getAdESSignature();
 
   XAdESSignature getDssSignature();
+
+  XadesValidationResult validate();
 
 }
