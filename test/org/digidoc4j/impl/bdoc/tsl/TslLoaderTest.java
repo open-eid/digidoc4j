@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import eu.europa.esig.dss.tsl.TSLValidationSummary;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
+import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 
 public class TslLoaderTest {
 
@@ -44,6 +45,8 @@ public class TslLoaderTest {
     TslLoader tslLoader = createTslLoader(configuration);
     tslLoader.setCheckSignature(true);
     tslLoader.prepareTsl();
+    TSLValidationJob tslValidationJob = tslLoader.getTslValidationJob();
+    tslValidationJob.refresh();
     TSLRepository tslRepository = tslLoader.getTslRepository();
     assertTslValid(tslRepository);
   }
