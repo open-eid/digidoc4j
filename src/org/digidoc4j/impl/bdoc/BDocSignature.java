@@ -16,19 +16,18 @@ import java.util.List;
 
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
-import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;
-import org.digidoc4j.impl.bdoc.xades.XadesSignatureValidator;
+import org.digidoc4j.impl.bdoc.xades.validation.SignatureValidator;
+import org.digidoc4j.impl.bdoc.xades.validation.XadesValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DigestAlgorithm;
-import eu.europa.esig.dss.validation.report.Reports;
-import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 /**
  * BDoc signature implementation.
@@ -37,10 +36,10 @@ public class BDocSignature implements Signature {
   private static final Logger logger = LoggerFactory.getLogger(BDocSignature.class);
   private SignatureValidationResult validationResult;
   private XadesSignature xadesSignature;
-  private XadesSignatureValidator validator;
+  private SignatureValidator validator;
   private DSSDocument signatureDocument;
 
-  public BDocSignature(XadesSignature xadesSignature, XadesSignatureValidator validator) {
+  public BDocSignature(XadesSignature xadesSignature, SignatureValidator validator) {
     this.xadesSignature = xadesSignature;
     this.validator = validator;
     logger.debug("New BDoc signature created");
@@ -190,16 +189,16 @@ public class BDocSignature implements Signature {
     return getAdESSignature();
   }
 
-  public XAdESSignature getOrigin() {
-    return xadesSignature.getDssSignature();
+  public XadesSignature getOrigin() {
+    return xadesSignature;
   }
 
   public void setSignatureDocument(DSSDocument signatureDocument) {
     this.signatureDocument = signatureDocument;
   }
 
-  public Reports getDssValidationReport() {
-    return validator.getDssValidationReport();
+  public XadesValidationResult getDssValidationReport() {
+    return xadesSignature.validate();
   }
 
   DSSDocument getSignatureDocument() {
@@ -207,6 +206,6 @@ public class BDocSignature implements Signature {
   }
 
   DigestAlgorithm getSignatureDigestAlgorithm() {
-    return getOrigin().getDigestAlgorithm();
+    return xadesSignature.getDssSignature().getDigestAlgorithm();
   }
 }

@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.xml.security.signature.Reference;
+import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.X509Cert;
 import org.slf4j.Logger;
@@ -156,6 +158,17 @@ public class BesSignature extends DssXadesSignature {
   }
 
   /**
+   * B_BES signature does not contain OCSP response
+   *
+   * @return null
+   */
+  @Override
+  public List<BasicOCSPResp> getOcspResponses() {
+    logger.info("The signature does not contain OCSP response");
+    return null;
+  }
+
+  /**
    * B_BES signature does not contain Timestamp
    *
    * @return null
@@ -175,6 +188,11 @@ public class BesSignature extends DssXadesSignature {
   public X509Cert getTimeStampTokenCertificate() {
     logger.info("The signature does not contain Timestamp");
     return null;
+  }
+
+  @Override
+  public List<Reference> getReferences() {
+    return getDssSignature().getReferences();
   }
 
   protected Element getSignatureElement() {

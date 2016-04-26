@@ -13,7 +13,6 @@ package org.digidoc4j.impl.bdoc.xades.validation;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;
-import org.digidoc4j.impl.bdoc.xades.XadesSignatureValidator;
 
 public class XadesSignatureValidatorFactory {
 

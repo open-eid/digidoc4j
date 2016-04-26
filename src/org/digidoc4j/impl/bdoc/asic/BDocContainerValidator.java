@@ -27,6 +27,7 @@ import org.digidoc4j.impl.bdoc.BDocValidationReportBuilder;
 import org.digidoc4j.impl.bdoc.BDocValidationResult;
 import org.digidoc4j.impl.bdoc.manifest.ManifestParser;
 import org.digidoc4j.impl.bdoc.manifest.ManifestValidator;
+import org.digidoc4j.impl.bdoc.xades.validation.XadesValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +80,8 @@ public class BDocContainerValidator implements Serializable {
     errors.addAll(signatureErrors);
     warnings.addAll(validationResult.getWarnings());
     signatureVerificationErrors.put(signature.getId(), signatureErrors);
-    Reports dssValidationReport = ((BDocSignature) signature).getDssValidationReport();
+    XadesValidationResult validationReport = ((BDocSignature) signature).getDssValidationReport();
+    Reports dssValidationReport = validationReport.getReport();
     validationReports.add(dssValidationReport);
   }
 

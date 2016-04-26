@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DataToSign;
@@ -37,18 +38,18 @@ import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
+import org.digidoc4j.impl.bdoc.ocsp.BDocTMOcspSource;
+import org.digidoc4j.impl.bdoc.ocsp.BDocTSOcspSource;
+import org.digidoc4j.impl.bdoc.ocsp.SKOnlineOCSPSource;
+import org.digidoc4j.impl.bdoc.xades.XadesSignature;
 import org.digidoc4j.impl.bdoc.xades.XadesSigningDssFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.digidoc4j.impl.bdoc.ocsp.BDocTMOcspSource;
-import org.digidoc4j.impl.bdoc.ocsp.BDocTSOcspSource;
-import org.digidoc4j.impl.bdoc.ocsp.SKOnlineOCSPSource;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignerLocation;
-import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class BDocSignatureBuilder extends SignatureBuilder implements SignatureFinalizer {
 
@@ -156,11 +157,13 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     return forXML(digestAlgorithm.toString());
   }
 
-  private void validateOcspResponse(XAdESSignature xAdESSignature) {
-
+  private void validateOcspResponse(XadesSignature xadesSignature) {
     boolean isBesSignatureProfile = signatureParameters.getSignatureProfile() != null && SignatureProfile.B_BES == signatureParameters.getSignatureProfile();
-    boolean isOcspResponseEmpty = xAdESSignature.getOCSPSource().getContainedOCSPResponses().isEmpty();
-    if (!isBesSignatureProfile && isOcspResponseEmpty) {
+    if(isBesSignatureProfile) {
+      return;
+    }
+    List<BasicOCSPResp> ocspResponses = xadesSignature.getOcspResponses();
+    if (ocspResponses == null || ocspResponses.isEmpty()) {
       logger.error("Signature does not contain OCSP response");
       throw new OCSPRequestFailedException();
     }

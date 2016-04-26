@@ -14,6 +14,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.xml.security.signature.Reference;
+import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.impl.bdoc.xades.validation.XadesValidationResult;
@@ -48,9 +50,13 @@ public interface XadesSignature extends Serializable {
 
   X509Cert getOCSPCertificate();
 
+  List<BasicOCSPResp> getOcspResponses();
+
   Date getTimeStampCreationTime();
 
   X509Cert getTimeStampTokenCertificate();
+
+  List<Reference> getReferences();
 
   byte[] getAdESSignature();
 

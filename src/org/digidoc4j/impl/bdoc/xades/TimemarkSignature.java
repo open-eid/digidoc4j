@@ -58,6 +58,11 @@ public class TimemarkSignature extends BesSignature {
   }
 
   @Override
+  public List<BasicOCSPResp> getOcspResponses() {
+    return getDssSignature().getOCSPSource().getContainedOCSPResponses();
+  }
+
+  @Override
   public Date getOCSPResponseCreationTime() {
     if (ocspResponseTime != null) {
       return ocspResponseTime;
@@ -86,7 +91,7 @@ public class TimemarkSignature extends BesSignature {
 
   private BasicOCSPResp findOcspResponse() {
     logger.debug("Finding OCSP response");
-    List<BasicOCSPResp> containedOCSPResponses = getDssSignature().getOCSPSource().getContainedOCSPResponses();
+    List<BasicOCSPResp> containedOCSPResponses = getOcspResponses();
     if (containedOCSPResponses.isEmpty()) {
       logger.debug("Contained OCSP responses is empty");
       return null;

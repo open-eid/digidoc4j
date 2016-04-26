@@ -16,7 +16,7 @@ import java.util.List;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;
 import org.digidoc4j.impl.bdoc.xades.XadesSignatureParser;
-import org.digidoc4j.impl.bdoc.xades.XadesSignatureValidator;
+import org.digidoc4j.impl.bdoc.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.impl.bdoc.xades.XadesValidationReportGenerator;
 import org.digidoc4j.impl.bdoc.xades.validation.XadesSignatureValidatorFactory;
 import org.slf4j.Logger;

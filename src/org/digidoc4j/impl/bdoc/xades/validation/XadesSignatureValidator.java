@@ -8,11 +8,10 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl.bdoc.xades;
+package org.digidoc4j.impl.bdoc.xades.validation;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,7 @@ import org.digidoc4j.exceptions.SignedPropertiesMissingException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
 import org.digidoc4j.impl.bdoc.OcspNonceValidator;
-import org.digidoc4j.impl.bdoc.xades.validation.XadesValidationResult;
+import org.digidoc4j.impl.bdoc.xades.XadesSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -46,7 +45,7 @@ import eu.europa.esig.dss.validation.report.SimpleReport;
 import eu.europa.esig.dss.x509.SignaturePolicy;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
-public class XadesSignatureValidator implements Serializable {
+public class XadesSignatureValidator implements SignatureValidator {
 
   private final static Logger logger = LoggerFactory.getLogger(XadesSignatureValidator.class);
   public static final String TM_POLICY = "urn:oid:1.3.6.1.4.1.10015.1000.3.2.1";
@@ -64,6 +63,7 @@ public class XadesSignatureValidator implements Serializable {
     signatureId = signature.getId();
   }
 
+  @Override
   public SignatureValidationResult extractValidationErrors() {
     logger.debug("Extracting validation errors");
     XadesValidationResult validationResult = signature.validate();
@@ -72,13 +72,6 @@ public class XadesSignatureValidator implements Serializable {
     simpleReport = getSimpleReport(simpleReports);
     populateValidationErrors();
     return createValidationResult();
-  }
-
-  public Reports getDssValidationReport() {
-    if(validationReport == null) {
-      validationReport = signature.validate().getReport();
-    }
-    return validationReport;
   }
 
   protected void populateValidationErrors() {

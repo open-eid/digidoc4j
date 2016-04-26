@@ -17,11 +17,11 @@ import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.exceptions.SignedWithExpiredCertificateException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;
-import org.digidoc4j.impl.bdoc.xades.XadesSignatureValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.validation.report.DiagnosticData;
+import eu.europa.esig.dss.validation.report.Reports;
 
 public class TimemarkSignatureValidator extends XadesSignatureValidator {
 
@@ -56,7 +56,8 @@ public class TimemarkSignatureValidator extends XadesSignatureValidator {
   }
 
   private void addRevocationErrors() {
-    DiagnosticData diagnosticData = getDssValidationReport().getDiagnosticData();
+    Reports validationReport = signature.validate().getReport();
+    DiagnosticData diagnosticData = validationReport.getDiagnosticData();
     if (diagnosticData == null) {
       return;
     }

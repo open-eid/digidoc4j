@@ -164,7 +164,7 @@ public class ManifestValidator {
       if (reference.getType().equals("")) {
         String mimeTypeString = null;
 
-        Node signatureNode = signature.getOrigin().getSignatureElement();
+        Node signatureNode = signature.getOrigin().getDssSignature().getSignatureElement();
         Node node = DSSXMLUtils.getNode(signatureNode, "./ds:SignedInfo/ds:Reference[@URI=\"" + reference.getURI() + "\"]");
         if (node != null) {
           String referenceId = node.getAttributes().getNamedItem("Id").getNodeValue();

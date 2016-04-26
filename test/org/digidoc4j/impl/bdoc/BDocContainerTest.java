@@ -1058,7 +1058,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container container = createEmptyBDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
     BDocSignature signature = (BDocSignature) signContainer(container, LT_TM);
-    XAdESSignature xAdESSignature = signature.getOrigin();
+    XAdESSignature xAdESSignature = signature.getOrigin().getDssSignature();
     assertEquals(1, countOcspResponderCertificates(xAdESSignature));
   }
 
@@ -1092,7 +1092,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   private DSSDocument findSignedFile(BDocSignature signature, String name) {
-      List<DSSDocument> signedFiles = signature.getOrigin().getDetachedContents();
+      List<DSSDocument> signedFiles = signature.getOrigin().getDssSignature().getDetachedContents();
       for (DSSDocument signedFile : signedFiles) {
           if(name.equals(signedFile.getName())) {
               return signedFile;
