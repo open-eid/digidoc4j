@@ -362,10 +362,10 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void signingOcspRequest_ShouldBeEnabled_InProdByDefault() throws Exception {
+  public void signingOcspRequest_ShouldBeDisabled_InProdByDefault() throws Exception {
     Configuration configuration = new Configuration(Mode.PROD);
-    assertTrue(configuration.hasToBeOCSPRequestSigned());
-    assertEquals("true", getJDigiDocConfValue(configuration, SIGN_OCSP_REQUESTS));
+    assertFalse(configuration.hasToBeOCSPRequestSigned());
+    assertEquals("false", getJDigiDocConfValue(configuration, SIGN_OCSP_REQUESTS));
   }
 
   @Test

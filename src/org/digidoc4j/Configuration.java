@@ -204,8 +204,8 @@ public class Configuration implements Serializable {
       configuration.put("tslKeyStoreLocation", DEFAULT_TSL_KEYSTORE_LOCATION);
       configuration.put("validationPolicy", "conf/constraint.xml");
       configuration.put("ocspSource", PROD_OCSP_URL);
-      configuration.put(SIGN_OCSP_REQUESTS, "true");
-      jDigiDocConfiguration.put(SIGN_OCSP_REQUESTS, "true");
+      configuration.put(SIGN_OCSP_REQUESTS, "false");
+      jDigiDocConfiguration.put(SIGN_OCSP_REQUESTS, "false");
     }
     logger.debug(mode + "configuration:\n" + configuration);
 
@@ -548,7 +548,7 @@ public class Configuration implements Serializable {
 
   /**
    * Returns configuration item must be OCSP request signed. Reads it from configuration parameter SIGN_OCSP_REQUESTS.
-   * Default value is true for {@link Configuration.Mode#PROD} and false for {@link Configuration.Mode#TEST}
+   * Default value is false for {@link Configuration.Mode#PROD} and false for {@link Configuration.Mode#TEST}
    *
    * @return must be OCSP request signed
    */
