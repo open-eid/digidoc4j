@@ -22,7 +22,7 @@
   <property name="publish.version" value="1.0" />
   <property name="lib.version" value="${publish.version}"/>
 
-  <property name="dss-maven-version" value="4.6.d4j.1" />
+  <property name="dss-maven-version" value="4.6.d4j.2" />
 
   <target name="version" unless="lib.version">
     <exec executable="sh" outputproperty="lib.version">
