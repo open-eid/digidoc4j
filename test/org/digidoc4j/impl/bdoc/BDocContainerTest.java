@@ -1027,6 +1027,23 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNotNull(zip.getEntry("META-INF/signatures2.xml"));
   }
 
+  @Test
+  public void whenSigningContainer_withSignatureNameContainingNonNumericCharacters_shouldCreateSignatureFileName_inSequence() throws Exception {
+    ZipFile zip = new ZipFile("testFiles/valid-containers/valid-bdoc-ts-signature-file-name-with-non-numeric-characters.asice");
+    assertNotNull(zip.getEntry("META-INF/l77Tsignaturesn00B.xml"));
+    assertNull(zip.getEntry("META-INF/signatures0.xml"));
+    assertNull(zip.getEntry("META-INF/signatures1.xml"));
+    Container container = open("testFiles/valid-containers/valid-bdoc-ts-signature-file-name-with-non-numeric-characters.asice");
+    signContainer(container, SignatureProfile.LT);
+    signContainer(container, SignatureProfile.LT);
+    String containerPath = testFolder.newFile("test-container.asice").getPath();
+    container.saveAsFile(containerPath);
+    zip = new ZipFile(containerPath);
+    assertNotNull(zip.getEntry("META-INF/l77Tsignaturesn00B.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
+  }
+
   @Test(expected = DuplicateDataFileException.class)
   public void whenOpeningContainer_withTwoDataFilesWithSameName_andWithSingleReferenceInManifest_shouldThrowException() {
     Container container = ContainerBuilder.aContainer()
