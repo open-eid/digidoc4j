@@ -131,9 +131,10 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   public void signatureFileContainsIncorrectFileName() {
     Container container = ContainerOpener.open("testFiles/filename_mismatch_signature.asice", PROD_CONFIGURATION);
     ValidationResult validate = container.validate();
-    assertEquals(2, validate.getErrors().size());
+    assertEquals(3, validate.getErrors().size());
     assertEquals("Manifest file has an entry for file test.txt with mimetype application/pdf but the signature file for signature S0 does not have an entry for this file", validate.getErrors().get(0).toString());
     assertEquals("The signature file for signature S0 has an entry for file 0123456789~#%&()=`@{[]}'.txt with mimetype application/pdf but the manifest file does not have an entry for this file", validate.getErrors().get(1).toString());
+    assertEquals("Container contains a file named test.txt which is not found in the signature file", validate.getErrors().get(2).toString());
   }
 
   @Test
@@ -171,6 +172,13 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     assertEquals("The signature file for signature S0 has an entry for file RELEASE-NOTES.txt with mimetype " +
             "text/plain but the manifest file does not have an entry for this file",
         validate.getErrors().get(1).toString());
+  }
+
+  @Test
+  public void container_withChangedDataFileName_shouldBeInvalid() throws Exception {
+    Container container = open("testFiles/invalid-containers/bdoc-tm-with-changed-data-file-name.bdoc");
+    ValidationResult validate = container.validate();
+    assertEquals(1, validate.getErrors().size());
   }
 
   @Test

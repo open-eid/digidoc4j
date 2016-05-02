@@ -10,9 +10,17 @@
 
 package org.digidoc4j.impl.bdoc.manifest;
 
+import org.digidoc4j.Configuration;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.Signature;
+import org.digidoc4j.impl.bdoc.BDocSignature;
+import org.digidoc4j.impl.bdoc.BDocSignatureOpener;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +28,13 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.FileDocument;
+import eu.europa.esig.dss.InMemoryDocument;
+import eu.europa.esig.dss.MimeType;
 
 public class ManifestValidatorTest {
 
@@ -129,4 +144,49 @@ public class ManifestValidatorTest {
     assertEquals("The signature file for signature S1 has an entry for file 2 with mimetype b but the manifest file" +
         " does not have an entry for this file", errorMessages.get(0));
   }
+
+  @Test
+  public void validateHealthyContainer() throws Exception {
+    ManifestParser manifestParser = createManifest(dataFile("test.txt", "text/plain"));
+    List<DSSDocument> detachedContents = Arrays.asList(detachedContent("test.txt", "text/plain"));
+    List<Signature> signatures = openSignature("testFiles/xades/test-bdoc-ts.xml", detachedContents);
+    List<String> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
+    assertTrue(errors.isEmpty());
+  }
+
+  @Test
+  public void container_withDifferentDataFileName_shouldBeInvalid() throws Exception {
+    ManifestParser manifestParser = createManifest(dataFile("test.txt", "text/plain"));
+    List<DSSDocument> detachedContents = Arrays.asList(detachedContent("other.txt", "text/plain"));
+    List<Signature> signatures = openSignature("testFiles/xades/test-bdoc-ts.xml", detachedContents);
+    List<String> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
+    assertFalse(errors.isEmpty());
+    assertEquals("Container contains a file named other.txt which is not found in the signature file", errors.get(0));
+  }
+
+  private List<Signature> openSignature(String signaturePath, List<DSSDocument> detachedContents) {
+    BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, new Configuration(Configuration.Mode.TEST));
+    BDocSignature signature = signatureOpener.parse(new FileDocument(signaturePath)).get(0);
+    signature.getOrigin().getDssSignature().checkSignatureIntegrity();
+    List<Signature> signatureList = new ArrayList<>(1);
+    signatureList.add(signature);
+    return signatureList;
+  }
+
+  private DataFile dataFile(String fileName, String mimeType) {
+    return new DataFile(new byte[]{1, 2, 3}, fileName, mimeType);
+  }
+
+  private ManifestParser createManifest(DataFile... dataFile) {
+    AsicManifest asicManifest = new AsicManifest();
+    asicManifest.addFileEntry(Arrays.asList(dataFile));
+    DSSDocument manifestFile = new InMemoryDocument(asicManifest.getBytes());
+    return new ManifestParser(manifestFile);
+  }
+
+  private DSSDocument detachedContent(String name, String mimeType) {
+    return new InMemoryDocument(new byte[]{1, 2, 3}, name, MimeType.fromMimeTypeString(mimeType));
+  }
+
+
 }
