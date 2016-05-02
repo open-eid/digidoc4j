@@ -26,6 +26,7 @@ import org.digidoc4j.Container;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
@@ -33,8 +34,8 @@ import org.digidoc4j.SignedInfo;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
+import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.bdoc.asic.AsicContainerCreator;
@@ -204,16 +205,24 @@ public abstract class BDocContainer implements Container {
 
   @Override
   @Deprecated
-  public void addRawSignature(byte[] signature) {
-    logger.warn("Not yet implemented");
-    throw new NotYetImplementedException();
+  public void addRawSignature(byte[] signatureDocument) {
+    logger.info("Adding raw signature");
+    Signature signature = SignatureBuilder.
+        aSignature(this).
+        openFromExistingDocument(signatureDocument);
+    addSignature(signature);
   }
 
   @Override
   @Deprecated
   public void addRawSignature(InputStream signatureStream) {
-    logger.warn("Not yet implemented");
-    throw new NotYetImplementedException();
+    try {
+      byte[] bytes = IOUtils.toByteArray(signatureStream);
+      addRawSignature(bytes);
+    } catch (IOException e) {
+      logger.error("Failed to read signature stream: " + e.getMessage());
+      throw new InvalidSignatureException();
+    }
   }
 
   @Override

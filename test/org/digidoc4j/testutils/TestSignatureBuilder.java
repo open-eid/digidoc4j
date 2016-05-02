@@ -47,6 +47,11 @@ public class TestSignatureBuilder extends SignatureBuilder {
   }
 
   @Override
+  public Signature openFromExistingDocument(byte[] signatureDocument) {
+    return null;
+  }
+
+  @Override
   protected Signature invokeSigningProcess() {
     return new TestSignature();
   }

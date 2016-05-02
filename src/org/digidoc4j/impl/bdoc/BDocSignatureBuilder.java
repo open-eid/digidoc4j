@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignerLocation;
 
@@ -72,6 +73,12 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     byte[] dataToSign = getDataToBeSigned();
     byte[] digestToSign = calculateDigestToSign(dataToSign);
     return new DataToSign(digestToSign, signatureParameters, this);
+  }
+
+  @Override
+  public Signature openFromExistingDocument(byte[] signatureDocument) {
+    InMemoryDocument document = new InMemoryDocument(signatureDocument);
+    return createSignature(document);
   }
 
   @Override

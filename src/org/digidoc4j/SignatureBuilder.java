@@ -127,6 +127,18 @@ public abstract class SignatureBuilder implements Serializable {
   public abstract DataToSign buildDataToSign() throws SignerCertificateRequiredException, ContainerWithoutFilesException;
 
   /**
+   * Open signature from an existing signature document.
+   *
+   * The signature document must be complete, containing all the necessary data (e.g. Signer's certificate,
+   * OCSP responses, Timestamps, signature values etc). An example would be a signature document in XAdES format which
+   * is an XML document transformed into a byte array.
+   *
+   * @param signatureDocument complete signature document in bytes.
+   * @return a signature object representing the signatureDocument.
+   */
+  public abstract Signature openFromExistingDocument(byte[] signatureDocument);
+
+  /**
    * Setting custom signature builder implementation used when creating signatures for the particular container type.
    *
    * @param containerType container type corresponding to the signature builder.
