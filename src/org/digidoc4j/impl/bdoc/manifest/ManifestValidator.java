@@ -29,7 +29,6 @@ import org.w3c.dom.Node;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSXMLUtils;
-import eu.europa.esig.dss.validation.SignedDocumentValidator;
 
 /**
  * For validating meta data within the manifest file and signature files.
@@ -83,23 +82,19 @@ public class ManifestValidator {
     if (signatureEntries.size() == 0)
       return errorMessages;
 
-    List<String> filesInContainer = new ArrayList<>(getFilesInContainer());
-
-    if (filesInContainer.size() != signatureEntries.size()) {
-      List<String> signatureEntriesFileNames = getFileNamesFromManifestEntrySet(signatureEntries);
-      filesInContainer.removeAll(signatureEntriesFileNames);
-
-      for (String fileName : filesInContainer) {
-        errorMessages.add("Container contains a file named " + fileName + " which is not found in the signature "
-            + "file");
+    Set<String> signatureEntriesFileNames = getFileNamesFromManifestEntrySet(signatureEntries);
+    List<String> filesInContainer = getFilesInContainer();
+    for(String fileInContainer: filesInContainer) {
+      if(!signatureEntriesFileNames.contains(fileInContainer)) {
+        logger.error("Container contains unsigned data file '" + fileInContainer + "'");
+        errorMessages.add("Container contains a file named " + fileInContainer + " which is not found in the signature file");
       }
     }
-
     return errorMessages;
   }
 
-  private List<String> getFileNamesFromManifestEntrySet(Set<ManifestEntry> signatureEntries) {
-    List<String> signatureEntriesFileNames = new ArrayList<>();
+  private Set<String> getFileNamesFromManifestEntrySet(Set<ManifestEntry> signatureEntries) {
+    Set<String> signatureEntriesFileNames = new HashSet<>(signatureEntries.size());
 
 
     for (ManifestEntry entry : signatureEntries) {
@@ -210,8 +205,6 @@ public class ManifestValidator {
     return fileEntries;
   }
 
-  @Deprecated
-  //Not needed anymore as getFilesInContainer iterates over data files only
   private List<String> getSignatureFileNames() {
     List<String> signatureFileNames = new ArrayList<>();
     for (Signature signature :signatures) {
