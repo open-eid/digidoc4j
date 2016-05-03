@@ -75,9 +75,7 @@
   <target name="compile" depends="load.dependencies">
     <mkdir dir="${build.dir}"/>
     <copy todir="${build.dir}">
-      <fileset dir="resources">
-        <exclude name="logback.xml/"/>
-      </fileset>
+      <fileset dir="resources"/>
     </copy>
     <javac destdir="${build.dir}" includeantruntime="false" source="1.7" debug="on" target="1.7" encoding="UTF-8">
       <src path="src"/>
@@ -156,7 +154,6 @@
     <copy todir="${build.dir}/util">
       <fileset dir="${packaging.lib}" includes="**/bcprov-*.jar"/>
       <fileset dir="." includes="log4j.for.util.properties"/>
-      <fileset dir="resources" includes="logback.xml"/>
     </copy>
     <move file="${build.dir}/util/log4j.for.util.properties" tofile="${build.dir}/util/log4j.properties"/>
     <zip destfile="${dist.dir}/${artifact.name}-util.zip"
