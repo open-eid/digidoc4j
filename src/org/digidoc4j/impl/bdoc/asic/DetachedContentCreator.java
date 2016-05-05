@@ -26,6 +26,14 @@ public class DetachedContentCreator {
 
   public DetachedContentCreator populate(Collection<DataFile> dataFiles) {
     detachedContentList = new ArrayList<>(dataFiles.size());
+    if(dataFiles.isEmpty()) {
+      return this;
+    }
+    populateDetachedContent(dataFiles);
+    return this;
+  }
+
+  private void populateDetachedContent(Collection<DataFile> dataFiles) {
     Iterator<DataFile> dataFileIterator = dataFiles.iterator();
     firstDetachedContent = dataFileIterator.next().getDocument();
     DSSDocument lastDetachedContent = firstDetachedContent;
@@ -37,7 +45,6 @@ public class DetachedContentCreator {
       lastDetachedContent = document;
       detachedContentList.add(document);
     }
-    return this;
   }
 
   public List<DSSDocument> getDetachedContentList() {

@@ -44,7 +44,7 @@ public abstract class AsicContainerParser {
 
   private final static Logger logger = LoggerFactory.getLogger(AsicContainerParser.class);
   //Matches META-INF/*signatures*.xml where the last * is a number
-  private static final String SIGNATURES_FILE_REGEX = "META-INF/(.*)signatures(\\d*).xml";
+  private static final String SIGNATURES_FILE_REGEX = "META-INF/(.*)signatures(.*).xml";
   private static final Pattern SIGNATURE_FILE_ENDING_PATTERN = Pattern.compile("(\\d+).xml");
   public static final String MANIFEST = "META-INF/manifest.xml";
   private AsicParseResult parseResult = new AsicParseResult();

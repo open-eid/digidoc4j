@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.utils.Helper;
 import org.junit.Before;
 import org.junit.Rule;
@@ -146,10 +147,16 @@ public class XadesSignatureParserTest {
     assertNotNull(dssSignature.getReferences());
   }
 
+  @Test(expected = InvalidSignatureException.class)
+  public void parsingInvalidSignatureFile_shouldThrowException() throws Exception {
+    XadesValidationReportGenerator xadesReportGenerator = createXadesReportGenerator("testFiles/test.txt");
+    new XadesSignatureParser().parse(xadesReportGenerator);
+  }
+
   private XadesValidationReportGenerator createXadesReportGenerator(String signaturePath) {
     DSSDocument signatureDocument = new FileDocument(signaturePath);
     XadesValidationReportGenerator generator = new XadesValidationReportGenerator(signatureDocument, detachedContents, configuration);
     return generator;
   }
-  
+
 }

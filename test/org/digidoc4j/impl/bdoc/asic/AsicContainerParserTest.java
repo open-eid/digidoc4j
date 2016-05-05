@@ -11,16 +11,17 @@
 package org.digidoc4j.impl.bdoc.asic;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.FileInputStream;
 import java.util.List;
 
 import org.digidoc4j.Configuration;
-import org.junit.Assert;
+import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.junit.Test;
 
-public class AsicContainerParserTest {
+public class AsicContainerParserTest  extends DigiDoc4JTestHelper {
 
   @Test
   public void findingNextSignatureFileIndex_onEmptyContainer_shouldReturn_null() throws Exception {
@@ -59,6 +60,14 @@ public class AsicContainerParserTest {
     assertParseResultValid(result);
   }
 
+  @Test
+  public void parseBDoc_containingSignaturesFile_withNonNumericCharacters() throws Exception {
+    AsicParseResult result = parseContainer("testFiles/valid-containers/valid-bdoc-ts-signature-file-name-with-non-numeric-characters.asice");
+    assertIsAsiceContainer(result);
+    assertEquals("META-INF/l77Tsignaturesn00B.xml", result.getSignatures().get(0).getName());
+    assertNull(result.getCurrentUsedSignatureFileIndex());
+  }
+
   private AsicParseResult parseContainer(String path) {
     AsicContainerParser parser = new AsicFileContainerParser(path, Configuration.getInstance());
     AsicParseResult result = parser.read();
@@ -70,6 +79,10 @@ public class AsicContainerParserTest {
     assertEquals("META-INF/signatures0.xml", result.getSignatures().get(0).getName());
     assertEquals("META-INF/signatures1.xml", result.getSignatures().get(1).getName());
     assertEquals(Integer.valueOf(1), result.getCurrentUsedSignatureFileIndex());
+    assertIsAsiceContainer(result);
+  }
+
+  private void assertIsAsiceContainer(AsicParseResult result) {
     assertTrue(result.getManifestParser().containsManifestFile());
     assertFirstAsicEntryIsMimeType(result);
     assertContainsManifest(result);

@@ -15,6 +15,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.impl.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
@@ -365,17 +366,40 @@ public class ContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  @Ignore("possibility of this must be confirmed with dss authors")
+  public void addRawSignatureToBDocContainer() throws Exception {
+    Container container = createBDoc();
+    container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
+    byte[] signatureBytes = FileUtils.readFileToByteArray(new File("testFiles/xades/valid-bdoc-tm.xml"));
+    container.addRawSignature(signatureBytes);
+    String containerPath = testFolder.newFile("test-container.bdoc").getPath();
+    container.saveAsFile(containerPath);
+    container = ContainerOpener.open(containerPath);
+    assertEquals(1, container.getSignatures().size());
+    assertTrue(container.validate().isValid());
+  }
+
+  @Test
+  public void addRawSignatureToExistingBDocContainer() throws Exception {
+    Container container = TestDataBuilder.createContainerWithFile("testFiles/test.txt");
+    TestDataBuilder.signContainer(container);
+    byte[] signatureBytes = FileUtils.readFileToByteArray(new File("testFiles/xades/valid-bdoc-tm.xml"));
+    container.addRawSignature(signatureBytes);
+    String containerPath = testFolder.newFile("test-container.bdoc").getPath();
+    container.saveAsFile(containerPath);
+    container = ContainerOpener.open(containerPath);
+    assertEquals(2, container.getSignatures().size());
+    assertTrue(container.validate().isValid());
+  }
+
+  @Test(expected = InvalidSignatureException.class)
   public void testAddRawSignatureAsByteArrayForBDoc() throws CertificateEncodingException, IOException, SAXException {
     Container container = createBDoc();
     container.addDataFile("testFiles/test.txt", TEXT_MIME_TYPE);
-    container.sign(PKCS12_SIGNER);
+    TestDataBuilder.signContainer(container);
     container.addRawSignature(Base64.decodeBase64("fo4aA1PVI//1agzBm2Vcxj7sk9pYQJt+9a7xLFSkfF10RocvGjVPBI65RMqyxGIsje" +
         "LoeDERfTcjHdNojoK/gEdKtme4z6kvkZzjMjDuJu7krK/3DHBtW3XZleIaWZSWySahUiPNNIuk5ykACUolh+K/UK2aWL3Nh64EWvC8aznLV0" +
         "M21s7GwTv7+iVXhR/6c3O22saWKWsteGT0/AqfcBRoj13H/NyuZOULqU0PFOhbJtV8RyZgC9n2uYBFsnutt5GPvhP+U93gkmFQ0+iC1a9Ktt" +
         "j4QH5si35YmRIe0fp8tGDo6li63/tybb+kQ96AIaRe1NxpkKVDBGNi+VNVNA=="));
-
-    assertEquals(2, container.getSignatures().size());
   }
 
   @Test

@@ -65,10 +65,9 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
-import org.digidoc4j.impl.Signatures;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.testutils.TestSigningHelper;
@@ -165,20 +164,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     container.addDataFile(new MockInputStream(), "test.txt", "text/plain");
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test(expected = InvalidSignatureException.class)
   public void testAddRawSignature() throws Exception {
     Container container = createEmptyBDocContainer();
     container.addRawSignature(new byte[]{});
-  }
-
-  @Test(expected = NotYetImplementedException.class)
-  public void testAddRawSignatureFromInputStream() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
-    container.addRawSignature(new ByteArrayInputStream(Signatures.XADES_SIGNATURE.getBytes()));
-    container.save("test_add_raw_signature.bdoc");
-
-    Container openedContainer = open("test_add_raw_signature.bdoc");
-    assertEquals(1, openedContainer.getSignatures().size());
   }
 
   @Test
@@ -1025,6 +1014,23 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNull(zip.getEntry("META-INF/signatures0.xml"));
     assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
     assertNotNull(zip.getEntry("META-INF/signatures2.xml"));
+  }
+
+  @Test
+  public void whenSigningContainer_withSignatureNameContainingNonNumericCharacters_shouldCreateSignatureFileName_inSequence() throws Exception {
+    ZipFile zip = new ZipFile("testFiles/valid-containers/valid-bdoc-ts-signature-file-name-with-non-numeric-characters.asice");
+    assertNotNull(zip.getEntry("META-INF/l77Tsignaturesn00B.xml"));
+    assertNull(zip.getEntry("META-INF/signatures0.xml"));
+    assertNull(zip.getEntry("META-INF/signatures1.xml"));
+    Container container = open("testFiles/valid-containers/valid-bdoc-ts-signature-file-name-with-non-numeric-characters.asice");
+    signContainer(container, SignatureProfile.LT);
+    signContainer(container, SignatureProfile.LT);
+    String containerPath = testFolder.newFile("test-container.asice").getPath();
+    container.saveAsFile(containerPath);
+    zip = new ZipFile(containerPath);
+    assertNotNull(zip.getEntry("META-INF/l77Tsignaturesn00B.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
+    assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
   }
 
   @Test(expected = DuplicateDataFileException.class)

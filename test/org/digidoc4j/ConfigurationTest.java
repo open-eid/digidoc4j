@@ -110,8 +110,8 @@ public class ConfigurationTest {
 
   @SuppressWarnings("ConstantConditions")
   @Test
-  public void clearTSLCache() throws IOException, CertificateException {
-    Configuration myConfiguration = new Configuration(PROD);
+  public void clearTSLCache() throws Exception {
+    Configuration myConfiguration = new Configuration(TEST);
     File fileCacheDirectory = TslLoader.fileCacheDirectory;
     if(fileCacheDirectory.exists()) {
       FileUtils.cleanDirectory(fileCacheDirectory);
@@ -119,6 +119,7 @@ public class ConfigurationTest {
 
     TSLCertificateSource tslCertificateSource = myConfiguration.getTSL();
     tslCertificateSource.refresh();
+    waitOneSecond();
     File oldCachedFile = fileCacheDirectory.listFiles()[0];
     FileTime oldCachedFileDate = (FileTime)Files.getAttribute(oldCachedFile.toPath(),
         "basic:creationTime");

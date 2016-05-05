@@ -13,11 +13,13 @@ package org.digidoc4j.impl.bdoc.xades;
 import java.util.List;
 
 import org.digidoc4j.Configuration;
+import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.impl.bdoc.SKCommonCertificateVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 
@@ -35,12 +37,17 @@ public class XadesValidationDssFacade {
   }
 
   public SignedDocumentValidator openXadesValidator(DSSDocument signature) {
-    logger.debug("Opening signature validator");
-    SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(signature);
-    logger.debug("Finished opening signature validator");
-    validator.setDetachedContents(detachedContents);
-    validator.setCertificateVerifier(certificateVerifier);
-    return validator;
+    try {
+      logger.debug("Opening signature validator");
+      SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(signature);
+      logger.debug("Finished opening signature validator");
+      validator.setDetachedContents(detachedContents);
+      validator.setCertificateVerifier(certificateVerifier);
+      return validator;
+    } catch (DSSException e) {
+      logger.error("Failed to parse xades signature: " + e.getMessage());
+      throw new InvalidSignatureException();
+    }
   }
 
   private CertificateVerifier createCertificateVerifier() {
