@@ -15,6 +15,7 @@
   <logger name="eu.europa" level="INFO"/>
   <logger name="org.digidoc4j.Configuration" level="INFO"/>
   <logger name="eu.europa.esig.dss.client.http.commons" level="DEBUG"/>
+  <logger name="ee.sk" level="INFO"/>
 
   <root level="INFO">
     <appender-ref ref="stdout"/>

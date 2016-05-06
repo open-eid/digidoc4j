@@ -9,7 +9,8 @@
   <property name="junit.dir" value="junit_report"/>
   <property name="coverage.dir" value="coverage"/>
   <property name="dist.dir" value="dist"/>
-  <property name="packaging.lib" value="packaging_jar"/>
+  <property name="utility.package.lib" value="utility-package-lib"/>
+  <property name="zip.package.lib" value="zip-package-lib"/>
 
   <property name="ivy.install.version" value="2.4.0" />
   <condition property="ivy.home" value="${env.IVY_HOME}">
@@ -125,19 +126,19 @@
   </target>
 
   <target name="library" depends="init.ivy">
-    <ivy:retrieve transitive="false" conf="runtime" sync="true" pattern="${packaging.lib}/[artifact].[ext]"/>
+    <ivy:retrieve transitive="false" conf="runtime,library-zip" sync="true" pattern="${zip.package.lib}/[artifact].[ext]"/>
     <zip destfile="${dist.dir}/${artifact.name}-library.zip">
-      <zipfileset dir="${packaging.lib}" includes="*.jar"/>
+      <zipfileset dir="${zip.package.lib}" includes="*.jar"/>
       <zipfileset dir="lib" includes="**/dss*.jar **/validation-policy*.jar"/>
     </zip>
   </target>
 
   <target name="utility" depends="init.ivy">
-    <ivy:retrieve transitive="false" conf="runtime" sync="true" pattern="${packaging.lib}/[artifact].[ext]"/>
+    <ivy:retrieve transitive="false" conf="runtime,util" sync="true" pattern="${utility.package.lib}/[artifact].[ext]"/>
     <mkdir dir="${build.dir}/util"/>
     <jar jarfile="${build.dir}/util/temp.jar">
       <zipgroupfileset dir="lib" includes="**/dss*.jar **/validation-policy*.jar"/>
-      <zipgroupfileset dir="${packaging.lib}" includes="**/*.jar" excludes="bcprov-*.jar"/>
+      <zipgroupfileset dir="${utility.package.lib}" includes="**/*.jar" excludes="bcprov-*.jar"/>
       <zipgroupfileset dir="dist" includes="**/digidoc4j-*.jar" excludes="*-javadoc.jar *-sources.jar"/>
     </jar>
 
@@ -154,11 +155,9 @@
     </jar>
     <delete file="${build.dir}/util/temp.jar"/>
     <copy todir="${build.dir}/util">
-      <fileset dir="${packaging.lib}" includes="**/bcprov-*.jar"/>
-      <fileset dir="." includes="log4j.for.util.properties"/>
+      <fileset dir="${utility.package.lib}" includes="**/bcprov-*.jar"/>
       <fileset dir="resources" includes="logback.xml"/>
     </copy>
-    <move file="${build.dir}/util/log4j.for.util.properties" tofile="${build.dir}/util/log4j.properties"/>
     <zip destfile="${dist.dir}/${artifact.name}-util.zip"
          basedir="${build.dir}/util"/>
     <delete dir="${build.dir}/util"/>
@@ -274,7 +273,7 @@
   </target>
 
   <target name="load.dependencies" depends="init.ivy" >
-    <ivy:retrieve transitive="false" conf="compile"/>
+    <ivy:retrieve transitive="false" conf="runtime,util,test"/>
   </target>
 
 </project>
