@@ -204,6 +204,7 @@ public class ConfigurationTest {
 
   @Test
   //@Ignore("RIA VPN")
+  //This test succeeds only in RIA VPN
   public void TSLIsLoadedAfterSettingNewTSLLocation() {
     Configuration configuration = new Configuration(TEST);
     configuration.setTslLocation("https://demo.sk.ee/TSL/tl-mp-test-EE.xml");

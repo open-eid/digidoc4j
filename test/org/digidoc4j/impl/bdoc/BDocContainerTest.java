@@ -74,6 +74,7 @@ import org.digidoc4j.testutils.TestSigningHelper;
 import org.digidoc4j.utils.Helper;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -915,6 +916,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  @Ignore("Ticket https://www.pivotaltracker.com/story/show/119090909")
   public void containerWithBESProfileHasNoValidationErrors() throws Exception {
     Container container = createEmptyBDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
