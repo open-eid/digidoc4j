@@ -209,7 +209,7 @@ public abstract class BDocContainer implements Container {
     logger.info("Adding raw signature");
     Signature signature = SignatureBuilder.
         aSignature(this).
-        openFromExistingDocument(signatureDocument);
+        openAdESSignature(signatureDocument);
     addSignature(signature);
   }
 

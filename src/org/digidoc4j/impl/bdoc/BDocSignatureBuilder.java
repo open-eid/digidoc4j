@@ -76,7 +76,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   @Override
-  public Signature openFromExistingDocument(byte[] signatureDocument) {
+  public Signature openAdESSignature(byte[] signatureDocument) {
     InMemoryDocument document = new InMemoryDocument(signatureDocument);
     return createSignature(document);
   }

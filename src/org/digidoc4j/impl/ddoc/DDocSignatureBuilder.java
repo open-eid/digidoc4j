@@ -43,7 +43,7 @@ public class DDocSignatureBuilder extends SignatureBuilder {
   }
 
   @Override
-  public Signature openFromExistingDocument(byte[] signatureDocument) {
+  public Signature openAdESSignature(byte[] signatureDocument) {
     DDocFacade ddocFacade = getJDigiDocFacade();
     ddocFacade.setSignatureParameters(signatureParameters);
     ddocFacade.addRawSignature(signatureDocument);

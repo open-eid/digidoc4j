@@ -14,6 +14,7 @@ import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 import static org.digidoc4j.testutils.TestSigningHelper.getSigningCert;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -240,6 +241,14 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
     assertTrue(container.validate().isValid());
   }
 
+  @Test(expected = InvalidSignatureException.class)
+  public void openSignatureFromNull_shouldThrowException() throws Exception {
+    Container container = TestDataBuilder.createContainerWithFile("testFiles/test.txt");
+    SignatureBuilder.
+        aSignature(container).
+        openAdESSignature(null);
+  }
+
   @Test
   public void openSignatureFromExistingSignatureDocument() throws Exception {
     Container container = TestDataBuilder.createContainerWithFile("testFiles/test.txt");
@@ -262,16 +271,29 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
     byte[] signatureBytes = FileUtils.readFileToByteArray(new File("testFiles/test.txt"));
     SignatureBuilder.
         aSignature(container).
-        openFromExistingDocument(signatureBytes);
+        openAdESSignature(signatureBytes);
+  }
+
+  @Test
+  public void openSignature_withDataFilesMismatch_shouldBeInvalid() throws Exception {
+    Container container = TestDataBuilder.createContainerWithFile("testFiles/word_file.docx");
+    Signature signature = openAdESSignature(container);
+    SignatureValidationResult result = signature.validateSignature();
+    assertFalse(result.isValid());
+    assertEquals("The reference data object(s) is not intact!", result.getErrors().get(0).getMessage());
   }
 
   private Signature openSignatureFromExistingSignatureDocument(Container container) throws IOException {
-    byte[] signatureBytes = FileUtils.readFileToByteArray(new File("testFiles/xades/valid-bdoc-tm.xml"));
-    Signature signature = SignatureBuilder.
-        aSignature(container).
-        openFromExistingDocument(signatureBytes);
+    Signature signature = openAdESSignature(container);
     assertEquals("id-6a5d6671af7a9e0ab9a5e4d49d69800d", signature.getId());
     return signature;
+  }
+
+  private Signature openAdESSignature(Container container) throws IOException {
+    byte[] signatureBytes = FileUtils.readFileToByteArray(new File("testFiles/xades/valid-bdoc-tm.xml"));
+    return SignatureBuilder.
+        aSignature(container).
+        openAdESSignature(signatureBytes);
   }
 
   @Test(expected = NotSupportedException.class)
