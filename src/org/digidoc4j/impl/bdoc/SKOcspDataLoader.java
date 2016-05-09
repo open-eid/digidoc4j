@@ -21,6 +21,7 @@ import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.util.EntityUtils;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,13 +35,12 @@ public class SKOcspDataLoader extends OCSPDataLoader {
   private static final Logger logger = LoggerFactory.getLogger(SKOcspDataLoader.class);
   private String userAgent;
 
-  public SKOcspDataLoader() {
-    userAgent = Helper.createBDocUserAgent();
-  }
-
   @Override
   public byte[] post(final String url, final byte[] content) throws DSSException {
     logger.info("Getting OCSP response from " + url);
+    if(userAgent == null) {
+      throw new TechnicalException("User Agent must be set for OCSP requests");
+    }
 
     HttpPost httpRequest = null;
     HttpResponse httpResponse = null;

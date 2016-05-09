@@ -55,6 +55,7 @@ import eu.europa.esig.dss.SignerLocation;
 public class BDocSignatureBuilder extends SignatureBuilder implements SignatureFinalizer {
 
   private final static Logger logger = LoggerFactory.getLogger(BDocSignatureBuilder.class);
+  private static final SignatureProfile DEFAULT_SIGNATURE_PROFILE = SignatureProfile.LT;
   private boolean isTimeMark = false;
   private transient XadesSigningDssFacade facade;
   private Date signingDate;
@@ -205,6 +206,8 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   private void setSignatureProfile() {
     if (signatureParameters.getSignatureProfile() != null) {
       setSignatureProfile(signatureParameters.getSignatureProfile());
+    } else {
+      setSignatureProfile(DEFAULT_SIGNATURE_PROFILE);
     }
   }
 
@@ -222,6 +225,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
       default:
         facade.setSignatureLevel(XAdES_BASELINE_LT);
     }
+    facade.setUserAgentSignatureProfile(profile);
   }
 
   private void setSignaturePolicy() {

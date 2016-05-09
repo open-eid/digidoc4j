@@ -18,6 +18,7 @@ import java.net.URLConnection;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,13 +32,12 @@ public class SKTimestampDataLoader extends NativeHTTPDataLoader {
   private static final Logger logger = LoggerFactory.getLogger(SKTimestampDataLoader.class);
   private String userAgent;
 
-  public SKTimestampDataLoader() {
-    userAgent = Helper.createBDocUserAgent();
-  }
-
   @Override
   public byte[] post(String url, byte[] content) {
     logger.info("Getting timestamp from " + url);
+    if(userAgent == null) {
+      throw new TechnicalException("User Agent must be set for Timestamp requests");
+    }
     OutputStream out = null;
     InputStream inputStream = null;
     byte[] result = null;
@@ -65,7 +65,7 @@ public class SKTimestampDataLoader extends NativeHTTPDataLoader {
     return result;
   }
 
-  public void setUserAgentSignatureProfile(SignatureLevel signatureLevel) {
-    userAgent = Helper.createBDocUserAgent(signatureLevel);
+  public void setUserAgentSignatureProfile(SignatureProfile signatureProfile) {
+    userAgent = Helper.createBDocUserAgent(signatureProfile);
   }
 }

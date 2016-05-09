@@ -45,6 +45,7 @@ public class SignatureExtender {
     ocspSource.setUserAgentSignatureProfile(profile);
     extendingFacade.setOcspSource(ocspSource);
     extendingFacade.setSignatureLevel(signatureLevel);
+    extendingFacade.setUserAgentSignatureProfile(profile);
     List<DSSDocument> extendedSignatures = new ArrayList<>();
     for (DSSDocument xadesSignature : signaturesToExtend) {
       DSSDocument extendedSignature = extendingFacade.extendSignature(xadesSignature, detachedContent);

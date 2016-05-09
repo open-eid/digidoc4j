@@ -26,6 +26,7 @@ import java.util.List;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.junit.Before;
@@ -48,7 +49,8 @@ public class XadesSigningDssFacadeTest {
   public void setUp() throws Exception {
     facade = new XadesSigningDssFacade(configuration.getTspSource());
     facade.setCertificateSource(configuration.getTSL());
-    facade.setOcspSource(new BDocTSOcspSource(configuration));
+    facade.setOcspSource(createOcspSource());
+    facade.setUserAgentSignatureProfile(SignatureProfile.LT);
   }
 
   @Test
@@ -63,7 +65,7 @@ public class XadesSigningDssFacadeTest {
   @Test
   public void signDocumentTest() throws Exception {
     facade.setCertificateSource(configuration.getTSL());
-    facade.setOcspSource(new BDocTSOcspSource(configuration));
+    facade.setOcspSource(createOcspSource());
     DSSDocument signedDocument = signTestData(DigestAlgorithm.SHA256);
     assertDocumentSigned(signedDocument);
   }
@@ -115,6 +117,7 @@ public class XadesSigningDssFacadeTest {
   @Test
   public void signWithBesSignatureProfile() throws Exception {
     facade.setSignatureLevel(XAdES_BASELINE_B);
+    facade.setUserAgentSignatureProfile(SignatureProfile.B_BES);
     DSSDocument signedDocument = signTestData(DigestAlgorithm.SHA256);
     assertDocumentSigned(signedDocument);
   }
@@ -129,11 +132,13 @@ public class XadesSigningDssFacadeTest {
   @Test
   public void extendBesSignature_toTimestampSignature() throws Exception {
     facade.setSignatureLevel(XAdES_BASELINE_B);
+    facade.setUserAgentSignatureProfile(SignatureProfile.B_BES);
     DSSDocument signedDocument = signTestData(DigestAlgorithm.SHA256);
     XadesSigningDssFacade extendingFacade = new XadesSigningDssFacade(configuration.getTspSource());
     extendingFacade.setCertificateSource(configuration.getTSL());
-    extendingFacade.setOcspSource(new BDocTSOcspSource(configuration));
+    extendingFacade.setOcspSource(createOcspSource());
     extendingFacade.setSignatureLevel(XAdES_BASELINE_LT);
+    extendingFacade.setUserAgentSignatureProfile(SignatureProfile.LT);
     DSSDocument detachedContent = new FileDocument("testFiles/test.txt");
     DSSDocument extendedDocument = extendingFacade.extendSignature(signedDocument, detachedContent);
     assertDocumentSigned(extendedDocument);
@@ -155,6 +160,12 @@ public class XadesSigningDssFacadeTest {
   private byte[] signData(byte[] dataToSign, DigestAlgorithm digestAlgorithm) {
     byte[] digestToSign = calculateDigestToSign(dataToSign, digestAlgorithm);
     return TestSigningHelper.sign(digestToSign, digestAlgorithm);
+  }
+
+  private BDocTSOcspSource createOcspSource() {
+    BDocTSOcspSource ocspSource = new BDocTSOcspSource(configuration);
+    ocspSource.setUserAgentSignatureProfile(SignatureProfile.LT);
+    return ocspSource;
   }
 
   private List<DataFile> createDataFilesToSign() {

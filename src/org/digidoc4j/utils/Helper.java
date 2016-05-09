@@ -40,6 +40,8 @@ public final class Helper {
 
   private static final int ZIP_VERIFICATION_CODE = 0x504b0304;
   private static final int INT_LENGTH = 4;
+  private static final String BDOC_TM_SIGNATURE_LEVEL = "ASiC_E_BASELINE_LT_TM";
+  private static final String EMPTY_CONTAINER_SIGNATURE_LEVEL = "ASiC_E";
 
   private Helper() {
   }
@@ -210,15 +212,18 @@ public final class Helper {
   }
 
   public static String createBDocUserAgent() {
-    return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, ASiC_E_BASELINE_LT.name());
+    return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, EMPTY_CONTAINER_SIGNATURE_LEVEL);
   }
 
   public static String createBDocUserAgent(SignatureProfile signatureProfile) {
+    if(signatureProfile == SignatureProfile.LT_TM) {
+      return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, BDOC_TM_SIGNATURE_LEVEL);
+    }
     SignatureLevel signatureLevel = determineSignatureLevel(signatureProfile);
     return createBDocUserAgent(signatureLevel);
   }
 
-  public static String createBDocUserAgent(SignatureLevel signatureLevel) {
+  private static String createBDocUserAgent(SignatureLevel signatureLevel) {
     return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, signatureLevel.name());
   }
 

@@ -164,8 +164,20 @@ public class HelperTest {
   }
 
   @Test
-  public void  createUserAgentSignatureProfileForBDOCDefault() {
+  public void createUserAgentForUnknownSignatureProfile() {
     String userAgent = Helper.createBDocUserAgent();
+    assertThat(userAgent, containsString("signatureProfile: ASiC_E"));
+  }
+
+  @Test
+  public void createUserAgentSignatureProfileForBDocTm() throws Exception {
+    String userAgent = Helper.createBDocUserAgent(SignatureProfile.LT_TM);
+    assertThat(userAgent, containsString("signatureProfile: ASiC_E_BASELINE_LT_TM"));
+  }
+
+  @Test
+  public void createUserAgentSignatureProfileForBDocTs() throws Exception {
+    String userAgent = Helper.createBDocUserAgent(SignatureProfile.LT);
     assertThat(userAgent, containsString("signatureProfile: ASiC_E_BASELINE_LT"));
   }
 

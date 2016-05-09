@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.digidoc4j.DataFile;
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.bdoc.SKCommonCertificateVerifier;
 import org.digidoc4j.impl.bdoc.SKTimestampDataLoader;
 import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
@@ -125,7 +126,10 @@ public class XadesSigningDssFacade {
 
   public void setSignatureLevel(SignatureLevel signatureLevel) {
     xAdESSignatureParameters.setSignatureLevel(signatureLevel);
-    dataLoader.setUserAgentSignatureProfile(signatureLevel);
+  }
+
+  public void setUserAgentSignatureProfile(SignatureProfile signatureProfile) {
+    dataLoader.setUserAgentSignatureProfile(signatureProfile);
   }
 
   public void setSignatureId(String signatureId) {
