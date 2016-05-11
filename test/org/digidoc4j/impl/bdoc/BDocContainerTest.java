@@ -916,7 +916,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  @Ignore("Ticket https://www.pivotaltracker.com/story/show/119090909")
   public void containerWithBESProfileHasNoValidationErrors() throws Exception {
     Container container = createEmptyBDocContainer();
     container.addDataFile("testFiles/test.txt", "text/plain");
@@ -925,7 +924,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(B_BES, container.getSignatures().get(0).getProfile());
     assertNull(container.getSignature(0).getOCSPCertificate());
     ValidationResult result = container.validate();
-    assertEquals(0, result.getErrors().size());
+    assertFalse(result.isValid());
   }
 
   @Test
