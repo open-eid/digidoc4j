@@ -15,8 +15,9 @@ public interface TSLCertificateSource extends CertificateSource {
   /**
    * This method allows to define (to add) any certificate as trusted.
    * <p/>
-   * ServiceTypeIdentifier is http://uri.etsi.org/TrstSvc/Svctype/CA/QC
-   * ServiceStatus is http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision
+   * ServiceTypeIdentifier is http://uri.etsi.org/TrstSvc/Svctype/CA/QC <br/>
+   * ServiceStatus is http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision <br/>
+   * Qualifier is http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD with nonRepudiation <br/>
    *
    * @param certificate X509 certificate to be added to the list, a certificate you have to trust.
    */

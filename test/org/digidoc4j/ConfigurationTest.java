@@ -35,14 +35,21 @@ import java.nio.file.attribute.FileTime;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 import static org.digidoc4j.Configuration.*;
 import static org.digidoc4j.Configuration.Mode.PROD;
 import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.*;
 
 import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.tsl.Condition;
+import eu.europa.esig.dss.tsl.KeyUsageBit;
+import eu.europa.esig.dss.tsl.ServiceInfo;
+import eu.europa.esig.dss.x509.CertificateToken;
 
 public class ConfigurationTest {
   private static final String SIGN_OCSP_REQUESTS = "SIGN_OCSP_REQUESTS";
@@ -84,6 +91,20 @@ public class ConfigurationTest {
     addFromFileToTSLCertificate("testFiles/Juur-SK.pem.crt");
 
     assertEquals(numberOfTSLCertificates + 1, configuration.getTSL().getCertificates().size());
+  }
+
+  @Test
+  public void addingCertificateToTsl() throws Exception {
+    TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
+    addFromFileToTSLCertificate("testFiles/Juur-SK.pem.crt", certificateSource);
+    CertificateToken certificateToken = certificateSource.getCertificates().get(0);
+    assertThat(certificateToken.getKeyUsageBits(), hasItem(KeyUsageBit.nonRepudiation));
+    assertTrue(certificateToken.checkKeyUsage(KeyUsageBit.nonRepudiation));
+    ServiceInfo serviceInfo = certificateToken.getAssociatedTSPS().iterator().next();
+    assertEquals("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", serviceInfo.getStatus());
+    assertEquals("http://uri.etsi.org/TrstSvc/Svctype/CA/QC", serviceInfo.getType());
+    Map<String, List<Condition>> qualifiersAndConditions = serviceInfo.getQualifiersAndConditions();
+    assertTrue(qualifiersAndConditions.containsKey("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD"));
   }
 
   @Test
@@ -189,9 +210,14 @@ public class ConfigurationTest {
   }
 
   private void addFromFileToTSLCertificate(String fileName) throws IOException, CertificateException {
+    TSLCertificateSource tsl = configuration.getTSL();
+    addFromFileToTSLCertificate(fileName, tsl);
+  }
+
+  private void addFromFileToTSLCertificate(String fileName, TSLCertificateSource tsl) throws IOException {
     FileInputStream fileInputStream = new FileInputStream(fileName);
     X509Certificate certificate = DSSUtils.loadCertificate(fileInputStream).getCertificate();
-    configuration.getTSL().addTSLCertificate(certificate);
+    tsl.addTSLCertificate(certificate);
     fileInputStream.close();
   }
 
