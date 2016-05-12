@@ -53,6 +53,7 @@ public class XadesSignatureParser {
     if (policyId == null) {
       return false;
     }
-    return StringUtils.equals(XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
+    String identifier = StringUtils.trim(policyId.getIdentifier());
+    return StringUtils.equals(XadesSignatureValidator.TM_POLICY, identifier);
   }
 }

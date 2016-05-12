@@ -42,7 +42,8 @@
                         <xades:SignaturePolicyIdentifier>
                             <xades:SignaturePolicyId>
                                 <xades:SigPolicyId>
-                                    <xades:Identifier Qualifier="OIDAsURN">urn:oid:1.3.6.1.4.1.10015.1000.3.2.1</xades:Identifier>
+                                    <xades:Identifier Qualifier="OIDAsURN">
+                                        urn:oid:1.3.6.1.4.1.10015.1000.3.2.1</xades:Identifier>
                                 </xades:SigPolicyId>
                                 <xades:SigPolicyHash>
                                     <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
