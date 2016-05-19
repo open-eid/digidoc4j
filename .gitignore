@@ -25,3 +25,4 @@ setsSignatureId.ddoc
 jacoco.exec
 utility-package-lib
 zip-package-lib
+contiperf-report
