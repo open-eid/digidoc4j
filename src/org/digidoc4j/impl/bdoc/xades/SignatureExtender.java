@@ -18,12 +18,14 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.impl.bdoc.SkDataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.digidoc4j.impl.bdoc.ocsp.BDocTSOcspSource;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.SignatureLevel;
+import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 
 public class SignatureExtender {
 
@@ -39,13 +41,13 @@ public class SignatureExtender {
   public List<DSSDocument> extend(Collection<DSSDocument> signaturesToExtend, SignatureProfile profile) {
     logger.debug("Extending signatures to " + profile);
     SignatureLevel signatureLevel = getSignatureLevel(profile);
-    XadesSigningDssFacade extendingFacade = new XadesSigningDssFacade(configuration.getTspSource());
+    XadesSigningDssFacade extendingFacade = new XadesSigningDssFacade();
     extendingFacade.setCertificateSource(configuration.getTSL());
-    BDocTSOcspSource ocspSource = new BDocTSOcspSource(configuration);
-    ocspSource.setUserAgentSignatureProfile(profile);
+    BDocTSOcspSource ocspSource = createOcspSource(profile);
     extendingFacade.setOcspSource(ocspSource);
+    OnlineTSPSource tspSource = createTimeStampProviderSource(profile);
+    extendingFacade.setTspSource(tspSource);
     extendingFacade.setSignatureLevel(signatureLevel);
-    extendingFacade.setUserAgentSignatureProfile(profile);
     List<DSSDocument> extendedSignatures = new ArrayList<>();
     for (DSSDocument xadesSignature : signaturesToExtend) {
       DSSDocument extendedSignature = extendingFacade.extendSignature(xadesSignature, detachedContent);
@@ -53,6 +55,22 @@ public class SignatureExtender {
     }
     logger.debug("Finished extending signatures");
     return extendedSignatures;
+  }
+
+  private BDocTSOcspSource createOcspSource(SignatureProfile profile) {
+    BDocTSOcspSource ocspSource = new BDocTSOcspSource(configuration);
+    SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(configuration);
+    dataLoader.setUserAgentSignatureProfile(profile);
+    ocspSource.setDataLoader(dataLoader);
+    return ocspSource;
+  }
+
+  private OnlineTSPSource createTimeStampProviderSource(SignatureProfile profile) {
+    OnlineTSPSource tspSource = new OnlineTSPSource(configuration.getTspSource());
+    SkDataLoader dataLoader = SkDataLoader.createTimestampDataLoader(configuration);
+    dataLoader.setUserAgentSignatureProfile(profile);
+    tspSource.setDataLoader(dataLoader);
+    return tspSource;
   }
 
   private SignatureLevel getSignatureLevel(SignatureProfile profile) {

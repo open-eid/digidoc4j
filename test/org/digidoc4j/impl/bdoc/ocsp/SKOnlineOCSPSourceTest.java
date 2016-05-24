@@ -15,7 +15,7 @@ import java.security.cert.X509Certificate;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.impl.bdoc.SKOcspDataLoader;
+import org.digidoc4j.impl.bdoc.SkDataLoader;
 import org.digidoc4j.utils.CertificatesForTests;
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,7 +39,7 @@ public class SKOnlineOCSPSourceTest {
   CertificateToken issuerCertToken;
 
   @Mock
-  SKOcspDataLoader dataLoader;
+  SkDataLoader dataLoader;
 
   X509Certificate issuerCert;
   Configuration configuration = new Configuration(Configuration.Mode.TEST);

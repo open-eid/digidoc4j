@@ -158,6 +158,9 @@ public class Configuration implements Serializable {
   private TslManager tslManager;
   Map<String, String> configuration = new HashMap<>();
 
+  private String httpProxyHost;
+  private Integer httpProxyPort;
+
   /**
    * Application mode
    */
@@ -954,14 +957,40 @@ public class Configuration implements Serializable {
     return path;
   }
 
+  public void setPKCS11ModulePath(String path) {
+    logger.debug("Set PKCS11 module path: " + path);
+    setConfigurationParameter("pkcs11Module", path);
+  }
+
   public int getRevocationAndTimestampDeltaInMinutes() {
     String timeDelta = getConfigurationParameter("revocationAndTimestampDeltaInMinutes");
     logger.debug("Revocation and timestamp delta in minutes: " + timeDelta);
     return Integer.parseInt(timeDelta);
   }
+
   public void setRevocationAndTimestampDeltaInMinutes(int timeInMinutes) {
     logger.debug("Set revocation and timestamp delta in minutes: " + timeInMinutes);
     setConfigurationParameter("revocationAndTimestampDeltaInMinutes", String.valueOf(timeInMinutes));
+  }
+
+  public String getHttpProxyHost() {
+    return httpProxyHost;
+  }
+
+  public void setHttpProxyHost(String httpProxyHost) {
+    this.httpProxyHost = httpProxyHost;
+  }
+
+  public Integer getHttpProxyPort() {
+    return httpProxyPort;
+  }
+
+  public void setHttpProxyPort(int httpProxyPort) {
+    this.httpProxyPort = httpProxyPort;
+  }
+
+  public boolean isNetworkProxyEnabled() {
+    return httpProxyPort != null && StringUtils.isNotBlank(httpProxyHost);
   }
 
   private void setConfigurationParameter(String key, String value) {

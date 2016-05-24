@@ -17,9 +17,7 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.digidoc4j.DataFile;
-import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.bdoc.SKCommonCertificateVerifier;
-import org.digidoc4j.impl.bdoc.SKTimestampDataLoader;
 import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +32,12 @@ import eu.europa.esig.dss.SignaturePackaging;
 import eu.europa.esig.dss.SignatureValue;
 import eu.europa.esig.dss.SignerLocation;
 import eu.europa.esig.dss.ToBeSigned;
-import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.signature.DocumentSignatureService;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.x509.CertificateSource;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.x509.ocsp.OCSPSource;
+import eu.europa.esig.dss.x509.tsp.TSPSource;
 import eu.europa.esig.dss.xades.XAdESSignatureParameters;
 import eu.europa.esig.dss.xades.signature.XAdESService;
 
@@ -49,11 +47,8 @@ public class XadesSigningDssFacade {
   private DocumentSignatureService<XAdESSignatureParameters> service;
   private XAdESSignatureParameters xAdESSignatureParameters = new XAdESSignatureParameters();
   private CertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
-  private String timestampServerUrl;
-  private SKTimestampDataLoader dataLoader;
 
-  public XadesSigningDssFacade(String timestampServerUrl) {
-    this.timestampServerUrl = timestampServerUrl;
+  public XadesSigningDssFacade() {
     initDefaultXadesParameters();
     initCertificateVerifier();
     initXadesService();
@@ -128,10 +123,6 @@ public class XadesSigningDssFacade {
     xAdESSignatureParameters.setSignatureLevel(signatureLevel);
   }
 
-  public void setUserAgentSignatureProfile(SignatureProfile signatureProfile) {
-    dataLoader.setUserAgentSignatureProfile(signatureProfile);
-  }
-
   public void setSignatureId(String signatureId) {
     logger.debug("Setting deterministic id: " + signatureId);
     xAdESSignatureParameters.setDeterministicId(signatureId);
@@ -143,6 +134,10 @@ public class XadesSigningDssFacade {
 
   public void setSigningDate(Date signingDate) {
     xAdESSignatureParameters.getBLevelParams().setSigningDate(signingDate);
+  }
+
+  public void setTspSource(TSPSource tspSource) {
+    service.setTspSource(tspSource);
   }
 
   private void initDefaultXadesParameters() {
@@ -160,10 +155,6 @@ public class XadesSigningDssFacade {
 
   private void initXadesService() {
     service = new XAdESService(certificateVerifier);
-    OnlineTSPSource tspSource = new OnlineTSPSource(timestampServerUrl);
-    dataLoader = new SKTimestampDataLoader();
-    tspSource.setDataLoader(dataLoader);
-    service.setTspSource(tspSource);
   }
 
   private eu.europa.esig.dss.DigestAlgorithm convertToDssDigestAlgorithm(org.digidoc4j.DigestAlgorithm digestAlgorithm) {

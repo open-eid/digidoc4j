@@ -20,6 +20,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.util.EntityUtils;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.utils.Helper;
@@ -27,13 +28,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSException;
-import eu.europa.esig.dss.SignatureLevel;
+import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.client.http.commons.OCSPDataLoader;
+import eu.europa.esig.dss.client.http.proxy.ProxyPreferenceManager;
 
-public class SKOcspDataLoader extends OCSPDataLoader {
+public class SkDataLoader extends CommonsDataLoader {
 
-  private static final Logger logger = LoggerFactory.getLogger(SKOcspDataLoader.class);
+  private static final Logger logger = LoggerFactory.getLogger(SkDataLoader.class);
+  public static final String TIMESTAMP_CONTENT_TYPE = "application/timestamp-query";
   private String userAgent;
+
+  public static SkDataLoader createOcspDataLoader(Configuration configuration) {
+    SkDataLoader dataLoader = new SkDataLoader(configuration);
+    dataLoader.setContentType(OCSPDataLoader.OCSP_CONTENT_TYPE);
+    return dataLoader;
+  }
+
+  public static SkDataLoader createTimestampDataLoader(Configuration configuration) {
+    SkDataLoader dataLoader = new SkDataLoader(configuration);
+    dataLoader.setContentType(TIMESTAMP_CONTENT_TYPE);
+    return dataLoader;
+  }
+
+  protected SkDataLoader(Configuration configuration) {
+    if(configuration.isNetworkProxyEnabled()) {
+      ProxyPreferenceManager proxyPreferences = ProxySettingsCreator.create(configuration);
+      setProxyPreferenceManager(proxyPreferences);
+    }
+  }
 
   @Override
   public byte[] post(final String url, final byte[] content) throws DSSException {

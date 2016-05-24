@@ -51,6 +51,7 @@ import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignerLocation;
+import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 
 public class BDocSignatureBuilder extends SignatureBuilder implements SignatureFinalizer {
 
@@ -128,6 +129,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     }
     setSigningCertificate();
     setSigningDate();
+    setTimeStampProviderSource();
   }
 
   private void populateParametersForFinalizingSignature(byte[] signatureValueBytes) {
@@ -137,14 +139,12 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     }
     Configuration configuration = getConfiguration();
     facade.setCertificateSource(configuration.getTSL());
-    SKOnlineOCSPSource ocspSource = getOcspSource(signatureValueBytes);
-    facade.setOcspSource(ocspSource);
+    setOcspSource(signatureValueBytes);
   }
 
   private void initSigningFacade() {
     if (facade == null) {
-      Configuration configuration = getConfiguration();
-      facade = new XadesSigningDssFacade(configuration.getTspSource());
+      facade = new XadesSigningDssFacade();
     }
   }
 
@@ -177,8 +177,16 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     }
   }
 
-  private SKOnlineOCSPSource getOcspSource(byte[] signatureValue) {
-    logger.debug("Getting OCSP source");
+  private void setOcspSource(byte[] signatureValueBytes) {
+    SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(getConfiguration());
+    dataLoader.setUserAgentSignatureProfile(signatureParameters.getSignatureProfile());
+    SKOnlineOCSPSource ocspSource = createOcspSource(signatureValueBytes);
+    ocspSource.setDataLoader(dataLoader);
+    facade.setOcspSource(ocspSource);
+  }
+
+  private SKOnlineOCSPSource createOcspSource(byte[] signatureValue) {
+    logger.debug("Creating OCSP source");
     Configuration configuration = getConfiguration();
     SKOnlineOCSPSource ocspSource;
     if (isTimeMark && signatureValue != null) {
@@ -186,8 +194,16 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     } else {
       ocspSource = new BDocTSOcspSource(configuration);
     }
-    ocspSource.setUserAgentSignatureProfile(signatureParameters.getSignatureProfile());
     return ocspSource;
+  }
+
+  private void setTimeStampProviderSource() {
+    Configuration configuration = getConfiguration();
+    OnlineTSPSource tspSource = new OnlineTSPSource(configuration.getTspSource());
+    SkDataLoader dataLoader = SkDataLoader.createTimestampDataLoader(configuration);
+    dataLoader.setUserAgentSignatureProfile(signatureParameters.getSignatureProfile());
+    tspSource.setDataLoader(dataLoader);
+    facade.setTspSource(tspSource);
   }
 
   private void setDigestAlgorithm() {
@@ -208,6 +224,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
       setSignatureProfile(signatureParameters.getSignatureProfile());
     } else {
       setSignatureProfile(DEFAULT_SIGNATURE_PROFILE);
+      signatureParameters.setSignatureProfile(DEFAULT_SIGNATURE_PROFILE);
     }
   }
 
@@ -225,7 +242,6 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
       default:
         facade.setSignatureLevel(XAdES_BASELINE_LT);
     }
-    facade.setUserAgentSignatureProfile(profile);
   }
 
   private void setSignaturePolicy() {

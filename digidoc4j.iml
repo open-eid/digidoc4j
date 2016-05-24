@@ -74,7 +74,10 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-io/commons-io/jars/commons-io-2.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-codec/commons-codec/jars/commons-codec-1.10.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-lang/commons-lang/jars/commons-lang-2.6.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-logging/commons-logging/jars/commons-logging-1.1.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-collections/commons-collections/jars/commons-collections-3.2.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpclient/jars/httpclient-4.3.6.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpcore/jars/httpcore-4.3.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.santuario/xmlsec/bundles/xmlsec-2.0.6.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/xalan/serializer/jars/serializer-2.7.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/xalan/xalan/jars/xalan-2.7.2.jar!/" />
@@ -88,25 +91,19 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/com.github.stefanbirkner/system-rules/jars/system-rules-1.5.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/junit/junit/jars/junit-4.11.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-io/commons-io/jars/commons-io-2.5.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xmlunit/xmlunit/jars/xmlunit-1.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.hamcrest/hamcrest-library/jars/hamcrest-library-1.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.databene/contiperf/jars/contiperf-2.3.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/com.github.tomakehurst/wiremock/jars/wiremock-1.58.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpclient/jars/httpclient-4.5.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpcore/jars/httpcore-4.4.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-logging/commons-logging/jars/commons-logging-1.2.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-core/bundles/jackson-core-2.6.0.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/xmlunit/xmlunit/jars/xmlunit-1.6.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.mortbay.jetty/jetty/jars/jetty-6.1.26.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.mortbay.jetty/jetty-util/jars/jetty-util-6.1.26.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.mortbay.jetty/servlet-api/jars/servlet-api-2.5-20081211.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-databind/bundles/jackson-databind-2.6.0.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/bundles/jackson-annotations-2.6.0.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.skyscreamer/jsonassert/jars/jsonassert-1.2.3.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.json/json/jars/json-20090211.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.jayway.jsonpath/json-path/bundles/json-path-0.8.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/net.minidev/json-smart/jars/json-smart-1.1.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/net.sf.jopt-simple/jopt-simple/jars/jopt-simple-4.9.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.guava/guava/bundles/guava-18.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.mortbay.jetty/servlet-api/jars/servlet-api-2.5.20110712.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.guava/guava/bundles/guava-19.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-databind/bundles/jackson-databind-2.7.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-core/bundles/jackson-core-2.7.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/bundles/jackson-annotations-2.7.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.skyscreamer/jsonassert/jars/jsonassert-1.3.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.json/json/bundles/json-20160212.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache/ee.sk.digidoc/jdigidoc/javadocs/jdigidoc-3.12.0-javadoc.jar!/" />
@@ -118,7 +115,10 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-io/commons-io/javadocs/commons-io-2.4-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-codec/commons-codec/javadocs/commons-codec-1.10-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-lang/commons-lang/javadocs/commons-lang-2.6-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-logging/commons-logging/javadocs/commons-logging-1.1.3-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-collections/commons-collections/javadocs/commons-collections-3.2.2-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpclient/javadocs/httpclient-4.3.6-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpcore/javadocs/httpcore-4.3.3-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.santuario/xmlsec/javadocs/xmlsec-2.0.6-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/xalan/serializer/javadocs/serializer-2.7.2-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/xalan/xalan/javadocs/xalan-2.7.2-javadoc.jar!/" />
@@ -132,23 +132,19 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/com.github.stefanbirkner/system-rules/javadocs/system-rules-1.5.0-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/junit/junit/javadocs/junit-4.11-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-io/commons-io/javadocs/commons-io-2.5-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xmlunit/xmlunit/javadocs/xmlunit-1.5-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.hamcrest/hamcrest-library/javadocs/hamcrest-library-1.3-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.databene/contiperf/javadocs/contiperf-2.3.4-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/com.github.tomakehurst/wiremock/javadocs/wiremock-1.58-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpclient/javadocs/httpclient-4.5-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpcore/javadocs/httpcore-4.4.1-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-logging/commons-logging/javadocs/commons-logging-1.2-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-core/javadocs/jackson-core-2.6.0-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/xmlunit/xmlunit/javadocs/xmlunit-1.6-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.mortbay.jetty/jetty/javadocs/jetty-6.1.26-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.mortbay.jetty/jetty-util/javadocs/jetty-util-6.1.26-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.mortbay.jetty/servlet-api/javadocs/servlet-api-2.5-20081211-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/javadocs/jackson-annotations-2.6.0-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.skyscreamer/jsonassert/javadocs/jsonassert-1.2.3-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.jayway.jsonpath/json-path/javadocs/json-path-0.8.1-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/net.minidev/json-smart/javadocs/json-smart-1.1.1-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/net.sf.jopt-simple/jopt-simple/javadocs/jopt-simple-4.9-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.guava/guava/javadocs/guava-18.0-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.mortbay.jetty/servlet-api/javadocs/servlet-api-2.5.20110712-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.guava/guava/javadocs/guava-19.0-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-databind/javadocs/jackson-databind-2.7.4-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-core/javadocs/jackson-core-2.7.4-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/javadocs/jackson-annotations-2.7.4-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.skyscreamer/jsonassert/javadocs/jsonassert-1.3.0-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.json/json/javadocs/json-20160212-javadoc.jar!/" />
         </JAVADOC>
         <SOURCES>
           <root url="jar://$USER_HOME$/.ivy2/cache/ee.sk.digidoc/jdigidoc/sources/jdigidoc-3.12.0-sources.jar!/" />
@@ -160,7 +156,10 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-io/commons-io/sources/commons-io-2.4-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-codec/commons-codec/sources/commons-codec-1.10-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-lang/commons-lang/sources/commons-lang-2.6-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/commons-logging/commons-logging/sources/commons-logging-1.1.3-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-collections/commons-collections/sources/commons-collections-3.2.2-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpclient/sources/httpclient-4.3.6-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpcore/sources/httpcore-4.3.3-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.santuario/xmlsec/sources/xmlsec-2.0.6-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/xalan/serializer/sources/serializer-2.7.2-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/xalan/xalan/sources/xalan-2.7.2-sources.jar!/" />
@@ -174,24 +173,19 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/com.github.stefanbirkner/system-rules/sources/system-rules-1.5.0-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/junit/junit/sources/junit-4.11-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-io/commons-io/sources/commons-io-2.5-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/xmlunit/xmlunit/sources/xmlunit-1.5-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.hamcrest/hamcrest-library/sources/hamcrest-library-1.3-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.databene/contiperf/sources/contiperf-2.3.4-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/com.github.tomakehurst/wiremock/sources/wiremock-1.58-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpclient/sources/httpclient-4.5-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.httpcomponents/httpcore/sources/httpcore-4.4.1-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-logging/commons-logging/sources/commons-logging-1.2-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-core/sources/jackson-core-2.6.0-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/xmlunit/xmlunit/sources/xmlunit-1.6-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.mortbay.jetty/jetty/sources/jetty-6.1.26-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.mortbay.jetty/jetty-util/sources/jetty-util-6.1.26-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.mortbay.jetty/servlet-api/sources/servlet-api-2.5-20081211-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-databind/sources/jackson-databind-2.6.0-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/sources/jackson-annotations-2.6.0-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.skyscreamer/jsonassert/sources/jsonassert-1.2.3-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.jayway.jsonpath/json-path/sources/json-path-0.8.1-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/net.minidev/json-smart/sources/json-smart-1.1.1-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/net.sf.jopt-simple/jopt-simple/sources/jopt-simple-4.9-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.guava/guava/sources/guava-18.0-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.mortbay.jetty/servlet-api/sources/servlet-api-2.5.20110712-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.guava/guava/sources/guava-19.0-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-databind/sources/jackson-databind-2.7.4-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-core/sources/jackson-core-2.7.4-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/sources/jackson-annotations-2.7.4-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.skyscreamer/jsonassert/sources/jsonassert-1.3.0-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.json/json/sources/json-20160212-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

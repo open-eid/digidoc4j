@@ -31,10 +31,9 @@ import org.bouncycastle.cert.ocsp.SingleResp;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.bdoc.SKOcspDataLoader;
+import org.digidoc4j.impl.bdoc.SkDataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +55,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   /**
    * The data loader used to retrieve the OCSP response.
    */
-  private SKOcspDataLoader dataLoader;
+  private SkDataLoader dataLoader;
 
   private Configuration configuration;
 
@@ -67,7 +66,6 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
    */
   public SKOnlineOCSPSource(Configuration configuration) {
     this.configuration = configuration;
-    dataLoader = new SKOcspDataLoader();
     logger.debug("Initialized SK Online OCSP source");
   }
 
@@ -200,11 +198,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     return signatureTokenConnection.getKeys().get(0);
   }
 
-  void setDataLoader(SKOcspDataLoader dataLoader) {
+  public void setDataLoader(SkDataLoader dataLoader) {
     this.dataLoader = dataLoader;
-  }
-
-  public void setUserAgentSignatureProfile(SignatureProfile signatureProfile) {
-    dataLoader.setUserAgentSignatureProfile(signatureProfile);
   }
 }
