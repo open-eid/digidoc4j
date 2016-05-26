@@ -2,6 +2,7 @@ DATAFILE_HASHCODE_MODE: false
 DIGIDOC_MAX_DATAFILE_CACHED: 4096
 DIGIDOC_SECURITY_PROVIDER: org.bouncycastle.jce.provider.BouncyCastleProvider1
 KEY_USAGE_CHECK: NonBooleanValue
+HTTP_PROXY_PORT: notA_number
 
 DIGIDOC_CAS:
 - DIGIDOC_CA:

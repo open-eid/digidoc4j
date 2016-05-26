@@ -860,6 +860,28 @@ public class ConfigurationTest {
   }
 
   @Test
+  public void defaultProxyConfiguration_shouldNotBeSet() throws Exception {
+    assertFalse(configuration.isNetworkProxyEnabled());
+    assertNull(configuration.getHttpProxyHost());
+    assertNull(configuration.getHttpProxyPort());
+  }
+
+  @Test
+  public void getProxyConfigurationFromConfigurationFile() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertTrue(configuration.isNetworkProxyEnabled());
+    assertEquals("cache.noile.ee", configuration.getHttpProxyHost());
+    assertEquals(8080, configuration.getHttpProxyPort().longValue());
+  }
+
+  @Test
+  public void getInvalidProxyConfigurationFromConfigurationFile() throws Exception {
+    expectedException.expect(ConfigurationException.class);
+    expectedException.expectMessage("Configuration parameter HTTP_PROXY_PORT should have an integer value but the actual value is: notA_number.");
+    configuration.loadConfiguration("testFiles/digidoc_test_conf_invalid_key_usage.yaml");
+  }
+
+  @Test
   public void loadMultipleCAsFromConfigurationFile() throws Exception {
     Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf_two_cas" +
         ".yaml");

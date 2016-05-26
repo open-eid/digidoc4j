@@ -484,6 +484,32 @@ public class Configuration implements Serializable {
     setJDigiDocConfigurationValue(OCSP_PKCS_12_CONTAINER, getOCSPAccessCertificateFileName());
 
     initOcspAccessCertPasswordForJDigidoc();
+
+    httpProxyHost = getParameterFromFile("HTTP_PROXY_HOST");
+    httpProxyPort = getIntParameterFromFile("HTTP_PROXY_PORT");
+  }
+
+  private String getParameterFromFile(String key) {
+    if (configurationFromFile == null) {
+      return null;
+    }
+    Object fileValue = configurationFromFile.get(key);
+    if (fileValue == null) {
+      return null;
+    }
+    String value = fileValue.toString();
+    if(valueIsAllowed(key, value)) {
+       return value;
+    }
+    return null;
+  }
+
+  private Integer getIntParameterFromFile(String key) {
+    String value = getParameterFromFile(key);
+    if(value == null) {
+      return null;
+    }
+    return new Integer(value);
   }
 
   private void setConfigurationValue(String fileKey, String configurationKey) {
@@ -604,7 +630,7 @@ public class Configuration implements Serializable {
     List<String> mustBeBooleans =
         asList(SIGN_OCSP_REQUESTS, "KEY_USAGE_CHECK", "DATAFILE_HASHCODE_MODE", "DIGIDOC_USE_LOCAL_TSL");
     List<String> mustBeIntegers =
-        asList("DIGIDOC_MAX_DATAFILE_CACHED");
+        asList("DIGIDOC_MAX_DATAFILE_CACHED", "HTTP_PROXY_PORT");
 
     boolean errorFound = false;
     if (mustBeBooleans.contains(configParameter)) {
