@@ -18,16 +18,24 @@ import org.digidoc4j.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.client.http.proxy.ProxyDao;
 import eu.europa.esig.dss.client.http.proxy.ProxyKey;
 import eu.europa.esig.dss.client.http.proxy.ProxyPreference;
 import eu.europa.esig.dss.client.http.proxy.ProxyPreferenceManager;
 
-public class ProxySettingsCreator {
+public class DataLoaderDecorator {
 
-  private final static Logger logger = LoggerFactory.getLogger(ProxySettingsCreator.class);
+  private final static Logger logger = LoggerFactory.getLogger(DataLoaderDecorator.class);
 
-  public static ProxyPreferenceManager create(Configuration configuration) {
+  public static void decorateWithProxySettings(CommonsDataLoader dataLoader, Configuration configuration) {
+    if (configuration.isNetworkProxyEnabled()) {
+      ProxyPreferenceManager proxyPreferences = DataLoaderDecorator.create(configuration);
+      dataLoader.setProxyPreferenceManager(proxyPreferences);
+    }
+  }
+
+  private static ProxyPreferenceManager create(Configuration configuration) {
     logger.debug("Creating proxy settings");
     ProxyPreferenceManager proxy = new ProxyPreferenceManager();
     ProxyDao proxyDao = new HashMapProxyDao();

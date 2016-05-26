@@ -813,7 +813,7 @@ public class ConfigurationTest {
   public void exceptionIsThrownWhenTslKeystoreIsNotFound() throws IOException {
     Configuration conf = new Configuration(PROD);
     conf.setTslKeyStoreLocation("not/existing/path");
-    conf.getTSL();
+    conf.getTSL().refresh();
   }
 
   @Test

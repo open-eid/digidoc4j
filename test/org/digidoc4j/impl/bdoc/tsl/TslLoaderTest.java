@@ -14,7 +14,6 @@ import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.util.List;
 
 import org.digidoc4j.Configuration;
@@ -53,7 +52,8 @@ public class TslLoaderTest {
 
   @Test
   public void loadTsl_whenCacheIsNotExpired_shouldUseCachedTsl() throws Exception {
-    tslLoader.setCacheExpirationTime(10000L);
+    configuration.setTslCacheExpirationTime(10000L);
+    tslLoader = createTslLoader(configuration);
     long lastModified = getTslAndReturnCacheModificationTime();
     waitOneSecond();
     long newModificationTime = getTslAndReturnCacheModificationTime();
@@ -62,7 +62,8 @@ public class TslLoaderTest {
 
   @Test
   public void loadTsl_whenCacheIsExpired_shouldDownloadNewTsl() throws Exception {
-    tslLoader.setCacheExpirationTime(500L);
+    configuration.setTslCacheExpirationTime(500L);
+    tslLoader = createTslLoader(configuration);
     long lastModified = getTslAndReturnCacheModificationTime();
     waitOneSecond();
     long newModificationTime = getTslAndReturnCacheModificationTime();
@@ -70,10 +71,7 @@ public class TslLoaderTest {
   }
 
   private TslLoader createTslLoader(Configuration configuration) {
-    String keystoreLocation = configuration.getTslKeyStoreLocation();
-    TslLoader tslLoader = new TslLoader(configuration.getTslLocation(), new File(keystoreLocation), configuration.getTslKeyStorePassword());
-    tslLoader.setConnectionTimeout(configuration.getConnectionTimeout());
-    tslLoader.setSocketTimeout(configuration.getSocketTimeout());
+    TslLoader tslLoader = new TslLoader(configuration);
     tslLoader.setCheckSignature(false);
     return tslLoader;
   }

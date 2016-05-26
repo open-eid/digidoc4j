@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.client.http.commons.OCSPDataLoader;
-import eu.europa.esig.dss.client.http.proxy.ProxyPreferenceManager;
 
 public class SkDataLoader extends CommonsDataLoader {
 
@@ -51,10 +50,7 @@ public class SkDataLoader extends CommonsDataLoader {
   }
 
   protected SkDataLoader(Configuration configuration) {
-    if(configuration.isNetworkProxyEnabled()) {
-      ProxyPreferenceManager proxyPreferences = ProxySettingsCreator.create(configuration);
-      setProxyPreferenceManager(proxyPreferences);
-    }
+    DataLoaderDecorator.decorateWithProxySettings(this, configuration);
   }
 
   @Override

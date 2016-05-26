@@ -26,7 +26,9 @@ import static org.junit.Assert.assertTrue;
 import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.bouncycastle.tsp.TimeStampRequest;
 import org.bouncycastle.tsp.TimeStampResponse;
+import org.digidoc4j.impl.bdoc.CachingDataLoader;
 import org.digidoc4j.impl.bdoc.SkDataLoader;
+import org.digidoc4j.impl.bdoc.tsl.TslLoader;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -35,6 +37,7 @@ import org.junit.Test;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
 import eu.europa.esig.dss.MimeType;
+import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.client.http.proxy.ProxyPreferenceManager;
 
 public class SkDataLoaderTest {
@@ -91,24 +94,34 @@ public class SkDataLoaderTest {
   }
 
   @Test
+  public void cachingDataLoader_withoutProxyConfiguration() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    CommonsDataLoader dataLoader = new CachingDataLoader(configuration);
+    assertNull(dataLoader.getProxyPreferenceManager());
+  }
+
+  @Test
   public void ocspDataLoader_withProxyConfiguration() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
     configuration.setHttpProxyHost("proxyHost");
     configuration.setHttpProxyPort(1345);
     SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(configuration);
-    ProxyPreferenceManager preferenceManager = dataLoader.getProxyPreferenceManager();
-    assertNotNull(preferenceManager);
-    assertEquals("proxyHost", preferenceManager.getHttpHost());
-    assertEquals(1345L, preferenceManager.getHttpPort().longValue());
-    assertTrue(preferenceManager.isHttpEnabled());
-    assertEquals("proxyHost", preferenceManager.getHttpsHost());
-    assertEquals(1345L, preferenceManager.getHttpsPort().longValue());
-    assertTrue(preferenceManager.isHttpsEnabled());
+    assertProxyConfigured(dataLoader, "proxyHost", 1345);
+  }
+
+  @Test
+  public void cachingDataLoader_withProxyConfiguration() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    configuration.setHttpProxyHost("proxyHost");
+    configuration.setHttpProxyPort(1345);
+    CommonsDataLoader dataLoader = new CachingDataLoader(configuration);
+    assertProxyConfigured(dataLoader, "proxyHost", 1345);
   }
 
   @Test
   @Ignore("Requires access to the proxy server")
   public void createSignAsicOverProxy() throws Exception {
+    TslLoader.invalidateCache();
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
     configuration.setHttpProxyHost("cache.elion.ee");
     configuration.setHttpProxyPort(8080);
@@ -120,5 +133,16 @@ public class SkDataLoaderTest {
     Signature signature = TestDataBuilder.signContainer(container, SignatureProfile.LT);
     assertTrue(signature.validateSignature().isValid());
 
+  }
+
+  private void assertProxyConfigured(CommonsDataLoader dataLoader, String proxyHost, int proxyPort) {
+    ProxyPreferenceManager preferenceManager = dataLoader.getProxyPreferenceManager();
+    assertNotNull(preferenceManager);
+    assertEquals(proxyHost, preferenceManager.getHttpHost());
+    assertEquals(proxyPort, preferenceManager.getHttpPort().longValue());
+    assertTrue(preferenceManager.isHttpEnabled());
+    assertEquals(proxyHost, preferenceManager.getHttpsHost());
+    assertEquals(proxyPort, preferenceManager.getHttpsPort().longValue());
+    assertTrue(preferenceManager.isHttpsEnabled());
   }
 }
