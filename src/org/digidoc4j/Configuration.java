@@ -160,6 +160,8 @@ public class Configuration implements Serializable {
 
   private String httpProxyHost;
   private Integer httpProxyPort;
+  private String httpProxyUser;
+  private String httpProxyPassword;
 
   /**
    * Application mode
@@ -487,6 +489,8 @@ public class Configuration implements Serializable {
 
     httpProxyHost = getParameterFromFile("HTTP_PROXY_HOST");
     httpProxyPort = getIntParameterFromFile("HTTP_PROXY_PORT");
+    httpProxyUser = getParameterFromFile("HTTP_PROXY_USER");
+    httpProxyPassword = getParameterFromFile("HTTP_PROXY_PASSWORD");
   }
 
   private String getParameterFromFile(String key) {
@@ -1013,6 +1017,22 @@ public class Configuration implements Serializable {
 
   public void setHttpProxyPort(int httpProxyPort) {
     this.httpProxyPort = httpProxyPort;
+  }
+
+  public void setHttpProxyUser(String httpProxyUser) {
+    this.httpProxyUser = httpProxyUser;
+  }
+
+  public String getHttpProxyUser() {
+    return httpProxyUser;
+  }
+
+  public void setHttpProxyPassword(String httpProxyPassword) {
+    this.httpProxyPassword = httpProxyPassword;
+  }
+
+  public String getHttpProxyPassword() {
+    return httpProxyPassword;
   }
 
   public boolean isNetworkProxyEnabled() {

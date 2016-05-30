@@ -18,6 +18,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -107,6 +108,7 @@ public class SkDataLoaderTest {
     configuration.setHttpProxyPort(1345);
     SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(configuration);
     assertProxyConfigured(dataLoader, "proxyHost", 1345);
+    assertProxyUsernamePasswordNotSet(dataLoader);
   }
 
   @Test
@@ -116,6 +118,19 @@ public class SkDataLoaderTest {
     configuration.setHttpProxyPort(1345);
     CommonsDataLoader dataLoader = new CachingDataLoader(configuration);
     assertProxyConfigured(dataLoader, "proxyHost", 1345);
+    assertProxyUsernamePasswordNotSet(dataLoader);
+  }
+
+  @Test
+  public void dataLoader_withPasswordProxyConfiguration() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    configuration.setHttpProxyHost("proxyHost");
+    configuration.setHttpProxyPort(1345);
+    configuration.setHttpProxyUser("proxyUser");
+    configuration.setHttpProxyPassword("proxyPassword");
+    SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(configuration);
+    assertProxyConfigured(dataLoader, "proxyHost", 1345);
+    assertProxyUsernamePassword(dataLoader, "proxyPassword", "proxyUser");
   }
 
   @Test
@@ -144,5 +159,21 @@ public class SkDataLoaderTest {
     assertEquals(proxyHost, preferenceManager.getHttpsHost());
     assertEquals(proxyPort, preferenceManager.getHttpsPort().longValue());
     assertTrue(preferenceManager.isHttpsEnabled());
+  }
+
+  private void assertProxyUsernamePasswordNotSet(CommonsDataLoader dataLoader) {
+    ProxyPreferenceManager preferenceManager = dataLoader.getProxyPreferenceManager();
+    assertTrue(isEmpty(preferenceManager.getHttpUser()));
+    assertTrue(isEmpty(preferenceManager.getHttpsUser()));
+    assertTrue(isEmpty(preferenceManager.getHttpPassword()));
+    assertTrue(isEmpty(preferenceManager.getHttpsPassword()));
+  }
+
+  private void assertProxyUsernamePassword(SkDataLoader dataLoader, String proxyPassword, String proxyUser) {
+    ProxyPreferenceManager preferenceManager = dataLoader.getProxyPreferenceManager();
+    assertEquals(proxyUser, preferenceManager.getHttpUser());
+    assertEquals(proxyUser, preferenceManager.getHttpsUser());
+    assertEquals(proxyPassword, preferenceManager.getHttpPassword());
+    assertEquals(proxyPassword, preferenceManager.getHttpsPassword());
   }
 }

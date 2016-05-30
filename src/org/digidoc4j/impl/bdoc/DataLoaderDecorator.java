@@ -10,10 +10,13 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +48,12 @@ public class DataLoaderDecorator {
     proxyDao.update(new ProxyPreference(ProxyKey.HTTPS_HOST, configuration.getHttpProxyHost()));
     proxyDao.update(new ProxyPreference(ProxyKey.HTTPS_PORT, configuration.getHttpProxyPort().toString()));
     proxyDao.update(new ProxyPreference(ProxyKey.HTTPS_ENABLED, "true"));
+    if(isNotBlank(configuration.getHttpProxyUser()) && isNotBlank(configuration.getHttpProxyPassword())) {
+      proxyDao.update(new ProxyPreference(ProxyKey.HTTP_USER, configuration.getHttpProxyUser()));
+      proxyDao.update(new ProxyPreference(ProxyKey.HTTPS_USER, configuration.getHttpProxyUser()));
+      proxyDao.update(new ProxyPreference(ProxyKey.HTTP_PASSWORD, configuration.getHttpProxyPassword()));
+      proxyDao.update(new ProxyPreference(ProxyKey.HTTPS_PASSWORD, configuration.getHttpProxyPassword()));
+    }
     proxy.setProxyDao(proxyDao);
     return proxy;
   }

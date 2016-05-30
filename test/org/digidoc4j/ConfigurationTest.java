@@ -864,6 +864,8 @@ public class ConfigurationTest {
     assertFalse(configuration.isNetworkProxyEnabled());
     assertNull(configuration.getHttpProxyHost());
     assertNull(configuration.getHttpProxyPort());
+    assertNull(configuration.getHttpProxyUser());
+    assertNull(configuration.getHttpProxyPassword());
   }
 
   @Test
@@ -872,6 +874,9 @@ public class ConfigurationTest {
     assertTrue(configuration.isNetworkProxyEnabled());
     assertEquals("cache.noile.ee", configuration.getHttpProxyHost());
     assertEquals(8080, configuration.getHttpProxyPort().longValue());
+    assertEquals("proxyMan", configuration.getHttpProxyUser());
+    assertEquals("proxyPass", configuration.getHttpProxyPassword());
+
   }
 
   @Test
