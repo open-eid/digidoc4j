@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package prototype;
+package org.digidoc4j.signers;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DigestAlgorithm;

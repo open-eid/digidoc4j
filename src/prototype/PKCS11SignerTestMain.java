@@ -15,6 +15,7 @@ import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureToken;
+import org.digidoc4j.signers.PKCS11Signer;
 
 import java.security.NoSuchAlgorithmException;
 
