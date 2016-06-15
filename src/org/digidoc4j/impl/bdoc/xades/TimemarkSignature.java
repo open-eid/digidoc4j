@@ -104,7 +104,7 @@ public class TimemarkSignature extends BesSignature {
 
   private X509Cert findOcspCertificate() {
     String ocspCN = getOCSPCommonName();
-    for (CertificateToken cert : getDssSignature().getCertPool().getCertificateTokens()) {
+    for (CertificateToken cert : getDssSignature().getCertificates()) {
       String certCn = getCN(new X500Name(cert.getSubjectX500Principal().getName()));
       if (StringUtils.equals(certCn, ocspCN)) {
         return new X509Cert(cert.getCertificate());

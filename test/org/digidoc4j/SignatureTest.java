@@ -39,8 +39,9 @@ import org.digidoc4j.exceptions.CertificateNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.impl.Certificates;
-import org.digidoc4j.impl.ddoc.DDocFacade;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.impl.bdoc.tsl.TSLCertificateSourceImpl;
+import org.digidoc4j.impl.ddoc.DDocFacade;
 import org.digidoc4j.impl.ddoc.DDocOpener;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TSLHelper;
@@ -375,6 +376,22 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     assertEquals("11404176865", cert.getSubjectName(SERIALNUMBER));
     assertEquals("märü-lööz", cert.getSubjectName(GIVENNAME).toLowerCase());
     assertEquals("žõrinüwšky", cert.getSubjectName(SURNAME).toLowerCase());
+  }
+
+  @Test
+  public void gettingOcspCertificate_whenTslIsNotLoaded() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
+    configuration.setTSL(certificateSource);
+
+    Container container = ContainerBuilder.
+        aContainer().
+        withConfiguration(configuration).
+        fromExistingFile("testFiles/valid-containers/valid-bdoc-tm.bdoc").
+        build();
+    Signature signature = container.getSignatures().get(0);
+
+    assertNotNull(signature.getOCSPCertificate());
   }
 
   private Signature getSignature(Container.DocumentType documentType) {
