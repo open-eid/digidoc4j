@@ -10,8 +10,6 @@
 
 package org.digidoc4j.impl.bdoc.xades;
 
-import static eu.europa.esig.dss.DigestAlgorithm.forXML;
-
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Date;
@@ -97,7 +95,7 @@ public class XadesSigningDssFacade {
   }
 
   public void setSignatureDigestAlgorithm(org.digidoc4j.DigestAlgorithm digestAlgorithm) {
-    xAdESSignatureParameters.setDigestAlgorithm(convertToDssDigestAlgorithm(digestAlgorithm));
+    xAdESSignatureParameters.setDigestAlgorithm(digestAlgorithm.getDssDigestAlgorithm());
   }
 
   public void setEncryptionAlgorithm(EncryptionAlgorithm encryptionAlgorithm) {
@@ -155,9 +153,5 @@ public class XadesSigningDssFacade {
 
   private void initXadesService() {
     service = new XAdESService(certificateVerifier);
-  }
-
-  private eu.europa.esig.dss.DigestAlgorithm convertToDssDigestAlgorithm(org.digidoc4j.DigestAlgorithm digestAlgorithm) {
-    return forXML(digestAlgorithm.toString());
   }
 }

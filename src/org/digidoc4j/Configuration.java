@@ -111,7 +111,6 @@ import eu.europa.esig.dss.client.http.Protocol;
  * <li>DIGIDOC_PKCS12_CONTAINER: OCSP access certificate file</li>
  * <li>DIGIDOC_PKCS12_PASSWD: OCSP access certificate password</li>
  * <li>OCSP_SOURCE: Online Certificate Service Protocol source</li>
- * <li>PKCS11_MODULE: PKCS11 Module file</li>
  * <li>SIGN_OCSP_REQUESTS: Should OCSP requests be signed? Allowed values: true, false</li>
  * <li>TSL_LOCATION: TSL Location</li>
  * <li>TSP_SOURCE: Time Stamp Protocol source address</li>
@@ -119,6 +118,10 @@ import eu.europa.esig.dss.client.http.Protocol;
  * <li>TSL_KEYSTORE_LOCATION: keystore location for tsl signing certificates</li>
  * <li>TSL_KEYSTORE_PASSWORD: keystore password for the keystore in TSL_KEYSTORE_LOCATION</li>
  * <li>TSL_CACHE_EXPIRATION_TIME: TSL cache expiration time in milliseconds</li>
+ * <li>HTTP_PROXY_HOST: network proxy host name</li>
+ * <li>HTTP_PROXY_PORT: network proxy port</li>
+ * <li>HTTP_PROXY_USER: network proxy user (for basic auth proxy)</li>
+ * <li>HTTP_PROXY_PASSWORD: network proxy password (for basic auth proxy)</li>
  * </ul>
  */
 public class Configuration implements Serializable {
@@ -187,7 +190,6 @@ public class Configuration implements Serializable {
     logger.debug("");
     tslManager = new TslManager(this);
 
-    configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
     configuration.put("connectionTimeout", String.valueOf(ONE_SECOND));
     configuration.put("socketTimeout", String.valueOf(ONE_SECOND));
     configuration.put("tslKeyStorePassword", "digidoc4j-password");
@@ -470,7 +472,6 @@ public class Configuration implements Serializable {
     setConfigurationValue("TSL_LOCATION", "tslLocation");
     setConfigurationValue("TSP_SOURCE", "tspSource");
     setConfigurationValue("VALIDATION_POLICY", "validationPolicy");
-    setConfigurationValue("PKCS11_MODULE", "pkcs11Module");
     setConfigurationValue("OCSP_SOURCE", "ocspSource");
     setConfigurationValue(OCSP_PKCS_12_CONTAINER, "OCSPAccessCertificateFile");
     setConfigurationValue(OCSP_PKCS_12_PASSWD, "OCSPAccessCertificatePassword");
@@ -974,22 +975,6 @@ public class Configuration implements Serializable {
   public void setValidationPolicy(String validationPolicy) {
     logger.debug("Set validation policy: " + validationPolicy);
     setConfigurationParameter("validationPolicy", validationPolicy);
-  }
-
-  /**
-   * Get the PKCS11 Module path
-   *
-   * @return path
-   */
-  public String getPKCS11ModulePath() {
-    String path = getConfigurationParameter("pkcs11Module");
-    logger.debug("PKCS11 module path: " + path);
-    return path;
-  }
-
-  public void setPKCS11ModulePath(String path) {
-    logger.debug("Set PKCS11 module path: " + path);
-    setConfigurationParameter("pkcs11Module", path);
   }
 
   public int getRevocationAndTimestampDeltaInMinutes() {

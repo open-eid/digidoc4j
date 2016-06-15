@@ -11,7 +11,6 @@
 package org.digidoc4j.impl.bdoc.xades;
 
 import static eu.europa.esig.dss.DigestAlgorithm.SHA256;
-import static eu.europa.esig.dss.DigestAlgorithm.forXML;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
@@ -28,12 +27,12 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.bdoc.SkDataLoader;
+import org.digidoc4j.impl.bdoc.ocsp.BDocTSOcspSource;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.digidoc4j.impl.bdoc.ocsp.BDocTSOcspSource;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.EncryptionAlgorithm;
@@ -187,11 +186,7 @@ public class XadesSigningDssFacadeTest {
   }
 
   private byte[] calculateDigestToSign(byte[] dataToDigest, DigestAlgorithm digestAlgorithm) {
-    return DSSUtils.digest(convertToDssDigestAlgorithm(digestAlgorithm), dataToDigest);
-  }
-
-  private eu.europa.esig.dss.DigestAlgorithm convertToDssDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
-    return forXML(digestAlgorithm.toString());
+    return DSSUtils.digest(digestAlgorithm.getDssDigestAlgorithm(), dataToDigest);
   }
 
   private void assertDocumentSigned(DSSDocument signedDocument) {

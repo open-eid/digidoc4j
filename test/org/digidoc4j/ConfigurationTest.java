@@ -520,11 +520,6 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void testGetPKCS11ModulePath() throws Exception {
-    assertEquals("/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so", configuration.getPKCS11ModulePath());
-  }
-
-  @Test
   public void generateJDigiDocConfig() throws Exception {
     Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("digidoc4j.yaml");
     configuration.getJDigiDocConfiguration();
@@ -792,12 +787,6 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void getPKCS11ModulePathFromConfigurationFile() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
-    assertEquals("/usr/lib/x86_64-linux-gnu/test_pkcs11_module.so", configuration.getPKCS11ModulePath());
-  }
-
-  @Test
   public void getOcspSourceFromConfigurationFile() throws Exception {
     configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
     assertEquals("http://www.openxades.org/cgi-bin/test_ocsp_source.cgi", configuration.getOcspSource());
@@ -969,7 +958,6 @@ public class ConfigurationTest {
     assertEquals("TEST_DIGIDOC_PKCS12_CONTAINER", configuration.configuration.get("OCSPAccessCertificateFile"));
     assertEquals("TEST_DIGIDOC_PKCS12_PASSWD", configuration.configuration.get("OCSPAccessCertificatePassword"));
     assertEquals("TEST_OCSP_SOURCE", configuration.configuration.get("ocspSource"));
-    assertEquals("TEST_PKCS11_MODULE", configuration.configuration.get("pkcs11Module"));
     assertEquals("TEST_TSP_SOURCE", configuration.configuration.get("tspSource"));
     assertEquals("TEST_VALIDATION_POLICY", configuration.configuration.get("validationPolicy"));
     assertEquals("TEST_TSL_LOCATION", configuration.configuration.get("tslLocation"));

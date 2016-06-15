@@ -11,7 +11,6 @@
 package org.digidoc4j.impl.bdoc;
 
 import static eu.europa.esig.dss.DigestAlgorithm.SHA256;
-import static eu.europa.esig.dss.DigestAlgorithm.forXML;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LTA;
@@ -150,7 +149,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
 
   private byte[] calculateDigestToSign(byte[] dataToDigest) {
     DigestAlgorithm digestAlgorithm = signatureParameters.getDigestAlgorithm();
-    return DSSUtils.digest(convertToDssDigestAlgorithm(digestAlgorithm), dataToDigest);
+    return DSSUtils.digest(digestAlgorithm.getDssDigestAlgorithm(), dataToDigest);
   }
 
   private Configuration getConfiguration() {
@@ -159,10 +158,6 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
 
   private List<DataFile> getDataFiles() {
     return container.getDataFiles();
-  }
-
-  private eu.europa.esig.dss.DigestAlgorithm convertToDssDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
-    return forXML(digestAlgorithm.toString());
   }
 
   private void validateOcspResponse(XadesSignature xadesSignature) {
