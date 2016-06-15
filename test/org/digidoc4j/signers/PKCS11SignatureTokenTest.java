@@ -44,7 +44,7 @@ public class PKCS11SignatureTokenTest extends DigiDoc4JTestHelper {
 
   @Before
   public void setUp() throws Exception {
-    signatureToken = new PKCS11Signer("/usr/local/lib/opensc-pkcs11.so", "22975".toCharArray(), 2);
+    signatureToken = new PKCS11SignatureToken("/usr/local/lib/opensc-pkcs11.so", "22975".toCharArray(), 2);
   }
 
   @Test
@@ -83,7 +83,7 @@ public class PKCS11SignatureTokenTest extends DigiDoc4JTestHelper {
 
   @Test
   public void selectPrivateKeyAndSignHash() throws Exception {
-    PKCS11Signer token = (PKCS11Signer) signatureToken;
+    PKCS11SignatureToken token = (PKCS11SignatureToken) signatureToken;
     List<DSSPrivateKeyEntry> privateKeyEntries = token.getPrivateKeyEntries();
     DSSPrivateKeyEntry keyEntry = privateKeyEntries.get(0);
     token.usePrivateKeyEntry(keyEntry);

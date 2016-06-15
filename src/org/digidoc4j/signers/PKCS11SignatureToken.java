@@ -51,9 +51,9 @@ import eu.europa.esig.dss.token.Pkcs11SignatureToken;
  * For OSX, it could be /usr/local/lib/opensc-pkcs11.so <br/>
  *
  */
-public class PKCS11Signer implements SignatureToken {
+public class PKCS11SignatureToken implements SignatureToken {
 
-  private static final Logger logger = LoggerFactory.getLogger(PKCS11Signer.class);
+  private static final Logger logger = LoggerFactory.getLogger(PKCS11SignatureToken.class);
   private AbstractSignatureTokenConnection signatureTokenConnection;
   private DSSPrivateKeyEntry privateKeyEntry;
 
@@ -64,7 +64,7 @@ public class PKCS11Signer implements SignatureToken {
    * @param password  Secret pin code for digital signature.
    * @param slotIndex Token slot index, depends on the hardware token.
    */
-  public PKCS11Signer(String pkcs11ModulePath, char[] password, int slotIndex) {
+  public PKCS11SignatureToken(String pkcs11ModulePath, char[] password, int slotIndex) {
     logger.debug("Initializing PKCS#11 signature token from " + pkcs11ModulePath + " and slot " + slotIndex);
     signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, password, slotIndex);
   }

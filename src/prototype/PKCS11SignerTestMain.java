@@ -17,7 +17,7 @@ import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureToken;
-import org.digidoc4j.signers.PKCS11Signer;
+import org.digidoc4j.signers.PKCS11SignatureToken;
 
 public class PKCS11SignerTestMain {
 
@@ -47,7 +47,7 @@ public class PKCS11SignerTestMain {
         aContainer(ContainerBuilder.BDOC_CONTAINER_TYPE).
         withDataFile("testFiles/test.txt", "text/plain").
         build();
-    SignatureToken pkcs11Signer = new PKCS11Signer(PKCS_11_MODULE_PATH, PIN_CODE.toCharArray(), SLOT_INDEX);
+    SignatureToken pkcs11Signer = new PKCS11SignatureToken(PKCS_11_MODULE_PATH, PIN_CODE.toCharArray(), SLOT_INDEX);
     Signature signature = SignatureBuilder.
         aSignature(container).
         withSignatureToken(pkcs11Signer).
