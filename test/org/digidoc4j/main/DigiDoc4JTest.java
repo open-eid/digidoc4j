@@ -19,6 +19,7 @@ import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -55,6 +56,12 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
+  private String testBdocContainer;
+
+  @Before
+  public void setUp() throws Exception {
+    testBdocContainer = testFolder.newFile("test-container.bdoc").getPath();
+  }
 
   @After
   public void cleanUp() throws Exception {
@@ -334,6 +341,30 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     Files.deleteIfExists(Paths.get("test1.ddoc"));
     String[] params = new String[]{"-in", "test1.ddoc", "-add", "testFiles/test.txt", "text/plain", "-pkcs12",
         "testFiles/signout.p12", "test"};
+    DigiDoc4J.main(params);
+  }
+
+  @Test
+  @Ignore("Requires a physical smart card")
+  public void createContainer_andSignIt_withPkcs11() throws Exception {
+    Files.deleteIfExists(Paths.get(testBdocContainer));
+    String[] params = new String[]{"-in", testBdocContainer, "-add", "testFiles/test.txt", "text/plain", "-pkcs11",
+        "/usr/local/lib/opensc-pkcs11.so", "01497", "2"};
+    callMainWithoutSystemExit(params);
+
+    Container container = ContainerOpener.open(testBdocContainer);
+    assertEquals(1, container.getDataFiles().size());
+    assertEquals("test.txt", container.getDataFiles().get(0).getName());
+    assertEquals(1, container.getSignatures().size());
+    assertTrue(container.validate().isValid());
+  }
+
+  @Test
+  public void itShouldNotBePossible_ToSignWithBoth_Pkcs11AndPkcs12() throws Exception {
+    exit.expectSystemExitWithStatus(5);
+    Files.deleteIfExists(Paths.get(testBdocContainer));
+    String[] params = new String[]{"-in", testBdocContainer, "-add", "testFiles/test.txt", "text/plain", "-pkcs11",
+        "/usr/local/lib/opensc-pkcs11.so", "01497", "2", "-pkcs12", "testFiles/signout.p12", "test"};
     DigiDoc4J.main(params);
   }
 

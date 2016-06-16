@@ -52,18 +52,13 @@ public class PKCS11SignatureTokenTest extends DigiDoc4JTestHelper {
 
   @Test
   public void signContainerWithSmartCard() throws Exception {
-    Container container = ContainerBuilder.
-        aContainer(ContainerBuilder.BDOC_CONTAINER_TYPE).
-        withDataFile("testFiles/test.txt", "text/plain").
-        build();
+    Container container = createSignedContainer(ContainerBuilder.BDOC_CONTAINER_TYPE, DigestAlgorithm.SHA256);
+    assertTrue(container.validate().isValid());
+  }
 
-    Signature signature = SignatureBuilder.
-        aSignature(container).
-        withSignatureToken(signatureToken).
-        withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
-        invokeSigning();
-
-    container.addSignature(signature);
+  @Test
+  public void signDDocContainerWithSmartCard() throws Exception {
+    Container container = createSignedContainer(ContainerBuilder.DDOC_CONTAINER_TYPE, DigestAlgorithm.SHA1);
     assertTrue(container.validate().isValid());
   }
 
@@ -101,6 +96,22 @@ public class PKCS11SignatureTokenTest extends DigiDoc4JTestHelper {
     assertNotNull(privateKeyEntries);
     assertFalse(privateKeyEntries.isEmpty());
     signHashAndAssertSignature(signatureToken, DigestAlgorithm.SHA256, dataToSign, expectedSignatureinHex);
+  }
+
+  private Container createSignedContainer(String containerType, DigestAlgorithm digestAlgorithm) {
+    Container container = ContainerBuilder.
+        aContainer(containerType).
+        withDataFile("testFiles/test.txt", "text/plain").
+        build();
+
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureToken(signatureToken).
+        withSignatureDigestAlgorithm(digestAlgorithm).
+        invokeSigning();
+
+    container.addSignature(signature);
+    return container;
   }
 
   private void signHashAndAssertSignature(DigestAlgorithm digestAlgorithm, byte[] dataToSign, String expectedSignatureinHex) {

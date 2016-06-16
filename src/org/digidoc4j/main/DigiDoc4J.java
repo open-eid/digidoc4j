@@ -22,6 +22,7 @@ import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.impl.ddoc.DDocSignature;
 import org.digidoc4j.impl.ddoc.ValidationResultForDDoc;
+import org.digidoc4j.signers.PKCS11SignatureToken;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 
 import java.io.File;
@@ -156,6 +157,11 @@ public final class DigiDoc4J {
         fileHasChanged = true;
       }
 
+      if (commandLine.hasOption("pkcs11")) {
+        pkcs11Sign(commandLine, container, signatureBuilder);
+        fileHasChanged = true;
+      }
+
       if (fileHasChanged) {
         container.saveAsFile(inputFile);
         if(new File(inputFile).exists()) {
@@ -188,6 +194,9 @@ public final class DigiDoc4J {
         throw new DigiDoc4JUtilityException(3, "Incorrect extract command");
       }
     }
+    if(commandLine.hasOption("pkcs11") && commandLine.hasOption("pkcs12")) {
+      throw new DigiDoc4JUtilityException(5, "Cannot sign with both PKCS#11 and PKCS#12");
+    }
   }
 
   private static DocumentType getContainerType(CommandLine commandLine) {
@@ -205,10 +214,24 @@ public final class DigiDoc4J {
   private static void pkcs12Sign(CommandLine commandLine, Container container, SignatureBuilder signatureBuilder) {
     String[] optionValues = commandLine.getOptionValues("pkcs12");
     SignatureToken pkcs12Signer = new PKCS12SignatureToken(optionValues[0], optionValues[1].toCharArray());
-    Signature signature = signatureBuilder.
-        withSignatureToken(pkcs12Signer).
-        invokeSigning();
+    Signature signature = invokeSigning(signatureBuilder, pkcs12Signer);
     container.addSignature(signature);
+  }
+
+  private static void pkcs11Sign(CommandLine commandLine, Container container, SignatureBuilder signatureBuilder) {
+    String[] optionValues = commandLine.getOptionValues("pkcs11");
+    String pkcs11ModulePath = optionValues[0];
+    char[] pin = optionValues[1].toCharArray();
+    int slotIndex = Integer.parseInt(optionValues[2]);
+    SignatureToken pkcs11Signer = new PKCS11SignatureToken(pkcs11ModulePath, pin, slotIndex);
+    Signature signature = invokeSigning(signatureBuilder, pkcs11Signer);
+    container.addSignature(signature);
+  }
+
+  private static Signature invokeSigning(SignatureBuilder signatureBuilder, SignatureToken signatureToken) {
+    return signatureBuilder.
+          withSignatureToken(signatureToken).
+          invokeSigning();
   }
 
   private static void verify(Container container) {
@@ -304,6 +327,7 @@ public final class DigiDoc4J {
     options.addOption(addFile());
     options.addOption(removeFile());
     options.addOption(pkcs12Sign());
+    options.addOption(pkcs11Sign());
     options.addOption(signatureProfile());
     options.addOption(encryptionAlgorithm());
     options.addOption(extractDataFile());
@@ -333,6 +357,12 @@ public final class DigiDoc4J {
   private static Option pkcs12Sign() {
     return withArgName("pkcs12Keystore password").hasArgs(2).withValueSeparator(' ')
         .withDescription("sets pkcs12 keystore and keystore password").create("pkcs12");
+  }
+
+  @SuppressWarnings("AccessStaticViaInstance")
+  private static Option pkcs11Sign() {
+    return withArgName("pkcs11ModulePath pin slot").hasArgs(3).withValueSeparator(' ')
+        .withDescription("sets pkcs11 module path, pin(password) and a slot index").create("pkcs11");
   }
 
   @SuppressWarnings("AccessStaticViaInstance")
