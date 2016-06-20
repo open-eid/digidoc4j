@@ -162,6 +162,7 @@ public final class DigiDoc4J {
     options.addOption(pkcs11Sign());
     options.addOption(signatureProfile());
     options.addOption(encryptionAlgorithm());
+    options.addOption(mimeType());
     options.addOption(extractDataFile());
 
     return options;
@@ -214,6 +215,12 @@ public final class DigiDoc4J {
   private static Option inputDir() {
     return withArgName("inputDir").hasArg()
         .withDescription("directory path containing data files to sign").create("inputDir");
+  }
+
+  @SuppressWarnings("AccessStaticViaInstance")
+  private static Option mimeType() {
+    return withArgName("mimeType").hasArg()
+        .withDescription("Specifies input file mime type when using inputDir").create("mimeType");
   }
 
   @SuppressWarnings("AccessStaticViaInstance")

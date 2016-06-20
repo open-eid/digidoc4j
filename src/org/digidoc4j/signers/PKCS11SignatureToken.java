@@ -105,7 +105,7 @@ public class PKCS11SignatureToken implements SignatureToken {
   @Override
   public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
     try {
-      logger.debug("Signing with " + digestAlgorithm.name());
+      logger.debug("Signing with PKCS#11 and " + digestAlgorithm.name());
       byte[] digestToSign = DSSUtils.digest(digestAlgorithm.getDssDigestAlgorithm(), dataToSign);
       byte[] digestWithPadding = addPadding(digestToSign, digestAlgorithm);
       return signDigest(digestWithPadding);

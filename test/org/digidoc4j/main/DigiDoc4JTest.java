@@ -59,10 +59,18 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
   private String testBdocContainer;
+  private File outputFolder;
+  private File inputFolder;
+  private String outputDirPath;
+  private String inputFolderPath;
 
   @Before
   public void setUp() throws Exception {
     testBdocContainer = testFolder.newFile("test-container.bdoc").getPath();
+    outputFolder = testFolder.newFolder("outputDirectory");
+    inputFolder = testFolder.newFolder("inputDirectory");
+    outputDirPath = outputFolder.getPath();
+    inputFolderPath = inputFolder.getPath();
   }
 
   @After
@@ -381,9 +389,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createMultipleSignedContainers_whereInputDirIsFile_shouldThrowException() throws Exception {
-    String inputFolderPath = testFolder.newFile("inputDirectory").getPath();
-    String outputDirPath = testFolder.newFolder("outputDirectory").getPath();
-
+    String inputFolderPath = testFolder.newFile("inputDir").getPath();
     exit.expectSystemExitWithStatus(6);
     String[] params = new String[]{"-inputDir", inputFolderPath, "-outputDir", outputDirPath, "-pkcs12",
         "testFiles/signout.p12", "test"};
@@ -392,9 +398,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createMultipleSignedContainers_whereOutputDirIsFile_shouldThrowException() throws Exception {
-    String inputFolderPath = testFolder.newFolder("inputDirectory").getPath();
-    String outputDirPath = testFolder.newFile("outputDirectory").getPath();
-
+    String outputDirPath = testFolder.newFile("outputDir").getPath();
     exit.expectSystemExitWithStatus(6);
     String[] params = new String[]{"-inputDir", inputFolderPath, "-outputDir", outputDirPath, "-pkcs12",
         "testFiles/signout.p12", "test"};
@@ -403,9 +407,6 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createMultipleSignedContainers_withEmptyInputDir_shouldDoNothing() throws Exception {
-    String inputFolderPath = testFolder.newFolder("inputDirectory").getPath();
-    String outputDirPath = testFolder.newFolder("outputDirectory").getPath();
-
     exit.expectSystemExitWithStatus(0);
     String[] params = new String[]{"-inputDir", inputFolderPath, "-outputDir", outputDirPath, "-pkcs12",
         "testFiles/signout.p12", "test"};
@@ -414,10 +415,6 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createMultipleSignedContainers_withinInputDirectory() throws Exception {
-    File outputFolder = testFolder.newFolder("outputDirectory");
-    String outputDirPath = outputFolder.getPath();
-    File inputFolder = testFolder.newFolder("inputDirectory");
-    String inputFolderPath = inputFolder.getPath();
     writeStringToFile(new File(inputFolder, "firstDoc.txt"), "Hello daddy");
     writeStringToFile(new File(inputFolder, "secondDoc.pdf"), "John Matrix");
     writeStringToFile(new File(inputFolder, "thirdDoc.acc"), "Major General Franklin Kirby");
@@ -435,8 +432,6 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createMultipleSignedContainers_withoutOutputDirectory_shouldCreateOutputDir() throws Exception {
-    File inputFolder = testFolder.newFolder("inputDirectory");
-    String inputFolderPath = inputFolder.getPath();
     String outputDirPath = new File(inputFolder, "notExistingOutputFolder").getPath();
     writeStringToFile(new File(inputFolder, "firstDoc.txt"), "Hello daddy");
     writeStringToFile(new File(inputFolder, "secondDoc.pdf"), "John Matrix");
@@ -455,20 +450,32 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     assertContainsFile(outputDirPath, "secondDoc.ddoc");
   }
 
-  private void assertContainsFile(String outputDirPath, String fileName) {
-    File dir = new File(outputDirPath);
-    File file = new File(dir, fileName);
-    String errorMsg = "'" + fileName + "' is not present in dir " + Arrays.toString(dir.list());
-    assertTrue(errorMsg, file.exists());
+  @Test
+  public void createMultipleSignedContainers_withExistingSavedContainers_shouldThrowException() throws Exception {
+    exit.expectSystemExitWithStatus(7);
+    writeStringToFile(new File(inputFolder, "firstDoc.txt"), "Hello daddy");
+    writeStringToFile(new File(outputFolder, "firstDoc.bdoc"), "John Matrix");
+
+    String[] params = new String[]{"-inputDir", inputFolderPath, "-outputDir", outputDirPath, "-pkcs12",
+        "testFiles/signout.p12", "test"};
+
+    DigiDoc4J.main(params);
   }
 
   @Test
   public void createSignedContainer_forEachFile_withInputDirectoryAndMimeType() throws Exception {
-    /*
-    String[] params = new String[]{"-inputDir", inputFolderPath, "text/plain", "-outputDir", outputDirPath, "-pkcs12",
-        "testFiles/signout.p12", "test"};
-        */
+    writeStringToFile(new File(inputFolder, "firstDoc.txt"), "Hello daddy");
+    writeStringToFile(new File(inputFolder, "secondDoc.pdf"), "John Matrix");
 
+    String[] params = new String[]{"-inputDir", inputFolderPath, "-mimeType", "text/xml", "-outputDir", outputDirPath, "-pkcs12",
+        "testFiles/signout.p12", "test"};
+
+    callMainWithoutSystemExit(params);
+
+    Container container = ContainerOpener.open(new File(outputDirPath, "firstDoc.bdoc").getPath());
+    assertEquals("text/xml", container.getDataFiles().get(0).getMediaType());
+    container = ContainerOpener.open(new File(outputDirPath, "secondDoc.bdoc").getPath());
+    assertEquals("text/xml", container.getDataFiles().get(0).getMediaType());
   }
 
   @Test
@@ -630,11 +637,11 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     DigiDoc4J.main(params);
   }
 
-
   @Test
   public void testIsWarningWhenNoWarningExists() throws DigiDocException {
     assertFalse(isWarning(SignedDoc.FORMAT_DIGIDOC_XML, new DigiDoc4JException(1, "testError")));
   }
+
 
   @Test
   public void testIsNotWarningWhenCodeIsErrIssuerXmlnsAndDocumentFormatIsSkXML() throws DigiDocException {
@@ -733,5 +740,12 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     } catch (DigiDoc4JUtilityException ignore) {
     }
     System.setSecurityManager(securityManager);
+  }
+
+  private void assertContainsFile(String outputDirPath, String fileName) {
+    File dir = new File(outputDirPath);
+    File file = new File(dir, fileName);
+    String errorMsg = "'" + fileName + "' is not present in dir " + Arrays.toString(dir.list());
+    assertTrue(errorMsg, file.exists());
   }
 }

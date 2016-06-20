@@ -14,6 +14,7 @@ import java.io.File;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.slf4j.Logger;
@@ -52,7 +53,7 @@ public class MultipleContainersCreator {
 
   private void signDocument(File document) {
     String documentPath = document.getPath();
-    String mimeType = MimeType.fromFileName(documentPath).getMimeTypeString();
+    String mimeType = getMimeType(documentPath);
     Container container = ContainerBuilder.
         aContainer(containerType.name()).
         withDataFile(document, mimeType).
@@ -65,7 +66,12 @@ public class MultipleContainersCreator {
   private String createContainerPathToSave(File document) {
     String extension = containerType.name().toLowerCase();
     String containerName = FilenameUtils.removeExtension(document.getName()) + "." + extension;
-    return new File(outputDir, containerName).getPath();
+    String pathToSave = new File(outputDir, containerName).getPath();
+    if(new File(pathToSave).exists()) {
+      logger.error("Failed to save container to '" + pathToSave + "'. File already exists");
+      throw new DigiDoc4JUtilityException(7, "Failed to save container to '" + pathToSave + "'. File already exists");
+    }
+    return pathToSave;
   }
 
   private File getInputDirectory() {
@@ -94,5 +100,13 @@ public class MultipleContainersCreator {
       logger.debug(outputDir.getPath() + " directory does not exist. Creating new directory");
       outputDir.mkdir();
     }
+  }
+
+  private String getMimeType(String documentPath) {
+    String mimeType = commandLine.getOptionValue("mimeType");
+    if(StringUtils.isNotBlank(mimeType)) {
+      return mimeType;
+    }
+    return MimeType.fromFileName(documentPath).getMimeTypeString();
   }
 }
