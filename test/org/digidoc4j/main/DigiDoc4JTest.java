@@ -32,8 +32,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Permission;
+import java.util.Arrays;
 
 import static org.apache.commons.io.FileUtils.copyFile;
+import static org.apache.commons.io.FileUtils.writeStringToFile;
 import static org.digidoc4j.Configuration.Mode;
 
 import org.digidoc4j.SignatureProfile;
@@ -349,7 +351,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   public void createContainer_andSignIt_withPkcs11() throws Exception {
     Files.deleteIfExists(Paths.get(testBdocContainer));
     String[] params = new String[]{"-in", testBdocContainer, "-add", "testFiles/test.txt", "text/plain", "-pkcs11",
-        "/usr/local/lib/opensc-pkcs11.so", "01497", "2"};
+        "/usr/local/lib/opensc-pkcs11.so", "22975", "2"};
     callMainWithoutSystemExit(params);
 
     Container container = ContainerOpener.open(testBdocContainer);
@@ -375,6 +377,98 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     String[] params = new String[]{"-in", "test1.ddoc", "-add", "testFiles/test.txt", "-pkcs12",
         "testFiles/signout.p12", "test"};
     DigiDoc4J.main(params);
+  }
+
+  @Test
+  public void createMultipleSignedContainers_whereInputDirIsFile_shouldThrowException() throws Exception {
+    String inputFolderPath = testFolder.newFile("inputDirectory").getPath();
+    String outputDirPath = testFolder.newFolder("outputDirectory").getPath();
+
+    exit.expectSystemExitWithStatus(6);
+    String[] params = new String[]{"-inputDir", inputFolderPath, "-outputDir", outputDirPath, "-pkcs12",
+        "testFiles/signout.p12", "test"};
+    DigiDoc4J.main(params);
+  }
+
+  @Test
+  public void createMultipleSignedContainers_whereOutputDirIsFile_shouldThrowException() throws Exception {
+    String inputFolderPath = testFolder.newFolder("inputDirectory").getPath();
+    String outputDirPath = testFolder.newFile("outputDirectory").getPath();
+
+    exit.expectSystemExitWithStatus(6);
+    String[] params = new String[]{"-inputDir", inputFolderPath, "-outputDir", outputDirPath, "-pkcs12",
+        "testFiles/signout.p12", "test"};
+    DigiDoc4J.main(params);
+  }
+
+  @Test
+  public void createMultipleSignedContainers_withEmptyInputDir_shouldDoNothing() throws Exception {
+    String inputFolderPath = testFolder.newFolder("inputDirectory").getPath();
+    String outputDirPath = testFolder.newFolder("outputDirectory").getPath();
+
+    exit.expectSystemExitWithStatus(0);
+    String[] params = new String[]{"-inputDir", inputFolderPath, "-outputDir", outputDirPath, "-pkcs12",
+        "testFiles/signout.p12", "test"};
+    DigiDoc4J.main(params);
+  }
+
+  @Test
+  public void createMultipleSignedContainers_withinInputDirectory() throws Exception {
+    File outputFolder = testFolder.newFolder("outputDirectory");
+    String outputDirPath = outputFolder.getPath();
+    File inputFolder = testFolder.newFolder("inputDirectory");
+    String inputFolderPath = inputFolder.getPath();
+    writeStringToFile(new File(inputFolder, "firstDoc.txt"), "Hello daddy");
+    writeStringToFile(new File(inputFolder, "secondDoc.pdf"), "John Matrix");
+    writeStringToFile(new File(inputFolder, "thirdDoc.acc"), "Major General Franklin Kirby");
+
+    String[] params = new String[]{"-inputDir", inputFolderPath, "-outputDir", outputDirPath, "-pkcs12",
+        "testFiles/signout.p12", "test"};
+
+    callMainWithoutSystemExit(params);
+
+    assertEquals(3, outputFolder.listFiles().length);
+    assertContainsFile(outputDirPath, "firstDoc.bdoc");
+    assertContainsFile(outputDirPath, "secondDoc.bdoc");
+    assertContainsFile(outputDirPath, "thirdDoc.bdoc");
+  }
+
+  @Test
+  public void createMultipleSignedContainers_withoutOutputDirectory_shouldCreateOutputDir() throws Exception {
+    File inputFolder = testFolder.newFolder("inputDirectory");
+    String inputFolderPath = inputFolder.getPath();
+    String outputDirPath = new File(inputFolder, "notExistingOutputFolder").getPath();
+    writeStringToFile(new File(inputFolder, "firstDoc.txt"), "Hello daddy");
+    writeStringToFile(new File(inputFolder, "secondDoc.pdf"), "John Matrix");
+
+    String[] params = new String[]{"-inputDir", inputFolderPath, "-outputDir", outputDirPath, "-pkcs12",
+        "testFiles/signout.p12", "test", "-type", "DDOC"};
+
+    callMainWithoutSystemExit(params);
+
+    File outputFolder = new File(outputDirPath);
+    assertTrue(outputFolder.exists());
+    assertTrue(outputFolder.isDirectory());
+    assertEquals(2, outputFolder.listFiles().length);
+    String fileName = "firstDoc.ddoc";
+    assertContainsFile(outputDirPath, fileName);
+    assertContainsFile(outputDirPath, "secondDoc.ddoc");
+  }
+
+  private void assertContainsFile(String outputDirPath, String fileName) {
+    File dir = new File(outputDirPath);
+    File file = new File(dir, fileName);
+    String errorMsg = "'" + fileName + "' is not present in dir " + Arrays.toString(dir.list());
+    assertTrue(errorMsg, file.exists());
+  }
+
+  @Test
+  public void createSignedContainer_forEachFile_withInputDirectoryAndMimeType() throws Exception {
+    /*
+    String[] params = new String[]{"-inputDir", inputFolderPath, "text/plain", "-outputDir", outputDirPath, "-pkcs12",
+        "testFiles/signout.p12", "test"};
+        */
+
   }
 
   @Test
