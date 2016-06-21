@@ -15,11 +15,11 @@ package org.digidoc4j;
  */
 public enum SignatureProfile {
   /**
-   * Time-mark, similar to LT.
+   * Time-mark, similar to LT (BDoc 2.1 format).
    */
   LT_TM,
   /**
-   * Time-stamp and OCSP confirmation
+   * Time-stamp and OCSP confirmation (ASIC-E format)
    */
   LT,
   /**
@@ -27,8 +27,14 @@ public enum SignatureProfile {
    */
   LTA,
   /**
-   * no profile
+   * no profile (baseline)
    */
-  B_BES
-  //TODO: ADD later B_EPES, LTA_TM
+  B_BES,
+
+  /**
+   * no profile (baseline) with signature id (compatible with BDoc)
+   */
+  B_EPES
+
+  //TODO: ADD later LTA_TM
 }

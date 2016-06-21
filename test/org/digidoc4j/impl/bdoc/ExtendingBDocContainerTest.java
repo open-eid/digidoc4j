@@ -11,6 +11,7 @@
 package org.digidoc4j.impl.bdoc;
 
 import static org.digidoc4j.SignatureProfile.B_BES;
+import static org.digidoc4j.SignatureProfile.B_EPES;
 import static org.digidoc4j.SignatureProfile.LT;
 import static org.digidoc4j.SignatureProfile.LTA;
 import static org.digidoc4j.testutils.TestDataBuilder.createContainerWithFile;
@@ -22,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import org.digidoc4j.Container;
+import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
@@ -56,7 +58,28 @@ public class ExtendingBDocContainerTest extends DigiDoc4JTestHelper {
     container.saveAsFile(testFolder.newFile().getPath());
 
     assertEquals(1, container.getSignatures().size());
-    assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
+    Signature signature = container.getSignatures().get(0);
+    assertNotNull(signature.getOCSPCertificate());
+    assertEquals(SignatureProfile.LT, signature.getProfile());
+  }
+
+  @Test
+  public void extendFromEpesToTS() throws Exception {
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container, B_EPES);
+    container.saveAsFile(testContainerPath);
+
+    assertEquals(1, container.getSignatures().size());
+    assertNull(container.getSignatures().get(0).getOCSPCertificate());
+
+    container = open(testContainerPath);
+    container.extendSignatureProfile(SignatureProfile.LT);
+    container.saveAsFile(testFolder.newFile().getPath());
+
+    assertEquals(1, container.getSignatures().size());
+    Signature signature = container.getSignatures().get(0);
+    assertNotNull(signature.getOCSPCertificate());
+    assertEquals(SignatureProfile.LT_TM, signature.getProfile());
   }
 
   @Test
@@ -80,6 +103,13 @@ public class ExtendingBDocContainerTest extends DigiDoc4JTestHelper {
   public void extendFromB_BESToLT_TMThrowsException() throws Exception {
     Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
     signContainer(container, B_BES);
+    container.extendSignatureProfile(SignatureProfile.LT_TM);
+  }
+
+  @Test (expected = DigiDoc4JException.class)
+  public void extendFromEpesToLT_TMThrowsException() throws Exception {
+    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    signContainer(container, B_EPES);
     container.extendSignatureProfile(SignatureProfile.LT_TM);
   }
 

@@ -123,9 +123,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     setSignatureProfile();
     setSignerInformation();
     setSignatureId();
-    if (isTimeMark) {
-      setSignaturePolicy();
-    }
+    setSignaturePolicy();
     setSigningCertificate();
     setSigningDate();
     setTimeStampProviderSource();
@@ -161,8 +159,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   private void validateOcspResponse(XadesSignature xadesSignature) {
-    boolean isBesSignatureProfile = signatureParameters.getSignatureProfile() != null && SignatureProfile.B_BES == signatureParameters.getSignatureProfile();
-    if(isBesSignatureProfile) {
+    if(isBaselineSignatureProfile()) {
       return;
     }
     List<BasicOCSPResp> ocspResponses = xadesSignature.getOcspResponses();
@@ -170,6 +167,10 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
       logger.error("Signature does not contain OCSP response");
       throw new OCSPRequestFailedException();
     }
+  }
+
+  private boolean isBaselineSignatureProfile() {
+    return signatureParameters.getSignatureProfile() != null && (SignatureProfile.B_BES == signatureParameters.getSignatureProfile() || SignatureProfile.B_EPES == signatureParameters.getSignatureProfile());
   }
 
   private void setOcspSource(byte[] signatureValueBytes) {
@@ -229,6 +230,9 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
       case B_BES:
         facade.setSignatureLevel(XAdES_BASELINE_B);
         break;
+      case B_EPES:
+        facade.setSignatureLevel(XAdES_BASELINE_B);
+        break;
       case LTA:
         facade.setSignatureLevel(XAdES_BASELINE_LTA);
         break;
@@ -240,12 +244,21 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   private void setSignaturePolicy() {
-    Policy signaturePolicy = new Policy();
-    signaturePolicy.setId("urn:oid:1.3.6.1.4.1.10015.1000.3.2.1");
-    signaturePolicy.setDigestValue(decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));
-    signaturePolicy.setDigestAlgorithm(SHA256);
-    signaturePolicy.setSpuri("https://www.sk.ee/repository/bdoc-spec21.pdf");
-    facade.setSignaturePolicy(signaturePolicy);
+    if (isTimeMark || isEpesProfile()) {
+      Policy signaturePolicy = new Policy();
+      signaturePolicy.setId("urn:oid:1.3.6.1.4.1.10015.1000.3.2.1");
+      signaturePolicy.setDigestValue(decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));
+      signaturePolicy.setDigestAlgorithm(SHA256);
+      signaturePolicy.setSpuri("https://www.sk.ee/repository/bdoc-spec21.pdf");
+      facade.setSignaturePolicy(signaturePolicy);
+    }
+  }
+
+  private boolean isEpesProfile() {
+    if (signatureParameters.getSignatureProfile() != null) {
+      return signatureParameters.getSignatureProfile() == SignatureProfile.B_EPES;
+    }
+    return false;
   }
 
   private void setSignatureId() {

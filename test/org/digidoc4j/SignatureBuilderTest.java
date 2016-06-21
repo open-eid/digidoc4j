@@ -16,6 +16,7 @@ import static org.digidoc4j.testutils.TestSigningHelper.getSigningCert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -28,6 +29,8 @@ import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.impl.bdoc.BDocSignature;
+import org.digidoc4j.impl.bdoc.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.testutils.TestSignatureBuilder;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TestContainer;
@@ -38,6 +41,8 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import eu.europa.esig.dss.x509.SignaturePolicy;
 
 public class SignatureBuilderTest extends DigiDoc4JTestHelper {
 
@@ -207,6 +212,20 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
   public void signatureProfileShouldBeSetProperlyForBDocTM() throws Exception {
     Signature signature = createBDocSignatureWithProfile(SignatureProfile.LT_TM);
     assertEquals(SignatureProfile.LT_TM, signature.getProfile());
+  }
+
+  @Test
+  public void signatureProfileShouldBeSetProperlyForBEpes() throws Exception {
+    Signature signature = createBDocSignatureWithProfile(SignatureProfile.B_EPES);
+    assertEquals(SignatureProfile.B_EPES, signature.getProfile());
+    assertNull(signature.getTrustedSigningTime());
+    assertNull(signature.getOCSPCertificate());
+    assertNull(signature.getOCSPResponseCreationTime());
+    assertNull(signature.getTimeStampTokenCertificate());
+    assertNull(signature.getTimeStampCreationTime());
+    BDocSignature bDocSignature = (BDocSignature) signature;
+    SignaturePolicy policyId = bDocSignature.getOrigin().getDssSignature().getPolicyId();
+    assertEquals(XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
   }
 
   @Test
