@@ -56,7 +56,6 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
 
   private final static Logger logger = LoggerFactory.getLogger(BDocSignatureBuilder.class);
   private static final SignatureProfile DEFAULT_SIGNATURE_PROFILE = SignatureProfile.LT;
-  private boolean isTimeMark = false;
   private transient XadesSigningDssFacade facade;
   private Date signingDate;
 
@@ -185,7 +184,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     logger.debug("Creating OCSP source");
     Configuration configuration = getConfiguration();
     SKOnlineOCSPSource ocspSource;
-    if (isTimeMark && signatureValue != null) {
+    if (isTimeMarkProfile() && signatureValue != null) {
       ocspSource = new BDocTMOcspSource(configuration, signatureValue);
     } else {
       ocspSource = new BDocTSOcspSource(configuration);
@@ -225,7 +224,6 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   private void setSignatureProfile(SignatureProfile profile) {
-    isTimeMark = false;
     switch (profile) {
       case B_BES:
         facade.setSignatureLevel(XAdES_BASELINE_B);
@@ -236,15 +234,13 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
       case LTA:
         facade.setSignatureLevel(XAdES_BASELINE_LTA);
         break;
-      case LT_TM:
-        isTimeMark = true;
       default:
         facade.setSignatureLevel(XAdES_BASELINE_LT);
     }
   }
 
   private void setSignaturePolicy() {
-    if (isTimeMark || isEpesProfile()) {
+    if (isTimeMarkProfile() || isEpesProfile()) {
       Policy signaturePolicy = new Policy();
       signaturePolicy.setId("urn:oid:1.3.6.1.4.1.10015.1000.3.2.1");
       signaturePolicy.setDigestValue(decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));
@@ -307,5 +303,12 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
       logger.error("Container does not contain any data files");
       throw new ContainerWithoutFilesException();
     }
+  }
+
+  private boolean isTimeMarkProfile() {
+    if(signatureParameters.getSignatureProfile() == null) {
+      return false;
+    }
+    return signatureParameters.getSignatureProfile() == SignatureProfile.LT_TM;
   }
 }

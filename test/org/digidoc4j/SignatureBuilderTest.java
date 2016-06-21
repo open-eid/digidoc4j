@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.InvalidSignatureException;
@@ -42,6 +43,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import eu.europa.esig.dss.validation.TimestampToken;
 import eu.europa.esig.dss.x509.SignaturePolicy;
 
 public class SignatureBuilderTest extends DigiDoc4JTestHelper {
@@ -146,6 +148,20 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
     assertEquals(2, signature.getSignerRoles().size());
     assertEquals("Manager", signature.getSignerRoles().get(0));
     assertEquals("Suspicious Fisherman", signature.getSignerRoles().get(1));
+  }
+
+  @Test
+  public void createTimeMarkSignature_shouldNotContainTimestamp() throws Exception {
+    Container container = TestDataBuilder.createContainerWithFile(testFolder);
+    BDocSignature signature = (BDocSignature) SignatureBuilder.
+        aSignature(container).
+        withSignatureProfile(SignatureProfile.LT_TM).
+        withSignatureToken(testSignatureToken).
+        invokeSigning();
+    container.addSignature(signature);
+
+    List<TimestampToken> signatureTimestamps = signature.getOrigin().getDssSignature().getSignatureTimestamps();
+    assertTrue(signatureTimestamps == null || signatureTimestamps.isEmpty());
   }
 
   @Test
