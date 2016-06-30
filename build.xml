@@ -177,6 +177,7 @@
     <mkdir dir="${junit.dir}"/>
     <jacoco:coverage>
       <junit fork="true">
+        <sysproperty key="logback.configurationFile" value="resources/logback.xml"/>
         <classpath refid="javac.classpath"/>
         <classpath>
           <pathelement location="build"/>
