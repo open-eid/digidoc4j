@@ -248,6 +248,7 @@
       <fileset dir="${build.dir}"/>
       <fileset dir="${dist.dir}"/>
       <fileset dir="javadoc"/>
+      <fileset dir="lib" excludes="**/dss*.jar **/validation-policy*.jar esteidtestcerts.jar jacoco*.jar"/>
     </delete>
   </target>
 
