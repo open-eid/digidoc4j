@@ -25,6 +25,7 @@ import org.junit.Test;
 import eu.europa.esig.dss.tsl.TSLValidationSummary;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.tsl.service.TSLValidationJob;
+import eu.europa.esig.dss.validation.policy.rules.Indication;
 
 public class TslLoaderTest {
 
@@ -79,9 +80,9 @@ public class TslLoaderTest {
   private void assertTslValid(TSLRepository tslRepository) {
     List<TSLValidationSummary> summaryList = tslRepository.getSummary();
     for(TSLValidationSummary summary: summaryList) {
-      String indication = summary.getIndication();
+      Indication indication = summary.getIndication();
       String country = summary.getCountry();
-      Assert.assertEquals("TSL is not valid for country " + country, "VALID", indication);
+      Assert.assertEquals("TSL is not valid for country " + country, Indication.TOTAL_PASSED, indication);
     }
   }
 

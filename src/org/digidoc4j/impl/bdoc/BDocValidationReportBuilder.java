@@ -26,9 +26,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import eu.europa.esig.dss.DSSXMLUtils;
-import eu.europa.esig.dss.validation.report.Reports;
-import eu.europa.esig.dss.validation.report.SimpleReport;
+import eu.europa.esig.dss.validation.reports.Reports;
+import eu.europa.esig.dss.validation.reports.SimpleReport;
+import eu.europa.esig.dss.xades.DSSXMLUtils;
 
 public class BDocValidationReportBuilder {
 
@@ -54,11 +54,30 @@ public class BDocValidationReportBuilder {
   }
 
   private String generateNewReport() {
+    /*
     logger.debug("Generating BDoc validation report in XML");
     initializeReportDOM();
     addErrorsInEveryReport();
     addManifestErrorsToXmlReport();
     return getReportAsXmlString();
+    */
+    String xmlReport = "";
+    for(Reports report: validationReports) {
+      do {
+        xmlReport += report.getXmlSimpleReport();
+        String signatureId = report.getSimpleReport().getFirstSignatureId();
+        List<DigiDoc4JException> signatureExceptions = signatureVerificationErrors.get(signatureId);
+        if(signatureExceptions != null) {
+          for (DigiDoc4JException exception : signatureExceptions) {
+            xmlReport += "<Error>" + exception.getMessage() + "</Error>\n";
+          }
+        }
+        xmlReport += "\n";
+        //check with several signatures as well in one signature file (in estonia we are not producing such signatures)
+        report = report.getNextReports();
+      } while (report != null);
+    }
+    return xmlReport;
   }
 
   private void addErrorsInEveryReport() {
@@ -108,7 +127,7 @@ public class BDocValidationReportBuilder {
     signatureValidation.setAttribute("ID", simpleReport.getSignatureIdList().get(0));
     reportDocument.getDocumentElement().appendChild(signatureValidation);
 
-    Element rootElement = simpleReport.getRootElement();
+    Element rootElement = null;//simpleReport.getRootElement();
     NodeList childNodes = rootElement.getChildNodes();
     for (int i = 0; i < childNodes.getLength(); i++) {
       Node node = childNodes.item(i);

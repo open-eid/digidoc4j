@@ -101,7 +101,7 @@ public class ConfigurationTest {
     assertThat(certificateToken.getKeyUsageBits(), hasItem(KeyUsageBit.nonRepudiation));
     assertTrue(certificateToken.checkKeyUsage(KeyUsageBit.nonRepudiation));
     ServiceInfo serviceInfo = certificateToken.getAssociatedTSPS().iterator().next();
-    assertEquals("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", serviceInfo.getStatus());
+    assertEquals("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", serviceInfo.getStatus().get(0).getStatus());
     assertEquals("http://uri.etsi.org/TrstSvc/Svctype/CA/QC", serviceInfo.getType());
     Map<String, List<Condition>> qualifiersAndConditions = serviceInfo.getQualifiersAndConditions();
     assertTrue(qualifiersAndConditions.containsKey("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD"));

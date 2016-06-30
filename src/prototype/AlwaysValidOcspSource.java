@@ -42,7 +42,7 @@ import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.x509.CommonCertificateSource;
-import eu.europa.esig.dss.x509.OCSPToken;
+import eu.europa.esig.dss.x509.ocsp.OCSPToken;
 import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 
 
@@ -212,8 +212,10 @@ public class AlwaysValidOcspSource implements OCSPSource {
       BasicOCSPResp basicResp = basicOCSPRespBuilder.build(contentSigner, chain, ocspDate);
       SingleResp singleResp = basicResp.getResponses()[0];
 
-      final OCSPToken ocspToken = new OCSPToken(basicResp, singleResp);
-      certificateToken.setRevocationToken(ocspToken);
+      final OCSPToken ocspToken = new OCSPToken();
+      ocspToken.setBasicOCSPResp(basicResp);
+      ocspToken.setBestSingleResp(singleResp);
+      certificateToken.addRevocationToken(ocspToken);
 
       return ocspToken;
     } catch (OCSPException e) {

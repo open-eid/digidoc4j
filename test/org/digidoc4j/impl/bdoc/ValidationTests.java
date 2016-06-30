@@ -248,6 +248,8 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void containerMissesFileWhichIsInManifestAndSignatureFile() {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    TSLHelper.addSkTsaCertificateToTsl(configuration);
     Container container = ContainerOpener.open("testFiles/zip_misses_file_which_is_in_manifest.asice");
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
@@ -259,7 +261,9 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @Test
   public void containerMissingOCSPData() {
     Container container = ContainerOpener.open("testFiles/TS-06_23634_TS_missing_OCSP_adjusted.asice");
-    List<DigiDoc4JException> errors = container.validate().getErrors();
+    ValidationResult validate = container.validate();
+    System.out.println(validate.getReport());
+    List<DigiDoc4JException> errors = validate.getErrors();
 
     assertEquals(LT, container.getSignatures().get(0).getProfile());
     assertEquals(2, errors.size());
@@ -290,7 +294,8 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
-    assertEquals("Policy url is missing for identifier: urn:oid:1.3.6.1.4.1.10015.1000.3.2.1", errors.get(0).toString());
+    //assertEquals("Policy url is missing for identifier: urn:oid:1.3.6.1.4.1.10015.1000.3.2.1", errors.get(0).toString());
+    assertEquals("The signature policy is not available!", errors.get(0).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -311,7 +316,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(2, errors.size());
     assertContainsError("Signed properties missing", errors);
-    assertContainsError("The reference data object(s) not found!", errors);
+    assertContainsError("The reference data object(s) is not found!", errors);
     assertEquals(2, container.getSignatures().get(0).validateSignature().getErrors().size());
   }
 
@@ -323,7 +328,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(2, errors.size());
     assertContainsError("Signed properties missing", errors);
-    assertContainsError("The reference data object(s) not found!", errors);
+    assertContainsError("The reference data object(s) is not found!", errors);
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -344,7 +349,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
-    assertEquals("The reference data object(s) not found!", errors.get(0).toString());
+    assertEquals("The reference data object(s) is not found!", errors.get(0).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -353,11 +358,12 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     Container container = ContainerOpener.open("testFiles/nonce-vale-sisu.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(4, errors.size());
+    //assertEquals(4, errors.size());
+    assertEquals(3, errors.size());
     assertEquals("Wrong policy identifier: urn:oid:1.3.6.1.4.1.10015.1000.2.10.10", errors.get(0).toString());
-    assertEquals("The reference data object(s) is not intact!", errors.get(1).toString());
+    assertEquals("The reference data object(s) is not found!", errors.get(1).toString());
     assertEquals("Nonce is invalid", errors.get(2).toString());
-    assertEquals("The signature file for signature S0 has an entry for file META-INF/manifest.xml with mimetype application/xml but the manifest file does not have an entry for this file", errors.get(3).toString());
+    //assertEquals("The signature file for signature S0 has an entry for file META-INF/manifest.xml with mimetype application/xml but the manifest file does not have an entry for this file", errors.get(3).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -388,7 +394,8 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
-    assertEquals("Policy url is missing for identifier: urn:oid:1.3.6.1.4.1.10015.1000.3.2.1", errors.get(0).toString());
+    //assertEquals("Policy url is missing for identifier: urn:oid:1.3.6.1.4.1.10015.1000.3.2.1", errors.get(0).toString());
+    assertEquals("The signature policy is not available!", errors.get(0).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")

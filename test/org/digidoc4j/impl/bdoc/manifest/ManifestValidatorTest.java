@@ -157,7 +157,7 @@ public class ManifestValidatorTest {
   @Test
   public void container_withDifferentDataFileName_shouldBeInvalid() throws Exception {
     ManifestParser manifestParser = createManifest(dataFile("test.txt", "text/plain"));
-    List<DSSDocument> detachedContents = Arrays.asList(detachedContent("other.txt", "text/plain"));
+    List<DSSDocument> detachedContents = Arrays.asList(detachedContent("other.txt", "text/plain"), detachedContent("test.txt", "text/plain"));
     List<Signature> signatures = openSignature("testFiles/xades/test-bdoc-ts.xml", detachedContents);
     List<String> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
     assertFalse(errors.isEmpty());

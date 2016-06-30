@@ -161,7 +161,7 @@ public class DataFile implements Serializable {
 
   byte[] calculateDigestInternal(DigestAlgorithm digestAlgorithm) {
     logger.debug("Digest algorithm: " + digestAlgorithm);
-    return DSSUtils.digest(digestAlgorithm, document.getBytes());
+    return DSSUtils.digest(digestAlgorithm, getBytes());
   }
 
   /**
@@ -205,7 +205,7 @@ public class DataFile implements Serializable {
         throw new DigiDoc4JException(e);
       }
     }
-    fileSize = document.getBytes().length;
+    fileSize = getBytes().length;
     logger.debug("File document size: " + fileSize);
     return fileSize;
   }
@@ -235,7 +235,7 @@ public class DataFile implements Serializable {
    */
   public void saveAs(OutputStream out) throws IOException {
     logger.debug("");
-    out.write(document.getBytes());
+    out.write(getBytes());
   }
 
   /**
@@ -261,7 +261,11 @@ public class DataFile implements Serializable {
    */
   public byte[] getBytes() {
     logger.debug("");
-    return document.getBytes();
+    try {
+      return IOUtils.toByteArray(document.openStream());
+    } catch (IOException e) {
+      throw new TechnicalException("Error reading document bytes: " + e.getMessage(), e);
+    }
   }
 
   /**

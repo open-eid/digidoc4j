@@ -11,6 +11,7 @@
 package org.digidoc4j.impl.bdoc.tsl;
 
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 
 import org.digidoc4j.TSLCertificateSource;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import eu.europa.esig.dss.tsl.Condition;
 import eu.europa.esig.dss.tsl.KeyUsageBit;
 import eu.europa.esig.dss.tsl.KeyUsageCondition;
 import eu.europa.esig.dss.tsl.ServiceInfo;
+import eu.europa.esig.dss.tsl.ServiceInfoStatus;
 import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
 import eu.europa.esig.dss.x509.CertificateToken;
 
@@ -44,9 +46,9 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
   @Override
   public void addTSLCertificate(X509Certificate certificate) {
     ServiceInfo serviceInfo = new ServiceInfo();
-    serviceInfo.setStatus("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision");
+    ServiceInfoStatus status = new ServiceInfoStatus("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", certificate.getNotBefore(), null);
+    serviceInfo.setStatus(Arrays.asList(status));
     serviceInfo.setType("http://uri.etsi.org/TrstSvc/Svctype/CA/QC");
-    serviceInfo.setStatusStartDate(certificate.getNotBefore());
     Condition condition = new KeyUsageCondition(KeyUsageBit.nonRepudiation, true);
     serviceInfo.addQualifierAndCondition("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD", condition);
 

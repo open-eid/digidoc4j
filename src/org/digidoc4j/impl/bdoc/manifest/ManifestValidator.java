@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.DSSXMLUtils;
+import eu.europa.esig.dss.xades.DSSXMLUtils;
 
 /**
  * For validating meta data within the manifest file and signature files.

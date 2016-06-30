@@ -11,6 +11,7 @@
 package org.digidoc4j.impl.bdoc;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
@@ -28,10 +29,11 @@ import org.junit.Test;
  * This test is testing a "hack" feature that will probably be rolled back later.
  */
 public class UriEncodingTest extends AbstractSigningTests {
+
     @Test
     public void signatureReferencesUseUriEncodingButManifestUsesPlainUtf8() throws InterruptedException {
         Signature signature = sign();
-        signature.validateSignature();
+        assertTrue(signature.validateSignature().isValid());
         List<Reference> referencesInSignature = ((BDocSignature)signature).getOrigin().getReferences();
         assertEquals("dds_J%C3%9CRI%C3%96%C3%96%20%E2%82%AC%20%C5%BE%C5%A0%20p%C3%A4ev.txt", referencesInSignature.get(0).getURI());
         // TODO: Also write an assertion to verify that the manifest file does NOT use URI encoding

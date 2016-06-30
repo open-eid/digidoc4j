@@ -315,7 +315,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
     Signature signature = openAdESSignature(container);
     SignatureValidationResult result = signature.validateSignature();
     assertFalse(result.isValid());
-    assertEquals("The reference data object(s) is not intact!", result.getErrors().get(0).getMessage());
+    assertEquals("The reference data object(s) is not found!", result.getErrors().get(0).getMessage());
   }
 
   private Signature openSignatureFromExistingSignatureDocument(Container container) throws IOException {

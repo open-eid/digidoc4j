@@ -25,6 +25,7 @@ import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
@@ -121,7 +122,7 @@ public class AsicContainerCreator {
     logger.debug("Writing existing zip container entries");
     for (AsicEntry asicEntry : asicEntries) {
       DSSDocument content = asicEntry.getContent();
-      byte[] entryBytes = content.getBytes();
+      byte[] entryBytes = getDocumentBytes(content);
       ZipEntry zipEntry = asicEntry.getZipEntry();
       if(!StringUtils.equalsIgnoreCase(ZIP_ENTRY_MIMETYPE, zipEntry.getName())) {
         zipOutputStream.setLevel(ZipEntry.DEFLATED);
@@ -163,6 +164,15 @@ public class AsicContainerCreator {
     } catch (IOException e) {
       logger.error("Unable to write Zip entry to BDoc container: " + e.getMessage());
       throw new TechnicalException("Unable to write Zip entry to BDoc container", e);
+    }
+  }
+
+  private byte[] getDocumentBytes(DSSDocument content) {
+    try {
+      return IOUtils.toByteArray(content.openStream());
+    } catch (IOException e) {
+      logger.error("Error getting document content: " + e.getMessage());
+      throw new TechnicalException("Error getting document content: " + e.getMessage(), e);
     }
   }
 }

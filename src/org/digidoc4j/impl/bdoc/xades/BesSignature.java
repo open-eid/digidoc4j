@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl.bdoc.xades;
 
-import static eu.europa.esig.dss.DSSXMLUtils.createDocument;
+import static eu.europa.esig.dss.xades.DSSXMLUtils.createDocument;
 
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -30,12 +30,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import eu.europa.esig.dss.ASiCNamespaces;
 import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.DSSXMLUtils;
-import eu.europa.esig.dss.XPathQueryHolder;
 import eu.europa.esig.dss.validation.SignatureProductionPlace;
 import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.xades.ASiCNamespaces;
+import eu.europa.esig.dss.xades.DSSXMLUtils;
+import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class BesSignature extends DssXadesSignature {

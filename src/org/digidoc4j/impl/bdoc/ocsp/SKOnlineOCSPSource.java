@@ -43,8 +43,8 @@ import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
 import eu.europa.esig.dss.token.KSPrivateKeyEntry;
 import eu.europa.esig.dss.token.Pkcs12SignatureToken;
 import eu.europa.esig.dss.x509.CertificateToken;
-import eu.europa.esig.dss.x509.OCSPToken;
 import eu.europa.esig.dss.x509.ocsp.OCSPSource;
+import eu.europa.esig.dss.x509.ocsp.OCSPToken;
 
 /**
 * SK OCSP source location.
@@ -83,7 +83,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     return location;
   }
 
-  private byte[] buildOCSPRequest(final X509Certificate signCert, final X509Certificate issuerCert, Extension nonceExtension) throws
+  private byte[] buildOCSPRequest(final CertificateToken signCert, final CertificateToken issuerCert, Extension nonceExtension) throws
       DSSException {
     try {
       logger.debug("Building OCSP request");
@@ -128,9 +128,6 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
       if (logger.isTraceEnabled()) {
         logger.trace("--> OnlineOCSPSource queried for " + dssIdAsString);
       }
-      final X509Certificate certificate = certificateToken.getCertificate();
-      final X509Certificate issuerCertificate = issuerCertificateToken.getCertificate();
-
       final String ocspUri = getAccessLocation();
       logger.debug("Getting OCSP token from URI: " + ocspUri);
       if (ocspUri == null) {
@@ -138,7 +135,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
         return null;
       }
       Extension nonceExtension = createNonce();
-      final byte[] content = buildOCSPRequest(certificate, issuerCertificate, nonceExtension);
+      final byte[] content = buildOCSPRequest(certificateToken, issuerCertificateToken, nonceExtension);
 
       final byte[] ocspRespBytes = dataLoader.post(ocspUri, content);
 
@@ -153,7 +150,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
 
       Date bestUpdate = null;
       SingleResp bestSingleResp = null;
-      final CertificateID certId = DSSRevocationUtils.getOCSPCertificateID(certificate, issuerCertificate);
+      final CertificateID certId = DSSRevocationUtils.getOCSPCertificateID(certificateToken, issuerCertificateToken);
       for (final SingleResp singleResp : basicOCSPResp.getResponses()) {
 
         if (DSSRevocationUtils.matches(certId, singleResp)) {
@@ -167,10 +164,11 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
         }
       }
       if (bestSingleResp != null) {
-
-        final OCSPToken ocspToken = new OCSPToken(basicOCSPResp, bestSingleResp);
-        ocspToken.setSourceURI(ocspUri);
-        certificateToken.setRevocationToken(ocspToken);
+        OCSPToken ocspToken = new OCSPToken();
+        ocspToken.setBasicOCSPResp(basicOCSPResp);
+        ocspToken.setBestSingleResp(bestSingleResp);
+        ocspToken.setSourceURL(ocspUri);
+        certificateToken.addRevocationToken(ocspToken);
         return ocspToken;
       }
     } catch (OCSPException e) {

@@ -92,17 +92,6 @@ public class StreamDocument extends CommonDocument {
   }
 
   @Override
-  public byte[] getBytes() throws DSSException {
-    logger.debug("");
-    try {
-      return IOUtils.toByteArray(getTemporaryFileAsStream());
-    } catch (IOException e) {
-      logger.error(e.getMessage());
-      throw new DSSException(e);
-    }
-  }
-
-  @Override
   public String getName() {
     logger.debug("");
     return documentName;
@@ -158,10 +147,5 @@ public class StreamDocument extends CommonDocument {
       throw new DSSException(e);
     }
     return Base64.encodeBase64String(digestBytes);
-  }
-
-  @Override
-  public String getBase64Encoded() {
-    return null;
   }
 }

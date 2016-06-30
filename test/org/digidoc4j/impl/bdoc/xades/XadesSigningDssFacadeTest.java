@@ -17,11 +17,13 @@ import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
@@ -101,7 +103,7 @@ public class XadesSigningDssFacadeTest {
   }
 
   @Test
-  public void signWithSignaturePolicy() {
+  public void signWithSignaturePolicy() throws IOException {
     Policy signaturePolicy = new Policy();
     signaturePolicy.setId("urn:oid:1.3.6.1.4.1.10015.1000.3.2.1");
     signaturePolicy.setDigestValue(decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));
@@ -189,10 +191,11 @@ public class XadesSigningDssFacadeTest {
     return DSSUtils.digest(digestAlgorithm.getDssDigestAlgorithm(), dataToDigest);
   }
 
-  private void assertDocumentSigned(DSSDocument signedDocument) {
+  private void assertDocumentSigned(DSSDocument signedDocument) throws IOException {
     assertNotNull(signedDocument);
-    assertNotNull(signedDocument.getBytes());
-    assertTrue(signedDocument.getBytes().length > 0);
+    byte[] bytes = IOUtils.toByteArray(signedDocument.openStream());
+    assertNotNull(bytes);
+    assertTrue(bytes.length > 0);
   }
 
 }

@@ -14,11 +14,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.SignatureProfile;
@@ -62,6 +64,7 @@ public class SkDataLoader extends CommonsDataLoader {
 
     HttpPost httpRequest = null;
     HttpResponse httpResponse = null;
+    CloseableHttpClient client = null;
 
     try {
       final URI uri = URI.create(url.trim());
@@ -81,18 +84,23 @@ public class SkDataLoader extends CommonsDataLoader {
         httpRequest.setHeader(CONTENT_TYPE, contentType);
       }
 
-      httpResponse = getHttpResponse(httpRequest, url);
+      client = getHttpClient(url);
+      httpResponse = getHttpResponse(client, httpRequest, url);
 
       final byte[] returnedBytes = readHttpResponse(url, httpResponse);
       return returnedBytes;
     } catch (IOException e) {
       throw new DSSException(e);
     } finally {
-      if (httpRequest != null) {
-        httpRequest.releaseConnection();
-      }
-      if (httpResponse != null) {
-        EntityUtils.consumeQuietly(httpResponse.getEntity());
+      try {
+        if (httpRequest != null) {
+          httpRequest.releaseConnection();
+        }
+        if (httpResponse != null) {
+          EntityUtils.consumeQuietly(httpResponse.getEntity());
+        }
+      } finally {
+        IOUtils.closeQuietly(client);
       }
     }
   }
