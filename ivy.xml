@@ -7,7 +7,7 @@
     <conf name="library-zip" extends="runtime" description="Additional dependencies for the library zip file"/>
   </configurations>
   <dependencies>
-    <dependency org="ee.sk.digidoc" name="jdigidoc" rev="3.12.0" conf="runtime->default">
+    <dependency org="ee.sk.digidoc" name="jdigidoc" rev="3.12.1" conf="runtime->default">
       <exclude org="iaik.pkcs" module="iaikPkcs11Wrapper" />
     </dependency>
     <dependency org="commons-cli" name="commons-cli" rev="1.2" conf="runtime->default"/>
@@ -22,9 +22,9 @@
     <dependency org="org.apache.santuario" name="xmlsec" rev="2.0.6" conf="runtime->default" >
       <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
     </dependency>
-    <dependency org="org.bouncycastle" name="bcmail-jdk15on" rev="1.51" conf="runtime->default"/>
-    <dependency org="org.bouncycastle" name="bcpkix-jdk15on" rev="1.51" conf="runtime->default"/>
-    <dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.51" conf="runtime->default"/>
+    <dependency org="org.bouncycastle" name="bcmail-jdk15on" rev="1.54" conf="runtime->default"/>
+    <dependency org="org.bouncycastle" name="bcpkix-jdk15on" rev="1.54" conf="runtime->default"/>
+    <dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.54" conf="runtime->default"/>
     <dependency org="xalan" name="serializer" rev="2.7.2" conf="runtime->default">
       <exclude org="xml-apis" module="xml-apis" />
     </dependency>

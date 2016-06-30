@@ -116,7 +116,7 @@ public class TimemarkSignature extends BesSignature {
 
   private String getOCSPCommonName() {
     RespID responderId = ocspResponse.getResponderId();
-    String commonName = getCN(responderId.toASN1Object().getName());
+    String commonName = getCN(responderId.toASN1Primitive().getName());
     logger.debug("OCSP common name: " + commonName);
     return commonName;
   }
