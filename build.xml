@@ -171,7 +171,7 @@
 
   <target name="make.utility" depends="version, clean, compile, utility"/>
 
-  <target name="all" depends="test, javadoc, coverage.report"/>
+  <target name="all" depends="test, javadoc"/>
 
   <target name="test" depends="base">
     <mkdir dir="${junit.dir}"/>
