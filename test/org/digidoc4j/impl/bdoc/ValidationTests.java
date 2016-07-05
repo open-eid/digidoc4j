@@ -280,7 +280,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void invalidNoncePolicyOid() {
-    Container container = ContainerOpener.open("testFiles/23608_bdoc21-invalid-nonce-policy-oid.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
+    Container container = ContainerOpener.open("testFiles/23608_bdoc21-invalid-nonce-policy-oid.bdoc", PROD_CONFIGURATION);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -290,11 +290,10 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void noNoncePolicy() {
-    Container container = ContainerOpener.open("testFiles/23608_bdoc21-no-nonce-policy.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
+    Container container = ContainerOpener.open("testFiles/23608_bdoc21-no-nonce-policy.bdoc", PROD_CONFIGURATION);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
-    //assertEquals("Policy url is missing for identifier: urn:oid:1.3.6.1.4.1.10015.1000.3.2.1", errors.get(0).toString());
     assertEquals("The signature policy is not available!", errors.get(0).toString());
   }
 
@@ -390,11 +389,10 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void noPolicyURI() {
-    Container container = ContainerOpener.open("testFiles/SP-06_bdoc21-no-uri.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
+    Container container = ContainerOpener.open("testFiles/SP-06_bdoc21-no-uri.bdoc", PROD_CONFIGURATION);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
-    //assertEquals("Policy url is missing for identifier: urn:oid:1.3.6.1.4.1.10015.1000.3.2.1", errors.get(0).toString());
     assertEquals("The signature policy is not available!", errors.get(0).toString());
   }
 

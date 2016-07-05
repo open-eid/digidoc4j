@@ -11,7 +11,6 @@
 package org.digidoc4j.impl.bdoc.xades.validation;
 
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
-import static org.apache.commons.lang.StringUtils.isBlank;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,9 +90,6 @@ public class XadesSignatureValidator implements SignatureValidator {
       if (!StringUtils.equals(TM_POLICY, policyIdentifier)) {
         addValidationError(new WrongPolicyIdentifierException("Wrong policy identifier: " + policyIdentifier));
       } else {
-        if (isBlank(policy.getUrl())) {
-          //addValidationError(new PolicyUrlMissingException("Policy url is missing for identifier: " + policyIdentifier));
-        }
         addPolicyIdentifierQualifierValidationErrors();
       }
     }
