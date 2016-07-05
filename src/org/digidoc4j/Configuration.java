@@ -143,6 +143,7 @@ public class Configuration implements Serializable {
   public static final String DEFAULT_USE_LOCAL_TSL = "true";
   public static final String DEFAULT_MAX_DATAFILE_CACHED = "-1";
   public static final String DEFAULT_TSL_KEYSTORE_LOCATION = "keystore/keystore.jks";
+  public static final List<String> DEFAULT_TRUESTED_TERRITORIES = Arrays.asList("AT", "BE", "BG", "CY", "CZ",/*"DE",*/"DK", "EE", "ES", "FI", "FR", "GR", "HU",/*"HR",*/"IE", "IS", "IT", "LT", "LU", "LV", "LI", "MT",/*"NO",*/"NL", "PL", "PT", "RO", "SE", "SI", "SK", "UK");
 
   public static final long CACHE_ALL_DATA_FILES = -1;
   public static final long CACHE_NO_DATA_FILES = 0;
@@ -165,6 +166,7 @@ public class Configuration implements Serializable {
   private Integer httpProxyPort;
   private String httpProxyUser;
   private String httpProxyPassword;
+  private List<String> trustedTerritories;
 
   /**
    * Application mode
@@ -213,6 +215,7 @@ public class Configuration implements Serializable {
       configuration.put("ocspSource", PROD_OCSP_URL);
       configuration.put(SIGN_OCSP_REQUESTS, "false");
       jDigiDocConfiguration.put(SIGN_OCSP_REQUESTS, "false");
+      trustedTerritories = DEFAULT_TRUESTED_TERRITORIES;
     }
     logger.debug(mode + "configuration:\n" + configuration);
 
@@ -492,6 +495,14 @@ public class Configuration implements Serializable {
     httpProxyPort = getIntParameterFromFile("HTTP_PROXY_PORT");
     httpProxyUser = getParameterFromFile("HTTP_PROXY_USER");
     httpProxyPassword = getParameterFromFile("HTTP_PROXY_PASSWORD");
+    updateTrustedTerritories();
+  }
+
+  private void updateTrustedTerritories() {
+    List<String> territories = getStringListParameterFromFile("TRUSTED_TERRITORIES");
+    if(territories != null) {
+      trustedTerritories = territories;
+    }
   }
 
   private String getParameterFromFile(String key) {
@@ -515,6 +526,14 @@ public class Configuration implements Serializable {
       return null;
     }
     return new Integer(value);
+  }
+
+  private List<String> getStringListParameterFromFile(String key) {
+    String value = getParameterFromFile(key);
+    if(value == null) {
+      return null;
+    }
+    return Arrays.asList(value.split("\\s*,\\s*")); //Split by comma and trim whitespace
   }
 
   private void setConfigurationValue(String fileKey, String configurationKey) {
@@ -1022,6 +1041,14 @@ public class Configuration implements Serializable {
 
   public boolean isNetworkProxyEnabled() {
     return httpProxyPort != null && StringUtils.isNotBlank(httpProxyHost);
+  }
+
+  public void setTrustedTerritories(String... trustedTerritories) {
+    this.trustedTerritories = Arrays.asList(trustedTerritories);
+  }
+
+  public List<String> getTrustedTerritories() {
+    return trustedTerritories;
   }
 
   private void setConfigurationParameter(String key, String value) {

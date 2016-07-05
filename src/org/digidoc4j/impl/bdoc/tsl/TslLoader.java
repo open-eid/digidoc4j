@@ -63,7 +63,7 @@ public class TslLoader implements Serializable {
   public static void invalidateCache() {
     logger.info("Cleaning TSL cache directory at " + fileCacheDirectory.getPath());
     try {
-      if(fileCacheDirectory.exists()) {
+      if (fileCacheDirectory.exists()) {
         FileUtils.cleanDirectory(fileCacheDirectory);
       } else {
         logger.debug("TSL cache directory doesn't exist");
@@ -99,6 +99,7 @@ public class TslLoader implements Serializable {
     tslValidationJob.setRepository(tslRepository);
     tslValidationJob.setCheckLOTLSignature(checkSignature);
     tslValidationJob.setCheckTSLSignatures(checkSignature);
+    tslValidationJob.setFilterTerritories(configuration.getTrustedTerritories());
     return tslValidationJob;
   }
 

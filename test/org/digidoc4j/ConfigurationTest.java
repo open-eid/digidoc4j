@@ -1019,6 +1019,43 @@ public class ConfigurationTest {
     assertEquals(1337, configuration.getRevocationAndTimestampDeltaInMinutes());
   }
 
+  @Test
+  public void getTruestedTerritories_defaultTesting_shouldBeNull() throws Exception {
+    assertNull(configuration.getTrustedTerritories());
+  }
+
+  @Test
+  public void getTrustedTerritories_defaultProd() throws Exception {
+    Configuration configuration = new Configuration(PROD);
+    List<String> trustedTerritories = configuration.getTrustedTerritories();
+    assertNotNull(trustedTerritories);
+    assertTrue(trustedTerritories.contains("EE"));
+    assertTrue(trustedTerritories.contains("BE"));
+    assertFalse(trustedTerritories.contains("DE"));
+    assertFalse(trustedTerritories.contains("NO"));
+    assertFalse(trustedTerritories.contains("HR"));
+  }
+
+  @Test
+  public void setTrustedTerritories() throws Exception {
+    configuration.setTrustedTerritories("AR", "US", "CA");
+    List<String> trustedTerritories = configuration.getTrustedTerritories();
+    assertEquals(3, trustedTerritories.size());
+    assertEquals("AR", trustedTerritories.get(0));
+    assertEquals("US", trustedTerritories.get(1));
+    assertEquals("CA", trustedTerritories.get(2));
+  }
+
+  @Test
+  public void loadTrustedTerritoriesFromConf() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_all_optional_settings.yaml");
+    List<String> trustedTerritories = configuration.getTrustedTerritories();
+    assertEquals(3, trustedTerritories.size());
+    assertEquals("NZ", trustedTerritories.get(0));
+    assertEquals("AU", trustedTerritories.get(1));
+    assertEquals("BR", trustedTerritories.get(2));
+  }
+
   private File createConfFileWithParameter(String parameter) throws IOException {
     File confFile = testFolder.newFile();
     FileUtils.writeStringToFile(confFile, parameter);
