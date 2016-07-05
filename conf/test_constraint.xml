@@ -6,8 +6,8 @@
       <Id>ANY_POLICY</Id>
       <Id>NO_POLICY</Id>
     </AcceptablePolicies>
-    <PolicyAvailable Level="FAIL" />
-    <PolicyHashMatch Level="INFORM" />
+    <PolicyAvailable Level="FAIL"/>
+    <PolicyHashMatch Level="INFORM"/>
     <AcceptableFormats Level="FAIL">
       <Id>*</Id> <!-- ALL -->
     </AcceptableFormats>
@@ -29,11 +29,9 @@
       <SigningCertificate>
         <Recognition Level="FAIL"/>
         <Signature Level="FAIL"/>
-        <!--<Expiration Level="INFORM"/> -->
-        <NotExpired Level="INFORM" /> <!-- D4J uses INFORM, DSS uses FAIL, which one to use? -->
+        <NotExpired Level="INFORM"/>
         <RevocationDataAvailable Level="FAIL"/>
-        <!-- <RevocationDataIsTrusted Level="FAIL"/> -->
-        <RevocationDataNextUpdatePresent Level="WARN" /> <!-- should be FAIL as well? -->
+        <RevocationDataNextUpdatePresent Level="WARN"/>
         <RevocationDataFreshness Level="FAIL"/>
         <KeyUsage Level="WARN">
           <Id>nonRepudiation</Id>
@@ -68,11 +66,10 @@
         <Signature Level="FAIL"/>
         <NotExpired Level="FAIL"/>
         <RevocationDataAvailable Level="FAIL"/>
-        <!-- <RevocationDataIsTrusted Level="FAIL"/> -->
-        <RevocationDataNextUpdatePresent Level="WARN" /> <!-- should be FAIL as well? -->
+        <RevocationDataNextUpdatePresent Level="WARN"/>
         <RevocationDataFreshness Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
-        <NotOnHold Level="FAIL" />
+        <NotOnHold Level="FAIL"/>
         <Cryptographic Level="FAIL">
           <AcceptableEncryptionAlgo>
             <Algo>RSA</Algo>
@@ -116,12 +113,12 @@
       </Cryptographic>
     </BasicSignatureConstraints>
     <SignedAttributes>
-      <SigningCertificatePresent Level="FAIL" />
-      <SigningCertificateSigned Level="FAIL" />
-      <CertDigestPresent Level="FAIL" />
-      <CertDigestMatch Level="FAIL" />
-      <IssuerSerialMatch Level="WARN" />
-      <SigningTime Level="FAIL" />
+      <SigningCertificatePresent Level="FAIL"/>
+      <SigningCertificateSigned Level="FAIL"/>
+      <CertDigestPresent Level="FAIL"/>
+      <CertDigestMatch Level="FAIL"/>
+      <IssuerSerialMatch Level="WARN"/>
+      <SigningTime Level="FAIL"/>
       <!--<ContentType Level="FAIL" value="1.2.840.113549.1.7.1" />
       <ContentHints Level="FAIL" value="*" />
       <CommitmentTypeIndication Level="FAIL">
@@ -136,25 +133,9 @@
     <UnsignedAttributes>
       <!--		<CounterSignature Level="IGNORE" /> check presence -->
     </UnsignedAttributes>
-    <!--
-    <MandatedSignedQProperties>
-      <SigningTime Level="FAIL"/>
-      <ContentTimeStamp>
-        <MessageImprintDataFound Level="FAIL"/>
-        <MessageImprintDataIntact Level="FAIL"/>
-      </ContentTimeStamp>
-    </MandatedSignedQProperties>
-    <MandatedUnsignedQProperties>
-      <CounterSignature>
-        <ReferenceDataExistence Level="FAIL"/>
-        <ReferenceDataIntact Level="FAIL"/>
-        <SignatureIntact Level="FAIL"/>
-      </CounterSignature>
-    </MandatedUnsignedQProperties>
-    -->
   </SignatureConstraints>
   <Timestamp>
-    <TimestampDelay Level="FAIL" Unit="DAYS" Value="0" />
+    <TimestampDelay Level="FAIL" Unit="DAYS" Value="0"/>
     <MessageImprintDataFound Level="FAIL"/>
     <MessageImprintDataIntact Level="FAIL"/>
     <RevocationTimeAgainstBestSignatureTime Level="FAIL"/>
@@ -162,11 +143,10 @@
     <SigningCertificateValidityAtBestSignatureTime Level="FAIL"/>
     <AlgorithmReliableAtBestSignatureTime Level="FAIL"/>
     <Coherence Level="FAIL"/>
-    <!-- <RightOrder Level="FAIL"/> -->
     <BasicSignatureConstraints>
-      <ReferenceDataExistence Level="FAIL" />
-      <ReferenceDataIntact Level="FAIL" />
-      <SignatureIntact Level="FAIL" />
+      <ReferenceDataExistence Level="FAIL"/>
+      <ReferenceDataIntact Level="FAIL"/>
+      <SignatureIntact Level="FAIL"/>
       <ProspectiveCertificateChain Level="FAIL"/>
       <TrustedServiceTypeIdentifier Level="FAIL">
         <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA</Id>
@@ -186,8 +166,7 @@
         <Signature Level="FAIL"/>
         <NotExpired Level="FAIL"/>
         <RevocationDataAvailable Level="FAIL"/>
-        <!-- <RevocationDataIsTrusted Level="FAIL"/> -->
-        <RevocationDataNextUpdatePresent Level="WARN" />
+        <RevocationDataNextUpdatePresent Level="WARN"/>
         <RevocationDataFreshness Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
@@ -216,11 +195,10 @@
         <Signature Level="FAIL"/>
         <NotExpired Level="FAIL"/>
         <RevocationDataAvailable Level="FAIL"/>
-        <!-- <RevocationDataIsTrusted Level="FAIL"/> -->
-        <RevocationDataNextUpdatePresent Level="WARN" />
+        <RevocationDataNextUpdatePresent Level="WARN"/>
         <RevocationDataFreshness Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
-        <NotOnHold Level="FAIL" />
+        <NotOnHold Level="FAIL"/>
         <Cryptographic Level="FAIL">
           <AcceptableEncryptionAlgo>
             <Algo>RSA</Algo>
@@ -265,12 +243,12 @@
     </BasicSignatureConstraints>
   </Timestamp>
   <Revocation>
-    <RevocationFreshness Level="FAIL" Unit="DAYS" Value="0" />
+    <RevocationFreshness Level="FAIL" Unit="DAYS" Value="0"/>
     <BasicSignatureConstraints>
-      <ReferenceDataExistence Level="FAIL" />
-      <ReferenceDataIntact Level="FAIL" />
-      <SignatureIntact Level="FAIL" />
-      <ProspectiveCertificateChain Level="FAIL" />
+      <ReferenceDataExistence Level="FAIL"/>
+      <ReferenceDataIntact Level="FAIL"/>
+      <SignatureIntact Level="FAIL"/>
+      <ProspectiveCertificateChain Level="FAIL"/>
       <TrustedServiceTypeIdentifier Level="FAIL">
         <Id>http://uri.etsi.org/TrstSvc/Svctype/CA/QC</Id>
         <Id>http://uri.etsi.org/TrstSvc/Svctype/Certstatus/CRL</Id>
@@ -286,15 +264,14 @@
         <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/recognisedatnationallevel</Id>
       </TrustedServiceStatus>
       <SigningCertificate>
-        <Recognition Level="FAIL" />
+        <Recognition Level="FAIL"/>
         <Signature Level="FAIL"/>
         <NotExpired Level="FAIL"/>
         <RevocationDataAvailable Level="FAIL"/>
-        <!-- <RevocationDataIsTrusted Level="FAIL"/> -->
-        <RevocationDataNextUpdatePresent Level="WARN" /> <!-- should it be FAIL as well? -->
+        <RevocationDataNextUpdatePresent Level="WARN"/>
         <RevocationDataFreshness Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
-        <NotOnHold Level="FAIL" />
+        <NotOnHold Level="FAIL"/>
         <Cryptographic Level="WARN">
           <AcceptableEncryptionAlgo>
             <Algo>RSA</Algo>
@@ -320,11 +297,10 @@
         <Signature Level="FAIL"/>
         <NotExpired Level="FAIL"/>
         <RevocationDataAvailable Level="FAIL"/>
-        <!-- <RevocationDataIsTrusted Level="FAIL"/> -->
-        <RevocationDataNextUpdatePresent Level="WARN" /> <!-- should it be FAIL as well? -->
+        <RevocationDataNextUpdatePresent Level="WARN"/>
         <RevocationDataFreshness Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
-        <NotOnHold Level="FAIL" />
+        <NotOnHold Level="FAIL"/>
         <Cryptographic Level="FAIL">
           <AcceptableEncryptionAlgo>
             <Algo>RSA</Algo>
