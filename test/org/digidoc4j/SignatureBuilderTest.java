@@ -216,6 +216,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
   public void signatureProfileShouldBeSetProperlyForBDoc() throws Exception {
     Signature signature = createBDocSignatureWithProfile(SignatureProfile.B_BES);
     assertEquals(SignatureProfile.B_BES, signature.getProfile());
+    assertTrue(signature.getSignerRoles().isEmpty());
   }
 
   @Test

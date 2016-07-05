@@ -14,6 +14,7 @@ import static eu.europa.esig.dss.xades.DSSXMLUtils.createDocument;
 
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -94,7 +95,7 @@ public class BesSignature extends DssXadesSignature {
   @Override
   public List<String> getSignerRoles() {
     String[] claimedSignerRoles = getDssSignature().getClaimedSignerRoles();
-    return claimedSignerRoles == null ? null : Arrays.asList(claimedSignerRoles);
+    return claimedSignerRoles == null ? Collections.<String>emptyList() : Arrays.asList(claimedSignerRoles);
   }
 
   @Override
@@ -165,7 +166,7 @@ public class BesSignature extends DssXadesSignature {
   @Override
   public List<BasicOCSPResp> getOcspResponses() {
     logger.info("The signature does not contain OCSP response");
-    return null;
+    return Collections.emptyList();
   }
 
   /**

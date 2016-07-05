@@ -16,9 +16,12 @@ import static org.digidoc4j.testutils.TestDataBuilder.signContainer;
 import static org.digidoc4j.testutils.TestSigningHelper.getSigningCert;
 import static org.digidoc4j.utils.Helper.deserializer;
 import static org.digidoc4j.utils.Helper.serialize;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -160,7 +163,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
     Signature signature = deserializedContainer.getSignatures().get(0);
 
     assertNull(signature.getCity());
-    assertNull(signature.getSignerRoles());
+    assertThat(signature.getSignerRoles(), is(empty()));
     assertTrue(signature.getId().startsWith("id-"));
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
   }
