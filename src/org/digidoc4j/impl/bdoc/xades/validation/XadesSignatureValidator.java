@@ -183,20 +183,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     String timestampId = timestampIdList.get(0);
     DetailedReport detailedReport = validationReport.getDetailedReport();
     Indication indication = detailedReport.getTimestampValidationIndication(timestampId);
-    boolean isInvalidTimestamp = indication == Indication.FAILED || indication == Indication.INDETERMINATE;
-    SubIndication subIndication = detailedReport.getTimestampValidationSubIndication(timestampId);
-    boolean messageImprintDataIntact = diagnosticData.getAllTimestamps().iterator().next().isMessageImprintDataIntact();
-    return messageImprintDataIntact && !isInvalidTimestamp;
-    //return diagnosticData.isTimestampMessageImprintIntact(timestampId) && !isIndeterminateTimestamp();
-  }
-
-  private boolean isIndeterminateTimestamp() {
-    Indication indication = simpleReport.getIndication(signatureId);
-    SubIndication subIndication = simpleReport.getSubIndication(signatureId);
-    if (Indication.INDETERMINATE.equals(indication)) {
-      return false;//SubIndication.NO_VALID_TIMESTAMP.equals(subIndication);
-    }
-    return false;
+    return isIndicationValid(indication);
   }
 
   private SimpleReport getSimpleReport(Map<String, SimpleReport> simpleReports) {
@@ -232,5 +219,9 @@ public class XadesSignatureValidator implements SignatureValidator {
 
   private XAdESSignature getDssSignature() {
     return signature.getDssSignature();
+  }
+
+  private boolean isIndicationValid(Indication indication) {
+    return indication == Indication.PASSED || indication == Indication.TOTAL_PASSED;
   }
 }
