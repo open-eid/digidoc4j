@@ -20,7 +20,6 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -162,6 +161,15 @@ public class ManifestValidatorTest {
     List<String> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
     assertFalse(errors.isEmpty());
     assertEquals("Container contains a file named other.txt which is not found in the signature file", errors.get(0));
+  }
+
+  @Test
+  public void container_withSpecialDataFileCharacters_shouldBeValid() throws Exception {
+    ManifestParser manifestParser = createManifest(dataFile("dds_JÜRIÖÖ € žŠ päev.txt", "application/octet-stream"));
+    List<DSSDocument> detachedContents = Arrays.asList(detachedContent("dds_JÜRIÖÖ € žŠ päev.txt", "application/octet-stream"));
+    List<Signature> signatures = openSignature("testFiles/xades/test-bdoc-specia-chars-data-file.xml", detachedContents);
+    List<String> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
+    assertTrue(errors.isEmpty());
   }
 
   private List<Signature> openSignature(String signaturePath, List<DSSDocument> detachedContents) {
