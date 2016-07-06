@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -40,6 +41,7 @@ import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.impl.bdoc.tsl.TSLCertificateSourceImpl;
 import org.digidoc4j.testutils.TSLHelper;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.junit.Before;
@@ -48,6 +50,8 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import eu.europa.esig.dss.DSSUtils;
 
 public class ValidationTests extends DigiDoc4JTestHelper {
 
@@ -470,6 +474,19 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @Test
   public void validateContainerWithBomSymbolsInMimeType_shouldBeValid() throws Exception {
     assertTrue(validateContainer("testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM.bdoc", PROD_CONFIGURATION).isValid());
+  }
+
+  @Test
+  public void havingOnlyCaCertificateInTSL_shouldNotValidateOCSPResponse() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    TSLCertificateSourceImpl tsl = new TSLCertificateSourceImpl();
+    configuration.setTSL(tsl);
+    InputStream inputStream = getClass().getResourceAsStream("/certs/TEST ESTEID-SK 2011.crt");
+    X509Certificate caCertificate = DSSUtils.loadCertificate(inputStream).getCertificate();
+    tsl.addTSLCertificate(caCertificate);
+    ValidationResult result = validateContainer("testFiles/valid-containers/valid-bdoc-tm.bdoc", configuration);
+    assertFalse(result.isValid());
+    assertTrue(containsErrorMessage(result.getErrors(), "The certificate chain for revocation data is not trusted, there is no trusted anchor."));
   }
 
   private void testSigningWithOCSPCheck(String unknownCert) {
