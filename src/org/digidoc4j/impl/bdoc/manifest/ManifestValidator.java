@@ -11,6 +11,8 @@
 package org.digidoc4j.impl.bdoc.manifest;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -181,8 +183,8 @@ public class ManifestValidator {
     private String getFileURI(Reference reference) {
         String uri = reference.getURI();
         try {
-          return URLDecoder.decode(uri, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
+          uri = new URI(uri).getPath();
+        } catch (URISyntaxException e) {
           logger.warn("Does not parse as an URI, therefore assuming it's not encoded: '" + uri + "'");
         }
 
