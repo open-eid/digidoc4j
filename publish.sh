@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version="1.0.3"
+version="1.0.4"
 staging_url="https://oss.sonatype.org/service/local/staging/deploy/maven2/"
 #staging_url=file:/Users/rainer/tmp/test-local-repo
 repositoryId="ossrh"

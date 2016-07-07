@@ -23,7 +23,7 @@
   <property name="publish.version" value="1.0" />
   <property name="lib.version" value="${publish.version}"/>
 
-  <property name="dss-maven-version" value="4.6.d4j.2" />
+  <property name="dss-maven-version" value="4.7.RC1.d4j.1" />
 
   <target name="version" unless="lib.version">
     <exec executable="sh" outputproperty="lib.version">
@@ -112,10 +112,15 @@
       <mapping conf="compile " scope="compile"/>
       <mapping conf="runtime" scope="compile"/>
       <mapping conf="test" scope="test"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-common-validation-jaxb" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-detailed-report-jaxb" version="${dss-maven-version}" scope="compile"/>
       <dependency group="org.digidoc4j.dss" artifact="dss-diagnostic-jaxb" version="${dss-maven-version}" scope="compile"/>
       <dependency group="org.digidoc4j.dss" artifact="dss-document" version="${dss-maven-version}" scope="compile"/>
       <dependency group="org.digidoc4j.dss" artifact="dss-model" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-policy-jaxb" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-reports" version="${dss-maven-version}" scope="compile"/>
       <dependency group="org.digidoc4j.dss" artifact="dss-service" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-simple-report-jaxb" version="${dss-maven-version}" scope="compile"/>
       <dependency group="org.digidoc4j.dss" artifact="dss-spi" version="${dss-maven-version}" scope="compile"/>
       <dependency group="org.digidoc4j.dss" artifact="dss-token" version="${dss-maven-version}" scope="compile"/>
       <dependency group="org.digidoc4j.dss" artifact="dss-tsl-jaxb" version="${dss-maven-version}" scope="compile"/>
