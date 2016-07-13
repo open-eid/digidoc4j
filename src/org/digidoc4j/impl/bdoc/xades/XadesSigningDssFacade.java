@@ -144,6 +144,7 @@ public class XadesSigningDssFacade {
     xAdESSignatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
     xAdESSignatureParameters.setSignatureLevel(SignatureLevel.XAdES_BASELINE_LT);
     xAdESSignatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
+    xAdESSignatureParameters.setSigningCertificateDigestMethod(DigestAlgorithm.SHA256);
   }
 
   private void initCertificateVerifier() {
