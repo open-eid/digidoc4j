@@ -151,7 +151,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   private boolean isRedundantErrorMessage(String errorMessage) {
-    return equalsIgnoreCase(errorMessage, MessageTag.ADEST_ROBVPIIC_ANS.getMessage()) || equalsIgnoreCase(errorMessage, MessageTag.LTV_ABSV_ANS.getMessage()) || equalsIgnoreCase(errorMessage, MessageTag.ARCH_LTVV_ANS.getMessage());
+    return equalsIgnoreCase(errorMessage, MessageTag.ADEST_ROBVPIIC_ANS.getMessage()) || equalsIgnoreCase(errorMessage, MessageTag.LTV_ABSV_ANS.getMessage()) || equalsIgnoreCase(errorMessage, MessageTag.ARCH_LTVV_ANS.getMessage()) || equalsIgnoreCase(errorMessage, MessageTag.BBB_XCV_RFC_ANS.getMessage()) || equalsIgnoreCase(errorMessage, MessageTag.BBB_XCV_SUB_ANS.getMessage());
   }
 
   private void addReportedWarnings() {

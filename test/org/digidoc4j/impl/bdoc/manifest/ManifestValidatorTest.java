@@ -16,6 +16,7 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.impl.bdoc.BDocSignature;
 import org.digidoc4j.impl.bdoc.BDocSignatureOpener;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -164,6 +165,7 @@ public class ManifestValidatorTest {
   }
 
   @Test
+  @Ignore("https://www.pivotaltracker.com/story/show/125469911")
   public void container_withSpecialDataFileCharacters_shouldBeValid() throws Exception {
     ManifestParser manifestParser = createManifest(dataFile("dds_JÜRIÖÖ € žŠ päev.txt", "application/octet-stream"));
     List<DSSDocument> detachedContents = Arrays.asList(detachedContent("dds_JÜRIÖÖ € žŠ päev.txt", "application/octet-stream"));
