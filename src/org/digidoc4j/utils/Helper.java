@@ -132,16 +132,18 @@ public final class Helper {
    * @param filename  name of file to store serialized object in
    */
   public static <T> void serialize(T object, String filename) {
-    FileOutputStream fileOut;
+    FileOutputStream fileOut = null;
+    ObjectOutputStream out = null;
     try {
       fileOut = new FileOutputStream(filename);
-      ObjectOutputStream out = new ObjectOutputStream(fileOut);
+      out = new ObjectOutputStream(fileOut);
       out.writeObject(object);
       out.flush();
-      out.close();
-      fileOut.close();
     } catch (Exception e) {
       throw new DigiDoc4JException(e);
+    } finally {
+      IOUtils.closeQuietly(out);
+      IOUtils.closeQuietly(fileOut);
     }
 
   }
@@ -153,17 +155,18 @@ public final class Helper {
    * @return container
    */
   public static <T> T deserializer(String filename) {
-    FileInputStream fileIn;
+    FileInputStream fileIn = null;
+    ObjectInputStream in = null;
     try {
       fileIn = new FileInputStream(filename);
-      ObjectInputStream in = new ObjectInputStream(fileIn);
+      in = new ObjectInputStream(fileIn);
       T object = (T) in.readObject();
-      in.close();
-      fileIn.close();
-
       return object;
     } catch (Exception e) {
       throw new DigiDoc4JException(e);
+    } finally {
+      IOUtils.closeQuietly(in);
+      IOUtils.closeQuietly(fileIn);
     }
   }
 
