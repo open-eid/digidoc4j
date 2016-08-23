@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -150,6 +151,62 @@ public class SkDataLoaderTest {
 
   }
 
+  @Test
+  public void dataLoader_withoutSslConfiguration_shouldNotSetSslValues() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    SkDataLoaderSpy dataLoader = new SkDataLoaderSpy(configuration);
+    assertNull(dataLoader.getSslKeystorePath());
+    assertNull(dataLoader.getSslKeystoreType());
+    assertNull(dataLoader.getSslKeystorePassword());
+    assertNull(dataLoader.getSslTruststorePath());
+    assertNull(dataLoader.getSslTruststoreType());
+    assertNull(dataLoader.getSslTruststorePassword());
+    assertFalse(dataLoader.isSslKeystoreTypeSet());
+    assertFalse(dataLoader.isSslKeystorePasswordSet());
+    assertFalse(dataLoader.isSslTruststoreTypeSet());
+    assertFalse(dataLoader.isSslTruststorePasswordSet());
+  }
+
+  @Test
+  public void dataLoader_withSslConfiguration_shouldSetSslValues() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    configuration.setSslKeystorePath("keystore.path");
+    configuration.setSslKeystoreType("keystore.type");
+    configuration.setSslKeystorePassword("keystore.password");
+    configuration.setSslTruststorePath("truststore.path");
+    configuration.setSslTruststoreType("truststore.type");
+    configuration.setSslTruststorePassword("truststore.password");
+    SkDataLoaderSpy dataLoader = new SkDataLoaderSpy(configuration);
+    assertEquals("keystore.path", dataLoader.getSslKeystorePath());
+    assertEquals("keystore.type", dataLoader.getSslKeystoreType());
+    assertEquals("keystore.password", dataLoader.getSslKeystorePassword());
+    assertEquals("truststore.path", dataLoader.getSslTruststorePath());
+    assertEquals("truststore.type", dataLoader.getSslTruststoreType());
+    assertEquals("truststore.password", dataLoader.getSslTruststorePassword());
+    assertTrue(dataLoader.isSslKeystoreTypeSet());
+    assertTrue(dataLoader.isSslKeystorePasswordSet());
+    assertTrue(dataLoader.isSslTruststoreTypeSet());
+    assertTrue(dataLoader.isSslTruststorePasswordSet());
+  }
+
+  @Test
+  public void dataLoader_withMinimalSslConfiguration_shouldNotSetNullValues() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    configuration.setSslKeystorePath("keystore.path");
+    configuration.setSslTruststorePath("truststore.path");
+    SkDataLoaderSpy dataLoader = new SkDataLoaderSpy(configuration);
+    assertEquals("keystore.path", dataLoader.getSslKeystorePath());
+    assertNull(dataLoader.getSslKeystoreType());
+    assertNull(dataLoader.getSslKeystorePassword());
+    assertEquals("truststore.path", dataLoader.getSslTruststorePath());
+    assertNull(dataLoader.getSslTruststoreType());
+    assertNull(dataLoader.getSslTruststorePassword());
+    assertFalse(dataLoader.isSslKeystoreTypeSet());
+    assertFalse(dataLoader.isSslKeystorePasswordSet());
+    assertFalse(dataLoader.isSslTruststoreTypeSet());
+    assertFalse(dataLoader.isSslTruststorePasswordSet());
+  }
+
   private void assertProxyConfigured(CommonsDataLoader dataLoader, String proxyHost, int proxyPort) {
     ProxyPreferenceManager preferenceManager = dataLoader.getProxyPreferenceManager();
     assertNotNull(preferenceManager);
@@ -175,5 +232,100 @@ public class SkDataLoaderTest {
     assertEquals(proxyUser, preferenceManager.getHttpsUser());
     assertEquals(proxyPassword, preferenceManager.getHttpPassword());
     assertEquals(proxyPassword, preferenceManager.getHttpsPassword());
+  }
+
+  public static class SkDataLoaderSpy extends SkDataLoader{
+
+    private String sslKeystorePath;
+    private String sslKeystoreType;
+    private String sslKeystorePassword;
+    private String sslTruststorePath;
+    private String sslTruststoreType;
+    private String sslTruststorePassword;
+
+    private boolean isSslKeystoreTypeSet;
+    private boolean sslKeystorePasswordSet;
+    private boolean sslTruststoreTypeSet;
+    private boolean sslTruststorePasswordSet;
+
+    protected SkDataLoaderSpy(Configuration configuration) {
+      super(configuration);
+    }
+
+    public String getSslKeystorePath() {
+      return sslKeystorePath;
+    }
+
+
+    public void setSslKeystorePath(String sslKeystorePath) {
+      this.sslKeystorePath = sslKeystorePath;
+      super.setSslKeystorePath(sslKeystorePath);
+    }
+
+    public String getSslKeystoreType() {
+      return sslKeystoreType;
+    }
+
+
+    public void setSslKeystoreType(String sslKeystoreType) {
+      this.sslKeystoreType = sslKeystoreType;
+      super.setSslKeystoreType(sslKeystoreType);
+      isSslKeystoreTypeSet = true;
+    }
+
+    public String getSslKeystorePassword() {
+      return sslKeystorePassword;
+    }
+
+    public void setSslKeystorePassword(String sslKeystorePassword) {
+      this.sslKeystorePassword = sslKeystorePassword;
+      super.setSslKeystorePassword(sslKeystorePassword);
+      sslKeystorePasswordSet = true;
+    }
+
+    public String getSslTruststorePath() {
+      return sslTruststorePath;
+    }
+
+    public void setSslTruststorePath(String sslTruststorePath) {
+      this.sslTruststorePath = sslTruststorePath;
+      super.setSslTruststorePath(sslTruststorePath);
+    }
+
+    public String getSslTruststoreType() {
+      return sslTruststoreType;
+    }
+
+    public void setSslTruststoreType(String sslTruststoreType) {
+      this.sslTruststoreType = sslTruststoreType;
+      super.setSslTruststoreType(sslTruststoreType);
+      sslTruststoreTypeSet = true;
+    }
+
+    public String getSslTruststorePassword() {
+      return sslTruststorePassword;
+    }
+
+    public void setSslTruststorePassword(String sslTruststorePassword) {
+      this.sslTruststorePassword = sslTruststorePassword;
+      super.setSslTruststorePassword(sslTruststorePassword);
+      sslTruststorePasswordSet = true;
+    }
+
+    public boolean isSslKeystoreTypeSet() {
+      return isSslKeystoreTypeSet;
+    }
+
+    public boolean isSslKeystorePasswordSet() {
+      return sslKeystorePasswordSet;
+    }
+
+    public boolean isSslTruststoreTypeSet() {
+      return sslTruststoreTypeSet;
+    }
+
+    public boolean isSslTruststorePasswordSet() {
+      return sslTruststorePasswordSet;
+    }
   }
 }

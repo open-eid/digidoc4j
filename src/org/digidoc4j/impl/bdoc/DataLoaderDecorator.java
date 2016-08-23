@@ -58,6 +58,26 @@ public class DataLoaderDecorator {
     return proxy;
   }
 
+  public static void decarateWithSslSettings(CommonsDataLoader dataLoader, Configuration configuration) {
+    if (configuration.isSslConfigurationEnabled()) {
+      logger.debug("Configuring SSL");
+      dataLoader.setSslKeystorePath(configuration.getSslKeystorePath());
+      dataLoader.setSslTruststorePath(configuration.getSslTruststorePath());
+      if(configuration.getSslKeystoreType() != null) {
+        dataLoader.setSslKeystoreType(configuration.getSslKeystoreType());
+      }
+      if(configuration.getSslKeystorePassword() != null) {
+        dataLoader.setSslKeystorePassword(configuration.getSslKeystorePassword());
+      }
+      if(configuration.getSslTruststoreType() != null) {
+        dataLoader.setSslTruststoreType(configuration.getSslTruststoreType());
+      }
+      if(configuration.getSslTruststorePassword() != null) {
+        dataLoader.setSslTruststorePassword(configuration.getSslTruststorePassword());
+      }
+    }
+  }
+
   public static class HashMapProxyDao implements ProxyDao {
 
     private Map<ProxyKey, ProxyPreference> values = new HashMap<>();

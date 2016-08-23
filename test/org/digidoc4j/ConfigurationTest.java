@@ -876,6 +876,29 @@ public class ConfigurationTest {
   }
 
   @Test
+  public void defaultSslConfiguration_shouldNotBeSet() throws Exception {
+    assertFalse(configuration.isSslConfigurationEnabled());
+    assertNull(configuration.getSslKeystorePath());
+    assertNull(configuration.getSslKeystoreType());
+    assertNull(configuration.getSslKeystorePassword());
+    assertNull(configuration.getSslTruststorePath());
+    assertNull(configuration.getSslTruststoreType());
+    assertNull(configuration.getSslTruststorePassword());
+  }
+
+  @Test
+  public void getSslConfigurationFromConfigurationFile() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_all_optional_settings.yaml");
+    assertTrue(configuration.isSslConfigurationEnabled());
+    assertEquals("sslKeystorePath", configuration.getSslKeystorePath());
+    assertEquals("sslKeystoreType", configuration.getSslKeystoreType());
+    assertEquals("sslKeystorePassword", configuration.getSslKeystorePassword());
+    assertEquals("sslTruststorePath", configuration.getSslTruststorePath());
+    assertEquals("sslTruststoreType", configuration.getSslTruststoreType());
+    assertEquals("sslTruststorePassword", configuration.getSslTruststorePassword());
+  }
+
+  @Test
   public void loadMultipleCAsFromConfigurationFile() throws Exception {
     Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf_two_cas" +
         ".yaml");

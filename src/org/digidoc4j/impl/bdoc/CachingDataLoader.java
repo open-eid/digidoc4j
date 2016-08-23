@@ -18,5 +18,6 @@ public class CachingDataLoader extends FileCacheDataLoader {
 
   public CachingDataLoader(Configuration configuration) {
     DataLoaderDecorator.decorateWithProxySettings(this, configuration);
+    DataLoaderDecorator.decarateWithSslSettings(this, configuration);
   }
 }

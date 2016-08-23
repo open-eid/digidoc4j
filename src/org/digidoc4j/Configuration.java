@@ -26,6 +26,7 @@ import java.net.URL;
 import java.util.*;
 
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 import eu.europa.esig.dss.client.http.Protocol;
@@ -167,6 +168,12 @@ public class Configuration implements Serializable {
   private String httpProxyUser;
   private String httpProxyPassword;
   private List<String> trustedTerritories;
+  private String sslKeystorePath;
+  private String sslKeystoreType;
+  private String sslKeystorePassword;
+  private String sslTruststorePath;
+  private String sslTruststoreType;
+  private String sslTruststorePassword;
 
   /**
    * Application mode
@@ -495,6 +502,14 @@ public class Configuration implements Serializable {
     httpProxyPort = getIntParameterFromFile("HTTP_PROXY_PORT");
     httpProxyUser = getParameterFromFile("HTTP_PROXY_USER");
     httpProxyPassword = getParameterFromFile("HTTP_PROXY_PASSWORD");
+
+    sslKeystorePath = getParameterFromFile("SSL_KEYSTORE_PATH");
+    sslKeystoreType = getParameterFromFile("SSL_KEYSTORE_TYPE");
+    sslKeystorePassword = getParameterFromFile("SSL_KEYSTORE_PASSWORD");
+    sslTruststorePath = getParameterFromFile("SSL_TRUSTSTORE_PATH");
+    sslTruststoreType = getParameterFromFile("SSL_TRUSTSTORE_TYPE");
+    sslTruststorePassword = getParameterFromFile("SSL_TRUSTSTORE_PASSWORD");
+
     updateTrustedTerritories();
   }
 
@@ -1040,7 +1055,59 @@ public class Configuration implements Serializable {
   }
 
   public boolean isNetworkProxyEnabled() {
-    return httpProxyPort != null && StringUtils.isNotBlank(httpProxyHost);
+    return httpProxyPort != null && isNotBlank(httpProxyHost);
+  }
+
+  public boolean isSslConfigurationEnabled() {
+    return sslKeystorePath != null && isNotBlank(sslKeystorePath);
+  }
+
+  public void setSslKeystorePath(String sslKeystorePath) {
+    this.sslKeystorePath = sslKeystorePath;
+  }
+
+  public String getSslKeystorePath() {
+    return sslKeystorePath;
+  }
+
+  public void setSslKeystoreType(String sslKeystoreType) {
+    this.sslKeystoreType = sslKeystoreType;
+  }
+
+  public String getSslKeystoreType() {
+    return sslKeystoreType;
+  }
+
+  public void setSslKeystorePassword(String sslKeystorePassword) {
+    this.sslKeystorePassword = sslKeystorePassword;
+  }
+
+  public String getSslKeystorePassword() {
+    return sslKeystorePassword;
+  }
+
+  public void setSslTruststorePath(String sslTruststorePath) {
+    this.sslTruststorePath = sslTruststorePath;
+  }
+
+  public String getSslTruststorePath() {
+    return sslTruststorePath;
+  }
+
+  public void setSslTruststoreType(String sslTruststoreType) {
+    this.sslTruststoreType = sslTruststoreType;
+  }
+
+  public String getSslTruststoreType() {
+    return sslTruststoreType;
+  }
+
+  public void setSslTruststorePassword(String sslTruststorePassword) {
+    this.sslTruststorePassword = sslTruststorePassword;
+  }
+
+  public String getSslTruststorePassword() {
+    return sslTruststorePassword;
   }
 
   public void setTrustedTerritories(String... trustedTerritories) {
