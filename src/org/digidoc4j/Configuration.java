@@ -119,10 +119,17 @@ import eu.europa.esig.dss.client.http.Protocol;
  * <li>TSL_KEYSTORE_LOCATION: keystore location for tsl signing certificates</li>
  * <li>TSL_KEYSTORE_PASSWORD: keystore password for the keystore in TSL_KEYSTORE_LOCATION</li>
  * <li>TSL_CACHE_EXPIRATION_TIME: TSL cache expiration time in milliseconds</li>
+ * <li>TRUSTED_TERRITORIES: list of countries and territories to trust and load TSL certificates (for example, EE, LV, FR)</li>
  * <li>HTTP_PROXY_HOST: network proxy host name</li>
  * <li>HTTP_PROXY_PORT: network proxy port</li>
  * <li>HTTP_PROXY_USER: network proxy user (for basic auth proxy)</li>
  * <li>HTTP_PROXY_PASSWORD: network proxy password (for basic auth proxy)</li>
+ * <li>SSL_KEYSTORE_PATH: SSL KeyStore path</li>
+ * <li>SSL_KEYSTORE_TYPE: SSL KeyStore type (default is "jks")</li>
+ * <li>SSL_KEYSTORE_PASSWORD: SSL KeyStore password (default is an empty string)</li>
+ * <li>SSL_TRUSTSTORE_PATH: SSL TrustStore path</li>
+ * <li>SSL_TRUSTSTORE_TYPE: SSL TrustStore type (default is "jks")</li>
+ * <li>SSL_TRUSTSTORE_PASSWORD: SSL TrustStore password (default is an empty string)</li>
  * </ul>
  */
 public class Configuration implements Serializable {
@@ -1026,6 +1033,10 @@ public class Configuration implements Serializable {
     return httpProxyHost;
   }
 
+  /**
+   * Set HTTP network proxy host.
+   * @param httpProxyHost http proxy host.
+   */
   public void setHttpProxyHost(String httpProxyHost) {
     this.httpProxyHost = httpProxyHost;
   }
@@ -1034,10 +1045,17 @@ public class Configuration implements Serializable {
     return httpProxyPort;
   }
 
+  /**
+   * Set HTTP network proxy port.
+   */
   public void setHttpProxyPort(int httpProxyPort) {
     this.httpProxyPort = httpProxyPort;
   }
 
+  /**
+   * Set HTTP network proxy user name.
+   * @param httpProxyUser username.
+   */
   public void setHttpProxyUser(String httpProxyUser) {
     this.httpProxyUser = httpProxyUser;
   }
@@ -1046,6 +1064,10 @@ public class Configuration implements Serializable {
     return httpProxyUser;
   }
 
+  /**
+   * Set HTTP network proxy password.
+   * @param httpProxyPassword password.
+   */
   public void setHttpProxyPassword(String httpProxyPassword) {
     this.httpProxyPassword = httpProxyPassword;
   }
@@ -1062,22 +1084,42 @@ public class Configuration implements Serializable {
     return sslKeystorePath != null && isNotBlank(sslKeystorePath);
   }
 
+  /**
+   * Set SSL KeyStore path.
+   * @param sslKeystorePath path to a file
+   */
   public void setSslKeystorePath(String sslKeystorePath) {
     this.sslKeystorePath = sslKeystorePath;
   }
 
+  /**
+   * Get SSL KeyStore path.
+   * @return path to a file
+   */
   public String getSslKeystorePath() {
     return sslKeystorePath;
   }
 
+  /**
+   * Set SSL KeyStore type. Default is "jks".
+   * @param sslKeystoreType type.
+   */
   public void setSslKeystoreType(String sslKeystoreType) {
     this.sslKeystoreType = sslKeystoreType;
   }
 
+  /**
+   * Get SSL KeyStore type.
+   * @return type.
+   */
   public String getSslKeystoreType() {
     return sslKeystoreType;
   }
 
+  /**
+   * Set SSL KeyStore password. Default is an empty string.
+   * @param sslKeystorePassword password.
+   */
   public void setSslKeystorePassword(String sslKeystorePassword) {
     this.sslKeystorePassword = sslKeystorePassword;
   }
@@ -1086,22 +1128,42 @@ public class Configuration implements Serializable {
     return sslKeystorePassword;
   }
 
+  /**
+   * Set SSL TrustStore path.
+   * @param sslTruststorePath path to a file.
+   */
   public void setSslTruststorePath(String sslTruststorePath) {
     this.sslTruststorePath = sslTruststorePath;
   }
 
+  /**
+   * Get SSL TrustStore path.
+   * @return path to a file.
+   */
   public String getSslTruststorePath() {
     return sslTruststorePath;
   }
 
+  /**
+   * Set SSL TrustStore type. Default is "jks".
+   * @param sslTruststoreType type.
+   */
   public void setSslTruststoreType(String sslTruststoreType) {
     this.sslTruststoreType = sslTruststoreType;
   }
 
+  /**
+   * Get SSL TrustStore type.
+   * @return type.
+   */
   public String getSslTruststoreType() {
     return sslTruststoreType;
   }
 
+  /**
+   * Set SSL TrustStore password. Default is an empty string.
+   * @param sslTruststorePassword password.
+   */
   public void setSslTruststorePassword(String sslTruststorePassword) {
     this.sslTruststorePassword = sslTruststorePassword;
   }
@@ -1110,6 +1172,18 @@ public class Configuration implements Serializable {
     return sslTruststorePassword;
   }
 
+  /**
+   * Set countries and territories (2 letter country codes) whom to trust and accept certificates.
+   * <p/>
+   * It is possible accept signatures (and certificates) only from particular countries by filtering
+   * trusted territories. Only the TSL (and certificates) from those countries are then downloaded and
+   * others are skipped.
+   * <p/>
+   * For example, it is possible to trust signatures only from these three countries: Estonia, Latvia and France,
+   * and skip all other countries: "EE", "LV", "FR".
+   *
+   * @param trustedTerritories list of 2 letter country codes.
+   */
   public void setTrustedTerritories(String... trustedTerritories) {
     this.trustedTerritories = Arrays.asList(trustedTerritories);
   }
