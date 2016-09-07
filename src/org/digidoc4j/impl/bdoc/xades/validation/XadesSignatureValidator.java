@@ -34,7 +34,6 @@ import org.w3c.dom.Element;
 
 import eu.europa.esig.dss.validation.MessageTag;
 import eu.europa.esig.dss.validation.policy.rules.Indication;
-import eu.europa.esig.dss.validation.policy.rules.SubIndication;
 import eu.europa.esig.dss.validation.reports.DetailedReport;
 import eu.europa.esig.dss.validation.reports.Reports;
 import eu.europa.esig.dss.validation.reports.SimpleReport;
@@ -142,10 +141,13 @@ public class XadesSignatureValidator implements SignatureValidator {
           continue;
         }
         logger.error(errorMessage);
-        if(errorMessage.contains(MessageTag.BBB_XCV_ISCR_ANS.getMessage()))
+        if(errorMessage.contains(MessageTag.BBB_XCV_ISCR_ANS.getMessage())) {
           addValidationError(new CertificateRevokedException(errorMessage));
-        else
+        } else if(errorMessage.contains(MessageTag.PSV_IPSVC_ANS.getMessage())) {
+          addValidationError(new CertificateRevokedException(errorMessage));
+        } else {
           addValidationError(new DigiDoc4JException(errorMessage));
+        }
       }
     }
   }
@@ -199,10 +201,6 @@ public class XadesSignatureValidator implements SignatureValidator {
     if(!ocspValidator.isValid()) {
       logger.error("OCSP nonce is invalid");
       addValidationError(new InvalidOcspNonceException());
-    }
-    if(ocspValidator.isRevoked()) {
-      logger.error("OCSP is revoked");
-      addValidationError(new CertificateRevokedException("The certificate is revoked!"));
     }
   }
 

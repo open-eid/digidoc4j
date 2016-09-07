@@ -23,8 +23,6 @@ import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DLSequence;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
-import org.bouncycastle.cert.ocsp.CertificateStatus;
-import org.bouncycastle.cert.ocsp.SingleResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,20 +51,6 @@ public class OcspNonceValidator implements Serializable {
       return true;
     }
     return isOcspResponseValid(ocspResponse);
-  }
-
-  public boolean isRevoked() {
-    logger.debug("Checking if OCSP is revoced");
-    if (ocspResponse == null) {
-      logger.debug("OCSP response was not found in signature: " + signature.getId());
-      return false;
-    }
-    SingleResp[] responses = ocspResponse.getResponses();
-    if(responses == null || responses.length <=0) {
-      return false;
-    }
-    CertificateStatus certStatus = responses[0].getCertStatus();
-    return certStatus != null;
   }
 
   private BasicOCSPResp getLatestOcspResponse(List<BasicOCSPResp> ocspResponses) {
