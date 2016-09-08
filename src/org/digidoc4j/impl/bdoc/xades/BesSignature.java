@@ -10,8 +10,6 @@
 
 package org.digidoc4j.impl.bdoc.xades;
 
-import static eu.europa.esig.dss.xades.DSSXMLUtils.createDocument;
-
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,7 +40,6 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 public class BesSignature extends DssXadesSignature {
 
   private final static Logger logger = LoggerFactory.getLogger(BesSignature.class);
-  private final static String ASICS_NS = "asic:XAdESSignatures";
   private SignatureProductionPlace signerLocation;
   private Element signatureElement;
   private XPathQueryHolder xPathQueryHolder; // This variable contains the XPathQueryHolder adapted to the signature schema.
@@ -121,7 +118,7 @@ public class BesSignature extends DssXadesSignature {
   @Override
   public byte[] getAdESSignature() {
     logger.debug("Getting signature byte array");
-    Document document = createDocument(ASiCNamespaces.ASiC, ASICS_NS, signatureElement);
+    Document document = XmlDomCreator.createDocument(ASiCNamespaces.ASiC, XmlDomCreator.ASICS_NS, signatureElement);
     return DSSXMLUtils.transformDomToByteArray(document);
   }
 
