@@ -199,4 +199,12 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   public void setDataLoader(SkDataLoader dataLoader) {
     this.dataLoader = dataLoader;
   }
+
+  Configuration getConfiguration() {
+    return configuration;
+  }
+
+  SkDataLoader getDataLoader() {
+    return dataLoader;
+  }
 }

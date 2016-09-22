@@ -16,6 +16,7 @@ import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LTA;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.digidoc4j.impl.bdoc.ocsp.OcspSourceBuilder.anOcspSource;
 
 import java.security.cert.X509Certificate;
 import java.util.Collection;
@@ -37,8 +38,6 @@ import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
-import org.digidoc4j.impl.bdoc.ocsp.BDocTMOcspSource;
-import org.digidoc4j.impl.bdoc.ocsp.BDocTSOcspSource;
 import org.digidoc4j.impl.bdoc.ocsp.SKOnlineOCSPSource;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;
 import org.digidoc4j.impl.bdoc.xades.XadesSigningDssFacade;
@@ -173,23 +172,12 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   private void setOcspSource(byte[] signatureValueBytes) {
-    SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(getConfiguration());
-    dataLoader.setUserAgentSignatureProfile(signatureParameters.getSignatureProfile());
-    SKOnlineOCSPSource ocspSource = createOcspSource(signatureValueBytes);
-    ocspSource.setDataLoader(dataLoader);
+    SKOnlineOCSPSource ocspSource = anOcspSource().
+        withSignatureProfile(signatureParameters.getSignatureProfile()).
+        withSignatureValue(signatureValueBytes).
+        withConfiguration(getConfiguration()).
+        build();
     facade.setOcspSource(ocspSource);
-  }
-
-  private SKOnlineOCSPSource createOcspSource(byte[] signatureValue) {
-    logger.debug("Creating OCSP source");
-    Configuration configuration = getConfiguration();
-    SKOnlineOCSPSource ocspSource;
-    if (isTimeMarkProfile() && signatureValue != null) {
-      ocspSource = new BDocTMOcspSource(configuration, signatureValue);
-    } else {
-      ocspSource = new BDocTSOcspSource(configuration);
-    }
-    return ocspSource;
   }
 
   private void setTimeStampProviderSource() {

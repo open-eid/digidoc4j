@@ -109,4 +109,8 @@ public class SkDataLoader extends CommonsDataLoader {
   public void setUserAgentSignatureProfile(SignatureProfile signatureProfile) {
     userAgent = Helper.createBDocUserAgent(signatureProfile);
   }
+
+  public String getUserAgent() {
+    return userAgent;
+  }
 }

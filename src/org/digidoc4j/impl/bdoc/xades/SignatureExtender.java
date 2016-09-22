@@ -10,58 +10,72 @@
 
 package org.digidoc4j.impl.bdoc.xades;
 
+import static org.digidoc4j.impl.bdoc.ocsp.OcspSourceBuilder.anOcspSource;
+
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.impl.bdoc.BDocSignature;
 import org.digidoc4j.impl.bdoc.SkDataLoader;
+import org.digidoc4j.impl.bdoc.ocsp.SKOnlineOCSPSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.digidoc4j.impl.bdoc.ocsp.BDocTSOcspSource;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.SignatureLevel;
 import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 
 public class SignatureExtender {
 
   private static final Logger logger = LoggerFactory.getLogger(SignatureExtender.class);
   private Configuration configuration;
   private DSSDocument detachedContent;
+  private XadesSigningDssFacade extendingFacade;
 
   public SignatureExtender(Configuration configuration, DSSDocument detachedContent) {
     this.configuration = configuration;
     this.detachedContent = detachedContent;
+    extendingFacade = new XadesSigningDssFacade();
   }
 
-  public List<DSSDocument> extend(Collection<DSSDocument> signaturesToExtend, SignatureProfile profile) {
+  public List<DSSDocument> extend(List<Signature> signaturesToExtend, SignatureProfile profile) {
     logger.debug("Extending signatures to " + profile);
-    SignatureLevel signatureLevel = getSignatureLevel(profile);
-    XadesSigningDssFacade extendingFacade = new XadesSigningDssFacade();
-    extendingFacade.setCertificateSource(configuration.getTSL());
-    BDocTSOcspSource ocspSource = createOcspSource(profile);
-    extendingFacade.setOcspSource(ocspSource);
-    OnlineTSPSource tspSource = createTimeStampProviderSource(profile);
-    extendingFacade.setTspSource(tspSource);
-    extendingFacade.setSignatureLevel(signatureLevel);
+    prepareExtendingFacade(profile);
     List<DSSDocument> extendedSignatures = new ArrayList<>();
-    for (DSSDocument xadesSignature : signaturesToExtend) {
-      DSSDocument extendedSignature = extendingFacade.extendSignature(xadesSignature, detachedContent);
+    for (Signature signature : signaturesToExtend) {
+      DSSDocument extendedSignature = extendSignature((BDocSignature) signature, profile);
       extendedSignatures.add(extendedSignature);
     }
     logger.debug("Finished extending signatures");
     return extendedSignatures;
   }
 
-  private BDocTSOcspSource createOcspSource(SignatureProfile profile) {
-    BDocTSOcspSource ocspSource = new BDocTSOcspSource(configuration);
-    SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(configuration);
-    dataLoader.setUserAgentSignatureProfile(profile);
-    ocspSource.setDataLoader(dataLoader);
+  private void prepareExtendingFacade(SignatureProfile profile) {
+    extendingFacade.setCertificateSource(configuration.getTSL());
+    OnlineTSPSource tspSource = createTimeStampProviderSource(profile);
+    extendingFacade.setTspSource(tspSource);
+    SignatureLevel signatureLevel = getSignatureLevel(profile);
+    extendingFacade.setSignatureLevel(signatureLevel);
+  }
+
+  private DSSDocument extendSignature(BDocSignature signature, SignatureProfile profile) {
+    OCSPSource ocspSource = createOcspSource(profile, signature.getOrigin().getSignatureValue());
+    extendingFacade.setOcspSource(ocspSource);
+    DSSDocument signatureDocument = signature.getSignatureDocument();
+    return extendingFacade.extendSignature(signatureDocument, detachedContent);
+  }
+
+  private OCSPSource createOcspSource(SignatureProfile profile, byte[] signatureValue) {
+    SKOnlineOCSPSource ocspSource = anOcspSource().
+        withSignatureProfile(profile).
+        withSignatureValue(signatureValue).
+        withConfiguration(configuration).
+        build();
     return ocspSource;
   }
 
@@ -74,15 +88,11 @@ public class SignatureExtender {
   }
 
   private SignatureLevel getSignatureLevel(SignatureProfile profile) {
-    if (profile == SignatureProfile.LT) {
+    if (profile == SignatureProfile.LT || profile == SignatureProfile.LT_TM) {
       return SignatureLevel.XAdES_BASELINE_LT;
     }
     if (profile == SignatureProfile.LTA) {
       return SignatureLevel.XAdES_BASELINE_LTA;
-    }
-    if (profile == SignatureProfile.LT_TM) {
-      logger.error("It is not possible to extend the signature to LT_TM");
-      throw new DigiDoc4JException("It is not possible to extend the signature to LT_TM");
     }
     logger.error("Extending signature to " + profile + " is not supported");
     throw new NotSupportedException("Extending signature to " + profile + " is not supported");

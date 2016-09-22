@@ -201,7 +201,7 @@ public class BDocSignature implements Signature {
     return xadesSignature.validate();
   }
 
-  DSSDocument getSignatureDocument() {
+  public DSSDocument getSignatureDocument() {
     return signatureDocument;
   }
 

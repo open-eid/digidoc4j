@@ -60,6 +60,8 @@ public interface XadesSignature extends Serializable {
 
   byte[] getAdESSignature();
 
+  byte[] getSignatureValue();
+
   XAdESSignature getDssSignature();
 
   XadesValidationResult validate();

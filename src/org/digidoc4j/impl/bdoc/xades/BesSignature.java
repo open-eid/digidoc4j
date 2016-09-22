@@ -122,6 +122,14 @@ public class BesSignature extends DssXadesSignature {
     return DSSXMLUtils.transformDomToByteArray(document);
   }
 
+  @Override
+  public byte[] getSignatureValue() {
+    logger.debug("Getting signature value");
+    Element signatureValueElement = getDssSignature().getSignatureValue();
+    String textContent = signatureValueElement.getTextContent();
+    return Base64.decodeBase64(textContent);
+  }
+
   /**
    * B_BES signature does not contain OCSP response time or Timestamp to provide trusted signing time.
    *
