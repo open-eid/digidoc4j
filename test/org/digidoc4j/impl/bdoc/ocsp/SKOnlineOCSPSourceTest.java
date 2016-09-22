@@ -36,9 +36,6 @@ public class SKOnlineOCSPSourceTest {
   public TemporaryFolder testFolder = new TemporaryFolder();
 
   @Mock
-  CertificateToken issuerCertToken;
-
-  @Mock
   SkDataLoader dataLoader;
 
   X509Certificate issuerCert;
@@ -48,7 +45,6 @@ public class SKOnlineOCSPSourceTest {
   public void setUp() throws Exception {
     Security.addProvider(new BouncyCastleProvider());
     issuerCert = openX509Cert("testFiles/Juur-SK.pem.crt"); //Any certificate will do
-    when(issuerCertToken.getCertificate()).thenReturn(issuerCert);
   }
 
   @Test
@@ -57,7 +53,7 @@ public class SKOnlineOCSPSourceTest {
     SKOnlineOCSPSource ocspSource = new BDocTSOcspSource(configuration);
     ocspSource.setDataLoader(dataLoader);
     CertificateToken certificateToken = new CertificateToken(CertificatesForTests.SIGN_CERT);
-    OCSPToken ocspToken = ocspSource.getOCSPToken(certificateToken, issuerCertToken);
+    OCSPToken ocspToken = ocspSource.getOCSPToken(certificateToken, new CertificateToken(issuerCert));
     assertNull(ocspToken);
   }
 
