@@ -258,6 +258,17 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void signWithEccCertificate_determiningEncryptionAlgorithmAutomatically() throws Exception {
+    PKCS12SignatureToken eccSignatureToken = new PKCS12SignatureToken("testFiles/ec-digiid.p12", "inno".toCharArray());
+    Container container = TestDataBuilder.createContainerWithFile(testFolder, "BDOC");
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureToken(eccSignatureToken).
+        invokeSigning();
+    assertTrue(signature.validateSignature().isValid());
+  }
+
+  @Test
   public void signWithDeterminedSignatureDigestAlgorithm() throws Exception {
     Container container = TestDataBuilder.createContainerWithFile(testFolder);
 

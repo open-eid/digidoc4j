@@ -197,9 +197,16 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   private void setEncryptionAlgorithm() {
-    if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA) {
+    if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA || isEcdsaCertificate()) {
+      logger.debug("Using ECDSA encryption algorithm");
       facade.setEncryptionAlgorithm(eu.europa.esig.dss.EncryptionAlgorithm.ECDSA);
     }
+  }
+
+  private boolean isEcdsaCertificate() {
+    X509Certificate certificate = signatureParameters.getSigningCertificate();
+    String algorithm = certificate.getPublicKey().getAlgorithm();
+    return algorithm.equals("EC") || algorithm.equals("ECC");
   }
 
   private void setSignatureProfile() {
