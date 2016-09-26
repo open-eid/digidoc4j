@@ -1054,8 +1054,8 @@ public class ConfigurationTest {
     assertNotNull(trustedTerritories);
     assertTrue(trustedTerritories.contains("EE"));
     assertTrue(trustedTerritories.contains("BE"));
+    assertTrue(trustedTerritories.contains("NO"));
     assertFalse(trustedTerritories.contains("DE"));
-    assertFalse(trustedTerritories.contains("NO"));
     assertFalse(trustedTerritories.contains("HR"));
   }
 

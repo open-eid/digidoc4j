@@ -110,16 +110,16 @@ public class TslLoaderTest {
   }
 
   /**
-   * Ignore countries with invalid TSL: DE (Germany), NO (Norway), HR (Croatia)
+   * Ignore countries with invalid TSL: DE (Germany) and HR (Croatia)
    */
   @Test
-  public void loadTsl_withoutCountriesDeNoHr_byDefault() throws Exception {
+  public void loadTsl_withoutCountryHr_byDefault() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     TSLRepository tslRepository = loadTsl(configuration);
     assertCountryLoaded(tslRepository, "EE");
     assertCountryLoaded(tslRepository, "FR");
+    assertCountryLoaded(tslRepository, "NO");
     assertCountryNotLoaded(tslRepository, "DE");
-    assertCountryNotLoaded(tslRepository, "NO");
     assertCountryNotLoaded(tslRepository, "HR");
   }
 
