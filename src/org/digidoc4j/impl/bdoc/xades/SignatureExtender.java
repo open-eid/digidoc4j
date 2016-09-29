@@ -10,10 +10,22 @@
 
 package org.digidoc4j.impl.bdoc.xades;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.digidoc4j.SignatureProfile.B_BES;
+import static org.digidoc4j.SignatureProfile.B_EPES;
+import static org.digidoc4j.SignatureProfile.LT;
+import static org.digidoc4j.SignatureProfile.LTA;
+import static org.digidoc4j.SignatureProfile.LT_TM;
 import static org.digidoc4j.impl.bdoc.ocsp.OcspSourceBuilder.anOcspSource;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Signature;
@@ -33,9 +45,18 @@ import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 public class SignatureExtender {
 
   private static final Logger logger = LoggerFactory.getLogger(SignatureExtender.class);
+  private static final Map<SignatureProfile, Set<SignatureProfile>> possibleExtensions = new HashMap<>(5);
   private Configuration configuration;
   private DSSDocument detachedContent;
   private XadesSigningDssFacade extendingFacade;
+
+  static {
+    possibleExtensions.put(B_BES, new HashSet<>(asList(LT, LTA)));
+    possibleExtensions.put(B_EPES, new HashSet<>(singletonList(LT_TM)));
+    possibleExtensions.put(LT, new HashSet<>(singletonList(LTA)));
+    possibleExtensions.put(LT_TM, Collections.<SignatureProfile>emptySet());
+    possibleExtensions.put(LTA, Collections.<SignatureProfile>emptySet());
+  }
 
   public SignatureExtender(Configuration configuration, DSSDocument detachedContent) {
     this.configuration = configuration;
@@ -45,6 +66,7 @@ public class SignatureExtender {
 
   public List<DSSDocument> extend(List<Signature> signaturesToExtend, SignatureProfile profile) {
     logger.debug("Extending signatures to " + profile);
+    validatePossibilityToExtendTo(signaturesToExtend, profile);
     prepareExtendingFacade(profile);
     List<DSSDocument> extendedSignatures = new ArrayList<>();
     for (Signature signature : signaturesToExtend) {
@@ -96,5 +118,20 @@ public class SignatureExtender {
     }
     logger.error("Extending signature to " + profile + " is not supported");
     throw new NotSupportedException("Extending signature to " + profile + " is not supported");
+  }
+
+  private void validatePossibilityToExtendTo(List<Signature> signatures, SignatureProfile profile) {
+    logger.debug("Validating if it's possible to extend all the signatures to " + profile);
+    for (Signature signature : signatures) {
+      if (!canExtendSignatureToProfile(signature, profile)) {
+        String message = "It is not possible to extend " + signature.getProfile() + " signature to " + signature.getProfile() + ".";
+        logger.error(message);
+        throw new NotSupportedException(message);
+      }
+    }
+  }
+
+  private boolean canExtendSignatureToProfile(Signature signature, SignatureProfile profile) {
+    return possibleExtensions.get(signature.getProfile()).contains(profile);
   }
 }

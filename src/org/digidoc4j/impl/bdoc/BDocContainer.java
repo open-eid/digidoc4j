@@ -10,26 +10,13 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static org.digidoc4j.SignatureProfile.B_BES;
-import static org.digidoc4j.SignatureProfile.B_EPES;
-import static org.digidoc4j.SignatureProfile.LT;
-import static org.digidoc4j.SignatureProfile.LTA;
-import static org.digidoc4j.SignatureProfile.LT_TM;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -62,17 +49,8 @@ import eu.europa.esig.dss.DSSDocument;
 public abstract class BDocContainer implements Container {
 
   private static final Logger logger = LoggerFactory.getLogger(BDocContainer.class);
-  private static final Map<SignatureProfile, Set<SignatureProfile>> possibleExtensions = new HashMap<>(5);
   private Configuration configuration;
   private ValidationResult validationResult;
-
-  static {
-    possibleExtensions.put(B_BES, new HashSet<>(asList(LT, LTA)));
-    possibleExtensions.put(B_EPES, new HashSet<>(singletonList(LT_TM)));
-    possibleExtensions.put(LT, new HashSet<>(singletonList(LTA)));
-    possibleExtensions.put(LT_TM, Collections.<SignatureProfile>emptySet());
-    possibleExtensions.put(LTA, Collections.<SignatureProfile>emptySet());
-  }
 
   public BDocContainer() {
     logger.debug("Instantiating BDoc container");
@@ -144,7 +122,6 @@ public abstract class BDocContainer implements Container {
 
   protected List<Signature> extendAllSignaturesProfile(SignatureProfile profile, List<Signature> signatures, List<DataFile> dataFiles) {
     logger.info("Extending all signatures' profile to " + profile.name());
-    validatePossibilityToExtendTo(profile);
     DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
     DSSDocument firstDetachedContent = detachedContentCreator.getFirstDetachedContent();
     List<DSSDocument> detachedContentList = detachedContentCreator.getDetachedContentList();
@@ -189,21 +166,6 @@ public abstract class BDocContainer implements Container {
         throw new DuplicateDataFileException(errorMessage);
       }
     }
-  }
-
-  private void validatePossibilityToExtendTo(SignatureProfile profile) {
-    logger.debug("Validating if it's possible to extend all the signatures to " + profile);
-    for (Signature signature : getSignatures()) {
-      if (!canExtendSignatureToProfile(signature, profile)) {
-        String message = "It is not possible to extend " + signature.getProfile() + " signature to " + signature.getProfile() + ".";
-        logger.error(message);
-        throw new NotSupportedException(message);
-      }
-    }
-  }
-
-  private boolean canExtendSignatureToProfile(Signature signature, SignatureProfile profile) {
-    return possibleExtensions.get(signature.getProfile()).contains(profile);
   }
 
   @Override
