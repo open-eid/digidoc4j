@@ -24,6 +24,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
@@ -181,6 +182,7 @@ public class Configuration implements Serializable {
   private String sslTruststorePath;
   private String sslTruststoreType;
   private String sslTruststorePassword;
+  private transient ExecutorService threadExecutor;
 
   /**
    * Application mode
@@ -1170,6 +1172,14 @@ public class Configuration implements Serializable {
 
   public String getSslTruststorePassword() {
     return sslTruststorePassword;
+  }
+
+  public void setThreadExecutor(ExecutorService threadExecutor) {
+    this.threadExecutor = threadExecutor;
+  }
+
+  public ExecutorService getThreadExecutor() {
+    return threadExecutor;
   }
 
   /**

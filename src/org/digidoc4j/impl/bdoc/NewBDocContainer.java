@@ -24,7 +24,6 @@ import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DataFileNotFoundException;
 import org.digidoc4j.impl.bdoc.asic.AsicContainerCreator;
 import org.digidoc4j.impl.bdoc.asic.BDocContainerValidator;
-import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +42,7 @@ public class NewBDocContainer extends BDocContainer {
 
   @Override
   protected ValidationResult validateContainer() {
-    return new BDocContainerValidator().validate(getSignatures());
+    return new BDocContainerValidator(getConfiguration()).validate(getSignatures());
   }
 
   @Override
