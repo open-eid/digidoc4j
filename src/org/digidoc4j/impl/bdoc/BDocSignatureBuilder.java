@@ -34,6 +34,7 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
+import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.impl.SignatureFinalizer;
@@ -76,6 +77,10 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
 
   @Override
   public Signature openAdESSignature(byte[] signatureDocument) {
+    if(signatureDocument == null) {
+      logger.error("Signature cannot be empty");
+      throw new InvalidSignatureException();
+    }
     InMemoryDocument document = new InMemoryDocument(signatureDocument);
     return createSignature(document);
   }

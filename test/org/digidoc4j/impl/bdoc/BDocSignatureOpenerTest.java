@@ -15,10 +15,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.SignatureProfile;
@@ -122,5 +124,13 @@ public class BDocSignatureOpenerTest {
     Helper.serialize(signature, serializedPath);
     signature = Helper.deserializer(serializedPath);
     assertEquals("S0", signature.getId());
+  }
+
+  @Test
+  public void openXadesSignature_withoutXmlPreamble_shouldBeValid() throws Exception {
+    byte[] signatureBytes = FileUtils.readFileToByteArray(new File("testFiles/xades/bdoc-tm-jdigidoc-mobile-id.xml"));
+    InMemoryDocument xadesDoc = new InMemoryDocument(signatureBytes);
+    List<BDocSignature> signatures = signatureOpener.parse(xadesDoc);
+    assertEquals("S934658", signatures.get(0).getId());
   }
 }

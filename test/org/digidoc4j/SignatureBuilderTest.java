@@ -32,10 +32,10 @@ import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.impl.bdoc.BDocSignature;
 import org.digidoc4j.impl.bdoc.xades.validation.XadesSignatureValidator;
-import org.digidoc4j.testutils.TestSignatureBuilder;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TestContainer;
 import org.digidoc4j.testutils.TestDataBuilder;
+import org.digidoc4j.testutils.TestSignatureBuilder;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.digidoc4j.utils.TokenAlgorithmSupport;
 import org.junit.After;
@@ -328,6 +328,15 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
     SignatureValidationResult result = signature.validateSignature();
     assertFalse(result.isValid());
     assertEquals("The reference data object(s) is not found!", result.getErrors().get(0).getMessage());
+  }
+
+  @Test
+  public void openXadesSignature_withoutXmlPreamble_shouldNotThrowException() throws Exception {
+    Container container = TestDataBuilder.createContainerWithFile("testFiles/test.txt");
+    byte[] signatureBytes = FileUtils.readFileToByteArray(new File("testFiles/xades/bdoc-tm-jdigidoc-mobile-id.xml"));
+    SignatureBuilder.
+        aSignature(container).
+        openAdESSignature(signatureBytes);
   }
 
   private Signature openSignatureFromExistingSignatureDocument(Container container) throws IOException {

@@ -22,6 +22,7 @@ import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
+import eu.europa.esig.dss.xades.validation.XMLDocumentValidator;
 
 public class XadesValidationDssFacade {
 
@@ -39,7 +40,7 @@ public class XadesValidationDssFacade {
   public SignedDocumentValidator openXadesValidator(DSSDocument signature) {
     try {
       logger.debug("Opening signature validator");
-      SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(signature);
+      SignedDocumentValidator validator = new XMLDocumentValidator(signature);
       logger.debug("Finished opening signature validator");
       validator.setDetachedContents(detachedContents);
       validator.setCertificateVerifier(certificateVerifier);
