@@ -131,6 +131,6 @@ public class BDocSignatureOpenerTest {
     byte[] signatureBytes = FileUtils.readFileToByteArray(new File("testFiles/xades/bdoc-tm-jdigidoc-mobile-id.xml"));
     InMemoryDocument xadesDoc = new InMemoryDocument(signatureBytes);
     List<BDocSignature> signatures = signatureOpener.parse(xadesDoc);
-    assertEquals("S934658", signatures.get(0).getId());
+    assertEquals("S935237", signatures.get(0).getId());
   }
 }

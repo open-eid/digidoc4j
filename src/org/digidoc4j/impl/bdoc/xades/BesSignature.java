@@ -25,14 +25,12 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.X509Cert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.validation.SignatureProductionPlace;
 import eu.europa.esig.dss.x509.CertificateToken;
-import eu.europa.esig.dss.xades.ASiCNamespaces;
 import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
@@ -113,13 +111,6 @@ public class BesSignature extends DssXadesSignature {
   @Override
   public SignatureProfile getProfile() {
     return SignatureProfile.B_BES;
-  }
-
-  @Override
-  public byte[] getAdESSignature() {
-    logger.debug("Getting signature byte array");
-    Document document = XmlDomCreator.createDocument(ASiCNamespaces.ASiC, XmlDomCreator.ASICS_NS, signatureElement);
-    return DSSXMLUtils.transformDomToByteArray(document);
   }
 
   @Override

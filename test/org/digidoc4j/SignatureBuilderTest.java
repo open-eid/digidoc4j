@@ -13,6 +13,7 @@ package org.digidoc4j;
 import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 import static org.digidoc4j.testutils.TestSigningHelper.getSigningCert;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -337,6 +338,19 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
     SignatureBuilder.
         aSignature(container).
         openAdESSignature(signatureBytes);
+  }
+
+  @Test
+  public void openXadesSignature_andSavingContainer_shouldNotChangeSignature() throws Exception {
+    String containerPath = testFolder.newFile("test.bdoc").getPath();
+    Container container = TestDataBuilder.createContainerWithFile("testFiles/word_file.docx");
+    Signature signature = openAdESSignature(container);
+    container.addSignature(signature);
+    container.saveAsFile(containerPath);
+    container = ContainerOpener.open(containerPath);
+    byte[] originalSignatureBytes = FileUtils.readFileToByteArray(new File("testFiles/xades/valid-bdoc-tm.xml"));
+    byte[] signatureBytes = container.getSignatures().get(0).getAdESSignature();
+    assertArrayEquals(originalSignatureBytes, signatureBytes);
   }
 
   private Signature openSignatureFromExistingSignatureDocument(Container container) throws IOException {

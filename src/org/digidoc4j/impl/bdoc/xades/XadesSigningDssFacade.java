@@ -19,11 +19,14 @@ import org.digidoc4j.impl.bdoc.SKCommonCertificateVerifier;
 import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import eu.europa.esig.dss.BLevelParameters;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DigestAlgorithm;
 import eu.europa.esig.dss.EncryptionAlgorithm;
+import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignatureLevel;
 import eu.europa.esig.dss.SignaturePackaging;
@@ -36,6 +39,8 @@ import eu.europa.esig.dss.x509.CertificateSource;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 import eu.europa.esig.dss.x509.tsp.TSPSource;
+import eu.europa.esig.dss.xades.ASiCNamespaces;
+import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XAdESSignatureParameters;
 import eu.europa.esig.dss.xades.signature.XAdESService;
 
@@ -70,7 +75,8 @@ public class XadesSigningDssFacade {
     logger.debug("Signature parameters: " + xAdESSignatureParameters.toString());
     DSSDocument signedDocument = service.signDocument(dssDocument, xAdESSignatureParameters, dssSignatureValue);
     logger.debug("Finished signing document with DSS");
-    return signedDocument;
+    DSSDocument correctedSignedDocument = surroundWithXadesXmlTag(signedDocument);
+    return correctedSignedDocument;
   }
 
   public DSSDocument extendSignature(DSSDocument xadesSignature, DSSDocument detachedContent) {
@@ -154,5 +160,14 @@ public class XadesSigningDssFacade {
 
   private void initXadesService() {
     service = new XAdESService(certificateVerifier);
+  }
+
+  private DSSDocument surroundWithXadesXmlTag(DSSDocument signedDocument) {
+    logger.debug("Surrounding signature document with xades tag");
+    Document signatureDom = DSSXMLUtils.buildDOM(signedDocument);
+    Element signatureElement = signatureDom.getDocumentElement();
+    Document document = XmlDomCreator.createDocument(ASiCNamespaces.ASiC, XmlDomCreator.ASICS_NS, signatureElement);
+    byte[] documentBytes = DSSXMLUtils.transformDomToByteArray(document);
+    return new InMemoryDocument(documentBytes);
   }
 }

@@ -10,16 +10,19 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;
 import org.digidoc4j.impl.bdoc.xades.validation.SignatureValidator;
 import org.digidoc4j.impl.bdoc.xades.validation.XadesValidationResult;
@@ -180,7 +183,11 @@ public class BDocSignature implements Signature {
   @Override
   public byte[] getAdESSignature() {
     logger.debug("Getting full XAdES signature byte array");
-    return xadesSignature.getAdESSignature();
+    try {
+      return IOUtils.toByteArray(signatureDocument.openStream());
+    } catch (IOException e) {
+      throw new TechnicalException("Error parsing xades signature: " + e.getMessage(), e);
+    }
   }
 
   @Override

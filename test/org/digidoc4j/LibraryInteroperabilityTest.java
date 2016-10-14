@@ -10,9 +10,16 @@
 
 package org.digidoc4j;
 
-import ee.sk.digidoc.DigiDocException;
-import ee.sk.digidoc.factory.DigiDocFactory;
-import ee.sk.utils.ConfigManager;
+import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
 import org.digidoc4j.signers.PKCS12SignatureToken;
@@ -24,36 +31,33 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
-import static org.junit.Assert.assertTrue;
+import ee.sk.digidoc.DigiDocException;
+import ee.sk.digidoc.factory.DigiDocFactory;
+import ee.sk.utils.ConfigManager;
 
 public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
 
     private final static Logger logger = LoggerFactory.getLogger(LibraryInteroperabilityTest.class);
     private static final Configuration TEST_CONF = new Configuration(Configuration.Mode.TEST);
+    private static final Configuration PROD_CONF = new Configuration(Configuration.Mode.PROD);
     private static final ConfigManagerInitializer configManagerInitializer = new ConfigManagerInitializer();
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
-    private File tempFile;
+    private String tempFilePath;
     private PKCS12SignatureToken signatureToken;
 
     @Before
     public void setUp() throws Exception {
         signatureToken = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
-        tempFile = testFolder.newFile("test.bdoc");
+        tempFilePath = testFolder.newFile("test.bdoc").getPath();
         configManagerInitializer.initConfigManager(TEST_CONF);
     }
 
     @Test
     public void verifyWithJDigidoc() throws Exception {
-        String containerFilePath = tempFile.getPath();
-        createSignedContainerWithDigiDoc4j(containerFilePath);
-        validateContainerWithJDigiDoc(containerFilePath);
+        createSignedContainerWithDigiDoc4j(tempFilePath);
+        validateContainerWithJDigiDoc(tempFilePath);
     }
 
     @Test
@@ -61,7 +65,7 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
         Container container = ContainerBuilder.
             aContainer(BDOC_CONTAINER_TYPE).
             fromExistingFile("testFiles/Libdigidoc_created_tsa_signature_TS.bdoc").
-            withConfiguration(new Configuration(Configuration.Mode.PROD)).
+            withConfiguration(PROD_CONF).
             build();
         validateContainer(container);
     }
@@ -75,10 +79,24 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
             build();
         TestDataBuilder.signContainer(container);
         validateContainer(container);
-        container.saveAsFile(tempFile.getPath());
-        container = TestDataBuilder.open(tempFile.getPath());
+        container.saveAsFile(tempFilePath);
+        container = TestDataBuilder.open(tempFilePath);
         validateContainer(container);
-        validateContainerWithJDigiDoc(tempFile.getPath());
+        validateContainerWithJDigiDoc(tempFilePath);
+    }
+
+    @Test
+    public void verifyAddingMobileIdSignature_extractedByjDigidoc_shouldBeValid() throws Exception {
+        Container container = ContainerBuilder.
+            aContainer(BDOC_CONTAINER_TYPE).
+            withConfiguration(PROD_CONF).
+            withDataFile(new FileInputStream("testFiles/special-char-files/pdf-containing-xml.pdf"), "Sularaha sissemakse.pdf", "application/octet-stream").
+            build();
+        Signature signature = openSignature(container, "testFiles/xades/bdoc-tm-jdigidoc-mobile-id.xml");
+        container.addSignature(signature);
+        assertTrue(container.validate().isValid());
+        container.saveAsFile(tempFilePath);
+        validateContainerWithJDigiDoc(tempFilePath);
     }
 
     private void createSignedContainerWithDigiDoc4j(String containerFilePath) {
@@ -121,5 +139,13 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
             msg += error.toString() + "; ";
         }
         return msg;
+    }
+
+    private Signature openSignature(Container container, String pathname) throws IOException {
+        byte[] signatureBytes = FileUtils.readFileToByteArray(new File(pathname));
+        Signature signature = SignatureBuilder.
+            aSignature(container).
+            openAdESSignature(signatureBytes);
+        return signature;
     }
 }
