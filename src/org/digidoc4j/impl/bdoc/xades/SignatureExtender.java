@@ -32,12 +32,14 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.bdoc.BDocSignature;
+import org.digidoc4j.impl.bdoc.BDocSignatureBuilder;
 import org.digidoc4j.impl.bdoc.SkDataLoader;
 import org.digidoc4j.impl.bdoc.ocsp.SKOnlineOCSPSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignatureLevel;
 import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.x509.ocsp.OCSPSource;
@@ -83,6 +85,7 @@ public class SignatureExtender {
     extendingFacade.setTspSource(tspSource);
     SignatureLevel signatureLevel = getSignatureLevel(profile);
     extendingFacade.setSignatureLevel(signatureLevel);
+    setSignaturePolicy(profile);
   }
 
   private DSSDocument extendSignature(BDocSignature signature, SignatureProfile profile) {
@@ -118,6 +121,13 @@ public class SignatureExtender {
     }
     logger.error("Extending signature to " + profile + " is not supported");
     throw new NotSupportedException("Extending signature to " + profile + " is not supported");
+  }
+
+  private void setSignaturePolicy(SignatureProfile profile) {
+    if (profile == LT_TM) {
+      Policy signaturePolicy = BDocSignatureBuilder.createBDocSignaturePolicy();
+      extendingFacade.setSignaturePolicy(signaturePolicy);
+    }
   }
 
   private void validatePossibilityToExtendTo(List<Signature> signatures, SignatureProfile profile) {

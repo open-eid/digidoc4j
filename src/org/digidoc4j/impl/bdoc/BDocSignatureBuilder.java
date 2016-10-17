@@ -77,7 +77,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
 
   @Override
   public Signature openAdESSignature(byte[] signatureDocument) {
-    if(signatureDocument == null) {
+    if (signatureDocument == null) {
       logger.error("Signature cannot be empty");
       throw new InvalidSignatureException();
     }
@@ -162,7 +162,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   private void validateOcspResponse(XadesSignature xadesSignature) {
-    if(isBaselineSignatureProfile()) {
+    if (isBaselineSignatureProfile()) {
       return;
     }
     List<BasicOCSPResp> ocspResponses = xadesSignature.getOcspResponses();
@@ -241,20 +241,18 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
 
   private void setSignaturePolicy() {
     if (isTimeMarkProfile() || isEpesProfile()) {
-      Policy signaturePolicy = new Policy();
-      signaturePolicy.setId("urn:oid:1.3.6.1.4.1.10015.1000.3.2.1");
-      signaturePolicy.setDigestValue(decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));
-      signaturePolicy.setDigestAlgorithm(SHA256);
-      signaturePolicy.setSpuri("https://www.sk.ee/repository/bdoc-spec21.pdf");
+      Policy signaturePolicy = createBDocSignaturePolicy();
       facade.setSignaturePolicy(signaturePolicy);
     }
   }
 
-  private boolean isEpesProfile() {
-    if (signatureParameters.getSignatureProfile() != null) {
-      return signatureParameters.getSignatureProfile() == SignatureProfile.B_EPES;
-    }
-    return false;
+  public static Policy createBDocSignaturePolicy() {
+    Policy signaturePolicy = new Policy();
+    signaturePolicy.setId("urn:oid:1.3.6.1.4.1.10015.1000.3.2.1");
+    signaturePolicy.setDigestValue(decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));
+    signaturePolicy.setDigestAlgorithm(SHA256);
+    signaturePolicy.setSpuri("https://www.sk.ee/repository/bdoc-spec21.pdf");
+    return signaturePolicy;
   }
 
   private void setSignatureId() {
@@ -306,9 +304,16 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   private boolean isTimeMarkProfile() {
-    if(signatureParameters.getSignatureProfile() == null) {
+    if (signatureParameters.getSignatureProfile() == null) {
       return false;
     }
     return signatureParameters.getSignatureProfile() == SignatureProfile.LT_TM;
+  }
+
+  private boolean isEpesProfile() {
+    if (signatureParameters.getSignatureProfile() != null) {
+      return signatureParameters.getSignatureProfile() == SignatureProfile.B_EPES;
+    }
+    return false;
   }
 }

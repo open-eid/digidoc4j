@@ -11,6 +11,10 @@
 package org.digidoc4j;
 
 import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
+import static org.digidoc4j.SignatureProfile.B_EPES;
+import static org.digidoc4j.SignatureProfile.LT_TM;
+import static org.digidoc4j.testutils.TestDataBuilder.createContainerWithFile;
+import static org.digidoc4j.testutils.TestDataBuilder.open;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -97,6 +101,18 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
         assertTrue(container.validate().isValid());
         container.saveAsFile(tempFilePath);
         validateContainerWithJDigiDoc(tempFilePath);
+    }
+
+    @Test
+    public void extendEpesToLtTm_validateWithJdigidoc() throws Exception {
+        Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+        TestDataBuilder.signContainer(container, B_EPES);
+        container.saveAsFile(tempFilePath);
+        container = open(tempFilePath);
+        container.extendSignatureProfile(LT_TM);
+        String extendedContainerPath = testFolder.newFile("extended.bdoc").getPath();
+        container.saveAsFile(extendedContainerPath);
+        validateContainerWithJDigiDoc(extendedContainerPath);
     }
 
     private void createSignedContainerWithDigiDoc4j(String containerFilePath) {
