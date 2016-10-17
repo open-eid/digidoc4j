@@ -229,7 +229,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     String report = validate.getReport();
     assertTrue(report.contains("Id=\"S0\" SignatureFormat=\"XAdES_BASELINE_LT\""));
     assertTrue(report.contains("Id=\"S1\" SignatureFormat=\"XAdES_BASELINE_LT\""));
-    assertTrue(report.contains("<Indication>VALID</Indication>"));
+    assertTrue(report.contains("<Indication>TOTAL_PASSED</Indication>"));
     assertTrue(report.contains("<Indication>INDETERMINATE</Indication>"));
   }
 
