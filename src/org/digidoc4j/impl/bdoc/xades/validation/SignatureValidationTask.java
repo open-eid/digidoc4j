@@ -35,6 +35,7 @@ public class SignatureValidationTask implements Callable<SignatureValidationData
     SignatureValidationData validationData = new SignatureValidationData();
     validationData.setValidationResult(validationResult);
     validationData.setSignatureId(signature.getId());
+    validationData.setSignatureProfile(signature.getProfile());
     validationData.setReport(((BDocSignature) signature).getDssValidationReport());
     return validationData;
   }

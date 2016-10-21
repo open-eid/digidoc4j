@@ -13,9 +13,7 @@ package org.digidoc4j.impl.bdoc.asic;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -33,12 +31,10 @@ import org.digidoc4j.impl.bdoc.manifest.ManifestValidator;
 import org.digidoc4j.impl.bdoc.xades.validation.SignatureValidationData;
 import org.digidoc4j.impl.bdoc.xades.validation.SignatureValidationTask;
 import org.digidoc4j.impl.bdoc.xades.validation.ThreadPoolManager;
-import org.digidoc4j.impl.bdoc.xades.validation.XadesValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.validation.reports.Reports;
 
 public class BDocContainerValidator implements Serializable {
 
@@ -47,8 +43,7 @@ public class BDocContainerValidator implements Serializable {
   private List<DigiDoc4JException> warnings = new ArrayList<>();
   private AsicParseResult containerParseResult;
   private boolean validateManifest;
-  private Map<String, List<DigiDoc4JException>> signatureVerificationErrors = new HashMap<>();
-  private List<Reports> validationReports = new ArrayList<>();
+  private List<SignatureValidationData> signatureValidationData = new ArrayList<>();
   private List<DigiDoc4JException> manifestErrors;
   private ThreadPoolManager threadPoolManager;
 
@@ -106,14 +101,11 @@ public class BDocContainerValidator implements Serializable {
 
   private void extractSignatureErrors(SignatureValidationData validationData) {
     logger.debug("Extracting signature errors for signature " + validationData.getSignatureId());
+    signatureValidationData.add(validationData);
     SignatureValidationResult validationResult = validationData.getValidationResult();
     List<DigiDoc4JException> signatureErrors = validationResult.getErrors();
     errors.addAll(signatureErrors);
     warnings.addAll(validationResult.getWarnings());
-    signatureVerificationErrors.put(validationData.getSignatureId(), signatureErrors);
-    XadesValidationResult validationReport = validationData.getReport();
-    Reports dssValidationReport = validationReport.getReport();
-    validationReports.add(dssValidationReport);
   }
 
   private void extractManifestErrors(List<Signature> signatures) {
@@ -123,7 +115,7 @@ public class BDocContainerValidator implements Serializable {
   }
 
   private BDocValidationResult createValidationResult() {
-    BDocValidationReportBuilder reportBuilder = new BDocValidationReportBuilder(validationReports, manifestErrors, signatureVerificationErrors);
+    BDocValidationReportBuilder reportBuilder = new BDocValidationReportBuilder(signatureValidationData, manifestErrors);
     BDocValidationResult result = new BDocValidationResult();
     result.setErrors(errors);
     result.setWarnings(warnings);

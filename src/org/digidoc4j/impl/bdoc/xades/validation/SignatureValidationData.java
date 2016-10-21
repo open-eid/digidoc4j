@@ -12,6 +12,7 @@ package org.digidoc4j.impl.bdoc.xades.validation;
 
 import java.io.Serializable;
 
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureValidationResult;
 
 public class SignatureValidationData implements Serializable {
@@ -19,6 +20,7 @@ public class SignatureValidationData implements Serializable {
   private SignatureValidationResult validationResult;
   private String signatureId;
   private XadesValidationResult report;
+  private SignatureProfile signatureProfile;
 
   public void setValidationResult(SignatureValidationResult validationResult) {
     this.validationResult = validationResult;
@@ -42,5 +44,13 @@ public class SignatureValidationData implements Serializable {
 
   public XadesValidationResult getReport() {
     return report;
+  }
+
+  public void setSignatureProfile(SignatureProfile signatureProfile) {
+    this.signatureProfile = signatureProfile;
+  }
+
+  public SignatureProfile getSignatureProfile() {
+    return signatureProfile;
   }
 }
