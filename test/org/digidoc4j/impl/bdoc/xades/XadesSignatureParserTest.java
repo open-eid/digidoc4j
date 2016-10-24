@@ -33,8 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.FileDocument;
-import eu.europa.esig.dss.InMemoryDocument;
-import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class XadesSignatureParserTest {
@@ -79,9 +77,6 @@ public class XadesSignatureParserTest {
     logger.debug("Getting signing cert subject name");
     assertTrue(StringUtils.startsWith(signature.getSigningCertificate().issuerName(), "C=EE,O=AS Sertifitseerimiskeskus"));
     logger.debug("Getting signature as a byte array");
-    byte[] signatureInBytes = signature.getAdESSignature();
-    SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(new InMemoryDocument(signatureInBytes));
-    assertEquals("id-693869a500c60f0dc262f7287f033d5d", validator.getSignatures().get(0).getId());
     logger.debug("Asserting null values");
     assertNull(signature.getOCSPCertificate());
     assertNull(signature.getOCSPResponseCreationTime());

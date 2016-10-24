@@ -15,7 +15,7 @@ import java.security.cert.X509Certificate;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.impl.bdoc.SKOcspDataLoader;
+import org.digidoc4j.impl.bdoc.SkDataLoader;
 import org.digidoc4j.utils.CertificatesForTests;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,7 +26,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import eu.europa.esig.dss.x509.CertificateToken;
-import eu.europa.esig.dss.x509.OCSPToken;
+import eu.europa.esig.dss.x509.ocsp.OCSPToken;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,10 +36,7 @@ public class SKOnlineOCSPSourceTest {
   public TemporaryFolder testFolder = new TemporaryFolder();
 
   @Mock
-  CertificateToken issuerCertToken;
-
-  @Mock
-  SKOcspDataLoader dataLoader;
+  SkDataLoader dataLoader;
 
   X509Certificate issuerCert;
   Configuration configuration = new Configuration(Configuration.Mode.TEST);
@@ -48,7 +45,6 @@ public class SKOnlineOCSPSourceTest {
   public void setUp() throws Exception {
     Security.addProvider(new BouncyCastleProvider());
     issuerCert = openX509Cert("testFiles/Juur-SK.pem.crt"); //Any certificate will do
-    when(issuerCertToken.getCertificate()).thenReturn(issuerCert);
   }
 
   @Test
@@ -57,7 +53,7 @@ public class SKOnlineOCSPSourceTest {
     SKOnlineOCSPSource ocspSource = new BDocTSOcspSource(configuration);
     ocspSource.setDataLoader(dataLoader);
     CertificateToken certificateToken = new CertificateToken(CertificatesForTests.SIGN_CERT);
-    OCSPToken ocspToken = ocspSource.getOCSPToken(certificateToken, issuerCertToken);
+    OCSPToken ocspToken = ocspSource.getOCSPToken(certificateToken, new CertificateToken(issuerCert));
     assertNull(ocspToken);
   }
 

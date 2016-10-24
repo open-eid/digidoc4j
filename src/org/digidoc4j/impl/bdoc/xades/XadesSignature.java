@@ -58,7 +58,7 @@ public interface XadesSignature extends Serializable {
 
   List<Reference> getReferences();
 
-  byte[] getAdESSignature();
+  byte[] getSignatureValue();
 
   XAdESSignature getDssSignature();
 

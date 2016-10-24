@@ -35,14 +35,21 @@ import java.nio.file.attribute.FileTime;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 import static org.digidoc4j.Configuration.*;
 import static org.digidoc4j.Configuration.Mode.PROD;
 import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.*;
 
 import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.tsl.Condition;
+import eu.europa.esig.dss.tsl.KeyUsageBit;
+import eu.europa.esig.dss.tsl.ServiceInfo;
+import eu.europa.esig.dss.x509.CertificateToken;
 
 public class ConfigurationTest {
   private static final String SIGN_OCSP_REQUESTS = "SIGN_OCSP_REQUESTS";
@@ -84,6 +91,20 @@ public class ConfigurationTest {
     addFromFileToTSLCertificate("testFiles/Juur-SK.pem.crt");
 
     assertEquals(numberOfTSLCertificates + 1, configuration.getTSL().getCertificates().size());
+  }
+
+  @Test
+  public void addingCertificateToTsl() throws Exception {
+    TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
+    addFromFileToTSLCertificate("testFiles/Juur-SK.pem.crt", certificateSource);
+    CertificateToken certificateToken = certificateSource.getCertificates().get(0);
+    assertThat(certificateToken.getKeyUsageBits(), hasItem(KeyUsageBit.nonRepudiation));
+    assertTrue(certificateToken.checkKeyUsage(KeyUsageBit.nonRepudiation));
+    ServiceInfo serviceInfo = certificateToken.getAssociatedTSPS().iterator().next();
+    assertEquals("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", serviceInfo.getStatus().get(0).getStatus());
+    assertEquals("http://uri.etsi.org/TrstSvc/Svctype/CA/QC", serviceInfo.getType());
+    Map<String, List<Condition>> qualifiersAndConditions = serviceInfo.getQualifiersAndConditions();
+    assertTrue(qualifiersAndConditions.containsKey("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD"));
   }
 
   @Test
@@ -189,9 +210,14 @@ public class ConfigurationTest {
   }
 
   private void addFromFileToTSLCertificate(String fileName) throws IOException, CertificateException {
+    TSLCertificateSource tsl = configuration.getTSL();
+    addFromFileToTSLCertificate(fileName, tsl);
+  }
+
+  private void addFromFileToTSLCertificate(String fileName, TSLCertificateSource tsl) throws IOException {
     FileInputStream fileInputStream = new FileInputStream(fileName);
     X509Certificate certificate = DSSUtils.loadCertificate(fileInputStream).getCertificate();
-    configuration.getTSL().addTSLCertificate(certificate);
+    tsl.addTSLCertificate(certificate);
     fileInputStream.close();
   }
 
@@ -204,6 +230,7 @@ public class ConfigurationTest {
 
   @Test
   //@Ignore("RIA VPN")
+  //This test succeeds only in RIA VPN
   public void TSLIsLoadedAfterSettingNewTSLLocation() {
     Configuration configuration = new Configuration(TEST);
     configuration.setTslLocation("https://demo.sk.ee/TSL/tl-mp-test-EE.xml");
@@ -493,11 +520,6 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void testGetPKCS11ModulePath() throws Exception {
-    assertEquals("/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so", configuration.getPKCS11ModulePath());
-  }
-
-  @Test
   public void generateJDigiDocConfig() throws Exception {
     Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("digidoc4j.yaml");
     configuration.getJDigiDocConfiguration();
@@ -765,12 +787,6 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void getPKCS11ModulePathFromConfigurationFile() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
-    assertEquals("/usr/lib/x86_64-linux-gnu/test_pkcs11_module.so", configuration.getPKCS11ModulePath());
-  }
-
-  @Test
   public void getOcspSourceFromConfigurationFile() throws Exception {
     configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
     assertEquals("http://www.openxades.org/cgi-bin/test_ocsp_source.cgi", configuration.getOcspSource());
@@ -786,7 +802,7 @@ public class ConfigurationTest {
   public void exceptionIsThrownWhenTslKeystoreIsNotFound() throws IOException {
     Configuration conf = new Configuration(PROD);
     conf.setTslKeyStoreLocation("not/existing/path");
-    conf.getTSL();
+    conf.getTSL().refresh();
   }
 
   @Test
@@ -830,6 +846,56 @@ public class ConfigurationTest {
   public void getTslCacheExpirationTimeFromConfigurationFile() throws Exception {
     configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
     assertEquals(1776, configuration.getTslCacheExpirationTime());
+  }
+
+  @Test
+  public void defaultProxyConfiguration_shouldNotBeSet() throws Exception {
+    assertFalse(configuration.isNetworkProxyEnabled());
+    assertNull(configuration.getHttpProxyHost());
+    assertNull(configuration.getHttpProxyPort());
+    assertNull(configuration.getHttpProxyUser());
+    assertNull(configuration.getHttpProxyPassword());
+  }
+
+  @Test
+  public void getProxyConfigurationFromConfigurationFile() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    assertTrue(configuration.isNetworkProxyEnabled());
+    assertEquals("cache.noile.ee", configuration.getHttpProxyHost());
+    assertEquals(8080, configuration.getHttpProxyPort().longValue());
+    assertEquals("proxyMan", configuration.getHttpProxyUser());
+    assertEquals("proxyPass", configuration.getHttpProxyPassword());
+
+  }
+
+  @Test
+  public void getInvalidProxyConfigurationFromConfigurationFile() throws Exception {
+    expectedException.expect(ConfigurationException.class);
+    expectedException.expectMessage("Configuration parameter HTTP_PROXY_PORT should have an integer value but the actual value is: notA_number.");
+    configuration.loadConfiguration("testFiles/digidoc_test_conf_invalid_key_usage.yaml");
+  }
+
+  @Test
+  public void defaultSslConfiguration_shouldNotBeSet() throws Exception {
+    assertFalse(configuration.isSslConfigurationEnabled());
+    assertNull(configuration.getSslKeystorePath());
+    assertNull(configuration.getSslKeystoreType());
+    assertNull(configuration.getSslKeystorePassword());
+    assertNull(configuration.getSslTruststorePath());
+    assertNull(configuration.getSslTruststoreType());
+    assertNull(configuration.getSslTruststorePassword());
+  }
+
+  @Test
+  public void getSslConfigurationFromConfigurationFile() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_all_optional_settings.yaml");
+    assertTrue(configuration.isSslConfigurationEnabled());
+    assertEquals("sslKeystorePath", configuration.getSslKeystorePath());
+    assertEquals("sslKeystoreType", configuration.getSslKeystoreType());
+    assertEquals("sslKeystorePassword", configuration.getSslKeystorePassword());
+    assertEquals("sslTruststorePath", configuration.getSslTruststorePath());
+    assertEquals("sslTruststoreType", configuration.getSslTruststoreType());
+    assertEquals("sslTruststorePassword", configuration.getSslTruststorePassword());
   }
 
   @Test
@@ -915,7 +981,6 @@ public class ConfigurationTest {
     assertEquals("TEST_DIGIDOC_PKCS12_CONTAINER", configuration.configuration.get("OCSPAccessCertificateFile"));
     assertEquals("TEST_DIGIDOC_PKCS12_PASSWD", configuration.configuration.get("OCSPAccessCertificatePassword"));
     assertEquals("TEST_OCSP_SOURCE", configuration.configuration.get("ocspSource"));
-    assertEquals("TEST_PKCS11_MODULE", configuration.configuration.get("pkcs11Module"));
     assertEquals("TEST_TSP_SOURCE", configuration.configuration.get("tspSource"));
     assertEquals("TEST_VALIDATION_POLICY", configuration.configuration.get("validationPolicy"));
     assertEquals("TEST_TSL_LOCATION", configuration.configuration.get("tslLocation"));
@@ -975,6 +1040,43 @@ public class ConfigurationTest {
   public void testLoadingRevocationAndTimestampDeltaFromConf() throws Exception {
     configuration.loadConfiguration("testFiles/digidoc_test_all_optional_settings.yaml");
     assertEquals(1337, configuration.getRevocationAndTimestampDeltaInMinutes());
+  }
+
+  @Test
+  public void getTruestedTerritories_defaultTesting_shouldBeNull() throws Exception {
+    assertNull(configuration.getTrustedTerritories());
+  }
+
+  @Test
+  public void getTrustedTerritories_defaultProd() throws Exception {
+    Configuration configuration = new Configuration(PROD);
+    List<String> trustedTerritories = configuration.getTrustedTerritories();
+    assertNotNull(trustedTerritories);
+    assertTrue(trustedTerritories.contains("EE"));
+    assertTrue(trustedTerritories.contains("BE"));
+    assertTrue(trustedTerritories.contains("NO"));
+    assertFalse(trustedTerritories.contains("DE"));
+    assertFalse(trustedTerritories.contains("HR"));
+  }
+
+  @Test
+  public void setTrustedTerritories() throws Exception {
+    configuration.setTrustedTerritories("AR", "US", "CA");
+    List<String> trustedTerritories = configuration.getTrustedTerritories();
+    assertEquals(3, trustedTerritories.size());
+    assertEquals("AR", trustedTerritories.get(0));
+    assertEquals("US", trustedTerritories.get(1));
+    assertEquals("CA", trustedTerritories.get(2));
+  }
+
+  @Test
+  public void loadTrustedTerritoriesFromConf() throws Exception {
+    configuration.loadConfiguration("testFiles/digidoc_test_all_optional_settings.yaml");
+    List<String> trustedTerritories = configuration.getTrustedTerritories();
+    assertEquals(3, trustedTerritories.size());
+    assertEquals("NZ", trustedTerritories.get(0));
+    assertEquals("AU", trustedTerritories.get(1));
+    assertEquals("BR", trustedTerritories.get(2));
   }
 
   private File createConfFileWithParameter(String parameter) throws IOException {

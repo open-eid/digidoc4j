@@ -11,11 +11,18 @@
 package org.digidoc4j.impl.bdoc.tsl;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
+import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
+import org.digidoc4j.impl.bdoc.CachingDataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +30,6 @@ import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.client.http.DataLoader;
 import eu.europa.esig.dss.client.http.Protocol;
 import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
-import eu.europa.esig.dss.client.http.commons.FileCacheDataLoader;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 import eu.europa.esig.dss.x509.KeyStoreCertificateSource;
@@ -33,20 +39,13 @@ public class TslLoader implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(TslLoader.class);
   public static final File fileCacheDirectory = new File(System.getProperty("java.io.tmpdir") + "/digidoc4jTSLCache");
   private boolean checkSignature = true;
-  private String tslLocation;
-  private File tslKeystoreFile;
-  private String tslKeyStorePassword;
-  private Integer connectionTimeout;
-  private Integer socketTimeout;
-  private Long cacheExpirationTime;
+  private Configuration configuration;
   private transient TSLRepository tslRepository;
   private transient TSLCertificateSourceImpl tslCertificateSource;
   private transient TSLValidationJob tslValidationJob;
 
-  public TslLoader(String tslLocation, File tslKeystoreFile, String tslKeyStorePassword) {
-    this.tslKeystoreFile = tslKeystoreFile;
-    this.tslKeyStorePassword = tslKeyStorePassword;
-    this.tslLocation = tslLocation;
+  public TslLoader(Configuration configuration) {
+    this.configuration = configuration;
   }
 
   public void prepareTsl() {
@@ -54,17 +53,7 @@ public class TslLoader implements Serializable {
       tslCertificateSource = new TSLCertificateSourceImpl();
       tslRepository = new TSLRepository();
       tslRepository.setTrustedListsCertificateSource(tslCertificateSource);
-
-      tslValidationJob = new TSLValidationJob();
-      DataLoader dataLoader = createDataLoader();
-      tslValidationJob.setDataLoader(dataLoader);
-      KeyStoreCertificateSource keyStoreCertificateSource = new KeyStoreCertificateSource(tslKeystoreFile, tslKeyStorePassword);
-      tslValidationJob.setDssKeyStore(keyStoreCertificateSource);
-      tslValidationJob.setLotlUrl(tslLocation);
-      tslValidationJob.setLotlCode("EU");
-      tslValidationJob.setRepository(tslRepository);
-      tslValidationJob.setCheckLOTLSignature(checkSignature);
-      tslValidationJob.setCheckTSLSignatures(checkSignature);
+      tslValidationJob = createTslValidationJob(tslRepository);
     } catch (DSSException e) {
       logger.error("Unable to load TSL: " + e.getMessage());
       throw new TslCertificateSourceInitializationException(e.getMessage());
@@ -74,7 +63,7 @@ public class TslLoader implements Serializable {
   public static void invalidateCache() {
     logger.info("Cleaning TSL cache directory at " + fileCacheDirectory.getPath());
     try {
-      if(fileCacheDirectory.exists()) {
+      if (fileCacheDirectory.exists()) {
         FileUtils.cleanDirectory(fileCacheDirectory);
       } else {
         logger.debug("TSL cache directory doesn't exist");
@@ -85,20 +74,8 @@ public class TslLoader implements Serializable {
     }
   }
 
-  public void setConnectionTimeout(Integer connectionTimeout) {
-    this.connectionTimeout = connectionTimeout;
-  }
-
-  public void setSocketTimeout(Integer socketTimeout) {
-    this.socketTimeout = socketTimeout;
-  }
-
   public void setCheckSignature(boolean checkSignature) {
     this.checkSignature = checkSignature;
-  }
-
-  public void setCacheExpirationTime(long cacheExpirationTime) {
-    this.cacheExpirationTime = cacheExpirationTime;
   }
 
   public TSLCertificateSourceImpl getTslCertificateSource() {
@@ -113,18 +90,25 @@ public class TslLoader implements Serializable {
     return tslRepository;
   }
 
+  private TSLValidationJob createTslValidationJob(TSLRepository tslRepository) {
+    TSLValidationJob tslValidationJob = new TSLValidationJob();
+    tslValidationJob.setDataLoader(createDataLoader());
+    tslValidationJob.setDssKeyStore(getKeyStore());
+    tslValidationJob.setLotlUrl(configuration.getTslLocation());
+    tslValidationJob.setLotlCode("EU");
+    tslValidationJob.setRepository(tslRepository);
+    tslValidationJob.setCheckLOTLSignature(checkSignature);
+    tslValidationJob.setCheckTSLSignatures(checkSignature);
+    tslValidationJob.setFilterTerritories(configuration.getTrustedTerritories());
+    return tslValidationJob;
+  }
+
   private DataLoader createDataLoader() {
-    if (Protocol.isHttpUrl(tslLocation)) {
-      FileCacheDataLoader dataLoader = new FileCacheDataLoader();
-      if(connectionTimeout != null) {
-        dataLoader.setTimeoutConnection(connectionTimeout);
-      }
-      if(socketTimeout != null) {
-        dataLoader.setTimeoutSocket(socketTimeout);
-      }
-      if(cacheExpirationTime != null) {
-        dataLoader.setCacheExpirationTime(cacheExpirationTime);
-      }
+    if (Protocol.isHttpUrl(configuration.getTslLocation())) {
+      CachingDataLoader dataLoader = new CachingDataLoader(configuration);
+      dataLoader.setTimeoutConnection(configuration.getConnectionTimeout());
+      dataLoader.setTimeoutSocket(configuration.getSocketTimeout());
+      dataLoader.setCacheExpirationTime(configuration.getTslCacheExpirationTime());
       dataLoader.setFileCacheDirectory(fileCacheDirectory);
       logger.debug("Using file cache directory for storing TSL: " + fileCacheDirectory);
       return dataLoader;
@@ -132,4 +116,30 @@ public class TslLoader implements Serializable {
       return new CommonsDataLoader();
     }
   }
+
+  private KeyStoreCertificateSource getKeyStore() {
+    File tslKeystoreFile = getTslKeystoreFile();
+    return new KeyStoreCertificateSource(tslKeystoreFile, configuration.getTslKeyStorePassword());
+  }
+
+  private File getTslKeystoreFile() throws TslKeyStoreNotFoundException {
+    try {
+      String keystoreLocation = configuration.getTslKeyStoreLocation();
+      if (Files.exists(Paths.get(keystoreLocation))) {
+        return new File(keystoreLocation);
+      }
+      File tempFile = File.createTempFile("temp-tsl-keystore", ".jks");
+      InputStream in = getClass().getClassLoader().getResourceAsStream(keystoreLocation);
+      if (in == null) {
+        logger.error("keystore not found in location " + keystoreLocation);
+        throw new TslKeyStoreNotFoundException("keystore not found in location " + keystoreLocation);
+      }
+      FileUtils.copyInputStreamToFile(in, tempFile);
+      return tempFile;
+    } catch (IOException e) {
+      logger.error(e.getMessage());
+      throw new TslKeyStoreNotFoundException(e.getMessage());
+    }
+  }
+
 }

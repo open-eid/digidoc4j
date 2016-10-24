@@ -35,21 +35,22 @@ public class OcspNonceValidator implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(OcspNonceValidator.class);
 
   private XAdESSignature signature;
+  private BasicOCSPResp ocspResponse;
 
   public OcspNonceValidator(XAdESSignature signature) {
     this.signature = signature;
+    ocspResponse = getLatestOcspResponse(signature.getOCSPSource().getContainedOCSPResponses());
   }
 
   public boolean isValid() {
     if (signature.getPolicyId() == null) {
       return true;
     }
-    BasicOCSPResp latestOcspResponse = getLatestOcspResponse(signature.getOCSPSource().getContainedOCSPResponses());
-    if (latestOcspResponse == null) {
+    if (ocspResponse == null) {
       logger.debug("OCSP response was not found in signature: " + signature.getId());
       return true;
     }
-    return isOcspResponseValid(latestOcspResponse);
+    return isOcspResponseValid(ocspResponse);
   }
 
   private BasicOCSPResp getLatestOcspResponse(List<BasicOCSPResp> ocspResponses) {

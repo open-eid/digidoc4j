@@ -64,7 +64,7 @@ public class ExistingBDocContainer extends BDocContainer {
 
   @Override
   protected ValidationResult validateContainer() {
-    BDocContainerValidator validator = new BDocContainerValidator(containerParseResult);
+    BDocContainerValidator validator = new BDocContainerValidator(containerParseResult, getConfiguration());
     validator.setValidateManifest(!dataFilesHaveChanged);
     ValidationResult validationResult = validator.validate(getSignatures());
     return validationResult;

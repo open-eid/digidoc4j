@@ -10,31 +10,22 @@
 
 package org.digidoc4j.main;
 
-import ee.sk.digidoc.CertValue;
-import ee.sk.digidoc.DigiDocException;
-import ee.sk.digidoc.SignedDoc;
-import ee.sk.digidoc.factory.DigiDocGenFactory;
-import org.apache.commons.cli.*;
-import org.apache.commons.lang.StringUtils;
-import org.digidoc4j.*;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.SignatureNotFoundException;
-import org.digidoc4j.impl.ddoc.DDocContainer;
-import org.digidoc4j.impl.ddoc.DDocSignature;
-import org.digidoc4j.impl.ddoc.ValidationResultForDDoc;
-import org.digidoc4j.signers.PKCS12SignatureToken;
-
-import java.io.File;
-import java.util.List;
-
 import static org.apache.commons.cli.OptionBuilder.withArgName;
-import static org.digidoc4j.Container.DocumentType;
-import static org.digidoc4j.Container.DocumentType.BDOC;
-import static org.digidoc4j.Container.DocumentType.DDOC;
 
-import org.digidoc4j.SignatureProfile;
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.digidoc4j.Container;
+import org.digidoc4j.Version;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ee.sk.digidoc.DigiDocException;
+import ee.sk.digidoc.SignedDoc;
 
 /**
  * Client commandline tool for DigiDoc4J library.
@@ -42,10 +33,6 @@ import org.slf4j.LoggerFactory;
 public final class DigiDoc4J {
 
   private final static Logger logger = LoggerFactory.getLogger(DigiDoc4J.class);
-  private static boolean verboseMode;
-  private static boolean warnings;
-  private static final String ANSI_RED = "[31m";
-  private static final String ANSI_RESET = "[0m";
   private static final String EXTRACT_CMD = "extract";
 
   private DigiDoc4J() {
@@ -78,10 +65,10 @@ public final class DigiDoc4J {
       if(commandLine.hasOption("version")) {
         showVersion();
       }
-      if(commandLine.hasOption("in")) {
+      if(shouldManipulateContainer(commandLine)) {
         execute(commandLine);
       }
-      if(!commandLine.hasOption("version") && !commandLine.hasOption("in")) {
+      if(!commandLine.hasOption("version") && !shouldManipulateContainer(commandLine)) {
         showUsage(options);
       }
     } catch (ParseException e) {
@@ -95,79 +82,23 @@ public final class DigiDoc4J {
     throw new DigiDoc4JUtilityException(2, "wrong parameters given");
   }
 
+  private static boolean shouldManipulateContainer(CommandLine commandLine) {
+    return commandLine.hasOption("in") || (isMultipleContainerCreation(commandLine));
+  }
+
   private static void execute(CommandLine commandLine) {
-    boolean fileHasChanged = false;
-
-    verboseMode = commandLine.hasOption("verbose");
-    warnings = commandLine.hasOption("warnings");
-    String inputFile = commandLine.getOptionValue("in");
-    DocumentType type = getContainerType(commandLine);
-
     checkSupportedFunctionality(commandLine);
-
+    ContainerManipulator containerManipulator = new ContainerManipulator(commandLine);
     try {
-      Container container;
-      SignatureBuilder signatureBuilder;
-
-      if (new File(inputFile).exists() || commandLine.hasOption("verify") || commandLine.hasOption("remove")) {
-        verboseMessage("Opening container " + inputFile);
-        container = ContainerOpener.open(inputFile);
-      } else {
-        verboseMessage("Creating new " + type + "container " + inputFile);
-        container = ContainerBuilder.aContainer(type.name()).build();
+      if(commandLine.hasOption("in")) {
+        String containerPath = commandLine.getOptionValue("in");
+        Container container = containerManipulator.openContainer(containerPath);
+        containerManipulator.processContainer(container);
+        containerManipulator.saveContainer(container, containerPath);
+      } else if (isMultipleContainerCreation(commandLine)) {
+        MultipleContainersCreator containersCreator = new MultipleContainersCreator(commandLine);
+        containersCreator.signDocuments();
       }
-
-      signatureBuilder = SignatureBuilder.aSignature(container);
-
-      if (commandLine.hasOption("add")) {
-        String[] optionValues = commandLine.getOptionValues("add");
-        container.addDataFile(optionValues[0], optionValues[1]);
-        fileHasChanged = true;
-      }
-
-      if (commandLine.hasOption("remove")) {
-        container.removeDataFile(commandLine.getOptionValue("remove"));
-        fileHasChanged = true;
-      }
-
-      if(commandLine.hasOption(EXTRACT_CMD)) {
-        logger.debug("Extracting data file");
-        extractDataFile(container, commandLine);
-      }
-
-      if (commandLine.hasOption("profile")) {
-        String profile = commandLine.getOptionValue("profile");
-        try {
-          SignatureProfile signatureProfile = SignatureProfile.valueOf(profile);
-          signatureBuilder.withSignatureProfile(signatureProfile);
-        } catch (IllegalArgumentException e) {
-          System.out.println("Signature profile \"" + profile + "\" is unknown and will be ignored");
-        }
-      }
-
-      if (commandLine.hasOption("encryption")) {
-        String encryption = commandLine.getOptionValue("encryption");
-        EncryptionAlgorithm encryptionAlgorithm = EncryptionAlgorithm.valueOf(encryption);
-        signatureBuilder.withEncryptionAlgorithm(encryptionAlgorithm);
-      }
-
-      if (commandLine.hasOption("pkcs12")) {
-        pkcs12Sign(commandLine, container, signatureBuilder);
-        fileHasChanged = true;
-      }
-
-      if (fileHasChanged) {
-        container.saveAsFile(inputFile);
-        if(new File(inputFile).exists()) {
-          logger.debug("Container has been successfully saved to " + inputFile);
-        }
-        else {
-          logger.warn("Container was NOT saved to " + inputFile);
-        }
-      }
-
-      if (commandLine.hasOption("verify"))
-        verify(container);
     } catch (DigiDoc4JUtilityException e) {
       throw e;
     } catch (DigiDoc4JException e) {
@@ -188,83 +119,13 @@ public final class DigiDoc4J {
         throw new DigiDoc4JUtilityException(3, "Incorrect extract command");
       }
     }
-  }
-
-  private static DocumentType getContainerType(CommandLine commandLine) {
-    if ("BDOC".equals(commandLine.getOptionValue("type"))) return BDOC;
-    if ("DDOC".equals(commandLine.getOptionValue("type"))) return DDOC;
-
-    String fileName = commandLine.getOptionValue("in");
-    if (fileName != null) {
-      if (fileName.toLowerCase().endsWith(".bdoc")) return BDOC;
-      if (fileName.toLowerCase().endsWith(".ddoc")) return DDOC;
-    }
-    return BDOC;
-  }
-
-  private static void pkcs12Sign(CommandLine commandLine, Container container, SignatureBuilder signatureBuilder) {
-    String[] optionValues = commandLine.getOptionValues("pkcs12");
-    SignatureToken pkcs12Signer = new PKCS12SignatureToken(optionValues[0], optionValues[1].toCharArray());
-    Signature signature = signatureBuilder.
-        withSignatureToken(pkcs12Signer).
-        invokeSigning();
-    container.addSignature(signature);
-  }
-
-  private static void verify(Container container) {
-    ValidationResult validationResult = container.validate();
-
-    List<DigiDoc4JException> exceptions = validationResult.getContainerErrors();
-    boolean isDDoc = StringUtils.equalsIgnoreCase("DDOC", container.getType());
-    for (DigiDoc4JException exception : exceptions) {
-      if (isDDoc && isWarning(((DDocContainer) container).getFormat(), exception))
-        System.out.println("	Warning: " + exception.toString());
-      else
-        System.out.println((isDDoc ? "	" : "	Error: ") + exception.toString());
-    }
-
-    if (isDDoc && (((ValidationResultForDDoc) validationResult).hasFatalErrors())) {
-      throw new DigiDoc4JException("DDoc container has fatal errors");
-    }
-
-    List<Signature> signatures = container.getSignatures();
-    if (signatures == null) {
-      throw new SignatureNotFoundException();
-    }
-
-    for (Signature signature : signatures) {
-      List<DigiDoc4JException> signatureValidationResult = signature.validateSignature().getErrors();
-      if (signatureValidationResult.size() == 0) {
-        System.out.println("Signature " + signature.getId() + " is valid");
-      } else {
-        System.out.println(ANSI_RED + "Signature " + signature.getId() + " is not valid" + ANSI_RESET);
-        for (DigiDoc4JException exception : signatureValidationResult) {
-          System.out.println((isDDoc ? "	" : "	Error: ")
-              + exception.toString());
-        }
-      }
-      if (isDDoc && isDDocTestSignature(signature)) {
-        System.out.println("Signature " + signature.getId() + " is a test signature");
-      }
-    }
-
-    showWarnings(validationResult);
-    verboseMessage(validationResult.getReport());
-
-    if(validationResult.isValid()) {
-      logger.info("Validation was successful. Container is valid");
-    } else {
-      logger.info("Validation finished. Container is NOT valid!");
-      throw new DigiDoc4JException("Container is NOT valid");
+    if(commandLine.hasOption("pkcs11") && commandLine.hasOption("pkcs12")) {
+      throw new DigiDoc4JUtilityException(5, "Cannot sign with both PKCS#11 and PKCS#12");
     }
   }
 
-  private static void showWarnings(ValidationResult validationResult) {
-    if (warnings) {
-      for (DigiDoc4JException warning : validationResult.getWarnings()) {
-        System.out.println("Warning: " + warning.toString());
-      }
-    }
+  private static boolean isMultipleContainerCreation(CommandLine commandLine) {
+    return commandLine.hasOption("inputDir") && commandLine.hasOption("outputDir");
   }
 
   /**
@@ -284,14 +145,6 @@ public final class DigiDoc4J {
         || (errorCode == DigiDocException.ERR_ISSUER_XMLNS && !documentFormat.equals(SignedDoc.FORMAT_SK_XML)));
   }
 
-  private static boolean isDDocTestSignature(Signature signature) {
-    CertValue certValue = ((DDocSignature) signature).getCertValueOfType(CertValue.CERTVAL_TYPE_SIGNER);
-    if (certValue != null) {
-      if (DigiDocGenFactory.isTestCard(certValue.getCert())) return true;
-    }
-    return false;
-  }
-
   private static Options createParameters() {
     Options options = new Options();
     options.addOption("v", "verify", false, "verify input file");
@@ -301,11 +154,15 @@ public final class DigiDoc4J {
 
     options.addOption(type());
     options.addOption(inputFile());
+    options.addOption(inputDir());
+    options.addOption(outputDir());
     options.addOption(addFile());
     options.addOption(removeFile());
     options.addOption(pkcs12Sign());
+    options.addOption(pkcs11Sign());
     options.addOption(signatureProfile());
     options.addOption(encryptionAlgorithm());
+    options.addOption(mimeType());
     options.addOption(extractDataFile());
 
     return options;
@@ -324,15 +181,16 @@ public final class DigiDoc4J {
         .withDescription("sets the encryption algorithm (RSA/ECDSA).").withLongOpt("encryption").create("e");
   }
 
-  private static void verboseMessage(String message) {
-    if (verboseMode)
-      System.out.println(message);
-  }
-
   @SuppressWarnings("AccessStaticViaInstance")
   private static Option pkcs12Sign() {
     return withArgName("pkcs12Keystore password").hasArgs(2).withValueSeparator(' ')
         .withDescription("sets pkcs12 keystore and keystore password").create("pkcs12");
+  }
+
+  @SuppressWarnings("AccessStaticViaInstance")
+  private static Option pkcs11Sign() {
+    return withArgName("pkcs11ModulePath pin slot").hasArgs(3).withValueSeparator(' ')
+        .withDescription("sets pkcs11 module path, pin(password) and a slot index").create("pkcs11");
   }
 
   @SuppressWarnings("AccessStaticViaInstance")
@@ -354,6 +212,24 @@ public final class DigiDoc4J {
   }
 
   @SuppressWarnings("AccessStaticViaInstance")
+  private static Option inputDir() {
+    return withArgName("inputDir").hasArg()
+        .withDescription("directory path containing data files to sign").create("inputDir");
+  }
+
+  @SuppressWarnings("AccessStaticViaInstance")
+  private static Option mimeType() {
+    return withArgName("mimeType").hasArg()
+        .withDescription("Specifies input file mime type when using inputDir").create("mimeType");
+  }
+
+  @SuppressWarnings("AccessStaticViaInstance")
+  private static Option outputDir() {
+    return withArgName("outputDir").hasArg()
+        .withDescription("directory path where containers are saved").create("outputDir");
+  }
+
+  @SuppressWarnings("AccessStaticViaInstance")
   private static Option type() {
     return withArgName("type").hasArg()
         .withDescription("sets container type. types can be DDOC or BDOC").withLongOpt("type").create("t");
@@ -367,22 +243,5 @@ public final class DigiDoc4J {
 
   private static void showVersion() {
     System.out.println("DigiDoc4j version " + Version.VERSION);
-  }
-
-  private static void extractDataFile(Container container, CommandLine commandLine) {
-    String[] optionValues = commandLine.getOptionValues(EXTRACT_CMD);
-    String fileNameToExtract = optionValues[0];
-    String extractPath = optionValues[1];
-    boolean fileFound = false;
-    for (DataFile dataFile : container.getDataFiles()) {
-      if(StringUtils.equalsIgnoreCase(fileNameToExtract, dataFile.getName())) {
-        logger.info("Extracting " + dataFile.getName() + " to " + extractPath);
-        dataFile.saveAs(extractPath);
-        fileFound = true;
-      }
-    }
-    if(!fileFound) {
-      throw new DigiDoc4JUtilityException(4, "Data file " + fileNameToExtract + " was not found in the container");
-    }
   }
 }

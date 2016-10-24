@@ -19,6 +19,7 @@ import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,8 +32,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Permission;
+import java.util.Arrays;
 
 import static org.apache.commons.io.FileUtils.copyFile;
+import static org.apache.commons.io.FileUtils.writeStringToFile;
 import static org.digidoc4j.Configuration.Mode;
 
 import org.digidoc4j.SignatureProfile;
@@ -55,6 +58,20 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
+  private String testBdocContainer;
+  private File outputFolder;
+  private File inputFolder;
+  private String outputDirPath;
+  private String inputFolderPath;
+
+  @Before
+  public void setUp() throws Exception {
+    testBdocContainer = testFolder.newFile("test-container.bdoc").getPath();
+    outputFolder = testFolder.newFolder("outputDirectory");
+    inputFolder = testFolder.newFolder("inputDirectory");
+    outputDirPath = outputFolder.getPath();
+    inputFolderPath = inputFolder.getPath();
+  }
 
   @After
   public void cleanUp() throws Exception {
@@ -338,12 +355,127 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  @Ignore("Requires a physical smart card")
+  public void createContainer_andSignIt_withPkcs11() throws Exception {
+    Files.deleteIfExists(Paths.get(testBdocContainer));
+    String[] params = new String[]{"-in", testBdocContainer, "-add", "testFiles/test.txt", "text/plain", "-pkcs11",
+        "/usr/local/lib/opensc-pkcs11.so", "22975", "2"};
+    callMainWithoutSystemExit(params);
+
+    Container container = ContainerOpener.open(testBdocContainer);
+    assertEquals(1, container.getDataFiles().size());
+    assertEquals("test.txt", container.getDataFiles().get(0).getName());
+    assertEquals(1, container.getSignatures().size());
+    assertTrue(container.validate().isValid());
+  }
+
+  @Test
+  public void itShouldNotBePossible_ToSignWithBoth_Pkcs11AndPkcs12() throws Exception {
+    exit.expectSystemExitWithStatus(5);
+    Files.deleteIfExists(Paths.get(testBdocContainer));
+    String[] params = new String[]{"-in", testBdocContainer, "-add", "testFiles/test.txt", "text/plain", "-pkcs11",
+        "/usr/local/lib/opensc-pkcs11.so", "01497", "2", "-pkcs12", "testFiles/signout.p12", "test"};
+    DigiDoc4J.main(params);
+  }
+
+  @Test
   public void createsContainerAndAddsFileWithoutMimeType() throws Exception {
     exit.expectSystemExitWithStatus(2);
     Files.deleteIfExists(Paths.get("test1.ddoc"));
     String[] params = new String[]{"-in", "test1.ddoc", "-add", "testFiles/test.txt", "-pkcs12",
         "testFiles/signout.p12", "test"};
     DigiDoc4J.main(params);
+  }
+
+  @Test
+  public void createMultipleSignedContainers_whereInputDirIsFile_shouldThrowException() throws Exception {
+    String inputFolderPath = testFolder.newFile("inputDir").getPath();
+    exit.expectSystemExitWithStatus(6);
+    String[] params = new String[]{"-inputDir", inputFolderPath, "-outputDir", outputDirPath, "-pkcs12",
+        "testFiles/signout.p12", "test"};
+    DigiDoc4J.main(params);
+  }
+
+  @Test
+  public void createMultipleSignedContainers_whereOutputDirIsFile_shouldThrowException() throws Exception {
+    String outputDirPath = testFolder.newFile("outputDir").getPath();
+    exit.expectSystemExitWithStatus(6);
+    String[] params = new String[]{"-inputDir", inputFolderPath, "-outputDir", outputDirPath, "-pkcs12",
+        "testFiles/signout.p12", "test"};
+    DigiDoc4J.main(params);
+  }
+
+  @Test
+  public void createMultipleSignedContainers_withEmptyInputDir_shouldDoNothing() throws Exception {
+    exit.expectSystemExitWithStatus(0);
+    String[] params = new String[]{"-inputDir", inputFolderPath, "-outputDir", outputDirPath, "-pkcs12",
+        "testFiles/signout.p12", "test"};
+    DigiDoc4J.main(params);
+  }
+
+  @Test
+  public void createMultipleSignedContainers_withinInputDirectory() throws Exception {
+    writeStringToFile(new File(inputFolder, "firstDoc.txt"), "Hello daddy");
+    writeStringToFile(new File(inputFolder, "secondDoc.pdf"), "John Matrix");
+    writeStringToFile(new File(inputFolder, "thirdDoc.acc"), "Major General Franklin Kirby");
+
+    String[] params = new String[]{"-inputDir", inputFolderPath, "-outputDir", outputDirPath, "-pkcs12",
+        "testFiles/signout.p12", "test"};
+
+    callMainWithoutSystemExit(params);
+
+    assertEquals(3, outputFolder.listFiles().length);
+    assertContainsFile(outputDirPath, "firstDoc.bdoc");
+    assertContainsFile(outputDirPath, "secondDoc.bdoc");
+    assertContainsFile(outputDirPath, "thirdDoc.bdoc");
+  }
+
+  @Test
+  public void createMultipleSignedContainers_withoutOutputDirectory_shouldCreateOutputDir() throws Exception {
+    String outputDirPath = new File(inputFolder, "notExistingOutputFolder").getPath();
+    writeStringToFile(new File(inputFolder, "firstDoc.txt"), "Hello daddy");
+    writeStringToFile(new File(inputFolder, "secondDoc.pdf"), "John Matrix");
+
+    String[] params = new String[]{"-inputDir", inputFolderPath, "-outputDir", outputDirPath, "-pkcs12",
+        "testFiles/signout.p12", "test", "-type", "DDOC"};
+
+    callMainWithoutSystemExit(params);
+
+    File outputFolder = new File(outputDirPath);
+    assertTrue(outputFolder.exists());
+    assertTrue(outputFolder.isDirectory());
+    assertEquals(2, outputFolder.listFiles().length);
+    String fileName = "firstDoc.ddoc";
+    assertContainsFile(outputDirPath, fileName);
+    assertContainsFile(outputDirPath, "secondDoc.ddoc");
+  }
+
+  @Test
+  public void createMultipleSignedContainers_withExistingSavedContainers_shouldThrowException() throws Exception {
+    exit.expectSystemExitWithStatus(7);
+    writeStringToFile(new File(inputFolder, "firstDoc.txt"), "Hello daddy");
+    writeStringToFile(new File(outputFolder, "firstDoc.bdoc"), "John Matrix");
+
+    String[] params = new String[]{"-inputDir", inputFolderPath, "-outputDir", outputDirPath, "-pkcs12",
+        "testFiles/signout.p12", "test"};
+
+    DigiDoc4J.main(params);
+  }
+
+  @Test
+  public void createSignedContainer_forEachFile_withInputDirectoryAndMimeType() throws Exception {
+    writeStringToFile(new File(inputFolder, "firstDoc.txt"), "Hello daddy");
+    writeStringToFile(new File(inputFolder, "secondDoc.pdf"), "John Matrix");
+
+    String[] params = new String[]{"-inputDir", inputFolderPath, "-mimeType", "text/xml", "-outputDir", outputDirPath, "-pkcs12",
+        "testFiles/signout.p12", "test"};
+
+    callMainWithoutSystemExit(params);
+
+    Container container = ContainerOpener.open(new File(outputDirPath, "firstDoc.bdoc").getPath());
+    assertEquals("text/xml", container.getDataFiles().get(0).getMediaType());
+    container = ContainerOpener.open(new File(outputDirPath, "secondDoc.bdoc").getPath());
+    assertEquals("text/xml", container.getDataFiles().get(0).getMediaType());
   }
 
   @Test
@@ -505,11 +637,11 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     DigiDoc4J.main(params);
   }
 
-
   @Test
   public void testIsWarningWhenNoWarningExists() throws DigiDocException {
     assertFalse(isWarning(SignedDoc.FORMAT_DIGIDOC_XML, new DigiDoc4JException(1, "testError")));
   }
+
 
   @Test
   public void testIsNotWarningWhenCodeIsErrIssuerXmlnsAndDocumentFormatIsSkXML() throws DigiDocException {
@@ -608,5 +740,12 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     } catch (DigiDoc4JUtilityException ignore) {
     }
     System.setSecurityManager(securityManager);
+  }
+
+  private void assertContainsFile(String outputDirPath, String fileName) {
+    File dir = new File(outputDirPath);
+    File file = new File(dir, fileName);
+    String errorMsg = "'" + fileName + "' is not present in dir " + Arrays.toString(dir.list());
+    assertTrue(errorMsg, file.exists());
   }
 }

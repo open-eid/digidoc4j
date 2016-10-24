@@ -47,7 +47,7 @@ public class TestSignatureBuilder extends SignatureBuilder {
   }
 
   @Override
-  public Signature openFromExistingDocument(byte[] signatureDocument) {
+  public Signature openAdESSignature(byte[] signatureDocument) {
     return null;
   }
 

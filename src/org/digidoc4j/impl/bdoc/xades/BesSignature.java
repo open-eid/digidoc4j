@@ -10,10 +10,9 @@
 
 package org.digidoc4j.impl.bdoc.xades;
 
-import static eu.europa.esig.dss.DSSXMLUtils.createDocument;
-
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -26,22 +25,19 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.X509Cert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import eu.europa.esig.dss.ASiCNamespaces;
 import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.DSSXMLUtils;
-import eu.europa.esig.dss.XPathQueryHolder;
 import eu.europa.esig.dss.validation.SignatureProductionPlace;
 import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.xades.DSSXMLUtils;
+import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class BesSignature extends DssXadesSignature {
 
   private final static Logger logger = LoggerFactory.getLogger(BesSignature.class);
-  private final static String ASICS_NS = "asic:XAdESSignatures";
   private SignatureProductionPlace signerLocation;
   private Element signatureElement;
   private XPathQueryHolder xPathQueryHolder; // This variable contains the XPathQueryHolder adapted to the signature schema.
@@ -94,7 +90,7 @@ public class BesSignature extends DssXadesSignature {
   @Override
   public List<String> getSignerRoles() {
     String[] claimedSignerRoles = getDssSignature().getClaimedSignerRoles();
-    return claimedSignerRoles == null ? null : Arrays.asList(claimedSignerRoles);
+    return claimedSignerRoles == null ? Collections.<String>emptyList() : Arrays.asList(claimedSignerRoles);
   }
 
   @Override
@@ -118,10 +114,11 @@ public class BesSignature extends DssXadesSignature {
   }
 
   @Override
-  public byte[] getAdESSignature() {
-    logger.debug("Getting signature byte array");
-    Document document = createDocument(ASiCNamespaces.ASiC, ASICS_NS, signatureElement);
-    return DSSXMLUtils.transformDomToByteArray(document);
+  public byte[] getSignatureValue() {
+    logger.debug("Getting signature value");
+    Element signatureValueElement = getDssSignature().getSignatureValue();
+    String textContent = signatureValueElement.getTextContent();
+    return Base64.decodeBase64(textContent);
   }
 
   /**
@@ -165,7 +162,7 @@ public class BesSignature extends DssXadesSignature {
   @Override
   public List<BasicOCSPResp> getOcspResponses() {
     logger.info("The signature does not contain OCSP response");
-    return null;
+    return Collections.emptyList();
   }
 
   /**

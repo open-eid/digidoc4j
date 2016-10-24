@@ -20,8 +20,8 @@ import org.digidoc4j.impl.bdoc.xades.XadesSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.validation.report.DiagnosticData;
-import eu.europa.esig.dss.validation.report.Reports;
+import eu.europa.esig.dss.validation.reports.Reports;
+import eu.europa.esig.dss.validation.reports.wrapper.DiagnosticData;
 
 public class TimemarkSignatureValidator extends XadesSignatureValidator {
 

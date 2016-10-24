@@ -13,8 +13,8 @@ package org.digidoc4j.impl.bdoc.xades.validation;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import eu.europa.esig.dss.validation.report.Reports;
-import eu.europa.esig.dss.validation.report.SimpleReport;
+import eu.europa.esig.dss.validation.reports.Reports;
+import eu.europa.esig.dss.validation.reports.SimpleReport;
 
 public class XadesValidationResult {
 

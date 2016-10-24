@@ -18,6 +18,7 @@ import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 import static org.digidoc4j.X509Cert.SubjectName.GIVENNAME;
 import static org.digidoc4j.X509Cert.SubjectName.SERIALNUMBER;
 import static org.digidoc4j.X509Cert.SubjectName.SURNAME;
+import static org.digidoc4j.testutils.TestHelpers.containsErrorMessage;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.assertEquals;
@@ -39,12 +40,14 @@ import org.digidoc4j.exceptions.CertificateNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.impl.Certificates;
-import org.digidoc4j.impl.ddoc.DDocFacade;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.impl.bdoc.tsl.TSLCertificateSourceImpl;
+import org.digidoc4j.impl.ddoc.DDocFacade;
 import org.digidoc4j.impl.ddoc.DDocOpener;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TSLHelper;
 import org.digidoc4j.testutils.TestDataBuilder;
+import org.digidoc4j.testutils.TestHelpers;
 import org.digidoc4j.utils.Helper;
 import org.junit.Before;
 import org.junit.Rule;
@@ -208,7 +211,9 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   @Test
   public void testValidationForBDocDefaultValidationWithFailure() throws Exception {
     Signature signature = ContainerOpener.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
-    assertEquals(2, signature.validateSignature().getErrors().size());
+    List<DigiDoc4JException> errors = signature.validateSignature().getErrors();
+    assertTrue(containsErrorMessage(errors, "The reference data object(s) is not intact!"));
+    assertTrue(containsErrorMessage(errors, "Signature has an invalid timestamp"));
   }
 
   @Test
@@ -224,7 +229,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     String report = validate.getReport();
     assertTrue(report.contains("Id=\"S0\" SignatureFormat=\"XAdES_BASELINE_LT\""));
     assertTrue(report.contains("Id=\"S1\" SignatureFormat=\"XAdES_BASELINE_LT\""));
-    assertTrue(report.contains("<Indication>VALID</Indication>"));
+    assertTrue(report.contains("<Indication>TOTAL_PASSED</Indication>"));
     assertTrue(report.contains("<Indication>INDETERMINATE</Indication>"));
   }
 
@@ -375,6 +380,22 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     assertEquals("11404176865", cert.getSubjectName(SERIALNUMBER));
     assertEquals("märü-lööz", cert.getSubjectName(GIVENNAME).toLowerCase());
     assertEquals("žõrinüwšky", cert.getSubjectName(SURNAME).toLowerCase());
+  }
+
+  @Test
+  public void gettingOcspCertificate_whenTslIsNotLoaded() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
+    configuration.setTSL(certificateSource);
+
+    Container container = ContainerBuilder.
+        aContainer().
+        withConfiguration(configuration).
+        fromExistingFile("testFiles/valid-containers/valid-bdoc-tm.bdoc").
+        build();
+    Signature signature = container.getSignatures().get(0);
+
+    assertNotNull(signature.getOCSPCertificate());
   }
 
   private Signature getSignature(Container.DocumentType documentType) {

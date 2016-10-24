@@ -11,33 +11,37 @@
 package org.digidoc4j.impl.bdoc.xades;
 
 import static eu.europa.esig.dss.DigestAlgorithm.SHA256;
-import static eu.europa.esig.dss.DigestAlgorithm.forXML;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.impl.bdoc.SkDataLoader;
+import org.digidoc4j.impl.bdoc.ocsp.BDocTSOcspSource;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.digidoc4j.impl.bdoc.ocsp.BDocTSOcspSource;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.EncryptionAlgorithm;
 import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignerLocation;
+import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 
 public class XadesSigningDssFacadeTest {
 
@@ -46,14 +50,12 @@ public class XadesSigningDssFacadeTest {
 
   @Before
   public void setUp() throws Exception {
-    facade = new XadesSigningDssFacade(configuration.getTspSource());
-    facade.setCertificateSource(configuration.getTSL());
-    facade.setOcspSource(new BDocTSOcspSource(configuration));
+    facade = createSigningFacade();
   }
 
   @Test
   public void getDataToSign() throws Exception {
-    facade = new XadesSigningDssFacade(configuration.getTspSource());
+    facade = new XadesSigningDssFacade();
     List<DataFile> dataFilesToSign = createDataFilesToSign();
     byte[] dataToSign = getDataToSign(dataFilesToSign);
     assertNotNull(dataToSign);
@@ -63,7 +65,7 @@ public class XadesSigningDssFacadeTest {
   @Test
   public void signDocumentTest() throws Exception {
     facade.setCertificateSource(configuration.getTSL());
-    facade.setOcspSource(new BDocTSOcspSource(configuration));
+    facade.setOcspSource(createOcspSource());
     DSSDocument signedDocument = signTestData(DigestAlgorithm.SHA256);
     assertDocumentSigned(signedDocument);
   }
@@ -101,7 +103,7 @@ public class XadesSigningDssFacadeTest {
   }
 
   @Test
-  public void signWithSignaturePolicy() {
+  public void signWithSignaturePolicy() throws IOException {
     Policy signaturePolicy = new Policy();
     signaturePolicy.setId("urn:oid:1.3.6.1.4.1.10015.1000.3.2.1");
     signaturePolicy.setDigestValue(decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));
@@ -130,9 +132,7 @@ public class XadesSigningDssFacadeTest {
   public void extendBesSignature_toTimestampSignature() throws Exception {
     facade.setSignatureLevel(XAdES_BASELINE_B);
     DSSDocument signedDocument = signTestData(DigestAlgorithm.SHA256);
-    XadesSigningDssFacade extendingFacade = new XadesSigningDssFacade(configuration.getTspSource());
-    extendingFacade.setCertificateSource(configuration.getTSL());
-    extendingFacade.setOcspSource(new BDocTSOcspSource(configuration));
+    XadesSigningDssFacade extendingFacade = createSigningFacade();
     extendingFacade.setSignatureLevel(XAdES_BASELINE_LT);
     DSSDocument detachedContent = new FileDocument("testFiles/test.txt");
     DSSDocument extendedDocument = extendingFacade.extendSignature(signedDocument, detachedContent);
@@ -157,6 +157,30 @@ public class XadesSigningDssFacadeTest {
     return TestSigningHelper.sign(digestToSign, digestAlgorithm);
   }
 
+  private XadesSigningDssFacade createSigningFacade() {
+    XadesSigningDssFacade facade = new XadesSigningDssFacade();
+    facade.setCertificateSource(configuration.getTSL());
+    facade.setOcspSource(createOcspSource());
+    facade.setTspSource(createTSPSource());
+    return facade;
+  }
+
+  private BDocTSOcspSource createOcspSource() {
+    BDocTSOcspSource ocspSource = new BDocTSOcspSource(configuration);
+    SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(configuration);
+    dataLoader.setUserAgentSignatureProfile(SignatureProfile.LT);
+    ocspSource.setDataLoader(dataLoader);
+    return ocspSource;
+  }
+
+  private OnlineTSPSource createTSPSource() {
+    SkDataLoader timestampDataLoader = SkDataLoader.createTimestampDataLoader(configuration);
+    timestampDataLoader.setUserAgentSignatureProfile(SignatureProfile.LT);
+    OnlineTSPSource tspSource = new OnlineTSPSource(configuration.getTspSource());
+    tspSource.setDataLoader(timestampDataLoader);
+    return tspSource;
+  }
+
   private List<DataFile> createDataFilesToSign() {
     List<DataFile> dataFilesToSign = new ArrayList<>();
     dataFilesToSign.add(new DataFile("testFiles/test.txt", "plain/text"));
@@ -164,17 +188,14 @@ public class XadesSigningDssFacadeTest {
   }
 
   private byte[] calculateDigestToSign(byte[] dataToDigest, DigestAlgorithm digestAlgorithm) {
-    return DSSUtils.digest(convertToDssDigestAlgorithm(digestAlgorithm), dataToDigest);
+    return DSSUtils.digest(digestAlgorithm.getDssDigestAlgorithm(), dataToDigest);
   }
 
-  private eu.europa.esig.dss.DigestAlgorithm convertToDssDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
-    return forXML(digestAlgorithm.toString());
-  }
-
-  private void assertDocumentSigned(DSSDocument signedDocument) {
+  private void assertDocumentSigned(DSSDocument signedDocument) throws IOException {
     assertNotNull(signedDocument);
-    assertNotNull(signedDocument.getBytes());
-    assertTrue(signedDocument.getBytes().length > 0);
+    byte[] bytes = IOUtils.toByteArray(signedDocument.openStream());
+    assertNotNull(bytes);
+    assertTrue(bytes.length > 0);
   }
 
 }

@@ -49,11 +49,6 @@ public class StreamDocumentTest {
   }
 
   @Test
-  public void getBytes() throws Exception {
-    assertArrayEquals(new byte[]{0x041}, document.getBytes());
-  }
-
-  @Test
   public void getName() throws Exception {
     assertEquals("suur_a.txt", document.getName());
   }
@@ -121,13 +116,13 @@ public class StreamDocumentTest {
     document = new StreamDocument(stream, "suur_a.txt", MimeType.TEXT);
     stream.close();
 
-    document.getBytes();
+    document.openStream();
   }
 
   @Test(expected = DSSException.class)
   public void testGetBytesThrowsException() throws Exception {
     StreamDocument mockDocument = new MockStreamDocument();
-    mockDocument.getBytes();
+    mockDocument.openStream();
   }
 
   @Test(expected = DSSException.class)

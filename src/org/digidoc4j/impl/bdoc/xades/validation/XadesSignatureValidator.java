@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl.bdoc.xades.validation;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,6 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidOcspNonceException;
 import org.digidoc4j.exceptions.InvalidTimestampException;
 import org.digidoc4j.exceptions.MiltipleSignedPropertiesException;
-import org.digidoc4j.exceptions.PolicyUrlMissingException;
 import org.digidoc4j.exceptions.SignedPropertiesMissingException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
@@ -33,16 +32,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-import eu.europa.esig.dss.DSSXMLUtils;
-import eu.europa.esig.dss.XPathQueryHolder;
+import eu.europa.esig.dss.validation.MessageTag;
 import eu.europa.esig.dss.validation.policy.rules.Indication;
-import eu.europa.esig.dss.validation.policy.rules.MessageTag;
-import eu.europa.esig.dss.validation.policy.rules.SubIndication;
-import eu.europa.esig.dss.validation.report.Conclusion;
-import eu.europa.esig.dss.validation.report.DiagnosticData;
-import eu.europa.esig.dss.validation.report.Reports;
-import eu.europa.esig.dss.validation.report.SimpleReport;
+import eu.europa.esig.dss.validation.reports.DetailedReport;
+import eu.europa.esig.dss.validation.reports.Reports;
+import eu.europa.esig.dss.validation.reports.SimpleReport;
+import eu.europa.esig.dss.validation.reports.wrapper.DiagnosticData;
 import eu.europa.esig.dss.x509.SignaturePolicy;
+import eu.europa.esig.dss.xades.DSSXMLUtils;
+import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class XadesSignatureValidator implements SignatureValidator {
@@ -80,7 +78,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     addReportedErrors();
     addReportedWarnings();
     addTimestampErrors();
-    addOcspNonceErrors();
+    addOcspErrors();
   }
 
   private void addPolicyValidationErrors() {
@@ -91,9 +89,6 @@ public class XadesSignatureValidator implements SignatureValidator {
       if (!StringUtils.equals(TM_POLICY, policyIdentifier)) {
         addValidationError(new WrongPolicyIdentifierException("Wrong policy identifier: " + policyIdentifier));
       } else {
-        if (isBlank(policy.getUrl())) {
-          addValidationError(new PolicyUrlMissingException("Policy url is missing for identifier: " + policyIdentifier));
-        }
         addPolicyIdentifierQualifierValidationErrors();
       }
     }
@@ -140,23 +135,32 @@ public class XadesSignatureValidator implements SignatureValidator {
   private void addReportedErrors() {
     logger.debug("Extracting reported errors");
     if (simpleReport != null) {
-      for (Conclusion.BasicInfo error : simpleReport.getErrors(signatureId)) {
-        String errorMessage = error.toString();
+      for (String errorMessage : simpleReport.getErrors(signatureId)) {
+        if(isRedundantErrorMessage(errorMessage)) {
+          logger.debug("Ignoring redundant error message: " + errorMessage);
+          continue;
+        }
         logger.error(errorMessage);
-        if(errorMessage.contains(MessageTag.BBB_XCV_ISCR_ANS.getMessage()))
-          addValidationError(new CertificateRevokedException(error.toString()));
-        else
-          addValidationError(new DigiDoc4JException(error.toString()));
+        if(errorMessage.contains(MessageTag.BBB_XCV_ISCR_ANS.getMessage())) {
+          addValidationError(new CertificateRevokedException(errorMessage));
+        } else if(errorMessage.contains(MessageTag.PSV_IPSVC_ANS.getMessage())) {
+          addValidationError(new CertificateRevokedException(errorMessage));
+        } else {
+          addValidationError(new DigiDoc4JException(errorMessage));
+        }
       }
     }
   }
 
+  private boolean isRedundantErrorMessage(String errorMessage) {
+    return equalsIgnoreCase(errorMessage, MessageTag.ADEST_ROBVPIIC_ANS.getMessage()) || equalsIgnoreCase(errorMessage, MessageTag.LTV_ABSV_ANS.getMessage()) || equalsIgnoreCase(errorMessage, MessageTag.ARCH_LTVV_ANS.getMessage()) || equalsIgnoreCase(errorMessage, MessageTag.BBB_XCV_RFC_ANS.getMessage()) || equalsIgnoreCase(errorMessage, MessageTag.BBB_XCV_SUB_ANS.getMessage());
+  }
+
   private void addReportedWarnings() {
     if (simpleReport != null) {
-      for (Conclusion.BasicInfo warning : simpleReport.getWarnings(signatureId)) {
-        String message = warning.toString();
-        logger.warn(message);
-        validationWarnings.add(new DigiDoc4JException(warning.toString()));
+      for (String warning : simpleReport.getWarnings(signatureId)) {
+        logger.warn(warning);
+        validationWarnings.add(new DigiDoc4JException(warning));
       }
     }
   }
@@ -179,16 +183,9 @@ public class XadesSignatureValidator implements SignatureValidator {
       return true;
     }
     String timestampId = timestampIdList.get(0);
-    return diagnosticData.isTimestampMessageImprintIntact(timestampId) && !isIndeterminateTimestamp();
-  }
-
-  private boolean isIndeterminateTimestamp() {
-    String indication = simpleReport.getIndication(signatureId);
-    String subIndication = simpleReport.getSubIndication(signatureId);
-    if (Indication.INDETERMINATE.equals(indication)) {
-      return SubIndication.NO_VALID_TIMESTAMP.equals(subIndication);
-    }
-    return false;
+    DetailedReport detailedReport = validationReport.getDetailedReport();
+    Indication indication = detailedReport.getTimestampValidationIndication(timestampId);
+    return isIndicationValid(indication);
   }
 
   private SimpleReport getSimpleReport(Map<String, SimpleReport> simpleReports) {
@@ -199,8 +196,9 @@ public class XadesSignatureValidator implements SignatureValidator {
     return simpleReport;
   }
 
-  private void addOcspNonceErrors() {
-    if(!new OcspNonceValidator(getDssSignature()).isValid()) {
+  private void addOcspErrors() {
+    OcspNonceValidator ocspValidator = new OcspNonceValidator(getDssSignature());
+    if(!ocspValidator.isValid()) {
       logger.error("OCSP nonce is invalid");
       addValidationError(new InvalidOcspNonceException());
     }
@@ -219,5 +217,9 @@ public class XadesSignatureValidator implements SignatureValidator {
 
   private XAdESSignature getDssSignature() {
     return signature.getDssSignature();
+  }
+
+  private boolean isIndicationValid(Indication indication) {
+    return indication == Indication.PASSED || indication == Indication.TOTAL_PASSED;
   }
 }

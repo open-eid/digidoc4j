@@ -24,8 +24,10 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 import eu.europa.esig.dss.client.http.Protocol;
@@ -111,7 +113,6 @@ import eu.europa.esig.dss.client.http.Protocol;
  * <li>DIGIDOC_PKCS12_CONTAINER: OCSP access certificate file</li>
  * <li>DIGIDOC_PKCS12_PASSWD: OCSP access certificate password</li>
  * <li>OCSP_SOURCE: Online Certificate Service Protocol source</li>
- * <li>PKCS11_MODULE: PKCS11 Module file</li>
  * <li>SIGN_OCSP_REQUESTS: Should OCSP requests be signed? Allowed values: true, false</li>
  * <li>TSL_LOCATION: TSL Location</li>
  * <li>TSP_SOURCE: Time Stamp Protocol source address</li>
@@ -119,6 +120,17 @@ import eu.europa.esig.dss.client.http.Protocol;
  * <li>TSL_KEYSTORE_LOCATION: keystore location for tsl signing certificates</li>
  * <li>TSL_KEYSTORE_PASSWORD: keystore password for the keystore in TSL_KEYSTORE_LOCATION</li>
  * <li>TSL_CACHE_EXPIRATION_TIME: TSL cache expiration time in milliseconds</li>
+ * <li>TRUSTED_TERRITORIES: list of countries and territories to trust and load TSL certificates (for example, EE, LV, FR)</li>
+ * <li>HTTP_PROXY_HOST: network proxy host name</li>
+ * <li>HTTP_PROXY_PORT: network proxy port</li>
+ * <li>HTTP_PROXY_USER: network proxy user (for basic auth proxy)</li>
+ * <li>HTTP_PROXY_PASSWORD: network proxy password (for basic auth proxy)</li>
+ * <li>SSL_KEYSTORE_PATH: SSL KeyStore path</li>
+ * <li>SSL_KEYSTORE_TYPE: SSL KeyStore type (default is "jks")</li>
+ * <li>SSL_KEYSTORE_PASSWORD: SSL KeyStore password (default is an empty string)</li>
+ * <li>SSL_TRUSTSTORE_PATH: SSL TrustStore path</li>
+ * <li>SSL_TRUSTSTORE_TYPE: SSL TrustStore type (default is "jks")</li>
+ * <li>SSL_TRUSTSTORE_PASSWORD: SSL TrustStore password (default is an empty string)</li>
  * </ul>
  */
 public class Configuration implements Serializable {
@@ -140,6 +152,7 @@ public class Configuration implements Serializable {
   public static final String DEFAULT_USE_LOCAL_TSL = "true";
   public static final String DEFAULT_MAX_DATAFILE_CACHED = "-1";
   public static final String DEFAULT_TSL_KEYSTORE_LOCATION = "keystore/keystore.jks";
+  public static final List<String> DEFAULT_TRUESTED_TERRITORIES = Arrays.asList("AT", "BE", "BG", "CY", "CZ",/*"DE",*/"DK", "EE", "ES", "FI", "FR", "GR", "HU",/*"HR",*/"IE", "IS", "IT", "LT", "LU", "LV", "LI", "MT","NO","NL", "PL", "PT", "RO", "SE", "SI", "SK", "UK");
 
   public static final long CACHE_ALL_DATA_FILES = -1;
   public static final long CACHE_NO_DATA_FILES = 0;
@@ -157,6 +170,19 @@ public class Configuration implements Serializable {
   private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
   private TslManager tslManager;
   Map<String, String> configuration = new HashMap<>();
+
+  private String httpProxyHost;
+  private Integer httpProxyPort;
+  private String httpProxyUser;
+  private String httpProxyPassword;
+  private List<String> trustedTerritories;
+  private String sslKeystorePath;
+  private String sslKeystoreType;
+  private String sslKeystorePassword;
+  private String sslTruststorePath;
+  private String sslTruststoreType;
+  private String sslTruststorePassword;
+  private transient ExecutorService threadExecutor;
 
   /**
    * Application mode
@@ -182,7 +208,6 @@ public class Configuration implements Serializable {
     logger.debug("");
     tslManager = new TslManager(this);
 
-    configuration.put("pkcs11Module", "/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so");
     configuration.put("connectionTimeout", String.valueOf(ONE_SECOND));
     configuration.put("socketTimeout", String.valueOf(ONE_SECOND));
     configuration.put("tslKeyStorePassword", "digidoc4j-password");
@@ -206,6 +231,7 @@ public class Configuration implements Serializable {
       configuration.put("ocspSource", PROD_OCSP_URL);
       configuration.put(SIGN_OCSP_REQUESTS, "false");
       jDigiDocConfiguration.put(SIGN_OCSP_REQUESTS, "false");
+      trustedTerritories = DEFAULT_TRUESTED_TERRITORIES;
     }
     logger.debug(mode + "configuration:\n" + configuration);
 
@@ -465,7 +491,6 @@ public class Configuration implements Serializable {
     setConfigurationValue("TSL_LOCATION", "tslLocation");
     setConfigurationValue("TSP_SOURCE", "tspSource");
     setConfigurationValue("VALIDATION_POLICY", "validationPolicy");
-    setConfigurationValue("PKCS11_MODULE", "pkcs11Module");
     setConfigurationValue("OCSP_SOURCE", "ocspSource");
     setConfigurationValue(OCSP_PKCS_12_CONTAINER, "OCSPAccessCertificateFile");
     setConfigurationValue(OCSP_PKCS_12_PASSWD, "OCSPAccessCertificatePassword");
@@ -481,6 +506,58 @@ public class Configuration implements Serializable {
     setJDigiDocConfigurationValue(OCSP_PKCS_12_CONTAINER, getOCSPAccessCertificateFileName());
 
     initOcspAccessCertPasswordForJDigidoc();
+
+    httpProxyHost = getParameterFromFile("HTTP_PROXY_HOST");
+    httpProxyPort = getIntParameterFromFile("HTTP_PROXY_PORT");
+    httpProxyUser = getParameterFromFile("HTTP_PROXY_USER");
+    httpProxyPassword = getParameterFromFile("HTTP_PROXY_PASSWORD");
+
+    sslKeystorePath = getParameterFromFile("SSL_KEYSTORE_PATH");
+    sslKeystoreType = getParameterFromFile("SSL_KEYSTORE_TYPE");
+    sslKeystorePassword = getParameterFromFile("SSL_KEYSTORE_PASSWORD");
+    sslTruststorePath = getParameterFromFile("SSL_TRUSTSTORE_PATH");
+    sslTruststoreType = getParameterFromFile("SSL_TRUSTSTORE_TYPE");
+    sslTruststorePassword = getParameterFromFile("SSL_TRUSTSTORE_PASSWORD");
+
+    updateTrustedTerritories();
+  }
+
+  private void updateTrustedTerritories() {
+    List<String> territories = getStringListParameterFromFile("TRUSTED_TERRITORIES");
+    if(territories != null) {
+      trustedTerritories = territories;
+    }
+  }
+
+  private String getParameterFromFile(String key) {
+    if (configurationFromFile == null) {
+      return null;
+    }
+    Object fileValue = configurationFromFile.get(key);
+    if (fileValue == null) {
+      return null;
+    }
+    String value = fileValue.toString();
+    if(valueIsAllowed(key, value)) {
+       return value;
+    }
+    return null;
+  }
+
+  private Integer getIntParameterFromFile(String key) {
+    String value = getParameterFromFile(key);
+    if(value == null) {
+      return null;
+    }
+    return new Integer(value);
+  }
+
+  private List<String> getStringListParameterFromFile(String key) {
+    String value = getParameterFromFile(key);
+    if(value == null) {
+      return null;
+    }
+    return Arrays.asList(value.split("\\s*,\\s*")); //Split by comma and trim whitespace
   }
 
   private void setConfigurationValue(String fileKey, String configurationKey) {
@@ -601,7 +678,7 @@ public class Configuration implements Serializable {
     List<String> mustBeBooleans =
         asList(SIGN_OCSP_REQUESTS, "KEY_USAGE_CHECK", "DATAFILE_HASHCODE_MODE", "DIGIDOC_USE_LOCAL_TSL");
     List<String> mustBeIntegers =
-        asList("DIGIDOC_MAX_DATAFILE_CACHED");
+        asList("DIGIDOC_MAX_DATAFILE_CACHED", "HTTP_PROXY_PORT");
 
     boolean errorFound = false;
     if (mustBeBooleans.contains(configParameter)) {
@@ -943,25 +1020,186 @@ public class Configuration implements Serializable {
     setConfigurationParameter("validationPolicy", validationPolicy);
   }
 
-  /**
-   * Get the PKCS11 Module path
-   *
-   * @return path
-   */
-  public String getPKCS11ModulePath() {
-    String path = getConfigurationParameter("pkcs11Module");
-    logger.debug("PKCS11 module path: " + path);
-    return path;
-  }
-
   public int getRevocationAndTimestampDeltaInMinutes() {
     String timeDelta = getConfigurationParameter("revocationAndTimestampDeltaInMinutes");
     logger.debug("Revocation and timestamp delta in minutes: " + timeDelta);
     return Integer.parseInt(timeDelta);
   }
+
   public void setRevocationAndTimestampDeltaInMinutes(int timeInMinutes) {
     logger.debug("Set revocation and timestamp delta in minutes: " + timeInMinutes);
     setConfigurationParameter("revocationAndTimestampDeltaInMinutes", String.valueOf(timeInMinutes));
+  }
+
+  public String getHttpProxyHost() {
+    return httpProxyHost;
+  }
+
+  /**
+   * Set HTTP network proxy host.
+   * @param httpProxyHost http proxy host.
+   */
+  public void setHttpProxyHost(String httpProxyHost) {
+    this.httpProxyHost = httpProxyHost;
+  }
+
+  public Integer getHttpProxyPort() {
+    return httpProxyPort;
+  }
+
+  /**
+   * Set HTTP network proxy port.
+   */
+  public void setHttpProxyPort(int httpProxyPort) {
+    this.httpProxyPort = httpProxyPort;
+  }
+
+  /**
+   * Set HTTP network proxy user name.
+   * @param httpProxyUser username.
+   */
+  public void setHttpProxyUser(String httpProxyUser) {
+    this.httpProxyUser = httpProxyUser;
+  }
+
+  public String getHttpProxyUser() {
+    return httpProxyUser;
+  }
+
+  /**
+   * Set HTTP network proxy password.
+   * @param httpProxyPassword password.
+   */
+  public void setHttpProxyPassword(String httpProxyPassword) {
+    this.httpProxyPassword = httpProxyPassword;
+  }
+
+  public String getHttpProxyPassword() {
+    return httpProxyPassword;
+  }
+
+  public boolean isNetworkProxyEnabled() {
+    return httpProxyPort != null && isNotBlank(httpProxyHost);
+  }
+
+  public boolean isSslConfigurationEnabled() {
+    return sslKeystorePath != null && isNotBlank(sslKeystorePath);
+  }
+
+  /**
+   * Set SSL KeyStore path.
+   * @param sslKeystorePath path to a file
+   */
+  public void setSslKeystorePath(String sslKeystorePath) {
+    this.sslKeystorePath = sslKeystorePath;
+  }
+
+  /**
+   * Get SSL KeyStore path.
+   * @return path to a file
+   */
+  public String getSslKeystorePath() {
+    return sslKeystorePath;
+  }
+
+  /**
+   * Set SSL KeyStore type. Default is "jks".
+   * @param sslKeystoreType type.
+   */
+  public void setSslKeystoreType(String sslKeystoreType) {
+    this.sslKeystoreType = sslKeystoreType;
+  }
+
+  /**
+   * Get SSL KeyStore type.
+   * @return type.
+   */
+  public String getSslKeystoreType() {
+    return sslKeystoreType;
+  }
+
+  /**
+   * Set SSL KeyStore password. Default is an empty string.
+   * @param sslKeystorePassword password.
+   */
+  public void setSslKeystorePassword(String sslKeystorePassword) {
+    this.sslKeystorePassword = sslKeystorePassword;
+  }
+
+  public String getSslKeystorePassword() {
+    return sslKeystorePassword;
+  }
+
+  /**
+   * Set SSL TrustStore path.
+   * @param sslTruststorePath path to a file.
+   */
+  public void setSslTruststorePath(String sslTruststorePath) {
+    this.sslTruststorePath = sslTruststorePath;
+  }
+
+  /**
+   * Get SSL TrustStore path.
+   * @return path to a file.
+   */
+  public String getSslTruststorePath() {
+    return sslTruststorePath;
+  }
+
+  /**
+   * Set SSL TrustStore type. Default is "jks".
+   * @param sslTruststoreType type.
+   */
+  public void setSslTruststoreType(String sslTruststoreType) {
+    this.sslTruststoreType = sslTruststoreType;
+  }
+
+  /**
+   * Get SSL TrustStore type.
+   * @return type.
+   */
+  public String getSslTruststoreType() {
+    return sslTruststoreType;
+  }
+
+  /**
+   * Set SSL TrustStore password. Default is an empty string.
+   * @param sslTruststorePassword password.
+   */
+  public void setSslTruststorePassword(String sslTruststorePassword) {
+    this.sslTruststorePassword = sslTruststorePassword;
+  }
+
+  public String getSslTruststorePassword() {
+    return sslTruststorePassword;
+  }
+
+  public void setThreadExecutor(ExecutorService threadExecutor) {
+    this.threadExecutor = threadExecutor;
+  }
+
+  public ExecutorService getThreadExecutor() {
+    return threadExecutor;
+  }
+
+  /**
+   * Set countries and territories (2 letter country codes) whom to trust and accept certificates.
+   * <p/>
+   * It is possible accept signatures (and certificates) only from particular countries by filtering
+   * trusted territories. Only the TSL (and certificates) from those countries are then downloaded and
+   * others are skipped.
+   * <p/>
+   * For example, it is possible to trust signatures only from these three countries: Estonia, Latvia and France,
+   * and skip all other countries: "EE", "LV", "FR".
+   *
+   * @param trustedTerritories list of 2 letter country codes.
+   */
+  public void setTrustedTerritories(String... trustedTerritories) {
+    this.trustedTerritories = Arrays.asList(trustedTerritories);
+  }
+
+  public List<String> getTrustedTerritories() {
+    return trustedTerritories;
   }
 
   private void setConfigurationParameter(String key, String value) {

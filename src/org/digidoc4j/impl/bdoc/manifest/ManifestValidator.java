@@ -10,8 +10,10 @@
 
 package org.digidoc4j.impl.bdoc.manifest;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -28,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.DSSXMLUtils;
+import eu.europa.esig.dss.xades.DSSXMLUtils;
 
 /**
  * For validating meta data within the manifest file and signature files.
@@ -180,11 +182,10 @@ public class ManifestValidator {
 
     private String getFileURI(Reference reference) {
         String uri = reference.getURI();
-
         try {
           uri = new URI(uri).getPath();
         } catch (URISyntaxException e) {
-          logger.debug("Does not parse as an URI, therefore assuming it's not encoded: '" + uri + "'");
+          logger.warn("Does not parse as an URI, therefore assuming it's not encoded: '" + uri + "'");
         }
 
         return uri;

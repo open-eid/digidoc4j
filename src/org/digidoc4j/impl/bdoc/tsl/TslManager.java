@@ -10,17 +10,10 @@
 
 package org.digidoc4j.impl.bdoc.tsl;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
-import org.apache.commons.io.FileUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.TSLCertificateSource;
-import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,15 +47,8 @@ public class TslManager implements Serializable {
     //Using double-checked locking to avoid other threads to start loading TSL
     if(tslCertificateSource == null) {
       logger.debug("Loading TSL in a synchronized block");
-      String tslLocation = configuration.getTslLocation();
-      File tslKeystoreFile = getTslKeystoreFile();
-      String tslKeyStorePassword = configuration.getTslKeyStorePassword();
-
-      TslLoader tslLoader = new TslLoader(tslLocation, tslKeystoreFile, tslKeyStorePassword);
+      TslLoader tslLoader = new TslLoader(configuration);
       tslLoader.setCheckSignature(configuration.shouldValidateTslSignature());
-      tslLoader.setConnectionTimeout(configuration.getConnectionTimeout());
-      tslLoader.setSocketTimeout(configuration.getSocketTimeout());
-      tslLoader.setCacheExpirationTime(configuration.getTslCacheExpirationTime());
       LazyTslCertificateSource lazyTsl = new LazyTslCertificateSource(tslLoader);
       lazyTsl.setCacheExpirationTime(configuration.getTslCacheExpirationTime());
       tslCertificateSource = lazyTsl;
@@ -70,23 +56,4 @@ public class TslManager implements Serializable {
     }
   }
 
-  private File getTslKeystoreFile() throws TslKeyStoreNotFoundException {
-    try {
-      String keystoreLocation = configuration.getTslKeyStoreLocation();
-      if (Files.exists(Paths.get(keystoreLocation))) {
-        return new File(keystoreLocation);
-      }
-      File tempFile = File.createTempFile("temp-tsl-keystore", ".jks");
-      InputStream in = getClass().getClassLoader().getResourceAsStream(keystoreLocation);
-      if (in == null) {
-        logger.error("keystore not found in location " + keystoreLocation);
-        throw new TslKeyStoreNotFoundException("keystore not found in location " + keystoreLocation);
-      }
-      FileUtils.copyInputStreamToFile(in, tempFile);
-      return tempFile;
-    } catch (IOException e) {
-      logger.error(e.getMessage());
-      throw new TslKeyStoreNotFoundException(e.getMessage());
-    }
-  }
 }

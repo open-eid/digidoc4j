@@ -106,7 +106,7 @@ public abstract class AsicContainerParser {
       InputStream zipFileInputStream = getZipEntryInputStream(entry);
       BOMInputStream bomInputStream = new BOMInputStream(zipFileInputStream);
       DSSDocument document = new InMemoryDocument(bomInputStream);
-      mimeType = StringUtils.trim(IOUtils.toString(document.getBytes(), "UTF-8"));
+      mimeType = StringUtils.trim(IOUtils.toString(getDocumentBytes(document), "UTF-8"));
       extractAsicEntry(entry, document);
     } catch (IOException e) {
       logger.error("Error parsing container mime type: " + e.getMessage());
@@ -228,6 +228,15 @@ public abstract class AsicContainerParser {
       if (currentSignatureFileIndex == null || currentSignatureFileIndex <= fileIndex) {
         currentSignatureFileIndex = fileIndex;
       }
+    }
+  }
+
+  private byte[] getDocumentBytes(DSSDocument document) {
+    try {
+      return IOUtils.toByteArray(document.openStream());
+    } catch (IOException e) {
+      logger.error("Error getting document content: " + e.getMessage());
+      throw new TechnicalException("Error getting document content: " + e.getMessage(), e);
     }
   }
 

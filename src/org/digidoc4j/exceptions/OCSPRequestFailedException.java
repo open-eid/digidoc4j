@@ -10,19 +10,15 @@
 
 package org.digidoc4j.exceptions;
 
-/**
- *
- */
 public class OCSPRequestFailedException extends DigiDoc4JException {
 
+  public static final String MESSAGE = "OCSP request failed. Please check GitHub Wiki for more information: https://github.com/open-eid/digidoc4j/wiki/Questions-&-Answers#if-ocsp-request-has-failed";
+
   public OCSPRequestFailedException(Throwable e) {
-    super("OCSP request failed", e);
+    super(MESSAGE, e);
   }
   
-  /**
-   *
-   */
   public OCSPRequestFailedException() {
-    super("OCSP request failed");
+    super(MESSAGE);
   }
 }

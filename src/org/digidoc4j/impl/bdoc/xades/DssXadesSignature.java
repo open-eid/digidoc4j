@@ -14,7 +14,7 @@ import org.digidoc4j.impl.bdoc.xades.validation.XadesValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.validation.report.Reports;
+import eu.europa.esig.dss.validation.reports.Reports;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public abstract class DssXadesSignature implements XadesSignature {

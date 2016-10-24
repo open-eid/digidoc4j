@@ -11,12 +11,12 @@
 package org.digidoc4j.impl.bdoc;
 
 import static eu.europa.esig.dss.DigestAlgorithm.SHA256;
-import static eu.europa.esig.dss.DigestAlgorithm.forXML;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LTA;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.digidoc4j.impl.bdoc.ocsp.OcspSourceBuilder.anOcspSource;
 
 import java.security.cert.X509Certificate;
 import java.util.Collection;
@@ -34,12 +34,11 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
+import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
-import org.digidoc4j.impl.bdoc.ocsp.BDocTMOcspSource;
-import org.digidoc4j.impl.bdoc.ocsp.BDocTSOcspSource;
 import org.digidoc4j.impl.bdoc.ocsp.SKOnlineOCSPSource;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;
 import org.digidoc4j.impl.bdoc.xades.XadesSigningDssFacade;
@@ -51,11 +50,12 @@ import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignerLocation;
+import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 
 public class BDocSignatureBuilder extends SignatureBuilder implements SignatureFinalizer {
 
   private final static Logger logger = LoggerFactory.getLogger(BDocSignatureBuilder.class);
-  private boolean isTimeMark = false;
+  private static final SignatureProfile DEFAULT_SIGNATURE_PROFILE = SignatureProfile.LT;
   private transient XadesSigningDssFacade facade;
   private Date signingDate;
 
@@ -76,7 +76,11 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   @Override
-  public Signature openFromExistingDocument(byte[] signatureDocument) {
+  public Signature openAdESSignature(byte[] signatureDocument) {
+    if (signatureDocument == null) {
+      logger.error("Signature cannot be empty");
+      throw new InvalidSignatureException();
+    }
     InMemoryDocument document = new InMemoryDocument(signatureDocument);
     return createSignature(document);
   }
@@ -122,11 +126,10 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     setSignatureProfile();
     setSignerInformation();
     setSignatureId();
-    if (isTimeMark) {
-      setSignaturePolicy();
-    }
+    setSignaturePolicy();
     setSigningCertificate();
     setSigningDate();
+    setTimeStampProviderSource();
   }
 
   private void populateParametersForFinalizingSignature(byte[] signatureValueBytes) {
@@ -136,20 +139,18 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     }
     Configuration configuration = getConfiguration();
     facade.setCertificateSource(configuration.getTSL());
-    SKOnlineOCSPSource ocspSource = getOcspSource(signatureValueBytes);
-    facade.setOcspSource(ocspSource);
+    setOcspSource(signatureValueBytes);
   }
 
   private void initSigningFacade() {
     if (facade == null) {
-      Configuration configuration = getConfiguration();
-      facade = new XadesSigningDssFacade(configuration.getTspSource());
+      facade = new XadesSigningDssFacade();
     }
   }
 
   private byte[] calculateDigestToSign(byte[] dataToDigest) {
     DigestAlgorithm digestAlgorithm = signatureParameters.getDigestAlgorithm();
-    return DSSUtils.digest(convertToDssDigestAlgorithm(digestAlgorithm), dataToDigest);
+    return DSSUtils.digest(digestAlgorithm.getDssDigestAlgorithm(), dataToDigest);
   }
 
   private Configuration getConfiguration() {
@@ -160,13 +161,8 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     return container.getDataFiles();
   }
 
-  private eu.europa.esig.dss.DigestAlgorithm convertToDssDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
-    return forXML(digestAlgorithm.toString());
-  }
-
   private void validateOcspResponse(XadesSignature xadesSignature) {
-    boolean isBesSignatureProfile = signatureParameters.getSignatureProfile() != null && SignatureProfile.B_BES == signatureParameters.getSignatureProfile();
-    if(isBesSignatureProfile) {
+    if (isBaselineSignatureProfile()) {
       return;
     }
     List<BasicOCSPResp> ocspResponses = xadesSignature.getOcspResponses();
@@ -176,17 +172,26 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     }
   }
 
-  private SKOnlineOCSPSource getOcspSource(byte[] signatureValue) {
-    logger.debug("Getting OCSP source");
+  private boolean isBaselineSignatureProfile() {
+    return signatureParameters.getSignatureProfile() != null && (SignatureProfile.B_BES == signatureParameters.getSignatureProfile() || SignatureProfile.B_EPES == signatureParameters.getSignatureProfile());
+  }
+
+  private void setOcspSource(byte[] signatureValueBytes) {
+    SKOnlineOCSPSource ocspSource = anOcspSource().
+        withSignatureProfile(signatureParameters.getSignatureProfile()).
+        withSignatureValue(signatureValueBytes).
+        withConfiguration(getConfiguration()).
+        build();
+    facade.setOcspSource(ocspSource);
+  }
+
+  private void setTimeStampProviderSource() {
     Configuration configuration = getConfiguration();
-    SKOnlineOCSPSource ocspSource;
-    if (isTimeMark && signatureValue != null) {
-      ocspSource = new BDocTMOcspSource(configuration, signatureValue);
-    } else {
-      ocspSource = new BDocTSOcspSource(configuration);
-    }
-    ocspSource.setUserAgentSignatureProfile(signatureParameters.getSignatureProfile());
-    return ocspSource;
+    OnlineTSPSource tspSource = new OnlineTSPSource(configuration.getTspSource());
+    SkDataLoader dataLoader = SkDataLoader.createTimestampDataLoader(configuration);
+    dataLoader.setUserAgentSignatureProfile(signatureParameters.getSignatureProfile());
+    tspSource.setDataLoader(dataLoader);
+    facade.setTspSource(tspSource);
   }
 
   private void setDigestAlgorithm() {
@@ -197,40 +202,57 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   private void setEncryptionAlgorithm() {
-    if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA) {
+    if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA || isEcdsaCertificate()) {
+      logger.debug("Using ECDSA encryption algorithm");
       facade.setEncryptionAlgorithm(eu.europa.esig.dss.EncryptionAlgorithm.ECDSA);
     }
+  }
+
+  private boolean isEcdsaCertificate() {
+    X509Certificate certificate = signatureParameters.getSigningCertificate();
+    String algorithm = certificate.getPublicKey().getAlgorithm();
+    return algorithm.equals("EC") || algorithm.equals("ECC");
   }
 
   private void setSignatureProfile() {
     if (signatureParameters.getSignatureProfile() != null) {
       setSignatureProfile(signatureParameters.getSignatureProfile());
+    } else {
+      setSignatureProfile(DEFAULT_SIGNATURE_PROFILE);
+      signatureParameters.setSignatureProfile(DEFAULT_SIGNATURE_PROFILE);
     }
   }
 
   private void setSignatureProfile(SignatureProfile profile) {
-    isTimeMark = false;
     switch (profile) {
       case B_BES:
+        facade.setSignatureLevel(XAdES_BASELINE_B);
+        break;
+      case B_EPES:
         facade.setSignatureLevel(XAdES_BASELINE_B);
         break;
       case LTA:
         facade.setSignatureLevel(XAdES_BASELINE_LTA);
         break;
-      case LT_TM:
-        isTimeMark = true;
       default:
         facade.setSignatureLevel(XAdES_BASELINE_LT);
     }
   }
 
   private void setSignaturePolicy() {
+    if (isTimeMarkProfile() || isEpesProfile()) {
+      Policy signaturePolicy = createBDocSignaturePolicy();
+      facade.setSignaturePolicy(signaturePolicy);
+    }
+  }
+
+  public static Policy createBDocSignaturePolicy() {
     Policy signaturePolicy = new Policy();
     signaturePolicy.setId("urn:oid:1.3.6.1.4.1.10015.1000.3.2.1");
     signaturePolicy.setDigestValue(decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));
     signaturePolicy.setDigestAlgorithm(SHA256);
     signaturePolicy.setSpuri("https://www.sk.ee/repository/bdoc-spec21.pdf");
-    facade.setSignaturePolicy(signaturePolicy);
+    return signaturePolicy;
   }
 
   private void setSignatureId() {
@@ -279,5 +301,19 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
       logger.error("Container does not contain any data files");
       throw new ContainerWithoutFilesException();
     }
+  }
+
+  private boolean isTimeMarkProfile() {
+    if (signatureParameters.getSignatureProfile() == null) {
+      return false;
+    }
+    return signatureParameters.getSignatureProfile() == SignatureProfile.LT_TM;
+  }
+
+  private boolean isEpesProfile() {
+    if (signatureParameters.getSignatureProfile() != null) {
+      return signatureParameters.getSignatureProfile() == SignatureProfile.B_EPES;
+    }
+    return false;
   }
 }

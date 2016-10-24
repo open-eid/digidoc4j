@@ -16,7 +16,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -123,13 +122,11 @@ public abstract class BDocContainer implements Container {
 
   protected List<Signature> extendAllSignaturesProfile(SignatureProfile profile, List<Signature> signatures, List<DataFile> dataFiles) {
     logger.info("Extending all signatures' profile to " + profile.name());
-    validatePossibilityToExtendTo(profile);
     DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
     DSSDocument firstDetachedContent = detachedContentCreator.getFirstDetachedContent();
     List<DSSDocument> detachedContentList = detachedContentCreator.getDetachedContentList();
     SignatureExtender signatureExtender = new SignatureExtender(getConfiguration(), firstDetachedContent);
-    Collection<DSSDocument> signatureDocuments = generateSignatureDocumentsList(signatures);
-    List<DSSDocument> extendedSignatureDocuments = signatureExtender.extend(signatureDocuments, profile);
+    List<DSSDocument> extendedSignatureDocuments = signatureExtender.extend(signatures, profile);
     List<Signature> extendedSignatures = parseSignatureFiles(extendedSignatureDocuments, detachedContentList);
     logger.debug("Finished extending all signatures");
     return extendedSignatures;
@@ -171,26 +168,6 @@ public abstract class BDocContainer implements Container {
     }
   }
 
-  private void validatePossibilityToExtendTo(SignatureProfile profile) {
-    logger.debug("Validating if it's possible to extend all the signatures to " + profile);
-    for (Signature signature : getSignatures()) {
-      if (profile == signature.getProfile()) {
-        String errorMessage = "It is not possible to extend the signature to the same level";
-        logger.error(errorMessage);
-        throw new DigiDoc4JException(errorMessage);
-      }
-    }
-  }
-
-  private Collection<DSSDocument> generateSignatureDocumentsList(List<Signature> signatures) {
-    List<DSSDocument> signatureDocuments = new ArrayList<>();
-    for(Signature signature: signatures) {
-      DSSDocument document = ((BDocSignature) signature).getSignatureDocument();
-      signatureDocuments.add(document);
-    }
-    return signatureDocuments;
-  }
-
   @Override
   @Deprecated
   public void save(OutputStream out) {
@@ -209,7 +186,7 @@ public abstract class BDocContainer implements Container {
     logger.info("Adding raw signature");
     Signature signature = SignatureBuilder.
         aSignature(this).
-        openFromExistingDocument(signatureDocument);
+        openAdESSignature(signatureDocument);
     addSignature(signature);
   }
 

@@ -40,6 +40,8 @@ public final class Helper {
 
   private static final int ZIP_VERIFICATION_CODE = 0x504b0304;
   private static final int INT_LENGTH = 4;
+  private static final String BDOC_TM_SIGNATURE_LEVEL = "ASiC_E_BASELINE_LT_TM";
+  private static final String EMPTY_CONTAINER_SIGNATURE_LEVEL = "ASiC_E";
 
   private Helper() {
   }
@@ -130,16 +132,18 @@ public final class Helper {
    * @param filename  name of file to store serialized object in
    */
   public static <T> void serialize(T object, String filename) {
-    FileOutputStream fileOut;
+    FileOutputStream fileOut = null;
+    ObjectOutputStream out = null;
     try {
       fileOut = new FileOutputStream(filename);
-      ObjectOutputStream out = new ObjectOutputStream(fileOut);
+      out = new ObjectOutputStream(fileOut);
       out.writeObject(object);
       out.flush();
-      out.close();
-      fileOut.close();
     } catch (Exception e) {
       throw new DigiDoc4JException(e);
+    } finally {
+      IOUtils.closeQuietly(out);
+      IOUtils.closeQuietly(fileOut);
     }
 
   }
@@ -151,17 +155,18 @@ public final class Helper {
    * @return container
    */
   public static <T> T deserializer(String filename) {
-    FileInputStream fileIn;
+    FileInputStream fileIn = null;
+    ObjectInputStream in = null;
     try {
       fileIn = new FileInputStream(filename);
-      ObjectInputStream in = new ObjectInputStream(fileIn);
+      in = new ObjectInputStream(fileIn);
       T object = (T) in.readObject();
-      in.close();
-      fileIn.close();
-
       return object;
     } catch (Exception e) {
       throw new DigiDoc4JException(e);
+    } finally {
+      IOUtils.closeQuietly(in);
+      IOUtils.closeQuietly(fileIn);
     }
   }
 
@@ -210,15 +215,18 @@ public final class Helper {
   }
 
   public static String createBDocUserAgent() {
-    return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, ASiC_E_BASELINE_LT.name());
+    return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, EMPTY_CONTAINER_SIGNATURE_LEVEL);
   }
 
   public static String createBDocUserAgent(SignatureProfile signatureProfile) {
+    if(signatureProfile == SignatureProfile.LT_TM) {
+      return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, BDOC_TM_SIGNATURE_LEVEL);
+    }
     SignatureLevel signatureLevel = determineSignatureLevel(signatureProfile);
     return createBDocUserAgent(signatureLevel);
   }
 
-  public static String createBDocUserAgent(SignatureLevel signatureLevel) {
+  private static String createBDocUserAgent(SignatureLevel signatureLevel) {
     return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, signatureLevel.name());
   }
 

@@ -28,7 +28,7 @@ import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.validation.AdvancedSignature;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
-import eu.europa.esig.dss.validation.report.Reports;
+import eu.europa.esig.dss.validation.reports.Reports;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class XadesValidationReportGenerator implements Serializable {

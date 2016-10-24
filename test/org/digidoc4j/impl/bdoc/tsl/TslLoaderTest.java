@@ -12,9 +12,10 @@ package org.digidoc4j.impl.bdoc.tsl;
 
 import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.util.List;
 
 import org.digidoc4j.Configuration;
@@ -23,9 +24,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import eu.europa.esig.dss.tsl.TSLValidationModel;
 import eu.europa.esig.dss.tsl.TSLValidationSummary;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.tsl.service.TSLValidationJob;
+import eu.europa.esig.dss.validation.policy.rules.Indication;
 
 public class TslLoaderTest {
 
@@ -53,7 +56,8 @@ public class TslLoaderTest {
 
   @Test
   public void loadTsl_whenCacheIsNotExpired_shouldUseCachedTsl() throws Exception {
-    tslLoader.setCacheExpirationTime(10000L);
+    configuration.setTslCacheExpirationTime(10000L);
+    tslLoader = createTslLoader(configuration);
     long lastModified = getTslAndReturnCacheModificationTime();
     waitOneSecond();
     long newModificationTime = getTslAndReturnCacheModificationTime();
@@ -62,29 +66,95 @@ public class TslLoaderTest {
 
   @Test
   public void loadTsl_whenCacheIsExpired_shouldDownloadNewTsl() throws Exception {
-    tslLoader.setCacheExpirationTime(500L);
+    configuration.setTslCacheExpirationTime(500L);
+    tslLoader = createTslLoader(configuration);
     long lastModified = getTslAndReturnCacheModificationTime();
     waitOneSecond();
     long newModificationTime = getTslAndReturnCacheModificationTime();
     assertTrue(lastModified < newModificationTime);
   }
 
+  @Test
+  public void loadTsl_forAllCountries_byDefault() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    TSLRepository tslRepository = loadTsl(configuration);
+    assertCountryLoaded(tslRepository, "EE");
+    assertCountryLoaded(tslRepository, "FR");
+    assertCountryLoaded(tslRepository, "ES");
+  }
+
+  @Test
+  public void loadTsl_forOneContry() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setTrustedTerritories("EE");
+    TSLRepository tslRepository = loadTsl(configuration);
+    assertCountryLoaded(tslRepository, "EE");
+    assertCountryNotLoaded(tslRepository, "FR");
+  }
+
+  @Test
+  public void loadTsl_forTwoCountries() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setTrustedTerritories("EE", "ES");
+    TSLRepository tslRepository = loadTsl(configuration);
+    assertCountryLoaded(tslRepository, "EE");
+    assertCountryLoaded(tslRepository, "ES");
+    assertCountryNotLoaded(tslRepository, "FR");
+  }
+
+  @Test
+  public void loadTestTsl_shouldContainTestTerritory() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    TSLRepository tslRepository = loadTsl(configuration);
+    assertCountryLoaded(tslRepository, "EE_T");
+  }
+
+  /**
+   * Ignore countries with invalid TSL: DE (Germany) and HR (Croatia)
+   */
+  @Test
+  public void loadTsl_withoutCountryHr_byDefault() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    TSLRepository tslRepository = loadTsl(configuration);
+    assertCountryLoaded(tslRepository, "EE");
+    assertCountryLoaded(tslRepository, "FR");
+    assertCountryLoaded(tslRepository, "NO");
+    assertCountryNotLoaded(tslRepository, "DE");
+    assertCountryNotLoaded(tslRepository, "HR");
+  }
+
   private TslLoader createTslLoader(Configuration configuration) {
-    String keystoreLocation = configuration.getTslKeyStoreLocation();
-    TslLoader tslLoader = new TslLoader(configuration.getTslLocation(), new File(keystoreLocation), configuration.getTslKeyStorePassword());
-    tslLoader.setConnectionTimeout(configuration.getConnectionTimeout());
-    tslLoader.setSocketTimeout(configuration.getSocketTimeout());
+    TslLoader tslLoader = new TslLoader(configuration);
     tslLoader.setCheckSignature(false);
     return tslLoader;
   }
 
+  private TSLRepository loadTsl(Configuration configuration) {
+    TslLoader tslLoader = createTslLoader(configuration);
+    tslLoader.prepareTsl();
+    TSLValidationJob tslValidationJob = tslLoader.getTslValidationJob();
+    tslValidationJob.refresh();
+    return tslLoader.getTslRepository();
+  }
+
   private void assertTslValid(TSLRepository tslRepository) {
     List<TSLValidationSummary> summaryList = tslRepository.getSummary();
-    for(TSLValidationSummary summary: summaryList) {
-      String indication = summary.getIndication();
+    for (TSLValidationSummary summary : summaryList) {
+      Indication indication = summary.getIndication();
       String country = summary.getCountry();
-      Assert.assertEquals("TSL is not valid for country " + country, "VALID", indication);
+      Assert.assertEquals("TSL is not valid for country " + country, Indication.TOTAL_PASSED, indication);
     }
+  }
+
+  private void assertCountryLoaded(TSLRepository tslRepository, String countryIsoCode) {
+    TSLValidationModel countryTsl = tslRepository.getByCountry(countryIsoCode);
+    assertNotNull(countryTsl);
+    assertTrue(countryTsl.getParseResult().getServiceProviders().size() > 0);
+  }
+
+  private void assertCountryNotLoaded(TSLRepository tslRepository, String countryIsoCode) {
+    TSLValidationModel countryTsl = tslRepository.getByCountry(countryIsoCode);
+    assertNull(countryTsl);
   }
 
   private long getTslAndReturnCacheModificationTime() {

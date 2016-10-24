@@ -10,148 +10,109 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.bdoc.report.ContainerValidationReport;
+import org.digidoc4j.impl.bdoc.report.SignatureValidationReport;
+import org.digidoc4j.impl.bdoc.report.SignatureValidationReportCreator;
+import org.digidoc4j.impl.bdoc.xades.validation.SignatureValidationData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import eu.europa.esig.dss.DSSXMLUtils;
-import eu.europa.esig.dss.validation.report.Reports;
-import eu.europa.esig.dss.validation.report.SimpleReport;
+import eu.europa.esig.dss.jaxb.simplereport.SimpleReport;
+import eu.europa.esig.dss.jaxb.simplereport.XmlPolicy;
 
 public class BDocValidationReportBuilder {
 
   private final static Logger logger = LoggerFactory.getLogger(BDocValidationReportBuilder.class);
-  private Document reportDocument;
-  private List<Reports> validationReports;
   private List<DigiDoc4JException> manifestErrors;
-  private Map<String, List<DigiDoc4JException>> signatureVerificationErrors;
+  private List<SignatureValidationData> signatureValidationData;
   private String reportInXml;
 
-  public BDocValidationReportBuilder(List<Reports> validationReports, List<DigiDoc4JException> manifestErrors, Map<String, List<DigiDoc4JException>> signatureVerificationErrors) {
+  public BDocValidationReportBuilder(List<SignatureValidationData> signatureValidationData, List<DigiDoc4JException> manifestErrors) {
     logger.debug("Initializing BDoc validation report builder");
-    this.validationReports = validationReports;
     this.manifestErrors = manifestErrors;
-    this.signatureVerificationErrors = signatureVerificationErrors;
+    this.signatureValidationData = signatureValidationData;
   }
 
   public String buildXmlReport() {
-    if(reportInXml == null) {
+    if (reportInXml == null) {
       reportInXml = generateNewReport();
     }
     return reportInXml;
   }
 
   private String generateNewReport() {
-    logger.debug("Generating BDoc validation report in XML");
-    initializeReportDOM();
-    addErrorsInEveryReport();
-    addManifestErrorsToXmlReport();
-    return getReportAsXmlString();
+    logger.debug("Generating a new XML validation report");
+    ContainerValidationReport report = new ContainerValidationReport();
+    report.setPolicy(extractValidationPolicy());
+    report.setValidationTime(new Date());
+    report.setSignaturesCount(signatureValidationData.size());
+    report.setValidSignaturesCount(extractValidSignaturesCount());
+    report.setSignatures(createSignaturesValidationReport());
+    report.setContainerErrors(createContainerErrors());
+    return createFormattedXmlString(report);
   }
 
-  private void addErrorsInEveryReport() {
-    for(Reports report: validationReports) {
-      addErrorsForEachReport(report);
+  private List<SignatureValidationReport> createSignaturesValidationReport() {
+    List<SignatureValidationReport> signaturesReport = new ArrayList<>();
+    for (SignatureValidationData validationData : signatureValidationData) {
+      SignatureValidationReport signatureValidationReport = SignatureValidationReportCreator.create(validationData);
+      signaturesReport.add(signatureValidationReport);
     }
+    return signaturesReport;
   }
 
-  private void addErrorsForEachReport(Reports report) {
-    do {
-      SimpleReport simpleReport = report.getSimpleReport();
-      //check with several signatures as well in one signature file (in estonia we are not producing such signatures)
-      String signatureId = simpleReport.getSignatureIdList().get(0);
-      createXMLReport(simpleReport, signatureVerificationErrors.get(signatureId));
-      report = report.getNextReports();
-    } while (report != null);
-  }
-
-  private void initializeReportDOM() {
-    try {
-      DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-      reportDocument = docBuilder.newDocument();
-      reportDocument.appendChild(reportDocument.createElement("ValidationReport"));
-    } catch (ParserConfigurationException e) {
-      e.printStackTrace();
+  private XmlPolicy extractValidationPolicy() {
+    if (signatureValidationData.isEmpty()) {
+      return null;
     }
+    SignatureValidationData validationData = signatureValidationData.get(0);
+    SimpleReport simpleReport = validationData.getReport().getReport().getSimpleReportJaxb();
+    return simpleReport.getPolicy();
   }
 
-  private void addManifestErrorsToXmlReport() {
-    Element manifestValidation = reportDocument.createElement("ManifestValidation");
-    reportDocument.getDocumentElement().appendChild(manifestValidation);
-    for (int i = 0; i < manifestErrors.size(); i++) {
-      Attr attribute = reportDocument.createAttribute("Error");
-      attribute.setValue(Integer.toString(i));
-      manifestValidation.setAttributeNode(attribute);
-
-      Element errorDescription = reportDocument.createElement("Description");
-      DigiDoc4JException manifestError = manifestErrors.get(i);
-      errorDescription.appendChild(reportDocument.createTextNode(manifestError.getMessage()));
-      manifestValidation.appendChild(errorDescription);
-    }
-  }
-
-  private void createXMLReport(SimpleReport simpleReport, List<DigiDoc4JException> additionalErrors) {
-    Element signatureValidation = reportDocument.createElement("SignatureValidation");
-    signatureValidation.setAttribute("ID", simpleReport.getSignatureIdList().get(0));
-    reportDocument.getDocumentElement().appendChild(signatureValidation);
-
-    Element rootElement = simpleReport.getRootElement();
-    NodeList childNodes = rootElement.getChildNodes();
-    for (int i = 0; i < childNodes.getLength(); i++) {
-      Node node = childNodes.item(i);
-      removeNamespace(node);
-      Node importNode = reportDocument.importNode(node, true);
-      signatureValidation.appendChild(importNode);
-    }
-    addAdditionalErrors(additionalErrors, signatureValidation);
-  }
-
-  private void addAdditionalErrors(List<DigiDoc4JException> additionalErrors, Element signatureValidation) {
-    if (additionalErrors != null) {
-      Element additionalValidation = reportDocument.createElement("AdditionalValidation");
-      signatureValidation.getElementsByTagName("Signature").item(0).appendChild(additionalValidation);
-      if (additionalErrors.size() > 0)
-        signatureValidation.getElementsByTagName("ValidSignaturesCount").item(0).setTextContent("0");
-
-      for (int i = 0; i < additionalErrors.size(); i++) {
-        Attr attribute = reportDocument.createAttribute("Error");
-        attribute.setValue(Integer.toString(i));
-        additionalValidation.setAttributeNode(attribute);
-        Element errorDescription = reportDocument.createElement("Description");
-        //noinspection ThrowableResultOfMethodCallIgnored
-        errorDescription.appendChild(reportDocument.createTextNode(additionalErrors.get(i).getMessage()));
-        additionalValidation.appendChild(errorDescription);
+  private int extractValidSignaturesCount() {
+    int validSignaturesCount = 0;
+    for (SignatureValidationData validationData : signatureValidationData) {
+      SignatureValidationResult validationResult = validationData.getValidationResult();
+      if (validationResult.isValid()) {
+        validSignaturesCount++;
       }
     }
+    return validSignaturesCount;
   }
 
-  private static void removeNamespace(Node node) {
-    Document document = node.getOwnerDocument();
-    if (node.getNodeType() == Node.ELEMENT_NODE) {
-      document.renameNode(node, null, node.getNodeName());
+  private List<String> createContainerErrors() {
+    List<String> containerErrors = new ArrayList<>();
+    for (DigiDoc4JException manifestError : manifestErrors) {
+      containerErrors.add(manifestError.getMessage());
     }
-    NodeList list = node.getChildNodes();
-    for (int i = 0; i < list.getLength(); ++i) {
-      removeNamespace(list.item(i));
+    return containerErrors;
+  }
+
+  private String createFormattedXmlString(ContainerValidationReport simpleReport) {
+    try {
+      JAXBContext context = JAXBContext.newInstance(ContainerValidationReport.class);
+      Marshaller marshaller = context.createMarshaller();
+      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+      StringWriter stringWriter = new StringWriter();
+      marshaller.marshal(simpleReport, stringWriter);
+      String xmlReport = stringWriter.toString();
+      logger.trace(xmlReport);
+      return xmlReport;
+    } catch (JAXBException e) {
+      throw new TechnicalException("Failed to create validation report in XML: " + e.getMessage(), e);
     }
   }
-
-  private String getReportAsXmlString() {
-    byte[] reportBytes = DSSXMLUtils.transformDomToByteArray(reportDocument);
-    return new String(reportBytes);
-  }
-
 }

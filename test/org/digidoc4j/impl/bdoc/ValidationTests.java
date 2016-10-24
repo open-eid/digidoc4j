@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -40,6 +41,7 @@ import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.impl.bdoc.tsl.TSLCertificateSourceImpl;
 import org.digidoc4j.testutils.TSLHelper;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.junit.Before;
@@ -48,6 +50,8 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import eu.europa.esig.dss.DSSUtils;
 
 public class ValidationTests extends DigiDoc4JTestHelper {
 
@@ -131,10 +135,9 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   public void signatureFileContainsIncorrectFileName() {
     Container container = ContainerOpener.open("testFiles/filename_mismatch_signature.asice", PROD_CONFIGURATION);
     ValidationResult validate = container.validate();
-    assertEquals(3, validate.getErrors().size());
-    assertEquals("Manifest file has an entry for file test.txt with mimetype application/pdf but the signature file for signature S0 does not have an entry for this file", validate.getErrors().get(0).toString());
-    assertEquals("The signature file for signature S0 has an entry for file 0123456789~#%&()=`@{[]}'.txt with mimetype application/pdf but the manifest file does not have an entry for this file", validate.getErrors().get(1).toString());
-    assertEquals("Container contains a file named test.txt which is not found in the signature file", validate.getErrors().get(2).toString());
+    List<DigiDoc4JException> errors = validate.getErrors();
+    assertEquals(1, errors.size());
+    assertContainsError("The reference data object(s) is not found!", errors);
   }
 
   @Test
@@ -248,23 +251,25 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void containerMissesFileWhichIsInManifestAndSignatureFile() {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    TSLHelper.addSkTsaCertificateToTsl(configuration);
     Container container = ContainerOpener.open("testFiles/zip_misses_file_which_is_in_manifest.asice");
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(1, errors.size());
-    assertEquals("The reference data object(s) is not intact!", errors.get(0).toString());
+    assertContainsError("The reference data object(s) is not found!", errors);
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void containerMissingOCSPData() {
     Container container = ContainerOpener.open("testFiles/TS-06_23634_TS_missing_OCSP_adjusted.asice");
-    List<DigiDoc4JException> errors = container.validate().getErrors();
+    ValidationResult validate = container.validate();
+    System.out.println(validate.getReport());
+    List<DigiDoc4JException> errors = validate.getErrors();
 
     assertEquals(LT, container.getSignatures().get(0).getProfile());
-    assertEquals(2, errors.size());
-    assertTrue(errors.get(0).toString().contains("No revocation data for the certificate"));
-    assertEquals("Manifest file has an entry for file test.txt with mimetype text/plain but the signature file for signature S0 indicates the mimetype is application/octet-stream", errors.get(1).toString());
+    assertContainsError("No revocation data for the certificate", errors);
+    assertContainsError("Manifest file has an entry for file test.txt with mimetype text/plain but the signature file for signature S0 indicates the mimetype is application/octet-stream", errors);
   }
 
   @Ignore("This signature has two OCSP responses: one correct and one is technically corrupted. Opening a container should not throw an exception")
@@ -276,7 +281,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void invalidNoncePolicyOid() {
-    Container container = ContainerOpener.open("testFiles/23608_bdoc21-invalid-nonce-policy-oid.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
+    Container container = ContainerOpener.open("testFiles/23608_bdoc21-invalid-nonce-policy-oid.bdoc", PROD_CONFIGURATION);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -286,11 +291,11 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void noNoncePolicy() {
-    Container container = ContainerOpener.open("testFiles/23608_bdoc21-no-nonce-policy.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
+    Container container = ContainerOpener.open("testFiles/23608_bdoc21-no-nonce-policy.bdoc", PROD_CONFIGURATION);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
-    assertEquals("Policy url is missing for identifier: urn:oid:1.3.6.1.4.1.10015.1000.3.2.1", errors.get(0).toString());
+    assertEquals("The signature policy is not available!", errors.get(0).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -311,7 +316,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(2, errors.size());
     assertContainsError("Signed properties missing", errors);
-    assertContainsError("The reference data object(s) not found!", errors);
+    assertContainsError("The reference data object(s) is not found!", errors);
     assertEquals(2, container.getSignatures().get(0).validateSignature().getErrors().size());
   }
 
@@ -323,7 +328,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(2, errors.size());
     assertContainsError("Signed properties missing", errors);
-    assertContainsError("The reference data object(s) not found!", errors);
+    assertContainsError("The reference data object(s) is not found!", errors);
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -332,9 +337,8 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     Container container = ContainerOpener.open("testFiles/multiple_signed_properties.asice");
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(2, errors.size());
-    assertEquals("Multiple signed properties", errors.get(0).toString());
-    assertEquals("The signature is not intact!", errors.get(1).toString());
+    containsErrorMessage(errors, "Multiple signed properties");
+    containsErrorMessage(errors, "The signature is not intact!");
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -344,7 +348,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
-    assertEquals("The reference data object(s) not found!", errors.get(0).toString());
+    assertEquals("The reference data object(s) is not found!", errors.get(0).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -353,11 +357,10 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     Container container = ContainerOpener.open("testFiles/nonce-vale-sisu.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(4, errors.size());
+    assertEquals(3, errors.size());
     assertEquals("Wrong policy identifier: urn:oid:1.3.6.1.4.1.10015.1000.2.10.10", errors.get(0).toString());
-    assertEquals("The reference data object(s) is not intact!", errors.get(1).toString());
+    assertEquals("The reference data object(s) is not found!", errors.get(1).toString());
     assertEquals("Nonce is invalid", errors.get(2).toString());
-    assertEquals("The signature file for signature S0 has an entry for file META-INF/manifest.xml with mimetype application/xml but the manifest file does not have an entry for this file", errors.get(3).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -384,11 +387,11 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void noPolicyURI() {
-    Container container = ContainerOpener.open("testFiles/SP-06_bdoc21-no-uri.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
+    Container container = ContainerOpener.open("testFiles/SP-06_bdoc21-no-uri.bdoc", PROD_CONFIGURATION);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
-    assertEquals("Policy url is missing for identifier: urn:oid:1.3.6.1.4.1.10015.1000.3.2.1", errors.get(0).toString());
+    assertEquals("The signature policy is not available!", errors.get(0).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -467,6 +470,19 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @Test
   public void validateContainerWithBomSymbolsInMimeType_shouldBeValid() throws Exception {
     assertTrue(validateContainer("testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM.bdoc", PROD_CONFIGURATION).isValid());
+  }
+
+  @Test
+  public void havingOnlyCaCertificateInTSL_shouldNotValidateOCSPResponse() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    TSLCertificateSourceImpl tsl = new TSLCertificateSourceImpl();
+    configuration.setTSL(tsl);
+    InputStream inputStream = getClass().getResourceAsStream("/certs/TEST ESTEID-SK 2011.crt");
+    X509Certificate caCertificate = DSSUtils.loadCertificate(inputStream).getCertificate();
+    tsl.addTSLCertificate(caCertificate);
+    ValidationResult result = validateContainer("testFiles/valid-containers/valid-bdoc-tm.bdoc", configuration);
+    assertFalse(result.isValid());
+    assertTrue(containsErrorMessage(result.getErrors(), "The certificate chain for revocation data is not trusted, there is no trusted anchor."));
   }
 
   private void testSigningWithOCSPCheck(String unknownCert) {

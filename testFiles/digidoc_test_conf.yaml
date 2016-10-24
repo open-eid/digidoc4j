@@ -4,7 +4,6 @@ DIGIDOC_SECURITY_PROVIDER: org.bouncycastle.jce.provider.BouncyCastleProvider1
 TSL_LOCATION: file:conf/test_TSLLocation
 TSP_SOURCE: http://tsp.source.test/HttpTspServer
 VALIDATION_POLICY: conf/test_validation_policy.xml
-PKCS11_MODULE: /usr/lib/x86_64-linux-gnu/test_pkcs11_module.so
 OCSP_SOURCE: http://www.openxades.org/cgi-bin/test_ocsp_source.cgi
 DIGIDOC_PKCS12_CONTAINER: conf/OCSP_access_certificate_test_file_name
 DIGIDOC_PKCS12_PASSWD: OCSP_test_password
@@ -12,6 +11,10 @@ DIGIDOC_DF_CACHE_DIR: /test_cache_dir
 TSL_KEYSTORE_LOCATION: keystore
 TSL_KEYSTORE_PASSWORD: password
 TSL_CACHE_EXPIRATION_TIME: 1776
+HTTP_PROXY_HOST: cache.noile.ee
+HTTP_PROXY_PORT: 8080
+HTTP_PROXY_USER: proxyMan
+HTTP_PROXY_PASSWORD: proxyPass
 
 
 DIGIDOC_CAS:

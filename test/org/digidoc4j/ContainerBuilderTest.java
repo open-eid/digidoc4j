@@ -178,7 +178,7 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
     assertFalse(result.hasWarnings());
     assertTrue(result.getContainerErrors().isEmpty());
     assertTrue(result.isValid());
-    assertTrue(containsIgnoreCase(result.getReport(), "<Indication>VALID</Indication>"));
+    assertTrue(containsIgnoreCase(result.getReport(), "<Indication>TOTAL_PASSED</Indication>"));
   }
 
   @Test

@@ -28,16 +28,28 @@ public class XadesSignatureParser {
     XAdESSignature xAdESSignature = xadesReportGenerator.openDssSignature();
     SignatureLevel signatureLevel = xAdESSignature.getDataFoundUpToLevel();
     logger.debug("Signature profile is " + signatureLevel);
+    if(isEpesSignature(signatureLevel, xAdESSignature)) {
+      logger.debug("Using EPES signature");
+      return new EpesSignature(xadesReportGenerator);
+    }
     if(isBesSignature(signatureLevel)) {
+      logger.debug("Using BES signature");
       return new BesSignature(xadesReportGenerator);
     }
     if(isTimeMarkSignature(xAdESSignature)) {
+      logger.debug("Using Time Mark signature");
       return new TimemarkSignature(xadesReportGenerator);
     }
     if (isTimestampArchiveSignature(signatureLevel)) {
+      logger.debug("Using Time Stamp Archive signature");
       return new TimestampArchiveSignature(xadesReportGenerator);
     }
+    logger.debug("Using Timestamp signature");
     return new TimestampSignature(xadesReportGenerator);
+  }
+
+  private boolean isEpesSignature(SignatureLevel signatureLevel, XAdESSignature xAdESSignature) {
+    return isBesSignature(signatureLevel) && containsPolicyId(xAdESSignature);
   }
 
   private boolean isBesSignature(SignatureLevel signatureLevel) {
@@ -48,11 +60,20 @@ public class XadesSignatureParser {
     return signatureLevel == SignatureLevel.XAdES_BASELINE_LTA || signatureLevel == SignatureLevel.XAdES_A;
   }
 
-  private boolean isTimeMarkSignature(XAdESSignature xAdESSignature) {
+  private boolean containsPolicyId(XAdESSignature xAdESSignature) {
     SignaturePolicy policyId = xAdESSignature.getPolicyId();
     if (policyId == null) {
       return false;
     }
-    return StringUtils.equals(XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
+    return StringUtils.isNotBlank(policyId.getIdentifier());
+  }
+
+  private boolean isTimeMarkSignature(XAdESSignature xAdESSignature) {
+    if (!containsPolicyId(xAdESSignature)) {
+      return false;
+    }
+    SignaturePolicy policyId = xAdESSignature.getPolicyId();
+    String identifier = StringUtils.trim(policyId.getIdentifier());
+    return StringUtils.equals(XadesSignatureValidator.TM_POLICY, identifier);
   }
 }

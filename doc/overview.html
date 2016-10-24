@@ -68,8 +68,9 @@
 <h6>Supported cryptographic tokens</h6>
 <ol>
   <li>PKCS#12 token (software token)</li>
+  <li>PKCS#11 token (hardware token)</li>
 </ol>
-<p>See also: {@link org.digidoc4j.SignatureToken org.digidoc4j.SignatureToken} and {@link org.digidoc4j.signers.PKCS12SignatureToken org.digidoc4j.signers.PKCS12SignatureToken}</p>
+<p>See also: {@link org.digidoc4j.SignatureToken org.digidoc4j.SignatureToken}, {@link org.digidoc4j.signers.PKCS12SignatureToken org.digidoc4j.signers.PKCS12SignatureToken} and {@link org.digidoc4j.signers.PKCS11SignatureToken org.digidoc4j.signers.PKCS11SignatureToken}</p>
 <p>&nbsp;</p>
 <h1><a id="architecture">Architecture</a></h1>
 <h2>Component diagram</h2>
@@ -381,6 +382,12 @@
 <h6>Using the time-mark signature profile</h6>
 <p>To sign a container using the time-mark protocol you need to specify the signature profile using the -profile option LT_TM:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;output_file_name_and_path&gt;" -add "&lt;input_file_name_and_path&gt;" "&lt;mime_type&gt;" -profile LT_TM -pkcs12 "&lt;pkcs12_token_file&gt;" "&lt;pkcs12_token_password&gt;"</strong></code></p>
+<h6>Creating multiple signed containers</h6>
+<p>
+  To create signatures of all the files within a directory, you need to specify the input directory containing data files,
+  and output directory where the signed containers will be saved.
+</p>
+<p><code><strong>java -jar digidoc4j-util.jar -inputDir "&lt;input_directory_path&gt;" -mimeType "&lt;mime_type (optional)&gt;" -outputDir "&lt;output_directory_path&gt;" -pkcs11 "&lt;pkcs11_module_path&gt;" "&lt;pkcs11_token_pin_password&gt;" "&lt;pkcs11_slot_index&gt;"</strong></code></p>
 <h6>Validation</h6>
 <p>The utility performs validation when specifying the -v option. The output shows all signatures and their statuses as well as all errors:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v</strong></code>

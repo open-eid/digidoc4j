@@ -10,35 +10,37 @@
 
 package org.digidoc4j.impl.bdoc.xades;
 
-import static eu.europa.esig.dss.DigestAlgorithm.forXML;
-
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Date;
 
 import org.digidoc4j.DataFile;
 import org.digidoc4j.impl.bdoc.SKCommonCertificateVerifier;
-import org.digidoc4j.impl.bdoc.SKTimestampDataLoader;
 import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import eu.europa.esig.dss.BLevelParameters;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DigestAlgorithm;
 import eu.europa.esig.dss.EncryptionAlgorithm;
+import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignatureLevel;
 import eu.europa.esig.dss.SignaturePackaging;
 import eu.europa.esig.dss.SignatureValue;
 import eu.europa.esig.dss.SignerLocation;
 import eu.europa.esig.dss.ToBeSigned;
-import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.signature.DocumentSignatureService;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.x509.CertificateSource;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.x509.ocsp.OCSPSource;
+import eu.europa.esig.dss.x509.tsp.TSPSource;
+import eu.europa.esig.dss.xades.ASiCNamespaces;
+import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XAdESSignatureParameters;
 import eu.europa.esig.dss.xades.signature.XAdESService;
 
@@ -48,11 +50,8 @@ public class XadesSigningDssFacade {
   private DocumentSignatureService<XAdESSignatureParameters> service;
   private XAdESSignatureParameters xAdESSignatureParameters = new XAdESSignatureParameters();
   private CertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
-  private String timestampServerUrl;
-  private SKTimestampDataLoader dataLoader;
 
-  public XadesSigningDssFacade(String timestampServerUrl) {
-    this.timestampServerUrl = timestampServerUrl;
+  public XadesSigningDssFacade() {
     initDefaultXadesParameters();
     initCertificateVerifier();
     initXadesService();
@@ -76,7 +75,8 @@ public class XadesSigningDssFacade {
     logger.debug("Signature parameters: " + xAdESSignatureParameters.toString());
     DSSDocument signedDocument = service.signDocument(dssDocument, xAdESSignatureParameters, dssSignatureValue);
     logger.debug("Finished signing document with DSS");
-    return signedDocument;
+    DSSDocument correctedSignedDocument = surroundWithXadesXmlTag(signedDocument);
+    return correctedSignedDocument;
   }
 
   public DSSDocument extendSignature(DSSDocument xadesSignature, DSSDocument detachedContent) {
@@ -101,7 +101,7 @@ public class XadesSigningDssFacade {
   }
 
   public void setSignatureDigestAlgorithm(org.digidoc4j.DigestAlgorithm digestAlgorithm) {
-    xAdESSignatureParameters.setDigestAlgorithm(convertToDssDigestAlgorithm(digestAlgorithm));
+    xAdESSignatureParameters.setDigestAlgorithm(digestAlgorithm.getDssDigestAlgorithm());
   }
 
   public void setEncryptionAlgorithm(EncryptionAlgorithm encryptionAlgorithm) {
@@ -125,7 +125,6 @@ public class XadesSigningDssFacade {
 
   public void setSignatureLevel(SignatureLevel signatureLevel) {
     xAdESSignatureParameters.setSignatureLevel(signatureLevel);
-    dataLoader.setUserAgentSignatureProfile(signatureLevel);
   }
 
   public void setSignatureId(String signatureId) {
@@ -141,12 +140,17 @@ public class XadesSigningDssFacade {
     xAdESSignatureParameters.getBLevelParams().setSigningDate(signingDate);
   }
 
+  public void setTspSource(TSPSource tspSource) {
+    service.setTspSource(tspSource);
+  }
+
   private void initDefaultXadesParameters() {
     xAdESSignatureParameters.clearCertificateChain();
     xAdESSignatureParameters.bLevel().setSigningDate(new Date());
     xAdESSignatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
     xAdESSignatureParameters.setSignatureLevel(SignatureLevel.XAdES_BASELINE_LT);
     xAdESSignatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
+    xAdESSignatureParameters.setSigningCertificateDigestMethod(DigestAlgorithm.SHA256);
   }
 
   private void initCertificateVerifier() {
@@ -156,13 +160,14 @@ public class XadesSigningDssFacade {
 
   private void initXadesService() {
     service = new XAdESService(certificateVerifier);
-    OnlineTSPSource tspSource = new OnlineTSPSource(timestampServerUrl);
-    dataLoader = new SKTimestampDataLoader();
-    tspSource.setDataLoader(dataLoader);
-    service.setTspSource(tspSource);
   }
 
-  private eu.europa.esig.dss.DigestAlgorithm convertToDssDigestAlgorithm(org.digidoc4j.DigestAlgorithm digestAlgorithm) {
-    return forXML(digestAlgorithm.toString());
+  private DSSDocument surroundWithXadesXmlTag(DSSDocument signedDocument) {
+    logger.debug("Surrounding signature document with xades tag");
+    Document signatureDom = DSSXMLUtils.buildDOM(signedDocument);
+    Element signatureElement = signatureDom.getDocumentElement();
+    Document document = XmlDomCreator.createDocument(ASiCNamespaces.ASiC, XmlDomCreator.ASICS_NS, signatureElement);
+    byte[] documentBytes = DSSXMLUtils.transformDomToByteArray(document);
+    return new InMemoryDocument(documentBytes);
   }
 }

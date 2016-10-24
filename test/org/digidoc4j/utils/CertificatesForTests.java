@@ -8,6 +8,8 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Date;
 
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
@@ -16,6 +18,7 @@ import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.impl.bdoc.tsl.TSLCertificateSourceImpl;
 
 import eu.europa.esig.dss.tsl.ServiceInfo;
+import eu.europa.esig.dss.tsl.ServiceInfoStatus;
 import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
 import eu.europa.esig.dss.x509.CertificateToken;
 
@@ -15888,18 +15891,22 @@ public class CertificatesForTests {
 
     private void addOcspCertificate(TSLCertificateSource tslCertificateSource, X509Certificate certificate) {
         ServiceInfo serviceInfo = new ServiceInfo();
-        serviceInfo.setStatus("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision");
+        ServiceInfoStatus status = createServiceInfoStatus("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", certificate.getNotBefore());
+        serviceInfo.setStatus(Arrays.asList(status));
         serviceInfo.setType("http://uri.etsi.org/TrstSvc/Svctype/Certstatus/OCSP/QC");
-        serviceInfo.setStatusStartDate(certificate.getNotBefore());
 
         tslCertificateSource.addCertificate(new CertificateToken(certificate), serviceInfo);
     }
 
+    private ServiceInfoStatus createServiceInfoStatus(String statusString, Date notBefore) {
+        return new ServiceInfoStatus(statusString, notBefore, null);
+    }
+
     private void addTsaCertificate(TSLCertificateSource tslCertificateSource, X509Certificate certificate) {
         ServiceInfo serviceInfo = new ServiceInfo();
-        serviceInfo.setStatus("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision");
+        ServiceInfoStatus status = createServiceInfoStatus("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", certificate.getNotBefore());
+        serviceInfo.setStatus(Arrays.asList(status));
         serviceInfo.setType("http://uri.etsi.org/TrstSvc/Svctype/TSA");
-        serviceInfo.setStatusStartDate(certificate.getNotBefore());
 
         tslCertificateSource.addCertificate(new CertificateToken(certificate), serviceInfo);
     }

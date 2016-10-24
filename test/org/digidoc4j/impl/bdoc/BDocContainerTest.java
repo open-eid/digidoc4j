@@ -22,11 +22,14 @@ import static org.digidoc4j.testutils.TestDataBuilder.PKCS12_SIGNER;
 import static org.digidoc4j.testutils.TestDataBuilder.createEmptyBDocContainer;
 import static org.digidoc4j.testutils.TestDataBuilder.signContainer;
 import static org.digidoc4j.testutils.TestSigningHelper.getSigningCert;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -82,8 +85,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.DSSXMLUtils;
-import eu.europa.esig.dss.XPathQueryHolder;
+import eu.europa.esig.dss.xades.DSSXMLUtils;
+import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class BDocContainerTest extends DigiDoc4JTestHelper {
@@ -266,7 +269,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNull(signature.getCity());
     assertNull(signature.getStateOrProvince());
     assertNull(signature.getCountryName());
-    assertNull(signature.getSignerRoles());
+    assertThat(signature.getSignerRoles(), is(empty()));
   }
 
   @Test
@@ -797,7 +800,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(1, container.getSignatures().size());
     Signature resultSignature = container.getSignature(0);
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", resultSignature.getSignatureMethod());
-    assertNull(resultSignature.getSignerRoles());
+    assertThat(resultSignature.getSignerRoles(), is(empty()));
     assertNull(resultSignature.getCity());
     assertTrue(StringUtils.isNotBlank(resultSignature.getId()));
 
@@ -923,7 +926,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(B_BES, container.getSignatures().get(0).getProfile());
     assertNull(container.getSignature(0).getOCSPCertificate());
     ValidationResult result = container.validate();
-    assertEquals(0, result.getErrors().size());
+    assertFalse(result.isValid());
   }
 
   @Test

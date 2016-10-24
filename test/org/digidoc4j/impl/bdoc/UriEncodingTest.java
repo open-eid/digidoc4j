@@ -11,6 +11,7 @@
 package org.digidoc4j.impl.bdoc;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
@@ -20,28 +21,62 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.Signature;
+import org.digidoc4j.ValidationResult;
+import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.testutils.TestDataBuilder;
-import org.digidoc4j.utils.AbstractSigningTests;
+import org.junit.Ignore;
 import org.junit.Test;
 
-/** 
- * This test is testing a "hack" feature that will probably be rolled back later.
- */
-public class UriEncodingTest extends AbstractSigningTests {
+public class UriEncodingTest extends DigiDoc4JTestHelper {
+
     @Test
     public void signatureReferencesUseUriEncodingButManifestUsesPlainUtf8() throws InterruptedException {
-        Signature signature = sign();
-        signature.validateSignature();
-        List<Reference> referencesInSignature = ((BDocSignature)signature).getOrigin().getReferences();
-        assertEquals("dds_J%C3%9CRI%C3%96%C3%96%20%E2%82%AC%20%C5%BE%C5%A0%20p%C3%A4ev.txt", referencesInSignature.get(0).getURI());
+        String fileName = "dds_JÜRIÖÖ € žŠ päev.txt";
+        String expectedEncoding = "dds_J%C3%9CRI%C3%96%C3%96%20%E2%82%AC%20%C5%BE%C5%A0%20p%C3%A4ev.txt";
+        signAndAssertEncoding(fileName, expectedEncoding);
         // TODO: Also write an assertion to verify that the manifest file does NOT use URI encoding
     }
-    
-    protected Signature sign() {
+
+    @Test
+    public void encodeDataFileWithSpecialCharacters() throws Exception {
+        String fileName = "et10i_0123456789!\\#$%&'()+,-. ;=@[]_`}~ et_EE";
+        String expectedEncoding = "et10i_0123456789!%5C%23%24%25%26'()%2B%2C-.%20%3B%3D%40%5B%5D_%60%7D~%20et_EE";
+        signAndAssertEncoding(fileName, expectedEncoding);
+    }
+
+    @Test
+    public void validatePartialEncoding_shouldBeValid() throws Exception {
+        Container container = ContainerBuilder.
+            aContainer().
+            fromExistingFile("testFiles/valid-containers/et10_0123456789!#$%&'()+,-. ;=@[]_`}- et_EE_utf8.zip-d_ec.bdoc").
+            build();
+        ValidationResult result = container.validate();
+        assertTrue(result.isValid());
+    }
+
+    @Test
+    @Ignore("https://www.pivotaltracker.com/story/show/125469911")
+    public void validateContainer_withWhitespaceEncodedAsPlus_shouldBeValid() throws Exception {
+        Container container = ContainerBuilder.
+            aContainer().
+            fromExistingFile("testFiles/valid-containers/M1n1 Testäöüõ!.txt-TS-d4j.bdoc").
+            build();
+        ValidationResult result = container.validate();
+        assertTrue(result.isValid());
+    }
+
+    private void signAndAssertEncoding(String fileName, String expectedEncoding) {
+        Signature signature = sign(fileName);
+        assertTrue(signature.validateSignature().isValid());
+        List<Reference> referencesInSignature = ((BDocSignature)signature).getOrigin().getReferences();
+        assertEquals(expectedEncoding, referencesInSignature.get(0).getURI());
+    }
+
+    protected Signature sign(String fileName) {
         Container container = ContainerBuilder.
             aContainer().
             withConfiguration(new Configuration(Configuration.Mode.TEST)).
-            withDataFile(new ByteArrayInputStream("file contents".getBytes()), "dds_JÜRIÖÖ € žŠ päev.txt", "application/octet-stream").
+            withDataFile(new ByteArrayInputStream("file contents".getBytes()), fileName, "application/octet-stream").
             build();
         Signature signature = TestDataBuilder.signContainer(container);
         return signature;

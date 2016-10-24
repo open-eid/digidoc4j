@@ -13,30 +13,39 @@ package org.digidoc4j;
 import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 import static org.digidoc4j.testutils.TestSigningHelper.getSigningCert;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
-import org.digidoc4j.testutils.TestSignatureBuilder;
+import org.digidoc4j.impl.bdoc.BDocSignature;
+import org.digidoc4j.impl.bdoc.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TestContainer;
 import org.digidoc4j.testutils.TestDataBuilder;
+import org.digidoc4j.testutils.TestSignatureBuilder;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.digidoc4j.utils.TokenAlgorithmSupport;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import eu.europa.esig.dss.validation.TimestampToken;
+import eu.europa.esig.dss.x509.SignaturePolicy;
 
 public class SignatureBuilderTest extends DigiDoc4JTestHelper {
 
@@ -143,6 +152,20 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void createTimeMarkSignature_shouldNotContainTimestamp() throws Exception {
+    Container container = TestDataBuilder.createContainerWithFile(testFolder);
+    BDocSignature signature = (BDocSignature) SignatureBuilder.
+        aSignature(container).
+        withSignatureProfile(SignatureProfile.LT_TM).
+        withSignatureToken(testSignatureToken).
+        invokeSigning();
+    container.addSignature(signature);
+
+    List<TimestampToken> signatureTimestamps = signature.getOrigin().getDssSignature().getSignatureTimestamps();
+    assertTrue(signatureTimestamps == null || signatureTimestamps.isEmpty());
+  }
+
+  @Test
   public void signDDocContainerWithSignatureToken() throws Exception {
     Container container = TestDataBuilder.createContainerWithFile(testFolder, "DDOC");
     assertEquals("DDOC", container.getType());
@@ -194,6 +217,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
   public void signatureProfileShouldBeSetProperlyForBDoc() throws Exception {
     Signature signature = createBDocSignatureWithProfile(SignatureProfile.B_BES);
     assertEquals(SignatureProfile.B_BES, signature.getProfile());
+    assertTrue(signature.getSignerRoles().isEmpty());
   }
 
   @Test
@@ -209,6 +233,20 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void signatureProfileShouldBeSetProperlyForBEpes() throws Exception {
+    Signature signature = createBDocSignatureWithProfile(SignatureProfile.B_EPES);
+    assertEquals(SignatureProfile.B_EPES, signature.getProfile());
+    assertNull(signature.getTrustedSigningTime());
+    assertNull(signature.getOCSPCertificate());
+    assertNull(signature.getOCSPResponseCreationTime());
+    assertNull(signature.getTimeStampTokenCertificate());
+    assertNull(signature.getTimeStampCreationTime());
+    BDocSignature bDocSignature = (BDocSignature) signature;
+    SignaturePolicy policyId = bDocSignature.getOrigin().getDssSignature().getPolicyId();
+    assertEquals(XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
+  }
+
+  @Test
   public void signWithEccCertificate() throws Exception {
     PKCS12SignatureToken eccSignatureToken = new PKCS12SignatureToken("testFiles/ec-digiid.p12", "inno".toCharArray());
     Container container = TestDataBuilder.createContainerWithFile(testFolder, "BDOC");
@@ -216,6 +254,17 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
         aSignature(container).
         withSignatureToken(eccSignatureToken).
         withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA).
+        invokeSigning();
+    assertTrue(signature.validateSignature().isValid());
+  }
+
+  @Test
+  public void signWithEccCertificate_determiningEncryptionAlgorithmAutomatically() throws Exception {
+    PKCS12SignatureToken eccSignatureToken = new PKCS12SignatureToken("testFiles/ec-digiid.p12", "inno".toCharArray());
+    Container container = TestDataBuilder.createContainerWithFile(testFolder, "BDOC");
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureToken(eccSignatureToken).
         invokeSigning();
     assertTrue(signature.validateSignature().isValid());
   }
@@ -240,6 +289,14 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
     assertTrue(container.validate().isValid());
   }
 
+  @Test(expected = InvalidSignatureException.class)
+  public void openSignatureFromNull_shouldThrowException() throws Exception {
+    Container container = TestDataBuilder.createContainerWithFile("testFiles/test.txt");
+    SignatureBuilder.
+        aSignature(container).
+        openAdESSignature(null);
+  }
+
   @Test
   public void openSignatureFromExistingSignatureDocument() throws Exception {
     Container container = TestDataBuilder.createContainerWithFile("testFiles/test.txt");
@@ -262,16 +319,51 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
     byte[] signatureBytes = FileUtils.readFileToByteArray(new File("testFiles/test.txt"));
     SignatureBuilder.
         aSignature(container).
-        openFromExistingDocument(signatureBytes);
+        openAdESSignature(signatureBytes);
+  }
+
+  @Test
+  public void openSignature_withDataFilesMismatch_shouldBeInvalid() throws Exception {
+    Container container = TestDataBuilder.createContainerWithFile("testFiles/word_file.docx");
+    Signature signature = openAdESSignature(container);
+    SignatureValidationResult result = signature.validateSignature();
+    assertFalse(result.isValid());
+    assertEquals("The reference data object(s) is not found!", result.getErrors().get(0).getMessage());
+  }
+
+  @Test
+  public void openXadesSignature_withoutXmlPreamble_shouldNotThrowException() throws Exception {
+    Container container = TestDataBuilder.createContainerWithFile("testFiles/test.txt");
+    byte[] signatureBytes = FileUtils.readFileToByteArray(new File("testFiles/xades/bdoc-tm-jdigidoc-mobile-id.xml"));
+    SignatureBuilder.
+        aSignature(container).
+        openAdESSignature(signatureBytes);
+  }
+
+  @Test
+  public void openXadesSignature_andSavingContainer_shouldNotChangeSignature() throws Exception {
+    String containerPath = testFolder.newFile("test.bdoc").getPath();
+    Container container = TestDataBuilder.createContainerWithFile("testFiles/word_file.docx");
+    Signature signature = openAdESSignature(container);
+    container.addSignature(signature);
+    container.saveAsFile(containerPath);
+    container = ContainerOpener.open(containerPath);
+    byte[] originalSignatureBytes = FileUtils.readFileToByteArray(new File("testFiles/xades/valid-bdoc-tm.xml"));
+    byte[] signatureBytes = container.getSignatures().get(0).getAdESSignature();
+    assertArrayEquals(originalSignatureBytes, signatureBytes);
   }
 
   private Signature openSignatureFromExistingSignatureDocument(Container container) throws IOException {
-    byte[] signatureBytes = FileUtils.readFileToByteArray(new File("testFiles/xades/valid-bdoc-tm.xml"));
-    Signature signature = SignatureBuilder.
-        aSignature(container).
-        openFromExistingDocument(signatureBytes);
+    Signature signature = openAdESSignature(container);
     assertEquals("id-6a5d6671af7a9e0ab9a5e4d49d69800d", signature.getId());
     return signature;
+  }
+
+  private Signature openAdESSignature(Container container) throws IOException {
+    byte[] signatureBytes = FileUtils.readFileToByteArray(new File("testFiles/xades/valid-bdoc-tm.xml"));
+    return SignatureBuilder.
+        aSignature(container).
+        openAdESSignature(signatureBytes);
   }
 
   @Test(expected = NotSupportedException.class)
