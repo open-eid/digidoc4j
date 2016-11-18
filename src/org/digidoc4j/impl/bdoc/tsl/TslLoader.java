@@ -22,14 +22,12 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
-import org.digidoc4j.impl.bdoc.CachingDataLoader;
+import org.digidoc4j.impl.bdoc.dataloader.TslDataLoaderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.client.http.DataLoader;
-import eu.europa.esig.dss.client.http.Protocol;
-import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 import eu.europa.esig.dss.x509.KeyStoreCertificateSource;
@@ -104,17 +102,7 @@ public class TslLoader implements Serializable {
   }
 
   private DataLoader createDataLoader() {
-    if (Protocol.isHttpUrl(configuration.getTslLocation())) {
-      CachingDataLoader dataLoader = new CachingDataLoader(configuration);
-      dataLoader.setTimeoutConnection(configuration.getConnectionTimeout());
-      dataLoader.setTimeoutSocket(configuration.getSocketTimeout());
-      dataLoader.setCacheExpirationTime(configuration.getTslCacheExpirationTime());
-      dataLoader.setFileCacheDirectory(fileCacheDirectory);
-      logger.debug("Using file cache directory for storing TSL: " + fileCacheDirectory);
-      return dataLoader;
-    } else {
-      return new CommonsDataLoader();
-    }
+    return new TslDataLoaderFactory(configuration, fileCacheDirectory).create();
   }
 
   private KeyStoreCertificateSource getKeyStore() {

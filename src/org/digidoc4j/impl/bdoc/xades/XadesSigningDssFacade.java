@@ -14,6 +14,8 @@ import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Date;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.digidoc4j.DataFile;
 import org.digidoc4j.impl.bdoc.SKCommonCertificateVerifier;
 import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
@@ -68,7 +70,7 @@ public class XadesSigningDssFacade {
   }
 
   public DSSDocument signDocument(byte[] signatureValue, Collection<DataFile> dataFiles) {
-    logger.debug("Signing document with DSS");
+    logger.debug("Signing document with signature value " + DatatypeConverter.printHexBinary(signatureValue));
     SignatureValue dssSignatureValue = new SignatureValue(xAdESSignatureParameters.getSignatureAlgorithm(), signatureValue);
     DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
     DSSDocument dssDocument = detachedContentCreator.getFirstDetachedContent();

@@ -19,6 +19,7 @@ import static org.junit.Assert.assertThat;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.impl.bdoc.SkDataLoader;
 import org.junit.Test;
 
 public class OcspSourceBuilderTest {
@@ -59,6 +60,6 @@ public class OcspSourceBuilderTest {
   private void assertOcspSource(SKOnlineOCSPSource ocspSource, String userAgentPart) {
     assertSame(CONFIGURATION, ocspSource.getConfiguration());
     assertNotNull(ocspSource.getDataLoader());
-    assertThat(ocspSource.getDataLoader().getUserAgent(), containsString(userAgentPart));
+    assertThat(((SkDataLoader)ocspSource.getDataLoader()).getUserAgent(), containsString(userAgentPart));
   }
 }

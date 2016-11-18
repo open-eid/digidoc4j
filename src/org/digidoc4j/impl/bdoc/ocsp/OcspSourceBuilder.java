@@ -12,10 +12,15 @@ package org.digidoc4j.impl.bdoc.ocsp;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.impl.bdoc.SkDataLoader;
+import org.digidoc4j.impl.bdoc.dataloader.OcspDataLoaderFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import eu.europa.esig.dss.client.http.DataLoader;
 
 public class OcspSourceBuilder {
 
+  private static final Logger logger = LoggerFactory.getLogger(OcspSourceBuilder.class);
   private Configuration configuration;
   private byte[] signatureValue;
   private SignatureProfile signatureProfile;
@@ -25,14 +30,14 @@ public class OcspSourceBuilder {
   }
 
   public SKOnlineOCSPSource build() {
+    logger.debug("Building SK Online OCSP source");
     SKOnlineOCSPSource ocspSource;
     if (signatureProfile == SignatureProfile.LT_TM) {
       ocspSource = new BDocTMOcspSource(configuration, signatureValue);
     } else {
       ocspSource = new BDocTSOcspSource(configuration);
     }
-    SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(configuration);
-    dataLoader.setUserAgentSignatureProfile(signatureProfile);
+    DataLoader dataLoader = new OcspDataLoaderFactory(configuration, signatureProfile).create();
     ocspSource.setDataLoader(dataLoader);
     return ocspSource;
   }

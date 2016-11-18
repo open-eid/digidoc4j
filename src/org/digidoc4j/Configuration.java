@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
+import org.digidoc4j.impl.bdoc.dataloader.DataLoaderFactory;
 import org.digidoc4j.impl.bdoc.tsl.TslManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -182,6 +183,9 @@ public class Configuration implements Serializable {
   private String sslTruststorePath;
   private String sslTruststoreType;
   private String sslTruststorePassword;
+  private DataLoaderFactory ocspDataLoaderFactory;
+  private DataLoaderFactory timestampDataLoaderFactory;
+  private DataLoaderFactory tslDataLoaderFactory;
   private transient ExecutorService threadExecutor;
 
   /**
@@ -1174,12 +1178,52 @@ public class Configuration implements Serializable {
     return sslTruststorePassword;
   }
 
+  /**
+   * Set an executor service that handles validation of signatures in multiple threads.
+   * @param threadExecutor signature validation thread executor.
+   */
   public void setThreadExecutor(ExecutorService threadExecutor) {
     this.threadExecutor = threadExecutor;
   }
 
   public ExecutorService getThreadExecutor() {
     return threadExecutor;
+  }
+
+  /**
+   * Set a data loader factory that manages the creation of data loaders for creating OCSP requests.
+   * @param ocspDataLoaderFactory ocsp data loader factory.
+   */
+  public void setOcspDataLoaderFactory(DataLoaderFactory ocspDataLoaderFactory) {
+    this.ocspDataLoaderFactory = ocspDataLoaderFactory;
+  }
+
+  public DataLoaderFactory getOcspDataLoaderFactory() {
+    return ocspDataLoaderFactory;
+  }
+
+  /**
+   * Set a data loader factory that manages the creation of data loaders for creating TimeStamp requests.
+   * @param timestampDataLoaderFactory timestamp data loader factory.
+   */
+  public void setTimestampDataLoaderFactory(DataLoaderFactory timestampDataLoaderFactory) {
+    this.timestampDataLoaderFactory = timestampDataLoaderFactory;
+  }
+
+  public DataLoaderFactory getTimestampDataLoaderFactory() {
+    return timestampDataLoaderFactory;
+  }
+
+  /**
+   * Set a data loader factory that manages the creation of data loaders for downloading TSL.
+   * @param tslDataLoaderFactory TSL data loader factory.
+   */
+  public void setTslDataLoaderFactory(DataLoaderFactory tslDataLoaderFactory) {
+    this.tslDataLoaderFactory = tslDataLoaderFactory;
+  }
+
+  public DataLoaderFactory getTslDataLoaderFactory() {
+    return tslDataLoaderFactory;
   }
 
   /**

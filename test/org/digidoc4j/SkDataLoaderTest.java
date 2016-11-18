@@ -19,26 +19,36 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.digidoc4j.testutils.TestDataBuilder.signContainer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
+import org.apache.http.message.BasicHeader;
 import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.bouncycastle.tsp.TimeStampRequest;
 import org.bouncycastle.tsp.TimeStampResponse;
 import org.digidoc4j.impl.bdoc.CachingDataLoader;
 import org.digidoc4j.impl.bdoc.SkDataLoader;
+import org.digidoc4j.impl.bdoc.dataloader.DataLoaderFactory;
+import org.digidoc4j.impl.bdoc.dataloader.MockDataLoaderFactory;
+import org.digidoc4j.impl.bdoc.dataloader.OcspDataLoaderFactory;
+import org.digidoc4j.impl.bdoc.dataloader.TimeStampDataLoaderFactory;
 import org.digidoc4j.impl.bdoc.tsl.TslLoader;
-import org.digidoc4j.testutils.TestDataBuilder;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
 import eu.europa.esig.dss.MimeType;
+import eu.europa.esig.dss.client.http.DataLoader;
 import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.client.http.proxy.ProxyPreferenceManager;
 
@@ -47,8 +57,72 @@ public class SkDataLoaderTest {
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(12189);
 
-  static Configuration configuration = new Configuration(Configuration.Mode.TEST);
+  @Rule
+  public TemporaryFolder testFolder = new TemporaryFolder();
+
+  private Configuration configuration;
   static final String MOCK_PROXY_URL = "http://localhost:12189/";
+
+  @Before
+  public void setUp() throws Exception {
+    configuration = new Configuration(Configuration.Mode.TEST);
+  }
+
+  @Test
+  public void overrideOcspDataLoader() throws Exception {
+    DataLoaderFactory ocspDataLoaderFactory = new OcspDataLoaderFactory(configuration, SignatureProfile.LT);
+    MockDataLoaderFactory mockDataLoaderFactory = createMockDataLoaderFactory(ocspDataLoaderFactory);
+    configuration.setOcspDataLoaderFactory(mockDataLoaderFactory);
+    Container container = createContainer();
+    signContainer(container, SignatureProfile.LT);
+    assertDataLoaderWasUsed(mockDataLoaderFactory);
+  }
+
+  @Test
+  public void overrideTimestampDataLoader() throws Exception {
+    DataLoaderFactory timeStampDataLoaderFactory = new TimeStampDataLoaderFactory(configuration, SignatureProfile.LT);
+    MockDataLoaderFactory mockDataLoaderFactory = createMockDataLoaderFactory(timeStampDataLoaderFactory);
+    configuration.setTimestampDataLoaderFactory(mockDataLoaderFactory);
+    Container container = createContainer();
+    signContainer(container, SignatureProfile.LT);
+    assertDataLoaderWasUsed(mockDataLoaderFactory);
+  }
+
+  @Test
+  public void overrideTimestampDataLoader_whenExtendingSignature() throws Exception {
+    Container container = createContainer();
+    signContainer(container, SignatureProfile.B_BES);
+    DataLoaderFactory timeStampDataLoaderFactory = new TimeStampDataLoaderFactory(configuration, SignatureProfile.LT);
+    MockDataLoaderFactory mockDataLoaderFactory = createMockDataLoaderFactory(timeStampDataLoaderFactory);
+    configuration.setTimestampDataLoaderFactory(mockDataLoaderFactory);
+    container.extendSignatureProfile(SignatureProfile.LT);
+    assertDataLoaderWasUsed(mockDataLoaderFactory);
+  }
+
+  @Test
+  public void overrideTslDataLoader() throws Exception {
+    DataLoaderSpy dataLoaderSpy = new DataLoaderSpy(new CommonsDataLoader());
+    MockDataLoaderFactory mockDataLoaderFactory = new MockDataLoaderFactory(dataLoaderSpy);
+    configuration.setTslDataLoaderFactory(mockDataLoaderFactory);
+    Container container = createContainer();
+    signContainer(container, SignatureProfile.LT);
+    assertTrue(((DataLoaderSpy)mockDataLoaderFactory.getDataLoader()).getNumberOfPostsCalled() > 0);
+  }
+
+  @Test
+  public void overrideAllDataLoaders() throws Exception {
+    MockDataLoaderFactory ocspMockDataLoaderFactory = createMockDataLoaderFactory(new OcspDataLoaderFactory(configuration, SignatureProfile.LT));
+    MockDataLoaderFactory tsaMockDataLoaderFactory = createMockDataLoaderFactory(new TimeStampDataLoaderFactory(configuration, SignatureProfile.LT));
+    MockDataLoaderFactory tslMockDataLoaderFactory = new MockDataLoaderFactory(new DataLoaderSpy(new CommonsDataLoader()));
+    configuration.setOcspDataLoaderFactory(ocspMockDataLoaderFactory);
+    configuration.setTimestampDataLoaderFactory(tsaMockDataLoaderFactory);
+    configuration.setTslDataLoaderFactory(tslMockDataLoaderFactory);
+    Container container = createContainer();
+    signContainer(container, SignatureProfile.LT);
+    assertDataLoaderWasUsed(ocspMockDataLoaderFactory);
+    assertDataLoaderWasUsed(tsaMockDataLoaderFactory);
+    assertTrue(((DataLoaderSpy)tslMockDataLoaderFactory.getDataLoader()).getNumberOfPostsCalled() > 0);
+  }
 
   @Test
   public void getTimestampViaSpy() throws Exception {
@@ -57,8 +131,8 @@ public class SkDataLoaderTest {
             .proxiedFrom(configuration.getTspSource())));
 
     byte[] tsRequest = new byte[]{48, 57, 2, 1, 1, 48, 49, 48, 13, 6, 9, 96, -122, 72, 1, 101, 3, 4, 2, 1, 5, 0, 4, 32, 2, 91, 64, 111, 35, -23, -19, -46, 57, -80, -63, -80, -74, 100, 72, 97, -47, -17, -35, -62, 102, 52, 116, 73, -10, -120, 115, 62, 2, 87, -29, -21, 1, 1, -1};
-    SkDataLoader dataLoader = SkDataLoader.createTimestampDataLoader(configuration);
-    dataLoader.setUserAgentSignatureProfile(SignatureProfile.LT);
+    SkDataLoader dataLoader = (SkDataLoader) new TimeStampDataLoaderFactory(configuration, SignatureProfile.LT).create();
+    dataLoader.addHeader(new BasicHeader("X-Forwarded-For", "127.0.0.1"));
     byte[] response = dataLoader.post(MOCK_PROXY_URL, tsRequest);
     assertNotNull(response);
     TimeStampResponse timeStampResponse = new TimeStampResponse(response);
@@ -67,7 +141,8 @@ public class SkDataLoaderTest {
 
     verify(postRequestedFor(urlMatching("/")).
         withHeader("Content-Type", containing("application/timestamp-query")).
-        withHeader("User-Agent", containing("LIB DigiDoc4j")));
+        withHeader("User-Agent", containing("LIB DigiDoc4j")).
+        withHeader("X-Forwarded-For", containing("127.0.")));
   }
 
   @Test
@@ -76,35 +151,56 @@ public class SkDataLoaderTest {
         .willReturn(aResponse()
             .proxiedFrom(configuration.getOcspSource())));
 
-    byte[] ocspRequest = new byte[] {48, 120, 48, 118, 48, 77, 48, 75, 48, 73, 48, 9, 6, 5, 43, 14, 3, 2, 26, 5, 0, 4, 20, -20, -37, 96, 16, 51, -48, 76, 118, -7, -123, -78, 28, -40, 58, -45, -98, 2, -101, -109, 49, 4, 20, 73, -64, -14, 68, 57, 101, -43, -101, 70, 59, 13, 56, 96, -125, -79, -42, 45, 40, -122, -90, 2, 16, 83, 11, -28, 27, -68, 89, 124, 68, 87, 14, 43, 124, 19, -68, -6, 12, -94, 37, 48, 35, 48, 33, 6, 9, 43, 6, 1, 5, 5, 7, 48, 1, 2, 4, 20, -55, 25, 66, -2, -90, 61, 30, -49, 20, -82, 91, 49, -4, -52, -64, 23, 106, 12, -114, 67};
-    SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(configuration);
-    dataLoader.setUserAgentSignatureProfile(SignatureProfile.LT);
+    byte[] ocspRequest = new byte[]{48, 120, 48, 118, 48, 77, 48, 75, 48, 73, 48, 9, 6, 5, 43, 14, 3, 2, 26, 5, 0, 4, 20, -20, -37, 96, 16, 51, -48, 76, 118, -7, -123, -78, 28, -40, 58, -45, -98, 2, -101, -109, 49, 4, 20, 73, -64, -14, 68, 57, 101, -43, -101, 70, 59, 13, 56, 96, -125, -79, -42, 45, 40, -122, -90, 2, 16, 83, 11, -28, 27, -68, 89, 124, 68, 87, 14, 43, 124, 19, -68, -6, 12, -94, 37, 48, 35, 48, 33, 6, 9, 43, 6, 1, 5, 5, 7, 48, 1, 2, 4, 20, -55, 25, 66, -2, -90, 61, 30, -49, 20, -82, 91, 49, -4, -52, -64, 23, 106, 12, -114, 67};
+    SkDataLoader dataLoader = (SkDataLoader) new OcspDataLoaderFactory(configuration, SignatureProfile.LT).create();
+    dataLoader.addHeader(new BasicHeader("X-Forwarded-For", "127.0.0.1"));
     byte[] response = dataLoader.post(MOCK_PROXY_URL, ocspRequest);
     OCSPResp ocspResp = new OCSPResp(response);
     assertNotNull(ocspResp.getResponseObject());
 
     verify(postRequestedFor(urlMatching("/")).
         withHeader("Content-Type", containing("application/ocsp-request")).
-        withHeader("User-Agent", containing("LIB DigiDoc4j")));
+        withHeader("User-Agent", containing("LIB DigiDoc4j")).
+        withHeader("X-Forwarded-For", containing("127.0.")));
+  }
+
+  @Test
+  public void addRequestHeadersToDataLoaders() throws Exception {
+    String ocspSource = configuration.getOcspSource();
+    configuration.setOcspSource(MOCK_PROXY_URL);
+    stubFor(post(urlEqualTo("/"))
+        .willReturn(aResponse()
+            .proxiedFrom(ocspSource)));
+
+    OcspDataLoaderFactory ocspDataLoaderFactory = new OcspDataLoaderFactory(configuration, SignatureProfile.LT);
+    SkDataLoader ocspDataLoader = (SkDataLoader) ocspDataLoaderFactory.create();
+    ocspDataLoader.addHeader(new BasicHeader("X-Forwarded-For", "127.0.0.1"));
+
+    MockDataLoaderFactory ocspMockDataLoaderFactory = new MockDataLoaderFactory(ocspDataLoader);
+    configuration.setOcspDataLoaderFactory(ocspMockDataLoaderFactory);
+    Container container = createContainer();
+    signContainer(container, SignatureProfile.LT);
+
+    verify(postRequestedFor(urlMatching("/")).
+        withHeader("Content-Type", containing("application/ocsp-request")).
+        withHeader("User-Agent", containing("LIB DigiDoc4j")).
+        withHeader("X-Forwarded-For", containing("127.0.")));
   }
 
   @Test
   public void ocspDataLoader_withoutProxyConfiguration() throws Exception {
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
     SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(configuration);
     assertNull(dataLoader.getProxyPreferenceManager());
   }
 
   @Test
   public void cachingDataLoader_withoutProxyConfiguration() throws Exception {
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
     CommonsDataLoader dataLoader = new CachingDataLoader(configuration);
     assertNull(dataLoader.getProxyPreferenceManager());
   }
 
   @Test
   public void ocspDataLoader_withProxyConfiguration() throws Exception {
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
     configuration.setHttpProxyHost("proxyHost");
     configuration.setHttpProxyPort(1345);
     SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(configuration);
@@ -114,7 +210,6 @@ public class SkDataLoaderTest {
 
   @Test
   public void cachingDataLoader_withProxyConfiguration() throws Exception {
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
     configuration.setHttpProxyHost("proxyHost");
     configuration.setHttpProxyPort(1345);
     CommonsDataLoader dataLoader = new CachingDataLoader(configuration);
@@ -124,7 +219,6 @@ public class SkDataLoaderTest {
 
   @Test
   public void dataLoader_withPasswordProxyConfiguration() throws Exception {
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
     configuration.setHttpProxyHost("proxyHost");
     configuration.setHttpProxyPort(1345);
     configuration.setHttpProxyUser("proxyUser");
@@ -138,22 +232,20 @@ public class SkDataLoaderTest {
   @Ignore("Requires access to the proxy server")
   public void createSignAsicOverProxy() throws Exception {
     TslLoader.invalidateCache();
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
     configuration.setHttpProxyHost("cache.elion.ee");
     configuration.setHttpProxyPort(8080);
     Container container = ContainerBuilder
         .aContainer(ContainerBuilder.BDOC_CONTAINER_TYPE).
-        withConfiguration(configuration).
-        withDataFile("testFiles/test.txt", MimeType.TEXT.getMimeTypeString()).
-        build();
-    Signature signature = TestDataBuilder.signContainer(container, SignatureProfile.LT);
+            withConfiguration(configuration).
+            withDataFile("testFiles/test.txt", MimeType.TEXT.getMimeTypeString()).
+            build();
+    Signature signature = signContainer(container, SignatureProfile.LT);
     assertTrue(signature.validateSignature().isValid());
 
   }
 
   @Test
   public void dataLoader_withoutSslConfiguration_shouldNotSetSslValues() throws Exception {
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
     SkDataLoaderSpy dataLoader = new SkDataLoaderSpy(configuration);
     assertNull(dataLoader.getSslKeystorePath());
     assertNull(dataLoader.getSslKeystoreType());
@@ -169,7 +261,6 @@ public class SkDataLoaderTest {
 
   @Test
   public void dataLoader_withSslConfiguration_shouldSetSslValues() throws Exception {
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
     configuration.setSslKeystorePath("keystore.path");
     configuration.setSslKeystoreType("keystore.type");
     configuration.setSslKeystorePassword("keystore.password");
@@ -191,7 +282,6 @@ public class SkDataLoaderTest {
 
   @Test
   public void dataLoader_withMinimalSslConfiguration_shouldNotSetNullValues() throws Exception {
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
     configuration.setSslKeystorePath("keystore.path");
     configuration.setSslTruststorePath("truststore.path");
     SkDataLoaderSpy dataLoader = new SkDataLoaderSpy(configuration);
@@ -205,6 +295,10 @@ public class SkDataLoaderTest {
     assertFalse(dataLoader.isSslKeystorePasswordSet());
     assertFalse(dataLoader.isSslTruststoreTypeSet());
     assertFalse(dataLoader.isSslTruststorePasswordSet());
+  }
+
+  private void assertDataLoaderWasUsed(MockDataLoaderFactory mockDataLoaderFactory) {
+    assertEquals(1, ((DataLoaderSpy)mockDataLoaderFactory.getDataLoader()).getNumberOfPostsCalled());
   }
 
   private void assertProxyConfigured(CommonsDataLoader dataLoader, String proxyHost, int proxyPort) {
@@ -234,7 +328,21 @@ public class SkDataLoaderTest {
     assertEquals(proxyPassword, preferenceManager.getHttpsPassword());
   }
 
-  public static class SkDataLoaderSpy extends SkDataLoader{
+  private Container createContainer() {
+    return ContainerBuilder.
+        aContainer().
+        withDataFile("testFiles/test.txt", "text/plain").
+        withConfiguration(configuration).
+        build();
+  }
+
+  private MockDataLoaderFactory createMockDataLoaderFactory(DataLoaderFactory dataLoaderFactory) {
+    DataLoader dataLoader = dataLoaderFactory.create();
+    DataLoaderSpy dataLoaderSpy = new DataLoaderSpy(dataLoader);
+    return new MockDataLoaderFactory(dataLoaderSpy);
+  }
+
+  public static class SkDataLoaderSpy extends SkDataLoader {
 
     private String sslKeystorePath;
     private String sslKeystoreType;
@@ -250,6 +358,11 @@ public class SkDataLoaderTest {
 
     protected SkDataLoaderSpy(Configuration configuration) {
       super(configuration);
+    }
+
+    @Override
+    public byte[] post(String url, byte[] content) {
+      return super.post(url, content);
     }
 
     public String getSslKeystorePath() {
@@ -326,6 +439,45 @@ public class SkDataLoaderTest {
 
     public boolean isSslTruststorePasswordSet() {
       return sslTruststorePasswordSet;
+    }
+  }
+
+  private static class DataLoaderSpy implements DataLoader {
+    private DataLoader dataLoader;
+    private int numberOfPostsCalled = 0;
+
+    public DataLoaderSpy(DataLoader dataLoader) {
+      this.dataLoader = dataLoader;
+    }
+
+    @Override
+    public byte[] post(String url, byte[] content) {
+      numberOfPostsCalled++;
+      return dataLoader.post(url, content);
+    }
+
+    @Override
+    public byte[] get(String url) {
+      numberOfPostsCalled++;
+      return dataLoader.get(url);
+    }
+
+    @Override
+    public DataAndUrl get(List<String> urlStrings) {
+      return null;
+    }
+
+    @Override
+    public byte[] get(String url, boolean refresh) {
+      return new byte[0];
+    }
+
+    @Override
+    public void setContentType(String contentType) {
+    }
+
+    public int getNumberOfPostsCalled() {
+      return numberOfPostsCalled;
     }
   }
 }

@@ -13,8 +13,11 @@ package org.digidoc4j.impl.bdoc;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -38,6 +41,7 @@ public class SkDataLoader extends CommonsDataLoader {
   private static final Logger logger = LoggerFactory.getLogger(SkDataLoader.class);
   public static final String TIMESTAMP_CONTENT_TYPE = "application/timestamp-query";
   private String userAgent;
+  private List<Header> additionalHeaders = new ArrayList<>();
 
   public static SkDataLoader createOcspDataLoader(Configuration configuration) {
     SkDataLoader dataLoader = new SkDataLoader(configuration);
@@ -58,9 +62,9 @@ public class SkDataLoader extends CommonsDataLoader {
 
   @Override
   public byte[] post(final String url, final byte[] content) throws DSSException {
-    logger.info("Getting OCSP response from " + url);
+    logger.info("Getting a response from " + url);
     if(userAgent == null) {
-      throw new TechnicalException("User Agent must be set for OCSP requests");
+      throw new TechnicalException("User Agent must be set for OCSP and Timestamp requests");
     }
 
     HttpPost httpRequest = null;
@@ -71,6 +75,7 @@ public class SkDataLoader extends CommonsDataLoader {
       final URI uri = URI.create(url.trim());
       httpRequest = new HttpPost(uri);
       httpRequest.setHeader("User-Agent", userAgent);
+      addHeaders(httpRequest);
 
       // The length for the InputStreamEntity is needed, because some receivers (on the other side) need this information.
       // To determine the length, we cannot read the content-stream up to the end and re-use it afterwards.
@@ -106,11 +111,21 @@ public class SkDataLoader extends CommonsDataLoader {
     }
   }
 
+  private void addHeaders(HttpPost httpRequest) {
+    for(Header header : additionalHeaders) {
+      httpRequest.setHeader(header);
+    }
+  }
+
   public void setUserAgentSignatureProfile(SignatureProfile signatureProfile) {
     userAgent = Helper.createBDocUserAgent(signatureProfile);
   }
 
   public String getUserAgent() {
     return userAgent;
+  }
+
+  public void addHeader(Header header) {
+    additionalHeaders.add(header);
   }
 }

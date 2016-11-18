@@ -33,7 +33,7 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.bdoc.BDocSignature;
 import org.digidoc4j.impl.bdoc.BDocSignatureBuilder;
-import org.digidoc4j.impl.bdoc.SkDataLoader;
+import org.digidoc4j.impl.bdoc.dataloader.TimeStampDataLoaderFactory;
 import org.digidoc4j.impl.bdoc.ocsp.SKOnlineOCSPSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignatureLevel;
+import eu.europa.esig.dss.client.http.DataLoader;
 import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 
@@ -106,8 +107,7 @@ public class SignatureExtender {
 
   private OnlineTSPSource createTimeStampProviderSource(SignatureProfile profile) {
     OnlineTSPSource tspSource = new OnlineTSPSource(configuration.getTspSource());
-    SkDataLoader dataLoader = SkDataLoader.createTimestampDataLoader(configuration);
-    dataLoader.setUserAgentSignatureProfile(profile);
+    DataLoader dataLoader = new TimeStampDataLoaderFactory(configuration, profile).create();
     tspSource.setDataLoader(dataLoader);
     return tspSource;
   }

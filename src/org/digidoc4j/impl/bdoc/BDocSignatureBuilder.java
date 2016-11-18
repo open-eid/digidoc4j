@@ -39,6 +39,7 @@ import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
+import org.digidoc4j.impl.bdoc.dataloader.TimeStampDataLoaderFactory;
 import org.digidoc4j.impl.bdoc.ocsp.SKOnlineOCSPSource;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;
 import org.digidoc4j.impl.bdoc.xades.XadesSigningDssFacade;
@@ -50,6 +51,7 @@ import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignerLocation;
+import eu.europa.esig.dss.client.http.DataLoader;
 import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 
 public class BDocSignatureBuilder extends SignatureBuilder implements SignatureFinalizer {
@@ -188,8 +190,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   private void setTimeStampProviderSource() {
     Configuration configuration = getConfiguration();
     OnlineTSPSource tspSource = new OnlineTSPSource(configuration.getTspSource());
-    SkDataLoader dataLoader = SkDataLoader.createTimestampDataLoader(configuration);
-    dataLoader.setUserAgentSignatureProfile(signatureParameters.getSignatureProfile());
+    DataLoader dataLoader = new TimeStampDataLoaderFactory(configuration, signatureParameters.getSignatureProfile()).create();
     tspSource.setDataLoader(dataLoader);
     facade.setTspSource(tspSource);
   }

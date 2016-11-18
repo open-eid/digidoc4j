@@ -25,6 +25,7 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.CertificateID;
 import org.bouncycastle.cert.ocsp.OCSPException;
+import org.bouncycastle.cert.ocsp.OCSPReq;
 import org.bouncycastle.cert.ocsp.OCSPReqBuilder;
 import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.bouncycastle.cert.ocsp.SingleResp;
@@ -33,12 +34,12 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.bdoc.SkDataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.DSSRevocationUtils;
+import eu.europa.esig.dss.client.http.DataLoader;
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
 import eu.europa.esig.dss.token.KSPrivateKeyEntry;
 import eu.europa.esig.dss.token.Pkcs12SignatureToken;
@@ -55,7 +56,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   /**
    * The data loader used to retrieve the OCSP response.
    */
-  private SkDataLoader dataLoader;
+  private DataLoader dataLoader;
 
   private Configuration configuration;
 
@@ -109,7 +110,8 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
         GeneralName generalName = new GeneralName(new JcaX509CertificateHolder(ocspSignerCert).getSubject());
         ocspReqBuilder.setRequestorName(generalName);
 
-        return ocspReqBuilder.build(contentSigner, chain).getEncoded();
+        OCSPReq request = ocspReqBuilder.build(contentSigner, chain);
+        return request.getEncoded();
       }
       return ocspReqBuilder.build().getEncoded();
     } catch (Exception e) {
@@ -140,6 +142,10 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
       final byte[] ocspRespBytes = dataLoader.post(ocspUri, content);
 
       final OCSPResp ocspResp = new OCSPResp(ocspRespBytes);
+      logger.debug("OCSP response status: " + ocspResp.getStatus());
+      if(ocspResp.getStatus() == OCSPResp.UNAUTHORIZED) {
+        logger.error("OCSP request is unauthorized. Please contact OCSP service provider. More information at https://github.com/open-eid/digidoc4j/wiki/Questions-&-Answers#if-ocsp-request-has-failed");
+      }
       BasicOCSPResp basicOCSPResp = (BasicOCSPResp) ocspResp.getResponseObject();
       if(basicOCSPResp == null) {
         logger.error("OCSP response is empty");
@@ -196,7 +202,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     return signatureTokenConnection.getKeys().get(0);
   }
 
-  public void setDataLoader(SkDataLoader dataLoader) {
+  public void setDataLoader(DataLoader dataLoader) {
     this.dataLoader = dataLoader;
   }
 
@@ -204,7 +210,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     return configuration;
   }
 
-  SkDataLoader getDataLoader() {
+  DataLoader getDataLoader() {
     return dataLoader;
   }
 }
