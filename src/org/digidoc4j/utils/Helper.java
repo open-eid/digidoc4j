@@ -170,6 +170,19 @@ public final class Helper {
     }
   }
 
+  /**
+   * Creates a buffered output stream for a given file.
+   * @param file target file.
+   * @return stream
+   */
+  public static OutputStream bufferedOutputStream(File file) {
+    try {
+      return new BufferedOutputStream(new FileOutputStream(file));
+    } catch (FileNotFoundException e) {
+      throw new DigiDoc4JException(e);
+    }
+  }
+
   /** creates user agent value for given container
    * format is:
    *    LIB DigiDoc4J/VERSION format: CONTAINER_TYPE signatureProfile: SIGNATURE_PROFILE
