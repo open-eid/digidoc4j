@@ -105,6 +105,20 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void verifySerializationAfterValidationAndTimestampInitialization() {
+    Container container = TestDataBuilder.open("testFiles/valid-containers/valid-bdoc-ts-signature-file-name-with-non-numeric-characters.asice");
+
+    container.validate();
+    container.getSignatures().get(0).getTimeStampCreationTime();
+
+    serialize(container, serializedContainerPath);
+
+    Container deserializedContainer = deserializer(serializedContainerPath);
+
+    assertTrue(deserializedContainer.validate().isValid());
+  }
+
+  @Test
   public void serializeExistingContainer() throws Exception {
     Container container = TestDataBuilder.open("testFiles/valid-containers/valid-bdoc-tm.bdoc");
     serialize(container, serializedContainerPath);

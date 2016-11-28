@@ -50,7 +50,7 @@ public abstract class BDocContainer implements Container {
 
   private static final Logger logger = LoggerFactory.getLogger(BDocContainer.class);
   private Configuration configuration;
-  private ValidationResult validationResult;
+  private transient ValidationResult validationResult;
 
   public BDocContainer() {
     logger.debug("Instantiating BDoc container");

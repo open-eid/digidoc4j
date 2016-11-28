@@ -38,7 +38,7 @@ public class TimestampSignature extends TimemarkSignature {
   private final static Logger logger = LoggerFactory.getLogger(TimestampSignature.class);
   private Element signatureElement;
   private XPathQueryHolder xPathQueryHolder;
-  private TimeStampToken timeStampToken;
+  private transient TimeStampToken timeStampToken;
   private X509Cert timestampTokenCertificate;
 
   public TimestampSignature(XadesValidationReportGenerator xadesReportGenerator) {
