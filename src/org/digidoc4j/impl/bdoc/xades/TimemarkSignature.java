@@ -32,7 +32,7 @@ public class TimemarkSignature extends BesSignature {
 
   private final static Logger logger = LoggerFactory.getLogger(TimemarkSignature.class);
   private X509Cert ocspCertificate;
-  private BasicOCSPResp ocspResponse;
+  private transient BasicOCSPResp ocspResponse;
   private Date ocspResponseTime;
 
   public TimemarkSignature(XadesValidationReportGenerator xadesReportGenerator) {

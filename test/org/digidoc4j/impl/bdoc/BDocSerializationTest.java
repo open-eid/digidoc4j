@@ -105,11 +105,12 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void verifySerializationAfterValidationAndTimestampInitialization() {
+  public void verifySerializationAfterValidationAlongWithTimestampAndOCSPResponseInitialization() {
     Container container = TestDataBuilder.open("testFiles/valid-containers/valid-bdoc-ts-signature-file-name-with-non-numeric-characters.asice");
 
     container.validate();
     container.getSignatures().get(0).getTimeStampCreationTime();
+    container.getSignatures().get(0).getOCSPResponseCreationTime();
 
     serialize(container, serializedContainerPath);
 
