@@ -1,4 +1,4 @@
-﻿![EU Regional Development Fund](doc\images\EL_Regionaalarengu_Fond_horisontaalne-vaike.jpg)
+﻿![EU Regional Development Fund](doc/images/EL_Regionaalarengu_Fond_horisontaalne-vaike.jpg)
 
 
 # DigiDoc4j
