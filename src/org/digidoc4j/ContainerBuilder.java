@@ -23,6 +23,7 @@ import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.CustomContainerBuilder;
 import org.digidoc4j.impl.bdoc.BDocContainerBuilder;
 import org.digidoc4j.impl.ddoc.DDocContainerBuilder;
+import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -276,6 +277,9 @@ public abstract class ContainerBuilder {
     private void validateDataFile() {
       if(StringUtils.isBlank(filePath)) {
         throw new InvalidDataFileException("File name/path cannot be empty");
+      } else if (Helper.hasSpecialCharacters(filePath)) {
+        throw new InvalidDataFileException("File name " + filePath
+            + " contents special characters: " + Helper.SPECIAL_CHARACTERS);
       }
       if(StringUtils.isBlank(mimeType)) {
         throw new InvalidDataFileException("Mime type cannot be empty");

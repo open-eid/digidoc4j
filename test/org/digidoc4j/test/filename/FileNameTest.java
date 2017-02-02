@@ -1,19 +1,72 @@
 package org.digidoc4j.test.filename;
 
+import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
-import org.digidoc4j.main.DigiDoc4J;
+import org.digidoc4j.utils.Helper;
+import org.junit.After;
 import org.junit.Test;
 
 public class FileNameTest extends DigiDoc4JTestHelper {
 
-  private Pattern special = Pattern.compile(DigiDoc4J.SPECIAL_CHARACTERS);
+  private Pattern special = Pattern.compile(Helper.SPECIAL_CHARACTERS);
+
+  @After
+  public void cleanUp() throws Exception {
+    deleteFile("testFiles/cgi-test-container.bdoc");
+  }
+
+  @Test(expected = InvalidDataFileException.class)
+  public void createContainerWithSpecialCharactersInFileName()
+      throws Exception {
+
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+
+    FileInputStream fis = new FileInputStream(
+        "testFiles/special-char-files/dds_acrobat.pdf");
+
+    Container container = ContainerBuilder.aContainer("BDOC")
+        .withConfiguration(configuration).withDataFile(fis,
+            "xxx,%2003:1737,%2031.08.2015.a.pdf", "application/pdf")
+        .usingTempDirectory("C:/DigiDocUtilTest").build();
+
+    container.saveAsFile("testFiles/cgi-test-container.bdoc");
+
+    fis.close();
+
+    assertFalse(new File("testFiles/andrei-test-container.bdoc").exists());
+  }
+
+  @Test
+  public void createContainer() throws Exception {
+
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+
+    FileInputStream fis = new FileInputStream(
+        "testFiles/special-char-files/dds_acrobat.pdf");
+
+    Container container = ContainerBuilder.aContainer("BDOC")
+        .withConfiguration(configuration)
+        .withDataFile(fis, "cgi.pdf", "application/pdf")
+        .usingTempDirectory("C:/DigiDocUtilTest").build();
+
+    container.saveAsFile("testFiles/cgi-test-container.bdoc");
+
+    fis.close();
+
+    assertTrue(new File("testFiles/cgi-test-container.bdoc").exists());
+  }
 
   @Test
   public void validateSpacialCharactersInPath() throws Exception {
