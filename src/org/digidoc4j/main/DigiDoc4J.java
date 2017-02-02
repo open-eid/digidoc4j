@@ -12,6 +12,10 @@ package org.digidoc4j.main;
 
 import static org.apache.commons.cli.OptionBuilder.withArgName;
 
+import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -32,8 +36,9 @@ import ee.sk.digidoc.SignedDoc;
  */
 public final class DigiDoc4J {
 
-  private final static Logger logger = LoggerFactory.getLogger(DigiDoc4J.class);
-  private static final String EXTRACT_CMD = "extract";
+    private final static Logger logger = LoggerFactory.getLogger(DigiDoc4J.class);
+    private static final String EXTRACT_CMD = "extract";
+    public static final String SPECIAL_CHARACTERS = "[\\\\<>:\"/|?*]";
 
   private DigiDoc4J() {
   }
@@ -112,6 +117,12 @@ public final class DigiDoc4J {
       if (optionValues.length != 2) {
         throw new DigiDoc4JUtilityException(2, "Incorrect add command");
       }
+      if (optionValues.length == 2) {
+        String fileName = optionValues[0];
+        if (hasSpecialCharacters(fileName))
+          throw new DigiDoc4JUtilityException(1, "File name " + fileName
+              + " contents special characters: " + SPECIAL_CHARACTERS);
+      }
     }
     if (commandLine.hasOption(EXTRACT_CMD)) {
       String[] optionValues = commandLine.getOptionValues(EXTRACT_CMD);
@@ -121,6 +132,23 @@ public final class DigiDoc4J {
     }
     if(commandLine.hasOption("pkcs11") && commandLine.hasOption("pkcs12")) {
       throw new DigiDoc4JUtilityException(5, "Cannot sign with both PKCS#11 and PKCS#12");
+    }
+  }
+  
+  /**
+   * Checks that file name contains special characters
+   *
+   * @param fileName or full path
+   * @return true if file name contains following symbols: <>:"/\|?*
+   */
+  private static boolean hasSpecialCharacters(String fileName) {
+    File file = new File(fileName);
+    if (file.exists() && !file.isDirectory()) {
+      Pattern special = Pattern.compile(SPECIAL_CHARACTERS);
+      Matcher hasSpecial = special.matcher(file.getName());
+      return hasSpecial.find();
+    } else {
+      throw new DigiDoc4JUtilityException(1, "File is not exists: " + fileName);
     }
   }
 
