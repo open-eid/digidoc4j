@@ -1,4 +1,4 @@
-package org.digidoc4j.test.filename;
+package org.digidoc4j;
 
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.assertFalse;
@@ -9,18 +9,20 @@ import java.io.FileInputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.digidoc4j.Configuration;
-import org.digidoc4j.Container;
-import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.utils.Helper;
 import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class FileNameTest extends DigiDoc4JTestHelper {
 
   private Pattern special = Pattern.compile(Helper.SPECIAL_CHARACTERS);
+
+  @Rule
+  public TemporaryFolder testFolder = new TemporaryFolder();
 
   @After
   public void cleanUp() throws Exception {
@@ -31,6 +33,7 @@ public class FileNameTest extends DigiDoc4JTestHelper {
   public void createContainerWithSpecialCharactersInFileName()
       throws Exception {
 
+    File tempFolder = testFolder.newFolder();
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
     FileInputStream fis = new FileInputStream(
@@ -39,17 +42,21 @@ public class FileNameTest extends DigiDoc4JTestHelper {
     Container container = ContainerBuilder.aContainer("BDOC")
         .withConfiguration(configuration).withDataFile(fis,
             "xxx,%2003:1737,%2031.08.2015.a.pdf", "application/pdf")
-        .usingTempDirectory("C:/DigiDocUtilTest").build();
+        .usingTempDirectory(tempFolder.getPath()).build();
 
     container.saveAsFile("testFiles/cgi-test-container.bdoc");
 
     fis.close();
 
-    assertFalse(new File("testFiles/andrei-test-container.bdoc").exists());
+    deleteFile(tempFolder.getPath());
+
+    assertFalse(new File("testFiles/cgi-test-container.bdoc").exists());
   }
 
   @Test
   public void createContainer() throws Exception {
+
+    File tempFolder = testFolder.newFolder();
 
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
@@ -59,11 +66,13 @@ public class FileNameTest extends DigiDoc4JTestHelper {
     Container container = ContainerBuilder.aContainer("BDOC")
         .withConfiguration(configuration)
         .withDataFile(fis, "cgi.pdf", "application/pdf")
-        .usingTempDirectory("C:/DigiDocUtilTest").build();
+        .usingTempDirectory(tempFolder.getPath()).build();
 
     container.saveAsFile("testFiles/cgi-test-container.bdoc");
 
     fis.close();
+
+    deleteFile(tempFolder.getPath());
 
     assertTrue(new File("testFiles/cgi-test-container.bdoc").exists());
   }

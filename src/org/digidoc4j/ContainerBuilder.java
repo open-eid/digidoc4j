@@ -279,7 +279,8 @@ public abstract class ContainerBuilder {
         throw new InvalidDataFileException("File name/path cannot be empty");
       } else if (Helper.hasSpecialCharacters(filePath)) {
         throw new InvalidDataFileException("File name " + filePath
-            + " contents special characters: " + Helper.SPECIAL_CHARACTERS);
+            + " must not contain special characters like: "
+            + Helper.SPECIAL_CHARACTERS);
       }
       if(StringUtils.isBlank(mimeType)) {
         throw new InvalidDataFileException("Mime type cannot be empty");
