@@ -6,8 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
@@ -18,8 +16,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 public class FileNameTest extends DigiDoc4JTestHelper {
-
-  private Pattern special = Pattern.compile(Helper.SPECIAL_CHARACTERS);
 
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
@@ -48,8 +44,6 @@ public class FileNameTest extends DigiDoc4JTestHelper {
 
     fis.close();
 
-    deleteFile(tempFolder.getPath());
-
     assertFalse(new File("testFiles/cgi-test-container.bdoc").exists());
   }
 
@@ -72,215 +66,174 @@ public class FileNameTest extends DigiDoc4JTestHelper {
 
     fis.close();
 
-    deleteFile(tempFolder.getPath());
-
     assertTrue(new File("testFiles/cgi-test-container.bdoc").exists());
   }
 
   @Test
-  public void validateSpacialCharactersInPath() throws Exception {
-    String fileName = "testFiles/test.txt";
-
-    File file = new File(fileName);
-    if (file.exists() && !file.isDirectory()) {
-      Matcher hasSpecial = special.matcher(file.getName());
-      assertFalse(hasSpecial.find());
-    }
-  }
-
-  @Test
-  public void validateSpacialCharacters() throws Exception {
+  public void validateSpecialialCharacters() throws Exception {
     String fileName = "test.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertFalse(hasSpecial.find());
+    assertFalse(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersLessThanEnd() throws Exception {
+  public void validateSpecialCharactersLessThanEnd() throws Exception {
     String fileName = "test<.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersLessThanStart() throws Exception {
+  public void validateSpecialCharactersLessThanStart() throws Exception {
     String fileName = "<test.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersLessThanMidle() throws Exception {
+  public void validateSpecialCharactersLessThanMidle() throws Exception {
     String fileName = "te<st.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersGreaterThanEnd() throws Exception {
+  public void validateSpecialCharactersGreaterThanEnd() throws Exception {
     String fileName = "test>.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersGreaterThanStart() throws Exception {
+  public void validateSpecialCharactersGreaterThanStart() throws Exception {
     String fileName = ">test.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersGreaterThanMidle() throws Exception {
+  public void validateSpecialCharactersGreaterThanMidle() throws Exception {
     String fileName = "te>st.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharacterColonEnd() throws Exception {
+  public void validateSpecialCharacterColonEnd() throws Exception {
     String fileName = "test:.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersColonStart() throws Exception {
+  public void validateSpecialCharactersColonStart() throws Exception {
     String fileName = ":test.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersColonMidle() throws Exception {
+  public void validateSpecialCharactersColonMidle() throws Exception {
     String fileName = "te:st.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersDoubleQuoteEnd() throws Exception {
+  public void validateSpecialCharactersDoubleQuoteEnd() throws Exception {
     String fileName = "test\".txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersDoubleQuoteStart() throws Exception {
+  public void validateSpecialCharactersDoubleQuoteStart() throws Exception {
     String fileName = "\"test.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersDoubleQuoteMidle() throws Exception {
+  public void validateSpecialCharactersDoubleQuoteMidle() throws Exception {
     String fileName = "te\"st.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersfForwardSlashEnd() throws Exception {
+  public void validateSpecialCharactersfForwardSlashEnd() throws Exception {
     String fileName = "test/.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersForwardSlashStart() throws Exception {
+  public void validateSpecialCharactersForwardSlashStart() throws Exception {
     String fileName = "/test.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersForwardSlashMidle() throws Exception {
+  public void validateSpecialCharactersForwardSlashMidle() throws Exception {
     String fileName = "te/st.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersBackslashEnd() throws Exception {
+  public void validateSpecialCharactersBackslashEnd() throws Exception {
     String fileName = "test\\.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersBackslashStart() throws Exception {
+  public void validateSpecialCharactersBackslashStart() throws Exception {
     String fileName = "\\test.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersBackslashMidle() throws Exception {
+  public void validateSpecialCharactersBackslashMidle() throws Exception {
     String fileName = "te\\st.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersPipeEnd() throws Exception {
+  public void validateSpecialCharactersPipeEnd() throws Exception {
     String fileName = "test|.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersPipeStart() throws Exception {
+  public void validateSpecialCharactersPipeStart() throws Exception {
     String fileName = "|test.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersPipeMidle() throws Exception {
+  public void validateSpecialCharactersPipeMidle() throws Exception {
     String fileName = "te|st.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersQuestionMarkEnd() throws Exception {
+  public void validateSpecialCharactersQuestionMarkEnd() throws Exception {
     String fileName = "test?.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersQuestionMarkStart() throws Exception {
+  public void validateSpecialCharactersQuestionMarkStart() throws Exception {
     String fileName = "?test.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersQuestionMarkMidle() throws Exception {
+  public void validateSpecialCharactersQuestionMarkMidle() throws Exception {
     String fileName = "te?st.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersAsteriskEnd() throws Exception {
+  public void validateSpecialCharactersAsteriskEnd() throws Exception {
     String fileName = "test*.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersAsteriskStart() throws Exception {
+  public void validateSpecialCharactersAsteriskStart() throws Exception {
     String fileName = "*test.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpacialCharactersAsteriskMidle() throws Exception {
+  public void validateSpecialCharactersAsteriskMidle() throws Exception {
     String fileName = "te*st.txt";
-    Matcher hasSpecial = special.matcher(fileName);
-    assertTrue(hasSpecial.find());
+    assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 }

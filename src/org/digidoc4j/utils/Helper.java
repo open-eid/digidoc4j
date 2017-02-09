@@ -254,13 +254,11 @@ public final class Helper {
    * Checks that file name contains special characters
    *
    * @param fileName
-   *          file name or full path
    * @return true if file name contains following symbols: <>:"/\|?*
    */
   public static boolean hasSpecialCharacters(String fileName) {
-    File file = new File(fileName);
-      Pattern special = Pattern.compile(SPECIAL_CHARACTERS);
-      Matcher hasSpecial = special.matcher(file.getName());
-      return hasSpecial.find();
+    Pattern special = Pattern.compile(SPECIAL_CHARACTERS);
+    Matcher hasSpecial = special.matcher(fileName);
+    return hasSpecial.find();
   }
 }

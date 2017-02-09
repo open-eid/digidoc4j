@@ -262,6 +262,7 @@ public abstract class ContainerBuilder {
       this.inputStream = inputStream;
       isStream = true;
       validateDataFile();
+      validateFileName();
     }
 
 
@@ -277,13 +278,17 @@ public abstract class ContainerBuilder {
     private void validateDataFile() {
       if(StringUtils.isBlank(filePath)) {
         throw new InvalidDataFileException("File name/path cannot be empty");
-      } else if (Helper.hasSpecialCharacters(filePath)) {
+      }
+      if (StringUtils.isBlank(mimeType)) {
+        throw new InvalidDataFileException("Mime type cannot be empty");
+      }
+    }
+
+    private void validateFileName() {
+      if (Helper.hasSpecialCharacters(filePath)) {
         throw new InvalidDataFileException("File name " + filePath
             + " must not contain special characters like: "
             + Helper.SPECIAL_CHARACTERS);
-      }
-      if(StringUtils.isBlank(mimeType)) {
-        throw new InvalidDataFileException("Mime type cannot be empty");
       }
     }
   }
