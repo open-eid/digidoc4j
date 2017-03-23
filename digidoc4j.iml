@@ -64,6 +64,11 @@
     <orderEntry type="module-library">
       <library name="IvyIDEA">
         <CLASSES>
+          <root url="jar://$USER_HOME$/.ivy2/cache/ee.sk.digidoc/jdigidoc/jars/jdigidoc-3.12.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/log4j/log4j/jars/log4j-1.2.6.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcprov-jdk15on/jars/bcprov-jdk15on-1.54.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcpkix-jdk15on/jars/bcpkix-jdk15on-1.54.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcmail-jdk15on/jars/bcmail-jdk15on-1.54.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-compress/jars/commons-compress-1.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-cli/commons-cli/jars/commons-cli-1.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-io/commons-io/jars/commons-io-2.4.jar!/" />
@@ -99,11 +104,12 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/bundles/jackson-annotations-2.7.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.skyscreamer/jsonassert/jars/jsonassert-1.3.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.json/json/bundles/json-20160212.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcmail-jdk15on/jars/bcmail-jdk15on-1.54.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcprov-jdk15on/jars/bcprov-jdk15on-1.54.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcpkix-jdk15on/jars/bcpkix-jdk15on-1.54.jar!/" />
         </CLASSES>
         <JAVADOC>
+          <root url="jar://$USER_HOME$/.ivy2/cache/ee.sk.digidoc/jdigidoc/javadocs/jdigidoc-3.12.1-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcprov-jdk15on/javadocs/bcprov-jdk15on-1.54-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcpkix-jdk15on/javadocs/bcpkix-jdk15on-1.54-javadoc.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcmail-jdk15on/javadocs/bcmail-jdk15on-1.54-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-compress/javadocs/commons-compress-1.3-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-cli/commons-cli/javadocs/commons-cli-1.2-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-io/commons-io/javadocs/commons-io-2.4-javadoc.jar!/" />
@@ -139,11 +145,12 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/javadocs/jackson-annotations-2.7.4-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.skyscreamer/jsonassert/javadocs/jsonassert-1.3.0-javadoc.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.json/json/javadocs/json-20160212-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcmail-jdk15on/javadocs/bcmail-jdk15on-1.54-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcprov-jdk15on/javadocs/bcprov-jdk15on-1.54-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcpkix-jdk15on/javadocs/bcpkix-jdk15on-1.54-javadoc.jar!/" />
         </JAVADOC>
         <SOURCES>
+          <root url="jar://$USER_HOME$/.ivy2/cache/ee.sk.digidoc/jdigidoc/sources/jdigidoc-3.12.1-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcprov-jdk15on/sources/bcprov-jdk15on-1.54-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcpkix-jdk15on/sources/bcpkix-jdk15on-1.54-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcmail-jdk15on/sources/bcmail-jdk15on-1.54-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-compress/sources/commons-compress-1.3-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-cli/commons-cli/sources/commons-cli-1.2-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/commons-io/commons-io/sources/commons-io-2.4-sources.jar!/" />
@@ -179,9 +186,6 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/sources/jackson-annotations-2.7.4-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.skyscreamer/jsonassert/sources/jsonassert-1.3.0-sources.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.json/json/sources/json-20160212-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcmail-jdk15on/sources/bcmail-jdk15on-1.54-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcprov-jdk15on/sources/bcprov-jdk15on-1.54-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.bouncycastle/bcpkix-jdk15on/sources/bcpkix-jdk15on-1.54-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

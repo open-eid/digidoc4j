@@ -56,7 +56,7 @@ public class AsyncSigning {
     serialize(container, "container.bin");
     serialize(dataToSign, "dataToSign.bin");
 
-    //getSignature
+    //getEntry
     byte[] signatureValue = getExternalSignature(signerCert, dataToSign);
 
     Container deserializedContainer = deserializer("container.bin");

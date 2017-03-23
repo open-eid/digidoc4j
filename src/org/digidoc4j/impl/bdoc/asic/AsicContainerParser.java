@@ -202,22 +202,6 @@ public abstract class AsicContainerParser {
     parseResult.setAsicEntries(asicEntries);
   }
 
-  private boolean isMimeType(String entryName) {
-    return StringUtils.equalsIgnoreCase("mimetype", entryName);
-  }
-
-  private boolean isDataFile(String entryName) {
-    return !entryName.startsWith("META-INF/") && !isMimeType(entryName);
-  }
-
-  private boolean isManifest(String entryName) {
-    return StringUtils.equalsIgnoreCase(MANIFEST, entryName);
-  }
-
-  private boolean isSignaturesFile(String entryName) {
-    return entryName.matches(SIGNATURES_FILE_REGEX);
-  }
-
   private void determineCurrentSignatureFileIndex(String entryName) {
     Matcher fileEndingMatcher = SIGNATURE_FILE_ENDING_PATTERN.matcher(entryName);
     boolean fileEndingFound = fileEndingMatcher.find();
@@ -246,5 +230,21 @@ public abstract class AsicContainerParser {
 
   LinkedHashMap<String, DataFile> getDataFiles() {
     return dataFiles;
+  }
+
+  public static boolean isMimeType(String entryName) {
+    return StringUtils.equalsIgnoreCase("mimetype", entryName);
+  }
+
+  public static boolean isDataFile(String entryName) {
+    return !entryName.startsWith("META-INF/") && !isMimeType(entryName);
+  }
+
+  public static boolean isManifest(String entryName) {
+    return StringUtils.equalsIgnoreCase(MANIFEST, entryName);
+  }
+
+  public static boolean isSignaturesFile(String entryName) {
+    return entryName.matches(SIGNATURES_FILE_REGEX);
   }
 }

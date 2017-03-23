@@ -31,6 +31,7 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
 import org.digidoc4j.ValidationResult;
+import org.digidoc4j.exceptions.DataFileNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
@@ -38,19 +39,26 @@ import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.bdoc.asic.AsicContainerCreator;
-import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
-import org.digidoc4j.impl.bdoc.xades.SignatureExtender;
+import org.digidoc4j.impl.IndexedEntry;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSDocument;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
-public abstract class BDocContainer implements Container {
+public class BDocContainer implements Container {
 
   private static final Logger logger = LoggerFactory.getLogger(BDocContainer.class);
   private Configuration configuration;
-  private ValidationResult validationResult;
+
+  private List<DataFile> dataFiles = new ArrayList<>();
+  private BDocContainerImpl bDocSigner = new BDocSigner(this);
+  private BDocCrypto bDocCrypto = new BDocCrypto(this);
+
+  private List<IndexedEntry<Signature>> signatureEntries = new ArrayList<>();
 
   public BDocContainer() {
     logger.debug("Instantiating BDoc container");
@@ -62,9 +70,75 @@ public abstract class BDocContainer implements Container {
     this.configuration = configuration;
   }
 
-  protected abstract ValidationResult validateContainer();
+  //#region public DataFile addDataFile(...)
+  @Override
+  public DataFile addDataFile(String path, String mimeType) {
+    DataFile dataFile = new DataFile(path, mimeType);
+    addDataFile(dataFile);
+    return dataFile;
+  }
 
-  protected abstract void writeAsicContainer(AsicContainerCreator zipCreator);
+  @Override
+  public DataFile addDataFile(InputStream inputStream, String fileName, String mimeType) {
+    DataFile dataFile = new DataFile(inputStream, fileName, mimeType);
+    addDataFile(dataFile);
+    return dataFile;
+  }
+
+  @Override
+  public DataFile addDataFile(File file, String mimeType) {
+    DataFile dataFile = new DataFile(file.getPath(), mimeType);
+    addDataFile(dataFile);
+    return dataFile;
+  }
+
+  @Override
+  public void addDataFile(DataFile dataFile) {
+    verifyIfAllowedToAddDataFile(dataFile.getName());
+    getDataFiles().add(dataFile);
+  }
+  //#endregion public DataFile addDataFile(...)
+
+  @Override
+  public List<DataFile> getDataFiles() {
+    return dataFiles;
+  }
+
+  @Override
+  public void removeDataFile(DataFile file) {
+    logger.info("Removing data file: " + file.getName());
+    validateDataFilesRemoval();
+    boolean wasRemovalSuccessful = dataFiles.remove(file);
+
+    if (!wasRemovalSuccessful) {
+      throw new DataFileNotFoundException(file.getName());
+    }
+  }
+
+  @Override
+  public void addSignature(Signature signature) {
+    bDocSigner.addSignature(signature);
+  }
+
+  @Override
+  public List<Signature> getSignatures() {
+    return Lists.transform(signatureEntries, new Function<IndexedEntry<Signature>, Signature>() {
+      @Override
+      public Signature apply(IndexedEntry<Signature> signatureEntry) {
+        return signatureEntry.getEntry();
+      }
+    });
+  }
+
+  @Override
+  public void removeSignature(final Signature signature) {
+    Iterables.removeIf(signatureEntries, new Predicate<IndexedEntry>() {
+      @Override
+      public boolean apply(IndexedEntry signatureEntry) {
+        return signatureEntry.equals(signature);
+      }
+    });
+  }
 
   @Override
   public String getType() {
@@ -73,10 +147,7 @@ public abstract class BDocContainer implements Container {
 
   @Override
   public ValidationResult validate() {
-    if (validationResult == null) {
-      validationResult = validateContainer();
-    }
-    return validationResult;
+    return bDocSigner.validate();
   }
 
   @Override
@@ -103,33 +174,9 @@ public abstract class BDocContainer implements Container {
     return configuration;
   }
 
-  protected List<Signature> parseSignatureFiles(List<DSSDocument> signatureFiles, List<DSSDocument> detachedContents) {
-    Configuration configuration = getConfiguration();
-    BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
-    List<Signature> signatures = new ArrayList<>(signatureFiles.size());
-    for (DSSDocument signatureFile : signatureFiles) {
-      List<BDocSignature> bDocSignatures = signatureOpener.parse(signatureFile);
-      signatures.addAll(bDocSignatures);
-    }
-    return signatures;
-  }
-
-  protected void validateIncomingSignature(Signature signature) {
-    if (!(signature instanceof BDocSignature)) {
-      throw new TechnicalException("BDoc signature must be an instance of BDocSignature");
-    }
-  }
-
-  protected List<Signature> extendAllSignaturesProfile(SignatureProfile profile, List<Signature> signatures, List<DataFile> dataFiles) {
-    logger.info("Extending all signatures' profile to " + profile.name());
-    DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
-    DSSDocument firstDetachedContent = detachedContentCreator.getFirstDetachedContent();
-    List<DSSDocument> detachedContentList = detachedContentCreator.getDetachedContentList();
-    SignatureExtender signatureExtender = new SignatureExtender(getConfiguration(), firstDetachedContent);
-    List<DSSDocument> extendedSignatureDocuments = signatureExtender.extend(signatures, profile);
-    List<Signature> extendedSignatures = parseSignatureFiles(extendedSignatureDocuments, detachedContentList);
-    logger.debug("Finished extending all signatures");
-    return extendedSignatures;
+  @Override
+  public void extendSignatureProfile(SignatureProfile profile) {
+    bDocSigner.extendSignatureProfile(profile, dataFiles);
   }
 
   protected String createUserAgent() {
@@ -168,6 +215,7 @@ public abstract class BDocContainer implements Container {
     }
   }
 
+  //#region -- Deprecated functions --
   @Override
   @Deprecated
   public void save(OutputStream out) {
@@ -246,6 +294,24 @@ public abstract class BDocContainer implements Container {
 
   @Override
   @Deprecated
+  public void removeDataFile(String fileName) {
+    logger.info("Removing data file: " + fileName);
+    validateDataFilesRemoval();
+
+    for (DataFile dataFile : dataFiles) {
+      String name = dataFile.getName();
+      if (StringUtils.equals(fileName, name)) {
+        dataFiles.remove(dataFile);
+        logger.debug("Data file has been removed");
+        return;
+      }
+    }
+
+    throw new DataFileNotFoundException(fileName);
+  }
+
+  @Override
+  @Deprecated
   public Signature getSignature(int index) {
     return getSignatures().get(index);
   }
@@ -270,6 +336,12 @@ public abstract class BDocContainer implements Container {
 
   @Override
   @Deprecated
+  public void removeSignature(int signatureId) {
+    signatureEntries.remove(signatureId);
+  }
+
+  @Override
+  @Deprecated
   public DigestAlgorithm getDigestAlgorithm() {
     throw new NotSupportedException("Getting digest algorithm method is not supported by BDoc container");
   }
@@ -290,5 +362,26 @@ public abstract class BDocContainer implements Container {
   @Deprecated
   public void setSignatureProfile(SignatureProfile profile) {
     throw new NotSupportedException("Setting signature profile method is not supported by BDoc container");
+  }
+  //#endregion -- Deprecated functions --
+
+  protected void writeAsicContainer(AsicContainerCreator zipCreator) {
+    String userAgent = createUserAgent();
+    zipCreator.setZipComment(userAgent);
+    zipCreator.writeAsiceMimeType();
+
+    writeAsicContainerContent(zipCreator);
+
+    zipCreator.finalizeZipFile();
+  }
+
+  protected void writeAsicContainerContent(AsicContainerCreator zipCreator) {
+    int startingSignatureFileIndex = 0;
+
+    zipCreator.writeManifest(getDataFiles());
+    zipCreator.writeDataFiles(getDataFiles());
+    bDocSigner.writeAsicContainerSignatures(zipCreator, startingSignatureFileIndex);
+    bDocSigner.writeAsicContainerCryptoData(zipCreator, startingSignatureFileIndex);
+    zipCreator.writeSignatures(bDocSigner.getSignatures(), startingSignatureFileIndex);
   }
 }

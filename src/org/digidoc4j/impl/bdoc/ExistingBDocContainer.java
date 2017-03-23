@@ -38,11 +38,11 @@ public class ExistingBDocContainer extends BDocContainer {
 
   private static final Logger logger = LoggerFactory.getLogger(ExistingBDocContainer.class);
   private List<Signature> newSignatures = new ArrayList<>();
-  private List<Signature> allSignatures = new ArrayList<>();
-  private List<DataFile> allDataFiles = new ArrayList<>();
   private List<DataFile> newDataFiles = new ArrayList<>();
   private AsicParseResult containerParseResult;
   private boolean dataFilesHaveChanged;
+
+  ExistingBDocContainer() {}
 
   public ExistingBDocContainer(String containerPath) {
     openContainer(containerPath);
@@ -73,8 +73,9 @@ public class ExistingBDocContainer extends BDocContainer {
   @Override
   public void extendSignatureProfile(SignatureProfile profile) {
     removeAllExistingSignaturesFromContainer();
-    List<Signature> signatures = extendAllSignaturesProfile(profile, allSignatures, allDataFiles);
-    allSignatures = signatures;
+    List<Signature> signatures = extendAllSignaturesProfile(profile, getSignatures(), getDataFiles());
+    getSignatures().clear();
+    getSignatures().addAll(signatures);
     newSignatures = new ArrayList<>(signatures);
   }
 
@@ -103,7 +104,7 @@ public class ExistingBDocContainer extends BDocContainer {
   public void addDataFile(DataFile dataFile) {
     String fileName = dataFile.getName();
     verifyIfAllowedToAddDataFile(fileName);
-    allDataFiles.add(dataFile);
+    getDataFiles().add(dataFile);
     newDataFiles.add(dataFile);
     dataFilesHaveChanged = true;
     removeExistingFileFromContainer(AsicManifest.XML_PATH);
@@ -113,17 +114,7 @@ public class ExistingBDocContainer extends BDocContainer {
   public void addSignature(Signature signature) {
     validateIncomingSignature(signature);
     newSignatures.add(signature);
-    allSignatures.add(signature);
-  }
-
-  @Override
-  public List<DataFile> getDataFiles() {
-    return allDataFiles;
-  }
-
-  @Override
-  public List<Signature> getSignatures() {
-    return allSignatures;
+    getSignatures().add(signature);
   }
 
   @Override
@@ -143,7 +134,7 @@ public class ExistingBDocContainer extends BDocContainer {
     logger.info("Removing signature " + signature.getId());
     validateIncomingSignature(signature);
     boolean wasNewlyAddedSignature = newSignatures.remove(signature);
-    boolean wasIncludedInContainer = allSignatures.remove(signature);
+    boolean wasIncludedInContainer = getSignatures().remove(signature);
     if (wasIncludedInContainer && !wasNewlyAddedSignature) {
       logger.debug("This signature was included in the container before the container was opened");
       removeExistingSignature((BDocSignature) signature);
@@ -154,7 +145,7 @@ public class ExistingBDocContainer extends BDocContainer {
   @Deprecated
   public void removeSignature(int signatureId) {
     logger.debug("Removing signature from index " + signatureId);
-    Signature signature = allSignatures.get(signatureId);
+    Signature signature = getSignatures().get(signatureId);
     if (signature != null) {
       removeSignature(signature);
     }
@@ -166,7 +157,7 @@ public class ExistingBDocContainer extends BDocContainer {
     zipCreator.setZipComment(userAgent);
     zipCreator.writeExistingEntries(containerParseResult.getAsicEntries());
     if(dataFilesHaveChanged) {
-      zipCreator.writeManifest(allDataFiles);
+      zipCreator.writeManifest(getDataFiles());
     }
     zipCreator.writeSignatures(newSignatures, nextSignatureFileIndex);
     zipCreator.writeDataFiles(newDataFiles);
@@ -188,13 +179,13 @@ public class ExistingBDocContainer extends BDocContainer {
     populateContainerWithParseResult(containerParseResult);
   }
 
-  private void populateContainerWithParseResult(AsicParseResult parseResult) {
+  void populateContainerWithParseResult(AsicParseResult parseResult) {
     containerParseResult = parseResult;
     getDataFiles().addAll(parseResult.getDataFiles());
     List<DSSDocument> signatureFiles = parseResult.getSignatures();
     List<DSSDocument> detachedContents = parseResult.getDetachedContents();
     List<Signature> bDocSignatures = parseSignatureFiles(signatureFiles, detachedContents);
-    allSignatures.addAll(bDocSignatures);
+    getSignatures().addAll(bDocSignatures);
   }
 
   private void removeExistingSignature(BDocSignature signature) {
@@ -214,14 +205,15 @@ public class ExistingBDocContainer extends BDocContainer {
       if (StringUtils.equalsIgnoreCase(filePath, entryFileName)) {
         asicEntries.remove(entry);
         logger.debug("File was successfully removed");
-        break;
+        return;
       }
     }
+    logger.debug("Could not remove file");
   }
 
   private void removeAllExistingSignaturesFromContainer() {
     logger.debug("Removing all existing signatures");
-    for (Signature signature : allSignatures) {
+    for (Signature signature : getSignatures()) {
       removeExistingSignature((BDocSignature) signature);
     }
   }
