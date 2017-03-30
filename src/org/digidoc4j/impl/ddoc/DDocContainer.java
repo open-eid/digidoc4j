@@ -23,6 +23,7 @@ import org.digidoc4j.Container;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureFilesContainer;
 import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
@@ -31,7 +32,8 @@ import org.digidoc4j.ValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DDocContainer implements Container {
+public class DDocContainer implements Container, SignatureFilesContainer
+{
 
   private static final Logger logger = LoggerFactory.getLogger(DDocContainer.class);
 

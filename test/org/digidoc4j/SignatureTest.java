@@ -98,14 +98,14 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetTimeStampTokenCertificateForBDoc() throws Exception {
-    Signature signature = ContainerOpener.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
+    Signature signature = ContainerOpener.<SignatureContainer>open("testFiles/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
     byte[] certificate = signature.getTimeStampTokenCertificate().getX509Certificate().getEncoded();
     assertEquals(Certificates.TS_CERTIFICATE, Base64.encodeBase64String(certificate));
   }
 
   @Test
   public void testGetTimeStampTokenCertificateForBDocNoTimeStampExists() throws Exception {
-    Signature signature = ContainerOpener.open("testFiles/asics_for_testing.bdoc").getSignatures().get(0);
+    Signature signature = ContainerOpener.<SignatureContainer>open("testFiles/asics_for_testing.bdoc").getSignatures().get(0);
     assertNull(signature.getTimeStampTokenCertificate());
   }
 
@@ -210,7 +210,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testValidationForBDocDefaultValidationWithFailure() throws Exception {
-    Signature signature = ContainerOpener.open("testFiles/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
+    Signature signature = ContainerOpener.<SignatureContainer>open("testFiles/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
     List<DigiDoc4JException> errors = signature.validateSignature().getErrors();
     assertTrue(containsErrorMessage(errors, "The reference data object(s) is not intact!"));
     assertTrue(containsErrorMessage(errors, "Signature has an invalid timestamp"));
@@ -235,7 +235,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testValidationWithInvalidDDoc() {
-    Signature signature = ContainerOpener.open("testFiles/changed_digidoc_test.ddoc").getSignatures().get(0);
+    Signature signature = ContainerOpener.<SignatureContainer>open("testFiles/changed_digidoc_test.ddoc").getSignatures().get(0);
     assertEquals(4, signature.validateSignature().getErrors().size());
   }
 

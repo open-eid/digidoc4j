@@ -12,10 +12,12 @@ package org.digidoc4j;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.xml.security.encryption.XMLCipher;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.impl.bdoc.tsl.TslManager;
+import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -153,6 +155,7 @@ public class Configuration implements Serializable {
   public static final String DEFAULT_MAX_DATAFILE_CACHED = "-1";
   public static final String DEFAULT_TSL_KEYSTORE_LOCATION = "keystore/keystore.jks";
   public static final List<String> DEFAULT_TRUESTED_TERRITORIES = Arrays.asList("AT", "BE", "BG", "CY", "CZ",/*"DE",*/"DK", "EE", "ES", "FI", "FR", "GR", "HU",/*"HR",*/"IE", "IS", "IT", "LT", "LU", "LV", "LI", "MT","NO","NL", "PL", "PT", "RO", "SE", "SI", "SK", "UK");
+  public static final String DEFAULT_CDOC_ENCRYPTION_ALGORITHM_W3C_URI = XMLCipher.AES_128;
 
   public static final long CACHE_ALL_DATA_FILES = -1;
   public static final long CACHE_NO_DATA_FILES = 0;
@@ -213,6 +216,8 @@ public class Configuration implements Serializable {
     configuration.put("tslKeyStorePassword", "digidoc4j-password");
     configuration.put("revocationAndTimestampDeltaInMinutes", String.valueOf(ONE_DAY_IN_MINUTES));
     configuration.put("tslCacheExpirationTime", String.valueOf(ONE_DAY_IN_MILLISECONDS));
+
+    configuration.put("cDocEncAlcW3cURI", DEFAULT_CDOC_ENCRYPTION_ALGORITHM_W3C_URI);
 
     if (mode == Mode.TEST) {
       configuration.put("tspSource", "http://demo.sk.ee/tsa");
@@ -1200,6 +1205,15 @@ public class Configuration implements Serializable {
 
   public List<String> getTrustedTerritories() {
     return trustedTerritories;
+  }
+
+  public String getCDocEncyptionAlgorithmW3cURI() {
+    return getConfigurationParameter("cDocEncAlcW3cURI");
+  }
+
+  public void setCDocEncyptionAlgorithmW3cURI(String algorithmW3cURI) {
+    Helper.ensureNotAlgorithmURI(algorithmW3cURI);
+    setConfigurationValue("cDocEncAlcW3cURI", algorithmW3cURI);
   }
 
   private void setConfigurationParameter(String key, String value) {

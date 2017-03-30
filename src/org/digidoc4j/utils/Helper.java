@@ -11,18 +11,25 @@
 package org.digidoc4j.utils;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.xml.security.Init;
+import org.apache.xml.security.algorithms.JCEMapper;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.Container;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.Version;
+import org.digidoc4j.exceptions.DigiDoc4JCryptoException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.Cipher;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
+import java.security.Security;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -42,6 +49,15 @@ public final class Helper {
   private static final int INT_LENGTH = 4;
   private static final String BDOC_TM_SIGNATURE_LEVEL = "ASiC_E_BASELINE_LT_TM";
   private static final String EMPTY_CONTAINER_SIGNATURE_LEVEL = "ASiC_E";
+
+  static {
+    ensureSecurityInitialized();
+  }
+
+  public static void ensureSecurityInitialized() {
+    Init.init();
+    Security.addProvider(new BouncyCastleProvider());
+  }
 
   private Helper() {
   }
@@ -237,6 +253,48 @@ public final class Helper {
       return ASiC_E_BASELINE_LTA;
     } else {
       return ASiC_E_BASELINE_LT;
+    }
+  }
+
+  public static Cipher getCipherFor(String algorithmOrW3cURI) {
+    String algorithm = ensureNotAlgorithmURI(algorithmOrW3cURI);
+    try {
+      return Cipher.getInstance(algorithm);
+    } catch (GeneralSecurityException ex) {
+      throw new DigiDoc4JCryptoException("Could not determine cipher algorithm from: " + algorithmOrW3cURI, ex);
+    }
+  }
+
+  public static String ensureNotAlgorithmURI(String algorithmOrW3cURI) {
+    String algorithm = algorithmOrW3cURI.startsWith("http://www.w3.org/2001/04/xmlenc#")
+        ? JCEMapper.translateURItoJCEID(algorithmOrW3cURI)
+        : algorithmOrW3cURI;
+    return algorithm;
+  }
+
+  public static int getKeySizeFor(String algorithmW3cURI) {
+    int keyLength = JCEMapper.getKeyLengthFromURI(algorithmW3cURI);
+    if (keyLength == 0) {
+      throw new DigiDoc4JCryptoException("Could not determine key length from: " + algorithmW3cURI);
+    }
+    return keyLength;
+  }
+
+  public static InputStream ensureResettableBufferedInputStream(InputStream inputStream) {
+    if (!(inputStream instanceof BufferedInputStream)) {
+      inputStream = new BufferedInputStream(inputStream);
+    }
+    if (inputStream.markSupported()) {
+      inputStream.mark(Integer.MAX_VALUE);
+    }
+    return inputStream;
+  }
+
+  public static void tryResetInputStream(InputStream inputStream) {
+    try {
+      inputStream.reset();
+    } catch (IOException ex) {
+      logger.error("Could not reset input stream", ex);
     }
   }
 }

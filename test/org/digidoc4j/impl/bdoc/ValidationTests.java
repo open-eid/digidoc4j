@@ -227,7 +227,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test
   public void missingManifestFile() {
-    Container container = ContainerOpener.open("testFiles/missing_manifest.asice", PROD_CONFIGURATION);
+    Container container = new ExistingBDocContainer("testFiles/missing_manifest.asice", PROD_CONFIGURATION);
     ValidationResult result = container.validate();
     assertFalse(result.isValid());
     assertEquals("Unsupported format: Container does not contain a manifest file", result.getErrors().get(0).getMessage());

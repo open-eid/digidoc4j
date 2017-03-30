@@ -53,6 +53,7 @@ import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureContainer;
 import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
@@ -491,14 +492,14 @@ public class DDocFacadeTest {
   public void signRawWithLT_TMSignatureProfileAddsOCSP() {
     String dDocFileName = "testOCSPAddedWithRawSignature.ddoc";
     signRawDDocContainer(LT_TM).saveAsFile(dDocFileName);
-    assertNotNull(ContainerOpener.open(dDocFileName).getSignatures().get(0).getOCSPCertificate());
+    assertNotNull(ContainerOpener.<SignatureContainer>open(dDocFileName).getSignatures().get(0).getOCSPCertificate());
   }
 
   @Test
   public void signRawWithNoSignatureProfileDoesNotAddOCSP() {
     String dDocFileName = "testOCSPNotAddedWithRawSignatureWhenNoProfile.ddoc";
     signRawDDocContainer(B_BES).saveAsFile(dDocFileName);
-    assertNull(ContainerOpener.open(dDocFileName).getSignatures().get(0).getOCSPCertificate());
+    assertNull(ContainerOpener.<SignatureContainer>open(dDocFileName).getSignatures().get(0).getOCSPCertificate());
   }
 
   @Test

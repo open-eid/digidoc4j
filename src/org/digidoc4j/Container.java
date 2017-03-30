@@ -10,12 +10,10 @@
 
 package org.digidoc4j;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.security.cert.X509Certificate;
-import java.util.List;
 
 import eu.europa.esig.dss.MimeType;
 
@@ -29,126 +27,8 @@ import eu.europa.esig.dss.MimeType;
  * To modify the data list of a signed container by adding or removing datafiles you must first
  * remove all the signatures.
  */
-public interface Container extends Serializable {
-
-  /**
-   * Adds a data file from the file system to the container.
-   * <p>
-   * Note:
-   * Data files can be removed from a container only after all signatures have been removed.
-   * </p>
-   *
-   * @param path     data file to be added to the container
-   * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
-   */
-  DataFile addDataFile(String path, String mimeType);
-
-  /**
-   * Adds a data file from the input stream (i.e. the date file content can be read from the internal memory buffer).
-   * <p>
-   * Note:
-   * Data files can be added to a container only after all signatures have been removed.
-   * </p>
-   *
-   * @param is       input stream from where data is read
-   * @param fileName data file name in the container
-   * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
-   */
-  DataFile addDataFile(InputStream is, String fileName, String mimeType);
-
-  /**
-   * Adds a data file from the file system to the container.
-   * <p>
-   * Note:
-   * Data files can be removed from a container only after all signatures have been removed.
-   * </p>
-   *
-   * @param file     data file to be added to the container
-   * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
-   */
-  DataFile addDataFile(File file, String mimeType);
-
-  /**
-   * Adds a data file from the file system to the container.
-   * <p>
-   * Note:
-   * Data files can be removed from a container only after all signatures have been removed.
-   * </p>
-   *
-   * @param dataFile data file to be added to the container
-   */
-  void addDataFile(DataFile dataFile);
-
-  /**
-   * Adds a new signature to the container.
-   *
-   * @param signature signature to be added.
-   */
-  void addSignature(Signature signature);
-
-  /**
-   * Returns all data files in the container.
-   *
-   * @return list of all the data files in the container.
-   */
-  List<DataFile> getDataFiles();
-
-  /**
-   * Returns container type "BDOC" or "DDOC"
-   */
-  String getType();
-
-  /**
-   * Returns a list of all signatures in the container.
-   *
-   * @return list of all signatures
-   */
-  List<Signature> getSignatures();
-
-  /**
-   * Removes the data file from the container.
-   * <p>
-   * Note:
-   * Data files can be removed from a container only after all signatures have been removed.
-   * </p>
-   * @param file data file to be removed from the container.
-   */
-  void removeDataFile(DataFile file);
-
-  /**
-   * Removes the signature from the container
-   * @param signature signature to be removed.
-   */
-  void removeSignature(Signature signature);
-
-  /**
-   * Extends signature profile to SignatureProfile
-   *
-   * @param profile signature profile
-   * @see SignatureProfile
-   */
-  void extendSignatureProfile(SignatureProfile profile);
-
-  /**
-   * Saves the container to the specified location.
-   *
-   * @param filePath file name and path.
-   */
-  File saveAsFile(String filePath);
-
-  /**
-   * Saves the container as a stream.
-   *
-   * @return stream of the container.
-   */
-  InputStream saveAsStream();
-
-  /**
-   * Validate container
-   *
-   * @return validation result
-   */
-  ValidationResult validate();
+@Deprecated
+public interface Container extends SignatureFilesContainer, Serializable {
 
   //Deprecated methods below
 

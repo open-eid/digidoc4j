@@ -46,10 +46,13 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.zip.ZipFile;
+
+import javax.crypto.Cipher;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -61,6 +64,7 @@ import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DataToSign;
 import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.EncryptedDataFile;
 import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
@@ -333,17 +337,17 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals(0, container.getSignatures().size());
   }
 
-    @Test
-    public void testAddFilesWithSpecialCharactersIntoContainer() throws Exception {
-      Container container = createContainerWithFile("testFiles/special-char-files/dds_dds_JÜRIÖÖ € žŠ päev.txt", "text/plain");
-      container.addDataFile("testFiles/special-char-files/dds_колючей стерне.docx", "text/plain");
-      signContainer(container);
-      container.saveAsFile("testWithSpecialCharFiles.bdoc");
+  @Test
+  public void testAddFilesWithSpecialCharactersIntoContainer() throws Exception {
+    Container container = createContainerWithFile("testFiles/special-char-files/dds_dds_JÜRIÖÖ € žŠ päev.txt", "text/plain");
+    container.addDataFile("testFiles/special-char-files/dds_колючей стерне.docx", "text/plain");
+    signContainer(container);
+    container.saveAsFile("testWithSpecialCharFiles.bdoc");
 
-      assertEquals(0, container.validate().getContainerErrors().size());
-    }
+    assertEquals(0, container.validate().getContainerErrors().size());
+  }
 
-    @Test
+  @Test
   public void testRemoveSignatureWhenTwoSignaturesExist() throws Exception {
     Container container = open("testFiles/asics_testing_two_signatures.bdoc");
     assertEquals(2, container.getSignatures().size());
@@ -1096,8 +1100,43 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertTrue(container.validate().isValid());
   }
 
+  @Test
+  public void bDoc_withCrypto_shouldWriteAndReadContainer() throws GeneralSecurityException {
+    // Perpare
+    ensureKeyPairAndX509();
+    String data = "random text";
+    DataFile memoryDataFile = new DataFile(data.getBytes(), "test.txt", "text/plain");
+
+    // Test
+    BDocContainer bDocContainer = new BDocContainer();
+    bDocContainer.addDataFile(memoryDataFile);
+    bDocContainer.generateEncryptionKey();
+    bDocContainer.encryptDataFile(memoryDataFile);
+    bDocContainer.addRecipient(selfSignedCert);
+    InputStream inputStream = bDocContainer.saveAsStream();
+
+    // Verify
+    BDocContainer existingBDocContainer = new ExistingBDocContainer(inputStream);
+    List<EncryptedDataFile> encryptedDataFiles = existingBDocContainer.getEncryptedDataFiles();
+    assertEquals(1, encryptedDataFiles.size());
+    List<BDocCryptoRecipient> recipients = existingBDocContainer.getRecipients();
+    assertEquals(1, recipients.size());
+
+    // Test
+    BDocCryptoRecipient recipient = recipients.get(0);
+    Cipher cipher = recipient.getCipher();
+    cipher.init(Cipher.PRIVATE_KEY, keyPair.getPrivate());
+    byte[] secretKeyBytes = cipher.doFinal(recipient.getCryptogram());
+    existingBDocContainer.setEncryptionKey(secretKeyBytes);
+    DataFile decryptedDataFile = existingBDocContainer.decryptDataFile(existingBDocContainer.getDataFiles().get(0));
+
+    // Verify
+    String decryptedData = new String(decryptedDataFile.getBytes());
+    assertEquals(data, decryptedData);
+  }
+
   private void assertSignatureContains(BDocSignature signature, String name) {
-      assertNotNull(findSignedFile(signature, name));
+    assertNotNull(findSignedFile(signature, name));
   }
 
   private DSSDocument findSignedFile(BDocSignature signature, String name) {

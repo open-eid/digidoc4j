@@ -18,6 +18,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
+import org.digidoc4j.EncryptedDataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
@@ -31,6 +32,8 @@ import org.digidoc4j.impl.bdoc.asic.BDocContainerValidator;
 import org.digidoc4j.impl.bdoc.manifest.AsicManifest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Iterables;
 
 import eu.europa.esig.dss.DSSDocument;
 
@@ -181,11 +184,48 @@ public class ExistingBDocContainer extends BDocContainer {
 
   void populateContainerWithParseResult(AsicParseResult parseResult) {
     containerParseResult = parseResult;
-    getDataFiles().addAll(parseResult.getDataFiles());
+    List<DataFile> dataFiles = parseResult.getDataFiles();
+    populateBDocCrypto(dataFiles, parseResult.getAsicEntries());
+    getDataFiles().addAll(dataFiles);
     List<DSSDocument> signatureFiles = parseResult.getSignatures();
     List<DSSDocument> detachedContents = parseResult.getDetachedContents();
     List<Signature> bDocSignatures = parseSignatureFiles(signatureFiles, detachedContents);
     getSignatures().addAll(bDocSignatures);
+  }
+
+  private void populateBDocCrypto(List<DataFile> dataFiles, List<AsicEntry> asicEntries) {
+    AsicEntry recipientsEntry = findAsicEntryByName(asicEntries, BDocCryptoRecipientsFile.XML_PATH);
+    if (recipientsEntry != null) {
+      BDocCryptoRecipientsFile bDocCryptoRecipientsFile = new BDocCryptoRecipientsFileReader().read(recipientsEntry.getContent().openStream());
+      bDocCrypto = new BDocCrypto(this, bDocCryptoRecipientsFile);
+
+      List<String> encryptedFileNames = bDocCryptoRecipientsFile.getEncrypedFileNames();
+      dataFilesConversion(dataFiles, encryptedFileNames);
+    }
+  }
+
+  private static void dataFilesConversion(List<DataFile> dataFiles, List<String> encryptedFileNames) {
+    if (!encryptedFileNames.isEmpty()) {
+      for (DataFile dataFile : dataFiles) {
+        if (Iterables.contains(encryptedFileNames, dataFile.getDocument().getName())) {
+          int index = dataFiles.indexOf(dataFile);
+          dataFiles.set(index, new EncryptedDataFile(
+              dataFile.getStream(),
+              dataFile.getDocument().getName(),
+              dataFile.getMediaType())
+          );
+        }
+      }
+    }
+  }
+
+  private static AsicEntry findAsicEntryByName(List<AsicEntry> asicEntries, String name) {
+    for (AsicEntry asicEntry : asicEntries) {
+      if (asicEntry.getZipEntry().getName().equalsIgnoreCase(name)) {
+        return asicEntry;
+      }
+    }
+    return null;
   }
 
   private void removeExistingSignature(BDocSignature signature) {

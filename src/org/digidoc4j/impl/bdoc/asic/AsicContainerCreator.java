@@ -28,8 +28,10 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.digidoc4j.DataFile;
+import org.digidoc4j.EncryptedDataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.bdoc.BDocCryptoRecipientsFile;
 import org.digidoc4j.impl.bdoc.manifest.AsicManifest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,6 +107,17 @@ public class AsicContainerCreator {
     }
   }
 
+  public void writeEncryptedDataFiles(Collection<EncryptedDataFile> encryptedDataFiles) {
+    logger.debug("Adding encrypted data files to the bdoc zip container");
+    for (EncryptedDataFile encryptedDataFile : encryptedDataFiles) {
+      String name = encryptedDataFile.getName();
+      logger.debug("Adding data file " + name);
+      ZipEntry entryDocument = new ZipEntry(name);
+      zipOutputStream.setLevel(ZipEntry.STORED);
+      byte[] entryBytes = encryptedDataFile.getBytes();
+      writeZipEntry(entryDocument, entryBytes);
+    }
+  }
 
   public void writeSignatures(Collection<Signature> signatures, int nextSignatureFileNameIndex) {
     logger.debug("Adding signatures to the bdoc zip container");
@@ -174,5 +187,11 @@ public class AsicContainerCreator {
       logger.error("Error getting document content: " + e.getMessage());
       throw new TechnicalException("Error getting document content: " + e.getMessage(), e);
     }
+  }
+
+  public void writeCryptoRecipients(byte[] bDocCryptoRecipientsFileBytes) {
+    logger.debug("Writing bdoc crypto recipients file");
+    ZipEntry zipEntry = new ZipEntry(BDocCryptoRecipientsFile.XML_PATH);
+    writeZipEntry(zipEntry, bDocCryptoRecipientsFileBytes);
   }
 }

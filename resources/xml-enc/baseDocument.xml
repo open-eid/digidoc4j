@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<denc:EncryptedData xmlns:denc="http://www.w3.org/2001/04/xmlenc#" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <denc:EncryptionMethod Algorithm=""/>
+  <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+  </ds:KeyInfo>
+  <denc:CipherData>
+    <denc:CipherReference URI="#valid-for=https://www.w3.org/TR/xmlenc-core1/xenc-schema.xsd" />
+  </denc:CipherData>
+  <denc:EncryptionProperties>
+    <denc:EncryptionProperty Id="DocumentFormat"><xhtml:p>ENCDOC-XML|1.0</xhtml:p></denc:EncryptionProperty>
+    <denc:EncryptionProperty Id="LibraryVersion"><xhtml:p>digidoc4j|3.12.3.1466</xhtml:p></denc:EncryptionProperty>
+    <denc:EncryptionProperty Id="Filenames"></denc:EncryptionProperty>
+  </denc:EncryptionProperties>
+</denc:EncryptedData>

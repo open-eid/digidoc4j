@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<denc:EncryptedKey xmlns:denc="http://www.w3.org/2001/04/xmlenc#" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+  <denc:EncryptionMethod Algorithm=""/>
+  <ds:KeyInfo>
+    <ds:X509Data>
+      <ds:X509Certificate></ds:X509Certificate>
+    </ds:X509Data>
+  </ds:KeyInfo>
+  <denc:CipherData>
+    <denc:CipherValue></denc:CipherValue>
+  </denc:CipherData>
+</denc:EncryptedKey>

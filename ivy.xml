@@ -31,6 +31,7 @@
     <dependency org="xalan" name="xalan" rev="2.7.2" conf="runtime->default"/>
     <dependency org="org.yaml" name="snakeyaml" rev="1.14" conf="runtime->default"/>
     <dependency org="org.slf4j" name="slf4j-api" rev="1.7.21" conf="runtime->default"/>
+    <dependency org="org.apache.wss4j" name="wss4j-ws-security-stax" rev="2.1.8"/>
 
     <!-- Additional dependencies for the library zip package -->
     <dependency org="log4j" name="log4j" rev="1.2.17" conf="library-zip->default"/>

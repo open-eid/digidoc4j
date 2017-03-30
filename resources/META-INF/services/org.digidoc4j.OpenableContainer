@@ -1,0 +1,3 @@
+org.digidoc4j.impl.bdoc.BDocContainerOpener
+org.digidoc4j.impl.cdoc.CDoc2ContainerOpener
+org.digidoc4j.impl.ddoc.DDocOpener

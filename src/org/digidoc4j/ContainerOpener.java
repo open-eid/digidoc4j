@@ -10,14 +10,13 @@
 
 package org.digidoc4j;
 
-import java.io.BufferedInputStream;
-import java.io.EOFException;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ServiceLoader;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.bdoc.ExistingBDocContainer;
 import org.digidoc4j.impl.ddoc.DDocOpener;
 import org.digidoc4j.utils.Helper;
@@ -33,6 +32,7 @@ import org.slf4j.LoggerFactory;
 public class ContainerOpener {
 
   private final static Logger logger = LoggerFactory.getLogger(ContainerOpener.class);
+  private final static ServiceLoader< OpenableContainer > containerOpeners = ServiceLoader.load( OpenableContainer.class );
 
   /**
    * Open container from a file. Use {@link ContainerBuilder#fromExistingFile(String)} instead.
@@ -43,22 +43,24 @@ public class ContainerOpener {
    * @throws DigiDoc4JException when the file is not found or empty
    * @see ContainerBuilder
    */
-  public static Container open(String path, Configuration configuration) throws DigiDoc4JException {
+  public static <T extends BaseContainer> T open(String path, Configuration configuration) throws DigiDoc4JException {
     logger.debug("Opening container from path: " + path);
-    try {
-      if (Helper.isZipFile(new File(path))) {
-        return openBDocContainer(path, configuration);
-      } else {
-        return new DDocOpener().open(path, configuration);
+
+    for (OpenableContainer containerOpener : containerOpeners) {
+      if (containerOpener.canOpen(path)) {
+        logger.debug("Found container handler");
+        Object container = containerOpener.open(path, configuration);
+        try {
+          return (T) container;
+        } catch (ClassCastException ex) {
+          logger.debug("Invalid return type provided for " + container.getClass().getName());
+        }
       }
-    } catch (EOFException eof) {
-      String msg = "File is not valid.";
-      logger.error(msg);
-      throw new DigiDoc4JException(msg);
-    } catch (IOException e) {
-      logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
     }
+
+    String message = "Could not find suitable container handler";
+    logger.debug(message);
+    throw new UnsupportedFormatException(message);
   }
 
   /**
@@ -69,63 +71,69 @@ public class ContainerOpener {
    * @throws DigiDoc4JException when the file is not found or empty
    * @see ContainerBuilder
    */
-  public static Container open(String path) throws DigiDoc4JException {
+  public static <T extends BaseContainer> T open(String path) throws DigiDoc4JException {
     logger.debug("");
-    return open(path, Configuration.getInstance());
+    return (T) open(path, Configuration.getInstance());
   }
 
   /**
    * Open container from a stream. Use {@link ContainerBuilder#fromStream(InputStream)} instead.
    *
-   * @param stream                      input stream
+   * @param inputStream                 input stream
    * @param actAsBigFilesSupportEnabled acts as configuration parameter
    * @return container
    * @see Configuration#isBigFilesSupportEnabled() returns true used for BDOC
    * @see ContainerBuilder
    */
-  public static Container open(InputStream stream, boolean actAsBigFilesSupportEnabled) {
+  public static Container open(InputStream inputStream, boolean actAsBigFilesSupportEnabled) {
     logger.debug("Opening container from stream");
-    BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);
+    inputStream = Helper.ensureResettableBufferedInputStream(inputStream);
 
     try {
-      if (Helper.isZipFile(bufferedInputStream)) {
+      if (Helper.isZipFile(inputStream)) {
         //TODO support big file support flag
-        return new ExistingBDocContainer(bufferedInputStream);
+        return new ExistingBDocContainer(inputStream);
       } else {
-        return new DDocOpener().open(bufferedInputStream);
+        return new DDocOpener().open(inputStream);
       }
     } catch (IOException e) {
       logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     } finally {
-      IOUtils.closeQuietly(bufferedInputStream);
+      IOUtils.closeQuietly(inputStream);
     }
   }
 
   /**
    * Open container from a stream. Use {@link ContainerBuilder#fromStream(InputStream)} instead.
    *
-   * @param stream stream of a container to open.
+   * @param inputStream stream of a container to open.
    * @param configuration configuration settings.
    * @return opened container.
    * @see ContainerBuilder
    */
-  public static Container open(InputStream stream, Configuration configuration) {
+  public static <T extends BaseContainer> T open(InputStream inputStream, Configuration configuration) throws DigiDoc4JException {
     logger.debug("Opening container from stream");
-    BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);
 
-    try {
-      if (Helper.isZipFile(bufferedInputStream)) {
-        return new ExistingBDocContainer(bufferedInputStream, configuration);
-      } else {
-        return new DDocOpener().open(bufferedInputStream, configuration);
+    inputStream = Helper.ensureResettableBufferedInputStream(inputStream);
+
+    for (OpenableContainer containerOpener : containerOpeners) {
+      if (containerOpener.canOpen(inputStream)) {
+        logger.debug("Found container handler");
+        Object container = containerOpener.open(inputStream, configuration);
+        try {
+          return (T) container;
+        } catch (ClassCastException ex) {
+          logger.debug("Invalid return type provided for " + container.getClass().getName());
+        }
+
+        Helper.tryResetInputStream(inputStream);
       }
-    } catch (IOException e) {
-      logger.error(e.getMessage());
-      throw new DigiDoc4JException(e);
-    } finally {
-      IOUtils.closeQuietly(bufferedInputStream);
     }
+
+    String message = "Could not find suitable container handler";
+    logger.debug(message);
+    throw new UnsupportedFormatException(message);
   }
 
   private static Container openBDocContainer(String path, Configuration configuration) {
