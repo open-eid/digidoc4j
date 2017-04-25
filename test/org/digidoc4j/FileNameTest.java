@@ -17,6 +17,8 @@ import org.junit.rules.TemporaryFolder;
 
 public class FileNameTest extends DigiDoc4JTestHelper {
 
+  private final Configuration configuration = new Configuration(Configuration.Mode.TEST);
+
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
 
@@ -30,7 +32,6 @@ public class FileNameTest extends DigiDoc4JTestHelper {
       throws Exception {
 
     File tempFolder = testFolder.newFolder();
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
     FileInputStream fis = new FileInputStream(
         "testFiles/special-char-files/dds_acrobat.pdf");
@@ -51,8 +52,6 @@ public class FileNameTest extends DigiDoc4JTestHelper {
   public void createContainer() throws Exception {
 
     File tempFolder = testFolder.newFolder();
-
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
     FileInputStream fis = new FileInputStream(
         "testFiles/special-char-files/dds_acrobat.pdf");
