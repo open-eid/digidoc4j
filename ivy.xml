@@ -10,42 +10,42 @@
     <dependency org="ee.sk.digidoc" name="jdigidoc" rev="3.12.1" conf="runtime->default">
       <exclude org="iaik.pkcs" module="iaikPkcs11Wrapper" />
     </dependency>
-    <dependency org="commons-cli" name="commons-cli" rev="1.2" conf="runtime->default"/>
+    <dependency org="commons-cli" name="commons-cli" rev="1.4" conf="runtime->default"/>
     <dependency org="org.apache.commons" name="commons-compress" rev="1.3" conf="runtime->default"/>
-    <dependency org="commons-io" name="commons-io" rev="2.4" conf="runtime->default"/>
+    <dependency org="commons-io" name="commons-io" rev="2.5" conf="runtime->default"/>
     <dependency org="commons-codec" name="commons-codec" rev="1.10" conf="runtime->default"/>
     <dependency org="commons-lang" name="commons-lang" rev="2.6" conf="runtime->default"/>
-    <dependency org="commons-logging" name="commons-logging" rev="1.1.3" conf="runtime->default"/>
+    <dependency org="commons-logging" name="commons-logging" rev="1.2" conf="runtime->default"/>
     <dependency org="commons-collections" name="commons-collections" rev="3.2.2" conf="runtime->default"/>
-    <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.3.6" conf="runtime->default"/>
-    <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.3.3" conf="runtime->default"/>
-    <dependency org="org.apache.santuario" name="xmlsec" rev="2.0.6" conf="runtime->default" >
+    <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.3" conf="runtime->default"/>
+    <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.6" conf="runtime->default"/>
+    <dependency org="org.apache.santuario" name="xmlsec" rev="2.0.8" conf="runtime->default" >
       <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
     </dependency>
-    <dependency org="org.bouncycastle" name="bcmail-jdk15on" rev="1.54" conf="runtime->default"/>
-    <dependency org="org.bouncycastle" name="bcpkix-jdk15on" rev="1.54" conf="runtime->default"/>
-    <dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.54" conf="runtime->default"/>
+    <dependency org="org.bouncycastle" name="bcmail-jdk15on" rev="1.56" conf="runtime->default"/>
+    <dependency org="org.bouncycastle" name="bcpkix-jdk15on" rev="1.56" conf="runtime->default"/>
+    <dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.56" conf="runtime->default"/>
     <dependency org="xalan" name="serializer" rev="2.7.2" conf="runtime->default">
       <exclude org="xml-apis" module="xml-apis" />
     </dependency>
     <dependency org="xalan" name="xalan" rev="2.7.2" conf="runtime->default"/>
-    <dependency org="org.yaml" name="snakeyaml" rev="1.14" conf="runtime->default"/>
-    <dependency org="org.slf4j" name="slf4j-api" rev="1.7.21" conf="runtime->default"/>
+    <dependency org="org.yaml" name="snakeyaml" rev="1.18" conf="runtime->default"/>
+    <dependency org="org.slf4j" name="slf4j-api" rev="1.7.25" conf="runtime->default"/>
 
     <!-- Additional dependencies for the library zip package -->
     <dependency org="log4j" name="log4j" rev="1.2.17" conf="library-zip->default"/>
 
     <!-- Testing and utility package dependencies -->
-    <dependency org="ch.qos.logback" name="logback-classic" rev="1.1.7" conf="util->default"/>
-    <dependency org="ch.qos.logback" name="logback-core" rev="1.1.7" conf="util->default"/>
-    <dependency org="org.slf4j" name="log4j-over-slf4j" rev="1.7.21" conf="util->default"/>
+    <dependency org="ch.qos.logback" name="logback-classic" rev="1.2.3" conf="util->default"/>
+    <dependency org="ch.qos.logback" name="logback-core" rev="1.2.3" conf="util->default"/>
+    <dependency org="org.slf4j" name="log4j-over-slf4j" rev="1.7.25" conf="util->default"/>
 
     <!-- Testing dependencies -->
     <dependency org="org.hamcrest" name="hamcrest-core" rev="[1.3,1.4[" conf="test->default" />
     <dependency org="org.mockito" name="mockito-all" rev="[1.9,2[" conf="test->default"/>
     <dependency org="com.github.stefanbirkner" name="system-rules" rev="[1.5,1.6[" conf="test->default"/>
     <dependency org="xmlunit" name="xmlunit" rev="[1.5,1.6[" conf="test->default"/>
-    <dependency org="junit" name="junit" rev="4.11" conf="test->default"/>
+    <dependency org="junit" name="junit" rev="4.12" conf="test->default"/>
     <dependency org="org.hamcrest" name="hamcrest-library" rev="[1.3,1.4[" conf="test->default"/>
     <dependency org="org.databene" name="contiperf" rev="2.3.4" conf="test->default"/>
 
@@ -54,12 +54,12 @@
     <dependency org="org.mortbay.jetty" name="jetty" rev="6.1.26" conf="test->default" transitive="false"/>
     <dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.26" conf="test->default" transitive="false"/>
     <dependency org="org.mortbay.jetty" name="servlet-api" rev="2.5.20110712" conf="test->default" transitive="false"/>
-    <dependency org="com.google.guava" name="guava" rev="19.0" conf="test->default" transitive="false"/>
-    <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.7.4" conf="test->default" transitive="false"/>
-    <dependency org="com.fasterxml.jackson.core" name="jackson-core" rev="2.7.4" conf="test->default" transitive="false"/>
-    <dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.7.4" conf="test->default" transitive="false"/>
-    <dependency org="org.skyscreamer" name="jsonassert" rev="1.3.0" conf="test->default" transitive="false"/>
-    <dependency org="org.json" name="json" rev="20160212" conf="test->default" transitive="false"/>
+    <dependency org="com.google.guava" name="guava" rev="21.0" conf="test->default" transitive="false"/>
+    <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.8.8" conf="test->default" transitive="false"/>
+    <dependency org="com.fasterxml.jackson.core" name="jackson-core" rev="2.8.8" conf="test->default" transitive="false"/>
+    <dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.8.8" conf="test->default" transitive="false"/>
+    <dependency org="org.skyscreamer" name="jsonassert" rev="1.5.0" conf="test->default" transitive="false"/>
+    <dependency org="org.json" name="json" rev="20160810" conf="test->default" transitive="false"/>
 
   </dependencies>
 </ivy-module>
