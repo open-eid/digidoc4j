@@ -44,7 +44,7 @@ public class SKOnlineOCSPSourceTest {
   @Before
   public void setUp() throws Exception {
     Security.addProvider(new BouncyCastleProvider());
-    issuerCert = openX509Cert("testFiles/Juur-SK.pem.crt"); //Any certificate will do
+    issuerCert = openX509Cert("testFiles/certs/Juur-SK.pem.crt"); //Any certificate will do
   }
 
   @Test

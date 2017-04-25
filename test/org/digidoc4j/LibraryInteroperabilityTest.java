@@ -53,7 +53,7 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
 
     @Before
     public void setUp() throws Exception {
-        signatureToken = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
+        signatureToken = new PKCS12SignatureToken("testFiles/p12/signout.p12", "test".toCharArray());
         tempFilePath = testFolder.newFile("test.bdoc").getPath();
         configManagerInitializer.initConfigManager(TEST_CONF);
     }
@@ -68,7 +68,7 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
     public void verifyLibdigidocTS_SignatureWithDigiDoc4j() {
         Container container = ContainerBuilder.
             aContainer(BDOC_CONTAINER_TYPE).
-            fromExistingFile("testFiles/Libdigidoc_created_tsa_signature_TS.bdoc").
+            fromExistingFile("testFiles/invalid-containers/Libdigidoc_created_tsa_signature_TS.bdoc").
             withConfiguration(PROD_CONF).
             build();
         validateContainer(container);
@@ -78,7 +78,7 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
     public void verifyAddingSignatureToJDigiDocContainer() throws Exception {
         Container container = ContainerBuilder.
             aContainer(BDOC_CONTAINER_TYPE).
-            fromExistingFile("testFiles/DigiDocService_spec_est.pdf-TM-j.bdoc").
+            fromExistingFile("testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").
             withConfiguration(TEST_CONF).
             build();
         TestDataBuilder.signContainer(container);
@@ -105,7 +105,7 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
 
     @Test
     public void extendEpesToLtTm_validateWithJdigidoc() throws Exception {
-        Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+        Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
         TestDataBuilder.signContainer(container, B_EPES);
         container.saveAsFile(tempFilePath);
         container = open(tempFilePath);
@@ -119,7 +119,7 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
         Container container = ContainerBuilder.
             aContainer(BDOC_CONTAINER_TYPE).
             withConfiguration(TEST_CONF).
-            withDataFile("testFiles/test.txt", "text/plain").
+            withDataFile("testfiles/helper-files/test.txt", "text/plain").
             build();
         signContainer(container, signatureToken);
         signContainer(container, signatureToken);

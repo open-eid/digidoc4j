@@ -27,7 +27,7 @@ public class PKCS12SignatureTokenTest {
 
   @BeforeClass
   public static void setUp() {
-    pkcs12Signer = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
+    pkcs12Signer = new PKCS12SignatureToken("testFiles/p12/signout.p12", "test".toCharArray());
   }
 
   @Test

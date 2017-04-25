@@ -81,7 +81,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test
   public void testTestVerifyOnInvalidDocument() throws Exception {
-    Container container = open("testFiles/invalid_container.bdoc");
+    Container container = open("testFiles/invalid-containers/invalid_container.bdoc");
     assertFalse(container.validate().isValid());
   }
 
@@ -94,7 +94,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test
   public void testValidate() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     ValidationResult validationResult = container.validate();
     assertEquals(0, validationResult.getErrors().size());
@@ -102,19 +102,19 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test(expected = UnsupportedFormatException.class)
   public void notBDocThrowsException() {
-    open("testFiles/notABDoc.bdoc");
+    open("testFiles/invalid-containers/notABDoc.bdoc");
   }
 
   @Test(expected = UnsupportedFormatException.class)
   public void incorrectMimetypeThrowsException() {
-    open("testFiles/incorrectMimetype.bdoc");
+    open("testFiles/invalid-containers/incorrectMimetype.bdoc");
   }
 
   @Ignore("Unable to test if OCSP responds with unknown, because the signing certificate is expired")
   @Test(expected = Exception.class)
   public void testOCSPUnknown() {
     try {
-      testSigningWithOCSPCheck("testFiles/20167000013.p12");
+      testSigningWithOCSPCheck("testFiles/p12/20167000013.p12");
     } catch (Exception e) {
       assertTrue(e.getMessage().contains("UNKNOWN"));
       throw e;
@@ -124,7 +124,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @Test(expected = Exception.class)
   public void testExpiredCertSign() {
     try {
-      testSigningWithOCSPCheck("testFiles/expired_signer.p12");
+      testSigningWithOCSPCheck("testFiles/p12/expired_signer.p12");
     } catch (Exception e) {
       assertTrue(e.getMessage().contains("not in certificate validity range"));
       throw e;
@@ -133,7 +133,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test
   public void signatureFileContainsIncorrectFileName() {
-    Container container = ContainerOpener.open("testFiles/filename_mismatch_signature.asice", PROD_CONFIGURATION);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/filename_mismatch_signature.asice", PROD_CONFIGURATION);
     ValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
     assertEquals(1, errors.size());
@@ -142,7 +142,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test
   public void validateContainer_withChangedDataFileContent_isInvalid() throws Exception {
-    Container container = ContainerOpener.open("testFiles/invalid-data-file.bdoc");
+    Container container = ContainerOpener.open("testFiles/invalid-containers/invalid-data-file.bdoc");
     ValidationResult validate = container.validate();
     assertEquals(1, validate.getErrors().size());
     assertEquals("The reference data object(s) is not intact!", validate.getErrors().get(0).toString());
@@ -153,7 +153,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   public void secondSignatureFileContainsIncorrectFileName() throws IOException, CertificateException {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
     TSLHelper.addSkTsaCertificateToTsl(configuration);
-    Container container = ContainerOpener.open("testFiles/filename_mismatch_second_signature.asice", configuration);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/filename_mismatch_second_signature.asice", configuration);
     ValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
     assertEquals(3, errors.size());
@@ -167,7 +167,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void manifestFileContainsIncorrectFileName() {
-    Container container = ContainerOpener.open("testFiles/filename_mismatch_manifest.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/filename_mismatch_manifest.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
     ValidationResult validate = container.validate();
     assertEquals(2, validate.getErrors().size());
     assertEquals("Manifest file has an entry for file incorrect.txt with mimetype text/plain but the signature file " +
@@ -187,7 +187,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @Test
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   public void revocationAndTimeStampDifferenceTooLarge() {
-    Container container = ContainerOpener.open("testFiles/revocation_timestamp_delta_26h.asice", PROD_CONFIGURATION);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/revocation_timestamp_delta_26h.asice", PROD_CONFIGURATION);
     ValidationResult validate = container.validate();
     assertEquals(1, validate.getErrors().size());
     assertEquals("The difference between the revocation time and the signature time stamp is too large",
@@ -199,14 +199,14 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     int delta27Hours = 27 * 60;
     configuration.setRevocationAndTimestampDeltaInMinutes(delta27Hours);
-    Container container = ContainerOpener.open("testFiles/revocation_timestamp_delta_26h.asice", configuration);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/revocation_timestamp_delta_26h.asice", configuration);
     ValidationResult validate = container.validate();
     assertEquals(0, validate.getErrors().size());
   }
 
   @Test
   public void signatureFileAndManifestFileContainDifferentMimeTypeForFile() {
-    Container container = ContainerOpener.open("testFiles/mimetype_mismatch.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/mimetype_mismatch.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
     ValidationResult validate = container.validate();
     assertEquals(1, validate.getErrors().size());
     assertEquals("Manifest file has an entry for file RELEASE-NOTES.txt with mimetype application/pdf but the " +
@@ -215,19 +215,19 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test(expected = DuplicateDataFileException.class)
   public void duplicateFileThrowsException() {
-    Container container = ContainerOpener.open("testFiles/22902_data_files_with_same_names.bdoc");
+    Container container = ContainerOpener.open("testFiles/invalid-containers/22902_data_files_with_same_names.bdoc");
     container.validate();
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void duplicateSignatureFileThrowsException() {
-    Container container = ContainerOpener.open("testFiles/22913_signatures_xml_double.bdoc");
+    Container container = ContainerOpener.open("testFiles/invalid-containers/22913_signatures_xml_double.bdoc");
     container.validate();
   }
 
   @Test
   public void missingManifestFile() {
-    Container container = ContainerOpener.open("testFiles/missing_manifest.asice", PROD_CONFIGURATION);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/missing_manifest.asice", PROD_CONFIGURATION);
     ValidationResult result = container.validate();
     assertFalse(result.isValid());
     assertEquals("Unsupported format: Container does not contain a manifest file", result.getErrors().get(0).getMessage());
@@ -235,12 +235,12 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test(expected = DigiDoc4JException.class)
   public void missingMimeTypeFile() {
-    ContainerOpener.open("testFiles/missing_mimetype_file.asice");
+    ContainerOpener.open("testFiles/invalid-containers/missing_mimetype_file.asice");
   }
 
   @Test
   public void containerHasFileWhichIsNotInManifestAndNotInSignatureFile() {
-    Container container = ContainerOpener.open("testFiles/extra_file_in_container.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/extra_file_in_container.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -253,7 +253,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   public void containerMissesFileWhichIsInManifestAndSignatureFile() {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
     TSLHelper.addSkTsaCertificateToTsl(configuration);
-    Container container = ContainerOpener.open("testFiles/zip_misses_file_which_is_in_manifest.asice");
+    Container container = ContainerOpener.open("testFiles/invalid-containers/zip_misses_file_which_is_in_manifest.asice");
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertContainsError("The reference data object(s) is not found!", errors);
@@ -262,7 +262,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void containerMissingOCSPData() {
-    Container container = ContainerOpener.open("testFiles/TS-06_23634_TS_missing_OCSP_adjusted.asice");
+    Container container = ContainerOpener.open("testFiles/invalid-containers/TS-06_23634_TS_missing_OCSP_adjusted.asice");
     ValidationResult validate = container.validate();
     System.out.println(validate.getReport());
     List<DigiDoc4JException> errors = validate.getErrors();
@@ -275,13 +275,13 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @Ignore("This signature has two OCSP responses: one correct and one is technically corrupted. Opening a container should not throw an exception")
   @Test(expected = DigiDoc4JException.class)
   public void corruptedOCSPDataThrowsException() {
-    ContainerOpener.open("testFiles/corrupted_ocsp_data.asice");
+    ContainerOpener.open("testFiles/invalid-containers/corrupted_ocsp_data.asice");
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void invalidNoncePolicyOid() {
-    Container container = ContainerOpener.open("testFiles/23608_bdoc21-invalid-nonce-policy-oid.bdoc", PROD_CONFIGURATION);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/23608_bdoc21-invalid-nonce-policy-oid.bdoc", PROD_CONFIGURATION);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -291,7 +291,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void noNoncePolicy() {
-    Container container = ContainerOpener.open("testFiles/23608_bdoc21-no-nonce-policy.bdoc", PROD_CONFIGURATION);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/23608_bdoc21-no-nonce-policy.bdoc", PROD_CONFIGURATION);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -301,7 +301,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void badNonceContent() {
-    Container container = ContainerOpener.open("testFiles/bdoc21-bad-nonce-content.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/bdoc21-bad-nonce-content.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -311,7 +311,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void noSignedPropRefTM() {
-    Container container = ContainerOpener.open("testFiles/REF-03_bdoc21-TM-no-signedpropref.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/REF-03_bdoc21-TM-no-signedpropref.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(2, errors.size());
@@ -323,7 +323,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void noSignedPropRefTS() {
-    Container container = ContainerOpener.open("testFiles/REF-03_bdoc21-TS-no-signedpropref.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/REF-03_bdoc21-TS-no-signedpropref.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(2, errors.size());
@@ -334,7 +334,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void multipleSignedProperties() {
-    Container container = ContainerOpener.open("testFiles/multiple_signed_properties.asice");
+    Container container = ContainerOpener.open("testFiles/invalid-containers/multiple_signed_properties.asice");
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     containsErrorMessage(errors, "Multiple signed properties");
@@ -344,7 +344,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void incorrectSignedPropertiesReference() {
-    Container container = ContainerOpener.open("testFiles/signed_properties_reference_not_found.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/signed_properties_reference_not_found.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -354,7 +354,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void nonceIncorrectContent() {
-    Container container = ContainerOpener.open("testFiles/nonce-vale-sisu.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/nonce-vale-sisu.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(3, errors.size());
@@ -366,7 +366,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void badNoncePolicyOidQualifier() {
-    Container container = ContainerOpener.open("testFiles/SP-03_bdoc21-bad-nonce-policy-oidasuri.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/SP-03_bdoc21-bad-nonce-policy-oidasuri.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -377,7 +377,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void invalidNonce() {
-    Container container = ContainerOpener.open("testFiles/23200_weakdigest-wrong-nonce.asice");
+    Container container = ContainerOpener.open("testFiles/invalid-containers/23200_weakdigest-wrong-nonce.asice");
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -387,7 +387,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void noPolicyURI() {
-    Container container = ContainerOpener.open("testFiles/SP-06_bdoc21-no-uri.bdoc", PROD_CONFIGURATION);
+    Container container = ContainerOpener.open("testFiles/invalid-containers/SP-06_bdoc21-no-uri.bdoc", PROD_CONFIGURATION);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
@@ -397,7 +397,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void brokenTS() {
-    Container container = ContainerOpener.open("testFiles/TS_broken_TS.asice");
+    Container container = ContainerOpener.open("testFiles/invalid-containers/TS_broken_TS.asice");
     ValidationResult result = container.validate();
 
     List<DigiDoc4JException> errors = result.getErrors();
@@ -408,14 +408,14 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test
   public void asicValidationShouldFail_ifTimeStampHashDoesntMatchSignature() throws Exception {
-    ValidationResult result = validateContainer("testFiles/TS-02_23634_TS_wrong_SignatureValue.asice");
+    ValidationResult result = validateContainer("testFiles/invalid-containers/TS-02_23634_TS_wrong_SignatureValue.asice");
     assertFalse(result.isValid());
     assertTrue(containsErrorMessage(result.getErrors(), InvalidTimestampException.MESSAGE));
   }
 
   @Test
   public void asicOcspTimeShouldBeAfterTimestamp() throws Exception {
-    ValidationResult result = validateContainer("testFiles/TS-08_23634_TS_OCSP_before_TS.asice");
+    ValidationResult result = validateContainer("testFiles/invalid-containers/TS-08_23634_TS_OCSP_before_TS.asice");
     assertFalse(result.isValid());
     assertTrue(result.getErrors().size() >= 1);
     assertTrue(containsErrorMessage(result.getErrors(), TimestampAfterOCSPResponseTimeException.MESSAGE));
@@ -423,19 +423,19 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test
   public void containerWithTMProfile_SignedWithExpiredCertificate_shouldBeInvalid() throws Exception {
-    assertFalse(validateContainer("testFiles/invalid_bdoc_tm_old-sig-sigat-NOK-prodat-NOK.bdoc").isValid());
-    assertFalse(validateContainer("testFiles/invalid_bdoc_tm_old-sig-sigat-OK-prodat-NOK.bdoc").isValid());
+    assertFalse(validateContainer("testFiles/invalid-containers/invalid_bdoc_tm_old-sig-sigat-NOK-prodat-NOK.bdoc").isValid());
+    assertFalse(validateContainer("testFiles/invalid-containers/invalid_bdoc_tm_old-sig-sigat-OK-prodat-NOK.bdoc").isValid());
   }
 
   @Test
   public void containerWithTSProfile_SignedWithExpiredCertificate_shouldBeInvalid() throws Exception {
-    ValidationResult result = validateContainer("testFiles/invalid_bdoc21-TS-old-cert.bdoc");
+    ValidationResult result = validateContainer("testFiles/invalid-containers/invalid_bdoc21-TS-old-cert.bdoc");
     assertFalse(result.isValid());
   }
 
   @Test
   public void bdocTM_signedWithValidCert_isExpiredByNow_shouldBeValid() throws Exception {
-    String containerPath = "testFiles/valid_bdoc_tm_signed_with_valid_cert_expired_by_now.bdoc";
+    String containerPath = "testFiles/valid-containers/valid_bdoc_tm_signed_with_valid_cert_expired_by_now.bdoc";
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
     TSLHelper.addCertificateFromFileToTsl(configuration, "testFiles/certs/ESTEID-SK_2007_prod.pem.crt");
     Container container = ContainerBuilder.
@@ -456,7 +456,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test
   public void bDoc_withoutOcspResponse_shouldBeInvalid() throws Exception {
-    assertFalse(validateContainer("testFiles/23608-bdoc21-no-ocsp.bdoc", PROD_CONFIGURATION).isValid());
+    assertFalse(validateContainer("testFiles/invalid-containers/23608-bdoc21-no-ocsp.bdoc", PROD_CONFIGURATION).isValid());
   }
 
   @Test
@@ -487,7 +487,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   private void testSigningWithOCSPCheck(String unknownCert) {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testfiles/helper-files/test.txt", "text/plain");
     X509Certificate signerCert = TestSigningHelper.getSigningCert(unknownCert, "test");
     DataToSign dataToSign = SignatureBuilder.
         aSignature(container).
@@ -507,7 +507,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   }
 
   private Container createSignedBDocDocument(String fileName) {
-    Container container = createContainerWithFile("testFiles/test.txt");
+    Container container = createContainerWithFile("testfiles/helper-files/test.txt");
     signContainer(container);
     container.saveAsFile(fileName);
     return container;

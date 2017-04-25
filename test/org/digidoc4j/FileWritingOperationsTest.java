@@ -34,8 +34,8 @@ import eu.europa.esig.dss.MimeType;
 public class FileWritingOperationsTest extends DigiDoc4JTestHelper {
 
   private static final String tslCacheDirectoryPath = System.getProperty("java.io.tmpdir") + File.separator + "dss-cache-tsl" + File.separator;
-  private static final String TEST_BDOC_CONTAINER = "testFiles/one_signature.bdoc";
-  private static final String TEST_DDOC_CONTAINER = "testFiles/ddoc_for_testing.ddoc";
+  private static final String TEST_BDOC_CONTAINER = "testFiles/valid-containers/one_signature.bdoc";
+  private static final String TEST_DDOC_CONTAINER = "testFiles/valid-containers/ddoc_for_testing.ddoc";
   private static final String TEST_LARGE_BDOC_CONTAINER = "testFiles/valid-containers/bdoc-ts-with-large-data-file.bdoc";
 
   @Rule
@@ -145,13 +145,13 @@ public class FileWritingOperationsTest extends DigiDoc4JTestHelper {
     return ContainerBuilder.
         aContainer(type).
         withDataFile(dataFileInputStream, "test-stream.txt", MimeType.TEXT.getMimeTypeString()).
-        withDataFile("testFiles/test.txt", MimeType.TEXT.getMimeTypeString()).
+        withDataFile("testfiles/helper-files/test.txt", MimeType.TEXT.getMimeTypeString()).
         withDataFile(pdfFile, MimeType.PDF.getMimeTypeString()).
         build();
   }
 
   private Container createContainerWithDataFiles(String type) {
-    DataFile pathDataFile = new DataFile("testFiles/test.txt", MimeType.TEXT.getMimeTypeString());
+    DataFile pathDataFile = new DataFile("testfiles/helper-files/test.txt", MimeType.TEXT.getMimeTypeString());
     DataFile byteDataFile = new DataFile(new byte[]{1, 2, 3}, "byte-file.txt", MimeType.TEXT.getMimeTypeString());
     InputStream dataFileInputStream = new ByteArrayInputStream(new byte[]{1, 2, 3});
     DataFile streamDataFile = new DataFile(dataFileInputStream, "stream-file.txt", MimeType.TEXT.getMimeTypeString());

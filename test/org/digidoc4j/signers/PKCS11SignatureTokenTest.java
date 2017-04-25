@@ -101,7 +101,7 @@ public class PKCS11SignatureTokenTest extends DigiDoc4JTestHelper {
   private Container createSignedContainer(String containerType, DigestAlgorithm digestAlgorithm) {
     Container container = ContainerBuilder.
         aContainer(containerType).
-        withDataFile("testFiles/test.txt", "text/plain").
+        withDataFile("testfiles/helper-files/test.txt", "text/plain").
         build();
 
     Signature signature = SignatureBuilder.

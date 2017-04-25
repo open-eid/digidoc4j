@@ -88,7 +88,7 @@ public class ConfigurationTest {
   public void addTSL() throws IOException, CertificateException {
     TSLCertificateSource tsl = configuration.getTSL();
     int numberOfTSLCertificates = tsl.getCertificates().size();
-    addFromFileToTSLCertificate("testFiles/Juur-SK.pem.crt");
+    addFromFileToTSLCertificate("testFiles/certs/Juur-SK.pem.crt");
 
     assertEquals(numberOfTSLCertificates + 1, configuration.getTSL().getCertificates().size());
   }
@@ -96,7 +96,7 @@ public class ConfigurationTest {
   @Test
   public void addingCertificateToTsl() throws Exception {
     TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
-    addFromFileToTSLCertificate("testFiles/Juur-SK.pem.crt", certificateSource);
+    addFromFileToTSLCertificate("testFiles/certs/Juur-SK.pem.crt", certificateSource);
     CertificateToken certificateToken = certificateSource.getCertificates().get(0);
     assertThat(certificateToken.getKeyUsageBits(), hasItem(KeyUsageBit.nonRepudiation));
     assertTrue(certificateToken.checkKeyUsage(KeyUsageBit.nonRepudiation));
@@ -119,7 +119,7 @@ public class ConfigurationTest {
   @Test
   public void setTSL() throws IOException, CertificateException {
     TSLCertificateSource trustedListsCertificateSource = new TSLCertificateSourceImpl();
-    FileInputStream fileInputStream = new FileInputStream("testFiles/Juur-SK.pem.crt");
+    FileInputStream fileInputStream = new FileInputStream("testFiles/certs/Juur-SK.pem.crt");
     X509Certificate certificate = DSSUtils.loadCertificate(fileInputStream).getCertificate();
     trustedListsCertificateSource.addTSLCertificate(certificate);
 
@@ -199,12 +199,12 @@ public class ConfigurationTest {
 
   @Test
   public void addedTSLIsValid() throws IOException, CertificateException {
-    addFromFileToTSLCertificate("testFiles/Juur-SK.pem.crt");
-    addFromFileToTSLCertificate("testFiles/EE_Certification_Centre_Root_CA.pem.crt");
-    addFromFileToTSLCertificate("testFiles/ESTEID-SK_2011.pem.crt");
-    addFromFileToTSLCertificate("testFiles/SK_OCSP_RESPONDER_2011.pem.cer");
-    addFromFileToTSLCertificate("testFiles/SK_TSA.pem.crt");
-    Container container = ContainerOpener.open("testFiles/test.asice", configuration);
+    addFromFileToTSLCertificate("testFiles/certs/Juur-SK.pem.crt");
+    addFromFileToTSLCertificate("testFiles/certs/EE_Certification_Centre_Root_CA.pem.crt");
+    addFromFileToTSLCertificate("testFiles/certs/ESTEID-SK_2011.pem.crt");
+    addFromFileToTSLCertificate("testFiles/certs/SK_OCSP_RESPONDER_2011.pem.cer");
+    addFromFileToTSLCertificate("testFiles/certs/SK_TSA.pem.crt");
+    Container container = ContainerOpener.open("testFiles/valid-containers/test.asice", configuration);
     ValidationResult verify = container.validate();
     assertTrue(verify.isValid());
   }
@@ -224,8 +224,8 @@ public class ConfigurationTest {
   @Test
   @Ignore("Ignored as this functionality is not used in DDS but this test is broken due to DDS forks custom revocation handling.")
   public void policyFileIsReadFromNonDefaultFileLocation() {
-    configuration.setValidationPolicy("moved_constraint.xml");
-    ContainerOpener.open("testFiles/asics_for_testing.bdoc", configuration);
+    configuration.setValidationPolicy("testFiles/moved_constraint.xml");
+    ContainerOpener.open("testFiles/invalid-containers/asics_for_testing.bdoc", configuration);
   }
 
   @Test
@@ -278,7 +278,7 @@ public class ConfigurationTest {
         withConfiguration(new Configuration(Configuration.Mode.TEST)).
         build();
     assertFalse(container.getConfiguration().isBigFilesSupportEnabled());
-    container.getConfiguration().loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    container.getConfiguration().loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertTrue(container.getConfiguration().isBigFilesSupportEnabled());
     assertEquals(8192, container.getConfiguration().getMaxDataFileCachedInMB());
   }
@@ -309,13 +309,13 @@ public class ConfigurationTest {
 
   @Test
   public void getTslLocationFromConfigurationFile() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals("file:conf/test_TSLLocation", configuration.getTslLocation());
   }
 
   @Test
   public void setTslLocationOverwritesConfigurationFile() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     configuration.setTslLocation("tslLocation");
     assertEquals("tslLocation", configuration.getTslLocation());
   }
@@ -346,14 +346,14 @@ public class ConfigurationTest {
 
   @Test
   public void getOCSPAccessCertificateFileFromConfigurationFile() {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals("conf/OCSP_access_certificate_test_file_name", configuration.getOCSPAccessCertificateFileName());
     assertEquals("conf/OCSP_access_certificate_test_file_name", getJDigiDocConfValue(configuration, OCSP_PKCS12_CONTAINER));
   }
 
   @Test
   public void getOCSPAccessCertificateFileFromStream() throws FileNotFoundException {
-    FileInputStream stream = new FileInputStream("testFiles/digidoc_test_conf.yaml");
+    FileInputStream stream = new FileInputStream("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     configuration.loadConfiguration(stream);
     assertEquals("conf/OCSP_access_certificate_test_file_name", configuration.getOCSPAccessCertificateFileName());
     assertEquals("conf/OCSP_access_certificate_test_file_name", getJDigiDocConfValue(configuration, OCSP_PKCS12_CONTAINER));
@@ -361,7 +361,7 @@ public class ConfigurationTest {
 
   @Test
   public void setOCSPAccessCertificateFileNameOverwritesConfigurationFile() {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     configuration.setOCSPAccessCertificateFileName("New File");
     assertEquals("New File", configuration.getOCSPAccessCertificateFileName());
     assertEquals("New File", getJDigiDocConfValue(configuration, OCSP_PKCS12_CONTAINER));
@@ -375,14 +375,14 @@ public class ConfigurationTest {
 
   @Test
   public void getOCSPAccessCertificatePasswordFromConfigurationFile() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertArrayEquals("OCSP_test_password".toCharArray(), configuration.getOCSPAccessCertificatePassword());
     assertEquals("OCSP_test_password", getJDigiDocConfValue(configuration, OCSP_PKCS_12_PASSWD));
   }
 
   @Test
   public void setOCSPAccessCertificatePasswordOverwritesConfigurationFile() {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     char[] newPassword = "New password".toCharArray();
     configuration.setOCSPAccessCertificatePassword(newPassword);
     assertArrayEquals(newPassword, configuration.getOCSPAccessCertificatePassword());
@@ -422,7 +422,7 @@ public class ConfigurationTest {
   @Test
   public void loadDisableSigningOcspRequestFromConfFileInProd() throws Exception {
     Configuration configuration = new Configuration(Mode.PROD);
-    configuration.loadConfiguration("testFiles/digidoc_test_all_optional_settings.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     assertFalse(configuration.hasToBeOCSPRequestSigned());
     assertEquals("false", getJDigiDocConfValue(configuration, SIGN_OCSP_REQUESTS));
   }
@@ -503,7 +503,7 @@ public class ConfigurationTest {
   @Test
   public void maxDataFileCachedNotAllowedValueFromFile() {
     configuration = new Configuration();
-    String fileName = "testFiles/digidoc_test_conf_max_datafile_cached_invalid.yaml";
+    String fileName = "testFiles/yaml-configurations/digidoc_test_conf_max_datafile_cached_invalid.yaml";
 
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("Configuration parameter DIGIDOC_MAX_DATAFILE_CACHED should be greater or equal " +
@@ -539,27 +539,27 @@ public class ConfigurationTest {
 
   @Test
   public void loadsJDigiDocSecurityProviderFromFile() throws Exception {
-    Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals("org.bouncycastle.jce.provider.BouncyCastleProvider1", jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER"));
   }
 
   @Test
   public void loadsJDigiDocCacheDirectoryFromFile() throws Exception {
-    Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals("/test_cache_dir", jDigiDocConf.get("DIGIDOC_DF_CACHE_DIR"));
   }
 
   @Test
   public void defaultJDigiDocCacheDirectory() throws Exception {
     Hashtable<String, String> jDigiDocConf =
-        configuration.loadConfiguration("testFiles/digidoc_test_conf_without_cache_dir.yaml");
+        configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf_without_cache_dir.yaml");
     assertNull(jDigiDocConf.get("DIGIDOC_DF_CACHE_DIR"));
   }
 
   @SuppressWarnings("NumericOverflow")
   @Test
   public void loadsMaxDataFileCachedFromFile() throws Exception {
-    Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
 
     assertEquals("8192", jDigiDocConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
     assertEquals(8192, configuration.getMaxDataFileCachedInMB());
@@ -594,7 +594,7 @@ public class ConfigurationTest {
 
   @Test
   public void digidocMaxDataFileCachedParameterIsNotANumber() throws Exception {
-    String fileName = "testFiles/digidoc_test_conf_invalid_max_data_file_cached.yaml";
+    String fileName = "testFiles/yaml-configurations/digidoc_test_conf_invalid_max_data_file_cached.yaml";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("Configuration parameter DIGIDOC_MAX_DATAFILE_CACHED" +
         " should have an integer value but the actual value is: 8192MB.");
@@ -604,7 +604,7 @@ public class ConfigurationTest {
 
   @Test
   public void digidocSignOcspRequestIsNotABoolean() throws Exception {
-    String fileName = "testFiles/digidoc_test_conf_invalid_sign_ocsp_request.yaml";
+    String fileName = "testFiles/yaml-configurations/digidoc_test_conf_invalid_sign_ocsp_request.yaml";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("Configuration parameter SIGN_OCSP_REQUESTS should be set to true or false" +
         " but the actual value is: NonBooleanValue.");
@@ -614,7 +614,7 @@ public class ConfigurationTest {
 
   @Test
   public void digidocKeyUsageCheckIsNotABoolean() throws Exception {
-    String fileName = "testFiles/digidoc_test_conf_invalid_key_usage.yaml";
+    String fileName = "testFiles/yaml-configurations/digidoc_test_conf_invalid_key_usage.yaml";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("Configuration parameter KEY_USAGE_CHECK should be set to true or false" +
         " but the actual value is: NonBooleanValue.");
@@ -624,7 +624,7 @@ public class ConfigurationTest {
 
   @Test
   public void digidocUseLocalTslIsNotABoolean() throws Exception {
-    String fileName = "testFiles/digidoc_test_conf_invalid_use_local_tsl.yaml";
+    String fileName = "testFiles/yaml-configurations/digidoc_test_conf_invalid_use_local_tsl.yaml";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("Configuration parameter DIGIDOC_USE_LOCAL_TSL should be set to true or false" +
         " but the actual value is: NonBooleanValue.");
@@ -634,7 +634,7 @@ public class ConfigurationTest {
 
   @Test
   public void digidocDataFileHashcodeModeIsNotABoolean() throws Exception {
-    String fileName = "testFiles/digidoc_test_conf_invalid_datafile_hashcode_mode.yaml";
+    String fileName = "testFiles/yaml-configurations/digidoc_test_conf_invalid_datafile_hashcode_mode.yaml";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("Configuration parameter DATAFILE_HASHCODE_MODE should be set to true or false" +
         " but the actual value is: NonBooleanValue.");
@@ -644,7 +644,7 @@ public class ConfigurationTest {
 
   @Test
   public void missingOCSPSEntryThrowsException() throws Exception {
-    String fileName = "testFiles/digidoc_test_conf_ocsps_no_entry.yaml";
+    String fileName = "testFiles/yaml-configurations/digidoc_test_conf_ocsps_no_entry.yaml";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("No OCSPS entry found or OCSPS entry is empty. Configuration from: " + fileName);
 
@@ -654,7 +654,7 @@ public class ConfigurationTest {
 
   @Test
   public void emptyOCSPSEntryThrowsException() throws Exception {
-    String fileName = "testFiles/digidoc_test_conf_ocsps_empty.yaml";
+    String fileName = "testFiles/yaml-configurations/digidoc_test_conf_ocsps_empty.yaml";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("No OCSPS entry found or OCSPS entry is empty. Configuration from: " + fileName);
 
@@ -664,7 +664,7 @@ public class ConfigurationTest {
 
   @Test
   public void OCSPWithoutCaCnValueThrowsException() throws Exception {
-    String fileName = "testFiles/digidoc_test_conf_ocsps_no_ca_cn.yaml";
+    String fileName = "testFiles/yaml-configurations/digidoc_test_conf_ocsps_no_ca_cn.yaml";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 2 does not have an entry for CA_CN or the entry is empty\n");
@@ -675,7 +675,7 @@ public class ConfigurationTest {
 
   @Test
   public void OCSPWithEmptySubEntriesThrowsException() throws Exception {
-    String fileName = "testFiles/digidoc_test_conf_ocsps_empty_sub_entries.yaml";
+    String fileName = "testFiles/yaml-configurations/digidoc_test_conf_ocsps_empty_sub_entries.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 3 does not have an entry for CA_CN or the entry is empty\n" +
         "OCSPS list entry 4 does not have an entry for CA_CERT or the entry is empty\n" +
@@ -690,7 +690,7 @@ public class ConfigurationTest {
 
   @Test
   public void OCSPWithMissingSubEntriesThrowsException() throws Exception {
-    String fileName = "testFiles/digidoc_test_conf_ocsps_missing_sub_entries.yaml";
+    String fileName = "testFiles/yaml-configurations/digidoc_test_conf_ocsps_missing_sub_entries.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 3 does not have an entry for CN or the entry is empty\n" +
         "OCSPS list entry 4 does not have an entry for URL or the entry is empty\n" +
@@ -705,7 +705,7 @@ public class ConfigurationTest {
 
   @Test
   public void OCSPWithMissingOcspsCertsEntryThrowsException() throws Exception {
-    String fileName = "testFiles/digidoc_test_conf_ocsps_missing_certs_entry.yaml";
+    String fileName = "testFiles/yaml-configurations/digidoc_test_conf_ocsps_missing_certs_entry.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 3 does not have an entry for CERTS or the entry is empty\n";
     expectedException.expect(ConfigurationException.class);
@@ -717,7 +717,7 @@ public class ConfigurationTest {
 
   @Test
   public void OCSPWithEmptyOcspsCertsEntryThrowsException() throws Exception {
-    String fileName = "testFiles/digidoc_test_conf_ocsps_empty_certs_entry.yaml";
+    String fileName = "testFiles/yaml-configurations/digidoc_test_conf_ocsps_empty_certs_entry.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 2 does not have an entry for CERTS or the entry is empty\n";
     expectedException.expect(ConfigurationException.class);
@@ -729,7 +729,7 @@ public class ConfigurationTest {
 
   @Test
   public void configurationFileIsNotYamlFormatThrowsException() throws Exception {
-    String fileName = "testFiles/test.txt";
+    String fileName = "testfiles/helper-files/test.txt";
     String expectedErrorMessage = "Configuration from " + fileName + " is not correctly formatted";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage(expectedErrorMessage);
@@ -739,7 +739,7 @@ public class ConfigurationTest {
 
   @Test
   public void configurationStreamIsNotYamlFormatThrowsException() throws Exception {
-    String fileName = "testFiles/test.txt";
+    String fileName = "testfiles/helper-files/test.txt";
     String expectedErrorMessage = "Configuration from stream is not correctly formatted";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage(expectedErrorMessage);
@@ -776,25 +776,25 @@ public class ConfigurationTest {
 
   @Test
   public void getTspSourceFromConfigurationFile() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals("http://tsp.source.test/HttpTspServer", configuration.getTspSource());
   }
 
   @Test
   public void getValidationPolicyFromConfigurationFile() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals("conf/test_validation_policy.xml", configuration.getValidationPolicy());
   }
 
   @Test
   public void getOcspSourceFromConfigurationFile() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals("http://www.openxades.org/cgi-bin/test_ocsp_source.cgi", configuration.getOcspSource());
   }
 
   @Test
   public void getTslKeystoreLocationFromConfigurationFile() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals("keystore", configuration.getTslKeyStoreLocation());
   }
 
@@ -825,7 +825,7 @@ public class ConfigurationTest {
 
   @Test
   public void getTslKeystorePasswordFromConfigurationFile() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals("password", configuration.getTslKeyStorePassword());
   }
 
@@ -844,7 +844,7 @@ public class ConfigurationTest {
 
   @Test
   public void getTslCacheExpirationTimeFromConfigurationFile() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals(1776, configuration.getTslCacheExpirationTime());
   }
 
@@ -859,7 +859,7 @@ public class ConfigurationTest {
 
   @Test
   public void getProxyConfigurationFromConfigurationFile() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertTrue(configuration.isNetworkProxyEnabled());
     assertEquals("cache.noile.ee", configuration.getHttpProxyHost());
     assertEquals(8080, configuration.getHttpProxyPort().longValue());
@@ -872,7 +872,7 @@ public class ConfigurationTest {
   public void getInvalidProxyConfigurationFromConfigurationFile() throws Exception {
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage("Configuration parameter HTTP_PROXY_PORT should have an integer value but the actual value is: notA_number.");
-    configuration.loadConfiguration("testFiles/digidoc_test_conf_invalid_key_usage.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf_invalid_key_usage.yaml");
   }
 
   @Test
@@ -888,7 +888,7 @@ public class ConfigurationTest {
 
   @Test
   public void getSslConfigurationFromConfigurationFile() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_all_optional_settings.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     assertTrue(configuration.isSslConfigurationEnabled());
     assertEquals("sslKeystorePath", configuration.getSslKeystorePath());
     assertEquals("sslKeystoreType", configuration.getSslKeystoreType());
@@ -900,8 +900,7 @@ public class ConfigurationTest {
 
   @Test
   public void loadMultipleCAsFromConfigurationFile() throws Exception {
-    Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/digidoc_test_conf_two_cas" +
-        ".yaml");
+    Hashtable<String, String> jDigiDocConf = configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf_two_cas.yaml");
     configuration.getJDigiDocConfiguration();
 
     assertEquals("AS Sertifitseerimiskeskus", jDigiDocConf.get("DIGIDOC_CA_1_NAME"));
@@ -913,13 +912,13 @@ public class ConfigurationTest {
 
   @Test
   public void missingCA_shouldNotThrowException() throws Exception {
-    String fileName = "testFiles/digidoc_test_conf_no_ca.yaml";
+    String fileName = "testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml";
     configuration.loadConfiguration(fileName);
   }
 
   @Test
   public void missingCA_shouldThrowException_whenUsingDDoc() throws Exception {
-    String fileName = "testFiles/digidoc_test_conf_no_ca.yaml";
+    String fileName = "testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "Empty or no DIGIDOC_CAS entry";
     expectedException.expect(ConfigurationException.class);
@@ -931,7 +930,7 @@ public class ConfigurationTest {
 
   @Test
   public void emptyCAThrowsException() throws Exception {
-    String fileName = "testFiles/digidoc_test_conf_empty_ca.yaml";
+    String fileName = "testFiles/yaml-configurations/digidoc_test_conf_empty_ca.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "Empty or no DIGIDOC_CA for entry 1";
 
@@ -963,7 +962,7 @@ public class ConfigurationTest {
     configuration.setOcspSource("Set OCSP source");
     configuration.setValidationPolicy("Set validation policy");
 
-    configuration.loadConfiguration("testFiles/digidoc_test_all_optional_settings.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
 
     assertEquals("123876", getJDigiDocConfValue(configuration, "DIGIDOC_MAX_DATAFILE_CACHED"));
     assertEquals("TEST_DIGIDOC_NOTARY_IMPL", getJDigiDocConfValue(configuration, "DIGIDOC_NOTARY_IMPL"));
@@ -1009,14 +1008,14 @@ public class ConfigurationTest {
 
   @Test
   public void loadConnectionTimeoutFromFile() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf_connection_timeout.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf_connection_timeout.yaml");
     assertEquals(4000, configuration.getConnectionTimeout());
     assertEquals(2000, configuration.getSocketTimeout());
   }
 
   @Test
   public void setConnectionTimeoutFromCode() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_conf_connection_timeout.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf_connection_timeout.yaml");
     configuration.setConnectionTimeout(2000);
     configuration.setSocketTimeout(5000);
     assertEquals(2000, configuration.getConnectionTimeout());
@@ -1038,7 +1037,7 @@ public class ConfigurationTest {
 
   @Test
   public void testLoadingRevocationAndTimestampDeltaFromConf() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_all_optional_settings.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     assertEquals(1337, configuration.getRevocationAndTimestampDeltaInMinutes());
   }
 
@@ -1071,7 +1070,7 @@ public class ConfigurationTest {
 
   @Test
   public void loadTrustedTerritoriesFromConf() throws Exception {
-    configuration.loadConfiguration("testFiles/digidoc_test_all_optional_settings.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     List<String> trustedTerritories = configuration.getTrustedTerritories();
     assertEquals(3, trustedTerritories.size());
     assertEquals("NZ", trustedTerritories.get(0));

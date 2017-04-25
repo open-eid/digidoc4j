@@ -25,37 +25,37 @@ public class AsicContainerParserTest  extends DigiDoc4JTestHelper {
 
   @Test
   public void findingNextSignatureFileIndex_onEmptyContainer_shouldReturn_null() throws Exception {
-    AsicParseResult result = parseContainer("testFiles/asics_without_signatures.bdoc");
+    AsicParseResult result = parseContainer("testFiles/invalid-containers/asics_without_signatures.bdoc");
     assertEquals(null, result.getCurrentUsedSignatureFileIndex());
   }
 
   @Test
   public void findingNextSignatureFileIndex_onContainerWithOneSignature_withoutIndex_shouldReturn_null() throws Exception {
-    AsicParseResult result = parseContainer("testFiles/asics_for_testing.bdoc");
+    AsicParseResult result = parseContainer("testFiles/invalid-containers/asics_for_testing.bdoc");
     assertEquals(null, result.getCurrentUsedSignatureFileIndex());
   }
 
   @Test
   public void findingNextSignatureFileIndex_onContainerWithOneSignature_withIndex0_shouldReturn_0() throws Exception {
-    AsicParseResult result = parseContainer("testFiles/asics_with_one_signature.bdoc");
+    AsicParseResult result = parseContainer("testFiles/valid-containers/asics_with_one_signature.bdoc");
     assertEquals(Integer.valueOf(0), result.getCurrentUsedSignatureFileIndex());
   }
 
   @Test
   public void findingNextSignatureFileIndex_onContainerWithTwoSignature_shouldReturn_1() throws Exception {
-    AsicParseResult result = parseContainer("testFiles/asics_testing_two_signatures.bdoc");
+    AsicParseResult result = parseContainer("testFiles/valid-containers/asics_testing_two_signatures.bdoc");
     assertEquals(Integer.valueOf(1), result.getCurrentUsedSignatureFileIndex());
   }
 
   @Test
   public void parseBdocContainer() throws Exception {
-    AsicParseResult result = parseContainer("testFiles/two_signatures.bdoc");
+    AsicParseResult result = parseContainer("testFiles/invalid-containers/two_signatures.bdoc");
     assertParseResultValid(result);
   }
 
   @Test
   public void parseBdocContainerStream() throws Exception {
-    AsicContainerParser parser = new AsicStreamContainerParser(new FileInputStream("testFiles/two_signatures.bdoc"), Configuration.getInstance());
+    AsicContainerParser parser = new AsicStreamContainerParser(new FileInputStream("testFiles/invalid-containers/two_signatures.bdoc"), Configuration.getInstance());
     AsicParseResult result = parser.read();
     assertParseResultValid(result);
   }

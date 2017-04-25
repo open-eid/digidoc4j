@@ -15,7 +15,9 @@ import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,7 +38,7 @@ public class DataFileTest {
 
   @Before
   public void setUp() throws Exception {
-    dataFile = new DataFile("testFiles/test.txt", "text/plain");
+    dataFile = new DataFile("testfiles/helper-files/test.txt", "text/plain");
   }
 
   @Test
@@ -82,7 +84,7 @@ public class DataFileTest {
     dataFile.saveAs(fileName);
     assertTrue(new File(fileName).exists());
 
-    byte[] testFileContent = FileUtils.readFileToByteArray(new File("testFiles/test.txt"));
+    byte[] testFileContent = FileUtils.readFileToByteArray(new File("testfiles/helper-files/test.txt"));
 
     byte[] savedFileContent = FileUtils.readFileToByteArray(new File(fileName));
     assertArrayEquals(testFileContent, savedFileContent);
@@ -102,12 +104,12 @@ public class DataFileTest {
 
   @Test(expected = DigiDoc4JException.class)
   public void incorrectMimeType() {
-    dataFile = new DataFile("testFiles/test.txt", "incorrect");
+    dataFile = new DataFile("testfiles/helper-files/test.txt", "incorrect");
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void incorrectMimeTypeByteArrayConstructor() {
-    dataFile = new DataFile(new byte[]{0x041}, "testFiles/test.txt", "incorrect");
+    dataFile = new DataFile(new byte[]{0x041}, "testfiles/helper-files/test.txt", "incorrect");
   }
 
   @Test(expected = DigiDoc4JException.class)

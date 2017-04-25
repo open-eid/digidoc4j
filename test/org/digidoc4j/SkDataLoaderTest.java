@@ -144,7 +144,7 @@ public class SkDataLoaderTest {
     Container container = ContainerBuilder
         .aContainer(ContainerBuilder.BDOC_CONTAINER_TYPE).
         withConfiguration(configuration).
-        withDataFile("testFiles/test.txt", MimeType.TEXT.getMimeTypeString()).
+        withDataFile("testfiles/helper-files/test.txt", MimeType.TEXT.getMimeTypeString()).
         build();
     Signature signature = TestDataBuilder.signContainer(container, SignatureProfile.LT);
     assertTrue(signature.validateSignature().isValid());

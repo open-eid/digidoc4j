@@ -35,8 +35,8 @@ public class DDocSignatureTest extends DigiDoc4JTestHelper {
     container = new DDocFacade();
     container.setSignatureParameters(signatureParameters);
 
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.sign(new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray()));
+    container.addDataFile("testfiles/helper-files/test.txt", "text/plain");
+    container.sign(new PKCS12SignatureToken("testFiles/p12/signout.p12", "test".toCharArray()));
   }
 
   @Test

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:jacoco="antlib:org.jacoco.ant" name="digidoc4j builder" basedir="../" default="all">
+<project xmlns:jacoco="antlib:org.jacoco.ant" name="digidoc4j builder" basedir="../../..//" default="all">
     <property name="build.dir" value="build"/>
     <property name="coverage.dir" value="coverage"/>
     <property name="version" value="0.2"/>
@@ -62,7 +62,7 @@
             </junit>
         </jacoco:coverage>
         <junitreport todir="${build.dir}">
-            <fileset dir="../">
+            <fileset dir="../../..//">
                 <include name="TEST-*.xml"/>
             </fileset>
             <report format="noframes" todir="${build.dir}/html"/>
@@ -94,7 +94,7 @@
 
     <target name="clean">
         <delete includeemptydirs="true" failonerror="false">
-            <fileset dir="../" includes="TEST*.xml"/>
+            <fileset dir="../../..//" includes="TEST*.xml"/>
             <fileset dir="${build.dir}"/>
             <fileset dir="../javadoc"/>
         </delete>

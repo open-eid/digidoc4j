@@ -28,7 +28,7 @@ public class ManifestTest {
         "</manifest:manifest>";
 
     AsicManifest manifest = new AsicManifest();
-    manifest.addFileEntry(Arrays.asList(new DataFile("testFiles/test.txt", "text/plain")));
+    manifest.addFileEntry(Arrays.asList(new DataFile("testfiles/helper-files/test.txt", "text/plain")));
     byte[] manifestBytes = manifest.getBytes();
 
     assertXMLEqual(expectedResult, new String(manifestBytes));

@@ -43,7 +43,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
 
   @Test
   public void validContainerWithOneSignature() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt");
+    Container container = createContainerWithFile("testfiles/helper-files/test.txt");
     Signature signature = TestDataBuilder.signContainer(container, SignatureProfile.LT);
     String signatureId = signature.getId();
     ValidationResult result = container.validate();
@@ -64,7 +64,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
 
   @Test
   public void validContainerWithOneTmSignature() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt");
+    Container container = createContainerWithFile("testfiles/helper-files/test.txt");
     container.addDataFile("testFiles/special-char-files/dds_acrobat.pdf", MimeType.PDF.getMimeTypeString());
     signContainer(container, SignatureProfile.LT_TM);
     ValidationResult result = container.validate();
@@ -80,7 +80,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
 
   @Test
   public void containerWithOneBesSignature() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt");
+    Container container = createContainerWithFile("testfiles/helper-files/test.txt");
     signContainer(container, SignatureProfile.B_BES);
     ValidationResult result = container.validate();
     String report = result.getReport();
@@ -95,7 +95,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
 
   @Test
   public void containerWithOneEpesSignature() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt");
+    Container container = createContainerWithFile("testfiles/helper-files/test.txt");
     signContainer(container, SignatureProfile.B_EPES);
     ValidationResult result = container.validate();
     String report = result.getReport();
@@ -110,7 +110,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
 
   @Test
   public void validContainerWithTwoSignatures() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt");
+    Container container = createContainerWithFile("testfiles/helper-files/test.txt");
     Signature signature1 = signContainer(container, SignatureProfile.LT_TM);
     Signature signature2 = signContainer(container, SignatureProfile.LT);
     ValidationResult result = container.validate();
@@ -146,7 +146,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
 
   @Test
   public void invalidContainerWithManifestErrors() throws Exception {
-    Container container = TestDataBuilder.open("testFiles/filename_mismatch_manifest.asice");
+    Container container = TestDataBuilder.open("testFiles/invalid-containers/filename_mismatch_manifest.asice");
     ValidationResult result = container.validate();
     assertFalse(result.isValid());
     String report = result.getReport();
@@ -165,7 +165,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
 
   @Test
   public void containerWithoutSignatures() throws Exception {
-    Container container = TestDataBuilder.open("testFiles/container_without_signatures.bdoc");
+    Container container = TestDataBuilder.open("testFiles/valid-containers/container_without_signatures.bdoc");
     ValidationResult result = container.validate();
     String report = result.getReport();
     assertXpathHasValue("0", "/SimpleReport/SignaturesCount", report);
@@ -174,7 +174,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
 
   @Test
   public void signatureContainsAdditionalErrors() throws Exception {
-    Container container = TestDataBuilder.open("testFiles/TS-08_23634_TS_OCSP_before_TS.asice");
+    Container container = TestDataBuilder.open("testFiles/invalid-containers/TS-08_23634_TS_OCSP_before_TS.asice");
     ValidationResult result = container.validate();
     String report = result.getReport();
     assertXpathHasValue("1", "/SimpleReport/SignaturesCount", report);
