@@ -134,7 +134,7 @@ public class XadesSigningDssFacadeTest {
     DSSDocument signedDocument = signTestData(DigestAlgorithm.SHA256);
     XadesSigningDssFacade extendingFacade = createSigningFacade();
     extendingFacade.setSignatureLevel(XAdES_BASELINE_LT);
-    DSSDocument detachedContent = new FileDocument("testfiles/helper-files/test.txt");
+    DSSDocument detachedContent = new FileDocument("testFiles/helper-files/test.txt");
     DSSDocument extendedDocument = extendingFacade.extendSignature(signedDocument, detachedContent);
     assertDocumentSigned(extendedDocument);
   }
@@ -183,7 +183,7 @@ public class XadesSigningDssFacadeTest {
 
   private List<DataFile> createDataFilesToSign() {
     List<DataFile> dataFilesToSign = new ArrayList<>();
-    dataFilesToSign.add(new DataFile("testfiles/helper-files/test.txt", "plain/text"));
+    dataFilesToSign.add(new DataFile("testFiles/helper-files/test.txt", "plain/text"));
     return dataFilesToSign;
   }
 

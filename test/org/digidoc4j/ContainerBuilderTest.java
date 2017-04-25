@@ -165,7 +165,7 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
     String mimeType = "application\\rtf";
     ContainerBuilder.
         aContainer().
-        withDataFile("testfiles/helper-files/test.txt", mimeType).
+        withDataFile("testFiles/helper-files/test.txt", mimeType).
         build();
   }
 

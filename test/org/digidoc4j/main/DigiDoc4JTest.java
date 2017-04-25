@@ -87,7 +87,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     Files.deleteIfExists(Paths.get(fileName));
 
 
-    String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testfiles/helper-files/test.txt", "text/plain",
+    String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "testFiles/p12/signout.p12", "test"};
 
     callMainWithoutSystemExit(params);
@@ -101,7 +101,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     String fileName = "test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
-    String[] signNewContainerParams = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testfiles/helper-files/test.txt", "text/plain",
+    String[] signNewContainerParams = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "testFiles/p12/signout.p12", "test"};
     String[] signExistingContainerParams = new String[]{"-in", fileName, "-pkcs12", "testFiles/p12/signout.p12", "test"};
 
@@ -118,7 +118,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     Files.deleteIfExists(Paths.get(fileName));
 
 
-    String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testfiles/helper-files/test.txt", "text/plain",
+    String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "testFiles/p12/signout.p12", "test", "-profile", "LTA"};
 
     callMainWithoutSystemExit(params);
@@ -133,7 +133,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     Files.deleteIfExists(Paths.get(fileName));
 
 
-    String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testfiles/helper-files/test.txt", "text/plain",
+    String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "testFiles/p12/signout.p12", "test", "-profile", "LT"};
 
     System.setProperty("digidoc4j.mode", "TEST");
@@ -152,7 +152,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     Files.deleteIfExists(Paths.get(fileName));
 
 
-    String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testfiles/helper-files/test.txt", "text/plain",
+    String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "testFiles/p12/signout.p12", "test", "-profile", "B_BES"};
 
     callMainWithoutSystemExit(params);
@@ -167,7 +167,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     Files.deleteIfExists(Paths.get(fileName));
 
 
-    String[] params = new String[]{"-in", fileName, "-add", "testfiles/helper-files/test.txt", "text/plain",
+    String[] params = new String[]{"-in", fileName, "-add", "testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "testFiles/p12/ec-digiid.p12", "inno", "-e", "INVALID"};
 
     DigiDoc4J.main(params);
@@ -178,7 +178,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     String fileName = "createsECCSignature.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
-    String[] params = new String[]{"-in", fileName, "-add", "testfiles/helper-files/test.txt", "text/plain",
+    String[] params = new String[]{"-in", fileName, "-add", "testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "testFiles/p12/ec-digiid.p12", "inno", "-e", "ECDSA"};
 
     System.setProperty("digidoc4j.mode", "TEST");
@@ -193,7 +193,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     String fileName = "test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
-    String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testfiles/helper-files/test.txt", "text/plain",
+    String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "testFiles/p12/signout.p12", "test", "-profile", "Unknown"};
 
     callMainWithoutSystemExit(params);
@@ -208,7 +208,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     Files.deleteIfExists(Paths.get(fileName));
 
 
-    String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testfiles/helper-files/test.txt", "text/plain",
+    String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "testFiles/p12/signout.p12", "test", "-profile", "LT_TM"};
 
     callMainWithoutSystemExit(params);
@@ -225,7 +225,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     Files.deleteIfExists(Paths.get(fileName));
 
 
-    String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testfiles/helper-files/test.txt", "text/plain",
+    String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "testFiles/p12/signout.p12", "test", "-profile", "LT"};
 
     DigiDoc4J.main(params);
@@ -239,7 +239,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     Files.deleteIfExists(Paths.get(fileName));
 
 
-    String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testfiles/helper-files/test.txt", "text/plain",
+    String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "testFiles/p12/signout.p12", "test", "-profile", "LTA"};
 
     DigiDoc4J.main(params);
@@ -252,7 +252,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     Files.deleteIfExists(Paths.get(fileName));
 
 
-    String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testfiles/helper-files/test.txt", "text/plain",
+    String[] params = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "testFiles/p12/signout.p12", "test", "-profile", "B_BES"};
 
     callMainWithoutSystemExit(params);
@@ -266,7 +266,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     String fileName = "test1.ddoc";
     Files.deleteIfExists(Paths.get(fileName));
 
-    String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testfiles/helper-files/test.txt", "text/plain",
+    String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "testFiles/p12/signout.p12", "test"};
 
     callMainWithoutSystemExit(params);
@@ -306,7 +306,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     String fileName = "test1.ddoc";
     Files.deleteIfExists(Paths.get(fileName));
 
-    String[] params = new String[]{"-in", fileName, "-add", "testfiles/helper-files/test.txt", "text/plain", "-pkcs12",
+    String[] params = new String[]{"-in", fileName, "-add", "testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
         "testFiles/p12/signout.p12", "test"};
 
     callMainWithoutSystemExit(params);
@@ -320,7 +320,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     String fileName = "test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
-    String[] params = new String[]{"-in", fileName, "-add", "testfiles/helper-files/test.txt", "text/plain", "-pkcs12",
+    String[] params = new String[]{"-in", fileName, "-add", "testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
         "testFiles/p12/signout.p12", "test"};
 
     callMainWithoutSystemExit(params);
@@ -335,7 +335,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     String fileName = "test1.test";
     Files.deleteIfExists(Paths.get(fileName));
 
-    String[] params = new String[]{"-in", fileName, "-add", "testfiles/helper-files/test.txt", "text/plain", "-pkcs12",
+    String[] params = new String[]{"-in", fileName, "-add", "testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
         "testFiles/p12/signout.p12", "test"};
 
     callMainWithoutSystemExit(params);
@@ -349,7 +349,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   public void createsContainerAndSignsIt() throws Exception {
     exit.expectSystemExitWithStatus(0);
     Files.deleteIfExists(Paths.get("test1.ddoc"));
-    String[] params = new String[]{"-in", "test1.ddoc", "-add", "testfiles/helper-files/test.txt", "text/plain", "-pkcs12",
+    String[] params = new String[]{"-in", "test1.ddoc", "-add", "testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
         "testFiles/p12/signout.p12", "test"};
     DigiDoc4J.main(params);
   }
@@ -358,7 +358,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   @Ignore("Requires a physical smart card")
   public void createContainer_andSignIt_withPkcs11() throws Exception {
     Files.deleteIfExists(Paths.get(testBdocContainer));
-    String[] params = new String[]{"-in", testBdocContainer, "-add", "testfiles/helper-files/test.txt", "text/plain", "-pkcs11",
+    String[] params = new String[]{"-in", testBdocContainer, "-add", "testFiles/helper-files/test.txt", "text/plain", "-pkcs11",
         "/usr/local/lib/opensc-pkcs11.so", "22975", "2"};
     callMainWithoutSystemExit(params);
 
@@ -373,7 +373,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   public void itShouldNotBePossible_ToSignWithBoth_Pkcs11AndPkcs12() throws Exception {
     exit.expectSystemExitWithStatus(5);
     Files.deleteIfExists(Paths.get(testBdocContainer));
-    String[] params = new String[]{"-in", testBdocContainer, "-add", "testfiles/helper-files/test.txt", "text/plain", "-pkcs11",
+    String[] params = new String[]{"-in", testBdocContainer, "-add", "testFiles/helper-files/test.txt", "text/plain", "-pkcs11",
         "/usr/local/lib/opensc-pkcs11.so", "01497", "2", "-pkcs12", "testFiles/p12/signout.p12", "test"};
     DigiDoc4J.main(params);
   }
@@ -382,7 +382,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   public void createsContainerAndAddsFileWithoutMimeType() throws Exception {
     exit.expectSystemExitWithStatus(2);
     Files.deleteIfExists(Paths.get("test1.ddoc"));
-    String[] params = new String[]{"-in", "test1.ddoc", "-add", "testfiles/helper-files/test.txt", "-pkcs12",
+    String[] params = new String[]{"-in", "test1.ddoc", "-add", "testFiles/helper-files/test.txt", "-pkcs12",
         "testFiles/p12/signout.p12", "test"};
     DigiDoc4J.main(params);
   }
@@ -492,7 +492,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     Container container = ContainerBuilder.
         aContainer(DDOC_CONTAINER_TYPE).
         build();
-    container.addDataFile("testfiles/helper-files/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     Files.deleteIfExists(Paths.get("test1.ddoc"));
     container.saveAsFile("test1.ddoc");
 

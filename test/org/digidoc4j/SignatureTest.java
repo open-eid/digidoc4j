@@ -84,7 +84,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   @Test(expected = DigiDoc4JException.class)
   public void testTimeStampCreationTimeForDDoc() throws ParseException {
     Container container = createDDoc();
-    container.addDataFile("testfiles/helper-files/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.getSignature(0).getTimeStampCreationTime();
     container.getSignature(0).getTimeStampCreationTime();
@@ -306,7 +306,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   public void getSignatureXMLForBDOC() throws Exception {
     Container container = ContainerBuilder.
         aContainer().
-        withDataFile("testfiles/helper-files/test.txt", "text/plain").
+        withDataFile("testFiles/helper-files/test.txt", "text/plain").
         build();
 
     Signature signature = SignatureBuilder.
@@ -402,7 +402,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     Container container = ContainerBuilder.
         aContainer(documentType.name()).
         withConfiguration(new Configuration(Configuration.Mode.TEST)).
-        withDataFile("testfiles/helper-files/test.txt", "text/plain").
+        withDataFile("testFiles/helper-files/test.txt", "text/plain").
         build();
 
     Signature signature = SignatureBuilder.

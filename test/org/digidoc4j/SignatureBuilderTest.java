@@ -291,7 +291,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
 
   @Test(expected = InvalidSignatureException.class)
   public void openSignatureFromNull_shouldThrowException() throws Exception {
-    Container container = TestDataBuilder.createContainerWithFile("testfiles/helper-files/test.txt");
+    Container container = TestDataBuilder.createContainerWithFile("testFiles/helper-files/test.txt");
     SignatureBuilder.
         aSignature(container).
         openAdESSignature(null);
@@ -299,7 +299,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
 
   @Test
   public void openSignatureFromExistingSignatureDocument() throws Exception {
-    Container container = TestDataBuilder.createContainerWithFile("testfiles/helper-files/test.txt");
+    Container container = TestDataBuilder.createContainerWithFile("testFiles/helper-files/test.txt");
     Signature signature = openSignatureFromExistingSignatureDocument(container);
     assertTrue(signature.validateSignature().isValid());
   }
@@ -308,15 +308,15 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
   public void openSignatureForDDocFromExistingSignatureDocument() throws Exception {
     Container container = ContainerBuilder.
         aContainer(DDOC_CONTAINER_TYPE).
-        withDataFile("testfiles/helper-files/test.txt", "text/plain").
+        withDataFile("testFiles/helper-files/test.txt", "text/plain").
         build();
     openSignatureFromExistingSignatureDocument(container);
   }
 
   @Test(expected = InvalidSignatureException.class)
   public void openSignatureFromInvalidSignatureDocument() throws Exception {
-    Container container = TestDataBuilder.createContainerWithFile("testfiles/helper-files/test.txt");
-    byte[] signatureBytes = FileUtils.readFileToByteArray(new File("testfiles/helper-files/test.txt"));
+    Container container = TestDataBuilder.createContainerWithFile("testFiles/helper-files/test.txt");
+    byte[] signatureBytes = FileUtils.readFileToByteArray(new File("testFiles/helper-files/test.txt"));
     SignatureBuilder.
         aSignature(container).
         openAdESSignature(signatureBytes);
@@ -333,7 +333,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
 
   @Test
   public void openXadesSignature_withoutXmlPreamble_shouldNotThrowException() throws Exception {
-    Container container = TestDataBuilder.createContainerWithFile("testfiles/helper-files/test.txt");
+    Container container = TestDataBuilder.createContainerWithFile("testFiles/helper-files/test.txt");
     byte[] signatureBytes = FileUtils.readFileToByteArray(new File("testFiles/xades/bdoc-tm-jdigidoc-mobile-id.xml"));
     SignatureBuilder.
         aSignature(container).

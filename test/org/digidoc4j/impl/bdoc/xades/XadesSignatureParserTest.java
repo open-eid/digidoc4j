@@ -46,7 +46,7 @@ public class XadesSignatureParserTest {
 
   @Before
   public void setUp() throws Exception {
-    DSSDocument signedFile = new FileDocument("testfiles/helper-files/test.txt");
+    DSSDocument signedFile = new FileDocument("testFiles/helper-files/test.txt");
     detachedContents = Arrays.asList(signedFile);
   }
 
@@ -144,7 +144,7 @@ public class XadesSignatureParserTest {
 
   @Test(expected = InvalidSignatureException.class)
   public void parsingInvalidSignatureFile_shouldThrowException() throws Exception {
-    XadesValidationReportGenerator xadesReportGenerator = createXadesReportGenerator("testfiles/helper-files/test.txt");
+    XadesValidationReportGenerator xadesReportGenerator = createXadesReportGenerator("testFiles/helper-files/test.txt");
     new XadesSignatureParser().parse(xadesReportGenerator);
   }
 

@@ -49,7 +49,7 @@ public class ExtendingBDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void extendFromB_BESToTS() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, B_BES);
     container.saveAsFile(testContainerPath);
 
@@ -69,7 +69,7 @@ public class ExtendingBDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void extendFromEpesToLT_TM() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, B_EPES);
     container.saveAsFile(testContainerPath);
 
@@ -89,7 +89,7 @@ public class ExtendingBDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void extendFromB_BESToLTA() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, B_BES);
     container.saveAsFile(testContainerPath);
 
@@ -106,63 +106,63 @@ public class ExtendingBDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test (expected = NotSupportedException.class)
   public void extendFromB_BESToLT_TMThrowsException() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, B_BES);
     container.extendSignatureProfile(LT_TM);
   }
 
   @Test (expected = NotSupportedException.class)
   public void extendFromEpesToLTThrowsException() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, B_EPES);
     container.extendSignatureProfile(LT);
   }
 
   @Test (expected = NotSupportedException.class)
   public void extendFromEpesToLTAThrowsException() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, B_EPES);
     container.extendSignatureProfile(SignatureProfile.LTA);
   }
 
   @Test (expected = NotSupportedException.class)
   public void extendFromLTToLT_TMThrowsException() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LT);
     container.extendSignatureProfile(LT_TM);
   }
 
   @Test (expected = NotSupportedException.class)
   public void extendFromLTAToLT_TMThrowsException() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LTA);
     container.extendSignatureProfile(LT_TM);
   }
 
   @Test (expected = NotSupportedException.class)
   public void extendFromLTToBESThrowsException() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LT);
     container.extendSignatureProfile(B_BES);
   }
 
   @Test (expected = NotSupportedException.class)
   public void extendFromLTToEPESThrowsException() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LT);
     container.extendSignatureProfile(B_EPES);
   }
 
   @Test (expected = NotSupportedException.class)
   public void extendFromLT_TMToLTThrowsException() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LT_TM);
     container.extendSignatureProfile(LT);
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void extendToWhenConfirmationAlreadyExists() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, B_BES);
     container.saveAsFile(testContainerPath);
 
@@ -176,7 +176,7 @@ public class ExtendingBDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void extendToWithMultipleSignatures() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, B_BES);
     signContainer(container, B_BES);
     container.saveAsFile(testContainerPath);
@@ -199,7 +199,7 @@ public class ExtendingBDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void extendToWithMultipleSignaturesAndMultipleFiles() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     container.addDataFile("testFiles/helper-files/test.xml", "text/xml");
     signContainer(container, B_BES);
     signContainer(container, B_BES);
@@ -223,7 +223,7 @@ public class ExtendingBDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testContainerExtensionFromLTtoLTA() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LT);
 
     container.extendSignatureProfile(LTA);
@@ -234,7 +234,7 @@ public class ExtendingBDocContainerTest extends DigiDoc4JTestHelper {
   @Test(expected = NotSupportedException.class)
   public void extensionNotPossibleWhenSignatureLevelIsSame() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testfiles/helper-files/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LTA);
     container.extendSignatureProfile(LTA);
   }

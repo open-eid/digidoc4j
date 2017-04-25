@@ -105,7 +105,7 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
 
     @Test
     public void extendEpesToLtTm_validateWithJdigidoc() throws Exception {
-        Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+        Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
         TestDataBuilder.signContainer(container, B_EPES);
         container.saveAsFile(tempFilePath);
         container = open(tempFilePath);
@@ -119,7 +119,7 @@ public class LibraryInteroperabilityTest extends DigiDoc4JTestHelper {
         Container container = ContainerBuilder.
             aContainer(BDOC_CONTAINER_TYPE).
             withConfiguration(TEST_CONF).
-            withDataFile("testfiles/helper-files/test.txt", "text/plain").
+            withDataFile("testFiles/helper-files/test.txt", "text/plain").
             build();
         signContainer(container, signatureToken);
         signContainer(container, signatureToken);

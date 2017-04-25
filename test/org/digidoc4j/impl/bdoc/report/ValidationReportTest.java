@@ -43,7 +43,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
 
   @Test
   public void validContainerWithOneSignature() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt");
     Signature signature = TestDataBuilder.signContainer(container, SignatureProfile.LT);
     String signatureId = signature.getId();
     ValidationResult result = container.validate();
@@ -64,7 +64,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
 
   @Test
   public void validContainerWithOneTmSignature() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt");
     container.addDataFile("testFiles/special-char-files/dds_acrobat.pdf", MimeType.PDF.getMimeTypeString());
     signContainer(container, SignatureProfile.LT_TM);
     ValidationResult result = container.validate();
@@ -80,7 +80,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
 
   @Test
   public void containerWithOneBesSignature() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt");
     signContainer(container, SignatureProfile.B_BES);
     ValidationResult result = container.validate();
     String report = result.getReport();
@@ -95,7 +95,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
 
   @Test
   public void containerWithOneEpesSignature() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt");
     signContainer(container, SignatureProfile.B_EPES);
     ValidationResult result = container.validate();
     String report = result.getReport();
@@ -110,7 +110,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
 
   @Test
   public void validContainerWithTwoSignatures() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt");
     Signature signature1 = signContainer(container, SignatureProfile.LT_TM);
     Signature signature2 = signContainer(container, SignatureProfile.LT);
     ValidationResult result = container.validate();

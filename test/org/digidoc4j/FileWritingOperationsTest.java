@@ -145,13 +145,13 @@ public class FileWritingOperationsTest extends DigiDoc4JTestHelper {
     return ContainerBuilder.
         aContainer(type).
         withDataFile(dataFileInputStream, "test-stream.txt", MimeType.TEXT.getMimeTypeString()).
-        withDataFile("testfiles/helper-files/test.txt", MimeType.TEXT.getMimeTypeString()).
+        withDataFile("testFiles/helper-files/test.txt", MimeType.TEXT.getMimeTypeString()).
         withDataFile(pdfFile, MimeType.PDF.getMimeTypeString()).
         build();
   }
 
   private Container createContainerWithDataFiles(String type) {
-    DataFile pathDataFile = new DataFile("testfiles/helper-files/test.txt", MimeType.TEXT.getMimeTypeString());
+    DataFile pathDataFile = new DataFile("testFiles/helper-files/test.txt", MimeType.TEXT.getMimeTypeString());
     DataFile byteDataFile = new DataFile(new byte[]{1, 2, 3}, "byte-file.txt", MimeType.TEXT.getMimeTypeString());
     InputStream dataFileInputStream = new ByteArrayInputStream(new byte[]{1, 2, 3});
     DataFile streamDataFile = new DataFile(dataFileInputStream, "stream-file.txt", MimeType.TEXT.getMimeTypeString());

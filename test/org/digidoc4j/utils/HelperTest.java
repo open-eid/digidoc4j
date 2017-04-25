@@ -46,7 +46,7 @@ public class HelperTest {
 
   @Test
   public void testIsXMLFileWhenFileIsNotXMLFile() throws Exception {
-    assertFalse(Helper.isXMLFile(new File("testfiles/helper-files/test.txt")));
+    assertFalse(Helper.isXMLFile(new File("testFiles/helper-files/test.txt")));
   }
 
   @Test
@@ -65,14 +65,14 @@ public class HelperTest {
 
   @Test
   public void testIsZIPFileWhenFileIsNotZIPFile() throws Exception {
-    assertFalse(Helper.isZipFile(new File("testfiles/helper-files/test.txt")));
+    assertFalse(Helper.isZipFile(new File("testFiles/helper-files/test.txt")));
   }
 
   @Test
   public void testIsZIPFileWhenFileIsZIPFile() throws Exception {
     FileOutputStream fileOutputStream = new FileOutputStream("test.zip");
     ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
-    zipOutputStream.putNextEntry(new ZipEntry("testfiles/helper-files/test.txt"));
+    zipOutputStream.putNextEntry(new ZipEntry("testFiles/helper-files/test.txt"));
     zipOutputStream.closeEntry();
 
     assertTrue(Helper.isZipFile(new File("test.zip")));

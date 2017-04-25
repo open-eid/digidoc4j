@@ -48,7 +48,7 @@ public class BDocSignatureOpenerTest {
 
   @Before
   public void setUp() throws Exception {
-    DSSDocument signedFile = new FileDocument("testfiles/helper-files/test.txt");
+    DSSDocument signedFile = new FileDocument("testFiles/helper-files/test.txt");
     List<DSSDocument> detachedContents = Arrays.asList(signedFile);
     signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
   }

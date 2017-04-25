@@ -729,7 +729,7 @@ public class ConfigurationTest {
 
   @Test
   public void configurationFileIsNotYamlFormatThrowsException() throws Exception {
-    String fileName = "testfiles/helper-files/test.txt";
+    String fileName = "testFiles/helper-files/test.txt";
     String expectedErrorMessage = "Configuration from " + fileName + " is not correctly formatted";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage(expectedErrorMessage);
@@ -739,7 +739,7 @@ public class ConfigurationTest {
 
   @Test
   public void configurationStreamIsNotYamlFormatThrowsException() throws Exception {
-    String fileName = "testfiles/helper-files/test.txt";
+    String fileName = "testFiles/helper-files/test.txt";
     String expectedErrorMessage = "Configuration from stream is not correctly formatted";
     expectedException.expect(ConfigurationException.class);
     expectedException.expectMessage(expectedErrorMessage);

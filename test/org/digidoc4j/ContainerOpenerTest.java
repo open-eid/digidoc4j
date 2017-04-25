@@ -68,19 +68,4 @@ public class ContainerOpenerTest extends DigiDoc4JTestHelper {
     assertFalse(container.getDataFiles().isEmpty());
     assertFalse(container.getSignatures().isEmpty());
   }
-
-  @Test
-  @Ignore
-  public void validate(){
-    try {
-      Container container = ContainerBuilder.
-          aContainer().
-          fromExistingFile("testFiles/invalid-containers/invalid-file-format.ddoc").
-          build();
-
-    } catch (DigiDoc4JException e){
-      Assert.assertTrue( e.getMessage().contains("Invalid input file format."));
-    }
-  }
-
 }

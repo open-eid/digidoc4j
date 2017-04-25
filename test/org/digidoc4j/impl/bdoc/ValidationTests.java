@@ -94,7 +94,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test
   public void testValidate() throws Exception {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     ValidationResult validationResult = container.validate();
     assertEquals(0, validationResult.getErrors().size());
@@ -487,7 +487,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   private void testSigningWithOCSPCheck(String unknownCert) {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testfiles/helper-files/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     X509Certificate signerCert = TestSigningHelper.getSigningCert(unknownCert, "test");
     DataToSign dataToSign = SignatureBuilder.
         aSignature(container).
@@ -507,7 +507,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   }
 
   private Container createSignedBDocDocument(String fileName) {
-    Container container = createContainerWithFile("testfiles/helper-files/test.txt");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt");
     signContainer(container);
     container.saveAsFile(fileName);
     return container;
