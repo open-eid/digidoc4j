@@ -59,7 +59,7 @@ public final class DigiDoc4J {
 
   private static void run(String[] args) {
     Options options = createParameters();
-   
+
     try {
       CommandLine commandLine = new BasicParser().parse(options, args);
       if(commandLine.hasOption("version")) {
