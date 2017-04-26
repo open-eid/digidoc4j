@@ -23,7 +23,7 @@ import prototype.samples.AsyncSigning;
 
 public class TestSigningHelper {
 
-  public static final String TEST_PKI_CONTAINER = "testFiles/signout.p12";
+  public static final String TEST_PKI_CONTAINER = "testFiles/p12/signout.p12";
   public static final String TEST_PKI_CONTAINER_PASSWORD = "test";
 
   public static X509Certificate getSigningCert() {
@@ -45,7 +45,7 @@ public class TestSigningHelper {
   public static byte[] sign(byte[] dataToSign, DigestAlgorithm digestAlgorithm) {
     try {
       KeyStore keyStore = KeyStore.getInstance("PKCS12");
-      try (FileInputStream stream = new FileInputStream("testFiles/signout.p12")) {
+      try (FileInputStream stream = new FileInputStream("testFiles/p12/signout.p12")) {
         keyStore.load(stream, "test".toCharArray());
       }
       PrivateKey privateKey = (PrivateKey) keyStore.getKey("1", "test".toCharArray());

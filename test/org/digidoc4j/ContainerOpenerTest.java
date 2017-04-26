@@ -17,13 +17,16 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import org.apache.commons.io.FileUtils;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ContainerOpenerTest extends DigiDoc4JTestHelper {
 
-  private static final String BDOC_TEST_FILE = "testFiles/one_signature.bdoc";
-  private static final String DDOC_TEST_FILE = "testFiles/ddoc_for_testing.ddoc";
+  private static final String BDOC_TEST_FILE = "testFiles/valid-containers/one_signature.bdoc";
+  private static final String DDOC_TEST_FILE = "testFiles/valid-containers/ddoc_for_testing.ddoc";
   Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
   @Test

@@ -45,8 +45,8 @@ import org.junit.rules.TemporaryFolder;
 public class ContainerBuilderTest extends DigiDoc4JTestHelper {
 
   public static final Configuration TEST_CONFIGURATION = new Configuration(Configuration.Mode.TEST);
-  private static final String BDOC_TEST_FILE = "testFiles/one_signature.bdoc";
-  private static final String DDOC_TEST_FILE = "testFiles/ddoc_for_testing.ddoc";
+  private static final String BDOC_TEST_FILE = "testFiles/valid-containers/one_signature.bdoc";
+  private static final String DDOC_TEST_FILE = "testFiles/valid-containers/ddoc_for_testing.ddoc";
   private File tempFolder;
 
   @Rule
@@ -165,7 +165,7 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
     String mimeType = "application\\rtf";
     ContainerBuilder.
         aContainer().
-        withDataFile("testFiles/test.txt", mimeType).
+        withDataFile("testFiles/helper-files/test.txt", mimeType).
         build();
   }
 
@@ -512,7 +512,7 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
     assertTrue(tempFolder.list().length == 0);
     ContainerBuilder.
         aContainer(DDOC_CONTAINER_TYPE).
-        fromExistingFile("testFiles/ddoc_for_testing.ddoc").
+        fromExistingFile("testFiles/valid-containers/ddoc_for_testing.ddoc").
         usingTempDirectory(tempFolder.getPath()).
         build();
     assertTrue(tempFolder.list().length > 0);
@@ -523,7 +523,7 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
     assertTrue(tempFolder.list().length == 0);
     ContainerBuilder.
         aContainer(DDOC_CONTAINER_TYPE).
-        fromExistingFile("testFiles/ddoc_for_testing.ddoc").
+        fromExistingFile("testFiles/valid-containers/ddoc_for_testing.ddoc").
         withConfiguration(TEST_CONFIGURATION).
         usingTempDirectory(tempFolder.getPath()).
         build();

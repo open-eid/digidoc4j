@@ -146,13 +146,13 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testOpenBDocDocument() throws Exception {
-    Container container = open("testFiles/one_signature.bdoc");
+    Container container = open("testFiles/valid-containers/one_signature.bdoc");
     container.validate();
   }
 
   @Test
   public void testOpenBDocDocumentWithTwoSignatures() throws Exception {
-    Container container = open("testFiles/two_signatures.bdoc");
+    Container container = open("testFiles/invalid-containers/two_signatures.bdoc");
     container.validate();
   }
 
@@ -175,7 +175,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testAddUnknownFileTypeKeepsMimeType() {
-    Container container = createContainerWithFile("testFiles/test.unknown_type", "text/test_type");
+    Container container = createContainerWithFile("testFiles/helper-files/test.unknown_type", "text/test_type");
     signContainer(container);
     container.save("test_add_unknown_datafile_type.bdoc");
 
@@ -185,7 +185,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testSaveBDocDocumentWithTwoSignatures() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     signContainer(container);
     container.save("testTwoSignatures.bdoc");
@@ -207,7 +207,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void saveContainerWithoutSignatures() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     String path = testFolder.newFile("container.bdoc").getPath();
     container.saveAsFile(path);
     container = open(path);
@@ -217,10 +217,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void openContainer_withoutSignatures_andAddMoreDataFiles() throws Exception {
-    Container container = open("testFiles/container_without_signatures.bdoc");
+    Container container = open("testFiles/valid-containers/container_without_signatures.bdoc");
     assertEquals(1, container.getDataFiles().size());
-    container.addDataFile("testFiles/test.xml", "text/xml");
-    container.addDataFile("testFiles/word_file.docx", "application/octet-stream");
+    container.addDataFile("testFiles/helper-files/test.xml", "text/xml");
+    container.addDataFile("testFiles/helper-files/word_file.docx", "application/octet-stream");
     assertEquals(3, container.getDataFiles().size());
     String path = testFolder.newFile("container.bdoc").getPath();
     container.saveAsFile(path);
@@ -230,11 +230,11 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void openContainerFromStream_withoutSignatures_andAddMoreDataFiles() throws Exception {
-    FileInputStream stream = new FileInputStream("testFiles/container_without_signatures.bdoc");
+    FileInputStream stream = new FileInputStream("testFiles/valid-containers/container_without_signatures.bdoc");
     Container container = open(stream);
     assertEquals(1, container.getDataFiles().size());
-    container.addDataFile("testFiles/test.xml", "text/xml");
-    container.addDataFile("testFiles/word_file.docx", "application/octet-stream");
+    container.addDataFile("testFiles/helper-files/test.xml", "text/xml");
+    container.addDataFile("testFiles/helper-files/word_file.docx", "application/octet-stream");
     assertEquals(3, container.getDataFiles().size());
     String path = testFolder.newFile("container.bdoc").getPath();
     container.saveAsFile(path);
@@ -245,9 +245,9 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void openContainerWithoutSignatures_addDataFileAndSignContainer() throws Exception {
-    Container container = open("testFiles/container_without_signatures.bdoc");
+    Container container = open("testFiles/valid-containers/container_without_signatures.bdoc");
     assertEquals(1, container.getDataFiles().size());
-    container.addDataFile("testFiles/test.xml", "text/xml");
+    container.addDataFile("testFiles/helper-files/test.xml", "text/xml");
     signContainer(container);
     assertEquals(1, container.getSignatures().size());
     assertTrue(container.validate().isValid());
@@ -259,7 +259,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetDefaultSignatureParameters() {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     container.save("test.bdoc");
 
@@ -274,7 +274,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void getSignatureByIndex() {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     signContainer(container);
 
@@ -283,7 +283,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void notThrowingNPEWhenDOCXFileIsAddedToContainer() {
-    Container container = createContainerWithFile("testFiles/word_file.docx", "text/xml");
+    Container container = createContainerWithFile("testFiles/helper-files/word_file.docx", "text/xml");
     signContainer(container);
     assertEquals(1, container.getSignatures().size());
   }
@@ -303,7 +303,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testAddSignaturesToExistingDocument() throws Exception {
-    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
+    Container container = open("testFiles/valid-containers/asics_testing_two_signatures.bdoc");
     signContainer(container);
     container.save("testAddMultipleSignatures.bdoc");
 
@@ -323,7 +323,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testRemoveSignatureWhenOneSignatureExists() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     container.removeSignature(0);
     container.save("testRemoveSignature.bdoc");
@@ -345,7 +345,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
     @Test
   public void testRemoveSignatureWhenTwoSignaturesExist() throws Exception {
-    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
+    Container container = open("testFiles/valid-containers/asics_testing_two_signatures.bdoc");
     assertEquals(2, container.getSignatures().size());
     container.removeSignature(0);
     container.save("testRemoveSignature.bdoc");
@@ -356,7 +356,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testRemoveSignatureWhenThreeSignaturesExist() throws Exception {
-    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
+    Container container = open("testFiles/valid-containers/asics_testing_two_signatures.bdoc");
 
     signContainer(container);
     container.save("testThreeSignatures.bdoc");
@@ -373,7 +373,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void removeNewlyAddedSignatureFromExistingContainer() throws Exception {
-    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
+    Container container = open("testFiles/valid-containers/asics_testing_two_signatures.bdoc");
     assertEquals(2, container.getSignatures().size());
     signContainer(container);
     assertEquals(3, container.getSignatures().size());
@@ -383,7 +383,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void removeSignatureFromExistingContainer() throws Exception {
-    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
+    Container container = open("testFiles/valid-containers/asics_testing_two_signatures.bdoc");
     assertEquals(2, container.getSignatures().size());
     container.removeSignature(container.getSignatures().get(0));
     assertEquals(1, container.getSignatures().size());
@@ -411,7 +411,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testRemoveDataFile() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     assertEquals("test.txt", container.getDataFiles().get(0).getName());
     assertEquals(1, container.getDataFiles().size());
     container.removeDataFile("test.txt");
@@ -422,20 +422,20 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void testAddDataFileAfterSigning() throws Exception {
     createSignedBDocDocument("testAddDataFile.bdoc");
     Container container = open("testAddDataFile.bdoc");
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void testRemovingNonExistingFile() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     container.removeDataFile("test1.txt");
   }
 
 
   @Test(expected = DuplicateDataFileException.class)
   public void testAddingSameFileSeveralTimes() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
   }
 
   @Test(expected = DuplicateDataFileException.class)
@@ -456,22 +456,22 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test(expected = DuplicateDataFileException.class)
   public void testAddingSameFileSeveralTimesViaInputStream() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile(new ByteArrayInputStream("test".getBytes()), "testFiles/test.txt", "text/plain");
-    container.addDataFile(new ByteArrayInputStream("test".getBytes()), "testFiles/test.txt", "text/plain");
+    container.addDataFile(new ByteArrayInputStream("test".getBytes()), "testFiles/helper-files/test.txt", "text/plain");
+    container.addDataFile(new ByteArrayInputStream("test".getBytes()), "testFiles/helper-files/test.txt", "text/plain");
   }
 
   @Test
   public void testAddDateFileViaInputStream() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile(new ByteArrayInputStream("test".getBytes()), "testFiles/test.txt", "text/plain");
+    container.addDataFile(new ByteArrayInputStream("test".getBytes()), "testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     assertTrue(container.validate().isValid());
   }
 
   @Test(expected = DuplicateDataFileException.class)
   public void testAddingSameFileInDifferentContainerSeveralTimes() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
-    container.addDataFile("testFiles/sub/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     container.save("testAddSameFile.bdoc");
   }
@@ -495,7 +495,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void setsSignatureId() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
 
     Signature signature1 = SignatureBuilder.
         aSignature(container).
@@ -524,7 +524,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void setsDefaultSignatureId() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     signContainer(container);
     container.save("testSetsDefaultSignatureId.bdoc");
@@ -543,7 +543,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void getDataFileByIndex() {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
 
     assertEquals("test.txt", container.getDataFile(0).getName());
@@ -556,7 +556,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test(expected = DigiDoc4JException.class)
   public void openClosedStreamThrowsException() throws IOException {
-    FileInputStream stream = new FileInputStream(new File("testFiles/test.txt"));
+    FileInputStream stream = new FileInputStream(new File("testFiles/helper-files/test.txt"));
     stream.close();
     open(stream, false);
   }
@@ -644,8 +644,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testAddTwoFilesAsFileWithoutOCSP() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
-    container.addDataFile("testFiles/test.xml", "text/xml");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.xml", "text/xml");
     signContainer(container, B_BES);
     container.save("testTwoFilesSigned.bdoc");
 
@@ -655,8 +655,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testGetFileNameAndID() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
-    container.addDataFile("testFiles/test.xml", "text/xml");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.xml", "text/xml");
     signContainer(container);
     container.save("testTwoFilesSigned.bdoc");
 
@@ -670,8 +670,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void testAddTwoFilesAsFileWithOCSP() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
-    container.addDataFile("testFiles/test.xml", "text/xml");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.xml", "text/xml");
     signContainer(container);
     container.save("testTwoFilesSigned.bdoc");
 
@@ -695,7 +695,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void saveExistingContainerToStream() throws Exception {
-    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
+    Container container = open("testFiles/valid-containers/asics_testing_two_signatures.bdoc");
     signContainer(container);
     assertEquals(3, container.getSignatures().size());
     InputStream inputStream = container.saveAsStream();
@@ -709,7 +709,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test(expected = DigiDoc4JException.class)
   public void saveToStreamThrowsException() throws IOException {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     File expectedContainerAsFile = new File("testSaveToStreamTest.bdoc");
     OutputStream out = new FileOutputStream(expectedContainerAsFile);
@@ -719,7 +719,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void saveExistingContainer() throws Exception {
-    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
+    Container container = open("testFiles/valid-containers/asics_testing_two_signatures.bdoc");
     String containerPath = testFolder.newFile("test-container.asice").getPath();
     container.saveAsFile(containerPath);
     Container savedContainer = open(containerPath);
@@ -736,7 +736,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void containerIsLT() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LT);
     container.saveAsFile("testLT.bdoc");
     container = open("testLT.bdoc");
@@ -746,7 +746,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void verifySignatureProfileIsTS() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LT);
     container.saveAsFile("testAddConfirmation.bdoc");
 
@@ -763,7 +763,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void nonStandardMimeType() {
     Container container = ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
-    container.addDataFile("testFiles/test.txt", "text/newtype");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/newtype");
     signContainer(container);
     container.save("testNonStandardMimeType.bdoc");
     container = ContainerOpener.open("testNonStandardMimeType.bdoc");
@@ -781,7 +781,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void twoStepSigning() throws IOException {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     X509Certificate signerCert = getSigningCert();
     DataToSign dataToSign = SignatureBuilder.
         aSignature(container).
@@ -816,7 +816,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals("test.txt", dataFile.getName());
     dataFile.calculateDigest(DigestAlgorithm.SHA384);
     assertEquals("text/plain", dataFile.getMediaType());
-    assertEquals(new String(Files.readAllBytes(Paths.get("testFiles/test.txt"))), new String(dataFile.getBytes()));
+    assertEquals(new String(Files.readAllBytes(Paths.get("testFiles/helper-files/test.txt"))), new String(dataFile.getBytes()));
     assertEquals(15, dataFile.getFileSize());
     assertEquals("test.txt", dataFile.getId());
   }
@@ -824,7 +824,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void twoStepSigningVerifySignatureParameters() {
     Container container = ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     X509Certificate signerCert = getSigningCert();
     DataToSign dataToSign = SignatureBuilder.
         aSignature(container).
@@ -854,14 +854,14 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testContainerCreationAsTSA() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LTA);
 
     assertNotNull(container.getSignature(0).getOCSPCertificate());
   }
 
   private Container createSignedBDocDocument(String fileName) {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     container.save(fileName);
     return container;
@@ -904,7 +904,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testBDocTM() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LT_TM);
     assertTrue(container.validate().isValid());
   }
@@ -912,7 +912,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testBDocTS() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LT);
     assertTrue(container.validate().isValid());
   }
@@ -920,7 +920,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void containerWithBESProfileHasNoValidationErrors() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, B_BES);
 
     assertEquals(B_BES, container.getSignatures().get(0).getProfile());
@@ -931,10 +931,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void signWithECCCertificate() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     Signature signature = SignatureBuilder.
         aSignature(container).
-        withSignatureToken(new PKCS12SignatureToken("testFiles/ec-digiid.p12", "inno".toCharArray())).
+        withSignatureToken(new PKCS12SignatureToken("testFiles/p12/ec-digiid.p12", "inno".toCharArray())).
         withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA).
         invokeSigning();
     container.addSignature(signature);
@@ -944,7 +944,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void zipFileComment() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     container.save("testZipFileComment.bdoc");
 
@@ -977,7 +977,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void signatureFileNamesShouldBeInSequence() throws Exception {
-    Container container = createContainerWithFile("testFiles/test.txt", "text/plain");
+    Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     signContainer(container);
     signContainer(container);
@@ -991,10 +991,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void whenSigningExistingContainer_withTwoSignatures_shouldCreateSignatureFileName_signatures2() throws Exception {
-    ZipFile zip = new ZipFile("testFiles/asics_testing_two_signatures.bdoc");
+    ZipFile zip = new ZipFile("testFiles/valid-containers/asics_testing_two_signatures.bdoc");
     assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
     assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
-    Container container = open("testFiles/asics_testing_two_signatures.bdoc");
+    Container container = open("testFiles/valid-containers/asics_testing_two_signatures.bdoc");
     signContainer(container);
     String containerPath = testFolder.newFile().getPath();
     container.saveAsFile(containerPath);
@@ -1006,10 +1006,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Test
   public void whenSigningExistingContainer_with_signatures1_xml_shouldCreateSignatureFileName_signatures2() throws Exception {
-    ZipFile zip = new ZipFile("testFiles/DigiDocService_spec_est.pdf-TM-j.bdoc");
+    ZipFile zip = new ZipFile("testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc");
     assertNull(zip.getEntry("META-INF/signatures0.xml"));
     assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
-    Container container = open("testFiles/DigiDocService_spec_est.pdf-TM-j.bdoc");
+    Container container = open("testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc");
     signContainer(container);
     String containerPath = testFolder.newFile().getPath();
     container.saveAsFile(containerPath);
@@ -1039,7 +1039,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test(expected = DuplicateDataFileException.class)
   public void whenOpeningContainer_withTwoDataFilesWithSameName_andWithSingleReferenceInManifest_shouldThrowException() {
     Container container = ContainerBuilder.aContainer()
-        .fromExistingFile("testFiles/KS-19_IB-3721_bdoc21-TM-2fil-samename-1sig3.bdoc")
+        .fromExistingFile("testFiles/invaldKS-19_IB-3721_bdoc21-TM-2fil-samename-1sig3.bdoc")
         .withConfiguration(new Configuration(Configuration.Mode.TEST))
         .build();
   }
@@ -1048,12 +1048,12 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void signingContainer_withFailedOcspResponse_shouldThrowException() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
     configuration.setSignOCSPRequests(true);
-    configuration.setOCSPAccessCertificateFileName("testFiles/signout.p12");
+    configuration.setOCSPAccessCertificateFileName("testFiles/p12/signout.p12");
     configuration.setOCSPAccessCertificatePassword("test".toCharArray());
     Container container = ContainerBuilder.
         aContainer(BDOC_CONTAINER_TYPE).
         withConfiguration(configuration).
-        withDataFile("testFiles/test.txt", "text/plain").
+        withDataFile("testFiles/helper-files/test.txt", "text/plain").
         build();
 
     signContainer(container, LT_TM);
@@ -1065,7 +1065,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void bdocTM_OcspResponderCert_shouldContainResponderCertIdAttribute() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     BDocSignature signature = (BDocSignature) signContainer(container, LT_TM);
     XAdESSignature xAdESSignature = signature.getOrigin().getDssSignature();
     assertEquals(1, countOcspResponderCertificates(xAdESSignature));
@@ -1074,7 +1074,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void savingContainerWithoutSignatures_shouldNotThrowException() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     assertTrue(container.getSignatures().isEmpty());
     assertEquals(1, container.getDataFiles().size());
     assertTrue(container.validate().isValid());
@@ -1083,7 +1083,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Container savedContainer = open(containerPath);
     assertTrue(savedContainer.getSignatures().isEmpty());
     assertEquals(1, container.getDataFiles().size());
-    byte[] expectedDataFileBytes = FileUtils.readFileToByteArray(new File("testFiles/test.txt"));
+    byte[] expectedDataFileBytes = FileUtils.readFileToByteArray(new File("testFiles/helper-files/test.txt"));
     byte[] actualDataFileBytes = savedContainer.getDataFiles().get(0).getBytes();
     Assert.assertArrayEquals(expectedDataFileBytes, actualDataFileBytes);
   }
@@ -1091,7 +1091,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void openBDoc_withoutCAConfiguration_shouldNotThrowException() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    configuration.loadConfiguration("testFiles/digidoc_test_conf_no_ca.yaml");
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml");
     ExistingBDocContainer container = new ExistingBDocContainer("testFiles/valid-containers/valid-bdoc-tm.bdoc", configuration);
     assertTrue(container.validate().isValid());
   }

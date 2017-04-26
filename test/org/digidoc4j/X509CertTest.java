@@ -35,7 +35,7 @@ public class X509CertTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    cert = new X509Cert("testFiles/signout.pem");
+    cert = new X509Cert("testFiles/certs/signout.pem");
   }
 
   @Test

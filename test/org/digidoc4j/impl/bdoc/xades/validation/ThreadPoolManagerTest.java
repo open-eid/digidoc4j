@@ -75,7 +75,7 @@ public class ThreadPoolManagerTest {
   public void validateContainerWithCustomThreadExecutor() throws Exception {
     ExecutorServiceSpy executor = new ExecutorServiceSpy();
     configuration.setThreadExecutor(executor);
-    ValidationResult result = validateContainer("testFiles/two_signatures.bdoc", configuration);
+    ValidationResult result = validateContainer("testFiles/invalid-containers/two_signatures.bdoc", configuration);
     assertFalse(result.isValid());
     assertEquals(2, executor.getSubmittedTasks().size());  //Two signatures must be validated within a thread pool
   }

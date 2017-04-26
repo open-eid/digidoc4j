@@ -230,7 +230,7 @@ public class PerformanceTest {
   }
 
   private void signContainer(Container container, SignatureProfile signatureProfile) {
-    SignatureToken signatureToken = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
+    SignatureToken signatureToken = new PKCS12SignatureToken("testFiles/p12/signout.p12", "test".toCharArray());
     Signature signature = SignatureBuilder.
         aSignature(container).
         withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).

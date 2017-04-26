@@ -36,7 +36,7 @@ import eu.europa.esig.dss.MimeType;
 
 public class TestDataBuilder {
 
-  public static final PKCS12SignatureToken PKCS12_SIGNER = new PKCS12SignatureToken("testFiles/signout.p12", "test".toCharArray());
+  public static final PKCS12SignatureToken PKCS12_SIGNER = new PKCS12SignatureToken("testFiles/p12/signout.p12", "test".toCharArray());
 
   public static Container createEmptyBDocContainer() {
     return ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
