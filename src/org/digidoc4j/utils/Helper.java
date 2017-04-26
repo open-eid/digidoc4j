@@ -10,6 +10,29 @@
 
 package org.digidoc4j.utils;
 
+import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_B;
+import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_LT;
+import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_LTA;
+import static java.nio.file.Files.deleteIfExists;
+
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.nio.file.Paths;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Container;
 import org.digidoc4j.SignatureProfile;
@@ -17,20 +40,6 @@ import org.digidoc4j.Version;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
-import java.nio.file.Paths;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
-import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_B;
-import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_LT;
-import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_LTA;
-import static eu.europa.esig.dss.SignatureLevel.ASiC_S_BASELINE_B;
-import static java.nio.file.Files.deleteIfExists;
 
 import eu.europa.esig.dss.MimeType;
 import eu.europa.esig.dss.SignatureLevel;
@@ -42,6 +51,7 @@ public final class Helper {
   private static final int INT_LENGTH = 4;
   private static final String BDOC_TM_SIGNATURE_LEVEL = "ASiC_E_BASELINE_LT_TM";
   private static final String EMPTY_CONTAINER_SIGNATURE_LEVEL = "ASiC_E";
+  public static final String SPECIAL_CHARACTERS = "[\\\\<>:\"/|?*]";
 
   private Helper() {
   }
@@ -238,5 +248,17 @@ public final class Helper {
     } else {
       return ASiC_E_BASELINE_LT;
     }
+  }
+
+  /**
+   * Checks that file name contains special characters
+   *
+   * @param fileName
+   * @return true if file name contains following symbols: <>:"/\|?*
+   */
+  public static boolean hasSpecialCharacters(String fileName) {
+    Pattern special = Pattern.compile(SPECIAL_CHARACTERS);
+    Matcher hasSpecial = special.matcher(fileName);
+    return hasSpecial.find();
   }
 }
