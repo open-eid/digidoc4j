@@ -12,6 +12,7 @@ package org.digidoc4j;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -67,5 +68,18 @@ public class ContainerOpenerTest extends DigiDoc4JTestHelper {
     assertEquals(containerType, container.getType());
     assertFalse(container.getDataFiles().isEmpty());
     assertFalse(container.getSignatures().isEmpty());
+  }
+
+  @Test
+  public void testErrorTextDDOCInvalidFileFormat(){
+    try {
+      Container container = ContainerBuilder.
+          aContainer().
+          fromExistingFile("testFiles/error75.ddoc").
+          build();
+
+    } catch (DigiDoc4JException e){
+      assertTrue( e.getMessage().contains("Invalid input file format."));
+    }
   }
 }
