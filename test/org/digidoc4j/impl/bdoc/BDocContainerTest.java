@@ -1036,10 +1036,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
   }
 
-  @Test(expected = DuplicateDataFileException.class)
+  @Test(expected = DigiDoc4JException.class)
   public void whenOpeningContainer_withTwoDataFilesWithSameName_andWithSingleReferenceInManifest_shouldThrowException() {
     Container container = ContainerBuilder.aContainer()
-        .fromExistingFile("testFiles/invaldKS-19_IB-3721_bdoc21-TM-2fil-samename-1sig3.bdoc")
+        .fromExistingFile("testFiles/invalid-containers/KS-19_IB-3721_bdoc21-TM-2fil-samename-1sig3.bdoc")
         .withConfiguration(new Configuration(Configuration.Mode.TEST))
         .build();
   }
