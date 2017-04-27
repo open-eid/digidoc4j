@@ -140,9 +140,22 @@ public class BDocSignature implements Signature {
     return xadesSignature.getSigningTime();
   }
 
+  /**
+   * Gets signing time depending on the signature profile.
+   *
+   * @return Date
+   */
   @Override
   public Date getSigningTime() {
-    return getClaimedSigningTime();
+    logger.debug("get signing time by profile: " + getProfile());
+    switch (getProfile()) {
+      case B_BES:
+        return getClaimedSigningTime();
+      case B_EPES:
+        return getClaimedSigningTime();
+      default:
+        return getTrustedSigningTime();
+    }
   }
 
   @Override

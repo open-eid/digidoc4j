@@ -104,7 +104,7 @@ public class BDocSignatureOpenerTest {
     assertEquals("S0", signature.getId());
     assertEquals(SignatureProfile.LT, signature.getProfile());
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
-    assertEquals(new Date(1454090315000L), signature.getSigningTime());
+    assertEquals(new Date(1454090316000L), signature.getSigningTime());
     assertTrue(StringUtils.startsWith(signature.getSigningCertificate().issuerName(), "C=EE,O=AS Sertifitseerimiskeskus"));
     assertNotNull(signature.getOCSPCertificate());
     assertTrue(StringUtils.contains(signature.getOCSPCertificate().getSubjectName(), "OU=OCSP"));
