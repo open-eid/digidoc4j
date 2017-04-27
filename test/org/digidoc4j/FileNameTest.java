@@ -19,13 +19,17 @@ import org.junit.rules.TemporaryFolder;
 public class FileNameTest extends DigiDoc4JTestHelper {
 
   private final Configuration configuration = new Configuration(Configuration.Mode.TEST);
+  private final String BDOC_PATH = "testFiles/tmp/cgi-test-container.bdoc";
+  private final String FIS = "testFiles/special-char-files/dds_acrobat.pdf";
+  private final String BDOC = "BDOC";
+  private final String MIME_TYPE ="application/pdf";
 
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
 
   @After
   public void cleanUp() throws Exception {
-    deleteFile("testFiles/cgi-test-container.bdoc");
+    deleteFile(BDOC_PATH);
   }
 
   @Test(expected = InvalidDataFileException.class)
@@ -34,19 +38,18 @@ public class FileNameTest extends DigiDoc4JTestHelper {
 
     File tempFolder = testFolder.newFolder();
 
-    FileInputStream fis = new FileInputStream(
-        "testFiles/special-char-files/dds_acrobat.pdf");
+    FileInputStream fis = new FileInputStream(FIS);
 
-    Container container = ContainerBuilder.aContainer("BDOC")
+    Container container = ContainerBuilder.aContainer(BDOC)
         .withConfiguration(configuration).withDataFile(fis,
-            "xxx,%2003:1737,%2031.08.2015.a.pdf", "application/pdf")
+            "xxx,%2003:1737,%2031.08.2015.a.pdf",MIME_TYPE)
         .usingTempDirectory(tempFolder.getPath()).build();
 
-    container.saveAsFile("testFiles/cgi-test-container.bdoc");
+    container.saveAsFile(BDOC_PATH);
 
     fis.close();
 
-    assertFalse(new File("testFiles/cgi-test-container.bdoc").exists());
+    assertFalse(new File(BDOC_PATH).exists());
   }
 
   @Test
@@ -55,18 +58,18 @@ public class FileNameTest extends DigiDoc4JTestHelper {
     File tempFolder = testFolder.newFolder();
 
     FileInputStream fis = new FileInputStream(
-        "testFiles/special-char-files/dds_acrobat.pdf");
+        FIS);
 
-    Container container = ContainerBuilder.aContainer("BDOC")
+    Container container = ContainerBuilder.aContainer(BDOC)
         .withConfiguration(configuration)
-        .withDataFile(fis, "cgi.pdf", "application/pdf")
+        .withDataFile(fis, "cgi.pdf", MIME_TYPE)
         .usingTempDirectory(tempFolder.getPath()).build();
 
-    container.saveAsFile("testFiles/cgi-test-container.bdoc");
+    container.saveAsFile(BDOC_PATH);
 
     fis.close();
 
-    assertTrue(new File("testFiles/cgi-test-container.bdoc").exists());
+    assertTrue(new File(BDOC_PATH).exists());
   }
 
   @Test
