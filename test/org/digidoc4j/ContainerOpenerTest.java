@@ -75,7 +75,7 @@ public class ContainerOpenerTest extends DigiDoc4JTestHelper {
     try {
       Container container = ContainerBuilder.
           aContainer().
-          fromExistingFile("testFiles/error75.ddoc").
+          fromExistingFile("testFiles/invalid-containers/error75.ddoc").
           build();
 
     } catch (DigiDoc4JException e){
