@@ -246,7 +246,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  //@Ignore("JDigiDoc by default returns LT_TM profile but should be B_BES profile")
+  @Ignore("JDigiDoc by default returns LT_TM profile but should be B_BES profile")
   public void createsContainerWithSignatureProfileBESForDDoc() throws Exception {
     String fileName = "testFiles/tmp/test1.ddoc";
     Files.deleteIfExists(Paths.get(fileName));
