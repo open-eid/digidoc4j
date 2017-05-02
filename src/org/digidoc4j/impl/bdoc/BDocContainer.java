@@ -10,6 +10,8 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,18 +85,22 @@ public abstract class BDocContainer implements Container {
   public File saveAsFile(String filePath) {
     logger.debug("Saving container to file: " + filePath);
     File file = new File(filePath);
-    AsicContainerCreator zipCreator = new AsicContainerCreator(file);
-    writeAsicContainer(zipCreator);
-    logger.info("Container was saved to file " + filePath);
-    return file;
+    try (OutputStream stream = Helper.bufferedOutputStream(file)) {
+      save(stream);
+      logger.info("Container was saved to file " + filePath);
+      return file;
+    } catch (IOException e) {
+      logger.error("Unable to close stream: " + e.getMessage());
+      throw new TechnicalException("Unable to close stream", e);
+    }
   }
 
   @Override
   public InputStream saveAsStream() {
     logger.debug("Saving container as stream");
-    AsicContainerCreator zipCreator = new AsicContainerCreator();
-    writeAsicContainer(zipCreator);
-    InputStream inputStream = zipCreator.fetchInputStreamOfFinalizedContainer();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    save(outputStream);
+    InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
     logger.info("Container was saved to stream");
     return inputStream;
   }
@@ -169,15 +175,8 @@ public abstract class BDocContainer implements Container {
   }
 
   @Override
-  @Deprecated
   public void save(OutputStream out) {
-    try {
-      InputStream inputStream = saveAsStream();
-      IOUtils.copy(inputStream, out);
-    } catch (IOException e) {
-      logger.error("Error saving container input stream to output stream: " + e.getMessage());
-      throw new TechnicalException("Error saving container input stream to output stream", e);
-    }
+    writeAsicContainer(new AsicContainerCreator(out));
   }
 
   @Override
