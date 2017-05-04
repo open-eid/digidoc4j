@@ -22,6 +22,8 @@ import org.digidoc4j.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.xml.internal.bind.v2.TODO;
+
 import eu.europa.esig.dss.validation.TimestampToken;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
@@ -65,9 +67,16 @@ public class TimestampSignatureValidator extends TimemarkSignatureValidator {
       logger.error("The difference between the OCSP response production time and the signature time stamp is too large");
       addValidationError(new TimestampAndOcspResponseTimeDeltaTooLargeException());
     }
-    if (ocspTime.before(timestamp)) {
-      logger.error("OCSP response production time is before timestamp time");
-      addValidationError(new TimestampAfterOCSPResponseTimeException());
-    }
+
+    //TODO: uus kontroll + uus parameeter;
+/*     defineerida valideerimisprotseduuri jaoks parameeter
+     AllowedTimestampDelayAfterOCSPResponse (ajavahe sekundites, kui palju võib
+    allkirjastamise aeg olla hilisem kehtivuskinnituse toimumise ajast);*/
+
+//    if (ocspTime.before(timestamp)) {
+//      logger.error("OCSP response production time is before timestamp time");
+//      addValidationError(new TimestampAfterOCSPResponseTimeException());
+//    }
+
   }
 }
