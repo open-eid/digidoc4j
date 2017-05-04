@@ -1,0 +1,48 @@
+ALLOWD_TIMESTAMP_DELAY_AFTER_OCPR_RESPONSE: 20
+
+DIGIDOC_CAS:
+- DIGIDOC_CA:
+    NAME: AS Sertifitseerimiskeskus
+    TRADENAME: SK
+    CERTS:
+      - jar://certs/EID-SK.crt
+      - jar://certs/ESTEID-SK.crt
+      - jar://certs/ESTEID-SK 2007.crt
+    OCSPS:
+      - OCSP:
+        CA_CN: ESTEID-SK
+        CA_CERT: jar://certs/ESTEID-SK 2007.crt
+        CN: ESTEID-SK 2007 OCSP RESPONDER
+        CERTS:
+         - jar://certs/ESTEID-SK 2007 OCSP.crt
+        URL: http://ocsp.sk.ee
+      - OCSP:
+        CA_CN: TEST of ESTEID-SK 2011
+        CA_CERT: jar://certs/TEST ESTEID-SK 2011.crt
+        CN: TEST of SK OCSP RESPONDER 2011
+        CERTS:
+         - jar://certs/TEST SK OCSP 2011.crt
+        URL: http://demo.sk.ee/ocsp
+- DIGIDOC_CA:
+    NAME: Second CA
+    TRADENAME: CA_2
+    CERTS:
+      - jar://certs/EID-SK.crt
+      - jar://certs/ESTEID-SK.crt
+      - jar://certs/CA_2_CERT_3.crt
+    OCSPS:
+      - OCSP:
+        CA_CN: ESTEID-SK
+        CA_CERT: jar://certs/ESTEID-SK 2007.crt
+        CN: ESTEID-SK 2007 OCSP RESPONDER
+        CERTS:
+         - jar://certs/ESTEID-SK 2007 OCSP.crt
+         - jar://certs/CA_2_OCSP_1_SECOND_CERT
+        URL: http://ocsp.sk.ee
+      - OCSP:
+        CA_CN: TEST of ESTEID-SK 2011
+        CA_CERT: jar://certs/TEST ESTEID-SK 2011.crt
+        CN: TEST of SK OCSP RESPONDER 2011
+        CERTS:
+         - jar://certs/TEST.crt
+        URL: http://demo.sk.ee/ocsp

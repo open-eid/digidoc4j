@@ -42,6 +42,8 @@ public class TimeStampValidationForEDocTest {
         .build();
 
     ValidationResult validate = container.validate();
+    logger.info(validate.getReport());
+
     List<DigiDoc4JException> validateErrors = validate.getErrors();
 
     for (DigiDoc4JException digiDoc4JException : validateErrors) {
@@ -51,10 +53,11 @@ public class TimeStampValidationForEDocTest {
         break;
       }
     }
-    logger.info(validate.getReport());
 
     //Message is: Timestamp time is after OCSP response production time
     assertNotEquals(TimestampAfterOCSPResponseTimeException.MESSAGE, ERROR_MESSAGE);
   }
+
+  //TODO: puuduolevad testid ajavahemiku testimiseks
 
 }
