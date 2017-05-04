@@ -1078,12 +1078,6 @@ public class ConfigurationTest {
     assertEquals("BR", trustedTerritories.get(2));
   }
 
-  @Test
-  public void loadAllowedTimestampDelayAfterOCSPResponseFromConf() throws Exception {
-    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf_ocsp_allowed_timestamp_delay.yaml");
-    assertEquals(20, configuration.getAllowedTimestampDelayAfterOCSPResponse());
-  }
-
   private File createConfFileWithParameter(String parameter) throws IOException {
     File confFile = testFolder.newFile();
     FileUtils.writeStringToFile(confFile, parameter);

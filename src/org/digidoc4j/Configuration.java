@@ -139,7 +139,6 @@ public class Configuration implements Serializable {
   private static final long ONE_DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
   private static final int ONE_DAY_IN_MINUTES = 24 * 60;
   public static final long ONE_MB_IN_BYTES = 1048576;
-  public static final long FIFTEEN_MINUTES_IN_SECOND= 15 * 60;
 
   public static final String DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION
       = "ee.sk.digidoc.c14n.TinyXMLCanonicalizer";
@@ -214,7 +213,6 @@ public class Configuration implements Serializable {
     configuration.put("tslKeyStorePassword", "digidoc4j-password");
     configuration.put("revocationAndTimestampDeltaInMinutes", String.valueOf(ONE_DAY_IN_MINUTES));
     configuration.put("tslCacheExpirationTime", String.valueOf(ONE_DAY_IN_MILLISECONDS));
-    configuration.put("allowedTimestampDelayAfterOCSPResponse", String.valueOf(FIFTEEN_MINUTES_IN_SECOND));
 
     if (mode == Mode.TEST) {
       configuration.put("tspSource", "http://demo.sk.ee/tsa");
@@ -503,7 +501,6 @@ public class Configuration implements Serializable {
     setConfigurationValue("TSL_KEYSTORE_PASSWORD", "tslKeyStorePassword");
     setConfigurationValue("TSL_CACHE_EXPIRATION_TIME", "tslCacheExpirationTime");
     setConfigurationValue("REVOCATION_AND_TIMESTAMP_DELTA_IN_MINUTES", "revocationAndTimestampDeltaInMinutes");
-    setConfigurationValue("ALLOWD_TIMESTAMP_DELAY_AFTER_OCPR_RESPONSE", "allowedTimestampDelayAfterOCSPResponse");
 
     setJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS, Boolean.toString(hasToBeOCSPRequestSigned()));
     setJDigiDocConfigurationValue(OCSP_PKCS_12_CONTAINER, getOCSPAccessCertificateFileName());
@@ -990,12 +987,6 @@ public class Configuration implements Serializable {
     String tslCacheExpirationTime = getConfigurationParameter("tslCacheExpirationTime");
     logger.debug("TSL cache expiration time in milliseconds: " + tslCacheExpirationTime);
     return Long.parseLong(tslCacheExpirationTime);
-  }
-
-  public long getAllowedTimestampDelayAfterOCSPResponse() {
-    String allowedTimestampDelayAfterOCSPResponse = getConfigurationParameter("allowedTimestampDelayAfterOCSPResponse");
-    logger.debug("Allowed timestamp delay for OCCR in seconds: " + allowedTimestampDelayAfterOCSPResponse);
-    return Long.parseLong(allowedTimestampDelayAfterOCSPResponse);
   }
 
   /**
