@@ -248,7 +248,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   @Test
   @Ignore("JDigiDoc by default returns LT_TM profile but should be B_BES profile")
   public void createsContainerWithSignatureProfileBESForDDoc() throws Exception {
-    String fileName = "test1.ddoc";
+    String fileName = "testFiles/tmp/test1.ddoc";
     Files.deleteIfExists(Paths.get(fileName));
 
 
@@ -258,7 +258,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     callMainWithoutSystemExit(params);
 
     Container container = ContainerOpener.open(fileName);
-    assertEquals(SignatureProfile.B_BES, container.getSignature(0).getProfile());
+    assertEquals(SignatureProfile.B_BES, container.getSignatures().get(0).getProfile());
   }
 
   @Test
@@ -606,7 +606,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
       }
     });
     String[] params = new String[]{"-in", "testFiles/invalid-containers/warning.asice", "-verify", "-warnings"};
-    copyFile(new File("testFiles/digidoc4j_ForBDocWarningTest.yaml"), new File("digidoc4j.yaml"));
+    copyFile(new File("testFiles/yaml-configurations/digidoc4j_ForBDocWarningTest.yaml"), new File("digidoc4j.yaml"));
     DigiDoc4J.main(params);
   }
 
