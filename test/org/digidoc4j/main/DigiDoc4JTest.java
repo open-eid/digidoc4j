@@ -258,9 +258,6 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     callMainWithoutSystemExit(params);
 
     Container container = ContainerOpener.open(fileName);
-
-    SignatureProfile profile = container.getSignatures().get(0).getProfile();
-
     assertEquals(SignatureProfile.B_BES, container.getSignatures().get(0).getProfile());
   }
 
