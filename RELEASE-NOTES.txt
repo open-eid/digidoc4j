@@ -9,6 +9,7 @@ Summary of the major changes since 1.0.5
 * Added support for restricting special characters in data file names [#130206233]
 * Reviewed and fixed unit tests where possible [#111599596]
 * Signature getSigningTime returns trusted time (or computer time for BES) [#133662737]
+
 * ...
 
 Release 1.0.5
