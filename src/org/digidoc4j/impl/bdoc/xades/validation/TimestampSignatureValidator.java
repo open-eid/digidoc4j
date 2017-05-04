@@ -10,8 +10,13 @@
 
 package org.digidoc4j.impl.bdoc.xades.validation;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+
+import javax.annotation.processing.SupportedSourceVersion;
 
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
@@ -68,15 +73,15 @@ public class TimestampSignatureValidator extends TimemarkSignatureValidator {
       addValidationError(new TimestampAndOcspResponseTimeDeltaTooLargeException());
     }
 
-    //TODO: uus kontroll + uus parameeter;
-/*     defineerida valideerimisprotseduuri jaoks parameeter
-     AllowedTimestampDelayAfterOCSPResponse (ajavahe sekundites, kui palju võib
-    allkirjastamise aeg olla hilisem kehtivuskinnituse toimumise ajast);*/
+    //TODO: kontroll, kas java 1.8 võib kasutada ning millist tuleks süsteemiparameetrina kasutada, ConfigurationValue või JDigiDocConfigurationValue?
+    LocalDateTime localDateTime = ocspTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    localDateTime = localDateTime.plusSeconds(configuration.getAllowedTimestampDelayAfterOCSPResponse());
+    Date timestampDelayAfterOCSP = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
-//    if (ocspTime.before(timestamp)) {
-//      logger.error("OCSP response production time is before timestamp time");
-//      addValidationError(new TimestampAfterOCSPResponseTimeException());
-//    }
+    if (timestampDelayAfterOCSP.before(timestamp)) {
+      logger.error("OCSP response production time is before timestamp time");
+      addValidationError(new TimestampAfterOCSPResponseTimeException());
+    }
 
   }
 }
