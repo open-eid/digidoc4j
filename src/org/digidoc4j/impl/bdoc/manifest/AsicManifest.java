@@ -11,6 +11,7 @@
 package org.digidoc4j.impl.bdoc.manifest;
 
 import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.util.Collection;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -81,11 +82,16 @@ public class AsicManifest {
 
   public byte[] getBytes() {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    writeTo(outputStream);
+    return outputStream.toByteArray();
+  }
+
+  public void writeTo(OutputStream outputStream) {
     DOMImplementationLS implementation = (DOMImplementationLS) dom.getImplementation();
     LSOutput lsOutput = implementation.createLSOutput();
     lsOutput.setByteStream(outputStream);
     LSSerializer writer = implementation.createLSSerializer();
     writer.write(dom, lsOutput);
-    return outputStream.toByteArray();
   }
+
 }

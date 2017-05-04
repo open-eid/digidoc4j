@@ -118,7 +118,7 @@ public class DDocContainer implements Container {
   @Override
   public InputStream saveAsStream() {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    jDigiDocFacade.save(outputStream);
+    save(outputStream);
     return new ByteArrayInputStream(outputStream.toByteArray());
   }
 
@@ -267,10 +267,8 @@ public class DDocContainer implements Container {
    *
    * @param out output stream.
    * @see OutputStream
-   * @deprecated will be removed in the future.
    */
   @Override
-  @Deprecated
   public void save(OutputStream out) {
     jDigiDocFacade.save(out);
   }

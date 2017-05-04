@@ -282,10 +282,7 @@ public interface Container extends Serializable {
    *
    * @param out output stream.
    * @see java.io.OutputStream
-   * @deprecated will be removed in the future.
-   * @see Container#saveAsStream()
    */
-  @Deprecated
   void save(OutputStream out);
 
   /**
