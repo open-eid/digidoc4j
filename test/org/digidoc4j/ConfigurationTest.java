@@ -52,6 +52,7 @@ import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.tsl.Condition;
 import eu.europa.esig.dss.tsl.KeyUsageBit;
 import eu.europa.esig.dss.tsl.ServiceInfo;
+import eu.europa.esig.dss.tsl.ServiceInfoStatus;
 import eu.europa.esig.dss.x509.CertificateToken;
 
 public class ConfigurationTest {
@@ -104,9 +105,11 @@ public class ConfigurationTest {
     assertThat(certificateToken.getKeyUsageBits(), hasItem(KeyUsageBit.nonRepudiation));
     assertTrue(certificateToken.checkKeyUsage(KeyUsageBit.nonRepudiation));
     ServiceInfo serviceInfo = certificateToken.getAssociatedTSPS().iterator().next();
-    assertEquals("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", serviceInfo.getStatus().get(0).getStatus());
-    assertEquals("http://uri.etsi.org/TrstSvc/Svctype/CA/QC", serviceInfo.getType());
-    Map<String, List<Condition>> qualifiersAndConditions = serviceInfo.getQualifiersAndConditions();
+    //TODO test ServiceInfoStatus new methods
+    ServiceInfoStatus serviceInfostatus = serviceInfo.getStatus().getLatest();
+    assertEquals("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", serviceInfostatus.getStatus());
+    assertEquals("http://uri.etsi.org/TrstSvc/Svctype/CA/QC", serviceInfostatus.getType());
+    Map<String, List<Condition>> qualifiersAndConditions = serviceInfostatus.getQualifiersAndConditions();
     assertTrue(qualifiersAndConditions.containsKey("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD"));
   }
 

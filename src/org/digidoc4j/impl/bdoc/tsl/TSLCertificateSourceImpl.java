@@ -12,6 +12,9 @@ package org.digidoc4j.impl.bdoc.tsl;
 
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.digidoc4j.TSLCertificateSource;
 import org.slf4j.Logger;
@@ -23,6 +26,7 @@ import eu.europa.esig.dss.tsl.KeyUsageCondition;
 import eu.europa.esig.dss.tsl.ServiceInfo;
 import eu.europa.esig.dss.tsl.ServiceInfoStatus;
 import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
+import eu.europa.esig.dss.util.TimeDependentValues;
 import eu.europa.esig.dss.x509.CertificateToken;
 
 /**
@@ -46,13 +50,20 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
   @Override
   public void addTSLCertificate(X509Certificate certificate) {
     ServiceInfo serviceInfo = new ServiceInfo();
-    ServiceInfoStatus status = new ServiceInfoStatus("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", certificate.getNotBefore(), null);
-    serviceInfo.setStatus(Arrays.asList(status));
-    serviceInfo.setType("http://uri.etsi.org/TrstSvc/Svctype/CA/QC");
+    //TODO test addTSLCertificate
     Condition condition = new KeyUsageCondition(KeyUsageBit.nonRepudiation, true);
-    serviceInfo.addQualifierAndCondition("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD", condition);
-
+    Map<String, List<Condition>> qualifiersAndConditions = new HashMap<String, List<Condition>>();
+    qualifiersAndConditions.put("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD", Arrays.asList(condition));
+    ServiceInfoStatus status = new ServiceInfoStatus("http://uri.etsi.org/TrstSvc/Svctype/CA/QC","http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", qualifiersAndConditions, null, null, certificate.getNotBefore(), null);
+    TimeDependentValues timeDependentValues = new TimeDependentValues(Arrays.asList(status));
+    serviceInfo.setStatus(timeDependentValues);
     addCertificate(new CertificateToken(certificate), serviceInfo);
+  }
+
+  private Map<String,List<Condition>> addQualifiersAndConditions(String qualifier, Condition condition) {
+    Map<String, List<Condition>> qualifiersAndConditions = new HashMap<String, List<Condition>>();
+    qualifiersAndConditions.put(qualifier, Arrays.asList(condition));
+    return qualifiersAndConditions;
   }
 
   /**

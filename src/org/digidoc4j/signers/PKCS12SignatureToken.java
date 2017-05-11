@@ -10,6 +10,7 @@
 
 package org.digidoc4j.signers;
 
+import java.io.IOException;
 import java.security.cert.X509Certificate;
 
 import org.digidoc4j.SignatureToken;
@@ -36,11 +37,29 @@ public class PKCS12SignatureToken implements SignatureToken {
    * Constructs PKCS12 signer object. If more than one key is provided only first is used
    *
    * @param fileName .p12 file name and path
-   * @param password keystore password
+   * @param password keystore password as char array
    */
-  public PKCS12SignatureToken(String fileName, char[] password) {
+  //TODO new Constructor with password AS String
+  public PKCS12SignatureToken(String fileName, char[] password) throws IOException {
     logger.info("Using PKCS#12 signature token from file: " + fileName);
-    signatureTokenConnection = new Pkcs12SignatureToken(password, fileName);
+    signatureTokenConnection = new Pkcs12SignatureToken(fileName, String.valueOf(password));
+    keyEntry = signatureTokenConnection.getKeys().get(0);
+  }
+
+  /**
+   * Constructs PKCS12 signer object. If more than one key is provided only first is used
+   *
+   * @param fileName .p12 file name and path
+   * @param password keystore password as String
+   */
+  //TODO new Constructor with password AS String
+  public PKCS12SignatureToken(String fileName, String password) {
+    logger.info("Using PKCS#12 signature token from file: " + fileName);
+    try {
+      signatureTokenConnection = new Pkcs12SignatureToken(fileName, password);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     keyEntry = signatureTokenConnection.getKeys().get(0);
   }
 
