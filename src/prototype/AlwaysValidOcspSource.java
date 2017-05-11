@@ -210,11 +210,12 @@ public class AlwaysValidOcspSource implements OCSPSource {
       final X509CertificateHolder[] chain = {new X509CertificateHolder(issuerCert.getEncoded()),
           new X509CertificateHolder(signingCert.getEncoded())};
       BasicOCSPResp basicResp = basicOCSPRespBuilder.build(contentSigner, chain, ocspDate);
-      SingleResp singleResp = basicResp.getResponses()[0];
 
       final OCSPToken ocspToken = new OCSPToken();
       ocspToken.setBasicOCSPResp(basicResp);
-      ocspToken.setBestSingleResp(singleResp);
+      //TODO replace with new DSS 5.0 code
+      //SingleResp singleResp = basicResp.getResponses()[0];
+      //ocspToken.setBestSingleResp(singleResp);
       certificateToken.addRevocationToken(ocspToken);
 
       return ocspToken;

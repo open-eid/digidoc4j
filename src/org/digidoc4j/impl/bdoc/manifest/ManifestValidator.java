@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.xades.DSSXMLUtils;
 
 /**
@@ -162,10 +163,12 @@ public class ManifestValidator {
         String mimeTypeString = null;
 
         Node signatureNode = signature.getOrigin().getDssSignature().getSignatureElement();
-        Node node = DSSXMLUtils.getNode(signatureNode, "./ds:SignedInfo/ds:Reference[@URI=\"" + reference.getURI() + "\"]");
+        //TODO test - now DomUtils in use
+        Node node = DomUtils.getNode(signatureNode, "./ds:SignedInfo/ds:Reference[@URI=\"" + reference.getURI() + "\"]");
         if (node != null) {
           String referenceId = node.getAttributes().getNamedItem("Id").getNodeValue();
-          mimeTypeString = DSSXMLUtils.getValue(signatureNode,
+          //TODO test - now DomUtils in use
+          mimeTypeString = DomUtils.getValue(signatureNode,
               "./ds:Object/xades:QualifyingProperties/xades:SignedProperties/" +
                   "xades:SignedDataObjectProperties/xades:DataObjectFormat" +
                   "[@ObjectReference=\"#" + referenceId + "\"]/xades:MimeType");

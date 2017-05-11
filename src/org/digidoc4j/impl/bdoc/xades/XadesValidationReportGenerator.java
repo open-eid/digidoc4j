@@ -119,18 +119,14 @@ public class XadesValidationReportGenerator implements Serializable {
     return (XAdESSignature) signatures.get(0);
   }
 
+  //TODO test report
   private void printReport(Reports report) {
     if (logger.isTraceEnabled()) {
-      Reports currentReports = report;
-      do {
         logger.trace("----------------Validation report---------------");
-        logger.trace(currentReports.getDetailedReport().toString());
+        logger.trace(report.getXmlDetailedReport());
 
         logger.trace("----------------Simple report-------------------");
-        logger.trace(currentReports.getSimpleReport().toString());
-
-        currentReports = currentReports.getNextReports();
-      } while (currentReports != null);
+        logger.trace(report.getXmlSimpleReport());
     }
   }
 

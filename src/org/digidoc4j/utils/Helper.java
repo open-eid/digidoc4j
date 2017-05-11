@@ -44,6 +44,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.MimeType;
 import eu.europa.esig.dss.SignatureLevel;
 
@@ -256,6 +257,7 @@ public final class Helper {
     return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, signatureLevel.name());
   }
 
+  //TODO find solution
   private static SignatureLevel determineSignatureLevel(SignatureProfile signatureProfile) {
     if(signatureProfile == SignatureProfile.B_BES) {
       return ASiC_E_BASELINE_B;

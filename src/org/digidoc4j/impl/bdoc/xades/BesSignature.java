@@ -29,6 +29,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.validation.SignatureProductionPlace;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.xades.DSSXMLUtils;
@@ -224,7 +225,8 @@ public class BesSignature extends DssXadesSignature {
 
   protected Set<CertificateToken> findCertificates(String xPath) {
     Set<CertificateToken> certificates = new HashSet<>();
-    NodeList nodeList = DSSXMLUtils.getNodeList(signatureElement, xPath);
+    //TODO Test - now DomUtils in use
+    NodeList nodeList = DomUtils.getNodeList(signatureElement, xPath);
     for (int i = 0; i < nodeList.getLength(); i++) {
       Element certificateElement = (Element) nodeList.item(i);
       CertificateToken certToken = createCertificateToken(certificateElement);

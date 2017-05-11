@@ -278,6 +278,16 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Get OSCP access certificate password As String
+   *
+   * @return password
+   */
+  public String getOCSPAccessCertificatePasswordAsString() {
+    logger.debug("Loading OCSPAccessCertificatePassword");
+    return getConfigurationParameter("OCSPAccessCertificatePassword");
+  }
+
+  /**
    * Set OCSP access certificate filename
    *
    * @param fileName filename for the OCSP access certficate

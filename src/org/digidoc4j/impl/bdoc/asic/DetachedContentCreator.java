@@ -41,7 +41,8 @@ public class DetachedContentCreator {
     while (dataFileIterator.hasNext()) {
       DataFile dataFile = dataFileIterator.next();
       DSSDocument document = dataFile.getDocument();
-      lastDetachedContent.setNextDocument(document);
+      //TODO test without nextDocument
+      //lastDetachedContent.setNextDocument(document);
       lastDetachedContent = document;
       detachedContentList.add(document);
     }

@@ -15895,9 +15895,7 @@ public class CertificatesForTests {
     ServiceInfo serviceInfo = new ServiceInfo();
     // TODO: check following logic, find correct implementation
     ServiceInfoStatus status = createServiceInfoStatus("http://uri.etsi.org/TrstSvc/Svctype/Certstatus/OCSP/QC", "http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", certificate.getNotBefore());
-    ArrayList<ServiceInfoStatus> statusList = new ArrayList();
-    statusList.add(status);
-    TimeDependentValues<ServiceInfoStatus> tdvStatus = new TimeDependentValues(statusList);
+    TimeDependentValues<ServiceInfoStatus> tdvStatus = new TimeDependentValues(Arrays.asList(status));
     serviceInfo.setStatus(tdvStatus);
 
     tslCertificateSource.addCertificate(new CertificateToken(certificate), serviceInfo);
@@ -15912,9 +15910,7 @@ public class CertificatesForTests {
     ServiceInfo serviceInfo = new ServiceInfo();
     // TODO: check following logic, find correct implementation
     ServiceInfoStatus status = createServiceInfoStatus("http://uri.etsi.org/TrstSvc/Svctype/TSA", "http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", certificate.getNotBefore());
-    ArrayList<ServiceInfoStatus> statusList = new ArrayList();
-    statusList.add(status);
-    TimeDependentValues<ServiceInfoStatus> tdvStatus = new TimeDependentValues(statusList);
+    TimeDependentValues<ServiceInfoStatus> tdvStatus = new TimeDependentValues(Arrays.asList(status));
     serviceInfo.setStatus(tdvStatus);
 
     tslCertificateSource.addCertificate(new CertificateToken(certificate), serviceInfo);

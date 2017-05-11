@@ -10,10 +10,17 @@
 
 package org.digidoc4j.impl.bdoc.xades;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.io.IOUtils;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.impl.bdoc.SKCommonCertificateVerifier;
 import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
@@ -24,7 +31,9 @@ import org.w3c.dom.Element;
 
 import eu.europa.esig.dss.BLevelParameters;
 import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.EncryptionAlgorithm;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.Policy;
@@ -33,13 +42,14 @@ import eu.europa.esig.dss.SignaturePackaging;
 import eu.europa.esig.dss.SignatureValue;
 import eu.europa.esig.dss.SignerLocation;
 import eu.europa.esig.dss.ToBeSigned;
+import eu.europa.esig.dss.asic.ASiCNamespace;
 import eu.europa.esig.dss.signature.DocumentSignatureService;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.x509.CertificateSource;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 import eu.europa.esig.dss.x509.tsp.TSPSource;
-import eu.europa.esig.dss.xades.ASiCNamespaces;
+
 import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XAdESSignatureParameters;
 import eu.europa.esig.dss.xades.signature.XAdESService;
@@ -81,7 +91,7 @@ public class XadesSigningDssFacade {
 
   public DSSDocument extendSignature(DSSDocument xadesSignature, DSSDocument detachedContent) {
     logger.debug("Extending signature with DSS");
-    xAdESSignatureParameters.setDetachedContent(detachedContent);
+    xAdESSignatureParameters.setDetachedContents(Arrays.asList(detachedContent));
     DSSDocument extendedSignature = service.extendDocument(xadesSignature, xAdESSignatureParameters);
     logger.debug("Finished extending signature with DSS");
     return extendedSignature;
@@ -129,7 +139,8 @@ public class XadesSigningDssFacade {
 
   public void setSignatureId(String signatureId) {
     logger.debug("Setting deterministic id: " + signatureId);
-    xAdESSignatureParameters.setDeterministicId(signatureId);
+    //TODO find solution for method setDeterministicId(...)
+    //xAdESSignatureParameters.setDeterministicId(signatureId);
   }
 
   public String getSignatureId() {
@@ -164,10 +175,12 @@ public class XadesSigningDssFacade {
 
   private DSSDocument surroundWithXadesXmlTag(DSSDocument signedDocument) {
     logger.debug("Surrounding signature document with xades tag");
-    Document signatureDom = DSSXMLUtils.buildDOM(signedDocument);
+    //TODO test - now DomUtils in use
+    Document signatureDom = DomUtils.buildDOM(signedDocument);
     Element signatureElement = signatureDom.getDocumentElement();
-    Document document = XmlDomCreator.createDocument(ASiCNamespaces.ASiC, XmlDomCreator.ASICS_NS, signatureElement);
-    byte[] documentBytes = DSSXMLUtils.transformDomToByteArray(document);
+    Document document = XmlDomCreator.createDocument(ASiCNamespace.NS, XmlDomCreator.ASICS_NS, signatureElement);
+    byte[] documentBytes = DSSXMLUtils.serializeNode(document);
     return new InMemoryDocument(documentBytes);
   }
+
 }
