@@ -16,7 +16,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
+import java.util.Map;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.testutils.TSLHelper;
@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import eu.europa.esig.dss.tsl.TSLValidationModel;
-import eu.europa.esig.dss.tsl.TSLValidationSummary;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 import eu.europa.esig.dss.validation.policy.rules.Indication;
@@ -138,10 +137,11 @@ public class TslLoaderTest {
   }
 
   private void assertTslValid(TSLRepository tslRepository) {
-    List<TSLValidationSummary> summaryList = tslRepository.getSummary();
-    for (TSLValidationSummary summary : summaryList) {
-      Indication indication = summary.getIndication();
-      String country = summary.getCountry();
+    // TODO: check and test refactored code
+    Map<String, TSLValidationModel> modelMap = tslRepository.getAllMapTSLValidationModels();
+    for (String country : modelMap.keySet()) {
+      TSLValidationModel model = tslRepository.getByCountry(country);
+      Indication indication = model.getValidationResult().getIndication();
       Assert.assertEquals("TSL is not valid for country " + country, Indication.TOTAL_PASSED, indication);
     }
   }

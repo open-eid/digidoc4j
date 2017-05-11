@@ -85,6 +85,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
@@ -1150,7 +1151,8 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   private int countOcspResponderCertificates(XAdESSignature xAdESSignature) {
     XPathQueryHolder xPathQueryHolder = xAdESSignature.getXPathQueryHolder();
     String xPath = xPathQueryHolder.XPATH_CERTIFICATE_VALUES;
-    Element certificateValues = DSSXMLUtils.getElement(xAdESSignature.getSignatureElement(), xPath);
+    // TODO: check and test
+    Element certificateValues = DomUtils.getElement(xAdESSignature.getSignatureElement(), xPath);
     return countResponderCertIdInsCertificateValues(certificateValues);
   }
 
