@@ -16,6 +16,7 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
 import org.digidoc4j.Container;
@@ -27,6 +28,7 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS11SignatureToken;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.slf4j.Logger;
@@ -147,6 +149,7 @@ public class ContainerManipulator {
   private void signWithPkcs12(Container container, SignatureBuilder signatureBuilder) {
     if (commandLine.hasOption("pkcs12")) {
       String[] optionValues = commandLine.getOptionValues("pkcs12");
+      //TODO test new constructor
       SignatureToken pkcs12Signer = new PKCS12SignatureToken(optionValues[0], optionValues[1].toCharArray());
       Signature signature = invokeSigning(signatureBuilder, pkcs12Signer);
       container.addSignature(signature);

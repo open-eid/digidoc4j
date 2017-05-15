@@ -23,7 +23,7 @@
   <property name="publish.version" value="1.0" />
   <property name="lib.version" value="${publish.version}"/>
 
-  <property name="dss-maven-version" value="4.7.RC1.d4j.1" />
+  <property name="dss-maven-version" value="5.0" />
 
   <target name="version" unless="lib.version">
     <exec executable="sh" outputproperty="lib.version">
@@ -127,6 +127,10 @@
       <dependency group="org.digidoc4j.dss" artifact="dss-tsl-validation" version="${dss-maven-version}" scope="compile"/>
       <dependency group="org.digidoc4j.dss" artifact="dss-xades" version="${dss-maven-version}" scope="compile"/>
       <dependency group="org.digidoc4j.dss" artifact="validation-policy" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-utils" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-utils-google-guava" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-utils-apache-commons" version="${dss-maven-version}" scope="compile"/>
+      <dependency group="org.digidoc4j.dss" artifact="dss-asic-common" version="${dss-maven-version}" scope="compile"/>
     </ivy:makepom>
   </target>
 
