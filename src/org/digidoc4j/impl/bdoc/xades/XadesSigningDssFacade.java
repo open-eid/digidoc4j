@@ -140,7 +140,7 @@ public class XadesSigningDssFacade {
   public void setSignatureId(String signatureId) {
     logger.debug("Setting deterministic id: " + signatureId);
     //TODO find solution for method setDeterministicId(...)
-    //xAdESSignatureParameters.setDeterministicId(signatureId);
+    xAdESSignatureParameters.setDeterministicId(signatureId);
   }
 
   public String getSignatureId() {
