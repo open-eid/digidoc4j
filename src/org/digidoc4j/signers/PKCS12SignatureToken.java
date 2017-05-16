@@ -40,9 +40,13 @@ public class PKCS12SignatureToken implements SignatureToken {
    * @param password keystore password as char array
    */
   //TODO new Constructor with password AS String
-  public PKCS12SignatureToken(String fileName, char[] password) throws IOException {
+  public PKCS12SignatureToken(String fileName, char[] password) {
     logger.info("Using PKCS#12 signature token from file: " + fileName);
-    signatureTokenConnection = new Pkcs12SignatureToken(fileName, String.valueOf(password));
+    try {
+      signatureTokenConnection = new Pkcs12SignatureToken(fileName, String.valueOf(password));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     keyEntry = signatureTokenConnection.getKeys().get(0);
   }
 
