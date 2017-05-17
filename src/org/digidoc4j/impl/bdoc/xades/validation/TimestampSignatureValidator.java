@@ -74,14 +74,14 @@ public class TimestampSignatureValidator extends TimemarkSignatureValidator {
     }
 
     //TODO: kontroll, kas java 1.8 võib kasutada ning millist tuleks süsteemiparameetrina kasutada, ConfigurationValue või JDigiDocConfigurationValue?
-    LocalDateTime localDateTime = ocspTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-    localDateTime = localDateTime.plusSeconds(configuration.getAllowedTimestampDelayAfterOCSPResponse());
-    Date timestampDelayAfterOCSP = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-
-    if (timestampDelayAfterOCSP.before(timestamp)) {
-      logger.error("OCSP response production time is before timestamp time");
-      addValidationError(new TimestampAfterOCSPResponseTimeException());
-    }
+//    LocalDateTime localDateTime = ocspTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+//    localDateTime = localDateTime.plusSeconds(configuration.getAllowedTimestampDelayAfterOCSPResponse());
+//    Date timestampDelayAfterOCSP = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+//
+//    if (timestampDelayAfterOCSP.before(timestamp)) {
+//      logger.error("OCSP response production time is before timestamp time");
+//      addValidationError(new TimestampAfterOCSPResponseTimeException());
+//    }
 
   }
 }
