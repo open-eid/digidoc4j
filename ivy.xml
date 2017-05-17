@@ -54,7 +54,7 @@
     <dependency org="org.mortbay.jetty" name="jetty" rev="6.1.26" conf="test->default" transitive="false"/>
     <dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.26" conf="test->default" transitive="false"/>
     <dependency org="org.mortbay.jetty" name="servlet-api" rev="2.5.20110712" conf="test->default" transitive="false"/>
-    <dependency org="com.google.guava" name="guava" rev="21.0" conf="test->default" transitive="false"/>
+    <dependency org="com.google.guava" name="guava" rev="20.0" conf="test->default" transitive="false"/>
     <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.8.8" conf="test->default" transitive="false"/>
     <dependency org="com.fasterxml.jackson.core" name="jackson-core" rev="2.8.8" conf="test->default" transitive="false"/>
     <dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.8.8" conf="test->default" transitive="false"/>
