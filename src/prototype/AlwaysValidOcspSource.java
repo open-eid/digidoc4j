@@ -39,6 +39,7 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.DSSRevocationUtils;
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.x509.CommonCertificateSource;
@@ -180,6 +181,7 @@ public class AlwaysValidOcspSource implements OCSPSource {
       final X509Certificate issuerCert = issuerCertificateToken.getCertificate();
       final OCSPReq ocspReq = generateOCSPRequest(issuerCert, serialNumber);
 
+      final CertificateID certId = DSSRevocationUtils.getOCSPCertificateID(certificateToken, issuerCertificateToken);
       final DigestCalculator digestCalculator = getSHA1DigestCalculator();
       final BasicOCSPRespBuilder basicOCSPRespBuilder = new JcaBasicOCSPRespBuilder(issuerCert.getPublicKey(), digestCalculator);
       final Extension extension = ocspReq.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
@@ -216,6 +218,7 @@ public class AlwaysValidOcspSource implements OCSPSource {
       //TODO replace with new DSS 5.0 code
       //SingleResp singleResp = basicResp.getResponses()[0];
       //ocspToken.setBestSingleResp(singleResp);
+      ocspToken.setCertId(certId);
       certificateToken.addRevocationToken(ocspToken);
 
       return ocspToken;

@@ -12,6 +12,7 @@ package org.digidoc4j.impl.bdoc.tsl;
 
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,16 +55,16 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
     Condition condition = new KeyUsageCondition(KeyUsageBit.nonRepudiation, true);
     Map<String, List<Condition>> qualifiersAndConditions = new HashMap<String, List<Condition>>();
     qualifiersAndConditions.put("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD", Arrays.asList(condition));
-    ServiceInfoStatus status = new ServiceInfoStatus("http://uri.etsi.org/TrstSvc/Svctype/CA/QC","http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", qualifiersAndConditions, null, null, certificate.getNotBefore(), null);
+    ServiceInfoStatus status = new ServiceInfoStatus("http://uri.etsi.org/TrstSvc/Svctype/CA/QC",
+        "http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision",
+        qualifiersAndConditions,
+        null,
+        null,
+        certificate.getNotBefore(),
+        null);
     TimeDependentValues timeDependentValues = new TimeDependentValues(Arrays.asList(status));
     serviceInfo.setStatus(timeDependentValues);
     addCertificate(new CertificateToken(certificate), serviceInfo);
-  }
-
-  private Map<String,List<Condition>> addQualifiersAndConditions(String qualifier, Condition condition) {
-    Map<String, List<Condition>> qualifiersAndConditions = new HashMap<String, List<Condition>>();
-    qualifiersAndConditions.put(qualifier, Arrays.asList(condition));
-    return qualifiersAndConditions;
   }
 
   /**
