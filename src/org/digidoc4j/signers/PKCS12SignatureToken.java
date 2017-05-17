@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.security.cert.X509Certificate;
 
 import org.digidoc4j.SignatureToken;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,12 +41,12 @@ public class PKCS12SignatureToken implements SignatureToken {
    * @param password keystore password as char array
    */
   //TODO new Constructor with password AS String
-  public PKCS12SignatureToken(String fileName, char[] password) {
+  public PKCS12SignatureToken(String fileName, char[] password){
     logger.info("Using PKCS#12 signature token from file: " + fileName);
     try {
       signatureTokenConnection = new Pkcs12SignatureToken(fileName, String.valueOf(password));
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new DigiDoc4JException(e.getMessage());
     }
     keyEntry = signatureTokenConnection.getKeys().get(0);
   }
@@ -62,7 +63,7 @@ public class PKCS12SignatureToken implements SignatureToken {
     try {
       signatureTokenConnection = new Pkcs12SignatureToken(fileName, password);
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new DigiDoc4JException(e.getMessage());
     }
     keyEntry = signatureTokenConnection.getKeys().get(0);
   }
