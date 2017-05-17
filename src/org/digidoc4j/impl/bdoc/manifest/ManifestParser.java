@@ -24,7 +24,6 @@ import org.w3c.dom.Node;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DomUtils;
-import eu.europa.esig.dss.xades.DSSXMLUtils;
 
 public class ManifestParser implements Serializable {
 

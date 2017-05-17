@@ -147,6 +147,7 @@ public class ContainerManipulator {
   private void signWithPkcs12(Container container, SignatureBuilder signatureBuilder) {
     if (commandLine.hasOption("pkcs12")) {
       String[] optionValues = commandLine.getOptionValues("pkcs12");
+      //TODO test new constructor
       SignatureToken pkcs12Signer = new PKCS12SignatureToken(optionValues[0], optionValues[1].toCharArray());
       Signature signature = invokeSigning(signatureBuilder, pkcs12Signer);
       container.addSignature(signature);

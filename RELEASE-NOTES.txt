@@ -1,15 +1,21 @@
 DigiDoc4J Java library release notes
 ------------------------------------
-Release 1.0.6 Beta
+Release 1.0.6 Beta 2
 --------------------
-Summary of the major changes since 1.0.5
+Summary of the changes since 1.0.6 Beta 1
+----------------------------------------
+* Upgraded DSS version to 5.0 [#]
+
+Release 1.0.6 Beta 1
+--------------------
+Summary of the changes since 1.0.5
 ----------------------------------------
 * Updated dependency libraries to latest versions [#120674723]
 * Corrected error message in case of invalid DDOC file [#125515091]
 * Added support for restricting special characters in data file names [#130206233]
 * Reviewed and fixed unit tests where possible [#111599596]
 * Signature getSigningTime returns trusted time (or computer time for BES) [#133662737]
-* ...
+* Support for writing Container directly to OutputStream
 
 Release 1.0.5
 --------------------
