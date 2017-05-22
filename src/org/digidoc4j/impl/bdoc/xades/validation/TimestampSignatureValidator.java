@@ -10,13 +10,9 @@
 
 package org.digidoc4j.impl.bdoc.xades.validation;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import javax.annotation.processing.SupportedSourceVersion;
 
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
@@ -26,8 +22,6 @@ import org.digidoc4j.impl.bdoc.xades.XadesSignature;
 import org.digidoc4j.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.xml.internal.bind.v2.TODO;
 
 import eu.europa.esig.dss.validation.TimestampToken;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
@@ -73,15 +67,14 @@ public class TimestampSignatureValidator extends TimemarkSignatureValidator {
       addValidationError(new TimestampAndOcspResponseTimeDeltaTooLargeException());
     }
 
-    //TODO: kontroll, kas java 1.8 võib kasutada ning millist tuleks süsteemiparameetrina kasutada, ConfigurationValue või JDigiDocConfigurationValue?
-//    LocalDateTime localDateTime = ocspTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-//    localDateTime = localDateTime.plusSeconds(configuration.getAllowedTimestampDelayAfterOCSPResponse());
-//    Date timestampDelayAfterOCSP = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-//
-//    if (timestampDelayAfterOCSP.before(timestamp)) {
-//      logger.error("OCSP response production time is before timestamp time");
-//      addValidationError(new TimestampAfterOCSPResponseTimeException());
-//    }
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(ocspTime);
+    calendar.add(Calendar.SECOND, configuration.getAllowedTimestampDelayAfterOCSPResponseInSeconds());
+    Date timeDelayAfterOCSP = calendar.getTime();
 
+    if (timeDelayAfterOCSP.before(timestamp)) {
+      logger.error("OCSP response production time is before timestamp time");
+      addValidationError(new TimestampAfterOCSPResponseTimeException());
+    }
   }
 }

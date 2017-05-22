@@ -503,7 +503,7 @@ public class Configuration implements Serializable {
     setConfigurationValue("TSL_KEYSTORE_PASSWORD", "tslKeyStorePassword");
     setConfigurationValue("TSL_CACHE_EXPIRATION_TIME", "tslCacheExpirationTime");
     setConfigurationValue("REVOCATION_AND_TIMESTAMP_DELTA_IN_MINUTES", "revocationAndTimestampDeltaInMinutes");
-    setConfigurationValue("ALLOWD_TIMESTAMP_DELAY_AFTER_OCPR_RESPONSE", "allowedTimestampDelayAfterOCSPResponse");
+    setConfigurationValue("ALLOWD_TIME_DELAY_AFTER_OCPR_RESPONSE_IN_SECONDS", "allowedTimestampDelayAfterOCSPResponse");
 
     setJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS, Boolean.toString(hasToBeOCSPRequestSigned()));
     setJDigiDocConfigurationValue(OCSP_PKCS_12_CONTAINER, getOCSPAccessCertificateFileName());
@@ -992,10 +992,10 @@ public class Configuration implements Serializable {
     return Long.parseLong(tslCacheExpirationTime);
   }
 
-  public long getAllowedTimestampDelayAfterOCSPResponse() {
+  public Integer getAllowedTimestampDelayAfterOCSPResponseInSeconds() {
     String allowedTimestampDelayAfterOCSPResponse = getConfigurationParameter("allowedTimestampDelayAfterOCSPResponse");
     logger.debug("Allowed timestamp delay for OCCR in seconds: " + allowedTimestampDelayAfterOCSPResponse);
-    return Long.parseLong(allowedTimestampDelayAfterOCSPResponse);
+    return Integer.parseInt(allowedTimestampDelayAfterOCSPResponse);
   }
 
   /**
