@@ -68,12 +68,7 @@ public class TimeStampValidationForEDocTest {
     String ERROR_MESSAGE = getErrorMessage(validate);
 
     //Message is: Timestamp time is after OCSP response production time
-    //assertEquals(TimestampAfterOCSPResponseTimeException.MESSAGE, ERROR_MESSAGE);
-
-    Signature signature = container.getSignatures().get(0);
-    //signature.getOCSPResponseCreationTime();
-    System.out.println("AAAA: "+signature.getOCSPResponseCreationTime());
-    System.out.println("AAAA222: "+signature.getTimeStampCreationTime());
+    assertEquals(TimestampAfterOCSPResponseTimeException.MESSAGE, ERROR_MESSAGE);
 
   }
 
