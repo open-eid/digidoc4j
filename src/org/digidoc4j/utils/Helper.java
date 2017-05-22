@@ -15,14 +15,17 @@ import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_LT;
 import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_LTA;
 import static java.nio.file.Files.deleteIfExists;
 
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -177,6 +180,19 @@ public final class Helper {
     } finally {
       IOUtils.closeQuietly(in);
       IOUtils.closeQuietly(fileIn);
+    }
+  }
+
+  /**
+   * Creates a buffered output stream for a given file.
+   * @param file target file.
+   * @return stream
+   */
+  public static OutputStream bufferedOutputStream(File file) {
+    try {
+      return new BufferedOutputStream(new FileOutputStream(file));
+    } catch (FileNotFoundException e) {
+      throw new DigiDoc4JException(e);
     }
   }
 
