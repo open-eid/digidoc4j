@@ -14,7 +14,7 @@ import static org.digidoc4j.DigestAlgorithm.SHA256;
 
 import java.io.UnsupportedEncodingException;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

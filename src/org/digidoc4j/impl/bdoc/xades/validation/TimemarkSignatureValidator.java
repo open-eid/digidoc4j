@@ -13,7 +13,7 @@ package org.digidoc4j.impl.bdoc.xades.validation;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.SignedWithExpiredCertificateException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;

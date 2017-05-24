@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl.bdoc.xades;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.impl.bdoc.xades.validation.XadesSignatureValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -17,7 +17,7 @@ import java.security.SignatureException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.exceptions.TechnicalException;

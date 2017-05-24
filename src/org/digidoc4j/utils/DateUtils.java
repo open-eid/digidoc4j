@@ -10,7 +10,7 @@
 
 package org.digidoc4j.utils;
 
-import static org.apache.commons.lang.time.DateUtils.addSeconds;
+import static org.apache.commons.lang3.time.DateUtils.addSeconds;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

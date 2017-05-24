@@ -14,7 +14,7 @@ import java.util.List;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
