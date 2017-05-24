@@ -15,7 +15,7 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 

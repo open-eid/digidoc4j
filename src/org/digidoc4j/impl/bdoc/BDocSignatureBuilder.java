@@ -15,7 +15,7 @@ import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LTA;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.digidoc4j.impl.bdoc.ocsp.OcspSourceBuilder.anOcspSource;
 
 import java.security.cert.X509Certificate;
@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;

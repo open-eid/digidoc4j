@@ -11,6 +11,7 @@
 package org.digidoc4j;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
@@ -109,6 +110,7 @@ public class ConfigurationTest {
     ServiceInfoStatus serviceInfostatus = serviceInfo.getStatus().getLatest();
     assertEquals("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", serviceInfostatus.getStatus());
     assertEquals("http://uri.etsi.org/TrstSvc/Svctype/CA/QC", serviceInfostatus.getType());
+    assertNotNull(serviceInfostatus.getStartDate());
     Map<String, List<Condition>> qualifiersAndConditions = serviceInfostatus.getQualifiersAndConditions();
     assertTrue(qualifiersAndConditions.containsKey("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD"));
   }

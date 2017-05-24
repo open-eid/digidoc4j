@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
-import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.digidoc4j.impl.bdoc.tsl.ClonedTslCertificateSource;
 import org.digidoc4j.impl.bdoc.tsl.LazyCertificatePool;
 import org.digidoc4j.impl.bdoc.tsl.LazyTslCertificateSource;

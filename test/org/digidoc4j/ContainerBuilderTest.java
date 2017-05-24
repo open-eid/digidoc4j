@@ -10,7 +10,7 @@
 
 package org.digidoc4j;
 
-import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 import static org.junit.Assert.assertEquals;
