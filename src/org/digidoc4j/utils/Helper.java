@@ -10,9 +10,6 @@
 
 package org.digidoc4j.utils;
 
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LTA;
 import static java.nio.file.Files.deleteIfExists;
 
 import java.io.BufferedOutputStream;
@@ -44,7 +41,6 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.MimeType;
 import eu.europa.esig.dss.SignatureLevel;
 
@@ -260,11 +256,11 @@ public final class Helper {
   //TODO find solution
   private static SignatureLevel determineSignatureLevel(SignatureProfile signatureProfile) {
     if(signatureProfile == SignatureProfile.B_BES) {
-      return XAdES_BASELINE_B;
+      return SignatureLevel.XAdES_BASELINE_B;
     } else if(signatureProfile == SignatureProfile.LTA) {
-      return XAdES_BASELINE_LTA;
+      return SignatureLevel.XAdES_BASELINE_LTA;
     } else {
-      return XAdES_BASELINE_LT;
+      return SignatureLevel.XAdES_BASELINE_LT;
     }
   }
 

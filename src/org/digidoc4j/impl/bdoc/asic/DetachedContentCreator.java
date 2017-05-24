@@ -42,7 +42,7 @@ public class DetachedContentCreator {
       DataFile dataFile = dataFileIterator.next();
       DSSDocument document = dataFile.getDocument();
       //TODO test without nextDocument
-      //lastDetachedContent.setNextDocument(document);
+      lastDetachedContent.setNextDocument(document);
       lastDetachedContent = document;
       detachedContentList.add(document);
     }
