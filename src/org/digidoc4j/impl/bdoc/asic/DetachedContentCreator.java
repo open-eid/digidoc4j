@@ -36,14 +36,10 @@ public class DetachedContentCreator {
   private void populateDetachedContent(Collection<DataFile> dataFiles) {
     Iterator<DataFile> dataFileIterator = dataFiles.iterator();
     firstDetachedContent = dataFileIterator.next().getDocument();
-    DSSDocument lastDetachedContent = firstDetachedContent;
     detachedContentList.add(firstDetachedContent);
     while (dataFileIterator.hasNext()) {
       DataFile dataFile = dataFileIterator.next();
       DSSDocument document = dataFile.getDocument();
-      //TODO test without nextDocument
-      lastDetachedContent.setNextDocument(document);
-      lastDetachedContent = document;
       detachedContentList.add(document);
     }
   }
