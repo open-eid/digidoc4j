@@ -10,6 +10,39 @@
 
 package org.digidoc4j;
 
+import static org.digidoc4j.Configuration.CACHE_ALL_DATA_FILES;
+import static org.digidoc4j.Configuration.CACHE_NO_DATA_FILES;
+import static org.digidoc4j.Configuration.DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION;
+import static org.digidoc4j.Configuration.DEFAULT_SECURITY_PROVIDER;
+import static org.digidoc4j.Configuration.DEFAULT_SECURITY_PROVIDER_NAME;
+import static org.digidoc4j.Configuration.Mode;
+import static org.digidoc4j.Configuration.Mode.PROD;
+import static org.digidoc4j.Configuration.Mode.TEST;
+import static org.digidoc4j.Configuration.ONE_MB_IN_BYTES;
+import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -25,25 +58,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.attribute.FileTime;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
-import static org.digidoc4j.Configuration.*;
-import static org.digidoc4j.Configuration.Mode.PROD;
-import static org.digidoc4j.Configuration.Mode.TEST;
-import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.junit.Assert.*;
 
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.tsl.Condition;
@@ -1076,6 +1090,12 @@ public class ConfigurationTest {
     assertEquals("NZ", trustedTerritories.get(0));
     assertEquals("AU", trustedTerritories.get(1));
     assertEquals("BR", trustedTerritories.get(2));
+  }
+
+  @Test
+  public void loadAllowedTimestampAndOCSPResponseDeltaFromConf() throws Exception {
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf_ocsp_allowed_timestamp_delay.yaml");
+    assertEquals(1, configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes().longValue());
   }
 
   private File createConfFileWithParameter(String parameter) throws IOException {

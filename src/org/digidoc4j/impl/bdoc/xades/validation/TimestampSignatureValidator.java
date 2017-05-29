@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.bdoc.xades.validation;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -27,7 +28,7 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class TimestampSignatureValidator extends TimemarkSignatureValidator {
 
-  private final static Logger logger = LoggerFactory.getLogger(TimemarkSignatureValidator.class);
+  private final static Logger logger = LoggerFactory.getLogger(TimestampSignatureValidator.class);
   private XadesSignature signature;
   private Configuration configuration;
 
@@ -61,13 +62,9 @@ public class TimestampSignatureValidator extends TimemarkSignatureValidator {
     if (ocspTime == null) {
       return;
     }
-    if (!DateUtils.isInRangeMinutes(timestamp, ocspTime, configuration.getRevocationAndTimestampDeltaInMinutes())) {
+    if (!DateUtils.isInRangeMinutes(timestamp, ocspTime, configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes())) {
       logger.error("The difference between the OCSP response production time and the signature time stamp is too large");
       addValidationError(new TimestampAndOcspResponseTimeDeltaTooLargeException());
-    }
-    if (ocspTime.before(timestamp)) {
-      logger.error("OCSP response production time is before timestamp time");
-      addValidationError(new TimestampAfterOCSPResponseTimeException());
     }
   }
 }
