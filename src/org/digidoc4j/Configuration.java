@@ -131,6 +131,7 @@ import eu.europa.esig.dss.client.http.Protocol;
  * <li>SSL_TRUSTSTORE_PATH: SSL TrustStore path</li>
  * <li>SSL_TRUSTSTORE_TYPE: SSL TrustStore type (default is "jks")</li>
  * <li>SSL_TRUSTSTORE_PASSWORD: SSL TrustStore password (default is an empty string)</li>
+ * <li>ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES: Allowed delay between timestamp and OCSP response in minutes.</li>
  * </ul>
  */
 public class Configuration implements Serializable {
@@ -139,7 +140,7 @@ public class Configuration implements Serializable {
   private static final long ONE_DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
   private static final int ONE_DAY_IN_MINUTES = 24 * 60;
   public static final long ONE_MB_IN_BYTES = 1048576;
-  public static final long FIFTEEN_MINUTES_IN_SECOND= 15 * 60;
+  public static final long FIFTEEN_MINUTES = 15;
 
   public static final String DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION
       = "ee.sk.digidoc.c14n.TinyXMLCanonicalizer";
@@ -214,7 +215,7 @@ public class Configuration implements Serializable {
     configuration.put("tslKeyStorePassword", "digidoc4j-password");
     configuration.put("revocationAndTimestampDeltaInMinutes", String.valueOf(ONE_DAY_IN_MINUTES));
     configuration.put("tslCacheExpirationTime", String.valueOf(ONE_DAY_IN_MILLISECONDS));
-    configuration.put("allowedTimestampDelayAfterOCSPResponse", String.valueOf(FIFTEEN_MINUTES_IN_SECOND));
+    configuration.put("allowedTimestampAndOCSPResponseDeltaInMinutes", String.valueOf(FIFTEEN_MINUTES));
 
     if (mode == Mode.TEST) {
       configuration.put("tspSource", "http://demo.sk.ee/tsa");
@@ -503,7 +504,7 @@ public class Configuration implements Serializable {
     setConfigurationValue("TSL_KEYSTORE_PASSWORD", "tslKeyStorePassword");
     setConfigurationValue("TSL_CACHE_EXPIRATION_TIME", "tslCacheExpirationTime");
     setConfigurationValue("REVOCATION_AND_TIMESTAMP_DELTA_IN_MINUTES", "revocationAndTimestampDeltaInMinutes");
-    setConfigurationValue("ALLOWD_TIME_DELAY_AFTER_OCPR_RESPONSE_IN_SECONDS", "allowedTimestampDelayAfterOCSPResponse");
+    setConfigurationValue("ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES", "allowedTimestampAndOCSPResponseDeltaInMinutes");
 
     setJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS, Boolean.toString(hasToBeOCSPRequestSigned()));
     setJDigiDocConfigurationValue(OCSP_PKCS_12_CONTAINER, getOCSPAccessCertificateFileName());
@@ -992,10 +993,25 @@ public class Configuration implements Serializable {
     return Long.parseLong(tslCacheExpirationTime);
   }
 
-  public Integer getAllowedTimestampDelayAfterOCSPResponseInSeconds() {
-    String allowedTimestampDelayAfterOCSPResponse = getConfigurationParameter("allowedTimestampDelayAfterOCSPResponse");
-    logger.debug("Allowed timestamp delay for OCCR in seconds: " + allowedTimestampDelayAfterOCSPResponse);
-    return Integer.parseInt(allowedTimestampDelayAfterOCSPResponse);
+  /**
+   * Returns allowed delay between timestamp and OCSP response in minutes.
+   *
+   * @return Allowed delay between timestamp and OCSP response in minutes.
+   */
+  public Integer getAllowedTimestampAndOCSPResponseDeltaInMinutes() {
+    String allowedTimestampAndOCSPResponseDeltaInMinutes = getConfigurationParameter("allowedTimestampAndOCSPResponseDeltaInMinutes");
+    logger.debug("Allowed delay between timestamp and OCSP response in minutes: " + allowedTimestampAndOCSPResponseDeltaInMinutes);
+    return Integer.parseInt(allowedTimestampAndOCSPResponseDeltaInMinutes);
+  }
+
+  /**
+   * Set allowed delay between timestamp and OCSP response in minutes.
+   *
+   * @param timeInMinutes Allowed delay between timestamp and OCSP response in minutes
+   */
+  public void setAllowedTimestampAndOCSPResponseDeltaInMinutes(int timeInMinutes) {
+    logger.debug("Set allowed delay between timestamp and OCSP response in minutes: " + timeInMinutes);
+    setConfigurationParameter("allowedTimestampAndOCSPResponseDeltaInMinutes", String.valueOf(timeInMinutes));
   }
 
   /**

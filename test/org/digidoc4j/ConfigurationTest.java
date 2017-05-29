@@ -1079,9 +1079,9 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void loadAllowedTimestampDelayAfterOCSPResponseFromConf() throws Exception {
+  public void loadAllowedTimestampAndOCSPResponseDeltaFromConf() throws Exception {
     configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf_ocsp_allowed_timestamp_delay.yaml");
-    assertEquals(20, configuration.getAllowedTimestampDelayAfterOCSPResponseInSeconds().longValue());
+    assertEquals(1, configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes().longValue());
   }
 
   private File createConfFileWithParameter(String parameter) throws IOException {

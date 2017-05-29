@@ -28,7 +28,7 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class TimestampSignatureValidator extends TimemarkSignatureValidator {
 
-  private final static Logger logger = LoggerFactory.getLogger(TimemarkSignatureValidator.class);
+  private final static Logger logger = LoggerFactory.getLogger(TimestampSignatureValidator.class);
   private XadesSignature signature;
   private Configuration configuration;
 
@@ -62,19 +62,9 @@ public class TimestampSignatureValidator extends TimemarkSignatureValidator {
     if (ocspTime == null) {
       return;
     }
-    if (!DateUtils.isInRangeMinutes(timestamp, ocspTime, configuration.getRevocationAndTimestampDeltaInMinutes())) {
+    if (!DateUtils.isInRangeMinutes(timestamp, ocspTime, configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes())) {
       logger.error("The difference between the OCSP response production time and the signature time stamp is too large");
       addValidationError(new TimestampAndOcspResponseTimeDeltaTooLargeException());
-    }
-
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(ocspTime);
-    calendar.add(Calendar.SECOND, configuration.getAllowedTimestampDelayAfterOCSPResponseInSeconds());
-    Date timeDelayAfterOCSP = calendar.getTime();
-
-    if (timeDelayAfterOCSP.before(timestamp)) {
-      logger.error("OCSP response production time is before timestamp time");
-      addValidationError(new TimestampAfterOCSPResponseTimeException());
     }
   }
 }
