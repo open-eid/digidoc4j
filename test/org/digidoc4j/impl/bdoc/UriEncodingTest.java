@@ -22,6 +22,7 @@ import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.ValidationResult;
+import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.junit.Ignore;
@@ -37,7 +38,7 @@ public class UriEncodingTest extends DigiDoc4JTestHelper {
         // TODO: Also write an assertion to verify that the manifest file does NOT use URI encoding
     }
 
-    @Test
+    @Test(expected = InvalidDataFileException.class)
     public void encodeDataFileWithSpecialCharacters() throws Exception {
         String fileName = "et10i_0123456789!#$%&'()+,-. ;=@[]_`}~ et_EE";
         String expectedEncoding = "et10i_0123456789!%23%24%25%26'()%2B%2C-.%20%3B%3D%40%5B%5D_%60%7D~%20et_EE";

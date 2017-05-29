@@ -31,7 +31,7 @@ public class OcspSourceBuilderTest {
         withConfiguration(CONFIGURATION).
         build();
     assertEquals(BDocTSOcspSource.class, ocspSource.getClass());
-    assertOcspSource(ocspSource, "ASiC_E_BASELINE_LT");
+    assertOcspSource(ocspSource, "XAdES_BASELINE_LT");
   }
 
   @Test
@@ -41,7 +41,7 @@ public class OcspSourceBuilderTest {
         withConfiguration(CONFIGURATION).
         build();
     assertEquals(BDocTSOcspSource.class, ocspSource.getClass());
-    assertOcspSource(ocspSource, "ASiC_E_BASELINE_LT");
+    assertOcspSource(ocspSource, "XAdES_BASELINE_LT");
   }
 
   @Test
