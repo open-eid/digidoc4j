@@ -161,7 +161,7 @@ public class HelperTest {
   @Test
   public void  createUserAgentSignatureProfileForBDOC() {
     String userAgent = Helper.createBDocUserAgent(SignatureProfile.LTA);
-    assertThat(userAgent, containsString("signatureProfile: ASiC_E_BASELINE_LTA"));
+    assertThat(userAgent, containsString("signatureProfile: XAdES_BASELINE_LTA"));
   }
 
   @Test
@@ -179,7 +179,7 @@ public class HelperTest {
   @Test
   public void createUserAgentSignatureProfileForBDocTs() throws Exception {
     String userAgent = Helper.createBDocUserAgent(SignatureProfile.LT);
-    assertThat(userAgent, containsString("signatureProfile: ASiC_E_BASELINE_LT"));
+    assertThat(userAgent, containsString("signatureProfile: XAdES_BASELINE_LT"));
   }
 
   @Test

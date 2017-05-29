@@ -174,6 +174,7 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
     Container container = TestDataBuilder.createContainerWithFile(testFolder);
     TestDataBuilder.signContainer(container);
     ValidationResult result = container.validate();
+    System.out.println(result.getReport());
     assertFalse(result.hasErrors());
     assertFalse(result.hasWarnings());
     assertTrue(result.getContainerErrors().isEmpty());

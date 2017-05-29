@@ -37,8 +37,8 @@ public class SignatureValidationReportTest {
     signature.setIndication(Indication.TOTAL_PASSED);
     // TODO: check and test XmlSignatureLevel usage
     XmlSignatureLevel sigLevel = new XmlSignatureLevel();
-    sigLevel.setValue(SignatureQualification.NA);
-    sigLevel.setDescription(SignatureQualification.NA.getLabel());
+    sigLevel.setValue(SignatureQualification.QES);
+    sigLevel.setDescription(SignatureQualification.QES.getLabel());
     signature.setSignatureLevel(sigLevel);
     signature.setSubIndication(SubIndication.NO_POE);
     signature.getErrors().addAll(asList("Error1", "Error2"));
@@ -55,7 +55,8 @@ public class SignatureValidationReportTest {
     assertEquals(today, report.getSigningTime());
     assertEquals("SignedBy", report.getSignedBy());
     assertEquals(Indication.TOTAL_PASSED, report.getIndication());
-    assertEquals("Signature level", report.getSignatureLevel());
+    assertEquals("QES", report.getSignatureLevel().getValue().name());
+    assertEquals("QES?", report.getSignatureLevel().getValue().getReadable());
     assertEquals(SubIndication.NO_POE, report.getSubIndication());
     assertThat(report.getErrors(), containsInAnyOrder("Error1", "Error2"));
     assertThat(report.getWarnings(), containsInAnyOrder("Warning1", "Warning2"));
