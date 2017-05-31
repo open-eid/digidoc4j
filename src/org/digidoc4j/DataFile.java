@@ -236,6 +236,7 @@ public class DataFile implements Serializable {
   public void saveAs(OutputStream out) throws IOException {
     logger.debug("");
     out.write(getBytes());
+    out.close();
   }
 
   /**
