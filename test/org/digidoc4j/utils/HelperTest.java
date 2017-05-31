@@ -126,6 +126,7 @@ public class HelperTest {
 
       zipOutputStream.write(0x42);
       zipOutputStream.closeEntry();
+      fileOutputStream.close();
     }
 
     Helper.extractSignature("extractSignatureThrowsErrorWhenSignatureIsNotFound.zip", 0);

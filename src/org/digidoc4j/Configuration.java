@@ -355,6 +355,14 @@ public class Configuration implements Serializable {
    * @return configuration hashtable
    */
   public Hashtable<String, String> loadConfiguration(String file) {
+    return loadConfiguration(file, true);
+  }
+
+  public Hashtable<String, String> loadConfiguration(String file, boolean isReloadFromYaml) {
+    if(!isReloadFromYaml){
+      logger.info("Should not reload conf from yaml when open container");
+      return jDigiDocConfiguration;
+    }
     logger.info("Loading configuration from file " + file);
     configurationInputSourceName = file;
     InputStream resourceAsStream = null;
