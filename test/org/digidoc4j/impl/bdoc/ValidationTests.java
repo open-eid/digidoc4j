@@ -190,7 +190,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     Container container = ContainerOpener.open("testFiles/invalid-containers/revocation_timestamp_delta_26h.asice", PROD_CONFIGURATION);
     ValidationResult validate = container.validate();
     assertEquals(1, validate.getErrors().size());
-    assertEquals("The difference between the revocation time and the signature time stamp is too large",
+    assertEquals("The difference between the OCSP response time and the signature time stamp is too large",
         validate.getErrors().get(0).toString());
   }
 
