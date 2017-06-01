@@ -33,7 +33,7 @@ import ee.sk.digidoc.SignedDoc;
 import ee.sk.digidoc.factory.DigiDocFactory;
 import ee.sk.utils.ConfigManager;
 
-// @Ignore
+@Ignore
 public class PerformanceTest {
 
   private static final Configuration configuration = new Configuration(Configuration.Mode.TEST);

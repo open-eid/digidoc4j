@@ -22,9 +22,9 @@
     <dependency org="org.apache.santuario" name="xmlsec" rev="2.0.8" conf="runtime->default" >
       <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
     </dependency>
-    <dependency org="org.bouncycastle" name="bcmail-jdk15on" rev="1.56" conf="runtime->default"/>
-    <dependency org="org.bouncycastle" name="bcpkix-jdk15on" rev="1.56" conf="runtime->default"/>
-    <dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.56" conf="runtime->default"/>
+    <dependency org="org.bouncycastle" name="bcmail-jdk15on" rev="1.55" conf="runtime->default"/>
+    <dependency org="org.bouncycastle" name="bcpkix-jdk15on" rev="1.55" conf="runtime->default"/>
+    <dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.55" conf="runtime->default"/>
     <dependency org="xalan" name="serializer" rev="2.7.2" conf="runtime->default">
       <exclude org="xml-apis" module="xml-apis" />
     </dependency>
@@ -54,7 +54,7 @@
     <dependency org="org.mortbay.jetty" name="jetty" rev="6.1.26" conf="test->default" transitive="false"/>
     <dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.26" conf="test->default" transitive="false"/>
     <dependency org="org.mortbay.jetty" name="servlet-api" rev="2.5.20110712" conf="test->default" transitive="false"/>
-    <dependency org="com.google.guava" name="guava" rev="21.0" conf="test->default" transitive="false"/>
+    <dependency org="com.google.guava" name="guava" rev="20.0" conf="test->default" transitive="false"/>
     <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.8.8" conf="test->default" transitive="false"/>
     <dependency org="com.fasterxml.jackson.core" name="jackson-core" rev="2.8.8" conf="test->default" transitive="false"/>
     <dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.8.8" conf="test->default" transitive="false"/>

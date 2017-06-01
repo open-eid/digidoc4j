@@ -39,8 +39,8 @@ public class UriEncodingTest extends DigiDoc4JTestHelper {
 
     @Test
     public void encodeDataFileWithSpecialCharacters() throws Exception {
-        String fileName = "et10i_0123456789!\\#$%&'()+,-. ;=@[]_`}~ et_EE";
-        String expectedEncoding = "et10i_0123456789!%5C%23%24%25%26'()%2B%2C-.%20%3B%3D%40%5B%5D_%60%7D~%20et_EE";
+        String fileName = "et10i_0123456789!#$%&'()+,-. ;=@[]_`}~ et_EE";
+        String expectedEncoding = "et10i_0123456789!%23%24%25%26'()%2B%2C-.%20%3B%3D%40%5B%5D_%60%7D~%20et_EE";
         signAndAssertEncoding(fileName, expectedEncoding);
     }
 

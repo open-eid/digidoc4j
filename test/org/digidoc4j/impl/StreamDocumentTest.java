@@ -15,8 +15,11 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.impl.StreamDocument;
 import org.digidoc4j.utils.Helper;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -37,6 +40,9 @@ public class StreamDocumentTest {
       document = new StreamDocument(stream, "suur_a.txt", MimeType.TEXT);
     }
   }
+
+  @Rule
+  public TemporaryFolder testFolder = new TemporaryFolder();
 
   @AfterClass
   public static void deleteTemporaryFiles() throws IOException {
@@ -84,20 +90,20 @@ public class StreamDocumentTest {
 
   @Test
   public void createDocumentFromStreamedDataFile() throws Exception {
+    String dataFileName = testFolder.newFolder().getAbsolutePath()+ File.separator + "createDocumentFromStreamedDataFile.txt";
     try(ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(new byte[]{0x041})) {
-      DataFile dataFile = new DataFile(byteArrayInputStream, "A.txt", "text/plain");
+      DataFile dataFile = new DataFile(byteArrayInputStream, dataFileName, "text/plain");
       StreamDocument streamDocument = new StreamDocument(dataFile.getStream(),
           dataFile.getName(),
           MimeType.fromMimeTypeString(dataFile.getMediaType()));
 
-      streamDocument.save("createDocumentFromStreamedDataFile.txt");
+      streamDocument.save(dataFileName);
     }
 
-    try(FileInputStream fileInputStream = new FileInputStream("createDocumentFromStreamedDataFile.txt")) {
+    try(FileInputStream fileInputStream = new FileInputStream(dataFileName)) {
       assertArrayEquals(new byte[]{0x041}, IOUtils.toByteArray(fileInputStream));
     }
-
-    Files.deleteIfExists(Paths.get("createDocumentFromStreamedDataFile.txt"));
+    testFolder.delete();
   }
 
   @Test
@@ -105,9 +111,16 @@ public class StreamDocumentTest {
     assertEquals("VZrq0IJk1XldOQlxjN0Fq9SVcuhP5VWQ7vMaiKCP3/0=", document.getDigest(DigestAlgorithm.SHA256));
   }
 
+  /*
+    NB! If this test fails then ensure that directory testFiles/tmp/readonly is read-only!
+   */
   @Test(expected = DSSException.class)
   public void saveWhenNoAccessRights() throws Exception {
-    document.save("/bin/no_access.txt");
+    String tmpFolder = "testFiles/tmp/readonly";
+    File tmp = new File(tmpFolder);
+    String dataFileName = tmpFolder+ File.separator + "no_access.txt";
+    Assert.assertTrue("Invalid directory " + tmpFolder, tmp.isDirectory() && tmp.exists());
+    document.save(dataFileName);
   }
 
   @Test(expected = DSSException.class)
