@@ -190,7 +190,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     Container container = ContainerOpener.open("testFiles/invalid-containers/revocation_timestamp_delta_26h.asice", PROD_CONFIGURATION);
     ValidationResult validate = container.validate();
     assertEquals(1, validate.getErrors().size());
-    assertEquals("The difference between the revocation time and the signature time stamp is too large",
+    assertEquals("The difference between the OCSP response time and the signature time stamp is too large",
         validate.getErrors().get(0).toString());
   }
 
@@ -401,9 +401,8 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     ValidationResult result = container.validate();
 
     List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(2, errors.size());
+    assertEquals(1, errors.size());
     assertEquals(InvalidTimestampException.MESSAGE, errors.get(0).toString());
-    assertEquals(TimestampAfterOCSPResponseTimeException.MESSAGE, errors.get(1).toString());
   }
 
   @Test
@@ -413,6 +412,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     assertTrue(containsErrorMessage(result.getErrors(), InvalidTimestampException.MESSAGE));
   }
 
+  @Ignore("This test is not usable anymore")
   @Test
   public void asicOcspTimeShouldBeAfterTimestamp() throws Exception {
     ValidationResult result = validateContainer("testFiles/invalid-containers/TS-08_23634_TS_OCSP_before_TS.asice");

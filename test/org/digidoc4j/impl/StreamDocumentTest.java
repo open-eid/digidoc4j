@@ -118,7 +118,7 @@ public class StreamDocumentTest {
   public void saveWhenNoAccessRights() throws Exception {
     String tmpFolder = "testFiles/tmp/readonly";
     File tmp = new File(tmpFolder);
-    String dataFileName = tmpFolder+ File.separator + "no_access.txt";
+    String dataFileName = tmp.getAbsolutePath() + File.separator + "no_access.txt";
     Assert.assertTrue("Invalid directory " + tmpFolder, tmp.isDirectory() && tmp.exists());
     document.save(dataFileName);
   }
