@@ -62,13 +62,14 @@ public class ValidationResultForDDoc implements ValidationResult {
   public ValidationResultForDDoc(List<DigiDocException> exceptions,
                                  List<DigiDocException> openContainerExceptions) {
     logger.debug("");
-    Element childElement;
 
     initXMLReport();
     if (openContainerExceptions != null) {
       for (DigiDocException exception : openContainerExceptions) {
         DigiDoc4JException digiDoc4JException = new DigiDoc4JException(exception.getCode(), exception.getMessage());
-        containerExceptions.add(digiDoc4JException);
+        if(!exception.getMessage().contains("X509IssuerName has none or invalid namespace")) {
+          containerExceptions.add(digiDoc4JException);
+        }
         if (SignedDoc.hasFatalErrs((ArrayList) openContainerExceptions)) {
           hasFatalErrors = true;
         }
@@ -78,16 +79,32 @@ public class ValidationResultForDDoc implements ValidationResult {
 
 
     for (DigiDocException exception : exceptions) {
-      String message = exception.getMessage();
-      int code = exception.getCode();
-      DigiDoc4JException digiDoc4JException = new DigiDoc4JException(code, message);
-      logger.debug("Validation error." + " Code: " + code + ", message: " + message);
-      errors.add(digiDoc4JException);
-      childElement = report.createElement("error");
-      childElement.setAttribute("Code", Integer.toString(code));
-      childElement.setAttribute("Message", message);
-      rootElement.appendChild(childElement);
+      if(exception.getMessage().contains("X509IssuerName has none or invalid namespace")
+          || exception.getMessage().contains("Bad digest for SignedProperties:") ) {
+        generateReport(exception, false);
+      }else {
+        generateReport(exception, true);
+      }
     }
+  }
+
+  private void generateReport(DigiDocException exception, boolean isError) {
+    Element childElement;
+    String warningOrError;
+    String message = exception.getMessage();
+    int code = exception.getCode();
+    if(!isError){
+      warningOrError = "warning";
+    }else{
+      DigiDoc4JException digiDoc4JException = new DigiDoc4JException(code, message);
+      errors.add(digiDoc4JException);
+      warningOrError = "error";
+    }
+    logger.debug("Validation " + warningOrError + "."+ " Code: " + code + ", message: " + message);
+    childElement = report.createElement(warningOrError);
+    childElement.setAttribute("Code", Integer.toString(code));
+    childElement.setAttribute("Message", message);
+    rootElement.appendChild(childElement);
   }
 
   /**
