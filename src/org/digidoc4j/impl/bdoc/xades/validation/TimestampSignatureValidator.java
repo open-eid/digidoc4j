@@ -62,8 +62,11 @@ public class TimestampSignatureValidator extends TimemarkSignatureValidator {
     if (ocspTime == null) {
       return;
     }
-    if (!DateUtils.isInRangeMinutes(timestamp, ocspTime, configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes())) {
-      logger.error("The difference between the OCSP response production time and the signature time stamp is too large");
+    int TSandOCSPDelta = configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes();
+    int TSandRevocDelta = configuration.getRevocationAndTimestampDeltaInMinutes();
+
+    if (!DateUtils.isInRangeMinutes(timestamp, ocspTime, (TSandOCSPDelta > TSandRevocDelta? TSandOCSPDelta : TSandRevocDelta))) {
+      logger.error("The difference between the OCSP response production time and the signature time stamp is too large - " + String.valueOf(timestamp.getTime()-ocspTime.getTime()));
       addValidationError(new TimestampAndOcspResponseTimeDeltaTooLargeException());
     }
   }

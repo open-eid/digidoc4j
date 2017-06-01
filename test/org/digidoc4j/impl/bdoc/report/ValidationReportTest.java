@@ -184,7 +184,6 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
     assertXpathHasValue("ŽAIKOVSKI,IGOR,37101010021", "/SimpleReport/Signature/SignedBy", report);
     assertXpathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
     assertXpathHasValue("Signature has an invalid timestamp", "/SimpleReport/Signature/Errors[1]", report);
-    assertXpathHasValue("Timestamp time is after OCSP response production time", "/SimpleReport/Signature/Errors[2]", report);
     assertXpathHasValue("META-INF/signatures0.xml", "/SimpleReport/Signature/DocumentName", report);
     assertXpathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
   }

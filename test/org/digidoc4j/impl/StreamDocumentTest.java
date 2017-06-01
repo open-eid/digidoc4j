@@ -17,6 +17,7 @@ import org.digidoc4j.utils.Helper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -24,6 +25,9 @@ import org.junit.rules.TemporaryFolder;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -33,6 +37,31 @@ import eu.europa.esig.dss.MimeType;
 
 public class StreamDocumentTest {
   StreamDocument document;
+
+  @BeforeClass
+  public static void setUpDir() throws IOException {
+    if (Files.isWritable(Paths.get("testFiles/tmp/readonly"))) {
+      // setting directory testFiles/tmp/readonly permissions to "read only"
+      if (System.getProperty("os.name").startsWith("Windows")) {
+        File file = new File("testFiles/tmp/readonly");
+        // deny write permission for all the users
+        System.out.println("icacls "+file.getAbsolutePath()+" /deny Everyone:(WD,WA) /T /Q");
+        Runtime.getRuntime().exec("icacls "+file.getAbsolutePath()+" /deny Everyone:(WD,WA) /T /Q");
+      } else {
+        Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
+        //add owners permission
+        perms.add(PosixFilePermission.OWNER_READ);
+        perms.add(PosixFilePermission.OWNER_EXECUTE);
+        //add group permissions
+        perms.add(PosixFilePermission.GROUP_READ);
+        perms.add(PosixFilePermission.GROUP_EXECUTE);
+        //add others permissions
+        perms.add(PosixFilePermission.OTHERS_READ);
+        perms.add(PosixFilePermission.OTHERS_EXECUTE);
+        Files.setPosixFilePermissions(Paths.get("testFiles/tmp/readonly"), perms);
+      }
+    }
+  }
 
   @Before
   public void setUp() throws IOException {
