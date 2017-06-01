@@ -67,9 +67,7 @@ public class ValidationResultForDDoc implements ValidationResult {
     if (openContainerExceptions != null) {
       for (DigiDocException exception : openContainerExceptions) {
         DigiDoc4JException digiDoc4JException = new DigiDoc4JException(exception.getCode(), exception.getMessage());
-        if(!exception.getMessage().contains("X509IssuerName has none or invalid namespace")) {
           containerExceptions.add(digiDoc4JException);
-        }
         if (SignedDoc.hasFatalErrs((ArrayList) openContainerExceptions)) {
           hasFatalErrors = true;
         }
