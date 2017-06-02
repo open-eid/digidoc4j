@@ -1095,6 +1095,40 @@ public class ConfigurationTest {
     assertEquals(1, configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes().longValue());
   }
 
+  @Test
+  public void testOpenBDocWithConfFromSetter() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setOcspSource("http://demo.sk.ee/TEST");
+    Container container = ContainerBuilder.
+        aContainer().withConfiguration(configuration).
+        fromExistingFile("testFiles/valid-containers/test.asice").
+        build();
+    assertEquals("http://demo.sk.ee/TEST", configuration.getOcspSource() );
+  }
+
+  @Test
+  public void testOpenBDocWithConfFromYaml() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf_parameters.yaml");
+    Container container = ContainerBuilder.
+        aContainer().withConfiguration(configuration).
+        fromExistingFile("testFiles/valid-containers/test.asice").
+        build();
+    assertEquals("test_source_from_yaml", configuration.getOcspSource() );
+  }
+
+  @Test
+  public void testOpenBDocWithConfFromSetterWhenYamlParamPresented() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf_parameters.yaml");
+    configuration.setOcspSource("http://demo.sk.ee/TEST");
+    Container container = ContainerBuilder.
+        aContainer().withConfiguration(configuration).
+        fromExistingFile("testFiles/valid-containers/test.asice").
+        build();
+    assertEquals("http://demo.sk.ee/TEST", configuration.getOcspSource() );
+  }
+
   private File createConfFileWithParameter(String parameter) throws IOException {
     File confFile = testFolder.newFile();
     FileUtils.writeStringToFile(confFile, parameter);
