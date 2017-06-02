@@ -131,6 +131,7 @@ public class HelperTest {
 
       zipOutputStream.write(0x42);
       zipOutputStream.closeEntry();
+      fileOutputStream.close();
     }
 
     Helper.extractSignature(fileName, 0);
