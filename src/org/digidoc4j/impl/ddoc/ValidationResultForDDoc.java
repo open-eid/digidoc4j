@@ -77,7 +77,7 @@ public class ValidationResultForDDoc implements ValidationResult {
 
 
     for (DigiDocException exception : exceptions) {
-      if(exception.getMessage().contains("X509IssuerName has none or invalid namespace")
+      if(exception.getMessage().contains("X509IssuerName has none or invalid namespace:")
           || exception.getMessage().contains("Bad digest for SignedProperties:") ) {
         generateReport(exception, false);
       }else {
