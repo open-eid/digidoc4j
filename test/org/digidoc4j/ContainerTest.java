@@ -233,6 +233,18 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     assertFalse(dDocContainer.validate().hasWarnings());
   }
 
+  @Test
+  public void openDDocContainerFromFile() throws Exception {
+    Container container = ContainerBuilder.
+        aContainer("DDOC").
+        fromExistingFile("testFiles/valid-containers/ddoc_wo_x509IssueName_xmlns.ddoc").
+        build();
+    ValidationResult validate = container.validate();
+    assertTrue(validate.isValid());
+    assertEquals(0, validate.getErrors().size());
+    assertTrue(validate.getReport().contains("X509IssuerName has none or invalid namespace:"));
+  }
+
   @Test(expected = DigiDoc4JException.class)
   public void testOpenNotExistingFileThrowsException() {
     ContainerOpener.open("noFile.ddoc");
