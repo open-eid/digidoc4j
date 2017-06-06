@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.CertificateException;
@@ -32,7 +33,10 @@ import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.DataToSign;
+import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
+import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
@@ -42,6 +46,7 @@ import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.impl.bdoc.tsl.TSLCertificateSourceImpl;
+import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TSLHelper;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.junit.Before;
@@ -485,6 +490,55 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     assertTrue(containsErrorMessage(result.getErrors(), "The certificate chain for revocation data is not trusted, there is no trusted anchor."));
   }
 
+  @Test
+  public void mixTSLCertAndTSLOnlineSources_SignatureTypeLT_valid() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    PKCS12SignatureToken signatureToken = new PKCS12SignatureToken("testFiles/p12/user_one.p12", "user_one".toCharArray());
+
+    InputStream inputStream  = new FileInputStream("testFiles/certs/exampleCA.cer");
+    X509Certificate certificate = DSSUtils.loadCertificate(inputStream).getCertificate();
+    configuration.getTSL().addTSLCertificate(certificate);
+
+    inputStream  = new FileInputStream("testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer");
+    certificate = DSSUtils.loadCertificate(inputStream).getCertificate();
+    configuration.getTSL().addTSLCertificate(certificate);
+
+    Container container = createSignedBDocDocumentWithConf(configuration, signatureToken);
+
+    ValidationResult validationResult = container.validate();
+
+    assertTrue(validationResult.isValid());
+    assertEquals(0, validationResult.getErrors().size());
+
+  }
+
+  @Test
+  public void mixTSLCertAndTSLOnlineSources_SignatureTypeLT_notValid() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    PKCS12SignatureToken signatureToken = new PKCS12SignatureToken("testFiles/p12/user_one.p12", "user_one".toCharArray());
+
+    TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
+
+    InputStream inputStream  = new FileInputStream("testFiles/certs/exampleCA.cer");
+    X509Certificate certificate = DSSUtils.loadCertificate(inputStream).getCertificate();
+    certificateSource.addTSLCertificate(certificate);
+
+    inputStream  = new FileInputStream("testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer");
+    certificate = DSSUtils.loadCertificate(inputStream).getCertificate();
+    certificateSource.addTSLCertificate(certificate);
+
+    configuration.setTSL(certificateSource);
+
+    Container container = createSignedBDocDocumentWithConf(configuration, signatureToken);
+    ValidationResult validationResult = container.validate();
+    List<DigiDoc4JException> errors = validationResult.getErrors();
+
+    assertFalse(validationResult.isValid());
+    assertEquals(1, errors.size());
+    assertEquals("Signature has an invalid timestamp", errors.get(0).toString());
+
+  }
+
   private void testSigningWithOCSPCheck(String unknownCert) {
     Container container = createEmptyBDocContainer();
     container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
@@ -530,5 +584,24 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     return ContainerBuilder.
         aContainer("BDOC").
         fromExistingFile(containerPath);
+  }
+
+  private Container createSignedBDocDocumentWithConf(Configuration configuration, PKCS12SignatureToken signatureToken) {
+    Container container = ContainerBuilder.
+        aContainer().
+        withDataFile("testFiles/helper-files/test.txt", "text/xml").
+        withConfiguration(configuration).
+        build();
+
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureProfile(SignatureProfile.LT).
+        withSignatureToken(signatureToken).
+        invokeSigning();
+
+    container.addSignature(signature);
+    container.saveAsFile(testContainerPath);
+
+    return container;
   }
 }
