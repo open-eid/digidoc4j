@@ -74,8 +74,26 @@ public class StreamDocumentTest {
   public TemporaryFolder testFolder = new TemporaryFolder();
 
   @AfterClass
-  public static void deleteTemporaryFiles() throws IOException {
-    Helper.deleteFile("createDocumentFromStreamedDataFile.txt");
+  public static void resetTemporaryRODir() throws IOException {
+    if (System.getProperty("os.name").startsWith("Windows")) {
+      File file = new File("testFiles/tmp/readonly");
+      Runtime.getRuntime().exec("icacls " + file.getAbsolutePath() + " /remove:d Everyone /T /Q");
+    } else {
+      Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
+      //add owners permission
+      perms.add(PosixFilePermission.OWNER_READ);
+      perms.add(PosixFilePermission.OWNER_WRITE);
+      perms.add(PosixFilePermission.OWNER_EXECUTE);
+      //add group permissions
+      perms.add(PosixFilePermission.GROUP_READ);
+      perms.add(PosixFilePermission.GROUP_WRITE);
+      perms.add(PosixFilePermission.GROUP_EXECUTE);
+      //add others permissions
+      perms.add(PosixFilePermission.OTHERS_READ);
+      perms.add(PosixFilePermission.OTHERS_WRITE);
+      perms.add(PosixFilePermission.OTHERS_EXECUTE);
+      Files.setPosixFilePermissions(Paths.get("testFiles/tmp/readonly"), perms);
+    }
   }
 
   @Test
