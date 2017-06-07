@@ -10,7 +10,6 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import static eu.europa.esig.dss.DSSUtils.loadCertificate;
 import static org.digidoc4j.SignatureProfile.B_BES;
 import static org.digidoc4j.SignatureProfile.B_EPES;
 import static org.digidoc4j.SignatureProfile.LT;
@@ -25,25 +24,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.security.cert.X509Certificate;
-
-import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
-import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.TSLCertificateSource;
-import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
-import org.digidoc4j.impl.bdoc.tsl.TSLCertificateSourceImpl;
-import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -251,41 +237,5 @@ public class ExtendingBDocContainerTest extends DigiDoc4JTestHelper {
     container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LTA);
     container.extendSignatureProfile(LTA);
-  }
-
-  @Test
-  public void testMustNotGetSignatureHasAnInvalidTimestampError() throws Exception {
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
-    File certFile = new File("testFiles/certs/exampleCA.cer");
-    FileInputStream stream = new FileInputStream(certFile);
-    X509Certificate certificate = loadCertificate(stream).getCertificate();
-    certificateSource.addTSLCertificate(certificate);
-    certFile = new File("testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer");
-    stream = new FileInputStream(certFile);
-    certificate = loadCertificate(stream).getCertificate();
-    certificateSource.addTSLCertificate(certificate);
-    configuration.setTslLocation("");
-    configuration.setTSL(certificateSource);
-
-    Container container = ContainerBuilder.
-        aContainer().
-        withDataFile("testFiles/helper-files/test.xml", "text/xml").
-        withConfiguration(configuration).
-        build();
-
-    PKCS12SignatureToken signatureToken = new PKCS12SignatureToken("testFiles/p12/user_one.p12", "user_one".toCharArray());
-
-    Signature signature = SignatureBuilder.
-        aSignature(container).
-        withSignatureProfile(SignatureProfile.LT).
-        withSignatureToken(signatureToken).
-        invokeSigning();
-
-    container.addSignature(signature);
-    container.saveAsFile("testFiles/tmp/test-container.bdoc");
-    ValidationResult validate = container.validate();
-    System.out.println(validate.getErrors());
-    assertTrue(validate.isValid());
   }
 }
