@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.bdoc.xades.validation;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -27,7 +28,7 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class TimestampSignatureValidator extends TimemarkSignatureValidator {
 
-  private final static Logger logger = LoggerFactory.getLogger(TimemarkSignatureValidator.class);
+  private final static Logger logger = LoggerFactory.getLogger(TimestampSignatureValidator.class);
   private XadesSignature signature;
   private Configuration configuration;
 
@@ -61,13 +62,12 @@ public class TimestampSignatureValidator extends TimemarkSignatureValidator {
     if (ocspTime == null) {
       return;
     }
-    if (!DateUtils.isInRangeMinutes(timestamp, ocspTime, configuration.getRevocationAndTimestampDeltaInMinutes())) {
-      logger.error("The difference between the OCSP response production time and the signature time stamp is too large");
+    int TSandOCSPDelta = configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes();
+    int TSandRevocDelta = configuration.getRevocationAndTimestampDeltaInMinutes();
+
+    if (!DateUtils.isInRangeMinutes(timestamp, ocspTime, (TSandOCSPDelta > TSandRevocDelta? TSandOCSPDelta : TSandRevocDelta))) {
+      logger.error("The difference between the OCSP response production time and the signature time stamp is too large - " + String.valueOf(timestamp.getTime()-ocspTime.getTime()));
       addValidationError(new TimestampAndOcspResponseTimeDeltaTooLargeException());
-    }
-    if (ocspTime.before(timestamp)) {
-      logger.error("OCSP response production time is before timestamp time");
-      addValidationError(new TimestampAfterOCSPResponseTimeException());
     }
   }
 }
