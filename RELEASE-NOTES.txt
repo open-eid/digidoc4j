@@ -1,6 +1,6 @@
 DigiDoc4J Java library release notes
 ------------------------------------
-Release 1.0.6 Beta
+Release 1.0.6 Beta.1
 --------------------
 Summary of the major changes since 1.0.5
 ----------------------------------------
@@ -9,7 +9,10 @@ Summary of the major changes since 1.0.5
 * Added support for restricting special characters in data file names [#130206233]
 * Reviewed and fixed unit tests where possible [#111599596]
 * Signature getSigningTime returns trusted time (or computer time for BES) [#133662737]
-* ...
+* Writing Container directly to OutputStream [#133095765]
+* Added changes to ignore some DDOC XML-file errors [#134342153]
+* Validating Latvia xades signatures ocsp and timestamp diff [#128099395]
+* Fixed invalid validation: EDOC 2.0 / SHA-256 signature: TimeStamp before OCSP-d.
 
 Release 1.0.5
 --------------------
