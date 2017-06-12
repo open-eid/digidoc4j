@@ -271,10 +271,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
     container = open("testFiles/tmp/test.bdoc");
     Signature signature = container.getSignature(0);
-    assertNull(signature.getPostalCode());
-    assertNull(signature.getCity());
-    assertNull(signature.getStateOrProvince());
-    assertNull(signature.getCountryName());
+    assertEquals("", signature.getPostalCode());
+    assertEquals("", signature.getCity());
+    assertEquals("", signature.getStateOrProvince());
+    assertEquals("", signature.getCountryName());
     assertThat(signature.getSignerRoles(), is(empty()));
   }
 
@@ -807,7 +807,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Signature resultSignature = container.getSignature(0);
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", resultSignature.getSignatureMethod());
     assertThat(resultSignature.getSignerRoles(), is(empty()));
-    assertNull(resultSignature.getCity());
+    assertEquals("", resultSignature.getCity());
     assertTrue(StringUtils.isNotBlank(resultSignature.getId()));
 
     assertNotNull(resultSignature.getOCSPCertificate());

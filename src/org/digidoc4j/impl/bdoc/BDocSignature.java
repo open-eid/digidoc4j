@@ -86,11 +86,22 @@ public class BDocSignature implements Signature {
     return xadesSignature.getPostalCode();
   }
 
+
+  /**
+   * This method returns Date object, it can be null.
+   *
+   * @return Date
+   */
   @Override
   public Date getOCSPResponseCreationTime() {
     return xadesSignature.getOCSPResponseCreationTime();
   }
 
+  /**
+   * This method returns Date object, it can be null.
+   *
+   * @return Date
+   */
   @Override
   @Deprecated
   public Date getProducedAt() {
@@ -135,6 +146,11 @@ public class BDocSignature implements Signature {
     return xadesSignature.getSigningCertificate();
   }
 
+  /**
+   * This method returns Date object, it can be null.
+   *
+   * @return Date
+   */
   @Override
   public Date getClaimedSigningTime() {
     return xadesSignature.getSigningTime();
