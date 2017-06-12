@@ -24,11 +24,8 @@ public class TimeStampValidationForEDocTest {
 
   private final static Logger logger = LoggerFactory.getLogger(TimeStampValidationForEDocTest.class);
 
-  private static final String EDOC_CONTAINER_TYPE = "BDOC";
-  // private static final String EDOC_LOCATION = "testFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc";
   private static final String EDOC_LOCATION = "testFiles/valid-containers/latvian_signed_container.edoc";
-  // TODO: select container for negative test from directory "testFiles/invalid-containers/"
-  // private final String EDOC_LOCATION_WRONG_TIME = "testFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc";
+  private static final String ASICE_LOCATION = "testFiles/valid-containers/latvian_signed_container.asice";
   private Configuration configuration;
 
 
@@ -38,7 +35,7 @@ public class TimeStampValidationForEDocTest {
   }
 
   @Test
-  public void invalidTimestampMsgIsNotExist() {
+  public void invalidTimestampMsgIsNotExistForEDOC() {
 
     Container container = ContainerOpener.open(EDOC_LOCATION, configuration);
     ValidationResult validate = container.validate();
@@ -46,40 +43,14 @@ public class TimeStampValidationForEDocTest {
     assertEquals(0, validate.getErrors().size());
   }
 
-  // TODO: Find or create test container with specific error
-  /*
   @Test
-  public void invalidTimestampMsgExist(){
+  public void invalidTimestampMsgIsNotExistForASICE() {
 
-    Container container = ContainerBuilder.
-        aContainer(BDOC).
-        fromExistingFile(EDOC_LOCATION_WRONG_TIME)
-        .withConfiguration(configuration)
-        .build();
+    Container container = ContainerOpener.open(ASICE_LOCATION, configuration);
     ValidationResult validate = container.validate();
-
-    String ERROR_MESSAGE = getErrorMessage(validate);
-
-    //Message is: The difference between the OCSP response time and the signature time stamp is too large
-    assertEquals(TimestampAndOcspResponseTimeDeltaTooLargeException.MESSAGE, ERROR_MESSAGE);
-
+    // We expect that there are no errors in tested container
+    assertEquals(0, validate.getErrors().size());
   }
 
-  private String getErrorMessage(ValidationResult validate) {
-
-    logger.info(validate.getReport());
-
-    String ERROR_MESSAGE= "";
-    List<DigiDoc4JException> validateErrors = validate.getErrors();
-    for (DigiDoc4JException digiDoc4JException : validateErrors) {
-      if (TimestampAndOcspResponseTimeDeltaTooLargeException.MESSAGE.equals(digiDoc4JException.getMessage())) {
-        logger.error(digiDoc4JException.getMessage());
-        ERROR_MESSAGE = digiDoc4JException.getMessage();
-        break;
-      }
-    }
-    return ERROR_MESSAGE;
-  }
-  */
-
+  // TODO: Find or create test container with specific error
 }
