@@ -222,7 +222,7 @@ public abstract class BDocContainer implements Container {
   @Override
   @Deprecated
   public String getVersion() {
-    return null;
+    return "";
   }
 
   @Override

@@ -36,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -351,8 +352,8 @@ public class ConfigurationTest {
 
   @Test
   public void defaultOCSPAccessCertificateFile() {
-    assertNull(configuration.getOCSPAccessCertificateFileName());
-    assertNull(getJDigiDocConfValue(configuration, OCSP_PKCS12_CONTAINER));
+    assertEquals("", configuration.getOCSPAccessCertificateFileName());
+    assertEquals("", getJDigiDocConfValue(configuration, OCSP_PKCS12_CONTAINER));
   }
 
   @Test
@@ -1054,7 +1055,7 @@ public class ConfigurationTest {
 
   @Test
   public void getTruestedTerritories_defaultTesting_shouldBeNull() throws Exception {
-    assertNull(configuration.getTrustedTerritories());
+    assertEquals(new ArrayList<>(), configuration.getTrustedTerritories());
   }
 
   @Test

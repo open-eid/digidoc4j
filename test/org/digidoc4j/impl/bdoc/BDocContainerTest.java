@@ -781,7 +781,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void getVersion() {
     Container container = createEmptyBDocContainer();
-    assertNull(container.getVersion());
+    assertEquals("", container.getVersion());
   }
 
   @Test
