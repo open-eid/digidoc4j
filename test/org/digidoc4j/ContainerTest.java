@@ -243,6 +243,7 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     assertTrue(validate.isValid());
     assertEquals(0, validate.getErrors().size());
     assertTrue(validate.getReport().contains("X509IssuerName has none or invalid namespace:"));
+    assertTrue(validate.getReport().contains("X509SerialNumber has none or invalid namespace:"));
   }
 
   @Test(expected = DigiDoc4JException.class)
