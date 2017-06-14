@@ -45,6 +45,11 @@ public class DDocSignature implements Signature {
     this.origin = signature;
   }
 
+  /**
+   * Set certificate.
+   *
+   * @param cert
+   */
   public void setCertificate(X509Cert cert) {
     logger.debug("");
     this.certificate = cert;
@@ -118,9 +123,9 @@ public class DDocSignature implements Signature {
   }
 
   /**
-   * This method returns Date object, it can be null.
+   * This method returns OCSP response creation time (Date object), it can be null.
    *
-   * @return Date
+   * @return date.
    */
   @Override
   public Date getOCSPResponseCreationTime() {
@@ -130,9 +135,9 @@ public class DDocSignature implements Signature {
   }
 
   /**
-   * This method returns Date object, it can be null.
+   * This method returns OCSP response creation time (Date object), it can be null.
    *
-   * @return Date
+   * @return date.
    */
   @Override
   @Deprecated
@@ -147,9 +152,9 @@ public class DDocSignature implements Signature {
   }
 
   /**
-   * This method returns Date object, it can be null.
+   * This method returns OCSP response creation time (Date object), it can be null.
    *
-   * @return Date
+   * @return date.
    */
   @Override
   public Date getTrustedSigningTime() {
@@ -268,10 +273,20 @@ public class DDocSignature implements Signature {
     return getAdESSignature();
   }
 
+  /**
+   * Get index In array.
+   *
+   * @return integer.
+   */
   public int getIndexInArray() {
     return indexInArray;
   }
 
+  /**
+   * Set index In array.
+   *
+   * @param indexInArray
+   */
   public void setIndexInArray(int indexInArray) {
     this.indexInArray = indexInArray;
   }

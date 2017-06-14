@@ -27,15 +27,26 @@ import org.digidoc4j.impl.bdoc.asic.BDocContainerValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Offers functionality for handling new BDoc container data files and signatures in a container.
+ */
 public class NewBDocContainer extends BDocContainer {
 
   private static final Logger logger = LoggerFactory.getLogger(NewBDocContainer.class);
   private List<Signature> signatures = new ArrayList<>();
   private List<DataFile> dataFiles = new ArrayList<>();
 
+  /**
+   * NewBDocContainer constructor. Instantiating existing NewBDoc container.
+   */
   public NewBDocContainer() {
   }
 
+  /**
+   * NewBDocContainer constructor. Instantiating existing NewBDoc container with configuration.
+   *
+   * @param configuration
+   */
   public NewBDocContainer(Configuration configuration) {
     super(configuration);
   }

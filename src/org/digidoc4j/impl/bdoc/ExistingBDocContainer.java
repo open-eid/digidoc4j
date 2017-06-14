@@ -34,6 +34,9 @@ import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
 
+/**
+ * Offers functionality for handling data files and signatures in a container.
+ */
 public class ExistingBDocContainer extends BDocContainer {
 
   private static final Logger logger = LoggerFactory.getLogger(ExistingBDocContainer.class);
@@ -44,19 +47,40 @@ public class ExistingBDocContainer extends BDocContainer {
   private AsicParseResult containerParseResult;
   private boolean dataFilesHaveChanged;
 
+  /**
+   * ExistingBDocContainer constructor. Instantiating existing BDoc container with containerPath.
+   *
+   * @param containerPath
+   */
   public ExistingBDocContainer(String containerPath) {
     openContainer(containerPath);
   }
 
+  /**
+   * ExistingBDocContainer constructor. Instantiating existing BDoc container with containerPath and configuration.
+   *
+   * @param containerPath
+   * @param configuration
+   */
   public ExistingBDocContainer(String containerPath, Configuration configuration) {
     super(configuration);
     openContainer(containerPath);
   }
 
+  /**
+   * ExistingBDocContainer constructor. Instantiating existing BDoc container with inputStream
+   *
+   * @param stream
+   */
   public ExistingBDocContainer(InputStream stream) {
     openContainer(stream);
   }
 
+  /**
+   *
+   * @param stream
+   * @param configuration
+   */
   public ExistingBDocContainer(InputStream stream, Configuration configuration) {
     super(configuration);
     openContainer(stream);

@@ -42,6 +42,12 @@ public class BDocSignature implements Signature {
   private SignatureValidator validator;
   private DSSDocument signatureDocument;
 
+  /**
+   * BDoc signature constructor.
+   *
+   * @param xadesSignature
+   * @param validator
+   */
   public BDocSignature(XadesSignature xadesSignature, SignatureValidator validator) {
     this.xadesSignature = xadesSignature;
     this.validator = validator;
@@ -225,18 +231,38 @@ public class BDocSignature implements Signature {
     return getAdESSignature();
   }
 
+  /**
+   * This method returns XadesSignature object.
+   *
+   * @return xades signature.
+   */
   public XadesSignature getOrigin() {
     return xadesSignature;
   }
 
+  /**
+   *  Set signature document.
+   *
+   * @param signatureDocument
+   */
   public void setSignatureDocument(DSSDocument signatureDocument) {
     this.signatureDocument = signatureDocument;
   }
 
+  /**
+   * This method returns validation result (XadesValidationResult object).
+   *
+   * @return XadesValidationResult.
+   */
   public XadesValidationResult getDssValidationReport() {
     return xadesSignature.validate();
   }
 
+  /**
+   * This method returns signature document (SignatureDocument object).
+   *
+   * @return DSSDocument.
+   */
   public DSSDocument getSignatureDocument() {
     return signatureDocument;
   }

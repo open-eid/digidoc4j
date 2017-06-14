@@ -67,11 +67,6 @@ public class BesSignature extends DssXadesSignature {
     return xmlId == null ? "" : xmlId;
   }
 
-  /**
-   * This method returns Date object, it can be null.
-   *
-   * @return Date
-   */
   @Override
   public Date getSigningTime() {
     return getDssSignature().getSigningTime();
@@ -92,6 +87,7 @@ public class BesSignature extends DssXadesSignature {
     return getSignerLocation() == null ? "" : getSignerLocation().getPostalCode();
   }
 
+
   @Override
   public String getCountryName() {
     return getSignerLocation() == null ? "" : getSignerLocation().getCountryName();
@@ -103,11 +99,6 @@ public class BesSignature extends DssXadesSignature {
     return claimedSignerRoles == null ? Collections.<String>emptyList() : Arrays.asList(claimedSignerRoles);
   }
 
-  /**
-   * This method returns X509Cert object and it can be null.
-   *
-   * @return X509Cert
-   */
   @Override
   public X509Cert getSigningCertificate() {
     if (signingCertificate != null) {
