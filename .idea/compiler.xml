@@ -15,8 +15,8 @@
     </wildcardResourcePatterns>
     <annotationProcessing>
       <profile name="Maven default annotation processors profile" enabled="true">
-        <sourceOutputDir name="out/generated-sources/annotations" />
-        <sourceTestOutputDir name="out/generated-test-sources/test-annotations" />
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="digidoc4j" />
       </profile>
