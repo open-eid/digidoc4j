@@ -43,6 +43,7 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/sd-dss/apps/dss/core/pom.xml" />
+        <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

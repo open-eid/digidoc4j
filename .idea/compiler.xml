@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <option name="DEFAULT_COMPILER" value="Javac" />
-    <resourceExtensions />
     <wildcardResourcePatterns>
       <entry name="!?*.java" />
       <entry name="!?*.form" />
@@ -16,48 +14,15 @@
       <entry name="*.xml" />
     </wildcardResourcePatterns>
     <annotationProcessing>
-      <profile default="true" name="Default" enabled="false">
-        <processorPath useClasspath="true" />
-      </profile>
-      <profile default="false" name="Annotation profile for dss-document" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="out/generated-sources/annotations" />
+        <sourceTestOutputDir name="out/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-      </profile>
-      <profile default="false" name="Annotation profile for dss-service" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-      </profile>
-      <profile default="false" name="Annotation profile for dss-spi" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-      </profile>
-      <profile default="false" name="Annotation profile for dss-common" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
+        <module name="digidoc4j" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="dss-common" target="1.6" />
-      <module name="dss-core" target="1.6" />
-      <module name="dss-demo" target="1.6" />
-      <module name="dss-demo-applet" target="1.6" />
-      <module name="dss-demo-applet-package" target="1.6" />
-      <module name="dss-demo-webapp" target="1.6" />
-      <module name="dss-document" target="1.6" />
-      <module name="dss-service" target="1.6" />
-      <module name="dss-spi" target="1.6" />
-      <module name="dss-webservices" target="1.6" />
-      <module name="dss-webservices-client" target="1.6" />
-      <module name="sd-dss" target="1.6" />
-      <module name="sd-dss-app" target="1.6" />
+    <bytecodeTargetLevel target="1.7">
+      <module name="digidoc4j" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>
