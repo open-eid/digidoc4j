@@ -45,6 +45,7 @@
   </target>
 
   <target name="copyJarsToUtil">
+    <delete dir="${utility.package.lib}" failonerror="false" />
     <mkdir dir="${utility.package.lib}"/>
     <copy todir="${basedir}/${utility.package.lib}/temp" flatten="true" overwrite="true">
       <fileset refid="libraries.zip" />
@@ -62,6 +63,7 @@
   </target>
 
   <target name="copyJarsToZIP">
+    <delete dir="${zip.package.lib}" failonerror="false" />
     <mkdir dir="${zip.package.lib}"/>
     <copy todir="${basedir}/${zip.package.lib}/temp" flatten="true" overwrite="true">
       <fileset refid="libraries.zip" />
@@ -166,8 +168,8 @@
  </target>
 
  <target name="utility" depends="copyJarsToUtil">
-  <mkdir dir="${build.dir}/util"/>
-  <jar jarfile="${build.dir}/util/temp.jar">
+    <mkdir dir="${build.dir}/util"/>
+    <jar jarfile="${build.dir}/util/temp.jar">
     <zipgroupfileset dir="lib" includes="**/dss*.jar **/validation-policy*.jar"/>
     <zipgroupfileset dir="${utility.package.lib}" includes="**/*.jar" excludes="bcprov-*.jar"/>
     <zipgroupfileset dir="dist" includes="**/digidoc4j-*.jar" excludes="*-javadoc.jar *-sources.jar"/>
