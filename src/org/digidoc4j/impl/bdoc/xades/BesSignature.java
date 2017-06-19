@@ -29,6 +29,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.DigestAlgorithm;
 import eu.europa.esig.dss.validation.SignatureProductionPlace;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.xades.DSSXMLUtils;
@@ -61,8 +62,10 @@ public class BesSignature extends DssXadesSignature {
   public String getSignatureMethod() {
 
     String xmlId = null;
-    if(getDssSignature().getDigestAlgorithm() != null){
-      xmlId =  getDssSignature().getDigestAlgorithm().getXmlId();
+
+    DigestAlgorithm digestAlgorithm = getDssSignature().getDigestAlgorithm();
+    if(digestAlgorithm != null){
+      xmlId =  digestAlgorithm.getXmlId();
     }
     return xmlId == null ? "" : xmlId;
   }

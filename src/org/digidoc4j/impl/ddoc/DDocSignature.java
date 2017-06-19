@@ -83,10 +83,8 @@ public class DDocSignature implements Signature {
   public String getId() {
     logger.debug("getId");
 
-    String id = "";
-    if(origin.getId() != null){
-      id =  origin.getId();
-    }
+    String id = origin.getId();
+    if(id == null) id = "";
 
     return id;
   }
