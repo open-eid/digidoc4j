@@ -162,7 +162,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
 
     Signature signature = deserializedContainer.getSignatures().get(0);
 
-    assertNull(signature.getCity());
+    assertEquals("", signature.getCity());
     assertThat(signature.getSignerRoles(), is(empty()));
     assertTrue(signature.getId().startsWith("id-"));
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());

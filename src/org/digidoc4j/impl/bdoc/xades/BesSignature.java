@@ -29,6 +29,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.DigestAlgorithm;
 import eu.europa.esig.dss.validation.SignatureProductionPlace;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.xades.DSSXMLUtils;
@@ -59,7 +60,14 @@ public class BesSignature extends DssXadesSignature {
 
   @Override
   public String getSignatureMethod() {
-    return getDssSignature().getDigestAlgorithm().getXmlId();
+
+    String xmlId = null;
+
+    DigestAlgorithm digestAlgorithm = getDssSignature().getDigestAlgorithm();
+    if(digestAlgorithm != null){
+      xmlId =  digestAlgorithm.getXmlId();
+    }
+    return xmlId == null ? "" : xmlId;
   }
 
   @Override
@@ -69,22 +77,23 @@ public class BesSignature extends DssXadesSignature {
 
   @Override
   public String getCity() {
-    return getSignerLocation() == null ? null : getSignerLocation().getCity();
+    return getSignerLocation() == null ? "" : getSignerLocation().getCity();
   }
 
   @Override
   public String getStateOrProvince() {
-    return getSignerLocation() == null ? null : getSignerLocation().getStateOrProvince();
+    return getSignerLocation() == null ? "" : getSignerLocation().getStateOrProvince();
   }
 
   @Override
   public String getPostalCode() {
-    return getSignerLocation() == null ? null : getSignerLocation().getPostalCode();
+    return getSignerLocation() == null ? "" : getSignerLocation().getPostalCode();
   }
+
 
   @Override
   public String getCountryName() {
-    return getSignerLocation() == null ? null : getSignerLocation().getCountryName();
+    return getSignerLocation() == null ? "" : getSignerLocation().getCountryName();
   }
 
   @Override

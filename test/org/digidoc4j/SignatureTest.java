@@ -429,10 +429,10 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   }
 
   private void assertProductionPlaceIsNull(Signature signature) {
-    assertNull(signature.getCity());
-    assertNull(signature.getCountryName());
-    assertNull(signature.getPostalCode());
-    assertNull(signature.getStateOrProvince());
+    assertEquals("", signature.getCity());
+    assertEquals("", signature.getCountryName());
+    assertEquals("", signature.getPostalCode());
+    assertEquals("", signature.getStateOrProvince());
   }
 
   private Signature createSignatureFor(String containerType, SignatureProfile signatureProfile) throws IOException {
