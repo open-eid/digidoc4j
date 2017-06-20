@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7">
-    <output url="file://$MODULE_DIR$/target/classes" />
+    <output url="file://$MODULE_DIR$/build" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
-      <excludeFolder url="file://$MODULE_DIR$/out/classes" />
+      <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="jdk" jdkName="1.7" jdkType="JavaSDK" />
@@ -60,9 +60,9 @@
     <orderEntry type="library" name="Maven: org.slf4j:log4j-over-slf4j:1.7.25" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.mockito:mockito-all:1.10.19" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: com.github.stefanbirkner:system-rules:1.5.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: com.github.stefanbirkner:system-rules:1.16.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.11" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: xmlunit:xmlunit:1.5" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: xmlunit:xmlunit:1.6" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-library:1.3" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.databene:contiperf:2.3.4" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.github.tomakehurst:wiremock:1.58" level="project" />
@@ -78,7 +78,6 @@
     <orderEntry type="library" scope="TEST" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.8.8" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.skyscreamer:jsonassert:1.5.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.json:json:20160810" level="project" />
-    <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-common-validation-jaxb:4.7.RC2.d4j.1" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-detailed-report-jaxb:4.7.RC2.d4j.1" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-diagnostic-jaxb:4.7.RC2.d4j.1" level="project" />
@@ -94,5 +93,6 @@
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-tsl-validation:4.7.RC2.d4j.1" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-xades:4.7.RC2.d4j.1" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:validation-policy:4.7.RC2.d4j.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.digidoc4j:esteidtestcerts:1.0" level="project" />
   </component>
 </module>
