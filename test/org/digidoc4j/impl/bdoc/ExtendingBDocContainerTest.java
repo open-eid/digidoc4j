@@ -104,49 +104,49 @@ public class ExtendingBDocContainerTest extends DigiDoc4JTestHelper {
     assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
   }
 
-  @Test (expected = NotSupportedException.class)
+  @Test(expected = NotSupportedException.class)
   public void extendFromB_BESToLT_TMThrowsException() throws Exception {
     Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, B_BES);
     container.extendSignatureProfile(LT_TM);
   }
 
-  @Test (expected = NotSupportedException.class)
+  @Test(expected = NotSupportedException.class)
   public void extendFromEpesToLTThrowsException() throws Exception {
     Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, B_EPES);
     container.extendSignatureProfile(LT);
   }
 
-  @Test (expected = NotSupportedException.class)
+  @Test(expected = NotSupportedException.class)
   public void extendFromEpesToLTAThrowsException() throws Exception {
     Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, B_EPES);
     container.extendSignatureProfile(SignatureProfile.LTA);
   }
 
-  @Test (expected = NotSupportedException.class)
+  @Test(expected = NotSupportedException.class)
   public void extendFromLTToLT_TMThrowsException() throws Exception {
     Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LT);
     container.extendSignatureProfile(LT_TM);
   }
 
-  @Test (expected = NotSupportedException.class)
+  @Test(expected = NotSupportedException.class)
   public void extendFromLTAToLT_TMThrowsException() throws Exception {
     Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LTA);
     container.extendSignatureProfile(LT_TM);
   }
 
-  @Test (expected = NotSupportedException.class)
+  @Test(expected = NotSupportedException.class)
   public void extendFromLTToBESThrowsException() throws Exception {
     Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LT);
     container.extendSignatureProfile(B_BES);
   }
 
-  @Test (expected = NotSupportedException.class)
+  @Test(expected = NotSupportedException.class)
   public void extendFromLTToEPESThrowsException() throws Exception {
     Container container = createContainerWithFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LT);

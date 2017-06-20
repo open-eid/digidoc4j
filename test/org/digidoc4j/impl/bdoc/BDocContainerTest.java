@@ -1102,6 +1102,14 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertTrue(container.validate().isValid());
   }
 
+  @Test
+  public void timeStampCertStatusDeprecated() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    ExistingBDocContainer container = new ExistingBDocContainer("testFiles/invalid-containers/invalid-containers-23816_leedu_live_TS_authority.asice", configuration);
+    ValidationResult validate = container.validate();
+    assertFalse(validate.isValid());
+  }
+
   private void assertSignatureContains(BDocSignature signature, String name) {
       assertNotNull(findSignedFile(signature, name));
   }
