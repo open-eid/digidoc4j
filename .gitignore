@@ -16,13 +16,12 @@ copy-dss-jars.sh
 /util
 token
 /bin
-container.bin
-createsECCSignature.bdoc
-extractSignatureThrowsErrorWhenSignatureIsNotFound.zip
 packaging_jar/
-setsSignatureId.bdoc
-setsSignatureId.ddoc
 jacoco.exec
 utility-package-lib
 zip-package-lib
 contiperf-report
+.idea/kotlinc.xml
+.idea/libraries/
+target/
+testFiles/tmp/readonly/no_access.txt

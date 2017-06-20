@@ -30,7 +30,7 @@ import java.util.List;
  * </ul>
  */
 public class SignatureParameters implements Serializable {
-  private final static Logger logger = LoggerFactory.getLogger(SignatureParameters.class);
+  private static final Logger logger = LoggerFactory.getLogger(SignatureParameters.class);
   private SignatureProductionPlace productionPlace = new SignatureProductionPlace();
   private List<String> roles = new ArrayList<>();
   private String signatureId;
