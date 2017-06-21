@@ -280,9 +280,9 @@ public class DDocFacadeTest {
     container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.sign(PKCS12_SIGNER);
-    container.save("testSetsDefaultSignatureId.ddoc");
+    container.save("testFiles/tmp/testSetsDefaultSignatureId.ddoc");
 
-    container = openDocFacade("testSetsDefaultSignatureId.ddoc");
+    container = openDocFacade("testFiles/tmp/testSetsDefaultSignatureId.ddoc");
     assertEquals("S0", container.getSignature(0).getId());
     assertEquals("S1", container.getSignature(1).getId());
   }

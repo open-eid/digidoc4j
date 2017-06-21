@@ -17,6 +17,8 @@ import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -28,6 +30,8 @@ public class DDocSignatureTest extends DigiDoc4JTestHelper {
 
   @BeforeClass
   public static void setUp() {
+    String current = new File(".").getAbsolutePath();
+    System.out.println("CURRENT DIR: "+current);
     SignatureParameters signatureParameters = new SignatureParameters();
     signatureParameters.setProductionPlace(new SignatureProductionPlace("City", "State", "PostalCode", "Country"));
     signatureParameters.setRoles(asList("Role1"));
