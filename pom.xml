@@ -469,6 +469,112 @@
 
     <plugins>
       <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <id>clean</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+            <configuration>
+              <filesets>
+                <fileset>
+                  <directory>${project.basedir}/lib</directory>
+                </fileset>
+                <fileset>
+                  <directory>${project.basedir}/utility-package-lib</directory>
+                </fileset>
+                <fileset>
+                  <directory>${project.basedir}/zip-package-lib</directory>
+                </fileset>
+              </filesets>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.basedir}/lib</outputDirectory>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <excludeTransitive>true</excludeTransitive>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-utils</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <includeScope>compile</includeScope>
+              <outputDirectory>${project.basedir}/utility-package-lib</outputDirectory>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <excludeTransitive>true</excludeTransitive>
+              <excludeArtifactIds>
+                contiperf, dss-common-validation-jaxb,
+                dss-detailed-report-jaxb, dss-diagnostic-jaxb, dss-document, dss-model, dss-policy-jaxb,
+                dss-reports, dss-service, dss-simple-report-jaxb, dss-spi, dss-token, dss-tsl-jaxb,
+                dss-tsl-validation, dss-xades, validation-policy, log4j
+              </excludeArtifactIds>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-zip</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <includeScope>compile</includeScope>
+              <outputDirectory>${project.basedir}/zip-package-lib</outputDirectory>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <excludeTransitive>true</excludeTransitive>
+              <excludeArtifactIds>
+                contiperf, dss-common-validation-jaxb,
+                dss-detailed-report-jaxb, dss-diagnostic-jaxb, dss-document, dss-model, dss-policy-jaxb,
+                dss-reports, dss-service, dss-simple-report-jaxb, dss-spi, dss-token, dss-tsl-jaxb,
+                dss-tsl-validation, dss-xades, validation-policy, log4j-over-slf4j, logback-classic,
+                logback-core
+              </excludeArtifactIds>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.0.0</version>
+        <configuration>
+          <descriptors>
+            <descriptor>assembly/zip.xml</descriptor>
+            <descriptor>assembly/util.xml</descriptor>
+          </descriptors>
+        </configuration>
+        <executions>
+          <execution>
+            <id>zip-archive</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>0.7.9</version>
@@ -507,6 +613,7 @@
         <version>2.20</version>
         <configuration>
           <!-- Default test configuration -->
+          <argLine>-Dfile.encoding=UTF-8</argLine>
           <skipTests>false</skipTests>
           <!-- Problems with parallel?
           <parallel>methods</parallel>
@@ -548,6 +655,7 @@
         <executions>
           <execution>
             <id>attach-sources</id>
+            <phase>package</phase>
             <goals>
               <goal>jar</goal>
             </goals>
