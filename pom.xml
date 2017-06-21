@@ -466,12 +466,6 @@
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
-    <dependency>
-      <groupId>org.digidoc4j</groupId>
-      <artifactId>esteidtestcerts</artifactId>
-      <version>1.0</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
@@ -500,6 +494,11 @@
               <filesets>
                 <fileset>
                   <directory>${project.basedir}/lib</directory>
+                  <excludes>
+                    <exclude>**/esteidtestcerts.jar</exclude>
+                    <exclude>**/jacocoagent.jar</exclude>
+                    <exclude>**/jacocoant.jar</exclude>
+                  </excludes>
                 </fileset>
                 <fileset>
                   <directory>${project.basedir}/utility-package-lib</directory>
@@ -715,7 +714,7 @@
           <artifactId>esteidtestcerts</artifactId>
           <version>1.0</version>
           <packaging>jar</packaging>
-          <file>${basedir}/lib/esteidtestcerts.jar</file>
+          <file>${project.basedir}/lib/esteidtestcerts.jar</file>
           <generatePom>true</generatePom>
         </configuration>
         <executions>
