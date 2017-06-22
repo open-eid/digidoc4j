@@ -48,9 +48,9 @@
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.3" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.6" level="project" />
     <orderEntry type="library" name="Maven: org.apache.santuario:xmlsec:2.0.8" level="project" />
-    <orderEntry type="library" name="Maven: org.bouncycastle:bcmail-jdk15on:1.55" level="project" />
-    <orderEntry type="library" name="Maven: org.bouncycastle:bcpkix-jdk15on:1.55" level="project" />
-    <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.55" level="project" />
+    <orderEntry type="library" name="Maven: org.bouncycastle:bcmail-jdk15on:1.54" level="project" />
+    <orderEntry type="library" name="Maven: org.bouncycastle:bcpkix-jdk15on:1.54" level="project" />
+    <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.54" level="project" />
     <orderEntry type="library" name="Maven: xalan:serializer:2.7.2" level="project" />
     <orderEntry type="library" name="Maven: xalan:xalan:2.7.2" level="project" />
     <orderEntry type="library" name="Maven: org.yaml:snakeyaml:1.18" level="project" />
@@ -78,6 +78,7 @@
     <orderEntry type="library" scope="TEST" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.8.8" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.skyscreamer:jsonassert:1.5.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.json:json:20160810" level="project" />
+    <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-common-validation-jaxb:4.7.RC2.d4j.1" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-detailed-report-jaxb:4.7.RC2.d4j.1" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-diagnostic-jaxb:4.7.RC2.d4j.1" level="project" />

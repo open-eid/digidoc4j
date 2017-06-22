@@ -32,7 +32,7 @@
     <project.encoding>UTF-8</project.encoding>
     <slf4j.version>1.7.25</slf4j.version>
     <logback-classic.version>1.2.3</logback-classic.version>
-    <bouncycastle.version>1.55</bouncycastle.version>
+    <bouncycastle.version>1.54</bouncycastle.version>
     <junit.version>4.11</junit.version>
     <dss.version>4.7.RC2.d4j.1</dss.version>
   </properties>
@@ -87,6 +87,39 @@
                 </goals>
                 <configuration>
                   <skip>true</skip>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>test-coverage</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.7.9</version>
+            <executions>
+              <execution>
+                <id>prepare-unit-tests</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+                <configuration>
+                  <destFile>${project.basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
+                </configuration>
+              </execution>
+              <execution>
+                <id>jacoco-site</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+                <configuration>
+                  <dataFile>${project.basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
                 </configuration>
               </execution>
             </executions>
@@ -598,39 +631,6 @@
       </plugin>
 
       <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.7.9</version>
-        <executions>
-          <execution>
-            <id>prepare-unit-test-agent</id>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>generate-unit-test-report</id>
-            <goals>
-              <goal>merge</goal>
-              <goal>report</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>prepare-integration-test-agent</id>
-            <goals>
-              <goal>prepare-agent-integration</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>generate-integration-test-report</id>
-            <goals>
-              <goal>merge</goal>
-              <goal>report-integration</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.20</version>
@@ -639,26 +639,8 @@
             <additionalClasspathElement>${project.basedir}/lib/esteidtestcerts.jar</additionalClasspathElement>
           </additionalClasspathElements>
           <!-- Default test configuration -->
-          <argLine>-Dfile.encoding=UTF-8</argLine>
+          <argLine>@{argLine} -Dfile.encoding=UTF-8</argLine>
           <skipTests>false</skipTests>
-          <!-- Problems with parallel?
-          <parallel>methods</parallel>
-          <threadCount>2</threadCount> -->
-          <!--
-          <includes>
-            <include>org/digidoc4j/impl/Certificates.java</include>
-            <include>org/digidoc4j/impl/DigiDoc4JTestHelper.java</include>
-          </includes>
-          -->
-          <excludes>
-            <exclude>org/digidoc4j/exceptions/*.java</exclude>
-            <exclude>org/digidoc4j/impl/bdoc/*.java</exclude>
-            <exclude>org/digidoc4j/impl/edoc/*.java</exclude>
-            <exclude>org/digidoc4j/main/*.java</exclude>
-            <exclude>org/digidoc4j/signers/*.java</exclude>
-            <exclude>org/digidoc4j/utils/*.java</exclude>
-            <exclude>org/digidoc4j/*.java</exclude>
-          </excludes>
         </configuration>
         <executions>
           <execution>
@@ -674,7 +656,6 @@
           </execution>
         </executions>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
