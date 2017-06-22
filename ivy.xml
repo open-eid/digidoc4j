@@ -22,9 +22,9 @@
     <dependency org="org.apache.santuario" name="xmlsec" rev="2.0.8" conf="runtime->default" >
       <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
     </dependency>
-    <dependency org="org.bouncycastle" name="bcmail-jdk15on" rev="1.55" conf="runtime->default"/>
-    <dependency org="org.bouncycastle" name="bcpkix-jdk15on" rev="1.55" conf="runtime->default"/>
-    <dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.55" conf="runtime->default"/>
+    <dependency org="org.bouncycastle" name="bcmail-jdk15on" rev="1.54" conf="runtime->default"/>
+    <dependency org="org.bouncycastle" name="bcpkix-jdk15on" rev="1.54" conf="runtime->default"/>
+    <dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.54" conf="runtime->default"/>
     <dependency org="xalan" name="serializer" rev="2.7.2" conf="runtime->default">
       <exclude org="xml-apis" module="xml-apis" />
     </dependency>

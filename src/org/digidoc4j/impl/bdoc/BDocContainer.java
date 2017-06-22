@@ -48,17 +48,28 @@ import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
 
+/**
+ * Offers functionality for handling data files and signatures in a container.
+ */
 public abstract class BDocContainer implements Container {
 
   private static final Logger logger = LoggerFactory.getLogger(BDocContainer.class);
   private Configuration configuration;
   private ValidationResult validationResult;
 
+  /**
+   * BDocContainer constructor. Instantiating BDoc container.
+   */
   public BDocContainer() {
     logger.debug("Instantiating BDoc container");
     configuration = Configuration.getInstance();
   }
 
+  /**
+   * BDocContainer constructor. Instantiating BDoc container with configuration.
+   *
+   * @param configuration
+   */
   public BDocContainer(Configuration configuration) {
     logger.debug("Instantiating BDoc container with configuration");
     this.configuration = configuration;
@@ -222,7 +233,7 @@ public abstract class BDocContainer implements Container {
   @Override
   @Deprecated
   public String getVersion() {
-    return null;
+    return "";
   }
 
   @Override
@@ -249,42 +260,80 @@ public abstract class BDocContainer implements Container {
     return getSignatures().get(index);
   }
 
+  /**
+   * Prepare signing method is not supported by BDoc container.
+   *
+   * @param signerCert X509 Certificate to be used for preparing the signature
+   * @return NotSupportedException
+   */
   @Override
   @Deprecated
   public SignedInfo prepareSigning(X509Certificate signerCert) {
     throw new NotSupportedException("Prepare signing method is not supported by BDoc container");
   }
 
+  /**
+   *  Getting signature profile method is not supported by BDoc container.
+   *
+   * @return NotSupportedException
+   */
   @Override
   @Deprecated
   public String getSignatureProfile() {
     throw new NotSupportedException("Getting signature profile method is not supported by BDoc container");
   }
 
+  /**
+   * Setting signature parameters method is not supported by BDoc container
+   *
+   * @param signatureParameters Signature parameters. These are  related to the signing location and signer roles
+   */
   @Override
   @Deprecated
   public void setSignatureParameters(SignatureParameters signatureParameters) {
     throw new NotSupportedException("Setting signature parameters method is not supported by BDoc container");
   }
 
+  /**
+   * Getting digest algorithm method is not supported by BDoc container.
+   *
+   * @return NotSupportedException.
+   */
   @Override
   @Deprecated
   public DigestAlgorithm getDigestAlgorithm() {
     throw new NotSupportedException("Getting digest algorithm method is not supported by BDoc container");
   }
 
+  /**
+   * Sign method is not supported by BDoc container.
+   *
+   * @param signatureToken signatureToken implementation
+   * @return NotSupportedException
+   */
   @Override
   @Deprecated
   public Signature sign(SignatureToken signatureToken) {
     throw new NotSupportedException("Sign method is not supported by BDoc container");
   }
 
+  /**
+   * Sign raw method is not supported by BDoc container.
+   *
+   * @param rawSignature raw signature
+   * @return NotSupportedException
+   */
   @Override
   @Deprecated
   public Signature signRaw(byte[] rawSignature) {
     throw new NotSupportedException("Sign raw method is not supported by BDoc container");
   }
 
+  /**
+   * Setting signature profile method is not supported by BDoc container.
+   *
+   * @param profile signature profile
+   */
   @Override
   @Deprecated
   public void setSignatureProfile(SignatureProfile profile) {

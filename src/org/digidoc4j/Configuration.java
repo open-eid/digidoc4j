@@ -173,17 +173,17 @@ public class Configuration implements Serializable {
   private TslManager tslManager;
   Map<String, String> configuration = new HashMap<>();
 
-  private String httpProxyHost;
-  private Integer httpProxyPort;
-  private String httpProxyUser;
-  private String httpProxyPassword;
-  private List<String> trustedTerritories;
-  private String sslKeystorePath;
-  private String sslKeystoreType;
-  private String sslKeystorePassword;
-  private String sslTruststorePath;
-  private String sslTruststoreType;
-  private String sslTruststorePassword;
+  private String httpProxyHost = "";
+  private Integer httpProxyPort = 0;
+  private String httpProxyUser = "";
+  private String httpProxyPassword = "";
+  private List<String> trustedTerritories = new ArrayList<>();
+  private String sslKeystorePath = "";
+  private String sslKeystoreType = "";
+  private String sslKeystorePassword = "";
+  private String sslTruststorePath = "";
+  private String sslTruststoreType = "";
+  private String sslTruststorePassword = "";
   private transient ExecutorService threadExecutor;
 
   /**
@@ -261,7 +261,7 @@ public class Configuration implements Serializable {
     logger.debug("Loading OCSPAccessCertificateFile");
     String ocspAccessCertificateFile = getConfigurationParameter("OCSPAccessCertificateFile");
     logger.debug("OCSPAccessCertificateFile " + ocspAccessCertificateFile + " loaded");
-    return ocspAccessCertificateFile;
+    return ocspAccessCertificateFile == null ? "" : ocspAccessCertificateFile;
   }
 
   /**
@@ -412,9 +412,9 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Returns configuration needed for JDigiDoc library
+   * Returns configuration needed for JDigiDoc library.
    *
-   * @return configuration values
+   * @return configuration values.
    */
   public Hashtable<String, String> getJDigiDocConfiguration() {
     loadCertificateAuthoritiesAndCertificates();
@@ -812,6 +812,11 @@ public class Configuration implements Serializable {
     return (ArrayList<String>) digiDocCa.get("CERTS");
   }
 
+  /**
+   * Get TSL location.
+   *
+   * @return url
+   */
   public String getTslLocation() {
     String urlString = getConfigurationParameter("tslLocation");
     if (!Protocol.isFileUrl(urlString)) return urlString;
@@ -825,7 +830,7 @@ public class Configuration implements Serializable {
     } catch (MalformedURLException e) {
       logger.warn(e.getMessage());
     }
-    return urlString;
+    return urlString == null ? "" : urlString;
   }
 
   /**
@@ -1053,6 +1058,11 @@ public class Configuration implements Serializable {
     setConfigurationParameter("validationPolicy", validationPolicy);
   }
 
+  /**
+   * Revocation and timestamp delta in minutes.
+   *
+   * @return timestamp delta in minutes.
+   */
   public int getRevocationAndTimestampDeltaInMinutes() {
     String timeDelta = getConfigurationParameter("revocationAndTimestampDeltaInMinutes");
     logger.debug("Revocation and timestamp delta in minutes: " + timeDelta);
@@ -1064,6 +1074,11 @@ public class Configuration implements Serializable {
     setConfigurationParameter("revocationAndTimestampDeltaInMinutes", String.valueOf(timeInMinutes));
   }
 
+  /**
+   * Get http proxy host.
+   *
+   * @return http proxy host.
+   */
   public String getHttpProxyHost() {
     return httpProxyHost;
   }
@@ -1076,6 +1091,11 @@ public class Configuration implements Serializable {
     this.httpProxyHost = httpProxyHost;
   }
 
+  /**
+   * Get http proxy port.
+   *
+   * @return http proxy port.
+   */
   public Integer getHttpProxyPort() {
     return httpProxyPort;
   }
@@ -1095,6 +1115,11 @@ public class Configuration implements Serializable {
     this.httpProxyUser = httpProxyUser;
   }
 
+  /**
+   * Get http proxy user.
+   *
+   * @return http proxy user.
+   */
   public String getHttpProxyUser() {
     return httpProxyUser;
   }
@@ -1107,14 +1132,29 @@ public class Configuration implements Serializable {
     this.httpProxyPassword = httpProxyPassword;
   }
 
+  /**
+   * Get http proxy password.
+   *
+   * @return http proxy password.
+   */
   public String getHttpProxyPassword() {
     return httpProxyPassword;
   }
 
+  /**
+   * Is network proxy enabled?
+   *
+   * @return
+   */
   public boolean isNetworkProxyEnabled() {
     return httpProxyPort != null && isNotBlank(httpProxyHost);
   }
 
+  /**
+   * Is ssl configuration enabled?
+   *
+   * @return
+   */
   public boolean isSslConfigurationEnabled() {
     return sslKeystorePath != null && isNotBlank(sslKeystorePath);
   }
@@ -1159,6 +1199,11 @@ public class Configuration implements Serializable {
     this.sslKeystorePassword = sslKeystorePassword;
   }
 
+  /**
+   * Get Ssl keystore password.
+   *
+   * @return password.
+   */
   public String getSslKeystorePassword() {
     return sslKeystorePassword;
   }
@@ -1203,6 +1248,11 @@ public class Configuration implements Serializable {
     this.sslTruststorePassword = sslTruststorePassword;
   }
 
+  /**
+   * Get Ssl truststore password.
+   *
+   * @return password.
+   */
   public String getSslTruststorePassword() {
     return sslTruststorePassword;
   }
@@ -1211,6 +1261,11 @@ public class Configuration implements Serializable {
     this.threadExecutor = threadExecutor;
   }
 
+  /**
+   * Get thread executor. It can be mull.
+   *
+   * @return thread executor.
+   */
   public ExecutorService getThreadExecutor() {
     return threadExecutor;
   }
@@ -1231,6 +1286,11 @@ public class Configuration implements Serializable {
     this.trustedTerritories = Arrays.asList(trustedTerritories);
   }
 
+  /**
+   * Get trusted territories.
+   *
+   * @return trusted territories list.
+   */
   public List<String> getTrustedTerritories() {
     return trustedTerritories;
   }

@@ -271,10 +271,10 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
     container = open("testFiles/tmp/test.bdoc");
     Signature signature = container.getSignature(0);
-    assertNull(signature.getPostalCode());
-    assertNull(signature.getCity());
-    assertNull(signature.getStateOrProvince());
-    assertNull(signature.getCountryName());
+    assertEquals("", signature.getPostalCode());
+    assertEquals("", signature.getCity());
+    assertEquals("", signature.getStateOrProvince());
+    assertEquals("", signature.getCountryName());
     assertThat(signature.getSignerRoles(), is(empty()));
   }
 
@@ -781,7 +781,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void getVersion() {
     Container container = createEmptyBDocContainer();
-    assertNull(container.getVersion());
+    assertEquals("", container.getVersion());
   }
 
   @Test
@@ -807,7 +807,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     Signature resultSignature = container.getSignature(0);
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", resultSignature.getSignatureMethod());
     assertThat(resultSignature.getSignerRoles(), is(empty()));
-    assertNull(resultSignature.getCity());
+    assertEquals("", resultSignature.getCity());
     assertTrue(StringUtils.isNotBlank(resultSignature.getId()));
 
     assertNotNull(resultSignature.getOCSPCertificate());
@@ -1100,6 +1100,14 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml");
     ExistingBDocContainer container = new ExistingBDocContainer("testFiles/valid-containers/valid-bdoc-tm.bdoc", configuration);
     assertTrue(container.validate().isValid());
+  }
+
+  @Test
+  public void timeStampCertStatusDeprecated() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    ExistingBDocContainer container = new ExistingBDocContainer("testFiles/invalid-containers/invalid-containers-23816_leedu_live_TS_authority.asice", configuration);
+    ValidationResult validate = container.validate();
+    assertFalse(validate.isValid());
   }
 
   private void assertSignatureContains(BDocSignature signature, String name) {

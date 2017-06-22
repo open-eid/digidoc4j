@@ -31,20 +31,37 @@ import org.digidoc4j.ValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Offers functionality for handling data files and signatures in a container.
+ */
 public class DDocContainer implements Container {
 
   private static final Logger logger = LoggerFactory.getLogger(DDocContainer.class);
 
   private DDocFacade jDigiDocFacade;
 
+  /**
+   * DDocContainer constructor.
+   *
+   * @param jDigiDocFacade
+   */
   public DDocContainer(DDocFacade jDigiDocFacade) {
     this.jDigiDocFacade = jDigiDocFacade;
   }
 
+  /**
+   * DDocContainer constructor.
+   *
+   */
   public DDocContainer() {
     jDigiDocFacade = new DDocFacade();
   }
 
+  /**
+   * DDocContainer constructor.
+   *
+   * @param configuration
+   */
   public DDocContainer(Configuration configuration) {
     jDigiDocFacade = new DDocFacade(configuration);
   }
@@ -374,10 +391,21 @@ public class DDocContainer implements Container {
     jDigiDocFacade.setSignatureProfile(profile);
   }
 
+  /**
+   *  This method returns Returns DDocFacade.
+   *  DDocFacade for handling data files and signatures in a container.
+   *
+   * @return DDocFacade.
+   */
   public DDocFacade getJDigiDocFacade() {
     return jDigiDocFacade;
   }
 
+  /**
+   * Returns ddoc format
+   *
+   * @return format as string
+   */
   public String getFormat() {
     return jDigiDocFacade.getFormat();
   }
