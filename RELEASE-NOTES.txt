@@ -1,5 +1,13 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+Release 1.0.6 Beta.2
+--------------------
+Summary of the major changes since 1.0.6 Beta.1
+----------------------------------------
+* Cleaned up repository and removed some unnecessary files [#114205179]
+* API methods return empty object or exception instead of null where possible [#123022761]
+* Reverted Bouncycastle libraries to version 1.54
+
 Release 1.0.6 Beta.1
 --------------------
 Summary of the major changes since 1.0.5
