@@ -32,7 +32,7 @@
     <project.encoding>UTF-8</project.encoding>
     <slf4j.version>1.7.25</slf4j.version>
     <logback-classic.version>1.2.3</logback-classic.version>
-    <bouncycastle.version>1.55</bouncycastle.version>
+    <bouncycastle.version>1.54</bouncycastle.version>
     <junit.version>4.11</junit.version>
     <dss.version>4.7.RC2.d4j.1</dss.version>
     <dss.util.build>${project.basedir}/build/</dss.util.build>
