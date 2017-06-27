@@ -32,9 +32,12 @@
     <project.encoding>UTF-8</project.encoding>
     <slf4j.version>1.7.25</slf4j.version>
     <logback-classic.version>1.2.3</logback-classic.version>
-    <bouncycastle.version>1.54</bouncycastle.version>
+    <bouncycastle.version>1.55</bouncycastle.version>
     <junit.version>4.11</junit.version>
     <dss.version>4.7.RC2.d4j.1</dss.version>
+    <dss.util.build>${project.basedir}/build/</dss.util.build>
+    <dss.util.lib>${project.basedir}/utility-package-lib</dss.util.lib>
+    <dss.zip.lib>${project.basedir}/zip-package-lib</dss.zip.lib>
   </properties>
 
   <profiles>
@@ -499,12 +502,12 @@
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
-    <dependency>
+    <!--<dependency>
       <groupId>org.digidoc4j</groupId>
       <artifactId>esteidtestcerts</artifactId>
       <version>1.0</version>
       <scope>test</scope>
-    </dependency>
+    </dependency>-->
   </dependencies>
 
   <build>
@@ -512,9 +515,25 @@
     <testSourceDirectory>test</testSourceDirectory>
     <outputDirectory>build</outputDirectory>
     <testOutputDirectory>target/test-classes</testOutputDirectory>
+
     <resources>
       <resource>
         <directory>resources</directory>
+        <excludes>
+          <exclude>logback.xml</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>conf</directory>
+        <targetPath>conf</targetPath>
+      </resource>
+      <resource>
+        <directory>keystore</directory>
+        <excludes>
+          <exclude>keystore_certs/*.*</exclude>
+          <exclude>test_keystore_certs/*.*</exclude>
+        </excludes>
+        <targetPath>keystore</targetPath>
       </resource>
     </resources>
 
@@ -540,10 +559,16 @@
                   </excludes>
                 </fileset>
                 <fileset>
-                  <directory>${project.basedir}/utility-package-lib</directory>
+                  <directory>${dss.util.lib}</directory>
                 </fileset>
                 <fileset>
-                  <directory>${project.basedir}/zip-package-lib</directory>
+                  <directory>${dss.zip.lib}</directory>
+                </fileset>
+                <fileset>
+                  <directory>${project.basedir}/build</directory>
+                </fileset>
+                <fileset>
+                  <directory>${project.basedir}/target</directory>
                 </fileset>
               </filesets>
             </configuration>
@@ -568,14 +593,14 @@
             </configuration>
           </execution>
           <execution>
-            <id>copy-utils</id>
+            <id>copy-utils-jars</id>
             <phase>compile</phase>
             <goals>
               <goal>copy-dependencies</goal>
             </goals>
             <configuration>
               <includeScope>compile</includeScope>
-              <outputDirectory>${project.basedir}/utility-package-lib</outputDirectory>
+              <outputDirectory>${dss.util.lib}</outputDirectory>
               <overWriteIfNewer>true</overWriteIfNewer>
               <excludeTransitive>true</excludeTransitive>
               <excludeArtifactIds>
@@ -587,14 +612,14 @@
             </configuration>
           </execution>
           <execution>
-            <id>copy-zip</id>
+            <id>copy-zip-jars</id>
             <phase>compile</phase>
             <goals>
               <goal>copy-dependencies</goal>
             </goals>
             <configuration>
               <includeScope>compile</includeScope>
-              <outputDirectory>${project.basedir}/zip-package-lib</outputDirectory>
+              <outputDirectory>${dss.zip.lib}</outputDirectory>
               <overWriteIfNewer>true</overWriteIfNewer>
               <excludeTransitive>true</excludeTransitive>
               <excludeArtifactIds>
@@ -616,7 +641,7 @@
         <configuration>
           <descriptors>
             <descriptor>assembly/zip.xml</descriptor>
-            <descriptor>assembly/util.xml</descriptor>
+            <!--<descriptor>assembly/util.xml</descriptor>-->
           </descriptors>
         </configuration>
         <executions>
@@ -632,6 +657,62 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>prototype/**</exclude>
+              </excludes>
+              <archive>
+                <manifestSections>
+                  <manifestSection>
+                    <Name>DigiDoc4j</Name>
+                    <manifestEntries>
+                      <Implementation-Vendor>Republic of Estonia Information System Authority</Implementation-Vendor>
+                      <Implementation-Title>Java BDoc/DigiDoc library</Implementation-Title>
+                      <Implementation-Version>${project.version}</Implementation-Version>
+                    </manifestEntries>
+                  </manifestSection>
+                </manifestSections>
+              </archive>
+            </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.7.9</version>
+        <executions>
+          <execution>
+            <id>prepare-unit-test-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>generate-unit-test-report</id>
+            <goals>
+              <goal>merge</goal>
+              <goal>report</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>prepare-integration-test-agent</id>
+            <goals>
+              <goal>prepare-agent-integration</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>generate-integration-test-report</id>
+            <goals>
+              <goal>merge</goal>
+              <goal>report-integration</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.20</version>
         <configuration>
@@ -640,7 +721,6 @@
           </additionalClasspathElements>
           <!-- Default test configuration -->
           <argLine>@{argLine} -Dfile.encoding=UTF-8</argLine>
-          <skipTests>false</skipTests>
         </configuration>
         <executions>
           <execution>
@@ -650,12 +730,57 @@
               <goal>test</goal>
             </goals>
             <configuration>
-              <skipTests>false</skipTests>
               <testFailureIgnore>false</testFailureIgnore>
             </configuration>
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.8</version>
+        <executions>
+          <execution>
+            <id>ant-util-zip</id>
+            <phase>package</phase>
+            <configuration>
+              <target>
+                <mkdir dir="${dss.util.build}/util"/>
+                <jar jarfile="${dss.util.build}/util/temp.jar">
+                  <zipgroupfileset dir="lib" includes="**/dss*.jar **/validation-policy*.jar"/>
+                  <zipgroupfileset dir="${dss.util.lib}" includes="**/*.jar" excludes="bcprov-*.jar"/>
+                  <zipgroupfileset dir="dist" includes="**/digidoc4j-*.jar" excludes="*-javadoc.jar *-sources.jar"/>
+                </jar>
+
+                <jar destfile="${dss.util.build}/util/digidoc4j-util.jar">
+                  <zipfileset src="${dss.util.build}/util/temp.jar" excludes="META-INF/*.SF META-INF/*.RSA META-INF/*.DSA"/>
+                  <manifest>
+                    <attribute name="Built-By" value="${user.name}"/>
+                    <attribute name="Implementation-Vendor" value="Republic of Estonia Information System Authority"/>
+                    <attribute name="Implementation-Title" value="Java BDoc/DigiDoc utility"/>
+                    <attribute name="Implementation-Version" value="${project.version}"/>
+                    <attribute name="Main-Class" value="org.digidoc4j.main.DigiDoc4J"/>
+                    <attribute name="Class-Path" value=". ./bcprov-jdk15on.jar"/>
+                  </manifest>
+                </jar>
+                <delete file="${dss.util.build}/util/temp.jar"/>
+                <copy todir="${dss.util.build}/util">
+                  <fileset dir="${dss.util.lib}" includes="**/bcprov-*.jar"/>
+                  <fileset dir="resources" includes="logback.xml"/>
+                </copy>
+                <zip destfile="${project.basedir}/target/${project.artifactId}-util.zip"
+                     basedir="${dss.util.build}/util"/>
+                <delete dir="${dss.util.build}/util"/>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
@@ -700,23 +825,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-install-plugin</artifactId>
         <version>2.5.2</version>
-        <configuration>
-          <groupId>org.digidoc4j</groupId>
-          <artifactId>esteidtestcerts</artifactId>
-          <version>1.0</version>
-          <packaging>jar</packaging>
-          <file>${project.basedir}/lib/esteidtestcerts.jar</file>
-          <generatePom>true</generatePom>
-        </configuration>
-        <executions>
-          <execution>
-            <id>install-jar-lib</id>
-            <goals>
-              <goal>install-file</goal>
-            </goals>
-            <phase>validate</phase>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
 
@@ -768,13 +876,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.0.2</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>test-jar</goal>
-              </goals>
-            </execution>
-          </executions>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>

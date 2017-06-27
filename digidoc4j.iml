@@ -7,6 +7,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/conf" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/keystore" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
@@ -48,9 +50,9 @@
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.3" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.6" level="project" />
     <orderEntry type="library" name="Maven: org.apache.santuario:xmlsec:2.0.8" level="project" />
-    <orderEntry type="library" name="Maven: org.bouncycastle:bcmail-jdk15on:1.54" level="project" />
-    <orderEntry type="library" name="Maven: org.bouncycastle:bcpkix-jdk15on:1.54" level="project" />
-    <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.54" level="project" />
+    <orderEntry type="library" name="Maven: org.bouncycastle:bcmail-jdk15on:1.55" level="project" />
+    <orderEntry type="library" name="Maven: org.bouncycastle:bcpkix-jdk15on:1.55" level="project" />
+    <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.55" level="project" />
     <orderEntry type="library" name="Maven: xalan:serializer:2.7.2" level="project" />
     <orderEntry type="library" name="Maven: xalan:xalan:2.7.2" level="project" />
     <orderEntry type="library" name="Maven: org.yaml:snakeyaml:1.18" level="project" />
@@ -94,6 +96,5 @@
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-tsl-validation:4.7.RC2.d4j.1" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-xades:4.7.RC2.d4j.1" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:validation-policy:4.7.RC2.d4j.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.digidoc4j:esteidtestcerts:1.0" level="project" />
   </component>
 </module>
