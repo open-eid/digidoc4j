@@ -720,7 +720,7 @@
             <additionalClasspathElement>${project.basedir}/lib/esteidtestcerts.jar</additionalClasspathElement>
           </additionalClasspathElements>
           <!-- Default test configuration -->
-          <argLine>@{argLine} -Dfile.encoding=UTF-8</argLine>
+          <argLine>-Dfile.encoding=UTF-8</argLine>
         </configuration>
         <executions>
           <execution>
