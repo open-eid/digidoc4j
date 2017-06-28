@@ -82,4 +82,42 @@ public class ContainerOpenerTest extends DigiDoc4JTestHelper {
       assertTrue( e.getMessage().contains("Invalid input file format."));
     }
   }
+
+  @Test
+  public void testErrorText75NotChanged(){
+    try {
+      Container container = ContainerBuilder.
+          aContainer().
+          fromExistingFile("C:\\DigiDocUtilTest\\23181_SignedInfo_topelt_D1_lisatud.ddoc").
+          build();
+
+    } catch (DigiDoc4JException e){
+      assertTrue( e.getMessage().contains("Multiple elements: SignatureValue not allowed under: Signature"));
+    }
+  }
+
+  @Test
+  public void testErrorText75ChangedAndNullPointer(){
+    try {
+      Container container = ContainerBuilder.
+          aContainer().
+          fromExistingFile("testFiles/invalid-containers/23133_ddoc-12.ddoc").
+          build();
+    } catch (DigiDoc4JException e){
+      assertTrue( e.getMessage().contains("Invalid input file format."));
+    }
+  }
+
+  @Test
+  public void testErrorText75NotChangedInvalidXmlElement(){
+    try {
+      Container container = ContainerBuilder.
+          aContainer().
+          fromExistingFile("testFiles/invalid-containers/BOF.ddoc").
+          build();
+
+    } catch (DigiDoc4JException e){
+      assertTrue( e.getMessage().contains("Invalid xml element"));
+    }
+  }
 }
