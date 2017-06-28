@@ -88,7 +88,7 @@ public class ContainerOpenerTest extends DigiDoc4JTestHelper {
     try {
       Container container = ContainerBuilder.
           aContainer().
-          fromExistingFile("C:\\DigiDocUtilTest\\23181_SignedInfo_topelt_D1_lisatud.ddoc").
+          fromExistingFile("testFiles/invalid-containers/23181_SignedInfo_topelt_D1_lisatud.ddoc").
           build();
 
     } catch (DigiDoc4JException e){
