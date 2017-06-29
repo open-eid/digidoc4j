@@ -1,6 +1,0 @@
-*
-.gitignore
-dss-*.jar
-validation-policy*.jar
-!esteidtestcerts.jar
-!jacoco*.jar

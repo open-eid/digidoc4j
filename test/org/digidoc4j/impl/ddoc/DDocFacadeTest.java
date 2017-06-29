@@ -88,7 +88,7 @@ public class DDocFacadeTest {
   @AfterClass
   public static void deleteTemporaryFiles() {
     try {
-      DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("."));
+      DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("testFiles/tmp"));
       for (Path item : directoryStream) {
         String fileName = item.getFileName().toString();
         if (fileName.endsWith("ddoc") && fileName.startsWith("test")) Files.deleteIfExists(item);
@@ -132,8 +132,8 @@ public class DDocFacadeTest {
     DDocFacade dDocContainer = new DDocFacade();
     dDocContainer.addDataFile("testFiles/helper-files/test.txt", TEXT_MIME_TYPE);
     dDocContainer.addDataFile("testFiles/helper-files/test.txt", TEXT_MIME_TYPE);
-    dDocContainer.save("test_ddoc_file.ddoc");
-    Container container = ContainerOpener.open("test_ddoc_file.ddoc");
+    dDocContainer.save("testFiles/tmp/test_ddoc_file.ddoc");
+    Container container = ContainerOpener.open("testFiles/tmp/test_ddoc_file.ddoc");
     List<org.digidoc4j.DataFile> dataFiles = container.getDataFiles();
     assertEquals(2, dataFiles.size());
     assertEquals("test.txt", dataFiles.get(0).getName());
@@ -159,8 +159,8 @@ public class DDocFacadeTest {
     //noinspection ResultOfMethodCallIgnored
     new File("test_empty.txt").createNewFile();
     dDocContainer.addDataFile("test_empty.txt", TEXT_MIME_TYPE);
-    dDocContainer.save("test_empty.ddoc");
-    Container container = ContainerOpener.open("test_empty.ddoc");
+    dDocContainer.save("testFiles/tmp/test_empty.ddoc");
+    Container container = ContainerOpener.open("testFiles/tmp/test_empty.ddoc");
     List<org.digidoc4j.DataFile> dataFiles = container.getDataFiles();
     assertEquals(1, dataFiles.size());
     assertEquals(0, dataFiles.get(0).getFileSize());
@@ -267,9 +267,9 @@ public class DDocFacadeTest {
     signatureParameters.setSignatureId("SIGNATURE-2");
     container.setSignatureParameters(signatureParameters);
     container.sign(PKCS12_SIGNER);
-    container.save("setsSignatureId.ddoc");
+    container.save("testFiles/tmp/testSetsSignatureId.ddoc");
 
-    container = openDocFacade("setsSignatureId.ddoc");
+    container = openDocFacade("testFiles/tmp/testSetsSignatureId.ddoc");
     assertEquals("SIGNATURE-1", container.getSignature(0).getId());
     assertEquals("SIGNATURE-2", container.getSignature(1).getId());
   }
@@ -280,9 +280,9 @@ public class DDocFacadeTest {
     container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     container.sign(PKCS12_SIGNER);
     container.sign(PKCS12_SIGNER);
-    container.save("testSetsDefaultSignatureId.ddoc");
+    container.save("testFiles/tmp/testSetsDefaultSignatureId.ddoc");
 
-    container = openDocFacade("testSetsDefaultSignatureId.ddoc");
+    container = openDocFacade("testFiles/tmp/testSetsDefaultSignatureId.ddoc");
     assertEquals("S0", container.getSignature(0).getId());
     assertEquals("S1", container.getSignature(1).getId());
   }
@@ -301,9 +301,9 @@ public class DDocFacadeTest {
     signatureParameters.setSignatureId("SIGNATURE-2");
     container.setSignatureParameters(signatureParameters);
     container.sign(PKCS12_SIGNER);
-    container.save("testSetsSignatureId.ddoc");
+    container.save("testFiles/tmp/testSetsSignatureId.ddoc");
 
-    container = openDocFacade("testSetsSignatureId.ddoc");
+    container = openDocFacade("testFiles/tmp/testSetsSignatureId.ddoc");
     assertEquals("SIGNATURE-1", container.getSignature(0).getId());
     assertEquals("SIGNATURE-2", container.getSignature(1).getId());
   }
@@ -315,9 +315,9 @@ public class DDocFacadeTest {
     container.setSignatureProfile(B_BES);
     container.sign(PKCS12_SIGNER);
     container.sign(PKCS12_SIGNER);
-    container.save("testSetsDefaultSignatureId.ddoc");
+    container.save("testFiles/tmp/testSetsDefaultSignatureId.ddoc");
 
-    container = openDocFacade("testSetsDefaultSignatureId.ddoc");
+    container = openDocFacade("testFiles/tmp/testSetsDefaultSignatureId.ddoc");
     assertEquals("S0", container.getSignature(0).getId());
     assertEquals("S1", container.getSignature(1).getId());
   }
@@ -412,13 +412,13 @@ public class DDocFacadeTest {
     container.addDataFile("testFiles/helper-files/test.txt", TEXT_MIME_TYPE);
     container.setSignatureProfile(B_BES);
     container.sign(PKCS12_SIGNER);
-    container.save("testAddConfirmation.ddoc");
-    container = open("testAddConfirmation.ddoc");
+    container.save("testFiles/tmp/testAddConfirmation.ddoc");
+    container = open("testFiles/tmp/testAddConfirmation.ddoc");
     assertNull(container.getSignature(0).getOCSPCertificate());
 
     container.extendTo(LT_TM);
-    container.save("testAddedConfirmation.ddoc");
-    container = open("testAddedConfirmation.ddoc");
+    container.save("testFiles/tmp/testAddedConfirmation.ddoc");
+    container = open("testFiles/tmp/testAddedConfirmation.ddoc");
     assertNotNull(container.getSignature(0).getOCSPCertificate());
   }
 
@@ -457,9 +457,9 @@ public class DDocFacadeTest {
     SignedInfo signedInfo = container.prepareSigning(signerCert);
     byte[] signature = getExternalSignature(signedInfo, SHA256);
     container.signRaw(signature);
-    container.save("test.ddoc");
+    container.save("testFiles/tmp/test.ddoc");
 
-    container = ContainerOpener.open("test.ddoc");
+    container = ContainerOpener.open("testFiles/tmp/test.ddoc");
     assertEquals(1, container.getSignatures().size());
   }
 
@@ -489,14 +489,14 @@ public class DDocFacadeTest {
 
   @Test
   public void signRawWithLT_TMSignatureProfileAddsOCSP() {
-    String dDocFileName = "testOCSPAddedWithRawSignature.ddoc";
+    String dDocFileName = "testFiles/tmp/testOCSPAddedWithRawSignature.ddoc";
     signRawDDocContainer(LT_TM).saveAsFile(dDocFileName);
     assertNotNull(ContainerOpener.open(dDocFileName).getSignatures().get(0).getOCSPCertificate());
   }
 
   @Test
   public void signRawWithNoSignatureProfileDoesNotAddOCSP() {
-    String dDocFileName = "testOCSPNotAddedWithRawSignatureWhenNoProfile.ddoc";
+    String dDocFileName = "testFiles/tmp/testOCSPNotAddedWithRawSignatureWhenNoProfile.ddoc";
     signRawDDocContainer(B_BES).saveAsFile(dDocFileName);
     assertNull(ContainerOpener.open(dDocFileName).getSignatures().get(0).getOCSPCertificate());
   }
