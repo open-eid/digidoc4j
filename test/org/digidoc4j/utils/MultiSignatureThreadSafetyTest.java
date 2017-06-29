@@ -2,6 +2,7 @@ package org.digidoc4j.utils;
 
 import java.io.ByteArrayInputStream;
 
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.DigestAlgorithm;
@@ -19,20 +20,21 @@ import org.slf4j.LoggerFactory;
  */
 public class MultiSignatureThreadSafetyTest extends AbstractSigningTests {
 
-    @Test
-    public void signingTwiceDoesNotCauseAThreadingProblemWithSkOnlineOCSPSource() throws InterruptedException {
-        for(int i = 0; i < 2; i++) {
-            sign();
-        }
+  @Test
+  public void signingTwiceDoesNotCauseAThreadingProblemWithSkOnlineOCSPSource() throws InterruptedException {
+    for (int i = 0; i < 2; i++) {
+      sign();
     }
+  }
 
-    private void sign() {
-        Container container = ContainerBuilder.
-            aContainer("BDOC").
-            withConfiguration(createDigiDoc4JConfiguration()).
-            withDataFile(new ByteArrayInputStream("file contents".getBytes()), "file.txt", "application/octet-stream").
-            build();
+  private void sign() {
+    Configuration conf = new Configuration(Configuration.Mode.TEST);
+    Container container = ContainerBuilder.
+        aContainer("BDOC").
+        withConfiguration(conf).
+        withDataFile(new ByteArrayInputStream("file contents".getBytes()), "file.txt", "application/octet-stream").
+        build();
 
-        TestDataBuilder.signContainer(container, SignatureProfile.LT);
-    }
+    TestDataBuilder.signContainer(container, SignatureProfile.LT);
+  }
 }

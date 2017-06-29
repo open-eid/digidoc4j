@@ -41,6 +41,9 @@ public class DataFileTest {
     dataFile = new DataFile("testFiles/helper-files/test.txt", "text/plain");
   }
 
+  @Rule
+  public TemporaryFolder testFolder = new TemporaryFolder();
+
   @Test
   public void testGetFileSize() throws Exception {
     assertEquals(15, dataFile.getFileSize());
@@ -136,15 +139,15 @@ public class DataFileTest {
 
   @Test
   public void createDocumentFromStream() throws Exception {
+    String dataFileName = testFolder.newFolder().getAbsolutePath()+ File.separator + "createDocumentFromStream.txt";
     try(ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
       DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
-      dataFile.saveAs("createDocumentFromStream.txt");
+      dataFile.saveAs(dataFileName);
 
-      DataFile dataFileToCompare = new DataFile("createDocumentFromStream.txt", "text/plain");
+      DataFile dataFileToCompare = new DataFile(dataFileName, "text/plain");
       assertArrayEquals("tere tere tipajalga".getBytes(), dataFileToCompare.getBytes());
     }
-
-    Files.deleteIfExists(Paths.get("createDocumentFromStream.txt"));
+    testFolder.delete();
   }
 
   @Test(expected = DigiDoc4JException.class)
