@@ -387,7 +387,6 @@ public class ContainerTest extends DigiDoc4JTestHelper {
     String containerPath = testFolder.newFile("test-container.bdoc").getPath();
     container.saveAsFile(containerPath);
     container = ContainerOpener.open(containerPath);
-    System.out.println(container.validate().getReport());
     assertEquals(1, container.getSignatures().size());
     assertTrue(container.validate().isValid());
   }
