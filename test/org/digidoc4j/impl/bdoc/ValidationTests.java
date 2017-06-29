@@ -536,7 +536,12 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     assertFalse(validationResult.isValid());
     assertEquals(1, errors.size());
     assertEquals("Signature has an invalid timestamp", errors.get(0).toString());
+  }
 
+  @Test
+  public void validateAsiceContainer_getNotValid() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    assertFalse(validateContainer("testFiles/invalid-containers/TM-16_unknown.4.asice", configuration).isValid());
   }
 
   private void testSigningWithOCSPCheck(String unknownCert) {

@@ -75,15 +75,17 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @After
   public void cleanUp() throws Exception {
-    deleteFile("digidoc4j.yaml");
-    deleteFile("test1.ddoc");
-    deleteFile("test1.bdoc");
-    deleteFile("test1.test");
+    deleteFile("testFiles/tmp/digidoc4j.yaml");
+    deleteFile("testFiles/tmp/test1.ddoc");
+    deleteFile("testFiles/tmp/test1.bdoc");
+    deleteFile("testFiles/tmp/test1.test");
+    deleteFile("testFiles/tmp/createsECCSignatureWithInvalidEncryptionType.bdoc");
+    deleteFile("testFiles/tmp/createsECCSignature.bdoc");
   }
 
   @Test
   public void createsContainerWithTypeSettingDDoc() throws Exception {
-    String fileName = "test1.bdoc";
+    String fileName = "testFiles/tmp/test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
 
@@ -98,7 +100,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void signDDocContainerTwice() throws Exception {
-    String fileName = "test1.bdoc";
+    String fileName = "testFiles/tmp/test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
     String[] signNewContainerParams = new String[]{"-in", fileName, "-type", "DDOC", "-add", "testFiles/helper-files/test.txt", "text/plain",
@@ -114,7 +116,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createsContainerWithSignatureProfileIsTSAForBDoc() throws Exception {
-    String fileName = "test1.bdoc";
+    String fileName = "testFiles/tmp/test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
 
@@ -129,7 +131,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createsContainerWithSignatureProfileIsTSForBDoc() throws Exception {
-    String fileName = "test1.bdoc";
+    String fileName = "testFiles/tmp/test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
 
@@ -148,7 +150,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createsContainerWithSignatureProfileIsBESForBDoc() throws Exception {
-    String fileName = "test1.bdoc";
+    String fileName = "testFiles/tmp/test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
 
@@ -163,7 +165,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test (expected = IllegalArgumentException.class)
   public void createsECCSignatureWithInvalidEncryptionType() throws Exception {
-    String fileName = "createsECCSignatureWithInvalidEncryptionType.bdoc";
+    String fileName = "testFiles/tmp/createsECCSignatureWithInvalidEncryptionType.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
 
@@ -175,7 +177,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createsECCSignature() throws Exception {
-    String fileName = "createsECCSignature.bdoc";
+    String fileName = "testFiles/tmp/createsECCSignature.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
     String[] params = new String[]{"-in", fileName, "-add", "testFiles/helper-files/test.txt", "text/plain",
@@ -190,7 +192,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createsContainerWithUnknownSignatureProfile() throws Exception {
-    String fileName = "test1.bdoc";
+    String fileName = "testFiles/tmp/test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
     String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/helper-files/test.txt", "text/plain",
@@ -204,7 +206,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createsContainerWithSignatureProfileIsTMForDDoc() throws Exception {
-    String fileName = "test1.bdoc";
+    String fileName = "testFiles/tmp/test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
 
@@ -221,7 +223,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   public void createsContainerWithSignatureProfileTSForDDocReturnsFailureCode() throws Exception {
     exit.expectSystemExitWithStatus(1);
 
-    String fileName = "test1.ddoc";
+    String fileName = "testFiles/tmp/test1.ddoc";
     Files.deleteIfExists(Paths.get(fileName));
 
 
@@ -235,7 +237,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   public void createsContainerWithSignatureProfileTSAForDDocReturnsFailureCode() throws Exception {
     exit.expectSystemExitWithStatus(1);
 
-    String fileName = "test1.ddoc";
+    String fileName = "testFiles/tmp/test1.ddoc";
     Files.deleteIfExists(Paths.get(fileName));
 
 
@@ -263,7 +265,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createsContainerWithTypeSettingBDoc() throws Exception {
-    String fileName = "test1.ddoc";
+    String fileName = "testFiles/tmp/test1.ddoc";
     Files.deleteIfExists(Paths.get(fileName));
 
     String[] params = new String[]{"-in", fileName, "-type", "BDOC", "-add", "testFiles/helper-files/test.txt", "text/plain",
@@ -303,7 +305,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createsContainerWithTypeSettingBasedOnFileExtensionDDoc() throws Exception {
-    String fileName = "test1.ddoc";
+    String fileName = "testFiles/tmp/test1.ddoc";
     Files.deleteIfExists(Paths.get(fileName));
 
     String[] params = new String[]{"-in", fileName, "-add", "testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
@@ -317,7 +319,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void createsContainerWithTypeSettingBasedOnFileExtensionBDoc() throws Exception {
-    String fileName = "test1.bdoc";
+    String fileName = "testFiles/tmp/test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
 
     String[] params = new String[]{"-in", fileName, "-add", "testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
@@ -332,7 +334,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   @Test
   public void createsContainerWithTypeSettingBDocIfNoSuitableFileExtensionAndNoType() throws Exception {
     System.setProperty("digidoc4j.mode", "TEST");
-    String fileName = "test1.test";
+    String fileName = "testFiles/tmp/test1.test";
     Files.deleteIfExists(Paths.get(fileName));
 
     String[] params = new String[]{"-in", fileName, "-add", "testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
@@ -348,8 +350,8 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   @Test
   public void createsContainerAndSignsIt() throws Exception {
     exit.expectSystemExitWithStatus(0);
-    Files.deleteIfExists(Paths.get("test1.ddoc"));
-    String[] params = new String[]{"-in", "test1.ddoc", "-add", "testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
+    Files.deleteIfExists(Paths.get("testFiles/tmp/test1.ddoc"));
+    String[] params = new String[]{"-in", "testFiles/tmp/test1.ddoc", "-add", "testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
         "testFiles/p12/signout.p12", "test"};
     DigiDoc4J.main(params);
   }
@@ -488,15 +490,15 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   @Test
   public void removeFileFromContainer() throws Exception {
     exit.expectSystemExitWithStatus(0);
-
+    String filename = "testFiles/tmp/test1.ddoc";
     Container container = ContainerBuilder.
         aContainer(DDOC_CONTAINER_TYPE).
         build();
     container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
-    Files.deleteIfExists(Paths.get("test1.ddoc"));
-    container.saveAsFile("test1.ddoc");
+    Files.deleteIfExists(Paths.get(filename));
+    container.saveAsFile(filename);
 
-    String[] params = new String[]{"-in", "test1.ddoc", "-remove", "test.txt"};
+    String[] params = new String[]{"-in", filename, "-remove", "test.txt"};
     DigiDoc4J.main(params);
   }
 
