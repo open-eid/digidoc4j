@@ -6,7 +6,7 @@
   <groupId>org.digidoc4j</groupId>
   <artifactId>digidoc4j</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.6.beta.2</version>
+  <version>1.0.6.RC.1</version>
   <name>DigiDoc4j</name>
   <description>DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers of signed documents</description>
   <url>https://github.com/open-eid/digidoc4j</url>
@@ -502,12 +502,6 @@
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
-    <!--<dependency>
-      <groupId>org.digidoc4j</groupId>
-      <artifactId>esteidtestcerts</artifactId>
-      <version>1.0</version>
-      <scope>test</scope>
-    </dependency>-->
   </dependencies>
 
   <build>
@@ -519,9 +513,6 @@
     <resources>
       <resource>
         <directory>resources</directory>
-        <excludes>
-          <exclude>logback.xml</exclude>
-        </excludes>
       </resource>
       <resource>
         <directory>conf</directory>
@@ -623,10 +614,7 @@
               <overWriteIfNewer>true</overWriteIfNewer>
               <excludeTransitive>true</excludeTransitive>
               <excludeArtifactIds>
-                contiperf, dss-common-validation-jaxb,
-                dss-detailed-report-jaxb, dss-diagnostic-jaxb, dss-document, dss-model, dss-policy-jaxb,
-                dss-reports, dss-service, dss-simple-report-jaxb, dss-spi, dss-token, dss-tsl-jaxb,
-                dss-tsl-validation, dss-xades, validation-policy, log4j-over-slf4j, logback-classic,
+                contiperf, log4j-over-slf4j, logback-classic,
                 logback-core
               </excludeArtifactIds>
             </configuration>
@@ -641,7 +629,6 @@
         <configuration>
           <descriptors>
             <descriptor>assembly/zip.xml</descriptor>
-            <!--<descriptor>assembly/util.xml</descriptor>-->
           </descriptors>
         </configuration>
         <executions>
@@ -722,18 +709,6 @@
           <!-- Default test configuration -->
           <argLine>-Dfile.encoding=UTF-8</argLine>
         </configuration>
-        <executions>
-          <execution>
-            <id>non-regression</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <testFailureIgnore>false</testFailureIgnore>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
 
       <plugin>
@@ -750,7 +725,7 @@
                 <jar jarfile="${dss.util.build}/util/temp.jar">
                   <zipgroupfileset dir="lib" includes="**/dss*.jar **/validation-policy*.jar"/>
                   <zipgroupfileset dir="${dss.util.lib}" includes="**/*.jar" excludes="bcprov-*.jar"/>
-                  <zipgroupfileset dir="dist" includes="**/digidoc4j-*.jar" excludes="*-javadoc.jar *-sources.jar"/>
+                  <zipgroupfileset dir="target" includes="**/digidoc4j-*.jar" excludes="*-javadoc.jar *-sources.jar"/>
                 </jar>
 
                 <jar destfile="${dss.util.build}/util/digidoc4j-util.jar">
@@ -765,8 +740,10 @@
                   </manifest>
                 </jar>
                 <delete file="${dss.util.build}/util/temp.jar"/>
+                <copy tofile="${dss.util.build}/util/bcprov-jdk15on.jar">
+                  <fileset dir="${dss.util.lib}" includes="**/bcprov-jdk15on*.jar"/>
+                </copy>
                 <copy todir="${dss.util.build}/util">
-                  <fileset dir="${dss.util.lib}" includes="**/bcprov-*.jar"/>
                   <fileset dir="resources" includes="logback.xml"/>
                 </copy>
                 <zip destfile="${project.basedir}/target/${project.artifactId}-util.zip"
@@ -798,18 +775,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <!-- <executions> -->
-        <!-- <execution> -->
-        <!-- <id>attach-javadocs</id> -->
-        <!-- <goals> -->
-        <!-- <goal>jar</goal> -->
-        <!-- </goals> -->
-        <!-- </execution> -->
-        <!-- </executions> -->
       </plugin>
       <plugin>
-        <!-- explicitly define maven-deploy-plugin after other to force exec
-          order -->
+        <!-- explicitly define maven-deploy-plugin after other to force exec order -->
         <artifactId>maven-deploy-plugin</artifactId>
         <executions>
           <execution>
