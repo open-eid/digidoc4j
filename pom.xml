@@ -746,7 +746,7 @@
                 <copy todir="${dss.util.build}/util">
                   <fileset dir="resources" includes="logback.xml"/>
                 </copy>
-                <zip destfile="${project.basedir}/target/${project.artifactId}-util.zip"
+                <zip destfile="${project.basedir}/target/${project.artifactId}-${project.version}-util.zip"
                      basedir="${dss.util.build}/util"/>
                 <delete dir="${dss.util.build}/util"/>
               </target>
