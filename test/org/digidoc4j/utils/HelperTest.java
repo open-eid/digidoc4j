@@ -34,18 +34,23 @@ import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.junit.AfterClass;
+import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class HelperTest {
-  @AfterClass
-  public static void cleanup() throws IOException {
-    deleteFile("extractSignatureThrowsErrorWhenSignatureIsNotFound.zip");
+  @Rule
+  public TemporaryFolder testFolder = new TemporaryFolder();
+
+  @After
+  public void cleanup() throws IOException {
+    testFolder.delete();
   }
 
   @Test
   public void testIsXMLFileWhenFileIsNotXMLFile() throws Exception {
-    assertFalse(Helper.isXMLFile(new File("testFiles/test.txt")));
+    assertFalse(Helper.isXMLFile(new File("testFiles/helper-files/test.txt")));
   }
 
   @Test
@@ -64,14 +69,14 @@ public class HelperTest {
 
   @Test
   public void testIsZIPFileWhenFileIsNotZIPFile() throws Exception {
-    assertFalse(Helper.isZipFile(new File("testFiles/test.txt")));
+    assertFalse(Helper.isZipFile(new File("testFiles/helper-files/test.txt")));
   }
 
   @Test
   public void testIsZIPFileWhenFileIsZIPFile() throws Exception {
     FileOutputStream fileOutputStream = new FileOutputStream("test.zip");
     ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
-    zipOutputStream.putNextEntry(new ZipEntry("testFiles/test.txt"));
+    zipOutputStream.putNextEntry(new ZipEntry("testFiles/helper-files/test.txt"));
     zipOutputStream.closeEntry();
 
     assertTrue(Helper.isZipFile(new File("test.zip")));
@@ -116,8 +121,9 @@ public class HelperTest {
 
   @Test(expected = IOException.class)
   public void extractSignatureThrowsErrorWhenSignatureIsNotFound() throws Exception {
+    String fileName = testFolder.newFolder().getAbsolutePath() + File.separator + "extractSignatureThrowsErrorWhenSignatureIsNotFound.zip";
     try (
-        FileOutputStream fileOutputStream = new FileOutputStream("extractSignatureThrowsErrorWhenSignatureIsNotFound.zip");
+        FileOutputStream fileOutputStream = new FileOutputStream(fileName);
         ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
 
       ZipEntry zipEntry = new ZipEntry("test");
@@ -125,9 +131,10 @@ public class HelperTest {
 
       zipOutputStream.write(0x42);
       zipOutputStream.closeEntry();
+      fileOutputStream.close();
     }
 
-    Helper.extractSignature("extractSignatureThrowsErrorWhenSignatureIsNotFound.zip", 0);
+    Helper.extractSignature(fileName, 0);
   }
 
   private void createZIPFile() throws IOException {

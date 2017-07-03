@@ -12,18 +12,22 @@ package org.digidoc4j;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
 
 import org.apache.commons.io.FileUtils;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ContainerOpenerTest extends DigiDoc4JTestHelper {
 
-  private static final String BDOC_TEST_FILE = "testFiles/one_signature.bdoc";
-  private static final String DDOC_TEST_FILE = "testFiles/ddoc_for_testing.ddoc";
+  private static final String BDOC_TEST_FILE = "testFiles/valid-containers/one_signature.bdoc";
+  private static final String DDOC_TEST_FILE = "testFiles/valid-containers/ddoc_for_testing.ddoc";
   Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
   @Test
@@ -64,5 +68,57 @@ public class ContainerOpenerTest extends DigiDoc4JTestHelper {
     assertEquals(containerType, container.getType());
     assertFalse(container.getDataFiles().isEmpty());
     assertFalse(container.getSignatures().isEmpty());
+  }
+
+  @Test
+  public void testErrorTextDDOCInvalidFileFormat(){
+    try {
+      Container container = ContainerBuilder.
+          aContainer().
+          fromExistingFile("testFiles/invalid-containers/error75.ddoc").
+          build();
+
+    } catch (DigiDoc4JException e){
+      assertTrue( e.getMessage().contains("Invalid input file format."));
+    }
+  }
+
+  @Test
+  public void testErrorText75NotChanged(){
+    try {
+      Container container = ContainerBuilder.
+          aContainer().
+          fromExistingFile("testFiles/invalid-containers/23181_SignedInfo_topelt_D1_lisatud.ddoc").
+          build();
+
+    } catch (DigiDoc4JException e){
+      assertTrue( e.getMessage().contains("Multiple elements: SignatureValue not allowed under: Signature"));
+    }
+  }
+
+  @Test
+  public void testErrorText75ChangedAndNullPointer(){
+    try {
+      Container container = ContainerBuilder.
+          aContainer().
+          fromExistingFile("testFiles/invalid-containers/23133_ddoc-12.ddoc").
+          build();
+    } catch (DigiDoc4JException e){
+      assertTrue( e.getMessage().contains("Invalid input file format."));
+    }
+  }
+
+  @Test
+  @Ignore("TODO: solve anomaly where results are different")
+  public void testErrorText75NotChangedInvalidXmlElement(){
+    try {
+      Container container = ContainerBuilder.
+          aContainer().
+          fromExistingFile("testFiles/invalid-containers/BOF.ddoc").
+          build();
+
+    } catch (DigiDoc4JException e){
+      assertTrue( e.getMessage().contains("Invalid xml element"));
+    }
   }
 }

@@ -15,12 +15,19 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.impl.StreamDocument;
 import org.digidoc4j.utils.Helper;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -31,6 +38,31 @@ import eu.europa.esig.dss.MimeType;
 public class StreamDocumentTest {
   StreamDocument document;
 
+  @BeforeClass
+  public static void setUpDir() throws IOException {
+    if (Files.isWritable(Paths.get("testFiles/tmp/readonly"))) {
+      // setting directory testFiles/tmp/readonly permissions to "read only"
+      if (System.getProperty("os.name").startsWith("Windows")) {
+        File file = new File("testFiles/tmp/readonly");
+        // deny write permission for all the users
+        System.out.println("icacls "+file.getAbsolutePath()+" /deny Everyone:(WD,WA) /T /Q");
+        Runtime.getRuntime().exec("icacls "+file.getAbsolutePath()+" /deny Everyone:(WD,WA) /T /Q");
+      } else {
+        Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
+        //add owners permission
+        perms.add(PosixFilePermission.OWNER_READ);
+        perms.add(PosixFilePermission.OWNER_EXECUTE);
+        //add group permissions
+        perms.add(PosixFilePermission.GROUP_READ);
+        perms.add(PosixFilePermission.GROUP_EXECUTE);
+        //add others permissions
+        perms.add(PosixFilePermission.OTHERS_READ);
+        perms.add(PosixFilePermission.OTHERS_EXECUTE);
+        Files.setPosixFilePermissions(Paths.get("testFiles/tmp/readonly"), perms);
+      }
+    }
+  }
+
   @Before
   public void setUp() throws IOException {
     try(ByteArrayInputStream stream = new ByteArrayInputStream(new byte[]{0x041})) {
@@ -38,9 +70,30 @@ public class StreamDocumentTest {
     }
   }
 
+  @Rule
+  public TemporaryFolder testFolder = new TemporaryFolder();
+
   @AfterClass
-  public static void deleteTemporaryFiles() throws IOException {
-    Helper.deleteFile("createDocumentFromStreamedDataFile.txt");
+  public static void resetTemporaryRODir() throws IOException {
+    if (System.getProperty("os.name").startsWith("Windows")) {
+      File file = new File("testFiles/tmp/readonly");
+      Runtime.getRuntime().exec("icacls " + file.getAbsolutePath() + " /remove:d Everyone /T /Q");
+    } else {
+      Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
+      //add owners permission
+      perms.add(PosixFilePermission.OWNER_READ);
+      perms.add(PosixFilePermission.OWNER_WRITE);
+      perms.add(PosixFilePermission.OWNER_EXECUTE);
+      //add group permissions
+      perms.add(PosixFilePermission.GROUP_READ);
+      perms.add(PosixFilePermission.GROUP_WRITE);
+      perms.add(PosixFilePermission.GROUP_EXECUTE);
+      //add others permissions
+      perms.add(PosixFilePermission.OTHERS_READ);
+      perms.add(PosixFilePermission.OTHERS_WRITE);
+      perms.add(PosixFilePermission.OTHERS_EXECUTE);
+      Files.setPosixFilePermissions(Paths.get("testFiles/tmp/readonly"), perms);
+    }
   }
 
   @Test
@@ -84,20 +137,20 @@ public class StreamDocumentTest {
 
   @Test
   public void createDocumentFromStreamedDataFile() throws Exception {
+    String dataFileName = testFolder.newFolder().getAbsolutePath()+ File.separator + "createDocumentFromStreamedDataFile.txt";
     try(ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(new byte[]{0x041})) {
-      DataFile dataFile = new DataFile(byteArrayInputStream, "A.txt", "text/plain");
+      DataFile dataFile = new DataFile(byteArrayInputStream, dataFileName, "text/plain");
       StreamDocument streamDocument = new StreamDocument(dataFile.getStream(),
           dataFile.getName(),
           MimeType.fromMimeTypeString(dataFile.getMediaType()));
 
-      streamDocument.save("createDocumentFromStreamedDataFile.txt");
+      streamDocument.save(dataFileName);
     }
 
-    try(FileInputStream fileInputStream = new FileInputStream("createDocumentFromStreamedDataFile.txt")) {
+    try(FileInputStream fileInputStream = new FileInputStream(dataFileName)) {
       assertArrayEquals(new byte[]{0x041}, IOUtils.toByteArray(fileInputStream));
     }
-
-    Files.deleteIfExists(Paths.get("createDocumentFromStreamedDataFile.txt"));
+    testFolder.delete();
   }
 
   @Test
@@ -105,9 +158,16 @@ public class StreamDocumentTest {
     assertEquals("VZrq0IJk1XldOQlxjN0Fq9SVcuhP5VWQ7vMaiKCP3/0=", document.getDigest(DigestAlgorithm.SHA256));
   }
 
+  /*
+    NB! If this test fails then ensure that directory testFiles/tmp/readonly is read-only!
+   */
   @Test(expected = DSSException.class)
   public void saveWhenNoAccessRights() throws Exception {
-    document.save("/bin/no_access.txt");
+    String tmpFolder = "testFiles/tmp/readonly";
+    File tmp = new File(tmpFolder);
+    String dataFileName = tmp.getAbsolutePath() + File.separator + "no_access.txt";
+    Assert.assertTrue("Invalid directory " + tmpFolder, tmp.isDirectory() && tmp.exists());
+    document.save(dataFileName);
   }
 
   @Test(expected = DSSException.class)

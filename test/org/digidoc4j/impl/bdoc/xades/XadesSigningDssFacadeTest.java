@@ -79,7 +79,7 @@ public class XadesSigningDssFacadeTest {
 
   @Test
   public void signDocumentWithECC() throws Exception {
-    PKCS12SignatureToken eccSignatureToken = new PKCS12SignatureToken("testFiles/ec-digiid.p12", "inno".toCharArray());
+    PKCS12SignatureToken eccSignatureToken = new PKCS12SignatureToken("testFiles/p12/ec-digiid.p12", "inno".toCharArray());
     X509Certificate signingCert = eccSignatureToken.getCertificate();
     facade.setEncryptionAlgorithm(EncryptionAlgorithm.ECDSA);
     facade.setSigningCertificate(signingCert);
@@ -134,7 +134,7 @@ public class XadesSigningDssFacadeTest {
     DSSDocument signedDocument = signTestData(DigestAlgorithm.SHA256);
     XadesSigningDssFacade extendingFacade = createSigningFacade();
     extendingFacade.setSignatureLevel(XAdES_BASELINE_LT);
-    DSSDocument detachedContent = new FileDocument("testFiles/test.txt");
+    DSSDocument detachedContent = new FileDocument("testFiles/helper-files/test.txt");
     DSSDocument extendedDocument = extendingFacade.extendSignature(signedDocument, detachedContent);
     assertDocumentSigned(extendedDocument);
   }
@@ -183,7 +183,7 @@ public class XadesSigningDssFacadeTest {
 
   private List<DataFile> createDataFilesToSign() {
     List<DataFile> dataFilesToSign = new ArrayList<>();
-    dataFilesToSign.add(new DataFile("testFiles/test.txt", "plain/text"));
+    dataFilesToSign.add(new DataFile("testFiles/helper-files/test.txt", "plain/text"));
     return dataFilesToSign;
   }
 

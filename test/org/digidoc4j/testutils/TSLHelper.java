@@ -19,7 +19,7 @@ public class TSLHelper {
    * @return the same configuration with certificate added to TSL
    */
   public static Configuration addSkTsaCertificateToTsl(Configuration configuration) {
-    return addCertificateFromFileToTsl(configuration, "testFiles/SK_TSA.pem.crt");
+    return addCertificateFromFileToTsl(configuration, "testFiles/certs/SK_TSA.pem.crt");
   }
 
   public static Configuration addCertificateFromFileToTsl(Configuration configuration, String fileName) {

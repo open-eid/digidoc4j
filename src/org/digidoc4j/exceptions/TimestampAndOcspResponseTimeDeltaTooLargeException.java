@@ -12,7 +12,7 @@ package org.digidoc4j.exceptions;
 
 public class TimestampAndOcspResponseTimeDeltaTooLargeException extends DigiDoc4JException {
 
-  public static final String MESSAGE = "The difference between the revocation time and the signature time stamp is too large";
+  public static final String MESSAGE = "The difference between the OCSP response time and the signature time stamp is too large";
 
   public TimestampAndOcspResponseTimeDeltaTooLargeException() {
     super(MESSAGE);

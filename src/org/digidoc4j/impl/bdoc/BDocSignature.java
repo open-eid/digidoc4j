@@ -42,6 +42,12 @@ public class BDocSignature implements Signature {
   private SignatureValidator validator;
   private DSSDocument signatureDocument;
 
+  /**
+   * BDoc signature constructor.
+   *
+   * @param xadesSignature
+   * @param validator
+   */
   public BDocSignature(XadesSignature xadesSignature, SignatureValidator validator) {
     this.xadesSignature = xadesSignature;
     this.validator = validator;
@@ -86,11 +92,22 @@ public class BDocSignature implements Signature {
     return xadesSignature.getPostalCode();
   }
 
+
+  /**
+   * This method returns Date object, it can be null.
+   *
+   * @return Date
+   */
   @Override
   public Date getOCSPResponseCreationTime() {
     return xadesSignature.getOCSPResponseCreationTime();
   }
 
+  /**
+   * This method returns Date object, it can be null.
+   *
+   * @return Date
+   */
   @Override
   @Deprecated
   public Date getProducedAt() {
@@ -135,14 +152,32 @@ public class BDocSignature implements Signature {
     return xadesSignature.getSigningCertificate();
   }
 
+  /**
+   * This method returns Date object, it can be null.
+   *
+   * @return Date
+   */
   @Override
   public Date getClaimedSigningTime() {
     return xadesSignature.getSigningTime();
   }
 
+  /**
+   * Gets signing time depending on the signature profile.
+   *
+   * @return Date
+   */
   @Override
   public Date getSigningTime() {
-    return getClaimedSigningTime();
+    logger.debug("get signing time by profile: " + getProfile());
+    switch (getProfile()) {
+      case B_BES:
+        return getClaimedSigningTime();
+      case B_EPES:
+        return getClaimedSigningTime();
+      default:
+        return getTrustedSigningTime();
+    }
   }
 
   @Override
@@ -196,18 +231,38 @@ public class BDocSignature implements Signature {
     return getAdESSignature();
   }
 
+  /**
+   * This method returns XadesSignature object.
+   *
+   * @return xades signature.
+   */
   public XadesSignature getOrigin() {
     return xadesSignature;
   }
 
+  /**
+   *  Set signature document.
+   *
+   * @param signatureDocument
+   */
   public void setSignatureDocument(DSSDocument signatureDocument) {
     this.signatureDocument = signatureDocument;
   }
 
+  /**
+   * This method returns validation result (XadesValidationResult object).
+   *
+   * @return XadesValidationResult.
+   */
   public XadesValidationResult getDssValidationReport() {
     return xadesSignature.validate();
   }
 
+  /**
+   * This method returns signature document (SignatureDocument object).
+   *
+   * @return DSSDocument.
+   */
   public DSSDocument getSignatureDocument() {
     return signatureDocument;
   }

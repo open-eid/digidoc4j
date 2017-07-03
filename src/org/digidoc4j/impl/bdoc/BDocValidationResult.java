@@ -16,6 +16,11 @@ import java.util.List;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 
+/**
+ * Validation result information.
+ *
+ * For BDOC the ValidationResult contains only information for the first signature of each signature XML file
+ */
 public class BDocValidationResult implements ValidationResult {
 
   private List<DigiDoc4JException> errors = new ArrayList<>();
@@ -59,18 +64,38 @@ public class BDocValidationResult implements ValidationResult {
     return containerErrorsOnly;
   }
 
+  /**
+   * Set container errors only.
+   *
+   * @param containerErrorsOnly
+   */
   public void setContainerErrorsOnly(List<DigiDoc4JException> containerErrorsOnly) {
     this.containerErrorsOnly = containerErrorsOnly;
   }
 
+  /**
+   * Set Errors.
+   *
+   * @param errors
+   */
   public void setErrors(List<DigiDoc4JException> errors) {
     this.errors = errors;
   }
 
+  /**
+   * Set warnings.
+   *
+   * @param warnings
+   */
   public void setWarnings(List<DigiDoc4JException> warnings) {
     this.warnings = warnings;
   }
 
+  /**
+   * Set report builder.
+   *
+   * @param reportBuilder
+   */
   public void setReportBuilder(BDocValidationReportBuilder reportBuilder) {
     this.reportBuilder = reportBuilder;
   }

@@ -48,7 +48,7 @@ public class BDocSignatureOpenerTest {
 
   @Before
   public void setUp() throws Exception {
-    DSSDocument signedFile = new FileDocument("testFiles/test.txt");
+    DSSDocument signedFile = new FileDocument("testFiles/helper-files/test.txt");
     List<DSSDocument> detachedContents = Arrays.asList(signedFile);
     signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
   }
@@ -97,6 +97,8 @@ public class BDocSignatureOpenerTest {
 
   @Test
   public void openXadesSignature() throws Exception {
+    Date date_2016_29_1_time_19_58_36 = new Date(1454090316000L);
+    Date date_2016_29_1_time_19_58_37 = new Date(1454090317000L);
     DSSDocument xadesDoc = new FileDocument("testFiles/xades/test-bdoc-ts.xml");
     List<BDocSignature> signatures = signatureOpener.parse(xadesDoc);
     BDocSignature signature = signatures.get(0);
@@ -104,12 +106,12 @@ public class BDocSignatureOpenerTest {
     assertEquals("S0", signature.getId());
     assertEquals(SignatureProfile.LT, signature.getProfile());
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
-    assertEquals(new Date(1454090315000L), signature.getSigningTime());
+    assertEquals(date_2016_29_1_time_19_58_36, signature.getSigningTime());
     assertTrue(StringUtils.startsWith(signature.getSigningCertificate().issuerName(), "C=EE,O=AS Sertifitseerimiskeskus"));
     assertNotNull(signature.getOCSPCertificate());
     assertTrue(StringUtils.contains(signature.getOCSPCertificate().getSubjectName(), "OU=OCSP"));
-    assertEquals(new Date(1454090317000L), signature.getOCSPResponseCreationTime());
-    assertEquals(new Date(1454090316000L), signature.getTimeStampCreationTime());
+    assertEquals(date_2016_29_1_time_19_58_37, signature.getOCSPResponseCreationTime());
+    assertEquals(date_2016_29_1_time_19_58_36, signature.getTimeStampCreationTime());
     assertNotNull(signature.getTimeStampTokenCertificate());
     assertTrue(StringUtils.contains(signature.getTimeStampTokenCertificate().getSubjectName(), "OU=TSA"));
     assertEquals(signature.getTimeStampCreationTime(), signature.getTrustedSigningTime());

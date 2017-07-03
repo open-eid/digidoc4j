@@ -131,6 +131,7 @@ import eu.europa.esig.dss.client.http.Protocol;
  * <li>SSL_TRUSTSTORE_PATH: SSL TrustStore path</li>
  * <li>SSL_TRUSTSTORE_TYPE: SSL TrustStore type (default is "jks")</li>
  * <li>SSL_TRUSTSTORE_PASSWORD: SSL TrustStore password (default is an empty string)</li>
+ * <li>ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES: Allowed delay between timestamp and OCSP response in minutes.</li>
  * </ul>
  */
 public class Configuration implements Serializable {
@@ -139,6 +140,7 @@ public class Configuration implements Serializable {
   private static final long ONE_DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
   private static final int ONE_DAY_IN_MINUTES = 24 * 60;
   public static final long ONE_MB_IN_BYTES = 1048576;
+  public static final long FIFTEEN_MINUTES = 15;
 
   public static final String DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION
       = "ee.sk.digidoc.c14n.TinyXMLCanonicalizer";
@@ -171,17 +173,17 @@ public class Configuration implements Serializable {
   private TslManager tslManager;
   Map<String, String> configuration = new HashMap<>();
 
-  private String httpProxyHost;
-  private Integer httpProxyPort;
-  private String httpProxyUser;
-  private String httpProxyPassword;
-  private List<String> trustedTerritories;
-  private String sslKeystorePath;
-  private String sslKeystoreType;
-  private String sslKeystorePassword;
-  private String sslTruststorePath;
-  private String sslTruststoreType;
-  private String sslTruststorePassword;
+  private String httpProxyHost = "";
+  private Integer httpProxyPort = 0;
+  private String httpProxyUser = "";
+  private String httpProxyPassword = "";
+  private List<String> trustedTerritories = new ArrayList<>();
+  private String sslKeystorePath = "";
+  private String sslKeystoreType = "";
+  private String sslKeystorePassword = "";
+  private String sslTruststorePath = "";
+  private String sslTruststoreType = "";
+  private String sslTruststorePassword = "";
   private transient ExecutorService threadExecutor;
 
   /**
@@ -213,6 +215,7 @@ public class Configuration implements Serializable {
     configuration.put("tslKeyStorePassword", "digidoc4j-password");
     configuration.put("revocationAndTimestampDeltaInMinutes", String.valueOf(ONE_DAY_IN_MINUTES));
     configuration.put("tslCacheExpirationTime", String.valueOf(ONE_DAY_IN_MILLISECONDS));
+    configuration.put("allowedTimestampAndOCSPResponseDeltaInMinutes", String.valueOf(FIFTEEN_MINUTES));
 
     if (mode == Mode.TEST) {
       configuration.put("tspSource", "http://demo.sk.ee/tsa");
@@ -258,7 +261,7 @@ public class Configuration implements Serializable {
     logger.debug("Loading OCSPAccessCertificateFile");
     String ocspAccessCertificateFile = getConfigurationParameter("OCSPAccessCertificateFile");
     logger.debug("OCSPAccessCertificateFile " + ocspAccessCertificateFile + " loaded");
-    return ocspAccessCertificateFile;
+    return ocspAccessCertificateFile == null ? "" : ocspAccessCertificateFile;
   }
 
   /**
@@ -355,6 +358,14 @@ public class Configuration implements Serializable {
    * @return configuration hashtable
    */
   public Hashtable<String, String> loadConfiguration(String file) {
+    return loadConfiguration(file, true);
+  }
+
+  public Hashtable<String, String> loadConfiguration(String file, boolean isReloadFromYaml) {
+    if(!isReloadFromYaml){
+      logger.info("Should not reload conf from yaml when open container");
+      return jDigiDocConfiguration;
+    }
     logger.info("Loading configuration from file " + file);
     configurationInputSourceName = file;
     InputStream resourceAsStream = null;
@@ -401,9 +412,9 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Returns configuration needed for JDigiDoc library
+   * Returns configuration needed for JDigiDoc library.
    *
-   * @return configuration values
+   * @return configuration values.
    */
   public Hashtable<String, String> getJDigiDocConfiguration() {
     loadCertificateAuthoritiesAndCertificates();
@@ -501,6 +512,7 @@ public class Configuration implements Serializable {
     setConfigurationValue("TSL_KEYSTORE_PASSWORD", "tslKeyStorePassword");
     setConfigurationValue("TSL_CACHE_EXPIRATION_TIME", "tslCacheExpirationTime");
     setConfigurationValue("REVOCATION_AND_TIMESTAMP_DELTA_IN_MINUTES", "revocationAndTimestampDeltaInMinutes");
+    setConfigurationValue("ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES", "allowedTimestampAndOCSPResponseDeltaInMinutes");
 
     setJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS, Boolean.toString(hasToBeOCSPRequestSigned()));
     setJDigiDocConfigurationValue(OCSP_PKCS_12_CONTAINER, getOCSPAccessCertificateFileName());
@@ -800,6 +812,11 @@ public class Configuration implements Serializable {
     return (ArrayList<String>) digiDocCa.get("CERTS");
   }
 
+  /**
+   * Get TSL location.
+   *
+   * @return url
+   */
   public String getTslLocation() {
     String urlString = getConfigurationParameter("tslLocation");
     if (!Protocol.isFileUrl(urlString)) return urlString;
@@ -813,7 +830,7 @@ public class Configuration implements Serializable {
     } catch (MalformedURLException e) {
       logger.warn(e.getMessage());
     }
-    return urlString;
+    return urlString == null ? "" : urlString;
   }
 
   /**
@@ -990,6 +1007,27 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Returns allowed delay between timestamp and OCSP response in minutes.
+   *
+   * @return Allowed delay between timestamp and OCSP response in minutes.
+   */
+  public Integer getAllowedTimestampAndOCSPResponseDeltaInMinutes() {
+    String allowedTimestampAndOCSPResponseDeltaInMinutes = getConfigurationParameter("allowedTimestampAndOCSPResponseDeltaInMinutes");
+    logger.debug("Allowed delay between timestamp and OCSP response in minutes: " + allowedTimestampAndOCSPResponseDeltaInMinutes);
+    return Integer.parseInt(allowedTimestampAndOCSPResponseDeltaInMinutes);
+  }
+
+  /**
+   * Set allowed delay between timestamp and OCSP response in minutes.
+   *
+   * @param timeInMinutes Allowed delay between timestamp and OCSP response in minutes
+   */
+  public void setAllowedTimestampAndOCSPResponseDeltaInMinutes(int timeInMinutes) {
+    logger.debug("Set allowed delay between timestamp and OCSP response in minutes: " + timeInMinutes);
+    setConfigurationParameter("allowedTimestampAndOCSPResponseDeltaInMinutes", String.valueOf(timeInMinutes));
+  }
+
+  /**
    * Set the OCSP source
    *
    * @param ocspSource OCSP Source to be used
@@ -1020,6 +1058,11 @@ public class Configuration implements Serializable {
     setConfigurationParameter("validationPolicy", validationPolicy);
   }
 
+  /**
+   * Revocation and timestamp delta in minutes.
+   *
+   * @return timestamp delta in minutes.
+   */
   public int getRevocationAndTimestampDeltaInMinutes() {
     String timeDelta = getConfigurationParameter("revocationAndTimestampDeltaInMinutes");
     logger.debug("Revocation and timestamp delta in minutes: " + timeDelta);
@@ -1031,6 +1074,11 @@ public class Configuration implements Serializable {
     setConfigurationParameter("revocationAndTimestampDeltaInMinutes", String.valueOf(timeInMinutes));
   }
 
+  /**
+   * Get http proxy host.
+   *
+   * @return http proxy host.
+   */
   public String getHttpProxyHost() {
     return httpProxyHost;
   }
@@ -1043,6 +1091,11 @@ public class Configuration implements Serializable {
     this.httpProxyHost = httpProxyHost;
   }
 
+  /**
+   * Get http proxy port.
+   *
+   * @return http proxy port.
+   */
   public Integer getHttpProxyPort() {
     return httpProxyPort;
   }
@@ -1062,6 +1115,11 @@ public class Configuration implements Serializable {
     this.httpProxyUser = httpProxyUser;
   }
 
+  /**
+   * Get http proxy user.
+   *
+   * @return http proxy user.
+   */
   public String getHttpProxyUser() {
     return httpProxyUser;
   }
@@ -1074,14 +1132,29 @@ public class Configuration implements Serializable {
     this.httpProxyPassword = httpProxyPassword;
   }
 
+  /**
+   * Get http proxy password.
+   *
+   * @return http proxy password.
+   */
   public String getHttpProxyPassword() {
     return httpProxyPassword;
   }
 
+  /**
+   * Is network proxy enabled?
+   *
+   * @return
+   */
   public boolean isNetworkProxyEnabled() {
     return httpProxyPort != null && isNotBlank(httpProxyHost);
   }
 
+  /**
+   * Is ssl configuration enabled?
+   *
+   * @return
+   */
   public boolean isSslConfigurationEnabled() {
     return sslKeystorePath != null && isNotBlank(sslKeystorePath);
   }
@@ -1126,6 +1199,11 @@ public class Configuration implements Serializable {
     this.sslKeystorePassword = sslKeystorePassword;
   }
 
+  /**
+   * Get Ssl keystore password.
+   *
+   * @return password.
+   */
   public String getSslKeystorePassword() {
     return sslKeystorePassword;
   }
@@ -1170,6 +1248,11 @@ public class Configuration implements Serializable {
     this.sslTruststorePassword = sslTruststorePassword;
   }
 
+  /**
+   * Get Ssl truststore password.
+   *
+   * @return password.
+   */
   public String getSslTruststorePassword() {
     return sslTruststorePassword;
   }
@@ -1178,6 +1261,11 @@ public class Configuration implements Serializable {
     this.threadExecutor = threadExecutor;
   }
 
+  /**
+   * Get thread executor. It can be mull.
+   *
+   * @return thread executor.
+   */
   public ExecutorService getThreadExecutor() {
     return threadExecutor;
   }
@@ -1198,6 +1286,11 @@ public class Configuration implements Serializable {
     this.trustedTerritories = Arrays.asList(trustedTerritories);
   }
 
+  /**
+   * Get trusted territories.
+   *
+   * @return trusted territories list.
+   */
   public List<String> getTrustedTerritories() {
     return trustedTerritories;
   }

@@ -66,7 +66,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   public void twoStepSigningWithSerialization() throws IOException, ClassNotFoundException {
     String serializedDataToSignPath = testFolder.newFile().getPath();
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     X509Certificate signerCert = getSigningCert();
     DataToSign dataToSign = SignatureBuilder.
         aSignature(container).
@@ -94,7 +94,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   @Test
   public void verifySerialization() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
 
     serialize(container, serializedContainerPath);
@@ -124,7 +124,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   @Test
   public void serializationVerifySpecifiedSignatureParameters() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     Signature signature = SignatureBuilder.
         aSignature(container).
         withSignatureDigestAlgorithm(DigestAlgorithm.SHA512).
@@ -155,14 +155,14 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   @Test
   public void serializationVerifyDefaultSignatureParameters() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     serialize(container, serializedContainerPath);
     Container deserializedContainer = deserializer(serializedContainerPath);
 
     Signature signature = deserializedContainer.getSignatures().get(0);
 
-    assertNull(signature.getCity());
+    assertEquals("", signature.getCity());
     assertThat(signature.getSignerRoles(), is(empty()));
     assertTrue(signature.getId().startsWith("id-"));
     assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
@@ -171,7 +171,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   @Test
   public void serializationGetDocumentType() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     serialize(container, serializedContainerPath);
     Container deserializedContainer = deserializer(serializedContainerPath);
@@ -182,7 +182,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   @Test
   public void serializationGetOCSPCertificate() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     serialize(container, serializedContainerPath);
     Container deserializedContainer = deserializer(serializedContainerPath);
@@ -198,7 +198,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   @Test
   public void serializationGetSigningTime() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     serialize(container, serializedContainerPath);
     Container deserializedContainer = deserializer(serializedContainerPath);
@@ -212,7 +212,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   @Test(expected = NotYetImplementedException.class)
   public void serializationGetPolicy() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     serialize(container, serializedContainerPath);
     Container deserializedContainer = deserializer(serializedContainerPath);
@@ -226,7 +226,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   @Test(expected = NotYetImplementedException.class)
   public void serializationGetSignaturePolicyURI() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     serialize(container, serializedContainerPath);
     Container deserializedContainer = deserializer(serializedContainerPath);
@@ -240,7 +240,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   @Test
   public void serializationGetSigningCertificate() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     serialize(container, serializedContainerPath);
     Container deserializedContainer = deserializer(serializedContainerPath);
@@ -256,7 +256,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   @Test
   public void serializationGetRawSignature() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     serialize(container, serializedContainerPath);
     Container deserializedContainer = deserializer(serializedContainerPath);
@@ -270,7 +270,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   @Test
   public void serializationGetTimeStampTokenCertificate() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, SignatureProfile.LT);
     serialize(container, serializedContainerPath);
     Container deserializedContainer = deserializer(serializedContainerPath);
@@ -286,7 +286,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   @Test
   public void serializationGetProfile() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     serialize(container, serializedContainerPath);
     Container deserializedContainer = deserializer(serializedContainerPath);
@@ -300,7 +300,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   @Test
   public void serializationGetDataFiles() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     serialize(container, serializedContainerPath);
     Container deserializedContainer = deserializer(serializedContainerPath);
@@ -314,7 +314,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
   @Test
   public void serializationDataFileCheck() throws Exception {
     Container container = createEmptyBDocContainer();
-    container.addDataFile("testFiles/test.txt", "text/plain");
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
     signContainer(container);
     serialize(container, serializedContainerPath);
     Container deserializedContainer = deserializer(serializedContainerPath);

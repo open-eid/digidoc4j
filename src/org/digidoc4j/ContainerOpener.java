@@ -129,7 +129,7 @@ public class ContainerOpener {
   }
 
   private static Container openBDocContainer(String path, Configuration configuration) {
-    configuration.loadConfiguration("digidoc4j.yaml");
+    configuration.loadConfiguration("digidoc4j.yaml", false);
     return new ExistingBDocContainer(path, configuration);
   }
 }
