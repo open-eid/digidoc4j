@@ -22,6 +22,7 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.testutils.TSLHelper;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import eu.europa.esig.dss.tsl.TSLValidationModel;
@@ -43,6 +44,7 @@ public class TslLoaderTest {
   }
 
   @Test
+  @Ignore("TODO: Wait till problem with RO is solved")
   public void loadAndValidateProdTsl() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     TslLoader tslLoader = createTslLoader(configuration);
