@@ -7,3 +7,4 @@ javadoc
 *.log
 utility-package-lib
 zip-package-lib
+/buildNumber.properties
