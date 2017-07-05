@@ -22,7 +22,7 @@ import org.digidoc4j.exceptions.CertificateRevokedException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidOcspNonceException;
 import org.digidoc4j.exceptions.InvalidTimestampException;
-import org.digidoc4j.exceptions.MiltipleSignedPropertiesException;
+import org.digidoc4j.exceptions.MultipleSignedPropertiesException;
 import org.digidoc4j.exceptions.SignedPropertiesMissingException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
@@ -117,7 +117,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     }
     if (propertiesReferencesCount > 1) {
       logger.error("Multiple signed properties for signature " + signatureId);
-      DigiDoc4JException error = new MiltipleSignedPropertiesException("Multiple signed properties");
+      DigiDoc4JException error = new MultipleSignedPropertiesException("Multiple signed properties");
       addValidationError(error);
     }
   }
