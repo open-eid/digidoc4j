@@ -168,7 +168,6 @@ public class XadesSigningDssFacade {
 
   private DSSDocument surroundWithXadesXmlTag(DSSDocument signedDocument) {
     logger.debug("Surrounding signature document with xades tag");
-    //TODO test - now DomUtils in use
     Document signatureDom = DomUtils.buildDOM(signedDocument);
     Element signatureElement = signatureDom.getDocumentElement();
     Document document = XmlDomCreator.createDocument(ASiCNamespace.NS, XmlDomCreator.ASICS_NS, signatureElement);

@@ -42,6 +42,7 @@ import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
 import org.digidoc4j.impl.bdoc.ocsp.SKOnlineOCSPSource;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;
 import org.digidoc4j.impl.bdoc.xades.XadesSigningDssFacade;
+import org.digidoc4j.impl.bdoc.xades.validation.XadesSignatureValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -248,8 +249,9 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
 
   public static Policy createBDocSignaturePolicy() {
     Policy signaturePolicy = new Policy();
-    signaturePolicy.setId("urn:oid:1.3.6.1.4.1.10015.1000.3.2.1");
+    signaturePolicy.setId("urn:oid:" + XadesSignatureValidator.TM_POLICY);
     signaturePolicy.setDigestValue(decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));
+    signaturePolicy.setQualifier("OIDAsURN");
     signaturePolicy.setDigestAlgorithm(SHA256);
     signaturePolicy.setSpuri("https://www.sk.ee/repository/bdoc-spec21.pdf");
     return signaturePolicy;

@@ -68,8 +68,32 @@ public class BDocContainerValidator implements Serializable {
   }
 
   private void validateSignatures(List<Signature> signatures) {
-    List<Future<SignatureValidationData>> validationData = startSignatureValidationInParallel(signatures);
-    extractValidatedSignatureErrors(validationData);
+    //List<Future<SignatureValidationData>> validationData = startSignatureValidationInParallel(signatures);
+    //extractValidatedSignatureErrors(validationData);
+
+    List<SignatureValidationData> validationDatas = startSignatureValidationInParallelTest(signatures);
+    extractValidatedSignatureErrorsTest(validationDatas);
+  }
+
+  private List<SignatureValidationData> startSignatureValidationInParallelTest(List<Signature> signatures) {
+    List<SignatureValidationData> validationDatas = new ArrayList<>();
+    for (Signature signature : signatures) {
+      SignatureValidationTask validationExecutor = new SignatureValidationTask(signature);
+      try {
+        SignatureValidationData validationData = validationExecutor.call();
+        validationDatas.add(validationData);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    return validationDatas;
+  }
+
+  private void extractValidatedSignatureErrorsTest(List<SignatureValidationData> validationFutures) {
+    logger.debug("Extracting errors from the signatures");
+    for (SignatureValidationData validationFuture : validationFutures) {
+        extractSignatureErrors(validationFuture);
+    }
   }
 
   private List<Future<SignatureValidationData>> startSignatureValidationInParallel(List<Signature> signatures) {

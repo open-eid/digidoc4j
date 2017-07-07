@@ -91,7 +91,6 @@ public class TimestampSignature extends TimemarkSignature {
 
   private TimeStampToken findTimestampToken() {
     logger.debug("Finding timestamp token");
-    //TODO test - now DomUtils in use
     NodeList timestampNodes = DomUtils.getNodeList(signatureElement, xPathQueryHolder.XPATH_SIGNATURE_TIMESTAMP);
     if (timestampNodes.getLength() == 0) {
       logger.warn("Signature timestamp element was not found");
@@ -101,7 +100,6 @@ public class TimestampSignature extends TimemarkSignature {
       logger.warn("Signature contains more than one timestamp: " + timestampNodes.getLength() + ". Using only the first one");
     }
     Node timestampNode = timestampNodes.item(0);
-    //TODO test - now DomUtils in use
     Element timestampTokenNode = DomUtils.getElement(timestampNode, xPathQueryHolder.XPATH__ENCAPSULATED_TIMESTAMP);
     if (timestampTokenNode == null) {
       logger.warn("The timestamp cannot be extracted from the signature");

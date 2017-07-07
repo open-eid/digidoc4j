@@ -233,7 +233,6 @@ public class BesSignature extends DssXadesSignature {
 
   protected Set<CertificateToken> findCertificates(String xPath) {
     Set<CertificateToken> certificates = new HashSet<>();
-    //TODO Test - now DomUtils in use
     NodeList nodeList = DomUtils.getNodeList(signatureElement, xPath);
     for (int i = 0; i < nodeList.getLength(); i++) {
       Element certificateElement = (Element) nodeList.item(i);

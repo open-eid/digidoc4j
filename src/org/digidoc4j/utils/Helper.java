@@ -24,6 +24,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -38,11 +40,16 @@ import org.digidoc4j.Container;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.Version;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.bdoc.xades.validation.XadesSignatureValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.MimeType;
 import eu.europa.esig.dss.SignatureLevel;
+import eu.europa.esig.dss.validation.SignaturePolicyProvider;
+import eu.europa.esig.dss.xades.DSSXMLUtils;
 
 public final class Helper {
   private static final Logger logger = LoggerFactory.getLogger(Helper.class);
@@ -274,5 +281,44 @@ public final class Helper {
     Pattern special = Pattern.compile(SPECIAL_CHARACTERS);
     Matcher hasSpecial = special.matcher(fileName);
     return hasSpecial.find();
+  }
+
+  public static String getIdentifier(String identifier){
+    String id = identifier.trim();
+    if (DSSXMLUtils.isOid(id)) {
+      id = identifier.substring(id.lastIndexOf(':') + 1);
+    } else {
+      return id;
+    }
+    return id;
+  }
+
+  public static SignaturePolicyProvider getBdocSignaturePolicyProvider() {
+    SignaturePolicyProvider signaturePolicyProvider  = new SignaturePolicyProvider();
+    File policyDocument = new File("testFiles/helper-files/bdoc-spec21.pdf");
+
+    Map<String, DSSDocument> signaturePoliciesById = new HashMap<String, DSSDocument>();
+    signaturePoliciesById.put(XadesSignatureValidator.TM_POLICY, new FileDocument(policyDocument));
+
+    Map<String, DSSDocument> signaturePoliciesByUrl = new HashMap<String, DSSDocument>();
+    signaturePoliciesByUrl.put("https://www.sk.ee/repository/bdoc-spec21.pdf", new FileDocument(policyDocument));
+
+    signaturePolicyProvider.setSignaturePoliciesById(signaturePoliciesById);
+    signaturePolicyProvider.setSignaturePoliciesByUrl(signaturePoliciesByUrl);
+
+    return signaturePolicyProvider;
+  }
+
+  public static SignaturePolicyProvider getBdocSignaturePolicyProvider(DSSDocument signature) {
+    SignaturePolicyProvider signaturePolicyProvider  = new SignaturePolicyProvider();
+    Map<String, DSSDocument> signaturePoliciesById = new HashMap<String, DSSDocument>();
+    signaturePoliciesById.put(XadesSignatureValidator.TM_POLICY, signature);
+
+    Map<String, DSSDocument> signaturePoliciesByUrl = new HashMap<String, DSSDocument>();
+    signaturePoliciesByUrl.put("https://www.sk.ee/repository/bdoc-spec21.pdf", signature);
+
+    signaturePolicyProvider.setSignaturePoliciesById(signaturePoliciesById);
+    signaturePolicyProvider.setSignaturePoliciesByUrl(signaturePoliciesByUrl);
+    return signaturePolicyProvider;
   }
 }

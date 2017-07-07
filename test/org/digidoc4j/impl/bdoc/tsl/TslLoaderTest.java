@@ -16,7 +16,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
 import java.util.Map;
 
 import org.digidoc4j.Configuration;
@@ -140,7 +139,6 @@ public class TslLoaderTest {
   }
 
   private void assertTslValid(TSLRepository tslRepository) {
-    // TODO: check and test refactored code
     Map<String, TSLValidationModel> modelMap = tslRepository.getAllMapTSLValidationModels();
     for (String country : modelMap.keySet()) {
       TSLValidationModel model = tslRepository.getByCountry(country);

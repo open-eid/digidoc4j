@@ -1165,7 +1165,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   private int countOcspResponderCertificates(XAdESSignature xAdESSignature) {
     XPathQueryHolder xPathQueryHolder = xAdESSignature.getXPathQueryHolder();
     String xPath = xPathQueryHolder.XPATH_CERTIFICATE_VALUES;
-    // TODO: check and test
     Element certificateValues = DomUtils.getElement(xAdESSignature.getSignatureElement(), xPath);
     return countResponderCertIdInsCertificateValues(certificateValues);
   }

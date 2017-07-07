@@ -163,11 +163,9 @@ public class ManifestValidator {
         String mimeTypeString = null;
 
         Node signatureNode = signature.getOrigin().getDssSignature().getSignatureElement();
-        //TODO test - now DomUtils in use
         Node node = DomUtils.getNode(signatureNode, "./ds:SignedInfo/ds:Reference[@URI=\"" + reference.getURI() + "\"]");
         if (node != null) {
           String referenceId = node.getAttributes().getNamedItem("Id").getNodeValue();
-          //TODO test - now DomUtils in use
           mimeTypeString = DomUtils.getValue(signatureNode,
               "./ds:Object/xades:QualifyingProperties/xades:SignedProperties/" +
                   "xades:SignedDataObjectProperties/xades:DataObjectFormat" +

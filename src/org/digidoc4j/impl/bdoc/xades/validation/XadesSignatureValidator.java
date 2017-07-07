@@ -28,6 +28,7 @@ import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
 import org.digidoc4j.impl.bdoc.OcspNonceValidator;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;
+import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -40,6 +41,7 @@ import eu.europa.esig.dss.validation.reports.Reports;
 import eu.europa.esig.dss.validation.reports.SimpleReport;
 import eu.europa.esig.dss.validation.reports.wrapper.DiagnosticData;
 import eu.europa.esig.dss.x509.SignaturePolicy;
+import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
@@ -85,7 +87,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     logger.debug("Extracting policy validation errors");
     SignaturePolicy policy = getDssSignature().getPolicyId();
     if(policy != null) {
-      String policyIdentifier = policy.getIdentifier().trim();
+      String policyIdentifier = Helper.getIdentifier(policy.getIdentifier());
       if (!StringUtils.equals(TM_POLICY, policyIdentifier)) {
         addValidationError(new WrongPolicyIdentifierException("Wrong policy identifier: " + policyIdentifier));
       } else {
@@ -98,7 +100,6 @@ public class XadesSignatureValidator implements SignatureValidator {
     logger.debug("Extracting policy identifier qualifier validation errors");
     XPathQueryHolder xPathQueryHolder = getDssSignature().getXPathQueryHolder();
     Element signatureElement = getDssSignature().getSignatureElement();
-    //TODO test - now DomUtils in Use
     Element element = DomUtils.getElement(signatureElement, xPathQueryHolder.XPATH_SIGNATURE_POLICY_IDENTIFIER);
     Element identifier = DomUtils.getElement(element, "./xades:SignaturePolicyId/xades:SigPolicyId/xades:Identifier");
     String qualifier = identifier.getAttribute("Qualifier");

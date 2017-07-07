@@ -529,6 +529,24 @@
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-utils</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-utils-apache-commons</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-utils-google-guava</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
 
   <build>

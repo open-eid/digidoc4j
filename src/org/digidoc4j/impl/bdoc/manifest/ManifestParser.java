@@ -61,7 +61,6 @@ public class ManifestParser implements Serializable {
     }
   }
 
-  //TODO Test - now DomUtils in use
   private Element loadManifestXml() {
     return DomUtils.buildDOM(manifestFile).getDocumentElement();
   }

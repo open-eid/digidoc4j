@@ -193,7 +193,6 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   abstract Extension createNonce();
 
   private DSSPrivateKeyEntry getOCSPAccessCertificatePrivateKey() throws IOException {
-    //TODO Pkcs12SignatureToken new constructors
     Pkcs12SignatureToken signatureTokenConnection = new Pkcs12SignatureToken(configuration.getOCSPAccessCertificateFileName(), configuration.getOCSPAccessCertificatePasswordAsString());
     return signatureTokenConnection.getKeys().get(0);
   }

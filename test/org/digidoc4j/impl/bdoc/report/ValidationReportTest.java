@@ -72,7 +72,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
     System.out.println(result.getReport());
     assertXpathHasValue("1", "/SimpleReport/SignaturesCount", report);
     assertXpathHasValue("1", "/SimpleReport/ValidSignaturesCount", report);
-    assertXpathHasValue("XAdES-BASELINE-LT-TM", "/SimpleReport/Signature/@SignatureFormat", report);
+    assertXpathHasValue("XAdES_BASELINE_LT_TM", "/SimpleReport/Signature/@SignatureFormat", report);
     //assertXpathHasValue("QES", "/SimpleReport/Signature/SignatureLevel", report);
     assertXpathHasValue("TOTAL_PASSED", "/SimpleReport/Signature/Indication", report);
     assertXpathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope[1]/@name", report);
@@ -102,7 +102,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
     String report = result.getReport();
     assertXpathHasValue("1", "/SimpleReport/SignaturesCount", report);
     assertXpathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
-    assertXpathHasValue("XAdES-BASELINE-B", "/SimpleReport/Signature/@SignatureFormat", report);
+    assertXpathHasValue("XAdES_BASELINE_B_EPES", "/SimpleReport/Signature/@SignatureFormat", report);
     //assertXpathHasValue("QES", "/SimpleReport/Signature/SignatureLevel", report);
     assertXpathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
     assertXpathHasValue("TRY_LATER", "/SimpleReport/Signature/SubIndication", report);
@@ -121,7 +121,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
     assertXpathHasValue("2", "/SimpleReport/ValidSignaturesCount", report);
     assertXpathHasValue(signature1.getId(), "/SimpleReport/Signature[1]/@Id", report);
     assertXpathHasValue(signature2.getId(), "/SimpleReport/Signature[2]/@Id", report);
-    assertXpathHasValue("XAdES-BASELINE-LT-TM", "/SimpleReport/Signature[1]/@SignatureFormat", report);
+    assertXpathHasValue("XAdES_BASELINE_LT_TM", "/SimpleReport/Signature[1]/@SignatureFormat", report);
     assertXpathHasValue("XAdES-BASELINE-LT", "/SimpleReport/Signature[2]/@SignatureFormat", report);
     assertXpathHasValue("test.txt", "/SimpleReport/Signature[1]/SignatureScope/@name", report);
     assertXpathHasValue("test.txt", "/SimpleReport/Signature[2]/SignatureScope/@name", report);
@@ -135,7 +135,7 @@ public class ValidationReportTest extends DigiDoc4JTestHelper {
     String report = result.getReport();
     assertXpathHasValue("1", "/SimpleReport/SignaturesCount", report);
     assertXpathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
-    assertXpathHasValue("XAdES-BASELINE-LT-TM", "/SimpleReport/Signature/@SignatureFormat", report);
+    assertXpathHasValue("XAdES_BASELINE_LT_TM", "/SimpleReport/Signature/@SignatureFormat", report);
     //assertXpathHasValue("QES", "/SimpleReport/Signature/SignatureLevel", report);
     assertXpathHasValue("ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865", "/SimpleReport/Signature/SignedBy", report);
     assertXpathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
