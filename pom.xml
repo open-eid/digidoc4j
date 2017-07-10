@@ -6,7 +6,7 @@
   <groupId>org.digidoc4j</groupId>
   <artifactId>digidoc4j</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.6.${buildNumber}</version>
+  <version>1.0.6</version>
   <name>DigiDoc4j</name>
   <description>DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers of signed documents</description>
   <url>https://github.com/open-eid/digidoc4j</url>
@@ -888,6 +888,20 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>2.10.4</version>
+          <configuration>
+            <excludePackageNames>prototype</excludePackageNames>
+            <javadocDirectory>${project.basedir}/doc</javadocDirectory>
+            <docfilessubdirs>true</docfilessubdirs>
+            <overview>${project.basedir}/doc/overview.html</overview>
+          </configuration>
+          <executions>
+            <execution>
+              <id>attach-javadocs</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <groupId>org.jvnet.jaxb2.maven2</groupId>
@@ -907,4 +921,19 @@
       </plugins>
     </pluginManagement>
   </build>
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.4</version>
+        <configuration>
+          <excludePackageNames>prototype</excludePackageNames>
+          <javadocDirectory>${project.basedir}/doc</javadocDirectory>
+          <docfilessubdirs>true</docfilessubdirs>
+          <overview>${project.basedir}/doc/overview.html</overview>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
 </project>

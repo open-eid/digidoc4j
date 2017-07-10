@@ -7,7 +7,7 @@
 
 <body>
 <p><a href="http://digidoc4j.org/" target="_blank"><strong>digidoc4j</strong></a> is a  library for integrating digital signatures (XAdES/ASiC based) into applications and services built with Java technology.</p>
-<p>The development of digidoc4j is organized by <a href="https://www.ria.ee/" target="_blank">Estonian Information System Authority</a> and currently executed by <a href="https://www.sk.ee/" target="_blank">AS Sertifitseerimiskeskus</a>. For inquiries about participating in the development please e-mail martin.paljak at ria.ee</p>
+<p>The development of digidoc4j is organized by <a href="https://www.ria.ee/" target="_blank">Estonian Information System Authority</a> and executed by several companies, including <a href="https://www.sk.ee/" target="_blank">AS Sertifitseerimiskeskus</a> and <a href="https://www.cgi.ee/" target="_blank">CGI Eesti AS</a>. For inquiries about participating in the development please e-mail eid at ria.ee</p>
 <p>This document provides the following information on digidoc4j:</p>
 <p>- <a href="#functionality">Supported functionality</a><br>
 - <a href="#architecture">Architecture</a><br>
@@ -16,21 +16,21 @@
 <p>&nbsp;</p>
 <h1><a id="functionality">Supported  functionality</a></h1>
 <p>This section gives overview of the main functional features offered by digidoc4j. For more detailed information about the functions (including functionality that is planned for later releases), see the digidoc4j project's <a href="https://www.pivotaltracker.com/n/projects/1110130" target="_blank"><strong>Pivotal Tracker</strong></a>. </p>
-<p>The  digidoc4j utility program digidoc4j-util*.jar can be used for testing a subset of the supported functionality, the program is accessible from the <a href="https://github.com/open-eid/digidoc4j/releases" target="_blank"><strong>digidoc4j download area</strong></a>.</p>
-<h6>Creating and handling signature containers</h6>
+<p>The digidoc4j utility program digidoc4j-util*.jar can be used for testing a subset of the supported functionality, the program is accessible from the <a href="https://github.com/open-eid/digidoc4j/releases" target="_blank"><strong>digidoc4j download area</strong></a>.</p>
+<h2>Creating and handling signature containers</h2>
 <p>digidoc4j enables handling signature containers compliant to ETSI TS 102 918 standard called <a href="http://www.etsi.org/deliver/etsi_ts/102900_102999/102918/01.03.01_60/ts_102918v010301p.pdf" target="_blank">Associated Signature Containers (ASiC)</a>. By default, the digidoc4j implementation uses containers in <a href="http://www.id.ee/public/bdoc-spec212-eng.pdf" target="_blank">BDOC 2.1</a> format, which is a subset of ASiC standard.</p>
-<p>Note:  additionally, an older <a href="http://www.id.ee/public/DigiDoc_format_1.3.pdf" target="_blank">DIGIDOC-XML 1.3</a> container format is supported via <a href="http://id.ee/index.php?id=35783" target="_blank">JDigiDoc</a> base library. </p>
+<p>Note: additionally, an older <a href="http://www.id.ee/public/DigiDoc_format_1.3.pdf" target="_blank">DIGIDOC-XML 1.3</a> container format is supported via <a href="http://id.ee/index.php?id=35783" target="_blank">JDigiDoc</a> base library. </p>
 <p>The main use cases regarding signature containers are:</p>
 <ol>
-  <li>Creating  a new container</li>
-  <li>Adding and removing  data files </li>
+  <li>Creating a new container</li>
+  <li>Adding and removing data files </li>
   <li>Extracting data files from container</li>
-  <li>Using temporary cache files for  storing the data file's contents in file system</li>
+  <li>Using temporary cache files for storing the data file's contents in file system</li>
   <li>Adding and removing signatures</li>
   <li>Input/output operations with containers</li>
 </ol>
 <p>See also: {@link org.digidoc4j.ContainerBuilder org.digidoc4j.ContainerBuilder} and {@link org.digidoc4j.Container}</p>
-<h6>Creating and handling digital signatures </h6>
+<h2>Creating and handling digital signatures </h2>
 <p>digidoc4j enables handling digital signatures based  on ETSI TS 101 903 standard called <a href="http://www.etsi.org/deliver/etsi_ts/101900_101999/101903/01.04.02_60/ts_101903v010402p.pdf" target="_blank">XML Advanced Electronic Signatures (XAdES)</a>. By default, the digidoc4j implementation uses signatures in <a href="http://www.id.ee/public/bdoc-spec212-eng.pdf" target="_blank">BDOC 2.1</a> format, which is a subset of XAdES standard. </p>
 <p>Note:  additionally, an older XAdES-based <a href="http://www.id.ee/public/DigiDoc_format_1.3.pdf" target="_blank">DIGIDOC-XML 1.3</a> signature format is supported via <a href="http://id.ee/index.php?id=35783" target="_blank">JDigiDoc</a> base library. </p>
 <p>The main use cases regarding digital signatures are:</p>
@@ -48,7 +48,7 @@
   <li>LT_TM - XAdES-LT signature with time-mark - long term validation data is added to the signature in the form of a time-mark (RFC6960 compliant OCSP confirmation with a special nonce value). The profile can be used in case of BDOC 2.1 and DIGIDOC-XML 1.3 formats.</li>
 </ol>
 <p>See also: {@link org.digidoc4j.SignatureBuilder org.digidoc4j.SignatureBuilder}, {@link org.digidoc4j.Signature Signature}, {@link org.digidoc4j.ContainerBuilder ContainerBuilder} and {@link org.digidoc4j.Container Container}</p>
-<h6>Validating signature container and  all of its contents</h6>
+<h2>Validating signature container and  all of its contents</h2>
 <p>The signature validation process is based on ETSI TS 102 853 standard called <a href="http://www.etsi.org/deliver/etsi_ts/102800_102899/102853/01.01.02_60/ts_102853v010102p.pdf" target="_blank">Signature validation procedures and policies</a>. </p>
 <p>The main use cases regarding validation are:</p>
 <ol>
@@ -58,14 +58,14 @@
   <li>Enabling configuration of signature validation policies according to  ETSI TR 102 038 standard <a href="http://www.etsi.org/deliver/etsi_tr/102000_102099/102038/01.01.01_60/tr_102038v010101p.pdf" target="_blank">XML format for signature policies</a>.</li>
 </ol>
 <p>See also: {@link org.digidoc4j.ValidationResult org.digidoc4j.ValidationResult}</p>
-<h6>Using TSL lists as  trust  anchors</h6>
+<h2>Using TSL lists as  trust  anchors</h2>
 <p>TSL (Trust Service status List) list is a signed XML document that provides information about the status of trust services. The format is based on <a href="http://www.etsi.org/deliver/etsi_ts/119600_119699/119612/01.02.01_60/ts_119612v010201p.pdf" target="_blank">ETSI 119 612</a> standard.  </p>
 <p>digidoc4j uses TSL lists for checking the trustworthiness of  the certificates that are used in the signature.  The <a href="https://ec.europa.eu/information_society/policy/esignature/trusted-list/" target="_blank">European Commission's  TSL</a> list is used as the List Of Trusted List (LOTL) (accessible from: <a href="https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml" target="_blank">https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml</a>).</p>
 <p>The main use case regarding TSL lists usage is:</p>
 <ol>
   <li>Using TSL lists for checking the trustworthiness of  the signer's certificate, OCSP service and time-stamping service certificates during signature creation and validation processes.</li>
 </ol>
-<h6>Supported cryptographic tokens</h6>
+<h2>Supported cryptographic tokens</h2>
 <ol>
   <li>PKCS#12 token (software token)</li>
   <li>PKCS#11 token (hardware token)</li>
@@ -74,7 +74,7 @@
 <p>&nbsp;</p>
 <h1><a id="architecture">Architecture</a></h1>
 <h2>Component diagram</h2>
-<p><img src="{@docRoot}/doc-files/dd4j.jpg" width="912" height="699" alt=""/></p>
+<p><img src="resources/dd4j.jpg" width="912" height="699" alt=""/></p>
 <p>The component diagram above depicts the high level components of digidoc4j library, their internal and external interfaces. </p>
 <p>The components in the diagram are divided into notional packages according to their owner:</p>
 <ol>
@@ -375,25 +375,25 @@
 <p>The utility is distributed as a zip file with the name digidoc4j-util-*.zip (where * is the actual version number). Unzip the file to a directory of your choice. From that directory you can now run it:</p><p>java -jar digidoc4j-util.jar</p>
 <h2>Sample of using the digidoc4j utility</h2>
 <p>In the following subsection some examples are provided for using the utility.</p>
-<h6>Creating a container</h6>
+<h2>Creating a container</h2>
 <p>A valid BDOC container contains at least one document and is signed. To create such a container:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;output_file_name_and_path&gt;" -add "&lt;input_file_name_and_path&gt;" "&lt;mime_type&gt;" -pkcs12 "&lt;pkcs12_token_file&gt;" "&lt;pkcs12_token_password&gt;"</strong></code>
 </p>
-<h6>Using the time-mark signature profile</h6>
+<h2>Using the time-mark signature profile</h2>
 <p>To sign a container using the time-mark protocol you need to specify the signature profile using the -profile option LT_TM:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;output_file_name_and_path&gt;" -add "&lt;input_file_name_and_path&gt;" "&lt;mime_type&gt;" -profile LT_TM -pkcs12 "&lt;pkcs12_token_file&gt;" "&lt;pkcs12_token_password&gt;"</strong></code></p>
-<h6>Creating multiple signed containers</h6>
+<h2>Creating multiple signed containers</h2>
 <p>
   To create signatures of all the files within a directory, you need to specify the input directory containing data files,
   and output directory where the signed containers will be saved.
 </p>
 <p><code><strong>java -jar digidoc4j-util.jar -inputDir "&lt;input_directory_path&gt;" -mimeType "&lt;mime_type (optional)&gt;" -outputDir "&lt;output_directory_path&gt;" -pkcs11 "&lt;pkcs11_module_path&gt;" "&lt;pkcs11_token_pin_password&gt;" "&lt;pkcs11_slot_index&gt;"</strong></code></p>
-<h6>Validation</h6>
+<h2>Validation</h2>
 <p>The utility performs validation when specifying the -v option. The output shows all signatures and their statuses as well as all errors:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v</strong></code>
 <p>In order to see validation warnings in addition to the errors you must specify the -w option:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v -w</strong></code>
-<h6>Verbose</h6>
+<h2>Verbose</h2>
 <p>For all tasks more details can be obtained using the -verbose option as in the next example:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v -verbose</strong></code>
 </body>
