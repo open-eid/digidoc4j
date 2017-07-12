@@ -286,27 +286,11 @@ public final class Helper {
   public static String getIdentifier(String identifier){
     String id = identifier.trim();
     if (DSSXMLUtils.isOid(id)) {
-      id = identifier.substring(id.lastIndexOf(':') + 1);
+      id = id.substring(id.lastIndexOf(':') + 1);
     } else {
       return id;
     }
     return id;
-  }
-
-  public static SignaturePolicyProvider getBdocSignaturePolicyProvider() {
-    SignaturePolicyProvider signaturePolicyProvider  = new SignaturePolicyProvider();
-    File policyDocument = new File("testFiles/helper-files/bdoc-spec21.pdf");
-
-    Map<String, DSSDocument> signaturePoliciesById = new HashMap<String, DSSDocument>();
-    signaturePoliciesById.put(XadesSignatureValidator.TM_POLICY, new FileDocument(policyDocument));
-
-    Map<String, DSSDocument> signaturePoliciesByUrl = new HashMap<String, DSSDocument>();
-    signaturePoliciesByUrl.put("https://www.sk.ee/repository/bdoc-spec21.pdf", new FileDocument(policyDocument));
-
-    signaturePolicyProvider.setSignaturePoliciesById(signaturePoliciesById);
-    signaturePolicyProvider.setSignaturePoliciesByUrl(signaturePoliciesByUrl);
-
-    return signaturePolicyProvider;
   }
 
   public static SignaturePolicyProvider getBdocSignaturePolicyProvider(DSSDocument signature) {

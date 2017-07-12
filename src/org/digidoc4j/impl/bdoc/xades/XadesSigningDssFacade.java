@@ -14,6 +14,7 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import org.digidoc4j.DataFile;
 import org.digidoc4j.impl.bdoc.SKCommonCertificateVerifier;
@@ -50,14 +51,14 @@ import eu.europa.esig.dss.xades.signature.XAdESService;
 public class XadesSigningDssFacade {
 
   private static final Logger logger = LoggerFactory.getLogger(XadesSigningDssFacade.class);
-  private DocumentSignatureService<XAdESSignatureParameters> service;
+  private XAdESService xAdESService;
   private XAdESSignatureParameters xAdESSignatureParameters = new XAdESSignatureParameters();
   private CertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
 
   public XadesSigningDssFacade() {
     initDefaultXadesParameters();
     initCertificateVerifier();
-    initXadesService();
+    initXadesMultipleService();
   }
 
   public byte[] getDataToSign(Collection<DataFile> dataFiles) {
@@ -65,7 +66,8 @@ public class XadesSigningDssFacade {
     DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
     DSSDocument dssDocumentToSign = detachedContentCreator.getFirstDetachedContent();
     logger.debug("Signature parameters: " + xAdESSignatureParameters.toString());
-    ToBeSigned dataToSign = service.getDataToSign(dssDocumentToSign, xAdESSignatureParameters);
+    List<DSSDocument> detachedContentList = detachedContentCreator.getDetachedContentList();
+    ToBeSigned dataToSign = xAdESService.getDataToSign(detachedContentList, xAdESSignatureParameters);
     logger.debug("Got data to sign from DSS");
     return dataToSign.getBytes();
   }
@@ -75,8 +77,10 @@ public class XadesSigningDssFacade {
     SignatureValue dssSignatureValue = new SignatureValue(xAdESSignatureParameters.getSignatureAlgorithm(), signatureValue);
     DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
     DSSDocument dssDocument = detachedContentCreator.getFirstDetachedContent();
+    List<DSSDocument> detachedContentList = detachedContentCreator.getDetachedContentList();
     logger.debug("Signature parameters: " + xAdESSignatureParameters.toString());
-    DSSDocument signedDocument = service.signDocument(dssDocument, xAdESSignatureParameters, dssSignatureValue);
+    xAdESSignatureParameters.setDetachedContents(detachedContentCreator.getDetachedContentList());
+    DSSDocument signedDocument = xAdESService.signDocument(detachedContentList, xAdESSignatureParameters, dssSignatureValue);
     logger.debug("Finished signing document with DSS");
     DSSDocument correctedSignedDocument = surroundWithXadesXmlTag(signedDocument);
     return correctedSignedDocument;
@@ -85,7 +89,7 @@ public class XadesSigningDssFacade {
   public DSSDocument extendSignature(DSSDocument xadesSignature, DSSDocument detachedContent) {
     logger.debug("Extending signature with DSS");
     xAdESSignatureParameters.setDetachedContents(Arrays.asList(detachedContent));
-    DSSDocument extendedSignature = service.extendDocument(xadesSignature, xAdESSignatureParameters);
+    DSSDocument extendedSignature = xAdESService.extendDocument(xadesSignature, xAdESSignatureParameters);
     logger.debug("Finished extending signature with DSS");
     return extendedSignature;
   }
@@ -144,8 +148,16 @@ public class XadesSigningDssFacade {
     xAdESSignatureParameters.getBLevelParams().setSigningDate(signingDate);
   }
 
+  public void setEn319132(boolean isSigningCertificateV2){
+    xAdESSignatureParameters.setEn319132(isSigningCertificateV2);
+  }
+
+  public void getEn319132(){
+    xAdESSignatureParameters.isEn319132();
+  }
+
   public void setTspSource(TSPSource tspSource) {
-    service.setTspSource(tspSource);
+    xAdESService.setTspSource(tspSource);
   }
 
   private void initDefaultXadesParameters() {
@@ -155,6 +167,7 @@ public class XadesSigningDssFacade {
     xAdESSignatureParameters.setSignatureLevel(SignatureLevel.XAdES_BASELINE_LT);
     xAdESSignatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
     xAdESSignatureParameters.setSigningCertificateDigestMethod(DigestAlgorithm.SHA256);
+    xAdESSignatureParameters.setEn319132(false);
   }
 
   private void initCertificateVerifier() {
@@ -162,8 +175,8 @@ public class XadesSigningDssFacade {
     certificateVerifier.setSignatureCRLSource(null); //Disable CRL checks
   }
 
-  private void initXadesService() {
-    service = new XAdESService(certificateVerifier);
+  private void initXadesMultipleService() {
+    xAdESService = new XAdESService(certificateVerifier);
   }
 
   private DSSDocument surroundWithXadesXmlTag(DSSDocument signedDocument) {

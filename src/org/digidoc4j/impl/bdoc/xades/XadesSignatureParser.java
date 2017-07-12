@@ -70,8 +70,7 @@ public class XadesSignatureParser {
   }
 
   private boolean containsPolicyId(XAdESSignature xAdESSignature) {
-    SignaturePolicyProvider signaturePolicyProvider  = Helper.getBdocSignaturePolicyProvider();
-    xAdESSignature.checkSignaturePolicy(signaturePolicyProvider);
+    xAdESSignature.checkSignaturePolicy(new SignaturePolicyProvider());
 
     SignaturePolicy policyId = xAdESSignature.getPolicyId();
     if (policyId == null) {

@@ -68,11 +68,11 @@ public class BDocContainerValidator implements Serializable {
   }
 
   private void validateSignatures(List<Signature> signatures) {
-    //List<Future<SignatureValidationData>> validationData = startSignatureValidationInParallel(signatures);
-    //extractValidatedSignatureErrors(validationData);
+    List<Future<SignatureValidationData>> validationData = startSignatureValidationInParallel(signatures);
+    extractValidatedSignatureErrors(validationData);
 
-    List<SignatureValidationData> validationDatas = startSignatureValidationInParallelTest(signatures);
-    extractValidatedSignatureErrorsTest(validationDatas);
+    //List<SignatureValidationData> validationDatas = startSignatureValidationInParallelTest(signatures);
+    //extractValidatedSignatureErrorsTest(validationDatas);
   }
 
   private List<SignatureValidationData> startSignatureValidationInParallelTest(List<Signature> signatures) {
