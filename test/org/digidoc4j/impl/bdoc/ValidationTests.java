@@ -363,8 +363,8 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(3, errors.size());
-    assertEquals("The signature policy is not available!", errors.get(0).toString());
-    assertEquals("Wrong policy identifier: 1.3.6.1.4.1.10015.1000.2.10.10", errors.get(1).toString());
+    assertEquals("Wrong policy identifier: 1.3.6.1.4.1.10015.1000.2.10.10", errors.get(0).toString());
+    assertEquals("The signature policy is not available!", errors.get(1).toString());
     assertEquals("Nonce is invalid", errors.get(2).toString());
   }
 

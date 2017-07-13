@@ -86,9 +86,18 @@ public class XadesSigningDssFacade {
     return correctedSignedDocument;
   }
 
+  @Deprecated
   public DSSDocument extendSignature(DSSDocument xadesSignature, DSSDocument detachedContent) {
     logger.debug("Extending signature with DSS");
     xAdESSignatureParameters.setDetachedContents(Arrays.asList(detachedContent));
+    DSSDocument extendedSignature = xAdESService.extendDocument(xadesSignature, xAdESSignatureParameters);
+    logger.debug("Finished extending signature with DSS");
+    return extendedSignature;
+  }
+
+  public DSSDocument extendSignature(DSSDocument xadesSignature, List<DSSDocument> detachedContents) {
+    logger.debug("Extending signature with DSS");
+    xAdESSignatureParameters.setDetachedContents(detachedContents);
     DSSDocument extendedSignature = xAdESService.extendDocument(xadesSignature, xAdESSignatureParameters);
     logger.debug("Finished extending signature with DSS");
     return extendedSignature;

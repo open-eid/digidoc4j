@@ -140,9 +140,8 @@ public abstract class BDocContainer implements Container {
   protected List<Signature> extendAllSignaturesProfile(SignatureProfile profile, List<Signature> signatures, List<DataFile> dataFiles) {
     logger.info("Extending all signatures' profile to " + profile.name());
     DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
-    DSSDocument firstDetachedContent = detachedContentCreator.getFirstDetachedContent();
     List<DSSDocument> detachedContentList = detachedContentCreator.getDetachedContentList();
-    SignatureExtender signatureExtender = new SignatureExtender(getConfiguration(), firstDetachedContent);
+    SignatureExtender signatureExtender = new SignatureExtender(getConfiguration(), detachedContentList);
     List<DSSDocument> extendedSignatureDocuments = signatureExtender.extend(signatures, profile);
     List<Signature> extendedSignatures = parseSignatureFiles(extendedSignatureDocuments, detachedContentList);
     logger.debug("Finished extending all signatures");
