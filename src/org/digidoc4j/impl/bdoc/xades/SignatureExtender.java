@@ -50,6 +50,7 @@ public class SignatureExtender {
   private static final Map<SignatureProfile, Set<SignatureProfile>> possibleExtensions = new HashMap<>(5);
   private Configuration configuration;
   private DSSDocument detachedContent;
+  private List<DSSDocument> detachedContents;
   private XadesSigningDssFacade extendingFacade;
 
   static {
@@ -63,6 +64,12 @@ public class SignatureExtender {
   public SignatureExtender(Configuration configuration, DSSDocument detachedContent) {
     this.configuration = configuration;
     this.detachedContent = detachedContent;
+    extendingFacade = new XadesSigningDssFacade();
+  }
+
+  public SignatureExtender(Configuration configuration, List<DSSDocument> detachedContent) {
+    this.configuration = configuration;
+    this.detachedContents = detachedContent;
     extendingFacade = new XadesSigningDssFacade();
   }
 
@@ -92,7 +99,7 @@ public class SignatureExtender {
     OCSPSource ocspSource = createOcspSource(profile, signature.getOrigin().getSignatureValue());
     extendingFacade.setOcspSource(ocspSource);
     DSSDocument signatureDocument = signature.getSignatureDocument();
-    return extendingFacade.extendSignature(signatureDocument, detachedContent);
+    return extendingFacade.extendSignature(signatureDocument, detachedContents);
   }
 
   private OCSPSource createOcspSource(SignatureProfile profile, byte[] signatureValue) {

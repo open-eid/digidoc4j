@@ -13,7 +13,7 @@ package org.digidoc4j.main;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Container;
 import org.digidoc4j.Signature;
 import org.digidoc4j.ValidationResult;

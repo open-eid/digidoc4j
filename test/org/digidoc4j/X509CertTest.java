@@ -20,6 +20,7 @@ import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import static java.util.Arrays.asList;
@@ -129,4 +130,12 @@ public class X509CertTest {
     assertEquals("SERIALNUMBER=11404176865, GIVENNAME=MÄRÜ-LÖÖZ, SURNAME=ŽÕRINÜWŠKY, CN=\"ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ," +
         "11404176865\", OU=digital signature, O=ESTEID, C=EE", cert.getSubjectName());
   }
+
+  @Test
+  public void testDateCompare() throws Exception {
+    Date startTime = Calendar.getInstance().getTime();
+    Date usageTime = Calendar.getInstance().getTime();
+    assertTrue(usageTime.compareTo(startTime) >= 0);
+  }
+
 }

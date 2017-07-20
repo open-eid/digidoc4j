@@ -166,7 +166,8 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
       if (bestSingleResp != null) {
         OCSPToken ocspToken = new OCSPToken();
         ocspToken.setBasicOCSPResp(basicOCSPResp);
-        ocspToken.setBestSingleResp(bestSingleResp);
+        //TODO OCSPToken has no setter (setBestSingleResp) in version DSS 5.0
+        ocspToken.setCertId(certId);
         ocspToken.setSourceURL(ocspUri);
         certificateToken.addRevocationToken(ocspToken);
         return ocspToken;
@@ -191,8 +192,8 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
 
   abstract Extension createNonce();
 
-  private DSSPrivateKeyEntry getOCSPAccessCertificatePrivateKey() {
-    Pkcs12SignatureToken signatureTokenConnection = new Pkcs12SignatureToken(configuration.getOCSPAccessCertificatePassword(), configuration.getOCSPAccessCertificateFileName());
+  private DSSPrivateKeyEntry getOCSPAccessCertificatePrivateKey() throws IOException {
+    Pkcs12SignatureToken signatureTokenConnection = new Pkcs12SignatureToken(configuration.getOCSPAccessCertificateFileName(), configuration.getOCSPAccessCertificatePasswordAsString());
     return signatureTokenConnection.getKeys().get(0);
   }
 

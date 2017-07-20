@@ -11,7 +11,7 @@
 package org.digidoc4j;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
@@ -27,8 +27,8 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import eu.europa.esig.dss.client.http.Protocol;
 
@@ -285,6 +285,16 @@ public class Configuration implements Serializable {
     }
     logger.debug("OCSPAccessCertificatePassword loaded");
     return result;
+  }
+
+  /**
+   * Get OSCP access certificate password As String
+   *
+   * @return password
+   */
+  public String getOCSPAccessCertificatePasswordAsString() {
+    logger.debug("Loading OCSPAccessCertificatePassword");
+    return getConfigurationParameter("OCSPAccessCertificatePassword");
   }
 
   /**

@@ -140,12 +140,13 @@ public class TslLoaderTest {
   }
 
   private void assertTslValid(TSLRepository tslRepository) {
-    // TODO: check and test refactored code
-    Map<String, TSLValidationModel> modelMap = tslRepository.getAllMapTSLValidationModels();
-    for (String country : modelMap.keySet()) {
-      TSLValidationModel model = tslRepository.getByCountry(country);
-      Indication indication = model.getValidationResult().getIndication();
-      Assert.assertEquals("TSL is not valid for country " + country, Indication.TOTAL_PASSED, indication);
+    List<TSLValidationSummary> summaryList = tslRepository.getSummary();
+    for (TSLValidationSummary summary : summaryList) {
+      Indication indication = summary.getIndication();
+      if (indication != null) {
+        String country = summary.getCountry();
+        Assert.assertEquals("TSL is not valid for country " + country, Indication.TOTAL_PASSED, indication);
+      }
     }
   }
 

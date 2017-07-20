@@ -10,12 +10,13 @@
 
 package org.digidoc4j.main;
 
-import static org.apache.commons.lang.StringUtils.endsWithIgnoreCase;
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
 import org.digidoc4j.Container;
@@ -27,6 +28,7 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS11SignatureToken;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.slf4j.Logger;

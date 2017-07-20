@@ -28,15 +28,13 @@ public class XadesValidationResult {
     return validationReport;
   }
 
+  //TODO test - no more method for ASiC_E report
   public Map<String, SimpleReport> extractSimpleReports() {
     Map<String, SimpleReport> simpleReports = new LinkedHashMap<>();
-    do {
       SimpleReport simpleReport = validationReport.getSimpleReport();
       if (simpleReport.getSignatureIdList().size() > 0) {
         simpleReports.put(simpleReport.getSignatureIdList().get(0), simpleReport);
       }
-      validationReport = validationReport.getNextReports();
-    } while (validationReport != null);
     return simpleReports;
   }
 
