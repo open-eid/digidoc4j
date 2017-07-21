@@ -53,7 +53,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
@@ -86,6 +86,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
@@ -1164,7 +1165,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   private int countOcspResponderCertificates(XAdESSignature xAdESSignature) {
     XPathQueryHolder xPathQueryHolder = xAdESSignature.getXPathQueryHolder();
     String xPath = xPathQueryHolder.XPATH_CERTIFICATE_VALUES;
-    Element certificateValues = DSSXMLUtils.getElement(xAdESSignature.getSignatureElement(), xPath);
+    Element certificateValues = DomUtils.getElement(xAdESSignature.getSignatureElement(), xPath);
     return countResponderCertIdInsCertificateValues(certificateValues);
   }
 

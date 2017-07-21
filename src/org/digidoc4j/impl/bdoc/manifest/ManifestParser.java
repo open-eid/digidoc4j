@@ -23,7 +23,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.xades.DSSXMLUtils;
+import eu.europa.esig.dss.DomUtils;
 
 public class ManifestParser implements Serializable {
 
@@ -62,7 +62,7 @@ public class ManifestParser implements Serializable {
   }
 
   private Element loadManifestXml() {
-    return DSSXMLUtils.buildDOM(manifestFile).getDocumentElement();
+    return DomUtils.buildDOM(manifestFile).getDocumentElement();
   }
 
   private void addFileEntry(Node firstChild) {

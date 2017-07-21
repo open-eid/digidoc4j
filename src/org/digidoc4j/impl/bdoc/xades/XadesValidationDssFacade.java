@@ -10,17 +10,24 @@
 
 package org.digidoc4j.impl.bdoc.xades;
 
+import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.impl.bdoc.SKCommonCertificateVerifier;
+import org.digidoc4j.impl.bdoc.xades.validation.XadesSignatureValidator;
+import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.validation.CertificateVerifier;
+import eu.europa.esig.dss.validation.SignaturePolicyProvider;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.xades.validation.XMLDocumentValidator;
 
@@ -44,6 +51,8 @@ public class XadesValidationDssFacade {
       logger.debug("Finished opening signature validator");
       validator.setDetachedContents(detachedContents);
       validator.setCertificateVerifier(certificateVerifier);
+      SignaturePolicyProvider signaturePolicyProvider = Helper.getBdocSignaturePolicyProvider(signature);
+      validator.setSignaturePolicyProvider(signaturePolicyProvider);
       return validator;
     } catch (DSSException e) {
       logger.error("Failed to parse xades signature: " + e.getMessage());

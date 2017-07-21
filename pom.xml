@@ -6,7 +6,7 @@
   <groupId>org.digidoc4j</groupId>
   <artifactId>digidoc4j</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.6.RC.1.${buildNumber}</version>
+  <version>1.0.7.beta.1</version>
   <name>DigiDoc4j</name>
   <description>DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers of signed documents</description>
   <url>https://github.com/open-eid/digidoc4j</url>
@@ -25,6 +25,63 @@
     <system>Pivotal</system>
     <url>https://www.pivotaltracker.com/n/projects/1110130</url>
   </issueManagement>
+  <developers>
+    <developer>
+      <name>Rainer Villido</name>
+      <email>Rainer.Villido at Nortal.com</email>
+      <organization>Nortal</organization>
+      <organizationUrl>http://www.nortal.com</organizationUrl>
+    </developer>
+    <developer>
+      <name>Mihkel Selgal</name>
+      <email>Mihkel.Selgal at Nortal.com</email>
+      <organization>Nortal</organization>
+      <organizationUrl>http://www.nortal.com</organizationUrl>
+    </developer>
+    <developer>
+      <name>Risto Alas</name>
+      <email>Risto.Alas at Nortal.com</email>
+      <organization>Nortal</organization>
+      <organizationUrl>http://www.nortal.com</organizationUrl>
+    </developer>
+    <developer>
+      <name>Aho Augasmägi</name>
+      <email>aho at codeborne.com</email>
+      <organization>Codeborne</organization>
+      <organizationUrl>http://www.codeborne.com</organizationUrl>
+    </developer>
+    <developer>
+      <name>Allan Juhanson</name>
+      <email>Allan.Juhanson at Nortal.com</email>
+      <organization>Nortal</organization>
+      <organizationUrl>http://www.nortal.com</organizationUrl>
+    </developer>
+    <developer>
+      <name>Martin Beldman</name>
+      <email>martin at codeborne.com</email>
+      <organization>Codeborne</organization>
+      <organizationUrl>http://www.codeborne.com</organizationUrl>
+    </developer>
+    <developer>
+      <name>Andrei Smirnov</name>
+      <email>andrei.smirnov at cgi.com</email>
+      <organization>CGI Eesti</organization>
+      <organizationUrl>https://www.cgi.ee</organizationUrl>
+    </developer>
+    <developer>
+      <name>Indrek Jentson</name>
+      <email>indrek.jentson at cgi.com</email>
+      <organization>CGI Eesti</organization>
+      <organizationUrl>https://www.cgi.ee</organizationUrl>
+    </developer>
+    <developer>
+      <name>Margus Kamlat</name>
+      <email>margus.kamlat at cgi.com</email>
+      <organization>CGI Eesti</organization>
+      <organizationUrl>https://www.cgi.ee</organizationUrl>
+    </developer>
+  </developers>
+
   <properties>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
@@ -34,10 +91,12 @@
     <logback-classic.version>1.2.3</logback-classic.version>
     <bouncycastle.version>1.54</bouncycastle.version>
     <junit.version>4.11</junit.version>
-    <dss.version>4.7.RC2.d4j.1</dss.version>
+    <dss.groupId>org.digidoc4j.dss</dss.groupId>
+    <dss.version>5.0.d4j.1</dss.version>
     <dss.util.build>${project.basedir}/build/</dss.util.build>
     <dss.util.lib>${project.basedir}/utility-package-lib</dss.util.lib>
     <dss.zip.lib>${project.basedir}/zip-package-lib</dss.zip.lib>
+    <argLine>-Dfile.encoding=UTF-8</argLine>
   </properties>
 
   <profiles>
@@ -77,7 +136,6 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <skip>true</skip>
-              <argLine>@{argLine} -Dfile.encoding=UTF-8</argLine>
             </configuration>
           </plugin>
           <plugin>
@@ -184,9 +242,9 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>2.6</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.6</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -196,9 +254,9 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-      <version>3.2.2</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
+      <version>4.1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -420,92 +478,128 @@
     </dependency>
 
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-common-validation-jaxb</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-detailed-report-jaxb</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-diagnostic-jaxb</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-document</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-model</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-policy-jaxb</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-reports</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-service</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-simple-report-jaxb</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-spi</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-token</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-tsl-jaxb</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-tsl-validation</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-xades</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>validation-policy</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-asic-common</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-asic-cades</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-asic-xades</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-utils</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-utils-apache-commons</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-utils-google-guava</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
@@ -674,7 +768,16 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>3.0.2</version>
+        <executions>
+          <execution>
+            <id>main</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
             <configuration>
+              <classifier>library</classifier>
               <excludes>
                 <exclude>prototype/**</exclude>
               </excludes>
@@ -691,6 +794,8 @@
                 </manifestSections>
               </archive>
             </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
@@ -727,7 +832,6 @@
             <additionalClasspathElement>${project.basedir}/lib/esteidtestcerts.jar</additionalClasspathElement>
           </additionalClasspathElements>
           <!-- Default test configuration -->
-          <argLine>@{argLine} -Dfile.encoding=UTF-8</argLine>
         </configuration>
       </plugin>
 
@@ -769,6 +873,25 @@
                 <zip destfile="${project.basedir}/target/${project.artifactId}-${project.version}-util.zip"
                      basedir="${dss.util.build}/util"/>
                 <delete dir="${dss.util.build}/util"/>
+                <copy tofile="${project.basedir}/target/${project.artifactId}-${project.version}.pom">
+                  <fileset dir="${project.basedir}" includes="**/pom.xml"/>
+                </copy>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>ant-bundle-jar</id>
+            <phase>install</phase>
+            <configuration>
+              <target>
+                <jar jarfile="${project.basedir}/target/${project.artifactId}-${project.version}-bundle.jar">
+                  <fileset dir="target" includes="**/digidoc4j-*.jar" excludes="*-library.jar"/>
+                  <fileset dir="target" includes="**/*.pom"/>
+                  <fileset dir="target" includes="**/*.asc" excludes="*-library.*.asc"/>
+                </jar>
               </target>
             </configuration>
             <goals>
@@ -813,6 +936,20 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-install-plugin</artifactId>
         <version>2.5.2</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.6</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
 
@@ -881,13 +1018,27 @@
           <version>2.5.3</version>
           <configuration>
             <autoVersionSubmodules>true</autoVersionSubmodules>
-            <tagNameFormat>@{project.version}</tagNameFormat>
+            <tagNameFormat>${project.version}</tagNameFormat>
           </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>2.10.4</version>
+          <configuration>
+            <excludePackageNames>prototype</excludePackageNames>
+            <javadocDirectory>${project.basedir}/doc</javadocDirectory>
+            <docfilessubdirs>true</docfilessubdirs>
+            <overview>${project.basedir}/doc/overview.html</overview>
+          </configuration>
+          <executions>
+            <execution>
+              <id>attach-javadocs</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <groupId>org.jvnet.jaxb2.maven2</groupId>
@@ -904,7 +1055,27 @@
           <artifactId>maven-antrun-plugin</artifactId>
           <version>1.8</version>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>1.6</version>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.4</version>
+        <configuration>
+          <excludePackageNames>prototype</excludePackageNames>
+          <javadocDirectory>${project.basedir}/doc</javadocDirectory>
+          <docfilessubdirs>true</docfilessubdirs>
+          <overview>${project.basedir}/doc/overview.html</overview>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
 </project>
