@@ -125,6 +125,7 @@
       <properties>
         <project.source.version>1.7</project.source.version>
         <jfxrt.jar>${java.home}/lib/ext/jfxrt.jar</jfxrt.jar>
+        <additionalparam>-Xdoclint:none</additionalparam>
       </properties>
     </profile>
 
