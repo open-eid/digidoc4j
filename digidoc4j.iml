@@ -21,7 +21,7 @@
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.10" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.6" level="project" />
     <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.2" level="project" />
-    <orderEntry type="library" name="Maven: commons-collections:commons-collections:3.2.2" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-collections4:4.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.3" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.6" level="project" />
     <orderEntry type="library" name="Maven: org.apache.santuario:xmlsec:2.0.8" level="project" />
@@ -45,7 +45,6 @@
     <orderEntry type="library" scope="TEST" name="Maven: com.github.tomakehurst:wiremock:1.58" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.jayway.jsonpath:json-path:0.8.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: net.minidev:json-smart:1.1.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: commons-lang:commons-lang:2.6" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: net.sf.jopt-simple:jopt-simple:4.9" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.mortbay.jetty:jetty:6.1.26" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.mortbay.jetty:jetty-util:6.1.26" level="project" />
@@ -57,26 +56,28 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.skyscreamer:jsonassert:1.5.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.json:json:20160810" level="project" />
     <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-common-validation-jaxb:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-detailed-report-jaxb:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-diagnostic-jaxb:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-document:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-model:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-policy-jaxb:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-reports:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-utils:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-service:5.0" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-common-validation-jaxb:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-detailed-report-jaxb:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-diagnostic-jaxb:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-document:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-model:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-policy-jaxb:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-reports:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-service:5.0.d4j.1" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:jcl-over-slf4j:1.7.22" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-simple-report-jaxb:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-spi:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-token:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-tsl-jaxb:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-tsl-validation:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-xades:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:validation-policy:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-asic-common:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-asic-cades:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-cades:5.0" level="project" />
-    <orderEntry type="library" name="Maven: eu.europa.ec.joinup.sd-dss:dss-asic-xades:5.0" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-simple-report-jaxb:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-spi:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-token:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-tsl-jaxb:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-tsl-validation:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-xades:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:validation-policy:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-common:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-cades:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-cades:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-xades:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils-apache-commons:5.0.d4j.1" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils-google-guava:5.0.d4j.1" level="project" />
   </component>
 </module>
