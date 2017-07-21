@@ -91,8 +91,8 @@
     <logback-classic.version>1.2.3</logback-classic.version>
     <bouncycastle.version>1.54</bouncycastle.version>
     <junit.version>4.11</junit.version>
-    <dss.groupId>eu.europa.ec.joinup.sd-dss</dss.groupId>
-    <dss.version>5.0</dss.version>
+    <dss.groupId>org.digidoc4j.dss</dss.groupId>
+    <dss.version>5.0.d4j.1</dss.version>
     <dss.util.build>${project.basedir}/build/</dss.util.build>
     <dss.util.lib>${project.basedir}/utility-package-lib</dss.util.lib>
     <dss.zip.lib>${project.basedir}/zip-package-lib</dss.zip.lib>
