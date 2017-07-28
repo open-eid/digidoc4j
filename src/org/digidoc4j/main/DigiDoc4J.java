@@ -32,7 +32,7 @@ import ee.sk.digidoc.SignedDoc;
  */
 public final class DigiDoc4J {
 
-  private final static Logger logger = LoggerFactory.getLogger(DigiDoc4J.class);
+  private static final Logger logger = LoggerFactory.getLogger(DigiDoc4J.class);
   private static final String EXTRACT_CMD = "extract";
 
   private DigiDoc4J() {
@@ -62,13 +62,13 @@ public final class DigiDoc4J {
 
     try {
       CommandLine commandLine = new BasicParser().parse(options, args);
-      if(commandLine.hasOption("version")) {
+      if (commandLine.hasOption("version")) {
         showVersion();
       }
-      if(shouldManipulateContainer(commandLine)) {
+      if (shouldManipulateContainer(commandLine)) {
         execute(commandLine);
       }
-      if(!commandLine.hasOption("version") && !shouldManipulateContainer(commandLine)) {
+      if (!commandLine.hasOption("version") && !shouldManipulateContainer(commandLine)) {
         showUsage(options);
       }
     } catch (ParseException e) {
@@ -90,7 +90,7 @@ public final class DigiDoc4J {
     checkSupportedFunctionality(commandLine);
     ContainerManipulator containerManipulator = new ContainerManipulator(commandLine);
     try {
-      if(commandLine.hasOption("in")) {
+      if (commandLine.hasOption("in")) {
         String containerPath = commandLine.getOptionValue("in");
         Container container = containerManipulator.openContainer(containerPath);
         containerManipulator.processContainer(container);
@@ -119,7 +119,7 @@ public final class DigiDoc4J {
         throw new DigiDoc4JUtilityException(3, "Incorrect extract command");
       }
     }
-    if(commandLine.hasOption("pkcs11") && commandLine.hasOption("pkcs12")) {
+    if (commandLine.hasOption("pkcs11") && commandLine.hasOption("pkcs12")) {
       throw new DigiDoc4JUtilityException(5, "Cannot sign with both PKCS#11 and PKCS#12");
     }
   }
@@ -148,6 +148,7 @@ public final class DigiDoc4J {
   private static Options createParameters() {
     Options options = new Options();
     options.addOption("v", "verify", false, "verify input file");
+    options.addOption("v2", "verify2", false, "verify_and_report input file");
     options.addOption("verbose", "verbose", false, "verbose output");
     options.addOption("w", "warnings", false, "show warnings");
     options.addOption("version", "version", false, "show version");
@@ -164,6 +165,7 @@ public final class DigiDoc4J {
     options.addOption(encryptionAlgorithm());
     options.addOption(mimeType());
     options.addOption(extractDataFile());
+    options.addOption(reportsDir());
 
     return options;
   }
@@ -215,6 +217,13 @@ public final class DigiDoc4J {
   private static Option inputDir() {
     return withArgName("inputDir").hasArg()
         .withDescription("directory path containing data files to sign").create("inputDir");
+  }
+
+  @SuppressWarnings("AccessStaticViaInstance")
+  private static Option reportsDir() {
+    return withArgName("reportDir").hasArg()
+        .withDescription("directory path for validation reports")
+        .withLongOpt("reportDir").create("r");
   }
 
   @SuppressWarnings("AccessStaticViaInstance")

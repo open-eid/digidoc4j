@@ -45,6 +45,7 @@
     <orderEntry type="library" scope="TEST" name="Maven: com.github.tomakehurst:wiremock:1.58" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.jayway.jsonpath:json-path:0.8.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: net.minidev:json-smart:1.1.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: commons-lang:commons-lang:2.6" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: net.sf.jopt-simple:jopt-simple:4.9" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.mortbay.jetty:jetty:6.1.26" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.mortbay.jetty:jetty-util:6.1.26" level="project" />

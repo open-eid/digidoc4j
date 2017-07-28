@@ -12,6 +12,7 @@ package org.digidoc4j;
 
 import org.digidoc4j.exceptions.DigiDoc4JException;
 
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -74,4 +75,11 @@ public interface ValidationResult {
    * @return List of exceptions
    */
   List<DigiDoc4JException> getContainerErrors();
+
+  /**
+   * Save validation reports in given directory.
+   *
+   * @param directory Directory where to save XML files.
+   */
+  void saveXmlReports(Path directory);
 }

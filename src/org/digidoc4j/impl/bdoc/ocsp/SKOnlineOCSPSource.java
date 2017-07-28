@@ -47,11 +47,11 @@ import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 import eu.europa.esig.dss.x509.ocsp.OCSPToken;
 
 /**
-* SK OCSP source location.
-*/
+ * SK OCSP source location.
+ */
 public abstract class SKOnlineOCSPSource implements OCSPSource {
   private static final Logger logger = LoggerFactory.getLogger(SKOnlineOCSPSource.class);
-  
+
   /**
    * The data loader used to retrieve the OCSP response.
    */
@@ -101,7 +101,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
         }
 
         DSSPrivateKeyEntry keyEntry = getOCSPAccessCertificatePrivateKey();
-        PrivateKey privateKey = ((KSPrivateKeyEntry)keyEntry).getPrivateKey();
+        PrivateKey privateKey = ((KSPrivateKeyEntry) keyEntry).getPrivateKey();
         X509Certificate ocspSignerCert = keyEntry.getCertificate().getCertificate();
 
         ContentSigner contentSigner = signerBuilder.build(privateKey);
@@ -131,7 +131,6 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
       final String ocspUri = getAccessLocation();
       logger.debug("Getting OCSP token from URI: " + ocspUri);
       if (ocspUri == null) {
-
         return null;
       }
       Extension nonceExtension = createNonce();
@@ -141,7 +140,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
 
       final OCSPResp ocspResp = new OCSPResp(ocspRespBytes);
       BasicOCSPResp basicOCSPResp = (BasicOCSPResp) ocspResp.getResponseObject();
-      if(basicOCSPResp == null) {
+      if (basicOCSPResp == null) {
         logger.error("OCSP response is empty");
         return null;
       }
@@ -197,15 +196,15 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     return signatureTokenConnection.getKeys().get(0);
   }
 
-  public void setDataLoader(SkDataLoader dataLoader) {
-    this.dataLoader = dataLoader;
-  }
-
   Configuration getConfiguration() {
     return configuration;
   }
 
   SkDataLoader getDataLoader() {
     return dataLoader;
+  }
+
+  public void setDataLoader(SkDataLoader dataLoader) {
+    this.dataLoader = dataLoader;
   }
 }
