@@ -478,7 +478,7 @@ public class ConfigurationTest {
   public void defaultConstructorWithSetSystemProperty() throws Exception {
     System.setProperty("digidoc4j.mode", "TEST");
     Configuration configuration = new Configuration();
-    assertEquals("https://demo.sk.ee/TSL/tl-mp-test-EE.xml", configuration.getTslLocation());
+    assertEquals("https://open-eid.github.io/test-TL/tl-mp-test-EE.xml", configuration.getTslLocation());
   }
 
   @Test
