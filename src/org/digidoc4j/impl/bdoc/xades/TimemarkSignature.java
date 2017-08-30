@@ -30,7 +30,7 @@ import eu.europa.esig.dss.x509.CertificateToken;
 
 public class TimemarkSignature extends BesSignature {
 
-  private final static Logger logger = LoggerFactory.getLogger(TimemarkSignature.class);
+  private static final Logger logger = LoggerFactory.getLogger(TimemarkSignature.class);
   private X509Cert ocspCertificate;
   private BasicOCSPResp ocspResponse;
   private Date ocspResponseTime;
@@ -122,6 +122,7 @@ public class TimemarkSignature extends BesSignature {
   }
 
   private String getCN(X500Name x500Name) {
+    if (x500Name == null) return null;
     RDN[] rdNs = x500Name.getRDNs(new ASN1ObjectIdentifier("2.5.4.3"));
     if (rdNs == null || rdNs.length == 0) {
       return null;
