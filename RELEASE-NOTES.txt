@@ -7,6 +7,7 @@ Summary of the major changes since 1.0.7 Beta.1
 * Changed TSL URL for Test mode
 * Fixed problem with URI encoding for libdigidocpp
 * Fixed problem with newline symbol in signature policy ID value
+* In order to generate DSS validation reports the option '-r <reportDir>' for digidoc4j-util is added
 
 Release 1.0.7 Beta.1
 --------------------
