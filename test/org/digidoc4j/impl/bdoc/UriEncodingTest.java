@@ -35,7 +35,7 @@ public class UriEncodingTest extends DigiDoc4JTestHelper {
     // DetachedSignatureBuilder.createReference(...) uses UTF-8 from dss5.0
     public void signatureReferencesUseUriEncodingButManifestUsesPlainUtf8() throws InterruptedException {
         String fileName = "dds_JÜRIÖÖ € žŠ päev.txt";
-        String expectedEncoding = "dds_J%C3%9CRI%C3%96%C3%96+%E2%82%AC+%C5%BE%C5%A0+p%C3%A4ev.txt";
+        String expectedEncoding = "dds_J%C3%9CRI%C3%96%C3%96%20%E2%82%AC%20%C5%BE%C5%A0%20p%C3%A4ev.txt";
         signAndAssertEncoding(fileName, expectedEncoding);
         // TODO: Also write an assertion to verify that the manifest file does NOT use URI encoding
     }
@@ -44,7 +44,7 @@ public class UriEncodingTest extends DigiDoc4JTestHelper {
     // DetachedSignatureBuilder.createReference(...) uses UTF-8 from dss5.0
     public void encodeDataFileWithSpecialCharacters() throws Exception {
         String fileName = "et10i_0123456789!#$%&'()+,-. ;=@[]_`}~ et_EE";
-        String expectedEncoding = "et10i_0123456789%21%23%24%25%26%27%28%29%2B%2C-.+%3B%3D%40%5B%5D_%60%7D%7E+et_EE";
+        String expectedEncoding = "et10i_0123456789%21%23%24%25%26%27%28%29%2B%2C-.%20%3B%3D%40%5B%5D_%60%7D~%20et_EE";
         signAndAssertEncoding(fileName, expectedEncoding);
     }
 
@@ -59,7 +59,7 @@ public class UriEncodingTest extends DigiDoc4JTestHelper {
     }
 
     @Test
-    @Ignore("https://www.pivotaltracker.com/story/show/125469911")
+    //@Ignore("https://www.pivotaltracker.com/story/show/125469911")
     public void validateContainer_withWhitespaceEncodedAsPlus_shouldBeValid() throws Exception {
         Container container = ContainerBuilder.
             aContainer().
