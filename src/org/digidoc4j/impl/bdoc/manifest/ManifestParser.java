@@ -41,7 +41,7 @@ public class ManifestParser implements Serializable {
   }
 
   public Map<String, ManifestEntry> getManifestFileItems() {
-    if(!containsManifestFile()) {
+    if (!containsManifestFile()) {
       return Collections.emptyMap();
     }
     entries = new HashMap<>();
@@ -76,7 +76,7 @@ public class ManifestParser implements Serializable {
   }
 
   private void validateNotDuplicateFile(String filePath) {
-    if(entries.containsKey(filePath)) {
+    if (entries.containsKey(filePath)) {
       DuplicateDataFileException digiDoc4JException = new DuplicateDataFileException("duplicate entry in manifest file: " + filePath);
       logger.error(digiDoc4JException.getMessage());
       throw digiDoc4JException;

@@ -296,11 +296,10 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void noNoncePolicy() {
-    Container container = ContainerOpener.open("testFiles/invalid-containers/23608_bdoc21-no-nonce-policy.bdoc", PROD_CONFIGURATION);
+    Container container = ContainerOpener.open("testFiles/valid-containers/23608_bdoc21-no-nonce-policy.bdoc", PROD_CONFIGURATION);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(1, errors.size());
-    assertEquals("The signature policy is not available!", errors.get(0).toString());
+    assertEquals(0, errors.size());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -392,11 +391,10 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
   public void noPolicyURI() {
-    Container container = ContainerOpener.open("testFiles/invalid-containers/SP-06_bdoc21-no-uri.bdoc", PROD_CONFIGURATION);
+    Container container = ContainerOpener.open("testFiles/valid-containers/SP-06_bdoc21-no-uri.bdoc", PROD_CONFIGURATION);
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(1, errors.size());
-    assertEquals("The signature policy is not available!", errors.get(0).toString());
+    assertEquals(0, errors.size());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
