@@ -10,39 +10,22 @@
 
 package org.digidoc4j.impl.bdoc.xades;
 
-import static org.bouncycastle.cert.ocsp.RespID.HASH_SHA1;
-
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Primitive;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.ocsp.ResponderID;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.Extension;
-import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
-import org.bouncycastle.cert.ocsp.OCSPException;
 import org.bouncycastle.cert.ocsp.RespID;
-import org.bouncycastle.jcajce.provider.digest.SHA1;
-import org.bouncycastle.operator.DigestCalculator;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.CertificateNotFoundException;
@@ -50,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.x509.CertificateToken;
-import prototype.AlwaysValidOcspSource;
 
 public class TimemarkSignature extends BesSignature {
 
@@ -132,14 +114,14 @@ public class TimemarkSignature extends BesSignature {
       String primitiveName = getCN(responderId.toASN1Primitive().getName());
       byte[] keyHash = responderId.toASN1Primitive().getKeyHash();
 
-      if ((keyHash != null && keyHash.length > 0) && (primitiveName == null || primitiveName.trim().length() == 0)) {
+      if (useKeyHashForOCSP(primitiveName,keyHash)) {
         logger.debug("Using keyHash {} for OCSP certificate match", keyHash);
       } else {
         logger.debug("Using ASN1Primitive {} for OCSP certificate match", primitiveName);
       }
 
       for (CertificateToken cert : getDssSignature().getCertificates()) {
-        if ((keyHash != null && keyHash.length > 0) && (primitiveName == null || primitiveName.trim().length() == 0)) {
+        if (useKeyHashForOCSP(primitiveName,keyHash)) {
           ASN1Primitive skiPrimitive = JcaX509ExtensionUtils.parseExtensionValue(cert.getCertificate().getExtensionValue(Extension.subjectKeyIdentifier.getId()));
           byte[] keyIdentifier = ASN1OctetString.getInstance(skiPrimitive.getEncoded()).getOctets();
           if (Arrays.equals(keyHash, keyIdentifier)) {
@@ -161,6 +143,10 @@ public class TimemarkSignature extends BesSignature {
     throw new CertificateNotFoundException("OCSP certificate for was not found in TSL");
   }
 
+  private boolean useKeyHashForOCSP(String primitiveName, byte[] keyHash) {
+    return (keyHash != null && keyHash.length > 0) && (primitiveName == null || primitiveName.trim().length() == 0);
+  }
+
 
   private String getCN(X500Name x500Name) {
     if (x500Name == null) return null;
@@ -172,7 +158,6 @@ public class TimemarkSignature extends BesSignature {
     if (typesAndValues == null || typesAndValues.length == 0) {
       return null;
     }
-    String name = typesAndValues[0].getValue().toString();
-    return name;
+    return typesAndValues[0].getValue().toString();
   }
 }
