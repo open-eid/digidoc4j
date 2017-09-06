@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+    <Target>System.out</Target>
+    <encoder>
+      <pattern>%d{dd.MM.yyyy HH:mm:ss.SSS} %-5p [%thread] [%logger{36}.%method:%line] - %m%n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>INFO</level>
+    </filter>
+  </appender>
+
+  <logger name="org.digidoc4j" level="INFO"/>
+  <logger name="eu.europa" level="INFO"/>
+  <logger name="org.digidoc4j.Configuration" level="INFO"/>
+  <logger name="eu.europa.esig.dss.client.http.commons" level="INFO"/>
+  <logger name="ee.sk" level="INFO"/>
+
+  <root level="INFO">
+    <appender-ref ref="stdout"/>
+  </root>
+</configuration>

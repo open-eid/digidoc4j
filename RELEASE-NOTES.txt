@@ -1,5 +1,11 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+Release 1.0.7 Beta.3
+--------------------
+Summary of the major changes since 1.0.7 Beta.2
+----------------------------------------
+* Removed logback.xml from jar file, it is needed only for digidoc4j-util
+
 Release 1.0.7 Beta.2
 --------------------
 Summary of the major changes since 1.0.7 Beta.1
