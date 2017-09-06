@@ -114,14 +114,16 @@ public class TimemarkSignature extends BesSignature {
       String primitiveName = getCN(responderId.toASN1Primitive().getName());
       byte[] keyHash = responderId.toASN1Primitive().getKeyHash();
 
-      if (useKeyHashForOCSP(primitiveName,keyHash)) {
+      boolean isKeyHash = useKeyHashForOCSP(primitiveName,keyHash);
+
+      if (isKeyHash) {
         logger.debug("Using keyHash {} for OCSP certificate match", keyHash);
       } else {
         logger.debug("Using ASN1Primitive {} for OCSP certificate match", primitiveName);
       }
 
       for (CertificateToken cert : getDssSignature().getCertificates()) {
-        if (useKeyHashForOCSP(primitiveName,keyHash)) {
+        if (isKeyHash) {
           ASN1Primitive skiPrimitive = JcaX509ExtensionUtils.parseExtensionValue(cert.getCertificate().getExtensionValue(Extension.subjectKeyIdentifier.getId()));
           byte[] keyIdentifier = ASN1OctetString.getInstance(skiPrimitive.getEncoded()).getOctets();
           if (Arrays.equals(keyHash, keyIdentifier)) {
