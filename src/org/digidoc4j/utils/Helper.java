@@ -37,6 +37,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Container;
+import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.DataFile;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.Version;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -45,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.MimeType;
 import eu.europa.esig.dss.SignatureLevel;
@@ -304,5 +307,36 @@ public final class Helper {
     signaturePolicyProvider.setSignaturePoliciesById(signaturePoliciesById);
     signaturePolicyProvider.setSignaturePoliciesByUrl(signaturePoliciesByUrl);
     return signaturePolicyProvider;
+  }
+
+  /**
+   * Saves all datafiles to specified folder
+   *
+   * @param container as Container object
+   * @param path as String
+   */
+  public static void saveAllFilesFromContainerToFolder(Container container, String path){
+    for(DataFile dataFile: container.getDataFiles()){
+      File file = new File(path + File.separator + dataFile.getName());
+      DSSUtils.saveToFile(dataFile.getBytes(), file);
+    }
+  }
+
+  /**
+   * Saves all datafiles to specified folder
+   *
+   * @param pathFrom as String
+   * @param pathTo as String
+   */
+  public static void saveAllFilesFromContainerToFolder(String pathFrom, String pathTo){
+    Container container = ContainerBuilder.
+        aContainer().
+        fromExistingFile(pathFrom).
+        build();
+
+    for(DataFile dataFile: container.getDataFiles()){
+      File file = new File(pathTo + File.separator + dataFile.getName());
+      DSSUtils.saveToFile(dataFile.getBytes(), file);
+    }
   }
 }

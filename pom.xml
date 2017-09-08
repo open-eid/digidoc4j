@@ -564,6 +564,12 @@
     </dependency>
     <dependency>
       <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-cades</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>validation-policy</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
@@ -722,7 +728,7 @@
                 contiperf, dss-common-validation-jaxb,
                 dss-detailed-report-jaxb, dss-diagnostic-jaxb, dss-document, dss-model, dss-policy-jaxb,
                 dss-reports, dss-service, dss-simple-report-jaxb, dss-spi, dss-token, dss-tsl-jaxb,
-                dss-tsl-validation, dss-xades, validation-policy, log4j
+                dss-tsl-validation, dss-xades, dss-cades, validation-policy, log4j
               </excludeArtifactIds>
             </configuration>
           </execution>

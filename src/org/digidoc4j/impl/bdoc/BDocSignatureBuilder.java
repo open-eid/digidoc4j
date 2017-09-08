@@ -248,6 +248,9 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   public static Policy createBDocSignaturePolicy() {
+    if(policyDefinedByUser != null && isDefinedAllPolicyValues()) {
+      return policyDefinedByUser;
+    }
     Policy signaturePolicy = new Policy();
     signaturePolicy.setId("urn:oid:" + XadesSignatureValidator.TM_POLICY);
     signaturePolicy.setDigestValue(decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));

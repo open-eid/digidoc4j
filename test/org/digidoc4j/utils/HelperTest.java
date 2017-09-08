@@ -19,6 +19,7 @@ import static org.digidoc4j.utils.Helper.serialize;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -26,18 +27,30 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
+import org.digidoc4j.DataFile;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.FileDocument;
+import eu.europa.esig.dss.utils.Utils;
+import eu.europa.esig.dss.validation.CommonCertificateVerifier;
+import eu.europa.esig.dss.validation.SignedDocumentValidator;
+import eu.europa.esig.dss.validation.reports.Reports;
+import eu.europa.esig.dss.validation.reports.wrapper.DiagnosticData;
 
 public class HelperTest {
   @Rule
@@ -218,5 +231,41 @@ public class HelperTest {
     serialize(ContainerBuilder.aContainer().build(), null);
   }
 
+
+  @Test
+  public void testSaveFileNamesFromString(){
+      String pathToContainer = "testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc";
+
+      String tmpFolder = "testFiles/tmp/readonly";
+
+      Helper.saveAllFilesFromContainerToFolder(pathToContainer, tmpFolder);
+      File file1 = new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf");
+      File file2 = new File(tmpFolder + File.separator + "sample_file.pdf");
+
+      assertExistsAndDeleteFile(file1);
+      assertExistsAndDeleteFile(file2);
+  }
+
+  @Test
+  public void testSaveFileNamesFromContainer() {
+      Container container = ContainerBuilder.
+          aContainer().
+          fromExistingFile("testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").
+          build();
+
+      String tmpFolder = "testFiles/tmp/readonly";
+
+      Helper.saveAllFilesFromContainerToFolder(container, tmpFolder);
+      File file1 = new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf");
+      File file2 = new File(tmpFolder + File.separator + "sample_file.pdf");
+
+      assertExistsAndDeleteFile(file1);
+      assertExistsAndDeleteFile(file2);
+  }
+
+  private void assertExistsAndDeleteFile(File file) {
+      Assert.assertTrue(file.exists());
+      file.delete();
+  }
 
 }
