@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
@@ -238,7 +239,7 @@ public class HelperTest {
 
       String tmpFolder = "testFiles/tmp/readonly";
 
-      Helper.saveAllFilesFromContainerToFolder(pathToContainer, tmpFolder);
+      Helper.saveAllFilesFromContainerPathToFolder(pathToContainer, tmpFolder);
       File file1 = new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf");
       File file2 = new File(tmpFolder + File.separator + "sample_file.pdf");
 
@@ -263,9 +264,72 @@ public class HelperTest {
       assertExistsAndDeleteFile(file2);
   }
 
-  private void assertExistsAndDeleteFile(File file) {
-      Assert.assertTrue(file.exists());
-      file.delete();
+  @Test
+  public void testGetFilesFromString(){
+    Container container = ContainerBuilder.
+        aContainer().
+        fromExistingFile("testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").
+        build();
+    String tmpFolder = "testFiles/tmp/readonly";
+    String helperFolder = "testFiles/helper-files";
+
+    List<byte[]> files = Helper.getAllFilesFromContainerAsBytes(container);
+    Assert.assertEquals(2, files.size());
+
+    try {
+        FileUtils.writeByteArrayToFile(new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf"), files.get(0));
+        FileUtils.writeByteArrayToFile(new File(tmpFolder + File.separator + "sample_file.pdf"), files.get(1));
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+
+    File helperfile1 = new File(helperFolder + File.separator + "DigiDocService_spec_est.pdf");
+    File helperfile2 = new File(helperFolder + File.separator + "sample_file.pdf");
+
+    File testfile1 = new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf");
+    File testfile2 = new File(tmpFolder + File.separator + "sample_file.pdf");
+
+    Assert.assertEquals(FileUtils.sizeOf(helperfile1), FileUtils.sizeOf(testfile1) );
+    Assert.assertEquals(FileUtils.sizeOf(helperfile2), FileUtils.sizeOf(testfile2));
+
+    compareFileSize(tmpFolder, helperFolder);
   }
 
+  @Test
+  public void testGetFilesFromContainer(){
+    String pathToContainer = "testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc";
+    String tmpFolder = "testFiles/tmp/readonly";
+    String helperFolder = "testFiles/helper-files";
+
+    List<byte[]> files = Helper.getAllFilesFromContainerPathAsBytes(pathToContainer);
+    Assert.assertEquals(2, files.size());
+
+    try {
+      FileUtils.writeByteArrayToFile(new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf"), files.get(0));
+      FileUtils.writeByteArrayToFile(new File(tmpFolder + File.separator + "sample_file.pdf"), files.get(1));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    compareFileSize(tmpFolder, helperFolder);
+  }
+
+  private void compareFileSize(String tmpFolder, String helperFolder) {
+    File helperfile1 = new File(helperFolder + File.separator + "DigiDocService_spec_est.pdf");
+    File helperfile2 = new File(helperFolder + File.separator + "sample_file.pdf");
+
+    File testfile1 = new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf");
+    File testfile2 = new File(tmpFolder + File.separator + "sample_file.pdf");
+
+    Assert.assertEquals(FileUtils.sizeOf(helperfile1), FileUtils.sizeOf(testfile1) );
+    Assert.assertEquals(FileUtils.sizeOf(helperfile2), FileUtils.sizeOf(testfile2));
+
+    assertExistsAndDeleteFile(testfile1);
+    assertExistsAndDeleteFile(testfile2);
+  }
+
+  private void assertExistsAndDeleteFile(File file) {
+    Assert.assertTrue(file.exists());
+    file.delete();
+  }
 }

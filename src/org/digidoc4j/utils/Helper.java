@@ -24,7 +24,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -310,6 +312,37 @@ public final class Helper {
   }
 
   /**
+   * gets all datafiles as List<byte[]> from Container
+   *
+   * @param container as Container object
+   */
+  public static List<byte[]> getAllFilesFromContainerAsBytes(Container container){
+    List<byte[]> files = new ArrayList<>();
+    for(DataFile dataFile: container.getDataFiles()){
+      files.add(dataFile.getBytes());
+    }
+    return files;
+  }
+
+  /**
+   * gets all datafiles as List<byte[]> from Container path
+   *
+   * @param pathFrom as String
+   */
+  public static List<byte[]> getAllFilesFromContainerPathAsBytes(String pathFrom){
+    Container container = ContainerBuilder.
+        aContainer().
+        fromExistingFile(pathFrom).
+        build();
+
+    List<byte[]> files = new ArrayList<>();
+    for(DataFile dataFile: container.getDataFiles()){
+      files.add(dataFile.getBytes());
+    }
+    return files;
+  }
+
+  /**
    * Saves all datafiles to specified folder
    *
    * @param container as Container object
@@ -328,7 +361,7 @@ public final class Helper {
    * @param pathFrom as String
    * @param pathTo as String
    */
-  public static void saveAllFilesFromContainerToFolder(String pathFrom, String pathTo){
+  public static void saveAllFilesFromContainerPathToFolder(String pathFrom, String pathTo){
     Container container = ContainerBuilder.
         aContainer().
         fromExistingFile(pathFrom).
