@@ -237,7 +237,7 @@ public class HelperTest {
   public void testSaveFileNamesFromString(){
       String pathToContainer = "testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc";
 
-      String tmpFolder = "testFiles/tmp/readonly";
+      String tmpFolder = "testFiles/tmp";
 
       Helper.saveAllFilesFromContainerPathToFolder(pathToContainer, tmpFolder);
       File file1 = new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf");
@@ -254,7 +254,7 @@ public class HelperTest {
           fromExistingFile("testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").
           build();
 
-      String tmpFolder = "testFiles/tmp/readonly";
+      String tmpFolder = "testFiles/tmp";
 
       Helper.saveAllFilesFromContainerToFolder(container, tmpFolder);
       File file1 = new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf");
@@ -270,7 +270,7 @@ public class HelperTest {
         aContainer().
         fromExistingFile("testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").
         build();
-    String tmpFolder = "testFiles/tmp/readonly";
+    String tmpFolder = "testFiles/tmp";
     String helperFolder = "testFiles/helper-files";
 
     List<byte[]> files = Helper.getAllFilesFromContainerAsBytes(container);
@@ -298,7 +298,7 @@ public class HelperTest {
   @Test
   public void testGetFilesFromContainer(){
     String pathToContainer = "testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc";
-    String tmpFolder = "testFiles/tmp/readonly";
+    String tmpFolder = "testFiles/tmp";
     String helperFolder = "testFiles/helper-files";
 
     List<byte[]> files = Helper.getAllFilesFromContainerPathAsBytes(pathToContainer);

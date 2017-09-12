@@ -248,7 +248,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   public static Policy createBDocSignaturePolicy() {
-    if(policyDefinedByUser != null && isDefinedAllPolicyValues()) {
+    if (policyDefinedByUser != null && isDefinedAllPolicyValues()) {
       return policyDefinedByUser;
     }
     Policy signaturePolicy = new Policy();

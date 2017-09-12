@@ -127,7 +127,6 @@ public class ContainerVerifier {
       logger.info("Validation was successful. Container is valid");
     } else {
       logger.info("Validation finished. Container is NOT valid!");
-      throw new DigiDoc4JException("Container is NOT valid");
     }
     return validationResult;
   }
