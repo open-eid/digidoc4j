@@ -4,6 +4,7 @@ Release 1.0.7 Beta.3
 --------------------
 Summary of the major changes since 1.0.7 Beta.2
 ----------------------------------------
+* Fixed problem with OCSP responds where responseID is keyhash instead of name.
 * Removed logback.xml from jar file, it is needed only for digidoc4j-util
 
 Release 1.0.7 Beta.2
