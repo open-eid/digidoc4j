@@ -15,8 +15,8 @@ import org.junit.Test;
 public class TimemarkSignatureTest {
 
 	@Test
-	public void findOcspCertificate() throws Exception {
-		Container container = ContainerBuilder.aContainer().fromExistingFile("testFiles/xades/OCSPRigaTest.asice").build();
+	public void findOcspCertificateByHashkey() throws Exception {
+		Container container = ContainerBuilder.aContainer().fromExistingFile("testFiles/valid-containers/OCSPRigaTest.asice").build();
 		Signature signature = container.getSignatures().get(0);
 		X509Cert cert = signature.getOCSPCertificate();
 		assertNotNull(cert);

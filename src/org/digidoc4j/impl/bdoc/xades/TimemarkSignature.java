@@ -34,6 +34,9 @@ import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.x509.CertificateToken;
 
+/**
+ * Signature for BDOC where timemark is taken from OCSP response.
+ */
 public class TimemarkSignature extends BesSignature {
 
   private static final Logger logger = LoggerFactory.getLogger(TimemarkSignature.class);
@@ -103,18 +106,21 @@ public class TimemarkSignature extends BesSignature {
       return null;
     }
     if (containedOCSPResponses.size() > 1) {
-      logger.warn("Signature contains more than one OCSP response: " + containedOCSPResponses.size() + ". Using the first one.");
+      logger.warn("Signature contains more than one OCSP response: "
+          + containedOCSPResponses.size() + ". Using the first one.");
     }
     return containedOCSPResponses.get(0);
   }
 
   private X509Cert findOcspCertificate() {
+    String rId = "";
     try {
       RespID responderId = ocspResponse.getResponderId();
+      rId = responderId.toString();
       String primitiveName = getCN(responderId.toASN1Primitive().getName());
       byte[] keyHash = responderId.toASN1Primitive().getKeyHash();
 
-      boolean isKeyHash = useKeyHashForOCSP(primitiveName,keyHash);
+      boolean isKeyHash = useKeyHashForOCSP(primitiveName, keyHash);
 
       if (isKeyHash) {
         logger.debug("Using keyHash {} for OCSP certificate match", keyHash);
@@ -124,7 +130,8 @@ public class TimemarkSignature extends BesSignature {
 
       for (CertificateToken cert : getDssSignature().getCertificates()) {
         if (isKeyHash) {
-          ASN1Primitive skiPrimitive = JcaX509ExtensionUtils.parseExtensionValue(cert.getCertificate().getExtensionValue(Extension.subjectKeyIdentifier.getId()));
+          ASN1Primitive skiPrimitive = JcaX509ExtensionUtils.parseExtensionValue(
+              cert.getCertificate().getExtensionValue(Extension.subjectKeyIdentifier.getId()));
           byte[] keyIdentifier = ASN1OctetString.getInstance(skiPrimitive.getEncoded()).getOctets();
           if (Arrays.equals(keyHash, keyIdentifier)) {
             return new X509Cert(cert.getCertificate());
@@ -141,8 +148,8 @@ public class TimemarkSignature extends BesSignature {
       logger.error("Unable to wrap and extract SubjectKeyIdentifier from certificate - technical error. {}", e);
     }
 
-    logger.error("OCSP certificate for was not found in TSL");
-    throw new CertificateNotFoundException("OCSP certificate for was not found in TSL");
+    logger.error("OCSP certificate for " + rId + " was not found in TSL");
+    throw new CertificateNotFoundException("OCSP certificate for " + rId + " was not found in TSL");
   }
 
   private boolean useKeyHashForOCSP(String primitiveName, byte[] keyHash) {
