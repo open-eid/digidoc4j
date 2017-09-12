@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.DigestAlgorithm.SHA1;
 import static org.digidoc4j.DigestAlgorithm.SHA224;
@@ -71,6 +72,7 @@ import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.impl.bdoc.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.testutils.TestSigningHelper;
@@ -87,6 +89,8 @@ import org.w3c.dom.NodeList;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DomUtils;
+import eu.europa.esig.dss.Policy;
+import eu.europa.esig.dss.x509.SignaturePolicy;
 import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
@@ -1183,5 +1187,71 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
       }
     }
     return responderCertCount;
+  }
+
+  @Test
+  public void settingUpOwnSignaturePolicy() throws Exception {
+    String signatureId = "signatureId";
+    byte[] digestValue = decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs=");
+    String qualifier = "qualifier";
+    eu.europa.esig.dss.DigestAlgorithm digestAlgorithm = eu.europa.esig.dss.DigestAlgorithm.SHA256;
+    String spuri = "spuri";
+
+    Policy signaturePolicy = new Policy();
+    signaturePolicy.setId(signatureId);
+    signaturePolicy.setDigestValue(digestValue);
+    signaturePolicy.setQualifier(qualifier);
+    signaturePolicy.setDigestAlgorithm(digestAlgorithm);
+    signaturePolicy.setSpuri(spuri);
+
+    Container container = ContainerBuilder.aContainer().build();
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withOwnSignaturePolicy(signaturePolicy).
+        withSignatureDigestAlgorithm(DigestAlgorithm.SHA224).
+        withSignatureToken(PKCS12_SIGNER).
+        withSignatureProfile(SignatureProfile.LT_TM).
+        invokeSigning();
+    container.addSignature(signature);
+
+    String containerPath = testFolder.newFile().getPath();
+    container.saveAsFile(containerPath);
+    container = ContainerOpener.open(containerPath);
+
+    BDocSignature bdocSignature = (BDocSignature) container.getSignatures().get(0);
+    SignaturePolicy policyId = bdocSignature.getOrigin().getDssSignature().getPolicyId();
+
+    assertEquals(spuri, policyId.getUrl());
+    assertEquals(signatureId, policyId.getIdentifier());
+    assertEquals(digestAlgorithm, policyId.getDigestAlgorithm());
+    assertEquals("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs=", policyId.getDigestValue());
+
+  }
+
+  @Test
+  public void containerWithSignaturePolicyByDefault() throws Exception {
+
+    Container container = ContainerBuilder.aContainer().build();
+    container.addDataFile("testFiles/helper-files/test.txt", "text/plain");
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureDigestAlgorithm(DigestAlgorithm.SHA224).
+        withSignatureToken(PKCS12_SIGNER).
+        withSignatureProfile(SignatureProfile.LT_TM).
+        invokeSigning();
+    container.addSignature(signature);
+
+    String containerPath = testFolder.newFile().getPath();
+    container.saveAsFile(containerPath);
+    container = ContainerOpener.open(containerPath);
+
+    BDocSignature bdocSignature = (BDocSignature) container.getSignatures().get(0);
+    SignaturePolicy policyId = bdocSignature.getOrigin().getDssSignature().getPolicyId();
+
+    assertEquals("https://www.sk.ee/repository/bdoc-spec21.pdf", policyId.getUrl());
+    assertEquals("" + XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
+    assertEquals(eu.europa.esig.dss.DigestAlgorithm.SHA256, policyId.getDigestAlgorithm());
+    assertEquals("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs=", policyId.getDigestValue());
   }
 }
