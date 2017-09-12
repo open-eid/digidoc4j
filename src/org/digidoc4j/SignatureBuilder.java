@@ -30,6 +30,8 @@ import org.digidoc4j.impl.ddoc.DDocSignatureBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.europa.esig.dss.Policy;
+
 /**
  * <p>Creating signatures on a container.</p>
  * <p>Here's an example of creating a signature:</p>
@@ -62,6 +64,7 @@ public abstract class SignatureBuilder implements Serializable {
   protected SignatureToken signatureToken;
   protected Container container;
   protected static Map<String, Class<? extends SignatureBuilder>> customSignatureBuilders = new HashMap<>();
+  protected static Policy policyDefinedByUser;
 
   /**
    * Create a new signature builder based on a container.
@@ -233,6 +236,10 @@ public abstract class SignatureBuilder implements Serializable {
    * @return builder for creating a signature.
    */
   public SignatureBuilder withSignatureProfile(SignatureProfile signatureProfile) {
+    if (policyDefinedByUser != null && isDefinedAllPolicyValues()
+        && signatureProfile != SignatureProfile.LT_TM){
+      throw new NotSupportedException("Can't define signature policy if it's not LT_TM signature profile ");
+    }
     signatureParameters.setSignatureProfile(signatureProfile);
     return this;
   }
@@ -296,5 +303,28 @@ public abstract class SignatureBuilder implements Serializable {
       logger.error("Unable to instantiate custom signature builder class " + builderClass.getName() + " for type " + containerType);
       throw new TechnicalException("Unable to instantiate custom signature builder class " + builderClass.getName() + " for type " + containerType, e);
     }
+  }
+
+  /**
+   * Set signature policy parameters. Define signature profile first.
+   *
+   * @param signaturePolicy with defined parameters.
+   * @return SignatureBuilder
+   */
+  public SignatureBuilder withOwnSignaturePolicy(Policy signaturePolicy) {
+    if (signatureParameters.getSignatureProfile() != null
+        && signatureParameters.getSignatureProfile() != SignatureProfile.LT_TM){
+      throw new NotSupportedException("Can't define signature policy if it's not LT_TM signature profile. Define it first. ");
+    }
+    policyDefinedByUser = signaturePolicy;
+    return this;
+  }
+
+  protected static boolean isDefinedAllPolicyValues() {
+    return StringUtils.isNotBlank(policyDefinedByUser.getId())
+        && policyDefinedByUser.getDigestValue() != null
+        && StringUtils.isNotBlank(policyDefinedByUser.getQualifier())
+        && policyDefinedByUser.getDigestAlgorithm() != null
+        && StringUtils.isNotBlank(policyDefinedByUser.getSpuri());
   }
 }

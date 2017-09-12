@@ -6,7 +6,7 @@
   <groupId>org.digidoc4j</groupId>
   <artifactId>digidoc4j</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.7.beta.2</version>
+  <version>1.0.7.beta.3</version>
   <name>DigiDoc4j</name>
   <description>DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers of signed documents</description>
   <url>https://github.com/open-eid/digidoc4j</url>
@@ -77,6 +77,12 @@
     <developer>
       <name>Margus Kamlat</name>
       <email>margus.kamlat at cgi.com</email>
+      <organization>CGI Eesti</organization>
+      <organizationUrl>https://www.cgi.ee</organizationUrl>
+    </developer>
+    <developer>
+      <name>Priit Serk</name>
+      <email>priit.serk at cgi.com</email>
       <organization>CGI Eesti</organization>
       <organizationUrl>https://www.cgi.ee</organizationUrl>
     </developer>
@@ -564,6 +570,12 @@
     </dependency>
     <dependency>
       <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-cades</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>validation-policy</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
@@ -615,6 +627,9 @@
     <resources>
       <resource>
         <directory>resources</directory>
+        <excludes>
+          <exclude>logback.xml</exclude>
+        </excludes>
       </resource>
       <resource>
         <directory>conf</directory>
@@ -722,7 +737,7 @@
                 contiperf, dss-common-validation-jaxb,
                 dss-detailed-report-jaxb, dss-diagnostic-jaxb, dss-document, dss-model, dss-policy-jaxb,
                 dss-reports, dss-service, dss-simple-report-jaxb, dss-spi, dss-token, dss-tsl-jaxb,
-                dss-tsl-validation, dss-xades, validation-policy, log4j
+                dss-tsl-validation, dss-xades, dss-cades, validation-policy, log4j
               </excludeArtifactIds>
             </configuration>
           </execution>
