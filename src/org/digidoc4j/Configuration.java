@@ -190,9 +190,9 @@ public class Configuration implements Serializable {
   Map<String, String> configuration = new HashMap<>();
 
   private String httpProxyHost = "";
-  private Integer httpProxyPort = 0;
+  private Integer httpProxyPort;
   private String httpsProxyHost = "";
-  private Integer httpsProxyPort = 0;
+  private Integer httpsProxyPort;
   private String httpProxyUser = "";
   private String httpProxyPassword = "";
   private List<String> trustedTerritories = new ArrayList<>();
