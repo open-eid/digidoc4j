@@ -516,6 +516,23 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Get the TSP country
+   *
+   * @return TSP country
+   */
+  public List<String> getTspC() {
+    logger.debug("Key: TSP_C");
+    List<String> countryValues = new ArrayList<>();
+    for (Map.Entry<String, String> entry : configuration.entrySet()){
+      if (entry.getKey().startsWith("TSP_C_")){
+        countryValues.add(entry.getValue());
+      }
+    }
+    logger.debug("Value: " + countryValues.toString());
+    return countryValues;
+  }
+
+  /**
    * Set HTTP connection timeout
    *
    * @param connectionTimeout connection timeout in milliseconds
