@@ -46,16 +46,16 @@ public class DDocOpener implements Serializable {
   }
 
   public DDocContainer open(InputStream stream) {
-    logger.info("Opening DDoc from stream");
-    DDocFacade facade = new DDocFacade();
-    SignedDoc signedDoc = openSignedDoc(stream);
-    return createContainer(facade, signedDoc);
+    return open(stream, Configuration.getInstance());
   }
 
   public DDocContainer open(InputStream stream, Configuration configuration) {
     logger.info("Opening DDoc from stream");
+    ArrayList<DigiDocException> containerOpeningExceptions = new ArrayList<>();
     DDocFacade facade = new DDocFacade(configuration);
-    SignedDoc signedDoc = openSignedDoc(stream);
+    SignedDoc signedDoc = openSignedDoc(stream, containerOpeningExceptions);
+    validateOpenedContainerExceptions(containerOpeningExceptions);
+    facade.setContainerOpeningExceptions(containerOpeningExceptions);
     return createContainer(facade, signedDoc);
   }
 
@@ -74,10 +74,10 @@ public class DDocOpener implements Serializable {
     }
   }
 
-  private SignedDoc openSignedDoc(InputStream stream) throws DigiDoc4JException {
+  private SignedDoc openSignedDoc(InputStream stream, ArrayList<DigiDocException> openContainerExceptions) throws DigiDoc4JException {
     try {
       DigiDocFactory digFac = createDigiDocFactory();
-      SignedDoc signedDoc = digFac.readDigiDocFromStream(stream);
+      SignedDoc signedDoc = digFac.readSignedDocFromStreamOfType(stream, false, openContainerExceptions);
       logger.info("DDoc container opened from stream");
       return signedDoc;
     } catch (DigiDocException e) {
@@ -88,7 +88,7 @@ public class DDocOpener implements Serializable {
 
   private DigiDocFactory createDigiDocFactory() {
     DigiDocFactory digFac = new SAXDigiDocFactory();
-    if(StringUtils.isNotBlank(temporaryDirectoryPath)) {
+    if (StringUtils.isNotBlank(temporaryDirectoryPath)) {
       logger.debug("Using temporary directory " + temporaryDirectoryPath);
       digFac.setTempDir(temporaryDirectoryPath);
     }
@@ -109,8 +109,9 @@ public class DDocOpener implements Serializable {
       if (openContainerException.getCode() == DigiDocException.ERR_PARSE_XML
           && openContainerException.getMessage() != null
           && openContainerException.getMessage().contains("Invalid xml file")) {
-        exception = new DigiDocException(DigiDocException.ERR_PARSE_XML, "Invalid input file format.", openContainerException.getNestedException());
-      }else{
+        exception = new DigiDocException(DigiDocException.ERR_PARSE_XML,
+            "Invalid input file format.", openContainerException.getNestedException());
+      } else {
         exception = openContainerException;
       }
     }
