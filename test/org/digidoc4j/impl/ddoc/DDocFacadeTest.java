@@ -57,12 +57,14 @@ import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
+import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -351,6 +353,17 @@ public class DDocFacadeTest {
     FileInputStream stream = new FileInputStream(new File("testFiles/helper-files/test.txt"));
     stream.close();
     new DDocOpener().open(stream);
+  }
+
+  @Test
+  public void ddocStreamOpener() throws IOException {
+    DDocOpener dDocOpener = new DDocOpener();
+    FileInputStream stream = new FileInputStream(
+        new File("testFiles/valid-containers/ddoc_wo_x509IssueName_xmlns.ddoc"));
+    DDocContainer container = dDocOpener.open(stream);
+    ValidationResult validate = container.validate();
+    Assert.assertTrue(validate.isValid());
+    stream.close();
   }
 
   @Test
