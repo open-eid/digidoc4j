@@ -81,7 +81,18 @@ public class ContainerVerifier {
    * @param container Given container to verify.
    * @param reports Directory where to save reports.
    */
-  public ValidationResult verify(Container container, Path reports) {
+  public void verify(Container container, Path reports) {
+    verify(container, reports, false);
+  }
+
+  /**
+   * Method for verifying, old BDOC style and returning validation result.
+   * @param container Given container to verify.
+   * @param reports Directory where to save reports.
+   * @param isReportNeeded Define if need report
+   * @return ValidationResult
+   */
+  public ValidationResult verify(Container container, Path reports, boolean isReportNeeded) {
     ValidationResult validationResult = container.validate();
     if (reports != null) {
       validationResult.saveXmlReports(reports);
@@ -127,6 +138,9 @@ public class ContainerVerifier {
       logger.info("Validation was successful. Container is valid");
     } else {
       logger.info("Validation finished. Container is NOT valid!");
+      if (!isReportNeeded) {
+        throw new DigiDoc4JException("Container is NOT valid");
+      }
     }
     return validationResult;
   }
