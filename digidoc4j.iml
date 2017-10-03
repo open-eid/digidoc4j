@@ -72,10 +72,10 @@
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-tsl-jaxb:5.0.d4j.3" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-tsl-validation:5.0.d4j.3" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-xades:5.0.d4j.3" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-cades:5.0.d4j.3" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:validation-policy:5.0.d4j.3" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-common:5.0.d4j.3" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-cades:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-cades:5.0.d4j.3" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-xades:5.0.d4j.3" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils:5.0.d4j.3" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils-apache-commons:5.0.d4j.3" level="project" />

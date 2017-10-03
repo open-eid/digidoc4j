@@ -81,7 +81,7 @@ public class ContainerVerifier {
    * @param container Given container to verify.
    * @param reports Directory where to save reports.
    */
-  public void verify(Container container, Path reports) {
+  public ValidationResult verify(Container container, Path reports) {
     ValidationResult validationResult = container.validate();
     if (reports != null) {
       validationResult.saveXmlReports(reports);
@@ -127,8 +127,8 @@ public class ContainerVerifier {
       logger.info("Validation was successful. Container is valid");
     } else {
       logger.info("Validation finished. Container is NOT valid!");
-      throw new DigiDoc4JException("Container is NOT valid");
     }
+    return validationResult;
   }
 
   /**

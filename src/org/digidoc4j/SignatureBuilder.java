@@ -30,38 +30,41 @@ import org.digidoc4j.impl.ddoc.DDocSignatureBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.europa.esig.dss.Policy;
+
 /**
  * <p>Creating signatures on a container.</p>
  * <p>Here's an example of creating a signature:</p>
  * <p><code>
- *  {@link Signature} signature = {@link SignatureBuilder}. <br/>
- *   &nbsp;&nbsp; {@link SignatureBuilder#aSignature(Container) aSignature(container)}. <br/>
- *   &nbsp;&nbsp; {@link SignatureBuilder#withCity(String) withCity("San Pedro")}. <br/>
- *   &nbsp;&nbsp; {@link SignatureBuilder#withCountry(String) withCountry("Val Verde")}. <br/>
- *   &nbsp;&nbsp; {@link SignatureBuilder#withRoles(String...) withRoles("Manager", "Suspicious Fisherman")}. <br/>
- *   &nbsp;&nbsp; {@link SignatureBuilder#withSignatureDigestAlgorithm(DigestAlgorithm) withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)}. // Digest algorithm is SHA-256 <br/>
- *   &nbsp;&nbsp; {@link SignatureBuilder#withSignatureProfile(SignatureProfile) withSignatureProfile(SignatureProfile.LT_TM)}. // Signature profile is Time-Mark <br/>
- *   &nbsp;&nbsp; {@link SignatureBuilder#withSignatureToken(SignatureToken) withSignatureToken(signatureToken)}. // Use signature token <br/>
- *   &nbsp;&nbsp; {@link SignatureBuilder#invokeSigning() invokeSigning()}; // Creates a signature using signature token
+ * {@link Signature} signature = {@link SignatureBuilder}. <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#aSignature(Container) aSignature(container)}. <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withCity(String) withCity("San Pedro")}. <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withCountry(String) withCountry("Val Verde")}. <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withRoles(String...) withRoles("Manager", "Suspicious Fisherman")}. <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureDigestAlgorithm(DigestAlgorithm) withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)}. // Digest algorithm is SHA-256 <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureProfile(SignatureProfile) withSignatureProfile(SignatureProfile.LT_TM)}. // Signature profile is Time-Mark <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureToken(SignatureToken) withSignatureToken(signatureToken)}. // Use signature token <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#invokeSigning() invokeSigning()}; // Creates a signature using signature token
  * </code></p>
  * <p>
- *   Use {@link SignatureBuilder#aSignature(Container) SignatureBuilder.aSignature(container)} to create a new signature builder,
- *   populate the builder with data and then call {@link SignatureBuilder#invokeSigning()} to create a signature on the container
- *   using {@link SignatureToken}. Signature token must be provided with {@link SignatureBuilder#withSignatureToken(SignatureToken)}.
+ * Use {@link SignatureBuilder#aSignature(Container) SignatureBuilder.aSignature(container)} to create a new signature builder,
+ * populate the builder with data and then call {@link SignatureBuilder#invokeSigning()} to create a signature on the container
+ * using {@link SignatureToken}. Signature token must be provided with {@link SignatureBuilder#withSignatureToken(SignatureToken)}.
  * </p>
  * <p>
- *   Use {@link SignatureBuilder#buildDataToSign()} to create {@link DataToSign} object
- *   that can be used in external signing (e.g. signing in the Web). To build {@link DataToSign} object, signer certificate
- *   must be provided with {@link SignatureBuilder#withSigningCertificate(X509Certificate)}.
+ * Use {@link SignatureBuilder#buildDataToSign()} to create {@link DataToSign} object
+ * that can be used in external signing (e.g. signing in the Web). To build {@link DataToSign} object, signer certificate
+ * must be provided with {@link SignatureBuilder#withSigningCertificate(X509Certificate)}.
  * </p>
  */
 public abstract class SignatureBuilder implements Serializable {
 
-  private final static Logger logger = LoggerFactory.getLogger(SignatureBuilder.class);
+  private static final Logger logger = LoggerFactory.getLogger(SignatureBuilder.class);
+  protected static Map<String, Class<? extends SignatureBuilder>> customSignatureBuilders = new HashMap<>();
+  protected static Policy policyDefinedByUser;
   protected SignatureParameters signatureParameters = new SignatureParameters();
   protected SignatureToken signatureToken;
   protected Container container;
-  protected static Map<String, Class<? extends SignatureBuilder>> customSignatureBuilders = new HashMap<>();
 
   /**
    * Create a new signature builder based on a container.
@@ -78,7 +81,7 @@ public abstract class SignatureBuilder implements Serializable {
 
   private static SignatureBuilder createBuilder(Container container) {
     String containerType = container.getType();
-    if(isCustomContainerType(containerType)) {
+    if (isCustomContainerType(containerType)) {
       return createCustomSignatureBuilder(containerType);
     } else if (isContainerType(containerType, BDOC_CONTAINER_TYPE)) {
       return new BDocSignatureBuilder();
@@ -88,6 +91,56 @@ public abstract class SignatureBuilder implements Serializable {
       logger.error("Unknown container type: " + container.getType());
       throw new NotSupportedException("Unknown container type: " + container.getType());
     }
+  }
+
+  /**
+   * Setting custom signature builder implementation used when creating signatures for the particular container type.
+   *
+   * @param containerType         container type corresponding to the signature builder.
+   * @param signatureBuilderClass signature builder class used for creating signatures for the container type.
+   * @param <T>                   signature builder class extending {@link SignatureBuilder}.
+   */
+  public static <T extends SignatureBuilder> void setSignatureBuilderForContainerType(
+      String containerType,
+      Class<T> signatureBuilderClass) {
+    customSignatureBuilders.put(containerType, signatureBuilderClass);
+  }
+
+  /**
+   * Clears all custom signature builders to use only default signature builders.
+   */
+  public static void removeCustomSignatureBuilders() {
+    customSignatureBuilders.clear();
+  }
+
+  private static boolean isCustomContainerType(String containerType) {
+    return customSignatureBuilders.containsKey(containerType);
+  }
+
+  private static boolean isContainerType(String containerType, String ddocContainerType) {
+    return StringUtils.equalsIgnoreCase(ddocContainerType, containerType);
+  }
+
+  private static SignatureBuilder createCustomSignatureBuilder(String containerType) {
+    Class<? extends SignatureBuilder> builderClass = customSignatureBuilders.get(containerType);
+    try {
+      logger.debug("Instantiating signature builder class " +
+          builderClass.getName() + " for container type " + containerType);
+      return builderClass.newInstance();
+    } catch (ReflectiveOperationException e) {
+      logger.error("Unable to instantiate custom signature builder class " +
+          builderClass.getName() + " for type " + containerType);
+      throw new TechnicalException("Unable to instantiate custom signature builder class " +
+          builderClass.getName() + " for type " + containerType, e);
+    }
+  }
+
+  protected static boolean isDefinedAllPolicyValues() {
+    return StringUtils.isNotBlank(policyDefinedByUser.getId())
+        && policyDefinedByUser.getDigestValue() != null
+        && StringUtils.isNotBlank(policyDefinedByUser.getQualifier())
+        && policyDefinedByUser.getDigestAlgorithm() != null
+        && StringUtils.isNotBlank(policyDefinedByUser.getSpuri());
   }
 
   /**
@@ -116,19 +169,19 @@ public abstract class SignatureBuilder implements Serializable {
 
   /**
    * Creates data to be signed externally.
-   *
+   * <p>
    * If the signing process involves signing the container externally (e.g. signing in the Web by a browser plugin),
    * then {@link DataToSign} provides necessary data for creating a signature externally.
    *
    * @return data to be signed externally.
    * @throws SignerCertificateRequiredException signer certificate must be provided using {@link SignatureBuilder#withSigningCertificate(X509Certificate)}
-   * @throws ContainerWithoutFilesException container must have at least one data file to be signed. Signature cannot be given on an empty container.
+   * @throws ContainerWithoutFilesException     container must have at least one data file to be signed. Signature cannot be given on an empty container.
    */
   public abstract DataToSign buildDataToSign() throws SignerCertificateRequiredException, ContainerWithoutFilesException;
 
   /**
    * Open signature from an existing signature document (XAdES, PAdES, CAdES etc.)
-   *
+   * <p>
    * The signature document must be complete, containing all the necessary data (e.g. Signer's certificate,
    * OCSP responses, Timestamps, signature values etc). An example would be a signature document in XAdES format which
    * is an XML document transformed into a byte array.
@@ -137,24 +190,6 @@ public abstract class SignatureBuilder implements Serializable {
    * @return a signature object representing the signatureDocument.
    */
   public abstract Signature openAdESSignature(byte[] signatureDocument);
-
-  /**
-   * Setting custom signature builder implementation used when creating signatures for the particular container type.
-   *
-   * @param containerType container type corresponding to the signature builder.
-   * @param signatureBuilderClass signature builder class used for creating signatures for the container type.
-   * @param <T> signature builder class extending {@link SignatureBuilder}.
-   */
-  public static <T extends SignatureBuilder> void setSignatureBuilderForContainerType(String containerType, Class<T> signatureBuilderClass) {
-    customSignatureBuilders.put(containerType, signatureBuilderClass);
-  }
-
-  /**
-   * Clears all custom signature builders to use only default signature builders.
-   */
-  public static void removeCustomSignatureBuilders() {
-    customSignatureBuilders.clear();
-  }
 
   /**
    * Set a city to the signature production place.
@@ -233,6 +268,12 @@ public abstract class SignatureBuilder implements Serializable {
    * @return builder for creating a signature.
    */
   public SignatureBuilder withSignatureProfile(SignatureProfile signatureProfile) {
+    if (policyDefinedByUser != null && isDefinedAllPolicyValues()
+        && signatureProfile != SignatureProfile.LT_TM) {
+      logger.debug("policyDefinedByUser:" + policyDefinedByUser.toString());
+      logger.debug("signatureProfile:" + signatureProfile.toString());
+      throw new NotSupportedException("Can't define signature policy if it's not LT_TM signature profile ");
+    }
     signatureParameters.setSignatureProfile(signatureProfile);
     return this;
   }
@@ -270,6 +311,12 @@ public abstract class SignatureBuilder implements Serializable {
     return this;
   }
 
+  /**
+   * Set encryption algorithm to be used in the signing process.
+   *
+   * @param encryptionAlgorithm encryption algorithm.
+   * @return builder for creating a signature.
+   */
   public SignatureBuilder withEncryptionAlgorithm(EncryptionAlgorithm encryptionAlgorithm) {
     signatureParameters.setEncryptionAlgorithm(encryptionAlgorithm);
     return this;
@@ -279,22 +326,18 @@ public abstract class SignatureBuilder implements Serializable {
     this.container = container;
   }
 
-  private static boolean isCustomContainerType(String containerType) {
-    return customSignatureBuilders.containsKey(containerType);
-  }
-
-  private static boolean isContainerType(String containerType, String ddocContainerType) {
-    return StringUtils.equalsIgnoreCase(ddocContainerType, containerType);
-  }
-
-  private static SignatureBuilder createCustomSignatureBuilder(String containerType) {
-    Class<? extends SignatureBuilder> builderClass = customSignatureBuilders.get(containerType);
-    try {
-      logger.debug("Instantiating signature builder class " + builderClass.getName() + " for container type " + containerType);
-      return builderClass.newInstance();
-    } catch (ReflectiveOperationException e) {
-      logger.error("Unable to instantiate custom signature builder class " + builderClass.getName() + " for type " + containerType);
-      throw new TechnicalException("Unable to instantiate custom signature builder class " + builderClass.getName() + " for type " + containerType, e);
+  /**
+   * Set signature policy parameters. Define signature profile first.
+   *
+   * @param signaturePolicy with defined parameters.
+   * @return SignatureBuilder
+   */
+  public SignatureBuilder withOwnSignaturePolicy(Policy signaturePolicy) {
+    if (signatureParameters.getSignatureProfile() != null
+        && signatureParameters.getSignatureProfile() != SignatureProfile.LT_TM) {
+      throw new NotSupportedException("Can't define signature policy if it's not LT_TM signature profile. Define it first. ");
     }
+    policyDefinedByUser = signaturePolicy;
+    return this;
   }
 }

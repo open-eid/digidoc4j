@@ -67,12 +67,21 @@ public class BDocValidationReportBuilder {
    * @param directory Directory where to save XML files.
    */
   public void saveXmlReports(Path directory) {
+    InputStream is;
+    try {
+      is = new ByteArrayInputStream(this.buildXmlReport().getBytes("UTF-8"));
+      DSSUtils.saveToFile(is, directory + File.separator + "validationReport.xml");
+      logger.info("Validation report is generated");
+    } catch (UnsupportedEncodingException e) {
+      logger.error(e.getMessage());
+    } catch (IOException e) {
+      logger.error(e.getMessage());
+    }
     if (!signatureValidationData.isEmpty()) {
       int n = signatureValidationData.size();
       for (int i = 0; i < n; i++) {
         SignatureValidationData validationData = signatureValidationData.get(i);
         Reports reports = validationData.getReport().getReport();
-        InputStream is;
         try {
           is = new ByteArrayInputStream(reports.getXmlDiagnosticData().getBytes("UTF-8"));
           DSSUtils.saveToFile(is, directory + File.separator + "validationDiagnosticData" + Integer.toString(i) + ".xml");

@@ -127,6 +127,8 @@ import eu.europa.esig.dss.client.http.Protocol;
  * <li>HTTP_PROXY_PORT: network proxy port</li>
  * <li>HTTP_PROXY_USER: network proxy user (for basic auth proxy)</li>
  * <li>HTTP_PROXY_PASSWORD: network proxy password (for basic auth proxy)</li>
+ * <li>HTTPS_PROXY_HOST: https network proxy host name</li>
+ * <li>HTTPS_PROXY_PORT: https network proxy port</li>
  * <li>SSL_KEYSTORE_PATH: SSL KeyStore path</li>
  * <li>SSL_KEYSTORE_TYPE: SSL KeyStore type (default is "jks")</li>
  * <li>SSL_KEYSTORE_PASSWORD: SSL KeyStore password (default is an empty string)</li>
@@ -170,6 +172,15 @@ public class Configuration implements Serializable {
   private static final String OCSP_PKCS_12_CONTAINER = "DIGIDOC_PKCS12_CONTAINER";
   private static final String OCSP_PKCS_12_PASSWD = "DIGIDOC_PKCS12_PASSWD";
 
+  public static final String JAVAX_NET_SSL_TRUST_STORE_PASSWORD = "javax.net.ssl.trustStorePassword";
+  public static final String JAVAX_NET_SSL_TRUST_STORE = "javax.net.ssl.trustStore";
+  public static final String JAVAX_NET_SSL_KEY_STORE_PASSWORD = "javax.net.ssl.keyStorePassword";
+  public static final String JAVAX_NET_SSL_KEY_STORE = "javax.net.ssl.keyStore";
+  public static final String HTTPS_PROXY_PORT = "https.proxyPort";
+  public static final String HTTPS_PROXY_HOST = "https.proxyHost";
+  public static final String HTTP_PROXY_PORT = "http.proxyPort";
+  public static final String HTTP_PROXY_HOST = "http.proxyHost";
+
   private final Mode mode;
   private LinkedHashMap configurationFromFile;
   private String configurationInputSourceName;
@@ -179,7 +190,9 @@ public class Configuration implements Serializable {
   Map<String, String> configuration = new HashMap<>();
 
   private String httpProxyHost = "";
-  private Integer httpProxyPort = 0;
+  private Integer httpProxyPort;
+  private String httpsProxyHost = "";
+  private Integer httpsProxyPort;
   private String httpProxyUser = "";
   private String httpProxyPassword = "";
   private List<String> trustedTerritories = new ArrayList<>();
@@ -550,17 +563,21 @@ public class Configuration implements Serializable {
 
     initOcspAccessCertPasswordForJDigidoc();
 
-    httpProxyHost = getParameterFromFile("HTTP_PROXY_HOST");
-    httpProxyPort = getIntParameterFromFile("HTTP_PROXY_PORT");
+    httpProxyHost = getStringParams(HTTP_PROXY_HOST, "HTTP_PROXY_HOST");
+    httpProxyPort = getIntegerParams(HTTP_PROXY_PORT, "HTTP_PROXY_PORT");
+    httpsProxyHost = getStringParams(HTTPS_PROXY_HOST, "HTTPS_PROXY_HOST");
+    httpsProxyPort = getIntegerParams(HTTPS_PROXY_PORT, "HTTPS_PROXY_PORT");
+
     httpProxyUser = getParameterFromFile("HTTP_PROXY_USER");
     httpProxyPassword = getParameterFromFile("HTTP_PROXY_PASSWORD");
 
-    sslKeystorePath = getParameterFromFile("SSL_KEYSTORE_PATH");
     sslKeystoreType = getParameterFromFile("SSL_KEYSTORE_TYPE");
-    sslKeystorePassword = getParameterFromFile("SSL_KEYSTORE_PASSWORD");
-    sslTruststorePath = getParameterFromFile("SSL_TRUSTSTORE_PATH");
     sslTruststoreType = getParameterFromFile("SSL_TRUSTSTORE_TYPE");
-    sslTruststorePassword = getParameterFromFile("SSL_TRUSTSTORE_PASSWORD");
+
+    sslKeystorePath = getStringParams(JAVAX_NET_SSL_KEY_STORE, "SSL_KEYSTORE_PATH");
+    sslKeystorePassword = getStringParams(JAVAX_NET_SSL_KEY_STORE_PASSWORD, "SSL_KEYSTORE_PASSWORD");
+    sslTruststorePath = getStringParams(JAVAX_NET_SSL_TRUST_STORE, "SSL_TRUSTSTORE_PATH");
+    sslTruststorePassword = getStringParams(JAVAX_NET_SSL_TRUST_STORE_PASSWORD, "SSL_TRUSTSTORE_PASSWORD");
 
     updateTrustedTerritories();
   }
@@ -1125,6 +1142,35 @@ public class Configuration implements Serializable {
     setConfigurationParameter("revocationAndTimestampDeltaInMinutes", String.valueOf(timeInMinutes));
   }
 
+  public String getHttpsProxyHost() {
+    return httpsProxyHost;
+  }
+
+  /**
+   * Set HTTPS network proxy host.
+   *
+   * @param httpsProxyHost
+   *          https proxy host.
+   */
+  public void setHttpsProxyHost(String httpsProxyHost) {
+    this.httpsProxyHost = httpsProxyHost;
+  }
+
+  public Integer getHttpsProxyPort() {
+    return httpsProxyPort;
+  }
+
+  /**
+   * Set HTTPS network proxy port.
+   *
+   * @param httpsProxyPort
+   *           https proxy port.
+   */
+  public void setHttpsProxyPort(int httpsProxyPort) {
+    this.httpsProxyPort = httpsProxyPort;
+  }
+
+
   /**
    * Get http proxy host.
    *
@@ -1203,7 +1249,8 @@ public class Configuration implements Serializable {
    * @return True if network proxy is enabled, otherwise False.
    */
   public boolean isNetworkProxyEnabled() {
-    return httpProxyPort != null && isNotBlank(httpProxyHost);
+    return httpProxyPort != null && isNotBlank(httpProxyHost)
+        || httpsProxyPort != null && isNotBlank(httpsProxyHost);
   }
 
   /**
@@ -1423,5 +1470,49 @@ public class Configuration implements Serializable {
       setJDigiDocConfigurationValue(OCSP_PKCS_12_PASSWD, String.valueOf(ocspAccessCertificatePassword));
     }
   }
+
+  /**
+   * Get Integer value through JVM parameters or from configuration file
+   *
+   * @param sysParamKey jvm value key .
+   * @param fileKey file value key.
+   *
+   * @return Integer value from JVM parameters or from file
+   */
+  private Integer getIntegerParams(String sysParamKey, String fileKey) {
+    Integer valueFromJvm = System.getProperty(sysParamKey) != null
+        ? new Integer(System.getProperty(sysParamKey)) : null;
+    Integer valueFromFile = getIntParameterFromFile(fileKey);
+    addParamToLog(valueFromJvm, valueFromFile, sysParamKey, fileKey);
+    return valueFromJvm != null ? valueFromJvm : valueFromFile;
+  }
+
+  /**
+   * Get String value through JVM parameters or from configuration file
+   *
+   * @param sysParamKey jvm value key .
+   * @param fileKey file value key.
+   *
+   * @return String value from JVM parameters or from file
+   */
+  private String getStringParams(String sysParamKey, String fileKey) {
+    String valueFromJvm = System.getProperty(sysParamKey);
+    String valueFromFile = getParameterFromFile(fileKey);
+    addParamToLog(valueFromJvm, valueFromFile, sysParamKey, fileKey);
+    return valueFromJvm != null ? valueFromJvm : valueFromFile;
+  }
+
+  private void addParamToLog(Object jvmParam, Object fileParam,
+                             String sysParamKey, String fileKey) {
+    if (jvmParam != null) {
+      logger.debug("In use param form JVM: key = " + sysParamKey + "; value = "
+          + jvmParam);
+    }
+    if (jvmParam == null && fileParam != null) {
+      logger.debug("In use param form file: key = " + fileKey + "; value = "
+          + fileParam);
+    }
+  }
+
 }
 

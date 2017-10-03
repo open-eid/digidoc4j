@@ -420,24 +420,6 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     assertNotNull(signature.getOCSPCertificate());
   }
 
-  @Ignore
-  @Test
-  public void gettingOcspCertificateFromSignatureWithoutOcspName() throws Exception {
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
-    configuration.setTSL(certificateSource);
-
-    Container container = ContainerBuilder.
-        aContainer().
-        withConfiguration(configuration).
-        // fromExistingFile("testFiles/valid-containers/testing.asice").
-        fromExistingFile("testFiles/valid-containers/Signature-A-LV_EUSO-1.asice").
-        build();
-    Signature signature = container.getSignatures().get(0);
-
-    assertNotNull(signature.getOCSPCertificate());
-  }
-
   @Test
   public void checkCertificateSSCDSupport() {
     // Configuration configuration = new Configuration(Configuration.Mode.TEST);
@@ -446,19 +428,8 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     TslManager tslManager = new TslManager(configuration);
     TSLCertificateSource certificateSource = tslManager.getTsl();
 
-    /*
-    try {
-      InputStream inputStream  = new FileInputStream("testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer");
-      X509Certificate certificate = DSSUtils.loadCertificate(inputStream).getCertificate();
-      certificateSource.addTSLCertificate(certificate);
-    } catch (Exception e) {
-      System.out.print(e.getMessage());
-    }
-    */
-
     configuration.setTSL(certificateSource);
 
-    // DSSDocument document = new FileDocument("testFiles/invalid-containers/23154_test1-old-sig-sigat-NOK-prodat-OK-1.bdoc");
     DSSDocument document = new FileDocument("testFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc");
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
 
@@ -470,37 +441,6 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     verifier.setDataLoader(new CommonsDataLoader());
     validator.setCertificateVerifier(verifier);
     Reports reports = validator.validateDocument();
-
-    InputStream is;
-    try {
-      is = new ByteArrayInputStream(reports.getXmlDiagnosticData().getBytes("UTF-8"));
-      DSSUtils.saveToFile(is, "validationDiagnosticData.xml");
-      System.out.print("Validation diagnostic data report is generated\n");
-    } catch (UnsupportedEncodingException e) {
-      System.out.print(e.getMessage());
-    } catch (IOException e) {
-      System.out.print(e.getMessage());
-    }
-
-    try {
-      is = new ByteArrayInputStream(reports.getXmlDetailedReport().getBytes("UTF-8"));
-      DSSUtils.saveToFile(is, "validationDetailReport.xml");
-      System.out.print("Validation detail report is generated\n");
-    } catch (UnsupportedEncodingException e) {
-      System.out.print(e.getMessage());
-    } catch (IOException e) {
-      System.out.print(e.getMessage());
-    }
-
-    try {
-      is = new ByteArrayInputStream(reports.getXmlSimpleReport().getBytes("UTF-8"));
-      DSSUtils.saveToFile(is, "validationSimpleReport.xml");
-      System.out.print("Validation simple report is generated\n");
-    } catch (UnsupportedEncodingException e) {
-      System.out.print(e.getMessage());
-    } catch (IOException e) {
-      System.out.print(e.getMessage());
-    }
 
     boolean isValid = true;
     for (String signatureId : reports.getSimpleReport().getSignatureIdList()) {
