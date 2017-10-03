@@ -1,11 +1,13 @@
 DigiDoc4J Java library release notes
 ------------------------------------
-Release 1.0.7 Beta.3
---------------------
+Release 1.0.7 RC.1
+------------------
 Summary of the major changes since 1.0.7 Beta.2
 ----------------------------------------
-* Fixed problem with OCSP responds where responseID is keyhash instead of name.
+* Fixed problem with OCSP responds where responseID is keyhash instead of name
 * Removed logback.xml from jar file, it is needed only for digidoc4j-util
+* Fixed problem in opening of DDOC files over stream parameter [#134342153]
+* Added ability to configure network proxy and SSL settings through JVM parameters [#129040397]
 
 Release 1.0.7 Beta.2
 --------------------
