@@ -105,6 +105,7 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     List<BDocSignature> signatureList = signatureOpener.parse(signedDocument);
     BDocSignature signature = signatureList.get(0); //Only one signature was created
     validateOcspResponse(signature.getOrigin());
+    policyDefinedByUser = null;
     logger.info("Signing BDoc successfully completed");
     return signature;
   }
