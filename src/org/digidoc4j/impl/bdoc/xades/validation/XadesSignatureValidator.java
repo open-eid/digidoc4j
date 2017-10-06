@@ -101,7 +101,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     SignaturePolicy policy = getDssSignature().getPolicyId();
     if (policy != null) {
       if (StringUtils.isBlank(policy.getUrl())) {
-        addValidationError(new WrongPolicyIdentifierException("Error: The signature policy is not available"));
+        addValidationError(new WrongPolicyIdentifierException("Error: The URL in signature policy is empty or not available"));
       }
     }
   }

@@ -296,15 +296,6 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
-  public void noNoncePolicy() {
-    Container container = ContainerOpener.open("testFiles/valid-containers/23608_bdoc21-no-nonce-policy.bdoc", PROD_CONFIGURATION);
-    ValidationResult result = container.validate();
-    List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(0, errors.size());
-  }
-
-  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-  @Test
   public void badNonceContent() {
     Container container = ContainerOpener.open("testFiles/invalid-containers/bdoc21-bad-nonce-content.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
     ValidationResult result = container.validate();
@@ -387,15 +378,6 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
     assertEquals("Nonce is invalid", errors.get(0).toString());
-  }
-
-  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-  @Test
-  public void noPolicyURI() {
-    Container container = ContainerOpener.open("testFiles/valid-containers/SP-06_bdoc21-no-uri.bdoc", PROD_CONFIGURATION);
-    ValidationResult result = container.validate();
-    List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(0, errors.size());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -556,7 +538,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     Container container = ContainerOpener.open("testFiles/valid-containers/23608_bdoc21-no-nonce-policy.bdoc", TEST_CONFIGURATION);
     ValidationResult result = container.validate();
     assertFalse(result.isValid());
-    assertTrue(containsErrorMessage(result.getErrors(), "Error: The signature policy is not available"));
+    assertTrue(containsErrorMessage(result.getErrors(), "Error: The URL in signature policy is empty or not available"));
 
   }
 
@@ -565,7 +547,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     Container container = ContainerOpener.open("testFiles/valid-containers/SP-06_bdoc21-no-uri.bdoc", TEST_CONFIGURATION);
     ValidationResult result = container.validate();
     assertFalse(result.isValid());
-    assertTrue(containsErrorMessage(result.getErrors(), "Error: The signature policy is not available"));
+    assertTrue(containsErrorMessage(result.getErrors(), "Error: The URL in signature policy is empty or not available"));
   }
 
   private void testSigningWithOCSPCheck(String unknownCert) {
