@@ -14,7 +14,7 @@ TSPS:
     TSP_KEYSTORE_PASSWORD: tspkeystorepassword
   - TSP:
     TSP_C: LT
-    TSP_SOURCE: http://demo.sk.ee/tsa
+    TSP_SOURCE: https://tsa.balstamp.lt
     TSP_KEYSTORE_PATH: tspkeystorepath
     TSP_KEYSTORE_TYPE: tspkeystoretype
     TSP_KEYSTORE_PASSWORD: tspkeystorepassword
