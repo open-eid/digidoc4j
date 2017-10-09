@@ -1,7 +1,9 @@
 import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
+import org.bouncycastle.tsp.TimeStampToken;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
@@ -13,6 +15,10 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.junit.Assert;
 import org.junit.Test;
+
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.client.http.commons.TimestampDataLoader;
+import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 
 /**
  * Created by Andrei on 11.09.2017.
@@ -50,9 +56,7 @@ public class TmpTSP {
 
     X509Cert cert = signature.getSigningCertificate();
     String subjectName = cert.getSubjectName(X509Cert.SubjectName.C);
-    if(configuration.getTspC().contains(subjectName)){
 
-    }
     container.addSignature(signature);
     Assert.assertTrue(container.validate().isValid());
   }
@@ -67,5 +71,16 @@ public class TmpTSP {
     } catch (Exception e) {
       throw new DigiDoc4JException("Loading signer cert failed");
     }
+  }
+
+  @Test
+  public void signatureLTTSA(){
+    OnlineTSPSource tspSource = new OnlineTSPSource("http://demo.sk.ee/tsa/");
+    tspSource.setPolicyOid("0.4.0.2023.1.1");
+    tspSource.setDataLoader(new TimestampDataLoader()); // content-type is different
+
+    byte[] digest = DSSUtils.digest(eu.europa.esig.dss.DigestAlgorithm.SHA512, "Hello world".getBytes());
+    TimeStampToken timeStampResponse = tspSource.getTimeStampResponse(eu.europa.esig.dss.DigestAlgorithm.SHA512, digest);
+    Assert.assertNotNull(timeStampResponse);
   }
 }
