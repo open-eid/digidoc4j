@@ -32,6 +32,7 @@ import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
@@ -69,6 +70,7 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
   private static final int maxTryCount = 5;
   protected transient XadesSigningDssFacade facade;
   private Date signingDate;
+  private boolean isLTorLTAprofile = false;
 
   @Override
   protected Signature invokeSigningProcess() {
@@ -224,7 +226,7 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
 
   protected void setTimeStampProviderSource() {
     Configuration configuration = getConfiguration();
-    OnlineTSPSource tspSource = new OnlineTSPSource(configuration.getTspSource());
+    OnlineTSPSource tspSource = new OnlineTSPSource(getTspSource(configuration));
     SkDataLoader dataLoader = SkDataLoader.createTimestampDataLoader(configuration);
     dataLoader.setUserAgentSignatureProfile(signatureParameters.getSignatureProfile());
     tspSource.setDataLoader(dataLoader);
@@ -275,9 +277,11 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
         facade.setSignatureLevel(XAdES_BASELINE_B);
         break;
       case LTA:
+        isLTorLTAprofile = true;
         facade.setSignatureLevel(XAdES_BASELINE_LTA);
         break;
       default:
+        isLTorLTAprofile = true;
         facade.setSignatureLevel(XAdES_BASELINE_LT);
     }
   }
@@ -357,5 +361,17 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
       return signatureParameters.getSignatureProfile() == SignatureProfile.B_EPES;
     }
     return false;
+  }
+
+  private String getTspSource(Configuration configuration) {
+    if (isLTorLTAprofile){
+      X509Cert x509Cert = new X509Cert(signatureParameters.getSigningCertificate());
+      String certCountry = x509Cert.getSubjectName(X509Cert.SubjectName.C);
+      String tspSourceByCountry = configuration.getTspSourceByCountry(certCountry);
+      if (StringUtils.isNotBlank(tspSourceByCountry)){
+        return tspSourceByCountry;
+      }
+    }
+    return configuration.getTspSource();
   }
 }
