@@ -1135,6 +1135,32 @@ public class ConfigurationTest {
     assertEquals("http://demo.sk.ee/TEST", configuration.getOcspSource() );
   }
 
+  //TODO: test
+  @Test
+  public void testLoadingSignatureProfile() throws Exception {
+    Configuration configuration = new Configuration(PROD);
+    assertEquals(SignatureProfile.LT, configuration.getSignatureProfile());
+  }
+
+//  @Test
+//  public void testLoadingSignatureProfileFromConf() throws Exception {
+//    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+//    assertEquals(SignatureProfile.LT_TM, configuration.getSignatureProfile());
+//  }
+
+
+  @Test
+  public void testLoadingSignatureDigestAlgorithm() throws Exception {
+    Configuration configuration = new Configuration(PROD);
+    assertEquals(DigestAlgorithm.SHA256, configuration.getSignatureDigestAlgorithm());
+  }
+
+//  @Test
+//  public void testLoadingSignatureDigestAlgorithmFromConf() throws Exception {
+//    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+//    assertEquals(DigestAlgorithm.SHA256, configuration.getSignatureDigestAlgorithm());
+//  }
+
   private File createConfFileWithParameter(String parameter) throws IOException {
     File confFile = testFolder.newFile();
     FileUtils.writeStringToFile(confFile, parameter);
