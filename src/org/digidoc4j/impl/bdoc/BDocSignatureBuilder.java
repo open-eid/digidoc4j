@@ -56,7 +56,6 @@ import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 public class BDocSignatureBuilder extends SignatureBuilder implements SignatureFinalizer {
 
   private final static Logger logger = LoggerFactory.getLogger(BDocSignatureBuilder.class);
-  private static final SignatureProfile DEFAULT_SIGNATURE_PROFILE = SignatureProfile.LT;
   private transient XadesSigningDssFacade facade;
   private Date signingDate;
 
@@ -198,7 +197,8 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
 
   private void setDigestAlgorithm() {
     if (signatureParameters.getDigestAlgorithm() == null) {
-      signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
+      Configuration configuration = getConfiguration();
+      signatureParameters.setDigestAlgorithm(configuration.getSignatureDigestAlgorithm());
     }
     facade.setSignatureDigestAlgorithm(signatureParameters.getDigestAlgorithm());
   }
@@ -220,8 +220,9 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     if (signatureParameters.getSignatureProfile() != null) {
       setSignatureProfile(signatureParameters.getSignatureProfile());
     } else {
-      setSignatureProfile(DEFAULT_SIGNATURE_PROFILE);
-      signatureParameters.setSignatureProfile(DEFAULT_SIGNATURE_PROFILE);
+      SignatureProfile signatureProfile = getConfiguration().getSignatureProfile();
+      setSignatureProfile(signatureProfile);
+      signatureParameters.setSignatureProfile(signatureProfile);
     }
   }
 

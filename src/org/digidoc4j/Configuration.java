@@ -544,8 +544,6 @@ public class Configuration implements Serializable {
     setJDigiDocConfigurationValue("DIGIDOC_OCSP_RESPONDER_URL", getOcspSource());
     setJDigiDocConfigurationValue("DIGIDOC_FACTORY_IMPL", DEFAULT_FACTORY_IMPLEMENTATION);
     setJDigiDocConfigurationValue("DIGIDOC_DF_CACHE_DIR", null);
-    setJDigiDocConfigurationValue("SIGNATURE_PROFILE", DEFAULT_SIGNATURE_PROFILE);
-    setJDigiDocConfigurationValue("SIGNATURE_DIGEST_ALGORITHM", DEFAULT_SIGNATURE_DIGEST_ALGORITHM);
 
     setConfigurationValue("TSL_LOCATION", "tslLocation");
     setConfigurationValue("TSP_SOURCE", "tspSource");
@@ -563,6 +561,8 @@ public class Configuration implements Serializable {
         "revocationAndTimestampDeltaInMinutes");
     setConfigurationValue("ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES",
         "allowedTimestampAndOCSPResponseDeltaInMinutes");
+    setConfigurationValue("SIGNATURE_PROFILE", "signatureProfile");
+    setConfigurationValue("SIGNATURE_DIGEST_ALGORITHM", "signatureDigestAlgoritm");
 
     setJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS, Boolean.toString(hasToBeOCSPRequestSigned()));
     setJDigiDocConfigurationValue(OCSP_PKCS_12_CONTAINER, getOCSPAccessCertificateFileName());
