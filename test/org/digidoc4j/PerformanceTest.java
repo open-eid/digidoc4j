@@ -70,7 +70,7 @@ public class PerformanceTest {
   @PerfTest(invocations = 1000, threads = 20)
   public void validateTestBDocTmSignaturesInThreads() throws Exception {
     assertContainerValid("testFiles/valid-containers/valid-bdoc-tm.bdoc");
-    assertContainerValid("testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM.bdoc");
+    assertContainerValid("testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM_TEST.bdoc");
     validateInvalidContainer("testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc", "The past signature validation is not conclusive!");
   }
 
