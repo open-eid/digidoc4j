@@ -41,7 +41,6 @@ import eu.europa.esig.dss.validation.reports.Reports;
 import eu.europa.esig.dss.validation.reports.SimpleReport;
 import eu.europa.esig.dss.validation.reports.wrapper.DiagnosticData;
 import eu.europa.esig.dss.x509.SignaturePolicy;
-import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
@@ -76,6 +75,7 @@ public class XadesSignatureValidator implements SignatureValidator {
 
   protected void populateValidationErrors() {
     addPolicyValidationErrors();
+    addPolicyUriValidationErrors();
     addSignedPropertiesReferenceValidationErrors();
     addReportedErrors();
     addReportedWarnings();
@@ -92,6 +92,16 @@ public class XadesSignatureValidator implements SignatureValidator {
         addValidationError(new WrongPolicyIdentifierException("Wrong policy identifier: " + policyIdentifier));
       } else {
         addPolicyIdentifierQualifierValidationErrors();
+      }
+    }
+  }
+
+  private void addPolicyUriValidationErrors() {
+    logger.debug("Extracting policy URL validation errors");
+    SignaturePolicy policy = getDssSignature().getPolicyId();
+    if (policy != null) {
+      if (StringUtils.isBlank(policy.getUrl())) {
+        addValidationError(new WrongPolicyIdentifierException("Error: The URL in signature policy is empty or not available"));
       }
     }
   }
