@@ -455,7 +455,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test
   public void validateContainerWithBomSymbolsInMimeType_shouldBeValid() throws Exception {
-    assertTrue(validateContainer("testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM.bdoc", PROD_CONFIGURATION).isValid());
+    assertTrue(validateContainer("testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM_PROD.bdoc", PROD_CONFIGURATION).isValid());
   }
 
   @Test
