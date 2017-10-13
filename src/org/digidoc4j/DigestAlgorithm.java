@@ -62,4 +62,20 @@ public enum DigestAlgorithm {
   public String toString() {
     return uri.toString();
   }
+
+  /**
+   * Find DigestAlgorithm by algorithm string.
+   *
+   * @param algorithm
+   * @return DigestAlgorithm.
+   */
+  public static DigestAlgorithm findByAlgorithm(String algorithm) {
+    for (DigestAlgorithm digestAlgorithm : values()) {
+      if (digestAlgorithm.name().equals(algorithm)) {
+        return digestAlgorithm;
+      }
+    }
+    return null;
+  }
+
 }

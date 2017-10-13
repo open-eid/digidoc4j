@@ -1096,12 +1096,6 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void loadAllowedTimestampAndOCSPResponseDeltaFromConf() throws Exception {
-    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf_ocsp_allowed_timestamp_delay.yaml");
-    assertEquals(1, configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes().longValue());
-  }
-
-  @Test
   public void testOpenBDocWithConfFromSetter() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setOcspSource("http://demo.sk.ee/TEST");
@@ -1133,6 +1127,42 @@ public class ConfigurationTest {
         fromExistingFile("testFiles/valid-containers/test.asice").
         build();
     assertEquals("http://demo.sk.ee/TEST", configuration.getOcspSource() );
+  }
+
+  @Test
+  public void loadAllowedTimestampAndOCSPResponseDelta() throws Exception {
+    Configuration configuration = new Configuration(TEST);
+    assertEquals(15, configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes().longValue());
+  }
+
+  @Test
+  public void loadAllowedTimestampAndOCSPResponseDeltaFromConf() throws Exception {
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertEquals(1, configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes().longValue());
+  }
+
+  @Test
+  public void testLoadingSignatureProfile() throws Exception {
+    Configuration configuration = new Configuration(TEST);
+    assertEquals(SignatureProfile.LT, configuration.getSignatureProfile());
+  }
+
+  @Test
+  public void testLoadingSignatureProfileFromConf() throws Exception {
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertEquals(SignatureProfile.LT_TM, configuration.getSignatureProfile());
+  }
+
+  @Test
+  public void testLoadingSignatureDigestAlgorithm() throws Exception {
+    Configuration configuration = new Configuration(TEST);
+    assertEquals(DigestAlgorithm.SHA256, configuration.getSignatureDigestAlgorithm());
+  }
+
+  @Test
+  public void testLoadingSignatureDigestAlgorithmFromConf() throws Exception {
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertEquals(DigestAlgorithm.SHA512, configuration.getSignatureDigestAlgorithm());
   }
 
   private File createConfFileWithParameter(String parameter) throws IOException {

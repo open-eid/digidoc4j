@@ -1,5 +1,13 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+Release 1.0.7 RC.2
+------------------
+Summary of the major changes since 1.0.7 RC.1
+----------------------------------------
+* BDocSignatureBuilder class has two new parameters - DEFAULT_SIGNATURE_PROFILE
+  and DEFAULT_SIGNATURE_DIGEST_ALGORITHM
+* Fixed problem with missing jar's in digidoc4j-*-library.zip
+
 Release 1.0.7 RC.1
 ------------------
 Summary of the major changes since 1.0.7 Beta.2

@@ -61,6 +61,7 @@ import eu.europa.esig.dss.DSSUtils;
 public class ValidationTests extends DigiDoc4JTestHelper {
 
   public static final Configuration PROD_CONFIGURATION = new Configuration(Configuration.Mode.PROD);
+  public static final Configuration TEST_CONFIGURATION = new Configuration(Configuration.Mode.TEST);
   public static final Configuration PROD_CONFIGURATION_WITH_TEST_POLICY = new Configuration(Configuration.Mode.PROD);
   String testContainerPath;
 
@@ -295,15 +296,6 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
-  public void noNoncePolicy() {
-    Container container = ContainerOpener.open("testFiles/valid-containers/23608_bdoc21-no-nonce-policy.bdoc", PROD_CONFIGURATION);
-    ValidationResult result = container.validate();
-    List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(0, errors.size());
-  }
-
-  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-  @Test
   public void badNonceContent() {
     Container container = ContainerOpener.open("testFiles/invalid-containers/bdoc21-bad-nonce-content.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
     ValidationResult result = container.validate();
@@ -390,15 +382,6 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   @Test
-  public void noPolicyURI() {
-    Container container = ContainerOpener.open("testFiles/valid-containers/SP-06_bdoc21-no-uri.bdoc", PROD_CONFIGURATION);
-    ValidationResult result = container.validate();
-    List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(0, errors.size());
-  }
-
-  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-  @Test
   public void brokenTS() {
     Container container = ContainerOpener.open("testFiles/invalid-containers/TS_broken_TS.asice");
     ValidationResult result = container.validate();
@@ -472,7 +455,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test
   public void validateContainerWithBomSymbolsInMimeType_shouldBeValid() throws Exception {
-    assertTrue(validateContainer("testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM.bdoc", PROD_CONFIGURATION).isValid());
+    assertTrue(validateContainer("testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM_PROD.bdoc", PROD_CONFIGURATION).isValid());
   }
 
   @Test
@@ -540,6 +523,31 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   public void validateAsiceContainer_getNotValid() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
     assertFalse(validateContainer("testFiles/invalid-containers/TM-16_unknown.4.asice", configuration).isValid());
+  }
+
+
+  @Test
+  public void validateSpuriElement_UriIsvalid() throws Exception {
+    Container container = ContainerOpener.open("testFiles/valid-containers/valid-bdoc-tm.bdoc", TEST_CONFIGURATION);
+    ValidationResult result = container.validate();
+    assertTrue(result.isValid());
+  }
+
+  @Test
+  public void validateSpuriElement_UriIsMissing() throws Exception {
+    Container container = ContainerOpener.open("testFiles/valid-containers/23608_bdoc21-no-nonce-policy.bdoc", TEST_CONFIGURATION);
+    ValidationResult result = container.validate();
+    assertFalse(result.isValid());
+    assertTrue(containsErrorMessage(result.getErrors(), "Error: The URL in signature policy is empty or not available"));
+
+  }
+
+  @Test
+  public void validateSpuriElement_UriIsEmpty() throws Exception {
+    Container container = ContainerOpener.open("testFiles/valid-containers/SP-06_bdoc21-no-uri.bdoc", TEST_CONFIGURATION);
+    ValidationResult result = container.validate();
+    assertFalse(result.isValid());
+    assertTrue(containsErrorMessage(result.getErrors(), "Error: The URL in signature policy is empty or not available"));
   }
 
   private void testSigningWithOCSPCheck(String unknownCert) {

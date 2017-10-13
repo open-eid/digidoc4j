@@ -162,6 +162,8 @@ public class Configuration implements Serializable {
       Arrays.asList("AT", "BE", "BG", "CY", "CZ", /*"DE",*/ "DK", "EE", "ES", "FI", "FR",
           "GR", "HU", /*"HR",*/ "IE", "IS", "IT", "LT", "LU", "LV", "LI", "MT", "NO", "NL",
           "PL", "PT", "RO", "SE", "SI", "SK", "UK");
+  public static final String DEFAULT_SIGNATURE_PROFILE = "LT";
+  public static final String DEFAULT_SIGNATURE_DIGEST_ALGORITHM = "SHA256";
 
   public static final long CACHE_ALL_DATA_FILES = -1;
   public static final long CACHE_NO_DATA_FILES = 0;
@@ -235,6 +237,8 @@ public class Configuration implements Serializable {
     configuration.put("revocationAndTimestampDeltaInMinutes", String.valueOf(ONE_DAY_IN_MINUTES));
     configuration.put("tslCacheExpirationTime", String.valueOf(ONE_DAY_IN_MILLISECONDS));
     configuration.put("allowedTimestampAndOCSPResponseDeltaInMinutes", String.valueOf(FIFTEEN_MINUTES));
+    configuration.put("signatureProfile", DEFAULT_SIGNATURE_PROFILE);
+    configuration.put("signatureDigestAlgoritm", DEFAULT_SIGNATURE_DIGEST_ALGORITHM);
 
     if (mode == Mode.TEST) {
       configuration.put("tspSource", "http://demo.sk.ee/tsa");
@@ -557,6 +561,8 @@ public class Configuration implements Serializable {
         "revocationAndTimestampDeltaInMinutes");
     setConfigurationValue("ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES",
         "allowedTimestampAndOCSPResponseDeltaInMinutes");
+    setConfigurationValue("SIGNATURE_PROFILE", "signatureProfile");
+    setConfigurationValue("SIGNATURE_DIGEST_ALGORITHM", "signatureDigestAlgoritm");
 
     setJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS, Boolean.toString(hasToBeOCSPRequestSigned()));
     setJDigiDocConfigurationValue(OCSP_PKCS_12_CONTAINER, getOCSPAccessCertificateFileName());
@@ -1140,6 +1146,28 @@ public class Configuration implements Serializable {
   public void setRevocationAndTimestampDeltaInMinutes(int timeInMinutes) {
     logger.debug("Set revocation and timestamp delta in minutes: " + timeInMinutes);
     setConfigurationParameter("revocationAndTimestampDeltaInMinutes", String.valueOf(timeInMinutes));
+  }
+
+  /**
+   * Signature profile.
+   *
+   * @return SignatureProfile.
+   */
+  public SignatureProfile getSignatureProfile() {
+    String signatureProfile = getConfigurationParameter("signatureProfile");
+    logger.debug("Signature profile: " + signatureProfile);
+    return SignatureProfile.findByProfile(signatureProfile);
+  }
+
+  /**
+   * Signature digest algorithm.
+   *
+   * @return DigestAlgorithm.
+   */
+  public DigestAlgorithm getSignatureDigestAlgorithm() {
+    String signatureDigestAlgorithm = getConfigurationParameter("signatureDigestAlgoritm");
+    logger.debug("Signature digest algorithm: " + signatureDigestAlgorithm);
+    return DigestAlgorithm.findByAlgorithm(signatureDigestAlgorithm);
   }
 
   public String getHttpsProxyHost() {

@@ -70,8 +70,8 @@ public class PerformanceTest {
   @PerfTest(invocations = 1000, threads = 20)
   public void validateTestBDocTmSignaturesInThreads() throws Exception {
     assertContainerValid("testFiles/valid-containers/valid-bdoc-tm.bdoc");
-    assertContainerValid("testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM.bdoc");
-    validateInvalidContainer("testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc", "The certificate is revoked! [RevocationReason=CRLReason: unspecified, CertificateId=971CC1FCEBC3990405253C90BB6AB3D64F7B8478584DAAF6C5E1A4B2CF1D2C48, RevocationTime=2016-04-12T15:56:01Z]");
+    assertContainerValid("testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM_TEST.bdoc");
+    validateInvalidContainer("testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc", "The past signature validation is not conclusive!");
   }
 
   @Test
