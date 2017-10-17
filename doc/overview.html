@@ -382,6 +382,32 @@
 <h2>Using the time-mark signature profile</h2>
 <p>To sign a container using the time-mark protocol you need to specify the signature profile using the -profile option LT_TM:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;output_file_name_and_path&gt;" -add "&lt;input_file_name_and_path&gt;" "&lt;mime_type&gt;" -profile LT_TM -pkcs12 "&lt;pkcs12_token_file&gt;" "&lt;pkcs12_token_password&gt;"</strong></code></p>
+
+<h2>Using the ID-card</h2>
+
+<p><code><strong>java -jar digidoc4j-util.jar -in "&lt;output_file_name_and_path&gt;" -add "&lt;input_file_name_and_path&gt;" "&lt;mime_type&gt;" -profile LT_TM -pkcs11 "&lt;pkcs11_module_path&gt;" "&lt;pkcs11_token_pin_password&gt;" "&lt;pkcs11_slot_index&gt;"</strong></code></p>
+<p>When the client computer has only one smartcard reader then there are two slots available:</p>
+<p>
+  <ol>
+    <li>slot 0 - for authentication (PIN1)</li>
+    <li>slot 1 - for signing (PIN2)</li>
+  </ol>
+</p>
+<p>
+  In case where computer has multiple smartcard readers the slot numbers are usable in pairs:
+  <ol>
+    <li>slot 0 - reader 0, PIN1</li>
+    <li>slot 1 - reader 0, PIN2</li>
+    <li>slot 2 - reader 1, PIN1</li>
+    <li>slot 3 - reader 1, PIN2</li>
+    <li>etc</li>
+  </ol>
+</p>
+<p>In order to investigate possibilities one can use OpenSC tools, for example:</p>
+
+<p><code>pkcs11-tool -L --module /usr/local/lib/opensc-pkcs11.so</code></p>
+<p>Example:</p>
+<p><code>java -Ddigidoc4j.mode=TEST -jar digidoc4j-util.jar -in test.bdoc -add dds_acrobat.pdf application/pdf -pkcs11 /usr/local/lib/opensc-pkcs11.so 22975 1</code></p>
 <h2>Creating multiple signed containers</h2>
 <p>
   To create signatures of all the files within a directory, you need to specify the input directory containing data files,
@@ -389,12 +415,14 @@
 </p>
 <p><code><strong>java -jar digidoc4j-util.jar -inputDir "&lt;input_directory_path&gt;" -mimeType "&lt;mime_type (optional)&gt;" -outputDir "&lt;output_directory_path&gt;" -pkcs11 "&lt;pkcs11_module_path&gt;" "&lt;pkcs11_token_pin_password&gt;" "&lt;pkcs11_slot_index&gt;"</strong></code></p>
 <h2>Validation</h2>
-<p>The utility performs validation when specifying the -v option. The output shows all signatures and their statuses as well as all errors:</p>
+<p>The utility performs validation when specifying the <b>-v</b> option. The output shows all signatures and their statuses as well as all errors:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v</strong></code>
-<p>In order to see validation warnings in addition to the errors you must specify the -w option:</p>
+<p>In order to see validation warnings in addition to the errors you must specify the <b>-w</b> option:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v -w</strong></code>
+<p>In order to get validation reports in addition to the output on the screen you must specify the <b>-r</b> option:</p>
+<p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v -r "&lt;report_files_path&gt;"</strong></code>
 <h2>Verbose</h2>
-<p>For all tasks more details can be obtained using the -verbose option as in the next example:</p>
+<p>For all tasks more details can be obtained using the <b>-verbose</b> option as in the next example:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v -verbose</strong></code>
 </body>
 </html>
