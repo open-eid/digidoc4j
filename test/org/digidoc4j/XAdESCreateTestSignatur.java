@@ -1,13 +1,20 @@
 package org.digidoc4j;
 
+import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.KeyStoreException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,6 +27,7 @@ import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignatureLevel;
 import eu.europa.esig.dss.SignaturePackaging;
 import eu.europa.esig.dss.SignatureValue;
+import eu.europa.esig.dss.SignerLocation;
 import eu.europa.esig.dss.ToBeSigned;
 import eu.europa.esig.dss.client.crl.OnlineCRLSource;
 import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
@@ -71,7 +79,7 @@ public class XAdESCreateTestSignatur {
     XAdESService service = new XAdESService(commonCertificateVerifier);
 
     DSSDocument toSignDocument = new FileDocument(new File(
-        "testFiles/helper-files/test.xml"));
+        "testFiles/helper-files/test.txt"));
 
     ToBeSigned dataToSign = service.getDataToSign(toSignDocument, parameters);
 
@@ -79,16 +87,37 @@ public class XAdESCreateTestSignatur {
 
     DSSDocument signedDocument = service.signDocument(toSignDocument, parameters,
         signatureValue);
-    OutputStream stream =  new FileOutputStream("XAdES_BASELINE_B.xml");
+    OutputStream stream =  new FileOutputStream("C:/DigiDoc4j/TestData/128/XAdES_BASELINE_B.xml");
     signedDocument.writeTo(stream);
+
+  }
+
+  @Test
+  public void openSignature() throws IOException {
+    Container container = ContainerBuilder.
+        aContainer(DDOC_CONTAINER_TYPE).
+        withDataFile("testFiles/helper-files/test.txt", "text/plain").
+        build();
+
+    byte[] signatureBytes = FileUtils.readFileToByteArray(new File("C:/DigiDoc4j/TestData/128/XAdES_BASELINE_LT.xml"));
+
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        openAdESSignature(signatureBytes);
+
+    ValidationResult validationResult = container.validate();
 
   }
 
   @Test
   public void createXAdESBaseline_LTSiganture() throws KeyStoreException, FileNotFoundException {
 
-    String privateKeyPath = "C:/DigiDoc4j/TestData/128/private-key.p12";
-    char[] password = "test".toCharArray();
+    String privateKeyPath = "C:/DigiDoc4j/TestData/128/user_one.p12";
+    //String privateKeyPath = "C:/DigiDoc4j/TestData/128/ec-digiid.p12";
+   // char[] password = "test".toCharArray();
+    char[] password = "user_one".toCharArray();
+    //char[] password = "user_one".toCharArray();
+    //char[] password ="inno".toCharArray();
 
     try {
       signatureTokenConnection = new Pkcs12SignatureToken(privateKeyPath, String.valueOf(password));
@@ -101,7 +130,7 @@ public class XAdESCreateTestSignatur {
     XAdESSignatureParameters parameters = new XAdESSignatureParameters();
     parameters.clearCertificateChain();
     parameters.bLevel().setSigningDate(new Date());
-    parameters.setSignaturePackaging(SignaturePackaging.ENVELOPED);
+    parameters.setSignaturePackaging(SignaturePackaging.ENVELOPING);
     parameters.setSignatureLevel(SignatureLevel.XAdES_BASELINE_LT);
     parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
     parameters.setSigningCertificateDigestMethod(DigestAlgorithm.SHA256);
@@ -121,6 +150,13 @@ public class XAdESCreateTestSignatur {
     policy.setDigestAlgorithm(signaturePolicyHashAlgo);
     policy.setDigestValue(digestedBytes);
     bLevelParameters.setSignaturePolicy(policy);
+
+    SignerLocation signerLocation = new SignerLocation();
+    signerLocation.setCountry("BE");
+    signerLocation.setStateOrProvince("Luxembourg");
+    signerLocation.setPostalCode("1234");
+    signerLocation.setLocality("SimCity");
+    bLevelParameters.setSignerLocation(signerLocation);
 
     CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
     CommonsDataLoader commonsHttpDataLoader = new CommonsDataLoader();
@@ -164,13 +200,23 @@ public class XAdESCreateTestSignatur {
 
     service.setTspSource(onlineTSPSource);
 
-    DSSDocument toSignDocument = new FileDocument(new File("testFiles/helper-files/test.xml"));
+  //  DSSDocument toSignDocument = new FileDocument(new File("testFiles/helper-files/test.xml"));
+
+    String path = "testFiles/helper-files/test.txt";
+    String mimeType = "text/plain";
+
+    DataFile dataFile = new DataFile(path, mimeType);
+
+    List<DataFile> dataFiles = new ArrayList<>();
+    dataFiles.add(dataFile);
+
+    DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
+    List<DSSDocument> toSignDocument = detachedContentCreator.getDetachedContentList();
 
     ToBeSigned dataToSign = service.getDataToSign(toSignDocument, parameters);
     SignatureValue signatureValue = signatureTokenConnection.sign(dataToSign, DigestAlgorithm.SHA256, keyEntry);
 
-    DSSDocument signedDocument = service.signDocument(toSignDocument, parameters,
-        signatureValue);
+    DSSDocument signedDocument = service.signDocument(toSignDocument, parameters, signatureValue);
 
     OutputStream stream =  new FileOutputStream("C:/DigiDoc4j/TestData/128/XAdES_BASELINE_LT.xml");
     try {
