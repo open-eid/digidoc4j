@@ -56,7 +56,7 @@ import eu.europa.esig.dss.tsl.ServiceInfo;
 import eu.europa.esig.dss.tsl.ServiceInfoStatus;
 import eu.europa.esig.dss.x509.CertificateToken;
 
-public class ConfigurationTest {
+public class ConfigurationTest extends AbstractTest {
   private static final String SIGN_OCSP_REQUESTS = "SIGN_OCSP_REQUESTS";
   private static final String OCSP_PKCS12_CONTAINER = "DIGIDOC_PKCS12_CONTAINER";
   private static final String OCSP_PKCS_12_PASSWD = "DIGIDOC_PKCS12_PASSWD";
@@ -994,12 +994,12 @@ public class ConfigurationTest {
     assertEquals("TEST_DIGIDOC_FACTORY_IMPL", getJDigiDocConfValue(configuration, "DIGIDOC_FACTORY_IMPL"));
     assertEquals("TEST_CANONICALIZATION_FACTORY_IMPL", getJDigiDocConfValue(configuration, "CANONICALIZATION_FACTORY_IMPL"));
     assertEquals("false", getJDigiDocConfValue(configuration, "DATAFILE_HASHCODE_MODE"));
-    assertEquals("TEST_DIGIDOC_PKCS12_CONTAINER", configuration.configuration.get("OCSPAccessCertificateFile"));
-    assertEquals("TEST_DIGIDOC_PKCS12_PASSWD", configuration.configuration.get("OCSPAccessCertificatePassword"));
-    assertEquals("TEST_OCSP_SOURCE", configuration.configuration.get("ocspSource"));
-    assertEquals("TEST_TSP_SOURCE", configuration.configuration.get("tspSource"));
-    assertEquals("TEST_VALIDATION_POLICY", configuration.configuration.get("validationPolicy"));
-    assertEquals("TEST_TSL_LOCATION", configuration.configuration.get("tslLocation"));
+    assertEquals("TEST_DIGIDOC_PKCS12_CONTAINER", configuration.configuration.get(ConfigurationParameter.OcspAccessCertificateFile));
+    assertEquals("TEST_DIGIDOC_PKCS12_PASSWD", configuration.configuration.get(ConfigurationParameter.OcspAccessCertificatePassword));
+    assertEquals("TEST_OCSP_SOURCE", configuration.configuration.get(ConfigurationParameter.OcspSource));
+    assertEquals("TEST_TSP_SOURCE", configuration.configuration.get(ConfigurationParameter.TspSource));
+    assertEquals("TEST_VALIDATION_POLICY", configuration.configuration.get(ConfigurationParameter.ValidationPolicy));
+    assertEquals("TEST_TSL_LOCATION", configuration.configuration.get(ConfigurationParameter.TslLocation));
 
     configuration.setTslLocation("Set TSL location");
     configuration.setTspSource("Set TSP source");
@@ -1011,7 +1011,7 @@ public class ConfigurationTest {
     assertEquals("Set TSL location", configuration.getTslLocation());
     assertEquals("Set TSP source", configuration.getTspSource());
     assertEquals("Set OCSP access certificate file name", configuration.getOCSPAccessCertificateFileName());
-    assertEquals("Set password", configuration.configuration.get("OCSPAccessCertificatePassword"));
+    assertEquals("Set password", configuration.configuration.get(ConfigurationParameter.OcspAccessCertificatePassword));
     assertEquals("Set OCSP source", configuration.getOcspSource());
     assertEquals("Set validation policy", configuration.getValidationPolicy());
 

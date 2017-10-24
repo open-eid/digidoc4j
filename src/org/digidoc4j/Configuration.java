@@ -189,7 +189,7 @@ public class Configuration implements Serializable {
   private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<>();
   private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
   private TslManager tslManager;
-  Map<String, String> configuration = new HashMap<>();
+  ConfigurationRegistry configuration = new ConfigurationRegistry();
 
   private String httpProxyHost = "";
   private Integer httpProxyPort;
@@ -231,31 +231,31 @@ public class Configuration implements Serializable {
     logger.debug("");
     tslManager = new TslManager(this);
 
-    configuration.put("connectionTimeout", String.valueOf(ONE_SECOND));
-    configuration.put("socketTimeout", String.valueOf(ONE_SECOND));
-    configuration.put("tslKeyStorePassword", "digidoc4j-password");
-    configuration.put("revocationAndTimestampDeltaInMinutes", String.valueOf(ONE_DAY_IN_MINUTES));
-    configuration.put("tslCacheExpirationTime", String.valueOf(ONE_DAY_IN_MILLISECONDS));
-    configuration.put("allowedTimestampAndOCSPResponseDeltaInMinutes", String.valueOf(FIFTEEN_MINUTES));
-    configuration.put("signatureProfile", DEFAULT_SIGNATURE_PROFILE);
-    configuration.put("signatureDigestAlgoritm", DEFAULT_SIGNATURE_DIGEST_ALGORITHM);
+    configuration.put(ConfigurationParameter.ConnectionTimeoutInMillis, String.valueOf(ONE_SECOND));
+    configuration.put(ConfigurationParameter.SocketTimeoutInMillis, String.valueOf(ONE_SECOND));
+    configuration.put(ConfigurationParameter.TslKeyStorePassword, "digidoc4j-password");
+    configuration.put(ConfigurationParameter.RevocationAndTimestampDeltaInMinutes, String.valueOf(ONE_DAY_IN_MINUTES));
+    configuration.put(ConfigurationParameter.TslCacheExpirationTimeInMillis, String.valueOf(ONE_DAY_IN_MILLISECONDS));
+    configuration.put(ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes, String.valueOf(FIFTEEN_MINUTES));
+    configuration.put(ConfigurationParameter.SignatureProfile, DEFAULT_SIGNATURE_PROFILE);
+    configuration.put(ConfigurationParameter.SignatureDigestAlgorithm, DEFAULT_SIGNATURE_DIGEST_ALGORITHM);
 
     if (mode == Mode.TEST) {
-      configuration.put("tspSource", "http://demo.sk.ee/tsa");
-      configuration.put("tslLocation", "https://open-eid.github.io/test-TL/tl-mp-test-EE.xml");
-      configuration.put("tslKeyStoreLocation", "keystore/test-keystore.jks");
-      configuration.put("validationPolicy", "conf/test_constraint.xml");
-      configuration.put("ocspSource", TEST_OCSP_URL);
-      configuration.put(SIGN_OCSP_REQUESTS, "false");
+      configuration.put(ConfigurationParameter.TspSource, "http://demo.sk.ee/tsa");
+      configuration.put(ConfigurationParameter.TslLocation, "https://open-eid.github.io/test-TL/tl-mp-test-EE.xml");
+      configuration.put(ConfigurationParameter.TslKeyStoreLocation, "keystore/test-keystore.jks");
+      configuration.put(ConfigurationParameter.ValidationPolicy, "conf/test_constraint.xml");
+      configuration.put(ConfigurationParameter.OcspSource, TEST_OCSP_URL);
+      configuration.put(ConfigurationParameter.SignOcspRequests, "false");
       jDigiDocConfiguration.put(SIGN_OCSP_REQUESTS, "false");
     } else {
-      configuration.put("tspSource", "http://tsa.sk.ee");
-      configuration.put("tslLocation",
+      configuration.put(ConfigurationParameter.TspSource, "http://tsa.sk.ee");
+      configuration.put(ConfigurationParameter.TslLocation,
           "https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml");
-      configuration.put("tslKeyStoreLocation", DEFAULT_TSL_KEYSTORE_LOCATION);
-      configuration.put("validationPolicy", "conf/constraint.xml");
-      configuration.put("ocspSource", PROD_OCSP_URL);
-      configuration.put(SIGN_OCSP_REQUESTS, "false");
+      configuration.put(ConfigurationParameter.TslKeyStoreLocation, DEFAULT_TSL_KEYSTORE_LOCATION);
+      configuration.put(ConfigurationParameter.ValidationPolicy, "conf/constraint.xml");
+      configuration.put(ConfigurationParameter.OcspSource, PROD_OCSP_URL);
+      configuration.put(ConfigurationParameter.SignOcspRequests, "false");
       jDigiDocConfiguration.put(SIGN_OCSP_REQUESTS, "false");
       trustedTerritories = DEFAULT_TRUESTED_TERRITORIES;
     }
@@ -283,7 +283,7 @@ public class Configuration implements Serializable {
    */
   public String getOCSPAccessCertificateFileName() {
     logger.debug("Loading OCSPAccessCertificateFile");
-    String ocspAccessCertificateFile = getConfigurationParameter("OCSPAccessCertificateFile");
+    String ocspAccessCertificateFile = getConfigurationParameter(ConfigurationParameter.OcspAccessCertificateFile);
     logger.debug("OCSPAccessCertificateFile " + ocspAccessCertificateFile + " loaded");
     return ocspAccessCertificateFile == null ? "" : ocspAccessCertificateFile;
   }
@@ -296,7 +296,7 @@ public class Configuration implements Serializable {
   public char[] getOCSPAccessCertificatePassword() {
     logger.debug("Loading OCSPAccessCertificatePassword");
     char[] result = {};
-    String password = getConfigurationParameter("OCSPAccessCertificatePassword");
+    String password = getConfigurationParameter(ConfigurationParameter.OcspAccessCertificatePassword);
     if (isNotEmpty(password)) {
       result = password.toCharArray();
     }
@@ -311,7 +311,7 @@ public class Configuration implements Serializable {
    */
   public String getOCSPAccessCertificatePasswordAsString() {
     logger.debug("Loading OCSPAccessCertificatePassword");
-    return getConfigurationParameter("OCSPAccessCertificatePassword");
+    return getConfigurationParameter(ConfigurationParameter.OcspAccessCertificatePassword);
   }
 
   /**
@@ -321,7 +321,7 @@ public class Configuration implements Serializable {
    */
   public void setOCSPAccessCertificateFileName(String fileName) {
     logger.debug("Setting OCSPAccessCertificateFileName: " + fileName);
-    setConfigurationParameter("OCSPAccessCertificateFile", fileName);
+    setConfigurationParameter(ConfigurationParameter.OcspAccessCertificateFile, fileName);
     jDigiDocConfiguration.put(OCSP_PKCS_12_CONTAINER, fileName);
     logger.debug("OCSPAccessCertificateFile is set");
   }
@@ -334,7 +334,7 @@ public class Configuration implements Serializable {
   public void setOCSPAccessCertificatePassword(char[] password) {
     logger.debug("Setting OCSPAccessCertificatePassword: ");
     String value = String.valueOf(password);
-    setConfigurationParameter("OCSPAccessCertificatePassword", value);
+    setConfigurationParameter(ConfigurationParameter.OcspAccessCertificatePassword, value);
     jDigiDocConfiguration.put(OCSP_PKCS_12_PASSWD, value);
     logger.debug("OCSPAccessCertificatePassword is set");
   }
@@ -347,7 +347,7 @@ public class Configuration implements Serializable {
   public void setSignOCSPRequests(boolean shouldSignOcspRequests) {
     logger.debug("Should sign OCSP requests: " + shouldSignOcspRequests);
     String valueToSet = String.valueOf(shouldSignOcspRequests);
-    setConfigurationParameter(SIGN_OCSP_REQUESTS, valueToSet);
+    setConfigurationParameter(ConfigurationParameter.SignOcspRequests, valueToSet);
     jDigiDocConfiguration.put(SIGN_OCSP_REQUESTS, valueToSet);
   }
 
@@ -545,24 +545,24 @@ public class Configuration implements Serializable {
     setJDigiDocConfigurationValue("DIGIDOC_FACTORY_IMPL", DEFAULT_FACTORY_IMPLEMENTATION);
     setJDigiDocConfigurationValue("DIGIDOC_DF_CACHE_DIR", null);
 
-    setConfigurationValue("TSL_LOCATION", "tslLocation");
-    setConfigurationValue("TSP_SOURCE", "tspSource");
-    setConfigurationValue("VALIDATION_POLICY", "validationPolicy");
-    setConfigurationValue("OCSP_SOURCE", "ocspSource");
-    setConfigurationValue(OCSP_PKCS_12_CONTAINER, "OCSPAccessCertificateFile");
-    setConfigurationValue(OCSP_PKCS_12_PASSWD, "OCSPAccessCertificatePassword");
-    setConfigurationValue("CONNECTION_TIMEOUT", "connectionTimeout");
-    setConfigurationValue("SOCKET_TIMEOUT", "socketTimeout");
-    setConfigurationValue(SIGN_OCSP_REQUESTS, SIGN_OCSP_REQUESTS);
-    setConfigurationValue("TSL_KEYSTORE_LOCATION", "tslKeyStoreLocation");
-    setConfigurationValue("TSL_KEYSTORE_PASSWORD", "tslKeyStorePassword");
-    setConfigurationValue("TSL_CACHE_EXPIRATION_TIME", "tslCacheExpirationTime");
+    setConfigurationValue("TSL_LOCATION", ConfigurationParameter.TslLocation);
+    setConfigurationValue("TSP_SOURCE", ConfigurationParameter.TspSource);
+    setConfigurationValue("VALIDATION_POLICY", ConfigurationParameter.ValidationPolicy);
+    setConfigurationValue("OCSP_SOURCE", ConfigurationParameter.OcspSource);
+    setConfigurationValue(OCSP_PKCS_12_CONTAINER, ConfigurationParameter.OcspAccessCertificateFile);
+    setConfigurationValue(OCSP_PKCS_12_PASSWD, ConfigurationParameter.OcspAccessCertificatePassword);
+    setConfigurationValue("CONNECTION_TIMEOUT", ConfigurationParameter.ConnectionTimeoutInMillis);
+    setConfigurationValue("SOCKET_TIMEOUT", ConfigurationParameter.SocketTimeoutInMillis);
+    setConfigurationValue(SIGN_OCSP_REQUESTS, ConfigurationParameter.SignOcspRequests);
+    setConfigurationValue("TSL_KEYSTORE_LOCATION", ConfigurationParameter.TslKeyStoreLocation);
+    setConfigurationValue("TSL_KEYSTORE_PASSWORD", ConfigurationParameter.TslKeyStorePassword);
+    setConfigurationValue("TSL_CACHE_EXPIRATION_TIME", ConfigurationParameter.TslCacheExpirationTimeInMillis);
     setConfigurationValue("REVOCATION_AND_TIMESTAMP_DELTA_IN_MINUTES",
-        "revocationAndTimestampDeltaInMinutes");
+        ConfigurationParameter.RevocationAndTimestampDeltaInMinutes);
     setConfigurationValue("ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES",
-        "allowedTimestampAndOCSPResponseDeltaInMinutes");
-    setConfigurationValue("SIGNATURE_PROFILE", "signatureProfile");
-    setConfigurationValue("SIGNATURE_DIGEST_ALGORITHM", "signatureDigestAlgoritm");
+        ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes);
+    setConfigurationValue("SIGNATURE_PROFILE", ConfigurationParameter.SignatureProfile);
+    setConfigurationValue("SIGNATURE_DIGEST_ALGORITHM", ConfigurationParameter.SignatureDigestAlgorithm);
 
     setJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS, Boolean.toString(hasToBeOCSPRequestSigned()));
     setJDigiDocConfigurationValue(OCSP_PKCS_12_CONTAINER, getOCSPAccessCertificateFileName());
@@ -626,11 +626,11 @@ public class Configuration implements Serializable {
     return Arrays.asList(value.split("\\s*,\\s*")); //Split by comma and trim whitespace
   }
 
-  private void setConfigurationValue(String fileKey, String configurationKey) {
+  private void setConfigurationValue(String fileKey, ConfigurationParameter parameter) {
     if (configurationFromFile == null) return;
     Object fileValue = configurationFromFile.get(fileKey);
     if (fileValue != null) {
-      configuration.put(configurationKey, fileValue.toString());
+      configuration.put(parameter, fileValue.toString());
     }
   }
 
@@ -698,7 +698,7 @@ public class Configuration implements Serializable {
    * @return must be OCSP request signed
    */
   public boolean hasToBeOCSPRequestSigned() {
-    String signOcspRequests = getConfigurationParameter(SIGN_OCSP_REQUESTS);
+    String signOcspRequests = getConfigurationParameter(ConfigurationParameter.SignOcspRequests);
     return StringUtils.equalsIgnoreCase("true", signOcspRequests);
   }
 
@@ -874,7 +874,7 @@ public class Configuration implements Serializable {
    * @return url
    */
   public String getTslLocation() {
-    String urlString = getConfigurationParameter("tslLocation");
+    String urlString = getConfigurationParameter(ConfigurationParameter.TslLocation);
     if (!Protocol.isFileUrl(urlString)) return urlString;
     try {
       String filePath = new URL(urlString).getPath();
@@ -934,7 +934,7 @@ public class Configuration implements Serializable {
    */
   public void setTslLocation(String tslLocation) {
     logger.debug("Set TSL location: " + tslLocation);
-    setConfigurationParameter("tslLocation", tslLocation);
+    setConfigurationParameter(ConfigurationParameter.TslLocation, tslLocation);
     tslManager.setTsl(null);
   }
 
@@ -944,7 +944,7 @@ public class Configuration implements Serializable {
    * @return TSP Source
    */
   public String getTspSource() {
-    String tspSource = getConfigurationParameter("tspSource");
+    String tspSource = getConfigurationParameter(ConfigurationParameter.TspSource);
     logger.debug("TSP Source: " + tspSource);
     return tspSource;
   }
@@ -956,7 +956,7 @@ public class Configuration implements Serializable {
    */
   public void setConnectionTimeout(int connectionTimeout) {
     logger.debug("Set connection timeout to " + connectionTimeout + " ms");
-    setConfigurationParameter("connectionTimeout", String.valueOf(connectionTimeout));
+    setConfigurationParameter(ConfigurationParameter.ConnectionTimeoutInMillis, String.valueOf(connectionTimeout));
   }
 
   /**
@@ -966,7 +966,7 @@ public class Configuration implements Serializable {
    */
   public void setSocketTimeout(int socketTimeoutMilliseconds) {
     logger.debug("Set socket timeout to " + socketTimeoutMilliseconds + " ms");
-    setConfigurationParameter("socketTimeout", String.valueOf(socketTimeoutMilliseconds));
+    setConfigurationParameter(ConfigurationParameter.SocketTimeoutInMillis, String.valueOf(socketTimeoutMilliseconds));
   }
 
   /**
@@ -975,7 +975,7 @@ public class Configuration implements Serializable {
    * @return connection timeout in milliseconds
    */
   public int getConnectionTimeout() {
-    return Integer.parseInt(getConfigurationParameter("connectionTimeout"));
+    return Integer.parseInt(getConfigurationParameter(ConfigurationParameter.ConnectionTimeoutInMillis));
   }
 
   /**
@@ -984,7 +984,7 @@ public class Configuration implements Serializable {
    * @return socket timeout in milliseconds
    */
   public int getSocketTimeout() {
-    return Integer.parseInt(getConfigurationParameter("socketTimeout"));
+    return Integer.parseInt(getConfigurationParameter(ConfigurationParameter.SocketTimeoutInMillis));
   }
 
   /**
@@ -994,7 +994,7 @@ public class Configuration implements Serializable {
    */
   public void setTspSource(String tspSource) {
     logger.debug("Set TSP source: " + tspSource);
-    setConfigurationParameter("tspSource", tspSource);
+    setConfigurationParameter(ConfigurationParameter.TspSource, tspSource);
   }
 
   /**
@@ -1003,7 +1003,7 @@ public class Configuration implements Serializable {
    * @return OCSP Source
    */
   public String getOcspSource() {
-    String ocspSource = getConfigurationParameter("ocspSource");
+    String ocspSource = getConfigurationParameter(ConfigurationParameter.OcspSource);
     logger.debug("OCSP source: " + ocspSource);
     return ocspSource;
   }
@@ -1015,7 +1015,7 @@ public class Configuration implements Serializable {
    */
   public void setTslKeyStoreLocation(String tslKeyStoreLocation) {
     logger.debug("Set tsl KeyStore Location: " + tslKeyStoreLocation);
-    setConfigurationParameter("tslKeyStoreLocation", tslKeyStoreLocation);
+    setConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation, tslKeyStoreLocation);
   }
 
   /**
@@ -1024,7 +1024,7 @@ public class Configuration implements Serializable {
    * @return KeyStore Location
    */
   public String getTslKeyStoreLocation() {
-    String keystoreLocation = getConfigurationParameter("tslKeyStoreLocation");
+    String keystoreLocation = getConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation);
     logger.debug("tsl KeyStore Location: " + keystoreLocation);
     return keystoreLocation;
   }
@@ -1036,7 +1036,7 @@ public class Configuration implements Serializable {
    */
   public void setTslKeyStorePassword(String tslKeyStorePassword) {
     logger.debug("Set tsl KeyStore Password: " + tslKeyStorePassword);
-    setConfigurationParameter("tslKeyStorePassword", tslKeyStorePassword);
+    setConfigurationParameter(ConfigurationParameter.TslKeyStorePassword, tslKeyStorePassword);
   }
 
   /**
@@ -1045,7 +1045,7 @@ public class Configuration implements Serializable {
    * @return Tsl Keystore password
    */
   public String getTslKeyStorePassword() {
-    String keystorePassword = getConfigurationParameter("tslKeyStorePassword");
+    String keystorePassword = getConfigurationParameter(ConfigurationParameter.TslKeyStorePassword);
     logger.debug("tsl KeyStore Password: " + keystorePassword);
     return keystorePassword;
   }
@@ -1059,7 +1059,7 @@ public class Configuration implements Serializable {
    */
   public void setTslCacheExpirationTime(long cacheExpirationTimeInMilliseconds) {
     logger.debug("Setting TSL cache expiration time in milliseconds: " + cacheExpirationTimeInMilliseconds);
-    setConfigurationParameter("tslCacheExpirationTime", String.valueOf(cacheExpirationTimeInMilliseconds));
+    setConfigurationParameter(ConfigurationParameter.TslCacheExpirationTimeInMillis, String.valueOf(cacheExpirationTimeInMilliseconds));
   }
 
   /**
@@ -1068,7 +1068,7 @@ public class Configuration implements Serializable {
    * @return TSL cache expiration time in milliseconds.
    */
   public long getTslCacheExpirationTime() {
-    String tslCacheExpirationTime = getConfigurationParameter("tslCacheExpirationTime");
+    String tslCacheExpirationTime = getConfigurationParameter(ConfigurationParameter.TslCacheExpirationTimeInMillis);
     logger.debug("TSL cache expiration time in milliseconds: " + tslCacheExpirationTime);
     return Long.parseLong(tslCacheExpirationTime);
   }
@@ -1080,7 +1080,7 @@ public class Configuration implements Serializable {
    */
   public Integer getAllowedTimestampAndOCSPResponseDeltaInMinutes() {
     String allowedTimestampAndOCSPResponseDeltaInMinutes =
-        getConfigurationParameter("allowedTimestampAndOCSPResponseDeltaInMinutes");
+        getConfigurationParameter(ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes);
     logger.debug("Allowed delay between timestamp and OCSP response in minutes: "
         + allowedTimestampAndOCSPResponseDeltaInMinutes);
     return Integer.parseInt(allowedTimestampAndOCSPResponseDeltaInMinutes);
@@ -1093,7 +1093,7 @@ public class Configuration implements Serializable {
    */
   public void setAllowedTimestampAndOCSPResponseDeltaInMinutes(int timeInMinutes) {
     logger.debug("Set allowed delay between timestamp and OCSP response in minutes: " + timeInMinutes);
-    setConfigurationParameter("allowedTimestampAndOCSPResponseDeltaInMinutes", String.valueOf(timeInMinutes));
+    setConfigurationParameter(ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes, String.valueOf(timeInMinutes));
   }
 
   /**
@@ -1103,7 +1103,7 @@ public class Configuration implements Serializable {
    */
   public void setOcspSource(String ocspSource) {
     logger.debug("Set OCSP source: " + ocspSource);
-    setConfigurationParameter("ocspSource", ocspSource);
+    setConfigurationParameter(ConfigurationParameter.OcspSource, ocspSource);
   }
 
   /**
@@ -1112,7 +1112,7 @@ public class Configuration implements Serializable {
    * @return Validation policy
    */
   public String getValidationPolicy() {
-    String validationPolicy = getConfigurationParameter("validationPolicy");
+    String validationPolicy = getConfigurationParameter(ConfigurationParameter.ValidationPolicy);
     logger.debug("Validation policy: " + validationPolicy);
     return validationPolicy;
   }
@@ -1124,7 +1124,7 @@ public class Configuration implements Serializable {
    */
   public void setValidationPolicy(String validationPolicy) {
     logger.debug("Set validation policy: " + validationPolicy);
-    setConfigurationParameter("validationPolicy", validationPolicy);
+    setConfigurationParameter(ConfigurationParameter.ValidationPolicy, validationPolicy);
   }
 
   /**
@@ -1133,7 +1133,7 @@ public class Configuration implements Serializable {
    * @return timestamp delta in minutes.
    */
   public int getRevocationAndTimestampDeltaInMinutes() {
-    String timeDelta = getConfigurationParameter("revocationAndTimestampDeltaInMinutes");
+    String timeDelta = getConfigurationParameter(ConfigurationParameter.RevocationAndTimestampDeltaInMinutes);
     logger.debug("Revocation and timestamp delta in minutes: " + timeDelta);
     return Integer.parseInt(timeDelta);
   }
@@ -1145,7 +1145,7 @@ public class Configuration implements Serializable {
    */
   public void setRevocationAndTimestampDeltaInMinutes(int timeInMinutes) {
     logger.debug("Set revocation and timestamp delta in minutes: " + timeInMinutes);
-    setConfigurationParameter("revocationAndTimestampDeltaInMinutes", String.valueOf(timeInMinutes));
+    setConfigurationParameter(ConfigurationParameter.RevocationAndTimestampDeltaInMinutes, String.valueOf(timeInMinutes));
   }
 
   /**
@@ -1154,7 +1154,7 @@ public class Configuration implements Serializable {
    * @return SignatureProfile.
    */
   public SignatureProfile getSignatureProfile() {
-    String signatureProfile = getConfigurationParameter("signatureProfile");
+    String signatureProfile = getConfigurationParameter(ConfigurationParameter.SignatureProfile);
     logger.debug("Signature profile: " + signatureProfile);
     return SignatureProfile.findByProfile(signatureProfile);
   }
@@ -1165,7 +1165,7 @@ public class Configuration implements Serializable {
    * @return DigestAlgorithm.
    */
   public DigestAlgorithm getSignatureDigestAlgorithm() {
-    String signatureDigestAlgorithm = getConfigurationParameter("signatureDigestAlgoritm");
+    String signatureDigestAlgorithm = getConfigurationParameter(ConfigurationParameter.SignatureDigestAlgorithm);
     logger.debug("Signature digest algorithm: " + signatureDigestAlgorithm);
     return DigestAlgorithm.findByAlgorithm(signatureDigestAlgorithm);
   }
@@ -1441,15 +1441,18 @@ public class Configuration implements Serializable {
     return trustedTerritories;
   }
 
-  private void setConfigurationParameter(String key, String value) {
-    logger.debug("Key: " + key + ", value: " + value);
-    configuration.put(key, value);
+  private void setConfigurationParameter(ConfigurationParameter parameter, String value) {
+    /*if (StringUtils.isBlank(value)) {
+      logger.info("Parameter <{}> has blank value, hence will not be registered", parameter);
+      return;
+    }*/
+    logger.debug("Setting parameter <{}> to <{}>", parameter, value);
+    this.configuration.put(parameter, value);
   }
 
-  private String getConfigurationParameter(String key) {
-    logger.debug("Key: " + key);
-    String value = configuration.get(key);
-    logger.debug("Value: " + value);
+  private String getConfigurationParameter(ConfigurationParameter parameter) {
+    String value = this.configuration.get(parameter);
+    logger.debug("Requesting parameter <{}>. Returned value is <{}>", parameter, value);
     return value;
   }
 
@@ -1490,6 +1493,10 @@ public class Configuration implements Serializable {
       IOUtils.closeQuietly(bos);
     }
     return copyConfiguration;
+  }
+
+  protected ConfigurationRegistry getRegistry() {
+    return this.configuration;
   }
 
   private void initOcspAccessCertPasswordForJDigidoc() {
