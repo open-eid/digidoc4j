@@ -71,6 +71,7 @@ public class StreamDocument extends CommonDocument {
       throw new DSSException(e);
     } finally {
       IOUtils.closeQuietly(out);
+      temporaryFile.deleteOnExit();
     }
   }
 
