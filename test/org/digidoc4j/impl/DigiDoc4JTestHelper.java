@@ -12,10 +12,11 @@ package org.digidoc4j.impl;
 
 import org.junit.BeforeClass;
 
-public class DigiDoc4JTestHelper {
+public class DigiDoc4JTestHelper extends ConfigurationSingeltonHolder {
 
   @BeforeClass
   public static void setConfigurationToTest() {
+    ConfigurationSingeltonHolder.reset();
     System.setProperty("digidoc4j.mode", "TEST");
   }
 
