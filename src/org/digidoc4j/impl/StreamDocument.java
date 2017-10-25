@@ -66,12 +66,12 @@ public class StreamDocument extends CommonDocument {
         out.write(bytes, 0, result);
       }
       out.flush();
+      temporaryFile.deleteOnExit();
     } catch (IOException e) {
       logger.error(e.getMessage());
       throw new DSSException(e);
     } finally {
       IOUtils.closeQuietly(out);
-      temporaryFile.deleteOnExit();
     }
   }
 

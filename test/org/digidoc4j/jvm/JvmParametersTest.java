@@ -10,7 +10,7 @@ import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
 
 import static org.junit.Assert.*;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by Andrei on 14.09.2017.
