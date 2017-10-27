@@ -70,6 +70,8 @@ public class AsicContainerCreator {
       zipOutputStream.finish();
     } catch (IOException e) {
       handleIOException("Unable to finish creating BDoc ZIP container", e);
+    }finally {
+      Helper.deleteTmpFiles();
     }
   }
 
