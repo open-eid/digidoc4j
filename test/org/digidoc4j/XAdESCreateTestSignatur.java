@@ -7,11 +7,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -28,7 +28,6 @@ import eu.europa.esig.dss.BLevelParameters;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.DigestAlgorithm;
-import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignatureLevel;
 import eu.europa.esig.dss.SignaturePackaging;
@@ -56,10 +55,19 @@ public class XAdESCreateTestSignatur {
   protected AbstractSignatureTokenConnection signatureTokenConnection = null;
   protected DSSPrivateKeyEntry keyEntry = null;
   private XadesSigningDssFacade facade;
-  static Configuration configuration = new Configuration(Configuration.Mode.TEST);
+  private Configuration configuration;
+
+  private String BDOC = "BDOC";
+  private String DATA_FILE = "testFiles/helper-files/test.txt";
+  private String BDOC_FILE = "C:/DigiDoc4j/TestData/128/twoSignatureErrorsContainer.bdoc";
+  private String TEXT_PLAIN = "text/plain";
+  private String SIGNATURE_1 = "C:/DigiDoc4j/TestData/128/signature1.xml";
+  private String SIGNATUR_2 = "C:/DigiDoc4j/TestData/128/signature2.xml";
+  private String BASELINE_LT_SIGNATURE = "C:/DigiDoc4j/TestData/128/XAdES_BASELINE_LT.xml";
 
   @Before
   public void setUp(){
+    configuration = new Configuration(Configuration.Mode.TEST);
     facade = createSigningFacade();
   }
 
@@ -88,58 +96,24 @@ public class XAdESCreateTestSignatur {
   }
 
   @Test
-  public void createBLineSignature() throws KeyStoreException, IOException {
-
-    String privateKeyPath = "C:/DigiDoc4j/TestData/private-key.p12";
-    char[] password = "test".toCharArray();
-
-    try {
-      signatureTokenConnection = new Pkcs12SignatureToken(privateKeyPath, String.valueOf(password));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    keyEntry = signatureTokenConnection.getKeys().get(0);
-    CertificateToken signingCertificate = new CertificateToken(keyEntry.getCertificate().getCertificate());
-
-    XAdESSignatureParameters parameters = new XAdESSignatureParameters();
-    parameters.setSignatureLevel(SignatureLevel.XAdES_BASELINE_B);
-    parameters.setSignaturePackaging(SignaturePackaging.ENVELOPED);
-    parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
-    parameters.setSigningCertificate(signingCertificate);
-
-    CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
-    XAdESService service = new XAdESService(commonCertificateVerifier);
-
-    DSSDocument toSignDocument = new FileDocument(new File(
-        "testFiles/helper-files/test.txt"));
-
-    ToBeSigned dataToSign = service.getDataToSign(toSignDocument, parameters);
-
-    SignatureValue signatureValue = signatureTokenConnection.sign(dataToSign, DigestAlgorithm.SHA256, keyEntry);
-
-    DSSDocument signedDocument = service.signDocument(toSignDocument, parameters,
-        signatureValue);
-    OutputStream stream =  new FileOutputStream("C:/DigiDoc4j/TestData/128/XAdES_BASELINE_B.xml");
-    signedDocument.writeTo(stream);
-
-  }
-
-
-  @Test
   public void createXAdESBaseline_LTSiganture() throws KeyStoreException, FileNotFoundException {
 
     String privateKeyPath = "C:/DigiDoc4j/TestData/128/user_one.p12";
-    //String privateKeyPath = "C:/DigiDoc4j/TestData/128/ec-digiid.p12";
-   // char[] password = "test".toCharArray();
-    char[] password = "user_one".toCharArray();
-    //char[] password = "user_one".toCharArray();
-    //char[] password ="inno".toCharArray();
+    String password = "user_one";
+    String LOTL_URL = "https://open-eid.github.io/test-TL/tl-mp-test-EE.xml";
+    //https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml
+
+    // Set the Timestamp source
+    String TSP_SERVER = "http://tsa.belgium.be/connect";
+    // http://tsa.sk.ee
+    // http://demo.sk.ee/tsa
 
     try {
-      signatureTokenConnection = new Pkcs12SignatureToken(privateKeyPath, String.valueOf(password));
+      signatureTokenConnection = new Pkcs12SignatureToken(privateKeyPath, password);
     } catch (IOException e) {
       e.printStackTrace();
     }
+
     keyEntry = signatureTokenConnection.getKeys().get(0);
     CertificateToken signingCertificate = new CertificateToken(keyEntry.getCertificate().getCertificate());
 
@@ -178,8 +152,8 @@ public class XAdESCreateTestSignatur {
     CommonsDataLoader commonsHttpDataLoader = new CommonsDataLoader();
 
     KeyStoreCertificateSource keyStoreCertificateSource = new KeyStoreCertificateSource
-        (new File("C:/DigiDoc4j/TestData/128/private-key.p12"), "PKCS12",
-            "test");
+        (new File(privateKeyPath), "PKCS12",
+            password);
 
     TrustedListsCertificateSource tslCertificateSource = new
         TrustedListsCertificateSource();
@@ -188,9 +162,7 @@ public class XAdESCreateTestSignatur {
     TSLValidationJob job = new TSLValidationJob();
     job.setDataLoader(commonsHttpDataLoader);
     job.setDssKeyStore(keyStoreCertificateSource);
-//    job.setLotlUrl("https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml");
-//    job.setLotlCode("EU");
-    job.setLotlUrl("https://open-eid.github.io/test-TL/tl-mp-test-EE.xml");
+    job.setLotlUrl(LOTL_URL);
     job.setLotlCode("EU");
     job.setRepository(tslRepository);
     job.refresh();
@@ -205,24 +177,13 @@ public class XAdESCreateTestSignatur {
     onlineOCSPSource.setDataLoader(commonsHttpDataLoader);
     commonCertificateVerifier.setOcspSource(onlineOCSPSource);
 
-
-    // Create XAdES service for signature
     XAdESService service = new XAdESService(commonCertificateVerifier);
 
-    // Set the Timestamp source
-    String tspServer = "http://tsa.belgium.be/connect";
-//    String tspServer = "http://tsa.sk.ee";
-//    String tspServer = "http://demo.sk.ee/tsa";
-    OnlineTSPSource onlineTSPSource = new OnlineTSPSource(tspServer);
+    OnlineTSPSource onlineTSPSource = new OnlineTSPSource(TSP_SERVER);
 
     service.setTspSource(onlineTSPSource);
 
-  //  DSSDocument toSignDocument = new FileDocument(new File("testFiles/helper-files/test.xml"));
-
-    String path = "testFiles/helper-files/test.txt";
-    String mimeType = "text/plain";
-
-    DataFile dataFile = new DataFile(path, mimeType);
+    DataFile dataFile = new DataFile(DATA_FILE, TEXT_PLAIN);
 
     List<DataFile> dataFiles = new ArrayList<>();
     dataFiles.add(dataFile);
@@ -235,7 +196,7 @@ public class XAdESCreateTestSignatur {
 
     DSSDocument signedDocument = service.signDocument(toSignDocument, parameters, signatureValue);
 
-    OutputStream stream =  new FileOutputStream("C:/DigiDoc4j/TestData/128/XAdES_BASELINE_LT.xml");
+    OutputStream stream =  new FileOutputStream(BASELINE_LT_SIGNATURE);
     try {
       signedDocument.writeTo(stream);
     } catch (IOException e) {
@@ -244,36 +205,32 @@ public class XAdESCreateTestSignatur {
   }
 
   @Test
-  public void openSignature1() throws IOException {
+  public void openXAdESBaseline_LTSiganture() throws IOException {
     Container container = ContainerBuilder.
         aContainer(BDOC_CONTAINER_TYPE).
-        withDataFile("testFiles/helper-files/test.txt", "text/plain").
+        withDataFile(DATA_FILE, TEXT_PLAIN).
         withConfiguration(configuration).
         build();
 
-    byte[] signatureBytes = FileUtils.readFileToByteArray(new File("C:/DigiDoc4j/TestData/128/XAdES_BASELINE_LT.xml"));
+    byte[] signatureBytes = FileUtils.readFileToByteArray(new File(BASELINE_LT_SIGNATURE));
 
     Signature signature = SignatureBuilder.
         aSignature(container).
         openAdESSignature(signatureBytes);
     container.addSignature(signature);
 
-    SignatureValidationResult result = signature.validateSignature();
-    System.out.println("Aa: "+result.getErrors());
-
     ValidationResult validationResult = container.validate();
-    System.out.println("Aa: "+validationResult.getReport());
-
+    System.out.println(validationResult.getReport());
   }
 
   @Test
-  public void createXML() throws FileNotFoundException {
+  public void createSignature1XML() throws FileNotFoundException {
 
     org.digidoc4j.DigestAlgorithm digestAlgorithm = org.digidoc4j.DigestAlgorithm.SHA512;
 
     facade.setSignatureDigestAlgorithm(digestAlgorithm);
 
-    String signaturePolicyId = "http://www.example.com/policy.txt";
+    String signaturePolicyId = "http://www.example.com/policy1.txt";
     DigestAlgorithm signaturePolicyHashAlgo = DigestAlgorithm.SHA256;
     String signaturePolicyDescription = "Policy text to digest";
     byte[] signaturePolicyDescriptionBytes = signaturePolicyDescription.getBytes();
@@ -288,7 +245,7 @@ public class XAdESCreateTestSignatur {
     facade.setSignaturePolicy(policy);
 
     List<DataFile> dataFilesToSign = new ArrayList<>();
-    dataFilesToSign.add(new DataFile("testFiles/helper-files/test.txt", "plain/text"));
+    dataFilesToSign.add(new DataFile(DATA_FILE, TEXT_PLAIN));
 
     X509Certificate signingCert = TestSigningHelper.getSigningCert();
     facade.setSigningCertificate(signingCert);
@@ -299,7 +256,7 @@ public class XAdESCreateTestSignatur {
 
     DSSDocument signedDocument = facade.signDocument(signatureValue, dataFilesToSign);
 
-    OutputStream stream =  new FileOutputStream("C:/DigiDoc4j/TestData/128/myTestFile.xml");
+    OutputStream stream =  new FileOutputStream(SIGNATURE_1);
 
     try {
       signedDocument.writeTo(stream);
@@ -309,25 +266,89 @@ public class XAdESCreateTestSignatur {
   }
 
   @Test
-  public void openSignature() throws IOException {
+  public void createSignature2XML() throws FileNotFoundException {
+
+    org.digidoc4j.DigestAlgorithm digestAlgorithm = org.digidoc4j.DigestAlgorithm.SHA512;
+
+    facade.setSignatureDigestAlgorithm(digestAlgorithm);
+
+    String signaturePolicyId = "http://www.example.com/policy2.txt";
+    DigestAlgorithm signaturePolicyHashAlgo = DigestAlgorithm.SHA256;
+    String signaturePolicyDescription = "Policy text to digest";
+    byte[] signaturePolicyDescriptionBytes = signaturePolicyDescription.getBytes();
+    byte[] digestedBytes = DSSUtils.digest(signaturePolicyHashAlgo,
+        signaturePolicyDescriptionBytes);
+
+    Policy policy = new Policy();
+    policy.setId(signaturePolicyId);
+    policy.setDigestAlgorithm(signaturePolicyHashAlgo);
+    policy.setDigestValue(digestedBytes);
+
+    facade.setSignaturePolicy(policy);
+
+    List<DataFile> dataFilesToSign = new ArrayList<>();
+    dataFilesToSign.add(new DataFile(DATA_FILE, TEXT_PLAIN));
+
+    X509Certificate signingCert = TestSigningHelper.getSigningCert();
+    facade.setSigningCertificate(signingCert);
+
+    byte[] dataToSign = facade.getDataToSign(dataFilesToSign);
+    byte[] digestToSign = DSSUtils.digest(digestAlgorithm.getDssDigestAlgorithm(), dataToSign);
+    byte[] signatureValue = TestSigningHelper.sign(digestToSign, digestAlgorithm);
+
+    DSSDocument signedDocument = facade.signDocument(signatureValue, dataFilesToSign);
+
+    OutputStream stream =  new FileOutputStream(SIGNATUR_2);
+
+    try {
+      signedDocument.writeTo(stream);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  public void createTwoSignaturesContainer() throws IOException {
     Container container = ContainerBuilder.
         aContainer(BDOC_CONTAINER_TYPE).
-        withDataFile("testFiles/helper-files/test.txt", "text/plain").
+        withDataFile(DATA_FILE, TEXT_PLAIN).
         withConfiguration(configuration).
         build();
 
-    byte[] signatureBytes = FileUtils.readFileToByteArray(new File("C:/DigiDoc4j/TestData/128/myTestFile.xml"));
+    byte[] signatureBytes1 = FileUtils.readFileToByteArray(new File(SIGNATURE_1));
 
-    Signature signature = SignatureBuilder.
+    Signature signature1 = SignatureBuilder.
         aSignature(container).
-        openAdESSignature(signatureBytes);
-    container.addSignature(signature);
+        openAdESSignature(signatureBytes1);
+    container.addSignature(signature1);
 
-    SignatureValidationResult result = signature.validateSignature();
-    System.out.println("Aa: "+result.getErrors());
+
+    byte[] signatureBytes2 = FileUtils.readFileToByteArray(new File(SIGNATUR_2));
+
+    Signature signature2 = SignatureBuilder.
+        aSignature(container).
+        openAdESSignature(signatureBytes2);
+    container.addSignature(signature2);
+    container.saveAsFile(BDOC_FILE);
 
     ValidationResult validationResult = container.validate();
-    System.out.println("Aa: "+validationResult.getReport());
+    System.out.println(validationResult.getReport());
 
   }
+
+  @Test
+  public void openTwoSignaturesContainer_isNotValid() throws Exception {
+
+    InputStream stream = FileUtils.openInputStream(new File(BDOC_FILE));
+    Container loadContainer = ContainerBuilder.
+        aContainer(BDOC).
+        fromStream(stream).
+        withConfiguration(configuration).
+        build();
+
+    ValidationResult streamValidate = loadContainer.validate();
+    System.out.println(streamValidate.getReport());
+    System.out.println(streamValidate.getErrors());
+  }
+
 }
