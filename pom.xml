@@ -6,7 +6,7 @@
   <groupId>org.digidoc4j</groupId>
   <artifactId>digidoc4j</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.7.RC.2</version>
+  <version>1.0.7.RC.3</version>
   <name>DigiDoc4j</name>
   <description>DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers of signed documents</description>
   <url>https://github.com/open-eid/digidoc4j</url>
@@ -98,7 +98,7 @@
     <bouncycastle.version>1.54</bouncycastle.version>
     <junit.version>4.11</junit.version>
     <dss.groupId>org.digidoc4j.dss</dss.groupId>
-    <dss.version>5.0.d4j.3</dss.version>
+    <dss.version>5.0.d4j.4</dss.version>
     <dss.util.build>${project.basedir}/build/</dss.util.build>
     <dss.util.lib>${project.basedir}/utility-package-lib</dss.util.lib>
     <dss.zip.lib>${project.basedir}/zip-package-lib</dss.zip.lib>

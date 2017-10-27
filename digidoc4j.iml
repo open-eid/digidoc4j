@@ -5,12 +5,15 @@
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/conf" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/keystore" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/testFiles" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
+      <excludeFolder url="file://$MODULE_DIR$/utility-package-lib" />
+      <excludeFolder url="file://$MODULE_DIR$/zip-package-lib" />
     </content>
     <orderEntry type="jdk" jdkName="1.7" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -57,28 +60,28 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.skyscreamer:jsonassert:1.5.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.json:json:20160810" level="project" />
     <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-common-validation-jaxb:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-detailed-report-jaxb:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-diagnostic-jaxb:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-document:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-model:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-policy-jaxb:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-reports:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-service:5.0.d4j.3" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-common-validation-jaxb:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-detailed-report-jaxb:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-diagnostic-jaxb:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-document:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-model:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-policy-jaxb:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-reports:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-service:5.0.d4j.4" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:jcl-over-slf4j:1.7.22" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-simple-report-jaxb:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-spi:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-token:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-tsl-jaxb:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-tsl-validation:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-xades:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-cades:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:validation-policy:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-common:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-cades:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-xades:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils-apache-commons:5.0.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils-google-guava:5.0.d4j.3" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-simple-report-jaxb:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-spi:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-token:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-tsl-jaxb:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-tsl-validation:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-xades:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-cades:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:validation-policy:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-common:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-cades:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-xades:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils-apache-commons:5.0.d4j.4" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils-google-guava:5.0.d4j.4" level="project" />
   </component>
 </module>
