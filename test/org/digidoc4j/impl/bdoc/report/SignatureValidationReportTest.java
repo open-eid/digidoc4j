@@ -20,7 +20,9 @@ import java.util.Date;
 import org.junit.Test;
 
 import eu.europa.esig.dss.jaxb.simplereport.XmlSignature;
+import eu.europa.esig.dss.jaxb.simplereport.XmlSignatureLevel;
 import eu.europa.esig.dss.jaxb.simplereport.XmlSignatureScope;
+import eu.europa.esig.dss.validation.SignatureQualification;
 import eu.europa.esig.dss.validation.policy.rules.Indication;
 import eu.europa.esig.dss.validation.policy.rules.SubIndication;
 
@@ -33,7 +35,11 @@ public class SignatureValidationReportTest {
     signature.setSigningTime(today);
     signature.setSignedBy("SignedBy");
     signature.setIndication(Indication.TOTAL_PASSED);
-    signature.setSignatureLevel("Signature level");
+    // TODO: check and test XmlSignatureLevel usage
+    XmlSignatureLevel sigLevel = new XmlSignatureLevel();
+    sigLevel.setValue(SignatureQualification.QES);
+    sigLevel.setDescription(SignatureQualification.QES.getLabel());
+    signature.setSignatureLevel(sigLevel);
     signature.setSubIndication(SubIndication.NO_POE);
     signature.getErrors().addAll(asList("Error1", "Error2"));
     signature.getWarnings().addAll(asList("Warning1", "Warning2"));
@@ -49,7 +55,8 @@ public class SignatureValidationReportTest {
     assertEquals(today, report.getSigningTime());
     assertEquals("SignedBy", report.getSignedBy());
     assertEquals(Indication.TOTAL_PASSED, report.getIndication());
-    assertEquals("Signature level", report.getSignatureLevel());
+    assertEquals("QES", report.getSignatureLevel().getValue().name());
+    assertEquals("QES?", report.getSignatureLevel().getValue().getReadable());
     assertEquals(SubIndication.NO_POE, report.getSubIndication());
     assertThat(report.getErrors(), containsInAnyOrder("Error1", "Error2"));
     assertThat(report.getWarnings(), containsInAnyOrder("Warning1", "Warning2"));

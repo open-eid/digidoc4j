@@ -11,7 +11,7 @@
 package org.digidoc4j;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
@@ -27,8 +27,8 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import eu.europa.esig.dss.client.http.Protocol;
 
@@ -44,7 +44,8 @@ import eu.europa.esig.dss.client.http.Protocol;
  * configuration. Default is {@link Configuration.Mode#PROD}.
  * <p/>
  * <p>
- * It is a good idea to use only a single configuration object for all the containers so the operation times would be faster.
+ * It is a good idea to use only a single configuration object for all the containers so the operation times would be
+ * faster.
  * </p>
  * It is also possible to set the mode using the System property. Setting the property "digidoc4j.mode" to "TEST" forces
  * the default mode to {@link Configuration.Mode#TEST} mode
@@ -120,11 +121,14 @@ import eu.europa.esig.dss.client.http.Protocol;
  * <li>TSL_KEYSTORE_LOCATION: keystore location for tsl signing certificates</li>
  * <li>TSL_KEYSTORE_PASSWORD: keystore password for the keystore in TSL_KEYSTORE_LOCATION</li>
  * <li>TSL_CACHE_EXPIRATION_TIME: TSL cache expiration time in milliseconds</li>
- * <li>TRUSTED_TERRITORIES: list of countries and territories to trust and load TSL certificates (for example, EE, LV, FR)</li>
+ * <li>TRUSTED_TERRITORIES: list of countries and territories to trust and load TSL certificates
+ * (for example, EE, LV, FR)</li>
  * <li>HTTP_PROXY_HOST: network proxy host name</li>
  * <li>HTTP_PROXY_PORT: network proxy port</li>
  * <li>HTTP_PROXY_USER: network proxy user (for basic auth proxy)</li>
  * <li>HTTP_PROXY_PASSWORD: network proxy password (for basic auth proxy)</li>
+ * <li>HTTPS_PROXY_HOST: https network proxy host name</li>
+ * <li>HTTPS_PROXY_PORT: https network proxy port</li>
  * <li>SSL_KEYSTORE_PATH: SSL KeyStore path</li>
  * <li>SSL_KEYSTORE_TYPE: SSL KeyStore type (default is "jks")</li>
  * <li>SSL_KEYSTORE_PASSWORD: SSL KeyStore password (default is an empty string)</li>
@@ -154,7 +158,12 @@ public class Configuration implements Serializable {
   public static final String DEFAULT_USE_LOCAL_TSL = "true";
   public static final String DEFAULT_MAX_DATAFILE_CACHED = "-1";
   public static final String DEFAULT_TSL_KEYSTORE_LOCATION = "keystore/keystore.jks";
-  public static final List<String> DEFAULT_TRUESTED_TERRITORIES = Arrays.asList("AT", "BE", "BG", "CY", "CZ",/*"DE",*/"DK", "EE", "ES", "FI", "FR", "GR", "HU",/*"HR",*/"IE", "IS", "IT", "LT", "LU", "LV", "LI", "MT","NO","NL", "PL", "PT", "RO", "SE", "SI", "SK", "UK");
+  public static final List<String> DEFAULT_TRUESTED_TERRITORIES =
+      Arrays.asList("AT", "BE", "BG", "CY", "CZ", /*"DE",*/ "DK", "EE", "ES", "FI", "FR",
+          "GR", "HU", /*"HR",*/ "IE", "IS", "IT", "LT", "LU", "LV", "LI", "MT", "NO", "NL",
+          "PL", "PT", "RO", "SE", "SI", "SK", "UK");
+  public static final String DEFAULT_SIGNATURE_PROFILE = "LT";
+  public static final String DEFAULT_SIGNATURE_DIGEST_ALGORITHM = "SHA256";
 
   public static final long CACHE_ALL_DATA_FILES = -1;
   public static final long CACHE_NO_DATA_FILES = 0;
@@ -165,6 +174,15 @@ public class Configuration implements Serializable {
   private static final String OCSP_PKCS_12_CONTAINER = "DIGIDOC_PKCS12_CONTAINER";
   private static final String OCSP_PKCS_12_PASSWD = "DIGIDOC_PKCS12_PASSWD";
 
+  public static final String JAVAX_NET_SSL_TRUST_STORE_PASSWORD = "javax.net.ssl.trustStorePassword";
+  public static final String JAVAX_NET_SSL_TRUST_STORE = "javax.net.ssl.trustStore";
+  public static final String JAVAX_NET_SSL_KEY_STORE_PASSWORD = "javax.net.ssl.keyStorePassword";
+  public static final String JAVAX_NET_SSL_KEY_STORE = "javax.net.ssl.keyStore";
+  public static final String HTTPS_PROXY_PORT = "https.proxyPort";
+  public static final String HTTPS_PROXY_HOST = "https.proxyHost";
+  public static final String HTTP_PROXY_PORT = "http.proxyPort";
+  public static final String HTTP_PROXY_HOST = "http.proxyHost";
+
   private final Mode mode;
   private LinkedHashMap configurationFromFile;
   private String configurationInputSourceName;
@@ -174,7 +192,9 @@ public class Configuration implements Serializable {
   Map<String, String> configuration = new HashMap<>();
 
   private String httpProxyHost = "";
-  private Integer httpProxyPort = 0;
+  private Integer httpProxyPort;
+  private String httpsProxyHost = "";
+  private Integer httpsProxyPort;
   private String httpProxyUser = "";
   private String httpProxyPassword = "";
   private List<String> trustedTerritories = new ArrayList<>();
@@ -196,9 +216,10 @@ public class Configuration implements Serializable {
 
   /**
    * Getting the default Configuration object. <br/>
-   *
-   * The default configuration object is a singelton, meaning that all the containers will use the same configuration object.
-   * It is a good idea to use only a single configuration object for all the containers so the operation times would be faster.
+   * <p>
+   * The default configuration object is a singelton, meaning that all the containers will use the same configuration
+   * object. It is a good idea to use only a single configuration object for all the containers so the operation times
+   * would be faster.
    *
    * @return default configuration.
    */
@@ -216,10 +237,12 @@ public class Configuration implements Serializable {
     configuration.put("revocationAndTimestampDeltaInMinutes", String.valueOf(ONE_DAY_IN_MINUTES));
     configuration.put("tslCacheExpirationTime", String.valueOf(ONE_DAY_IN_MILLISECONDS));
     configuration.put("allowedTimestampAndOCSPResponseDeltaInMinutes", String.valueOf(FIFTEEN_MINUTES));
+    configuration.put("signatureProfile", DEFAULT_SIGNATURE_PROFILE);
+    configuration.put("signatureDigestAlgoritm", DEFAULT_SIGNATURE_DIGEST_ALGORITHM);
 
     if (mode == Mode.TEST) {
       configuration.put("tspSource", "http://demo.sk.ee/tsa");
-      configuration.put("tslLocation", "https://demo.sk.ee/TSL/tl-mp-test-EE.xml");
+      configuration.put("tslLocation", "https://open-eid.github.io/test-TL/tl-mp-test-EE.xml");
       configuration.put("tslKeyStoreLocation", "keystore/test-keystore.jks");
       configuration.put("validationPolicy", "conf/test_constraint.xml");
       configuration.put("ocspSource", TEST_OCSP_URL);
@@ -247,7 +270,8 @@ public class Configuration implements Serializable {
    * @return value indicating if requirements are met
    */
   public boolean isOCSPSigningConfigurationAvailable() {
-    boolean available = isNotEmpty(getOCSPAccessCertificateFileName()) && getOCSPAccessCertificatePassword().length != 0;
+    boolean available = isNotEmpty(getOCSPAccessCertificateFileName())
+        && getOCSPAccessCertificatePassword().length != 0;
     logger.debug("Is OCSP signing configuration available: " + available);
     return available;
   }
@@ -281,6 +305,16 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Get OSCP access certificate password As String
+   *
+   * @return password
+   */
+  public String getOCSPAccessCertificatePasswordAsString() {
+    logger.debug("Loading OCSPAccessCertificatePassword");
+    return getConfigurationParameter("OCSPAccessCertificatePassword");
+  }
+
+  /**
    * Set OCSP access certificate filename
    *
    * @param fileName filename for the OCSP access certficate
@@ -305,6 +339,11 @@ public class Configuration implements Serializable {
     logger.debug("OCSPAccessCertificatePassword is set");
   }
 
+  /**
+   * Set flag if OCSP requests should be signed
+   *
+   * @param shouldSignOcspRequests True if should sign, False otherwise
+   */
   public void setSignOCSPRequests(boolean shouldSignOcspRequests) {
     logger.debug("Should sign OCSP requests: " + shouldSignOcspRequests);
     String valueToSet = String.valueOf(shouldSignOcspRequests);
@@ -361,8 +400,15 @@ public class Configuration implements Serializable {
     return loadConfiguration(file, true);
   }
 
+  /**
+   * Add configuration settings from a file
+   *
+   * @param file File name
+   * @param isReloadFromYaml True if this is reloading call
+   * @return configuration hashtable
+   */
   public Hashtable<String, String> loadConfiguration(String file, boolean isReloadFromYaml) {
-    if(!isReloadFromYaml){
+    if (!isReloadFromYaml) {
       logger.info("Should not reload conf from yaml when open container");
       return jDigiDocConfiguration;
     }
@@ -511,32 +557,40 @@ public class Configuration implements Serializable {
     setConfigurationValue("TSL_KEYSTORE_LOCATION", "tslKeyStoreLocation");
     setConfigurationValue("TSL_KEYSTORE_PASSWORD", "tslKeyStorePassword");
     setConfigurationValue("TSL_CACHE_EXPIRATION_TIME", "tslCacheExpirationTime");
-    setConfigurationValue("REVOCATION_AND_TIMESTAMP_DELTA_IN_MINUTES", "revocationAndTimestampDeltaInMinutes");
-    setConfigurationValue("ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES", "allowedTimestampAndOCSPResponseDeltaInMinutes");
+    setConfigurationValue("REVOCATION_AND_TIMESTAMP_DELTA_IN_MINUTES",
+        "revocationAndTimestampDeltaInMinutes");
+    setConfigurationValue("ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES",
+        "allowedTimestampAndOCSPResponseDeltaInMinutes");
+    setConfigurationValue("SIGNATURE_PROFILE", "signatureProfile");
+    setConfigurationValue("SIGNATURE_DIGEST_ALGORITHM", "signatureDigestAlgoritm");
 
     setJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS, Boolean.toString(hasToBeOCSPRequestSigned()));
     setJDigiDocConfigurationValue(OCSP_PKCS_12_CONTAINER, getOCSPAccessCertificateFileName());
 
     initOcspAccessCertPasswordForJDigidoc();
 
-    httpProxyHost = getParameterFromFile("HTTP_PROXY_HOST");
-    httpProxyPort = getIntParameterFromFile("HTTP_PROXY_PORT");
+    httpProxyHost = getStringParams(HTTP_PROXY_HOST, "HTTP_PROXY_HOST");
+    httpProxyPort = getIntegerParams(HTTP_PROXY_PORT, "HTTP_PROXY_PORT");
+    httpsProxyHost = getStringParams(HTTPS_PROXY_HOST, "HTTPS_PROXY_HOST");
+    httpsProxyPort = getIntegerParams(HTTPS_PROXY_PORT, "HTTPS_PROXY_PORT");
+
     httpProxyUser = getParameterFromFile("HTTP_PROXY_USER");
     httpProxyPassword = getParameterFromFile("HTTP_PROXY_PASSWORD");
 
-    sslKeystorePath = getParameterFromFile("SSL_KEYSTORE_PATH");
     sslKeystoreType = getParameterFromFile("SSL_KEYSTORE_TYPE");
-    sslKeystorePassword = getParameterFromFile("SSL_KEYSTORE_PASSWORD");
-    sslTruststorePath = getParameterFromFile("SSL_TRUSTSTORE_PATH");
     sslTruststoreType = getParameterFromFile("SSL_TRUSTSTORE_TYPE");
-    sslTruststorePassword = getParameterFromFile("SSL_TRUSTSTORE_PASSWORD");
+
+    sslKeystorePath = getStringParams(JAVAX_NET_SSL_KEY_STORE, "SSL_KEYSTORE_PATH");
+    sslKeystorePassword = getStringParams(JAVAX_NET_SSL_KEY_STORE_PASSWORD, "SSL_KEYSTORE_PASSWORD");
+    sslTruststorePath = getStringParams(JAVAX_NET_SSL_TRUST_STORE, "SSL_TRUSTSTORE_PATH");
+    sslTruststorePassword = getStringParams(JAVAX_NET_SSL_TRUST_STORE_PASSWORD, "SSL_TRUSTSTORE_PASSWORD");
 
     updateTrustedTerritories();
   }
 
   private void updateTrustedTerritories() {
     List<String> territories = getStringListParameterFromFile("TRUSTED_TERRITORIES");
-    if(territories != null) {
+    if (territories != null) {
       trustedTerritories = territories;
     }
   }
@@ -550,15 +604,15 @@ public class Configuration implements Serializable {
       return null;
     }
     String value = fileValue.toString();
-    if(valueIsAllowed(key, value)) {
-       return value;
+    if (valueIsAllowed(key, value)) {
+      return value;
     }
     return null;
   }
 
   private Integer getIntParameterFromFile(String key) {
     String value = getParameterFromFile(key);
-    if(value == null) {
+    if (value == null) {
       return null;
     }
     return new Integer(value);
@@ -566,7 +620,7 @@ public class Configuration implements Serializable {
 
   private List<String> getStringListParameterFromFile(String key) {
     String value = getParameterFromFile(key);
-    if(value == null) {
+    if (value == null) {
       return null;
     }
     return Arrays.asList(value.split("\\s*,\\s*")); //Split by comma and trim whitespace
@@ -627,7 +681,9 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * If all the data files should be stored in memory. Default is true (data files are temporarily stored only in memory).
+   * If all the data files should be stored in memory. Default is true (data files are temporarily stored only in
+   * memory).
+   *
    * @return true if everything is stored in memory, and false if data is temporarily stored on disk.
    */
   public boolean storeDataFilesOnlyInMemory() {
@@ -855,6 +911,11 @@ public class Configuration implements Serializable {
     return tslManager.getTsl();
   }
 
+  /**
+   * Flags that TSL signature should be validated.
+   *
+   * @return True if TSL signature should be validated, False otherwise.
+   */
   public boolean shouldValidateTslSignature() {
     return mode != Mode.TEST;
   }
@@ -890,6 +951,7 @@ public class Configuration implements Serializable {
 
   /**
    * Set HTTP connection timeout
+   *
    * @param connectionTimeout connection timeout in milliseconds
    */
   public void setConnectionTimeout(int connectionTimeout) {
@@ -899,6 +961,7 @@ public class Configuration implements Serializable {
 
   /**
    * Set HTTP socket timeout
+   *
    * @param socketTimeoutMilliseconds socket timeout in milliseconds
    */
   public void setSocketTimeout(int socketTimeoutMilliseconds) {
@@ -947,6 +1010,7 @@ public class Configuration implements Serializable {
 
   /**
    * Set the KeyStore Location that holds potential TSL Signing certificates
+   *
    * @param tslKeyStoreLocation KeyStore location to use
    */
   public void setTslKeyStoreLocation(String tslKeyStoreLocation) {
@@ -956,6 +1020,7 @@ public class Configuration implements Serializable {
 
   /**
    * Get the Location to Keystore that holds potential TSL Signing certificates
+   *
    * @return KeyStore Location
    */
   public String getTslKeyStoreLocation() {
@@ -966,6 +1031,7 @@ public class Configuration implements Serializable {
 
   /**
    * Set the password for Keystore that holds potential TSL Signing certificates
+   *
    * @param tslKeyStorePassword Keystore password
    */
   public void setTslKeyStorePassword(String tslKeyStorePassword) {
@@ -975,6 +1041,7 @@ public class Configuration implements Serializable {
 
   /**
    * Get the password for Keystore that holds potential TSL Signing certificates
+   *
    * @return Tsl Keystore password
    */
   public String getTslKeyStorePassword() {
@@ -1012,8 +1079,10 @@ public class Configuration implements Serializable {
    * @return Allowed delay between timestamp and OCSP response in minutes.
    */
   public Integer getAllowedTimestampAndOCSPResponseDeltaInMinutes() {
-    String allowedTimestampAndOCSPResponseDeltaInMinutes = getConfigurationParameter("allowedTimestampAndOCSPResponseDeltaInMinutes");
-    logger.debug("Allowed delay between timestamp and OCSP response in minutes: " + allowedTimestampAndOCSPResponseDeltaInMinutes);
+    String allowedTimestampAndOCSPResponseDeltaInMinutes =
+        getConfigurationParameter("allowedTimestampAndOCSPResponseDeltaInMinutes");
+    logger.debug("Allowed delay between timestamp and OCSP response in minutes: "
+        + allowedTimestampAndOCSPResponseDeltaInMinutes);
     return Integer.parseInt(allowedTimestampAndOCSPResponseDeltaInMinutes);
   }
 
@@ -1069,10 +1138,66 @@ public class Configuration implements Serializable {
     return Integer.parseInt(timeDelta);
   }
 
+  /**
+   * Set Revocation and timestamp delta in minutes.
+   *
+   * @param timeInMinutes delta in minutes.
+   */
   public void setRevocationAndTimestampDeltaInMinutes(int timeInMinutes) {
     logger.debug("Set revocation and timestamp delta in minutes: " + timeInMinutes);
     setConfigurationParameter("revocationAndTimestampDeltaInMinutes", String.valueOf(timeInMinutes));
   }
+
+  /**
+   * Signature profile.
+   *
+   * @return SignatureProfile.
+   */
+  public SignatureProfile getSignatureProfile() {
+    String signatureProfile = getConfigurationParameter("signatureProfile");
+    logger.debug("Signature profile: " + signatureProfile);
+    return SignatureProfile.findByProfile(signatureProfile);
+  }
+
+  /**
+   * Signature digest algorithm.
+   *
+   * @return DigestAlgorithm.
+   */
+  public DigestAlgorithm getSignatureDigestAlgorithm() {
+    String signatureDigestAlgorithm = getConfigurationParameter("signatureDigestAlgoritm");
+    logger.debug("Signature digest algorithm: " + signatureDigestAlgorithm);
+    return DigestAlgorithm.findByAlgorithm(signatureDigestAlgorithm);
+  }
+
+  public String getHttpsProxyHost() {
+    return httpsProxyHost;
+  }
+
+  /**
+   * Set HTTPS network proxy host.
+   *
+   * @param httpsProxyHost
+   *          https proxy host.
+   */
+  public void setHttpsProxyHost(String httpsProxyHost) {
+    this.httpsProxyHost = httpsProxyHost;
+  }
+
+  public Integer getHttpsProxyPort() {
+    return httpsProxyPort;
+  }
+
+  /**
+   * Set HTTPS network proxy port.
+   *
+   * @param httpsProxyPort
+   *           https proxy port.
+   */
+  public void setHttpsProxyPort(int httpsProxyPort) {
+    this.httpsProxyPort = httpsProxyPort;
+  }
+
 
   /**
    * Get http proxy host.
@@ -1085,6 +1210,7 @@ public class Configuration implements Serializable {
 
   /**
    * Set HTTP network proxy host.
+   *
    * @param httpProxyHost http proxy host.
    */
   public void setHttpProxyHost(String httpProxyHost) {
@@ -1102,6 +1228,8 @@ public class Configuration implements Serializable {
 
   /**
    * Set HTTP network proxy port.
+   *
+   * @param httpProxyPort Port number.
    */
   public void setHttpProxyPort(int httpProxyPort) {
     this.httpProxyPort = httpProxyPort;
@@ -1109,6 +1237,7 @@ public class Configuration implements Serializable {
 
   /**
    * Set HTTP network proxy user name.
+   *
    * @param httpProxyUser username.
    */
   public void setHttpProxyUser(String httpProxyUser) {
@@ -1126,6 +1255,7 @@ public class Configuration implements Serializable {
 
   /**
    * Set HTTP network proxy password.
+   *
    * @param httpProxyPassword password.
    */
   public void setHttpProxyPassword(String httpProxyPassword) {
@@ -1144,16 +1274,17 @@ public class Configuration implements Serializable {
   /**
    * Is network proxy enabled?
    *
-   * @return
+   * @return True if network proxy is enabled, otherwise False.
    */
   public boolean isNetworkProxyEnabled() {
-    return httpProxyPort != null && isNotBlank(httpProxyHost);
+    return httpProxyPort != null && isNotBlank(httpProxyHost)
+        || httpsProxyPort != null && isNotBlank(httpsProxyHost);
   }
 
   /**
    * Is ssl configuration enabled?
    *
-   * @return
+   * @return True if SSL configuration is enabled, otherwise False.
    */
   public boolean isSslConfigurationEnabled() {
     return sslKeystorePath != null && isNotBlank(sslKeystorePath);
@@ -1161,6 +1292,7 @@ public class Configuration implements Serializable {
 
   /**
    * Set SSL KeyStore path.
+   *
    * @param sslKeystorePath path to a file
    */
   public void setSslKeystorePath(String sslKeystorePath) {
@@ -1169,6 +1301,7 @@ public class Configuration implements Serializable {
 
   /**
    * Get SSL KeyStore path.
+   *
    * @return path to a file
    */
   public String getSslKeystorePath() {
@@ -1177,6 +1310,7 @@ public class Configuration implements Serializable {
 
   /**
    * Set SSL KeyStore type. Default is "jks".
+   *
    * @param sslKeystoreType type.
    */
   public void setSslKeystoreType(String sslKeystoreType) {
@@ -1185,6 +1319,7 @@ public class Configuration implements Serializable {
 
   /**
    * Get SSL KeyStore type.
+   *
    * @return type.
    */
   public String getSslKeystoreType() {
@@ -1193,6 +1328,7 @@ public class Configuration implements Serializable {
 
   /**
    * Set SSL KeyStore password. Default is an empty string.
+   *
    * @param sslKeystorePassword password.
    */
   public void setSslKeystorePassword(String sslKeystorePassword) {
@@ -1210,6 +1346,7 @@ public class Configuration implements Serializable {
 
   /**
    * Set SSL TrustStore path.
+   *
    * @param sslTruststorePath path to a file.
    */
   public void setSslTruststorePath(String sslTruststorePath) {
@@ -1218,6 +1355,7 @@ public class Configuration implements Serializable {
 
   /**
    * Get SSL TrustStore path.
+   *
    * @return path to a file.
    */
   public String getSslTruststorePath() {
@@ -1226,6 +1364,7 @@ public class Configuration implements Serializable {
 
   /**
    * Set SSL TrustStore type. Default is "jks".
+   *
    * @param sslTruststoreType type.
    */
   public void setSslTruststoreType(String sslTruststoreType) {
@@ -1234,6 +1373,7 @@ public class Configuration implements Serializable {
 
   /**
    * Get SSL TrustStore type.
+   *
    * @return type.
    */
   public String getSslTruststoreType() {
@@ -1242,6 +1382,7 @@ public class Configuration implements Serializable {
 
   /**
    * Set SSL TrustStore password. Default is an empty string.
+   *
    * @param sslTruststorePassword password.
    */
   public void setSslTruststorePassword(String sslTruststorePassword) {
@@ -1257,6 +1398,11 @@ public class Configuration implements Serializable {
     return sslTruststorePassword;
   }
 
+  /**
+   * Set thread executor service.
+   *
+   * @param threadExecutor Thread executor service object.
+   */
   public void setThreadExecutor(ExecutorService threadExecutor) {
     this.threadExecutor = threadExecutor;
   }
@@ -1348,9 +1494,53 @@ public class Configuration implements Serializable {
 
   private void initOcspAccessCertPasswordForJDigidoc() {
     char[] ocspAccessCertificatePassword = getOCSPAccessCertificatePassword();
-    if(ocspAccessCertificatePassword != null && ocspAccessCertificatePassword.length > 0) {
+    if (ocspAccessCertificatePassword != null && ocspAccessCertificatePassword.length > 0) {
       setJDigiDocConfigurationValue(OCSP_PKCS_12_PASSWD, String.valueOf(ocspAccessCertificatePassword));
     }
   }
+
+  /**
+   * Get Integer value through JVM parameters or from configuration file
+   *
+   * @param sysParamKey jvm value key .
+   * @param fileKey file value key.
+   *
+   * @return Integer value from JVM parameters or from file
+   */
+  private Integer getIntegerParams(String sysParamKey, String fileKey) {
+    Integer valueFromJvm = System.getProperty(sysParamKey) != null
+        ? new Integer(System.getProperty(sysParamKey)) : null;
+    Integer valueFromFile = getIntParameterFromFile(fileKey);
+    addParamToLog(valueFromJvm, valueFromFile, sysParamKey, fileKey);
+    return valueFromJvm != null ? valueFromJvm : valueFromFile;
+  }
+
+  /**
+   * Get String value through JVM parameters or from configuration file
+   *
+   * @param sysParamKey jvm value key .
+   * @param fileKey file value key.
+   *
+   * @return String value from JVM parameters or from file
+   */
+  private String getStringParams(String sysParamKey, String fileKey) {
+    String valueFromJvm = System.getProperty(sysParamKey);
+    String valueFromFile = getParameterFromFile(fileKey);
+    addParamToLog(valueFromJvm, valueFromFile, sysParamKey, fileKey);
+    return valueFromJvm != null ? valueFromJvm : valueFromFile;
+  }
+
+  private void addParamToLog(Object jvmParam, Object fileParam,
+                             String sysParamKey, String fileKey) {
+    if (jvmParam != null) {
+      logger.debug("In use param form JVM: key = " + sysParamKey + "; value = "
+          + jvmParam);
+    }
+    if (jvmParam == null && fileParam != null) {
+      logger.debug("In use param form file: key = " + fileKey + "; value = "
+          + fileParam);
+    }
+  }
+
 }
 

@@ -11,6 +11,7 @@
 package org.digidoc4j;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
@@ -52,6 +53,7 @@ import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.tsl.Condition;
 import eu.europa.esig.dss.tsl.KeyUsageBit;
 import eu.europa.esig.dss.tsl.ServiceInfo;
+import eu.europa.esig.dss.tsl.ServiceInfoStatus;
 import eu.europa.esig.dss.x509.CertificateToken;
 
 public class ConfigurationTest {
@@ -104,9 +106,12 @@ public class ConfigurationTest {
     assertThat(certificateToken.getKeyUsageBits(), hasItem(KeyUsageBit.nonRepudiation));
     assertTrue(certificateToken.checkKeyUsage(KeyUsageBit.nonRepudiation));
     ServiceInfo serviceInfo = certificateToken.getAssociatedTSPS().iterator().next();
-    assertEquals("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", serviceInfo.getStatus().get(0).getStatus());
-    assertEquals("http://uri.etsi.org/TrstSvc/Svctype/CA/QC", serviceInfo.getType());
-    Map<String, List<Condition>> qualifiersAndConditions = serviceInfo.getQualifiersAndConditions();
+    //TODO test ServiceInfoStatus new methods
+    ServiceInfoStatus serviceInfostatus = serviceInfo.getStatus().getLatest();
+    assertEquals("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", serviceInfostatus.getStatus());
+    assertEquals("http://uri.etsi.org/TrstSvc/Svctype/CA/QC", serviceInfostatus.getType());
+    assertNotNull(serviceInfostatus.getStartDate());
+    Map<String, List<Condition>> qualifiersAndConditions = serviceInfostatus.getQualifiersAndConditions();
     assertTrue(qualifiersAndConditions.containsKey("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD"));
   }
 
@@ -238,13 +243,13 @@ public class ConfigurationTest {
   //This test works and succeeds only in RIA VPN; outside of RIA VPN it will not fail
   public void TSLIsLoadedAfterSettingNewTSLLocation() {
     Configuration configuration = new Configuration(TEST);
-    configuration.setTslLocation("https://demo.sk.ee/TSL/tl-mp-test-EE.xml");
+    configuration.setTslLocation("https://open-eid.github.io/test-TL/tl-mp-test-EE.xml");
     BDocContainer container = (BDocContainer) ContainerBuilder.
         aContainer(BDOC_CONTAINER_TYPE).
         withConfiguration(configuration).
         build();
     container.getConfiguration().getTSL();
-    assertEquals(6, container.getConfiguration().getTSL().getCertificates().size());
+    assertEquals(7, container.getConfiguration().getTSL().getCertificates().size());
     try {
       int tenSeconds = 10000;
       String tslHost = "10.0.25.57";
@@ -473,7 +478,7 @@ public class ConfigurationTest {
   public void defaultConstructorWithSetSystemProperty() throws Exception {
     System.setProperty("digidoc4j.mode", "TEST");
     Configuration configuration = new Configuration();
-    assertEquals("https://demo.sk.ee/TSL/tl-mp-test-EE.xml", configuration.getTslLocation());
+    assertEquals("https://open-eid.github.io/test-TL/tl-mp-test-EE.xml", configuration.getTslLocation());
   }
 
   @Test
@@ -1091,12 +1096,6 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void loadAllowedTimestampAndOCSPResponseDeltaFromConf() throws Exception {
-    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf_ocsp_allowed_timestamp_delay.yaml");
-    assertEquals(1, configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes().longValue());
-  }
-
-  @Test
   public void testOpenBDocWithConfFromSetter() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setOcspSource("http://demo.sk.ee/TEST");
@@ -1128,6 +1127,42 @@ public class ConfigurationTest {
         fromExistingFile("testFiles/valid-containers/test.asice").
         build();
     assertEquals("http://demo.sk.ee/TEST", configuration.getOcspSource() );
+  }
+
+  @Test
+  public void loadAllowedTimestampAndOCSPResponseDelta() throws Exception {
+    Configuration configuration = new Configuration(TEST);
+    assertEquals(15, configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes().longValue());
+  }
+
+  @Test
+  public void loadAllowedTimestampAndOCSPResponseDeltaFromConf() throws Exception {
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertEquals(1, configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes().longValue());
+  }
+
+  @Test
+  public void testLoadingSignatureProfile() throws Exception {
+    Configuration configuration = new Configuration(TEST);
+    assertEquals(SignatureProfile.LT, configuration.getSignatureProfile());
+  }
+
+  @Test
+  public void testLoadingSignatureProfileFromConf() throws Exception {
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertEquals(SignatureProfile.LT_TM, configuration.getSignatureProfile());
+  }
+
+  @Test
+  public void testLoadingSignatureDigestAlgorithm() throws Exception {
+    Configuration configuration = new Configuration(TEST);
+    assertEquals(DigestAlgorithm.SHA256, configuration.getSignatureDigestAlgorithm());
+  }
+
+  @Test
+  public void testLoadingSignatureDigestAlgorithmFromConf() throws Exception {
+    configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertEquals(DigestAlgorithm.SHA512, configuration.getSignatureDigestAlgorithm());
   }
 
   private File createConfFileWithParameter(String parameter) throws IOException {

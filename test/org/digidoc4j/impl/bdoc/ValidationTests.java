@@ -27,7 +27,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
@@ -61,6 +61,7 @@ import eu.europa.esig.dss.DSSUtils;
 public class ValidationTests extends DigiDoc4JTestHelper {
 
   public static final Configuration PROD_CONFIGURATION = new Configuration(Configuration.Mode.PROD);
+  public static final Configuration TEST_CONFIGURATION = new Configuration(Configuration.Mode.TEST);
   public static final Configuration PROD_CONFIGURATION_WITH_TEST_POLICY = new Configuration(Configuration.Mode.PROD);
   String testContainerPath;
 
@@ -290,17 +291,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
-    assertEquals("Wrong policy identifier: urn:oid:1.3.6.1.4.1.10015.1000.3.4.3", errors.get(0).toString());
-  }
-
-  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-  @Test
-  public void noNoncePolicy() {
-    Container container = ContainerOpener.open("testFiles/invalid-containers/23608_bdoc21-no-nonce-policy.bdoc", PROD_CONFIGURATION);
-    ValidationResult result = container.validate();
-    List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(1, errors.size());
-    assertEquals("The signature policy is not available!", errors.get(0).toString());
+    assertEquals("Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.4.3", errors.get(0).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -363,8 +354,8 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(3, errors.size());
-    assertEquals("Wrong policy identifier: urn:oid:1.3.6.1.4.1.10015.1000.2.10.10", errors.get(0).toString());
-    assertEquals("The reference data object(s) is not found!", errors.get(1).toString());
+    assertEquals("Wrong policy identifier: 1.3.6.1.4.1.10015.1000.2.10.10", errors.get(0).toString());
+    assertEquals("The signature policy is not available!", errors.get(1).toString());
     assertEquals("Nonce is invalid", errors.get(2).toString());
   }
 
@@ -387,16 +378,6 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     List<DigiDoc4JException> errors = result.getErrors();
     assertEquals(1, errors.size());
     assertEquals("Nonce is invalid", errors.get(0).toString());
-  }
-
-  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-  @Test
-  public void noPolicyURI() {
-    Container container = ContainerOpener.open("testFiles/invalid-containers/SP-06_bdoc21-no-uri.bdoc", PROD_CONFIGURATION);
-    ValidationResult result = container.validate();
-    List<DigiDoc4JException> errors = result.getErrors();
-    assertEquals(1, errors.size());
-    assertEquals("The signature policy is not available!", errors.get(0).toString());
   }
 
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -474,7 +455,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
 
   @Test
   public void validateContainerWithBomSymbolsInMimeType_shouldBeValid() throws Exception {
-    assertTrue(validateContainer("testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM.bdoc", PROD_CONFIGURATION).isValid());
+    assertTrue(validateContainer("testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM_PROD.bdoc", PROD_CONFIGURATION).isValid());
   }
 
   @Test
@@ -542,6 +523,31 @@ public class ValidationTests extends DigiDoc4JTestHelper {
   public void validateAsiceContainer_getNotValid() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
     assertFalse(validateContainer("testFiles/invalid-containers/TM-16_unknown.4.asice", configuration).isValid());
+  }
+
+
+  @Test
+  public void validateSpuriElement_UriIsvalid() throws Exception {
+    Container container = ContainerOpener.open("testFiles/valid-containers/valid-bdoc-tm.bdoc", TEST_CONFIGURATION);
+    ValidationResult result = container.validate();
+    assertTrue(result.isValid());
+  }
+
+  @Test
+  public void validateSpuriElement_UriIsMissing() throws Exception {
+    Container container = ContainerOpener.open("testFiles/valid-containers/23608_bdoc21-no-nonce-policy.bdoc", TEST_CONFIGURATION);
+    ValidationResult result = container.validate();
+    assertFalse(result.isValid());
+    assertTrue(containsErrorMessage(result.getErrors(), "Error: The URL in signature policy is empty or not available"));
+
+  }
+
+  @Test
+  public void validateSpuriElement_UriIsEmpty() throws Exception {
+    Container container = ContainerOpener.open("testFiles/valid-containers/SP-06_bdoc21-no-uri.bdoc", TEST_CONFIGURATION);
+    ValidationResult result = container.validate();
+    assertFalse(result.isValid());
+    assertTrue(containsErrorMessage(result.getErrors(), "Error: The URL in signature policy is empty or not available"));
   }
 
   private void testSigningWithOCSPCheck(String unknownCert) {

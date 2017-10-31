@@ -10,13 +10,22 @@
 
 package org.digidoc4j.impl.bdoc.xades;
 
-import org.apache.commons.lang.StringUtils;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.impl.bdoc.xades.validation.XadesSignatureValidator;
+import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.SignatureLevel;
+import eu.europa.esig.dss.validation.SignaturePolicyProvider;
 import eu.europa.esig.dss.x509.SignaturePolicy;
+import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class XadesSignatureParser {
@@ -61,6 +70,8 @@ public class XadesSignatureParser {
   }
 
   private boolean containsPolicyId(XAdESSignature xAdESSignature) {
+    xAdESSignature.checkSignaturePolicy(new SignaturePolicyProvider());
+
     SignaturePolicy policyId = xAdESSignature.getPolicyId();
     if (policyId == null) {
       return false;
@@ -73,7 +84,7 @@ public class XadesSignatureParser {
       return false;
     }
     SignaturePolicy policyId = xAdESSignature.getPolicyId();
-    String identifier = StringUtils.trim(policyId.getIdentifier());
+    String identifier = Helper.getIdentifier(policyId.getIdentifier());
     return StringUtils.equals(XadesSignatureValidator.TM_POLICY, identifier);
   }
 }

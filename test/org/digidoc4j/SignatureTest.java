@@ -15,6 +15,7 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
+import static org.digidoc4j.SkDataLoaderTest.configuration;
 import static org.digidoc4j.X509Cert.SubjectName.GIVENNAME;
 import static org.digidoc4j.X509Cert.SubjectName.SERIALNUMBER;
 import static org.digidoc4j.X509Cert.SubjectName.SURNAME;
@@ -22,13 +23,19 @@ import static org.digidoc4j.testutils.TestHelpers.containsErrorMessage;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,7 +48,10 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.impl.Certificates;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.impl.bdoc.SKCommonCertificateVerifier;
+import org.digidoc4j.impl.bdoc.ocsp.OcspSourceBuilder;
 import org.digidoc4j.impl.bdoc.tsl.TSLCertificateSourceImpl;
+import org.digidoc4j.impl.bdoc.tsl.TslManager;
 import org.digidoc4j.impl.ddoc.DDocFacade;
 import org.digidoc4j.impl.ddoc.DDocOpener;
 import org.digidoc4j.signers.PKCS12SignatureToken;
@@ -50,9 +60,21 @@ import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.testutils.TestHelpers;
 import org.digidoc4j.utils.Helper;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.FileDocument;
+import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
+import eu.europa.esig.dss.tsl.ServiceInfo;
+import eu.europa.esig.dss.validation.CommonCertificateVerifier;
+import eu.europa.esig.dss.validation.SignedDocumentValidator;
+import eu.europa.esig.dss.validation.reports.Reports;
+import eu.europa.esig.dss.x509.CertificateSource;
+import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 
 public class SignatureTest extends DigiDoc4JTestHelper {
 
@@ -227,8 +249,8 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     assertEquals(1, validate.getErrors().size());
 
     String report = validate.getReport();
-    assertTrue(report.contains("Id=\"S0\" SignatureFormat=\"XAdES_BASELINE_LT\""));
-    assertTrue(report.contains("Id=\"S1\" SignatureFormat=\"XAdES_BASELINE_LT\""));
+    assertTrue(report.contains("Id=\"S0\" SignatureFormat=\"XAdES-BASELINE-LT\""));
+    assertTrue(report.contains("Id=\"S1\" SignatureFormat=\"XAdES-BASELINE-LT\""));
     assertTrue(report.contains("<Indication>TOTAL_PASSED</Indication>"));
     assertTrue(report.contains("<Indication>INDETERMINATE</Indication>"));
   }
@@ -396,6 +418,35 @@ public class SignatureTest extends DigiDoc4JTestHelper {
     Signature signature = container.getSignatures().get(0);
 
     assertNotNull(signature.getOCSPCertificate());
+  }
+
+  @Test
+  public void checkCertificateSSCDSupport() {
+    // Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    // configuration.setSslTruststorePath("keystore/keystore.jks");
+    TslManager tslManager = new TslManager(configuration);
+    TSLCertificateSource certificateSource = tslManager.getTsl();
+
+    configuration.setTSL(certificateSource);
+
+    DSSDocument document = new FileDocument("testFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc");
+    SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
+
+    SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
+    OcspSourceBuilder ocspSourceBuilder = new OcspSourceBuilder();
+    OCSPSource ocspSource = ocspSourceBuilder.withConfiguration(configuration).build();
+    verifier.setOcspSource(ocspSource);
+    verifier.setTrustedCertSource(configuration.getTSL());
+    verifier.setDataLoader(new CommonsDataLoader());
+    validator.setCertificateVerifier(verifier);
+    Reports reports = validator.validateDocument();
+
+    boolean isValid = true;
+    for (String signatureId : reports.getSimpleReport().getSignatureIdList()) {
+      isValid = isValid && reports.getSimpleReport().isSignatureValid(signatureId);
+    }
+    assertTrue(isValid);
   }
 
   private Signature getSignature(Container.DocumentType documentType) {

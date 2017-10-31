@@ -24,7 +24,7 @@ import java.util.zip.ZipEntry;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
@@ -42,11 +42,11 @@ import eu.europa.esig.dss.MimeType;
 
 public abstract class AsicContainerParser {
 
+  public static final String MANIFEST = "META-INF/manifest.xml";
   private final static Logger logger = LoggerFactory.getLogger(AsicContainerParser.class);
   //Matches META-INF/*signatures*.xml where the last * is a number
   private static final String SIGNATURES_FILE_REGEX = "META-INF/(.*)signatures(.*).xml";
   private static final Pattern SIGNATURE_FILE_ENDING_PATTERN = Pattern.compile("(\\d+).xml");
-  public static final String MANIFEST = "META-INF/manifest.xml";
   private AsicParseResult parseResult = new AsicParseResult();
   private List<DSSDocument> signatures = new ArrayList<>();
   private LinkedHashMap<String, DataFile> dataFiles = new LinkedHashMap<>();
@@ -138,10 +138,13 @@ public abstract class AsicContainerParser {
     logger.debug("Zip entry size is " + entry.getSize() + " bytes");
     InputStream zipFileInputStream = getZipEntryInputStream(entry);
     String fileName = entry.getName();
-    String mimeType = getDataFileMimeType(fileName);
-    MimeType mimeTypeCode = MimeType.fromMimeTypeString(mimeType);
+    String lMimeType = getDataFileMimeType(fileName);
+    // In old BDOC-files sometime mimetype was wrong - lets do some corrections here
+    if ("txt.html".equals(lMimeType)) lMimeType = "text/html";
+    //
+    MimeType mimeTypeCode = MimeType.fromMimeTypeString(lMimeType);
     DSSDocument document;
-    if(storeDataFilesOnlyInMemory || entry.getSize() <= maxDataFileCachedInBytes) {
+    if (storeDataFilesOnlyInMemory || entry.getSize() <= maxDataFileCachedInBytes) {
       document = new InMemoryDocument(zipFileInputStream, fileName, mimeTypeCode);
     } else {
       document = new StreamDocument(zipFileInputStream, fileName, mimeTypeCode);

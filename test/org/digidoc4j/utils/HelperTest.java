@@ -19,6 +19,7 @@ import static org.digidoc4j.utils.Helper.serialize;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -26,18 +27,31 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
+import org.digidoc4j.DataFile;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.FileDocument;
+import eu.europa.esig.dss.utils.Utils;
+import eu.europa.esig.dss.validation.CommonCertificateVerifier;
+import eu.europa.esig.dss.validation.SignedDocumentValidator;
+import eu.europa.esig.dss.validation.reports.Reports;
+import eu.europa.esig.dss.validation.reports.wrapper.DiagnosticData;
 
 public class HelperTest {
   @Rule
@@ -167,7 +181,7 @@ public class HelperTest {
   @Test
   public void  createUserAgentSignatureProfileForBDOC() {
     String userAgent = Helper.createBDocUserAgent(SignatureProfile.LTA);
-    assertThat(userAgent, containsString("signatureProfile: ASiC_E_BASELINE_LTA"));
+    assertThat(userAgent, containsString("signatureProfile: XAdES_BASELINE_LTA"));
   }
 
   @Test
@@ -185,7 +199,7 @@ public class HelperTest {
   @Test
   public void createUserAgentSignatureProfileForBDocTs() throws Exception {
     String userAgent = Helper.createBDocUserAgent(SignatureProfile.LT);
-    assertThat(userAgent, containsString("signatureProfile: ASiC_E_BASELINE_LT"));
+    assertThat(userAgent, containsString("signatureProfile: XAdES_BASELINE_LT"));
   }
 
   @Test
@@ -219,4 +233,103 @@ public class HelperTest {
   }
 
 
+  @Test
+  public void testSaveFileNamesFromString(){
+      String pathToContainer = "testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc";
+
+      String tmpFolder = "testFiles/tmp";
+
+      Helper.saveAllFilesFromContainerPathToFolder(pathToContainer, tmpFolder);
+      File file1 = new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf");
+      File file2 = new File(tmpFolder + File.separator + "sample_file.pdf");
+
+      assertExistsAndDeleteFile(file1);
+      assertExistsAndDeleteFile(file2);
+  }
+
+  @Test
+  public void testSaveFileNamesFromContainer() {
+      Container container = ContainerBuilder.
+          aContainer().
+          fromExistingFile("testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").
+          build();
+
+      String tmpFolder = "testFiles/tmp";
+
+      Helper.saveAllFilesFromContainerToFolder(container, tmpFolder);
+      File file1 = new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf");
+      File file2 = new File(tmpFolder + File.separator + "sample_file.pdf");
+
+      assertExistsAndDeleteFile(file1);
+      assertExistsAndDeleteFile(file2);
+  }
+
+  @Test
+  public void testGetFilesFromString(){
+    Container container = ContainerBuilder.
+        aContainer().
+        fromExistingFile("testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").
+        build();
+    String tmpFolder = "testFiles/tmp";
+    String helperFolder = "testFiles/helper-files";
+
+    List<byte[]> files = Helper.getAllFilesFromContainerAsBytes(container);
+    Assert.assertEquals(2, files.size());
+
+    try {
+        FileUtils.writeByteArrayToFile(new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf"), files.get(0));
+        FileUtils.writeByteArrayToFile(new File(tmpFolder + File.separator + "sample_file.pdf"), files.get(1));
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+
+    File helperfile1 = new File(helperFolder + File.separator + "DigiDocService_spec_est.pdf");
+    File helperfile2 = new File(helperFolder + File.separator + "sample_file.pdf");
+
+    File testfile1 = new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf");
+    File testfile2 = new File(tmpFolder + File.separator + "sample_file.pdf");
+
+    Assert.assertEquals(FileUtils.sizeOf(helperfile1), FileUtils.sizeOf(testfile1) );
+    Assert.assertEquals(FileUtils.sizeOf(helperfile2), FileUtils.sizeOf(testfile2));
+
+    compareFileSize(tmpFolder, helperFolder);
+  }
+
+  @Test
+  public void testGetFilesFromContainer(){
+    String pathToContainer = "testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc";
+    String tmpFolder = "testFiles/tmp";
+    String helperFolder = "testFiles/helper-files";
+
+    List<byte[]> files = Helper.getAllFilesFromContainerPathAsBytes(pathToContainer);
+    Assert.assertEquals(2, files.size());
+
+    try {
+      FileUtils.writeByteArrayToFile(new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf"), files.get(0));
+      FileUtils.writeByteArrayToFile(new File(tmpFolder + File.separator + "sample_file.pdf"), files.get(1));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    compareFileSize(tmpFolder, helperFolder);
+  }
+
+  private void compareFileSize(String tmpFolder, String helperFolder) {
+    File helperfile1 = new File(helperFolder + File.separator + "DigiDocService_spec_est.pdf");
+    File helperfile2 = new File(helperFolder + File.separator + "sample_file.pdf");
+
+    File testfile1 = new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf");
+    File testfile2 = new File(tmpFolder + File.separator + "sample_file.pdf");
+
+    Assert.assertEquals(FileUtils.sizeOf(helperfile1), FileUtils.sizeOf(testfile1) );
+    Assert.assertEquals(FileUtils.sizeOf(helperfile2), FileUtils.sizeOf(testfile2));
+
+    assertExistsAndDeleteFile(testfile1);
+    assertExistsAndDeleteFile(testfile2);
+  }
+
+  private void assertExistsAndDeleteFile(File file) {
+    Assert.assertTrue(file.exists());
+    file.delete();
+  }
 }

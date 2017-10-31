@@ -10,9 +10,6 @@
 
 package org.digidoc4j.utils;
 
-import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_B;
-import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_LT;
-import static eu.europa.esig.dss.SignatureLevel.ASiC_E_BASELINE_LTA;
 import static java.nio.file.Files.deleteIfExists;
 
 import java.io.BufferedOutputStream;
@@ -27,6 +24,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -38,14 +39,22 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Container;
+import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.DataFile;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.Version;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.bdoc.xades.validation.XadesSignatureValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.MimeType;
 import eu.europa.esig.dss.SignatureLevel;
+import eu.europa.esig.dss.validation.SignaturePolicyProvider;
+import eu.europa.esig.dss.xades.DSSXMLUtils;
 
 public final class Helper {
   private static final Logger logger = LoggerFactory.getLogger(Helper.class);
@@ -256,13 +265,14 @@ public final class Helper {
     return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, signatureLevel.name());
   }
 
+  //TODO find solution
   private static SignatureLevel determineSignatureLevel(SignatureProfile signatureProfile) {
     if(signatureProfile == SignatureProfile.B_BES) {
-      return ASiC_E_BASELINE_B;
+      return SignatureLevel.XAdES_BASELINE_B;
     } else if(signatureProfile == SignatureProfile.LTA) {
-      return ASiC_E_BASELINE_LTA;
+      return SignatureLevel.XAdES_BASELINE_LTA;
     } else {
-      return ASiC_E_BASELINE_LT;
+      return SignatureLevel.XAdES_BASELINE_LT;
     }
   }
 
@@ -276,5 +286,90 @@ public final class Helper {
     Pattern special = Pattern.compile(SPECIAL_CHARACTERS);
     Matcher hasSpecial = special.matcher(fileName);
     return hasSpecial.find();
+  }
+
+  public static String getIdentifier(String identifier){
+    String id = identifier.trim();
+    if (DSSXMLUtils.isOid(id)) {
+      id = id.substring(id.lastIndexOf(':') + 1);
+    } else {
+      return id;
+    }
+    return id;
+  }
+
+  public static SignaturePolicyProvider getBdocSignaturePolicyProvider(DSSDocument signature) {
+    SignaturePolicyProvider signaturePolicyProvider  = new SignaturePolicyProvider();
+    Map<String, DSSDocument> signaturePoliciesById = new HashMap<String, DSSDocument>();
+    signaturePoliciesById.put(XadesSignatureValidator.TM_POLICY, signature);
+
+    Map<String, DSSDocument> signaturePoliciesByUrl = new HashMap<String, DSSDocument>();
+    signaturePoliciesByUrl.put("https://www.sk.ee/repository/bdoc-spec21.pdf", signature);
+
+    signaturePolicyProvider.setSignaturePoliciesById(signaturePoliciesById);
+    signaturePolicyProvider.setSignaturePoliciesByUrl(signaturePoliciesByUrl);
+    return signaturePolicyProvider;
+  }
+
+  /**
+   * gets all datafiles as List<byte[]> from Container
+   *
+   * @param container as Container object
+   */
+  public static List<byte[]> getAllFilesFromContainerAsBytes(Container container){
+    List<byte[]> files = new ArrayList<>();
+    for(DataFile dataFile: container.getDataFiles()){
+      files.add(dataFile.getBytes());
+    }
+    return files;
+  }
+
+  /**
+   * gets all datafiles as List<byte[]> from Container path
+   *
+   * @param pathFrom as String
+   */
+  public static List<byte[]> getAllFilesFromContainerPathAsBytes(String pathFrom){
+    Container container = ContainerBuilder.
+        aContainer().
+        fromExistingFile(pathFrom).
+        build();
+
+    List<byte[]> files = new ArrayList<>();
+    for(DataFile dataFile: container.getDataFiles()){
+      files.add(dataFile.getBytes());
+    }
+    return files;
+  }
+
+  /**
+   * Saves all datafiles to specified folder
+   *
+   * @param container as Container object
+   * @param path as String
+   */
+  public static void saveAllFilesFromContainerToFolder(Container container, String path){
+    for(DataFile dataFile: container.getDataFiles()){
+      File file = new File(path + File.separator + dataFile.getName());
+      DSSUtils.saveToFile(dataFile.getBytes(), file);
+    }
+  }
+
+  /**
+   * Saves all datafiles to specified folder
+   *
+   * @param pathFrom as String
+   * @param pathTo as String
+   */
+  public static void saveAllFilesFromContainerPathToFolder(String pathFrom, String pathTo){
+    Container container = ContainerBuilder.
+        aContainer().
+        fromExistingFile(pathFrom).
+        build();
+
+    for(DataFile dataFile: container.getDataFiles()){
+      File file = new File(pathTo + File.separator + dataFile.getName());
+      DSSUtils.saveToFile(dataFile.getBytes(), file);
+    }
   }
 }

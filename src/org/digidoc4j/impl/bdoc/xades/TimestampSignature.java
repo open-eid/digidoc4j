@@ -27,6 +27,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.validation.TimestampToken;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.xades.DSSXMLUtils;
@@ -90,7 +91,7 @@ public class TimestampSignature extends TimemarkSignature {
 
   private TimeStampToken findTimestampToken() {
     logger.debug("Finding timestamp token");
-    NodeList timestampNodes = DSSXMLUtils.getNodeList(signatureElement, xPathQueryHolder.XPATH_SIGNATURE_TIMESTAMP);
+    NodeList timestampNodes = DomUtils.getNodeList(signatureElement, xPathQueryHolder.XPATH_SIGNATURE_TIMESTAMP);
     if (timestampNodes.getLength() == 0) {
       logger.warn("Signature timestamp element was not found");
       return null;
@@ -99,7 +100,7 @@ public class TimestampSignature extends TimemarkSignature {
       logger.warn("Signature contains more than one timestamp: " + timestampNodes.getLength() + ". Using only the first one");
     }
     Node timestampNode = timestampNodes.item(0);
-    Element timestampTokenNode = DSSXMLUtils.getElement(timestampNode, xPathQueryHolder.XPATH__ENCAPSULATED_TIMESTAMP);
+    Element timestampTokenNode = DomUtils.getElement(timestampNode, xPathQueryHolder.XPATH__ENCAPSULATED_TIMESTAMP);
     if (timestampTokenNode == null) {
       logger.warn("The timestamp cannot be extracted from the signature");
       return null;

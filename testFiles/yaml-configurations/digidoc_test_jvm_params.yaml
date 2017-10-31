@@ -1,0 +1,9 @@
+HTTP_PROXY_HOST: http.proxyHost.yaml
+HTTP_PROXY_PORT: 1100
+HTTPS_PROXY_HOST: https.proxyHost.yaml
+HTTPS_PROXY_PORT: 110000
+
+SSL_KEYSTORE_PATH: sslKeystorePath.yaml
+SSL_KEYSTORE_PASSWORD: sslKeystorePassword.yaml
+SSL_TRUSTSTORE_PATH: sslTruststorePath.yaml
+SSL_TRUSTSTORE_PASSWORD: sslTruststorePassword.yaml

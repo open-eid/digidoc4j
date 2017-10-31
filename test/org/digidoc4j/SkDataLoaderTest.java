@@ -18,7 +18,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -108,7 +108,7 @@ public class SkDataLoaderTest {
     configuration.setHttpProxyHost("proxyHost");
     configuration.setHttpProxyPort(1345);
     SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(configuration);
-    assertProxyConfigured(dataLoader, "proxyHost", 1345);
+    assertHTTPProxyConfigured(dataLoader, "proxyHost", 1345);
     assertProxyUsernamePasswordNotSet(dataLoader);
   }
 
@@ -118,7 +118,7 @@ public class SkDataLoaderTest {
     configuration.setHttpProxyHost("proxyHost");
     configuration.setHttpProxyPort(1345);
     CommonsDataLoader dataLoader = new CachingDataLoader(configuration);
-    assertProxyConfigured(dataLoader, "proxyHost", 1345);
+    assertHTTPProxyConfigured(dataLoader, "proxyHost", 1345);
     assertProxyUsernamePasswordNotSet(dataLoader);
   }
 
@@ -130,7 +130,7 @@ public class SkDataLoaderTest {
     configuration.setHttpProxyUser("proxyUser");
     configuration.setHttpProxyPassword("proxyPassword");
     SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(configuration);
-    assertProxyConfigured(dataLoader, "proxyHost", 1345);
+    assertHTTPProxyConfigured(dataLoader, "proxyHost", 1345);
     assertProxyUsernamePassword(dataLoader, "proxyPassword", "proxyUser");
   }
 
@@ -207,15 +207,15 @@ public class SkDataLoaderTest {
     assertFalse(dataLoader.isSslTruststorePasswordSet());
   }
 
-  private void assertProxyConfigured(CommonsDataLoader dataLoader, String proxyHost, int proxyPort) {
+  private void assertHTTPProxyConfigured(CommonsDataLoader dataLoader, String proxyHost, int proxyPort) {
     ProxyPreferenceManager preferenceManager = dataLoader.getProxyPreferenceManager();
     assertNotNull(preferenceManager);
     assertEquals(proxyHost, preferenceManager.getHttpHost());
     assertEquals(proxyPort, preferenceManager.getHttpPort().longValue());
     assertTrue(preferenceManager.isHttpEnabled());
-    assertEquals(proxyHost, preferenceManager.getHttpsHost());
-    assertEquals(proxyPort, preferenceManager.getHttpsPort().longValue());
-    assertTrue(preferenceManager.isHttpsEnabled());
+    assertEquals("", preferenceManager.getHttpsHost());
+    assertEquals(null, preferenceManager.getHttpsPort());
+    assertFalse(preferenceManager.isHttpsEnabled());
   }
 
   private void assertProxyUsernamePasswordNotSet(CommonsDataLoader dataLoader) {

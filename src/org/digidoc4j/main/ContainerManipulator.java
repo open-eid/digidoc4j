@@ -10,12 +10,15 @@
 
 package org.digidoc4j.main;
 
-import static org.apache.commons.lang.StringUtils.endsWithIgnoreCase;
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.apache.commons.cli.CommandLine;
 import org.digidoc4j.Container;
@@ -27,6 +30,7 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS11SignatureToken;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.slf4j.Logger;
@@ -34,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 public class ContainerManipulator {
 
-  private final static Logger logger = LoggerFactory.getLogger(ContainerManipulator.class);
+  private static final Logger logger = LoggerFactory.getLogger(ContainerManipulator.class);
 
   private static final String EXTRACT_CMD = "extract";
   private CommandLine commandLine;
@@ -174,9 +178,16 @@ public class ContainerManipulator {
   }
 
   private void verifyContainer(Container container) {
+    Path reports = null;
+    if (commandLine.hasOption("reportDir")) {
+      reports = Paths.get(commandLine.getOptionValue("reportDir"));
+    }
     if (commandLine.hasOption("verify")) {
       ContainerVerifier verifier = new ContainerVerifier(commandLine);
-      verifier.verify(container);
+      verifier.verify(container, reports);
+    } else if (commandLine.hasOption("verify2")) {
+      ContainerVerifier verifier = new ContainerVerifier(commandLine);
+      verifier.verifyDirectDss(container, reports);
     }
   }
 }

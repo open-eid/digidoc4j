@@ -10,9 +10,9 @@
 
 package org.digidoc4j.exceptions;
 
-public class MiltipleSignedPropertiesException extends DigiDoc4JException {
+public class MultipleSignedPropertiesException extends DigiDoc4JException {
 
-  public MiltipleSignedPropertiesException(String msg) {
+  public MultipleSignedPropertiesException(String msg) {
     super(msg);
   }
 }

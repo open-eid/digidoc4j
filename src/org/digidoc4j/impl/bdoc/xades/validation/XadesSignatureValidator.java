@@ -10,43 +10,44 @@
 
 package org.digidoc4j.impl.bdoc.xades.validation;
 
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.CertificateRevokedException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidOcspNonceException;
 import org.digidoc4j.exceptions.InvalidTimestampException;
-import org.digidoc4j.exceptions.MiltipleSignedPropertiesException;
+import org.digidoc4j.exceptions.MultipleSignedPropertiesException;
 import org.digidoc4j.exceptions.SignedPropertiesMissingException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
 import org.digidoc4j.impl.bdoc.OcspNonceValidator;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;
+import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-import eu.europa.esig.dss.validation.MessageTag;
+import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.validation.policy.rules.Indication;
+import eu.europa.esig.dss.validation.process.MessageTag;
 import eu.europa.esig.dss.validation.reports.DetailedReport;
 import eu.europa.esig.dss.validation.reports.Reports;
 import eu.europa.esig.dss.validation.reports.SimpleReport;
 import eu.europa.esig.dss.validation.reports.wrapper.DiagnosticData;
 import eu.europa.esig.dss.x509.SignaturePolicy;
-import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class XadesSignatureValidator implements SignatureValidator {
 
   private final static Logger logger = LoggerFactory.getLogger(XadesSignatureValidator.class);
-  public static final String TM_POLICY = "urn:oid:1.3.6.1.4.1.10015.1000.3.2.1";
+  public static final String TM_POLICY = "1.3.6.1.4.1.10015.1000.3.2.1";
   private static final String OIDAS_URN = "OIDAsURN";
   private static final String XADES_SIGNED_PROPERTIES = "http://uri.etsi.org/01903#SignedProperties";
   private transient Reports validationReport;
@@ -74,6 +75,7 @@ public class XadesSignatureValidator implements SignatureValidator {
 
   protected void populateValidationErrors() {
     addPolicyValidationErrors();
+    addPolicyUriValidationErrors();
     addSignedPropertiesReferenceValidationErrors();
     addReportedErrors();
     addReportedWarnings();
@@ -85,7 +87,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     logger.debug("Extracting policy validation errors");
     SignaturePolicy policy = getDssSignature().getPolicyId();
     if(policy != null) {
-      String policyIdentifier = policy.getIdentifier().trim();
+      String policyIdentifier = Helper.getIdentifier(policy.getIdentifier());
       if (!StringUtils.equals(TM_POLICY, policyIdentifier)) {
         addValidationError(new WrongPolicyIdentifierException("Wrong policy identifier: " + policyIdentifier));
       } else {
@@ -94,12 +96,22 @@ public class XadesSignatureValidator implements SignatureValidator {
     }
   }
 
+  private void addPolicyUriValidationErrors() {
+    logger.debug("Extracting policy URL validation errors");
+    SignaturePolicy policy = getDssSignature().getPolicyId();
+    if (policy != null) {
+      if (StringUtils.isBlank(policy.getUrl())) {
+        addValidationError(new WrongPolicyIdentifierException("Error: The URL in signature policy is empty or not available"));
+      }
+    }
+  }
+
   private void addPolicyIdentifierQualifierValidationErrors() {
     logger.debug("Extracting policy identifier qualifier validation errors");
     XPathQueryHolder xPathQueryHolder = getDssSignature().getXPathQueryHolder();
     Element signatureElement = getDssSignature().getSignatureElement();
-    Element element = DSSXMLUtils.getElement(signatureElement, xPathQueryHolder.XPATH_SIGNATURE_POLICY_IDENTIFIER);
-    Element identifier = DSSXMLUtils.getElement(element, "./xades:SignaturePolicyId/xades:SigPolicyId/xades:Identifier");
+    Element element = DomUtils.getElement(signatureElement, xPathQueryHolder.XPATH_SIGNATURE_POLICY_IDENTIFIER);
+    Element identifier = DomUtils.getElement(element, "./xades:SignaturePolicyId/xades:SigPolicyId/xades:Identifier");
     String qualifier = identifier.getAttribute("Qualifier");
     if (!StringUtils.equals(OIDAS_URN, qualifier)) {
       addValidationError(new WrongPolicyIdentifierQualifierException("Wrong policy identifier qualifier: " + qualifier));
@@ -116,7 +128,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     }
     if (propertiesReferencesCount > 1) {
       logger.error("Multiple signed properties for signature " + signatureId);
-      DigiDoc4JException error = new MiltipleSignedPropertiesException("Multiple signed properties");
+      DigiDoc4JException error = new MultipleSignedPropertiesException("Multiple signed properties");
       addValidationError(error);
     }
   }

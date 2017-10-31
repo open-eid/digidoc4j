@@ -25,6 +25,8 @@ import org.w3c.dom.ls.LSSerializer;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -184,5 +186,15 @@ public class ValidationResultForDDoc implements ValidationResult {
   public List<DigiDoc4JException> getContainerErrors() {
     logger.debug("");
     return containerExceptions;
+  }
+
+  /**
+   * Save validation reports in given directory.
+   *
+   * @param directory Directory where to save XML files.
+   */
+  @Override
+  public void saveXmlReports(Path directory) {
+    // do nothing yet
   }
 }

@@ -10,15 +10,27 @@
 
 package org.digidoc4j.main;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.Signature;
+import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
+import org.digidoc4j.impl.bdoc.SKCommonCertificateVerifier;
+import org.digidoc4j.impl.bdoc.SkDataLoader;
+import org.digidoc4j.impl.bdoc.ocsp.OcspSourceBuilder;
+import org.digidoc4j.impl.bdoc.tsl.TslManager;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.impl.ddoc.DDocSignature;
 import org.digidoc4j.impl.ddoc.ValidationResultForDDoc;
@@ -29,30 +41,69 @@ import ee.sk.digidoc.CertValue;
 import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.SignedDoc;
 import ee.sk.digidoc.factory.DigiDocGenFactory;
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.InMemoryDocument;
+import eu.europa.esig.dss.validation.SignedDocumentValidator;
+import eu.europa.esig.dss.validation.reports.Reports;
+import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 
+/**
+ * Container verifying functionality for digidoc4j-util.
+ */
 public class ContainerVerifier {
 
-  private final static Logger logger = LoggerFactory.getLogger(ContainerVerifier.class);
+  private static final Logger logger = LoggerFactory.getLogger(ContainerVerifier.class);
   private static final String ANSI_RED = "[31m";
   private static final String ANSI_RESET = "[0m";
   private boolean verboseMode;
   private boolean showWarnings;
 
+  /**
+   * Constructor
+   * @param commandLine Given parameters
+   */
   public ContainerVerifier(CommandLine commandLine) {
     verboseMode = commandLine.hasOption("verbose");
     showWarnings = commandLine.hasOption("warnings");
   }
 
-  public void verify(Container container) {
-    ValidationResult validationResult = container.validate();
+  private static boolean isDDocTestSignature(Signature signature) {
+    CertValue certValue = ((DDocSignature) signature).getCertValueOfType(CertValue.CERTVAL_TYPE_SIGNER);
+    if (certValue != null) {
+      if (DigiDocGenFactory.isTestCard(certValue.getCert())) return true;
+    }
+    return false;
+  }
 
+  /**
+   * Method for verifying, old BDOC style.
+   * @param container Given container to verify.
+   * @param reports Directory where to save reports.
+   */
+  public void verify(Container container, Path reports) {
+    verify(container, reports, false);
+  }
+
+  /**
+   * Method for verifying, old BDOC style and returning validation result.
+   * @param container Given container to verify.
+   * @param reports Directory where to save reports.
+   * @param isReportNeeded Define if need report
+   * @return ValidationResult
+   */
+  public ValidationResult verify(Container container, Path reports, boolean isReportNeeded) {
+    ValidationResult validationResult = container.validate();
+    if (reports != null) {
+      validationResult.saveXmlReports(reports);
+    }
     List<DigiDoc4JException> exceptions = validationResult.getContainerErrors();
     boolean isDDoc = StringUtils.equalsIgnoreCase("DDOC", container.getType());
     for (DigiDoc4JException exception : exceptions) {
       if (isDDoc && isWarning(((DDocContainer) container).getFormat(), exception))
-        System.out.println("	Warning: " + exception.toString());
+        System.out.println(" Warning: " + exception.toString());
       else
-        System.out.println((isDDoc ? "	" : "	Error: ") + exception.toString());
+        System.out.println((isDDoc ? " " : " Error: ") + exception.toString());
     }
 
     if (isDDoc && (((ValidationResultForDDoc) validationResult).hasFatalErrors())) {
@@ -71,7 +122,7 @@ public class ContainerVerifier {
       } else {
         System.out.println(ANSI_RED + "Signature " + signature.getId() + " is not valid" + ANSI_RESET);
         for (DigiDoc4JException exception : signatureValidationResult) {
-          System.out.println((isDDoc ? "	" : "	Error: ")
+          System.out.println((isDDoc ? " " : " Error: ")
               + exception.toString());
         }
       }
@@ -83,7 +134,85 @@ public class ContainerVerifier {
     showWarnings(validationResult);
     verboseMessage(validationResult.getReport());
 
-    if(validationResult.isValid()) {
+    if (validationResult.isValid()) {
+      logger.info("Validation was successful. Container is valid");
+    } else {
+      logger.info("Validation finished. Container is NOT valid!");
+      if (!isReportNeeded) {
+        throw new DigiDoc4JException("Container is NOT valid");
+      }
+    }
+    return validationResult;
+  }
+
+  /**
+   * Method for validation directly with DSS classes (option -v2).
+   * The goal is to generate DSS reports.
+   *
+   * @param container Validation object.
+   * @param reportsDir Directory where to save reports.
+   */
+  public void verifyDirectDss(Container container, Path reportsDir) {
+    boolean isDDoc = StringUtils.equalsIgnoreCase("DDOC", container.getType());
+    if (isDDoc) {
+      logger.info("Validation canceled. Option -v2 is not working with DDOC container.");
+      throw new DigiDoc4JException("Option -v2 is not working with DDOC container");
+    }
+
+    Configuration configuration = Configuration.getInstance();
+    TslManager tslManager = new TslManager(configuration);
+    TSLCertificateSource certificateSource = tslManager.getTsl();
+    configuration.setTSL(certificateSource);
+
+    DSSDocument document = new InMemoryDocument(container.saveAsStream());
+    SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
+    SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
+    OcspSourceBuilder ocspSourceBuilder = new OcspSourceBuilder();
+    OCSPSource ocspSource = ocspSourceBuilder.withConfiguration(configuration).build();
+    verifier.setOcspSource(ocspSource);
+    verifier.setTrustedCertSource(configuration.getTSL());
+    verifier.setDataLoader(SkDataLoader.createOcspDataLoader(configuration));
+    validator.setCertificateVerifier(verifier);
+    Reports reports = validator.validateDocument();
+
+    if (reportsDir != null) {
+      InputStream is;
+      try {
+        is = new ByteArrayInputStream(reports.getXmlDiagnosticData().getBytes("UTF-8"));
+        DSSUtils.saveToFile(is, reportsDir + File.separator + "validationDiagnosticData.xml");
+        logger.info("Validation diagnostic data report is generated");
+      } catch (UnsupportedEncodingException e) {
+        logger.info(e.getMessage());
+      } catch (IOException e) {
+        logger.info(e.getMessage());
+      }
+
+      try {
+        is = new ByteArrayInputStream(reports.getXmlSimpleReport().getBytes("UTF-8"));
+        DSSUtils.saveToFile(is, reportsDir + File.separator + "validationSimpleReport.xml");
+        logger.info("Validation simple report is generated");
+      } catch (UnsupportedEncodingException e) {
+        logger.info(e.getMessage());
+      } catch (IOException e) {
+        logger.info(e.getMessage());
+      }
+
+      try {
+        is = new ByteArrayInputStream(reports.getXmlDetailedReport().getBytes("UTF-8"));
+        DSSUtils.saveToFile(is, reportsDir + File.separator + "validationDetailReport.xml");
+        logger.info("Validation detailed report is generated");
+      } catch (UnsupportedEncodingException e) {
+        logger.info(e.getMessage());
+      } catch (IOException e) {
+        logger.info(e.getMessage());
+      }
+    }
+
+    boolean isValid = true;
+    for (String signatureId : reports.getSimpleReport().getSignatureIdList()) {
+      isValid = isValid && reports.getSimpleReport().isSignatureValid(signatureId);
+    }
+    if (isValid) {
       logger.info("Validation was successful. Container is valid");
     } else {
       logger.info("Validation finished. Container is NOT valid!");
@@ -111,14 +240,6 @@ public class ContainerVerifier {
         || errorCode == DigiDocException.ERR_TEST_SIGNATURE
         || errorCode == DigiDocException.WARN_WEAK_DIGEST
         || (errorCode == DigiDocException.ERR_ISSUER_XMLNS && !documentFormat.equals(SignedDoc.FORMAT_SK_XML)));
-  }
-
-  private static boolean isDDocTestSignature(Signature signature) {
-    CertValue certValue = ((DDocSignature) signature).getCertValueOfType(CertValue.CERTVAL_TYPE_SIGNER);
-    if (certValue != null) {
-      if (DigiDocGenFactory.isTestCard(certValue.getCert())) return true;
-    }
-    return false;
   }
 
 }

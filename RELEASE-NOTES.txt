@@ -1,5 +1,37 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+Release 1.0.7 RC.2
+------------------
+Summary of the major changes since 1.0.7 RC.1
+----------------------------------------
+* BDocSignatureBuilder class has two new parameters - DEFAULT_SIGNATURE_PROFILE
+  and DEFAULT_SIGNATURE_DIGEST_ALGORITHM
+* Fixed problem with missing jar's in digidoc4j-*-library.zip
+
+Release 1.0.7 RC.1
+------------------
+Summary of the major changes since 1.0.7 Beta.2
+----------------------------------------
+* Fixed problem with OCSP responds where responseID is keyhash instead of name
+* Removed logback.xml from jar file, it is needed only for digidoc4j-util
+* Fixed problem in opening of DDOC files over stream parameter [#134342153]
+* Added ability to configure network proxy and SSL settings through JVM parameters [#129040397]
+
+Release 1.0.7 Beta.2
+--------------------
+Summary of the major changes since 1.0.7 Beta.1
+----------------------------------------
+* Changed TSL URL for Test mode
+* Fixed problem with URI encoding for libdigidocpp
+* Fixed problem with newline symbol in signature policy ID value
+* In order to generate DSS validation reports the option '-r <reportDir>' for digidoc4j-util is added
+
+Release 1.0.7 Beta.1
+--------------------
+Summary of the major changes since 1.0.6
+----------------------------------------
+* Started to use DSS version 5.0
+
 Release 1.0.6
 --------------------
 There are no major changes since 1.0.6 RC.1

@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import java.util.Date;
 
-import static org.apache.commons.lang.time.DateUtils.addMinutes;
+import static org.apache.commons.lang3.time.DateUtils.addMinutes;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -27,24 +27,24 @@ public class DateUtilsTest {
 
   @Test
   public void testIsAlmostNowComparedToOneSecondsBeforeNow() throws Exception {
-    Date nowMinusOneSecond = org.apache.commons.lang.time.DateUtils.addSeconds(new Date(), -1);
+    Date nowMinusOneSecond = org.apache.commons.lang3.time.DateUtils.addSeconds(new Date(), -1);
     assertTrue(DateUtils.isAlmostNow(nowMinusOneSecond));
   }
 
   @Test
   public void testIsAlmostNowComparedToOneSecondsAfterNow() throws Exception {
-    Date nowPlusOneSecond = org.apache.commons.lang.time.DateUtils.addSeconds(new Date(), 1);
+    Date nowPlusOneSecond = org.apache.commons.lang3.time.DateUtils.addSeconds(new Date(), 1);
     assertTrue(DateUtils.isAlmostNow(nowPlusOneSecond));
   }
 
   @Test
   public void testIsAlmostNowComparedToOneMInuteBeforeNow() throws Exception {
-    assertFalse(DateUtils.isAlmostNow(org.apache.commons.lang.time.DateUtils.addSeconds(new Date(), -61)));
+    assertFalse(DateUtils.isAlmostNow(org.apache.commons.lang3.time.DateUtils.addSeconds(new Date(), -61)));
   }
 
   @Test
   public void testIsAlmostNowComparedToOneMinuteAfterNow() throws Exception {
-    assertFalse(DateUtils.isAlmostNow(org.apache.commons.lang.time.DateUtils.addSeconds(new Date(), 61)));
+    assertFalse(DateUtils.isAlmostNow(org.apache.commons.lang3.time.DateUtils.addSeconds(new Date(), 61)));
   }
 
   @Test

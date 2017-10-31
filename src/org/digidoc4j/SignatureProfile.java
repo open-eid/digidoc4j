@@ -34,7 +34,22 @@ public enum SignatureProfile {
   /**
    * no profile (baseline) with signature id (compatible with BDoc)
    */
-  B_EPES
+  B_EPES;
 
   //TODO: ADD later LTA_TM
+
+  /**
+   * Find SignatureProfile by profile string.
+   *
+   * @param profile
+   * @return SignatureProfile.
+   */
+  public static SignatureProfile findByProfile(String profile) {
+    for (SignatureProfile signatureProfile : values()) {
+      if (signatureProfile.name().equals(profile)) {
+        return signatureProfile;
+      }
+    }
+    return null;
+  }
 }

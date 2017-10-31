@@ -44,7 +44,7 @@ public interface Signature extends Serializable {
 
   /**
    * Returns the signature OCSP response nonce.
-   *
+   * <p>
    * For a BDOC Signature it throws a NotYetImplementedException.
    *
    * @return OCSP response nonce
@@ -60,7 +60,7 @@ public interface Signature extends Serializable {
 
   /**
    * If the container is DDOC then it returns an empty string.
-   *
+   * <p>
    * For a BDOC Signature it throws a NotYetImplementedException.
    *
    * @return signature policy
@@ -101,10 +101,10 @@ public interface Signature extends Serializable {
 
   /**
    * Returns signature creation time confirmed by OCSP or TimeStamp authority.
-   *
+   * <p>
    * Returns OCSP response creation time in case of LT_TM (TimeMark) signatures or
    * Time Stamp creation time in case of LT/LTA (TimeStamp) signatures. Returns null for B_BES signatures.
-   *
+   * <p>
    * This is much more secure than using signer's computer time that {@link Signature#getClaimedSigningTime()} returns.
    *
    * @return signature creation time confirmed by OCSP or TimeStamp authority.
@@ -141,7 +141,7 @@ public interface Signature extends Serializable {
 
   /**
    * Returns the computer's time of signing.
-   *
+   * <p>
    * See also {@link Signature#getTrustedSigningTime()}
    *
    * @return signing time
@@ -193,7 +193,7 @@ public interface Signature extends Serializable {
    * Validates the signature.
    *
    * @return list of Digidoc4JExceptions
-   * @deprecated use {@Link Signature#validateSignature()} instead.
+   * @deprecated use {@link Signature#validateSignature()} instead.
    */
   @Deprecated
   List<DigiDoc4JException> validate();

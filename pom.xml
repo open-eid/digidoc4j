@@ -6,7 +6,7 @@
   <groupId>org.digidoc4j</groupId>
   <artifactId>digidoc4j</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.6</version>
+  <version>1.0.7</version>
   <name>DigiDoc4j</name>
   <description>DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers of signed documents</description>
   <url>https://github.com/open-eid/digidoc4j</url>
@@ -80,6 +80,12 @@
       <organization>CGI Eesti</organization>
       <organizationUrl>https://www.cgi.ee</organizationUrl>
     </developer>
+    <developer>
+      <name>Priit Serk</name>
+      <email>priit.serk at cgi.com</email>
+      <organization>CGI Eesti</organization>
+      <organizationUrl>https://www.cgi.ee</organizationUrl>
+    </developer>
   </developers>
 
   <properties>
@@ -91,7 +97,8 @@
     <logback-classic.version>1.2.3</logback-classic.version>
     <bouncycastle.version>1.54</bouncycastle.version>
     <junit.version>4.11</junit.version>
-    <dss.version>4.7.RC2.d4j.1</dss.version>
+    <dss.groupId>org.digidoc4j.dss</dss.groupId>
+    <dss.version>5.0.d4j.4</dss.version>
     <dss.util.build>${project.basedir}/build/</dss.util.build>
     <dss.util.lib>${project.basedir}/utility-package-lib</dss.util.lib>
     <dss.zip.lib>${project.basedir}/zip-package-lib</dss.zip.lib>
@@ -124,6 +131,7 @@
       <properties>
         <project.source.version>1.7</project.source.version>
         <jfxrt.jar>${java.home}/lib/ext/jfxrt.jar</jfxrt.jar>
+        <additionalparam>-Xdoclint:none</additionalparam>
       </properties>
     </profile>
 
@@ -241,9 +249,9 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>2.6</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.6</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -253,9 +261,9 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-      <version>3.2.2</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
+      <version>4.1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -421,7 +429,7 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>20.0</version>
-      <scope>test</scope>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -477,92 +485,134 @@
     </dependency>
 
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-common-validation-jaxb</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-detailed-report-jaxb</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-diagnostic-jaxb</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-document</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-model</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-policy-jaxb</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-reports</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-service</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-simple-report-jaxb</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-spi</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-token</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-tsl-jaxb</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-tsl-validation</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-xades</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.digidoc4j.dss</groupId>
+      <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-cades</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>validation-policy</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-asic-common</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-asic-cades</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-asic-xades</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-utils</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-utils-apache-commons</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-utils-google-guava</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>
     </dependency>
@@ -577,6 +627,9 @@
     <resources>
       <resource>
         <directory>resources</directory>
+        <excludes>
+          <exclude>logback.xml</exclude>
+        </excludes>
       </resource>
       <resource>
         <directory>conf</directory>
@@ -684,7 +737,7 @@
                 contiperf, dss-common-validation-jaxb,
                 dss-detailed-report-jaxb, dss-diagnostic-jaxb, dss-document, dss-model, dss-policy-jaxb,
                 dss-reports, dss-service, dss-simple-report-jaxb, dss-spi, dss-token, dss-tsl-jaxb,
-                dss-tsl-validation, dss-xades, validation-policy, log4j
+                dss-tsl-validation, dss-xades, dss-cades, validation-policy, log4j
               </excludeArtifactIds>
             </configuration>
           </execution>
@@ -700,8 +753,7 @@
               <overWriteIfNewer>true</overWriteIfNewer>
               <excludeTransitive>true</excludeTransitive>
               <excludeArtifactIds>
-                contiperf, log4j-over-slf4j, logback-classic,
-                logback-core
+                contiperf, log4j-over-slf4j
               </excludeArtifactIds>
             </configuration>
           </execution>

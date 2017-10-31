@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,6 +63,18 @@ public class BDocValidationResult implements ValidationResult {
   @Override
   public List<DigiDoc4JException> getContainerErrors() {
     return containerErrorsOnly;
+  }
+
+  /**
+   * Save DSS validation reports in given directory.
+   *
+   * @param directory Directory where to save XML files. When null then do nothing.
+   */
+  @Override
+  public void saveXmlReports(Path directory) {
+    if (directory != null) {
+      reportBuilder.saveXmlReports(directory);
+    }
   }
 
   /**
