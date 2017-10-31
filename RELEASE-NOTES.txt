@@ -1,5 +1,11 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+Release 1.0.7
+------------------
+Summary of the major changes since 1.0.7 RC.2
+----------------------------------------
+* Performance test fix
+------------------------------------
 Release 1.0.7 RC.2
 ------------------
 Summary of the major changes since 1.0.7 RC.1

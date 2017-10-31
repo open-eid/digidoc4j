@@ -78,7 +78,7 @@ public class PerformanceTest {
   @PerfTest(invocations = 1000, threads = 20)
   public void validateTestBDocTmWithJDigidocInThreads() throws Exception {
     assertContainerValidWithJDigiDoc("testFiles/valid-containers/valid-bdoc-tm.bdoc");
-    assertContainerValidWithJDigiDoc("testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM.bdoc");
+    assertContainerValidWithJDigiDoc("testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM_TEST.bdoc");
     validateInvalidContainerWithJDigidoc("testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc", "ERROR: 91 - Certificate has been revoked!");
   }
 
