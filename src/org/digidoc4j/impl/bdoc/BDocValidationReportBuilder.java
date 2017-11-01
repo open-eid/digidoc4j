@@ -62,6 +62,28 @@ public class BDocValidationReportBuilder {
   }
 
   /**
+   * Gets signature Validation Reports.
+   *
+   * @return List<SignatureValidationReport>
+   */
+  public List<SignatureValidationReport> buildSignatureValidationReports() {
+    return createSignaturesValidationReport();
+  }
+
+  /**
+   * Gets signature Simple Reports.
+   *
+   * @return List<SimpleReport>
+   */
+  public List<eu.europa.esig.dss.validation.reports.SimpleReport> buildSignatureSimpleReports() {
+    List<eu.europa.esig.dss.validation.reports.SimpleReport> signaturesReport = new ArrayList<>();
+    for (SignatureValidationData validationData : signatureValidationData) {
+      signaturesReport.add(validationData.getReport().getReport().getSimpleReport());
+    }
+    return signaturesReport;
+  }
+
+  /**
    * Save DSS validation reports in given directory.
    *
    * @param directory Directory where to save XML files.

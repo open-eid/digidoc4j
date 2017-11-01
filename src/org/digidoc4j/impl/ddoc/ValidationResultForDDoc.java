@@ -12,8 +12,14 @@ package org.digidoc4j.impl.ddoc;
 
 import ee.sk.digidoc.DigiDocException;
 import ee.sk.digidoc.SignedDoc;
+import eu.europa.esig.dss.validation.SignatureQualification;
+import eu.europa.esig.dss.validation.policy.rules.Indication;
+import eu.europa.esig.dss.validation.policy.rules.SubIndication;
+import eu.europa.esig.dss.validation.reports.SimpleReport;
+
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.bdoc.report.SignatureValidationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Comment;
@@ -28,6 +34,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -173,6 +180,36 @@ public class ValidationResultForDDoc implements ValidationResult {
   public String getReport() {
     logger.debug("");
     return reportToString(report);
+  }
+
+  @Override
+  public List<SignatureValidationReport> getSignatureReports() {
+    logger.debug("Not For DDOC");
+    return Collections.emptyList();
+  }
+
+  @Override
+  public List<SimpleReport> getSignatureSimpleReports() {
+    logger.debug("Not For DDOC");
+    return Collections.emptyList();
+  }
+
+  @Override
+  public Indication getIndication(String signatureID) {
+    logger.debug("value is not detected in case of JDigiDoc library and DDOC documents");
+    return null;
+  }
+
+  @Override
+  public SubIndication getSubIndication(String signatureID) {
+    logger.debug("value is not detected in case of JDigiDoc library and DDOC documents");
+    return null;
+  }
+
+  @Override
+  public SignatureQualification getSignatureQualification(String signatureId) {
+    logger.debug("value is not detected in case of JDigiDoc library and DDOC documents");
+    return null;
   }
 
   static String reportToString(Document document) {
