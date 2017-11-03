@@ -40,7 +40,8 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
 import eu.europa.esig.dss.MimeType;
 import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
-import eu.europa.esig.dss.client.http.proxy.ProxyPreferenceManager;
+import eu.europa.esig.dss.client.http.proxy.ProxyConfig;
+import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
 
 public class SkDataLoaderTest {
 
@@ -92,14 +93,14 @@ public class SkDataLoaderTest {
   public void ocspDataLoader_withoutProxyConfiguration() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
     SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(configuration);
-    assertNull(dataLoader.getProxyPreferenceManager());
+    assertNull(dataLoader.getProxyConfig());
   }
 
   @Test
   public void cachingDataLoader_withoutProxyConfiguration() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
     CommonsDataLoader dataLoader = new CachingDataLoader(configuration);
-    assertNull(dataLoader.getProxyPreferenceManager());
+    assertNull(dataLoader.getProxyConfig());
   }
 
   @Test
@@ -208,30 +209,55 @@ public class SkDataLoaderTest {
   }
 
   private void assertHTTPProxyConfigured(CommonsDataLoader dataLoader, String proxyHost, int proxyPort) {
-    ProxyPreferenceManager preferenceManager = dataLoader.getProxyPreferenceManager();
-    assertNotNull(preferenceManager);
-    assertEquals(proxyHost, preferenceManager.getHttpHost());
-    assertEquals(proxyPort, preferenceManager.getHttpPort().longValue());
-    assertTrue(preferenceManager.isHttpEnabled());
-    assertEquals("", preferenceManager.getHttpsHost());
-    assertEquals(null, preferenceManager.getHttpsPort());
-    assertFalse(preferenceManager.isHttpsEnabled());
+    ProxyConfig proxyConfig = dataLoader.getProxyConfig();
+    assertNotNull(proxyConfig);
+    ProxyProperties httpProperties = proxyConfig.getHttpProperties();
+    ProxyProperties httpsProperties = proxyConfig.getHttpsProperties();
+
+    assertEquals(proxyHost, httpProperties.getHost());
+    assertEquals(proxyPort, httpProperties.getPort());
+    //From DSS 5.1 not in use
+    //assertTrue(httpProperties.isHttpEnabled());
+    assertEquals(null, httpsProperties.getHost());
+    assertEquals(0, httpsProperties.getPort());
+    //assertTrue(httpsProperties.isHttpsEnabled());
+  }
+
+  private void assertHTTPSProxyConfigured(CommonsDataLoader dataLoader, String proxyHost, int proxyPort) {
+    ProxyConfig proxyConfig = dataLoader.getProxyConfig();
+    assertNotNull(proxyConfig);
+    ProxyProperties httpProperties = proxyConfig.getHttpProperties();
+    ProxyProperties httpsProperties = proxyConfig.getHttpProperties();
+
+    assertEquals(null, httpProperties.getHost());
+    assertEquals(0, httpProperties.getPort());
+
+    assertEquals(proxyHost, httpsProperties.getHost());
+    assertEquals(proxyPort, httpsProperties.getPort());
+    //From DSS 5.1 not in use
+    //assertTrue(httpsProperties.isHttpsEnabled());
   }
 
   private void assertProxyUsernamePasswordNotSet(CommonsDataLoader dataLoader) {
-    ProxyPreferenceManager preferenceManager = dataLoader.getProxyPreferenceManager();
-    assertTrue(isEmpty(preferenceManager.getHttpUser()));
-    assertTrue(isEmpty(preferenceManager.getHttpsUser()));
-    assertTrue(isEmpty(preferenceManager.getHttpPassword()));
-    assertTrue(isEmpty(preferenceManager.getHttpsPassword()));
+    ProxyConfig proxyConfig = dataLoader.getProxyConfig();
+    ProxyProperties httpProperties = proxyConfig.getHttpProperties();
+    ProxyProperties httpsProperties = proxyConfig.getHttpsProperties();
+
+    assertTrue(isEmpty(httpProperties.getUser()));
+    assertTrue(isEmpty(httpsProperties.getUser()));
+    assertTrue(isEmpty(httpProperties.getPassword()));
+    assertTrue(isEmpty(httpsProperties.getPassword()));
   }
 
   private void assertProxyUsernamePassword(SkDataLoader dataLoader, String proxyPassword, String proxyUser) {
-    ProxyPreferenceManager preferenceManager = dataLoader.getProxyPreferenceManager();
-    assertEquals(proxyUser, preferenceManager.getHttpUser());
-    assertEquals(proxyUser, preferenceManager.getHttpsUser());
-    assertEquals(proxyPassword, preferenceManager.getHttpPassword());
-    assertEquals(proxyPassword, preferenceManager.getHttpsPassword());
+    ProxyConfig proxyConfig = dataLoader.getProxyConfig();
+    ProxyProperties httpProperties = proxyConfig.getHttpProperties();
+    ProxyProperties httpsProperties = proxyConfig.getHttpsProperties();
+
+    assertEquals(proxyUser, httpProperties.getUser());
+    assertEquals(proxyUser, httpsProperties.getUser());
+    assertEquals(proxyPassword, httpProperties.getPassword());
+    assertEquals(proxyPassword, httpsProperties.getPassword());
   }
 
   public static class SkDataLoaderSpy extends SkDataLoader{
