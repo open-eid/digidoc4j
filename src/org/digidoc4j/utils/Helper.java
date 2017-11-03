@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -50,7 +51,6 @@ import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.MimeType;
 import eu.europa.esig.dss.SignatureLevel;
 import eu.europa.esig.dss.validation.SignaturePolicyProvider;
@@ -370,6 +370,26 @@ public final class Helper {
     for(DataFile dataFile: container.getDataFiles()){
       File file = new File(pathTo + File.separator + dataFile.getName());
       DSSUtils.saveToFile(dataFile.getBytes(), file);
+    }
+  }
+
+  /**
+   * delete tmp files from temp folder created by StreamDocument
+   *
+   */
+  public static void deleteTmpFiles(){
+    File dir = new File(System.getProperty("java.io.tmpdir"));
+    FilenameFilter filenameFilter = new FilenameFilter() {
+      @Override
+      public boolean accept(File dir, String name) {
+        return name.toLowerCase().startsWith("digidoc4j") && name.toLowerCase().endsWith(".tmp");
+      }
+    };
+    for (File f : dir.listFiles(filenameFilter)) {
+      if (!f.delete()){
+        f.deleteOnExit();
+        System.gc();
+      }
     }
   }
 }

@@ -36,4 +36,9 @@ public class ConfigurationSingeltonHolder {
     }
     return configuration;
   }
+
+  static void reset() {
+    configuration = null;
+  }
+
 }
