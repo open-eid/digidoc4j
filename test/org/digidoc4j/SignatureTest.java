@@ -71,8 +71,12 @@ import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.tsl.ServiceInfo;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
+import eu.europa.esig.dss.validation.SignatureQualification;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
+import eu.europa.esig.dss.validation.policy.rules.Indication;
+import eu.europa.esig.dss.validation.policy.rules.SubIndication;
 import eu.europa.esig.dss.validation.reports.Reports;
+import eu.europa.esig.dss.validation.reports.SimpleReport;
 import eu.europa.esig.dss.x509.CertificateSource;
 import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 
@@ -447,6 +451,86 @@ public class SignatureTest extends DigiDoc4JTestHelper {
       isValid = isValid && reports.getSimpleReport().isSignatureValid(signatureId);
     }
     assertTrue(isValid);
+  }
+
+  @Test
+  public void signatureReportForTwoSignature() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    Container container = open("testFiles/valid-containers/asics_testing_two_signatures.bdoc", configuration);
+    ValidationResult result = container.validate();
+
+    assertEquals(Indication.INDETERMINATE, result.getIndication("S0"));
+    assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, result.getSubIndication("S0"));
+    assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification("S0").getLabel());
+
+    assertEquals(Indication.INDETERMINATE, result.getIndication("S1"));
+    assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, result.getSubIndication("S1"));
+    assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification("S1").getLabel());
+
+    assertEquals(Indication.INDETERMINATE, result.getIndication(null));
+    assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, result.getSubIndication(null));
+    assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification(null).getLabel());
+  }
+
+  @Test
+  public void signatureReportForOneSignature() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    Container container = open("testFiles/valid-containers/valid-bdoc-tm.bdoc", configuration);
+    ValidationResult result = container.validate();
+
+    for ( SimpleReport signatureSimpleReport :  result.getSignatureSimpleReports()) {
+      for ( String id: signatureSimpleReport.getSignatureIdList()) {
+        //"id-6a5d6671af7a9e0ab9a5e4d49d69800d"
+        assertEquals(Indication.TOTAL_PASSED, result.getIndication(id));
+        assertEquals(null, result.getSubIndication(id));
+        assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification(id).getLabel());
+      }
+    }
+
+    assertEquals(Indication.TOTAL_PASSED, result.getIndication(null));
+    assertEquals(null, result.getSubIndication(null));
+    assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification(null).getLabel());
+  }
+
+  @Test
+  public void signatureReportNoSignature() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    Container container = open("testFiles/valid-containers/container_without_signatures.bdoc", configuration);
+    ValidationResult result = container.validate();
+
+    assertEquals(null, result.getIndication("S0"));
+    assertEquals(null, result.getSubIndication("S0"));
+    assertEquals(null, result.getSignatureQualification("S0"));
+
+    assertEquals(null, result.getIndication(null));
+    assertEquals(null, result.getSubIndication(null));
+    assertEquals(null, result.getSignatureQualification(null));
+  }
+
+  @Test
+  public void signatureReportOnlyOneSignatureValid() throws Exception {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    Container container = open("testFiles/invalid-containers/two_signatures_one_invalid.bdoc", configuration);
+    ValidationResult result = container.validate();
+
+    //Signature with id "S1" is invalid
+    assertEquals(Indication.INDETERMINATE, result.getIndication("S1"));
+    assertEquals(SubIndication.NO_SIGNING_CERTIFICATE_FOUND, result.getSubIndication("S1"));
+    assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification("S1").getLabel());
+
+    //Signature with id "S0" is valid
+    assertEquals(Indication.TOTAL_PASSED, result.getIndication(null));
+    assertEquals(null, result.getSubIndication(null));
+    assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification(null).getLabel());
+  }
+
+  private Container open(String path, Configuration configuration){
+    Container container = ContainerBuilder.
+        aContainer(BDOC_CONTAINER_TYPE).
+        fromExistingFile(path).
+        withConfiguration(configuration).
+        build();
+    return container;
   }
 
   private Signature getSignature(Container.DocumentType documentType) {

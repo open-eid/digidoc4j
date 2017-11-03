@@ -11,9 +11,15 @@
 package org.digidoc4j;
 
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.bdoc.report.SignatureValidationReport;
 
 import java.nio.file.Path;
 import java.util.List;
+
+import eu.europa.esig.dss.validation.SignatureQualification;
+import eu.europa.esig.dss.validation.policy.rules.Indication;
+import eu.europa.esig.dss.validation.policy.rules.SubIndication;
+import eu.europa.esig.dss.validation.reports.SimpleReport;
 
 /**
  * Validation result information.
@@ -65,6 +71,44 @@ public interface ValidationResult {
    * @return report
    */
   String getReport();
+
+  /**
+   * Get SignatureValidationReports from signature validation data.
+   *
+   * @return SignatureValidationReport
+   */
+  List<SignatureValidationReport> getSignatureReports();
+
+  /**
+   * Get SignatureSimpleReport from signature validation data.
+   *
+   * @return SignatureValidationReport
+   */
+  List<SimpleReport> getSignatureSimpleReports();
+
+  /**
+   * Get indication from simple report.
+   *
+   * @param signatureId
+   * @return signatureId
+   */
+  Indication getIndication(String signatureId);
+
+  /**
+   * Get subIndication from simple report.
+   *
+   * @param signatureId
+   * @return subIndication
+   */
+  SubIndication getSubIndication(String signatureId);
+
+  /**
+   * Get SignatureQualification from simple report.
+   *
+   * @param signatureId
+   * @return SignatureQualification
+   */
+  SignatureQualification getSignatureQualification(String signatureId);
 
   /**
    * Get list container related errors.
