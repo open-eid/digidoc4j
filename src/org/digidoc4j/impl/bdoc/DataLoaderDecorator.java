@@ -12,19 +12,13 @@ package org.digidoc4j.impl.bdoc;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.digidoc4j.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
-import eu.europa.esig.dss.client.http.proxy.ProxyDao;
-import eu.europa.esig.dss.client.http.proxy.ProxyKey;
-import eu.europa.esig.dss.client.http.proxy.ProxyPreference;
-import eu.europa.esig.dss.client.http.proxy.ProxyPreferenceManager;
+import eu.europa.esig.dss.client.http.proxy.ProxyConfig;
+import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
 
 public class DataLoaderDecorator {
 
@@ -32,34 +26,42 @@ public class DataLoaderDecorator {
 
   public static void decorateWithProxySettings(CommonsDataLoader dataLoader, Configuration configuration) {
     if (configuration.isNetworkProxyEnabled()) {
-      ProxyPreferenceManager proxyPreferences = DataLoaderDecorator.create(configuration);
-      dataLoader.setProxyPreferenceManager(proxyPreferences);
+      ProxyConfig proxyConfig = DataLoaderDecorator.create(configuration);
+      dataLoader.setProxyConfig(proxyConfig);
     }
   }
 
-  private static ProxyPreferenceManager create(Configuration configuration) {
+  private static ProxyConfig create(Configuration configuration) {
     logger.debug("Creating proxy settings");
-    ProxyPreferenceManager proxy = new ProxyPreferenceManager();
-    ProxyDao proxyDao = new HashMapProxyDao();
+    ProxyConfig proxy = new ProxyConfig();
+
+    ProxyProperties httpProxyProperties = new ProxyProperties();
     if (configuration.getHttpProxyPort() != null
         && isNotBlank(configuration.getHttpProxyHost())) {
-      proxyDao.update(new ProxyPreference(ProxyKey.HTTP_HOST, configuration.getHttpProxyHost()));
-      proxyDao.update(new ProxyPreference(ProxyKey.HTTP_PORT, configuration.getHttpProxyPort().toString()));
-      proxyDao.update(new ProxyPreference(ProxyKey.HTTP_ENABLED, "true"));
+    httpProxyProperties.setHost(configuration.getHttpProxyHost());
+    httpProxyProperties.setPort(configuration.getHttpProxyPort());
+    //not implemented
+    //httpProxyProperties.setExcludedHosts();
     }
+
+    ProxyProperties httpsProxyProperties = new ProxyProperties();
     if (configuration.getHttpsProxyPort() != null
         && isNotBlank(configuration.getHttpsProxyHost())) {
-      proxyDao.update(new ProxyPreference(ProxyKey.HTTPS_HOST, configuration.getHttpsProxyHost()));
-      proxyDao.update(new ProxyPreference(ProxyKey.HTTPS_PORT, configuration.getHttpsProxyPort().toString()));
-      proxyDao.update(new ProxyPreference(ProxyKey.HTTPS_ENABLED, "true"));
+    httpsProxyProperties.setHost(configuration.getHttpsProxyHost());
+    httpsProxyProperties.setPort(configuration.getHttpsProxyPort());
+    //not implemented
+    //httpsProxyProperties.setExcludedHosts();
     }
+
     if (isNotBlank(configuration.getHttpProxyUser()) && isNotBlank(configuration.getHttpProxyPassword())) {
-      proxyDao.update(new ProxyPreference(ProxyKey.HTTP_USER, configuration.getHttpProxyUser()));
-      proxyDao.update(new ProxyPreference(ProxyKey.HTTPS_USER, configuration.getHttpProxyUser()));
-      proxyDao.update(new ProxyPreference(ProxyKey.HTTP_PASSWORD, configuration.getHttpProxyPassword()));
-      proxyDao.update(new ProxyPreference(ProxyKey.HTTPS_PASSWORD, configuration.getHttpProxyPassword()));
+      httpProxyProperties.setUser(configuration.getHttpProxyUser());
+      httpProxyProperties.setPassword(configuration.getHttpProxyPassword());
+
+      httpsProxyProperties.setUser(configuration.getHttpProxyUser());
+      httpsProxyProperties.setPassword(configuration.getHttpProxyPassword());
     }
-    proxy.setProxyDao(proxyDao);
+    proxy.setHttpProperties(httpProxyProperties);
+    proxy.setHttpsProperties(httpsProxyProperties);
     return proxy;
   }
 
@@ -68,39 +70,18 @@ public class DataLoaderDecorator {
       logger.debug("Configuring SSL");
       dataLoader.setSslKeystorePath(configuration.getSslKeystorePath());
       dataLoader.setSslTruststorePath(configuration.getSslTruststorePath());
-      if(configuration.getSslKeystoreType() != null) {
+      if (configuration.getSslKeystoreType() != null) {
         dataLoader.setSslKeystoreType(configuration.getSslKeystoreType());
       }
-      if(configuration.getSslKeystorePassword() != null) {
+      if (configuration.getSslKeystorePassword() != null) {
         dataLoader.setSslKeystorePassword(configuration.getSslKeystorePassword());
       }
-      if(configuration.getSslTruststoreType() != null) {
+      if (configuration.getSslTruststoreType() != null) {
         dataLoader.setSslTruststoreType(configuration.getSslTruststoreType());
       }
-      if(configuration.getSslTruststorePassword() != null) {
+      if (configuration.getSslTruststorePassword() != null) {
         dataLoader.setSslTruststorePassword(configuration.getSslTruststorePassword());
       }
-    }
-  }
-
-  public static class HashMapProxyDao implements ProxyDao {
-
-    private Map<ProxyKey, ProxyPreference> values = new HashMap<>();
-
-    @Override
-    public ProxyPreference get(ProxyKey id) {
-      return values.get(id);
-    }
-
-    @Override
-    public Collection<ProxyPreference> getAll() {
-      return values.values();
-    }
-
-    @Override
-    public void update(ProxyPreference entity) {
-      ProxyKey key = entity.getProxyKey();
-      values.put(key, entity);
     }
   }
 }
