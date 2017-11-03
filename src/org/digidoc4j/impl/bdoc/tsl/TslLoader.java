@@ -30,6 +30,7 @@ import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.client.http.DataLoader;
 import eu.europa.esig.dss.client.http.Protocol;
 import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
+import eu.europa.esig.dss.client.http.commons.FileCacheDataLoader;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 import eu.europa.esig.dss.x509.KeyStoreCertificateSource;
@@ -43,6 +44,8 @@ public class TslLoader implements Serializable {
   private transient TSLRepository tslRepository;
   private transient TSLCertificateSourceImpl tslCertificateSource;
   private transient TSLValidationJob tslValidationJob;
+
+  private static final String DEFAULT_KEYSTORE_TYPE = "JKS";
 
   public TslLoader(Configuration configuration) {
     this.configuration = configuration;
@@ -93,13 +96,14 @@ public class TslLoader implements Serializable {
   private TSLValidationJob createTslValidationJob(TSLRepository tslRepository) {
     TSLValidationJob tslValidationJob = new TSLValidationJob();
     tslValidationJob.setDataLoader(createDataLoader());
-    tslValidationJob.setDssKeyStore(getKeyStore());
+    tslValidationJob.setOjContentKeyStore(getKeyStore());
     tslValidationJob.setLotlUrl(configuration.getTslLocation());
     tslValidationJob.setLotlCode("EU");
     tslValidationJob.setRepository(tslRepository);
     tslValidationJob.setCheckLOTLSignature(checkSignature);
     tslValidationJob.setCheckTSLSignatures(checkSignature);
     tslValidationJob.setFilterTerritories(configuration.getTrustedTerritories());
+    //tslValidationJob.setLotlRootSchemeInfoUri("https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl.html");
     return tslValidationJob;
   }
 
@@ -110,6 +114,7 @@ public class TslLoader implements Serializable {
       dataLoader.setTimeoutSocket(configuration.getSocketTimeout());
       dataLoader.setCacheExpirationTime(configuration.getTslCacheExpirationTime());
       dataLoader.setFileCacheDirectory(fileCacheDirectory);
+
       logger.debug("Using file cache directory for storing TSL: " + fileCacheDirectory);
       return dataLoader;
     } else {
@@ -119,7 +124,12 @@ public class TslLoader implements Serializable {
 
   private KeyStoreCertificateSource getKeyStore() {
     File tslKeystoreFile = getTslKeystoreFile();
-    return new KeyStoreCertificateSource(tslKeystoreFile, configuration.getTslKeyStorePassword());
+    try {
+      return new KeyStoreCertificateSource(tslKeystoreFile, DEFAULT_KEYSTORE_TYPE, configuration.getTslKeyStorePassword());
+    } catch (IOException e) {
+      logger.error(e.getMessage());
+      throw new TslKeyStoreNotFoundException(e.getMessage());
+    }
   }
 
   private File getTslKeystoreFile() throws TslKeyStoreNotFoundException {
