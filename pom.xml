@@ -95,14 +95,19 @@
     <project.encoding>UTF-8</project.encoding>
     <slf4j.version>1.7.25</slf4j.version>
     <logback-classic.version>1.2.3</logback-classic.version>
+    <logback-classic.conf>-Dlogback.configurationFile=${project.basedir}/resources/logback.xml</logback-classic.conf>
     <bouncycastle.version>1.54</bouncycastle.version>
     <junit.version>4.11</junit.version>
     <dss.groupId>org.digidoc4j.dss</dss.groupId>
-    <dss.version>5.1.d4j.2</dss.version>
+    <dss.version>5.1.d4j.3</dss.version>
     <dss.util.build>${project.basedir}/build/</dss.util.build>
     <dss.util.lib>${project.basedir}/utility-package-lib</dss.util.lib>
     <dss.zip.lib>${project.basedir}/zip-package-lib</dss.zip.lib>
-    <argLine>-Dfile.encoding=UTF-8</argLine>
+    <!-- IF there is XRebel Hub -->
+    <xrebel.jar>-javaagent:${project.basedir}/lib/xrebel-hub-agent.jar</xrebel.jar>
+    <xrebel.version>-Dxrebel.hub.app.version=3</xrebel.version>
+    <!-- END IF -->
+    <argLine>-Dfile.encoding=UTF-8 ${logback-classic.conf}</argLine>
   </properties>
 
   <profiles>
@@ -664,6 +669,7 @@
                     <exclude>**/esteidtestcerts.jar</exclude>
                     <exclude>**/jacocoagent.jar</exclude>
                     <exclude>**/jacocoant.jar</exclude>
+                    <exclude>**/xrebel-hub-agent.jar</exclude>
                   </excludes>
                 </fileset>
                 <fileset>

@@ -553,7 +553,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
       @Override
       public void checkAssertion() throws Exception {
         assertThat(sout.getLog(), containsString(
-            "Opening container testFiles/valid-containers/ddoc_for_testing.ddoc"));
+            "Opening DDoc container from file: testFiles/valid-containers/ddoc_for_testing.ddoc"));
       }
     });
     String[] params = new String[]{"-in", "testFiles/valid-containers/ddoc_for_testing.ddoc", "-verify", "-verbose"};
