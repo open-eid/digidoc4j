@@ -38,6 +38,7 @@ import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.impl.SignatureFinalizer;
+import org.digidoc4j.impl.bdoc.asic.AsicSContainer;
 import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
 import org.digidoc4j.impl.bdoc.ocsp.SKOnlineOCSPSource;
 import org.digidoc4j.impl.bdoc.xades.XadesSignature;
@@ -155,6 +156,9 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   private Configuration getConfiguration() {
+    if(container instanceof AsicSContainer){
+      return ((AsicSContainer) container).getConfiguration();
+    }
     return ((BDocContainer) container).getConfiguration();
   }
 

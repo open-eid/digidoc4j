@@ -181,9 +181,11 @@ public abstract class AsicContainerParser {
   }
 
   private void validateParseResult() {
-    if (!StringUtils.equalsIgnoreCase(MimeType.ASICE.getMimeTypeString(), mimeType)) {
+    if (!StringUtils.equalsIgnoreCase(MimeType.ASICE.getMimeTypeString(), mimeType) &&
+        !StringUtils.equalsIgnoreCase(MimeType.ASICS.getMimeTypeString(), mimeType)) {
       logger.error("Container mime type is not " + MimeType.ASICE.getMimeTypeString() + " but is " + mimeType);
-      throw new UnsupportedFormatException("Container mime type is not " + MimeType.ASICE.getMimeTypeString() + " but is " + mimeType);
+      throw new UnsupportedFormatException("Container mime type is not " + MimeType.ASICE.getMimeTypeString() +
+          " OR " + MimeType.ASICS.getMimeTypeString() + " but is " + mimeType);
     }
   }
 

@@ -43,9 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
@@ -78,7 +76,6 @@ import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.digidoc4j.utils.Helper;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -91,7 +88,6 @@ import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.x509.SignaturePolicy;
-import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
@@ -99,19 +95,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
-
-  @AfterClass
-  public static void deleteTemporaryFiles() {
-    try {
-      DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("testFiles/tmp"));
-      for (Path item : directoryStream) {
-        String fileName = item.getFileName().toString();
-        if (fileName.endsWith("bdoc") && fileName.startsWith("test")) Files.deleteIfExists(item);
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
 
   @After
   public void cleanUp() {
@@ -1103,14 +1086,14 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   public void openBDoc_withoutCAConfiguration_shouldNotThrowException() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
     configuration.loadConfiguration("testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml");
-    ExistingBDocContainer container = new ExistingBDocContainer("testFiles/valid-containers/valid-bdoc-tm.bdoc", configuration);
+    BDocContainer container = new BDocContainer("testFiles/valid-containers/valid-bdoc-tm.bdoc", configuration);
     assertTrue(container.validate().isValid());
   }
 
   @Test
   public void timeStampCertStatusDeprecated() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
-    ExistingBDocContainer container = new ExistingBDocContainer("testFiles/invalid-containers/invalid-containers-23816_leedu_live_TS_authority.asice", configuration);
+    BDocContainer container = new BDocContainer("testFiles/invalid-containers/invalid-containers-23816_leedu_live_TS_authority.asice", configuration);
     ValidationResult validate = container.validate();
     assertFalse(validate.isValid());
   }

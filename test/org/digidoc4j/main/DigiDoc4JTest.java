@@ -68,20 +68,6 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   private String inputFolderPath;
   private String tmpDirPath;
 
-  private static void forbidSystemExitCall() {
-    final SecurityManager preventExitSecurityManager = new SecurityManager() {
-      public void checkPermission(Permission permission) {
-      }
-
-      @Override
-      public void checkExit(int status) {
-        super.checkExit(status);
-        throw new DigiDoc4JUtilityException(status, "preventing system exist");
-      }
-    };
-    System.setSecurityManager(preventExitSecurityManager);
-  }
-
   @Before
   public void setUp() throws Exception {
     testBdocContainer = testFolder.newFile("test-container.bdoc").getPath();
@@ -898,16 +884,6 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     System.clearProperty("digidoc4j.mode");
   }
   */
-
-  void callMainWithoutSystemExit(String[] params) {
-    SecurityManager securityManager = System.getSecurityManager();
-    forbidSystemExitCall();
-    try {
-      DigiDoc4J.main(params);
-    } catch (DigiDoc4JUtilityException ignore) {
-    }
-    System.setSecurityManager(securityManager);
-  }
 
   private void assertContainsFile(String outputDirPath, String fileName) {
     File dir = new File(outputDirPath);

@@ -1,30 +1,26 @@
-/* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+package org.digidoc4j.impl.bdoc.asic;
 
-package org.digidoc4j.impl.bdoc;
+import java.io.Serializable;
 
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
+import org.digidoc4j.impl.bdoc.BDocContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BDocContainerBuilder extends ContainerBuilder {
+/**
+ * Created by Andrei on 10.11.2017.
+ */
+public class AsicSContainerBuilder extends ContainerBuilder implements Serializable {
 
-  private static final Logger logger = LoggerFactory.getLogger(BDocContainerBuilder.class);
+  private static final Logger logger = LoggerFactory.getLogger(AsicSContainerBuilder.class);
 
-  protected BDocContainer createNewContainer() {
+  protected AsicSContainer createNewContainer() {
     if (configuration == null) {
-      return new NewBDocContainer();
+      return new AsicSContainer();
     } else {
-      return new NewBDocContainer(configuration);
+      return new AsicSContainer(configuration);
     }
   }
 
@@ -49,4 +45,5 @@ public class BDocContainerBuilder extends ContainerBuilder {
     logger.warn("BDoc containers don't support setting temp directories");
     return this;
   }
+
 }

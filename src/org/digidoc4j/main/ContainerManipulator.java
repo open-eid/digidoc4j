@@ -12,6 +12,7 @@ package org.digidoc4j.main;
 
 import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+import static org.digidoc4j.Container.DocumentType.ASICS;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 
@@ -97,8 +98,10 @@ public class ContainerManipulator {
 
   public Container.DocumentType getContainerType(CommandLine commandLine) {
     if (equalsIgnoreCase(commandLine.getOptionValue("type"), "BDOC")) return BDOC;
+    if (equalsIgnoreCase(commandLine.getOptionValue("type"), "ASICS")) return ASICS;
     if (equalsIgnoreCase(commandLine.getOptionValue("type"), "DDOC")) return DDOC;
     if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".bdoc")) return BDOC;
+    if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".asics")) return ASICS;
     if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".ddoc")) return DDOC;
     return BDOC;
   }

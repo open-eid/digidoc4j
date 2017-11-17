@@ -20,6 +20,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.bdoc.asic.AsicSContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -27,6 +28,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
+
+import eu.europa.esig.dss.MimeType;
 
 /**
  * Represents the META-INF/manifest.xml subdocument
@@ -42,6 +45,14 @@ public class AsicManifest {
    * creates object to create manifest files
    */
   public AsicManifest() {
+    generateAsicManifest(null);
+  }
+
+  public AsicManifest(String containerType) {
+    generateAsicManifest(containerType);
+  }
+
+  private void generateAsicManifest(String containerType) {
     logger.debug("Creating new manifest");
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     try {
@@ -53,7 +64,12 @@ public class AsicManifest {
 
       Element firstChild = dom.createElement("manifest:file-entry");
       firstChild.setAttribute("manifest:full-path", "/");
-      firstChild.setAttribute("manifest:media-type", "application/vnd.etsi.asic-e+zip");
+      if(AsicSContainer.ASIC_S.equals(containerType)){
+        firstChild.setAttribute("manifest:media-type", MimeType.ASICS.getMimeTypeString());
+      }else{
+        firstChild.setAttribute("manifest:media-type", MimeType.ASICE.getMimeTypeString());
+      }
+
       rootElement.appendChild(firstChild);
 
       dom.appendChild(rootElement);

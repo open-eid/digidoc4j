@@ -42,9 +42,9 @@ public class AsicStreamContainerParser extends AsicContainerParser{
     logger.debug("Parsing zip stream");
     try {
       ZipEntry entry;
-      while ((entry = zipInputStream.getNextEntry()) != null) {
-        parseEntry(entry);
-      }
+        while ((entry = zipInputStream.getNextEntry()) != null) {
+          parseEntry(entry);
+        }
     } catch (IOException e) {
       logger.error("Error reading bdoc container stream: " + e.getMessage());
       throw new TechnicalException("Error reading bdoc container stream: ", e);

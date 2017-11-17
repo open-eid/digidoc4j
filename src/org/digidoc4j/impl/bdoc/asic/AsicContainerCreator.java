@@ -85,16 +85,21 @@ public class AsicContainerCreator {
   }
 
 
-  public void writeAsiceMimeType() {
+  public void writeAsiceMimeType(String containerType) {
     logger.debug("Writing asic mime type to bdoc zip file");
-    String mimeTypeString = MimeType.ASICE.getMimeTypeString();
+    String mimeTypeString;
+    if (AsicSContainer.BDOC.equals(containerType)){
+      mimeTypeString = MimeType.ASICE.getMimeTypeString();
+    } else{
+      mimeTypeString = MimeType.ASICS.getMimeTypeString();
+    }
     byte[] mimeTypeBytes = mimeTypeString.getBytes(CHARSET);
     new BytesEntryCallback(getAsicMimeTypeZipEntry(mimeTypeBytes), mimeTypeBytes).write();
   }
 
-  public void writeManifest(Collection<DataFile> dataFiles) {
+  public void writeManifest(Collection<DataFile> dataFiles, String containerType) {
     logger.debug("Writing bdoc manifest");
-    final AsicManifest manifest = new AsicManifest();
+    final AsicManifest manifest = new AsicManifest(containerType);
     manifest.addFileEntry(dataFiles);
     new EntryCallback(new ZipEntry(AsicManifest.XML_PATH)) {
       @Override

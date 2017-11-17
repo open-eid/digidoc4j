@@ -241,7 +241,7 @@ public final class DigiDoc4J {
   @SuppressWarnings("AccessStaticViaInstance")
   private static Option type() {
     return withArgName("type").hasArg()
-        .withDescription("sets container type. types can be DDOC or BDOC").withLongOpt("type").create("t");
+        .withDescription("sets container type. types can be DDOC or BDOC or ASICS").withLongOpt("type").create("t");
   }
 
   @SuppressWarnings("AccessStaticViaInstance")

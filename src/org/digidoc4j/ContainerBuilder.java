@@ -18,10 +18,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.CustomContainerBuilder;
-import org.digidoc4j.impl.bdoc.BDocContainerBuilder;
+import org.digidoc4j.impl.bdoc.asic.AsicEContainerBuilder;
+import org.digidoc4j.impl.bdoc.asic.AsicSContainerBuilder;
 import org.digidoc4j.impl.ddoc.DDocContainerBuilder;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
@@ -52,16 +54,18 @@ public abstract class ContainerBuilder {
 
   public static final String BDOC_CONTAINER_TYPE = "BDOC";
   public static final String DDOC_CONTAINER_TYPE = "DDOC";
+  public static final String BDOC_CONTAINER_TYPE_ASIC_S = "ASICS";
   protected static Map<String, Class<? extends Container>> containerImplementations = new HashMap<>();
   protected Configuration configuration;
   protected List<ContainerDataFile> dataFiles = new ArrayList<>();
   protected String containerFilePath;
   protected InputStream containerInputStream;
+  protected static String containerType;
 
   /**
    * Create a new BDoc container builder.
    *
-   * @return builder for creating or opening a container.
+   * @return builder for creating or opening a BDOC(ASICE) container.
    */
   public static ContainerBuilder aContainer() {
     return aContainer(BDOC_CONTAINER_TYPE);
@@ -70,19 +74,22 @@ public abstract class ContainerBuilder {
   /**
    * Create a new container builder based on a container type.
    *
-   * @param containerType a type of container to be created, e.g. "BDOC" or "DDOC".
+   * @param containerType a type of container to be created, e.g. "BDOC(ASICE)" , "ASICS" or "DDOC".
    *
    * @return builder for creating a container.
    */
   public static ContainerBuilder aContainer(String containerType) {
+    ContainerBuilder.containerType = containerType;
     if (isCustomContainerType(containerType)) {
       return new CustomContainerBuilder(containerType);
     }
     switch (containerType) {
       case BDOC_CONTAINER_TYPE:
-        return new BDocContainerBuilder();
+        return new AsicEContainerBuilder();
       case DDOC_CONTAINER_TYPE:
         return new DDocContainerBuilder();
+      case BDOC_CONTAINER_TYPE_ASIC_S:
+        return new AsicSContainerBuilder();
     }
     throw new NotSupportedException("Container type is not supported: " + containerType);
   }
@@ -123,6 +130,10 @@ public abstract class ContainerBuilder {
    * @throws InvalidDataFileException
    */
   public ContainerBuilder withDataFile(String filePath, String mimeType) throws InvalidDataFileException {
+    if (ContainerBuilder.BDOC_CONTAINER_TYPE_ASIC_S.equals(ContainerBuilder.containerType)
+        && !dataFiles.isEmpty()){
+      throw new DigiDoc4JException("Cannot add second file in case of ASICS container");
+    }
     dataFiles.add(new ContainerDataFile(filePath, mimeType));
     return this;
   }
@@ -137,6 +148,10 @@ public abstract class ContainerBuilder {
    * @throws InvalidDataFileException
    */
   public ContainerBuilder withDataFile(InputStream inputStream, String fileName, String mimeType) throws InvalidDataFileException {
+    if (ContainerBuilder.BDOC_CONTAINER_TYPE_ASIC_S.equals(ContainerBuilder.containerType)
+        && !dataFiles.isEmpty()){
+      throw new DigiDoc4JException("Cannot add second file in case of ASICS container");
+    }
     dataFiles.add(new ContainerDataFile(inputStream, fileName, mimeType));
     return this;
   }
@@ -150,6 +165,10 @@ public abstract class ContainerBuilder {
    * @throws InvalidDataFileException
    */
   public ContainerBuilder withDataFile(File file, String mimeType) throws InvalidDataFileException {
+    if (ContainerBuilder.BDOC_CONTAINER_TYPE_ASIC_S.equals(ContainerBuilder.containerType)
+        && !dataFiles.isEmpty()){
+      throw new DigiDoc4JException("Cannot add second file in case of ASICS container");
+    }
     dataFiles.add(new ContainerDataFile(file.getPath(), mimeType));
     return this;
   }
@@ -161,6 +180,10 @@ public abstract class ContainerBuilder {
    * @return builder for creating or opening a container.
    */
   public ContainerBuilder withDataFile(DataFile dataFile) {
+    if (ContainerBuilder.BDOC_CONTAINER_TYPE_ASIC_S.equals(ContainerBuilder.containerType)
+        && !dataFiles.isEmpty()){
+      throw new DigiDoc4JException("Cannot add second file in case of ASICS container");
+    }
     dataFiles.add(new ContainerDataFile(dataFile));
     return this;
   }
