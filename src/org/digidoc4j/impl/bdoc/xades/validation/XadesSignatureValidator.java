@@ -44,10 +44,13 @@ import eu.europa.esig.dss.x509.SignaturePolicy;
 import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
+/**
+ * Signature validator for Xades signatures.
+ */
 public class XadesSignatureValidator implements SignatureValidator {
 
-  private final static Logger logger = LoggerFactory.getLogger(XadesSignatureValidator.class);
   public static final String TM_POLICY = "1.3.6.1.4.1.10015.1000.3.2.1";
+  private static final Logger logger = LoggerFactory.getLogger(XadesSignatureValidator.class);
   private static final String OIDAS_URN = "OIDAsURN";
   private static final String XADES_SIGNED_PROPERTIES = "http://uri.etsi.org/01903#SignedProperties";
   private transient Reports validationReport;
@@ -57,6 +60,11 @@ public class XadesSignatureValidator implements SignatureValidator {
   private String signatureId;
   private XadesSignature signature;
 
+  /**
+   * Constructor.
+   *
+   * @param signature Signature object for validation
+   */
   public XadesSignatureValidator(XadesSignature signature) {
     this.signature = signature;
     signatureId = signature.getId();
@@ -86,7 +94,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   private void addPolicyValidationErrors() {
     logger.debug("Extracting policy validation errors");
     SignaturePolicy policy = getDssSignature().getPolicyId();
-    if(policy != null) {
+    if (policy != null) {
       String policyIdentifier = Helper.getIdentifier(policy.getIdentifier());
       if (!StringUtils.equals(TM_POLICY, policyIdentifier)) {
         addValidationError(new WrongPolicyIdentifierException("Wrong policy identifier: " + policyIdentifier));
@@ -101,7 +109,8 @@ public class XadesSignatureValidator implements SignatureValidator {
     SignaturePolicy policy = getDssSignature().getPolicyId();
     if (policy != null) {
       if (StringUtils.isBlank(policy.getUrl())) {
-        addValidationError(new WrongPolicyIdentifierException("Error: The URL in signature policy is empty or not available"));
+        addValidationError(
+            new WrongPolicyIdentifierException("Error: The URL in signature policy is empty or not available"));
       }
     }
   }
@@ -114,20 +123,21 @@ public class XadesSignatureValidator implements SignatureValidator {
     Element identifier = DomUtils.getElement(element, "./xades:SignaturePolicyId/xades:SigPolicyId/xades:Identifier");
     String qualifier = identifier.getAttribute("Qualifier");
     if (!StringUtils.equals(OIDAS_URN, qualifier)) {
-      addValidationError(new WrongPolicyIdentifierQualifierException("Wrong policy identifier qualifier: " + qualifier));
+      addValidationError(
+          new WrongPolicyIdentifierQualifierException("Wrong policy identifier qualifier: " + qualifier));
     }
   }
 
   private void addSignedPropertiesReferenceValidationErrors() {
     logger.debug("Extracting signed properties reference validation errors");
     int propertiesReferencesCount = findSignedPropertiesReferencesCount();
-    String signatureId = getDssSignature().getId();
-    if(propertiesReferencesCount == 0) {
-      logger.error("Signed properties are missing for signature " + signatureId);
+    String sigId = getDssSignature().getId();
+    if (propertiesReferencesCount == 0) {
+      logger.error("Signed properties are missing for signature " + sigId);
       addValidationError(new SignedPropertiesMissingException("Signed properties missing"));
     }
     if (propertiesReferencesCount > 1) {
-      logger.error("Multiple signed properties for signature " + signatureId);
+      logger.error("Multiple signed properties for signature " + sigId);
       DigiDoc4JException error = new MultipleSignedPropertiesException("Multiple signed properties");
       addValidationError(error);
     }
@@ -148,14 +158,14 @@ public class XadesSignatureValidator implements SignatureValidator {
     logger.debug("Extracting reported errors");
     if (simpleReport != null) {
       for (String errorMessage : simpleReport.getErrors(signatureId)) {
-        if(isRedundantErrorMessage(errorMessage)) {
+        if (isRedundantErrorMessage(errorMessage)) {
           logger.debug("Ignoring redundant error message: " + errorMessage);
           continue;
         }
         logger.error(errorMessage);
-        if(errorMessage.contains(MessageTag.BBB_XCV_ISCR_ANS.getMessage())) {
+        if (errorMessage.contains(MessageTag.BBB_XCV_ISCR_ANS.getMessage())) {
           addValidationError(new CertificateRevokedException(errorMessage));
-        } else if(errorMessage.contains(MessageTag.PSV_IPSVC_ANS.getMessage())) {
+        } else if (errorMessage.contains(MessageTag.PSV_IPSVC_ANS.getMessage())) {
           addValidationError(new CertificateRevokedException(errorMessage));
         } else {
           addValidationError(new DigiDoc4JException(errorMessage));
@@ -165,7 +175,11 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   private boolean isRedundantErrorMessage(String errorMessage) {
-    return equalsIgnoreCase(errorMessage, MessageTag.ADEST_ROBVPIIC_ANS.getMessage()) || equalsIgnoreCase(errorMessage, MessageTag.LTV_ABSV_ANS.getMessage()) || equalsIgnoreCase(errorMessage, MessageTag.ARCH_LTVV_ANS.getMessage()) || equalsIgnoreCase(errorMessage, MessageTag.BBB_XCV_RFC_ANS.getMessage()) || equalsIgnoreCase(errorMessage, MessageTag.BBB_XCV_SUB_ANS.getMessage());
+    return equalsIgnoreCase(errorMessage, MessageTag.ADEST_ROBVPIIC_ANS.getMessage())
+        || equalsIgnoreCase(errorMessage, MessageTag.LTV_ABSV_ANS.getMessage())
+        || equalsIgnoreCase(errorMessage, MessageTag.ARCH_LTVV_ANS.getMessage())
+        || equalsIgnoreCase(errorMessage, MessageTag.BBB_XCV_RFC_ANS.getMessage())
+        || equalsIgnoreCase(errorMessage, MessageTag.BBB_XCV_SUB_ANS.getMessage());
   }
 
   private void addReportedWarnings() {
@@ -178,7 +192,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   private void addTimestampErrors() {
-    if(!isTimestampValidForSignature()) {
+    if (!isTimestampValidForSignature()) {
       logger.error("Signature " + signatureId + " has an invalid timestamp");
       addValidationError(new InvalidTimestampException());
     }
@@ -191,7 +205,7 @@ public class XadesSignatureValidator implements SignatureValidator {
       return true;
     }
     List<String> timestampIdList = diagnosticData.getTimestampIdList(signatureId);
-    if(timestampIdList == null || timestampIdList.isEmpty()) {
+    if (timestampIdList == null || timestampIdList.isEmpty()) {
       return true;
     }
     String timestampId = timestampIdList.get(0);
@@ -201,16 +215,16 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   private SimpleReport getSimpleReport(Map<String, SimpleReport> simpleReports) {
-    SimpleReport simpleReport = simpleReports.get(signatureId);
-    if (simpleReport != null && simpleReports.size() == 1) {
+    SimpleReport simpleRep = simpleReports.get(signatureId);
+    if (simpleRep != null && simpleReports.size() == 1) {
       return simpleReports.values().iterator().next();
     }
-    return simpleReport;
+    return simpleRep;
   }
 
   private void addOcspErrors() {
     OcspNonceValidator ocspValidator = new OcspNonceValidator(getDssSignature());
-    if(!ocspValidator.isValid()) {
+    if (!ocspValidator.isValid()) {
       logger.error("OCSP nonce is invalid");
       addValidationError(new InvalidOcspNonceException());
     }

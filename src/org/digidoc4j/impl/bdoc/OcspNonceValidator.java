@@ -21,6 +21,7 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DLSequence;
+import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.slf4j.Logger;
@@ -30,6 +31,9 @@ import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.DigestAlgorithm;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
+/**
+ * Validator of OCSP response NONCE extension
+ */
 public class OcspNonceValidator implements Serializable {
 
   private static final Logger logger = LoggerFactory.getLogger(OcspNonceValidator.class);
@@ -37,11 +41,19 @@ public class OcspNonceValidator implements Serializable {
   private XAdESSignature signature;
   private BasicOCSPResp ocspResponse;
 
+  /**
+   * Constructor of the validator
+   * @param signature Xades signature object
+   */
   public OcspNonceValidator(XAdESSignature signature) {
     this.signature = signature;
     ocspResponse = getLatestOcspResponse(signature.getOCSPSource().getContainedOCSPResponses());
   }
 
+  /**
+   * Method for asking if OCSP response is valid or not.
+   * @return True if OCSP response is valid, false otherwise.
+   */
   public boolean isValid() {
     if (signature.getPolicyId() == null) {
       return true;
@@ -62,17 +74,18 @@ public class OcspNonceValidator implements Serializable {
     Date latestDate = basicOCSPResp.getProducedAt();
 
     for (int i = 1; i < ocspResponses.size(); i++) {
-      BasicOCSPResp ocspResponse = ocspResponses.get(i);
-      if (ocspResponse.getProducedAt().after(latestDate)) {
-        latestDate = ocspResponse.getProducedAt();
-        basicOCSPResp = ocspResponse;
+      BasicOCSPResp ocspResp = ocspResponses.get(i);
+      if (ocspResp.getProducedAt().after(latestDate)) {
+        latestDate = ocspResp.getProducedAt();
+        basicOCSPResp = ocspResp;
       }
     }
     return basicOCSPResp;
   }
 
   private boolean isOcspResponseValid(BasicOCSPResp latestOcspResponse) {
-    Extension extension = latestOcspResponse.getExtension(new ASN1ObjectIdentifier("1.3.6.1.5.5.7.48.1.2"));
+    Extension extension = latestOcspResponse.getExtension(
+        new ASN1ObjectIdentifier(OCSPObjectIdentifiers.id_pkix_ocsp_nonce.getId()));
     if (extension == null) {
       logger.error("No valid OCSP extension found in signature: " + signature.getId());
       return false;

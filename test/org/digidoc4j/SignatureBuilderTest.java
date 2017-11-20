@@ -159,6 +159,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
         withSignatureProfile(SignatureProfile.LT_TM).
         withSignatureToken(testSignatureToken).
         invokeSigning();
+    assertTrue(signature.validateSignature().isValid());
     container.addSignature(signature);
 
     List<TimestampToken> signatureTimestamps = signature.getOrigin().getDssSignature().getSignatureTimestamps();
