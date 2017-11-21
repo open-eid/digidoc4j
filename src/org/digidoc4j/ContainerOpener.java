@@ -21,6 +21,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.bdoc.BDocContainer;
 import org.digidoc4j.impl.bdoc.asic.AsicSContainer;
 import org.digidoc4j.impl.ddoc.DDocOpener;
+import org.digidoc4j.impl.pades.PadesContainer;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,9 @@ public class ContainerOpener {
   public static Container open(String path, Configuration configuration) throws DigiDoc4JException {
     logger.debug("Opening container from path: " + path);
     try {
-      if (Helper.isZipFile(new File(path))) {
+      if (Helper.isPdfFile(path)){
+        return openPadesContainer(path, configuration);
+      } else if (Helper.isZipFile(new File(path))) {
         return openBDocContainer(path, configuration);
       } else {
         return new DDocOpener().open(path, configuration);
@@ -140,5 +143,10 @@ public class ContainerOpener {
       return new AsicSContainer(path, configuration);
     }
     return new BDocContainer(path, configuration);
+  }
+
+  private static Container openPadesContainer(String path, Configuration configuration) {
+    configuration.loadConfiguration("digidoc4j.yaml", false);
+    return new PadesContainer(path, configuration);
   }
 }

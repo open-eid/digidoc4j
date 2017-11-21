@@ -314,6 +314,28 @@ public class HelperTest {
     compareFileSize(tmpFolder, helperFolder);
   }
 
+  @Test
+  public void testIsAsicSContainer(){
+    String asics = "test.asics";
+    String scs = "test.scs";
+    String sce = "test.sce";
+    String asice = "tets.asice";
+
+    assertTrue(Helper.isAsicSContainer(asics));
+    assertTrue(Helper.isAsicSContainer(scs));
+    assertTrue(Helper.isAsicSContainer("testFiles\\valid-containers\\testasics.zip"));
+
+    assertFalse(Helper.isAsicSContainer(sce));
+    assertFalse(Helper.isAsicSContainer(asice));
+    assertFalse(Helper.isAsicSContainer("testFiles\\valid-containers\\one_signature.bdoc"));
+  }
+
+  @Test
+  public void testPDFContainer(){
+    assertTrue(Helper.isPdfFile("testFiles\\valid-containers\\EE_AS-P-BpLT-V-009.pdf"));
+    assertFalse(Helper.isPdfFile("testFiles\\valid-containers\\one_signature.bdoc"));
+  }
+
   private void compareFileSize(String tmpFolder, String helperFolder) {
     File helperfile1 = new File(helperFolder + File.separator + "DigiDocService_spec_est.pdf");
     File helperfile2 = new File(helperFolder + File.separator + "sample_file.pdf");

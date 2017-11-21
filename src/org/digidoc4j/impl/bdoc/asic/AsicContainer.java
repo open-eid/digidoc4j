@@ -47,9 +47,9 @@ import eu.europa.esig.dss.DSSDocument;
 public abstract class AsicContainer implements Container {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicContainer.class);
-  public static String ASIC_S = "ASICS";
-  public static String ASIC_E = "ASICE";
-  public static String BDOC = "BDOC";
+  public static final String ASIC_S = "ASICS";
+  public static final String ASIC_E = "ASICE";
+  public static final String BDOC = "BDOC";
 
   protected Configuration configuration;
   private ValidationResult validationResult;
@@ -101,12 +101,10 @@ public abstract class AsicContainer implements Container {
   }
 
   protected ValidationResult validateContainer() {
-
-    if(!isNewContainer()){
+    if (!isNewContainer()){
       BDocContainerValidator validator = new BDocContainerValidator(containerParseResult, getConfiguration());
       validator.setValidateManifest(!dataFilesHaveChanged);
-      ValidationResult validationResult = validator.validate(getSignatures());
-      return validationResult;
+      return validator.validate(getSignatures());
     } else{
       return new BDocContainerValidator(getConfiguration()).validate(getSignatures());
     }
@@ -237,7 +235,7 @@ public abstract class AsicContainer implements Container {
 
   private void removeExistingFileFromContainer(String filePath) {
     logger.debug("Removing file from the container: " + filePath);
-    if(containerParseResult != null){
+    if (containerParseResult != null){
     List<AsicEntry> asicEntries = containerParseResult.getAsicEntries();
     for (AsicEntry entry : asicEntries) {
       String entryFileName = entry.getZipEntry().getName();
@@ -295,7 +293,7 @@ public abstract class AsicContainer implements Container {
   public void addDataFile(DataFile dataFile) {
     String fileName = dataFile.getName();
     verifyIfAllowedToAddDataFile(fileName);
-    if("ASICS".equals(getType())) {
+    if (ASIC_S.equals(getType())) {
       if (allDataFiles.size() > 1) {
         throw new DigiDoc4JException("DataFile is already exists");
       } else if (newDataFiles.size() > 1) {
@@ -319,7 +317,7 @@ public abstract class AsicContainer implements Container {
 
   @Override
   public void extendSignatureProfile(SignatureProfile profile) {
-    if(!isNewContainer()) {
+    if (!isNewContainer()) {
       removeAllExistingSignaturesFromContainer();
       List<Signature> signatures = extendAllSignaturesProfile(profile, allSignatures, allDataFiles);
       allSignatures = signatures;
@@ -331,9 +329,9 @@ public abstract class AsicContainer implements Container {
 
   private List<Signature> extendAllSignaturesProfile(SignatureProfile profile, List<Signature> signatures, List<DataFile> dataFiles) {
     List<Signature> extendedSignatures;
-    if("ASICS".equals(getType())){
+    if (ASIC_S.equals(getType())){
       extendedSignatures = extendAllSignatureProfile(profile, signatures, Arrays.asList(dataFiles.get(0)));
-    }else{
+    } else{
        extendedSignatures = extendAllSignatureProfile(profile, signatures, dataFiles);
     }
     return extendedSignatures;
@@ -373,7 +371,7 @@ public abstract class AsicContainer implements Container {
   //method is deprecated in case of new container
   @Override
   public void removeDataFile(String fileName) {
-    if(!isNewContainer()) {
+    if (!isNewContainer()) {
       logger.error("Datafiles cannot be removed from an already signed container");
       throw new RemovingDataFileException();
     } else{

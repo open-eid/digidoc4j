@@ -25,6 +25,7 @@ import org.digidoc4j.impl.CustomContainerBuilder;
 import org.digidoc4j.impl.bdoc.asic.AsicEContainerBuilder;
 import org.digidoc4j.impl.bdoc.asic.AsicSContainerBuilder;
 import org.digidoc4j.impl.ddoc.DDocContainerBuilder;
+import org.digidoc4j.impl.pades.PadesContainerBuilder;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,7 @@ public abstract class ContainerBuilder {
   public static final String BDOC_CONTAINER_TYPE = "BDOC";
   public static final String DDOC_CONTAINER_TYPE = "DDOC";
   public static final String BDOC_CONTAINER_TYPE_ASIC_S = "ASICS";
+  public static final String PADES_CONTAINER_TYPE = "PADES";
   protected static Map<String, Class<? extends Container>> containerImplementations = new HashMap<>();
   protected Configuration configuration;
   protected List<ContainerDataFile> dataFiles = new ArrayList<>();
@@ -90,6 +92,8 @@ public abstract class ContainerBuilder {
         return new DDocContainerBuilder();
       case BDOC_CONTAINER_TYPE_ASIC_S:
         return new AsicSContainerBuilder();
+      case PADES_CONTAINER_TYPE:
+        return new PadesContainerBuilder();
     }
     throw new NotSupportedException("Container type is not supported: " + containerType);
   }

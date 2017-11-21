@@ -412,11 +412,17 @@ public final class Helper {
     }
   }
 
+  /**
+   * Checks that it's AsicS container
+   *
+   * @param path
+   * @return true if AsicS container
+   */
   public static boolean isAsicSContainer(String path) {
     String extension = FilenameUtils.getExtension(path);
-    if("scs".equals(extension) || "asics".equals(extension)){
+    if ("scs".equals(extension) || "asics".equals(extension)){
       return true;
-    }else if("zip".equals(extension)){
+    } else if ("zip".equals(extension)){
       try {
         return parseContainer(new BufferedInputStream(new FileInputStream(path)));
       } catch (FileNotFoundException e) {
@@ -428,6 +434,12 @@ public final class Helper {
     return false;
   }
 
+  /**
+   * Checks that it's AsicS container
+   *
+   * @param stream
+   * @return true if AsicS container
+   */
   public static boolean isAsicSContainer(BufferedInputStream stream) {
     boolean isAsic = false;
     try {
@@ -439,7 +451,7 @@ public final class Helper {
   }
 
   private static boolean parseContainer(BufferedInputStream stream) throws IOException {
-    stream.mark(stream.available()+1);
+    stream.mark(stream.available() + 1);
     ZipInputStream zipInputStream = new ZipInputStream(stream);
     try {
       ZipEntry entry;
@@ -461,5 +473,15 @@ public final class Helper {
       stream.reset();
     }
     return false;
+  }
+
+  /**
+   * Checks that it's pades container
+   *
+   * @param file path
+   * @return true in case of pades container
+   */
+  public static boolean isPdfFile(String file) {
+    return FilenameUtils.getExtension(file).equals("pdf");
   }
 }
