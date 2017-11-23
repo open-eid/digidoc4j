@@ -52,6 +52,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
   private final PKCS12SignatureToken testSignatureToken = new PKCS12SignatureToken("testFiles/p12/signout.p12", "test".toCharArray());
+  private final PKCS12SignatureToken PKCS12_SIGNER_ECC = new PKCS12SignatureToken("testFiles/p12/ec-digiid.p12", "inno".toCharArray());
 
   @After
   public void tearDown() throws Exception {
@@ -103,6 +104,24 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
     byte[] bytesToSign = dataToSign.getDigestToSign();
     assertNotNull(bytesToSign);
     assertTrue(bytesToSign.length > 1);
+  }
+
+  @Test
+  public void signDocumentExternally() throws Exception {
+    Container container = TestDataBuilder.createContainerWithFile(testFolder);
+    DataToSign dataToSign = SignatureBuilder.
+        aSignature(container).
+        withSigningCertificate(testSignatureToken.getCertificate()).
+        withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
+        buildDataToSign();
+    // This simulates external sign
+    byte[] signatureValue = testSignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDigestToSign());
+    assertNotNull(signatureValue);
+    assertTrue(signatureValue.length > 1);
+    Signature signature = dataToSign.finalize(signatureValue);
+    assertTrue(signature.validateSignature().isValid());
+    container.addSignature(signature);
+    assertTrue(container.validate().isValid());
   }
 
   @Test

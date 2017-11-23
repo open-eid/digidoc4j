@@ -124,19 +124,19 @@ public class BDocSignatureBuilder extends SignatureBuilder implements SignatureF
     logger.info("Signing BDoc container");
     signatureParameters.setSigningCertificate(signatureToken.getCertificate());
     byte[] dataToSign = getDataToBeSigned();
+    logger.info("DataToSign: " + bytesToHex(dataToSign, hexMaxlen));
     Signature result = null;
-    byte[] signatureValue = null;
     int count = 0;
     boolean finalized = false;
     while (!finalized && count < maxTryCount) {
+      byte[] signatureValue = signatureToken.sign(signatureParameters.getDigestAlgorithm(), dataToSign);
+      if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA
+          && isAsn1Encoded(signatureValue)) {
+        signatureValue = DSSSignatureUtils.convertToXmlDSig(eu.europa.esig.dss.EncryptionAlgorithm.ECDSA, signatureValue);
+      }
       try {
         // TODO: Investigate instability (of BouncyCastle?)
         // Sometimes sign returns value what causes error in finalizeSignature
-        signatureValue = signatureToken.sign(signatureParameters.getDigestAlgorithm(), dataToSign);
-        if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA
-            && isAsn1Encoded(signatureValue)) {
-          signatureValue = DSSSignatureUtils.convertToXmlDSig(eu.europa.esig.dss.EncryptionAlgorithm.ECDSA, signatureValue);
-        }
         result = finalizeSignature(signatureValue);
         finalized = true;
       } catch (TechnicalException e) {
