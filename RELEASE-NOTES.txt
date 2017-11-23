@@ -1,10 +1,24 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+Release 1.0.7.1
+------------------
+Summary of the major changes since 1.0.7
+----------------------------------------
+* Fixed signing problem when encryption algorithm is ECDSA and signature profile LT_TM.
+* Updated the pre-calculated policy digest value.
+
+Known issues
+------------
+* Signing with ID-card and using PKCS11SignatureToken class have still a problem
+when encryption algorithm is ECDSA and signature profile LT_TM.
+
+------------------------------------
 Release 1.0.7
 ------------------
 Summary of the major changes since 1.0.7 RC.2
 ----------------------------------------
 * Performance test fix
+
 ------------------------------------
 Release 1.0.7 RC.2
 ------------------

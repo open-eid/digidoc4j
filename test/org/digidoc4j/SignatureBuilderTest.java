@@ -159,6 +159,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
         withSignatureProfile(SignatureProfile.LT_TM).
         withSignatureToken(testSignatureToken).
         invokeSigning();
+    assertTrue(signature.validateSignature().isValid());
     container.addSignature(signature);
 
     List<TimestampToken> signatureTimestamps = signature.getOrigin().getDssSignature().getSignatureTimestamps();
@@ -256,6 +257,22 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
         withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA).
         invokeSigning();
     assertTrue(signature.validateSignature().isValid());
+  }
+
+  @Test
+  public void signTMWithEccCertificate() throws Exception {
+    PKCS12SignatureToken eccSignatureToken = new PKCS12SignatureToken("testFiles/p12/ec-digiid.p12", "inno".toCharArray());
+    Container container = TestDataBuilder.createContainerWithFile(testFolder, "BDOC");
+    Signature signature = SignatureBuilder.
+        aSignature(container).
+        withSignatureToken(eccSignatureToken).
+        withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA).
+        withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
+        withSignatureProfile(SignatureProfile.LT_TM).
+        invokeSigning();
+    assertTrue(signature.validateSignature().isValid());
+    container.addSignature(signature);
+    assertTrue(container.validate().isValid());
   }
 
   @Test
