@@ -26,6 +26,7 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
 import org.digidoc4j.ValidationResult;
+import org.digidoc4j.exceptions.NotYetImplementedException;
 
 /**
  * This class is used in unit tests for testing custom container creation.
@@ -145,6 +146,11 @@ public class TestContainer implements Container {
   @Override
   public ValidationResult validate() {
     return null;
+  }
+
+  @Override
+  public void setTimeStampToken(DataFile timeStampToken) {
+    throw new NotYetImplementedException();
   }
 
   @Override

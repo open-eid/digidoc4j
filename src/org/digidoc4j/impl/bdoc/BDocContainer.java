@@ -57,26 +57,56 @@ public class BDocContainer extends AsicEContainer {
 
   private static final Logger logger = LoggerFactory.getLogger(BDocContainer.class);
 
+  /**
+   * BDocContainer constructor
+   */
   public BDocContainer() {
     super();
   }
 
+  /**
+   * BDocContainer constructor
+   *
+   * @param configuration
+   */
   public BDocContainer(Configuration configuration) {
     super(configuration);
   }
 
+  /**
+   * BDocContainer constructor
+   *
+   * @param containerPath
+   */
   public BDocContainer(String containerPath) {
     super(containerPath);
   }
 
+  /**
+   * BDocContainer constructor
+   *
+   * @param containerPath
+   * @param configuration
+   */
   public BDocContainer(String containerPath, Configuration configuration) {
     super(containerPath, configuration);
   }
 
+  /**
+   * BDocContainer constructor
+   *
+   * @param stream
+   */
   public BDocContainer(InputStream stream) {
     super(stream);
   }
 
+  /**
+   * BDocContainer constructor
+   *
+   * @param stream
+   * @param configuration
+   */
   public BDocContainer(InputStream stream, Configuration configuration) {
     super(stream, configuration);
   }

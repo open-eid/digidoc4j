@@ -11,17 +11,24 @@
 package org.digidoc4j;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.tsp.TimeStampToken;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.CustomContainerBuilder;
+import org.digidoc4j.impl.bdoc.SkDataLoader;
 import org.digidoc4j.impl.bdoc.asic.AsicEContainerBuilder;
 import org.digidoc4j.impl.bdoc.asic.AsicSContainerBuilder;
 import org.digidoc4j.impl.ddoc.DDocContainerBuilder;
@@ -29,6 +36,13 @@ import org.digidoc4j.impl.pades.PadesContainerBuilder;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.europa.esig.dss.DSSASN1Utils;
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.InMemoryDocument;
+import eu.europa.esig.dss.MimeType;
+import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 
 /**
  * Class for creating and opening containers.
@@ -55,7 +69,7 @@ public abstract class ContainerBuilder {
 
   public static final String BDOC_CONTAINER_TYPE = "BDOC";
   public static final String DDOC_CONTAINER_TYPE = "DDOC";
-  public static final String BDOC_CONTAINER_TYPE_ASIC_S = "ASICS";
+  public static final String ASICS_CONTAINER_TYPE = "ASICS";
   public static final String PADES_CONTAINER_TYPE = "PADES";
   protected static Map<String, Class<? extends Container>> containerImplementations = new HashMap<>();
   protected Configuration configuration;
@@ -63,6 +77,7 @@ public abstract class ContainerBuilder {
   protected String containerFilePath;
   protected InputStream containerInputStream;
   protected static String containerType;
+  private DataFile timeStampToken;
 
   /**
    * Create a new BDoc container builder.
@@ -90,7 +105,7 @@ public abstract class ContainerBuilder {
         return new AsicEContainerBuilder();
       case DDOC_CONTAINER_TYPE:
         return new DDocContainerBuilder();
-      case BDOC_CONTAINER_TYPE_ASIC_S:
+      case ASICS_CONTAINER_TYPE:
         return new AsicSContainerBuilder();
       case PADES_CONTAINER_TYPE:
         return new PadesContainerBuilder();
@@ -111,6 +126,9 @@ public abstract class ContainerBuilder {
     }
     Container container = createNewContainer();
     addDataFilesToContainer(container);
+    if (timeStampToken != null){
+      addTimeStampTokenToContainer(container);
+    }
     return container;
   }
 
@@ -134,7 +152,7 @@ public abstract class ContainerBuilder {
    * @throws InvalidDataFileException
    */
   public ContainerBuilder withDataFile(String filePath, String mimeType) throws InvalidDataFileException {
-    if (ContainerBuilder.BDOC_CONTAINER_TYPE_ASIC_S.equals(ContainerBuilder.containerType)
+    if (ContainerBuilder.ASICS_CONTAINER_TYPE.equals(ContainerBuilder.containerType)
         && !dataFiles.isEmpty()){
       throw new DigiDoc4JException("Cannot add second file in case of ASICS container");
     }
@@ -152,7 +170,7 @@ public abstract class ContainerBuilder {
    * @throws InvalidDataFileException
    */
   public ContainerBuilder withDataFile(InputStream inputStream, String fileName, String mimeType) throws InvalidDataFileException {
-    if (ContainerBuilder.BDOC_CONTAINER_TYPE_ASIC_S.equals(ContainerBuilder.containerType)
+    if (ContainerBuilder.ASICS_CONTAINER_TYPE.equals(ContainerBuilder.containerType)
         && !dataFiles.isEmpty()){
       throw new DigiDoc4JException("Cannot add second file in case of ASICS container");
     }
@@ -169,7 +187,7 @@ public abstract class ContainerBuilder {
    * @throws InvalidDataFileException
    */
   public ContainerBuilder withDataFile(File file, String mimeType) throws InvalidDataFileException {
-    if (ContainerBuilder.BDOC_CONTAINER_TYPE_ASIC_S.equals(ContainerBuilder.containerType)
+    if (ContainerBuilder.ASICS_CONTAINER_TYPE.equals(ContainerBuilder.containerType)
         && !dataFiles.isEmpty()){
       throw new DigiDoc4JException("Cannot add second file in case of ASICS container");
     }
@@ -184,11 +202,58 @@ public abstract class ContainerBuilder {
    * @return builder for creating or opening a container.
    */
   public ContainerBuilder withDataFile(DataFile dataFile) {
-    if (ContainerBuilder.BDOC_CONTAINER_TYPE_ASIC_S.equals(ContainerBuilder.containerType)
+    if (ContainerBuilder.ASICS_CONTAINER_TYPE.equals(ContainerBuilder.containerType)
         && !dataFiles.isEmpty()){
       throw new DigiDoc4JException("Cannot add second file in case of ASICS container");
     }
     dataFiles.add(new ContainerDataFile(dataFile));
+    return this;
+  }
+
+  /**
+   * Add time stamp token to container
+   *
+   * @param digestAlgorithm
+   * @return ContainerBuilder
+   */
+  public ContainerBuilder withTimeStampToken(DigestAlgorithm digestAlgorithm){
+    if (dataFiles.isEmpty()){
+      throw new DigiDoc4JException("Add data file first");
+    }
+    if (dataFiles.size() > 1){
+      throw new DigiDoc4JException("Supports only asics with only one datafile");
+    }
+    ContainerBuilder.ContainerDataFile containerDataFile = dataFiles.get(0);
+
+    OnlineTSPSource onlineTSPSource = new OnlineTSPSource();
+    if (configuration == null){
+      configuration = Configuration.getInstance();
+    }
+    onlineTSPSource.setTspServer(configuration.getTspSource());
+
+    SkDataLoader dataLoader = SkDataLoader.createTimestampDataLoader(configuration);
+    dataLoader.setAsicSUserAgentSignatureProfile();
+    onlineTSPSource.setDataLoader(dataLoader);
+
+
+    try {
+      byte[] dataFielDigest;
+      if (!containerDataFile.isStream){
+        Path path = Paths.get(containerDataFile.filePath);
+        dataFielDigest = Files.readAllBytes(path);
+      } else{
+          dataFielDigest = IOUtils.toByteArray(containerDataFile.inputStream);
+      }
+      byte[] digest = DSSUtils.digest(digestAlgorithm, dataFielDigest);
+      TimeStampToken timeStampResponse = onlineTSPSource.getTimeStampResponse(digestAlgorithm, digest);
+      String timestampFilename = "timestamp";
+      timeStampToken = new DataFile();
+      timeStampToken.setDocument(new InMemoryDocument(DSSASN1Utils.getEncoded(timeStampResponse), timestampFilename, MimeType.TST));
+      timeStampToken.setMediaType(MimeType.TST.getMimeTypeString());
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
     return this;
   }
 
@@ -254,6 +319,10 @@ public abstract class ContainerBuilder {
     }
   }
 
+  private void addTimeStampTokenToContainer(Container container) {
+    container.setTimeStampToken(timeStampToken);
+  }
+
   protected boolean shouldOpenContainerFromFile() {
     return StringUtils.isNotBlank(containerFilePath);
   }
@@ -303,7 +372,7 @@ public abstract class ContainerBuilder {
     }
 
     private void validateDataFile() {
-      if(StringUtils.isBlank(filePath)) {
+      if (StringUtils.isBlank(filePath)) {
         throw new InvalidDataFileException("File name/path cannot be empty");
       }
       if (StringUtils.isBlank(mimeType)) {

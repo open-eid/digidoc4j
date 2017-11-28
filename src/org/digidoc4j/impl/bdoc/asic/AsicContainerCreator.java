@@ -70,7 +70,7 @@ public class AsicContainerCreator {
       zipOutputStream.finish();
     } catch (IOException e) {
       handleIOException("Unable to finish creating BDoc ZIP container", e);
-    }finally {
+    } finally {
       Helper.deleteTmpFiles();
     }
   }
@@ -127,6 +127,12 @@ public class AsicContainerCreator {
       new BytesEntryCallback(new ZipEntry(signatureFileName), signature.getAdESSignature()).write();
       index++;
     }
+  }
+
+  public void writeTimestampToken(DataFile dataFile) {
+    logger.debug("Adding signatures to the bdoc zip container");
+    String signatureFileName = "META-INF/timestamp.tst";
+    new BytesEntryCallback(new ZipEntry(signatureFileName), dataFile.getBytes()).write();
   }
 
   public void writeExistingEntries(Collection<AsicEntry> asicEntries) {

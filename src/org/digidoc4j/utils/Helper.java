@@ -68,8 +68,10 @@ public final class Helper {
 
   private static final int ZIP_VERIFICATION_CODE = 0x504b0304;
   private static final int INT_LENGTH = 4;
-  private static final String BDOC_TM_SIGNATURE_LEVEL = "ASiC_E_BASELINE_LT_TM";
-  private static final String EMPTY_CONTAINER_SIGNATURE_LEVEL = "ASiC_E";
+  private static final String ASIC_E_TM_SIGNATURE_LEVEL = "ASiC_E_BASELINE_LT_TM";
+  private static final String ASIC_S_TM_SIGNATURE_LEVEL = "ASiC_S_BASELINE_LT_TM";
+  private static final String EMPTY_CONTAINER_SIGNATURE_LEVEL_ASIC_E = "ASiC_E";
+  private static final String EMPTY_CONTAINER_SIGNATURE_LEVEL_ASIC_S = "ASiC_S";
   public static final String SPECIAL_CHARACTERS = "[\\\\<>:\"/|?*]";
 
   private Helper() {
@@ -235,7 +237,7 @@ public final class Helper {
       ua.append("/").append(version);
     }
 
-    if(signatureProfile != null) {
+    if (signatureProfile != null) {
       ua.append(" signatureProfile: ").append(signatureProfile);
     }
 
@@ -257,24 +259,24 @@ public final class Helper {
   }
 
   public static String createBDocAsicSUserAgent(SignatureProfile signatureProfile) {
-    if(signatureProfile == SignatureProfile.LT_TM) {
-      return createUserAgent(MimeType.ASICS.getMimeTypeString(), null, BDOC_TM_SIGNATURE_LEVEL);
+    if (signatureProfile == SignatureProfile.LT_TM) {
+      return createUserAgent(MimeType.ASICS.getMimeTypeString(), null, ASIC_S_TM_SIGNATURE_LEVEL);
     }
     SignatureLevel signatureLevel = determineSignatureLevel(signatureProfile);
     return createBDocUserAgent(signatureLevel);
   }
 
   public static String createBDocAsicSUserAgent() {
-    return createUserAgent(MimeType.ASICS.getMimeTypeString(), null, EMPTY_CONTAINER_SIGNATURE_LEVEL);
+    return createUserAgent(MimeType.ASICS.getMimeTypeString(), null, EMPTY_CONTAINER_SIGNATURE_LEVEL_ASIC_S);
   }
 
   public static String createBDocUserAgent() {
-    return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, EMPTY_CONTAINER_SIGNATURE_LEVEL);
+    return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, EMPTY_CONTAINER_SIGNATURE_LEVEL_ASIC_E);
   }
 
   public static String createBDocUserAgent(SignatureProfile signatureProfile) {
-    if(signatureProfile == SignatureProfile.LT_TM) {
-      return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, BDOC_TM_SIGNATURE_LEVEL);
+    if (signatureProfile == SignatureProfile.LT_TM) {
+      return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, ASIC_E_TM_SIGNATURE_LEVEL);
     }
     SignatureLevel signatureLevel = determineSignatureLevel(signatureProfile);
     return createBDocUserAgent(signatureLevel);
@@ -286,9 +288,9 @@ public final class Helper {
 
   //TODO find solution
   private static SignatureLevel determineSignatureLevel(SignatureProfile signatureProfile) {
-    if(signatureProfile == SignatureProfile.B_BES) {
+    if (signatureProfile == SignatureProfile.B_BES) {
       return SignatureLevel.XAdES_BASELINE_B;
-    } else if(signatureProfile == SignatureProfile.LTA) {
+    } else if (signatureProfile == SignatureProfile.LTA) {
       return SignatureLevel.XAdES_BASELINE_LTA;
     } else {
       return SignatureLevel.XAdES_BASELINE_LT;

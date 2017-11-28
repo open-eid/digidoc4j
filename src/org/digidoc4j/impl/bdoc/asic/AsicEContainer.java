@@ -17,30 +17,60 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by Andrei on 7.11.2017.
  */
-public abstract class AsicEContainer extends AsicContainer {
+public class AsicEContainer extends AsicContainer {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicEContainer.class);
 
+  /**
+   * AsicEContainer constructor
+   */
   public AsicEContainer() {
     super();
   }
 
+  /**
+   * AsicEContainer constructor
+   *
+   * @param configuration
+   */
   public AsicEContainer(Configuration configuration) {
     super(configuration);
   }
 
+  /**
+   * AsicEContainer constructor
+   *
+   * @param containerPath
+   */
   public AsicEContainer(String containerPath) {
     super(containerPath);
   }
 
+  /**
+   * AsicEContainer constructor
+   *
+   * @param containerPath
+   * @param configuration
+   */
   public AsicEContainer(String containerPath, Configuration configuration) {
     super(containerPath, configuration);
   }
 
+  /**
+   * AsicEContainer constructor
+   *
+   * @param stream
+   */
   public AsicEContainer(InputStream stream) {
     super(stream);
   }
 
+  /**
+   * AsicEContainer constructor
+   *
+   * @param stream
+   * @param configuration
+   */
   public AsicEContainer(InputStream stream, Configuration configuration) {
     super(stream, configuration);
   }
@@ -50,8 +80,13 @@ public abstract class AsicEContainer extends AsicContainer {
     return AsicContainer.BDOC;
   }
 
+  @Override
+  public void save(OutputStream out) {
+    writeAsicContainer(new AsicContainerCreator(out));
+  }
+
   protected String createUserAgent() {
-    if(!getSignatures().isEmpty()) {
+    if (!getSignatures().isEmpty()) {
       SignatureProfile profile = getSignatures().get(0).getProfile();
       return Helper.createBDocUserAgent(profile);
     }

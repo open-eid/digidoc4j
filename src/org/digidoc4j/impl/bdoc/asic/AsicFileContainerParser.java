@@ -26,7 +26,7 @@ import eu.europa.esig.dss.InMemoryDocument;
 
 public class AsicFileContainerParser extends AsicContainerParser{
 
-  private final static Logger logger = LoggerFactory.getLogger(AsicFileContainerParser.class);
+  private static final Logger logger = LoggerFactory.getLogger(AsicFileContainerParser.class);
   private ZipFile zipFile;
 
   public AsicFileContainerParser(String containerPath, Configuration configuration) {

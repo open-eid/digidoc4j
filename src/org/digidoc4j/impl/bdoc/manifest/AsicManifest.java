@@ -64,9 +64,9 @@ public class AsicManifest {
 
       Element firstChild = dom.createElement("manifest:file-entry");
       firstChild.setAttribute("manifest:full-path", "/");
-      if(AsicSContainer.ASIC_S.equals(containerType)){
+      if (AsicSContainer.ASIC_S.equals(containerType)){
         firstChild.setAttribute("manifest:media-type", MimeType.ASICS.getMimeTypeString());
-      }else{
+      } else{
         firstChild.setAttribute("manifest:media-type", MimeType.ASICE.getMimeTypeString());
       }
 

@@ -69,7 +69,7 @@ public class AsicSContainer extends AsicContainer {
   }
 
   protected String createUserAgent() {
-    if(!getSignatures().isEmpty()) {
+    if (!getSignatures().isEmpty()) {
       SignatureProfile profile = getSignatures().get(0).getProfile();
       return Helper.createBDocAsicSUserAgent(profile);
     }

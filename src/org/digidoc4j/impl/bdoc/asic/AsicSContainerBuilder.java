@@ -5,7 +5,6 @@ import java.io.Serializable;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
-import org.digidoc4j.impl.bdoc.BDocContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

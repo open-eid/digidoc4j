@@ -19,6 +19,7 @@ import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.impl.bdoc.SKCommonCertificateVerifier;
 
@@ -104,6 +105,11 @@ public class PadesContainer implements Container {
     throw new NotYetImplementedException();
   }
 
+  /**
+   * Validate pades container
+   *
+   * @return ValidationResult
+   */
   public ValidationResult validate() {
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(new FileDocument(new File(containerPath)));
     validator.setCertificateVerifier(new SKCommonCertificateVerifier());
@@ -124,6 +130,11 @@ public class PadesContainer implements Container {
     result.setErrors(errors);
     result.setWarnings(warnings);
     return result;
+  }
+
+  @Override
+  public void setTimeStampToken(DataFile timeStampToken) {
+    throw new NotSupportedException("Not for Pades container");
   }
 
   private List<DigiDoc4JException> getExceptions(List<String> exceptionString) {

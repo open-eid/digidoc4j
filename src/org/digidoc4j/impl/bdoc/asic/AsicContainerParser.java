@@ -43,7 +43,8 @@ import eu.europa.esig.dss.MimeType;
 public abstract class AsicContainerParser {
 
   public static final String MANIFEST = "META-INF/manifest.xml";
-  private final static Logger logger = LoggerFactory.getLogger(AsicContainerParser.class);
+  public static final String TIMESTAMP_TOKEN = "META-INF/timestamp.tst";
+  private static final Logger logger = LoggerFactory.getLogger(AsicContainerParser.class);
   //Matches META-INF/*signatures*.xml where the last * is a number
   private static final String SIGNATURES_FILE_REGEX = "META-INF/(.*)signatures(.*).xml";
   private static final Pattern SIGNATURE_FILE_ENDING_PATTERN = Pattern.compile("(\\d+).xml");
@@ -59,6 +60,7 @@ public abstract class AsicContainerParser {
   private ManifestParser manifestParser;
   private boolean storeDataFilesOnlyInMemory;
   private long maxDataFileCachedInBytes;
+  private DataFile timestampToken;
 
   protected AsicContainerParser(Configuration configuration) {
     storeDataFilesOnlyInMemory = configuration.storeDataFilesOnlyInMemory();
@@ -96,6 +98,8 @@ public abstract class AsicContainerParser {
       extractSignature(entry);
     } else if (isDataFile(entryName)) {
       extractDataFile(entry);
+    } else if (isTimeStampToken(entryName)) {
+      extractTimeStamp(entry);
     } else {
       extractAsicEntry(entry);
     }
@@ -121,6 +125,13 @@ public abstract class AsicContainerParser {
     InMemoryDocument document = new InMemoryDocument(zipFileInputStream, fileName);
     signatures.add(document);
     extractSignatureAsicEntry(entry, document);
+  }
+
+  private void extractTimeStamp(ZipEntry entry) {
+    logger.debug("Extracting timestamp file");
+    InputStream zipFileInputStream = getZipEntryInputStream(entry);
+    String fileName = entry.getName();
+    timestampToken = new DataFile(zipFileInputStream, fileName, MimeType.TST.getMimeTypeString());
   }
 
   private void extractDataFile(ZipEntry entry) {
@@ -181,8 +192,8 @@ public abstract class AsicContainerParser {
   }
 
   private void validateParseResult() {
-    if (!StringUtils.equalsIgnoreCase(MimeType.ASICE.getMimeTypeString(), mimeType) &&
-        !StringUtils.equalsIgnoreCase(MimeType.ASICS.getMimeTypeString(), mimeType)) {
+    if (!StringUtils.equalsIgnoreCase(MimeType.ASICE.getMimeTypeString(), mimeType)
+        && !StringUtils.equalsIgnoreCase(MimeType.ASICS.getMimeTypeString(), mimeType)) {
       logger.error("Container mime type is not " + MimeType.ASICE.getMimeTypeString() + " but is " + mimeType);
       throw new UnsupportedFormatException("Container mime type is not " + MimeType.ASICE.getMimeTypeString() +
           " OR " + MimeType.ASICS.getMimeTypeString() + " but is " + mimeType);
@@ -205,6 +216,8 @@ public abstract class AsicContainerParser {
     parseResult.setManifestParser(manifestParser);
     parseResult.setZipFileComment(zipFileComment);
     parseResult.setAsicEntries(asicEntries);
+    parseResult.setTimeStampToken(timestampToken);
+    parseResult.setMimeType(mimeType);
   }
 
   private boolean isMimeType(String entryName) {
@@ -213,6 +226,10 @@ public abstract class AsicContainerParser {
 
   private boolean isDataFile(String entryName) {
     return !entryName.startsWith("META-INF/") && !isMimeType(entryName);
+  }
+
+  private boolean isTimeStampToken(String entryName) {
+    return StringUtils.equalsIgnoreCase(TIMESTAMP_TOKEN, entryName);
   }
 
   private boolean isManifest(String entryName) {

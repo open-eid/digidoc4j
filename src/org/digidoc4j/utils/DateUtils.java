@@ -15,10 +15,15 @@ import static org.apache.commons.lang3.time.DateUtils.addSeconds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 public final class DateUtils {
   private static final Logger logger = LoggerFactory.getLogger(DateUtils.class);
+
+  private static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+  private static final String GREENWICH_MEAN_TIME = "Etc/GMT";
 
   private DateUtils() {
     logger.debug("");
@@ -51,5 +56,16 @@ public final class DateUtils {
     Date latestTime = addSeconds(date2, rangeInSeconds);
     Date earliestTime = addSeconds(date2, -rangeInSeconds);
     return date1.before(latestTime) && date1.after(earliestTime);
+  }
+
+  /**
+   * Get Date Formatted with GMT Zone
+   *
+   * @return SimpleDateFormat
+   */
+  public static SimpleDateFormat getDateFormatterWithGMTZone() {
+    SimpleDateFormat sdf = new SimpleDateFormat(DEFAULT_DATE_TIME_FORMAT);
+    sdf.setTimeZone(TimeZone.getTimeZone(GREENWICH_MEAN_TIME));
+    return sdf;
   }
 }

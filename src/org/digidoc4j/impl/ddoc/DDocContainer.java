@@ -28,6 +28,7 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
 import org.digidoc4j.ValidationResult;
+import org.digidoc4j.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,6 +143,11 @@ public class DDocContainer implements Container {
   @Override
   public ValidationResult validate() {
     return jDigiDocFacade.validate();
+  }
+
+  @Override
+  public void setTimeStampToken(DataFile timeStampToken) {
+    throw new NotSupportedException("Not for DDOC container");
   }
 
   /**
