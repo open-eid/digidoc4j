@@ -56,7 +56,7 @@ import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 
 public class AsicSignatureBuilder extends SignatureBuilder implements SignatureFinalizer {
 
-  private final static Logger logger = LoggerFactory.getLogger(AsicSignatureBuilder.class);
+  private static final Logger logger = LoggerFactory.getLogger(AsicSignatureBuilder.class);
   private transient XadesSigningDssFacade facade;
   private Date signingDate;
 
