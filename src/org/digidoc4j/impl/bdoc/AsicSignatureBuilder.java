@@ -54,9 +54,9 @@ import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignerLocation;
 import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 
-public class BDocSignatureBuilder extends SignatureBuilder implements SignatureFinalizer {
+public class AsicSignatureBuilder extends SignatureBuilder implements SignatureFinalizer {
 
-  private final static Logger logger = LoggerFactory.getLogger(BDocSignatureBuilder.class);
+  private final static Logger logger = LoggerFactory.getLogger(AsicSignatureBuilder.class);
   private transient XadesSigningDssFacade facade;
   private Date signingDate;
 

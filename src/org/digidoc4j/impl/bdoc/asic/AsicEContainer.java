@@ -2,10 +2,9 @@ package org.digidoc4j.impl.bdoc.asic;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.List;
 
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
@@ -77,7 +76,7 @@ public class AsicEContainer extends AsicContainer {
 
   @Override
   public String getType() {
-    return AsicContainer.BDOC;
+    return Constant.BDOC_CONTAINER_TYPE;
   }
 
   @Override

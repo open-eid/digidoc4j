@@ -18,6 +18,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.bdoc.asic.AsicSContainer;
@@ -64,7 +65,7 @@ public class AsicManifest {
 
       Element firstChild = dom.createElement("manifest:file-entry");
       firstChild.setAttribute("manifest:full-path", "/");
-      if (AsicSContainer.ASIC_S.equals(containerType)){
+      if (Constant.ASICS_CONTAINER_TYPE.equals(containerType)){
         firstChild.setAttribute("manifest:media-type", MimeType.ASICS.getMimeTypeString());
       } else{
         firstChild.setAttribute("manifest:media-type", MimeType.ASICE.getMimeTypeString());

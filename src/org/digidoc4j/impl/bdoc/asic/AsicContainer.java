@@ -14,6 +14,7 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
@@ -47,9 +48,6 @@ import eu.europa.esig.dss.DSSDocument;
 public abstract class AsicContainer implements Container {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicContainer.class);
-  public static final String ASIC_S = "ASICS";
-  public static final String ASIC_E = "ASICE";
-  public static final String BDOC = "BDOC";
 
   protected Configuration configuration;
   private ValidationResult validationResult;
@@ -342,7 +340,7 @@ public abstract class AsicContainer implements Container {
   public void addDataFile(DataFile dataFile) {
     String fileName = dataFile.getName();
     verifyIfAllowedToAddDataFile(fileName);
-    if (ASIC_S.equals(getType())) {
+    if (Constant.ASICS_CONTAINER_TYPE.equals(getType())) {
       if (allDataFiles.size() > 1) {
         throw new DigiDoc4JException("DataFile is already exists");
       } else if (newDataFiles.size() > 1) {
@@ -392,7 +390,7 @@ public abstract class AsicContainer implements Container {
 
   private List<Signature> extendAllSignaturesProfile(SignatureProfile profile, List<Signature> signatures, List<DataFile> dataFiles) {
     List<Signature> extendedSignatures;
-    if (ASIC_S.equals(getType())){
+    if (Constant.ASICS_CONTAINER_TYPE.equals(getType())){
       extendedSignatures = extendAllSignatureProfile(profile, signatures, Arrays.asList(dataFiles.get(0)));
     } else{
        extendedSignatures = extendAllSignatureProfile(profile, signatures, dataFiles);
@@ -497,7 +495,7 @@ public abstract class AsicContainer implements Container {
       zipCreator.writeAsiceMimeType(getType());
       zipCreator.writeManifest(allDataFiles, getType());
       zipCreator.writeDataFiles(allDataFiles);
-      if (timeStampToken != null && ASIC_S.equals(getType())){
+      if (timeStampToken != null && Constant.ASICS_CONTAINER_TYPE.equals(getType())){
         zipCreator.writeTimestampToken(timeStampToken);
       } else {
         zipCreator.writeSignatures(allSignatures, startingSignatureFileIndex);

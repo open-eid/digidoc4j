@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.FileInputStream;
 
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ValidationResult;
@@ -45,7 +46,7 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
     Container container = ContainerBuilder.
-        aContainer(AsicSContainer.ASIC_S).
+        aContainer(Constant.ASICS_CONTAINER_TYPE).
         withConfiguration(configuration).
         withDataFile("testFiles/helper-files/test.txt", "text/plain").
         withTimeStampToken(DigestAlgorithm.SHA256).
@@ -62,7 +63,7 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
     Container container = ContainerBuilder.
-        aContainer(AsicSContainer.ASIC_S).
+        aContainer(Constant.ASICS_CONTAINER_TYPE).
         withConfiguration(configuration).
         fromExistingFile("testFiles\\valid-containers\\testtimestamp.asics").
         build();
@@ -76,7 +77,7 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
     Container container = ContainerBuilder.
-        aContainer(AsicSContainer.ASIC_S).
+        aContainer(Constant.ASICS_CONTAINER_TYPE).
         withConfiguration(configuration).
         fromExistingFile("testFiles\\valid-containers\\timestamptoken-ddoc.asics").
         build();
@@ -93,7 +94,7 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
     Container container = ContainerBuilder.
-        aContainer(AsicSContainer.ASIC_S).
+        aContainer(Constant.ASICS_CONTAINER_TYPE).
         withConfiguration(configuration).
         fromExistingFile("testFiles\\invalid-containers\\timestamptoken-two-data-files.asics").
         build();
@@ -106,7 +107,7 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
     Container container = ContainerBuilder.
-        aContainer(AsicSContainer.ASIC_S).
+        aContainer(Constant.ASICS_CONTAINER_TYPE).
         withConfiguration(configuration).
         fromExistingFile("testFiles\\invalid-containers\\timestamptoken-invalid.asics").
         build();
@@ -116,7 +117,7 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
 
   @Test
   public void generatedTimestampToken() throws Exception {
-    try (FileInputStream fis = new FileInputStream("testFiles\\certs\\timestamp.tst")) {
+    try (FileInputStream fis = new FileInputStream("testFiles\\tst\\timestamp.tst")) {
       TimestampToken token = new TimestampToken(Utils.toByteArray(fis), TimestampType.ARCHIVE_TIMESTAMP, new CertificatePool());
       assertNotNull(token);
       assertNotNull(token.getGenerationTime());

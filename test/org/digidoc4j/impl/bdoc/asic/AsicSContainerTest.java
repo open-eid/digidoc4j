@@ -19,6 +19,7 @@ import java.util.zip.ZipFile;
 import eu.europa.esig.dss.MimeType;
 
 import org.apache.commons.io.FileUtils;
+import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
@@ -77,7 +78,7 @@ public class AsicSContainerTest extends DigiDoc4JTestHelper {
   @Test(expected = DigiDoc4JException.class)
   public void testExistingAsicSContainerFromPath()throws IOException{
     Container container = ContainerBuilder.
-        aContainer(AsicSContainer.ASIC_S).
+        aContainer(Constant.ASICS_CONTAINER_TYPE).
         fromExistingFile("testFiles\\valid-containers\\testasics.asics").
         build();
     //cannot add second file to existing container
@@ -87,7 +88,7 @@ public class AsicSContainerTest extends DigiDoc4JTestHelper {
   @Test(expected = DigiDoc4JException.class)
   public void testExistingAsicSContainerFromZIPPath()throws IOException{
     Container container = ContainerBuilder.
-        aContainer(AsicSContainer.ASIC_S).
+        aContainer(Constant.ASICS_CONTAINER_TYPE).
         fromExistingFile("testFiles\\valid-containers\\testasics.zip").
         build();
     //cannot add second file to existing container
@@ -98,7 +99,7 @@ public class AsicSContainerTest extends DigiDoc4JTestHelper {
   public void testExistingAsicSContainerFromStream()throws IOException{
     InputStream inputStream = new FileInputStream(new File("testFiles\\valid-containers\\testasics.asics"));
     Container container = ContainerBuilder.
-        aContainer(AsicSContainer.ASIC_S).
+        aContainer(Constant.ASICS_CONTAINER_TYPE).
         fromStream(inputStream).
         build();
     //cannot add second file to existing container
@@ -159,7 +160,7 @@ public class AsicSContainerTest extends DigiDoc4JTestHelper {
 
   private static Container createContainerWithFile(TemporaryFolder testFolder, int filesCount) throws IOException {
     ContainerBuilder containerBuilder = ContainerBuilder
-        .aContainer(AsicSContainer.ASIC_S);
+        .aContainer(Constant.ASICS_CONTAINER_TYPE);
     for (int i = 0; i < filesCount; i++){
       containerBuilder.withDataFile(createTestFile(testFolder).getPath(), "text/plain");
     }

@@ -1,6 +1,7 @@
 package org.digidoc4j.impl.pades;
 
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ValidationResult;
@@ -41,7 +42,7 @@ public class PadesValidationTest {
 
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
     Container container = ContainerBuilder.
-        aContainer(ContainerBuilder.PADES_CONTAINER_TYPE).
+        aContainer(Constant.PADES_CONTAINER_TYPE).
         withConfiguration(configuration).
         fromExistingFile("testFiles\\valid-containers\\EE_AS-P-BpLT-V-009.pdf").
         build();

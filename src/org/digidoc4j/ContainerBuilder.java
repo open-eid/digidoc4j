@@ -55,6 +55,7 @@ import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
  *   &nbsp;&nbsp; {@link ContainerBuilder#withConfiguration(Configuration) withConfiguration(configuration)}.  // Configuration settings <br/>
  *   &nbsp;&nbsp; {@link ContainerBuilder#withDataFile(String, String) withDataFile("testFiles/legal_contract_1.txt", "text/plain")}.  // Adding a document from a hard drive <br/>
  *   &nbsp;&nbsp; {@link ContainerBuilder#withDataFile(InputStream, String, String) withDataFile(inputStream, "legal_contract_2.txt", "text/plain")}.  // Adding a document from a stream <br/>
+ *   &nbsp;&nbsp; {@link ContainerBuilder#withTimeStampToken(DigestAlgorithm digestAlgorithm)}.  // Adding timestamp token in case of ASICS <br/>
  *   &nbsp;&nbsp; {@link ContainerBuilder#build() build()}; <br/>
  * </code></p>
  * <p>
@@ -67,10 +68,6 @@ public abstract class ContainerBuilder {
 
   private static final Logger logger = LoggerFactory.getLogger(ContainerBuilder.class);
 
-  public static final String BDOC_CONTAINER_TYPE = "BDOC";
-  public static final String DDOC_CONTAINER_TYPE = "DDOC";
-  public static final String ASICS_CONTAINER_TYPE = "ASICS";
-  public static final String PADES_CONTAINER_TYPE = "PADES";
   protected static Map<String, Class<? extends Container>> containerImplementations = new HashMap<>();
   protected Configuration configuration;
   protected List<ContainerDataFile> dataFiles = new ArrayList<>();
@@ -85,7 +82,7 @@ public abstract class ContainerBuilder {
    * @return builder for creating or opening a BDOC(ASICE) container.
    */
   public static ContainerBuilder aContainer() {
-    return aContainer(BDOC_CONTAINER_TYPE);
+    return aContainer(Constant.BDOC_CONTAINER_TYPE);
   }
 
   /**
@@ -101,13 +98,13 @@ public abstract class ContainerBuilder {
       return new CustomContainerBuilder(containerType);
     }
     switch (containerType) {
-      case BDOC_CONTAINER_TYPE:
+      case Constant.BDOC_CONTAINER_TYPE:
         return new AsicEContainerBuilder();
-      case DDOC_CONTAINER_TYPE:
+      case Constant.DDOC_CONTAINER_TYPE:
         return new DDocContainerBuilder();
-      case ASICS_CONTAINER_TYPE:
+      case Constant.ASICS_CONTAINER_TYPE:
         return new AsicSContainerBuilder();
-      case PADES_CONTAINER_TYPE:
+      case Constant.PADES_CONTAINER_TYPE:
         return new PadesContainerBuilder();
     }
     throw new NotSupportedException("Container type is not supported: " + containerType);
@@ -152,7 +149,7 @@ public abstract class ContainerBuilder {
    * @throws InvalidDataFileException
    */
   public ContainerBuilder withDataFile(String filePath, String mimeType) throws InvalidDataFileException {
-    if (ContainerBuilder.ASICS_CONTAINER_TYPE.equals(ContainerBuilder.containerType)
+    if (Constant.ASICS_CONTAINER_TYPE.equals(ContainerBuilder.containerType)
         && !dataFiles.isEmpty()){
       throw new DigiDoc4JException("Cannot add second file in case of ASICS container");
     }
@@ -170,7 +167,7 @@ public abstract class ContainerBuilder {
    * @throws InvalidDataFileException
    */
   public ContainerBuilder withDataFile(InputStream inputStream, String fileName, String mimeType) throws InvalidDataFileException {
-    if (ContainerBuilder.ASICS_CONTAINER_TYPE.equals(ContainerBuilder.containerType)
+    if (Constant.ASICS_CONTAINER_TYPE.equals(ContainerBuilder.containerType)
         && !dataFiles.isEmpty()){
       throw new DigiDoc4JException("Cannot add second file in case of ASICS container");
     }
@@ -187,7 +184,7 @@ public abstract class ContainerBuilder {
    * @throws InvalidDataFileException
    */
   public ContainerBuilder withDataFile(File file, String mimeType) throws InvalidDataFileException {
-    if (ContainerBuilder.ASICS_CONTAINER_TYPE.equals(ContainerBuilder.containerType)
+    if (Constant.ASICS_CONTAINER_TYPE.equals(ContainerBuilder.containerType)
         && !dataFiles.isEmpty()){
       throw new DigiDoc4JException("Cannot add second file in case of ASICS container");
     }
@@ -202,7 +199,7 @@ public abstract class ContainerBuilder {
    * @return builder for creating or opening a container.
    */
   public ContainerBuilder withDataFile(DataFile dataFile) {
-    if (ContainerBuilder.ASICS_CONTAINER_TYPE.equals(ContainerBuilder.containerType)
+    if (Constant.ASICS_CONTAINER_TYPE.equals(ContainerBuilder.containerType)
         && !dataFiles.isEmpty()){
       throw new DigiDoc4JException("Cannot add second file in case of ASICS container");
     }

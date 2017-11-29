@@ -25,6 +25,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.NotSupportedException;
@@ -88,7 +89,7 @@ public class AsicContainerCreator {
   public void writeAsiceMimeType(String containerType) {
     logger.debug("Writing asic mime type to bdoc zip file");
     String mimeTypeString;
-    if (AsicSContainer.BDOC.equals(containerType)){
+    if (Constant.BDOC_CONTAINER_TYPE.equals(containerType)){
       mimeTypeString = MimeType.ASICE.getMimeTypeString();
     } else{
       mimeTypeString = MimeType.ASICS.getMimeTypeString();

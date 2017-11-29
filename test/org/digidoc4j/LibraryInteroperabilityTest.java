@@ -10,7 +10,7 @@
 
 package org.digidoc4j;
 
-import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
+import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.SignatureProfile.B_EPES;
 import static org.digidoc4j.SignatureProfile.LT_TM;
 import static org.digidoc4j.testutils.TestDataBuilder.createContainerWithFile;

@@ -11,7 +11,7 @@
 package org.digidoc4j.impl.bdoc;
 
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
-import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
+import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.DigestAlgorithm.SHA1;
 import static org.digidoc4j.DigestAlgorithm.SHA224;
 import static org.digidoc4j.DigestAlgorithm.SHA256;

@@ -32,7 +32,7 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.bdoc.BDocSignature;
-import org.digidoc4j.impl.bdoc.BDocSignatureBuilder;
+import org.digidoc4j.impl.bdoc.AsicSignatureBuilder;
 import org.digidoc4j.impl.bdoc.SkDataLoader;
 import org.digidoc4j.impl.bdoc.ocsp.SKOnlineOCSPSource;
 import org.slf4j.Logger;
@@ -132,7 +132,7 @@ public class SignatureExtender {
 
   private void setSignaturePolicy(SignatureProfile profile) {
     if (profile == LT_TM) {
-      Policy signaturePolicy = BDocSignatureBuilder.createBDocSignaturePolicy();
+      Policy signaturePolicy = AsicSignatureBuilder.createBDocSignaturePolicy();
       extendingFacade.setSignaturePolicy(signaturePolicy);
     }
   }

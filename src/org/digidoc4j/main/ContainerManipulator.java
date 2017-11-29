@@ -102,6 +102,7 @@ public class ContainerManipulator {
     if (equalsIgnoreCase(commandLine.getOptionValue("type"), "DDOC")) return DDOC;
     if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".bdoc")) return BDOC;
     if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".asics")) return ASICS;
+    if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".scs")) return ASICS;
     if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".ddoc")) return DDOC;
     return BDOC;
   }

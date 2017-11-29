@@ -19,6 +19,12 @@ public final class Constant {
   public static final long CACHE_ALL_DATA_FILES = -1;
   public static final long CACHE_NO_DATA_FILES = 0;
 
+  public static final String BDOC_CONTAINER_TYPE = "BDOC";
+  public static final String DDOC_CONTAINER_TYPE = "DDOC";
+  public static final String ASICE_CONTAINER_TYPE = "ASICE";
+  public static final String ASICS_CONTAINER_TYPE = "ASICS";
+  public static final String PADES_CONTAINER_TYPE = "PADES";
+
   public static class System {
 
     public static final String JAVAX_NET_SSL_TRUST_STORE_PASSWORD = "javax.net.ssl.trustStorePassword";
