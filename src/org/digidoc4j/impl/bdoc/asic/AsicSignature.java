@@ -257,7 +257,12 @@ public class AsicSignature implements Signature {
     return signatureDocument;
   }
 
-  DigestAlgorithm getSignatureDigestAlgorithm() {
+  /**
+   * Gets Signature Digest Algorithm
+   *
+   * @return DigestAlgorithm
+   */
+  public DigestAlgorithm getSignatureDigestAlgorithm() {
     return xadesSignature.getDssSignature().getDigestAlgorithm();
   }
 

@@ -27,6 +27,7 @@ import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.bdoc.AsicSignatureBuilder;
+import org.digidoc4j.impl.bdoc.BDocSignatureBuilder;
 import org.digidoc4j.impl.ddoc.DDocSignatureBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +86,7 @@ public abstract class SignatureBuilder implements Serializable {
     if (isCustomContainerType(containerType)) {
       return createCustomSignatureBuilder(containerType);
     } else if (isContainerType(containerType, BDOC_CONTAINER_TYPE)) {
-      return new AsicSignatureBuilder();
+      return new BDocSignatureBuilder();
     } else if (isContainerType(containerType, ASICS_CONTAINER_TYPE)) {
       return new AsicSignatureBuilder();
     } else if (isContainerType(containerType, DDOC_CONTAINER_TYPE)) {
