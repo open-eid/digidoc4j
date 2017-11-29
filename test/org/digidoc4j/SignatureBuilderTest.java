@@ -40,6 +40,7 @@ import org.digidoc4j.testutils.TestSignatureBuilder;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.digidoc4j.utils.TokenAlgorithmSupport;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
