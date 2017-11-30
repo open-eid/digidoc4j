@@ -17,11 +17,20 @@ import static org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers.id_pkix_ocsp_nonc
 
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
 
+/**
+ * BDocTMOcspSource is class for creating BDoc TM specific NONCE.
+ */
 public class BDocTMOcspSource extends SKOnlineOCSPSource {
   private static final Logger logger = LoggerFactory.getLogger(SKOnlineOCSPSource.class);
   private final byte[] signature;
 
+  /**
+   * Constructor.
+   * @param configuration Configuration.
+   * @param signature Signature value without DER prefixes.
+   */
   public BDocTMOcspSource(Configuration configuration, byte[] signature) {
     super(configuration);
     this.signature = signature;

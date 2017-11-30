@@ -34,6 +34,7 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.bdoc.OcspNonceValidator;
 import org.digidoc4j.impl.bdoc.SkDataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -206,6 +207,10 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     return dataLoader;
   }
 
+  /**
+   * Define data loader.
+   * @param dataLoader Data loader object to be used.
+   */
   public void setDataLoader(SkDataLoader dataLoader) {
     this.dataLoader = dataLoader;
   }

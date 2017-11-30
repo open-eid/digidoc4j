@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.digidoc4j.DataFile;
+import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.bdoc.SKCommonCertificateVerifier;
 import org.digidoc4j.impl.bdoc.asic.DetachedContentCreator;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import org.w3c.dom.Element;
 
 import eu.europa.esig.dss.BLevelParameters;
 import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.DigestAlgorithm;
 import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.EncryptionAlgorithm;
@@ -36,18 +38,19 @@ import eu.europa.esig.dss.SignaturePackaging;
 import eu.europa.esig.dss.SignatureValue;
 import eu.europa.esig.dss.SignerLocation;
 import eu.europa.esig.dss.ToBeSigned;
-import eu.europa.esig.dss.signature.DocumentSignatureService;
+import eu.europa.esig.dss.asic.ASiCNamespace;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.x509.CertificateSource;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 import eu.europa.esig.dss.x509.tsp.TSPSource;
-import eu.europa.esig.dss.asic.ASiCNamespace;
-
 import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XAdESSignatureParameters;
 import eu.europa.esig.dss.xades.signature.XAdESService;
 
+/**
+ * Facade class for DSS Xades signing functionality.
+ */
 public class XadesSigningDssFacade {
 
   private static final Logger logger = LoggerFactory.getLogger(XadesSigningDssFacade.class);
@@ -74,14 +77,18 @@ public class XadesSigningDssFacade {
 
   public DSSDocument signDocument(byte[] signatureValue, Collection<DataFile> dataFiles) {
     logger.debug("Signing document with DSS");
-    SignatureValue dssSignatureValue = new SignatureValue(xAdESSignatureParameters.getSignatureAlgorithm(), signatureValue);
     DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
-    DSSDocument dssDocument = detachedContentCreator.getFirstDetachedContent();
     List<DSSDocument> detachedContentList = detachedContentCreator.getDetachedContentList();
     logger.debug("Signature parameters: " + xAdESSignatureParameters.toString());
     xAdESSignatureParameters.setDetachedContents(detachedContentCreator.getDetachedContentList());
-    DSSDocument signedDocument = xAdESService.signDocument(detachedContentList, xAdESSignatureParameters, dssSignatureValue);
-    logger.debug("Finished signing document with DSS");
+    SignatureValue dssSignatureValue = new SignatureValue(xAdESSignatureParameters.getSignatureAlgorithm(), signatureValue);
+    DSSDocument signedDocument = null;
+    try {
+      signedDocument = xAdESService.signDocument(detachedContentList, xAdESSignatureParameters, dssSignatureValue);
+    } catch (DSSException e) {
+      logger.warn("Signing document with DSS failed:" + e.getMessage());
+      throw new TechnicalException("Got error in signing process");
+    }
     DSSDocument correctedSignedDocument = surroundWithXadesXmlTag(signedDocument);
     return correctedSignedDocument;
   }
@@ -143,25 +150,25 @@ public class XadesSigningDssFacade {
     xAdESSignatureParameters.setSignatureLevel(signatureLevel);
   }
 
+  public String getSignatureId() {
+    return xAdESSignatureParameters.getDeterministicId();
+  }
+
   public void setSignatureId(String signatureId) {
     logger.debug("Setting deterministic id: " + signatureId);
     //TODO find solution for method setDeterministicId(...)
     xAdESSignatureParameters.setDeterministicId(signatureId);
   }
 
-  public String getSignatureId() {
-    return xAdESSignatureParameters.getDeterministicId();
-  }
-
   public void setSigningDate(Date signingDate) {
     xAdESSignatureParameters.getBLevelParams().setSigningDate(signingDate);
   }
 
-  public void setEn319132(boolean isSigningCertificateV2){
+  public void setEn319132(boolean isSigningCertificateV2) {
     xAdESSignatureParameters.setEn319132(isSigningCertificateV2);
   }
 
-  public void getEn319132(){
+  public void getEn319132() {
     xAdESSignatureParameters.isEn319132();
   }
 

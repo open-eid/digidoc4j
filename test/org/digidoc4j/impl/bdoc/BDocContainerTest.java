@@ -568,7 +568,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   }
 
   @Test
-  public void openLargeFileFromStream() throws FileNotFoundException, IOException {
+  public void openLargeFileFromStream() throws IOException {
     BDocContainer container = (BDocContainer) ContainerBuilder.
         aContainer(BDOC_CONTAINER_TYPE).
         withConfiguration(new Configuration(Configuration.Mode.TEST)).
@@ -1235,6 +1235,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals("https://www.sk.ee/repository/bdoc-spec21.pdf", policyId.getUrl());
     assertEquals("" + XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
     assertEquals(eu.europa.esig.dss.DigestAlgorithm.SHA256, policyId.getDigestAlgorithm());
-    assertEquals("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs=", policyId.getDigestValue());
+    assertEquals("0xRLPsW1UIpxtermnTGE+5+5620UsWi5bYJY76Di3o0=", policyId.getDigestValue());
   }
 }
