@@ -143,7 +143,7 @@ public class SkDataLoaderTest {
     configuration.setHttpProxyHost("cache.elion.ee");
     configuration.setHttpProxyPort(8080);
     Container container = ContainerBuilder
-        .aContainer(ContainerBuilder.BDOC_CONTAINER_TYPE).
+        .aContainer(Constant.BDOC_CONTAINER_TYPE).
         withConfiguration(configuration).
         withDataFile("testFiles/helper-files/test.txt", MimeType.TEXT.getMimeTypeString()).
         build();

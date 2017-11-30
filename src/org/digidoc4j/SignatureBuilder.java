@@ -11,8 +11,9 @@
 package org.digidoc4j;
 
 import static java.util.Arrays.asList;
-import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
-import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
+import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
+import static org.digidoc4j.Constant.DDOC_CONTAINER_TYPE;
+import static org.digidoc4j.Constant.ASICS_CONTAINER_TYPE;
 
 import java.io.Serializable;
 import java.security.cert.X509Certificate;
@@ -25,6 +26,7 @@ import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.bdoc.AsicSignatureBuilder;
 import org.digidoc4j.impl.bdoc.BDocSignatureBuilder;
 import org.digidoc4j.impl.ddoc.DDocSignatureBuilder;
 import org.slf4j.Logger;
@@ -85,6 +87,8 @@ public abstract class SignatureBuilder implements Serializable {
       return createCustomSignatureBuilder(containerType);
     } else if (isContainerType(containerType, BDOC_CONTAINER_TYPE)) {
       return new BDocSignatureBuilder();
+    } else if (isContainerType(containerType, ASICS_CONTAINER_TYPE)) {
+      return new AsicSignatureBuilder();
     } else if (isContainerType(containerType, DDOC_CONTAINER_TYPE)) {
       return new DDocSignatureBuilder();
     } else {

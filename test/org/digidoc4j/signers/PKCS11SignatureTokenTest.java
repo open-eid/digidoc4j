@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.DigestAlgorithm;
@@ -52,13 +53,13 @@ public class PKCS11SignatureTokenTest extends DigiDoc4JTestHelper {
 
   @Test
   public void signContainerWithSmartCard() throws Exception {
-    Container container = createSignedContainer(ContainerBuilder.BDOC_CONTAINER_TYPE, DigestAlgorithm.SHA256);
+    Container container = createSignedContainer(Constant.BDOC_CONTAINER_TYPE, DigestAlgorithm.SHA256);
     assertTrue(container.validate().isValid());
   }
 
   @Test
   public void signDDocContainerWithSmartCard() throws Exception {
-    Container container = createSignedContainer(ContainerBuilder.DDOC_CONTAINER_TYPE, DigestAlgorithm.SHA1);
+    Container container = createSignedContainer(Constant.DDOC_CONTAINER_TYPE, DigestAlgorithm.SHA1);
     assertTrue(container.validate().isValid());
   }
 

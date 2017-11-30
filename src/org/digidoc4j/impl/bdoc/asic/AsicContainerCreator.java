@@ -25,6 +25,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.NotSupportedException;
@@ -70,7 +71,7 @@ public class AsicContainerCreator {
       zipOutputStream.finish();
     } catch (IOException e) {
       handleIOException("Unable to finish creating BDoc ZIP container", e);
-    }finally {
+    } finally {
       Helper.deleteTmpFiles();
     }
   }
@@ -85,16 +86,21 @@ public class AsicContainerCreator {
   }
 
 
-  public void writeAsiceMimeType() {
+  public void writeAsiceMimeType(String containerType) {
     logger.debug("Writing asic mime type to bdoc zip file");
-    String mimeTypeString = MimeType.ASICE.getMimeTypeString();
+    String mimeTypeString;
+    if (Constant.BDOC_CONTAINER_TYPE.equals(containerType)){
+      mimeTypeString = MimeType.ASICE.getMimeTypeString();
+    } else{
+      mimeTypeString = MimeType.ASICS.getMimeTypeString();
+    }
     byte[] mimeTypeBytes = mimeTypeString.getBytes(CHARSET);
     new BytesEntryCallback(getAsicMimeTypeZipEntry(mimeTypeBytes), mimeTypeBytes).write();
   }
 
-  public void writeManifest(Collection<DataFile> dataFiles) {
+  public void writeManifest(Collection<DataFile> dataFiles, String containerType) {
     logger.debug("Writing bdoc manifest");
-    final AsicManifest manifest = new AsicManifest();
+    final AsicManifest manifest = new AsicManifest(containerType);
     manifest.addFileEntry(dataFiles);
     new EntryCallback(new ZipEntry(AsicManifest.XML_PATH)) {
       @Override
@@ -122,6 +128,12 @@ public class AsicContainerCreator {
       new BytesEntryCallback(new ZipEntry(signatureFileName), signature.getAdESSignature()).write();
       index++;
     }
+  }
+
+  public void writeTimestampToken(DataFile dataFile) {
+    logger.debug("Adding signatures to the bdoc zip container");
+    String signatureFileName = "META-INF/timestamp.tst";
+    new BytesEntryCallback(new ZipEntry(signatureFileName), dataFile.getBytes()).write();
   }
 
   public void writeExistingEntries(Collection<AsicEntry> asicEntries) {

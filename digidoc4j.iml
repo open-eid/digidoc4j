@@ -77,6 +77,9 @@
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-common:5.1.d4j.3" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-cades:5.1.d4j.3" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-xades:5.1.d4j.3" level="project" />
+    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-pades:5.1.d4j.3" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.pdfbox:pdfbox:2.0.6" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.pdfbox:fontbox:2.0.6" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils:5.1.d4j.3" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils-apache-commons:5.1.d4j.3" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils-google-guava:5.1.d4j.3" level="project" />

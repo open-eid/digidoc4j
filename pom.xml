@@ -605,6 +605,12 @@
     </dependency>
     <dependency>
       <groupId>${dss.groupId}</groupId>
+      <artifactId>dss-pades</artifactId>
+      <version>${dss.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>${dss.groupId}</groupId>
       <artifactId>dss-utils</artifactId>
       <version>${dss.version}</version>
       <scope>compile</scope>

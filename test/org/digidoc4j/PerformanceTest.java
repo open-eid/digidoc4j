@@ -191,7 +191,7 @@ public class PerformanceTest {
 
   private ContainerBuilder openContainerBuilder(String containerPath) {
     return ContainerBuilder.
-        aContainer(ContainerBuilder.BDOC_CONTAINER_TYPE).
+        aContainer(Constant.BDOC_CONTAINER_TYPE).
         fromExistingFile(containerPath);
   }
 

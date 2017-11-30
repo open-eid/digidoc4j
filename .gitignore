@@ -3,6 +3,7 @@ target
 javadoc
 .idea/workspace.xml
 .idea/uiDesigner.xml
+.idea/dictionaries/xp.xml
 .idea/libraries
 *.log
 utility-package-lib

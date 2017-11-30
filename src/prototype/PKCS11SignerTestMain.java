@@ -12,6 +12,7 @@ package prototype;
 
 import java.security.NoSuchAlgorithmException;
 
+import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.Signature;
@@ -44,7 +45,7 @@ public class PKCS11SignerTestMain {
 
   public static void signWithIDCard() throws NoSuchAlgorithmException {
     Container container = ContainerBuilder.
-        aContainer(ContainerBuilder.BDOC_CONTAINER_TYPE).
+        aContainer(Constant.BDOC_CONTAINER_TYPE).
         withDataFile("testFiles/test.txt", "text/plain").
         build();
     SignatureToken pkcs11Signer = new PKCS11SignatureToken(PKCS_11_MODULE_PATH, PIN_CODE.toCharArray(), SLOT_INDEX);

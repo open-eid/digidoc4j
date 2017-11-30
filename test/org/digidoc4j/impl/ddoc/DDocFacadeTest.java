@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl.ddoc;
 
-import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
+import static org.digidoc4j.Constant.DDOC_CONTAINER_TYPE;
 import static org.digidoc4j.DigestAlgorithm.SHA1;
 import static org.digidoc4j.DigestAlgorithm.SHA224;
 import static org.digidoc4j.DigestAlgorithm.SHA256;

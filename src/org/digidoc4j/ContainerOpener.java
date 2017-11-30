@@ -18,8 +18,10 @@ import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.bdoc.ExistingBDocContainer;
+import org.digidoc4j.impl.bdoc.BDocContainer;
+import org.digidoc4j.impl.bdoc.asic.AsicSContainer;
 import org.digidoc4j.impl.ddoc.DDocOpener;
+import org.digidoc4j.impl.pades.PadesContainer;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +48,9 @@ public class ContainerOpener {
   public static Container open(String path, Configuration configuration) throws DigiDoc4JException {
     logger.debug("Opening container from path: " + path);
     try {
-      if (Helper.isZipFile(new File(path))) {
+      if (Helper.isPdfFile(path)){
+        return openPadesContainer(path, configuration);
+      } else if (Helper.isZipFile(new File(path))) {
         return openBDocContainer(path, configuration);
       } else {
         return new DDocOpener().open(path, configuration);
@@ -89,8 +93,10 @@ public class ContainerOpener {
 
     try {
       if (Helper.isZipFile(bufferedInputStream)) {
-        //TODO support big file support flag
-        return new ExistingBDocContainer(bufferedInputStream);
+        if (Helper.isAsicSContainer(bufferedInputStream)){
+          return new  AsicSContainer(bufferedInputStream);
+        }
+        return new BDocContainer(bufferedInputStream);
       } else {
         return new DDocOpener().open(bufferedInputStream);
       }
@@ -116,7 +122,10 @@ public class ContainerOpener {
 
     try {
       if (Helper.isZipFile(bufferedInputStream)) {
-        return new ExistingBDocContainer(bufferedInputStream, configuration);
+        if (Helper.isAsicSContainer(bufferedInputStream)){
+          return new  AsicSContainer(bufferedInputStream, configuration);
+        }
+        return new BDocContainer(bufferedInputStream, configuration);
       } else {
         return new DDocOpener().open(bufferedInputStream, configuration);
       }
@@ -130,6 +139,14 @@ public class ContainerOpener {
 
   private static Container openBDocContainer(String path, Configuration configuration) {
     configuration.loadConfiguration("digidoc4j.yaml", false);
-    return new ExistingBDocContainer(path, configuration);
+    if (Helper.isAsicSContainer(path)){
+      return new AsicSContainer(path, configuration);
+    }
+    return new BDocContainer(path, configuration);
+  }
+
+  private static Container openPadesContainer(String path, Configuration configuration) {
+    configuration.loadConfiguration("digidoc4j.yaml", false);
+    return new PadesContainer(path, configuration);
   }
 }
