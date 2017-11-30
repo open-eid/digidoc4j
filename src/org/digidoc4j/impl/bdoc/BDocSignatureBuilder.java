@@ -17,7 +17,7 @@ public class BDocSignatureBuilder extends AsicESignatureBuilder {
    *
    * @return Policy
    */
-  protected static Policy createBDocSignaturePolicy() {
+  public static Policy createBDocSignaturePolicy() {
     if (policyDefinedByUser != null && isDefinedAllPolicyValues()) {
       return policyDefinedByUser;
     }
