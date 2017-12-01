@@ -1,5 +1,12 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+Release 1.0.7.2
+------------------
+Summary of the major changes since 1.0.7.1
+------------------------------------------
+* Prevent XXE(XML External Entity) processing (switching to sd-dss-5.0.d4j.5).
+
+------------------------------------
 Release 1.0.7.1
 ------------------
 Summary of the major changes since 1.0.7
