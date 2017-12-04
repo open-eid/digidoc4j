@@ -1,4 +1,4 @@
-DigiDoc4J Java library release notes
+igiDoc4J Java library release notes
 ------------------------------------
 Release 1.0.7.1
 ------------------

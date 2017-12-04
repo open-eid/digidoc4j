@@ -1,0 +1,27 @@
+DATAFILE_HASHCODE_MODE: false
+DIGIDOC_MAX_DATAFILE_CACHED: 8192
+DIGIDOC_SECURITY_PROVIDER: org.bouncycastle.jce.provider.BouncyCastleProvider1
+
+DIGIDOC_CAS:
+- DIGIDOC_CA:
+    NAME: AS Sertifitseerimiskeskus
+    TRADENAME: SK
+    CERTS:
+      - jar://certs/EID-SK.crt
+      - jar://certs/ESTEID-SK.crt
+      - jar://certs/ESTEID-SK 2007.crt
+      - jar://certs/EID-SK 2007.crt
+      - jar://certs/JUUR-SK.crt
+      - jar://certs/KLASS3-SK.crt
+      - jar://certs/EECCRCA.crt
+      - jar://certs/ESTEID-SK 2011.crt
+      - jar://certs/EID-SK 2011.crt
+      - jar://certs/KLASS3-SK 2010.crt
+      - jar://certs/KLASS3-SK 2010 EECCRCA.crt
+      - jar://certs/TEST-SK.crt
+      - jar://certs/TEST EECCRCA.crt
+      - jar://certs/TEST ESTEID-SK 2011.crt
+      - jar://certs/TEST EID-SK 2011.crt
+      - jar://certs/TEST KLASS3 2010.crt
+      - jar://certs/TEST Juur-SK.crt
+    OCSPS:
