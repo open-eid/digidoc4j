@@ -1,0 +1,26 @@
+/* DigiDoc4J library
+*
+* This software is released under either the GNU Library General Public
+* License (see LICENSE.LGPL).
+*
+* Note that the only valid version of the LGPL license as far as this
+* project is concerned is the original GNU Library General Public License
+* Version 2.1, February 1999
+*/
+
+package org.digidoc4j.exceptions;
+
+/**
+ * Exception is thrown when not supported container configuration is created
+ */
+public class NotSupportedException extends DigiDoc4JException {
+
+  /**
+   * Creates exception
+   *
+   * @param message reason to throw exception
+   */
+  public NotSupportedException(String message) {
+    super("Not supported: " + message);
+  }
+}

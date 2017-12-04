@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SignedDoc format="DIGIDOC-XML" version="1.3" xmlns="http://www.sk.ee/DigiDoc/v1.3.0#">
+    <DataFile ContentType="EMBEDDED_BASE64" Filename="secret.txt" Id="D0" MimeType="application/octet-stream" Size="0"
+              xmlns="http://www.sk.ee/DigiDoc/v1.3.0#"></DataFile>
+    <Signature Id="S0" xmlns="http://www.w3.org/2000/09/xmldsig#"></Signature>
+</SignedDoc>
+
