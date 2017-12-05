@@ -14,8 +14,15 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.bdoc.report.SignatureValidationReport;
+
+import eu.europa.esig.dss.validation.SignatureQualification;
+import eu.europa.esig.dss.validation.policy.rules.Indication;
+import eu.europa.esig.dss.validation.policy.rules.SubIndication;
+import eu.europa.esig.dss.validation.reports.SimpleReport;
 
 /**
  * Validation result information.
@@ -28,6 +35,7 @@ public class BDocValidationResult implements ValidationResult {
   private List<DigiDoc4JException> warnings = new ArrayList<>();
   private List<DigiDoc4JException> containerErrorsOnly = new ArrayList<>();
   private BDocValidationReportBuilder reportBuilder;
+  private List<SimpleReport> simpleReports = new ArrayList<>();
 
   @Override
   public List<DigiDoc4JException> getErrors() {
@@ -58,6 +66,69 @@ public class BDocValidationResult implements ValidationResult {
   @Override
   public String getReport() {
     return reportBuilder.buildXmlReport();
+  }
+
+  @Override
+  public List<SignatureValidationReport> getSignatureReports() {
+    return reportBuilder.buildSignatureValidationReports();
+  }
+
+  @Override
+  public List<SimpleReport> getSignatureSimpleReports() {
+    return buildSignatureSimpleReports();
+  }
+
+  private List<SimpleReport> buildSignatureSimpleReports() {
+    if (simpleReports.isEmpty()){
+      simpleReports = reportBuilder.buildSignatureSimpleReports();
+    }
+    return simpleReports;
+  }
+
+  @Override
+  public Indication getIndication(String signatureId){
+    if (StringUtils.isBlank(signatureId)){
+      SimpleReport simpleReport = getSimpleReport();
+      return simpleReport != null ? simpleReport.getIndication(simpleReport.getFirstSignatureId()) : null;
+    }
+    SimpleReport reportBySignatureId = getSimpleReportBySignatureId(signatureId);
+    return reportBySignatureId != null ? reportBySignatureId.getIndication(signatureId) : null;
+  }
+
+  @Override
+  public SubIndication getSubIndication(String signatureId){
+    if (StringUtils.isBlank(signatureId)){
+      SimpleReport simpleReport = getSimpleReport();
+      return  simpleReport != null ? simpleReport.getSubIndication(simpleReport.getFirstSignatureId()) : null;
+    }
+    SimpleReport reportBySignatureId = getSimpleReportBySignatureId(signatureId);
+    return reportBySignatureId != null ? reportBySignatureId.getSubIndication(signatureId) : null;
+  }
+
+  @Override
+  public SignatureQualification getSignatureQualification(String signatureId){
+    if (StringUtils.isBlank(signatureId)){
+      SimpleReport simpleReport = getSimpleReport();
+      return simpleReport != null ? simpleReport.getSignatureQualification(simpleReport.getFirstSignatureId()) : null;
+    }
+    SimpleReport reportBySignatureId = getSimpleReportBySignatureId(signatureId);
+    return reportBySignatureId != null ? reportBySignatureId.getSignatureQualification(signatureId) : null;
+  }
+
+  private SimpleReport getSimpleReport() {
+    if (buildSignatureSimpleReports().size() > 0){
+      return buildSignatureSimpleReports().get(0);
+    }
+    return null;
+  }
+
+  private SimpleReport getSimpleReportBySignatureId(String signatureId) {
+      for (SimpleReport signatureReport: buildSignatureSimpleReports()) {
+        if (signatureReport.getFirstSignatureId().equals(signatureId)){
+          return signatureReport;
+        }
+      }
+    return null;
   }
 
   @Override

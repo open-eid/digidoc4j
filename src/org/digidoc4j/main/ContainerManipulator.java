@@ -12,11 +12,11 @@ package org.digidoc4j.main;
 
 import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+import static org.digidoc4j.Container.DocumentType.ASICS;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -30,7 +30,6 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
-import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.PKCS11SignatureToken;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.slf4j.Logger;
@@ -97,8 +96,11 @@ public class ContainerManipulator {
 
   public Container.DocumentType getContainerType(CommandLine commandLine) {
     if (equalsIgnoreCase(commandLine.getOptionValue("type"), "BDOC")) return BDOC;
+    if (equalsIgnoreCase(commandLine.getOptionValue("type"), "ASICS")) return ASICS;
     if (equalsIgnoreCase(commandLine.getOptionValue("type"), "DDOC")) return DDOC;
     if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".bdoc")) return BDOC;
+    if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".asics")) return ASICS;
+    if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".scs")) return ASICS;
     if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".ddoc")) return DDOC;
     return BDOC;
   }

@@ -7,13 +7,14 @@ import org.digidoc4j.impl.bdoc.DataLoaderDecorator;
 import org.junit.Test;
 
 import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
+import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
 
 import static org.junit.Assert.*;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * Created by Andrei on 14.09.2017.
+ * Created by Andrei on 15.09.2017.
  */
 public class JvmParametersTest {
   public void setUp() {
@@ -25,11 +26,9 @@ public class JvmParametersTest {
 
     // JVM SSL parameters
     System.setProperty("javax.net.ssl.keyStore", "javax.net.ssl.keyStore");
-    System.setProperty("javax.net.ssl.keyStorePassword",
-        "javax.net.ssl.keyStorePassword");
+    System.setProperty("javax.net.ssl.keyStorePassword", "javax.net.ssl.keyStorePassword");
     System.setProperty("javax.net.ssl.trustStore", "javax.net.ssl.trustStore");
-    System.setProperty("javax.net.ssl.trustStorePassword",
-        "javax.net.ssl.trustStorePassword");
+    System.setProperty("javax.net.ssl.trustStorePassword", "javax.net.ssl.trustStorePassword");
   }
 
   @Test
@@ -51,12 +50,9 @@ public class JvmParametersTest {
     Configuration configuration = new Configuration(TEST);
 
     assertEquals("javax.net.ssl.keyStore", configuration.getSslKeystorePath());
-    assertEquals("javax.net.ssl.keyStorePassword",
-        configuration.getSslKeystorePassword());
-    assertEquals("javax.net.ssl.trustStore",
-        configuration.getSslTruststorePath());
-    assertEquals("javax.net.ssl.trustStorePassword",
-        configuration.getSslTruststorePassword());
+    assertEquals("javax.net.ssl.keyStorePassword", configuration.getSslKeystorePassword());
+    assertEquals("javax.net.ssl.trustStore", configuration.getSslTruststorePath());
+    assertEquals("javax.net.ssl.trustStorePassword", configuration.getSslTruststorePassword());
   }
 
   @Test
@@ -67,19 +63,13 @@ public class JvmParametersTest {
     CommonsDataLoader dataLoader = new CommonsDataLoader();
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
 
-    assertEquals("http.proxyHost",
-        dataLoader.getProxyPreferenceManager().getHttpHost());
-    assertEquals(new Long(8800),
-        dataLoader.getProxyPreferenceManager().getHttpPort());
-    assertEquals("https.proxyHost",
-        dataLoader.getProxyPreferenceManager().getHttpsHost());
-    assertEquals(new Long(10000),
-        dataLoader.getProxyPreferenceManager().getHttpsPort());
-    assertEquals(Boolean.TRUE,
-        dataLoader.getProxyPreferenceManager().isHttpEnabled());
-    assertEquals(Boolean.TRUE,
-        dataLoader.getProxyPreferenceManager().isHttpsEnabled());
+    ProxyProperties httpProperties = dataLoader.getProxyConfig().getHttpProperties();
+    ProxyProperties httpsProperties = dataLoader.getProxyConfig().getHttpsProperties();
 
+    assertEquals("http.proxyHost", httpProperties.getHost());
+    assertEquals(8800, httpProperties.getPort());
+    assertEquals("https.proxyHost", httpsProperties.getHost());
+    assertEquals(10000, httpsProperties.getPort());
   }
 
   @Test
@@ -93,12 +83,13 @@ public class JvmParametersTest {
     CommonsDataLoader dataLoader = new CommonsDataLoader();
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
 
-    assertEquals("http.proxyHost", dataLoader.getProxyPreferenceManager().getHttpHost());
-    assertEquals(new Long(8800), dataLoader.getProxyPreferenceManager().getHttpPort());
-    assertEquals(StringUtils.EMPTY, dataLoader.getProxyPreferenceManager().getHttpsHost());
-    assertEquals(null, dataLoader.getProxyPreferenceManager().getHttpsPort());
-    assertEquals(Boolean.TRUE, dataLoader.getProxyPreferenceManager().isHttpEnabled());
-    assertEquals(Boolean.FALSE, dataLoader.getProxyPreferenceManager().isHttpsEnabled());
+    ProxyProperties httpProperties = dataLoader.getProxyConfig().getHttpProperties();
+    ProxyProperties httpsProperties = dataLoader.getProxyConfig().getHttpsProperties();
+
+    assertEquals("http.proxyHost", httpProperties.getHost());
+    assertEquals(8800, httpProperties.getPort());
+    assertEquals(null, httpsProperties.getHost());
+    assertEquals(0, httpsProperties.getPort());
   }
 
   @Test
@@ -112,12 +103,13 @@ public class JvmParametersTest {
     CommonsDataLoader dataLoader = new CommonsDataLoader();
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
 
-    assertEquals(StringUtils.EMPTY, dataLoader.getProxyPreferenceManager().getHttpHost());
-    assertEquals(null, dataLoader.getProxyPreferenceManager().getHttpPort());
-    assertEquals("https.proxyHost", dataLoader.getProxyPreferenceManager().getHttpsHost());
-    assertEquals(new Long(10000), dataLoader.getProxyPreferenceManager().getHttpsPort());
-    assertEquals(Boolean.FALSE, dataLoader.getProxyPreferenceManager().isHttpEnabled());
-    assertEquals(Boolean.TRUE, dataLoader.getProxyPreferenceManager().isHttpsEnabled());
+    ProxyProperties httpProperties = dataLoader.getProxyConfig().getHttpProperties();
+    ProxyProperties httpsProperties = dataLoader.getProxyConfig().getHttpsProperties();
+
+    assertEquals(null, httpProperties.getHost());
+    assertEquals(0, httpProperties.getPort());
+    assertEquals("https.proxyHost", httpsProperties.getHost());
+    assertEquals(10000, httpsProperties.getPort());
   }
 
   @Test
@@ -133,7 +125,7 @@ public class JvmParametersTest {
     CommonsDataLoader dataLoader = new CommonsDataLoader();
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
 
-    assertEquals(null, dataLoader.getProxyPreferenceManager());
+    assertEquals(null, dataLoader.getProxyConfig());
   }
 
   @Test
@@ -182,3 +174,4 @@ public class JvmParametersTest {
 
 
 }
+

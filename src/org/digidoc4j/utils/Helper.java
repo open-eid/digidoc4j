@@ -12,12 +12,14 @@ package org.digidoc4j.utils;
 
 import static java.nio.file.Files.deleteIfExists;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -32,25 +34,30 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.BOMInputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.Version;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.bdoc.xades.validation.XadesSignatureValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.FileDocument;
+import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.MimeType;
 import eu.europa.esig.dss.SignatureLevel;
 import eu.europa.esig.dss.validation.SignaturePolicyProvider;
@@ -61,8 +68,10 @@ public final class Helper {
 
   private static final int ZIP_VERIFICATION_CODE = 0x504b0304;
   private static final int INT_LENGTH = 4;
-  private static final String BDOC_TM_SIGNATURE_LEVEL = "ASiC_E_BASELINE_LT_TM";
-  private static final String EMPTY_CONTAINER_SIGNATURE_LEVEL = "ASiC_E";
+  private static final String ASIC_E_TM_SIGNATURE_LEVEL = "ASiC_E_BASELINE_LT_TM";
+  private static final String ASIC_S_TM_SIGNATURE_LEVEL = "ASiC_S_BASELINE_LT_TM";
+  private static final String EMPTY_CONTAINER_SIGNATURE_LEVEL_ASIC_E = "ASiC_E";
+  private static final String EMPTY_CONTAINER_SIGNATURE_LEVEL_ASIC_S = "ASiC_S";
   public static final String SPECIAL_CHARACTERS = "[\\\\<>:\"/|?*]";
 
   private Helper() {
@@ -228,7 +237,7 @@ public final class Helper {
       ua.append("/").append(version);
     }
 
-    if(signatureProfile != null) {
+    if (signatureProfile != null) {
       ua.append(" signatureProfile: ").append(signatureProfile);
     }
 
@@ -249,13 +258,25 @@ public final class Helper {
     return userAgent;
   }
 
+  public static String createBDocAsicSUserAgent(SignatureProfile signatureProfile) {
+    if (signatureProfile == SignatureProfile.LT_TM) {
+      return createUserAgent(MimeType.ASICS.getMimeTypeString(), null, ASIC_S_TM_SIGNATURE_LEVEL);
+    }
+    SignatureLevel signatureLevel = determineSignatureLevel(signatureProfile);
+    return createBDocUserAgent(signatureLevel);
+  }
+
+  public static String createBDocAsicSUserAgent() {
+    return createUserAgent(MimeType.ASICS.getMimeTypeString(), null, EMPTY_CONTAINER_SIGNATURE_LEVEL_ASIC_S);
+  }
+
   public static String createBDocUserAgent() {
-    return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, EMPTY_CONTAINER_SIGNATURE_LEVEL);
+    return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, EMPTY_CONTAINER_SIGNATURE_LEVEL_ASIC_E);
   }
 
   public static String createBDocUserAgent(SignatureProfile signatureProfile) {
-    if(signatureProfile == SignatureProfile.LT_TM) {
-      return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, BDOC_TM_SIGNATURE_LEVEL);
+    if (signatureProfile == SignatureProfile.LT_TM) {
+      return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, ASIC_E_TM_SIGNATURE_LEVEL);
     }
     SignatureLevel signatureLevel = determineSignatureLevel(signatureProfile);
     return createBDocUserAgent(signatureLevel);
@@ -267,9 +288,9 @@ public final class Helper {
 
   //TODO find solution
   private static SignatureLevel determineSignatureLevel(SignatureProfile signatureProfile) {
-    if(signatureProfile == SignatureProfile.B_BES) {
+    if (signatureProfile == SignatureProfile.B_BES) {
       return SignatureLevel.XAdES_BASELINE_B;
-    } else if(signatureProfile == SignatureProfile.LTA) {
+    } else if (signatureProfile == SignatureProfile.LTA) {
       return SignatureLevel.XAdES_BASELINE_LTA;
     } else {
       return SignatureLevel.XAdES_BASELINE_LT;
@@ -371,5 +392,98 @@ public final class Helper {
       File file = new File(pathTo + File.separator + dataFile.getName());
       DSSUtils.saveToFile(dataFile.getBytes(), file);
     }
+  }
+
+  /**
+   * delete tmp files from temp folder created by StreamDocument
+   *
+   */
+  public static void deleteTmpFiles(){
+    File dir = new File(System.getProperty("java.io.tmpdir"));
+    FilenameFilter filenameFilter = new FilenameFilter() {
+      @Override
+      public boolean accept(File dir, String name) {
+        return name.toLowerCase().startsWith("digidoc4j") && name.toLowerCase().endsWith(".tmp");
+      }
+    };
+    for (File f : dir.listFiles(filenameFilter)) {
+      if (!f.delete()){
+        f.deleteOnExit();
+        System.gc();
+      }
+    }
+  }
+
+  /**
+   * Checks that it's AsicS container
+   *
+   * @param path
+   * @return true if AsicS container
+   */
+  public static boolean isAsicSContainer(String path) {
+    String extension = FilenameUtils.getExtension(path);
+    if ("scs".equals(extension) || "asics".equals(extension)){
+      return true;
+    } else if ("zip".equals(extension)){
+      try {
+        return parseContainer(new BufferedInputStream(new FileInputStream(path)));
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Checks that it's AsicS container
+   *
+   * @param stream
+   * @return true if AsicS container
+   */
+  public static boolean isAsicSContainer(BufferedInputStream stream) {
+    boolean isAsic = false;
+    try {
+      isAsic = parseContainer(stream);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return isAsic;
+  }
+
+  private static boolean parseContainer(BufferedInputStream stream) throws IOException {
+    stream.mark(stream.available() + 1);
+    ZipInputStream zipInputStream = new ZipInputStream(stream);
+    try {
+      ZipEntry entry;
+      while ((entry = zipInputStream.getNextEntry()) != null) {
+        if (StringUtils.equalsIgnoreCase("mimetype", entry.getName())){
+          InputStream zipFileInputStream = zipInputStream;
+          BOMInputStream bomInputStream = new BOMInputStream(zipFileInputStream);
+          DSSDocument document = new InMemoryDocument(bomInputStream);
+          String mimeType = StringUtils.trim(IOUtils.toString(IOUtils.toByteArray(document.openStream()), "UTF-8"));
+          if (StringUtils.equalsIgnoreCase(mimeType, MimeType.ASICS.getMimeTypeString())){
+            return true;
+          }
+        }
+      }
+    } catch (IOException e) {
+      logger.error("Error reading bdoc container stream: " + e.getMessage());
+      throw new TechnicalException("Error reading bdoc container stream: ", e);
+    } finally {
+      stream.reset();
+    }
+    return false;
+  }
+
+  /**
+   * Checks that it's pades container
+   *
+   * @param file path
+   * @return true in case of pades container
+   */
+  public static boolean isPdfFile(String file) {
+    return FilenameUtils.getExtension(file).equals("pdf");
   }
 }

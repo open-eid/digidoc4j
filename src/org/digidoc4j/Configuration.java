@@ -10,6 +10,26 @@
 
 package org.digidoc4j;
 
+import static java.util.Arrays.asList;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
@@ -19,16 +39,6 @@ import org.digidoc4j.impl.bdoc.tsl.TslManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
-
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-
-import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import eu.europa.esig.dss.client.http.Protocol;
 
@@ -86,31 +96,28 @@ import eu.europa.esig.dss.client.http.Protocol;
  * <H3>Optional entries of the configuration file:</H3>
  * <ul>
  * <li>CANONICALIZATION_FACTORY_IMPL: Canonicalization factory implementation.<br>
- * Default value: {@value #DEFAULT_FACTORY_IMPLEMENTATION}</li>
+ * Default value: {@value org.digidoc4j.Constant.JDigiDoc#CANONICALIZATION_FACTORY_IMPLEMENTATION}</li>
  * <li>CONNECTION_TIMEOUT: TSL HTTP Connection timeout (milliseconds).<br>
  * Default value: 1000  </li>
  * <li>DIGIDOC_FACTORY_IMPL: Factory implementation.<br>
- * Default value: {@value #DEFAULT_FACTORY_IMPLEMENTATION}</li>
- * <li>DATAFILE_HASHCODE_MODE: Is the datafile containing only a hash (not the actual file)?
- * Allowed values: true, false.<br>
- * Default value: {@value #DEFAULT_DATAFILE_HASHCODE_MODE}</li>
+ * Default value: {@value org.digidoc4j.Constant.JDigiDoc#FACTORY_IMPLEMENTATION}</li>
  * <li>DIGIDOC_DF_CACHE_DIR: Temporary directory to use. Default: uses system's default temporary directory</li>
  * <li>DIGIDOC_MAX_DATAFILE_CACHED: Maximum datafile size that will be cached in MB.
  * Must be numeric. Set to -1 to cache all files. Set to 0 to prevent caching for all files<br>
- * Default value: {@value #DEFAULT_MAX_DATAFILE_CACHED}</li>
+ * Default value: {@value org.digidoc4j.Constant.JDigiDoc#MAX_DATAFILE_CACHED}</li>
  * <li>DIGIDOC_NOTARY_IMPL: Notary implementation.<br>
- * Default value: {@value #DEFAULT_NOTARY_IMPLEMENTATION}</li>
+ * Default value: {@value org.digidoc4j.Constant.JDigiDoc#NOTARY_IMPLEMENTATION}</li>
  * <li>DIGIDOC_OCSP_SIGN_CERT_SERIAL: OCSP Signing certificate serial number</li>
  * <li>DIGIDOC_SECURITY_PROVIDER: Security provider.<br>
- * Default value: {@value #DEFAULT_SECURITY_PROVIDER}</li>
+ * Default value: {@value org.digidoc4j.Constant.JDigiDoc#SECURITY_PROVIDER}</li>
  * <li>DIGIDOC_SECURITY_PROVIDER_NAME: Name of the security provider.<br>
- * Default value: {@value #DEFAULT_SECURITY_PROVIDER_NAME}</li>
+ * Default value: {@value org.digidoc4j.Constant.JDigiDoc#SECURITY_PROVIDER_NAME}</li>
  * <li>DIGIDOC_TSLFAC_IMPL: TSL Factory implementation.<br>
- * Default value: {@value #DEFAULT_TSL_FACTORY_IMPLEMENTATION}</li>
+ * Default value: {@value org.digidoc4j.Constant.JDigiDoc#TSL_FACTORY_IMPLEMENTATION}</li>
  * <li>DIGIDOC_USE_LOCAL_TSL: Use local TSL? Allowed values: true, false<br>
- * Default value: {@value #DEFAULT_USE_LOCAL_TSL}</li>
+ * Default value: {@value org.digidoc4j.Constant.JDigiDoc#USE_LOCAL_TSL}</li>
  * <li>KEY_USAGE_CHECK: Should key usage be checked? Allowed values: true, false.<br>
- * Default value: {@value #DEFAULT_KEY_USAGE_CHECK}</li>
+ * Default value: {@value org.digidoc4j.Constant.JDigiDoc#KEY_USAGE_CHECK}</li>
  * <li>DIGIDOC_PKCS12_CONTAINER: OCSP access certificate file</li>
  * <li>DIGIDOC_PKCS12_PASSWD: OCSP access certificate password</li>
  * <li>OCSP_SOURCE: Online Certificate Service Protocol source</li>
@@ -139,72 +146,17 @@ import eu.europa.esig.dss.client.http.Protocol;
  * </ul>
  */
 public class Configuration implements Serializable {
+
   private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
-  private static final int ONE_SECOND = 1000;
-  private static final long ONE_DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
-  private static final int ONE_DAY_IN_MINUTES = 24 * 60;
-  public static final long ONE_MB_IN_BYTES = 1048576;
-  public static final long FIFTEEN_MINUTES = 15;
-
-  public static final String DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION
-      = "ee.sk.digidoc.c14n.TinyXMLCanonicalizer";
-  public static final String DEFAULT_SECURITY_PROVIDER = "org.bouncycastle.jce.provider.BouncyCastleProvider";
-  public static final String DEFAULT_SECURITY_PROVIDER_NAME = "BC";
-  public static final String DEFAULT_NOTARY_IMPLEMENTATION = "ee.sk.digidoc.factory.BouncyCastleNotaryFactory";
-  public static final String DEFAULT_TSL_FACTORY_IMPLEMENTATION = "ee.sk.digidoc.tsl.DigiDocTrustServiceFactory";
-  public static final String DEFAULT_FACTORY_IMPLEMENTATION = "ee.sk.digidoc.factory.SAXDigiDocFactory";
-  public static final String DEFAULT_KEY_USAGE_CHECK = "false";
-  public static final String DEFAULT_DATAFILE_HASHCODE_MODE = "false";
-  public static final String DEFAULT_USE_LOCAL_TSL = "true";
-  public static final String DEFAULT_MAX_DATAFILE_CACHED = "-1";
-  public static final String DEFAULT_TSL_KEYSTORE_LOCATION = "keystore/keystore.jks";
-  public static final List<String> DEFAULT_TRUESTED_TERRITORIES =
-      Arrays.asList("AT", "BE", "BG", "CY", "CZ", /*"DE",*/ "DK", "EE", "ES", "FI", "FR",
-          "GR", "HU", /*"HR",*/ "IE", "IS", "IT", "LT", "LU", "LV", "LI", "MT", "NO", "NL",
-          "PL", "PT", "RO", "SE", "SI", "SK", "UK");
-  public static final String DEFAULT_SIGNATURE_PROFILE = "LT";
-  public static final String DEFAULT_SIGNATURE_DIGEST_ALGORITHM = "SHA256";
-
-  public static final long CACHE_ALL_DATA_FILES = -1;
-  public static final long CACHE_NO_DATA_FILES = 0;
-
-  public static final String TEST_OCSP_URL = "http://demo.sk.ee/ocsp";
-  public static final String PROD_OCSP_URL = "http://ocsp.sk.ee/";
-  private static final String SIGN_OCSP_REQUESTS = "SIGN_OCSP_REQUESTS";
-  private static final String OCSP_PKCS_12_CONTAINER = "DIGIDOC_PKCS12_CONTAINER";
-  private static final String OCSP_PKCS_12_PASSWD = "DIGIDOC_PKCS12_PASSWD";
-
-  public static final String JAVAX_NET_SSL_TRUST_STORE_PASSWORD = "javax.net.ssl.trustStorePassword";
-  public static final String JAVAX_NET_SSL_TRUST_STORE = "javax.net.ssl.trustStore";
-  public static final String JAVAX_NET_SSL_KEY_STORE_PASSWORD = "javax.net.ssl.keyStorePassword";
-  public static final String JAVAX_NET_SSL_KEY_STORE = "javax.net.ssl.keyStore";
-  public static final String HTTPS_PROXY_PORT = "https.proxyPort";
-  public static final String HTTPS_PROXY_HOST = "https.proxyHost";
-  public static final String HTTP_PROXY_PORT = "http.proxyPort";
-  public static final String HTTP_PROXY_HOST = "http.proxyHost";
-
+  private transient ExecutorService threadExecutor;
   private final Mode mode;
+  private TslManager tslManager;
+  private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<>();
+  private ConfigurationRegistry registry = new ConfigurationRegistry();
+  private List<String> trustedTerritories = new ArrayList<>();
+  private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
   private LinkedHashMap configurationFromFile;
   private String configurationInputSourceName;
-  private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<>();
-  private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
-  private TslManager tslManager;
-  Map<String, String> configuration = new HashMap<>();
-
-  private String httpProxyHost = "";
-  private Integer httpProxyPort;
-  private String httpsProxyHost = "";
-  private Integer httpsProxyPort;
-  private String httpProxyUser = "";
-  private String httpProxyPassword = "";
-  private List<String> trustedTerritories = new ArrayList<>();
-  private String sslKeystorePath = "";
-  private String sslKeystoreType = "";
-  private String sslKeystorePassword = "";
-  private String sslTruststorePath = "";
-  private String sslTruststoreType = "";
-  private String sslTruststorePassword = "";
-  private transient ExecutorService threadExecutor;
 
   /**
    * Application mode
@@ -217,7 +169,7 @@ public class Configuration implements Serializable {
   /**
    * Getting the default Configuration object. <br/>
    * <p>
-   * The default configuration object is a singelton, meaning that all the containers will use the same configuration
+   * The default configuration object is a singelton, meaning that all the containers will use the same registry
    * object. It is a good idea to use only a single configuration object for all the containers so the operation times
    * would be faster.
    *
@@ -227,41 +179,27 @@ public class Configuration implements Serializable {
     return ConfigurationSingeltonHolder.getInstance();
   }
 
-  private void initDefaultValues() {
-    logger.debug("");
-    tslManager = new TslManager(this);
+  /**
+   * Create new configuration
+   */
+  public Configuration() {
+    this(Mode.TEST.name().equalsIgnoreCase(System.getProperty("digidoc4j.mode")) ? Mode.TEST : Mode.PROD);
+  }
 
-    configuration.put("connectionTimeout", String.valueOf(ONE_SECOND));
-    configuration.put("socketTimeout", String.valueOf(ONE_SECOND));
-    configuration.put("tslKeyStorePassword", "digidoc4j-password");
-    configuration.put("revocationAndTimestampDeltaInMinutes", String.valueOf(ONE_DAY_IN_MINUTES));
-    configuration.put("tslCacheExpirationTime", String.valueOf(ONE_DAY_IN_MILLISECONDS));
-    configuration.put("allowedTimestampAndOCSPResponseDeltaInMinutes", String.valueOf(FIFTEEN_MINUTES));
-    configuration.put("signatureProfile", DEFAULT_SIGNATURE_PROFILE);
-    configuration.put("signatureDigestAlgoritm", DEFAULT_SIGNATURE_DIGEST_ALGORITHM);
-
-    if (mode == Mode.TEST) {
-      configuration.put("tspSource", "http://demo.sk.ee/tsa");
-      configuration.put("tslLocation", "https://open-eid.github.io/test-TL/tl-mp-test-EE.xml");
-      configuration.put("tslKeyStoreLocation", "keystore/test-keystore.jks");
-      configuration.put("validationPolicy", "conf/test_constraint.xml");
-      configuration.put("ocspSource", TEST_OCSP_URL);
-      configuration.put(SIGN_OCSP_REQUESTS, "false");
-      jDigiDocConfiguration.put(SIGN_OCSP_REQUESTS, "false");
-    } else {
-      configuration.put("tspSource", "http://tsa.sk.ee");
-      configuration.put("tslLocation",
-          "https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml");
-      configuration.put("tslKeyStoreLocation", DEFAULT_TSL_KEYSTORE_LOCATION);
-      configuration.put("validationPolicy", "conf/constraint.xml");
-      configuration.put("ocspSource", PROD_OCSP_URL);
-      configuration.put(SIGN_OCSP_REQUESTS, "false");
-      jDigiDocConfiguration.put(SIGN_OCSP_REQUESTS, "false");
-      trustedTerritories = DEFAULT_TRUESTED_TERRITORIES;
+  /**
+   * Create new configuration for application mode specified
+   *
+   * @param mode Application mode
+   */
+  public Configuration(Mode mode) {
+    logger.debug("------------------------ <MODE: {}> ------------------------", mode);
+    this.mode = mode;
+    this.loadConfiguration("digidoc4j.yaml");
+    this.initDefaultValues();
+    logger.debug("------------------------ </MODE: {}> ------------------------", mode);
+    if (!logger.isDebugEnabled()) {
+      logger.info("Configuration loaded ...");
     }
-    logger.debug(mode + "configuration:\n" + configuration);
-
-    loadInitialConfigurationValues();
   }
 
   /**
@@ -270,9 +208,9 @@ public class Configuration implements Serializable {
    * @return value indicating if requirements are met
    */
   public boolean isOCSPSigningConfigurationAvailable() {
-    boolean available = isNotEmpty(getOCSPAccessCertificateFileName())
-        && getOCSPAccessCertificatePassword().length != 0;
-    logger.debug("Is OCSP signing configuration available: " + available);
+    boolean available = StringUtils.isNotBlank(this.getOCSPAccessCertificateFileName())
+        && this.getOCSPAccessCertificatePassword().length != 0;
+    logger.debug("Is OCSP signing configuration available? {}", available);
     return available;
   }
 
@@ -282,9 +220,7 @@ public class Configuration implements Serializable {
    * @return filename for the OCSP access certificate
    */
   public String getOCSPAccessCertificateFileName() {
-    logger.debug("Loading OCSPAccessCertificateFile");
-    String ocspAccessCertificateFile = getConfigurationParameter("OCSPAccessCertificateFile");
-    logger.debug("OCSPAccessCertificateFile " + ocspAccessCertificateFile + " loaded");
+    String ocspAccessCertificateFile = this.getConfigurationParameter(ConfigurationParameter.OcspAccessCertificateFile);
     return ocspAccessCertificateFile == null ? "" : ocspAccessCertificateFile;
   }
 
@@ -294,13 +230,11 @@ public class Configuration implements Serializable {
    * @return password
    */
   public char[] getOCSPAccessCertificatePassword() {
-    logger.debug("Loading OCSPAccessCertificatePassword");
     char[] result = {};
-    String password = getConfigurationParameter("OCSPAccessCertificatePassword");
-    if (isNotEmpty(password)) {
+    String password = this.getConfigurationParameter(ConfigurationParameter.OcspAccessCertificatePassword);
+    if (StringUtils.isNotEmpty(password)) {
       result = password.toCharArray();
     }
-    logger.debug("OCSPAccessCertificatePassword loaded");
     return result;
   }
 
@@ -310,8 +244,7 @@ public class Configuration implements Serializable {
    * @return password
    */
   public String getOCSPAccessCertificatePasswordAsString() {
-    logger.debug("Loading OCSPAccessCertificatePassword");
-    return getConfigurationParameter("OCSPAccessCertificatePassword");
+    return this.getConfigurationParameter(ConfigurationParameter.OcspAccessCertificatePassword);
   }
 
   /**
@@ -320,10 +253,8 @@ public class Configuration implements Serializable {
    * @param fileName filename for the OCSP access certficate
    */
   public void setOCSPAccessCertificateFileName(String fileName) {
-    logger.debug("Setting OCSPAccessCertificateFileName: " + fileName);
-    setConfigurationParameter("OCSPAccessCertificateFile", fileName);
-    jDigiDocConfiguration.put(OCSP_PKCS_12_CONTAINER, fileName);
-    logger.debug("OCSPAccessCertificateFile is set");
+    this.setConfigurationParameter(ConfigurationParameter.OcspAccessCertificateFile, fileName);
+    this.setJDigiDocParameter(Constant.JDigiDoc.OCSP_PKCS_12_CONTAINER, fileName);
   }
 
   /**
@@ -332,11 +263,9 @@ public class Configuration implements Serializable {
    * @param password password to set
    */
   public void setOCSPAccessCertificatePassword(char[] password) {
-    logger.debug("Setting OCSPAccessCertificatePassword: ");
     String value = String.valueOf(password);
-    setConfigurationParameter("OCSPAccessCertificatePassword", value);
-    jDigiDocConfiguration.put(OCSP_PKCS_12_PASSWD, value);
-    logger.debug("OCSPAccessCertificatePassword is set");
+    this.setConfigurationParameter(ConfigurationParameter.OcspAccessCertificatePassword, value);
+    this.setJDigiDocParameter(Constant.JDigiDoc.OCSP_PKCS_12_PASSWORD, value);
   }
 
   /**
@@ -345,37 +274,9 @@ public class Configuration implements Serializable {
    * @param shouldSignOcspRequests True if should sign, False otherwise
    */
   public void setSignOCSPRequests(boolean shouldSignOcspRequests) {
-    logger.debug("Should sign OCSP requests: " + shouldSignOcspRequests);
-    String valueToSet = String.valueOf(shouldSignOcspRequests);
-    setConfigurationParameter(SIGN_OCSP_REQUESTS, valueToSet);
-    jDigiDocConfiguration.put(SIGN_OCSP_REQUESTS, valueToSet);
-  }
-
-  /**
-   * Create new configuration
-   */
-  public Configuration() {
-    mode = ("TEST".equalsIgnoreCase(System.getProperty("digidoc4j.mode")) ? Mode.TEST : Mode.PROD);
-    loadConfiguration("digidoc4j.yaml");
-
-    initDefaultValues();
-
-    logger.info("Configuration loaded for " + mode + " mode");
-  }
-
-  /**
-   * Create new configuration for application mode specified
-   *
-   * @param mode Application mode
-   */
-  public Configuration(Mode mode) {
-    logger.debug("Mode: " + mode);
-    this.mode = mode;
-    loadConfiguration("digidoc4j.yaml");
-
-    initDefaultValues();
-
-    logger.info("Configuration loaded for " + mode + " mode");
+    String value = String.valueOf(shouldSignOcspRequests);
+    this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, value);
+    this.setJDigiDocParameter(Constant.JDigiDoc.OCSP_SIGN_REQUESTS, value);
   }
 
   /**
@@ -385,9 +286,8 @@ public class Configuration implements Serializable {
    * @return configuration hashtable
    */
   public Hashtable<String, String> loadConfiguration(InputStream stream) {
-    configurationInputSourceName = "stream";
-
-    return loadConfigurationSettings(stream);
+    this.configurationInputSourceName = "stream";
+    return this.loadConfigurationSettings(stream);
   }
 
   /**
@@ -397,13 +297,13 @@ public class Configuration implements Serializable {
    * @return configuration hashtable
    */
   public Hashtable<String, String> loadConfiguration(String file) {
-    return loadConfiguration(file, true);
+    return this.loadConfiguration(file, true);
   }
 
   /**
    * Add configuration settings from a file
    *
-   * @param file File name
+   * @param file             File name
    * @param isReloadFromYaml True if this is reloading call
    * @return configuration hashtable
    */
@@ -415,46 +315,15 @@ public class Configuration implements Serializable {
     logger.info("Loading configuration from file " + file);
     configurationInputSourceName = file;
     InputStream resourceAsStream = null;
-
     try {
       resourceAsStream = new FileInputStream(file);
     } catch (FileNotFoundException e) {
       logger.info("Configuration file " + file + " not found. Trying to search from jar file.");
     }
-
     if (resourceAsStream == null) {
       resourceAsStream = getResourceAsStream(file);
     }
     return loadConfigurationSettings(resourceAsStream);
-  }
-
-  private Hashtable<String, String> loadConfigurationSettings(InputStream stream) {
-    configurationFromFile = new LinkedHashMap();
-    Yaml yaml = new Yaml();
-
-    try {
-      configurationFromFile = (LinkedHashMap) yaml.load(stream);
-    } catch (Exception e) {
-      ConfigurationException exception = new ConfigurationException("Configuration from "
-          + configurationInputSourceName + " is not correctly formatted");
-      logger.error(exception.getMessage());
-      throw exception;
-    }
-
-    IOUtils.closeQuietly(stream);
-
-    return mapToJDigiDocConfiguration();
-  }
-
-  private InputStream getResourceAsStream(String certFile) {
-    InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(certFile);
-    if (resourceAsStream == null) {
-      String message = "File " + certFile + " not found in classpath.";
-      logger.error(message);
-      throw new ConfigurationException(message);
-    }
-
-    return resourceAsStream;
   }
 
   /**
@@ -463,182 +332,9 @@ public class Configuration implements Serializable {
    * @return configuration values.
    */
   public Hashtable<String, String> getJDigiDocConfiguration() {
-    loadCertificateAuthoritiesAndCertificates();
-    reportFileParseErrors();
+    this.loadCertificateAuthoritiesAndCertificates();
+    this.reportFileParseErrors();
     return jDigiDocConfiguration;
-  }
-
-  /**
-   * Gives back all configuration parameters needed for jDigiDoc
-   *
-   * @return Hashtable containing jDigiDoc configuration parameters
-   */
-
-  private Hashtable<String, String> mapToJDigiDocConfiguration() {
-    logger.debug("loading JDigiDoc configuration");
-
-    inputSourceParseErrors = new ArrayList<>();
-
-    loadInitialConfigurationValues();
-    reportFileParseErrors();
-
-    return jDigiDocConfiguration;
-  }
-
-  private void loadCertificateAuthoritiesAndCertificates() {
-    logger.debug("");
-    @SuppressWarnings("unchecked")
-    ArrayList<LinkedHashMap> digiDocCAs = (ArrayList<LinkedHashMap>) configurationFromFile.get("DIGIDOC_CAS");
-    if (digiDocCAs == null) {
-      String errorMessage = "Empty or no DIGIDOC_CAS entry";
-      logError(errorMessage);
-      return;
-    }
-
-    int numberOfDigiDocCAs = digiDocCAs.size();
-    jDigiDocConfiguration.put("DIGIDOC_CAS", String.valueOf(numberOfDigiDocCAs));
-    for (int i = 0; i < numberOfDigiDocCAs; i++) {
-      String caPrefix = "DIGIDOC_CA_" + (i + 1);
-      LinkedHashMap digiDocCA = (LinkedHashMap) digiDocCAs.get(i).get("DIGIDOC_CA");
-      if (digiDocCA == null) {
-        String errorMessage = "Empty or no DIGIDOC_CA for entry " + (i + 1);
-        logError(errorMessage);
-      } else {
-        loadCertificateAuthorityCerts(digiDocCA, caPrefix);
-        loadOCSPCertificates(digiDocCA, caPrefix);
-      }
-    }
-  }
-
-  private void logError(String errorMessage) {
-    logger.error(errorMessage);
-    inputSourceParseErrors.add(errorMessage);
-  }
-
-  private void reportFileParseErrors() {
-    logger.debug("");
-    if (inputSourceParseErrors.size() > 0) {
-      StringBuilder errorMessage = new StringBuilder();
-      errorMessage.append("Configuration from ");
-      errorMessage.append(configurationInputSourceName);
-      errorMessage.append(" contains error(s):\n");
-      for (String message : inputSourceParseErrors) {
-        errorMessage.append(message);
-      }
-      throw new ConfigurationException(errorMessage.toString());
-    }
-  }
-
-  private void loadInitialConfigurationValues() {
-    logger.debug("");
-    setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER", DEFAULT_SECURITY_PROVIDER);
-    setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER_NAME", DEFAULT_SECURITY_PROVIDER_NAME);
-    setJDigiDocConfigurationValue("KEY_USAGE_CHECK", DEFAULT_KEY_USAGE_CHECK);
-    setJDigiDocConfigurationValue("DIGIDOC_OCSP_SIGN_CERT_SERIAL", "");
-    setJDigiDocConfigurationValue("DATAFILE_HASHCODE_MODE", DEFAULT_DATAFILE_HASHCODE_MODE);
-    setJDigiDocConfigurationValue("CANONICALIZATION_FACTORY_IMPL", DEFAULT_CANONICALIZATION_FACTORY_IMPLEMENTATION);
-    setJDigiDocConfigurationValue("DIGIDOC_MAX_DATAFILE_CACHED", DEFAULT_MAX_DATAFILE_CACHED);
-    setJDigiDocConfigurationValue("DIGIDOC_USE_LOCAL_TSL", DEFAULT_USE_LOCAL_TSL);
-    setJDigiDocConfigurationValue("DIGIDOC_NOTARY_IMPL", DEFAULT_NOTARY_IMPLEMENTATION);
-    setJDigiDocConfigurationValue("DIGIDOC_TSLFAC_IMPL", DEFAULT_TSL_FACTORY_IMPLEMENTATION);
-    setJDigiDocConfigurationValue("DIGIDOC_OCSP_RESPONDER_URL", getOcspSource());
-    setJDigiDocConfigurationValue("DIGIDOC_FACTORY_IMPL", DEFAULT_FACTORY_IMPLEMENTATION);
-    setJDigiDocConfigurationValue("DIGIDOC_DF_CACHE_DIR", null);
-
-    setConfigurationValue("TSL_LOCATION", "tslLocation");
-    setConfigurationValue("TSP_SOURCE", "tspSource");
-    setConfigurationValue("VALIDATION_POLICY", "validationPolicy");
-    setConfigurationValue("OCSP_SOURCE", "ocspSource");
-    setConfigurationValue(OCSP_PKCS_12_CONTAINER, "OCSPAccessCertificateFile");
-    setConfigurationValue(OCSP_PKCS_12_PASSWD, "OCSPAccessCertificatePassword");
-    setConfigurationValue("CONNECTION_TIMEOUT", "connectionTimeout");
-    setConfigurationValue("SOCKET_TIMEOUT", "socketTimeout");
-    setConfigurationValue(SIGN_OCSP_REQUESTS, SIGN_OCSP_REQUESTS);
-    setConfigurationValue("TSL_KEYSTORE_LOCATION", "tslKeyStoreLocation");
-    setConfigurationValue("TSL_KEYSTORE_PASSWORD", "tslKeyStorePassword");
-    setConfigurationValue("TSL_CACHE_EXPIRATION_TIME", "tslCacheExpirationTime");
-    setConfigurationValue("REVOCATION_AND_TIMESTAMP_DELTA_IN_MINUTES",
-        "revocationAndTimestampDeltaInMinutes");
-    setConfigurationValue("ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES",
-        "allowedTimestampAndOCSPResponseDeltaInMinutes");
-    setConfigurationValue("SIGNATURE_PROFILE", "signatureProfile");
-    setConfigurationValue("SIGNATURE_DIGEST_ALGORITHM", "signatureDigestAlgoritm");
-
-    setJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS, Boolean.toString(hasToBeOCSPRequestSigned()));
-    setJDigiDocConfigurationValue(OCSP_PKCS_12_CONTAINER, getOCSPAccessCertificateFileName());
-
-    initOcspAccessCertPasswordForJDigidoc();
-
-    httpProxyHost = getStringParams(HTTP_PROXY_HOST, "HTTP_PROXY_HOST");
-    httpProxyPort = getIntegerParams(HTTP_PROXY_PORT, "HTTP_PROXY_PORT");
-    httpsProxyHost = getStringParams(HTTPS_PROXY_HOST, "HTTPS_PROXY_HOST");
-    httpsProxyPort = getIntegerParams(HTTPS_PROXY_PORT, "HTTPS_PROXY_PORT");
-
-    httpProxyUser = getParameterFromFile("HTTP_PROXY_USER");
-    httpProxyPassword = getParameterFromFile("HTTP_PROXY_PASSWORD");
-
-    sslKeystoreType = getParameterFromFile("SSL_KEYSTORE_TYPE");
-    sslTruststoreType = getParameterFromFile("SSL_TRUSTSTORE_TYPE");
-
-    sslKeystorePath = getStringParams(JAVAX_NET_SSL_KEY_STORE, "SSL_KEYSTORE_PATH");
-    sslKeystorePassword = getStringParams(JAVAX_NET_SSL_KEY_STORE_PASSWORD, "SSL_KEYSTORE_PASSWORD");
-    sslTruststorePath = getStringParams(JAVAX_NET_SSL_TRUST_STORE, "SSL_TRUSTSTORE_PATH");
-    sslTruststorePassword = getStringParams(JAVAX_NET_SSL_TRUST_STORE_PASSWORD, "SSL_TRUSTSTORE_PASSWORD");
-
-    updateTrustedTerritories();
-  }
-
-  private void updateTrustedTerritories() {
-    List<String> territories = getStringListParameterFromFile("TRUSTED_TERRITORIES");
-    if (territories != null) {
-      trustedTerritories = territories;
-    }
-  }
-
-  private String getParameterFromFile(String key) {
-    if (configurationFromFile == null) {
-      return null;
-    }
-    Object fileValue = configurationFromFile.get(key);
-    if (fileValue == null) {
-      return null;
-    }
-    String value = fileValue.toString();
-    if (valueIsAllowed(key, value)) {
-      return value;
-    }
-    return null;
-  }
-
-  private Integer getIntParameterFromFile(String key) {
-    String value = getParameterFromFile(key);
-    if (value == null) {
-      return null;
-    }
-    return new Integer(value);
-  }
-
-  private List<String> getStringListParameterFromFile(String key) {
-    String value = getParameterFromFile(key);
-    if (value == null) {
-      return null;
-    }
-    return Arrays.asList(value.split("\\s*,\\s*")); //Split by comma and trim whitespace
-  }
-
-  private void setConfigurationValue(String fileKey, String configurationKey) {
-    if (configurationFromFile == null) return;
-    Object fileValue = configurationFromFile.get(fileKey);
-    if (fileValue != null) {
-      configuration.put(configurationKey, fileValue.toString());
-    }
-  }
-
-  private void setJDigiDocConfigurationValue(String key, String defaultValue) {
-    String value = defaultIfNull(key, defaultValue);
-    if (value != null) {
-      jDigiDocConfiguration.put(key, value);
-    }
   }
 
   /**
@@ -692,13 +388,13 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Returns configuration item must be OCSP request signed. Reads it from configuration parameter SIGN_OCSP_REQUESTS.
+   * Returns configuration item must be OCSP request signed. Reads it from registry parameter SIGN_OCSP_REQUESTS.
    * Default value is false for {@link Configuration.Mode#PROD} and false for {@link Configuration.Mode#TEST}
    *
    * @return must be OCSP request signed
    */
   public boolean hasToBeOCSPRequestSigned() {
-    String signOcspRequests = getConfigurationParameter(SIGN_OCSP_REQUESTS);
+    String signOcspRequests = getConfigurationParameter(ConfigurationParameter.SignOcspRequests);
     return StringUtils.equalsIgnoreCase("true", signOcspRequests);
   }
 
@@ -711,7 +407,7 @@ public class Configuration implements Serializable {
     String maxDataFileCached = jDigiDocConfiguration.get("DIGIDOC_MAX_DATAFILE_CACHED");
     logger.debug("Maximum datafile cached in MB: " + maxDataFileCached);
 
-    if (maxDataFileCached == null) return CACHE_ALL_DATA_FILES;
+    if (maxDataFileCached == null) return Constant.CACHE_ALL_DATA_FILES;
     return Long.parseLong(maxDataFileCached);
   }
 
@@ -722,150 +418,11 @@ public class Configuration implements Serializable {
    */
   public long getMaxDataFileCachedInBytes() {
     long maxDataFileCachedInMB = getMaxDataFileCachedInMB();
-    if (maxDataFileCachedInMB == CACHE_ALL_DATA_FILES) {
-      return CACHE_ALL_DATA_FILES;
+    if (maxDataFileCachedInMB == Constant.CACHE_ALL_DATA_FILES) {
+      return Constant.CACHE_ALL_DATA_FILES;
     } else {
-      return (maxDataFileCachedInMB * ONE_MB_IN_BYTES);
+      return (maxDataFileCachedInMB * Constant.ONE_MB_IN_BYTES);
     }
-  }
-
-  private String defaultIfNull(String configParameter, String defaultValue) {
-    logger.debug("Parameter: " + configParameter);
-    if (configurationFromFile == null) return defaultValue;
-    Object value = configurationFromFile.get(configParameter);
-    if (value != null) {
-      return valueIsAllowed(configParameter, value.toString()) ? value.toString() : "";
-    }
-    String configuredValue = jDigiDocConfiguration.get(configParameter);
-    return configuredValue != null ? configuredValue : defaultValue;
-  }
-
-  private boolean valueIsAllowed(String configParameter, String value) {
-    logger.debug("Parameter: " + configParameter + ", value: " + value);
-
-    List<String> mustBeBooleans =
-        asList(SIGN_OCSP_REQUESTS, "KEY_USAGE_CHECK", "DATAFILE_HASHCODE_MODE", "DIGIDOC_USE_LOCAL_TSL");
-    List<String> mustBeIntegers =
-        asList("DIGIDOC_MAX_DATAFILE_CACHED", "HTTP_PROXY_PORT");
-
-    boolean errorFound = false;
-    if (mustBeBooleans.contains(configParameter)) {
-      errorFound = !(isValidBooleanParameter(configParameter, value));
-    }
-
-    if (mustBeIntegers.contains(configParameter)) {
-      errorFound = !(isValidIntegerParameter(configParameter, value)) || errorFound;
-    }
-    return (!errorFound);
-  }
-
-  private boolean isValidBooleanParameter(String configParameter, String value) {
-    if (!("true".equals(value.toLowerCase()) || "false".equals(value.toLowerCase()))) {
-      String errorMessage = "Configuration parameter " + configParameter + " should be set to true or false"
-          + " but the actual value is: " + value + ".";
-      logError(errorMessage);
-      return false;
-    }
-    return true;
-  }
-
-  private boolean isValidIntegerParameter(String configParameter, String value) {
-    Integer parameterValue;
-
-    try {
-      parameterValue = Integer.parseInt(value);
-    } catch (Exception e) {
-      String errorMessage = "Configuration parameter " + configParameter + " should have an integer value"
-          + " but the actual value is: " + value + ".";
-      logError(errorMessage);
-      return false;
-    }
-
-    if (configParameter.equals("DIGIDOC_MAX_DATAFILE_CACHED") && parameterValue < -1) {
-      String errorMessage = "Configuration parameter " + configParameter + " should be greater or equal -1"
-          + " but the actual value is: " + value + ".";
-      logError(errorMessage);
-      return false;
-    }
-
-    return true;
-  }
-
-  private void loadOCSPCertificates(LinkedHashMap digiDocCA, String caPrefix) {
-    logger.debug("");
-    String errorMessage;
-
-    @SuppressWarnings("unchecked")
-    ArrayList<LinkedHashMap> ocsps = (ArrayList<LinkedHashMap>) digiDocCA.get("OCSPS");
-    if (ocsps == null) {
-      errorMessage = "No OCSPS entry found or OCSPS entry is empty. Configuration from: "
-          + configurationInputSourceName;
-      logError(errorMessage);
-      return;
-    }
-
-    int numberOfOCSPCertificates = ocsps.size();
-    jDigiDocConfiguration.put(caPrefix + "_OCSPS", String.valueOf(numberOfOCSPCertificates));
-
-    for (int i = 1; i <= numberOfOCSPCertificates; i++) {
-      String prefix = caPrefix + "_OCSP" + i;
-      LinkedHashMap ocsp = ocsps.get(i - 1);
-
-      List<String> entries = asList("CA_CN", "CA_CERT", "CN", "URL");
-      for (String entry : entries) {
-        if (!loadOCSPCertificateEntry(entry, ocsp, prefix)) {
-          errorMessage = "OCSPS list entry " + i + " does not have an entry for " + entry
-              + " or the entry is empty\n";
-          logError(errorMessage);
-        }
-      }
-
-      if (!getOCSPCertificates(prefix, ocsp)) {
-        errorMessage = "OCSPS list entry " + i + " does not have an entry for CERTS or the entry is empty\n";
-        logError(errorMessage);
-      }
-    }
-  }
-
-  private boolean loadOCSPCertificateEntry(String ocspsEntryName, LinkedHashMap ocsp, String prefix) {
-    Object ocspEntry = ocsp.get(ocspsEntryName);
-    if (ocspEntry == null) return false;
-    jDigiDocConfiguration.put(prefix + "_" + ocspsEntryName, ocspEntry.toString());
-    return true;
-  }
-
-  @SuppressWarnings("unchecked")
-  private boolean getOCSPCertificates(String prefix, LinkedHashMap ocsp) {
-    ArrayList<String> certificates = (ArrayList<String>) ocsp.get("CERTS");
-    if (certificates == null) return false;
-    for (int j = 0; j < certificates.size(); j++) {
-      if (j == 0) {
-        jDigiDocConfiguration.put(prefix + "_CERT", certificates.get(0));
-      } else {
-        jDigiDocConfiguration.put(prefix + "_CERT_" + j, certificates.get(j));
-      }
-    }
-    return true;
-  }
-
-  private void loadCertificateAuthorityCerts(LinkedHashMap digiDocCA, String caPrefix) {
-    logger.debug("");
-    ArrayList<String> certificateAuthorityCerts = getCACertsAsArray(digiDocCA);
-
-    jDigiDocConfiguration.put(caPrefix + "_NAME", digiDocCA.get("NAME").toString());
-    jDigiDocConfiguration.put(caPrefix + "_TRADENAME", digiDocCA.get("TRADENAME").toString());
-    int numberOfCACertificates = certificateAuthorityCerts.size();
-    jDigiDocConfiguration.put(caPrefix + "_CERTS", String.valueOf(numberOfCACertificates));
-
-    for (int i = 0; i < numberOfCACertificates; i++) {
-      String certFile = certificateAuthorityCerts.get(i);
-      jDigiDocConfiguration.put(caPrefix + "_CERT" + (i + 1), certFile);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private ArrayList<String> getCACertsAsArray(LinkedHashMap digiDocCa) {
-    return (ArrayList<String>) digiDocCa.get("CERTS");
   }
 
   /**
@@ -874,7 +431,7 @@ public class Configuration implements Serializable {
    * @return url
    */
   public String getTslLocation() {
-    String urlString = getConfigurationParameter("tslLocation");
+    String urlString = getConfigurationParameter(ConfigurationParameter.TslLocation);
     if (!Protocol.isFileUrl(urlString)) return urlString;
     try {
       String filePath = new URL(urlString).getPath();
@@ -933,9 +490,8 @@ public class Configuration implements Serializable {
    * @param tslLocation TSL Location to be used
    */
   public void setTslLocation(String tslLocation) {
-    logger.debug("Set TSL location: " + tslLocation);
-    setConfigurationParameter("tslLocation", tslLocation);
-    tslManager.setTsl(null);
+    this.setConfigurationParameter(ConfigurationParameter.TslLocation, tslLocation);
+    this.tslManager.setTsl(null);
   }
 
   /**
@@ -944,9 +500,7 @@ public class Configuration implements Serializable {
    * @return TSP Source
    */
   public String getTspSource() {
-    String tspSource = getConfigurationParameter("tspSource");
-    logger.debug("TSP Source: " + tspSource);
-    return tspSource;
+    return this.getConfigurationParameter(ConfigurationParameter.TspSource);
   }
 
   /**
@@ -955,8 +509,7 @@ public class Configuration implements Serializable {
    * @param connectionTimeout connection timeout in milliseconds
    */
   public void setConnectionTimeout(int connectionTimeout) {
-    logger.debug("Set connection timeout to " + connectionTimeout + " ms");
-    setConfigurationParameter("connectionTimeout", String.valueOf(connectionTimeout));
+    this.setConfigurationParameter(ConfigurationParameter.ConnectionTimeoutInMillis, String.valueOf(connectionTimeout));
   }
 
   /**
@@ -965,8 +518,7 @@ public class Configuration implements Serializable {
    * @param socketTimeoutMilliseconds socket timeout in milliseconds
    */
   public void setSocketTimeout(int socketTimeoutMilliseconds) {
-    logger.debug("Set socket timeout to " + socketTimeoutMilliseconds + " ms");
-    setConfigurationParameter("socketTimeout", String.valueOf(socketTimeoutMilliseconds));
+    this.setConfigurationParameter(ConfigurationParameter.SocketTimeoutInMillis, String.valueOf(socketTimeoutMilliseconds));
   }
 
   /**
@@ -975,7 +527,7 @@ public class Configuration implements Serializable {
    * @return connection timeout in milliseconds
    */
   public int getConnectionTimeout() {
-    return Integer.parseInt(getConfigurationParameter("connectionTimeout"));
+    return this.getConfigurationParameter(ConfigurationParameter.ConnectionTimeoutInMillis, Integer.class);
   }
 
   /**
@@ -984,7 +536,7 @@ public class Configuration implements Serializable {
    * @return socket timeout in milliseconds
    */
   public int getSocketTimeout() {
-    return Integer.parseInt(getConfigurationParameter("socketTimeout"));
+    return this.getConfigurationParameter(ConfigurationParameter.SocketTimeoutInMillis, Integer.class);
   }
 
   /**
@@ -993,8 +545,7 @@ public class Configuration implements Serializable {
    * @param tspSource TSPSource to be used
    */
   public void setTspSource(String tspSource) {
-    logger.debug("Set TSP source: " + tspSource);
-    setConfigurationParameter("tspSource", tspSource);
+    this.setConfigurationParameter(ConfigurationParameter.TspSource, tspSource);
   }
 
   /**
@@ -1003,9 +554,7 @@ public class Configuration implements Serializable {
    * @return OCSP Source
    */
   public String getOcspSource() {
-    String ocspSource = getConfigurationParameter("ocspSource");
-    logger.debug("OCSP source: " + ocspSource);
-    return ocspSource;
+    return this.getConfigurationParameter(ConfigurationParameter.OcspSource);
   }
 
   /**
@@ -1014,8 +563,7 @@ public class Configuration implements Serializable {
    * @param tslKeyStoreLocation KeyStore location to use
    */
   public void setTslKeyStoreLocation(String tslKeyStoreLocation) {
-    logger.debug("Set tsl KeyStore Location: " + tslKeyStoreLocation);
-    setConfigurationParameter("tslKeyStoreLocation", tslKeyStoreLocation);
+    this.setConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation, tslKeyStoreLocation);
   }
 
   /**
@@ -1024,9 +572,7 @@ public class Configuration implements Serializable {
    * @return KeyStore Location
    */
   public String getTslKeyStoreLocation() {
-    String keystoreLocation = getConfigurationParameter("tslKeyStoreLocation");
-    logger.debug("tsl KeyStore Location: " + keystoreLocation);
-    return keystoreLocation;
+    return this.getConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation);
   }
 
   /**
@@ -1035,8 +581,7 @@ public class Configuration implements Serializable {
    * @param tslKeyStorePassword Keystore password
    */
   public void setTslKeyStorePassword(String tslKeyStorePassword) {
-    logger.debug("Set tsl KeyStore Password: " + tslKeyStorePassword);
-    setConfigurationParameter("tslKeyStorePassword", tslKeyStorePassword);
+    this.setConfigurationParameter(ConfigurationParameter.TslKeyStorePassword, tslKeyStorePassword);
   }
 
   /**
@@ -1045,9 +590,7 @@ public class Configuration implements Serializable {
    * @return Tsl Keystore password
    */
   public String getTslKeyStorePassword() {
-    String keystorePassword = getConfigurationParameter("tslKeyStorePassword");
-    logger.debug("tsl KeyStore Password: " + keystorePassword);
-    return keystorePassword;
+    return getConfigurationParameter(ConfigurationParameter.TslKeyStorePassword);
   }
 
   /**
@@ -1058,8 +601,7 @@ public class Configuration implements Serializable {
    * @param cacheExpirationTimeInMilliseconds cache expiration time in milliseconds
    */
   public void setTslCacheExpirationTime(long cacheExpirationTimeInMilliseconds) {
-    logger.debug("Setting TSL cache expiration time in milliseconds: " + cacheExpirationTimeInMilliseconds);
-    setConfigurationParameter("tslCacheExpirationTime", String.valueOf(cacheExpirationTimeInMilliseconds));
+    this.setConfigurationParameter(ConfigurationParameter.TslCacheExpirationTimeInMillis, String.valueOf(cacheExpirationTimeInMilliseconds));
   }
 
   /**
@@ -1068,9 +610,7 @@ public class Configuration implements Serializable {
    * @return TSL cache expiration time in milliseconds.
    */
   public long getTslCacheExpirationTime() {
-    String tslCacheExpirationTime = getConfigurationParameter("tslCacheExpirationTime");
-    logger.debug("TSL cache expiration time in milliseconds: " + tslCacheExpirationTime);
-    return Long.parseLong(tslCacheExpirationTime);
+    return this.getConfigurationParameter(ConfigurationParameter.TslCacheExpirationTimeInMillis, Long.class);
   }
 
   /**
@@ -1079,11 +619,7 @@ public class Configuration implements Serializable {
    * @return Allowed delay between timestamp and OCSP response in minutes.
    */
   public Integer getAllowedTimestampAndOCSPResponseDeltaInMinutes() {
-    String allowedTimestampAndOCSPResponseDeltaInMinutes =
-        getConfigurationParameter("allowedTimestampAndOCSPResponseDeltaInMinutes");
-    logger.debug("Allowed delay between timestamp and OCSP response in minutes: "
-        + allowedTimestampAndOCSPResponseDeltaInMinutes);
-    return Integer.parseInt(allowedTimestampAndOCSPResponseDeltaInMinutes);
+    return this.getConfigurationParameter(ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes, Integer.class);
   }
 
   /**
@@ -1092,8 +628,7 @@ public class Configuration implements Serializable {
    * @param timeInMinutes Allowed delay between timestamp and OCSP response in minutes
    */
   public void setAllowedTimestampAndOCSPResponseDeltaInMinutes(int timeInMinutes) {
-    logger.debug("Set allowed delay between timestamp and OCSP response in minutes: " + timeInMinutes);
-    setConfigurationParameter("allowedTimestampAndOCSPResponseDeltaInMinutes", String.valueOf(timeInMinutes));
+    this.setConfigurationParameter(ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes, String.valueOf(timeInMinutes));
   }
 
   /**
@@ -1102,8 +637,7 @@ public class Configuration implements Serializable {
    * @param ocspSource OCSP Source to be used
    */
   public void setOcspSource(String ocspSource) {
-    logger.debug("Set OCSP source: " + ocspSource);
-    setConfigurationParameter("ocspSource", ocspSource);
+    this.setConfigurationParameter(ConfigurationParameter.OcspSource, ocspSource);
   }
 
   /**
@@ -1112,9 +646,7 @@ public class Configuration implements Serializable {
    * @return Validation policy
    */
   public String getValidationPolicy() {
-    String validationPolicy = getConfigurationParameter("validationPolicy");
-    logger.debug("Validation policy: " + validationPolicy);
-    return validationPolicy;
+    return this.getConfigurationParameter(ConfigurationParameter.ValidationPolicy);
   }
 
   /**
@@ -1123,8 +655,7 @@ public class Configuration implements Serializable {
    * @param validationPolicy Policy to be used
    */
   public void setValidationPolicy(String validationPolicy) {
-    logger.debug("Set validation policy: " + validationPolicy);
-    setConfigurationParameter("validationPolicy", validationPolicy);
+    this.setConfigurationParameter(ConfigurationParameter.ValidationPolicy, validationPolicy);
   }
 
   /**
@@ -1133,9 +664,7 @@ public class Configuration implements Serializable {
    * @return timestamp delta in minutes.
    */
   public int getRevocationAndTimestampDeltaInMinutes() {
-    String timeDelta = getConfigurationParameter("revocationAndTimestampDeltaInMinutes");
-    logger.debug("Revocation and timestamp delta in minutes: " + timeDelta);
-    return Integer.parseInt(timeDelta);
+    return this.getConfigurationParameter(ConfigurationParameter.RevocationAndTimestampDeltaInMinutes, Integer.class);
   }
 
   /**
@@ -1144,8 +673,7 @@ public class Configuration implements Serializable {
    * @param timeInMinutes delta in minutes.
    */
   public void setRevocationAndTimestampDeltaInMinutes(int timeInMinutes) {
-    logger.debug("Set revocation and timestamp delta in minutes: " + timeInMinutes);
-    setConfigurationParameter("revocationAndTimestampDeltaInMinutes", String.valueOf(timeInMinutes));
+    this.setConfigurationParameter(ConfigurationParameter.RevocationAndTimestampDeltaInMinutes, String.valueOf(timeInMinutes));
   }
 
   /**
@@ -1154,9 +682,7 @@ public class Configuration implements Serializable {
    * @return SignatureProfile.
    */
   public SignatureProfile getSignatureProfile() {
-    String signatureProfile = getConfigurationParameter("signatureProfile");
-    logger.debug("Signature profile: " + signatureProfile);
-    return SignatureProfile.findByProfile(signatureProfile);
+    return SignatureProfile.findByProfile(this.getConfigurationParameter(ConfigurationParameter.SignatureProfile));
   }
 
   /**
@@ -1165,37 +691,33 @@ public class Configuration implements Serializable {
    * @return DigestAlgorithm.
    */
   public DigestAlgorithm getSignatureDigestAlgorithm() {
-    String signatureDigestAlgorithm = getConfigurationParameter("signatureDigestAlgoritm");
-    logger.debug("Signature digest algorithm: " + signatureDigestAlgorithm);
-    return DigestAlgorithm.findByAlgorithm(signatureDigestAlgorithm);
+    return DigestAlgorithm.findByAlgorithm(getConfigurationParameter(ConfigurationParameter.SignatureDigestAlgorithm));
   }
 
   public String getHttpsProxyHost() {
-    return httpsProxyHost;
+    return this.getConfigurationParameter(ConfigurationParameter.HttpsProxyHost);
   }
 
   /**
    * Set HTTPS network proxy host.
    *
-   * @param httpsProxyHost
-   *          https proxy host.
+   * @param httpsProxyHost https proxy host.
    */
   public void setHttpsProxyHost(String httpsProxyHost) {
-    this.httpsProxyHost = httpsProxyHost;
+    this.setConfigurationParameter(ConfigurationParameter.HttpsProxyHost, httpsProxyHost);
   }
 
   public Integer getHttpsProxyPort() {
-    return httpsProxyPort;
+    return this.getConfigurationParameter(ConfigurationParameter.HttpsProxyPort, Integer.class);
   }
 
   /**
    * Set HTTPS network proxy port.
    *
-   * @param httpsProxyPort
-   *           https proxy port.
+   * @param httpsProxyPort https proxy port.
    */
   public void setHttpsProxyPort(int httpsProxyPort) {
-    this.httpsProxyPort = httpsProxyPort;
+    this.setConfigurationParameter(ConfigurationParameter.HttpsProxyPort, String.valueOf(httpsProxyPort));
   }
 
 
@@ -1205,7 +727,7 @@ public class Configuration implements Serializable {
    * @return http proxy host.
    */
   public String getHttpProxyHost() {
-    return httpProxyHost;
+    return this.getConfigurationParameter(ConfigurationParameter.HttpProxyHost);
   }
 
   /**
@@ -1214,7 +736,7 @@ public class Configuration implements Serializable {
    * @param httpProxyHost http proxy host.
    */
   public void setHttpProxyHost(String httpProxyHost) {
-    this.httpProxyHost = httpProxyHost;
+    this.setConfigurationParameter(ConfigurationParameter.HttpProxyHost, httpProxyHost);
   }
 
   /**
@@ -1223,7 +745,7 @@ public class Configuration implements Serializable {
    * @return http proxy port.
    */
   public Integer getHttpProxyPort() {
-    return httpProxyPort;
+    return this.getConfigurationParameter(ConfigurationParameter.HttpProxyPort, Integer.class);
   }
 
   /**
@@ -1232,7 +754,7 @@ public class Configuration implements Serializable {
    * @param httpProxyPort Port number.
    */
   public void setHttpProxyPort(int httpProxyPort) {
-    this.httpProxyPort = httpProxyPort;
+    this.setConfigurationParameter(ConfigurationParameter.HttpProxyPort, String.valueOf(httpProxyPort));
   }
 
   /**
@@ -1241,7 +763,7 @@ public class Configuration implements Serializable {
    * @param httpProxyUser username.
    */
   public void setHttpProxyUser(String httpProxyUser) {
-    this.httpProxyUser = httpProxyUser;
+    this.setConfigurationParameter(ConfigurationParameter.HttpProxyUser, httpProxyUser);
   }
 
   /**
@@ -1250,7 +772,7 @@ public class Configuration implements Serializable {
    * @return http proxy user.
    */
   public String getHttpProxyUser() {
-    return httpProxyUser;
+    return this.getConfigurationParameter(ConfigurationParameter.HttpProxyUser);
   }
 
   /**
@@ -1259,7 +781,7 @@ public class Configuration implements Serializable {
    * @param httpProxyPassword password.
    */
   public void setHttpProxyPassword(String httpProxyPassword) {
-    this.httpProxyPassword = httpProxyPassword;
+    this.setConfigurationParameter(ConfigurationParameter.HttpProxyPassword, httpProxyPassword);
   }
 
   /**
@@ -1268,7 +790,7 @@ public class Configuration implements Serializable {
    * @return http proxy password.
    */
   public String getHttpProxyPassword() {
-    return httpProxyPassword;
+    return this.getConfigurationParameter(ConfigurationParameter.HttpProxyPassword);
   }
 
   /**
@@ -1277,8 +799,23 @@ public class Configuration implements Serializable {
    * @return True if network proxy is enabled, otherwise False.
    */
   public boolean isNetworkProxyEnabled() {
-    return httpProxyPort != null && isNotBlank(httpProxyHost)
-        || httpsProxyPort != null && isNotBlank(httpsProxyHost);
+    return this.getConfigurationParameter(ConfigurationParameter.HttpProxyPort, Integer.class) != null &&
+        StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.HttpProxyHost))
+        || this.getConfigurationParameter(ConfigurationParameter.HttpsProxyPort, Integer.class) != null &&
+        StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.HttpsProxyHost));
+  }
+
+  public boolean isProxyOfType(Protocol protocol) {
+    switch (protocol) {
+      case HTTP:
+        return this.getConfigurationParameter(ConfigurationParameter.HttpProxyPort, Integer.class) != null &&
+            StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.HttpProxyHost));
+      case HTTPS:
+        return this.getConfigurationParameter(ConfigurationParameter.HttpsProxyPort, Integer.class) != null &&
+            StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.HttpsProxyHost));
+      default:
+        throw new RuntimeException(String.format("Protocol <%s> not supported", protocol));
+    }
   }
 
   /**
@@ -1287,7 +824,7 @@ public class Configuration implements Serializable {
    * @return True if SSL configuration is enabled, otherwise False.
    */
   public boolean isSslConfigurationEnabled() {
-    return sslKeystorePath != null && isNotBlank(sslKeystorePath);
+    return StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.SslKeystorePath));
   }
 
   /**
@@ -1296,7 +833,7 @@ public class Configuration implements Serializable {
    * @param sslKeystorePath path to a file
    */
   public void setSslKeystorePath(String sslKeystorePath) {
-    this.sslKeystorePath = sslKeystorePath;
+    this.setConfigurationParameter(ConfigurationParameter.SslKeystorePath, sslKeystorePath);
   }
 
   /**
@@ -1305,7 +842,7 @@ public class Configuration implements Serializable {
    * @return path to a file
    */
   public String getSslKeystorePath() {
-    return sslKeystorePath;
+    return this.getConfigurationParameter(ConfigurationParameter.SslKeystorePath);
   }
 
   /**
@@ -1314,7 +851,7 @@ public class Configuration implements Serializable {
    * @param sslKeystoreType type.
    */
   public void setSslKeystoreType(String sslKeystoreType) {
-    this.sslKeystoreType = sslKeystoreType;
+    this.setConfigurationParameter(ConfigurationParameter.SslKeystoreType, sslKeystoreType);
   }
 
   /**
@@ -1323,7 +860,7 @@ public class Configuration implements Serializable {
    * @return type.
    */
   public String getSslKeystoreType() {
-    return sslKeystoreType;
+    return this.getConfigurationParameter(ConfigurationParameter.SslKeystoreType);
   }
 
   /**
@@ -1332,7 +869,7 @@ public class Configuration implements Serializable {
    * @param sslKeystorePassword password.
    */
   public void setSslKeystorePassword(String sslKeystorePassword) {
-    this.sslKeystorePassword = sslKeystorePassword;
+    this.setConfigurationParameter(ConfigurationParameter.SslKeystorePassword, sslKeystorePassword);
   }
 
   /**
@@ -1341,7 +878,7 @@ public class Configuration implements Serializable {
    * @return password.
    */
   public String getSslKeystorePassword() {
-    return sslKeystorePassword;
+    return this.getConfigurationParameter(ConfigurationParameter.SslKeystorePassword);
   }
 
   /**
@@ -1350,7 +887,7 @@ public class Configuration implements Serializable {
    * @param sslTruststorePath path to a file.
    */
   public void setSslTruststorePath(String sslTruststorePath) {
-    this.sslTruststorePath = sslTruststorePath;
+    this.setConfigurationParameter(ConfigurationParameter.SslTruststorePath, sslTruststorePath);
   }
 
   /**
@@ -1359,7 +896,7 @@ public class Configuration implements Serializable {
    * @return path to a file.
    */
   public String getSslTruststorePath() {
-    return sslTruststorePath;
+    return this.getConfigurationParameter(ConfigurationParameter.SslTruststorePath);
   }
 
   /**
@@ -1368,7 +905,7 @@ public class Configuration implements Serializable {
    * @param sslTruststoreType type.
    */
   public void setSslTruststoreType(String sslTruststoreType) {
-    this.sslTruststoreType = sslTruststoreType;
+    this.setConfigurationParameter(ConfigurationParameter.SslTruststoreType, sslTruststoreType);
   }
 
   /**
@@ -1377,7 +914,7 @@ public class Configuration implements Serializable {
    * @return type.
    */
   public String getSslTruststoreType() {
-    return sslTruststoreType;
+    return this.getConfigurationParameter(ConfigurationParameter.SslTruststoreType);
   }
 
   /**
@@ -1386,7 +923,7 @@ public class Configuration implements Serializable {
    * @param sslTruststorePassword password.
    */
   public void setSslTruststorePassword(String sslTruststorePassword) {
-    this.sslTruststorePassword = sslTruststorePassword;
+    this.setConfigurationParameter(ConfigurationParameter.SslTruststorePassword, sslTruststorePassword);
   }
 
   /**
@@ -1395,7 +932,7 @@ public class Configuration implements Serializable {
    * @return password.
    */
   public String getSslTruststorePassword() {
-    return sslTruststorePassword;
+    return this.getConfigurationParameter(ConfigurationParameter.SslTruststorePassword);
   }
 
   /**
@@ -1441,24 +978,12 @@ public class Configuration implements Serializable {
     return trustedTerritories;
   }
 
-  private void setConfigurationParameter(String key, String value) {
-    logger.debug("Key: " + key + ", value: " + value);
-    configuration.put(key, value);
-  }
-
-  private String getConfigurationParameter(String key) {
-    logger.debug("Key: " + key);
-    String value = configuration.get(key);
-    logger.debug("Value: " + value);
-    return value;
-  }
-
   /**
    * @return true when configuration is Configuration.Mode.TEST
    * @see Configuration.Mode#TEST
    */
   public boolean isTest() {
-    boolean isTest = mode == Mode.TEST;
+    boolean isTest = Mode.TEST.equals(this.mode);
     logger.debug("Is test: " + isTest);
     return isTest;
   }
@@ -1492,55 +1017,423 @@ public class Configuration implements Serializable {
     return copyConfiguration;
   }
 
-  private void initOcspAccessCertPasswordForJDigidoc() {
-    char[] ocspAccessCertificatePassword = getOCSPAccessCertificatePassword();
-    if (ocspAccessCertificatePassword != null && ocspAccessCertificatePassword.length > 0) {
-      setJDigiDocConfigurationValue(OCSP_PKCS_12_PASSWD, String.valueOf(ocspAccessCertificatePassword));
+    /*
+     * RESTRICTED METHODS
+     */
+
+  protected ConfigurationRegistry getRegistry() {
+    return this.registry;
+  }
+
+  private void initDefaultValues() {
+    logger.debug("------------------------ DEFAULTS ------------------------");
+    this.tslManager = new TslManager(this);
+    this.setConfigurationParameter(ConfigurationParameter.ConnectionTimeoutInMillis, String.valueOf(Constant.ONE_SECOND_IN_MILLISECONDS));
+    this.setConfigurationParameter(ConfigurationParameter.SocketTimeoutInMillis, String.valueOf(Constant.ONE_SECOND_IN_MILLISECONDS));
+    this.setConfigurationParameter(ConfigurationParameter.TslKeyStorePassword, "digidoc4j-password");
+    this.setConfigurationParameter(ConfigurationParameter.RevocationAndTimestampDeltaInMinutes, String.valueOf(Constant.ONE_DAY_IN_MINUTES));
+    this.setConfigurationParameter(ConfigurationParameter.TslCacheExpirationTimeInMillis, String.valueOf(Constant.ONE_DAY_IN_MILLISECONDS));
+    this.setConfigurationParameter(ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes, "15");
+    this.setConfigurationParameter(ConfigurationParameter.SignatureProfile, Constant.Default.SIGNATURE_PROFILE);
+    this.setConfigurationParameter(ConfigurationParameter.SignatureDigestAlgorithm, Constant.Default.SIGNATURE_DIGEST_ALGORITHM);
+    if (Mode.TEST.equals(this.mode)) {
+      this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Test.TSP_SOURCE);
+      this.setConfigurationParameter(ConfigurationParameter.TslLocation, Constant.Test.TSL_LOCATION);
+      this.setConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation, Constant.Test.TSL_KEYSTORE_LOCATION);
+      this.setConfigurationParameter(ConfigurationParameter.ValidationPolicy, Constant.Test.VALIDATION_POLICY);
+      this.setConfigurationParameter(ConfigurationParameter.OcspSource, Constant.Test.OCSP_SOURCE);
+      this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, "false");
+      this.setJDigiDocParameter("SIGN_OCSP_REQUESTS", "false");
+    } else {
+      this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Production.TSP_SOURCE);
+      this.setConfigurationParameter(ConfigurationParameter.TslLocation, Constant.Production.TSL_LOCATION);
+      this.setConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation, Constant.Production.TSL_KEYSTORE_LOCATION);
+      this.setConfigurationParameter(ConfigurationParameter.ValidationPolicy, Constant.Production.VALIDATION_POLICY);
+      this.setConfigurationParameter(ConfigurationParameter.OcspSource, Constant.Production.OCSP_SOURCE);
+      this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, "false");
+      this.trustedTerritories = Constant.Production.DEFAULT_TRUESTED_TERRITORIES;
+      this.setJDigiDocParameter("SIGN_OCSP_REQUESTS", "false");
+    }
+    logger.debug("{} configuration: {}", this.mode, this.registry);
+    this.loadInitialConfigurationValues();
+  }
+
+  private void loadInitialConfigurationValues() {
+    logger.debug("------------------------ LOADING INITIAL CONFIGURATION ------------------------");
+    this.setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER", Constant.JDigiDoc.SECURITY_PROVIDER);
+    this.setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER_NAME", Constant.JDigiDoc.SECURITY_PROVIDER_NAME);
+    this.setJDigiDocConfigurationValue("KEY_USAGE_CHECK", Constant.JDigiDoc.KEY_USAGE_CHECK);
+    this.setJDigiDocConfigurationValue("DIGIDOC_OCSP_SIGN_CERT_SERIAL", "");
+    this.setJDigiDocConfigurationValue("DATAFILE_HASHCODE_MODE", "false");
+    this.setJDigiDocConfigurationValue("CANONICALIZATION_FACTORY_IMPL", Constant.JDigiDoc.CANONICALIZATION_FACTORY_IMPLEMENTATION);
+    this.setJDigiDocConfigurationValue("DIGIDOC_MAX_DATAFILE_CACHED", Constant.JDigiDoc.MAX_DATAFILE_CACHED);
+    this.setJDigiDocConfigurationValue("DIGIDOC_USE_LOCAL_TSL", Constant.JDigiDoc.USE_LOCAL_TSL);
+    this.setJDigiDocConfigurationValue("DIGIDOC_NOTARY_IMPL", Constant.JDigiDoc.NOTARY_IMPLEMENTATION);
+    this.setJDigiDocConfigurationValue("DIGIDOC_TSLFAC_IMPL", Constant.JDigiDoc.TSL_FACTORY_IMPLEMENTATION);
+    this.setJDigiDocConfigurationValue("DIGIDOC_OCSP_RESPONDER_URL", this.getOcspSource());
+    this.setJDigiDocConfigurationValue("DIGIDOC_FACTORY_IMPL", Constant.JDigiDoc.FACTORY_IMPLEMENTATION);
+    this.setJDigiDocConfigurationValue("DIGIDOC_DF_CACHE_DIR", null);
+    this.setConfigurationValue("TSL_LOCATION", ConfigurationParameter.TslLocation);
+    this.setConfigurationValue("TSP_SOURCE", ConfigurationParameter.TspSource);
+    this.setConfigurationValue("VALIDATION_POLICY", ConfigurationParameter.ValidationPolicy);
+    this.setConfigurationValue("OCSP_SOURCE", ConfigurationParameter.OcspSource);
+    this.setConfigurationValue("DIGIDOC_PKCS12_CONTAINER", ConfigurationParameter.OcspAccessCertificateFile);
+    this.setConfigurationValue("DIGIDOC_PKCS12_PASSWD", ConfigurationParameter.OcspAccessCertificatePassword);
+    this.setConfigurationValue("CONNECTION_TIMEOUT", ConfigurationParameter.ConnectionTimeoutInMillis);
+    this.setConfigurationValue("SOCKET_TIMEOUT", ConfigurationParameter.SocketTimeoutInMillis);
+    this.setConfigurationValue("SIGN_OCSP_REQUESTS", ConfigurationParameter.SignOcspRequests);
+    this.setConfigurationValue("TSL_KEYSTORE_LOCATION", ConfigurationParameter.TslKeyStoreLocation);
+    this.setConfigurationValue("TSL_KEYSTORE_PASSWORD", ConfigurationParameter.TslKeyStorePassword);
+    this.setConfigurationValue("TSL_CACHE_EXPIRATION_TIME", ConfigurationParameter.TslCacheExpirationTimeInMillis);
+    this.setConfigurationValue("REVOCATION_AND_TIMESTAMP_DELTA_IN_MINUTES", ConfigurationParameter.RevocationAndTimestampDeltaInMinutes);
+    this.setConfigurationValue("ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES", ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes);
+    this.setConfigurationValue("SIGNATURE_PROFILE", ConfigurationParameter.SignatureProfile);
+    this.setConfigurationValue("SIGNATURE_DIGEST_ALGORITHM", ConfigurationParameter.SignatureDigestAlgorithm);
+    this.setJDigiDocConfigurationValue("SIGN_OCSP_REQUESTS", Boolean.toString(this.hasToBeOCSPRequestSigned()));
+    this.setJDigiDocConfigurationValue("DIGIDOC_PKCS12_CONTAINER", this.getOCSPAccessCertificateFileName());
+    this.initOcspAccessCertPasswordForJDigidoc();
+    this.setConfigurationParameter(ConfigurationParameter.HttpProxyHost, this.getParameter(Constant.System.HTTP_PROXY_HOST, "HTTP_PROXY_HOST"));
+    this.setConfigurationParameter(ConfigurationParameter.HttpProxyPort, this.getParameter(Constant.System.HTTP_PROXY_PORT, "HTTP_PROXY_PORT"));
+    this.setConfigurationParameter(ConfigurationParameter.HttpsProxyHost, this.getParameter(Constant.System.HTTPS_PROXY_HOST, "HTTPS_PROXY_HOST"));
+    this.setConfigurationParameter(ConfigurationParameter.HttpsProxyPort, this.getParameter(Constant.System.HTTPS_PROXY_PORT, "HTTPS_PROXY_PORT"));
+    this.setConfigurationParameter(ConfigurationParameter.HttpProxyUser, this.getParameterFromFile("HTTP_PROXY_USER"));
+    this.setConfigurationParameter(ConfigurationParameter.HttpProxyPassword, this.getParameterFromFile("HTTP_PROXY_PASSWORD"));
+    this.setConfigurationParameter(ConfigurationParameter.SslKeystoreType, this.getParameterFromFile("SSL_KEYSTORE_TYPE"));
+    this.setConfigurationParameter(ConfigurationParameter.SslTruststoreType, this.getParameterFromFile("SSL_TRUSTSTORE_TYPE"));
+    this.setConfigurationParameter(ConfigurationParameter.SslKeystorePath, this.getParameter(Constant.System.JAVAX_NET_SSL_KEY_STORE, "SSL_KEYSTORE_PATH"));
+    this.setConfigurationParameter(ConfigurationParameter.SslKeystorePassword, this.getParameter(Constant.System.JAVAX_NET_SSL_KEY_STORE_PASSWORD, "SSL_KEYSTORE_PASSWORD"));
+    this.setConfigurationParameter(ConfigurationParameter.SslTruststorePath, this.getParameter(Constant.System.JAVAX_NET_SSL_TRUST_STORE, "SSL_TRUSTSTORE_PATH"));
+    this.setConfigurationParameter(ConfigurationParameter.SslTruststorePassword, this.getParameter(Constant.System.JAVAX_NET_SSL_TRUST_STORE_PASSWORD, "SSL_TRUSTSTORE_PASSWORD"));
+    this.updateTrustedTerritories();
+  }
+
+  private Hashtable<String, String> loadConfigurationSettings(InputStream stream) {
+    configurationFromFile = new LinkedHashMap();
+    Yaml yaml = new Yaml();
+    try {
+      configurationFromFile = (LinkedHashMap) yaml.load(stream);
+    } catch (Exception e) {
+      ConfigurationException exception = new ConfigurationException("Configuration from "
+          + configurationInputSourceName + " is not correctly formatted");
+      logger.error(exception.getMessage());
+      throw exception;
+    }
+    IOUtils.closeQuietly(stream);
+    return mapToJDigiDocConfiguration();
+  }
+
+  private InputStream getResourceAsStream(String certFile) {
+    InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(certFile);
+    if (resourceAsStream == null) {
+      String message = "File " + certFile + " not found in classpath.";
+      logger.error(message);
+      throw new ConfigurationException(message);
+    }
+    return resourceAsStream;
+  }
+
+  private String defaultIfNull(String configParameter, String defaultValue) {
+    logger.debug("Parameter: " + configParameter);
+    if (configurationFromFile == null) return defaultValue;
+    Object value = configurationFromFile.get(configParameter);
+    if (value != null) {
+      return valueIsAllowed(configParameter, value.toString()) ? value.toString() : "";
+    }
+    String configuredValue = jDigiDocConfiguration.get(configParameter);
+    return configuredValue != null ? configuredValue : defaultValue;
+  }
+
+  private boolean valueIsAllowed(String configParameter, String value) {
+    List<String> mustBeBooleans = Arrays.asList("SIGN_OCSP_REQUESTS", "KEY_USAGE_CHECK", "DATAFILE_HASHCODE_MODE", "DIGIDOC_USE_LOCAL_TSL");
+    List<String> mustBeIntegers = Arrays.asList("DIGIDOC_MAX_DATAFILE_CACHED", "HTTP_PROXY_PORT");
+    boolean errorFound = false;
+    if (mustBeBooleans.contains(configParameter)) {
+      errorFound = !(isValidBooleanParameter(configParameter, value));
+    }
+    if (mustBeIntegers.contains(configParameter)) {
+      errorFound = !(isValidIntegerParameter(configParameter, value)) || errorFound;
+    }
+    return (!errorFound);
+  }
+
+  private boolean isValidBooleanParameter(String configParameter, String value) {
+    if (!("true".equals(value.toLowerCase()) || "false".equals(value.toLowerCase()))) {
+      String errorMessage = "Configuration parameter " + configParameter + " should be set to true or false"
+          + " but the actual value is: " + value + ".";
+      logError(errorMessage);
+      return false;
+    }
+    return true;
+  }
+
+  private boolean isValidIntegerParameter(String configParameter, String value) {
+    Integer parameterValue;
+    try {
+      parameterValue = Integer.parseInt(value);
+    } catch (Exception e) {
+      String errorMessage = "Configuration parameter " + configParameter + " should have an integer value"
+          + " but the actual value is: " + value + ".";
+      logError(errorMessage);
+      return false;
+    }
+    if (configParameter.equals("DIGIDOC_MAX_DATAFILE_CACHED") && parameterValue < -1) {
+      String errorMessage = "Configuration parameter " + configParameter + " should be greater or equal -1"
+          + " but the actual value is: " + value + ".";
+      logError(errorMessage);
+      return false;
+    }
+    return true;
+  }
+
+  private void loadOCSPCertificates(LinkedHashMap digiDocCA, String caPrefix) {
+    logger.debug("");
+    String errorMessage;
+    @SuppressWarnings("unchecked")
+    ArrayList<LinkedHashMap> ocsps = (ArrayList<LinkedHashMap>) digiDocCA.get("OCSPS");
+    if (ocsps == null) {
+      errorMessage = "No OCSPS entry found or OCSPS entry is empty. Configuration from: "
+          + configurationInputSourceName;
+      logError(errorMessage);
+      return;
+    }
+    int numberOfOCSPCertificates = ocsps.size();
+    jDigiDocConfiguration.put(caPrefix + "_OCSPS", String.valueOf(numberOfOCSPCertificates));
+    for (int i = 1; i <= numberOfOCSPCertificates; i++) {
+      String prefix = caPrefix + "_OCSP" + i;
+      LinkedHashMap ocsp = ocsps.get(i - 1);
+      List<String> entries = asList("CA_CN", "CA_CERT", "CN", "URL");
+      for (String entry : entries) {
+        if (!loadOCSPCertificateEntry(entry, ocsp, prefix)) {
+          errorMessage = "OCSPS list entry " + i + " does not have an entry for " + entry
+              + " or the entry is empty\n";
+          logError(errorMessage);
+        }
+      }
+      if (!getOCSPCertificates(prefix, ocsp)) {
+        errorMessage = "OCSPS list entry " + i + " does not have an entry for CERTS or the entry is empty\n";
+        logError(errorMessage);
+      }
     }
   }
 
   /**
-   * Get Integer value through JVM parameters or from configuration file
+   * Gives back all configuration parameters needed for jDigiDoc
    *
-   * @param sysParamKey jvm value key .
-   * @param fileKey file value key.
-   *
-   * @return Integer value from JVM parameters or from file
+   * @return Hashtable containing jDigiDoc configuration parameters
    */
-  private Integer getIntegerParams(String sysParamKey, String fileKey) {
-    Integer valueFromJvm = System.getProperty(sysParamKey) != null
-        ? new Integer(System.getProperty(sysParamKey)) : null;
-    Integer valueFromFile = getIntParameterFromFile(fileKey);
-    addParamToLog(valueFromJvm, valueFromFile, sysParamKey, fileKey);
-    return valueFromJvm != null ? valueFromJvm : valueFromFile;
+
+  private Hashtable<String, String> mapToJDigiDocConfiguration() {
+    logger.debug("loading JDigiDoc configuration");
+    inputSourceParseErrors = new ArrayList<>();
+    loadInitialConfigurationValues();
+    reportFileParseErrors();
+    return jDigiDocConfiguration;
+  }
+
+  private void loadCertificateAuthoritiesAndCertificates() {
+    logger.debug("");
+    @SuppressWarnings("unchecked")
+    ArrayList<LinkedHashMap> digiDocCAs = (ArrayList<LinkedHashMap>) configurationFromFile.get("DIGIDOC_CAS");
+    if (digiDocCAs == null) {
+      String errorMessage = "Empty or no DIGIDOC_CAS entry";
+      logError(errorMessage);
+      return;
+    }
+
+    int numberOfDigiDocCAs = digiDocCAs.size();
+    jDigiDocConfiguration.put("DIGIDOC_CAS", String.valueOf(numberOfDigiDocCAs));
+    for (int i = 0; i < numberOfDigiDocCAs; i++) {
+      String caPrefix = "DIGIDOC_CA_" + (i + 1);
+      LinkedHashMap digiDocCA = (LinkedHashMap) digiDocCAs.get(i).get("DIGIDOC_CA");
+      if (digiDocCA == null) {
+        String errorMessage = "Empty or no DIGIDOC_CA for entry " + (i + 1);
+        logError(errorMessage);
+      } else {
+        loadCertificateAuthorityCerts(digiDocCA, caPrefix);
+        loadOCSPCertificates(digiDocCA, caPrefix);
+      }
+    }
+  }
+
+  private void logError(String errorMessage) {
+    logger.error(errorMessage);
+    inputSourceParseErrors.add(errorMessage);
+  }
+
+  private void reportFileParseErrors() {
+    logger.debug("");
+    if (inputSourceParseErrors.size() > 0) {
+      StringBuilder errorMessage = new StringBuilder();
+      errorMessage.append("Configuration from ");
+      errorMessage.append(configurationInputSourceName);
+      errorMessage.append(" contains error(s):\n");
+      for (String message : inputSourceParseErrors) {
+        errorMessage.append(message);
+      }
+      throw new ConfigurationException(errorMessage.toString());
+    }
+  }
+
+  private void updateTrustedTerritories() {
+    List<String> territories = getStringListParameterFromFile("TRUSTED_TERRITORIES");
+    if (territories != null) {
+      trustedTerritories = territories;
+    }
+  }
+
+  private String getParameterFromFile(String key) {
+    if (configurationFromFile == null) {
+      return null;
+    }
+    Object fileValue = configurationFromFile.get(key);
+    if (fileValue == null) {
+      return null;
+    }
+    String value = fileValue.toString();
+    if (valueIsAllowed(key, value)) {
+      return value;
+    }
+    return null;
+  }
+
+  private Integer getIntParameterFromFile(String key) {
+    String value = getParameterFromFile(key);
+    if (value == null) {
+      return null;
+    }
+    return new Integer(value);
+  }
+
+  private List<String> getStringListParameterFromFile(String key) {
+    String value = getParameterFromFile(key);
+    if (value == null) {
+      return null;
+    }
+    return Arrays.asList(value.split("\\s*,\\s*")); //Split by comma and trim whitespace
+  }
+
+  private void setConfigurationValue(String fileKey, ConfigurationParameter parameter) {
+    if (this.configurationFromFile == null) {
+      return;
+    }
+    Object fileValue = this.configurationFromFile.get(fileKey);
+    if (fileValue != null) {
+      this.setConfigurationParameter(parameter, fileValue.toString());
+    }
+  }
+
+  private void setJDigiDocConfigurationValue(String key, String defaultValue) {
+    String value = defaultIfNull(key, defaultValue);
+    if (value != null) {
+      jDigiDocConfiguration.put(key, value);
+    }
+  }
+
+  private boolean loadOCSPCertificateEntry(String ocspsEntryName, LinkedHashMap ocsp, String prefix) {
+    Object ocspEntry = ocsp.get(ocspsEntryName);
+    if (ocspEntry == null) return false;
+    jDigiDocConfiguration.put(prefix + "_" + ocspsEntryName, ocspEntry.toString());
+    return true;
+  }
+
+  @SuppressWarnings("unchecked")
+  private boolean getOCSPCertificates(String prefix, LinkedHashMap ocsp) {
+    ArrayList<String> certificates = (ArrayList<String>) ocsp.get("CERTS");
+    if (certificates == null) {
+      return false;
+    }
+    for (int j = 0; j < certificates.size(); j++) {
+      if (j == 0) {
+        this.setJDigiDocParameter(String.format("%s_CERT", prefix), certificates.get(0));
+      } else {
+        this.setJDigiDocParameter(String.format("%s_CERT_%s", prefix, j), certificates.get(j));
+      }
+    }
+    return true;
+  }
+
+  private void loadCertificateAuthorityCerts(LinkedHashMap digiDocCA, String caPrefix) {
+    logger.debug("Loading CA certificates");
+    ArrayList<String> certificateAuthorityCerts = this.getCACertsAsArray(digiDocCA);
+    this.setJDigiDocParameter(String.format("%s_NAME", caPrefix), digiDocCA.get("NAME").toString());
+    this.setJDigiDocParameter(String.format("%s_TRADENAME", caPrefix), digiDocCA.get("TRADENAME").toString());
+    int numberOfCACertificates = certificateAuthorityCerts.size();
+    this.setJDigiDocParameter(String.format("%s_CERTS", caPrefix), String.valueOf(numberOfCACertificates));
+    for (int i = 0; i < numberOfCACertificates; i++) {
+      this.setJDigiDocParameter(String.format("%s_CERT%s", caPrefix, i + 1), certificateAuthorityCerts.get(i));
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private ArrayList<String> getCACertsAsArray(LinkedHashMap digiDocCa) {
+    return (ArrayList<String>) digiDocCa.get("CERTS");
+  }
+
+  private void setConfigurationParameter(ConfigurationParameter parameter, String value) {
+    if (StringUtils.isBlank(value)) {
+      logger.info("Parameter <{}> has blank value, hence will not be registered", parameter);
+      return;
+    }
+    logger.debug("Setting parameter <{}> to <{}>", parameter, value);
+    this.registry.put(parameter, value);
+  }
+
+  private <T> T getConfigurationParameter(ConfigurationParameter parameter, Class<T> clazz) {
+    String value = this.getConfigurationParameter(parameter);
+    if (StringUtils.isNotBlank(value)) {
+      if (clazz.isAssignableFrom(Integer.class)) {
+        return (T) Integer.valueOf(value);
+      } else if (clazz.isAssignableFrom(Long.class)) {
+        return (T) Long.valueOf(value);
+      }
+      throw new RuntimeException(String.format("Type <%s> not supported", clazz.getSimpleName()));
+    }
+    return null;
+  }
+
+  private String getConfigurationParameter(ConfigurationParameter parameter) {
+    if (!this.registry.containsKey(parameter)) {
+      logger.debug("Requested parameter <{}> not found", parameter);
+      return null;
+    }
+    String value = this.registry.get(parameter);
+    logger.debug("Requesting parameter <{}>. Returned value is <{}>", parameter, value);
+    return value;
+  }
+
+  private void initOcspAccessCertPasswordForJDigidoc() {
+    char[] ocspAccessCertificatePassword = this.getOCSPAccessCertificatePassword();
+    if (ocspAccessCertificatePassword != null && ocspAccessCertificatePassword.length > 0) {
+      this.setJDigiDocConfigurationValue(Constant.JDigiDoc.OCSP_PKCS_12_PASSWORD, String.valueOf(ocspAccessCertificatePassword));
+    }
   }
 
   /**
    * Get String value through JVM parameters or from configuration file
    *
-   * @param sysParamKey jvm value key .
-   * @param fileKey file value key.
-   *
+   * @param systemKey jvm value key .
+   * @param fileKey   file value key.
    * @return String value from JVM parameters or from file
    */
-  private String getStringParams(String sysParamKey, String fileKey) {
-    String valueFromJvm = System.getProperty(sysParamKey);
-    String valueFromFile = getParameterFromFile(fileKey);
-    addParamToLog(valueFromJvm, valueFromFile, sysParamKey, fileKey);
+  private String getParameter(String systemKey, String fileKey) {
+    String valueFromJvm = System.getProperty(systemKey);
+    String valueFromFile = this.getParameterFromFile(fileKey);
+    this.log(valueFromJvm, valueFromFile, systemKey, fileKey);
     return valueFromJvm != null ? valueFromJvm : valueFromFile;
   }
 
-  private void addParamToLog(Object jvmParam, Object fileParam,
-                             String sysParamKey, String fileKey) {
+  private void setJDigiDocParameter(String key, String value) {
+    logger.debug("Setting JDigiDoc parameter <{}> to <{}>", key, value);
+    this.jDigiDocConfiguration.put(key, value);
+  }
+
+  private void log(Object jvmParam, Object fileParam, String sysParamKey, String fileKey) {
     if (jvmParam != null) {
-      logger.debug("In use param form JVM: key = " + sysParamKey + "; value = "
-          + jvmParam);
+      logger.debug(String.format("JVM parameter <%s> detected and applied with value <%s>", sysParamKey, jvmParam));
     }
     if (jvmParam == null && fileParam != null) {
-      logger.debug("In use param form file: key = " + fileKey + "; value = "
-          + fileParam);
+      logger.debug(String.format("YAML file parameter <%s> detected and applied with value <%s>", fileKey, fileParam));
     }
   }
 
 }
-

@@ -27,6 +27,8 @@ public class AsicParseResult implements Serializable {
   private String zipFileComment;
   private List<AsicEntry> asicEntries;
   private ManifestParser manifestParser;
+  private DataFile timeStampToken;
+  private String mimeType;
 
   public List<DataFile> getDataFiles() {
     return dataFiles;
@@ -82,5 +84,21 @@ public class AsicParseResult implements Serializable {
 
   public void setManifestParser(ManifestParser manifestParser) {
     this.manifestParser = manifestParser;
+  }
+
+  public void setTimeStampToken(DataFile timeStampToken) {
+    this.timeStampToken = timeStampToken;
+  }
+
+  public DataFile getTimeStampToken() {
+    return timeStampToken;
+  }
+
+  public void setMimeType(String mimeType) {
+    this.mimeType = mimeType;
+  }
+
+  public String getMimeType() {
+    return mimeType;
   }
 }

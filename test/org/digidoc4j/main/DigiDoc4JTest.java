@@ -13,7 +13,7 @@ package org.digidoc4j.main;
 import static org.apache.commons.io.FileUtils.copyFile;
 import static org.apache.commons.io.FileUtils.writeStringToFile;
 import static org.digidoc4j.Configuration.Mode;
-import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
+import static org.digidoc4j.Constant.DDOC_CONTAINER_TYPE;
 import static org.digidoc4j.main.DigiDoc4J.isWarning;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.Permission;
 import java.util.Arrays;
 import static org.digidoc4j.utils.Helper.deleteFile;
 
@@ -67,20 +66,6 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   private String outputDirPath;
   private String inputFolderPath;
   private String tmpDirPath;
-
-  private static void forbidSystemExitCall() {
-    final SecurityManager preventExitSecurityManager = new SecurityManager() {
-      public void checkPermission(Permission permission) {
-      }
-
-      @Override
-      public void checkExit(int status) {
-        super.checkExit(status);
-        throw new DigiDoc4JUtilityException(status, "preventing system exist");
-      }
-    };
-    System.setSecurityManager(preventExitSecurityManager);
-  }
 
   @Before
   public void setUp() throws Exception {
@@ -553,7 +538,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
       @Override
       public void checkAssertion() throws Exception {
         assertThat(sout.getLog(), containsString(
-            "Opening container testFiles/valid-containers/ddoc_for_testing.ddoc"));
+            "Opening DDoc container from file: testFiles/valid-containers/ddoc_for_testing.ddoc"));
       }
     });
     String[] params = new String[]{"-in", "testFiles/valid-containers/ddoc_for_testing.ddoc", "-verify", "-verbose"};
@@ -898,16 +883,6 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     System.clearProperty("digidoc4j.mode");
   }
   */
-
-  void callMainWithoutSystemExit(String[] params) {
-    SecurityManager securityManager = System.getSecurityManager();
-    forbidSystemExitCall();
-    try {
-      DigiDoc4J.main(params);
-    } catch (DigiDoc4JUtilityException ignore) {
-    }
-    System.setSecurityManager(securityManager);
-  }
 
   private void assertContainsFile(String outputDirPath, String fileName) {
     File dir = new File(outputDirPath);

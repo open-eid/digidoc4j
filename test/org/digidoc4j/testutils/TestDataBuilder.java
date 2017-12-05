@@ -10,7 +10,7 @@
 
 package org.digidoc4j.testutils;
 
-import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
+import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.testutils.TestSigningHelper.getSigningCert;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -29,10 +29,6 @@ import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.junit.rules.TemporaryFolder;
-
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.FileDocument;
-import eu.europa.esig.dss.MimeType;
 
 public class TestDataBuilder {
 

@@ -150,6 +150,13 @@ public interface Container extends Serializable {
    */
   ValidationResult validate();
 
+  /**
+   * Adds timestamp token
+   *
+   * @param timeStampToken
+   */
+  void setTimeStampToken(DataFile timeStampToken);
+
   //Deprecated methods below
 
   /**
@@ -176,12 +183,18 @@ public interface Container extends Serializable {
     /**
      * DIGIDOC-XML 1.3 container
      */
-    DDOC;
+    DDOC,
+    /**
+     * BDOC 2.1 container with mime-type "application/vnd.etsi.asic-s+zip"
+     */
+    ASICS;
 
     @Override
     public String toString() {
       if (this == BDOC)
         return MimeType.ASICE.getMimeTypeString();
+      if (this == ASICS)
+        return MimeType.ASICS.getMimeTypeString();
       return super.toString();
     }
   }

@@ -31,8 +31,10 @@ import org.bouncycastle.cert.ocsp.SingleResp;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.bdoc.OcspNonceValidator;
 import org.digidoc4j.impl.bdoc.SkDataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +52,7 @@ import eu.europa.esig.dss.x509.ocsp.OCSPToken;
  * SK OCSP source location.
  */
 public abstract class SKOnlineOCSPSource implements OCSPSource {
+
   private static final Logger logger = LoggerFactory.getLogger(SKOnlineOCSPSource.class);
 
   /**
@@ -76,7 +79,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
    */
   public String getAccessLocation() {
     logger.debug("");
-    String location = Configuration.TEST_OCSP_URL;
+    String location = Constant.Test.OCSP_SOURCE;
     if (configuration != null)
       location = configuration.getOcspSource();
     logger.debug("OCSP Access location: " + location);
@@ -204,6 +207,10 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     return dataLoader;
   }
 
+  /**
+   * Define data loader.
+   * @param dataLoader Data loader object to be used.
+   */
   public void setDataLoader(SkDataLoader dataLoader) {
     this.dataLoader = dataLoader;
   }

@@ -59,7 +59,7 @@ public class SkDataLoader extends CommonsDataLoader {
   @Override
   public byte[] post(final String url, final byte[] content) throws DSSException {
     logger.info("Getting OCSP response from " + url);
-    if(userAgent == null) {
+    if (userAgent == null) {
       throw new TechnicalException("User Agent must be set for OCSP requests");
     }
 
@@ -108,6 +108,10 @@ public class SkDataLoader extends CommonsDataLoader {
 
   public void setUserAgentSignatureProfile(SignatureProfile signatureProfile) {
     userAgent = Helper.createBDocUserAgent(signatureProfile);
+  }
+
+  public void setAsicSUserAgentSignatureProfile() {
+    userAgent = Helper.createBDocAsicSUserAgent();
   }
 
   public String getUserAgent() {
