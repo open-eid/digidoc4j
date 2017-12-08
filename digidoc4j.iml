@@ -54,6 +54,8 @@
     <orderEntry type="library" scope="TEST" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.8.8" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.fasterxml.jackson.core:jackson-core:2.8.8" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.8.8" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.pdfbox:pdfbox:2.0.8" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.pdfbox:fontbox:2.0.8" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.skyscreamer:jsonassert:1.5.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.json:json:20160810" level="project" />
     <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
@@ -78,8 +80,6 @@
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-cades:5.1.d4j.3" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-xades:5.1.d4j.3" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-pades:5.1.d4j.3" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.pdfbox:pdfbox:2.0.6" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.pdfbox:fontbox:2.0.6" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils:5.1.d4j.3" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils-apache-commons:5.1.d4j.3" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils-google-guava:5.1.d4j.3" level="project" />

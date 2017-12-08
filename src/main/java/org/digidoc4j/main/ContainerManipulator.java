@@ -214,6 +214,8 @@ public class ContainerManipulator {
     if (!validate.isValid()){
       String report = validate.getReport();
       throw new DigiDoc4JException("Pades container has errors" + report);
+    } else{
+      logger.info("Container is valid:" + validate.isValid());
     }
   }
 
