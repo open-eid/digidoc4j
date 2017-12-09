@@ -152,6 +152,7 @@ public final class DigiDoc4J {
     options.addOption("verbose", "verbose", false, "verbose output");
     options.addOption("w", "warnings", false, "show warnings");
     options.addOption("version", "version", false, "show version");
+    options.addOption("tst", "timestamp", false, "sets timestamp token to bdoc container");
 
     options.addOption(type());
     options.addOption(inputFile());
@@ -166,8 +167,15 @@ public final class DigiDoc4J {
     options.addOption(mimeType());
     options.addOption(extractDataFile());
     options.addOption(reportsDir());
+    options.addOption(tstDigestAlgorihm());
 
     return options;
+  }
+
+  private static Option tstDigestAlgorihm() {
+    return withArgName("digestAlgorithm").hasArgs()
+        .withDescription("sets value to calculate datafile hash for timestamp token. Default: SHA256")
+        .create("datst");
   }
 
   @SuppressWarnings("AccessStaticViaInstance")

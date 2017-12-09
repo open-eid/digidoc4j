@@ -99,7 +99,7 @@ public class DataFile implements Serializable {
     this.document = document;
   }
 
-  protected DataFile() {
+  public DataFile() {
   }
 
   protected MimeType getMimeType(String mimeType) {
@@ -293,7 +293,7 @@ public class DataFile implements Serializable {
     return document;
   }
 
-  protected void setDocument(DSSDocument document) {
+  public void setDocument(DSSDocument document) {
     this.document = document;
   }
 }
