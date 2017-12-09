@@ -176,17 +176,4 @@ public class AsicSContainerTest extends DigiDoc4JTestHelper {
     return testFile;
   }
 
-  private  static String getTxtFiles(InputStream in)  {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-    String line;
-    StringBuilder content = new StringBuilder();
-    try {
-      while ((line = reader.readLine()) != null) {
-        content.append(line);
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return content.toString();
-  }
 }
