@@ -33,6 +33,7 @@ import org.digidoc4j.impl.asic.asice.AsicEContainerBuilder;
 import org.digidoc4j.impl.asic.asics.AsicSContainerBuilder;
 import org.digidoc4j.impl.ddoc.DDocContainerBuilder;
 import org.digidoc4j.impl.pades.PadesContainerBuilder;
+import org.digidoc4j.signers.TimestampToken;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -214,43 +215,7 @@ public abstract class ContainerBuilder {
    * @return ContainerBuilder
    */
   public ContainerBuilder withTimeStampToken(DigestAlgorithm digestAlgorithm){
-    if (dataFiles.isEmpty()){
-      throw new DigiDoc4JException("Add data file first");
-    }
-    if (dataFiles.size() > 1){
-      throw new DigiDoc4JException("Supports only asics with only one datafile");
-    }
-    ContainerBuilder.ContainerDataFile containerDataFile = dataFiles.get(0);
-
-    OnlineTSPSource onlineTSPSource = new OnlineTSPSource();
-    if (configuration == null){
-      configuration = Configuration.getInstance();
-    }
-    onlineTSPSource.setTspServer(configuration.getTspSource());
-
-    SkDataLoader dataLoader = SkDataLoader.createTimestampDataLoader(configuration);
-    dataLoader.setAsicSUserAgentSignatureProfile();
-    onlineTSPSource.setDataLoader(dataLoader);
-
-
-    try {
-      byte[] dataFielDigest;
-      if (!containerDataFile.isStream){
-        Path path = Paths.get(containerDataFile.filePath);
-        dataFielDigest = Files.readAllBytes(path);
-      } else{
-          dataFielDigest = IOUtils.toByteArray(containerDataFile.inputStream);
-      }
-      byte[] digest = DSSUtils.digest(digestAlgorithm, dataFielDigest);
-      TimeStampToken timeStampResponse = onlineTSPSource.getTimeStampResponse(digestAlgorithm, digest);
-      String timestampFilename = "timestamp";
-      timeStampToken = new DataFile();
-      timeStampToken.setDocument(new InMemoryDocument(DSSASN1Utils.getEncoded(timeStampResponse), timestampFilename, MimeType.TST));
-      timeStampToken.setMediaType(MimeType.TST.getMimeTypeString());
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
+    timeStampToken = TimestampToken.generateTimestampToken(digestAlgorithm, dataFiles, configuration);
     return this;
   }
 
@@ -334,13 +299,13 @@ public abstract class ContainerBuilder {
     return containerImplementations.containsKey(containerType);
   }
 
-  private class ContainerDataFile {
+  public class ContainerDataFile {
 
-    String filePath;
+    public String filePath;
     String mimeType;
-    InputStream inputStream;
+    public InputStream inputStream;
     DataFile dataFile;
-    boolean isStream;
+    public boolean isStream;
 
     public ContainerDataFile(String filePath, String mimeType) {
       this.filePath = filePath;

@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
@@ -34,11 +35,13 @@ import org.digidoc4j.SignatureToken;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.pades.PadesContainer;
-import org.digidoc4j.impl.pades.PadesValidationResult;
 import org.digidoc4j.signers.PKCS11SignatureToken;
 import org.digidoc4j.signers.PKCS12SignatureToken;
+import org.digidoc4j.signers.TimestampToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.europa.esig.dss.DigestAlgorithm;
 
 public class ContainerManipulator {
 
@@ -58,7 +61,11 @@ public class ContainerManipulator {
       verifyPadesContainer(container);
     } else {
       manipulateContainer(container);
-      signContainer(container);
+      if (ASICS.equals(getContainerType(commandLine)) && commandLine.hasOption("tst")){
+        signContainerWithTst(container);
+      } else{
+        signContainer(container);
+      }
       verifyContainer(container);
     }
   }
@@ -174,6 +181,19 @@ public class ContainerManipulator {
       container.addSignature(signature);
       fileHasChanged = true;
     }
+  }
+
+  private void signContainerWithTst(Container container) {
+    String digestAlgorithmStr = commandLine.getOptionValue("datst");
+    DigestAlgorithm digestAlgorithm = DigestAlgorithm.SHA256;
+    if (StringUtils.isNotBlank(digestAlgorithmStr)){
+      digestAlgorithm = DigestAlgorithm.forName(digestAlgorithmStr);
+    }
+    logger.info("Digest algorithm to calculate data file hash: " + digestAlgorithm.getName());
+    String[] optionValues = commandLine.getOptionValues("add");
+    DataFile dataFile = new DataFile(optionValues[0], optionValues[1]);
+    DataFile tst = TimestampToken.generateTimestampToken(digestAlgorithm, dataFile);
+    container.setTimeStampToken(tst);
   }
 
   private void signWithPkcs11(Container container, SignatureBuilder signatureBuilder) {
