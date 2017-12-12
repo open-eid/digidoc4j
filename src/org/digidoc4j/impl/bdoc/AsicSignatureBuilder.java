@@ -232,7 +232,7 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
     List<BasicOCSPResp> ocspResponses = xadesSignature.getOcspResponses();
     if (ocspResponses == null || ocspResponses.isEmpty()) {
       logger.error("Signature does not contain OCSP response");
-      throw new OCSPRequestFailedException();
+      throw new OCSPRequestFailedException(xadesSignature.getId());
     }
   }
 

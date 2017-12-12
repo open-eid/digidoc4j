@@ -1,19 +1,32 @@
 package org.digidoc4j;
 
-import static org.digidoc4j.ContainerBuilder.BDOC_CONTAINER_TYPE;
-import static org.digidoc4j.ContainerBuilder.DDOC_CONTAINER_TYPE;
 
+import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
+
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.impl.bdoc.SkDataLoader;
@@ -23,11 +36,15 @@ import org.digidoc4j.impl.bdoc.xades.XadesSigningDssFacade;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.junit.Before;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import eu.europa.esig.dss.BLevelParameters;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignatureLevel;
 import eu.europa.esig.dss.SignaturePackaging;
@@ -45,6 +62,9 @@ import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
+import eu.europa.esig.dss.validation.SignedDocumentValidator;
+import eu.europa.esig.dss.validation.reports.Reports;
+import eu.europa.esig.dss.validation.reports.wrapper.DiagnosticData;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.x509.KeyStoreCertificateSource;
 import eu.europa.esig.dss.xades.XAdESSignatureParameters;
@@ -62,6 +82,7 @@ public class XAdESCreateTestSignatur {
   private String BDOC_FILE = "C:/DigiDoc4j/TestData/128/twoSignatureErrorsContainer.bdoc";
   private String TEXT_PLAIN = "text/plain";
   private String SIGNATURE_1 = "C:/DigiDoc4j/TestData/128/signature1.xml";
+  private String SIGNATURE_1_DIAGNOSTIC_DATA = "C:/DigiDoc4j/TestData/128/signature1_diagnosticData.xml";
   private String SIGNATUR_2 = "C:/DigiDoc4j/TestData/128/signature2.xml";
   private String BASELINE_LT_SIGNATURE = "C:/DigiDoc4j/TestData/128/XAdES_BASELINE_LT.xml";
 
@@ -96,7 +117,7 @@ public class XAdESCreateTestSignatur {
   }
 
   @Test
-  public void createXAdESBaseline_LTSiganture() throws KeyStoreException, FileNotFoundException {
+  public void createXAdESBaseline_LTSiganture() throws KeyStoreException, IOException {
 
     String privateKeyPath = "C:/DigiDoc4j/TestData/128/user_one.p12";
     String password = "user_one";
@@ -161,7 +182,7 @@ public class XAdESCreateTestSignatur {
     tslRepository.setTrustedListsCertificateSource(tslCertificateSource);
     TSLValidationJob job = new TSLValidationJob();
     job.setDataLoader(commonsHttpDataLoader);
-    job.setDssKeyStore(keyStoreCertificateSource);
+   // job.setDssKeyStore(keyStoreCertificateSource);
     job.setLotlUrl(LOTL_URL);
     job.setLotlCode("EU");
     job.setRepository(tslRepository);
@@ -322,6 +343,8 @@ public class XAdESCreateTestSignatur {
         openAdESSignature(signatureBytes1);
     container.addSignature(signature1);
 
+    SignatureValidationResult signatureValidationResult = signature1.validateSignature();
+    signatureValidationResult.getErrors();
 
     byte[] signatureBytes2 = FileUtils.readFileToByteArray(new File(SIGNATUR_2));
 
@@ -347,8 +370,60 @@ public class XAdESCreateTestSignatur {
         build();
 
     ValidationResult streamValidate = loadContainer.validate();
+    streamValidate.getWarnings();
     System.out.println(streamValidate.getReport());
     System.out.println(streamValidate.getErrors());
+
   }
 
+  @Test
+  public void createDiagnosticDataFromSignature_1() throws IOException {
+
+    DSSDocument dSSDocument = new FileDocument(SIGNATURE_1);
+
+    SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(dSSDocument);
+    validator.setCertificateVerifier(new CommonCertificateVerifier());
+    Reports report = validator.validateDocument();
+
+    String xmlDiagnosticData =  report.getXmlDiagnosticData();
+
+    System.out.println("xmlDiagnosticData: "+xmlDiagnosticData);
+    createXMLFile(xmlDiagnosticData);
+
+    DiagnosticData diagnostic = report.getDiagnosticData();
+    String signatureId = diagnostic.getFirstSignatureId();
+
+    System.out.println("signatureId: "+signatureId);
+
+  }
+
+  private void createXMLFile(String xmlDiagnosticData) {
+
+    try {
+      DocumentBuilderFactory fctr = DocumentBuilderFactory.newInstance();
+      DocumentBuilder bldr = null;
+      bldr = fctr.newDocumentBuilder();
+      InputSource insrc = new InputSource(new StringReader(xmlDiagnosticData));
+      Document document = bldr.parse(insrc);
+
+      TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      Transformer transformer = transformerFactory.newTransformer();
+      DOMSource source = new DOMSource(document);
+      StreamResult result = new StreamResult(new File(SIGNATURE_1_DIAGNOSTIC_DATA));
+
+      transformer.transform(source, result);
+
+    } catch (ParserConfigurationException e) {
+      e.printStackTrace();
+    } catch (SAXException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    } catch (TransformerConfigurationException e) {
+      e.printStackTrace();
+    } catch (TransformerException e) {
+      e.printStackTrace();
+    }
+
+  }
 }

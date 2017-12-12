@@ -114,6 +114,7 @@ public class TimemarkSignature extends BesSignature {
 
   private X509Cert findOcspCertificate() {
     String rId = "";
+    String signatureId = getDssSignature().getId();
     try {
       RespID responderId = ocspResponse.getResponderId();
       rId = responderId.toString();
@@ -149,7 +150,7 @@ public class TimemarkSignature extends BesSignature {
     }
 
     logger.error("OCSP certificate for " + rId + " was not found in TSL");
-    throw new CertificateNotFoundException("OCSP certificate for " + rId + " was not found in TSL");
+    throw new CertificateNotFoundException("OCSP certificate for " + rId + " was not found in TSL", signatureId);
   }
 
   private boolean useKeyHashForOCSP(String primitiveName, byte[] keyHash) {

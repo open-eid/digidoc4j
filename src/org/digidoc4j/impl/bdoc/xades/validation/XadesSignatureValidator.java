@@ -168,7 +168,8 @@ public class XadesSignatureValidator implements SignatureValidator {
         } else if (errorMessage.contains(MessageTag.PSV_IPSVC_ANS.getMessage())) {
           addValidationError(new CertificateRevokedException(errorMessage));
         } else {
-          addValidationError(new DigiDoc4JException(errorMessage));
+          String sigId = getDssSignature().getId();
+          addValidationError(new DigiDoc4JException(errorMessage, sigId));
         }
       }
     }
@@ -186,7 +187,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     if (simpleReport != null) {
       for (String warning : simpleReport.getWarnings(signatureId)) {
         logger.warn(warning);
-        validationWarnings.add(new DigiDoc4JException(warning));
+        validationWarnings.add(new DigiDoc4JException(warning, signatureId));
       }
     }
   }
@@ -238,6 +239,8 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   protected void addValidationError(DigiDoc4JException error) {
+    String sigId = getDssSignature().getId();
+    error.setSignatureId(sigId);
     validationErrors.add(error);
   }
 
