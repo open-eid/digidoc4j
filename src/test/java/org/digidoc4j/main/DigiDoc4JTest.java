@@ -725,6 +725,21 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     DigiDoc4J.main(params);
   }
 
+  @Test
+  public void verifyContainerWithTstASICS() throws Exception {
+    String fileName = "src/test/resources/testFiles/valid-containers/testtimestamp.asics";
+
+    String[] params = new String[]{"-in", fileName, "-v"};
+    exit.expectSystemExitWithStatus(0);
+    exit.checkAssertionAfterwards(new Assertion() {
+      @Override
+      public void checkAssertion() throws Exception {
+        assertThat(sout.getLog(), containsString("Container is valid"));
+      }
+    });
+    DigiDoc4J.main(params);
+  }
+
   /* Following test are not independent from each other and can'y be run in suite.
 
   @Test
