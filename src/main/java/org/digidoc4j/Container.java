@@ -172,9 +172,7 @@ public interface Container extends Serializable {
 
   /**
    * Document types
-   * @deprecated will be removed in the future.
    */
-  @Deprecated
   enum DocumentType {
     /**
      * BDOC 2.1 container with mime-type "application/vnd.etsi.asic-e+zip"
@@ -185,9 +183,13 @@ public interface Container extends Serializable {
      */
     DDOC,
     /**
-     * BDOC 2.1 container with mime-type "application/vnd.etsi.asic-s+zip"
+     * ASiCS container with mime-type "application/vnd.etsi.asic-s+zip"
      */
     ASICS,
+    /**
+     * ASiCE container with mime-type "application/vnd.etsi.asic-e+zip"
+     */
+    ASICE,
     /**
      * PADES container
      */
@@ -195,7 +197,7 @@ public interface Container extends Serializable {
 
     @Override
     public String toString() {
-      if (this == BDOC)
+      if (this == BDOC || this == ASICE)
         return MimeType.ASICE.getMimeTypeString();
       if (this == ASICS)
         return MimeType.ASICS.getMimeTypeString();
