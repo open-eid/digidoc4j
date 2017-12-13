@@ -47,8 +47,7 @@ public class ManifestValidator {
     this.signatures = signatures;
   }
 
-  @SuppressWarnings("unchecked")
-  static List<String> validateEntries(Map<String, ManifestEntry> manifestEntries, Set<ManifestEntry> signatureEntries,
+  public static List<ManifestErrorMessage> validateEntries(Map<String, ManifestEntry> manifestEntries, Set<ManifestEntry> signatureEntries,
                                       String signatureId) {
     logger.debug("");
     ArrayList<ManifestErrorMessage> errorMessages = new ArrayList<>();
@@ -77,7 +76,7 @@ public class ManifestValidator {
         String fileName = manifestEntry.getFileName();
         ManifestEntry signatureEntry = signatureEntryForFile(fileName, signatureEntries);
         if (signatureEntry != null) {
-          errorMessages.add("Manifest file has an entry for file " + fileName + " with mimetype " +
+          errorMessages.add(new ManifestErrorMessage("Manifest file has an entry for file " + fileName + " with mimetype " +
               manifestEntry.getMimeType() + " but the signature file for signature " + signatureId +
               " indicates the mimetype is " + signatureEntry.getMimeType(), signatureId));
           two.remove(signatureEntry);

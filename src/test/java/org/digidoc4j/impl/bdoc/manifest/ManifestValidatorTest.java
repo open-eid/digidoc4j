@@ -15,6 +15,7 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.impl.asic.manifest.AsicManifest;
 import org.digidoc4j.impl.asic.manifest.ManifestEntry;
+import org.digidoc4j.impl.asic.manifest.ManifestErrorMessage;
 import org.digidoc4j.impl.asic.manifest.ManifestParser;
 import org.digidoc4j.impl.asic.manifest.ManifestValidator;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
@@ -164,7 +165,7 @@ public class ManifestValidatorTest {
   public void validateHealthyContainer() throws Exception {
     ManifestParser manifestParser = createManifest(dataFile("test.txt", "text/plain"));
     List<DSSDocument> detachedContents = Arrays.asList(detachedContent("test.txt", "text/plain"));
-    List<Signature> signatures = openSignature("testFiles/xades/test-bdoc-ts.xml", detachedContents);
+    List<Signature> signatures = openSignature("src/test/resources/testFiles/xades/test-bdoc-ts.xml", detachedContents);
     List<ManifestErrorMessage> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
     assertTrue(errors.isEmpty());
   }
@@ -173,7 +174,7 @@ public class ManifestValidatorTest {
   public void container_withDifferentDataFileName_shouldBeInvalid() throws Exception {
     ManifestParser manifestParser = createManifest(dataFile("test.txt", "text/plain"));
     List<DSSDocument> detachedContents = Arrays.asList(detachedContent("other.txt", "text/plain"), detachedContent("test.txt", "text/plain"));
-    List<Signature> signatures = openSignature("testFiles/xades/test-bdoc-ts.xml", detachedContents);
+    List<Signature> signatures = openSignature("src/test/resources/testFiles/xades/test-bdoc-ts.xml", detachedContents);
     List<ManifestErrorMessage> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
     assertFalse(errors.isEmpty());
 
