@@ -1,8 +1,10 @@
 package org.digidoc4j.impl.bdoc.asic;
 
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
@@ -29,6 +31,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.Assertion;
 import org.junit.rules.TemporaryFolder;
 
 import eu.europa.esig.dss.DigestAlgorithm;
@@ -97,7 +100,6 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
 
     TimeStampValidationResult validate = (TimeStampValidationResult) container.validate();
     Assert.assertEquals("SK TIMESTAMPING AUTHORITY", validate.getSignedBy());
-    Assert.assertNull(validate.getErrors());
     Assert.assertEquals(Indication.TOTAL_PASSED, validate.getIndication());
     assertTrue(validate.isValid());
   }
@@ -109,7 +111,7 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
     Container container = ContainerBuilder.
         aContainer(Constant.ASICS_CONTAINER_TYPE).
         withConfiguration(configuration).
-        fromExistingFile("testFiles\\invalid-containers\\timestamptoken-two-data-files.asics").
+        fromExistingFile("src\\test\\resources\\testFiles\\invalid-containers\\timestamptoken-two-data-files.asics").
         build();
 
     ValidationResult validate = container.validate();
@@ -122,7 +124,7 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
     Container container = ContainerBuilder.
         aContainer(Constant.ASICS_CONTAINER_TYPE).
         withConfiguration(configuration).
-        fromExistingFile("testFiles\\invalid-containers\\timestamptoken-invalid.asics").
+        fromExistingFile("src\\test\\resources\\testFiles\\invalid-containers\\timestamptoken-invalid.asics").
         build();
 
     ValidationResult validate = container.validate();
@@ -184,5 +186,4 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
 
     assertEquals("ASICS", container.getType());
   }
-
 }
