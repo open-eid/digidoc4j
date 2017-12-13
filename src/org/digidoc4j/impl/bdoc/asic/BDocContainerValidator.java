@@ -26,6 +26,7 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.bdoc.BDocValidationReportBuilder;
 import org.digidoc4j.impl.bdoc.BDocValidationResult;
+import org.digidoc4j.impl.bdoc.manifest.ManifestErrorMessage;
 import org.digidoc4j.impl.bdoc.manifest.ManifestParser;
 import org.digidoc4j.impl.bdoc.manifest.ManifestValidator;
 import org.digidoc4j.impl.bdoc.xades.validation.SignatureValidationData;
@@ -137,9 +138,9 @@ public class BDocContainerValidator implements Serializable {
     }
     List<DigiDoc4JException> manifestExceptions = new ArrayList<>();
     List<DSSDocument> detachedContents = containerParseResult.getDetachedContents();
-    List<String> manifestErrors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
-    for (String manifestError : manifestErrors) {
-      manifestExceptions.add(new DigiDoc4JException(manifestError));
+    List<ManifestErrorMessage> manifestErrorMessageList = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
+    for (ManifestErrorMessage manifestError : manifestErrorMessageList) {
+      manifestExceptions.add(new DigiDoc4JException(manifestError.getErrorMessage(), manifestError.getSignatureId()));
     }
     return manifestExceptions;
   }
