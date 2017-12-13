@@ -1,11 +1,35 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+Release 1.0.8.beta.1
+------------------
+Summary of the major changes since 1.0.7.2
+------------------------------------------
+* Added support for creating, timestamping and validating the ASiCS containers.
+* Added support for validating PADES containers (PDF-files with signature).
+* Major refactoring of code
+  - classes from package org.digidoc4j.impl.bdoc are now in org.digidoc4j.impl.asic.asice.bdoc;
+  - the common functionality for ASiCE, ASiCS and BDOC are in package org.digidoc4j.impl.asic;
+  - the common functionality for ASiCE and BDOC are in package org.digidoc4j.impl.asic.asice;
+
+------------------------------------
+Release 1.0.7.2
+------------------
+Summary of the major changes since 1.0.7.1
+------------------------------------------
+* Prevent XXE(XML External Entity) processing (switching to sd-dss-5.0.d4j.5).
+
+------------------------------------
 Release 1.0.7.1
 ------------------
 Summary of the major changes since 1.0.7
 ----------------------------------------
 * Fixed signing problem when encryption algorithm is ECDSA and signature profile LT_TM.
 * Updated the pre-calculated policy digest value.
+
+Known issues
+------------
+* Signing with ID-card and using PKCS11SignatureToken class have still a problem
+when encryption algorithm is ECDSA and signature profile LT_TM.
 
 ------------------------------------
 Release 1.0.7
