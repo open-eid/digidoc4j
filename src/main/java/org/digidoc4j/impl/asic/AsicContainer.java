@@ -579,7 +579,7 @@ public abstract class AsicContainer implements Container {
   }
 
   /**
-   * Prepare signing method is not supported by BDoc container.
+   * Prepare signing method is not supported by ASiC container.
    *
    * @param signerCert X509 Certificate to be used for preparing the signature
    * @return NotSupportedException
@@ -592,7 +592,7 @@ public abstract class AsicContainer implements Container {
   }
 
   /**
-   *  Getting signature profile method is not supported by BDoc container.
+   *  Getting signature profile method is not supported by ASiC container.
    *
    * @return NotSupportedException
    */
@@ -603,7 +603,7 @@ public abstract class AsicContainer implements Container {
   }
 
   /**
-   * Setting signature parameters method is not supported by BDoc container
+   * Setting signature parameters method is not supported by ASiC container
    *
    * @param signatureParameters Signature parameters. These are  related to the signing location and signer roles
    */
@@ -614,7 +614,7 @@ public abstract class AsicContainer implements Container {
   }
 
   /**
-   * Getting digest algorithm method is not supported by BDoc container.
+   * Getting digest algorithm method is not supported by ASiC container.
    *
    * @return NotSupportedException.
    */
@@ -625,7 +625,7 @@ public abstract class AsicContainer implements Container {
   }
 
   /**
-   * Sign method is not supported by BDoc container.
+   * Sign method is not supported by ASiC container.
    *
    * @param signatureToken signatureToken implementation
    * @return NotSupportedException
@@ -637,7 +637,7 @@ public abstract class AsicContainer implements Container {
   }
 
   /**
-   * Sign raw method is not supported by BDoc container.
+   * Sign raw method is not supported by ASiC container.
    *
    * @param rawSignature raw signature
    * @return NotSupportedException
@@ -649,7 +649,7 @@ public abstract class AsicContainer implements Container {
   }
 
   /**
-   * Setting signature profile method is not supported by BDoc container.
+   * Setting signature profile method is not supported by ASiC container.
    *
    * @param profile signature profile
    */
