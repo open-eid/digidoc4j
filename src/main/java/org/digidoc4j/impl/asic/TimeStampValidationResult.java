@@ -80,7 +80,7 @@ public class TimeStampValidationResult implements ValidationResult {
 
   @Override
   public List<DigiDoc4JException> getErrors() {
-    return null;
+    return errors;
   }
 
   @Override
@@ -168,7 +168,8 @@ public class TimeStampValidationResult implements ValidationResult {
 
   @Override
   public List<DigiDoc4JException> getContainerErrors() {
-    throw new NotYetImplementedException();
+    return getErrors();
+    // throw new NotYetImplementedException();
   }
 
   @Override

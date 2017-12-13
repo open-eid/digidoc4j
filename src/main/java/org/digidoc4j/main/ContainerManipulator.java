@@ -12,6 +12,7 @@ package org.digidoc4j.main;
 
 import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+import static org.digidoc4j.Container.DocumentType.ASICE;
 import static org.digidoc4j.Container.DocumentType.ASICS;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
@@ -22,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
@@ -34,12 +36,17 @@ import org.digidoc4j.SignatureToken;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.pades.PadesContainer;
-import org.digidoc4j.impl.pades.PadesValidationResult;
 import org.digidoc4j.signers.PKCS11SignatureToken;
 import org.digidoc4j.signers.PKCS12SignatureToken;
+import org.digidoc4j.signers.TimestampToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.europa.esig.dss.DigestAlgorithm;
+
+/**
+ * Class for managing digidoc4j-util parameters.
+ */
 public class ContainerManipulator {
 
   private static final Logger logger = LoggerFactory.getLogger(ContainerManipulator.class);
@@ -54,11 +61,15 @@ public class ContainerManipulator {
 
   public void processContainer(Container container) {
     logger.debug("Processing container");
-    if (container instanceof PadesContainer){
+    if (container instanceof PadesContainer) {
       verifyPadesContainer(container);
     } else {
       manipulateContainer(container);
-      signContainer(container);
+      if (ASICS.equals(getContainerType(commandLine)) && commandLine.hasOption("tst")) {
+        signContainerWithTst(container);
+      } else {
+        signContainer(container);
+      }
       verifyContainer(container);
     }
   }
@@ -112,6 +123,7 @@ public class ContainerManipulator {
   public Container.DocumentType getContainerType(CommandLine commandLine) {
     if (equalsIgnoreCase(commandLine.getOptionValue("type"), "BDOC")) return BDOC;
     if (equalsIgnoreCase(commandLine.getOptionValue("type"), "ASICS")) return ASICS;
+    if (equalsIgnoreCase(commandLine.getOptionValue("type"), "ASICE")) return ASICE;
     if (equalsIgnoreCase(commandLine.getOptionValue("type"), "DDOC")) return DDOC;
     if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".bdoc")) return BDOC;
     if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".asics")) return ASICS;
@@ -176,6 +188,26 @@ public class ContainerManipulator {
     }
   }
 
+  private void signContainerWithTst(Container container) {
+    if (commandLine.hasOption("tst") && !(commandLine.hasOption("pkcs12") || commandLine.hasOption("pkcs11"))) {
+      DigestAlgorithm digestAlgorithm = DigestAlgorithm.SHA256;
+      if (commandLine.hasOption("datst")) {
+        String digestAlgorithmStr = commandLine.getOptionValue("datst");
+        if (StringUtils.isNotBlank(digestAlgorithmStr)) {
+          digestAlgorithm = DigestAlgorithm.forName(digestAlgorithmStr);
+        }
+      }
+      logger.info("Digest algorithm to calculate data file hash: " + digestAlgorithm.getName());
+      if (commandLine.hasOption("add")) {
+        String[] optionValues = commandLine.getOptionValues("add");
+        DataFile dataFile = new DataFile(optionValues[0], optionValues[1]);
+        DataFile tst = TimestampToken.generateTimestampToken(digestAlgorithm, dataFile);
+        container.setTimeStampToken(tst);
+        fileHasChanged = true;
+      }
+    }
+  }
+
   private void signWithPkcs11(Container container, SignatureBuilder signatureBuilder) {
     if (commandLine.hasOption("pkcs11")) {
       String[] optionValues = commandLine.getOptionValues("pkcs11");
@@ -203,18 +235,15 @@ public class ContainerManipulator {
     if (commandLine.hasOption("verify")) {
       ContainerVerifier verifier = new ContainerVerifier(commandLine);
       verifier.verify(container, reports);
-    } else if (commandLine.hasOption("verify2")) {
-      ContainerVerifier verifier = new ContainerVerifier(commandLine);
-      verifier.verifyDirectDss(container, reports);
     }
   }
 
   private void verifyPadesContainer(Container container) {
     ValidationResult validate = container.validate();
-    if (!validate.isValid()){
+    if (!validate.isValid()) {
       String report = validate.getReport();
       throw new DigiDoc4JException("Pades container has errors" + report);
-    } else{
+    } else {
       logger.info("Container is valid:" + validate.isValid());
     }
   }

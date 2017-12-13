@@ -1,27 +1,41 @@
 package org.digidoc4j.impl.bdoc.asic;
 
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.impl.asic.TimeStampValidationResult;
+import org.digidoc4j.impl.asic.manifest.ManifestValidator;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.Assertion;
 import org.junit.rules.TemporaryFolder;
 
 import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.MimeType;
 import eu.europa.esig.dss.SignatureAlgorithm;
 import eu.europa.esig.dss.utils.Utils;
 import eu.europa.esig.dss.validation.TimestampToken;
@@ -34,6 +48,7 @@ import eu.europa.esig.dss.x509.TimestampType;
  */
 public class TimeStampTokenTest extends DigiDoc4JTestHelper {
 
+  public static final String META_INF_TIMESTAMP_TST = "META-INF/timestamp.tst";
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
 
@@ -85,7 +100,6 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
 
     TimeStampValidationResult validate = (TimeStampValidationResult) container.validate();
     Assert.assertEquals("SK TIMESTAMPING AUTHORITY", validate.getSignedBy());
-    Assert.assertNull(validate.getErrors());
     Assert.assertEquals(Indication.TOTAL_PASSED, validate.getIndication());
     assertTrue(validate.isValid());
   }
@@ -97,7 +111,7 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
     Container container = ContainerBuilder.
         aContainer(Constant.ASICS_CONTAINER_TYPE).
         withConfiguration(configuration).
-        fromExistingFile("testFiles\\invalid-containers\\timestamptoken-two-data-files.asics").
+        fromExistingFile("src\\test\\resources\\testFiles\\invalid-containers\\timestamptoken-two-data-files.asics").
         build();
 
     ValidationResult validate = container.validate();
@@ -110,7 +124,7 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
     Container container = ContainerBuilder.
         aContainer(Constant.ASICS_CONTAINER_TYPE).
         withConfiguration(configuration).
-        fromExistingFile("testFiles\\invalid-containers\\timestamptoken-invalid.asics").
+        fromExistingFile("src\\test\\resources\\testFiles\\invalid-containers\\timestamptoken-invalid.asics").
         build();
 
     ValidationResult validate = container.validate();
@@ -141,4 +155,35 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
     }
   }
 
+  @Test
+  public void createsContainerWithTstASICS() throws Exception {
+    String fileName = testFolder.getRoot().getPath() + "\\testTst.asics";
+    Files.deleteIfExists(Paths.get(fileName));
+
+    String[] params = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+        "text/plain", "-datst", "SHA256", "-tst"};
+
+    callMainWithoutSystemExit(params);
+
+    ZipFile zipFile = new ZipFile(fileName);
+    ZipEntry mimeTypeEntry = zipFile.getEntry(ManifestValidator.MIMETYPE_PATH);
+    ZipEntry manifestEntry = zipFile.getEntry(ManifestValidator.MANIFEST_PATH);
+    ZipEntry timestampEntry = zipFile.getEntry(META_INF_TIMESTAMP_TST);
+
+    assertNotNull(mimeTypeEntry);
+    assertNotNull(manifestEntry);
+    assertNotNull(timestampEntry);
+
+    String mimeTypeContent = getTxtFiles(zipFile.getInputStream(mimeTypeEntry));
+    Assert.assertTrue(mimeTypeContent.contains(MimeType.ASICS.getMimeTypeString()));
+    String manifestContent = getTxtFiles(zipFile.getInputStream(manifestEntry));
+    Assert.assertTrue(manifestContent.contains(MimeType.ASICS.getMimeTypeString()));
+
+    Container container = ContainerOpener.open(fileName);
+    ValidationResult validate = container.validate();
+    System.out.println(validate.getErrors());
+    assertTrue(validate.isValid());
+
+    assertEquals("ASICS", container.getType());
+  }
 }
