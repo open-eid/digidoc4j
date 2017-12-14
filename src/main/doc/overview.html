@@ -28,6 +28,7 @@
   <li>Using temporary cache files for storing the data file's contents in file system</li>
   <li>Adding and removing signatures</li>
   <li>Input/output operations with containers</li>
+  <li>Timestamping an ASiCS container</li>
 </ol>
 <p>See also: {@link org.digidoc4j.ContainerBuilder org.digidoc4j.ContainerBuilder} and {@link org.digidoc4j.Container}</p>
 <h2>Creating and handling digital signatures </h2>
@@ -37,9 +38,9 @@
 <ol>
   <li>Creating the signature's XAdES-based XML contents </li>
   <li>Adding  meta-data to the signature: e.g. signature creation location and signer's role</li>
-  <li>Calculating  the hash to be signed - e.g. for calculating the raw signature value with a plug-in in browser </li>
-  <li>Calculating the  raw RSA signature  value</li>
-  <li>Adding  a raw signature value that is calculated in an external system (e.g. with plugin  when signing in browser) to the signature's XML content. Note that this is currently supported only by DDoc.</li>
+  <li>Calculating the hash to be signed - e.g. for calculating the raw signature value with a plug-in in browser </li>
+  <li>Calculating the raw RSA or ECDSA signature value</li>
+  <li>Adding a raw signature value that is calculated in an external system (e.g. with plugin  when signing in browser) to the signature's XML content</li>
   <li>Adding long term validation data according to the signature profile: either time-mark or time-stamp and OCSP confirmation* </li>
 </ol>
 <p>* There are two XAdES-LT level compliant signature profiles supported: </p>
@@ -181,7 +182,7 @@
 <p>
   <code>
     {@link org.digidoc4j.Container Container} <strong>container</strong> = {@link org.digidoc4j.ContainerBuilder ContainerBuilder}. <br/>
-      &nbsp;&nbsp; {@link org.digidoc4j.ContainerBuilder#aContainer(String) aContainer}(<strong>"BDOC"</strong>). // Supported types are BDOC and DDOC. Default is BDOC<br/>
+      &nbsp;&nbsp; {@link org.digidoc4j.ContainerBuilder#aContainer(String) aContainer}(<strong>"BDOC"</strong>). // Supported types are BDOC, ASICE, ASICS and DDOC. Default is BDOC<br/>
       &nbsp;&nbsp; {@link org.digidoc4j.ContainerBuilder#withConfiguration(Configuration) withConfiguration}(<strong>configuration</strong>).  // {@link org.digidoc4j.Configuration} settings <br/>
       &nbsp;&nbsp; {@link org.digidoc4j.ContainerBuilder#withDataFile(String, String) withDataFile}(<strong>"testFiles/legal_contract_1.txt"</strong>, <strong>"text/plain"</strong>).  // Adding a document from a hard drive <br/>
       &nbsp;&nbsp; {@link org.digidoc4j.ContainerBuilder#withDataFile(InputStream, String, String) withDataFile}(<strong>inputStream</strong>, <strong>"legal_contract_2.txt"</strong>, <strong>"text/plain"</strong>).  // Adding a document from a stream <br/>
@@ -197,7 +198,7 @@
 </p>
 <p>
   {@link org.digidoc4j.ContainerBuilder#aContainer(String) ContainerBuilder.aContainer(String containerType)} can be used
-  for creating a container of a particular type. Currently supported types are BDOC and DDOC. Default is BDOC 2.1 if no type is provided.
+  for creating a container of a particular type. Currently supported types are BDOC, ASiCE, ASiCS and DDOC. Default is BDOC 2.1 if no type is provided.
 </p>
 
 <h4>Adding data files</h4>
@@ -386,7 +387,7 @@
 <h2>Using the ID-card</h2>
 
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;output_file_name_and_path&gt;" -add "&lt;input_file_name_and_path&gt;" "&lt;mime_type&gt;" -profile LT_TM -pkcs11 "&lt;pkcs11_module_path&gt;" "&lt;pkcs11_token_pin_password&gt;" "&lt;pkcs11_slot_index&gt;"</strong></code></p>
-<p>When the client computer has only one smartcard reader then there are two slots available:</p>
+<p>When the client computer has only one smartcard reader then there are for Estonian ID-card usually two slots available:</p>
 <p>
   <ol>
     <li>slot 0 - for authentication (PIN1)</li>
@@ -414,6 +415,18 @@
   and output directory where the signed containers will be saved.
 </p>
 <p><code><strong>java -jar digidoc4j-util.jar -inputDir "&lt;input_directory_path&gt;" -mimeType "&lt;mime_type (optional)&gt;" -outputDir "&lt;output_directory_path&gt;" -pkcs11 "&lt;pkcs11_module_path&gt;" "&lt;pkcs11_token_pin_password&gt;" "&lt;pkcs11_slot_index&gt;"</strong></code></p>
+<p>e-tokens which are bought from SK are initialized in FIPS 140-2 or EAL4+ CC v3.1 rez mode.
+  Thanks to that PIN-code cannot be cached without adding PIN-caching to script. This means that you cannot use <code>-inputDir</code>,
+  but can use only <code>-in</code> parameter with those tokens.</p>
+<h2>Creating a timestamped ASiCS container</h2>
+<p>A valid ASiCS container contains only one document and is signed or timestamped.
+  To create such a container the output file extention must be <code>.asics</code> or <code>.scs.</code>
+  In order to create ASiCS container with
+  timestamp the option <code>-tst</code> or <code>-timestamp</code> must be used:</p>
+
+<p><code><strong>java -jar digidoc4j-util.jar -in "&lt;output_file_name_and_path&gt;" -add "&lt;input_file_name_and_path&gt;" "&lt;mime_type&gt;" -tst</strong></code></p>
+<p><b>NB!</b> For successful timestamping the user must have service agreement with TSA!</p>
+
 <h2>Validation</h2>
 <p>The utility performs validation when specifying the <b>-v</b> option. The output shows all signatures and their statuses as well as all errors:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v</strong></code>
@@ -421,8 +434,15 @@
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v -w</strong></code>
 <p>In order to get validation reports in addition to the output on the screen you must specify the <b>-r</b> option:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v -r "&lt;report_files_path&gt;"</strong></code>
+<p>Then you can find in given report directory following xml-files: <code>validationReport.xml</code>, <code>validationDiagnosticData*.xml</code>,
+  <code>validationDetailReport*.xml</code> and <code>validationSimpleReport*.xml</code>.</p>
 <h2>Verbose</h2>
 <p>For all tasks more details can be obtained using the <b>-verbose</b> option as in the next example:</p>
 <p><code><strong>java -jar digidoc4j-util.jar -in "&lt;input_file_name_and_path&gt;" -v -verbose</strong></code>
+
+<h2>Test mode</h2>
+<p>It is possible to invoke the library in test mode by adding <code>-Ddigidoc4j.mode=TEST</code>. This will use the test TSL and accepts test ID cards.</p>
+
+<p><code><strong>java -Ddigidoc4j.mode=TEST -jar digidoc4j-util.jar</strong></code></p>
 </body>
 </html>

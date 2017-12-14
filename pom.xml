@@ -991,12 +991,13 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.10.4</version>
+                    <version>3.0.0</version>
                     <configuration>
-                        <excludePackageNames>prototype</excludePackageNames>
+                        <excludePackageNames>prototype,org.digidoc4j.impl,org.digidoc4j.main,org.digidoc4j.utils</excludePackageNames>
                         <javadocDirectory>${project.basedir}/src/main/doc</javadocDirectory>
                         <docfilessubdirs>true</docfilessubdirs>
                         <overview>${project.basedir}/src/main/doc/overview.html</overview>
+                        <show>public</show>
                     </configuration>
                     <executions>
                         <execution>
@@ -1047,12 +1048,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.4</version>
+                <version>3.0.0</version>
                 <configuration>
-                    <excludePackageNames>prototype</excludePackageNames>
+                    <excludePackageNames>prototype,org.digidoc4j.impl,org.digidoc4j.main,org.digidoc4j.utils</excludePackageNames>
                     <javadocDirectory>${project.basedir}/src/main/doc</javadocDirectory>
                     <docfilessubdirs>true</docfilessubdirs>
                     <overview>${project.basedir}/src/main/doc/overview.html</overview>
+                    <show>public</show>
                 </configuration>
             </plugin>
         </plugins>
