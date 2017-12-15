@@ -148,11 +148,10 @@ public final class DigiDoc4J {
   private static Options createParameters() {
     Options options = new Options();
     options.addOption("v", "verify", false, "verify input file");
-    options.addOption("v2", "verify2", false, "verify_and_report input file");
     options.addOption("verbose", "verbose", false, "verbose output");
     options.addOption("w", "warnings", false, "show warnings");
     options.addOption("version", "version", false, "show version");
-    options.addOption("tst", "timestamp", false, "sets timestamp token to bdoc container");
+    options.addOption("tst", "timestamp", false, "adds timestamp token to bdoc container");
 
     options.addOption(type());
     options.addOption(inputFile());

@@ -201,7 +201,7 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
 
     callMainWithoutSystemExit(params2);
     assertThat(sout.getLog(),containsString(
-        "This container is already signed. Should be only one signature in case of ASiCS container"));
+        "This container has already timestamp. Should be no signatures in case of timestamped ASiCS container."));
 
   }
 
@@ -220,7 +220,7 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
 
     callMainWithoutSystemExit(params2);
     assertThat(sout.getLog(),containsString(
-        "This container is already signed. Should be only one signature in case of ASiCS container"));
+        "This container has already timestamp. Should be no signatures in case of timestamped ASiCS container."));
   }
 
   @Test
@@ -238,7 +238,7 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
 
     callMainWithoutSystemExit(params2);
     assertThat(sout.getLog(),containsString(
-        "This container is already signed. Should be only one signature in case of ASiCS container"));
+        "This container has already timestamp. Should be no signatures in case of timestamped ASiCS container."));
 
   }
 

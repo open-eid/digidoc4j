@@ -91,7 +91,10 @@ public class ContainerManipulator {
   }
 
   private void verifyIfAllowedToAddSignature(AsicSContainer asicSContainer) {
-    if (asicSContainer.isTimestampTokenDefined() || !asicSContainer.getSignatures().isEmpty()){
+    if (asicSContainer.isTimestampTokenDefined()) {
+      throw new DigiDoc4JException("This container has already timestamp. Should be no signatures in case of timestamped ASiCS container.");
+    }
+    if (!asicSContainer.getSignatures().isEmpty()){
       throw new DigiDoc4JException("This container is already signed. Should be only one signature in case of ASiCS container.");
     }
   }
