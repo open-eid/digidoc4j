@@ -375,6 +375,15 @@ public abstract class AsicContainer implements Container {
     return dataFile.getBytes();
   }
 
+  /**
+   * Controlls if timestamp token is defined
+   *
+   * @return true if timestemp token defined
+   */
+  public boolean isTimestampTokenDefined(){
+    return timeStampToken != null;
+  }
+
   //=======================================================
 
   @Override
