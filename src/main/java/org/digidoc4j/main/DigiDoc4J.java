@@ -172,9 +172,10 @@ public final class DigiDoc4J {
     return options;
   }
 
+  @SuppressWarnings("AccessStaticViaInstance")
   private static Option tstDigestAlgorihm() {
     return withArgName("digestAlgorithm").hasArgs()
-        .withDescription("sets value to calculate datafile hash for timestamp token. Default: SHA256")
+        .withDescription("sets method to calculate datafile hash for timestamp token. Default: SHA256")
         .create("datst");
   }
 
@@ -249,7 +250,7 @@ public final class DigiDoc4J {
   @SuppressWarnings("AccessStaticViaInstance")
   private static Option type() {
     return withArgName("type").hasArg()
-        .withDescription("sets container type. types can be DDOC or BDOC or ASICS").withLongOpt("type").create("t");
+        .withDescription("sets container type. Types can be DDOC, BDOC, ASICE or ASICS").withLongOpt("type").create("t");
   }
 
   @SuppressWarnings("AccessStaticViaInstance")
