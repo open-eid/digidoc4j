@@ -185,11 +185,10 @@ public class ManifestValidatorTest {
 
 
   @Test
-  @Ignore("https://www.pivotaltracker.com/story/show/125469911")
   public void container_withSpecialDataFileCharacters_shouldBeValid() throws Exception {
     ManifestParser manifestParser = createManifest(dataFile("dds_JÜRIÖÖ € žŠ päev.txt", "application/octet-stream"));
     List<DSSDocument> detachedContents = Arrays.asList(detachedContent("dds_JÜRIÖÖ € žŠ päev.txt", "application/octet-stream"));
-    List<Signature> signatures = openSignature("testFiles/xades/test-bdoc-specia-chars-data-file.xml", detachedContents);
+    List<Signature> signatures = openSignature("src/test/resources/testFiles/xades/test-bdoc-specia-chars-data-file.xml", detachedContents);
     List<ManifestErrorMessage> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
     assertTrue(errors.isEmpty());
   }
