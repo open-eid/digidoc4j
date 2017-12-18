@@ -15,6 +15,7 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.impl.asic.manifest.AsicManifest;
 import org.digidoc4j.impl.asic.manifest.ManifestEntry;
+import org.digidoc4j.impl.asic.manifest.ManifestErrorMessage;
 import org.digidoc4j.impl.asic.manifest.ManifestParser;
 import org.digidoc4j.impl.asic.manifest.ManifestValidator;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
@@ -84,11 +85,13 @@ public class ManifestValidatorTest {
       add(new ManifestEntry("1", "a"));
       add(new ManifestEntry("2", "b"));
     }};
-    List<String> errorMessages = ManifestValidator.validateEntries(entriesFromManifest, entriesFromSignature, "S0");
+    List<ManifestErrorMessage> manifestErrorMessageList = ManifestValidator.validateEntries(entriesFromManifest, entriesFromSignature, "S0");
+    assertEquals(1, manifestErrorMessageList.size());
 
-    assertEquals(1, errorMessages.size());
+    ManifestErrorMessage manifestErrorMessage = manifestErrorMessageList.get(0);
     assertEquals("Manifest file has an entry for file 2 with mimetype f but the signature file for signature S0 " +
-        "indicates the mimetype is b", errorMessages.get(0));
+        "indicates the mimetype is b", manifestErrorMessage.getErrorMessage());
+    assertEquals("S0", manifestErrorMessage.getSignatureId());
   }
 
   @Test
@@ -102,13 +105,18 @@ public class ManifestValidatorTest {
       add(new ManifestEntry("1", "b"));
       add(new ManifestEntry("2", "a"));
     }};
-    List<String> errorMessages = ManifestValidator.validateEntries(entriesFromManifest, entriesFromSignature, "S0");
+    List<ManifestErrorMessage> manifestErrorMessageList = ManifestValidator.validateEntries(entriesFromManifest, entriesFromSignature, "S0");
+    assertEquals(2, manifestErrorMessageList.size());
 
-    assertEquals(2, errorMessages.size());
+    ManifestErrorMessage file1ManifestErrorMessage = manifestErrorMessageList.get(0);
     assertEquals("Manifest file has an entry for file 1 with mimetype a but the signature file for signature S0 " +
-        "indicates the mimetype is b", errorMessages.get(0));
+        "indicates the mimetype is b", file1ManifestErrorMessage.getErrorMessage());
+    assertEquals("S0", file1ManifestErrorMessage.getSignatureId());
+
+    ManifestErrorMessage file2ManifestErrorMessage = manifestErrorMessageList.get(1);
     assertEquals("Manifest file has an entry for file 2 with mimetype b but the signature file for signature S0 " +
-        "indicates the mimetype is a", errorMessages.get(1));
+        "indicates the mimetype is a", file2ManifestErrorMessage.getErrorMessage());
+    assertEquals("S0", file2ManifestErrorMessage.getSignatureId());
   }
 
   @Test
@@ -123,11 +131,13 @@ public class ManifestValidatorTest {
       add(new ManifestEntry("1", "a"));
       add(new ManifestEntry("3", "c"));
     }};
-    List<String> errorMessages = ManifestValidator.validateEntries(entriesFromManifest, entriesFromSignature, "S0");
+    List<ManifestErrorMessage> manifestErrorMessageList = ManifestValidator.validateEntries(entriesFromManifest, entriesFromSignature, "S0");
+    assertEquals(1, manifestErrorMessageList.size());
 
-    assertEquals(1, errorMessages.size());
+    ManifestErrorMessage manifestErrorMessage = manifestErrorMessageList.get(0);
     assertEquals("Manifest file has an entry for file 2 with mimetype b but the signature file for signature S0 does" +
-        " not have an entry for this file", errorMessages.get(0));
+        " not have an entry for this file", manifestErrorMessage.getErrorMessage());
+    assertEquals("S0", manifestErrorMessage.getSignatureId());
   }
 
   @Test
@@ -142,11 +152,13 @@ public class ManifestValidatorTest {
       add(new ManifestEntry("2", "b"));
       add(new ManifestEntry("3", "c"));
     }};
-    List<String> errorMessages = ManifestValidator.validateEntries(entriesFromManifest, entriesFromSignature, "S1");
+    List<ManifestErrorMessage> manifestErrorMessageList = ManifestValidator.validateEntries(entriesFromManifest, entriesFromSignature, "S1");
+    assertEquals(1, manifestErrorMessageList.size());
 
-    assertEquals(1, errorMessages.size());
+    ManifestErrorMessage manifestErrorMessage = manifestErrorMessageList.get(0);
     assertEquals("The signature file for signature S1 has an entry for file 2 with mimetype b but the manifest file" +
-        " does not have an entry for this file", errorMessages.get(0));
+        " does not have an entry for this file", manifestErrorMessage.getErrorMessage());
+    assertEquals("S1", manifestErrorMessage.getSignatureId());
   }
 
   @Test
@@ -154,7 +166,7 @@ public class ManifestValidatorTest {
     ManifestParser manifestParser = createManifest(dataFile("test.txt", "text/plain"));
     List<DSSDocument> detachedContents = Arrays.asList(detachedContent("test.txt", "text/plain"));
     List<Signature> signatures = openSignature("src/test/resources/testFiles/xades/test-bdoc-ts.xml", detachedContents);
-    List<String> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
+    List<ManifestErrorMessage> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
     assertTrue(errors.isEmpty());
   }
 
@@ -163,18 +175,21 @@ public class ManifestValidatorTest {
     ManifestParser manifestParser = createManifest(dataFile("test.txt", "text/plain"));
     List<DSSDocument> detachedContents = Arrays.asList(detachedContent("other.txt", "text/plain"), detachedContent("test.txt", "text/plain"));
     List<Signature> signatures = openSignature("src/test/resources/testFiles/xades/test-bdoc-ts.xml", detachedContents);
-    List<String> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
+    List<ManifestErrorMessage> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
     assertFalse(errors.isEmpty());
-    assertEquals("Container contains a file named other.txt which is not found in the signature file", errors.get(0));
+
+    ManifestErrorMessage manifestErrorMessage = errors.get(0);
+    assertEquals("Container contains a file named other.txt which is not found in the signature file", manifestErrorMessage.getErrorMessage());
+    assertEquals("", manifestErrorMessage.getSignatureId());
   }
 
+
   @Test
-  @Ignore("https://www.pivotaltracker.com/story/show/125469911")
   public void container_withSpecialDataFileCharacters_shouldBeValid() throws Exception {
     ManifestParser manifestParser = createManifest(dataFile("dds_JÜRIÖÖ € žŠ päev.txt", "application/octet-stream"));
     List<DSSDocument> detachedContents = Arrays.asList(detachedContent("dds_JÜRIÖÖ € žŠ päev.txt", "application/octet-stream"));
     List<Signature> signatures = openSignature("src/test/resources/testFiles/xades/test-bdoc-specia-chars-data-file.xml", detachedContents);
-    List<String> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
+    List<ManifestErrorMessage> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
     assertTrue(errors.isEmpty());
   }
 

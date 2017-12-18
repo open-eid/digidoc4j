@@ -10,12 +10,15 @@
 
 package org.digidoc4j.exceptions;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Generic exception for DigiDoc4J
  */
 public class DigiDoc4JException extends RuntimeException {
 
   int errorCode = 0;
+  private String signatureId = "";
 
   /**
    * Constructs a new runtime exception with the specified detail message and
@@ -59,6 +62,21 @@ public class DigiDoc4JException extends RuntimeException {
   }
 
   /**
+   * Constructs a new runtime exception with the specified detail message, signature ID and
+   * cause.  <p>Note that the detail message associated with
+   * {@code cause} is <i>not</i> automatically incorporated in
+   * this runtime exception's detail message.
+   *
+   * @param message the detail message (which is saved for later retrieval
+   *                by the {@link #getMessage()} method).
+   * @param signatureId  - Signature ID
+   */
+  public DigiDoc4JException(String message, String signatureId) {
+    super(message);
+    this.signatureId = signatureId;
+  }
+
+  /**
    * Creates new exception based on another exception
    *
    * @param e parent exception
@@ -88,9 +106,28 @@ public class DigiDoc4JException extends RuntimeException {
     return errorCode;
   }
 
+
+  /**
+   * Get the Signature Id of the exception
+   *
+   * @return
+   */
+  public String getSignatureId() {
+    return signatureId;
+  }
+
+  /**
+   * Set the Signature Id of the exception
+   * @param signatureId
+   */
+  public void setSignatureId(String signatureId) {
+    this.signatureId = signatureId;
+  }
+
   @Override
   public String toString() {
     StringBuilder msg = new StringBuilder();
+    if (StringUtils.isNotBlank(signatureId)) msg.append("(Signature ID: ").append(signatureId).append(") ");
     if (errorCode != 0) msg.append("ERROR: ").append(errorCode).append(" - ");
     msg.append(getMessage());
     return msg.toString();

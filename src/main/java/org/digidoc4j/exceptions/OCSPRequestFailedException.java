@@ -18,7 +18,7 @@ public class OCSPRequestFailedException extends DigiDoc4JException {
     super(MESSAGE, e);
   }
   
-  public OCSPRequestFailedException() {
-    super(MESSAGE);
+  public OCSPRequestFailedException(String sigId) {
+    super(MESSAGE, sigId);
   }
 }
