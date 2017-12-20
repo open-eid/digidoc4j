@@ -131,7 +131,7 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   @Override
   public CertificatePool createValidationPool() {
     logger.debug("");
-    if(trustedCertSource == null) {
+    if (trustedCertSource == null) {
       return commonCertificateVerifier.createValidationPool();
     }
     return new LazyCertificatePool(trustedCertSource);

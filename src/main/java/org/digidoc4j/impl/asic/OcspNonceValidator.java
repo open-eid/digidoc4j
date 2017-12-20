@@ -18,6 +18,7 @@ import java.util.List;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DLSequence;
@@ -95,9 +96,11 @@ public class OcspNonceValidator implements Serializable {
 
   private boolean isOcspExtensionValid(Extension extension) {
     try {
-      byte[] octets = extension.getExtnValue().getOctets();
+      ASN1OctetString ev = extension.getExtnValue();
+      byte[] octets = ev.getOctets();
       byte[] signatureDigestValue = getSignatureDigestValue(octets);
-      byte[] foundHash = ((DEROctetString) ASN1Sequence.getInstance(octets).getObjectAt(1)).getOctets();
+      ASN1Sequence seq = ASN1Sequence.getInstance(octets);
+      byte[] foundHash = ((DEROctetString) seq.getObjectAt(1)).getOctets();
       boolean extensionHashMatchesSignatureHash = Arrays.equals(foundHash, signatureDigestValue);
       logger.debug("OCSP extension contains valid signature digest: " + extensionHashMatchesSignatureHash);
       return extensionHashMatchesSignatureHash;

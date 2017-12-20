@@ -4,6 +4,7 @@ import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.impl.asic.asice.AsicEContainer;
 
 /**
  * Created by Andrei on 17.11.2017.
@@ -11,7 +12,7 @@ import org.digidoc4j.exceptions.NotYetImplementedException;
 public class PadesContainerBuilder extends ContainerBuilder {
 
   @Override
-  protected Container createNewContainer() {
+  protected AsicEContainer createNewContainer() {
     throw new NotYetImplementedException();
   }
 

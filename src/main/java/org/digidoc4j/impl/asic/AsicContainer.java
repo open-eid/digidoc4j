@@ -199,7 +199,13 @@ public abstract class AsicContainer implements Container {
 
   protected List<Signature> extendAllSignatureProfile(SignatureProfile profile, List<Signature> signatures, List<DataFile> dataFiles) {
     logger.info("Extending all signatures' profile to " + profile.name());
-    DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
+    DetachedContentCreator detachedContentCreator = null;
+    try {
+      detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
+    } catch (Exception e) {
+      logger.error("Error in datafiles processing: " + e.getMessage());
+      throw new DigiDoc4JException(e);
+    }
     List<DSSDocument> detachedContentList = detachedContentCreator.getDetachedContentList();
     SignatureExtender signatureExtender = new SignatureExtender(getConfiguration(), detachedContentList);
     List<DSSDocument> extendedSignatureDocuments = signatureExtender.extend(signatures, profile);

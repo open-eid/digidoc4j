@@ -10,9 +10,9 @@
 
 package org.digidoc4j.exceptions;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 public class DigiDoc4JExceptionTest {
 

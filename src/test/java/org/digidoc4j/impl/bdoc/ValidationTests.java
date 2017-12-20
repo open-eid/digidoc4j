@@ -562,7 +562,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
         aSignature(container).
         withSigningCertificate(signerCert).
         buildDataToSign();
-    byte[] signature = TestSigningHelper.sign(dataToSign.getDigestToSign(), dataToSign.getDigestAlgorithm());
+    byte[] signature = TestSigningHelper.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
     dataToSign.finalize(signature);
   }
 

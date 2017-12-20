@@ -24,10 +24,10 @@ import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.StreamDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.digidoc4j.impl.StreamDocument;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.DSSUtils;

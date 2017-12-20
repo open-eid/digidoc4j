@@ -10,19 +10,18 @@
 
 package org.digidoc4j.impl.ddoc;
 
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.util.List;
+
 import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProductionPlace;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.File;
-import java.nio.file.Path;
-import java.util.List;
-
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
 
 public class DDocSignatureTest extends DigiDoc4JTestHelper {
 

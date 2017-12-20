@@ -10,8 +10,14 @@
 
 package org.digidoc4j.impl.ddoc;
 
-import ee.sk.digidoc.CertValue;
+import java.net.URI;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -19,13 +25,7 @@ import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.digidoc4j.SignatureProfile;
+import ee.sk.digidoc.CertValue;
 
 /**
  * Signature implementation. Provides an interface for handling a signature and the

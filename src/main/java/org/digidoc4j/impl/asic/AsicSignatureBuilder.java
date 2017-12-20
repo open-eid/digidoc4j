@@ -10,54 +10,52 @@
 
 package org.digidoc4j.impl.asic;
 
+import static eu.europa.esig.dss.DigestAlgorithm.SHA256;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LTA;
-import static java.lang.Math.min;
+import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.digidoc4j.impl.asic.ocsp.OcspSourceBuilder.anOcspSource;
 
-import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DataToSign;
-import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.SignatureFinalizer;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
 import org.digidoc4j.impl.asic.asics.AsicSContainer;
 import org.digidoc4j.impl.asic.ocsp.SKOnlineOCSPSource;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
+import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
+import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignerLocation;
 import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
-import eu.europa.esig.dss.utils.Utils;
 import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
 
 /**
@@ -66,40 +64,10 @@ import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
 public class AsicSignatureBuilder extends SignatureBuilder implements SignatureFinalizer {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicSignatureBuilder.class);
-  private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
   private static final int hexMaxlen = 10;
   private static final int maxTryCount = 5;
   protected transient XadesSigningDssFacade facade;
   private Date signingDate;
-
-  /**
-   * Checks if the signature is ASN.1 encoded.
-   *
-   * @param signatureValue signature value to check.
-   * @return if the signature is ASN.1 encoded.
-   */
-  private static boolean isAsn1Encoded(byte[] signatureValue) {
-    ASN1InputStream is = null;
-    try {
-      is = new ASN1InputStream(signatureValue);
-      ASN1Primitive obj = is.readObject();
-      return obj != null;
-    } catch (IOException e) {
-      return false;
-    } finally {
-      Utils.closeQuietly(is);
-    }
-  }
-
-  private static String bytesToHex(byte[] bytes, int maxLen) {
-    char[] hexChars = new char[min(bytes.length, maxLen) * 2];
-    for (int j = 0; j < min(bytes.length, maxLen); j++) {
-      int v = bytes[j] & 0xFF;
-      hexChars[j * 2] = hexArray[v >>> 4];
-      hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-    }
-    return new String(hexChars);
-  }
 
   @Override
   protected Signature invokeSigningProcess() {
@@ -108,24 +76,14 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
     byte[] dataToSign = getDataToBeSigned();
     Signature result = null;
     byte[] signatureValue = null;
-    int count = 0;
-    boolean finalized = false;
-    while (!finalized && count < maxTryCount) {
-      try {
-        // TODO: Investigate instability (of BouncyCastle?)
-        // Sometimes sign returns value what causes error in finalizeSignature
-        signatureValue = signatureToken.sign(signatureParameters.getDigestAlgorithm(), dataToSign);
-        if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA
-            && isAsn1Encoded(signatureValue)) {
-          signatureValue = DSSSignatureUtils.convertToXmlDSig(eu.europa.esig.dss.EncryptionAlgorithm.ECDSA, signatureValue);
-        }
-        result = finalizeSignature(signatureValue);
-        finalized = true;
-      } catch (TechnicalException e) {
-        logger.warn("PROBLEM with signing [" + String.valueOf(count) + "]:" +
-            bytesToHex(dataToSign, hexMaxlen) + " -> " + bytesToHex(signatureValue, hexMaxlen));
-        count++;
-      }
+    try {
+      // TODO: Investigate instability (of BouncyCastle?)
+      // Sometimes sign returns value what causes error in finalizeSignature
+      signatureValue = signatureToken.sign(signatureParameters.getDigestAlgorithm(), dataToSign);
+      result = finalizeSignature(signatureValue);
+    } catch (TechnicalException e) {
+      logger.warn("PROBLEM with signing: "
+          + Helper.bytesToHex(dataToSign, hexMaxlen) + " -> " + Helper.bytesToHex(signatureValue, hexMaxlen));
     }
     return result;
   }
@@ -133,8 +91,7 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
   @Override
   public DataToSign buildDataToSign() throws SignerCertificateRequiredException, ContainerWithoutFilesException {
     byte[] dataToSign = getDataToBeSigned();
-    byte[] digestToSign = calculateDigestToSign(dataToSign);
-    return new DataToSign(digestToSign, signatureParameters, this);
+    return new DataToSign(dataToSign, signatureParameters, this);
   }
 
   @Override
@@ -149,7 +106,14 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
 
   @Override
   public Signature finalizeSignature(byte[] signatureValueBytes) {
-    logger.info("Finalizing asic signature: " + bytesToHex(signatureValueBytes, hexMaxlen));
+    if ((signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA || isEcdsaCertificate())
+        && DSSSignatureUtils.isAsn1Encoded(signatureValueBytes)) {
+      logger.debug("Finalizing signature ASN1: " + Helper.bytesToHex(signatureValueBytes, hexMaxlen) + " ["
+          + String.valueOf(signatureValueBytes.length) + "]");
+      signatureValueBytes = DSSSignatureUtils.convertToXmlDSig(eu.europa.esig.dss.EncryptionAlgorithm.ECDSA, signatureValueBytes);
+    }
+    logger.debug("Finalizing signature XmlDSig: " + Helper.bytesToHex(signatureValueBytes, hexMaxlen) + " ["
+        + String.valueOf(signatureValueBytes.length) + "]");
     populateParametersForFinalizingSignature(signatureValueBytes);
     Collection<DataFile> dataFilesToSign = getDataFiles();
     validateDataFilesToSign(dataFilesToSign);
@@ -160,7 +124,13 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
   protected Signature createSignature(DSSDocument signedDocument) {
     logger.debug("Opening signed document validator");
     Configuration configuration = getConfiguration();
-    DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(getDataFiles());
+    DetachedContentCreator detachedContentCreator = null;
+    try {
+      detachedContentCreator = new DetachedContentCreator().populate(getDataFiles());
+    } catch (Exception e) {
+      logger.error("Error in datafile processing: " + e.getMessage());
+      throw new DigiDoc4JException(e);
+    }
     List<DSSDocument> detachedContents = detachedContentCreator.getDetachedContentList();
     BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
     List<BDocSignature> signatureList = signatureOpener.parse(signedDocument);
@@ -185,12 +155,12 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
 
   protected void populateSignatureParameters() {
     setDigestAlgorithm();
+    setSigningCertificate();
     setEncryptionAlgorithm();
     setSignatureProfile();
     setSignerInformation();
     setSignatureId();
     setSignaturePolicy();
-    setSigningCertificate();
     setSigningDate();
     setTimeStampProviderSource();
   }
@@ -209,11 +179,6 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
     if (facade == null) {
       facade = new XadesSigningDssFacade();
     }
-  }
-
-  protected byte[] calculateDigestToSign(byte[] dataToDigest) {
-    DigestAlgorithm digestAlgorithm = signatureParameters.getDigestAlgorithm();
-    return DSSUtils.digest(digestAlgorithm.getDssDigestAlgorithm(), dataToDigest);
   }
 
   protected Configuration getConfiguration() {
@@ -273,7 +238,11 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
   protected void setEncryptionAlgorithm() {
     if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA || isEcdsaCertificate()) {
       logger.debug("Using ECDSA encryption algorithm");
+      signatureParameters.setEncryptionAlgorithm(EncryptionAlgorithm.ECDSA);
       facade.setEncryptionAlgorithm(eu.europa.esig.dss.EncryptionAlgorithm.ECDSA);
+    } else {
+      signatureParameters.setEncryptionAlgorithm(EncryptionAlgorithm.RSA);
+      facade.setEncryptionAlgorithm(eu.europa.esig.dss.EncryptionAlgorithm.RSA);
     }
   }
 
@@ -310,13 +279,17 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   protected void setSignaturePolicy() {
-    /*
-    if (isTimeMarkProfile() || isEpesProfile()) {
-      Policy signaturePolicy = createBDocSignaturePolicy();
-      facade.setSignaturePolicy(signaturePolicy);
-    }
-    */
     Policy signaturePolicy = new Policy();
+    if (policyDefinedByUser != null && isDefinedAllPolicyValues()) {
+      signaturePolicy = policyDefinedByUser;
+    }
+    else {
+      signaturePolicy.setId("urn:oid:" + XadesSignatureValidator.TM_POLICY);
+      signaturePolicy.setDigestValue(decodeBase64("0xRLPsW1UIpxtermnTGE+5+5620UsWi5bYJY76Di3o0="));
+      signaturePolicy.setQualifier("OIDAsURN");
+      signaturePolicy.setDigestAlgorithm(SHA256);
+      signaturePolicy.setSpuri("https://www.sk.ee/repository/bdoc-spec21.pdf");
+    }
     facade.setSignaturePolicy(signaturePolicy);
   }
 

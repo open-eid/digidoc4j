@@ -10,11 +10,11 @@
 
 package org.digidoc4j;
 
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.asic.report.SignatureValidationReport;
-
 import java.nio.file.Path;
 import java.util.List;
+
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.asic.report.SignatureValidationReport;
 
 import eu.europa.esig.dss.validation.SignatureQualification;
 import eu.europa.esig.dss.validation.policy.rules.Indication;

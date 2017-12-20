@@ -10,19 +10,9 @@
 
 package org.digidoc4j.impl.bdoc.manifest;
 
-import org.digidoc4j.Configuration;
-import org.digidoc4j.DataFile;
-import org.digidoc4j.Signature;
-import org.digidoc4j.impl.asic.manifest.AsicManifest;
-import org.digidoc4j.impl.asic.manifest.ManifestEntry;
-import org.digidoc4j.impl.asic.manifest.ManifestErrorMessage;
-import org.digidoc4j.impl.asic.manifest.ManifestParser;
-import org.digidoc4j.impl.asic.manifest.ManifestValidator;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,9 +22,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.Signature;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
+import org.digidoc4j.impl.asic.manifest.AsicManifest;
+import org.digidoc4j.impl.asic.manifest.ManifestEntry;
+import org.digidoc4j.impl.asic.manifest.ManifestErrorMessage;
+import org.digidoc4j.impl.asic.manifest.ManifestParser;
+import org.digidoc4j.impl.asic.manifest.ManifestValidator;
+import org.junit.Assert;
+import org.junit.Test;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.FileDocument;

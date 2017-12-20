@@ -10,17 +10,20 @@
 
 package org.digidoc4j.impl.ddoc;
 
-import ee.sk.digidoc.DigiDocException;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.junit.Test;
-import org.xml.sax.SAXException;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.junit.Assert.*;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.junit.Test;
+import org.xml.sax.SAXException;
+
+import ee.sk.digidoc.DigiDocException;
 
 public class ValidationResultForDDocTest {
 

@@ -74,12 +74,12 @@ public final class DigiDoc4J {
     } catch (ParseException e) {
       logger.error(e.getMessage());
       showUsage(options);
+      throw new DigiDoc4JUtilityException(2, "problem with given parameters");
     }
   }
 
   private static void showUsage(Options options) {
     new HelpFormatter().printHelp("digidoc4j/" + Version.VERSION, options);
-    throw new DigiDoc4JUtilityException(2, "wrong parameters given");
   }
 
   private static boolean shouldManipulateContainer(CommandLine commandLine) {
@@ -151,7 +151,7 @@ public final class DigiDoc4J {
     options.addOption("verbose", "verbose", false, "verbose output");
     options.addOption("w", "warnings", false, "show warnings");
     options.addOption("version", "version", false, "show version");
-    options.addOption("tst", "timestamp", false, "adds timestamp token to bdoc container");
+    options.addOption("tst", "timestamp", false, "adds timestamp token to container");
 
     options.addOption(type());
     options.addOption(inputFile());

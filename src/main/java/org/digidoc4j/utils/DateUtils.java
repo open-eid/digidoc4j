@@ -12,12 +12,12 @@ package org.digidoc4j.utils;
 
 import static org.apache.commons.lang3.time.DateUtils.addSeconds;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class DateUtils {
   private static final Logger logger = LoggerFactory.getLogger(DateUtils.class);

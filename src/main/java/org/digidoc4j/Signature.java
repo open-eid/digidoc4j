@@ -10,11 +10,11 @@
 
 package org.digidoc4j;
 
-import org.digidoc4j.exceptions.DigiDoc4JException;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+
+import org.digidoc4j.exceptions.DigiDoc4JException;
 
 /**
  * Signature interface. Provides an interface for handling a signature and the corresponding OCSP response properties.

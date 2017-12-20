@@ -10,11 +10,11 @@
 
 package org.digidoc4j.impl.bdoc.manifest;
 
-import org.digidoc4j.impl.asic.manifest.ManifestEntry;
-import org.junit.Test;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import org.digidoc4j.impl.asic.manifest.ManifestEntry;
+import org.junit.Test;
 
 public class ManifestEntryTest {
 

@@ -5,13 +5,9 @@ import java.io.ByteArrayInputStream;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
-import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.testutils.TestDataBuilder;
-import org.digidoc4j.testutils.TestSigningHelper;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This test was created when SKOnlineOCSPSource had a thread safety problem with its nonce checking code;

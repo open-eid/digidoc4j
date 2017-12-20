@@ -19,14 +19,23 @@ import org.digidoc4j.DataFile;
 
 import eu.europa.esig.dss.DSSDocument;
 
+/**
+ * Class for building list of detached content files.
+ */
 public class DetachedContentCreator {
 
   private DSSDocument firstDetachedContent;
   private List<DSSDocument> detachedContentList;
 
-  public DetachedContentCreator populate(Collection<DataFile> dataFiles) {
+  /**
+   * Method for generating list of detached content files from list of files.
+   * @param dataFiles Files what should be signed
+   * @return Creator object
+   * @throws Exception
+   */
+  public DetachedContentCreator populate(Collection<DataFile> dataFiles) throws Exception {
     detachedContentList = new ArrayList<>(dataFiles.size());
-    if(dataFiles.isEmpty()) {
+    if (dataFiles.isEmpty()) {
       return this;
     }
     populateDetachedContent(dataFiles);
@@ -44,10 +53,18 @@ public class DetachedContentCreator {
     }
   }
 
+  /**
+   * Method for asking detached content list
+   * @return Detached content list
+   */
   public List<DSSDocument> getDetachedContentList() {
     return detachedContentList;
   }
 
+  /**
+   * Method for asking first detached content file
+   * @return First detached content file
+   */
   public DSSDocument getFirstDetachedContent() {
     return firstDetachedContent;
   }

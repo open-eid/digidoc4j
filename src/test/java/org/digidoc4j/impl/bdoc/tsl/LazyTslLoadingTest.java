@@ -16,8 +16,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.TSLCertificateSource;
-import org.digidoc4j.impl.asic.tsl.LazyCertificatePool;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
+import org.digidoc4j.impl.asic.tsl.LazyCertificatePool;
 import org.digidoc4j.testutils.TSLHelper;
 import org.junit.Before;
 import org.junit.Test;

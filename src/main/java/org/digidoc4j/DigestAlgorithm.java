@@ -10,10 +10,10 @@
 
 package org.digidoc4j;
 
-import org.digidoc4j.exceptions.DigiDoc4JException;
-
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import org.digidoc4j.exceptions.DigiDoc4JException;
 
 /**
  * Supported algorithms

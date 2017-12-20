@@ -22,9 +22,9 @@ import org.apache.commons.io.FileUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.DataToSign;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
-import org.digidoc4j.DataToSign;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.signers.PKCS12SignatureToken;
@@ -83,7 +83,7 @@ public class TestDataBuilder {
   }
 
   public static Signature makeSignature(Container container, DataToSign dataToSign) {
-    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDigestToSign(), dataToSign.getDigestAlgorithm());
+    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
     assertNotNull(signatureValue);
     assertTrue(signatureValue.length > 1);
 

@@ -1,27 +1,27 @@
-package org.digidoc4j.impl.asic.asics;
+package org.digidoc4j.impl.asic.asice.bdoc;
 
 import java.io.Serializable;
 
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.impl.asic.asice.AsicEContainerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Created by Andrei on 10.11.2017.
  */
-public class AsicSContainerBuilder extends ContainerBuilder implements Serializable {
+public class BDocContainerBuilder extends AsicEContainerBuilder implements Serializable {
 
-  private static final Logger logger = LoggerFactory.getLogger(AsicSContainerBuilder.class);
+  private static final Logger logger = LoggerFactory.getLogger(BDocContainerBuilder.class);
 
   protected Container createNewContainer() {
     if (configuration == null) {
-      return new AsicSContainer();
+      return new BDocContainer();
     } else {
-      return new AsicSContainer(configuration);
+      return new BDocContainer(configuration);
     }
   }
-
   @Override
   public ContainerBuilder usingTempDirectory(String temporaryDirectoryPath) {
     logger.warn("BDoc containers don't support setting temp directories");

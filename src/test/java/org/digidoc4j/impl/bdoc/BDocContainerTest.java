@@ -782,7 +782,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
         aSignature(container).
         withSigningCertificate(signerCert).
         buildDataToSign();
-    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDigestToSign(), dataToSign.getDigestAlgorithm());
+    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
     Signature signature = dataToSign.finalize(signatureValue);
     container.addSignature(signature);
     container.saveAsFile("src/test/resources/testFiles/tmp/test.bdoc");
@@ -832,7 +832,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
         withPostalCode("postalCode").
         withCountry("country").
         buildDataToSign();
-    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDigestToSign(), dataToSign.getDigestAlgorithm());
+    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
     Signature signature = dataToSign.finalize(signatureValue);
     container.addSignature(signature);
     container.saveAsFile("src/test/resources/testFiles/tmp/test.bdoc");

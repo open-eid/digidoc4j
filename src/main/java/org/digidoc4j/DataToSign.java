@@ -21,7 +21,8 @@ import org.slf4j.LoggerFactory;
  *   Data to be signed externally (e.g. in the Web by a browser plugin).
  * </p>
  * <p>
- *   {@link DataToSign#getDigestToSign()} and {@link DataToSign#getDigestAlgorithm()} can be used to get the digest bytes to be signed and
+ *   {@link DataToSign#getDataToSign()} and {@link DataToSign#getDigestAlgorithm()} can be used to get the data bytes to be signed
+ *   (this is usually data derived from signature parameters - SignedInfo) and
  *   digest algorithm (e.g. SHA-256, SHA-512 etc) used in signing.
  * </p>
  * <p>
@@ -32,13 +33,20 @@ import org.slf4j.LoggerFactory;
  */
 public class DataToSign implements Serializable {
 
-  private final static Logger logger = LoggerFactory.getLogger(DataToSign.class);
-  private byte[] digestToSign;
+  private static final Logger logger = LoggerFactory.getLogger(DataToSign.class);
+  private byte[] dataToSign;
+
   private SignatureParameters signatureParameters;
   private SignatureFinalizer signatureFinalizer;
 
-  public DataToSign(byte[] digestToSign, SignatureParameters signatureParameters, SignatureFinalizer signatureFinalizer) {
-    this.digestToSign = digestToSign;
+  /**
+   * Constructor
+   * @param data Digest value of the data
+   * @param signatureParameters Signature parameters
+   * @param signatureFinalizer Signature finalizer
+   */
+  public DataToSign(byte[] data, SignatureParameters signatureParameters, SignatureFinalizer signatureFinalizer) {
+    this.dataToSign = data;
     this.signatureParameters = signatureParameters;
     this.signatureFinalizer = signatureFinalizer;
   }
@@ -61,10 +69,10 @@ public class DataToSign implements Serializable {
 
   /**
    * Data to be signed externally.
-   * @return digest bytes to be signed.
+   * @return data bytes to be signed.
    */
-  public byte[] getDigestToSign() {
-    return digestToSign;
+  public byte[] getDataToSign() {
+    return dataToSign;
   }
 
   /**
