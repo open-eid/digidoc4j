@@ -39,6 +39,7 @@ import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.SignatureFinalizer;
+import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
@@ -184,6 +185,9 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
   protected Configuration getConfiguration() {
     if (container instanceof AsicSContainer) {
       return ((AsicSContainer) container).getConfiguration();
+    }
+    if (container instanceof AsicEContainer) {
+      return ((AsicEContainer) container).getConfiguration();
     }
     return ((BDocContainer) container).getConfiguration();
   }
