@@ -194,6 +194,9 @@ public abstract class AsicContainer implements Container {
   }
 
   protected void validateIncomingSignature(Signature signature) {
+    if (signature == null){
+      throw new TechnicalException("ValidateIncomingSignature is null");
+    }
     if (!((signature instanceof BDocSignature) || (signature instanceof AsicSSignature) || (signature instanceof AsicESignature)
         || (signature instanceof AsicSignature))) {
       throw new TechnicalException("BDoc signature must be an instance of AsicSignature");
