@@ -163,7 +163,7 @@ public class PKCS11SignatureToken implements SignatureToken {
     for (DSSPrivateKeyEntry key : keys) {
       if (selector.match(key.getCertificate().getCertificate())) {
         privateKeyEntry = (KSPrivateKeyEntry)key;
-        logger.debug("... Found key by keyUsage");
+        logger.debug("... Found key by keyUsage. Key encryption algorithm:" + privateKeyEntry.getEncryptionAlgorithm().getName());
         break;
       }
     }
@@ -188,7 +188,24 @@ public class PKCS11SignatureToken implements SignatureToken {
     return privateKeyEntry;
   }
 
-  public byte[] sign4(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
+  @Override
+  public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign){
+    if (privateKeyEntry != null){
+      String encryptionAlg = privateKeyEntry.getEncryptionAlgorithm().getName();
+      if ("ECDSA".equals(encryptionAlg)){
+        logger.debug("Sign ECDSA");
+        return signECDSA(digestAlgorithm, dataToSign);
+      } else if ("RSA".equals(encryptionAlg)){
+        logger.debug("Sign RSA");
+        return signRSA(digestAlgorithm, dataToSign);
+      }
+      throw new TechnicalException("Failed to sign with PKCS#11. Encryption Algorithm should be ECDSA or RSA " +
+          "but actually is : " + encryptionAlg);
+    }
+    throw new TechnicalException("privateKeyEntry is null");
+  }
+
+  private byte[] signECDSA(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
     try {
       logger.debug("Signing with PKCS#11 and " + digestAlgorithm.name());
       ToBeSigned toBeSigned = new ToBeSigned(dataToSign);
@@ -203,8 +220,8 @@ public class PKCS11SignatureToken implements SignatureToken {
     */
   }
 
-  @Override
-  public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
+
+  private byte[] signRSA(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
     try {
       logger.debug("Signing with PKCS#11 and " + digestAlgorithm.name());
       byte[] digestToSign = DSSUtils.digest(digestAlgorithm.getDssDigestAlgorithm(), dataToSign);
