@@ -163,8 +163,7 @@ public class PKCS11SignatureToken implements SignatureToken {
     for (DSSPrivateKeyEntry key : keys) {
       if (selector.match(key.getCertificate().getCertificate())) {
         privateKeyEntry = (KSPrivateKeyEntry)key;
-        logger.debug("Found private key encryption algorithm:" + privateKeyEntry.getEncryptionAlgorithm().getName());
-        logger.debug("... Found key by keyUsage");
+        logger.debug("... Found key by keyUsage. Key encryption algorithm:" + privateKeyEntry.getEncryptionAlgorithm().getName());
         break;
       }
     }
