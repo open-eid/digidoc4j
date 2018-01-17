@@ -6,7 +6,7 @@
     <groupId>org.digidoc4j</groupId>
     <artifactId>digidoc4j</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.8.beta.1</version>
+    <version>1.0.8.beta.2</version>
     <name>DigiDoc4j</name>
     <description>DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers
         of signed documents

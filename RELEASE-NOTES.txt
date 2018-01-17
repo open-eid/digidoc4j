@@ -1,5 +1,12 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+Release 1.0.8.beta.2
+------------------
+Summary of the major changes since 1.0.8.beta.1
+------------------------------------------
+* Fixed signing with ID-card and using PKCS11SignatureToken when encryption algorithm is ECDSA and RSA.
+
+------------------------------------------
 Release 1.0.8.beta.1
 ------------------
 Summary of the major changes since 1.0.7.2
