@@ -32,9 +32,11 @@ import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainerValidator;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
+import org.digidoc4j.impl.asic.asics.AsicSSignature;
 import org.digidoc4j.impl.asic.manifest.AsicManifest;
 import org.digidoc4j.impl.asic.xades.SignatureExtender;
 import org.digidoc4j.utils.Helper;
@@ -192,8 +194,12 @@ public abstract class AsicContainer implements Container {
   }
 
   protected void validateIncomingSignature(Signature signature) {
-    if (!(signature instanceof BDocSignature)) {
-      throw new TechnicalException("BDoc signature must be an instance of BDocSignature");
+    if (signature == null){
+      throw new TechnicalException("ValidateIncomingSignature is null");
+    }
+    if (!((signature instanceof BDocSignature) || (signature instanceof AsicSSignature) || (signature instanceof AsicESignature)
+        || (signature instanceof AsicSignature))) {
+      throw new TechnicalException("BDoc signature must be an instance of AsicSignature");
     }
   }
 

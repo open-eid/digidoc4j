@@ -192,6 +192,9 @@ public class Configuration implements Serializable {
    * @param mode Application mode
    */
   public Configuration(Mode mode) {
+    if (logger.isInfoEnabled() && !logger.isDebugEnabled()) {
+      logger.info("DigiDoc4J will be executed in <{}> mode", mode);
+    }
     logger.debug("------------------------ <MODE: {}> ------------------------", mode);
     this.mode = mode;
     this.loadConfiguration("digidoc4j.yaml");
