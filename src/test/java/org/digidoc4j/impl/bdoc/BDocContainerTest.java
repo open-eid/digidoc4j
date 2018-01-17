@@ -1039,6 +1039,14 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
         .build();
   }
 
+  @Test(expected = DigiDoc4JException.class)
+  public void whenOpeningContainer_withTwoManifests_oneIsErroneous_shouldThrowException() {
+    Container container = ContainerBuilder.aContainer()
+      .fromExistingFile("src/test/resources/testFiles/invalid-containers/KS-10_manifest_topelt_bdoc21_TM.bdoc")
+      .withConfiguration(new Configuration(Configuration.Mode.TEST))
+      .build();
+  }
+
   @Test(expected = OCSPRequestFailedException.class)
   public void signingContainer_withFailedOcspResponse_shouldThrowException() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);

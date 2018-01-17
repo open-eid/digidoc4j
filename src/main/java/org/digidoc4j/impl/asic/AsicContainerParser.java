@@ -27,6 +27,7 @@ import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
@@ -59,6 +60,7 @@ public abstract class AsicContainerParser {
   private Map<String, ManifestEntry> manifestFileItems = Collections.emptyMap();
   private ManifestParser manifestParser;
   private boolean storeDataFilesOnlyInMemory;
+  private boolean manifestFound = false;
   private long maxDataFileCachedInBytes;
   private DataFile timestampToken;
 
@@ -92,6 +94,10 @@ public abstract class AsicContainerParser {
     if (isMimeType(entryName)) {
       extractMimeType(entry);
     } else if (isManifest(entryName)) {
+      if (this.manifestFound) {
+        throw new DigiDoc4JException("Multiple manifest.xml files disallowed");
+      }
+      this.manifestFound = true;
       extractManifest(entry);
     } else if (isSignaturesFile(entryName)) {
       determineCurrentSignatureFileIndex(entryName);
