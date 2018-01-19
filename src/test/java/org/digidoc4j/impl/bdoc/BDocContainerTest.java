@@ -1047,6 +1047,15 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
       .build();
   }
 
+  @Test
+  public void whenExistingContainer_hasWrongMimeSlash_weShouldNotThrowException() {
+    ValidationResult result = ContainerBuilder.aContainer()
+        .fromExistingFile("src/test/resources/testFiles/invalid-containers/INC166120_wrong_mime_slash.bdoc")
+        .withConfiguration(new Configuration(Configuration.Mode.TEST))
+        .build().validate();
+    Assert.assertFalse("Container is not invalid", result.isValid());
+  }
+
   @Test(expected = OCSPRequestFailedException.class)
   public void signingContainer_withFailedOcspResponse_shouldThrowException() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
