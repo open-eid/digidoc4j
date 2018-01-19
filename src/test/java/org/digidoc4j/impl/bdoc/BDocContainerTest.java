@@ -68,6 +68,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
+import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
@@ -1054,6 +1055,14 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
         .withConfiguration(new Configuration(Configuration.Mode.TEST))
         .build().validate();
     Assert.assertFalse("Container is not invalid", result.isValid());
+  }
+  
+  @Test(expected = DigiDoc4JException.class)
+  public void whenOpeningContainer_withSignatureInfo_butNoSignedDataObject_shouldThrowException() {
+    Container container = ContainerBuilder.aContainer()
+      .fromExistingFile("src/test/resources/testFiles/invalid-containers/3863_bdoc21_TM_no_datafile.bdoc")
+      .withConfiguration(new Configuration(Configuration.Mode.TEST))
+      .build();
   }
 
   @Test(expected = OCSPRequestFailedException.class)

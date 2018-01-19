@@ -197,6 +197,9 @@ public abstract class AsicContainerParser {
       throw new UnsupportedFormatException("Container mime type is not " + MimeType.ASICE.getMimeTypeString() +
           " OR " + MimeType.ASICS.getMimeTypeString() + " but is " + mimeType);
     }
+    if (!this.signatures.isEmpty() && this.dataFiles.isEmpty()) {
+      throw new DigiDoc4JException("Signatures found, but no any data files detected");
+    }
   }
 
   private void validateDataFile(String fileName) {
