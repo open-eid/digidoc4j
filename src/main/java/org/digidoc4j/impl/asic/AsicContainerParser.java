@@ -34,6 +34,7 @@ import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.StreamDocument;
 import org.digidoc4j.impl.asic.manifest.ManifestEntry;
 import org.digidoc4j.impl.asic.manifest.ManifestParser;
+import org.digidoc4j.utils.MimeTypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,21 +153,13 @@ public abstract class AsicContainerParser {
   }
 
   private DSSDocument extractStreamDocument(ZipEntry entry) {
-    logger.debug("Zip entry size is " + entry.getSize() + " bytes");
-    InputStream zipFileInputStream = getZipEntryInputStream(entry);
-    String fileName = entry.getName();
-    String lMimeType = getDataFileMimeType(fileName);
-    // In old BDOC-files sometime mimetype was wrong - lets do some corrections here
-    if ("txt.html".equals(lMimeType)) lMimeType = "text/html";
-    //
-    MimeType mimeTypeCode = MimeType.fromMimeTypeString(lMimeType);
-    DSSDocument document;
-    if (storeDataFilesOnlyInMemory || entry.getSize() <= maxDataFileCachedInBytes) {
-      document = new InMemoryDocument(zipFileInputStream, fileName, mimeTypeCode);
+    logger.debug("Zip entry size is <{}> bytes", entry.getSize());
+    MimeType mimeTypeCode = MimeTypeUtil.mimeTypeOf(this.getDataFileMimeType(entry.getName()));
+    if (this.storeDataFilesOnlyInMemory || entry.getSize() <= this.maxDataFileCachedInBytes) {
+      return new InMemoryDocument(this.getZipEntryInputStream(entry), entry.getName(), mimeTypeCode);
     } else {
-      document = new StreamDocument(zipFileInputStream, fileName, mimeTypeCode);
+      return new StreamDocument(this.getZipEntryInputStream(entry), entry.getName(), mimeTypeCode);
     }
-    return document;
   }
 
   protected AsicEntry extractAsicEntry(ZipEntry entry) {

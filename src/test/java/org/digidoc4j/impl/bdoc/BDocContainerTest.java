@@ -1048,6 +1048,15 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
       .build();
   }
 
+  @Test
+  public void whenExistingContainer_hasWrongMimeSlash_weShouldNotThrowException() {
+    ValidationResult result = ContainerBuilder.aContainer()
+        .fromExistingFile("src/test/resources/testFiles/invalid-containers/INC166120_wrong_mime_slash.bdoc")
+        .withConfiguration(new Configuration(Configuration.Mode.TEST))
+        .build().validate();
+    Assert.assertFalse("Container is not invalid", result.isValid());
+  }
+  
   @Test(expected = DigiDoc4JException.class)
   public void whenOpeningContainer_withSignatureInfo_butNoSignedDataObject_shouldThrowException() {
     Container container = ContainerBuilder.aContainer()
