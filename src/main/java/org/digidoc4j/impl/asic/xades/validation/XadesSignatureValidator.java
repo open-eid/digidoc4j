@@ -97,9 +97,13 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   protected void addValidationError(DigiDoc4JException error) {
-    String sigId = getDssSignature().getId();
-    error.setSignatureId(sigId);
-    validationErrors.add(error);
+    error.setSignatureId(this.getDssSignature().getId());
+    this.validationErrors.add(error);
+  }
+
+  protected void addValidationWarning(DigiDoc4JException warning) {
+    warning.setSignatureId(this.getDssSignature().getId());
+    this.validationWarnings.add(warning);
   }
 
   protected void addPolicyErrors() {
