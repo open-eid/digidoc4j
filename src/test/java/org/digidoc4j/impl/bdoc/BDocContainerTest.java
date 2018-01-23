@@ -1065,6 +1065,16 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
       .build();
   }
 
+  @Test
+  public void whenOpeningContainer_withSignaturePolicyImpliedElement_inTMSignatures_shouldThrowException() {
+    ValidationResult result = ContainerBuilder.aContainer()
+        .fromExistingFile("src/test/resources/testFiles/invalid-containers/23608_bdoc21-invalid-nonce-policy-and-implied.bdoc")
+        .withConfiguration(new Configuration(Configuration.Mode.TEST))
+        .build().validate();
+    Assert.assertFalse("Container should be invalid", result.isValid());
+    Assert.assertEquals("Incorrect errors count", 2, result.getErrors().size());
+  }
+
   @Test(expected = OCSPRequestFailedException.class)
   public void signingContainer_withFailedOcspResponse_shouldThrowException() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
