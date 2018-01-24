@@ -41,13 +41,14 @@ public class AsicSContainerTest extends DigiDoc4JTestHelper {
   public TemporaryFolder testFolder = new TemporaryFolder();
 
   @After
-  public void cleanUp() {
+  public void cleanUp() throws Exception {
     testFolder.delete();
+    FileUtils.cleanDirectory(new File("src/test/resources/testFiles/tmp"));
   }
 
   @Ignore // TODO: Fix this test!
   @Test
-  public void testAsicSContainer()throws IOException{
+  public void testAsicSContainer() throws IOException{
     Container container = createContainerWithFile(testFolder, 1);
     signContainer(container);
     container.saveAsFile("src/test/resources/testFiles/tmp/testasics.asics");
