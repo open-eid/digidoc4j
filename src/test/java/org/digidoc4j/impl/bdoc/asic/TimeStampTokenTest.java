@@ -7,12 +7,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.io.FileUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
@@ -52,8 +54,9 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
   public final SystemOutRule sout = new SystemOutRule().enableLog();
 
   @After
-  public void cleanUp() {
+  public void cleanUp() throws Exception {
     testFolder.delete();
+    FileUtils.cleanDirectory(new File("src/test/resources/testFiles/tmp"));
   }
 
   @Test
