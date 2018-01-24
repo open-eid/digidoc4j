@@ -5,7 +5,6 @@ import java.io.Serializable;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,11 +15,11 @@ public class AsicEContainerBuilder extends ContainerBuilder implements Serializa
 
   private static final Logger logger = LoggerFactory.getLogger(AsicEContainerBuilder.class);
 
-  protected BDocContainer createNewContainer() {
+  protected Container createNewContainer() {
     if (configuration == null) {
-      return new BDocContainer();
+      return new AsicEContainer();
     } else {
-      return new BDocContainer(configuration);
+      return new AsicEContainer(configuration);
     }
   }
 
@@ -42,7 +41,7 @@ public class AsicEContainerBuilder extends ContainerBuilder implements Serializa
 
   @Override
   public ContainerBuilder usingTempDirectory(String temporaryDirectoryPath) {
-    logger.warn("BDoc containers don't support setting temp directories");
+    logger.warn("ASiCE containers don't support setting temp directories");
     return this;
   }
 

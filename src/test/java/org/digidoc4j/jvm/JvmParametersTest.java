@@ -1,6 +1,7 @@
 package org.digidoc4j.jvm;
 
 import static org.digidoc4j.Configuration.Mode.TEST;
+import static org.junit.Assert.assertEquals;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.asic.DataLoaderDecorator;
@@ -8,8 +9,6 @@ import org.junit.Test;
 
 import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by Andrei on 15.09.2017.

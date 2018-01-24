@@ -20,7 +20,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -76,7 +75,7 @@ public class BDocSerializationTest extends DigiDoc4JTestHelper {
     serialize(container, serializedContainerPath);
     serialize(dataToSign, serializedDataToSignPath);
     dataToSign = deserializer(serializedDataToSignPath);
-    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDigestToSign(), dataToSign.getDigestAlgorithm());
+    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
 
     container = deserializer(serializedContainerPath);
     Signature signature = dataToSign.finalize(signatureValue);

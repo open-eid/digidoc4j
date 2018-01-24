@@ -9,13 +9,17 @@
 */
 package prototype.samples;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.signers.PKCS12SignatureToken;
-
-import java.io.*;
 
 public class SerializeExample {
 

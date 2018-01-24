@@ -47,11 +47,10 @@ public class ManifestValidator {
     this.signatures = signatures;
   }
 
-  @SuppressWarnings("unchecked")
-  public static List<String> validateEntries(Map<String, ManifestEntry> manifestEntries, Set<ManifestEntry> signatureEntries,
+  public static List<ManifestErrorMessage> validateEntries(Map<String, ManifestEntry> manifestEntries, Set<ManifestEntry> signatureEntries,
                                       String signatureId) {
     logger.debug("");
-    ArrayList<String> errorMessages = new ArrayList<>();
+    ArrayList<ManifestErrorMessage> errorMessages = new ArrayList<>();
 
     if (signatureEntries.size() == 0)
       return errorMessages;
@@ -77,23 +76,23 @@ public class ManifestValidator {
         String fileName = manifestEntry.getFileName();
         ManifestEntry signatureEntry = signatureEntryForFile(fileName, signatureEntries);
         if (signatureEntry != null) {
-          errorMessages.add("Manifest file has an entry for file " + fileName + " with mimetype " +
+          errorMessages.add(new ManifestErrorMessage("Manifest file has an entry for file " + fileName + " with mimetype " +
               manifestEntry.getMimeType() + " but the signature file for signature " + signatureId +
-              " indicates the mimetype is " + signatureEntry.getMimeType());
+              " indicates the mimetype is " + signatureEntry.getMimeType(), signatureId));
           two.remove(signatureEntry);
         } else {
-          errorMessages.add("Manifest file has an entry for file " + fileName + " with mimetype "
+          errorMessages.add(new ManifestErrorMessage("Manifest file has an entry for file " + fileName + " with mimetype "
               + manifestEntry.getMimeType() + " but the signature file for signature " + signatureId +
-              " does not have an entry for this file");
+              " does not have an entry for this file", signatureId));
         }
       }
     }
 
     if (two.size() > 0 && twoPrim.size() > 0) {
       for (ManifestEntry manifestEntry : two) {
-        errorMessages.add("The signature file for signature " + signatureId + " has an entry for file "
+        errorMessages.add(new ManifestErrorMessage("The signature file for signature " + signatureId + " has an entry for file "
             + manifestEntry.getFileName() + " with mimetype " + manifestEntry.getMimeType()
-            + " but the manifest file does not have an entry for this file");
+            + " but the manifest file does not have an entry for this file", signatureId));
       }
     }
 
@@ -115,14 +114,14 @@ public class ManifestValidator {
    *
    * @return list of error messages
    */
-  public List<String> validateDocument() {
+  public List<ManifestErrorMessage> validateDocument() {
     logger.debug("");
     if (!manifestParser.containsManifestFile()) {
       String errorMessage = "Container does not contain manifest file.";
       logger.error(errorMessage);
       throw new DigiDoc4JException(errorMessage);
     }
-    List<String> errorMessages = new ArrayList<>();
+    List<ManifestErrorMessage> errorMessages = new ArrayList<>();
     Map<String, ManifestEntry> manifestEntries = manifestParser.getManifestFileItems();
     Set<ManifestEntry> signatureEntries = new HashSet<>();
 
@@ -139,9 +138,9 @@ public class ManifestValidator {
     return errorMessages;
   }
 
-  private List<String> validateFilesInContainer(Set<ManifestEntry> signatureEntries) {
+  private List<ManifestErrorMessage> validateFilesInContainer(Set<ManifestEntry> signatureEntries) {
     logger.debug("");
-    ArrayList<String> errorMessages = new ArrayList<>();
+    ArrayList<ManifestErrorMessage> errorMessages = new ArrayList<>();
 
     if (signatureEntries.size() == 0)
       return errorMessages;
@@ -152,7 +151,7 @@ public class ManifestValidator {
       String alterName = fileInContainer.replaceAll("\\ ", "+");
       if (!signatureEntriesFileNames.contains(fileInContainer) && !signatureEntriesFileNames.contains(alterName)) {
         logger.error("Container contains unsigned data file '" + fileInContainer + "'");
-        errorMessages.add("Container contains a file named " + fileInContainer + " which is not found in the signature file");
+        errorMessages.add(new ManifestErrorMessage("Container contains a file named " + fileInContainer + " which is not found in the signature file"));
       }
     }
     return errorMessages;

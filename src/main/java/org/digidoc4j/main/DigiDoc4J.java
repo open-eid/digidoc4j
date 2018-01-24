@@ -74,12 +74,12 @@ public final class DigiDoc4J {
     } catch (ParseException e) {
       logger.error(e.getMessage());
       showUsage(options);
+      throw new DigiDoc4JUtilityException(2, "problem with given parameters");
     }
   }
 
   private static void showUsage(Options options) {
     new HelpFormatter().printHelp("digidoc4j/" + Version.VERSION, options);
-    throw new DigiDoc4JUtilityException(2, "wrong parameters given");
   }
 
   private static boolean shouldManipulateContainer(CommandLine commandLine) {

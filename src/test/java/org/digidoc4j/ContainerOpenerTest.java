@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
-import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 

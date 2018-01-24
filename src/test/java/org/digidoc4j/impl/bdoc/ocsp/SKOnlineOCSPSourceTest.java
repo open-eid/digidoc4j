@@ -15,9 +15,9 @@ import java.security.cert.X509Certificate;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.impl.asic.SkDataLoader;
 import org.digidoc4j.impl.asic.ocsp.BDocTSOcspSource;
 import org.digidoc4j.impl.asic.ocsp.SKOnlineOCSPSource;
-import org.digidoc4j.impl.asic.SkDataLoader;
 import org.digidoc4j.utils.CertificatesForTests;
 import org.junit.Before;
 import org.junit.Rule;

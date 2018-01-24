@@ -10,11 +10,11 @@
 
 package org.digidoc4j.impl.asic.manifest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Contains information of filenames and mimetypes.

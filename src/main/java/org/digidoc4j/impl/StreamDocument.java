@@ -11,18 +11,23 @@
 package org.digidoc4j.impl;
 
 
-import eu.europa.esig.dss.CommonDocument;
-import eu.europa.esig.dss.DSSException;
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.DigestAlgorithm;
-import eu.europa.esig.dss.MimeType;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import eu.europa.esig.dss.CommonDocument;
+import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.MimeType;
 
 /**
  * @see eu.europa.esig.dss.DSSDocument implementation to handle big files. It writes data to temporary

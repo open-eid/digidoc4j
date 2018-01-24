@@ -10,17 +10,16 @@
 
 package org.digidoc4j.signers;
 
+import static org.digidoc4j.DigestAlgorithm.SHA512;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+
+import java.security.cert.CertificateEncodingException;
+
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.X509Cert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.security.cert.CertificateEncodingException;
-import java.util.Arrays;
-
-import static org.digidoc4j.DigestAlgorithm.SHA512;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class PKCS12SignatureTokenTest {
   private static PKCS12SignatureToken pkcs12Signer;
@@ -71,7 +70,7 @@ public class PKCS12SignatureTokenTest {
   public void sign() {                                //TODO know expected value
     byte[] expected = new byte[]{40,-84,-43,-95,-8,46,-27,-2,41,80,-96,-74,125,37,-11,85,-22,64,-87,122,41,-29,91,-35,104,60,86,-98,-65,-101,81,74,-10,35,-24,-115,-14,115,-58,-53,-28,-53,47,-82,74,-21,88,-111,-31,47,112,71,41,-32,120,119,109,34,-96,124,-61,-5,112,114,122,1,30,-105,112,67,116,-32,-44,-123,-43,26,63,-28,-41,82,-79,-32,98,93,20,-76,-94,105,40,-95,-1,-97,-33,88,31,92,-115,-114,118,-94,3,126,-25,-100,-84,72,-84,51,-122,-59,-72,0,123,68,-116,91,-105,7,81,-106,10,58,-39,53,109,-48,-121,4,-111,32,-127,-74,-3,-73,-57,-12,114,126,-20,-40,76,-58,119,-108,85,-124,97,-55,-82,-120,-94,-40,-10,-96,-60,29,84,55,12,77,27,-117,-3,84,39,-24,-66,-89,-5,51,-64,-53,-16,-43,-53,63,-59,-32,48,82,-85,-124,-107,-85,43,37,62,-63,42,-8,86,-79,42,-119,-37,30,6,-71,30,-63,98,109,56,74,69,-14,-44,104,86,-87,37,109,91,59,-58,33,81,-69,-50,-82,121,69,-99,18,51,-63,116,-56,-26,96,-81,-17,-106,-57,45,-15,11,-39,-24,121,-59,-38,83,-3,21,-104,-102,116,44,108,-7,79,-49,-106,28,-82};
     byte[] actual = pkcs12Signer.sign(SHA512, new byte[]{0x41});
-    assertTrue(Arrays.equals(expected, actual));
+    assertArrayEquals(expected, actual);
   }
 
 }

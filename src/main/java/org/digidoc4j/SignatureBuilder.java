@@ -11,9 +11,9 @@
 package org.digidoc4j;
 
 import static java.util.Arrays.asList;
+import static org.digidoc4j.Constant.ASICS_CONTAINER_TYPE;
 import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.Constant.DDOC_CONTAINER_TYPE;
-import static org.digidoc4j.Constant.ASICS_CONTAINER_TYPE;
 
 import java.io.Serializable;
 import java.security.cert.X509Certificate;

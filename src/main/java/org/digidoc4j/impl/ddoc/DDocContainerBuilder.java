@@ -12,13 +12,14 @@ package org.digidoc4j.impl.ddoc;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 
 public class DDocContainerBuilder extends ContainerBuilder {
 
   private String temporaryDirectoryPath;
 
-  protected DDocContainer createNewContainer() {
+  protected Container createNewContainer() {
     if (configuration == null) {
       return new DDocContainer();
     } else {
@@ -26,7 +27,8 @@ public class DDocContainerBuilder extends ContainerBuilder {
     }
   }
 
-  protected DDocContainer openContainerFromFile() {
+  @Override
+  protected Container openContainerFromFile() {
     DDocOpener opener = createDocOpener();
     if (configuration == null) {
       return opener.open(containerFilePath);
@@ -35,7 +37,8 @@ public class DDocContainerBuilder extends ContainerBuilder {
     }
   }
 
-  protected DDocContainer openContainerFromStream() {
+  @Override
+  protected Container openContainerFromStream() {
     DDocOpener opener = createDocOpener();
     if (configuration == null) {
       return opener.open(containerInputStream);
@@ -51,7 +54,7 @@ public class DDocContainerBuilder extends ContainerBuilder {
 
   private DDocOpener createDocOpener() {
     DDocOpener opener = new DDocOpener();
-    if(isNotBlank(temporaryDirectoryPath)) {
+    if (isNotBlank(temporaryDirectoryPath)) {
       opener.useTemporaryDirectoryPath(temporaryDirectoryPath);
     }
     return opener;

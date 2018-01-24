@@ -10,6 +10,7 @@
 
 package org.digidoc4j.utils;
 
+import static java.lang.Math.min;
 import static java.nio.file.Files.deleteIfExists;
 
 import java.io.BufferedInputStream;
@@ -44,6 +45,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Primitive;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.DataFile;
@@ -60,9 +63,13 @@ import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.MimeType;
 import eu.europa.esig.dss.SignatureLevel;
+import eu.europa.esig.dss.utils.Utils;
 import eu.europa.esig.dss.validation.SignaturePolicyProvider;
 import eu.europa.esig.dss.xades.DSSXMLUtils;
 
+/**
+ * Class of helper methods.
+ */
 public final class Helper {
   private static final Logger logger = LoggerFactory.getLogger(Helper.class);
 
@@ -73,6 +80,7 @@ public final class Helper {
   private static final String EMPTY_CONTAINER_SIGNATURE_LEVEL_ASIC_E = "ASiC_E";
   private static final String EMPTY_CONTAINER_SIGNATURE_LEVEL_ASIC_S = "ASiC_S";
   public static final String SPECIAL_CHARACTERS = "[\\\\<>:\"/|?*]";
+  private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
 
   private Helper() {
   }
@@ -485,5 +493,21 @@ public final class Helper {
    */
   public static boolean isPdfFile(String file) {
     return FilenameUtils.getExtension(file).equals("pdf");
+  }
+
+  /**
+   * Method for converting bytes to hex string.
+   * @param bytes Given byte array.
+   * @param maxLen Max length of result string.
+   * @return String of hex characters.
+   */
+  public static String bytesToHex(byte[] bytes, int maxLen) {
+    char[] hexChars = new char[min(bytes.length, maxLen) * 2];
+    for (int j = 0; j < min(bytes.length, maxLen); j++) {
+      int v = bytes[j] & 0xFF;
+      hexChars[j * 2] = hexArray[v >>> 4];
+      hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+    }
+    return new String(hexChars);
   }
 }

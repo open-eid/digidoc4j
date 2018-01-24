@@ -10,9 +10,19 @@
 
 package org.digidoc4j;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Mockito;
+import static java.util.Arrays.asList;
+import static org.digidoc4j.X509Cert.SubjectName.C;
+import static org.digidoc4j.X509Cert.SubjectName.CN;
+import static org.digidoc4j.X509Cert.SubjectName.GIVENNAME;
+import static org.digidoc4j.X509Cert.SubjectName.O;
+import static org.digidoc4j.X509Cert.SubjectName.OU;
+import static org.digidoc4j.X509Cert.SubjectName.SERIALNUMBER;
+import static org.digidoc4j.X509Cert.SubjectName.SURNAME;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.security.cert.CertificateExpiredException;
@@ -23,10 +33,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import static java.util.Arrays.asList;
-import static org.digidoc4j.X509Cert.SubjectName.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 public class X509CertTest {
 

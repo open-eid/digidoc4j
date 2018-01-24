@@ -27,12 +27,14 @@ import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.StreamDocument;
 import org.digidoc4j.impl.asic.manifest.ManifestEntry;
 import org.digidoc4j.impl.asic.manifest.ManifestParser;
+import org.digidoc4j.utils.MimeTypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +61,7 @@ public abstract class AsicContainerParser {
   private Map<String, ManifestEntry> manifestFileItems = Collections.emptyMap();
   private ManifestParser manifestParser;
   private boolean storeDataFilesOnlyInMemory;
+  private boolean manifestFound = false;
   private long maxDataFileCachedInBytes;
   private DataFile timestampToken;
 
@@ -92,6 +95,10 @@ public abstract class AsicContainerParser {
     if (isMimeType(entryName)) {
       extractMimeType(entry);
     } else if (isManifest(entryName)) {
+      if (this.manifestFound) {
+        throw new DigiDoc4JException("Multiple manifest.xml files disallowed");
+      }
+      this.manifestFound = true;
       extractManifest(entry);
     } else if (isSignaturesFile(entryName)) {
       determineCurrentSignatureFileIndex(entryName);
@@ -146,21 +153,13 @@ public abstract class AsicContainerParser {
   }
 
   private DSSDocument extractStreamDocument(ZipEntry entry) {
-    logger.debug("Zip entry size is " + entry.getSize() + " bytes");
-    InputStream zipFileInputStream = getZipEntryInputStream(entry);
-    String fileName = entry.getName();
-    String lMimeType = getDataFileMimeType(fileName);
-    // In old BDOC-files sometime mimetype was wrong - lets do some corrections here
-    if ("txt.html".equals(lMimeType)) lMimeType = "text/html";
-    //
-    MimeType mimeTypeCode = MimeType.fromMimeTypeString(lMimeType);
-    DSSDocument document;
-    if (storeDataFilesOnlyInMemory || entry.getSize() <= maxDataFileCachedInBytes) {
-      document = new InMemoryDocument(zipFileInputStream, fileName, mimeTypeCode);
+    logger.debug("Zip entry size is <{}> bytes", entry.getSize());
+    MimeType mimeTypeCode = MimeTypeUtil.mimeTypeOf(this.getDataFileMimeType(entry.getName()));
+    if (this.storeDataFilesOnlyInMemory || entry.getSize() <= this.maxDataFileCachedInBytes) {
+      return new InMemoryDocument(this.getZipEntryInputStream(entry), entry.getName(), mimeTypeCode);
     } else {
-      document = new StreamDocument(zipFileInputStream, fileName, mimeTypeCode);
+      return new StreamDocument(this.getZipEntryInputStream(entry), entry.getName(), mimeTypeCode);
     }
-    return document;
   }
 
   protected AsicEntry extractAsicEntry(ZipEntry entry) {
@@ -197,6 +196,9 @@ public abstract class AsicContainerParser {
       logger.error("Container mime type is not " + MimeType.ASICE.getMimeTypeString() + " but is " + mimeType);
       throw new UnsupportedFormatException("Container mime type is not " + MimeType.ASICE.getMimeTypeString() +
           " OR " + MimeType.ASICS.getMimeTypeString() + " but is " + mimeType);
+    }
+    if (!this.signatures.isEmpty() && this.dataFiles.isEmpty()) {
+      throw new DigiDoc4JException("Signatures found, but no any data files detected");
     }
   }
 

@@ -17,9 +17,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.digidoc4j.DataFile;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
 import org.digidoc4j.impl.asic.DetachedContentCreator;
+import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -56,38 +57,68 @@ public class XadesSigningDssFacade {
   private static final Logger logger = LoggerFactory.getLogger(XadesSigningDssFacade.class);
   private XAdESService xAdESService;
   private XAdESSignatureParameters xAdESSignatureParameters = new XAdESSignatureParameters();
+  private List<DSSDocument> detachedContentList = null;
   private CertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
 
+  /**
+   * Constructor
+   */
   public XadesSigningDssFacade() {
     initDefaultXadesParameters();
     initCertificateVerifier();
     initXadesMultipleService();
   }
 
+  /**
+   * Method getDataToSign converts File into byte array
+   * @param dataFiles List of files to be signed
+   * @return Data in byte array, not digest!
+   */
   public byte[] getDataToSign(Collection<DataFile> dataFiles) {
     logger.debug("Getting data to sign from DSS");
-    DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
-    DSSDocument dssDocumentToSign = detachedContentCreator.getFirstDetachedContent();
+    DetachedContentCreator detachedContentCreator = null;
+    try {
+      detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
+    } catch (Exception e) {
+      logger.error("Error in datafiles processing: " + e.getMessage());
+      throw new DigiDoc4JException(e);
+    }
+    detachedContentList = detachedContentCreator.getDetachedContentList();
+    xAdESSignatureParameters.setDetachedContents(detachedContentList);
     logger.debug("Signature parameters: " + xAdESSignatureParameters.toString());
-    List<DSSDocument> detachedContentList = detachedContentCreator.getDetachedContentList();
     ToBeSigned dataToSign = xAdESService.getDataToSign(detachedContentList, xAdESSignatureParameters);
+
     logger.debug("Got data to sign from DSS");
     return dataToSign.getBytes();
   }
 
+  /**
+   * Method for signing and adding files into container.
+   * @param signatureValue Signature value in byte array
+   * @param dataFiles Collection of files
+   * @return Container what is containing datafiles and signature
+   */
   public DSSDocument signDocument(byte[] signatureValue, Collection<DataFile> dataFiles) {
     logger.debug("Signing document with DSS");
-    DetachedContentCreator detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
-    List<DSSDocument> detachedContentList = detachedContentCreator.getDetachedContentList();
+    if (detachedContentList == null) {
+      DetachedContentCreator detachedContentCreator = null;
+      try {
+        detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
+      } catch (Exception e) {
+        logger.error("Error in datafiles processing: " + e.getMessage());
+        throw new DigiDoc4JException(e);
+      }
+      detachedContentList = detachedContentCreator.getDetachedContentList();
+    }
     logger.debug("Signature parameters: " + xAdESSignatureParameters.toString());
-    xAdESSignatureParameters.setDetachedContents(detachedContentCreator.getDetachedContentList());
-    SignatureValue dssSignatureValue = new SignatureValue(xAdESSignatureParameters.getSignatureAlgorithm(), signatureValue);
-    DSSDocument signedDocument = null;
+    SignatureValue dssSignatureValue = new SignatureValue(xAdESSignatureParameters.getSignatureAlgorithm(),
+        signatureValue);
+    DSSDocument signedDocument;
     try {
       signedDocument = xAdESService.signDocument(detachedContentList, xAdESSignatureParameters, dssSignatureValue);
     } catch (DSSException e) {
-      logger.warn("Signing document with DSS failed:" + e.getMessage());
-      throw new TechnicalException("Got error in signing process");
+      logger.warn("Signing document in DSS failed:" + e.getMessage());
+      throw new TechnicalException("Got error in signing process: ", e);
     }
     DSSDocument correctedSignedDocument = surroundWithXadesXmlTag(signedDocument);
     return correctedSignedDocument;
@@ -178,7 +209,7 @@ public class XadesSigningDssFacade {
 
   private void initDefaultXadesParameters() {
     xAdESSignatureParameters.clearCertificateChain();
-    xAdESSignatureParameters.bLevel().setSigningDate(new Date());
+    xAdESSignatureParameters.getBLevelParams().setSigningDate(new Date());
     xAdESSignatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
     xAdESSignatureParameters.setSignatureLevel(SignatureLevel.XAdES_BASELINE_LT);
     xAdESSignatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);

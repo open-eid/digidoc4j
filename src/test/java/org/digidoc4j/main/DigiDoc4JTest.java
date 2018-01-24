@@ -15,6 +15,7 @@ import static org.apache.commons.io.FileUtils.writeStringToFile;
 import static org.digidoc4j.Configuration.Mode;
 import static org.digidoc4j.Constant.DDOC_CONTAINER_TYPE;
 import static org.digidoc4j.main.DigiDoc4J.isWarning;
+import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -27,7 +28,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import static org.digidoc4j.utils.Helper.deleteFile;
 
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.Container;
@@ -43,7 +43,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.Assertion;
 import org.junit.contrib.java.lang.system.ExpectedSystemExit;
-import org.junit.contrib.java.lang.system.StandardOutputStreamLog;
 import org.junit.contrib.java.lang.system.SystemOutRule;
 import org.junit.rules.TemporaryFolder;
 
@@ -590,7 +589,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
 
   @Test
   public void showsUsage() throws Exception {
-    exit.expectSystemExitWithStatus(2);
+    exit.expectSystemExitWithStatus(0);
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {

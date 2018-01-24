@@ -11,25 +11,19 @@
 package org.digidoc4j;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.tsp.TimeStampToken;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.CustomContainerBuilder;
-import org.digidoc4j.impl.asic.SkDataLoader;
 import org.digidoc4j.impl.asic.asice.AsicEContainerBuilder;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocContainerBuilder;
 import org.digidoc4j.impl.asic.asics.AsicSContainerBuilder;
 import org.digidoc4j.impl.ddoc.DDocContainerBuilder;
 import org.digidoc4j.impl.pades.PadesContainerBuilder;
@@ -38,12 +32,7 @@ import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSASN1Utils;
-import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.DigestAlgorithm;
-import eu.europa.esig.dss.InMemoryDocument;
-import eu.europa.esig.dss.MimeType;
-import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 
 /**
  * Class for creating and opening containers.
@@ -100,11 +89,13 @@ public abstract class ContainerBuilder {
     }
     switch (containerType) {
       case Constant.BDOC_CONTAINER_TYPE:
-        return new AsicEContainerBuilder();
+        return new BDocContainerBuilder();
       case Constant.DDOC_CONTAINER_TYPE:
         return new DDocContainerBuilder();
       case Constant.ASICS_CONTAINER_TYPE:
         return new AsicSContainerBuilder();
+      case Constant.ASICE_CONTAINER_TYPE:
+        return new AsicEContainerBuilder();
       case Constant.PADES_CONTAINER_TYPE:
         return new PadesContainerBuilder();
     }
@@ -265,9 +256,21 @@ public abstract class ContainerBuilder {
 
   protected abstract Container createNewContainer();
 
-  protected abstract Container openContainerFromFile();
+  protected Container openContainerFromFile() {
+    if (configuration == null) {
+      return ContainerOpener.open(containerFilePath);
+    } else {
+      return ContainerOpener.open(containerFilePath, configuration);
+    }
+  }
 
-  protected abstract Container openContainerFromStream();
+  protected Container openContainerFromStream() {
+    if (configuration == null) {
+      boolean actAsBigFilesSupportEnabled = true;
+      return ContainerOpener.open(containerInputStream, actAsBigFilesSupportEnabled);
+    }
+    return ContainerOpener.open(containerInputStream, configuration);
+  }
 
   protected void addDataFilesToContainer(Container container) {
     for (ContainerDataFile file : dataFiles) {
@@ -322,7 +325,6 @@ public abstract class ContainerBuilder {
       validateDataFile();
       validateFileName();
     }
-
 
     public ContainerDataFile(DataFile dataFile) {
       this.dataFile = dataFile;

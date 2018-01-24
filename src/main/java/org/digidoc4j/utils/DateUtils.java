@@ -12,12 +12,13 @@ package org.digidoc4j.utils;
 
 import static org.apache.commons.lang3.time.DateUtils.addSeconds;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class DateUtils {
   private static final Logger logger = LoggerFactory.getLogger(DateUtils.class);
@@ -42,7 +43,6 @@ public final class DateUtils {
   }
 
   private static boolean isInRangeOneMinute(Date date1, Date date2) {
-    logger.debug("");
     final int oneMinuteInSeconds = 60;
     return isInRangeSeconds(date1, date2, oneMinuteInSeconds);
   }
@@ -50,6 +50,10 @@ public final class DateUtils {
   public static boolean isInRangeMinutes(Date date1, Date date2, int rangeInMinutes) {
     int rangeInSeconds = rangeInMinutes * 60;
     return isInRangeSeconds(date1, date2, rangeInSeconds);
+  }
+
+  public static long differenceInMinutes(Date date1, Date date2) {
+    return TimeUnit.MILLISECONDS.toMinutes(Math.abs(date1.getTime() - date2.getTime()));
   }
 
   private static boolean isInRangeSeconds(Date date1, Date date2, int rangeInSeconds) {

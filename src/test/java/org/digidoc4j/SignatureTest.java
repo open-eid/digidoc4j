@@ -11,10 +11,10 @@
 package org.digidoc4j;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.digidoc4j.Container.DocumentType.BDOC;
-import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
 import static org.digidoc4j.Constant.DDOC_CONTAINER_TYPE;
+import static org.digidoc4j.Container.DocumentType.BDOC;
+import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.X509Cert.SubjectName.GIVENNAME;
 import static org.digidoc4j.X509Cert.SubjectName.SERIALNUMBER;
 import static org.digidoc4j.X509Cert.SubjectName.SURNAME;
@@ -22,7 +22,6 @@ import static org.digidoc4j.testutils.TestHelpers.containsErrorMessage;
 import static org.digidoc4j.utils.DateUtils.isAlmostNow;
 import static org.digidoc4j.utils.Helper.deleteFile;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -71,6 +70,7 @@ import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 public class SignatureTest extends DigiDoc4JTestHelper {
 
   private PKCS12SignatureToken PKCS12_SIGNER;
+  private PKCS12SignatureToken PKCS12_ECC_SIGNER;
 
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
@@ -78,6 +78,7 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   @Before
   public void setUp() throws Exception {
     PKCS12_SIGNER = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
+    PKCS12_ECC_SIGNER = new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray());
   }
 
   @Test

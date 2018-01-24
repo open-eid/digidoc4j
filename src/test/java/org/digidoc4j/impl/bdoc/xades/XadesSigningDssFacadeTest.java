@@ -28,9 +28,9 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
 import org.digidoc4j.impl.asic.SkDataLoader;
 import org.digidoc4j.impl.asic.ocsp.BDocTSOcspSource;
+import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.junit.Before;
@@ -73,6 +73,7 @@ public class XadesSigningDssFacadeTest {
 
   @Test
   public void signDocumentWithSha512() throws Exception {
+
     facade.setSignatureDigestAlgorithm(DigestAlgorithm.SHA512);
     DSSDocument signedDocument = signTestData(DigestAlgorithm.SHA512);
     assertDocumentSigned(signedDocument);
@@ -86,6 +87,7 @@ public class XadesSigningDssFacadeTest {
     facade.setSigningCertificate(signingCert);
     List<DataFile> dataFilesToSign = createDataFilesToSign();
     byte[] dataToSign = facade.getDataToSign(dataFilesToSign);
+    // byte[] digestToSign = DSSUtils.digest(DigestAlgorithm.SHA256.getDssDigestAlgorithm(), dataToSign);
     byte[] signatureValue = eccSignatureToken.sign(DigestAlgorithm.SHA256, dataToSign);
     DSSDocument signedDocument = facade.signDocument(signatureValue, dataFilesToSign);
     assertDocumentSigned(signedDocument);
@@ -143,7 +145,7 @@ public class XadesSigningDssFacadeTest {
   private DSSDocument signTestData(DigestAlgorithm digestAlgorithm) {
     List<DataFile> dataFilesToSign = createDataFilesToSign();
     byte[] dataToSign = getDataToSign(dataFilesToSign);
-    byte[] signatureValue = signData(dataToSign, digestAlgorithm);
+    byte[] signatureValue = TestSigningHelper.sign(dataToSign, digestAlgorithm);
     return facade.signDocument(signatureValue, dataFilesToSign);
   }
 

@@ -68,6 +68,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
+import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
@@ -782,7 +783,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
         aSignature(container).
         withSigningCertificate(signerCert).
         buildDataToSign();
-    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDigestToSign(), dataToSign.getDigestAlgorithm());
+    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
     Signature signature = dataToSign.finalize(signatureValue);
     container.addSignature(signature);
     container.saveAsFile("src/test/resources/testFiles/tmp/test.bdoc");
@@ -832,7 +833,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
         withPostalCode("postalCode").
         withCountry("country").
         buildDataToSign();
-    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDigestToSign(), dataToSign.getDigestAlgorithm());
+    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
     Signature signature = dataToSign.finalize(signatureValue);
     container.addSignature(signature);
     container.saveAsFile("src/test/resources/testFiles/tmp/test.bdoc");
@@ -1037,6 +1038,41 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
         .fromExistingFile("src/test/resources/testFiles/invalid-containers/KS-19_IB-3721_bdoc21-TM-2fil-samename-1sig3.bdoc")
         .withConfiguration(new Configuration(Configuration.Mode.TEST))
         .build();
+  }
+
+  @Test(expected = DigiDoc4JException.class)
+  public void whenOpeningContainer_withTwoManifests_oneIsErroneous_shouldThrowException() {
+    Container container = ContainerBuilder.aContainer()
+      .fromExistingFile("src/test/resources/testFiles/invalid-containers/KS-10_manifest_topelt_bdoc21_TM.bdoc")
+      .withConfiguration(new Configuration(Configuration.Mode.TEST))
+      .build();
+  }
+
+  @Test
+  public void whenExistingContainer_hasWrongMimeSlash_weShouldNotThrowException() {
+    ValidationResult result = ContainerBuilder.aContainer()
+        .fromExistingFile("src/test/resources/testFiles/invalid-containers/INC166120_wrong_mime_slash.bdoc")
+        .withConfiguration(new Configuration(Configuration.Mode.TEST))
+        .build().validate();
+    Assert.assertFalse("Container is not invalid", result.isValid());
+  }
+  
+  @Test(expected = DigiDoc4JException.class)
+  public void whenOpeningContainer_withSignatureInfo_butNoSignedDataObject_shouldThrowException() {
+    Container container = ContainerBuilder.aContainer()
+      .fromExistingFile("src/test/resources/testFiles/invalid-containers/3863_bdoc21_TM_no_datafile.bdoc")
+      .withConfiguration(new Configuration(Configuration.Mode.TEST))
+      .build();
+  }
+
+  @Test
+  public void whenOpeningContainer_withSignaturePolicyImpliedElement_inTMSignatures_shouldThrowException() {
+    ValidationResult result = ContainerBuilder.aContainer()
+        .fromExistingFile("src/test/resources/testFiles/invalid-containers/23608_bdoc21-invalid-nonce-policy-and-implied.bdoc")
+        .withConfiguration(new Configuration(Configuration.Mode.TEST))
+        .build().validate();
+    Assert.assertFalse("Container should be invalid", result.isValid());
+    Assert.assertEquals("Incorrect errors count", 2, result.getErrors().size());
   }
 
   @Test(expected = OCSPRequestFailedException.class)

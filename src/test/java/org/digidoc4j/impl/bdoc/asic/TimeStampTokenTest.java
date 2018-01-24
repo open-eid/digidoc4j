@@ -7,11 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
@@ -31,7 +27,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.Assertion;
+import org.junit.contrib.java.lang.system.SystemOutRule;
 import org.junit.rules.TemporaryFolder;
 
 import eu.europa.esig.dss.DigestAlgorithm;
@@ -51,6 +47,9 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
   public static final String META_INF_TIMESTAMP_TST = "META-INF/timestamp.tst";
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
+
+  @Rule
+  public final SystemOutRule sout = new SystemOutRule().enableLog();
 
   @After
   public void cleanUp() {
@@ -185,5 +184,81 @@ public class TimeStampTokenTest extends DigiDoc4JTestHelper {
     assertTrue(validate.isValid());
 
     assertEquals("ASICS", container.getType());
+  }
+
+  @Test
+  public void tstASICSAddTwoSignatures() throws Exception {
+    String fileName = testFolder.getRoot().getPath() + "\\testTst.asics";
+    Files.deleteIfExists(Paths.get(fileName));
+
+    String[] params = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+        "text/plain", "-datst", "SHA256", "-tst"};
+
+    callMainWithoutSystemExit(params);
+
+    String[] params2 = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
+        "text/plain", "-datst", "SHA256", "-tst"};
+
+    callMainWithoutSystemExit(params2);
+    assertThat(sout.getLog(),containsString(
+        "This container has already timestamp. Should be no signatures in case of timestamped ASiCS container."));
+
+  }
+
+  @Test
+  public void tstASICSAddTwoFiles() throws Exception {
+    String fileName = testFolder.getRoot().getPath() + "\\testTst.asics";
+    Files.deleteIfExists(Paths.get(fileName));
+
+    String[] params = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+        "text/plain", "-datst", "SHA256", "-tst"};
+
+    callMainWithoutSystemExit(params);
+
+    String[] params2 = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
+        "text/plain"};
+
+    callMainWithoutSystemExit(params2);
+    assertThat(sout.getLog(),containsString(
+        "This container has already timestamp. Should be no signatures in case of timestamped ASiCS container."));
+  }
+
+  @Test
+  public void tstASICSAddPKCS12Signature() throws Exception {
+    String fileName = testFolder.getRoot().getPath() + "\\testTst.asics";
+    Files.deleteIfExists(Paths.get(fileName));
+
+    String[] params = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+        "text/plain", "-datst", "SHA256", "-tst"};
+
+    callMainWithoutSystemExit(params);
+
+    String[] params2 = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
+        "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
+
+    callMainWithoutSystemExit(params2);
+    assertThat(sout.getLog(),containsString(
+        "This container has already timestamp. Should be no signatures in case of timestamped ASiCS container."));
+
+  }
+
+  @Test
+  public void tstASICSAddPKCS12SignatureFirst() throws Exception {
+    String fileName = testFolder.getRoot().getPath() + "\\testTst.asics";
+    Files.deleteIfExists(Paths.get(fileName));
+
+    String[] params2 = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
+        "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
+
+    callMainWithoutSystemExit(params2);
+
+    String[] params = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+        "text/plain", "-datst", "SHA256", "-tst"};
+
+    callMainWithoutSystemExit(params);
+
+    assertThat(sout.getLog(),containsString(
+        "Datafiles cannot be added to an already signed container"));
+
   }
 }

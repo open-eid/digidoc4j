@@ -269,8 +269,8 @@
   A typical use case would be signing in the Web using a browser plugin:
   <ol>
     <li>Create a container with data files</li>
-    <li>Calculate a digest of the container to be signed</li>
-    <li>Sign the digest externally (e.g. via browser plugin)</li>
+    <li>Create SignedInfo data object what contains a digests of the data files to be signed</li>
+    <li>Sign the SignedInfo data object externally (e.g. via browser plugin)</li>
     <li>Finalize the signature with the signature value, OCSP response etc</li>
     <li>Add the finalized signature to the container</li>
   </ol>
@@ -284,7 +284,7 @@
   </code>
 </p>
 <p>
-  Then we need to calculate a digest to be signed externally.
+  Then we need to get the SignedInfo data object to be signed externally.
 </p>
 <p>
   <code>
@@ -297,13 +297,13 @@
 </p>
 <h4>External signing</h4>
 <p>
-  Now we have a digest that can be used for external signing. {@link org.digidoc4j.DataToSign} class contains {@link org.digidoc4j.DataToSign#getDigestToSign} method
-  for getting digest to be signed. {@link org.digidoc4j.DataToSign#getDigestAlgorithm} method can be used for getting the digest algorithm to be used in the signing process.
+  Now we have a data that can be used for external signing. {@link org.digidoc4j.DataToSign} class contains {@link org.digidoc4j.DataToSign#getDataToSign} method
+  for getting data to be signed. {@link org.digidoc4j.DataToSign#getDigestAlgorithm} method can be used for getting the digest algorithm to be used in the signing process.
 </p>
 <p>
   <code>
-    byte[] <strong>digestToSign</strong> = <strong>dataToSign</strong>.{@link org.digidoc4j.DataToSign#getDigestToSign getDigestToSign()}; //Get the digest that should be signed <br/>
-    byte[] <strong>signatureValue</strong> = signDigestSomewhereRemotely(<strong>digestToSign</strong>, DigestAlgorithm.SHA256); //Sign the digest
+    byte[] <strong>data</strong> = <strong>dataToSign</strong>.{@link org.digidoc4j.DataToSign#getDataToSign getDataToSign()}; //Get the SignedInfo data that should be signed <br/>
+    byte[] <strong>signatureValue</strong> = signDataSomewhereRemotely(<strong>data</strong>, DigestAlgorithm.SHA256); //Sign the SignedInfo data
   </code>
 </p>
 <h4>Finalizing signature</h4>

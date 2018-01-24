@@ -10,10 +10,10 @@
 
 package org.digidoc4j;
 
+import java.io.Serializable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.Serializable;
 
 /**
  * Optional additional information about the signer

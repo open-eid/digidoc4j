@@ -10,14 +10,14 @@
 
 package org.digidoc4j.signers;
 
+import static org.junit.Assert.assertEquals;
+
+import java.security.cert.X509Certificate;
+
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.impl.Certificates;
 import org.junit.Test;
-
-import java.security.cert.X509Certificate;
-
-import static org.junit.Assert.assertEquals;
 
 import eu.europa.esig.dss.DSSUtils;
 

@@ -10,22 +10,36 @@
 
 package org.digidoc4j.signers;
 
+import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.SignatureException;
+import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
+import javax.crypto.Cipher;
+
 import org.apache.commons.lang3.ArrayUtils;
+import org.bouncycastle.asn1.ASN1Encoding;
+import org.bouncycastle.asn1.DERNull;
+import org.bouncycastle.asn1.DERObjectIdentifier;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.DigestInfo;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.SignatureToken;
+import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.EncryptionAlgorithm;
+import eu.europa.esig.dss.SignatureAlgorithm;
+import eu.europa.esig.dss.SignatureValue;
+import eu.europa.esig.dss.ToBeSigned;
 import eu.europa.esig.dss.token.AbstractSignatureTokenConnection;
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
 import eu.europa.esig.dss.token.KSPrivateKeyEntry;
@@ -49,7 +63,7 @@ public class PKCS11SignatureToken implements SignatureToken {
 
   private static final Logger logger = LoggerFactory.getLogger(PKCS11SignatureToken.class);
   private AbstractSignatureTokenConnection signatureTokenConnection;
-  private DSSPrivateKeyEntry privateKeyEntry;
+  private KSPrivateKeyEntry privateKeyEntry;
 
   /**
    * Initializes the PKCS#11 token.
@@ -61,6 +75,7 @@ public class PKCS11SignatureToken implements SignatureToken {
   public PKCS11SignatureToken(String pkcs11ModulePath, char[] password, int slotIndex) {
     logger.debug("Initializing PKCS#11 signature token from " + pkcs11ModulePath + " and slot " + slotIndex);
     signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, password, slotIndex);
+    privateKeyEntry = findPrivateKey(X509Cert.KeyUsage.NON_REPUDIATION);
   }
 
   /**
@@ -75,6 +90,7 @@ public class PKCS11SignatureToken implements SignatureToken {
   public PKCS11SignatureToken(String pkcs11ModulePath, PasswordInputCallback passwordCallback, int slotIndex) {
     logger.debug("Initializing PKCS#11 signature token with password callback from " + pkcs11ModulePath + " and slot " + slotIndex);
     signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, passwordCallback, slotIndex);
+    privateKeyEntry = findPrivateKey(X509Cert.KeyUsage.NON_REPUDIATION);
   }
 
   /**
@@ -90,10 +106,10 @@ public class PKCS11SignatureToken implements SignatureToken {
   /**
    * For selecting a particular private key to be used for signing.
    *
-   * @param privateKeyEntry
+   * @param keyEntry Private key entry to set
    */
-  public void usePrivateKeyEntry(DSSPrivateKeyEntry privateKeyEntry) {
-    this.privateKeyEntry = privateKeyEntry;
+  public void usePrivateKeyEntry(DSSPrivateKeyEntry keyEntry) {
+    this.privateKeyEntry = (KSPrivateKeyEntry)keyEntry;
   }
 
   @Override
@@ -102,8 +118,110 @@ public class PKCS11SignatureToken implements SignatureToken {
     return getPrivateKeyEntry().getCertificate().getCertificate();
   }
 
+  public byte[] sign2(DigestAlgorithm digestAlgorithm, byte[] dataToSign) throws Exception {
+    MessageDigest sha = MessageDigest.getInstance(digestAlgorithm.name(), "BC");
+    byte[] digest = sha.digest(dataToSign);
+    DERObjectIdentifier shaoid = new DERObjectIdentifier(digestAlgorithm.getDssDigestAlgorithm().getOid());
+
+    AlgorithmIdentifier shaaid = new AlgorithmIdentifier(shaoid, DERNull.INSTANCE);
+    DigestInfo di = new DigestInfo(shaaid, digest);
+
+    byte[] plainSig = di.getEncoded(ASN1Encoding.DER);
+    Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");
+    cipher.init(Cipher.ENCRYPT_MODE, privateKeyEntry.getPrivateKey());
+    byte[] signature = cipher.doFinal(plainSig);
+    return signature;
+  }
+
+
+  public byte[] sign3(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
+    byte[] result = new byte[512];
+    try {
+      EncryptionAlgorithm encryptionAlgorithm = privateKeyEntry.getEncryptionAlgorithm();
+      SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.getAlgorithm(encryptionAlgorithm, digestAlgorithm.getDssDigestAlgorithm());
+      String javaSignatureAlgorithm = signatureAlgorithm.getJCEId();
+      logger.debug("  ... Signing with PKCS#11 and " + javaSignatureAlgorithm);
+      java.security.Signature signature = java.security.Signature.getInstance(javaSignatureAlgorithm);
+      signature.initSign(privateKeyEntry.getPrivateKey());
+      signature.update(dataToSign);
+      result = signature.sign();
+    } catch (NoSuchAlgorithmException e) {
+      e.printStackTrace();
+    } catch (InvalidKeyException e) {
+      e.printStackTrace();
+    } catch (SignatureException e) {
+      e.printStackTrace();
+    }
+    return result;
+  }
+
+  private KSPrivateKeyEntry findPrivateKey(X509Cert.KeyUsage keyUsage) {
+    logger.debug("Searching key by usage: " + keyUsage.name());
+    List<DSSPrivateKeyEntry> keys = getPrivateKeyEntries();
+    X509CertSelector selector = new X509CertSelector();
+    selector.setKeyUsage(getUsageBitArray(keyUsage)); // TODO: Test this!
+    for (DSSPrivateKeyEntry key : keys) {
+      if (selector.match(key.getCertificate().getCertificate())) {
+        privateKeyEntry = (KSPrivateKeyEntry)key;
+        logger.debug("... Found key by keyUsage. Key encryption algorithm:" + privateKeyEntry.getEncryptionAlgorithm().getName());
+        break;
+      }
+    }
+    return getPrivateKeyEntry();
+  }
+
+  private boolean[] getUsageBitArray(X509Cert.KeyUsage keyUsage) {
+    sun.security.x509.KeyUsageExtension usage = new sun.security.x509.KeyUsageExtension();
+    try {
+      usage.set(keyUsage.name(), Boolean.TRUE);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return usage.getBits();
+  }
+
+  private KSPrivateKeyEntry getPrivateKeyEntry() {
+    if (privateKeyEntry == null) {
+      privateKeyEntry = (KSPrivateKeyEntry)getPrivateKeyEntries().get(0);
+      logger.debug("... Getting first available key");
+    }
+    return privateKeyEntry;
+  }
+
   @Override
-  public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
+  public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign){
+    if (privateKeyEntry != null){
+      String encryptionAlg = privateKeyEntry.getEncryptionAlgorithm().getName();
+      if ("ECDSA".equals(encryptionAlg)){
+        logger.debug("Sign ECDSA");
+        return signECDSA(digestAlgorithm, dataToSign);
+      } else if ("RSA".equals(encryptionAlg)){
+        logger.debug("Sign RSA");
+        return signRSA(digestAlgorithm, dataToSign);
+      }
+      throw new TechnicalException("Failed to sign with PKCS#11. Encryption Algorithm should be ECDSA or RSA " +
+          "but actually is : " + encryptionAlg);
+    }
+    throw new TechnicalException("privateKeyEntry is null");
+  }
+
+  private byte[] signECDSA(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
+    try {
+      logger.debug("Signing with PKCS#11 and " + digestAlgorithm.name());
+      ToBeSigned toBeSigned = new ToBeSigned(dataToSign);
+      eu.europa.esig.dss.DigestAlgorithm dssDigestAlgorithm = eu.europa.esig.dss.DigestAlgorithm.forXML(digestAlgorithm.toString());
+      SignatureValue signature = signatureTokenConnection.sign(toBeSigned, dssDigestAlgorithm, privateKeyEntry);
+      return signature.getValue();
+    } catch (Exception e) {
+      logger.error("Failed to sign with PKCS#11: " + e.getMessage());
+      throw new TechnicalException("Failed to sign with PKCS#11: " + e.getMessage(), e);
+    }
+    /*
+    */
+  }
+
+
+  private byte[] signRSA(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
     try {
       logger.debug("Signing with PKCS#11 and " + digestAlgorithm.name());
       byte[] digestToSign = DSSUtils.digest(digestAlgorithm.getDssDigestAlgorithm(), dataToSign);
@@ -113,6 +231,10 @@ public class PKCS11SignatureToken implements SignatureToken {
       logger.error("Failed to sign with PKCS#11: " + e.getMessage());
       throw new TechnicalException("Failed to sign with PKCS#11: " + e.getMessage(), e);
     }
+  }
+
+  private static byte[] addPadding(byte[] digest, DigestAlgorithm digestAlgorithm) {
+    return ArrayUtils.addAll(digestAlgorithm.digestInfoPrefix(), digest); // should find the prefix by checking digest length?
   }
 
   private byte[] signDigest(byte[] digestToSign) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException {
@@ -131,16 +253,5 @@ public class PKCS11SignatureToken implements SignatureToken {
     signer.update(digestToSign);
     byte[] signatureValue = signer.sign();
     return signatureValue;
-  }
-
-  private static byte[] addPadding(byte[] digest, DigestAlgorithm digestAlgorithm) {
-    return ArrayUtils.addAll(digestAlgorithm.digestInfoPrefix(), digest); // should find the prefix by checking digest length?
-  }
-
-  private DSSPrivateKeyEntry getPrivateKeyEntry() {
-    if (privateKeyEntry == null) {
-      privateKeyEntry = getPrivateKeyEntries().get(0);
-    }
-    return privateKeyEntry;
   }
 }

@@ -53,12 +53,12 @@ public class XadesSignatureValidator implements SignatureValidator {
   private static final Logger logger = LoggerFactory.getLogger(XadesSignatureValidator.class);
   private static final String OIDAS_URN = "OIDAsURN";
   private static final String XADES_SIGNED_PROPERTIES = "http://uri.etsi.org/01903#SignedProperties";
+  protected XadesSignature signature;
   private transient Reports validationReport;
   private transient SimpleReport simpleReport;
   private List<DigiDoc4JException> validationErrors = new ArrayList<>();
   private List<DigiDoc4JException> validationWarnings = new ArrayList<>();
   private String signatureId;
-  private XadesSignature signature;
 
   /**
    * Constructor.
@@ -81,14 +81,37 @@ public class XadesSignatureValidator implements SignatureValidator {
     return createValidationResult();
   }
 
+  /*
+   * RESTRICTED METHODS
+   */
+
   protected void populateValidationErrors() {
-    addPolicyValidationErrors();
-    addPolicyUriValidationErrors();
-    addSignedPropertiesReferenceValidationErrors();
-    addReportedErrors();
-    addReportedWarnings();
-    addTimestampErrors();
-    addOcspErrors();
+    this.addPolicyValidationErrors();
+    this.addPolicyUriValidationErrors();
+    this.addPolicyErrors();
+    this.addSignedPropertiesReferenceValidationErrors();
+    this.addReportedErrors();
+    this.addReportedWarnings();
+    this.addTimestampErrors();
+    this.addOcspErrors();
+  }
+
+  protected void addValidationError(DigiDoc4JException error) {
+    error.setSignatureId(this.getDssSignature().getId());
+    this.validationErrors.add(error);
+  }
+
+  protected void addValidationWarning(DigiDoc4JException warning) {
+    warning.setSignatureId(this.getDssSignature().getId());
+    this.validationWarnings.add(warning);
+  }
+
+  protected void addPolicyErrors() {
+    // Do nothing here
+  }
+
+  protected XAdESSignature getDssSignature() {
+    return this.signature.getDssSignature();
   }
 
   private void addPolicyValidationErrors() {
@@ -168,7 +191,8 @@ public class XadesSignatureValidator implements SignatureValidator {
         } else if (errorMessage.contains(MessageTag.PSV_IPSVC_ANS.getMessage())) {
           addValidationError(new CertificateRevokedException(errorMessage));
         } else {
-          addValidationError(new DigiDoc4JException(errorMessage));
+          String sigId = getDssSignature().getId();
+          addValidationError(new DigiDoc4JException(errorMessage, sigId));
         }
       }
     }
@@ -186,7 +210,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     if (simpleReport != null) {
       for (String warning : simpleReport.getWarnings(signatureId)) {
         logger.warn(warning);
-        validationWarnings.add(new DigiDoc4JException(warning));
+        validationWarnings.add(new DigiDoc4JException(warning, signatureId));
       }
     }
   }
@@ -237,15 +261,8 @@ public class XadesSignatureValidator implements SignatureValidator {
     return result;
   }
 
-  protected void addValidationError(DigiDoc4JException error) {
-    validationErrors.add(error);
-  }
-
-  private XAdESSignature getDssSignature() {
-    return signature.getDssSignature();
-  }
-
   private boolean isIndicationValid(Indication indication) {
     return indication == Indication.PASSED || indication == Indication.TOTAL_PASSED;
   }
+
 }

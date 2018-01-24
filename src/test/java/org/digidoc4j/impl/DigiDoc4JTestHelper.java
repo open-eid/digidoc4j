@@ -68,7 +68,7 @@ public class DigiDoc4JTestHelper extends ConfigurationSingeltonHolder {
       @Override
       public void checkExit(int status) {
         super.checkExit(status);
-        throw new DigiDoc4JUtilityException(status, "preventing system exist");
+        throw new DigiDoc4JUtilityException(status, "preventing system exit");
       }
     };
     System.setSecurityManager(preventExitSecurityManager);

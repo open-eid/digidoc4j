@@ -19,8 +19,6 @@ import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSUtils;
-
 public class TestSignatureToken extends PKCS12SignatureToken {
 
   private static final Logger logger = LoggerFactory.getLogger(TestSignatureToken.class);

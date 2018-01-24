@@ -1,17 +1,11 @@
 package org.digidoc4j.impl.edoc;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-
-import java.util.List;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
-import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.ValidationResult;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.TimestampAndOcspResponseTimeDeltaTooLargeException;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;

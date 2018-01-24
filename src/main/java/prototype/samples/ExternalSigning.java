@@ -28,8 +28,6 @@ import org.digidoc4j.SignatureToken;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.signers.ExternalSigner;
 
-import eu.europa.esig.dss.DSSUtils;
-
 /**
  * example code
  */

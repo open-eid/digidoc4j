@@ -95,7 +95,7 @@ public class AsyncSigning {
 
     };
 
-    return externalSigner.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDigestToSign());
+    return externalSigner.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign());
   }
 
   private static X509Certificate getSignerCert() {

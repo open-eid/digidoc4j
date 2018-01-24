@@ -10,13 +10,13 @@
 
 package org.digidoc4j.utils;
 
-import org.junit.Test;
-
-import java.util.Date;
-
 import static org.apache.commons.lang3.time.DateUtils.addMinutes;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Date;
+
+import org.junit.Test;
 
 public class DateUtilsTest {
 

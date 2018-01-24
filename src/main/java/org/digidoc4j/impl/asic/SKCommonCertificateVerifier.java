@@ -16,6 +16,7 @@ import java.io.Serializable;
 
 import org.digidoc4j.impl.asic.tsl.ClonedTslCertificateSource;
 import org.digidoc4j.impl.asic.tsl.LazyCertificatePool;
+import org.digidoc4j.impl.asic.tsl.LazyTslCertificateSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,12 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
 
   @Override
   public CertificateSource getTrustedCertSource() {
-    logger.debug("");
+    if (trustedCertSource instanceof ClonedTslCertificateSource){
+      if (((ClonedTslCertificateSource)trustedCertSource).getTrustedListsCertificateSource() != null){
+        logger.debug("get TrustedListCertificateSource from ClonedTslCertificateSource");
+        return ((ClonedTslCertificateSource)trustedCertSource).getTrustedListsCertificateSource();
+      }
+    }
     return commonCertificateVerifier.getTrustedCertSource();
   }
 
@@ -74,10 +80,14 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
 
   @Override
   public void setTrustedCertSource(final CertificateSource trustedCertSource) {
-    logger.debug("");
     ClonedTslCertificateSource clonedTslCertificateSource = new ClonedTslCertificateSource(trustedCertSource);
     this.trustedCertSource = clonedTslCertificateSource;
-    commonCertificateVerifier.setTrustedCertSource(clonedTslCertificateSource);
+    if (trustedCertSource instanceof LazyTslCertificateSource){
+      logger.debug("get TrustedCertSource from LazyTslCertificateSource");
+      commonCertificateVerifier.setTrustedCertSource(((LazyTslCertificateSource)trustedCertSource).getTslLoader().getTslCertificateSource());
+    } else{
+      commonCertificateVerifier.setTrustedCertSource(clonedTslCertificateSource);
+    }
   }
 
   @Override
@@ -131,7 +141,7 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   @Override
   public CertificatePool createValidationPool() {
     logger.debug("");
-    if(trustedCertSource == null) {
+    if (trustedCertSource == null) {
       return commonCertificateVerifier.createValidationPool();
     }
     return new LazyCertificatePool(trustedCertSource);

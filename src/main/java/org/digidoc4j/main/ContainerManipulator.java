@@ -35,6 +35,8 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.asic.AsicContainer;
+import org.digidoc4j.impl.asic.asics.AsicSContainer;
 import org.digidoc4j.impl.pades.PadesContainer;
 import org.digidoc4j.signers.PKCS11SignatureToken;
 import org.digidoc4j.signers.PKCS12SignatureToken;
@@ -65,12 +67,35 @@ public class ContainerManipulator {
       verifyPadesContainer(container);
     } else {
       manipulateContainer(container);
-      if (ASICS.equals(getContainerType(commandLine)) && commandLine.hasOption("tst")) {
-        signContainerWithTst(container);
+      if (ASICS.equals(getContainerType(commandLine)) && isOptionsToSignAndAddFile()) {
+        AsicSContainer asicSContainer = (AsicSContainer)container;
+        verifyIfAllowedToAddSignature(asicSContainer);
+        signAsicSContainer(asicSContainer);
       } else {
         signContainer(container);
       }
       verifyContainer(container);
+    }
+  }
+
+  private boolean isOptionsToSignAndAddFile() {
+    return commandLine.hasOption("add") || commandLine.hasOption("pkcs11") || commandLine.hasOption("pkcs12");
+  }
+
+  private void signAsicSContainer(AsicSContainer asicSContainer) {
+    if (commandLine.hasOption("tst")) {
+      signContainerWithTst(asicSContainer);
+    } else {
+      signContainer(asicSContainer);
+    }
+  }
+
+  private void verifyIfAllowedToAddSignature(AsicSContainer asicSContainer) {
+    if (asicSContainer.isTimestampTokenDefined()) {
+      throw new DigiDoc4JException("This container has already timestamp. Should be no signatures in case of timestamped ASiCS container.");
+    }
+    if (!asicSContainer.getSignatures().isEmpty()){
+      throw new DigiDoc4JException("This container is already signed. Should be only one signature in case of ASiCS container.");
     }
   }
 
@@ -128,6 +153,8 @@ public class ContainerManipulator {
     if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".bdoc")) return BDOC;
     if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".asics")) return ASICS;
     if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".scs")) return ASICS;
+    if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".asice")) return ASICE;
+    if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".sce")) return ASICE;
     if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".ddoc")) return DDOC;
     if (endsWithIgnoreCase(commandLine.getOptionValue("in"), ".pdf")) return PADES;
     return BDOC;
@@ -188,7 +215,7 @@ public class ContainerManipulator {
     }
   }
 
-  private void signContainerWithTst(Container container) {
+  private void signContainerWithTst(AsicContainer asicContainer) {
     if (commandLine.hasOption("tst") && !(commandLine.hasOption("pkcs12") || commandLine.hasOption("pkcs11"))) {
       DigestAlgorithm digestAlgorithm = DigestAlgorithm.SHA256;
       if (commandLine.hasOption("datst")) {
@@ -199,10 +226,13 @@ public class ContainerManipulator {
       }
       logger.info("Digest algorithm to calculate data file hash: " + digestAlgorithm.getName());
       if (commandLine.hasOption("add")) {
+        if (asicContainer.getDataFiles().size() > 1){
+          throw new DigiDoc4JException("Data file in container already exists. Should be only one data file in case of ASiCS container.");
+        }
         String[] optionValues = commandLine.getOptionValues("add");
         DataFile dataFile = new DataFile(optionValues[0], optionValues[1]);
         DataFile tst = TimestampToken.generateTimestampToken(digestAlgorithm, dataFile);
-        container.setTimeStampToken(tst);
+        asicContainer.setTimeStampToken(tst);
         fileHasChanged = true;
       }
     }
