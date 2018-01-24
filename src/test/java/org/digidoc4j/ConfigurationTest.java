@@ -241,7 +241,7 @@ public class ConfigurationTest extends AbstractTest {
   @Test
   @Ignore("Ignored as this functionality is not used in DDS but this test is broken due to DDS forks custom revocation handling.")
   public void policyFileIsReadFromNonDefaultFileLocation() {
-    configuration.setValidationPolicy("src/test/resources/testFiles/moved_constraint.xml");
+    configuration.setValidationPolicy("src/test/resources/testFiles/constraints/moved_constraint.xml");
     ContainerOpener.open("src/test/resources/testFiles/invalid-containers/asics_for_testing.bdoc", configuration);
   }
 

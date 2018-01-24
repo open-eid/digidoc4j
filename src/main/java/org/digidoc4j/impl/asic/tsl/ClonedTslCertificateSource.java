@@ -18,6 +18,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
 import eu.europa.esig.dss.x509.CertificatePool;
 import eu.europa.esig.dss.x509.CertificateSource;
 import eu.europa.esig.dss.x509.CertificateToken;
@@ -32,6 +33,7 @@ public class ClonedTslCertificateSource implements CertificateSource {
   private static final Logger logger = LoggerFactory.getLogger(ClonedTslCertificateSource.class);
   private CertificateSource certificateSource;
   private CertificateSource clonedCertificateSource;
+  private TrustedListsCertificateSource trustedListsCertificateSource;
 
   public ClonedTslCertificateSource(CertificateSource certificateSource) {
     logger.debug("Instantiating cloned tsl cert source");
@@ -49,10 +51,20 @@ public class ClonedTslCertificateSource implements CertificateSource {
   private void initializeClonedTsl() {
     if (certificateSource instanceof LazyTslCertificateSource) {
       ((LazyTslCertificateSource) certificateSource).refreshIfCacheExpired();
+      trustedListsCertificateSource = ((LazyTslCertificateSource) certificateSource).getTslLoader().getTslCertificateSource();
     }
     logger.debug("Cloning TSL");
     clonedCertificateSource = (CertificateSource) SerializationUtils.clone(certificateSource);
     logger.debug("Finished cloning TSL");
+  }
+
+  /**
+   * Get TrustedListsCertificateSource object defined in TslLoader.
+   *
+   * @return TrustedListsCertificateSource
+   */
+  public TrustedListsCertificateSource getTrustedListsCertificateSource(){
+    return trustedListsCertificateSource;
   }
 
   @Override
