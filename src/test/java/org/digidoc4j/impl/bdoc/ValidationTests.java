@@ -49,6 +49,7 @@ import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TSLHelper;
 import org.digidoc4j.testutils.TestSigningHelper;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -196,7 +197,7 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/revocation_timestamp_delta_26h.asice", PROD_CONFIGURATION);
     ValidationResult validate = container.validate();
     assertEquals(1, validate.getErrors().size());
-    assertEquals("(Signature ID: S0) The difference between the OCSP response time and the signature time stamp is too large",
+    assertEquals("(Signature ID: S0) The difference between the OCSP response time and the signature timestamp is too large",
         validate.getErrors().get(0).toString());
   }
 
@@ -205,9 +206,9 @@ public class ValidationTests extends DigiDoc4JTestHelper {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     int delta27Hours = 27 * 60;
     configuration.setRevocationAndTimestampDeltaInMinutes(delta27Hours);
-    Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/revocation_timestamp_delta_26h.asice", configuration);
-    ValidationResult validate = container.validate();
-    assertEquals(0, validate.getErrors().size());
+    ValidationResult result = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/revocation_timestamp_delta_26h.asice", configuration).validate();
+    Assert.assertEquals(0, result.getErrors().size());
+    Assert.assertEquals(2, result.getWarnings().size());
   }
 
   @Test

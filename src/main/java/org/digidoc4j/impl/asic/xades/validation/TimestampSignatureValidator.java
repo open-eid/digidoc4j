@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TimestampAndOcspResponseTimeDeltaTooLargeException;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.utils.DateUtils;
@@ -26,25 +27,23 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class TimestampSignatureValidator extends TimemarkSignatureValidator {
 
-  private final static Logger logger = LoggerFactory.getLogger(TimestampSignatureValidator.class);
-  private XadesSignature signature;
+  private final Logger log = LoggerFactory.getLogger(TimestampSignatureValidator.class);
   private Configuration configuration;
 
   public TimestampSignatureValidator(XadesSignature signature, Configuration configuration) {
     super(signature);
-    this.signature = signature;
     this.configuration = configuration;
   }
 
   @Override
   protected void populateValidationErrors() {
     super.populateValidationErrors();
-    addSigningTimeErrors();
+    this.addSigningTimeErrors();
   }
 
   private void addSigningTimeErrors() {
-    XAdESSignature xAdESSignature = signature.getDssSignature();
-    List<TimestampToken> signatureTimestamps = xAdESSignature.getSignatureTimestamps();
+    XAdESSignature signature = this.getDssSignature();
+    List<TimestampToken> signatureTimestamps = signature.getSignatureTimestamps();
     if (signatureTimestamps == null || signatureTimestamps.isEmpty()) {
       return;
     }
@@ -52,7 +51,7 @@ public class TimestampSignatureValidator extends TimemarkSignatureValidator {
     if (timestamp == null) {
       return;
     }
-    List<BasicOCSPResp> ocspResponses = xAdESSignature.getOCSPSource().getContainedOCSPResponses();
+    List<BasicOCSPResp> ocspResponses = signature.getOCSPSource().getContainedOCSPResponses();
     if (ocspResponses == null || ocspResponses.isEmpty()) {
       return;
     }
@@ -60,12 +59,16 @@ public class TimestampSignatureValidator extends TimemarkSignatureValidator {
     if (ocspTime == null) {
       return;
     }
-    int TSandOCSPDelta = configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes();
-    int TSandRevocDelta = configuration.getRevocationAndTimestampDeltaInMinutes();
-
-    if (!DateUtils.isInRangeMinutes(timestamp, ocspTime, (TSandOCSPDelta > TSandRevocDelta? TSandOCSPDelta : TSandRevocDelta))) {
-      logger.error("The difference between the OCSP response production time and the signature time stamp is too large - " + String.valueOf(timestamp.getTime()-ocspTime.getTime()));
-      addValidationError(new TimestampAndOcspResponseTimeDeltaTooLargeException());
+    int deltaLimit = this.configuration.getRevocationAndTimestampDeltaInMinutes();
+    long differenceInMinutes = DateUtils.differenceInMinutes(timestamp, ocspTime);
+    this.log.debug("Difference in minutes: <{}>", differenceInMinutes);
+    if (!DateUtils.isInRangeMinutes(timestamp, ocspTime, deltaLimit)) {
+      this.log.error("The difference between the OCSP response production time and the signature timestamp is too large <{} minutes>", differenceInMinutes);
+      this.addValidationError(new TimestampAndOcspResponseTimeDeltaTooLargeException());
+    } else if (this.configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes() < differenceInMinutes && differenceInMinutes < deltaLimit) {
+      this.log.warn("The difference (in minutes) between the OCSP response production time and the signature timestamp is in allowable range (<{}>, allowed maximum <{}>)", differenceInMinutes, deltaLimit);
+      this.addValidationWarning(new DigiDoc4JException("The difference between the OCSP response time and the signature timestamp is in allowable range"));
     }
   }
+
 }
