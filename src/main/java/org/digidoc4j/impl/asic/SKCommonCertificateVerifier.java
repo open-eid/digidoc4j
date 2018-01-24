@@ -45,9 +45,9 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
 
   @Override
   public CertificateSource getTrustedCertSource() {
-    logger.debug("");
     if (trustedCertSource instanceof ClonedTslCertificateSource){
       if (((ClonedTslCertificateSource)trustedCertSource).getTrustedListsCertificateSource() != null){
+        logger.debug("get TrustedListCertificateSource from ClonedTslCertificateSource");
         return ((ClonedTslCertificateSource)trustedCertSource).getTrustedListsCertificateSource();
       }
     }
@@ -80,10 +80,10 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
 
   @Override
   public void setTrustedCertSource(final CertificateSource trustedCertSource) {
-    logger.debug("");
     ClonedTslCertificateSource clonedTslCertificateSource = new ClonedTslCertificateSource(trustedCertSource);
     this.trustedCertSource = clonedTslCertificateSource;
     if (trustedCertSource instanceof LazyTslCertificateSource){
+      logger.debug("get TrustedCertSource from LazyTslCertificateSource");
       commonCertificateVerifier.setTrustedCertSource(((LazyTslCertificateSource)trustedCertSource).getTslLoader().getTslCertificateSource());
     } else{
       commonCertificateVerifier.setTrustedCertSource(clonedTslCertificateSource);
