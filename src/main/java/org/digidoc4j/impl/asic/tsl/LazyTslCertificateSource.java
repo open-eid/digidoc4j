@@ -148,6 +148,15 @@ public class LazyTslCertificateSource implements TSLCertificateSource {
     }
   }
 
+  /**
+   * Get TslLoader
+   *
+   * @return TslLoader
+   */
+  public TslLoader getTslLoader(){
+    return tslLoader;
+  }
+
   private boolean isCacheExpired() {
     if (lastCacheReloadingTime == null) {
       return true;

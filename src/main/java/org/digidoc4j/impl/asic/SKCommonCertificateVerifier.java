@@ -16,6 +16,7 @@ import java.io.Serializable;
 
 import org.digidoc4j.impl.asic.tsl.ClonedTslCertificateSource;
 import org.digidoc4j.impl.asic.tsl.LazyCertificatePool;
+import org.digidoc4j.impl.asic.tsl.LazyTslCertificateSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,11 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   @Override
   public CertificateSource getTrustedCertSource() {
     logger.debug("");
+    if (trustedCertSource instanceof ClonedTslCertificateSource){
+      if (((ClonedTslCertificateSource)trustedCertSource).getTrustedListsCertificateSource() != null){
+        return ((ClonedTslCertificateSource)trustedCertSource).getTrustedListsCertificateSource();
+      }
+    }
     return commonCertificateVerifier.getTrustedCertSource();
   }
 
@@ -77,7 +83,11 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
     logger.debug("");
     ClonedTslCertificateSource clonedTslCertificateSource = new ClonedTslCertificateSource(trustedCertSource);
     this.trustedCertSource = clonedTslCertificateSource;
-    commonCertificateVerifier.setTrustedCertSource(clonedTslCertificateSource);
+    if (trustedCertSource instanceof LazyTslCertificateSource){
+      commonCertificateVerifier.setTrustedCertSource(((LazyTslCertificateSource)trustedCertSource).getTslLoader().getTslCertificateSource());
+    } else{
+      commonCertificateVerifier.setTrustedCertSource(clonedTslCertificateSource);
+    }
   }
 
   @Override
