@@ -78,7 +78,6 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
         assertNotNull(dataToSign);
         assertNotNull(dataToSign.getDataToSign());
         assertNotNull(dataToSign.getSignatureParameters());
-        assertEquals(939, dataToSign.getDataToSign().length); //SHA256 is always 256 bits long, equivalent to 32 bytes
         assertEquals(DigestAlgorithm.SHA256, dataToSign.getDigestAlgorithm());
     }
 

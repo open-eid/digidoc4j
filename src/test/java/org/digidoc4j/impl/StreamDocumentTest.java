@@ -43,13 +43,17 @@ import eu.europa.esig.dss.MimeType;
 
 public class StreamDocumentTest {
   StreamDocument document;
+  private static final String roDir = "src/test/resources/testFiles/tmp/readonly";
 
   @BeforeClass
   public static void setUpDir() throws IOException {
-    if (Files.isWritable(Paths.get("src/test/resources/testFiles/tmp/readonly"))) {
+    if (Files.notExists(Paths.get(roDir))) {
+      Files.createDirectory(Paths.get(roDir));
+    }
+    if (Files.isWritable(Paths.get(roDir))) {
       // setting directory testFiles/tmp/readonly permissions to "read only"
       if (System.getProperty("os.name").startsWith("Windows")) {
-        File file = new File("src/test/resources/testFiles/tmp/readonly");
+        File file = new File(roDir);
         // deny write permission for all the users
         System.out.println("icacls "+file.getAbsolutePath()+" /deny Everyone:(WD,WA) /T /Q");
         Runtime.getRuntime().exec("icacls "+file.getAbsolutePath()+" /deny Everyone:(WD,WA) /T /Q");
@@ -64,7 +68,7 @@ public class StreamDocumentTest {
         //add others permissions
         perms.add(PosixFilePermission.OTHERS_READ);
         perms.add(PosixFilePermission.OTHERS_EXECUTE);
-        Files.setPosixFilePermissions(Paths.get("src/test/resources/testFiles/tmp/readonly"), perms);
+        Files.setPosixFilePermissions(Paths.get(roDir), perms);
       }
     }
   }
@@ -82,7 +86,7 @@ public class StreamDocumentTest {
   @AfterClass
   public static void resetTemporaryRODir() throws IOException {
     if (System.getProperty("os.name").startsWith("Windows")) {
-      File file = new File("src/test/resources/testFiles/tmp/readonly");
+      File file = new File(roDir);
       Runtime.getRuntime().exec("icacls " + file.getAbsolutePath() + " /remove:d Everyone /T /Q");
     } else {
       Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
@@ -98,7 +102,7 @@ public class StreamDocumentTest {
       perms.add(PosixFilePermission.OTHERS_READ);
       perms.add(PosixFilePermission.OTHERS_WRITE);
       perms.add(PosixFilePermission.OTHERS_EXECUTE);
-      Files.setPosixFilePermissions(Paths.get("src/test/resources/testFiles/tmp/readonly"), perms);
+      Files.setPosixFilePermissions(Paths.get(roDir), perms);
     }
   }
 

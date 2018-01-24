@@ -78,8 +78,6 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
     Signature result = null;
     byte[] signatureValue = null;
     try {
-      // TODO: Investigate instability (of BouncyCastle?)
-      // Sometimes sign returns value what causes error in finalizeSignature
       signatureValue = signatureToken.sign(signatureParameters.getDigestAlgorithm(), dataToSign);
       result = finalizeSignature(signatureValue);
     } catch (TechnicalException e) {
