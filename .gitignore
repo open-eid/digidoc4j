@@ -1,14 +1,5 @@
 /build
 /target
-.idea/workspace.xml
-.idea/uiDesigner.xml
-.idea/dictionaries/xp.xml
-.idea/libraries
-*.log
-/utility-package-lib
-/zip-package-lib
+.idea/*
+!.idea/codeStyleSettings.xml
 /buildNumber.properties
-/Old*
-/logback.xml
-!/src/main/etc/logback.xml
-/lib

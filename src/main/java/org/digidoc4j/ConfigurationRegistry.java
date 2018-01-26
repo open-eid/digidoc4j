@@ -31,6 +31,7 @@ public class ConfigurationRegistry extends HashMap<ConfigurationParameter, Strin
   private String sealValue = "";
 
   protected String generateSealValue() {
+    // TODO can we use hashcode?
     return this.seal();
   }
 

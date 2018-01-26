@@ -33,6 +33,11 @@ public enum ConfigurationParameter {
   SslKeystorePassword,
   SslTruststorePath,
   SslTruststorePassword,
-  SignOcspRequests
+  SignOcspRequests,
+  TspsCount,
+  TspCountrySource,
+  TspCountryKeystorePath,
+  TspCountryKeystoreType,
+  TspCountryKeystorePassword
 
 }
