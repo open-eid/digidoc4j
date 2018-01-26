@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.tsp.TimeStampToken;
 import org.digidoc4j.exceptions.CertificateNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
@@ -51,14 +52,19 @@ import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.testutils.TSLHelper;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.utils.Helper;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
+import eu.europa.esig.dss.client.http.commons.TimestampDataLoader;
+import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.validation.SignatureQualification;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.policy.rules.Indication;
@@ -79,6 +85,42 @@ public class SignatureTest extends DigiDoc4JTestHelper {
   public void setUp() throws Exception {
     PKCS12_SIGNER = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
     PKCS12_ECC_SIGNER = new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray());
+  }
+
+  @Test
+  public void testEE_TSPWhenSigning() {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_tsp_source.yaml");
+    Container container = ContainerBuilder.aContainer().withConfiguration(configuration).build();
+    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+    Signature signature = SignatureBuilder.aSignature(container).withSignatureDigestAlgorithm(DigestAlgorithm.SHA512)
+        .withSignatureToken(this.PKCS12_SIGNER).invokeSigning();
+    Assert.assertEquals("Different country", "EE", signature.getSigningCertificate().getSubjectName(X509Cert.SubjectName.C));
+    container.addSignature(signature);
+    Assert.assertTrue("Container invalid", container.validate().isValid());
+  }
+
+  @Test
+  @Ignore // TODO when we have LT signing certificate and working tsa url
+  public void testLT_TSPWhenSigning() {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_tsp_source.yaml");
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/latvian_signed_container.edoc", configuration);
+    //Signature signature = SignatureBuilder.aSignature(container).withSignatureDigestAlgorithm(DigestAlgorithm.SHA512)
+    //.withSignatureToken(this.PKCS12_SIGNER).invokeSigning();
+    //Assert.assertEquals("Different country", "LT", signature.getSigningCertificate().getSubjectName(X509Cert.SubjectName.C));
+    List<Signature> signatures = container.getSignatures();
+    Assert.assertTrue("Container invalid", container.validate().isValid());
+  }
+
+  @Test
+  public void signatureLTTSA(){
+    OnlineTSPSource tspSource = new OnlineTSPSource("http://demo.sk.ee/tsa/");
+    tspSource.setPolicyOid("0.4.0.2023.1.1");
+    tspSource.setDataLoader(new TimestampDataLoader()); // content-type is different
+    byte[] digest = DSSUtils.digest(eu.europa.esig.dss.DigestAlgorithm.SHA512, "Hello world".getBytes());
+    TimeStampToken timeStampResponse = tspSource.getTimeStampResponse(eu.europa.esig.dss.DigestAlgorithm.SHA512, digest);
+    Assert.assertNotNull(timeStampResponse);
   }
 
   @Test
