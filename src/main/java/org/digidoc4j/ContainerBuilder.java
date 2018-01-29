@@ -72,7 +72,7 @@ public abstract class ContainerBuilder {
    * @return builder for creating or opening a BDOC(ASICE) container.
    */
   public static ContainerBuilder aContainer() {
-    return aContainer(Constant.BDOC_CONTAINER_TYPE);
+    return aContainer(Container.DocumentType.BDOC);
   }
 
   /**
@@ -84,22 +84,39 @@ public abstract class ContainerBuilder {
    */
   public static ContainerBuilder aContainer(String containerType) {
     ContainerBuilder.containerType = containerType;
-    if (isCustomContainerType(containerType)) {
+    if (ContainerBuilder.isCustomContainerType(containerType)) {
       return new CustomContainerBuilder(containerType);
+    } else {
+      try {
+        return ContainerBuilder.aContainer(Container.DocumentType.valueOf(containerType));
+      } catch (IllegalArgumentException e) {
+        throw new NotSupportedException(String.format("Container type <%s> is unsupported", containerType));
+      }
     }
-    switch (containerType) {
-      case Constant.BDOC_CONTAINER_TYPE:
+  }
+
+  /**
+   * Create a new container builder based on a container type.
+   *
+   * @param type a type of container to be created, e.g. "BDOC(ASICE)" , "ASICS" or "DDOC".
+   *
+   * @return builder for creating a container.
+   */
+  public static ContainerBuilder aContainer(Container.DocumentType type) {
+    ContainerBuilder.containerType = type.name();
+    switch (type) {
+      case BDOC:
         return new BDocContainerBuilder();
-      case Constant.DDOC_CONTAINER_TYPE:
+      case DDOC:
         return new DDocContainerBuilder();
-      case Constant.ASICS_CONTAINER_TYPE:
+      case ASICS:
         return new AsicSContainerBuilder();
-      case Constant.ASICE_CONTAINER_TYPE:
+      case ASICE:
         return new AsicEContainerBuilder();
-      case Constant.PADES_CONTAINER_TYPE:
+      case PADES:
         return new PadesContainerBuilder();
     }
-    throw new NotSupportedException("Container type is not supported: " + containerType);
+    throw new NotSupportedException(String.format("Container type <%s> is unsupported", type));
   }
 
   /**

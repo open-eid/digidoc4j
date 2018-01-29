@@ -10,14 +10,16 @@
 
 package org.digidoc4j.impl.bdoc.manifest;
 
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-
 import java.util.Arrays;
 
+import org.custommonkey.xmlunit.XMLAssert;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.impl.asic.manifest.AsicManifest;
+import org.digidoc4j.test.Refactored;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category(Refactored.class)
 public class ManifestTest {
 
   @Test
@@ -27,11 +29,10 @@ public class ManifestTest {
         "<manifest:file-entry manifest:media-type=\"application/vnd.etsi.asic-e+zip\" manifest:full-path=\"/\" />" +
         "<manifest:file-entry manifest:media-type=\"text/plain\" manifest:full-path=\"test.txt\" />" +
         "</manifest:manifest>";
-
     AsicManifest manifest = new AsicManifest();
     manifest.addFileEntry(Arrays.asList(new DataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain")));
     byte[] manifestBytes = manifest.getBytes();
-
-    assertXMLEqual(expectedResult, new String(manifestBytes));
+    XMLAssert.assertXMLEqual(expectedResult, new String(manifestBytes));
   }
+
 }

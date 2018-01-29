@@ -180,6 +180,15 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Create new configuration in static context with application mode specified
+   *
+   * @param mode Application mode
+   */
+  public static Configuration of(Mode mode) {
+    return new Configuration(mode);
+  }
+
+  /**
    * Create new configuration
    */
   public Configuration() {
@@ -187,7 +196,7 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Create new configuration for application mode specified
+   * Create new configuration with application mode specified
    *
    * @param mode Application mode
    */

@@ -74,7 +74,6 @@ public class ContainerOpener {
    * @see ContainerBuilder
    */
   public static Container open(String path) throws DigiDoc4JException {
-    logger.debug("");
     return open(path, Configuration.getInstance());
   }
 

@@ -10,26 +10,28 @@
 
 package org.digidoc4j.impl.bdoc.manifest;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import org.digidoc4j.impl.asic.manifest.ManifestEntry;
+import org.digidoc4j.test.Refactored;
+import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category(Refactored.class)
 public class ManifestEntryTest {
 
   @Test
   public void manifestEntryEquals() throws Exception {
-    assertTrue(new ManifestEntry("fail.txt", "text/plain").equals(new ManifestEntry("fail.txt", "text/plain")));
+    Assert.assertTrue(new ManifestEntry("fail.txt", "text/plain").equals(new ManifestEntry("fail.txt", "text/plain")));
   }
 
   @Test
   public void manifestEntryEqualsWhenMimeTypeIsWrong() throws Exception {
-    assertFalse(new ManifestEntry("fail.txt", "text/plain").equals(new ManifestEntry("fail.txt", "text/xml")));
+    Assert.assertFalse(new ManifestEntry("fail.txt", "text/plain").equals(new ManifestEntry("fail.txt", "text/xml")));
   }
 
   @Test
   public void manifestEntryEqualsWhenFileNameIsWrong() throws Exception {
-    assertFalse(new ManifestEntry("fail.txt", "text/plain").equals(new ManifestEntry("fail1.txt", "text/plain")));
+    Assert.assertFalse(new ManifestEntry("fail.txt", "text/plain").equals(new ManifestEntry("fail1.txt", "text/plain")));
   }
+
 }

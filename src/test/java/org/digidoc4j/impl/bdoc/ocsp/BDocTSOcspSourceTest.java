@@ -10,25 +10,35 @@
 
 package org.digidoc4j.impl.bdoc.ocsp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x509.Extension;
+import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.asic.ocsp.BDocTSOcspSource;
+import org.digidoc4j.test.Refactored;
+import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
-public class BDocTSOcspSourceTest {
+@Category(Refactored.class)
+public class BDocTSOcspSourceTest extends AbstractTest {
 
   @Test
   public void gettingOcspNonce() throws Exception {
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    BDocTSOcspSource ocspSource = new BDocTSOcspSource(configuration);
+    BDocTSOcspSource ocspSource = new BDocTSOcspSource(this.configuration);
     Extension nonce = ocspSource.createNonce();
-    assertFalse(nonce.isCritical());
-    assertEquals(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, nonce.getExtnId());
-    assertTrue(nonce.getExtnValue().toString().length() > 0);
+    Assert.assertFalse(nonce.isCritical());
+    Assert.assertEquals(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, nonce.getExtnId());
+    Assert.assertTrue(nonce.getExtnValue().toString().length() > 0);
   }
+
+  /*
+   * RESTRICTED METHODS
+   */
+
+  @Override
+  protected void before() {
+    this.configuration = new Configuration(Configuration.Mode.TEST);
+  }
+
 }

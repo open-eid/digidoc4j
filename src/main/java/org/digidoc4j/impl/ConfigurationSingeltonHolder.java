@@ -37,7 +37,7 @@ public class ConfigurationSingeltonHolder {
     return configuration;
   }
 
-  static void reset() {
+  protected static void reset() {
     configuration = null;
   }
 

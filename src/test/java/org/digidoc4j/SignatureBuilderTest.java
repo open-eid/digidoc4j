@@ -32,44 +32,27 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
-import org.digidoc4j.impl.DigiDoc4JTestHelper;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.signers.PKCS12SignatureToken;
+import org.digidoc4j.test.Refactored;
 import org.digidoc4j.testutils.TestContainer;
 import org.digidoc4j.testutils.TestDataBuilder;
 import org.digidoc4j.testutils.TestSignatureBuilder;
 import org.digidoc4j.testutils.TestSigningHelper;
 import org.digidoc4j.utils.TokenAlgorithmSupport;
-import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.experimental.categories.Category;
 
 import eu.europa.esig.dss.validation.TimestampToken;
 import eu.europa.esig.dss.x509.SignaturePolicy;
 
-public class SignatureBuilderTest extends DigiDoc4JTestHelper {
-
-    private static final Logger logger = LoggerFactory.getLogger(SignatureBuilderTest.class);
-    private final PKCS12SignatureToken PKCS12_ECC_SIGNER = new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray());
-    private final PKCS12SignatureToken testSignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
-    @Rule
-    public TemporaryFolder testFolder = new TemporaryFolder();
-
-    @After
-    public void tearDown() throws Exception {
-        ContainerBuilder.removeCustomContainerImplementations();
-        SignatureBuilder.removeCustomSignatureBuilders();
-        testFolder.delete();
-        logger.info("tearDown done");
-    }
+@Category(Refactored.class)
+public class SignatureBuilderTest extends AbstractTest {
 
     @Test
     public void buildingDataToSign_shouldReturnDataToSign() throws Exception {
-        Container container = TestDataBuilder.createContainerWithFile(testFolder);
+        Container container = this.createNonEmptyContainer();
         X509Certificate signerCert = getSigningCert();
         SignatureBuilder builder = SignatureBuilder.
             aSignature(container).
@@ -141,7 +124,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
             withRoles("Manager", "Suspicious Fisherman").
             withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
             withSignatureProfile(SignatureProfile.LT_TM).
-            withSignatureToken(testSignatureToken).
+            withSignatureToken(pkcs12SignatureToken).
             invokeSigning();
 
         container.addSignature(signature);
@@ -165,7 +148,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
         BDocSignature signature = (BDocSignature) SignatureBuilder.
             aSignature(container).
             withSignatureProfile(SignatureProfile.LT_TM).
-            withSignatureToken(testSignatureToken).
+            withSignatureToken(pkcs12SignatureToken).
             invokeSigning();
         assertTrue(signature.validateSignature().isValid());
         container.addSignature(signature);
@@ -182,7 +165,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
         Signature signature = SignatureBuilder.
             aSignature(container).
             withSignatureDigestAlgorithm(DigestAlgorithm.SHA1).
-            withSignatureToken(testSignatureToken).
+            withSignatureToken(pkcs12SignatureToken).
             invokeSigning();
 
         container.addSignature(signature);
@@ -277,7 +260,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
         Container container = TestDataBuilder.createContainerWithFile(testFolder, "BDOC");
         Signature signature = SignatureBuilder.
             aSignature(container).
-            withSignatureToken(PKCS12_ECC_SIGNER).
+            withSignatureToken(pkcs12EccSignatureToken).
             withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA).
             withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
             withSignatureProfile(SignatureProfile.LT_TM).
@@ -328,7 +311,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
     public void signWithDeterminedSignatureDigestAlgorithm() throws Exception {
         Container container = TestDataBuilder.createContainerWithFile(testFolder);
 
-        X509Certificate certificate = testSignatureToken.getCertificate();
+        X509Certificate certificate = pkcs12SignatureToken.getCertificate();
         DigestAlgorithm digestAlgorithm = TokenAlgorithmSupport.determineSignatureDigestAlgorithm(certificate);
         DataToSign dataToSign = SignatureBuilder.
             aSignature(container).
@@ -424,7 +407,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
     @Test(expected = NotSupportedException.class)
     public void signUnknownContainerFormat_shouldThrowException() throws Exception {
         ContainerBuilder.setContainerImplementation("TEST-FORMAT", TestContainer.class);
-        Container container = TestDataBuilder.createContainerWithFile(testFolder, "TEST-FORMAT");
+        Container container = TestDataBuilder.createContainerWithFile(this.testFolder, "TEST-FORMAT");
         TestDataBuilder.buildDataToSign(container);
     }
 
@@ -602,7 +585,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
         Container container = TestDataBuilder.createContainerWithFile(testFolder, "TEST-FORMAT");
         Signature signature = SignatureBuilder.
             aSignature(container).
-            withSignatureToken(testSignatureToken).
+            withSignatureToken(pkcs12SignatureToken).
             invokeSigning();
         assertNotNull(signature);
     }
@@ -615,17 +598,23 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
         Container container = TestDataBuilder.createContainerWithFile(testFolder, BDOC_CONTAINER_TYPE);
         Signature signature = SignatureBuilder.
             aSignature(container).
-            withSignatureToken(testSignatureToken).
+            withSignatureToken(pkcs12SignatureToken).
             invokeSigning();
         assertNotNull(signature);
         TestContainer.resetType();
+    }
+
+    @Override
+    protected void after() {
+        ContainerBuilder.removeCustomContainerImplementations();
+        SignatureBuilder.removeCustomSignatureBuilders();
     }
 
     private Signature createBDocSignatureWithProfile(SignatureProfile profile) throws IOException {
         Container container = TestDataBuilder.createContainerWithFile(testFolder);
         Signature signature = SignatureBuilder.
             aSignature(container).
-            withSignatureToken(testSignatureToken).
+            withSignatureToken(pkcs12SignatureToken).
             withSignatureProfile(profile).
             invokeSigning();
         container.addSignature(signature);

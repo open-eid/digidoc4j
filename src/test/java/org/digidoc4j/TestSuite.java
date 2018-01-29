@@ -1,5 +1,6 @@
-package org.digidoc4j.test;
+package org.digidoc4j;
 
+import org.digidoc4j.test.Refactored;
 import org.junit.runner.RunWith;
 
 import com.googlecode.junittoolbox.IncludeCategories;

@@ -747,7 +747,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        assertThat(sout.getLog(), containsString("Signature S0 is valid"));
+        assertThat(stdOut.getLog(), containsString("Signature S0 is valid"));
       }
     });
     String[] params = new String[]{"-in", "src/test/resources/testFiles/valid-containers/valid_prod_bdoc_mid.bdoc", "-v"};
@@ -762,7 +762,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        assertThat(sout.getLog(), containsString("Validation was successful. Container is valid"));
+        assertThat(stdOut.getLog(), containsString("Validation was successful. Container is valid"));
       }
     });
     String[] params = new String[]{"-in", "src/test/resources/testFiles/valid-containers/valid_prod_bdoc_mid.bdoc", "-v2"};
@@ -777,7 +777,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        assertThat(sout.getLog(), containsString("Signature S0 is valid"));
+        assertThat(stdOut.getLog(), containsString("Signature S0 is valid"));
       }
     });
     String[] params = new String[]{"-in", "src/test/resources/testFiles/valid-containers/valid_prod_bdoc_eid.bdoc", "-v"};
@@ -792,7 +792,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        assertThat(sout.getLog(), containsString("Validation was successful. Container is valid"));
+        assertThat(stdOut.getLog(), containsString("Validation was successful. Container is valid"));
       }
     });
     String[] params = new String[]{"-in", "src/test/resources/testFiles/valid-containers/valid_prod_bdoc_eid.bdoc", "-v2"};
@@ -807,7 +807,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        assertThat(sout.getLog(), containsString("Signature S1 is valid"));
+        assertThat(stdOut.getLog(), containsString("Signature S1 is valid"));
       }
     });
     Path dir = Paths.get(tmpDirPath + "valid_edoc");
@@ -829,7 +829,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        assertThat(sout.getLog(), containsString("Validation was successful. Container is valid"));
+        assertThat(stdOut.getLog(), containsString("Validation was successful. Container is valid"));
       }
     });
     String[] params = new String[]{"-in", "src/test/resources/testFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc", "-v2"};
@@ -844,7 +844,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        assertThat(sout.getLog(), containsString("Signature id-c0be584463a9dca56c3e9500a3d17e75 is valid"));
+        assertThat(stdOut.getLog(), containsString("Signature id-c0be584463a9dca56c3e9500a3d17e75 is valid"));
       }
     });
     String[] params = new String[]{"-in", "src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc", "-v"};
@@ -859,7 +859,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        assertThat(sout.getLog(), containsString("Validation was successful. Container is valid"));
+        assertThat(stdOut.getLog(), containsString("Validation was successful. Container is valid"));
       }
     });
     String[] params = new String[]{"-in", "src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc", "-v2"};
@@ -874,7 +874,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        assertThat(sout.getLog(), containsString("Signature S1 is not valid"));
+        assertThat(stdOut.getLog(), containsString("Signature S1 is not valid"));
       }
     });
     String[] params = new String[]{"-in", "src/test/resources/testFiles/invalid-containers/two_signatures_one_invalid.bdoc", "-v"};
@@ -889,7 +889,7 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
     exit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        assertThat(sout.getLog(), containsString("Validation finished. Container is NOT valid!"));
+        assertThat(stdOut.getLog(), containsString("Validation finished. Container is NOT valid!"));
       }
     });
     String[] params = new String[]{"-in", "src/test/resources/testFiles/invalid-containers/two_signatures_one_invalid.bdoc", "-v2"};

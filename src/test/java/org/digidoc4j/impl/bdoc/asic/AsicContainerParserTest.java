@@ -10,100 +10,91 @@
 
 package org.digidoc4j.impl.bdoc.asic;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.FileInputStream;
+import java.nio.file.Paths;
 import java.util.List;
 
+import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.impl.DigiDoc4JTestHelper;
-import org.digidoc4j.impl.asic.AsicContainerParser;
 import org.digidoc4j.impl.asic.AsicEntry;
-import org.digidoc4j.impl.asic.AsicFileContainerParser;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicStreamContainerParser;
+import org.digidoc4j.test.Refactored;
+import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
-public class AsicContainerParserTest  extends DigiDoc4JTestHelper {
+@Category(Refactored.class)
+public class AsicContainerParserTest extends AbstractTest {
 
   @Test
   public void findingNextSignatureFileIndex_onEmptyContainer_shouldReturn_null() throws Exception {
-    AsicParseResult result = parseContainer("src/test/resources/testFiles/invalid-containers/asics_without_signatures.bdoc");
-    assertEquals(null, result.getCurrentUsedSignatureFileIndex());
+    Assert.assertEquals(null, this.getParseResult(Paths.get("src/test/resources/testFiles/invalid-containers/asics_without_signatures.bdoc")).getCurrentUsedSignatureFileIndex());
   }
 
   @Test
   public void findingNextSignatureFileIndex_onContainerWithOneSignature_withoutIndex_shouldReturn_null() throws Exception {
-    AsicParseResult result = parseContainer("src/test/resources/testFiles/invalid-containers/asics_for_testing.bdoc");
-    assertEquals(null, result.getCurrentUsedSignatureFileIndex());
+    Assert.assertEquals(null, this.getParseResult(Paths.get("src/test/resources/testFiles/invalid-containers/asics_for_testing.bdoc")).getCurrentUsedSignatureFileIndex());
   }
 
   @Test
   public void findingNextSignatureFileIndex_onContainerWithOneSignature_withIndex0_shouldReturn_0() throws Exception {
-    AsicParseResult result = parseContainer("src/test/resources/testFiles/valid-containers/asics_with_one_signature.bdoc");
-    assertEquals(Integer.valueOf(0), result.getCurrentUsedSignatureFileIndex());
+    Assert.assertEquals(Integer.valueOf(0), this.getParseResult(Paths.get("src/test/resources/testFiles/valid-containers/asics_with_one_signature.bdoc")).getCurrentUsedSignatureFileIndex());
   }
 
   @Test
   public void findingNextSignatureFileIndex_onContainerWithTwoSignature_shouldReturn_1() throws Exception {
-    AsicParseResult result = parseContainer("src/test/resources/testFiles/valid-containers/asics_testing_two_signatures.bdoc");
-    assertEquals(Integer.valueOf(1), result.getCurrentUsedSignatureFileIndex());
+    Assert.assertEquals(Integer.valueOf(1), this.getParseResult(Paths.get("src/test/resources/testFiles/valid-containers/asics_testing_two_signatures.bdoc")).getCurrentUsedSignatureFileIndex());
   }
 
   @Test
   public void parseBdocContainer() throws Exception {
-    AsicParseResult result = parseContainer("src/test/resources/testFiles/invalid-containers/two_signatures.bdoc");
-    assertParseResultValid(result);
+    this.assertParseResultValid(this.getParseResult(Paths.get("src/test/resources/testFiles/invalid-containers/two_signatures.bdoc")));
   }
 
   @Test
   public void parseBdocContainerStream() throws Exception {
-    AsicContainerParser parser = new AsicStreamContainerParser(new FileInputStream("src/test/resources/testFiles/invalid-containers/two_signatures.bdoc"), Configuration.getInstance());
-    AsicParseResult result = parser.read();
-    assertParseResultValid(result);
+    this.assertParseResultValid(new AsicStreamContainerParser(new FileInputStream("src/test/resources/testFiles/invalid-containers/two_signatures.bdoc"), Configuration.getInstance()).read());
   }
 
   @Test
   public void parseBDoc_containingSignaturesFile_withNonNumericCharacters() throws Exception {
-    AsicParseResult result = parseContainer("src/test/resources/testFiles/valid-containers/valid-bdoc-ts-signature-file-name-with-non-numeric-characters.asice");
-    assertIsAsiceContainer(result);
-    assertEquals("META-INF/l77Tsignaturesn00B.xml", result.getSignatures().get(0).getName());
-    assertNull(result.getCurrentUsedSignatureFileIndex());
+    AsicParseResult result = this.getParseResult(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-ts-signature-file-name-with-non-numeric-characters.asice"));
+    this.assertIsAsiceContainer(result);
+    Assert.assertEquals("META-INF/l77Tsignaturesn00B.xml", result.getSignatures().get(0).getName());
+    Assert.assertNull(result.getCurrentUsedSignatureFileIndex());
   }
 
-  private AsicParseResult parseContainer(String path) {
-    AsicContainerParser parser = new AsicFileContainerParser(path, Configuration.getInstance());
-    AsicParseResult result = parser.read();
-    return result;
-  }
+  /*
+   * RESTRICTED METHODS
+   */
 
   private void assertParseResultValid(AsicParseResult result) {
-    assertEquals("test.txt", result.getDataFiles().get(0).getName());
-    assertEquals("META-INF/signatures0.xml", result.getSignatures().get(0).getName());
-    assertEquals("META-INF/signatures1.xml", result.getSignatures().get(1).getName());
-    assertEquals(Integer.valueOf(1), result.getCurrentUsedSignatureFileIndex());
-    assertIsAsiceContainer(result);
+    Assert.assertEquals("test.txt", result.getDataFiles().get(0).getName());
+    Assert.assertEquals("META-INF/signatures0.xml", result.getSignatures().get(0).getName());
+    Assert.assertEquals("META-INF/signatures1.xml", result.getSignatures().get(1).getName());
+    Assert.assertEquals(Integer.valueOf(1), result.getCurrentUsedSignatureFileIndex());
+    this.assertIsAsiceContainer(result);
   }
 
   private void assertIsAsiceContainer(AsicParseResult result) {
-    assertTrue(result.getManifestParser().containsManifestFile());
-    assertFirstAsicEntryIsMimeType(result);
-    assertContainsManifest(result);
+    Assert.assertTrue(result.getManifestParser().containsManifestFile());
+    this.assertFirstAsicEntryIsMimeType(result);
+    this.assertContainsManifest(result);
   }
 
   private void assertFirstAsicEntryIsMimeType(AsicParseResult result) {
     List<AsicEntry> asicEntries = result.getAsicEntries();
-    assertEquals("mimetype", asicEntries.get(0).getZipEntry().getName());
+    Assert.assertEquals("mimetype", asicEntries.get(0).getZipEntry().getName());
   }
 
   private void assertContainsManifest(AsicParseResult result) {
-    for(AsicEntry entry: result.getAsicEntries()) {
-      if(entry.getZipEntry().getName().equals("META-INF/manifest.xml")) {
+    for (AsicEntry entry : result.getAsicEntries()) {
+      if (entry.getZipEntry().getName().equals("META-INF/manifest.xml")) {
         return;
       }
     }
-    assertTrue("Parse result does not contain manifest.xml", false);
+    Assert.assertTrue("Parse result does not contain manifest.xml", false);
   }
+
 }

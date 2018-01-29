@@ -38,16 +38,20 @@ public class TestDataBuilder {
     return ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
   }
 
-  public static Container createContainerWithFile(TemporaryFolder testFolder) throws IOException {
-    ContainerBuilder builder = ContainerBuilder.aContainer();
-    Container container = populateContainerBuilderWithFile(builder, testFolder);
-    return container;
+  public static Container createContainerWithFile(TemporaryFolder folder) throws IOException {
+    return TestDataBuilder.createContainerWithFile(folder, Container.DocumentType.BDOC, Configuration.Mode.TEST);
   }
 
-  public static Container createContainerWithFile(TemporaryFolder testFolder, String containerType) throws IOException {
-    ContainerBuilder builder = ContainerBuilder.aContainer(containerType);
-    Container container = populateContainerBuilderWithFile(builder, testFolder);
-    return container;
+  public static Container createContainerWithFile(TemporaryFolder folder, String containerType) throws IOException {
+    return TestDataBuilder.createContainerWithFile(folder, containerType, Configuration.Mode.TEST);
+  }
+
+  public static Container createContainerWithFile(TemporaryFolder folder, String containerType, Configuration.Mode mode) throws IOException {
+    return TestDataBuilder.populateContainerBuilderWithFile(ContainerBuilder.aContainer(containerType), folder, mode);
+  }
+
+  public static Container createContainerWithFile(TemporaryFolder folder, Container.DocumentType type, Configuration.Mode mode) throws IOException {
+    return TestDataBuilder.populateContainerBuilderWithFile(ContainerBuilder.aContainer(type), folder, mode);
   }
 
   public static Container createContainerWithFile(String dataFilePath) {
@@ -111,13 +115,9 @@ public class TestDataBuilder {
     return container;
   }
 
-  private static Container populateContainerBuilderWithFile(ContainerBuilder builder, TemporaryFolder testFolder) throws IOException {
-    File testFile = createTestFile(testFolder);
-    Container container = builder.
-        withConfiguration(new Configuration(Configuration.Mode.TEST)).
-        withDataFile(testFile.getPath(), "text/plain")
-        .build();
-    return container;
+  private static Container populateContainerBuilderWithFile(ContainerBuilder builder, TemporaryFolder testFolder, Configuration.Mode mode) throws IOException {
+    File testFile = TestDataBuilder.createTestFile(testFolder);
+    return builder.withConfiguration(new Configuration(mode)).withDataFile(testFile.getPath(), "text/plain").build();
   }
 
   private static SignatureBuilder prepareDataToSign(Container container) {

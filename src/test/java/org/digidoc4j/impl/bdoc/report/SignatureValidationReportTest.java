@@ -12,13 +12,14 @@ package org.digidoc4j.impl.bdoc.report;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 import java.util.Date;
 
 import org.digidoc4j.impl.asic.report.SignatureValidationReport;
+import org.digidoc4j.test.Refactored;
+import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import eu.europa.esig.dss.jaxb.simplereport.XmlSignature;
 import eu.europa.esig.dss.jaxb.simplereport.XmlSignatureLevel;
@@ -27,6 +28,7 @@ import eu.europa.esig.dss.validation.SignatureQualification;
 import eu.europa.esig.dss.validation.policy.rules.Indication;
 import eu.europa.esig.dss.validation.policy.rules.SubIndication;
 
+@Category(Refactored.class)
 public class SignatureValidationReportTest {
 
   @Test
@@ -44,28 +46,27 @@ public class SignatureValidationReportTest {
     signature.setSubIndication(SubIndication.NO_POE);
     signature.getErrors().addAll(asList("Error1", "Error2"));
     signature.getWarnings().addAll(asList("Warning1", "Warning2"));
-    signature.getInfos().addAll(asList("Info1","Info2"));
+    signature.getInfos().addAll(asList("Info1", "Info2"));
     signature.getSignatureScope().addAll(asList(new XmlSignatureScope()));
     signature.setId("123abc");
     signature.setType("Type");
     signature.setParentId("Parent ID");
     signature.setSignatureFormat("Format");
-
     SignatureValidationReport report = SignatureValidationReport.create(signature);
-
-    assertEquals(today, report.getSigningTime());
-    assertEquals("SignedBy", report.getSignedBy());
-    assertEquals(Indication.TOTAL_PASSED, report.getIndication());
-    assertEquals("QES", report.getSignatureLevel().getValue().name());
-    assertEquals("QES?", report.getSignatureLevel().getValue().getReadable());
-    assertEquals(SubIndication.NO_POE, report.getSubIndication());
-    assertThat(report.getErrors(), containsInAnyOrder("Error1", "Error2"));
-    assertThat(report.getWarnings(), containsInAnyOrder("Warning1", "Warning2"));
-    assertThat(report.getInfos(), containsInAnyOrder("Info1","Info2"));
-    assertEquals(1, report.getSignatureScope().size());
-    assertEquals("123abc", report.getId());
-    assertEquals("Type", report.getType());
-    assertEquals("Parent ID", report.getParentId());
-    assertEquals("Format", report.getSignatureFormat());
+    Assert.assertEquals(today, report.getSigningTime());
+    Assert.assertEquals("SignedBy", report.getSignedBy());
+    Assert.assertEquals(Indication.TOTAL_PASSED, report.getIndication());
+    Assert.assertEquals("QES", report.getSignatureLevel().getValue().name());
+    Assert.assertEquals("QES?", report.getSignatureLevel().getValue().getReadable());
+    Assert.assertEquals(SubIndication.NO_POE, report.getSubIndication());
+    Assert.assertThat(report.getErrors(), containsInAnyOrder("Error1", "Error2"));
+    Assert.assertThat(report.getWarnings(), containsInAnyOrder("Warning1", "Warning2"));
+    Assert.assertThat(report.getInfos(), containsInAnyOrder("Info1", "Info2"));
+    Assert.assertEquals(1, report.getSignatureScope().size());
+    Assert.assertEquals("123abc", report.getId());
+    Assert.assertEquals("Type", report.getType());
+    Assert.assertEquals("Parent ID", report.getParentId());
+    Assert.assertEquals("Format", report.getSignatureFormat());
   }
+
 }

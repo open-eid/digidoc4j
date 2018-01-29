@@ -74,6 +74,7 @@ public class DigiDoc4JTestHelper extends ConfigurationSingeltonHolder {
     System.setSecurityManager(preventExitSecurityManager);
   }
 
+  @Deprecated
   protected String getTxtFiles(InputStream in)  {
     BufferedReader reader = new BufferedReader(new InputStreamReader(in));
     String line;

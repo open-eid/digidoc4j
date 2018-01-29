@@ -10,96 +10,83 @@
 
 package org.digidoc4j.impl.bdoc.tsl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
 import org.digidoc4j.impl.asic.tsl.LazyCertificatePool;
-import org.digidoc4j.testutils.TSLHelper;
-import org.junit.Before;
+import org.digidoc4j.test.Refactored;
+import org.digidoc4j.test.util.TestCommonUtil;
+import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import eu.europa.esig.dss.x509.CertificatePool;
 
-public class LazyTslLoadingTest {
-
-  private Configuration configuration;
-
-  @Before
-  public void setUp() throws Exception {
-    configuration = new Configuration(Configuration.Mode.TEST);
-  }
+@Category(Refactored.class)
+public class LazyTslLoadingTest extends AbstractTest {
 
   @Test
   public void createLazyCertificatePool() throws Exception {
-    TSLCertificateSource tsl = configuration.getTSL();
+    TSLCertificateSource tsl = this.configuration.getTSL();
     SKCommonCertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
     certificateVerifier.setTrustedCertSource(tsl);
     CertificatePool certificatePool = certificateVerifier.createValidationPool();
-    assertTrue(certificatePool instanceof LazyCertificatePool);
-    assertEquals(tsl.getCertificatePool().getNumberOfCertificates(), certificatePool.getNumberOfCertificates());
+    Assert.assertTrue(certificatePool instanceof LazyCertificatePool);
+    Assert.assertEquals(tsl.getCertificatePool().getNumberOfCertificates(), certificatePool.getNumberOfCertificates());
   }
 
   @Test
   public void populateParameters_withoutDownloadingTsl() throws Exception {
-    deleteTSLCache();
-    assertTrue(isTslCacheEmpty());
+    this.evictTSLCache();
+    Assert.assertTrue(this.isTSLCacheEmpty());
     TSLCertificateSource tsl = configuration.getTSL();
-    assertTrue(isTslCacheEmpty());
+    Assert.assertTrue(this.isTSLCacheEmpty());
     SKCommonCertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
     certificateVerifier.setTrustedCertSource(tsl);
     CertificatePool certificatePool = certificateVerifier.createValidationPool();
-    assertTrue(isTslCacheEmpty());
-    assertEquals(tsl.getCertificatePool().getNumberOfCertificates(), certificatePool.getNumberOfCertificates());
-    assertFalse(isTslCacheEmpty());
+    Assert.assertTrue(this.isTSLCacheEmpty());
+    Assert.assertEquals(tsl.getCertificatePool().getNumberOfCertificates(), certificatePool.getNumberOfCertificates());
+    Assert.assertFalse(this.isTSLCacheEmpty());
   }
 
   @Test
   public void tslCertSource_shouldNotRenewTslAutomatically_whenCacheIsNotExpired() throws Exception {
-    configuration.setTslCacheExpirationTime(10000);
-    deleteTSLCache();
-    assertTrue(isTslCacheEmpty());
+    this.configuration.setTslCacheExpirationTime(10000);
+    this.evictTSLCache();
+    Assert.assertTrue(this.isTSLCacheEmpty());
     TSLCertificateSource tsl = configuration.getTSL();
-    assertTrue(tsl.getCertificates().size() > 0);
-    assertFalse(isTslCacheEmpty());
-    long tslCacheModificationTime = getCacheLastModificationTime();
-    waitOneSecond();
-    assertTrue(tsl.getCertificates().size() > 0);
-    long newTslCacheModificationTime = getCacheLastModificationTime();
-    assertEquals(tslCacheModificationTime, newTslCacheModificationTime);
+    Assert.assertTrue(tsl.getCertificates().size() > 0);
+    Assert.assertFalse(this.isTSLCacheEmpty());
+    long tslCacheModificationTime = this.getTSLCacheLastModificationTime();
+    TestCommonUtil.sleepInSeconds(1);
+    Assert.assertTrue(tsl.getCertificates().size() > 0);
+    long newTslCacheModificationTime = this.getTSLCacheLastModificationTime();
+    Assert.assertEquals(tslCacheModificationTime, newTslCacheModificationTime);
   }
 
   @Test
   public void tslCertCource_shouldRenewTslAutomatically_whenCacheIsExpired() throws Exception {
-    configuration.setTslCacheExpirationTime(100);
-    deleteTSLCache();
-    assertTrue(isTslCacheEmpty());
+    this.configuration.setTslCacheExpirationTime(100);
+    this.evictTSLCache();
+    Assert.assertTrue(this.isTSLCacheEmpty());
     TSLCertificateSource tsl = configuration.getTSL();
-    assertTrue(tsl.getCertificates().size() > 0);
-    assertFalse(isTslCacheEmpty());
-    long tslCacheModificationTime = getCacheLastModificationTime();
-    waitOneSecond();
-    assertTrue(tsl.getCertificates().size() > 0);
-    long newTslCacheModificationTime = getCacheLastModificationTime();
-    assertTrue(tslCacheModificationTime < newTslCacheModificationTime);
+    Assert.assertTrue(tsl.getCertificates().size() > 0);
+    Assert.assertFalse(this.isTSLCacheEmpty());
+    long tslCacheModificationTime = this.getTSLCacheLastModificationTime();
+    TestCommonUtil.sleepInSeconds(1);
+    Assert.assertTrue(tsl.getCertificates().size() > 0);
+    long newTslCacheModificationTime = this.getTSLCacheLastModificationTime();
+    Assert.assertTrue(tslCacheModificationTime < newTslCacheModificationTime);
   }
 
-  private void deleteTSLCache() {
-    TSLHelper.deleteTSLCache();
+  /*
+   * RESTRICTED METHODS
+   */
+
+  @Override
+  public void before() {
+    this.configuration = new Configuration(Configuration.Mode.TEST);
   }
 
-  private long getCacheLastModificationTime() {
-    return TSLHelper.getCacheLastModificationTime();
-  }
-
-  private boolean isTslCacheEmpty() {
-    return TSLHelper.isTslCacheEmpty();
-  }
-
-  private void waitOneSecond() throws InterruptedException {
-    Thread.sleep(1000L); //Waiting is necessary to check changes in the cached files modification time
-  }
 }
