@@ -15,8 +15,11 @@ import java.util.Arrays;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.impl.asic.manifest.AsicManifest;
+import org.digidoc4j.test.Refactored;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category(Refactored.class)
 public class ManifestTest {
 
   @Test

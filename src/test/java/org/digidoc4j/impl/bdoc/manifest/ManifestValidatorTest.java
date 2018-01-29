@@ -28,14 +28,17 @@ import org.digidoc4j.impl.asic.manifest.ManifestEntry;
 import org.digidoc4j.impl.asic.manifest.ManifestErrorMessage;
 import org.digidoc4j.impl.asic.manifest.ManifestParser;
 import org.digidoc4j.impl.asic.manifest.ManifestValidator;
+import org.digidoc4j.test.Refactored;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.MimeType;
 
+@Category(Refactored.class)
 public class ManifestValidatorTest {
 
   @Test
