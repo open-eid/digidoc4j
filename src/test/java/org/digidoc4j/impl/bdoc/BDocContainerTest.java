@@ -1063,6 +1063,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
       .fromExistingFile("src/test/resources/testFiles/invalid-containers/3863_bdoc21_TM_no_datafile.bdoc")
       .withConfiguration(new Configuration(Configuration.Mode.TEST))
       .build();
+    // ValidationResult result = container.validate();
   }
 
   @Test

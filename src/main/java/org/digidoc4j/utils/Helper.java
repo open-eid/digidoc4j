@@ -423,6 +423,44 @@ public final class Helper {
   }
 
   /**
+   * Checks that it's AsicE container
+   *
+   * @param path
+   * @return true if AsicE container
+   */
+  public static boolean isAsicEContainer(String path) {
+    String extension = FilenameUtils.getExtension(path);
+    if ("sce".equals(extension) || "asice".equals(extension)){
+      return true;
+    } else if ("zip".equals(extension)){
+      try {
+        return parseAsicContainer(new BufferedInputStream(new FileInputStream(path)), MimeType.ASICE);
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Checks that it's AsicS container
+   *
+   * @param stream
+   * @return true if AsicS container
+   */
+  public static boolean isAsicEContainer(BufferedInputStream stream) {
+    boolean isAsic = false;
+    try {
+      isAsic = parseAsicContainer(stream, MimeType.ASICE);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return isAsic;
+  }
+
+  /**
    * Checks that it's AsicS container
    *
    * @param path
@@ -434,7 +472,7 @@ public final class Helper {
       return true;
     } else if ("zip".equals(extension)){
       try {
-        return parseContainer(new BufferedInputStream(new FileInputStream(path)));
+        return parseAsicContainer(new BufferedInputStream(new FileInputStream(path)), MimeType.ASICS);
       } catch (FileNotFoundException e) {
         e.printStackTrace();
       } catch (IOException e) {
@@ -453,14 +491,14 @@ public final class Helper {
   public static boolean isAsicSContainer(BufferedInputStream stream) {
     boolean isAsic = false;
     try {
-      isAsic = parseContainer(stream);
+      isAsic = parseAsicContainer(stream, MimeType.ASICS);
     } catch (IOException e) {
       e.printStackTrace();
     }
     return isAsic;
   }
 
-  private static boolean parseContainer(BufferedInputStream stream) throws IOException {
+  private static boolean parseAsicContainer(BufferedInputStream stream, MimeType mtype) throws IOException {
     stream.mark(stream.available() + 1);
     ZipInputStream zipInputStream = new ZipInputStream(stream);
     try {
@@ -471,7 +509,7 @@ public final class Helper {
           BOMInputStream bomInputStream = new BOMInputStream(zipFileInputStream);
           DSSDocument document = new InMemoryDocument(bomInputStream);
           String mimeType = StringUtils.trim(IOUtils.toString(IOUtils.toByteArray(document.openStream()), "UTF-8"));
-          if (StringUtils.equalsIgnoreCase(mimeType, MimeType.ASICS.getMimeTypeString())){
+          if (StringUtils.equalsIgnoreCase(mimeType, mtype.getMimeTypeString())){
             return true;
           }
         }

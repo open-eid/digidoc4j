@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.impl.asic.AsicContainerCreator;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ public class BDocContainer extends AsicEContainer {
    */
   public BDocContainer() {
     super();
+    setType(Constant.BDOC_CONTAINER_TYPE);
   }
 
   /**
@@ -40,6 +42,7 @@ public class BDocContainer extends AsicEContainer {
    */
   public BDocContainer(Configuration configuration) {
     super(configuration);
+    setType(Constant.BDOC_CONTAINER_TYPE);
   }
 
   /**
@@ -49,6 +52,7 @@ public class BDocContainer extends AsicEContainer {
    */
   public BDocContainer(String containerPath) {
     super(containerPath);
+    setType(Constant.BDOC_CONTAINER_TYPE);
   }
 
   /**
@@ -59,6 +63,7 @@ public class BDocContainer extends AsicEContainer {
    */
   public BDocContainer(String containerPath, Configuration configuration) {
     super(containerPath, configuration);
+    setType(Constant.BDOC_CONTAINER_TYPE);
   }
 
   /**
@@ -68,6 +73,7 @@ public class BDocContainer extends AsicEContainer {
    */
   public BDocContainer(InputStream stream) {
     super(stream);
+    setType(Constant.BDOC_CONTAINER_TYPE);
   }
 
   /**
@@ -78,6 +84,7 @@ public class BDocContainer extends AsicEContainer {
    */
   public BDocContainer(InputStream stream, Configuration configuration) {
     super(stream, configuration);
+    setType(Constant.BDOC_CONTAINER_TYPE);
   }
 
   @Override

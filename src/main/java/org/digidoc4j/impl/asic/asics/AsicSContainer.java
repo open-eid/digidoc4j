@@ -13,8 +13,6 @@ import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 /**
  * Created by Andrei on 7.11.2017.
  */
@@ -24,31 +22,32 @@ public class AsicSContainer extends AsicContainer {
 
   public AsicSContainer() {
     super();
+    setType(Constant.ASICS_CONTAINER_TYPE);
   }
 
   public AsicSContainer(Configuration configuration) {
     super(configuration);
+    setType(Constant.ASICS_CONTAINER_TYPE);
   }
 
   public AsicSContainer(String containerPath) {
     super(containerPath);
+    setType(Constant.ASICS_CONTAINER_TYPE);
   }
 
   public AsicSContainer(String containerPath, Configuration configuration) {
     super(containerPath, configuration);
+    setType(Constant.ASICS_CONTAINER_TYPE);
   }
 
   public AsicSContainer(InputStream stream) {
     super(stream);
+    setType(Constant.ASICS_CONTAINER_TYPE);
   }
 
   public AsicSContainer(InputStream stream, Configuration configuration) {
     super(stream, configuration);
-  }
-
-  @Override
-  public String getType() {
-    return Constant.ASICS_CONTAINER_TYPE;
+    setType(Constant.ASICS_CONTAINER_TYPE);
   }
 
   @Override

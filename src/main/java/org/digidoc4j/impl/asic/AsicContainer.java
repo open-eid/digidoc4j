@@ -408,7 +408,7 @@ public abstract class AsicContainer implements Container {
     if (Constant.ASICS_CONTAINER_TYPE.equals(getType())){
       extendedSignatures = extendAllSignatureProfile(profile, signatures, Arrays.asList(dataFiles.get(0)));
     } else{
-       extendedSignatures = extendAllSignatureProfile(profile, signatures, dataFiles);
+      extendedSignatures = extendAllSignatureProfile(profile, signatures, dataFiles);
     }
     return extendedSignatures;
   }
@@ -444,7 +444,6 @@ public abstract class AsicContainer implements Container {
 
   }
 
-  //method is deprecated in case of new container
   @Override
   public void removeDataFile(String fileName) {
     if (!isNewContainer()) {

@@ -25,6 +25,7 @@ public class AsicEContainer extends AsicContainer {
    */
   public AsicEContainer() {
     super();
+    setType(Constant.ASICE_CONTAINER_TYPE);
   }
 
   /**
@@ -34,6 +35,7 @@ public class AsicEContainer extends AsicContainer {
    */
   public AsicEContainer(Configuration configuration) {
     super(configuration);
+    setType(Constant.ASICE_CONTAINER_TYPE);
   }
 
   /**
@@ -43,6 +45,7 @@ public class AsicEContainer extends AsicContainer {
    */
   public AsicEContainer(String containerPath) {
     super(containerPath);
+    setType(Constant.ASICE_CONTAINER_TYPE);
   }
 
   /**
@@ -53,6 +56,7 @@ public class AsicEContainer extends AsicContainer {
    */
   public AsicEContainer(String containerPath, Configuration configuration) {
     super(containerPath, configuration);
+    setType(Constant.ASICE_CONTAINER_TYPE);
   }
 
   /**
@@ -62,6 +66,7 @@ public class AsicEContainer extends AsicContainer {
    */
   public AsicEContainer(InputStream stream) {
     super(stream);
+    setType(Constant.ASICE_CONTAINER_TYPE);
   }
 
   /**
@@ -72,11 +77,7 @@ public class AsicEContainer extends AsicContainer {
    */
   public AsicEContainer(InputStream stream, Configuration configuration) {
     super(stream, configuration);
-  }
-
-  @Override
-  public String getType() {
-    return Constant.BDOC_CONTAINER_TYPE;
+    setType(Constant.ASICE_CONTAINER_TYPE);
   }
 
   @Override

@@ -27,6 +27,7 @@ import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
+import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.TechnicalException;
@@ -203,6 +204,9 @@ public abstract class AsicContainerParser {
       logger.error("Container mime type is not " + MimeType.ASICE.getMimeTypeString() + " but is " + mimeType);
       throw new UnsupportedFormatException("Container mime type is not " + MimeType.ASICE.getMimeTypeString()
           + " OR " + MimeType.ASICS.getMimeTypeString() + " but is " + mimeType);
+    }
+    if (!this.signatures.isEmpty() && this.dataFiles.isEmpty()) {
+      throw new ContainerWithoutFilesException("The reference data object(s) is not found!");
     }
   }
 
