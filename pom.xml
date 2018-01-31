@@ -810,6 +810,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.20.1</version>
                 <configuration>
+                    <argLine>-Dhttps.protocols=TLSv1.2</argLine>
                     <additionalClasspathElements>
                         <additionalClasspathElement>${project.basedir}/src/main/lib/esteidtestcerts.jar
                         </additionalClasspathElement>

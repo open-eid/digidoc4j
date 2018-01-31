@@ -1,1 +1,0 @@
-NB! When running performance tests make sure to use <*performance*> profile
