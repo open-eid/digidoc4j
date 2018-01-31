@@ -10,8 +10,6 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.ByteArrayInputStream;
 import java.nio.file.Paths;
 import java.util.List;
@@ -22,15 +20,11 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.Signature;
-import org.digidoc4j.ValidationResult;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
-import org.digidoc4j.test.Refactored;
-import org.digidoc4j.testutils.TestDataBuilder;
+import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-@Category(Refactored.class)
 public class UriEncodingTest extends AbstractTest {
 
   @Test
@@ -52,13 +46,13 @@ public class UriEncodingTest extends AbstractTest {
 
   @Test
   public void validatePartialEncoding_shouldBeValid() throws Exception {
-    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/et10_0123456789!#$%&'()+,-. ;=@[]_`}- et_EE_utf8.zip-d_ec.bdoc"));
+    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/et10_0123456789!#$%&'()+,-. ;=@[]_`}- et_EE_utf8.zip-d_ec.bdoc"), this.configuration);
     Assert.assertTrue(container.validate().isValid());
   }
 
   @Test
   public void validateContainer_withWhitespaceEncodedAsPlus_shouldBeValid() throws Exception {
-    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/M1n1 Testäöüõ!.txt-TS-d4j.bdoc"));
+    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/M1n1 Testäöüõ!.txt-TS-d4j.bdoc"), this.configuration);
     Assert.assertTrue(container.validate().isValid());
   }
 
@@ -74,7 +68,7 @@ public class UriEncodingTest extends AbstractTest {
   }
 
   private Signature sign(String fileName) {
-    return TestDataBuilder.signContainer(ContainerBuilder.aContainer().
+    return TestDataBuilderUtil.signContainer(ContainerBuilder.aContainer().
         withConfiguration(new Configuration(Configuration.Mode.TEST)).
         withDataFile(new ByteArrayInputStream("file contents".getBytes()), fileName, "application/octet-stream").
         build());

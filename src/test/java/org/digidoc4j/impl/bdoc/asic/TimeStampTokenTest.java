@@ -13,14 +13,12 @@ import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.TimeStampValidationResult;
 import org.digidoc4j.impl.asic.manifest.ManifestValidator;
-import org.digidoc4j.test.Refactored;
 import org.digidoc4j.test.util.TestDigiDoc4JUtil;
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemOutRule;
-import org.junit.experimental.categories.Category;
 
 import eu.europa.esig.dss.DigestAlgorithm;
 import eu.europa.esig.dss.MimeType;
@@ -35,7 +33,6 @@ import eu.europa.esig.dss.x509.TimestampType;
  * Created by Andrei on 22.11.2017.
  */
 
-@Category(Refactored.class)
 public class TimeStampTokenTest extends AbstractTest {
 
   public static final String META_INF_TIMESTAMP_TST = "META-INF/timestamp.tst";
@@ -48,7 +45,7 @@ public class TimeStampTokenTest extends AbstractTest {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(this.configuration).
         withDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain").
         withTimeStampToken(DigestAlgorithm.SHA256).build();
-    container.saveAsFile("src/test/resources/testFiles/tmp/newTestTimestamp.asics");
+    container.saveAsFile(this.getFileBy("asics"));
     Assert.assertTrue(container.validate().isValid());
   }
 

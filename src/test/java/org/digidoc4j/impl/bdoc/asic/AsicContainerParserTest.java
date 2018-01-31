@@ -19,12 +19,9 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.asic.AsicEntry;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicStreamContainerParser;
-import org.digidoc4j.test.Refactored;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-@Category(Refactored.class)
 public class AsicContainerParserTest extends AbstractTest {
 
   @Test

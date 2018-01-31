@@ -10,12 +10,9 @@
 
 package org.digidoc4j.exceptions;
 
-import org.digidoc4j.test.Refactored;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-@Category(Refactored.class)
 public class DigiDoc4JExceptionTest {
 
   @Test

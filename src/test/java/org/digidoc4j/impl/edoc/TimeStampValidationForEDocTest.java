@@ -1,19 +1,16 @@
 package org.digidoc4j.impl.edoc;
 
+import java.nio.file.Paths;
+
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.Container;
-import org.digidoc4j.ContainerOpener;
-import org.digidoc4j.test.Refactored;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 /**
  * Created by kamlatm on 4.05.2017.
  */
 
-@Category(Refactored.class)
 public class TimeStampValidationForEDocTest extends AbstractTest {
 
   private static final String EDOC_LOCATION = "src/test/resources/testFiles/valid-containers/latvian_signed_container.edoc";
@@ -21,14 +18,12 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
 
   @Test
   public void invalidTimestampMsgIsNotExistForEDOC() {
-    Container container = ContainerOpener.open(EDOC_LOCATION, this.configuration);
-    Assert.assertEquals(0, container.validate().getErrors().size());
+    Assert.assertEquals(0, this.openContainerByConfiguration(Paths.get(EDOC_LOCATION)).validate().getErrors().size());
   }
 
   @Test
   public void invalidTimestampMsgIsNotExistForASICE() {
-    Container container = ContainerOpener.open(ASICE_LOCATION, this.configuration);
-    Assert.assertEquals(0, container.validate().getErrors().size());
+    Assert.assertEquals(0, this.openContainerByConfiguration(Paths.get(ASICE_LOCATION)).validate().getErrors().size());
   }
 
   /*
@@ -37,6 +32,7 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
 
   @Override
   protected void before() {
+    this.setGlobalMode(Configuration.Mode.PROD);
     this.configuration = new Configuration(Configuration.Mode.PROD);
   }
 

@@ -17,13 +17,10 @@ import org.digidoc4j.impl.asic.ocsp.BDocTMOcspSource;
 import org.digidoc4j.impl.asic.ocsp.BDocTSOcspSource;
 import org.digidoc4j.impl.asic.ocsp.OcspSourceBuilder;
 import org.digidoc4j.impl.asic.ocsp.SKOnlineOCSPSource;
-import org.digidoc4j.test.Refactored;
-import org.digidoc4j.testutils.TestAssert;
+import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-@Category(Refactored.class)
 public class OcspSourceBuilderTest extends AbstractTest {
 
   @Test

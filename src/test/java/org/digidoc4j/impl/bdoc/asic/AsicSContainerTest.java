@@ -16,13 +16,11 @@ import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.manifest.ManifestValidator;
-import org.digidoc4j.test.Refactored;
 import org.digidoc4j.test.util.TestDigiDoc4JUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import eu.europa.esig.dss.MimeType;
 
@@ -30,13 +28,7 @@ import eu.europa.esig.dss.MimeType;
  * Created by Andrei on 15.11.2017.
  */
 
-@Category(Refactored.class)
 public class AsicSContainerTest extends AbstractTest {
-
-  @After
-  public void cleanUp() throws Exception {
-    FileUtils.cleanDirectory(new File("src/test/resources/testFiles/tmp"));
-  }
 
   @Test
   @Ignore //FIXME

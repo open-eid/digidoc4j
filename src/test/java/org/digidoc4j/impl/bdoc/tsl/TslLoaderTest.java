@@ -15,20 +15,17 @@ import java.util.Map;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.asic.tsl.TslLoader;
-import org.digidoc4j.test.Refactored;
 import org.digidoc4j.test.util.TestCommonUtil;
-import org.digidoc4j.testutils.TSLHelper;
+import org.digidoc4j.test.util.TestTSLUtil;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import eu.europa.esig.dss.tsl.TSLValidationModel;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 import eu.europa.esig.dss.validation.policy.rules.Indication;
 
-@Category(Refactored.class)
 public class TslLoaderTest extends AbstractTest {
 
   private TslLoader tslLoader;
@@ -70,6 +67,7 @@ public class TslLoaderTest extends AbstractTest {
 
   @Test
   public void loadTsl_forAllCountries_byDefault() throws Exception {
+    this.setGlobalMode(Configuration.Mode.PROD);
     this.configuration = new Configuration(Configuration.Mode.PROD);
     TSLRepository tslRepository = this.initTSLAndGetRepository();
     this.assertCountryLoaded(tslRepository, "EE");
@@ -106,8 +104,10 @@ public class TslLoaderTest extends AbstractTest {
   /**
    * Ignore countries with invalid TSL: DE (Germany) and HR (Croatia)
    */
+
   @Test
   public void loadTsl_withoutCountryHr_byDefault() throws Exception {
+    this.setGlobalMode(Configuration.Mode.PROD);
     this.configuration = new Configuration(Configuration.Mode.PROD);
     TSLRepository tslRepository = this.initTSLAndGetRepository();
     this.assertCountryLoaded(tslRepository, "EE");
@@ -123,7 +123,7 @@ public class TslLoaderTest extends AbstractTest {
 
   @Override
   protected void before() {
-    TslLoader.invalidateCache();
+    TestTSLUtil.evictCache();
   }
 
   private void createTSLLoader() {
@@ -141,7 +141,7 @@ public class TslLoaderTest extends AbstractTest {
   private long refreshTSLAndGetCacheLastModificationTime() {
     this.tslLoader.prepareTsl();
     this.tslLoader.getTslValidationJob().refresh();
-    return TSLHelper.getCacheLastModificationTime();
+    return TestTSLUtil.getCacheLastModified();
   }
 
   private void assertTSLIsValid() {

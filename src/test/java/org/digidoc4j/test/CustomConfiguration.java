@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.testutils;
+package org.digidoc4j.test;
 
 import org.digidoc4j.Configuration;
 

@@ -11,7 +11,7 @@
 /*
  * Thanks to Aleksandr Zhuikov (http://aleksz-programming.blogspot.com.ee/2014/02/restricting-system-resource-access-in.html)
  */
-package org.digidoc4j.testutils;
+package org.digidoc4j.test;
 
 import java.security.Permission;
 import java.util.Arrays;
@@ -23,11 +23,11 @@ import org.junit.rules.ExternalResource;
 /**
  * JUnit rule for making sure that the code under test would not write anything to the file system.
  */
-public class RestrictedFileWritingRule extends ExternalResource {
+public class RestrictedExternalResourceRule extends ExternalResource {
 
   private Collection<String> whiteList;
 
-  public RestrictedFileWritingRule(String... whiteList) {
+  public RestrictedExternalResourceRule(String... whiteList) {
     this.whiteList = Arrays.asList(whiteList);
   }
 
@@ -38,7 +38,7 @@ public class RestrictedFileWritingRule extends ExternalResource {
 
       @Override
       public void checkWrite(String file) {
-        if(!isAllowedToWrite(file)) {
+        if (!isAllowedToWrite(file)) {
           throw new FileWritingRestrictedException();
         }
       }
@@ -57,8 +57,8 @@ public class RestrictedFileWritingRule extends ExternalResource {
   }
 
   private boolean isAllowedToWrite(String file) {
-    for(String prefix: whiteList) {
-      if(StringUtils.startsWith(file, prefix)) {
+    for (String prefix : this.whiteList) {
+      if (StringUtils.startsWith(file, prefix)) {
         return true;
       }
     }
@@ -70,4 +70,5 @@ public class RestrictedFileWritingRule extends ExternalResource {
    */
   public static class FileWritingRestrictedException extends RuntimeException {
   }
+
 }

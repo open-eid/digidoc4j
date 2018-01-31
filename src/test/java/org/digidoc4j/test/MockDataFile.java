@@ -8,20 +8,21 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.test.util;
+package org.digidoc4j.test;
+
+import org.digidoc4j.DataFile;
+
+import eu.europa.esig.dss.InMemoryDocument;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
  */
 
-public final class TestCommonUtil {
+public class MockDataFile extends DataFile {
 
-  public static void sleepInSeconds(int seconds) {
-    try {
-      Thread.sleep(seconds * 1000);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+  public MockDataFile(byte[] data, String fileName, String mimeType) {
+    super(data, fileName, mimeType);
+    this.setDocument(new InMemoryDocument(data, mimeType));
   }
 
 }

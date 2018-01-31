@@ -37,7 +37,6 @@ import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
 import org.digidoc4j.impl.asic.tsl.TslLoader;
-import org.digidoc4j.test.Refactored;
 import org.digidoc4j.test.util.TestCommonUtil;
 import org.digidoc4j.test.util.TestFileUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
@@ -45,7 +44,6 @@ import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +53,6 @@ import eu.europa.esig.dss.tsl.ServiceInfo;
 import eu.europa.esig.dss.tsl.ServiceInfoStatus;
 import eu.europa.esig.dss.x509.CertificateToken;
 
-@Category(Refactored.class)
 public class ConfigurationTest extends AbstractTest {
 
   private final Logger log = LoggerFactory.getLogger(ConfigurationTest.class);
@@ -144,7 +141,7 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void getTsl_whenCacheIsNotExpired_shouldUseCachedTsl() throws Exception {
-    TestTSLUtil.deleteCache();
+    TestTSLUtil.evictCache();
     this.configuration.setTslCacheExpirationTime(10000L);
     TSLCertificateSource tsl1 = this.configuration.getTSL();
     tsl1.refresh();
@@ -158,7 +155,7 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void getTsl_whenCacheIsExpired_shouldDownloadNewTsl() throws Exception {
-    TestTSLUtil.deleteCache();
+    TestTSLUtil.evictCache();
     configuration.setTslCacheExpirationTime(500L);
     TSLCertificateSource tsl = configuration.getTSL();
     tsl.refresh();

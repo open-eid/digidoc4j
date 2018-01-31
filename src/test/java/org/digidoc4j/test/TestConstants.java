@@ -8,20 +8,14 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.test.util;
+package org.digidoc4j.test;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
  */
 
-public final class TestCommonUtil {
+public final class TestConstants {
 
-  public static void sleepInSeconds(int seconds) {
-    try {
-      Thread.sleep(seconds * 1000);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
+  public static final int ONE_DAY_IN_MILLIS = 1000 * 60 * 60 * 24;
 
 }

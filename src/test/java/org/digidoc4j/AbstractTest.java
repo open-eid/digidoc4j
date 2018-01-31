@@ -5,10 +5,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -16,6 +18,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.impl.asic.AsicFileContainerParser;
 import org.digidoc4j.impl.asic.AsicParseResult;
@@ -23,14 +27,13 @@ import org.digidoc4j.impl.asic.SkDataLoader;
 import org.digidoc4j.impl.asic.ocsp.BDocTSOcspSource;
 import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
 import org.digidoc4j.signers.PKCS12SignatureToken;
-import org.digidoc4j.test.Refactored;
-import org.digidoc4j.testutils.CustomTemporaryFolder;
-import org.digidoc4j.testutils.TSLHelper;
-import org.digidoc4j.testutils.TestDataBuilder;
-import org.digidoc4j.testutils.TestSigningHelper;
+import org.digidoc4j.test.TargetTemporaryFolderRule;
+import org.digidoc4j.test.util.TestTSLUtil;
+import org.digidoc4j.test.util.TestDataBuilderUtil;
+import org.digidoc4j.test.util.TestSigningUtil;
+import org.digidoc4j.utils.Helper;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.internal.AssumptionViolatedException;
 import org.junit.rules.ExpectedException;
@@ -40,6 +43,9 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ee.sk.digidoc.DigiDocException;
+import ee.sk.digidoc.SignedDoc;
+import ee.sk.utils.ConfigManager;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
@@ -56,7 +62,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   private final Logger log = LoggerFactory.getLogger(AbstractTest.class);
 
   @Rule
-  public TemporaryFolder testFolder = new CustomTemporaryFolder(new File("target"), "tmp");
+  public TemporaryFolder testFolder = new TargetTemporaryFolderRule("tmp");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -64,7 +70,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   @Rule
   public TestWatcher watcher = new TestWatcher() {
 
-    private final Logger log = LoggerFactory.getLogger(Refactored.class);
+    private final Logger log = LoggerFactory.getLogger(AbstractTest.class);
     private long startTimestamp;
 
     @Override
@@ -149,20 +155,38 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     return new AsicFileContainerParser(path.toString(), Configuration.getInstance()).read();
   }
 
-  protected Container openContainer(Path path) {
+  protected Pair<SignedDoc, List<DigiDocException>> openDigiDocContainerBy(Path path) {
+    try {
+      List<DigiDocException> errors = new ArrayList<>();
+      SignedDoc doc = ConfigManager.instance().getDigiDocFactory().readSignedDocOfType(path.toString(), true, errors);
+      return new ImmutablePair<>(doc, errors);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  protected Container openContainerBy(Path path) {
     return ContainerBuilder.aContainer().fromExistingFile(path.toString()).build();
   }
 
   protected Container openContainerByConfiguration(Path path) {
-    return openContainerByConfiguration(path, this.configuration);
+    return this.openContainerByConfiguration(path, this.configuration);
   }
 
   protected Container openContainerByConfiguration(Path path, Configuration configuration) {
     ContainerBuilder builder = ContainerBuilder.aContainer().fromExistingFile(path.toString());
-    if (this.configuration != null) {
-      builder.withConfiguration(this.configuration);
+    if (configuration != null) {
+      builder.withConfiguration(configuration);
     }
     return builder.build();
+  }
+
+  protected <T> T createEmptyContainer() {
+    return (T) ContainerBuilder.aContainer().build();
+  }
+
+  protected <T> T createEmptyContainer(Class<T> clazz) {
+    return (T) ContainerBuilder.aContainer().build();
   }
 
   protected <T> T createEmptyContainerBy(Container.DocumentType type) {
@@ -177,16 +201,21 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     return this.createNonEmptyContainerBy(Container.DocumentType.BDOC);
   }
 
+  protected Container createNonEmptyContainerByConfiguration() {
+    return ContainerBuilder.aContainer().withConfiguration(this.configuration)
+        .withDataFile(this.createTemporaryFileBy("TOP SECRET").getPath(), "text/plain").build();
+  }
+
   protected Container createNonEmptyContainerBy(Container.DocumentType type) {
     try {
-      return TestDataBuilder.createContainerWithFile(this.testFolder, type, Configuration.Mode.TEST);
+      return TestDataBuilderUtil.createContainerWithFile(this.testFolder, type, Configuration.Mode.TEST);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   protected Container createNonEmptyContainerBy(Path path) {
-    return TestDataBuilder.createContainerWithFile(path.toString());
+    return TestDataBuilderUtil.createContainerWithFile(path.toString());
   }
 
   protected Container createNonEmptyContainerBy(Path path, String mimeType) {
@@ -203,6 +232,16 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected File createTemporaryFile() throws IOException {
     return this.testFolder.newFile();
+  }
+
+  protected File createTemporaryFileBy(String name, String content) {
+    try {
+      File file = this.testFolder.newFile(name);
+      FileUtils.writeStringToFile(file, "Banana Pancakes");
+      return file;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   protected File createTemporaryFileBy(String content) {
@@ -224,17 +263,40 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected String getFileBy(String extension) {
-    return String.format("%s/%s.%s", this.testFolder.getRoot().getPath(), RandomUtils.nextInt(), extension);
+    return this.getFileBy(extension, false);
+  }
+
+  protected String getFileBy(String extension, boolean create) {
+    String file = String.format("%s/%s.%s", this.testFolder.getRoot().getPath(), RandomUtils.nextInt(), extension);
+    if (create) {
+      try {
+        Files.createFile(Paths.get(file));
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    return file;
   }
 
   protected <T> T createSignatureBy(Container container, SignatureToken signatureToken) {
-    return (T) this.createSignatureBy(container, null, signatureToken);
+    return (T) this.createSignatureBy(container, (SignatureProfile) null, signatureToken);
+  }
+
+  protected <T> T createSignatureBy(Container container, DigestAlgorithm digestAlgorithm, SignatureToken signatureToken) {
+    return this.createSignatureBy(container, null, digestAlgorithm, signatureToken);
   }
 
   protected <T> T createSignatureBy(Container container, SignatureProfile signatureProfile, SignatureToken signatureToken) {
+    return this.createSignatureBy(container, signatureProfile, null, signatureToken);
+  }
+
+  protected <T> T createSignatureBy(Container container, SignatureProfile signatureProfile, DigestAlgorithm digestAlgorithm, SignatureToken signatureToken) {
     SignatureBuilder builder = SignatureBuilder.aSignature(container).withSignatureToken(signatureToken);
     if (signatureProfile != null) {
       builder.withSignatureProfile(signatureProfile);
+    }
+    if (digestAlgorithm != null) {
+      builder.withSignatureDigestAlgorithm(digestAlgorithm);
     }
     Signature signature = builder.invokeSigning();
     container.addSignature(signature);
@@ -259,7 +321,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected <T> T createSignatureBy(Container.DocumentType type, SignatureProfile signatureProfile, SignatureToken signatureToken, Configuration.Mode mode) {
     try {
-      SignatureBuilder builder = SignatureBuilder.aSignature(TestDataBuilder.createContainerWithFile(this.testFolder, type, mode));
+      SignatureBuilder builder = SignatureBuilder.aSignature(TestDataBuilderUtil.createContainerWithFile(this.testFolder, type, mode));
       if (signatureProfile != null) {
         builder.withSignatureProfile(signatureProfile);
       }
@@ -297,8 +359,20 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     return fileName;
   }
 
+  public <T> void serialize(T object, String filename) {
+    Helper.serialize(object, new File(filename));
+  }
+
+  public <T> T deserializer(String filename) {
+    return Helper.deserializer(new File(filename));
+  }
+
   protected DSSDocument sign(XadesSigningDssFacade facade, DigestAlgorithm digestAlgorithm) {
-    return facade.signDocument(TestSigningHelper.sign(this.getDataToSign(facade), digestAlgorithm), this.createDataFilesToSign());
+    return facade.signDocument(TestSigningUtil.sign(this.getDataToSign(facade), digestAlgorithm), this.createDataFilesToSign());
+  }
+
+  protected byte[] sign(byte[] dataToSign, DigestAlgorithm digestAlgorithm) {
+    return this.pkcs12SignatureToken.sign(digestAlgorithm, dataToSign);
   }
 
   protected byte[] getDataToSign(XadesSigningDssFacade facade) {
@@ -311,15 +385,15 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected void evictTSLCache() {
-    TSLHelper.deleteTSLCache();
+    TestTSLUtil.evictCache();
   }
 
   protected long getTSLCacheLastModificationTime() {
-    return TSLHelper.getCacheLastModificationTime();
+    return TestTSLUtil.getCacheLastModified();
   }
 
   protected boolean isTSLCacheEmpty() {
-    return TSLHelper.isTslCacheEmpty();
+    return TestTSLUtil.isTslCacheEmpty();
   }
 
   protected X509Certificate openX509Certificate(Path path) {

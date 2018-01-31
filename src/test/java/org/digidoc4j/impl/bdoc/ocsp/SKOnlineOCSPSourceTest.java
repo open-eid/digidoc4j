@@ -10,11 +10,9 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.asic.SkDataLoader;
 import org.digidoc4j.impl.asic.ocsp.BDocTSOcspSource;
 import org.digidoc4j.impl.asic.ocsp.SKOnlineOCSPSource;
-import org.digidoc4j.test.Refactored;
 import org.digidoc4j.utils.CertificatesForTests;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -24,7 +22,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.x509.ocsp.OCSPToken;
 
-@Category(Refactored.class)
 @RunWith(MockitoJUnitRunner.class)
 public class SKOnlineOCSPSourceTest extends AbstractTest {
 

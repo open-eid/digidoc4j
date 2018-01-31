@@ -26,6 +26,7 @@ import eu.europa.esig.dss.DigestAlgorithm;
  * Created by Andrei on 29.11.2017.
  */
 public class AsicSignature implements Signature {
+
   private static final Logger logger = LoggerFactory.getLogger(AsicSignature.class);
   private SignatureValidationResult validationResult;
   private XadesSignature xadesSignature;

@@ -8,12 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.testutils;
-
-import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
-import static org.digidoc4j.testutils.TestSigningHelper.getSigningCert;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+package org.digidoc4j.test.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,105 +22,80 @@ import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.signers.PKCS12SignatureToken;
+import org.junit.Assert;
 import org.junit.rules.TemporaryFolder;
 
-public class TestDataBuilder {
-
-  public static final PKCS12SignatureToken PKCS12_SIGNER = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
-
-  public static Container createEmptyBDocContainer() {
-    return ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).build();
-  }
+public class TestDataBuilderUtil {
 
   public static Container createContainerWithFile(TemporaryFolder folder) throws IOException {
-    return TestDataBuilder.createContainerWithFile(folder, Container.DocumentType.BDOC, Configuration.Mode.TEST);
+    return TestDataBuilderUtil.createContainerWithFile(folder, Container.DocumentType.BDOC, Configuration.Mode.TEST);
   }
 
   public static Container createContainerWithFile(TemporaryFolder folder, String containerType) throws IOException {
-    return TestDataBuilder.createContainerWithFile(folder, containerType, Configuration.Mode.TEST);
+    return TestDataBuilderUtil.createContainerWithFile(folder, containerType, Configuration.Mode.TEST);
   }
 
   public static Container createContainerWithFile(TemporaryFolder folder, String containerType, Configuration.Mode mode) throws IOException {
-    return TestDataBuilder.populateContainerBuilderWithFile(ContainerBuilder.aContainer(containerType), folder, mode);
+    return TestDataBuilderUtil.populateContainerBuilderWithFile(ContainerBuilder.aContainer(containerType), folder, mode);
   }
 
   public static Container createContainerWithFile(TemporaryFolder folder, Container.DocumentType type, Configuration.Mode mode) throws IOException {
-    return TestDataBuilder.populateContainerBuilderWithFile(ContainerBuilder.aContainer(type), folder, mode);
+    return TestDataBuilderUtil.populateContainerBuilderWithFile(ContainerBuilder.aContainer(type), folder, mode);
   }
 
   public static Container createContainerWithFile(String dataFilePath) {
-    return createContainerWithFile(dataFilePath, "text/plain");
+    return TestDataBuilderUtil.createContainerWithFile(dataFilePath, "text/plain");
   }
 
   public static Container createContainerWithFile(String dataFilePath, String mimeType) {
-    Container container = ContainerBuilder.
-        aContainer(BDOC_CONTAINER_TYPE).
-        withConfiguration(new Configuration(Configuration.Mode.TEST)).
-        withDataFile(dataFilePath, mimeType)
-        .build();
-    return container;
+    return ContainerBuilder.aContainer().withConfiguration(new Configuration(Configuration.Mode.TEST)).
+        withDataFile(dataFilePath, mimeType).build();
   }
 
   public static Signature signContainer(Container container) {
-    DataToSign dataToSign = buildDataToSign(container);
-    return makeSignature(container, dataToSign);
+    return TestDataBuilderUtil.makeSignature(container, TestDataBuilderUtil.buildDataToSign(container));
   }
 
   public static Signature signContainer(Container container, DigestAlgorithm digestAlgorithm) {
-    DataToSign dataToSign = prepareDataToSign(container).
-        withSignatureDigestAlgorithm(digestAlgorithm).
-        buildDataToSign();
-    return makeSignature(container, dataToSign);
+    return TestDataBuilderUtil.makeSignature(container, prepareDataToSign(container).withSignatureDigestAlgorithm(digestAlgorithm).
+        buildDataToSign());
   }
 
   public static Signature signContainer(Container container, SignatureProfile signatureProfile) {
-    DataToSign dataToSign = prepareDataToSign(container).
-        withSignatureProfile(signatureProfile).
-        buildDataToSign();
-    return makeSignature(container, dataToSign);
+    return TestDataBuilderUtil.makeSignature(container, TestDataBuilderUtil.prepareDataToSign(container).withSignatureProfile(signatureProfile).buildDataToSign());
   }
 
   public static Signature makeSignature(Container container, DataToSign dataToSign) {
-    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
-    assertNotNull(signatureValue);
-    assertTrue(signatureValue.length > 1);
-
+    byte[] signatureValue = TestSigningUtil.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
+    Assert.assertNotNull(signatureValue);
+    Assert.assertTrue(signatureValue.length > 1);
     Signature signature = dataToSign.finalize(signatureValue);
     container.addSignature(signature);
     return signature;
   }
 
   public static DataToSign buildDataToSign(Container container) {
-    SignatureBuilder builder = prepareDataToSign(container);
-    return builder.buildDataToSign();
+    return TestDataBuilderUtil.prepareDataToSign(container).buildDataToSign();
   }
 
   public static DataToSign buildDataToSign(Container container, String signatureId) {
-    SignatureBuilder builder = prepareDataToSign(container);
+    SignatureBuilder builder = TestDataBuilderUtil.prepareDataToSign(container);
     builder.withSignatureId(signatureId);
     return builder.buildDataToSign();
   }
 
   public static Container open(String path) {
-    Container container = ContainerBuilder.
-        aContainer(BDOC_CONTAINER_TYPE).
-        fromExistingFile(path).
-        build();
-    return container;
+    return ContainerBuilder.aContainer().fromExistingFile(path).build();
   }
 
   private static Container populateContainerBuilderWithFile(ContainerBuilder builder, TemporaryFolder testFolder, Configuration.Mode mode) throws IOException {
-    File testFile = TestDataBuilder.createTestFile(testFolder);
+    File testFile = TestDataBuilderUtil.createTestFile(testFolder);
     return builder.withConfiguration(new Configuration(mode)).withDataFile(testFile.getPath(), "text/plain").build();
   }
 
   private static SignatureBuilder prepareDataToSign(Container container) {
-    return SignatureBuilder.
-        aSignature(container).
-        withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
-        withSignatureProfile(SignatureProfile.LT_TM).
-        withSigningCertificate(getSigningCert());
+    return SignatureBuilder.aSignature(container).withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
+        withSignatureProfile(SignatureProfile.LT_TM).withSigningCertificate(TestSigningUtil.getSigningCert());
   }
 
   public static File createTestFile(TemporaryFolder testFolder) throws IOException {
@@ -133,4 +103,5 @@ public class TestDataBuilder {
     FileUtils.writeStringToFile(testFile, "Banana Pancakes");
     return testFile;
   }
+
 }

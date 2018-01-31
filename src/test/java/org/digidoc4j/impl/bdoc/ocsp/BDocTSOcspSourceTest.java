@@ -15,12 +15,9 @@ import org.bouncycastle.asn1.x509.Extension;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.asic.ocsp.BDocTSOcspSource;
-import org.digidoc4j.test.Refactored;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-@Category(Refactored.class)
 public class BDocTSOcspSourceTest extends AbstractTest {
 
   @Test

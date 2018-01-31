@@ -26,11 +26,9 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
 import org.digidoc4j.signers.PKCS12SignatureToken;
-import org.digidoc4j.test.Refactored;
-import org.digidoc4j.testutils.TestAssert;
+import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.EncryptionAlgorithm;
@@ -38,7 +36,6 @@ import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignerLocation;
 
-@Category(Refactored.class)
 public class XadesSigningDssFacadeTest extends AbstractTest {
 
   private XadesSigningDssFacade facade;

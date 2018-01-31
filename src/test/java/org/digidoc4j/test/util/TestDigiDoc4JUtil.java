@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+*
+* This software is released under either the GNU Library General Public
+* License (see LICENSE.LGPL).
+*
+* Note that the only valid version of the LGPL license as far as this
+* project is concerned is the original GNU Library General Public License
+* Version 2.1, February 1999
+*/
+
 package org.digidoc4j.test.util;
 
 import java.security.Permission;
@@ -20,7 +30,7 @@ public final class TestDigiDoc4JUtil {
     @Override
     public void checkExit(int status) {
       super.checkExit(status);
-      throw new DigiDoc4JUtilityException(status, "Preventing system exit");
+      throw new DigiDoc4JUtilityException(status, "Preventing system systemExit");
     }
 
   };

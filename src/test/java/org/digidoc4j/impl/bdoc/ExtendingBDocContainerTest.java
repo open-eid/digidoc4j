@@ -11,19 +11,16 @@
 package org.digidoc4j.impl.bdoc;
 
 import org.digidoc4j.AbstractTest;
-import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.test.Refactored;
-import org.digidoc4j.testutils.TestDataBuilder;
+import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-@Category(Refactored.class)
 public class ExtendingBDocContainerTest extends AbstractTest {
 
   private String containerLocation;
@@ -35,7 +32,7 @@ public class ExtendingBDocContainerTest extends AbstractTest {
     container.saveAsFile(this.containerLocation);
     Assert.assertEquals(1, container.getSignatures().size());
     Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
-    container = TestDataBuilder.open(this.containerLocation);
+    container = TestDataBuilderUtil.open(this.containerLocation);
     container.extendSignatureProfile(SignatureProfile.LT);
     container.saveAsFile(this.getFileBy("bdoc"));
     Assert.assertEquals(1, container.getSignatures().size());
@@ -52,7 +49,7 @@ public class ExtendingBDocContainerTest extends AbstractTest {
     container.saveAsFile(this.containerLocation);
     Assert.assertEquals(1, container.getSignatures().size());
     Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
-    container = TestDataBuilder.open(this.containerLocation);
+    container = TestDataBuilderUtil.open(this.containerLocation);
     container.extendSignatureProfile(SignatureProfile.LT_TM);
     container.saveAsFile(this.getFileBy("bdoc"));
     Assert.assertEquals(1, container.getSignatures().size());
@@ -69,7 +66,7 @@ public class ExtendingBDocContainerTest extends AbstractTest {
     container.saveAsFile(this.containerLocation);
     Assert.assertEquals(1, container.getSignatures().size());
     Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
-    container = TestDataBuilder.open(this.containerLocation);
+    container = TestDataBuilderUtil.open(this.containerLocation);
     container.extendSignatureProfile(SignatureProfile.LTA);
     container.saveAsFile(this.getFileBy("bdoc"));
     Assert.assertEquals(1, container.getSignatures().size());
@@ -139,7 +136,7 @@ public class ExtendingBDocContainerTest extends AbstractTest {
     container.saveAsFile(this.containerLocation);
     Assert.assertEquals(1, container.getSignatures().size());
     Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
-    container = TestDataBuilder.open(this.containerLocation);
+    container = TestDataBuilderUtil.open(this.containerLocation);
     container.extendSignatureProfile(SignatureProfile.LT);
     container.extendSignatureProfile(SignatureProfile.LT);
   }
@@ -153,11 +150,11 @@ public class ExtendingBDocContainerTest extends AbstractTest {
     Assert.assertEquals(2, container.getSignatures().size());
     Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
     Assert.assertNull(container.getSignatures().get(1).getOCSPCertificate());
-    container = TestDataBuilder.open(this.containerLocation);
+    container = TestDataBuilderUtil.open(this.containerLocation);
     container.extendSignatureProfile(SignatureProfile.LT);
     String containerPath = this.getFileBy("bdoc");
     container.saveAsFile(containerPath);
-    container = TestDataBuilder.open(containerPath);
+    container = TestDataBuilderUtil.open(containerPath);
     Assert.assertEquals(2, container.getSignatures().size());
     Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
     Assert.assertNotNull(container.getSignatures().get(1).getOCSPCertificate());
@@ -175,7 +172,7 @@ public class ExtendingBDocContainerTest extends AbstractTest {
     Assert.assertEquals(2, container.getDataFiles().size());
     Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
     Assert.assertNull(container.getSignatures().get(1).getOCSPCertificate());
-    container = TestDataBuilder.open(this.containerLocation);
+    container = TestDataBuilderUtil.open(this.containerLocation);
     container.extendSignatureProfile(SignatureProfile.LT);
     container.saveAsFile(this.getFileBy("bdoc"));
     Assert.assertEquals(2, container.getSignatures().size());
@@ -191,7 +188,7 @@ public class ExtendingBDocContainerTest extends AbstractTest {
     this.createSignatureBy(container, SignatureProfile.LT, this.pkcs12SignatureToken);
     container.extendSignatureProfile(SignatureProfile.LTA);
     Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
-    Assert.assertTrue(container.validate().isValid());
+    TestAssert.assertContainerIsValid(container);
   }
 
   @Test(expected = NotSupportedException.class)

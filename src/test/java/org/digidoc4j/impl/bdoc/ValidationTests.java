@@ -10,10 +10,12 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 import org.digidoc4j.AbstractTest;
@@ -22,30 +24,29 @@ import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.DataToSign;
+import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.InvalidTimestampException;
-import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
-import org.digidoc4j.test.Refactored;
-import org.digidoc4j.testutils.TSLHelper;
-import org.digidoc4j.testutils.TestAssert;
-import org.digidoc4j.testutils.TestDataBuilder;
-import org.digidoc4j.testutils.TestSigningHelper;
+import org.digidoc4j.signers.PKCS12SignatureToken;
+import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.test.util.TestDataBuilderUtil;
+import org.digidoc4j.test.util.TestSigningUtil;
+import org.digidoc4j.test.util.TestTSLUtil;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import eu.europa.esig.dss.DSSUtils;
 
-@Category(Refactored.class)
 public class ValidationTests extends AbstractTest {
 
   public static final Configuration PROD_CONFIGURATION = new Configuration(Configuration.Mode.PROD);
@@ -65,7 +66,7 @@ public class ValidationTests extends AbstractTest {
 
   @Test
   public void testTestVerifyOnInvalidDocument() throws Exception {
-    Container container = TestDataBuilder.open("src/test/resources/testFiles/invalid-containers/invalid_container.bdoc");
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/invalid_container.bdoc");
     Assert.assertFalse(container.validate().isValid());
   }
 
@@ -84,20 +85,20 @@ public class ValidationTests extends AbstractTest {
 
   @Test(expected = UnsupportedFormatException.class)
   public void notBDocThrowsException() {
-    TestDataBuilder.open("src/test/resources/testFiles/invalid-containers/notABDoc.bdoc");
+    TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/notABDoc.bdoc");
   }
 
   @Test(expected = UnsupportedFormatException.class)
   public void incorrectMimetypeThrowsException() {
-    TestDataBuilder.open("src/test/resources/testFiles/invalid-containers/incorrectMimetype.bdoc");
+    TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/incorrectMimetype.bdoc");
   }
 
   @Test(expected = Exception.class)
   public void testExpiredCertSign() {
     try {
-      DataToSign dataToSign = SignatureBuilder.aSignature(this.createNonEmptyContainer()).withSigningCertificate(TestSigningHelper
+      DataToSign dataToSign = SignatureBuilder.aSignature(this.createNonEmptyContainer()).withSigningCertificate(TestSigningUtil
           .getSigningCert("src/test/resources/testFiles/p12/expired_signer.p12", "test")).buildDataToSign();
-      dataToSign.finalize(TestSigningHelper.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm()));
+      dataToSign.finalize(TestSigningUtil.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm()));
     } catch (Exception e) {
       Assert.assertTrue(e.getMessage().contains("not in certificate validity range"));
       throw e;
@@ -124,7 +125,7 @@ public class ValidationTests extends AbstractTest {
 
   @Test
   public void secondSignatureFileContainsIncorrectFileName() throws IOException, CertificateException {
-    TSLHelper.addSkTsaCertificateToTsl(this.configuration);
+    TestTSLUtil.addSkTsaCertificateToTsl(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/filename_mismatch_second_signature.asice", this.configuration);
     ValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
@@ -218,7 +219,7 @@ public class ValidationTests extends AbstractTest {
 
   @Test
   public void containerMissesFileWhichIsInManifestAndSignatureFile() {
-    TSLHelper.addSkTsaCertificateToTsl(this.configuration);
+    TestTSLUtil.addSkTsaCertificateToTsl(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/zip_misses_file_which_is_in_manifest.asice");
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
@@ -340,41 +341,29 @@ public class ValidationTests extends AbstractTest {
   @Test
   public void asicValidationShouldFail_ifTimeStampHashDoesntMatchSignature() throws Exception {
     this.setGlobalMode(Configuration.Mode.TEST);
-    ValidationResult result = this.openContainer(Paths.get("src/test/resources/testFiles/invalid-containers/TS-02_23634_TS_wrong_SignatureValue.asice")).validate();
+    ValidationResult result = this.openContainerBy(Paths.get("src/test/resources/testFiles/invalid-containers/TS-02_23634_TS_wrong_SignatureValue.asice")).validate();
     Assert.assertFalse(result.isValid());
     TestAssert.assertContainsError(InvalidTimestampException.MESSAGE, result.getErrors());
   }
 
-  @Ignore("This test is not usable anymore")
-  @Test
-  public void asicOcspTimeShouldBeAfterTimestamp() throws Exception {
-    ValidationResult result = this.openContainer(Paths.get("src/test/resources/testFiles/invalid-containers/TS-08_23634_TS_OCSP_before_TS.asice")).validate();
-    Assert.assertFalse(result.isValid());
-    Assert.assertTrue(result.getErrors().size() >= 1);
-    TestAssert.assertContainsError(TimestampAfterOCSPResponseTimeException.MESSAGE, result.getErrors());
-  }
-
   @Test
   public void containerWithTMProfile_SignedWithExpiredCertificate_shouldBeInvalid() throws Exception {
-    Assert.assertFalse(this.openContainer(Paths.get("src/test/resources/testFiles/invalid-containers/invalid_bdoc_tm_old-sig-sigat-NOK-prodat-NOK.bdoc")).validate().isValid());
-    Assert.assertFalse(this.openContainer(Paths.get("src/test/resources/testFiles/invalid-containers/invalid_bdoc_tm_old-sig-sigat-OK-prodat-NOK.bdoc")).validate().isValid());
+    Assert.assertFalse(this.openContainerBy(Paths.get("src/test/resources/testFiles/invalid-containers/invalid_bdoc_tm_old-sig-sigat-NOK-prodat-NOK.bdoc")).validate().isValid());
+    Assert.assertFalse(this.openContainerBy(Paths.get("src/test/resources/testFiles/invalid-containers/invalid_bdoc_tm_old-sig-sigat-OK-prodat-NOK.bdoc")).validate().isValid());
   }
 
   @Test
   public void containerWithTSProfile_SignedWithExpiredCertificate_shouldBeInvalid() throws Exception {
-    Assert.assertFalse(this.openContainer(Paths.get("src/test/resources/testFiles/invalid-containers/invalid_bdoc21-TS-old-cert.bdoc")).validate().isValid());
+    Assert.assertFalse(this.openContainerBy(Paths.get("src/test/resources/testFiles/invalid-containers/invalid_bdoc21-TS-old-cert.bdoc")).validate().isValid());
   }
 
   @Test
   public void bdocTM_signedWithValidCert_isExpiredByNow_shouldBeValid() throws Exception {
     String containerPath = "src/test/resources/testFiles/valid-containers/valid_bdoc_tm_signed_with_valid_cert_expired_by_now.bdoc";
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    TSLHelper.addCertificateFromFileToTsl(configuration, "src/test/resources/testFiles/certs/ESTEID-SK_2007_prod.pem.crt");
-    Container container = ContainerBuilder.
-        aContainer("BDOC").
-        fromExistingFile(containerPath).
-        withConfiguration(configuration).
-        build();
+    TestTSLUtil.addCertificateFromFileToTsl(configuration, "src/test/resources/testFiles/certs/ESTEID-SK_2007_prod.pem.crt");
+    Container container = ContainerBuilder.aContainer().fromExistingFile(containerPath).
+        withConfiguration(configuration).build();
     Assert.assertTrue(container.validate().isValid());
   }
 
@@ -414,22 +403,21 @@ public class ValidationTests extends AbstractTest {
     TestAssert.assertContainsError("The certificate chain for revocation data is not trusted, there is no trusted anchor.", result.getErrors());
   }
 
-  /*@Test // TODO
+  @Test
   public void mixTSLCertAndTSLOnlineSources_SignatureTypeLT_valid() throws Exception {
-    PKCS12SignatureToken signatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray());
     try (InputStream stream = new FileInputStream("src/test/resources/testFiles/certs/exampleCA.cer")) {
       this.configuration.getTSL().addTSLCertificate(DSSUtils.loadCertificate(stream).getCertificate());
       this.configuration.getTSL().addTSLCertificate(DSSUtils.loadCertificate(new FileInputStream("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer")).getCertificate());
     }
-    Container container = createSignedBDocDocumentWithConf(this.configuration, signatureToken); SignatureProfile.LT
-    ValidationResult validationResult = container.validate();
-    Assert.assertTrue(validationResult.isValid());
-    Assert.assertEquals(0, validationResult.getErrors().size());
-  }*/
+    Container container = this.createNonEmptyContainerByConfiguration();
+    this.createSignatureBy(container, SignatureProfile.LT, new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray()));
+    ValidationResult result = container.validate();
+    Assert.assertTrue(result.isValid());
+    Assert.assertEquals(0, result.getErrors().size());
+  }
 
-  /*@Test
+  @Test
   public void mixTSLCertAndTSLOnlineSources_SignatureTypeLT_notValid() throws Exception {
-    PKCS12SignatureToken signatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray());
     TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
     try (InputStream inputStream = new FileInputStream("src/test/resources/testFiles/certs/exampleCA.cer")) {
       X509Certificate certificate = DSSUtils.loadCertificate(inputStream).getCertificate();
@@ -437,19 +425,17 @@ public class ValidationTests extends AbstractTest {
       certificateSource.addTSLCertificate(DSSUtils.loadCertificate(new FileInputStream("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer")).getCertificate());
     }
     this.configuration.setTSL(certificateSource);
-
-    Container container = createSignedBDocDocumentWithConf(configuration, signatureToken);
-    ValidationResult validationResult = container.validate();
-    List<DigiDoc4JException> errors = validationResult.getErrors();
-
+    Container container = this.createNonEmptyContainerByConfiguration();
+    this.createSignatureBy(container, SignatureProfile.LT, new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray()));
+    ValidationResult result = container.validate();
+    List<DigiDoc4JException> errors = result.getErrors();
     List<Signature> signatureList = container.getSignatures();
     Signature signature = signatureList.get(0);
     String signatureId = signature.getId();
-
-    assertFalse(validationResult.isValid());
-    assertEquals(1, errors.size());
-    assertEquals("(Signature ID: " + signatureId + ") Signature has an invalid timestamp", errors.get(0).toString());
-  }*/
+    Assert.assertFalse(result.isValid());
+    Assert.assertEquals(1, errors.size());
+    Assert.assertEquals("(Signature ID: " + signatureId + ") Signature has an invalid timestamp", errors.get(0).toString());
+  }
 
   @Test
   public void validateAsiceContainer_getNotValid() throws Exception {
@@ -468,7 +454,6 @@ public class ValidationTests extends AbstractTest {
     ValidationResult result = container.validate();
     Assert.assertFalse(container.validate().isValid());
     TestAssert.assertContainsError("Error: The URL in signature policy is empty or not available", result.getErrors());
-
   }
 
   @Test
@@ -476,7 +461,7 @@ public class ValidationTests extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/SP-06_bdoc21-no-uri.bdoc", this.configuration);
     ValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
-    TestAssert.assertContainsError("Error: The URL in signature policy is empty or not available", result.getErrors());
+    TestAssert.assertContainsError("The URL in signature policy is empty or not available", result.getErrors());
   }
 
   /*

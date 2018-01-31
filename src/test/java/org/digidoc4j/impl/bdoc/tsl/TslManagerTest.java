@@ -15,13 +15,9 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.impl.asic.tsl.LazyTslCertificateSource;
 import org.digidoc4j.impl.asic.tsl.TslManager;
-import org.digidoc4j.test.Refactored;
-import org.digidoc4j.testutils.TSLHelper;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-@Category(Refactored.class)
 public class TslManagerTest extends AbstractTest {
 
   private TslManager tslManager;

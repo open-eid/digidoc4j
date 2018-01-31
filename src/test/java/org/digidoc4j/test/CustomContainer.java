@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.testutils;
+package org.digidoc4j.test;
 
 import java.io.File;
 import java.io.InputStream;
@@ -31,34 +31,35 @@ import org.digidoc4j.exceptions.NotYetImplementedException;
 /**
  * This class is used in unit tests for testing custom container creation.
  */
-public class TestContainer implements Container {
+public class CustomContainer implements Container {
 
-  Configuration configuration;
-  String openedFromFile;
-  InputStream openedFromStream;
+  private Configuration configuration;
+  private String openedFromFile;
+  private InputStream openedFromStream;
+
   public static String type = "TEST-FORMAT";
 
-  public TestContainer() {
+  public CustomContainer() {
   }
 
-  public TestContainer(Configuration configuration) {
+  public CustomContainer(Configuration configuration) {
     this.configuration = configuration;
   }
 
-  public TestContainer(String filePath) {
+  public CustomContainer(String filePath) {
     this.openedFromFile = filePath;
   }
 
-  public TestContainer(String filePath, Configuration configuration) {
+  public CustomContainer(String filePath, Configuration configuration) {
     this.openedFromFile = filePath;
     this.configuration = configuration;
   }
 
-  public TestContainer(InputStream openedFromStream) {
+  public CustomContainer(InputStream openedFromStream) {
     this.openedFromStream = openedFromStream;
   }
 
-  public TestContainer(InputStream openedFromStream, Configuration configuration) {
+  public CustomContainer(InputStream openedFromStream, Configuration configuration) {
     this.openedFromStream = openedFromStream;
     this.configuration = configuration;
   }
@@ -252,4 +253,5 @@ public class TestContainer implements Container {
   public void setSignatureProfile(SignatureProfile profile) {
 
   }
+
 }

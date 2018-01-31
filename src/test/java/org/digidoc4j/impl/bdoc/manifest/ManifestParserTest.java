@@ -4,14 +4,11 @@ import java.util.Map;
 
 import org.digidoc4j.impl.asic.manifest.ManifestEntry;
 import org.digidoc4j.impl.asic.manifest.ManifestParser;
-import org.digidoc4j.test.Refactored;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import eu.europa.esig.dss.FileDocument;
 
-@Category(Refactored.class)
 public class ManifestParserTest {
 
   @Test

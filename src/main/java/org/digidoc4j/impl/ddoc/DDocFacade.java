@@ -59,7 +59,7 @@ import ee.sk.digidoc.SignedDoc;
 public class DDocFacade implements SignatureFinalizer, Serializable {
   private static final Logger logger = LoggerFactory.getLogger(DDocFacade.class);
 
-  SignedDoc ddoc;
+  protected SignedDoc ddoc;
   private ArrayList<DigiDocException> openContainerExceptions = new ArrayList<>();
   private SignatureProfile signatureProfile = SignatureProfile.LT_TM;
   private SignatureParameters signatureParameters = new SignatureParameters();
@@ -417,7 +417,7 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
     return result;
   }
 
-  ee.sk.digidoc.Signature calculateSignature(SignatureToken signer) {
+  protected ee.sk.digidoc.Signature calculateSignature(SignatureToken signer) {
     logger.debug("");
     prepareSigning(signer.getCertificate());
     return ddocSignature;

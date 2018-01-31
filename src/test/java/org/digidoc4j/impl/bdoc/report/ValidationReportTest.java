@@ -18,16 +18,13 @@ import org.digidoc4j.Container;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
-import org.digidoc4j.test.Refactored;
-import org.digidoc4j.testutils.TestAssert;
-import org.digidoc4j.testutils.TestDataBuilder;
+import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import eu.europa.esig.dss.MimeType;
 
-@Category(Refactored.class)
 public class ValidationReportTest extends AbstractTest {
 
   @Test
@@ -110,7 +107,7 @@ public class ValidationReportTest extends AbstractTest {
 
   @Test
   public void invalidContainerWithOneSignature() throws Exception {
-    Container container = TestDataBuilder.open("src/test/resources/testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc");
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc");
     ValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
     String report = result.getReport();
@@ -127,7 +124,7 @@ public class ValidationReportTest extends AbstractTest {
 
   @Test
   public void invalidContainerWithManifestErrors() throws Exception {
-    Container container = TestDataBuilder.open("src/test/resources/testFiles/invalid-containers/filename_mismatch_manifest.asice");
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/filename_mismatch_manifest.asice");
     ValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
     String report = result.getReport();
@@ -145,7 +142,7 @@ public class ValidationReportTest extends AbstractTest {
 
   @Test
   public void containerWithoutSignatures() throws Exception {
-    Container container = TestDataBuilder.open("src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc");
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc");
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("0", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
@@ -153,7 +150,7 @@ public class ValidationReportTest extends AbstractTest {
 
   @Test
   public void signatureContainsAdditionalErrors() throws Exception {
-    Container container = TestDataBuilder.open("src/test/resources/testFiles/invalid-containers/TS-08_23634_TS_OCSP_before_TS.asice");
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/TS-08_23634_TS_OCSP_before_TS.asice");
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);

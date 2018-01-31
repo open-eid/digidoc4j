@@ -5,16 +5,13 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
-import org.digidoc4j.test.Refactored;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 /**
  * Created by Andrei on 26.04.2017.
  */
 
-@Category(Refactored.class)
 public class SignatureTimeTest extends AbstractTest {
 
   @Test

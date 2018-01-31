@@ -48,14 +48,11 @@ import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.signers.PKCS12SignatureToken;
-import org.digidoc4j.test.Refactored;
-import org.digidoc4j.testutils.TestAssert;
-import org.digidoc4j.testutils.TestSigningHelper;
+import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.utils.Helper;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -65,7 +62,6 @@ import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.x509.SignaturePolicy;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
-@Category(Refactored.class)
 public class BDocContainerTest extends AbstractTest {
 
   @Test
@@ -684,7 +680,7 @@ public class BDocContainerTest extends AbstractTest {
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     DataToSign dataToSign = SignatureBuilder.aSignature(container).
         withSigningCertificate(this.pkcs12SignatureToken.getCertificate()).buildDataToSign();
-    Signature signature = dataToSign.finalize(TestSigningHelper.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm()));
+    Signature signature = dataToSign.finalize(this.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm()));
     container.addSignature(signature);
     String file = this.getFileBy("bdoc");
     container.saveAsFile(file);
@@ -720,7 +716,7 @@ public class BDocContainerTest extends AbstractTest {
         withSignatureDigestAlgorithm(DigestAlgorithm.SHA512).withSigningCertificate(this.pkcs12SignatureToken.getCertificate()).
         withSignatureId("S99").withRoles("manager", "employee").withCity("city").withStateOrProvince("state").
         withPostalCode("postalCode").withCountry("country").buildDataToSign();
-    byte[] signatureValue = TestSigningHelper.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
+    byte[] signatureValue = this.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
     Signature signature = dataToSign.finalize(signatureValue);
     container.addSignature(signature);
     String file = this.getFileBy("bdoc");
@@ -779,9 +775,9 @@ public class BDocContainerTest extends AbstractTest {
     Assert.assertTrue(container.validate().isValid());
   }
 
-  @Test // TODO
+  @Test
   public void zipFileComment() throws Exception {
-    Container container = this.createNonEmptyContainerBy(Container.DocumentType.BDOC);
+    Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
     this.createSignatureBy(container, this.pkcs12SignatureToken);
     String file = this.getFileBy("bdoc");
     container.save(file);

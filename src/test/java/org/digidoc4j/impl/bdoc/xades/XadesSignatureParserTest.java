@@ -22,11 +22,9 @@ import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.impl.asic.xades.XadesSignatureParser;
 import org.digidoc4j.impl.asic.xades.XadesValidationReportGenerator;
-import org.digidoc4j.test.Refactored;
 import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +32,6 @@ import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
-@Category(Refactored.class)
 public class XadesSignatureParserTest extends AbstractTest {
 
   private final static Logger logger = LoggerFactory.getLogger(XadesSignatureParserTest.class);

@@ -10,10 +10,6 @@
 
 package org.digidoc4j;
 
-import static org.digidoc4j.X509Cert.SubjectName.GIVENNAME;
-import static org.digidoc4j.X509Cert.SubjectName.SERIALNUMBER;
-import static org.digidoc4j.X509Cert.SubjectName.SURNAME;
-
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Paths;
@@ -36,15 +32,13 @@ import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
 import org.digidoc4j.impl.asic.tsl.TslManager;
 import org.digidoc4j.impl.ddoc.DDocFacade;
 import org.digidoc4j.impl.ddoc.DDocOpener;
-import org.digidoc4j.test.Refactored;
-import org.digidoc4j.testutils.TSLHelper;
-import org.digidoc4j.testutils.TestAssert;
-import org.digidoc4j.testutils.TestDataBuilder;
+import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.test.util.TestDataBuilderUtil;
+import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.DateUtils;
 import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.FileDocument;
@@ -57,12 +51,11 @@ import eu.europa.esig.dss.validation.reports.Reports;
 import eu.europa.esig.dss.validation.reports.SimpleReport;
 import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 
-@Category(Refactored.class)
 public class SignatureTest extends AbstractTest {
 
   @Test
   public void findOcspCertificateByHashkey() throws Exception {
-    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/OCSPRigaTest.asice"));
+    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/OCSPRigaTest.asice"), this.configuration);
     Signature signature = container.getSignatures().get(0);
     X509Cert cert = signature.getOCSPCertificate();
     Assert.assertNotNull(cert);
@@ -193,7 +186,7 @@ public class SignatureTest extends AbstractTest {
   @Test
   public void testValidationForBDocDefaultValidation() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.TEST);
-    TSLHelper.addSkTsaCertificateToTsl(this.configuration);
+    TestTSLUtil.addSkTsaCertificateToTsl(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/two_signatures.bdoc", this.configuration);
     Signature signature = container.getSignatures().get(0);
     Assert.assertEquals(0, signature.validateSignature().getErrors().size());
@@ -201,7 +194,7 @@ public class SignatureTest extends AbstractTest {
     Assert.assertEquals(0, signature.validateSignature().getErrors().size());
   }
 
-  @Test // TODO failing
+  @Test
   public void testValidationForBDocDefaultValidationWithFailure() throws Exception {
     Signature signature = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
     List<DigiDoc4JException> errors = signature.validateSignature().getErrors();
@@ -354,12 +347,12 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void getSignatureSigningCertificateDetails() throws Exception {
-    Container container = TestDataBuilder.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
     Signature signature = container.getSignatures().get(0);
     X509Cert cert = signature.getSigningCertificate();
-    Assert.assertEquals("11404176865", cert.getSubjectName(SERIALNUMBER));
-    Assert.assertEquals("märü-lööz", cert.getSubjectName(GIVENNAME).toLowerCase());
-    Assert.assertEquals("žõrinüwšky", cert.getSubjectName(SURNAME).toLowerCase());
+    Assert.assertEquals("11404176865", cert.getSubjectName(X509Cert.SubjectName.SERIALNUMBER));
+    Assert.assertEquals("märü-lööz", cert.getSubjectName(X509Cert.SubjectName.GIVENNAME).toLowerCase());
+    Assert.assertEquals("žõrinüwšky", cert.getSubjectName(X509Cert.SubjectName.SURNAME).toLowerCase());
   }
 
   @Test
@@ -379,7 +372,7 @@ public class SignatureTest extends AbstractTest {
     TslManager tslManager = new TslManager(this.configuration);
     TSLCertificateSource certificateSource = tslManager.getTsl();
     this.configuration.setTSL(certificateSource);
-    DSSDocument document = new FileDocument("src/test/resources/testFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc");
+    DSSDocument document = new FileDocument("src/test/resources/prodFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc");
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
     SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
     OcspSourceBuilder ocspSourceBuilder = new OcspSourceBuilder();
@@ -399,7 +392,7 @@ public class SignatureTest extends AbstractTest {
   @Test
   public void signatureReportForTwoSignature() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
-    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/asics_testing_two_signatures.bdoc"));
+    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/asics_testing_two_signatures.bdoc"), this.configuration);
     ValidationResult result = container.validate();
     Assert.assertEquals(Indication.INDETERMINATE, result.getIndication("S0"));
     Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, result.getSubIndication("S0"));
@@ -415,7 +408,7 @@ public class SignatureTest extends AbstractTest {
   @Test
   public void signatureReportForOneSignature() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.TEST);
-    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
+    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"), this.configuration);
     ValidationResult result = container.validate();
     for (SimpleReport signatureSimpleReport : result.getSignatureSimpleReports()) {
       for (String id : signatureSimpleReport.getSignatureIdList()) {
@@ -433,7 +426,7 @@ public class SignatureTest extends AbstractTest {
   @Test
   public void signatureReportNoSignature() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.TEST);
-    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc"));
+    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc"), this.configuration);
     ValidationResult result = container.validate();
     Assert.assertEquals(null, result.getIndication("S0"));
     Assert.assertEquals(null, result.getSubIndication("S0"));
@@ -446,7 +439,7 @@ public class SignatureTest extends AbstractTest {
   @Test
   public void signatureReportOnlyOneSignatureValid() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.TEST);
-    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/invalid-containers/two_signatures_one_invalid.bdoc"));
+    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/invalid-containers/two_signatures_one_invalid.bdoc"), this.configuration);
     ValidationResult result = container.validate();
     //Signature with id "S1" is invalid
     Assert.assertEquals(Indication.INDETERMINATE, result.getIndication("S1"));

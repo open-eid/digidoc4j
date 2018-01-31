@@ -15,15 +15,12 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
 import org.digidoc4j.impl.asic.tsl.LazyCertificatePool;
-import org.digidoc4j.test.Refactored;
 import org.digidoc4j.test.util.TestCommonUtil;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import eu.europa.esig.dss.x509.CertificatePool;
 
-@Category(Refactored.class)
 public class LazyTslLoadingTest extends AbstractTest {
 
   @Test

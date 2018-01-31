@@ -25,12 +25,9 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.impl.asic.xades.validation.ThreadPoolManager;
-import org.digidoc4j.test.Refactored;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-@Category(Refactored.class)
 public class ThreadPoolManagerTest extends AbstractTest {
 
   private ThreadPoolManager manager;
@@ -74,7 +71,7 @@ public class ThreadPoolManagerTest extends AbstractTest {
   public void validateContainerWithCustomThreadExecutor() throws Exception {
     CustomExecutorService executor = new CustomExecutorService();
     this.configuration.setThreadExecutor(executor);
-    ValidationResult result = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/invalid-containers/two_signatures.bdoc")).validate();
+    ValidationResult result = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/invalid-containers/two_signatures.bdoc"), this.configuration).validate();
     Assert.assertFalse(result.isValid());
     Assert.assertEquals(2, executor.getTasks().size());  //Two signatures must be validated within a thread pool
   }

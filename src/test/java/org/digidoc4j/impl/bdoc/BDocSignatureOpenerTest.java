@@ -22,18 +22,15 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
-import org.digidoc4j.test.Refactored;
 import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 
-@Category(Refactored.class)
 public class BDocSignatureOpenerTest extends AbstractTest {
 
   private BDocSignatureOpener signatureOpener;

@@ -16,10 +16,8 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import java.util.Date;
 
 import org.digidoc4j.impl.asic.report.SignatureValidationReport;
-import org.digidoc4j.test.Refactored;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import eu.europa.esig.dss.jaxb.simplereport.XmlSignature;
 import eu.europa.esig.dss.jaxb.simplereport.XmlSignatureLevel;
@@ -28,7 +26,6 @@ import eu.europa.esig.dss.validation.SignatureQualification;
 import eu.europa.esig.dss.validation.policy.rules.Indication;
 import eu.europa.esig.dss.validation.policy.rules.SubIndication;
 
-@Category(Refactored.class)
 public class SignatureValidationReportTest {
 
   @Test
