@@ -9,7 +9,6 @@ import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocValidationReportBuilder;
 import org.digidoc4j.impl.asic.report.SignatureValidationReport;
 
 import eu.europa.esig.dss.validation.SignatureQualification;
@@ -24,7 +23,7 @@ public class TimeStampValidationResult implements ValidationResult {
   private List<DigiDoc4JException> errors = new ArrayList<>();
   private List<DigiDoc4JException> warnings = new ArrayList<>();
   private List<DigiDoc4JException> containerErrorsOnly = new ArrayList<>();
-  private BDocValidationReportBuilder reportBuilder;
+  private AsicValidationReportBuilder reportBuilder;
   private List<SimpleReport> simpleReports = new ArrayList<>();
   private String signedBy = "";
   private String signedTime = "";

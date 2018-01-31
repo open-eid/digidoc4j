@@ -14,7 +14,9 @@ import java.util.concurrent.Callable;
 
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
+import org.digidoc4j.impl.asic.asics.AsicSSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +38,13 @@ public class SignatureValidationTask implements Callable<SignatureValidationData
     validationData.setValidationResult(validationResult);
     validationData.setSignatureId(signature.getId());
     validationData.setSignatureProfile(signature.getProfile());
-    validationData.setReport(((BDocSignature) signature).getDssValidationReport());
+    if (signature.getClass() == BDocSignature.class) {
+      validationData.setReport(((BDocSignature) signature).getDssValidationReport());
+    } else if (signature.getClass() == AsicESignature.class) {
+      validationData.setReport(((AsicESignature) signature).getDssValidationReport());
+    } else if (signature.getClass() == AsicSSignature.class) {
+      validationData.setReport(((AsicSSignature) signature).getDssValidationReport());
+    }
     return validationData;
   }
 

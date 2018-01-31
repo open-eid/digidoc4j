@@ -22,7 +22,9 @@ import java.util.Set;
 import org.apache.xml.security.signature.Reference;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
+import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -76,12 +78,14 @@ public class ManifestValidator {
         String fileName = manifestEntry.getFileName();
         ManifestEntry signatureEntry = signatureEntryForFile(fileName, signatureEntries);
         if (signatureEntry != null) {
-          errorMessages.add(new ManifestErrorMessage("Manifest file has an entry for file " + fileName + " with mimetype " +
+          errorMessages.add(new ManifestErrorMessage("Manifest file has an entry for file "
+              + fileName + " with mimetype " +
               manifestEntry.getMimeType() + " but the signature file for signature " + signatureId +
               " indicates the mimetype is " + signatureEntry.getMimeType(), signatureId));
           two.remove(signatureEntry);
         } else {
-          errorMessages.add(new ManifestErrorMessage("Manifest file has an entry for file " + fileName + " with mimetype "
+          errorMessages.add(new ManifestErrorMessage("Manifest file has an entry for file "
+              + fileName + " with mimetype "
               + manifestEntry.getMimeType() + " but the signature file for signature " + signatureId +
               " does not have an entry for this file", signatureId));
         }
@@ -90,7 +94,8 @@ public class ManifestValidator {
 
     if (two.size() > 0 && twoPrim.size() > 0) {
       for (ManifestEntry manifestEntry : two) {
-        errorMessages.add(new ManifestErrorMessage("The signature file for signature " + signatureId + " has an entry for file "
+        errorMessages.add(new ManifestErrorMessage("The signature file for signature "
+            + signatureId + " has an entry for file "
             + manifestEntry.getFileName() + " with mimetype " + manifestEntry.getMimeType()
             + " but the manifest file does not have an entry for this file", signatureId));
       }
@@ -126,7 +131,7 @@ public class ManifestValidator {
     Set<ManifestEntry> signatureEntries = new HashSet<>();
 
     for (Signature signature : signatures) {
-      signatureEntries = getSignatureEntries((BDocSignature) signature);
+      signatureEntries = getSignatureEntries(signature);
 
       errorMessages.addAll(validateEntries(manifestEntries, signatureEntries, signature.getId()));
     }
@@ -151,7 +156,8 @@ public class ManifestValidator {
       String alterName = fileInContainer.replaceAll("\\ ", "+");
       if (!signatureEntriesFileNames.contains(fileInContainer) && !signatureEntriesFileNames.contains(alterName)) {
         logger.error("Container contains unsigned data file '" + fileInContainer + "'");
-        errorMessages.add(new ManifestErrorMessage("Container contains a file named " + fileInContainer + " which is not found in the signature file"));
+        errorMessages.add(new ManifestErrorMessage("Container contains a file named "
+            + fileInContainer + " which is not found in the signature file"));
       }
     }
     return errorMessages;
@@ -167,15 +173,22 @@ public class ManifestValidator {
     return signatureEntriesFileNames;
   }
 
-  private Set<ManifestEntry> getSignatureEntries(BDocSignature signature) {
+  private Set<ManifestEntry> getSignatureEntries(Signature signature) {
     Set<ManifestEntry> signatureEntries = new HashSet<>();
-    List<Reference> references = signature.getOrigin().getReferences();
+    XadesSignature origin;
+    if (signature.getClass() == BDocSignature.class) {
+      origin = ((BDocSignature) signature).getOrigin();
+    } else {
+      origin = ((AsicESignature) signature).getOrigin();
+    }
+    List<Reference> references = origin.getReferences();
     for (Reference reference : references) {
       if (reference.getType().equals("")) {
         String mimeTypeString = null;
 
-        Node signatureNode = signature.getOrigin().getDssSignature().getSignatureElement();
-        Node node = DomUtils.getNode(signatureNode, "./ds:SignedInfo/ds:Reference[@URI=\"" + reference.getURI() + "\"]");
+        Node signatureNode = origin.getDssSignature().getSignatureElement();
+        Node node = DomUtils.getNode(signatureNode, "./ds:SignedInfo/ds:Reference[@URI=\""
+            + reference.getURI() + "\"]");
         if (node != null) {
           String referenceId = node.getAttributes().getNamedItem("Id").getNodeValue();
           mimeTypeString = DomUtils.getValue(signatureNode,

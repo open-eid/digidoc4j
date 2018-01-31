@@ -33,6 +33,7 @@ import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.signers.PKCS12SignatureToken;
@@ -78,7 +79,6 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
         assertNotNull(dataToSign);
         assertNotNull(dataToSign.getDataToSign());
         assertNotNull(dataToSign.getSignatureParameters());
-        assertEquals(939, dataToSign.getDataToSign().length); //SHA256 is always 256 bits long, equivalent to 32 bytes
         assertEquals(DigestAlgorithm.SHA256, dataToSign.getDigestAlgorithm());
     }
 
@@ -250,7 +250,7 @@ public class SignatureBuilderTest extends DigiDoc4JTestHelper {
         assertNull(signature.getOCSPResponseCreationTime());
         assertNull(signature.getTimeStampTokenCertificate());
         assertNull(signature.getTimeStampCreationTime());
-        BDocSignature bDocSignature = (BDocSignature) signature;
+        AsicESignature bDocSignature = (AsicESignature) signature;
         SignaturePolicy policyId = bDocSignature.getOrigin().getDssSignature().getPolicyId();
         assertEquals(XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
     }

@@ -156,6 +156,24 @@ public class DigiDoc4JTest extends DigiDoc4JTestHelper {
   }
 
   @Test
+  public void createsContainerWithSignatureProfileIsTSForAsice() throws Exception {
+    String fileName = tmpDirPath + "test1.asice";
+    Files.deleteIfExists(Paths.get(fileName));
+
+    String[] params = new String[]{"-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt",
+        "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "LT"};
+
+    System.setProperty("digidoc4j.mode", "TEST");
+    callMainWithoutSystemExit(params);
+
+    Container container = ContainerOpener.open(fileName);
+    assertEquals(SignatureProfile.LT, container.getSignature(0).getProfile());
+    System.clearProperty("digidoc4j.mode");
+    boolean isValid = container.validate().isValid();
+    assertTrue(isValid);
+  }
+
+  @Test
   public void createsContainerWithSignatureProfileIsBESForBDoc() throws Exception {
     String fileName = tmpDirPath + "test1.bdoc";
     Files.deleteIfExists(Paths.get(fileName));
