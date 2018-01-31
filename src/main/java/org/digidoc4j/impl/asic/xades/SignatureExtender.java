@@ -30,6 +30,7 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.impl.asic.SkDataLoader;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureBuilder;
@@ -79,7 +80,7 @@ public class SignatureExtender {
     prepareExtendingFacade(profile);
     List<DSSDocument> extendedSignatures = new ArrayList<>();
     for (Signature signature : signaturesToExtend) {
-      DSSDocument extendedSignature = extendSignature((BDocSignature) signature, profile);
+      DSSDocument extendedSignature = extendSignature(signature, profile);
       extendedSignatures.add(extendedSignature);
     }
     logger.debug("Finished extending signatures");
@@ -95,10 +96,10 @@ public class SignatureExtender {
     setSignaturePolicy(profile);
   }
 
-  private DSSDocument extendSignature(BDocSignature signature, SignatureProfile profile) {
-    OCSPSource ocspSource = createOcspSource(profile, signature.getOrigin().getSignatureValue());
+  private DSSDocument extendSignature(Signature signature, SignatureProfile profile) {
+    OCSPSource ocspSource = createOcspSource(profile, ((AsicSignature)signature).getOrigin().getSignatureValue());
     extendingFacade.setOcspSource(ocspSource);
-    DSSDocument signatureDocument = signature.getSignatureDocument();
+    DSSDocument signatureDocument = ((AsicSignature)signature).getSignatureDocument();
     return extendingFacade.extendSignature(signatureDocument, detachedContents);
   }
 

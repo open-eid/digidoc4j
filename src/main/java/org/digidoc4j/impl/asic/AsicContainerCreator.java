@@ -89,10 +89,10 @@ public class AsicContainerCreator {
   public void writeAsiceMimeType(String containerType) {
     logger.debug("Writing asic mime type to asic zip file");
     String mimeTypeString;
-    if (Constant.BDOC_CONTAINER_TYPE.equals(containerType)){
-      mimeTypeString = MimeType.ASICE.getMimeTypeString();
-    } else{
+    if (Constant.ASICS_CONTAINER_TYPE.equals(containerType)){
       mimeTypeString = MimeType.ASICS.getMimeTypeString();
+    } else {
+      mimeTypeString = MimeType.ASICE.getMimeTypeString();
     }
     byte[] mimeTypeBytes = mimeTypeString.getBytes(CHARSET);
     new BytesEntryCallback(getAsicMimeTypeZipEntry(mimeTypeBytes), mimeTypeBytes).write();

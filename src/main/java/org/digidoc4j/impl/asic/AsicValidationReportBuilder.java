@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl.asic.asice.bdoc;
+package org.digidoc4j.impl.asic;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -40,15 +40,15 @@ import eu.europa.esig.dss.jaxb.simplereport.SimpleReport;
 import eu.europa.esig.dss.jaxb.simplereport.XmlPolicy;
 import eu.europa.esig.dss.validation.reports.Reports;
 
-public class BDocValidationReportBuilder {
+public class AsicValidationReportBuilder {
 
-  private static final Logger logger = LoggerFactory.getLogger(BDocValidationReportBuilder.class);
+  private static final Logger logger = LoggerFactory.getLogger(AsicValidationReportBuilder.class);
   private List<DigiDoc4JException> manifestErrors;
   private List<SignatureValidationData> signatureValidationData;
   private String reportInXml;
 
-  public BDocValidationReportBuilder(List<SignatureValidationData> signatureValidationData, List<DigiDoc4JException> manifestErrors) {
-    logger.debug("Initializing BDoc validation report builder");
+  public AsicValidationReportBuilder(List<SignatureValidationData> signatureValidationData, List<DigiDoc4JException> manifestErrors) {
+    logger.debug("Initializing ASiC validation report builder");
     this.manifestErrors = manifestErrors;
     this.signatureValidationData = signatureValidationData;
   }

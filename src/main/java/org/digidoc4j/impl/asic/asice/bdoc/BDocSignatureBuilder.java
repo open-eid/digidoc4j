@@ -24,13 +24,14 @@ public class BDocSignatureBuilder extends AsicESignatureBuilder {
     }
     Policy signaturePolicy = new Policy();
     signaturePolicy.setId("urn:oid:" + XadesSignatureValidator.TM_POLICY);
-    signaturePolicy.setDigestValue(decodeBase64("0xRLPsW1UIpxtermnTGE+5+5620UsWi5bYJY76Di3o0="));
+    signaturePolicy.setDigestValue(decodeBase64("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A="));
     signaturePolicy.setQualifier("OIDAsURN");
     signaturePolicy.setDigestAlgorithm(SHA256);
     signaturePolicy.setSpuri("https://www.sk.ee/repository/bdoc-spec21.pdf");
     return signaturePolicy;
   }
 
+  @Override
   protected void setSignaturePolicy() {
     if (isTimeMarkProfile() || isEpesProfile()) {
       Policy signaturePolicy = createBDocSignaturePolicy();

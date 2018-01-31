@@ -41,6 +41,8 @@ import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
+import org.digidoc4j.impl.asic.asice.AsicESignature;
+import org.digidoc4j.impl.asic.asice.AsicESignatureOpener;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
@@ -67,7 +69,6 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
 
   private static final Logger logger = LoggerFactory.getLogger(AsicSignatureBuilder.class);
   private static final int hexMaxlen = 10;
-  private static final int maxTryCount = 5;
   protected transient XadesSigningDssFacade facade;
   private Date signingDate;
   private boolean isLTorLTAprofile = false;
@@ -80,8 +81,6 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
     Signature result = null;
     byte[] signatureValue = null;
     try {
-      // TODO: Investigate instability (of BouncyCastle?)
-      // Sometimes sign returns value what causes error in finalizeSignature
       signatureValue = signatureToken.sign(signatureParameters.getDigestAlgorithm(), dataToSign);
       result = finalizeSignature(signatureValue);
     } catch (TechnicalException e) {
@@ -135,10 +134,17 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
       throw new DigiDoc4JException(e);
     }
     List<DSSDocument> detachedContents = detachedContentCreator.getDetachedContentList();
-    BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
-    List<BDocSignature> signatureList = signatureOpener.parse(signedDocument);
-    BDocSignature signature = signatureList.get(0); //Only one signature was created
-    validateOcspResponse(signature.getOrigin());
+    Signature signature = null;
+    if (SignatureProfile.LT_TM.equals(this.signatureParameters.getSignatureProfile())) {
+      BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
+      List<BDocSignature> signatureList = signatureOpener.parse(signedDocument);
+      signature = signatureList.get(0); //Only one signature was created
+      validateOcspResponse(((BDocSignature)signature).getOrigin());
+    } else {
+      AsicESignatureOpener signatureOpener = new AsicESignatureOpener(detachedContents, configuration);
+      List<AsicESignature> signatureList = signatureOpener.parse(signedDocument);
+      signature = signatureList.get(0); //Only one signature was created
+    }
     policyDefinedByUser = null;
     logger.info("Signing asic successfully completed");
     return signature;
@@ -291,13 +297,7 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
     if (policyDefinedByUser != null && isDefinedAllPolicyValues()) {
       signaturePolicy = policyDefinedByUser;
     }
-    else {
-      signaturePolicy.setId("urn:oid:" + XadesSignatureValidator.TM_POLICY);
-      signaturePolicy.setDigestValue(decodeBase64("0xRLPsW1UIpxtermnTGE+5+5620UsWi5bYJY76Di3o0="));
-      signaturePolicy.setQualifier("OIDAsURN");
-      signaturePolicy.setDigestAlgorithm(SHA256);
-      signaturePolicy.setSpuri("https://www.sk.ee/repository/bdoc-spec21.pdf");
-    }
+    // TM_POLICY is usable only for BDOC_TM signature
     facade.setSignaturePolicy(signaturePolicy);
   }
 
@@ -354,6 +354,13 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
       return false;
     }
     return signatureParameters.getSignatureProfile() == SignatureProfile.LT_TM;
+  }
+
+  protected boolean isTimeStampProfile() {
+    if (signatureParameters.getSignatureProfile() == null) {
+      return false;
+    }
+    return signatureParameters.getSignatureProfile() == SignatureProfile.LT;
   }
 
   protected boolean isEpesProfile() {
