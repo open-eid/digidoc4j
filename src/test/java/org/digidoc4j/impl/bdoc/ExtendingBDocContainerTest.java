@@ -225,10 +225,13 @@ public class ExtendingBDocContainerTest extends DigiDoc4JTestHelper {
   public void testContainerExtensionFromLTtoLTA() throws Exception {
     Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LT);
-
     container.extendSignatureProfile(LTA);
     assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
-    assertTrue(container.validate().isValid());
+    boolean isValid = container.validate().isValid();
+    if (!isValid) {
+      container.saveAsFile("src/test/resources/testFiles/invalid-containers/extLT2LTAError.bdoc");
+    }
+    assertTrue(isValid);
   }
 
   @Test(expected = NotSupportedException.class)
