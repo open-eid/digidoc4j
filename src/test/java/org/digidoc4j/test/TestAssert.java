@@ -62,7 +62,7 @@ public final class TestAssert {
   public static void assertXPathHasValue(String expectedValue, String xPathExpression, String xmlInput) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     DocumentBuilder builder = factory.newDocumentBuilder();
-    Document doc = builder.parse(IOUtils.toInputStream(xmlInput));
+    Document doc = builder.parse(IOUtils.toInputStream(xmlInput, "UTF-8"));
     XPathFactory xPathfactory = XPathFactory.newInstance();
     XPath xpath = xPathfactory.newXPath();
     XPathExpression expr = xpath.compile(xPathExpression);
