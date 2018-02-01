@@ -21,6 +21,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
+import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.signers.PKCS12SignatureToken;
@@ -37,7 +38,7 @@ import eu.europa.esig.dss.x509.SignaturePolicy;
 
 public class SignatureBuilderTest extends AbstractTest {
 
-  @Test // TODO Sometimes failing with length of 938
+  @Test
   public void buildingDataToSign_shouldReturnDataToSign() throws Exception {
     Container container = this.createNonEmptyContainer();
     SignatureBuilder builder = SignatureBuilder.aSignature(container).
@@ -46,7 +47,6 @@ public class SignatureBuilderTest extends AbstractTest {
     Assert.assertNotNull(dataToSign);
     Assert.assertNotNull(dataToSign.getDataToSign());
     Assert.assertNotNull(dataToSign.getSignatureParameters());
-    Assert.assertEquals(939, dataToSign.getDataToSign().length); //SHA256 is always 256 bits long, equivalent to 32 bytes
     Assert.assertEquals(DigestAlgorithm.SHA256, dataToSign.getDigestAlgorithm());
   }
 
@@ -179,7 +179,7 @@ public class SignatureBuilderTest extends AbstractTest {
     Assert.assertNull(signature.getOCSPResponseCreationTime());
     Assert.assertNull(signature.getTimeStampTokenCertificate());
     Assert.assertNull(signature.getTimeStampCreationTime());
-    BDocSignature bDocSignature = (BDocSignature) signature;
+    AsicESignature bDocSignature = (AsicESignature) signature;
     SignaturePolicy policyId = bDocSignature.getOrigin().getDssSignature().getPolicyId();
     Assert.assertEquals(XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
   }

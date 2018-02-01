@@ -41,7 +41,7 @@ public class ContainerOpenerTest extends AbstractTest {
   public void openBDocContainerAsStream() throws Exception {
     FileInputStream stream = FileUtils.openInputStream(new File(BDOC_TEST_FILE));
     Container container = ContainerOpener.open(stream, this.configuration);
-    TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
+    TestAssert.assertContainerIsOpened(container, Container.DocumentType.ASICE);
   }
 
   @Test
@@ -55,7 +55,7 @@ public class ContainerOpenerTest extends AbstractTest {
   public void openBDocContainerAsStream_WithBigFilesNotSupported() throws Exception {
     FileInputStream stream = FileUtils.openInputStream(new File(BDOC_TEST_FILE));
     Container container = ContainerOpener.open(stream, false);
-    TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
+    TestAssert.assertContainerIsOpened(container, Container.DocumentType.ASICE);
   }
 
   @Test

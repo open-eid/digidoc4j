@@ -4,6 +4,7 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,7 +26,7 @@ public class SignatureTimeTest extends AbstractTest {
   @Test
   public void signatureProfileLTTest() throws Exception {
     Container container = this.createNonEmptyContainer();
-    BDocSignature signature = (BDocSignature) this.createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.LT, this.pkcs12SignatureToken);
+    AsicESignature signature = (AsicESignature) this.createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.LT, this.pkcs12SignatureToken);
     container.addSignature(signature);
     Assert.assertEquals(signature.getSigningTime(), signature.getTrustedSigningTime());
   }
@@ -33,7 +34,7 @@ public class SignatureTimeTest extends AbstractTest {
   @Test
   public void signatureProfileLTATest() throws Exception {
     Container container = this.createNonEmptyContainer();
-    BDocSignature signature = (BDocSignature) this.createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.LTA, this.pkcs12SignatureToken);
+    AsicESignature signature = (AsicESignature) this.createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.LTA, this.pkcs12SignatureToken);
     container.addSignature(signature);
     Assert.assertEquals(signature.getSigningTime(), signature.getTrustedSigningTime());
   }
@@ -41,7 +42,7 @@ public class SignatureTimeTest extends AbstractTest {
   @Test
   public void signatureProfileB_BESTest() throws Exception {
     Container container = this.createNonEmptyContainer();
-    BDocSignature signature = (BDocSignature) this.createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.B_BES, this.pkcs12SignatureToken);
+    AsicESignature signature = (AsicESignature) this.createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.B_BES, this.pkcs12SignatureToken);
     container.addSignature(signature);
     Assert.assertEquals(signature.getSigningTime(), signature.getClaimedSigningTime());
   }
@@ -49,7 +50,7 @@ public class SignatureTimeTest extends AbstractTest {
   @Test
   public void signatureProfileB_EPESTest() throws Exception {
     Container container = this.createNonEmptyContainer();
-    BDocSignature signature = (BDocSignature) this.createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.B_EPES, this.pkcs12SignatureToken);
+    AsicESignature signature = (AsicESignature) this.createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.B_EPES, this.pkcs12SignatureToken);
     container.addSignature(signature);
     Assert.assertEquals(signature.getSigningTime(), signature.getClaimedSigningTime());
   }
