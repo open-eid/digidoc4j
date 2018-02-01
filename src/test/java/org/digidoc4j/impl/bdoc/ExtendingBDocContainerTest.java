@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import static java.lang.Thread.sleep;
 import static org.digidoc4j.SignatureProfile.B_BES;
 import static org.digidoc4j.SignatureProfile.B_EPES;
 import static org.digidoc4j.SignatureProfile.LT;
@@ -225,12 +226,10 @@ public class ExtendingBDocContainerTest extends DigiDoc4JTestHelper {
   public void testContainerExtensionFromLTtoLTA() throws Exception {
     Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     signContainer(container, LT);
+    sleep(1100);
     container.extendSignatureProfile(LTA);
     assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
     boolean isValid = container.validate().isValid();
-    if (!isValid) {
-      container.saveAsFile("src/test/resources/testFiles/invalid-containers/extLT2LTAError.bdoc");
-    }
     assertTrue(isValid);
   }
 
