@@ -10,6 +10,8 @@
 
 package org.digidoc4j.test;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,12 +27,14 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
+import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
+import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.ocsp.SKOnlineOCSPSource;
+import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.slf4j.Logger;
@@ -87,7 +91,7 @@ public final class TestAssert {
     Assert.assertFalse(String.format("Expected <%s> was not found", error), true);
   }
 
-  public static void assertSignatureMetadataContainsFileName(BDocSignature signature, String fileName) {
+  public static void assertSignatureMetadataContainsFileName(Signature signature, String fileName) {
     Assert.assertNotNull(TestAssert.findSignedFile(signature, fileName));
   }
 
@@ -133,18 +137,19 @@ public final class TestAssert {
     ProxyConfig config = loader.getProxyConfig();
     ProxyProperties httpProperties = config.getHttpProperties();
     ProxyProperties httpsProperties = config.getHttpsProperties();
-    Assert.assertTrue(org.apache.commons.lang3.StringUtils.isEmpty(httpProperties.getUser()));
-    Assert.assertTrue(org.apache.commons.lang3.StringUtils.isEmpty(httpsProperties.getUser()));
-    Assert.assertTrue(org.apache.commons.lang3.StringUtils.isEmpty(httpProperties.getPassword()));
-    Assert.assertTrue(org.apache.commons.lang3.StringUtils.isEmpty(httpsProperties.getPassword()));
+    Assert.assertTrue(isEmpty(httpProperties.getUser()));
+    Assert.assertTrue(isEmpty(httpsProperties.getUser()));
+    Assert.assertTrue(isEmpty(httpProperties.getPassword()));
+    Assert.assertTrue(isEmpty(httpsProperties.getPassword()));
   }
 
   /*
    * RESTRICTED METHODS
    */
 
-  private static DSSDocument findSignedFile(BDocSignature signature, String fileName) {
-    List<DSSDocument> signedFiles = signature.getOrigin().getDssSignature().getDetachedContents();
+  private static DSSDocument findSignedFile(Signature signature, String fileName) {
+    XadesSignature origin = ((AsicESignature)signature).getOrigin();
+    List<DSSDocument> signedFiles = origin.getDssSignature().getDetachedContents();
     for (DSSDocument signedFile : signedFiles) {
       if (fileName.equals(signedFile.getName())) {
         return signedFile;

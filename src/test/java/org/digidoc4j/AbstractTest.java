@@ -222,6 +222,9 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     return TestDataBuilderUtil.createContainerWithFile(path.toString());
   }
 
+  protected Container createNonEmptyContainerBy(Container.DocumentType type, Path path, String mimeType) {
+    return ContainerBuilder.aContainer(type).withDataFile(path.toString(), mimeType).build();
+  }
   protected Container createNonEmptyContainerBy(Path path, String mimeType) {
     return ContainerBuilder.aContainer().withDataFile(path.toString(), mimeType).build();
   }
