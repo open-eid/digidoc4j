@@ -293,12 +293,9 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   protected void setSignaturePolicy() {
-    Policy signaturePolicy = new Policy();
     if (policyDefinedByUser != null && isDefinedAllPolicyValues()) {
-      signaturePolicy = policyDefinedByUser;
+      facade.setSignaturePolicy(policyDefinedByUser);
     }
-    // TM_POLICY is usable only for BDOC_TM signature
-    facade.setSignaturePolicy(signaturePolicy);
   }
 
   protected void setSignatureId() {
