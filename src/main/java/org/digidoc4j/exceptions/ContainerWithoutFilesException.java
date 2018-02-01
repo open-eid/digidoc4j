@@ -17,4 +17,8 @@ public class ContainerWithoutFilesException extends DigiDoc4JException {
   public ContainerWithoutFilesException() {
     super(MESSAGE);
   }
+
+  public ContainerWithoutFilesException(String message) {
+    super(message);
+  }
 }

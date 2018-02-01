@@ -78,16 +78,16 @@ public abstract class ContainerBuilder {
   /**
    * Create a new container builder based on a container type.
    *
-   * @param containerType a type of container to be created, e.g. "BDOC(ASICE)" , "ASICS" or "DDOC".
+   * @param cType a type of container to be created, e.g. "BDOC(ASICE)" , "ASICS" or "DDOC".
    *
    * @return builder for creating a container.
    */
-  public static ContainerBuilder aContainer(String containerType) {
-    ContainerBuilder.containerType = containerType;
-    if (isCustomContainerType(containerType)) {
-      return new CustomContainerBuilder(containerType);
+  public static ContainerBuilder aContainer(String cType) {
+    ContainerBuilder.containerType = cType;
+    if (isCustomContainerType(cType)) {
+      return new CustomContainerBuilder(cType);
     }
-    switch (containerType) {
+    switch (cType) {
       case Constant.BDOC_CONTAINER_TYPE:
         return new BDocContainerBuilder();
       case Constant.DDOC_CONTAINER_TYPE:
@@ -99,7 +99,7 @@ public abstract class ContainerBuilder {
       case Constant.PADES_CONTAINER_TYPE:
         return new PadesContainerBuilder();
     }
-    throw new NotSupportedException("Container type is not supported: " + containerType);
+    throw new NotSupportedException("Container type is not supported: " + cType);
   }
 
   /**

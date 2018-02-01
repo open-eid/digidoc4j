@@ -18,6 +18,7 @@ import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asics.AsicSContainer;
 import org.digidoc4j.impl.ddoc.DDocOpener;
@@ -34,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ContainerOpener {
 
-  private final static Logger logger = LoggerFactory.getLogger(ContainerOpener.class);
+  private static final Logger logger = LoggerFactory.getLogger(ContainerOpener.class);
 
   /**
    * Open container from a file. Use {@link ContainerBuilder#fromExistingFile(String)} instead.
@@ -95,6 +96,8 @@ public class ContainerOpener {
       if (Helper.isZipFile(bufferedInputStream)) {
         if (Helper.isAsicSContainer(bufferedInputStream)){
           return new  AsicSContainer(bufferedInputStream);
+        } else if (Helper.isAsicEContainer(bufferedInputStream)) {
+          return new AsicEContainer(bufferedInputStream);
         }
         return new BDocContainer(bufferedInputStream);
       } else {
@@ -124,6 +127,8 @@ public class ContainerOpener {
       if (Helper.isZipFile(bufferedInputStream)) {
         if (Helper.isAsicSContainer(bufferedInputStream)){
           return new  AsicSContainer(bufferedInputStream, configuration);
+        } else if (Helper.isAsicEContainer(bufferedInputStream)) {
+          return new AsicEContainer(bufferedInputStream, configuration);
         }
         return new BDocContainer(bufferedInputStream, configuration);
       } else {
@@ -141,6 +146,8 @@ public class ContainerOpener {
     configuration.loadConfiguration("digidoc4j.yaml", false);
     if (Helper.isAsicSContainer(path)){
       return new AsicSContainer(path, configuration);
+    } else if (Helper.isAsicEContainer(path)) {
+      return new AsicEContainer(path, configuration);
     }
     return new BDocContainer(path, configuration);
   }

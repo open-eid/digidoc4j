@@ -21,24 +21,32 @@ import eu.europa.esig.dss.validation.SignaturePolicyProvider;
 import eu.europa.esig.dss.x509.SignaturePolicy;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
+/**
+ * XadesSignatureParser
+ */
 public class XadesSignatureParser {
 
   private final static Logger logger = LoggerFactory.getLogger(XadesSignatureParser.class);
 
+  /**
+   * Method for converting Xades signature into Signature object.
+   * @param xadesReportGenerator
+   * @return
+   */
   public XadesSignature parse(XadesValidationReportGenerator xadesReportGenerator) {
     logger.debug("Parsing XAdES signature");
     XAdESSignature xAdESSignature = xadesReportGenerator.openDssSignature();
     SignatureLevel signatureLevel = xAdESSignature.getDataFoundUpToLevel();
     logger.debug("Signature profile is " + signatureLevel);
-    if(isEpesSignature(signatureLevel, xAdESSignature)) {
+    if (isEpesSignature(signatureLevel, xAdESSignature)) {
       logger.debug("Using EPES signature");
       return new EpesSignature(xadesReportGenerator);
     }
-    if(isBesSignature(signatureLevel)) {
+    if (isBesSignature(signatureLevel)) {
       logger.debug("Using BES signature");
       return new BesSignature(xadesReportGenerator);
     }
-    if(isTimeMarkSignature(xAdESSignature)) {
+    if (isTimeMarkSignature(xAdESSignature)) {
       logger.debug("Using Time Mark signature");
       return new TimemarkSignature(xadesReportGenerator);
     }

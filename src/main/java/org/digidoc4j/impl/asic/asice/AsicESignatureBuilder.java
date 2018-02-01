@@ -7,4 +7,6 @@ import org.digidoc4j.impl.asic.AsicSignatureBuilder;
  */
 public class AsicESignatureBuilder extends AsicSignatureBuilder {
 
+  @Override
+  protected void setSignaturePolicy() {}
 }

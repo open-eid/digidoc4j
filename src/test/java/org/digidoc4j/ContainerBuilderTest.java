@@ -29,6 +29,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.impl.ddoc.DDocSignature;
@@ -405,9 +406,10 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
         aContainer("BDOC").
         fromStream(stream).
         build();
-    assertContainerOpened(container, "BDOC");
+    assertContainerOpened(container, "ASICE");
   }
 
+  // When reading from stream there are no major difference between BDOC and ASICE
   @Test
   public void openBDocContainerFromStream_withConfiguration() throws Exception {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
@@ -418,8 +420,8 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
         withConfiguration(configuration).
         fromStream(stream).
         build();
-    assertContainerOpened(container, "BDOC");
-    assertEquals("test-value", ((BDocContainer) container).getConfiguration().getTspSource());
+    assertContainerOpened(container, "ASICE");
+    assertEquals("test-value", ((AsicEContainer)container).getConfiguration().getTspSource());
   }
 
   @Test
@@ -452,7 +454,7 @@ public class ContainerBuilderTest extends DigiDoc4JTestHelper {
         withConfiguration(TEST_CONFIGURATION).
         fromStream(stream).
         build();
-    assertContainerOpened(container, "BDOC");
+    assertContainerOpened(container, "ASICE");
   }
 
   @Test

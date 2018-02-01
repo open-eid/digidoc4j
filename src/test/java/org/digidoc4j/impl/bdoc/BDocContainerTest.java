@@ -70,6 +70,7 @@ import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.DigiDoc4JTestHelper;
+import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
@@ -120,7 +121,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
 
   private void assertSettingDigestAlgorithm(String expectedDigestAlgorithm, DigestAlgorithm actualDigestAlgorithm) throws IOException {
     Container container = TestDataBuilder.createContainerWithFile(testFolder);
-    BDocSignature signature = (BDocSignature)SignatureBuilder.
+    AsicESignature signature = (AsicESignature)SignatureBuilder.
         aSignature(container).
         withSignatureDigestAlgorithm(actualDigestAlgorithm).
         withSignatureToken(PKCS12_SIGNER).
@@ -132,7 +133,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
   @Test
   public void testDefaultDigestAlgorithm() throws Exception {
     Container container = TestDataBuilder.createContainerWithFile(testFolder);
-    BDocSignature signature = (BDocSignature)SignatureBuilder.
+    AsicESignature signature = (AsicESignature)SignatureBuilder.
         aSignature(container).
         withSignatureToken(PKCS12_SIGNER).
         invokeSigning();
@@ -1063,6 +1064,7 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
       .fromExistingFile("src/test/resources/testFiles/invalid-containers/3863_bdoc21_TM_no_datafile.bdoc")
       .withConfiguration(new Configuration(Configuration.Mode.TEST))
       .build();
+    // ValidationResult result = container.validate();
   }
 
   @Test
@@ -1272,6 +1274,6 @@ public class BDocContainerTest extends DigiDoc4JTestHelper {
     assertEquals("https://www.sk.ee/repository/bdoc-spec21.pdf", policyId.getUrl());
     assertEquals("" + XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
     assertEquals(eu.europa.esig.dss.DigestAlgorithm.SHA256, policyId.getDigestAlgorithm());
-    assertEquals("0xRLPsW1UIpxtermnTGE+5+5620UsWi5bYJY76Di3o0=", policyId.getDigestValue());
+    assertEquals("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A=", policyId.getDigestValue());
   }
 }

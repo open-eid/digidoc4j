@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl.asic.asice.bdoc;
+package org.digidoc4j.impl.asic.asice;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -38,9 +38,9 @@ import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
 
-public class BDocContainerValidator implements Serializable {
+public class AsicEContainerValidator implements Serializable {
 
-  private final static Logger logger = LoggerFactory.getLogger(BDocContainerValidator.class);
+  private final static Logger logger = LoggerFactory.getLogger(AsicEContainerValidator.class);
   private List<DigiDoc4JException> errors = new ArrayList<>();
   private List<DigiDoc4JException> warnings = new ArrayList<>();
   private AsicParseResult containerParseResult;
@@ -49,19 +49,19 @@ public class BDocContainerValidator implements Serializable {
   private List<DigiDoc4JException> manifestErrors;
   private ThreadPoolManager threadPoolManager;
 
-  public BDocContainerValidator(Configuration configuration) {
+  public AsicEContainerValidator(Configuration configuration) {
     threadPoolManager = new ThreadPoolManager(configuration);
     validateManifest = false;
   }
 
-  public BDocContainerValidator(AsicParseResult containerParseResult, Configuration configuration) {
+  public AsicEContainerValidator(AsicParseResult containerParseResult, Configuration configuration) {
     this.containerParseResult = containerParseResult;
     threadPoolManager = new ThreadPoolManager(configuration);
     validateManifest = true;
   }
 
   public ValidationResult validate(List<Signature> signatures) {
-    logger.debug("Validating BDOC container");
+    logger.debug("Validating container");
     validateSignatures(signatures);
     extractManifestErrors(signatures);
     AsicValidationResult result = createValidationResult();

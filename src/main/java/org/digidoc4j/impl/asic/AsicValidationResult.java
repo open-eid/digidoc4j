@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl.asic.asice.bdoc;
+package org.digidoc4j.impl.asic;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -29,12 +29,12 @@ import eu.europa.esig.dss.validation.reports.SimpleReport;
  *
  * For BDOC the ValidationResult contains only information for the first signature of each signature XML file
  */
-public class BDocValidationResult implements ValidationResult {
+public class AsicValidationResult implements ValidationResult {
 
   private List<DigiDoc4JException> errors = new ArrayList<>();
   private List<DigiDoc4JException> warnings = new ArrayList<>();
   private List<DigiDoc4JException> containerErrorsOnly = new ArrayList<>();
-  private BDocValidationReportBuilder reportBuilder;
+  private AsicValidationReportBuilder reportBuilder;
   private List<SimpleReport> simpleReports = new ArrayList<>();
 
   @Override
@@ -180,7 +180,7 @@ public class BDocValidationResult implements ValidationResult {
    *
    * @param reportBuilder
    */
-  public void setReportBuilder(BDocValidationReportBuilder reportBuilder) {
+  public void setReportBuilder(AsicValidationReportBuilder reportBuilder) {
     this.reportBuilder = reportBuilder;
   }
 }

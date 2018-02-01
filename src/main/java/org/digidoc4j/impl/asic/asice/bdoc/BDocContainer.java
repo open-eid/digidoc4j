@@ -12,12 +12,18 @@ package org.digidoc4j.impl.asic.asice.bdoc;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
+import org.digidoc4j.Signature;
 import org.digidoc4j.impl.asic.AsicContainerCreator;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.europa.esig.dss.DSSDocument;
 
 /**
  * Offers functionality for handling data files and signatures in a container.
@@ -31,6 +37,7 @@ public class BDocContainer extends AsicEContainer {
    */
   public BDocContainer() {
     super();
+    setType(Constant.BDOC_CONTAINER_TYPE);
   }
 
   /**
@@ -40,6 +47,7 @@ public class BDocContainer extends AsicEContainer {
    */
   public BDocContainer(Configuration configuration) {
     super(configuration);
+    setType(Constant.BDOC_CONTAINER_TYPE);
   }
 
   /**
@@ -48,7 +56,7 @@ public class BDocContainer extends AsicEContainer {
    * @param containerPath
    */
   public BDocContainer(String containerPath) {
-    super(containerPath);
+    super(containerPath, Constant.BDOC_CONTAINER_TYPE);
   }
 
   /**
@@ -58,7 +66,7 @@ public class BDocContainer extends AsicEContainer {
    * @param configuration
    */
   public BDocContainer(String containerPath, Configuration configuration) {
-    super(containerPath, configuration);
+    super(containerPath, configuration, Constant.BDOC_CONTAINER_TYPE);
   }
 
   /**
@@ -67,7 +75,7 @@ public class BDocContainer extends AsicEContainer {
    * @param stream
    */
   public BDocContainer(InputStream stream) {
-    super(stream);
+    super(stream, Constant.BDOC_CONTAINER_TYPE);
   }
 
   /**
@@ -77,11 +85,22 @@ public class BDocContainer extends AsicEContainer {
    * @param configuration
    */
   public BDocContainer(InputStream stream, Configuration configuration) {
-    super(stream, configuration);
+    super(stream, configuration, Constant.BDOC_CONTAINER_TYPE);
   }
 
   @Override
   public void save(OutputStream out) {
     writeAsicContainer(new AsicContainerCreator(out));
+  }
+
+  protected List<Signature> parseSignatureFiles(List<DSSDocument> signatureFiles, List<DSSDocument> detachedContents) {
+    Configuration configuration = getConfiguration();
+    BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
+    List<Signature> signatures = new ArrayList<>(signatureFiles.size());
+    for (DSSDocument signatureFile : signatureFiles) {
+      List<BDocSignature> bDocSignatures = signatureOpener.parse(signatureFile);
+      signatures.addAll(bDocSignatures);
+    }
+    return signatures;
   }
 }

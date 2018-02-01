@@ -45,7 +45,7 @@ public class ContainerOpenerTest extends DigiDoc4JTestHelper {
   public void openBDocContainerAsStream() throws Exception {
     FileInputStream stream = FileUtils.openInputStream(new File(BDOC_TEST_FILE));
     Container container = ContainerOpener.open(stream, configuration);
-    assertContainerOpened(container, "BDOC");
+    assertContainerOpened(container, "ASICE");
   }
 
   @Test
@@ -60,7 +60,7 @@ public class ContainerOpenerTest extends DigiDoc4JTestHelper {
     boolean bigFilesSupportEnabled = false;
     FileInputStream stream = FileUtils.openInputStream(new File(BDOC_TEST_FILE));
     Container container = ContainerOpener.open(stream, bigFilesSupportEnabled);
-    assertContainerOpened(container, "BDOC");
+    assertContainerOpened(container, "ASICE");
   }
 
   private void assertContainerOpened(Container container, String containerType) {

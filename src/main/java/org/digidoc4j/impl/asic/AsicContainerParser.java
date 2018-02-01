@@ -27,6 +27,7 @@ import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
+import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.TechnicalException;
@@ -42,6 +43,9 @@ import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.MimeType;
 
+/**
+ * Abstract class for parsing ASiC containers.
+ */
 public abstract class AsicContainerParser {
 
   public static final String MANIFEST = "META-INF/manifest.xml";
@@ -70,6 +74,10 @@ public abstract class AsicContainerParser {
     maxDataFileCachedInBytes = configuration.getMaxDataFileCachedInBytes();
   }
 
+  /**
+   * Method for parsing and validating ASiC container.
+   * @return parsing result
+   */
   public AsicParseResult read() {
     parseContainer();
     validateParseResult();
@@ -185,8 +193,8 @@ public abstract class AsicContainerParser {
       ManifestEntry manifestEntry = manifestFileItems.get(fileName);
       return manifestEntry.getMimeType();
     } else {
-      MimeType mimeType = MimeType.fromFileName(fileName);
-      return mimeType.getMimeTypeString();
+      MimeType mimetype = MimeType.fromFileName(fileName);
+      return mimetype.getMimeTypeString();
     }
   }
 
@@ -194,11 +202,11 @@ public abstract class AsicContainerParser {
     if (!StringUtils.equalsIgnoreCase(MimeType.ASICE.getMimeTypeString(), mimeType)
         && !StringUtils.equalsIgnoreCase(MimeType.ASICS.getMimeTypeString(), mimeType)) {
       logger.error("Container mime type is not " + MimeType.ASICE.getMimeTypeString() + " but is " + mimeType);
-      throw new UnsupportedFormatException("Container mime type is not " + MimeType.ASICE.getMimeTypeString() +
-          " OR " + MimeType.ASICS.getMimeTypeString() + " but is " + mimeType);
+      throw new UnsupportedFormatException("Container mime type is not " + MimeType.ASICE.getMimeTypeString()
+          + " OR " + MimeType.ASICS.getMimeTypeString() + " but is " + mimeType);
     }
     if (!this.signatures.isEmpty() && this.dataFiles.isEmpty()) {
-      throw new DigiDoc4JException("Signatures found, but no any data files detected");
+      throw new ContainerWithoutFilesException("The reference data object(s) is not found!");
     }
   }
 
