@@ -21,7 +21,7 @@ import ee.sk.utils.ConfigManager;
 public class ConfigManagerInitializer implements Serializable{
 
   private static final Logger logger = LoggerFactory.getLogger(ConfigManagerInitializer.class);
-  static boolean configManagerInitialized = false;
+  protected static boolean configManagerInitialized = false;
 
   public void initConfigManager(Configuration configuration) {
     if(!configManagerInitialized) {
@@ -42,10 +42,11 @@ public class ConfigManagerInitializer implements Serializable{
     return configManagerInitialized;
   }
 
-  synchronized void initializeJDigidocConfigManager(Configuration configuration) {
+  protected synchronized void initializeJDigidocConfigManager(Configuration configuration) {
     //Using double-checked locking to avoid other threads to start initialization
     if(!configManagerInitialized) {
       forceInitConfigManager(configuration);
     }
   }
+
 }

@@ -211,12 +211,12 @@ public class HelperTest {
 
   @Test (expected = DigiDoc4JException.class)
   public void deserializeThrowsException() {
-    deserializer(null);
+    deserializer((File) null);
   }
 
   @Test (expected = DigiDoc4JException.class)
   public void serializeThrowsException() {
-    serialize(ContainerBuilder.aContainer().build(), null);
+    serialize(ContainerBuilder.aContainer().build(), (File) null);
   }
 
 

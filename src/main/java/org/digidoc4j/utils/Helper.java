@@ -168,13 +168,13 @@ public final class Helper {
    * Serialize object.
    *
    * @param object object to be serialized
-   * @param filename  name of file to store serialized object in
+   * @param file  file to store serialized object in
    */
-  public static <T> void serialize(T object, String filename) {
+  public static <T> void serialize(T object, File file) {
     FileOutputStream fileOut = null;
     ObjectOutputStream out = null;
     try {
-      fileOut = new FileOutputStream(filename);
+      fileOut = new FileOutputStream(file);
       out = new ObjectOutputStream(fileOut);
       out.writeObject(object);
       out.flush();
@@ -184,20 +184,29 @@ public final class Helper {
       IOUtils.closeQuietly(out);
       IOUtils.closeQuietly(fileOut);
     }
+  }
 
+  /**
+   * Serialize object.
+   *
+   * @param object object to be serialized
+   * @param filename  name of file to store serialized object in
+   */
+  public static <T> void serialize(T object, String filename) {
+    Helper.serialize(object, new File(filename));
   }
 
   /**
    * Deserialize a previously serialized container
    *
-   * @param filename name of the file containing the serialized container
+   * @param file file containing the serialized container
    * @return container
    */
-  public static <T> T deserializer(String filename) {
+  public static <T> T deserializer(File file) {
     FileInputStream fileIn = null;
     ObjectInputStream in = null;
     try {
-      fileIn = new FileInputStream(filename);
+      fileIn = new FileInputStream(file);
       in = new ObjectInputStream(fileIn);
       T object = (T) in.readObject();
       return object;
@@ -207,6 +216,16 @@ public final class Helper {
       IOUtils.closeQuietly(in);
       IOUtils.closeQuietly(fileIn);
     }
+  }
+
+  /**
+   * Deserialize a previously serialized container
+   *
+   * @param filename name of the file containing the serialized container
+   * @return container
+   */
+  public static <T> T deserializer(String filename) {
+    return Helper.deserializer(new File(filename));
   }
 
   /**

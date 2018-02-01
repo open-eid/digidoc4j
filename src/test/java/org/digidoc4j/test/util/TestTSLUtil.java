@@ -1,4 +1,14 @@
-package org.digidoc4j.testutils;
+/* DigiDoc4J library
+*
+* This software is released under either the GNU Library General Public
+* License (see LICENSE.LGPL).
+*
+* Note that the only valid version of the LGPL license as far as this
+* project is concerned is the original GNU Library General Public License
+* Version 2.1, February 1999
+*/
+
+package org.digidoc4j.test.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,7 +21,11 @@ import org.digidoc4j.impl.asic.tsl.TslLoader;
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.DSSUtils;
 
-public class TSLHelper {
+/**
+ * Created by Janar Rahumeel (CGI Estonia)
+ */
+
+public final class TestTSLUtil {
 
   /**
    * This might be needed to validate already created containers that use test certificates but are timestamped by live TSA
@@ -19,7 +33,7 @@ public class TSLHelper {
    * @return the same configuration with certificate added to TSL
    */
   public static Configuration addSkTsaCertificateToTsl(Configuration configuration) {
-    return addCertificateFromFileToTsl(configuration, "src/test/resources/testFiles/certs/SK_TSA.pem.crt");
+    return TestTSLUtil.addCertificateFromFileToTsl(configuration, "src/test/resources/testFiles/certs/SK_TSA.pem.crt");
   }
 
   public static Configuration addCertificateFromFileToTsl(Configuration configuration, String fileName) {
@@ -34,9 +48,29 @@ public class TSLHelper {
     }
   }
 
-  public static long getCacheLastModificationTime() {
-    File cachedFile = getCachedFile(TslLoader.fileCacheDirectory);
-    return cachedFile.lastModified();
+  public static void evictCache() {
+    TslLoader.invalidateCache();
+  }
+
+  public static long getCacheLastModified() {
+    return TestTSLUtil.getCachedFile(TslLoader.fileCacheDirectory).lastModified();
+  }
+
+  private static File getCachedFile(File cacheDirectory) { // TODO refactor
+    File cachedFile = null;
+    if (cacheDirectory.exists()) {
+      File[] files = cacheDirectory.listFiles();
+      if (files != null && files.length > 0) {
+        cachedFile = files[0];
+        long modificationTime = cachedFile.lastModified();
+        for (File file : files) {
+          if (file.lastModified() > modificationTime) {
+            cachedFile = file;
+          }
+        }
+      }
+    }
+    return cachedFile;
   }
 
   public static boolean isTslCacheEmpty() {
@@ -47,24 +81,4 @@ public class TSLHelper {
     return cachedFiles == null || cachedFiles.length == 0;
   }
 
-  public static void deleteTSLCache() {
-    TslLoader.invalidateCache();
-  }
-
-  private static File getCachedFile(File cacheDirectory) {
-    File cachedFile = null;
-    if(cacheDirectory.exists()) {
-      File[] files = cacheDirectory.listFiles();
-      if(files != null && files.length > 0) {
-        cachedFile = files[0];
-        long modificationTime = cachedFile.lastModified();
-        for(File file: files) {
-          if(file.lastModified() > modificationTime) {
-            cachedFile = file;
-          }
-        }
-      }
-    }
-    return cachedFile;
-  }
 }

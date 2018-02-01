@@ -10,234 +10,202 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import static java.lang.Thread.sleep;
-import static org.digidoc4j.SignatureProfile.B_BES;
-import static org.digidoc4j.SignatureProfile.B_EPES;
-import static org.digidoc4j.SignatureProfile.LT;
-import static org.digidoc4j.SignatureProfile.LTA;
-import static org.digidoc4j.SignatureProfile.LT_TM;
-import static org.digidoc4j.testutils.TestDataBuilder.createContainerWithFile;
-import static org.digidoc4j.testutils.TestDataBuilder.createEmptyBDocContainer;
-import static org.digidoc4j.testutils.TestDataBuilder.open;
-import static org.digidoc4j.testutils.TestDataBuilder.signContainer;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
+import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Container;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.impl.DigiDoc4JTestHelper;
-import org.junit.Before;
-import org.junit.Rule;
+import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.test.util.TestDataBuilderUtil;
+import org.junit.Assert;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
-public class ExtendingBDocContainerTest extends DigiDoc4JTestHelper {
+public class ExtendingBDocContainerTest extends AbstractTest {
 
-  String testContainerPath;
-
-  @Rule
-  public TemporaryFolder testFolder = new TemporaryFolder();
-
-  @Before
-  public void setUp() throws Exception {
-    testContainerPath = testFolder.newFile("testExtendTo.bdoc").getPath();
-  }
+  private String containerLocation;
 
   @Test
   public void extendFromB_BESToTS() throws Exception {
-    Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    signContainer(container, B_BES);
-    container.saveAsFile(testContainerPath);
-
-    assertEquals(1, container.getSignatures().size());
-    assertNull(container.getSignatures().get(0).getOCSPCertificate());
-
-    container = open(testContainerPath);
-    container.extendSignatureProfile(LT);
-    container.saveAsFile(testFolder.newFile().getPath());
-
-    assertEquals(1, container.getSignatures().size());
+    Container container = this.createNonEmptyContainer();
+    this.createSignatureBy(container, SignatureProfile.B_BES, this.pkcs12SignatureToken);
+    container.saveAsFile(this.containerLocation);
+    Assert.assertEquals(1, container.getSignatures().size());
+    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    container = TestDataBuilderUtil.open(this.containerLocation);
+    container.extendSignatureProfile(SignatureProfile.LT);
+    container.saveAsFile(this.getFileBy("bdoc"));
+    Assert.assertEquals(1, container.getSignatures().size());
     Signature signature = container.getSignatures().get(0);
-    assertNotNull(signature.getOCSPCertificate());
-    assertEquals(LT, signature.getProfile());
-    assertTrue(container.validate().isValid());
+    Assert.assertNotNull(signature.getOCSPCertificate());
+    Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
+    Assert.assertTrue(container.validate().isValid());
   }
 
   @Test
   public void extendFromEpesToLT_TM() throws Exception {
-    Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    signContainer(container, B_EPES);
-    container.saveAsFile(testContainerPath);
-
-    assertEquals(1, container.getSignatures().size());
-    assertNull(container.getSignatures().get(0).getOCSPCertificate());
-
-    container = open(testContainerPath);
-    container.extendSignatureProfile(LT_TM);
-    container.saveAsFile(testFolder.newFile().getPath());
-
-    assertEquals(1, container.getSignatures().size());
+    Container container = this.createNonEmptyContainer();
+    this.createSignatureBy(container, SignatureProfile.B_EPES, this.pkcs12SignatureToken);
+    container.saveAsFile(this.containerLocation);
+    Assert.assertEquals(1, container.getSignatures().size());
+    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    container = TestDataBuilderUtil.open(this.containerLocation);
+    container.extendSignatureProfile(SignatureProfile.LT_TM);
+    container.saveAsFile(this.getFileBy("bdoc"));
+    Assert.assertEquals(1, container.getSignatures().size());
     Signature signature = container.getSignatures().get(0);
-    assertNotNull(signature.getOCSPCertificate());
-    assertEquals(LT_TM, signature.getProfile());
-    assertTrue(container.validate().isValid());
+    Assert.assertNotNull(signature.getOCSPCertificate());
+    Assert.assertEquals(SignatureProfile.LT_TM, signature.getProfile());
+    Assert.assertTrue(container.validate().isValid());
   }
 
   @Test
   public void extendFromB_BESToLTA() throws Exception {
-    Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    signContainer(container, B_BES);
-    container.saveAsFile(testContainerPath);
-
-    assertEquals(1, container.getSignatures().size());
-    assertNull(container.getSignatures().get(0).getOCSPCertificate());
-
-    container = open(testContainerPath);
+    Container container = this.createNonEmptyContainer();
+    this.createSignatureBy(container, SignatureProfile.B_BES, this.pkcs12SignatureToken);
+    container.saveAsFile(this.containerLocation);
+    Assert.assertEquals(1, container.getSignatures().size());
+    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    container = TestDataBuilderUtil.open(this.containerLocation);
     container.extendSignatureProfile(SignatureProfile.LTA);
-    container.saveAsFile(testFolder.newFile().getPath());
-
-    assertEquals(1, container.getSignatures().size());
-    assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
+    container.saveAsFile(this.getFileBy("bdoc"));
+    Assert.assertEquals(1, container.getSignatures().size());
+    Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
   }
 
   @Test(expected = NotSupportedException.class)
   public void extendFromB_BESToLT_TMThrowsException() throws Exception {
-    Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    signContainer(container, B_BES);
-    container.extendSignatureProfile(LT_TM);
+    Container container = this.createNonEmptyContainer();
+    this.createSignatureBy(container, SignatureProfile.B_BES, this.pkcs12SignatureToken);
+    container.extendSignatureProfile(SignatureProfile.LT_TM);
   }
 
   @Test(expected = NotSupportedException.class)
   public void extendFromEpesToLTThrowsException() throws Exception {
-    Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    signContainer(container, B_EPES);
-    container.extendSignatureProfile(LT);
+    Container container = this.createNonEmptyContainer();
+    this.createSignatureBy(container, SignatureProfile.B_EPES, this.pkcs12SignatureToken);
+    container.extendSignatureProfile(SignatureProfile.LT);
   }
 
   @Test(expected = NotSupportedException.class)
   public void extendFromEpesToLTAThrowsException() throws Exception {
-    Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    signContainer(container, B_EPES);
+    Container container = this.createNonEmptyContainer();
+    this.createSignatureBy(container, SignatureProfile.B_EPES, this.pkcs12SignatureToken);
     container.extendSignatureProfile(SignatureProfile.LTA);
   }
 
   @Test(expected = NotSupportedException.class)
   public void extendFromLTToLT_TMThrowsException() throws Exception {
-    Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    signContainer(container, LT);
-    container.extendSignatureProfile(LT_TM);
+    Container container = this.createNonEmptyContainer();
+    this.createSignatureBy(container, SignatureProfile.LT, this.pkcs12SignatureToken);
+    container.extendSignatureProfile(SignatureProfile.LT_TM);
   }
 
   @Test(expected = NotSupportedException.class)
   public void extendFromLTAToLT_TMThrowsException() throws Exception {
-    Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    signContainer(container, LTA);
-    container.extendSignatureProfile(LT_TM);
+    Container container = this.createNonEmptyContainer();
+    this.createSignatureBy(container, SignatureProfile.LTA, this.pkcs12SignatureToken);
+    container.extendSignatureProfile(SignatureProfile.LT_TM);
   }
 
   @Test(expected = NotSupportedException.class)
   public void extendFromLTToBESThrowsException() throws Exception {
-    Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    signContainer(container, LT);
-    container.extendSignatureProfile(B_BES);
+    Container container = this.createNonEmptyContainer();
+    this.createSignatureBy(container, SignatureProfile.LT, this.pkcs12SignatureToken);
+    container.extendSignatureProfile(SignatureProfile.B_BES);
   }
 
   @Test(expected = NotSupportedException.class)
   public void extendFromLTToEPESThrowsException() throws Exception {
-    Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    signContainer(container, LT);
-    container.extendSignatureProfile(B_EPES);
+    Container container = this.createNonEmptyContainer();
+    this.createSignatureBy(container, SignatureProfile.LT, this.pkcs12SignatureToken);
+    container.extendSignatureProfile(SignatureProfile.B_EPES);
   }
 
   @Test(expected = NotSupportedException.class)
   public void extendFromLT_TMToLTThrowsException() throws Exception {
-    Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    signContainer(container, LT_TM);
-    container.extendSignatureProfile(LT);
+    Container container = this.createNonEmptyContainer();
+    this.createSignatureBy(container, SignatureProfile.LT_TM, this.pkcs12SignatureToken);
+    container.extendSignatureProfile(SignatureProfile.LT);
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void extendToWhenConfirmationAlreadyExists() throws Exception {
-    Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    signContainer(container, B_BES);
-    container.saveAsFile(testContainerPath);
-
-    assertEquals(1, container.getSignatures().size());
-    assertNull(container.getSignatures().get(0).getOCSPCertificate());
-
-    container = open(testContainerPath);
-    container.extendSignatureProfile(LT);
-    container.extendSignatureProfile(LT);
+    Container container = this.createNonEmptyContainer();
+    this.createSignatureBy(container, SignatureProfile.B_BES, this.pkcs12SignatureToken);
+    container.saveAsFile(this.containerLocation);
+    Assert.assertEquals(1, container.getSignatures().size());
+    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    container = TestDataBuilderUtil.open(this.containerLocation);
+    container.extendSignatureProfile(SignatureProfile.LT);
+    container.extendSignatureProfile(SignatureProfile.LT);
   }
 
   @Test
   public void extendToWithMultipleSignatures() throws Exception {
-    Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    signContainer(container, B_BES);
-    signContainer(container, B_BES);
-    container.saveAsFile(testContainerPath);
-
-    assertEquals(2, container.getSignatures().size());
-    assertNull(container.getSignatures().get(0).getOCSPCertificate());
-    assertNull(container.getSignatures().get(1).getOCSPCertificate());
-
-    container = open(testContainerPath);
-    container.extendSignatureProfile(LT);
-    String containerPath = testFolder.newFile("testExtendToContainsIt.bdoc").getPath();
+    Container container = this.createNonEmptyContainer();
+    this.createSignatureBy(container, SignatureProfile.B_BES, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, SignatureProfile.B_BES, this.pkcs12SignatureToken);
+    container.saveAsFile(this.containerLocation);
+    Assert.assertEquals(2, container.getSignatures().size());
+    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    Assert.assertNull(container.getSignatures().get(1).getOCSPCertificate());
+    container = TestDataBuilderUtil.open(this.containerLocation);
+    container.extendSignatureProfile(SignatureProfile.LT);
+    String containerPath = this.getFileBy("bdoc");
     container.saveAsFile(containerPath);
-
-    container = open(containerPath);
-    assertEquals(2, container.getSignatures().size());
-    assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
-    assertNotNull(container.getSignatures().get(1).getOCSPCertificate());
-    assertTrue(container.validate().isValid());
+    container = TestDataBuilderUtil.open(containerPath);
+    Assert.assertEquals(2, container.getSignatures().size());
+    Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
+    Assert.assertNotNull(container.getSignatures().get(1).getOCSPCertificate());
+    Assert.assertTrue(container.validate().isValid());
   }
 
   @Test
   public void extendToWithMultipleSignaturesAndMultipleFiles() throws Exception {
-    Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+    Container container = this.createNonEmptyContainer();
     container.addDataFile("src/test/resources/testFiles/helper-files/test.xml", "text/xml");
-    signContainer(container, B_BES);
-    signContainer(container, B_BES);
-    container.saveAsFile(testContainerPath);
-
-    assertEquals(2, container.getSignatures().size());
-    assertEquals(2, container.getDataFiles().size());
-    assertNull(container.getSignatures().get(0).getOCSPCertificate());
-    assertNull(container.getSignatures().get(1).getOCSPCertificate());
-
-    container = open(testContainerPath);
-    container.extendSignatureProfile(LT);
-    container.saveAsFile(testFolder.newFile("testAddConfirmationContainsIt.bdoc").getPath());
-
-    assertEquals(2, container.getSignatures().size());
-    assertEquals(2, container.getDataFiles().size());
-    assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
-    assertNotNull(container.getSignatures().get(1).getOCSPCertificate());
-    assertTrue(container.validate().isValid());
+    this.createSignatureBy(container, SignatureProfile.B_BES, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, SignatureProfile.B_BES, this.pkcs12SignatureToken);
+    container.saveAsFile(this.containerLocation);
+    Assert.assertEquals(2, container.getSignatures().size());
+    Assert.assertEquals(2, container.getDataFiles().size());
+    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    Assert.assertNull(container.getSignatures().get(1).getOCSPCertificate());
+    container = TestDataBuilderUtil.open(this.containerLocation);
+    container.extendSignatureProfile(SignatureProfile.LT);
+    container.saveAsFile(this.getFileBy("bdoc"));
+    Assert.assertEquals(2, container.getSignatures().size());
+    Assert.assertEquals(2, container.getDataFiles().size());
+    Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
+    Assert.assertNotNull(container.getSignatures().get(1).getOCSPCertificate());
+    Assert.assertTrue(container.validate().isValid());
   }
 
   @Test
   public void testContainerExtensionFromLTtoLTA() throws Exception {
-    Container container = createContainerWithFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    signContainer(container, LT);
-    sleep(1100);
-    container.extendSignatureProfile(LTA);
-    assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
-    boolean isValid = container.validate().isValid();
-    assertTrue(isValid);
+    Container container = this.createNonEmptyContainer();
+    this.createSignatureBy(container, SignatureProfile.LT, this.pkcs12SignatureToken);
+    container.extendSignatureProfile(SignatureProfile.LTA);
+    Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
+    TestAssert.assertContainerIsValid(container);
   }
 
   @Test(expected = NotSupportedException.class)
   public void extensionNotPossibleWhenSignatureLevelIsSame() throws Exception {
-    Container container = createEmptyBDocContainer();
+    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    signContainer(container, LTA);
-    container.extendSignatureProfile(LTA);
+    this.createSignatureBy(container, SignatureProfile.LTA, this.pkcs12SignatureToken);
+    container.extendSignatureProfile(SignatureProfile.LTA);
   }
+
+  /*
+   * RESTRICTED METHODS
+   */
+
+  @Override
+  protected void before() {
+    this.containerLocation = this.getFileBy("bdoc");
+  }
+
 }

@@ -10,62 +10,38 @@
 
 package org.digidoc4j.impl.ddoc;
 
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-
-import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
+import org.digidoc4j.AbstractTest;
 import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProductionPlace;
-import org.digidoc4j.impl.DigiDoc4JTestHelper;
-import org.digidoc4j.signers.PKCS12SignatureToken;
-import org.junit.BeforeClass;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class DDocSignatureTest extends DigiDoc4JTestHelper {
+public class DDocSignatureTest extends AbstractTest {
 
-  private static DDocFacade container;
+  private DDocFacade container;
 
-  @BeforeClass
-  public static void setUp() {
-    String current = new File(".").getAbsolutePath();
-    System.out.println("CURRENT DIR: "+current);
+  @Test
+  public void testSignatureParameters() throws Exception {
+    Assert.assertEquals("City", this.container.getSignature(0).getCity());
+    Assert.assertEquals("Country", this.container.getSignature(0).getCountryName());
+    Assert.assertEquals("PostalCode", this.container.getSignature(0).getPostalCode());
+    Assert.assertEquals("State", this.container.getSignature(0).getStateOrProvince());
+    List<String> signerRoles = this.container.getSignature(0).getSignerRoles();
+    Assert.assertEquals("Role1", signerRoles.get(0));
+  }
+
+  @Override
+  protected void before() {
     SignatureParameters signatureParameters = new SignatureParameters();
     signatureParameters.setProductionPlace(new SignatureProductionPlace("City", "State", "PostalCode", "Country"));
-    signatureParameters.setRoles(asList("Role1"));
-
-    container = new DDocFacade();
-    container.setSignatureParameters(signatureParameters);
-
-    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    container.sign(new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray()));
+    signatureParameters.setRoles(Arrays.asList("Role1"));
+    this.container = new DDocFacade();
+    this.container.setSignatureParameters(signatureParameters);
+    this.container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+    this.container.sign(this.pkcs12SignatureToken);
   }
 
-  @Test
-  public void getCity() throws Exception {
-    assertEquals("City",  container.getSignature(0).getCity());
-  }
-
-  @Test
-  public void getCountryName() throws Exception {
-    assertEquals("Country",  container.getSignature(0).getCountryName());
-
-  }
-
-  @Test
-  public void getPostalCode() throws Exception {
-    assertEquals("PostalCode",  container.getSignature(0).getPostalCode());
-  }
-
-  @Test
-  public void getStateOrProvince() throws Exception {
-    assertEquals("State",  container.getSignature(0).getStateOrProvince());
-  }
-
-  @Test
-  public void getSignerRoles() throws Exception {
-    List<String> signerRoles = container.getSignature(0).getSignerRoles();
-    assertEquals("Role1", signerRoles.get(0));
-  }
 }

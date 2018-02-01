@@ -8,18 +8,20 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.testutils;
+package org.digidoc4j.test.util;
 
-import org.digidoc4j.Configuration;
+/**
+ * Created by Janar Rahumeel (CGI Estonia)
+ */
 
-public class CustomConfiguration extends Configuration {
-	
-	public CustomConfiguration() {
-		super();
-	}
+public final class TestCommonUtil {
 
-	public CustomConfiguration(Configuration.Mode mode) {
-		super(mode);
-	}
+  public static void sleepInSeconds(int seconds) {
+    try {
+      Thread.sleep(seconds * 1000);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
 }

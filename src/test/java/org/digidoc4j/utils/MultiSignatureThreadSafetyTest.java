@@ -6,7 +6,7 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.testutils.TestDataBuilder;
+import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Test;
 
 /**
@@ -31,6 +31,6 @@ public class MultiSignatureThreadSafetyTest extends AbstractSigningTests {
         withDataFile(new ByteArrayInputStream("file contents".getBytes()), "file.txt", "application/octet-stream").
         build();
 
-    TestDataBuilder.signContainer(container, SignatureProfile.LT);
+    TestDataBuilderUtil.signContainer(container, SignatureProfile.LT);
   }
 }

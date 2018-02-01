@@ -72,34 +72,55 @@ public abstract class ContainerBuilder {
    * @return builder for creating or opening a BDOC(ASICE) container.
    */
   public static ContainerBuilder aContainer() {
-    return aContainer(Constant.BDOC_CONTAINER_TYPE);
+    return aContainer(Container.DocumentType.BDOC);
   }
 
   /**
    * Create a new container builder based on a container type.
    *
-   * @param cType a type of container to be created, e.g. "BDOC(ASICE)" , "ASICS" or "DDOC".
+   * @param type a type of container to be created, e.g. "BDOC(ASICE)" , "ASICS" or "DDOC".
    *
    * @return builder for creating a container.
    */
-  public static ContainerBuilder aContainer(String cType) {
-    ContainerBuilder.containerType = cType;
-    if (isCustomContainerType(cType)) {
-      return new CustomContainerBuilder(cType);
+  public static ContainerBuilder aContainer(String type) {
+    ContainerBuilder.containerType = type;
+    if (ContainerBuilder.isCustomContainerType(type)) {
+      return new CustomContainerBuilder(type);
+    } else {
+      try {
+        return ContainerBuilder.aContainer(Container.DocumentType.valueOf(type));
+      } catch (IllegalArgumentException e) {
+        throw new NotSupportedException(String.format("Container type <%s> is unsupported", type));
+      }
     }
-    switch (cType) {
-      case Constant.BDOC_CONTAINER_TYPE:
-        return new BDocContainerBuilder();
-      case Constant.DDOC_CONTAINER_TYPE:
-        return new DDocContainerBuilder();
-      case Constant.ASICS_CONTAINER_TYPE:
-        return new AsicSContainerBuilder();
-      case Constant.ASICE_CONTAINER_TYPE:
-        return new AsicEContainerBuilder();
-      case Constant.PADES_CONTAINER_TYPE:
-        return new PadesContainerBuilder();
+  }
+
+  /**
+   * Create a new container builder based on a container type.
+   *
+   * @param type a type of container to be created, e.g. "BDOC(ASICE)" , "ASICS" or "DDOC".
+   *
+   * @return builder for creating a container.
+   */
+  public static ContainerBuilder aContainer(Container.DocumentType type) {
+    ContainerBuilder.containerType = type.name();
+    if (ContainerBuilder.isCustomContainerType(ContainerBuilder.containerType)) {
+      return new CustomContainerBuilder(ContainerBuilder.containerType);
+    } else {
+      switch (type) {
+        case BDOC:
+          return new BDocContainerBuilder();
+        case DDOC:
+          return new DDocContainerBuilder();
+        case ASICS:
+          return new AsicSContainerBuilder();
+        case ASICE:
+          return new AsicEContainerBuilder();
+        case PADES:
+          return new PadesContainerBuilder();
+      }
     }
-    throw new NotSupportedException("Container type is not supported: " + cType);
+    throw new NotSupportedException(String.format("Container type <%s> is unsupported", type));
   }
 
   /**
@@ -241,7 +262,7 @@ public abstract class ContainerBuilder {
    * @see Container
    */
   public static <T extends Container> void setContainerImplementation(String containerType, Class<T> containerClass) {
-    logger.info("Using " + containerClass.getName() + "for container type " + containerType);
+    logger.info("Using <{}> for container type <{}>", containerClass.getName(), containerType);
     containerImplementations.put(containerType, containerClass);
   }
 

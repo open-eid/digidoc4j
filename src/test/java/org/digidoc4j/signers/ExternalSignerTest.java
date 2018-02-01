@@ -10,32 +10,31 @@
 
 package org.digidoc4j.signers;
 
-import static org.junit.Assert.assertEquals;
-
 import java.security.cert.X509Certificate;
 
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.impl.Certificates;
+import org.junit.Assert;
 import org.junit.Test;
 
 import eu.europa.esig.dss.DSSUtils;
-
 
 public class ExternalSignerTest {
 
   @Test
   public void testGetCertificate() throws Exception {
     X509Certificate cert = DSSUtils.loadCertificate(Base64.decodeBase64(Certificates.SIGNING_CERTIFICATE)).getCertificate();
-
     ExternalSigner externalSigner = new ExternalSigner(cert) {
+
       @Override
       public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
         return new byte[0];
       }
+
     };
     byte[] certificateBytes = externalSigner.getCertificate().getEncoded();
-
-    assertEquals(Certificates.SIGNING_CERTIFICATE, Base64.encodeBase64String(certificateBytes));
+    Assert.assertEquals(Certificates.SIGNING_CERTIFICATE, Base64.encodeBase64String(certificateBytes));
   }
+
 }

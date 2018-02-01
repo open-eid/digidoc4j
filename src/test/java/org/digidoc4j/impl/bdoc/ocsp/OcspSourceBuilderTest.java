@@ -10,58 +10,50 @@
 
 package org.digidoc4j.impl.bdoc.ocsp;
 
-import static org.digidoc4j.impl.asic.ocsp.OcspSourceBuilder.anOcspSource;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-
+import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.asic.ocsp.BDocTMOcspSource;
 import org.digidoc4j.impl.asic.ocsp.BDocTSOcspSource;
+import org.digidoc4j.impl.asic.ocsp.OcspSourceBuilder;
 import org.digidoc4j.impl.asic.ocsp.SKOnlineOCSPSource;
+import org.digidoc4j.test.TestAssert;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class OcspSourceBuilderTest {
-
-  public static final Configuration CONFIGURATION = new Configuration(Configuration.Mode.TEST);
+public class OcspSourceBuilderTest extends AbstractTest {
 
   @Test
   public void buildTimeStampOcspSource_whenProfileIsNotSet() throws Exception {
-    SKOnlineOCSPSource ocspSource = anOcspSource().
-        withConfiguration(CONFIGURATION).
+    SKOnlineOCSPSource ocspSource = OcspSourceBuilder.anOcspSource().withConfiguration(this.configuration).
         build();
-    assertEquals(BDocTSOcspSource.class, ocspSource.getClass());
-    assertOcspSource(ocspSource, "XAdES_BASELINE_LT");
+    Assert.assertEquals(BDocTSOcspSource.class, ocspSource.getClass());
+    TestAssert.assertOCSPSource(this.configuration, ocspSource, "XAdES_BASELINE_LT");
   }
 
   @Test
   public void buildTimeStampOcspSource() throws Exception {
-    SKOnlineOCSPSource ocspSource = anOcspSource().
-        withSignatureProfile(SignatureProfile.LT).
-        withConfiguration(CONFIGURATION).
-        build();
-    assertEquals(BDocTSOcspSource.class, ocspSource.getClass());
-    assertOcspSource(ocspSource, "XAdES_BASELINE_LT");
+    SKOnlineOCSPSource ocspSource = OcspSourceBuilder.anOcspSource().withSignatureProfile(SignatureProfile.LT)
+        .withConfiguration(this.configuration).build();
+    Assert.assertEquals(BDocTSOcspSource.class, ocspSource.getClass());
+    TestAssert.assertOCSPSource(this.configuration, ocspSource, "XAdES_BASELINE_LT");
   }
 
   @Test
   public void buildTimeMarkOcspSource() throws Exception {
-    SKOnlineOCSPSource ocspSource = anOcspSource().
-        withSignatureProfile(SignatureProfile.LT_TM).
-        withSignatureValue(new byte[]{1, 2, 3}).
-        withConfiguration(CONFIGURATION).
-        build();
-    assertEquals(BDocTMOcspSource.class, ocspSource.getClass());
-    assertOcspSource(ocspSource, "ASiC_E_BASELINE_LT_TM");
-
+    SKOnlineOCSPSource ocspSource = OcspSourceBuilder.anOcspSource().withSignatureProfile(SignatureProfile.LT_TM).
+        withSignatureValue(new byte[]{1, 2, 3}).withConfiguration(this.configuration).build();
+    Assert.assertEquals(BDocTMOcspSource.class, ocspSource.getClass());
+    TestAssert.assertOCSPSource(this.configuration, ocspSource, "ASiC_E_BASELINE_LT_TM");
   }
 
-  private void assertOcspSource(SKOnlineOCSPSource ocspSource, String userAgentPart) {
-    assertSame(CONFIGURATION, ocspSource.getConfiguration());
-    assertNotNull(ocspSource.getDataLoader());
-    assertThat(ocspSource.getDataLoader().getUserAgent(), containsString(userAgentPart));
+  /*
+   * RESTRICTED METHODS
+   */
+
+  @Override
+  protected void before() {
+    this.configuration = new Configuration(Configuration.Mode.TEST);
   }
+
 }
