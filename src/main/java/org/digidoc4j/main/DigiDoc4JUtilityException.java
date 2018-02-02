@@ -16,7 +16,18 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
  * Exceptions thrown by DigiDoc4JUtility
  */
 public class DigiDoc4JUtilityException extends DigiDoc4JException {
+
   private final int errorCode;
+
+  /**
+   * Throws exception with message
+   *
+   * @param message error message
+   */
+
+  public DigiDoc4JUtilityException(String message) {
+    this(2, message);
+  }
 
   /**
    * Throws exception with error code and message
@@ -31,9 +42,11 @@ public class DigiDoc4JUtilityException extends DigiDoc4JException {
 
   /**
    * Returns error code
+   *
    * @return error code
    */
   public int getErrorCode() {
     return errorCode;
   }
+
 }

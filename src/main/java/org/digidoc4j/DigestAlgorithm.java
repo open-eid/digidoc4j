@@ -28,7 +28,7 @@ public enum DigestAlgorithm {
   private URL uri;
   private byte[] digestInfoPrefix;
 
-  private DigestAlgorithm(String uri, byte[] digestInfoPrefix) {
+  DigestAlgorithm(String uri, byte[] digestInfoPrefix) {
     try {
       this.uri = new URL(uri);
       this.digestInfoPrefix = digestInfoPrefix;

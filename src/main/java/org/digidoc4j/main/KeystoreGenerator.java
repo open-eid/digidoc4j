@@ -75,7 +75,7 @@ public class KeystoreGenerator {
   }
 
   /**
-   * Generate a keystore with default options.
+   * Generate a keystore with default mandatoryOptions.
    * @throws CertificateException
    * @throws NoSuchAlgorithmException
    * @throws KeyStoreException

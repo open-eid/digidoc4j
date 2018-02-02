@@ -10,12 +10,13 @@
 
 package org.digidoc4j.main;
 
-import static org.apache.commons.cli.OptionBuilder.withArgName;
+import java.util.List;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.digidoc4j.Container;
@@ -33,7 +34,6 @@ import ee.sk.digidoc.SignedDoc;
 public final class DigiDoc4J {
 
   private static final Logger logger = LoggerFactory.getLogger(DigiDoc4J.class);
-  private static final String EXTRACT_CMD = "extract";
 
   private DigiDoc4J() {
   }
@@ -45,9 +45,10 @@ public final class DigiDoc4J {
    */
   public static void main(String[] args) {
     try {
-      if (System.getProperty("digidoc4j.mode") == null)
+      if (System.getProperty("digidoc4j.mode") == null) {
         System.setProperty("digidoc4j.mode", "PROD");
-      run(args);
+      }
+      DigiDoc4J.run(args);
     } catch (DigiDoc4JUtilityException e) {
       logger.error("Errors occurred when running utility method: " + e.getMessage());
       System.err.print(e.getMessage());
@@ -58,22 +59,21 @@ public final class DigiDoc4J {
   }
 
   private static void run(String[] args) {
-    Options options = createParameters();
-
+    Options options = DigiDoc4J.createParameters();
     try {
       CommandLine commandLine = new BasicParser().parse(options, args);
       if (commandLine.hasOption("version")) {
-        showVersion();
+        DigiDoc4J.showVersion();
       }
-      if (shouldManipulateContainer(commandLine)) {
-        execute(commandLine);
+      if (DigiDoc4J.shouldManipulateContainer(commandLine)) {
+        DigiDoc4J.execute(commandLine);
       }
-      if (!commandLine.hasOption("version") && !shouldManipulateContainer(commandLine)) {
-        showUsage(options);
+      if (!commandLine.hasOption("version") && !DigiDoc4J.shouldManipulateContainer(commandLine)) {
+        DigiDoc4J.showUsage(options);
       }
     } catch (ParseException e) {
       logger.error(e.getMessage());
-      showUsage(options);
+      DigiDoc4J.showUsage(options);
       throw new DigiDoc4JUtilityException(2, "problem with given parameters");
     }
   }
@@ -83,20 +83,21 @@ public final class DigiDoc4J {
   }
 
   private static boolean shouldManipulateContainer(CommandLine commandLine) {
-    return commandLine.hasOption("in") || (isMultipleContainerCreation(commandLine));
+    return commandLine.hasOption("in") || (DigiDoc4J.isMultipleContainerCreation(commandLine));
   }
 
   private static void execute(CommandLine commandLine) {
-    checkSupportedFunctionality(commandLine);
-    ContainerManipulator containerManipulator = new ContainerManipulator(commandLine);
+    CommandLineExecutor executor = new CommandLineExecutor(ExecutionContext.of(commandLine, DigiDoc4J.checkSupportedFunctionality(commandLine)));
     try {
-      if (commandLine.hasOption("in")) {
+      if (executor.hasCommand()) {
+        executor.executeCommand();
+      } else if (commandLine.hasOption("in")) {
         String containerPath = commandLine.getOptionValue("in");
-        Container container = containerManipulator.openContainer(containerPath);
-        containerManipulator.processContainer(container);
-        containerManipulator.saveContainer(container, containerPath);
-      } else if (isMultipleContainerCreation(commandLine)) {
-        MultipleContainersCreator containersCreator = new MultipleContainersCreator(commandLine);
+        Container container = executor.openContainer(containerPath);
+        executor.processContainer(container);
+        executor.saveContainer(container, containerPath);
+      } else if (DigiDoc4J.isMultipleContainerCreation(commandLine)) {
+        MultipleContainersExecutor containersCreator = new MultipleContainersExecutor(commandLine);
         containersCreator.signDocuments();
       }
     } catch (DigiDoc4JUtilityException e) {
@@ -106,21 +107,50 @@ public final class DigiDoc4J {
     }
   }
 
-  private static void checkSupportedFunctionality(CommandLine commandLine) {
-    if (commandLine.hasOption("add")) {
-      String[] optionValues = commandLine.getOptionValues("add");
-      if (optionValues.length != 2) {
-        throw new DigiDoc4JUtilityException(2, "Incorrect add command");
+  private static ExecutionCommand checkSupportedFunctionality(CommandLine commandLine) {
+    if (commandLine.hasOption(ExecutionOption.EXTERNAL.getName())) {
+      for (ExecutionCommand command : ExecutionCommand.values()) {
+        if (DigiDoc4J.hasOptionsMatch(commandLine, command.getMandatoryOptions())) {
+          for (ExecutionOption option : command.getMandatoryOptions()) {
+            DigiDoc4J.checkOption(option, commandLine, true);
+          }
+          return command;
+        }
+      }
+    } else {
+      DigiDoc4J.checkOption(ExecutionOption.ADD, commandLine);
+      DigiDoc4J.checkOption(ExecutionOption.EXTRACT, commandLine);
+      if (commandLine.hasOption("pkcs11") && commandLine.hasOption("pkcs12")) {
+        throw new DigiDoc4JUtilityException(5, "Cannot sign with both PKCS#11 and PKCS#12");
       }
     }
-    if (commandLine.hasOption(EXTRACT_CMD)) {
-      String[] optionValues = commandLine.getOptionValues(EXTRACT_CMD);
-      if (optionValues.length != 2) {
-        throw new DigiDoc4JUtilityException(3, "Incorrect extract command");
+    return null;
+  }
+
+  private static boolean hasOptionsMatch(CommandLine commandLine, List<ExecutionOption> commands) {
+    int matchCount = 0;
+    for (ExecutionOption command : commands) {
+      if (commandLine.hasOption(command.getName())) {
+        matchCount++;
       }
     }
-    if (commandLine.hasOption("pkcs11") && commandLine.hasOption("pkcs12")) {
-      throw new DigiDoc4JUtilityException(5, "Cannot sign with both PKCS#11 and PKCS#12");
+    return matchCount == commands.size();
+  }
+
+  private static void checkOption(ExecutionOption option, CommandLine commandLine) {
+    DigiDoc4J.checkOption(option, commandLine, false);
+  }
+
+  private static void checkOption(ExecutionOption option, CommandLine commandLine, boolean mandatory) {
+    if (commandLine.hasOption(option.getName())) {
+      String[] optionValues = commandLine.getOptionValues(option.getName());
+      if (optionValues.length != option.getCount()) {
+        throw new DigiDoc4JUtilityException(String.format("Option <%s> parameter count is invalid", option));
+      }
+    } else {
+      if (mandatory) {
+        throw new DigiDoc4JUtilityException(String.format("Option <%s> is mandatory", option));
+      }
     }
   }
 
@@ -152,113 +182,111 @@ public final class DigiDoc4J {
     options.addOption("w", "warnings", false, "show warnings");
     options.addOption("version", "version", false, "show version");
     options.addOption("tst", "timestamp", false, "adds timestamp token to container");
-
-    options.addOption(type());
-    options.addOption(inputFile());
-    options.addOption(inputDir());
-    options.addOption(outputDir());
-    options.addOption(addFile());
-    options.addOption(removeFile());
-    options.addOption(pkcs12Sign());
-    options.addOption(pkcs11Sign());
-    options.addOption(signatureProfile());
-    options.addOption(encryptionAlgorithm());
-    options.addOption(mimeType());
-    options.addOption(extractDataFile());
-    options.addOption(reportsDir());
-    options.addOption(tstDigestAlgorihm());
-
+    options.addOption(DigiDoc4J.type());
+    options.addOption(DigiDoc4J.inputFile());
+    options.addOption(DigiDoc4J.inputDir());
+    options.addOption(DigiDoc4J.outputDir());
+    options.addOption(DigiDoc4J.addFile());
+    options.addOption(DigiDoc4J.removeFile());
+    options.addOption(DigiDoc4J.pkcs12Sign());
+    options.addOption(DigiDoc4J.pkcs11Sign());
+    options.addOption(DigiDoc4J.signatureProfile());
+    options.addOption(DigiDoc4J.encryptionAlgorithm());
+    options.addOption(DigiDoc4J.mimeType());
+    options.addOption(DigiDoc4J.extractDataFile());
+    options.addOption(DigiDoc4J.reportsDir());
+    options.addOption(DigiDoc4J.tstDigestAlgorihm());
+    options.addOption(DigiDoc4J.externalSigning());
+    options.addOption(DigiDoc4J.digestFile());
+    options.addOption(DigiDoc4J.certificateFile());
     return options;
   }
 
-  @SuppressWarnings("AccessStaticViaInstance")
+  private static Option externalSigning() {
+    return OptionBuilder.withDescription("specifies external signing mode").withLongOpt("external")
+        .create(ExecutionOption.EXTERNAL.getName());
+  }
+
+  private static Option digestFile() {
+    return OptionBuilder.withArgName("path").hasArg().withDescription("specifies output path for digest file")
+        .withLongOpt("digestFile").create(ExecutionOption.DIGEST.getName());
+  }
+
+  private static Option certificateFile() {
+    return OptionBuilder.withArgName("path").hasArg().withDescription("specifies path for public certificate file")
+        .withLongOpt("certificateFile").create(ExecutionOption.CERTIFICATE.getName());
+  }
+
   private static Option tstDigestAlgorihm() {
-    return withArgName("digestAlgorithm").hasArgs()
-        .withDescription("sets method to calculate datafile hash for timestamp token. Default: SHA256")
-        .create("datst");
+    return OptionBuilder.withArgName("digestAlgorithm").hasArgs()
+        .withDescription("sets method to calculate datafile hash for timestamp token. Default: SHA256").create("datst");
   }
 
-  @SuppressWarnings("AccessStaticViaInstance")
   private static Option signatureProfile() {
-    return withArgName("signatureProfile").hasArg()
-        .withDescription("sets signature profile. Profile can be B_BES, LT, LT_TM or LTA")
-        .withLongOpt("profile").create("p");
+    return OptionBuilder.withArgName("signatureProfile").hasArg()
+        .withDescription("sets signature profile. Profile can be B_BES, LT, LT_TM or LTA").withLongOpt("profile").create("p");
   }
 
-  @SuppressWarnings("AccessStaticViaInstance")
   private static Option encryptionAlgorithm() {
-    return withArgName("encryptionAlgorithm").hasArg()
+    return OptionBuilder.withArgName("encryptionAlgorithm").hasArg()
         .withDescription("sets the encryption algorithm (RSA/ECDSA).").withLongOpt("encryption").create("e");
   }
 
-  @SuppressWarnings("AccessStaticViaInstance")
   private static Option pkcs12Sign() {
-    return withArgName("pkcs12Keystore password").hasArgs(2).withValueSeparator(' ')
+    return OptionBuilder.withArgName("pkcs12Keystore password").hasArgs(2).withValueSeparator(' ')
         .withDescription("sets pkcs12 keystore and keystore password").create("pkcs12");
   }
 
-  @SuppressWarnings("AccessStaticViaInstance")
   private static Option pkcs11Sign() {
-    return withArgName("pkcs11ModulePath pin slot").hasArgs(3).withValueSeparator(' ')
+    return OptionBuilder.withArgName("pkcs11ModulePath pin slot").hasArgs(3).withValueSeparator(' ')
         .withDescription("sets pkcs11 module path, pin(password) and a slot index").create("pkcs11");
   }
 
-  @SuppressWarnings("AccessStaticViaInstance")
   private static Option removeFile() {
-    return withArgName("file").hasArg()
-        .withDescription("removes file from container").create("remove");
+    return OptionBuilder.withArgName("file").hasArg().withDescription("removes file from container").create("remove");
   }
 
-  @SuppressWarnings("AccessStaticViaInstance")
   private static Option addFile() {
-    return withArgName("file mime-type").hasArgs(2)
+    return OptionBuilder.withArgName("file mime-type").hasArgs(2)
         .withDescription("adds file specified with mime type to container").create("add");
   }
 
-  @SuppressWarnings("AccessStaticViaInstance")
   private static Option inputFile() {
-    return withArgName("file").hasArg()
-        .withDescription("opens or creates container").create("in");
+    return OptionBuilder.withArgName("file").hasArg().withDescription("opens or creates container").create("in");
   }
 
-  @SuppressWarnings("AccessStaticViaInstance")
   private static Option inputDir() {
-    return withArgName("inputDir").hasArg()
+    return OptionBuilder.withArgName("inputDir").hasArg()
         .withDescription("directory path containing data files to sign").create("inputDir");
   }
 
-  @SuppressWarnings("AccessStaticViaInstance")
   private static Option reportsDir() {
-    return withArgName("reportDir").hasArg()
-        .withDescription("directory path for validation reports")
+    return OptionBuilder.withArgName("reportDir").hasArg().withDescription("directory path for validation reports")
         .withLongOpt("reportDir").create("r");
   }
 
-  @SuppressWarnings("AccessStaticViaInstance")
   private static Option mimeType() {
-    return withArgName("mimeType").hasArg()
-        .withDescription("Specifies input file mime type when using inputDir").create("mimeType");
+    return OptionBuilder.withArgName("mimeType").hasArg().withDescription("specifies input file mime type when using inputDir")
+        .create("mimeType");
   }
 
-  @SuppressWarnings("AccessStaticViaInstance")
   private static Option outputDir() {
-    return withArgName("outputDir").hasArg()
-        .withDescription("directory path where containers are saved").create("outputDir");
+    return OptionBuilder.withArgName("outputDir").hasArg().withDescription("directory path where containers are saved")
+        .create("outputDir");
   }
 
-  @SuppressWarnings("AccessStaticViaInstance")
   private static Option type() {
-    return withArgName("type").hasArg()
+    return OptionBuilder.withArgName("type").hasArg()
         .withDescription("sets container type. Types can be DDOC, BDOC, ASICE or ASICS").withLongOpt("type").create("t");
   }
 
-  @SuppressWarnings("AccessStaticViaInstance")
   private static Option extractDataFile() {
-    return withArgName("fileName destination").hasArgs(2)
-        .withDescription("extracts the file from the container to the specified destination").create(EXTRACT_CMD);
+    return OptionBuilder.withArgName("fileName destination").hasArgs(2)
+        .withDescription("extracts the file from the container to the specified destination").create(ExecutionOption.EXTRACT.getName());
   }
 
   private static void showVersion() {
     System.out.println("DigiDoc4j version " + Version.VERSION);
   }
+
 }

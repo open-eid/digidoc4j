@@ -95,25 +95,7 @@ public class DigiDoc4JTest extends AbstractTest {
     Container container = ContainerOpener.open(fileName);
     Assert.assertEquals(SignatureProfile.LT, container.getSignature(0).getProfile());
     System.clearProperty("digidoc4j.mode");
-    Assert.assertTrue(container.validate().isValid());
-  }
-
-  @Test
-  public void createsContainerWithSignatureProfileIsTSForAsice() throws Exception {
-    String fileName = tmpDirPath + "test1.asice";
-    Files.deleteIfExists(Paths.get(fileName));
-
-    String[] params = new String[]{"-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt",
-        "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "LT"};
-
-    System.setProperty("digidoc4j.mode", "TEST");
-    callMainWithoutSystemExit(params);
-
-    Container container = ContainerOpener.open(fileName);
-    assertEquals(SignatureProfile.LT, container.getSignature(0).getProfile());
-    System.clearProperty("digidoc4j.mode");
-    boolean isValid = container.validate().isValid();
-    assertTrue(isValid);
+    TestAssert.assertContainerIsValid(container);
   }
 
   @Test
@@ -587,7 +569,7 @@ public class DigiDoc4JTest extends AbstractTest {
 
   @Test
   public void extractDataFile_withIncorrectParameters_shouldThrowException() throws Exception {
-    this.systemExit.expectSystemExitWithStatus(3);
+    this.systemExit.expectSystemExitWithStatus(2);
     DigiDoc4J.main(new String[]{"-in", "src/test/resources/testFiles/valid-containers/one_signature.bdoc", "-extract", "test.txt"});
   }
 

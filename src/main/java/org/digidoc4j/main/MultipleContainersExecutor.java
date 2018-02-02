@@ -22,91 +22,84 @@ import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.MimeType;
 
-public class MultipleContainersCreator {
+public class MultipleContainersExecutor {
 
-  private final static Logger logger = LoggerFactory.getLogger(MultipleContainersCreator.class);
-
-  private CommandLine commandLine;
-  private final ContainerManipulator containerManipulator;
+  private final Logger log = LoggerFactory.getLogger(MultipleContainersExecutor.class);
+  private final CommandLineExecutor commandLineExecutor;
+  private Container.DocumentType containerType;
   private File inputDir;
   private File outputDir;
-  private Container.DocumentType containerType;
 
-  public MultipleContainersCreator(CommandLine commandLine) {
-    this.commandLine = commandLine;
-    containerManipulator = new ContainerManipulator(commandLine);
+  public MultipleContainersExecutor(CommandLine commandLine) {
+    this.commandLineExecutor = new CommandLineExecutor(ExecutionContext.of(commandLine));
   }
 
   public void signDocuments() {
-    inputDir = getInputDirectory();
-    outputDir = getOutputDirectory();
-    containerType = containerManipulator.getContainerType(commandLine);
-    File[] documents = inputDir.listFiles();
-    for(File document: documents) {
+    this.inputDir = getInputDirectory();
+    this.outputDir = getOutputDirectory();
+    this.containerType = this.commandLineExecutor.getContainerType();
+    File[] documents = this.inputDir.listFiles();
+    for (File document : documents) {
       if (!document.isDirectory()) {
-        signDocument(document);
+        this.signDocument(document);
       } else {
-        logger.debug("Skipping directory " + document.getName());
+        this.log.debug("Skipping directory " + document.getName());
       }
     }
   }
 
   private void signDocument(File document) {
     String documentPath = document.getPath();
-    String mimeType = getMimeType(documentPath);
-    Container container = ContainerBuilder.
-        aContainer(containerType.name()).
-        withDataFile(document, mimeType).
+    String mimeType = this.getMimeType(documentPath);
+    Container container = ContainerBuilder.aContainer(this.containerType.name()).withDataFile(documentPath, mimeType).
         build();
-    containerManipulator.processContainer(container);
-    String pathToSave = createContainerPathToSave(document);
-    containerManipulator.saveContainer(container, pathToSave);
+    this.commandLineExecutor.processContainer(container);
+    this.commandLineExecutor.saveContainer(container, this.createContainerPathToSave(document));
   }
 
   private String createContainerPathToSave(File document) {
     String extension = containerType.name().toLowerCase();
     String containerName = FilenameUtils.removeExtension(document.getName()) + "." + extension;
     String pathToSave = new File(outputDir, containerName).getPath();
-    if(new File(pathToSave).exists()) {
-      logger.error("Failed to save container to '" + pathToSave + "'. File already exists");
+    if (new File(pathToSave).exists()) {
+      this.log.error("Failed to save container to '" + pathToSave + "'. File already exists");
       throw new DigiDoc4JUtilityException(7, "Failed to save container to '" + pathToSave + "'. File already exists");
     }
     return pathToSave;
   }
 
   private File getInputDirectory() {
-    String inputDirPath = commandLine.getOptionValue("inputDir");
-    return getDirectory(inputDirPath);
+    return this.getDirectory(this.commandLineExecutor.getContext().getCommandLine().getOptionValue("inputDir"));
   }
 
   private File getOutputDirectory() {
-    String outputDirPath = commandLine.getOptionValue("outputDir");
-    File outputDir = getDirectory(outputDirPath);
-    createOutputDirIfNeeded(outputDir);
+    File outputDir = this.getDirectory(this.commandLineExecutor.getContext().getCommandLine().getOptionValue("outputDir"));
+    this.createOutputDirIfNeeded(outputDir);
     return outputDir;
   }
 
   private File getDirectory(String outputDirPath) {
     File outputDir = new File(outputDirPath);
-    if(outputDir.exists() && !outputDir.isDirectory()) {
-      logger.error(outputDirPath + " is not a directory");
+    if (outputDir.exists() && !outputDir.isDirectory()) {
+      this.log.error(outputDirPath + " is not a directory");
       throw new DigiDoc4JUtilityException(6, outputDirPath + " is not a directory");
     }
     return outputDir;
   }
 
   private void createOutputDirIfNeeded(File outputDir) {
-    if(!outputDir.exists()) {
-      logger.debug(outputDir.getPath() + " directory does not exist. Creating new directory");
+    if (!outputDir.exists()) {
+      this.log.debug(outputDir.getPath() + " directory does not exist. Creating new directory");
       outputDir.mkdir();
     }
   }
 
   private String getMimeType(String documentPath) {
-    String mimeType = commandLine.getOptionValue("mimeType");
-    if(StringUtils.isNotBlank(mimeType)) {
+    String mimeType = this.commandLineExecutor.getContext().getCommandLine().getOptionValue("mimeType");
+    if (StringUtils.isNotBlank(mimeType)) {
       return mimeType;
     }
     return MimeType.fromFileName(documentPath).getMimeTypeString();
   }
+
 }
