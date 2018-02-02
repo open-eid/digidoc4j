@@ -133,7 +133,7 @@ public class DigiDoc4JTest extends AbstractTest {
     Container container = ContainerOpener.open(fileName);
     Assert.assertEquals(SignatureProfile.LT, container.getSignature(0).getProfile());
     System.clearProperty("digidoc4j.mode");
-    Assert.assertTrue(container.validate().isValid());
+    TestAssert.assertContainerIsValid(container);
   }
 
   @Test
