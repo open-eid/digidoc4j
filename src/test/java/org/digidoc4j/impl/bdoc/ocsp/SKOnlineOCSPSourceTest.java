@@ -10,7 +10,7 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.asic.SkDataLoader;
 import org.digidoc4j.impl.asic.ocsp.BDocTSOcspSource;
 import org.digidoc4j.impl.asic.ocsp.SKOnlineOCSPSource;
-import org.digidoc4j.utils.CertificatesForTests;
+import org.digidoc4j.test.util.TestSigningUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +20,6 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import eu.europa.esig.dss.x509.CertificateToken;
-import eu.europa.esig.dss.x509.ocsp.OCSPToken;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SKOnlineOCSPSourceTest extends AbstractTest {
@@ -36,9 +35,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
     Mockito.when(this.dataLoader.post(Matchers.anyString(), Matchers.any(byte[].class))).thenReturn(emptyOcspResponse);
     SKOnlineOCSPSource ocspSource = new BDocTSOcspSource(this.configuration);
     ocspSource.setDataLoader(this.dataLoader);
-    CertificateToken certificateToken = new CertificateToken(CertificatesForTests.SIGN_CERT);
-    OCSPToken ocspToken = ocspSource.getOCSPToken(certificateToken, new CertificateToken(this.issuerCert));
-    Assert.assertNull(ocspToken);
+    Assert.assertNull(ocspSource.getOCSPToken(new CertificateToken(TestSigningUtil.SIGN_CERT), new CertificateToken(this.issuerCert)));
   }
 
   /*

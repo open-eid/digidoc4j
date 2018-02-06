@@ -10,11 +10,12 @@
 
 package org.digidoc4j.main;
 
+import java.security.cert.X509Certificate;
+
 import org.apache.commons.cli.CommandLine;
 import org.digidoc4j.Container;
+import org.digidoc4j.DataToSign;
 import org.digidoc4j.DigestAlgorithm;
-import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 
@@ -26,10 +27,11 @@ public class ExecutionContext {
 
   private final ExecutionCommand command;
   private final CommandLine commandLine;
+  private DataToSign dataToSign;
   private DigestAlgorithm digestAlgorithm = DigestAlgorithm.SHA256;
   private Container container;
-  private SignatureBuilder signatureBuilder;
   private SignatureToken signatureToken;
+  private X509Certificate certificate;
   private byte[] digest;
   private byte[] signature;
 
@@ -80,17 +82,6 @@ public class ExecutionContext {
     this.signatureToken = signatureToken;
   }
 
-  public SignatureBuilder getSignatureBuilder() {
-    if (this.signatureBuilder == null) {
-      throw new DigiDoc4JException("Signature builder is not initialized");
-    }
-    return this.signatureBuilder;
-  }
-
-  public void setSignatureBuilder(SignatureBuilder signatureBuilder) {
-    this.signatureBuilder = signatureBuilder;
-  }
-
   public byte[] getDigest() {
     if (this.digest == null) {
       throw new DigiDoc4JException("Digest is not initialized");
@@ -113,12 +104,34 @@ public class ExecutionContext {
     this.signature = signature;
   }
 
+  public X509Certificate getCertificate() {
+    if (this.certificate == null) {
+      throw new DigiDoc4JException("Certificate is not initialized");
+    }
+    return this.certificate;
+  }
+
+  public void setCertificate(X509Certificate certificate) {
+    this.certificate = certificate;
+  }
+
   public DigestAlgorithm getDigestAlgorithm() {
     return digestAlgorithm;
   }
 
   public void setDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
     this.digestAlgorithm = digestAlgorithm;
+  }
+
+  public DataToSign getDataToSign() {
+    if (this.dataToSign == null) {
+      throw new DigiDoc4JException("Data to sign is not initialized");
+    }
+    return this.dataToSign;
+  }
+
+  public void setDataToSign(DataToSign dataToSign) {
+    this.dataToSign = dataToSign;
   }
 
 }

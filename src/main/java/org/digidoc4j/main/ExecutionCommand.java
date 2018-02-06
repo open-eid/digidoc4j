@@ -19,10 +19,10 @@ import java.util.List;
 
 public enum ExecutionCommand {
 
-  EXTERNAL_COMPOSE_DIGEST(Arrays.asList(ExecutionOption.EXTERNAL, ExecutionOption.ADD, ExecutionOption.CERTIFICATE, ExecutionOption.DIGEST)),
-  EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS11(Arrays.asList(ExecutionOption.EXTERNAL, ExecutionOption.DIGEST, ExecutionOption.PKCS11, ExecutionOption.SIGNAURE)),
-  EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS12(Arrays.asList(ExecutionOption.EXTERNAL, ExecutionOption.DIGEST, ExecutionOption.PKCS12, ExecutionOption.SIGNAURE)),
-  EXTERNAL_ADD_SIGNATURE(Arrays.asList(ExecutionOption.EXTERNAL, ExecutionOption.IN, ExecutionOption.ADD, ExecutionOption.SIGNAURE));
+  EXTERNAL_COMPOSE_DTS(Arrays.asList(ExecutionOption.IN, ExecutionOption.ADD, ExecutionOption.CERTIFICATE, ExecutionOption.DTS)),
+  EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS11(Arrays.asList(ExecutionOption.DTS, ExecutionOption.PKCS11, ExecutionOption.SIGNAURE)),
+  EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS12(Arrays.asList(ExecutionOption.DTS, ExecutionOption.PKCS12, ExecutionOption.SIGNAURE)),
+  EXTERNAL_ADD_SIGNATURE(Arrays.asList(ExecutionOption.IN, ExecutionOption.DTS, ExecutionOption.SIGNAURE));
 
   List<ExecutionOption> mandatoryOptions;
 

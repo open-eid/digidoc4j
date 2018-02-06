@@ -16,9 +16,8 @@ package org.digidoc4j.main;
 
 public enum ExecutionOption {
 
-  EXTERNAL("ext", 0),
   IN("in", 1),
-  DIGEST("dig", 1),
+  DTS("dts", 1),
   ADD("add", 2),
   CERTIFICATE("cert", 1),
   EXTRACT("extract", 2),

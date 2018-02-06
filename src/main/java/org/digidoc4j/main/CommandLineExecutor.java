@@ -27,6 +27,7 @@ import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.DataFile;
+import org.digidoc4j.DataToSign;
 import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
@@ -40,6 +41,7 @@ import org.digidoc4j.impl.pades.PadesContainer;
 import org.digidoc4j.signers.PKCS11SignatureToken;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.signers.TimestampToken;
+import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,16 +99,19 @@ public class CommandLineExecutor {
             this.addData();
             break;
           case CERTIFICATE:
-            this.context.setSignatureBuilder(this.createSignatureBuilderWithCertificate());
+            this.context.setCertificate(this.loadCertificate());
             break;
-          case DIGEST:
+          case DTS:
             switch (this.context.getCommand()) {
-              case EXTERNAL_COMPOSE_DIGEST:
-                this.storeDigest();
+              case EXTERNAL_COMPOSE_DTS:
+                this.context.setDataToSign(this.createSigningData());
                 break;
               case EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS11:
               case EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS12:
-                this.context.setDigest(this.loadDigest());
+                this.context.setDataToSign(this.loadSigningData());
+                break;
+              case EXTERNAL_ADD_SIGNATURE:
+                this.context.setDataToSign(this.loadSigningData());
                 break;
             }
             break;
@@ -120,13 +125,11 @@ public class CommandLineExecutor {
             switch (this.context.getCommand()) {
               case EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS11:
               case EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS12:
-                this.createAndStoreSignature();
+                this.context.setSignature(this.createSignature());
                 break;
               case EXTERNAL_ADD_SIGNATURE:
                 this.context.setSignature(this.loadSignature());
             }
-            break;
-          case EXTERNAL:
             break;
           default:
             this.log.warn("No option <{}> implemented", option);
@@ -170,7 +173,7 @@ public class CommandLineExecutor {
   }
 
   public Container openContainer() {
-    return this.openContainer(null);
+    return this.openContainer("");
   }
 
   public Container openContainer(String containerPath) {
@@ -228,7 +231,7 @@ public class CommandLineExecutor {
       container.removeDataFile(this.context.getCommandLine().getOptionValue("remove"));
       this.fileHasChanged = true;
     }
-    if (this.context.getCommandLine().hasOption(ExecutionOption.EXTERNAL.getName())) {
+    if (this.context.getCommandLine().hasOption(ExecutionOption.EXTRACT.getName())) {
       this.log.debug("Extracting data file");
       this.extractDataFile(container);
     }
@@ -245,9 +248,20 @@ public class CommandLineExecutor {
     this.fileHasChanged = true;
   }
 
+  private DataToSign createSigningData() {
+    this.log.debug("Creating signing data ...");
+    return SignatureBuilder.aSignature(this.context.getContainer()).withSigningCertificate(this.context.getCertificate())
+        .withSignatureDigestAlgorithm(this.context.getDigestAlgorithm()).buildDataToSign();
+  }
+
+  private byte[] createSignature() {
+    this.log.debug("Creating signature ...");
+    return this.context.getSignatureToken().sign(this.context.getDigestAlgorithm(), this.context.getDataToSign().getDataToSign());
+  }
+
   private X509Certificate loadCertificate() {
     this.log.debug("Loading certificate ...");
-    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.ADD.getName());
+    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.CERTIFICATE.getName());
     try (InputStream stream = new FileInputStream(values[0])) {
       return DSSUtils.loadCertificate(stream).getCertificate();
     } catch (IOException e) {
@@ -255,18 +269,18 @@ public class CommandLineExecutor {
     }
   }
 
-  private byte[] loadDigest() {
-    this.log.debug("Loading digest ...");
-    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.DIGEST.getName());
+  private DataToSign loadSigningData() {
+    this.log.debug("Loading signing data ...");
+    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.DTS.getName());
     try {
-      return Files.readAllBytes(Paths.get(values[0]));
-    } catch (IOException e) {
-      throw new DigiDoc4JException(String.format("Unable to load digest file from <%s>", values[0]), e);
+      return Helper.deserializer(values[0]);
+    } catch (Exception e) {
+      throw new DigiDoc4JException(String.format("Unable to load signing data file from <%s>", values[0]), e);
     }
   }
 
   private byte[] loadSignature() {
-    this.log.debug("Loading digest ...");
+    this.log.debug("Loading signature ...");
     String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.SIGNAURE.getName());
     try {
       return Files.readAllBytes(Paths.get(values[0]));
@@ -295,40 +309,53 @@ public class CommandLineExecutor {
     }
   }
 
-  private SignatureBuilder createSignatureBuilderWithCertificate() {
-    return SignatureBuilder.aSignature(this.context.getContainer()).withSigningCertificate(this.loadCertificate());
-  }
-
-  private void createAndStoreSignature() {
+  private void storeSignature() {
+    this.log.debug("Storing signature ...");
     String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.SIGNAURE.getName());
     try (OutputStream stream = new FileOutputStream(values[0])) {
-      IOUtils.write(this.context.getSignatureToken().sign(this.context.getDigestAlgorithm(), this.context.getDigest()), stream);
+      IOUtils.write(this.context.getSignature(), stream);
     } catch (IOException e) {
       throw new DigiDoc4JException(String.format("Unable to store signature file to <%s>", values[0]), e);
     }
   }
 
-  private void storeDigest() {
-    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.DIGEST.getName());
-    try (OutputStream stream = new FileOutputStream(values[0])) {
-      IOUtils.write(this.context.getSignatureBuilder().withSignatureDigestAlgorithm(this.context.getDigestAlgorithm())
-          .buildDataToSign().getDataToSign(), stream);
-    } catch (IOException e) {
-      throw new DigiDoc4JException(String.format("Unable to store digest file to <%s>", values[0]), e);
+  private void storeSigningData() {
+    this.log.debug("Storing signing data ...");
+    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.DTS.getName());
+    try {
+      Helper.serialize(this.context.getDataToSign(), values[0]);
+    } catch (Exception e) {
+      throw new DigiDoc4JException(String.format("Unable to store signing data file to <%s>", values[0]), e);
+    }
+  }
+
+  private void storeContainer() {
+    this.log.debug("Storing container ...");
+    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.IN.getName());
+    try {
+      this.context.getContainer().saveAsFile(values[0]);
+    } catch (Exception e) {
+      throw new DigiDoc4JException(String.format("Unable to store container file to <%s>", values[0]), e);
     }
   }
 
   private void storeContainerWithSignature() {
     this.log.debug("Adding signature to container ...");
     Container container = this.context.getContainer();
-    container.addSignature(SignatureBuilder.aSignature(container).withSignatureDigestAlgorithm(this.context.getDigestAlgorithm())
-        .buildDataToSign().finalize(this.context.getSignature()));
+    container.addSignature(this.context.getDataToSign().finalize(this.context.getSignature()));
     this.fileHasChanged = true;
     this.saveContainer(container, this.context.getCommandLine().getOptionValue(ExecutionOption.IN.getName()));
   }
 
   private void postExecutionProcess() {
     switch (this.context.getCommand()) {
+      case EXTERNAL_COMPOSE_DTS:
+        this.storeSigningData();
+        this.storeContainer();
+        break;
+      case EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS11:
+      case EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS12:
+        this.storeSignature();
       case EXTERNAL_ADD_SIGNATURE:
         this.storeContainerWithSignature();
         break;
@@ -336,7 +363,7 @@ public class CommandLineExecutor {
   }
 
   private void extractDataFile(Container container) {
-    String[] optionValues = this.context.getCommandLine().getOptionValues(ExecutionOption.EXTERNAL.getName());
+    String[] optionValues = this.context.getCommandLine().getOptionValues(ExecutionOption.EXTRACT.getName());
     String fileNameToExtract = optionValues[0];
     String extractPath = optionValues[1];
     boolean fileFound = false;

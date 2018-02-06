@@ -38,6 +38,7 @@ public class LibraryInteroperabilityTest extends AbstractTest {
 
   @Test
   public void verifyLibdigidocTS_SignatureWithDigiDoc4j() {
+    this.setGlobalMode(Configuration.Mode.PROD);
     Container container = ContainerBuilder.aContainer().
         fromExistingFile("src/test/resources/testFiles/invalid-containers/Libdigidoc_created_tsa_signature_TS.bdoc").
         withConfiguration(Configuration.of(Configuration.Mode.PROD)).build();

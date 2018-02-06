@@ -14,6 +14,7 @@ import static org.digidoc4j.main.DigiDoc4J.isWarning;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.AbstractTest;
@@ -44,6 +45,36 @@ public class DigiDoc4JTest extends AbstractTest {
 
   @Rule
   public final SystemOutRule stdOut = new SystemOutRule().enableLog();
+
+  @Test
+  public void testComposingSigningDataFile() {
+    String containerFile = this.getFileBy("bdoc");
+    String signingDataFile = this.getFileBy("ser");
+    String[] parameters = new String[]{"-in", containerFile, "-add", "src/test/resources/testFiles/helper-files/test.txt",
+        "text/plain", "-dts", signingDataFile, "text/plain", "-cert", "src/test/resources/testFiles/certs/signout.pem"};
+    TestDigiDoc4JUtil.call(parameters);
+    Assert.assertTrue(String.format("No signing data file <%s>", signingDataFile), new File(signingDataFile).exists());
+    Assert.assertTrue(String.format("No container file <%s>", containerFile), new File(containerFile).exists());
+  }
+
+  @Test
+  public void testSigningSignatureDataFile() {
+    String file = this.getFileBy("sig");
+    String[] parameters = new String[]{"-dts", "src/test/resources/testFiles/external/test.ser",
+        "-sig", file, "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
+    TestDigiDoc4JUtil.call(parameters);
+    Assert.assertTrue(String.format("No signature file <%s>", file), new File(file).exists());
+  }
+
+  @Test
+  public void testAddingSignatureToContainer() {
+    this.systemExit.expectSystemExitWithStatus(0);
+    String file = "src/test/resources/testFiles/external/test.bdoc";
+    String[] parameters = new String[]{"-in", file, "-sig", "src/test/resources/testFiles/external/test.sig",
+        "-dts", "src/test/resources/testFiles/external/test.ser"};
+    DigiDoc4J.main(parameters);
+    TestAssert.assertContainerIsValid(this.openContainerBy(Paths.get(file)));
+  }
 
   @Test
   public void createsContainerWithTypeSettingDDoc() {
@@ -319,8 +350,7 @@ public class DigiDoc4JTest extends AbstractTest {
     Assert.assertTrue(folder.exists());
     Assert.assertTrue(folder.isDirectory());
     Assert.assertEquals(2, folder.listFiles().length);
-    String file = "firstDoc.ddoc";
-    TestAssert.assertFolderContainsFile(outputFolder, file);
+    TestAssert.assertFolderContainsFile(outputFolder, "firstDoc.ddoc");
     TestAssert.assertFolderContainsFile(outputFolder, "secondDoc.ddoc");
   }
 

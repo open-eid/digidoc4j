@@ -8,7 +8,7 @@
             <pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
+            <level>DEBUG</level>
         </filter>
     </appender>
 
@@ -28,7 +28,7 @@
     <logger name="eu.europa.esig.dss.client.http.commons" level="INFO"/>
     <logger name="ee.sk" level="INFO"/>
 
-    <root level="INFO">
+    <root level="WARN">
         <appender-ref ref="FILE" />
         <appender-ref ref="STDOUT" />
     </root>

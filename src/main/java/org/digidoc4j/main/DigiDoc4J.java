@@ -65,10 +65,11 @@ public final class DigiDoc4J {
       if (commandLine.hasOption("version")) {
         DigiDoc4J.showVersion();
       }
-      if (DigiDoc4J.shouldManipulateContainer(commandLine)) {
+      boolean execute = DigiDoc4J.shouldManipulateContainer(commandLine);
+      if (execute) {
         DigiDoc4J.execute(commandLine);
       }
-      if (!commandLine.hasOption("version") && !DigiDoc4J.shouldManipulateContainer(commandLine)) {
+      if (!commandLine.hasOption("version") && !execute) {
         DigiDoc4J.showUsage(options);
       }
     } catch (ParseException e) {
@@ -83,7 +84,7 @@ public final class DigiDoc4J {
   }
 
   private static boolean shouldManipulateContainer(CommandLine commandLine) {
-    return commandLine.hasOption("in") || (DigiDoc4J.isMultipleContainerCreation(commandLine));
+    return commandLine.hasOption(ExecutionOption.DTS.getName()) || commandLine.hasOption(ExecutionOption.IN.getName()) || DigiDoc4J.isMultipleContainerCreation(commandLine);
   }
 
   private static void execute(CommandLine commandLine) {
@@ -91,8 +92,8 @@ public final class DigiDoc4J {
     try {
       if (executor.hasCommand()) {
         executor.executeCommand();
-      } else if (commandLine.hasOption("in")) {
-        String containerPath = commandLine.getOptionValue("in");
+      } else if (commandLine.hasOption(ExecutionOption.IN.getName())) {
+        String containerPath = commandLine.getOptionValue(ExecutionOption.IN.getName());
         Container container = executor.openContainer(containerPath);
         executor.processContainer(container);
         executor.saveContainer(container, containerPath);
@@ -108,7 +109,7 @@ public final class DigiDoc4J {
   }
 
   private static ExecutionCommand checkSupportedFunctionality(CommandLine commandLine) {
-    if (commandLine.hasOption(ExecutionOption.EXTERNAL.getName())) {
+    if (commandLine.hasOption(ExecutionOption.DTS.getName())) {
       for (ExecutionCommand command : ExecutionCommand.values()) {
         if (DigiDoc4J.hasOptionsMatch(commandLine, command.getMandatoryOptions())) {
           for (ExecutionOption option : command.getMandatoryOptions()) {
@@ -143,8 +144,12 @@ public final class DigiDoc4J {
 
   private static void checkOption(ExecutionOption option, CommandLine commandLine, boolean mandatory) {
     if (commandLine.hasOption(option.getName())) {
-      String[] optionValues = commandLine.getOptionValues(option.getName());
-      if (optionValues.length != option.getCount()) {
+      int count = 0;
+      try {
+        count = commandLine.getOptionValues(option.getName()).length;
+      } catch (NullPointerException ignore) {
+      }
+      if (count != option.getCount()) {
         throw new DigiDoc4JUtilityException(String.format("Option <%s> parameter count is invalid", option));
       }
     } else {
@@ -196,24 +201,24 @@ public final class DigiDoc4J {
     options.addOption(DigiDoc4J.extractDataFile());
     options.addOption(DigiDoc4J.reportsDir());
     options.addOption(DigiDoc4J.tstDigestAlgorihm());
-    options.addOption(DigiDoc4J.externalSigning());
-    options.addOption(DigiDoc4J.digestFile());
+    options.addOption(DigiDoc4J.signingDataFile());
+    options.addOption(DigiDoc4J.signatureFile());
     options.addOption(DigiDoc4J.certificateFile());
     return options;
   }
 
-  private static Option externalSigning() {
-    return OptionBuilder.withDescription("specifies external signing mode").withLongOpt("external")
-        .create(ExecutionOption.EXTERNAL.getName());
+  private static Option signingDataFile() {
+    return OptionBuilder.withArgName("path").hasArg().withDescription("specifies location path of signing data file")
+        .withLongOpt("signingDataFile").create(ExecutionOption.DTS.getName());
   }
 
-  private static Option digestFile() {
-    return OptionBuilder.withArgName("path").hasArg().withDescription("specifies output path for digest file")
-        .withLongOpt("digestFile").create(ExecutionOption.DIGEST.getName());
+  private static Option signatureFile() {
+    return OptionBuilder.withArgName("path").hasArg().withDescription("specifies location path of signature file")
+        .withLongOpt("signatureFile").create(ExecutionOption.SIGNAURE.getName());
   }
 
   private static Option certificateFile() {
-    return OptionBuilder.withArgName("path").hasArg().withDescription("specifies path for public certificate file")
+    return OptionBuilder.withArgName("path").hasArg().withDescription("specifies loaction path of public certificate file")
         .withLongOpt("certificateFile").create(ExecutionOption.CERTIFICATE.getName());
   }
 
