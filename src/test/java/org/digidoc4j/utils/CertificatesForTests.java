@@ -15901,7 +15901,7 @@ public class CertificatesForTests {
 
   private ServiceInfoStatus createServiceInfoStatus(String typeString, String statusString, Date notBefore) {
     // TODO: check following logic, find correct implementation
-    return new ServiceInfoStatus(typeString, statusString, null, null, null, notBefore, null);
+    return new ServiceInfoStatus(typeString, statusString, null, null, null, null, notBefore, null);
   }
 
   private void addTsaCertificate(TSLCertificateSource tslCertificateSource, X509Certificate certificate) {

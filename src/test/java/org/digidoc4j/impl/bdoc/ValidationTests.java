@@ -334,8 +334,9 @@ public class ValidationTests extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/TS_broken_TS.asice");
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(1, errors.size());
-    Assert.assertEquals("(Signature ID: S0) " + InvalidTimestampException.MESSAGE, errors.get(0).toString());
+    Assert.assertEquals(2, errors.size());
+    Assert.assertEquals("(Signature ID: S0) " + "The result of the timestamps validation process is not conclusive!", errors.get(0).toString());
+    Assert.assertEquals("(Signature ID: S0) " + InvalidTimestampException.MESSAGE, errors.get(1).toString());
   }
 
   @Test
@@ -433,8 +434,9 @@ public class ValidationTests extends AbstractTest {
     Signature signature = signatureList.get(0);
     String signatureId = signature.getId();
     Assert.assertFalse(result.isValid());
-    Assert.assertEquals(1, errors.size());
-    Assert.assertEquals("(Signature ID: " + signatureId + ") Signature has an invalid timestamp", errors.get(0).toString());
+    Assert.assertEquals(2, errors.size());
+    Assert.assertEquals("(Signature ID: " + signatureId + ") The result of the timestamps validation process is not conclusive!", errors.get(0).toString());
+    Assert.assertEquals("(Signature ID: " + signatureId + ") Signature has an invalid timestamp", errors.get(1).toString());
   }
 
   @Test

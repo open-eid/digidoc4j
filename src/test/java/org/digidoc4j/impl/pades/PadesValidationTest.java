@@ -47,15 +47,15 @@ public class PadesValidationTest extends AbstractTest {
         build();
     ValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
-    Assert.assertEquals(2, result.getErrors().size());
+    Assert.assertEquals(3, result.getErrors().size());
     Assert.assertEquals(3, result.getWarnings().size());
     TestAssert.assertContainsError("The certificate chain for signature is not trusted, there is no trusted anchor.", result.getErrors());
     TestAssert.assertContainsError("The certificate path is not trusted!", result.getErrors());
     TestAssert.assertContainsError("The certificate chain for timestamp is not trusted, there is no trusted anchor.", result.getWarnings());
     TestAssert.assertContainsError("The signature/seal is an INDETERMINATE AdES!", result.getWarnings());
     TestAssert.assertContainsError("Authority info access is not present!", result.getWarnings());
-    Assert.assertEquals(Indication.INDETERMINATE, result.getIndication("id-009b65608f1f1a0c8aac097b4d83b389780e552845d04b66868301a5cf0ed8ba"));
-    Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, result.getSubIndication("id-009b65608f1f1a0c8aac097b4d83b389780e552845d04b66868301a5cf0ed8ba"));
+    Assert.assertEquals(Indication.INDETERMINATE, result.getIndication("id-6bff661b4349d8cf539d00127c163bdb780e552845d04b66868301a5cf0ed8ba"));
+    Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, result.getSubIndication("id-6bff661b4349d8cf539d00127c163bdb780e552845d04b66868301a5cf0ed8ba"));
   }
 
   @Test

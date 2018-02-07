@@ -113,10 +113,10 @@
         <project.encoding>UTF-8</project.encoding>
         <slf4j.version>1.7.25</slf4j.version>
         <logback-classic.version>1.2.3</logback-classic.version>
-        <bouncycastle.version>1.54</bouncycastle.version>
+        <bouncycastle.version>1.58</bouncycastle.version>
         <junit.version>4.11</junit.version>
         <dss.groupId>org.digidoc4j.dss</dss.groupId>
-        <dss.version>5.1.d4j.5</dss.version>
+        <dss.version>5.2.d4j.2</dss.version>
         <dss.util.build>${project.build.directory}/build/util</dss.util.build>
         <dss.util.lib>${project.build.directory}/library/util</dss.util.lib>
         <dss.zip.lib>${project.build.directory}/library/zip</dss.zip.lib>
@@ -650,6 +650,24 @@
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-utils-google-guava</artifactId>
+            <version>${dss.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>${dss.groupId}</groupId>
+            <artifactId>dss-crl-parser</artifactId>
+            <version>${dss.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>${dss.groupId}</groupId>
+            <artifactId>dss-crl-parser-x509crl</artifactId>
+            <version>${dss.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>${dss.groupId}</groupId>
+            <artifactId>dss-crl-parser-stream</artifactId>
             <version>${dss.version}</version>
             <scope>compile</scope>
         </dependency>

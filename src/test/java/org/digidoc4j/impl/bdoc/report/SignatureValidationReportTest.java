@@ -46,7 +46,8 @@ public class SignatureValidationReportTest {
     signature.getInfos().addAll(asList("Info1", "Info2"));
     signature.getSignatureScope().addAll(asList(new XmlSignatureScope()));
     signature.setId("123abc");
-    signature.setType("Type");
+    //TODO not in use DSS 5.2
+    //signature.setType("Type");
     signature.setParentId("Parent ID");
     signature.setSignatureFormat("Format");
     SignatureValidationReport report = SignatureValidationReport.create(signature);
@@ -61,7 +62,8 @@ public class SignatureValidationReportTest {
     Assert.assertThat(report.getInfos(), containsInAnyOrder("Info1", "Info2"));
     Assert.assertEquals(1, report.getSignatureScope().size());
     Assert.assertEquals("123abc", report.getId());
-    Assert.assertEquals("Type", report.getType());
+    //TODO not in use DSS 5.2
+    //Assert.assertEquals("Type", report.getType());
     Assert.assertEquals("Parent ID", report.getParentId());
     Assert.assertEquals("Format", report.getSignatureFormat());
   }
