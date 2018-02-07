@@ -128,7 +128,7 @@ public class DigiDoc4JException extends RuntimeException {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     if (StringUtils.isNotBlank(this.signatureId))  {
-      sb.append("(Signature ID: ").append(this.signatureId).append(") ");
+      sb.append("(Signature ID: ").append(this.signatureId).append(") - ");
     }
     if (this.errorCode != 0) {
       sb.append("ERROR: ").append(this.errorCode).append(" - ");
