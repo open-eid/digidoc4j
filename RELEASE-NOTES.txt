@@ -1,5 +1,64 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+Release 2.0.0
+------------------
+Summary of the major changes since 2.0.0.RC.2
+------------------------------------------
+* Unit-test are refactored.
+
+Release 2.0.0.RC.2
+------------------
+Summary of the major changes since 2.0.0.RC.1
+------------------------------------------
+* Added support for TLWellSigned parameter.
+* Some refactoring in Signature classes and utilities.
+
+Release 2.0.0.RC.1
+------------------
+Summary of the major changes since 1.0.8.beta.2
+------------------------------------------
+* Start of using semantic versioning (1.0.8 --> 2.0.0)
+* Fixed validation of containers where mime type has wrong format.
+* Added check that at least one data file is present before signing.
+* Ensured that SignaturePolicyImplied element is not allowed in TM signatures.
+
+Release 1.0.8.beta.2
+------------------
+Summary of the major changes since 1.0.8.beta.1
+------------------------------------------
+* Fixed signing with ID-card and using PKCS11SignatureToken when encryption algorithm is ECDSA and RSA.
+
+------------------------------------------
+Release 1.0.8.beta.1
+------------------
+Summary of the major changes since 1.0.7.2
+------------------------------------------
+* Started to use DSS version 5.1 (sd-dss.5.1.d4j.5).
+* Added support for removing signature from container.
+* Added support for creating, timestamping and validating the ASiCS containers.
+* Added support for validating PADES containers (PDF-files with signature).
+* Major refactoring of code
+  - classes from package org.digidoc4j.impl.bdoc are now in org.digidoc4j.impl.asic.asice.bdoc;
+  - the common functionality for ASiCE, ASiCS and BDOC are in package org.digidoc4j.impl.asic;
+  - the common functionality for ASiCE and BDOC are in package org.digidoc4j.impl.asic.asice;
+  - method DataToSign.getDigestToSign() is renamed to DataToSign.getDataToSign().
+* Added new API methods for accessing signature validation details.
+* Added support for BDOC validation warning when SHA-1 is used.
+* Documentation (github wiki, javadoc in github) is updated.
+
+Known issues
+------------
+* Signing with ID-card and using PKCS11SignatureToken class have still a problem
+when encryption algorithm is ECDSA. We are working on it.
+
+------------------------------------
+Release 1.0.7.2
+------------------
+Summary of the major changes since 1.0.7.1
+------------------------------------------
+* Prevent XXE(XML External Entity) processing (switching to sd-dss-5.0.d4j.5).
+
+------------------------------------
 Release 1.0.7.1
 ------------------
 Summary of the major changes since 1.0.7

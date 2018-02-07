@@ -1,10 +1,5 @@
-build
-target
-javadoc
-.idea/workspace.xml
-.idea/uiDesigner.xml
-.idea/dictionaries/xp.xml
-*.log
-utility-package-lib
-zip-package-lib
+/build
+/target
+.idea/*
+!.idea/codeStyleSettings.xml
 /buildNumber.properties
