@@ -31,7 +31,6 @@ public class TslLoaderTest extends AbstractTest {
   private TslLoader tslLoader;
 
   @Test
-  @Ignore("TODO: Wait till problem with RO is solved")
   public void loadAndValidateProdTsl() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
     this.createTSLLoader();
