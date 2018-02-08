@@ -100,6 +100,11 @@ public class ContainerOpenerTest extends AbstractTest {
     }
   }
 
+  @Test
+  public void testSignatureXMLContainsTrailingContent() {
+    ContainerOpener.open("src/test/resources/testFiles/valid-containers/signature_xml_contains_trailing_content.bdoc");
+  }
+
   /*
    * RESTRICTED METHODS
    */

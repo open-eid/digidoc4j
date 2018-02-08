@@ -10,6 +10,8 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import static java.lang.Thread.sleep;
+
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Container;
 import org.digidoc4j.Signature;
@@ -186,6 +188,7 @@ public class ExtendingBDocContainerTest extends AbstractTest {
   public void testContainerExtensionFromLTtoLTA() throws Exception {
     Container container = this.createNonEmptyContainer();
     this.createSignatureBy(container, SignatureProfile.LT, this.pkcs12SignatureToken);
+    sleep(1100);
     container.extendSignatureProfile(SignatureProfile.LTA);
     Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
     TestAssert.assertContainerIsValid(container);
