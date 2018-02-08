@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.InvalidDataFileException;
+import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.impl.ddoc.DDocSignature;
@@ -319,19 +320,21 @@ public class ContainerBuilderTest extends AbstractTest {
   public void openBDocContainerFromStream() throws Exception {
     try (InputStream stream = FileUtils.openInputStream(new File(BDOC_TEST_FILE))) {
       Container container = ContainerBuilder.aContainer().fromStream(stream).build();
-      TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
+      TestAssert.assertContainerIsOpened(container, Container.DocumentType.ASICE);
     }
   }
 
+  // When reading from stream there are no major difference between BDOC and ASICE
   @Test
   public void openBDocContainerFromStream_withConfiguration() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.TEST);
     this.configuration.setTspSource("test-value");
     InputStream stream = FileUtils.openInputStream(new File(BDOC_TEST_FILE));
-    Container container = ContainerBuilder.aContainer().withConfiguration(this.configuration).
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICE).
+        withConfiguration(this.configuration).
         fromStream(stream).build();
-    TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
-    Assert.assertEquals("test-value", ((BDocContainer) container).getConfiguration().getTspSource());
+    TestAssert.assertContainerIsOpened(container, Container.DocumentType.ASICE);
+    Assert.assertEquals("test-value", ((AsicEContainer) container).getConfiguration().getTspSource());
   }
 
   @Test
@@ -357,7 +360,7 @@ public class ContainerBuilderTest extends AbstractTest {
     InputStream stream = FileUtils.openInputStream(new File(BDOC_TEST_FILE));
     Container container = ContainerBuilder.aContainer().withConfiguration(Configuration.of(Configuration.Mode.TEST)).
         fromStream(stream).build();
-    TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
+    TestAssert.assertContainerIsOpened(container, Container.DocumentType.ASICE);
   }
 
   @Test
@@ -440,7 +443,7 @@ public class ContainerBuilderTest extends AbstractTest {
         .fromStream(stream).usingTempDirectory(folder.getPath()).build();
     Assert.assertTrue(folder.list().length > 0);
   }
-  
+
   /*
    * RESTRICTED METHODS
    */

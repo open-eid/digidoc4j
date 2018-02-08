@@ -41,7 +41,7 @@ public class ContainerOpenerTest extends AbstractTest {
   public void openBDocContainerAsStream() throws Exception {
     FileInputStream stream = FileUtils.openInputStream(new File(BDOC_TEST_FILE));
     Container container = ContainerOpener.open(stream, this.configuration);
-    TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
+    TestAssert.assertContainerIsOpened(container, Container.DocumentType.ASICE);
   }
 
   @Test
@@ -55,7 +55,7 @@ public class ContainerOpenerTest extends AbstractTest {
   public void openBDocContainerAsStream_WithBigFilesNotSupported() throws Exception {
     FileInputStream stream = FileUtils.openInputStream(new File(BDOC_TEST_FILE));
     Container container = ContainerOpener.open(stream, false);
-    TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
+    TestAssert.assertContainerIsOpened(container, Container.DocumentType.ASICE);
   }
 
   @Test
@@ -98,6 +98,11 @@ public class ContainerOpenerTest extends AbstractTest {
     } catch (DigiDoc4JException e) {
       Assert.assertTrue(e.getMessage().contains("Invalid xml element"));
     }
+  }
+
+  @Test
+  public void testSignatureXMLContainsTrailingContent() {
+    ContainerOpener.open("src/test/resources/testFiles/valid-containers/signature_xml_contains_trailing_content.bdoc");
   }
 
   /*

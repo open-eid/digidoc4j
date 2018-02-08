@@ -44,6 +44,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
+import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
@@ -66,25 +67,25 @@ public class BDocContainerTest extends AbstractTest {
 
   @Test
   public void testSetDigestAlgorithmToSHA256() throws Exception {
-    BDocSignature signature = this.createSignatureBy(DigestAlgorithm.SHA256, this.pkcs12SignatureToken);
+    AsicESignature signature = this.createSignatureBy(DigestAlgorithm.SHA256, this.pkcs12SignatureToken);
     Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureDigestAlgorithm().getXmlId());
   }
 
   @Test
   public void testSetDigestAlgorithmToSHA1() throws Exception {
-    BDocSignature signature = this.createSignatureBy(DigestAlgorithm.SHA1, this.pkcs12SignatureToken);
+    AsicESignature signature = this.createSignatureBy(DigestAlgorithm.SHA1, this.pkcs12SignatureToken);
     Assert.assertEquals("http://www.w3.org/2000/09/xmldsig#sha1", signature.getSignatureDigestAlgorithm().getXmlId());
   }
 
   @Test
   public void testSetDigestAlgorithmToSHA224() throws Exception {
-    BDocSignature signature = this.createSignatureBy(DigestAlgorithm.SHA224, this.pkcs12SignatureToken);
+    AsicESignature signature = this.createSignatureBy(DigestAlgorithm.SHA224, this.pkcs12SignatureToken);
     Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#sha224", signature.getSignatureDigestAlgorithm().getXmlId());
   }
 
   @Test
   public void testDefaultDigestAlgorithm() throws Exception {
-    BDocSignature signature = this.createSignatureBy(Container.DocumentType.BDOC, this.pkcs12SignatureToken);
+    AsicESignature signature = this.createSignatureBy(Container.DocumentType.BDOC, this.pkcs12SignatureToken);
     Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureDigestAlgorithm().getXmlId());
   }
 
@@ -792,12 +793,14 @@ public class BDocContainerTest extends AbstractTest {
 
   @Test
   public void signingMoreThanTwoFiles() throws Exception {
-    Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/special-char-files/dds_dds_JÜRIÖÖ € žŠ päev.txt"), "text/plain");
+    Container container = this.createNonEmptyContainerBy(Container.DocumentType.BDOC,
+        Paths.get("src/test/resources/testFiles/special-char-files/dds_dds_JÜRIÖÖ € žŠ päev.txt"),
+        "text/plain");
     container.addDataFile("src/test/resources/testFiles/special-char-files/dds_pakitud.zip", "text/plain");
     container.addDataFile("src/test/resources/testFiles/special-char-files/dds_SK.jpg", "text/plain");
     container.addDataFile("src/test/resources/testFiles/special-char-files/dds_acrobat.pdf", "text/plain");
     this.createSignatureBy(container, this.pkcs12SignatureToken);
-    BDocSignature signature = (BDocSignature) container.getSignature(0);
+    Signature signature = container.getSignature(0);
     TestAssert.assertSignatureMetadataContainsFileName(signature, "dds_dds_JÜRIÖÖ € žŠ päev.txt");
     TestAssert.assertSignatureMetadataContainsFileName(signature, "dds_pakitud.zip");
     TestAssert.assertSignatureMetadataContainsFileName(signature, "dds_SK.jpg");
@@ -998,7 +1001,7 @@ public class BDocContainerTest extends AbstractTest {
     Assert.assertEquals("https://www.sk.ee/repository/bdoc-spec21.pdf", policyId.getUrl());
     Assert.assertEquals("" + XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
     Assert.assertEquals(eu.europa.esig.dss.DigestAlgorithm.SHA256, policyId.getDigestAlgorithm());
-    Assert.assertEquals("0xRLPsW1UIpxtermnTGE+5+5620UsWi5bYJY76Di3o0=", policyId.getDigestValue());
+    Assert.assertEquals("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A=", policyId.getDigestValue());
   }
 
   /*

@@ -25,13 +25,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
@@ -153,6 +156,8 @@ public class Configuration implements Serializable {
   private TslManager tslManager;
   private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<>();
   private ConfigurationRegistry registry = new ConfigurationRegistry();
+  // TODO integrate tspMap (multilevel arrays) into configuration registry
+  private HashMap<String, Map<ConfigurationParameter, String>>  tspMap = new HashMap<>();
   private List<String> trustedTerritories = new ArrayList<>();
   private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
   private LinkedHashMap configurationFromFile;
@@ -522,9 +527,14 @@ public class Configuration implements Serializable {
    * @return tspSource
    */
   public String getTspSourceByCountry(String country) {
-    String tspSourceUrl = getConfigurationParameter("TSP_C_" + country + "_TSP_SOURCE");
-    logger.debug("TSP Source by country " + country + ": " + tspSourceUrl);
-    return tspSourceUrl;
+    if (this.tspMap.containsKey(country)) {
+      String source = this.tspMap.get(country).get(ConfigurationParameter.TspCountrySource);
+      if (StringUtils.isNotBlank(source)) {
+        return source;
+      }
+    }
+    this.log.info("Source by country <{}> not found, using default TSP source", country);
+    return this.getTspSource();
   }
 
   /**
@@ -1128,7 +1138,8 @@ public class Configuration implements Serializable {
     this.setConfigurationParameter(ConfigurationParameter.SslKeystorePassword, this.getParameter(Constant.System.JAVAX_NET_SSL_KEY_STORE_PASSWORD, "SSL_KEYSTORE_PASSWORD"));
     this.setConfigurationParameter(ConfigurationParameter.SslTruststorePath, this.getParameter(Constant.System.JAVAX_NET_SSL_TRUST_STORE, "SSL_TRUSTSTORE_PATH"));
     this.setConfigurationParameter(ConfigurationParameter.SslTruststorePassword, this.getParameter(Constant.System.JAVAX_NET_SSL_TRUST_STORE_PASSWORD, "SSL_TRUSTSTORE_PASSWORD"));
-    this.updateTrustedTerritories();
+    this.loadYamlTrustedTerritories();
+    this.loadYamlTSPs();
   }
 
   private Hashtable<String, String> loadConfigurationSettings(InputStream stream) {
@@ -1240,6 +1251,38 @@ public class Configuration implements Serializable {
     }
   }
 
+  private void loadYamlTSPs() {
+    List<Map<String, Object>> tsps = (List<Map<String, Object>>) this.configurationFromFile.get("TSPS");
+    if (tsps == null) {
+      this.setConfigurationParameter(ConfigurationParameter.TspsCount, "0");
+      return;
+    }
+    this.setConfigurationParameter(ConfigurationParameter.TspsCount, String.valueOf(tsps.size()));
+    List<Pair<String, ConfigurationParameter>> entryPairs = Arrays.asList(
+        Pair.of("TSP_SOURCE", ConfigurationParameter.TspCountrySource),
+        Pair.of("TSP_KEYSTORE_PATH", ConfigurationParameter.TspCountryKeystorePath),
+        Pair.of("TSP_KEYSTORE_TYPE", ConfigurationParameter.TspCountryKeystoreType),
+        Pair.of("TSP_KEYSTORE_PASSWORD", ConfigurationParameter.TspCountryKeystorePassword)
+    );
+    for (int i = 0; i < tsps.size(); i++) {
+      Map<String, Object> tsp = tsps.get(i);
+      Object country = tsp.get("TSP_C").toString();
+      if (country != null) {
+        this.tspMap.put(country.toString(), new HashMap<ConfigurationParameter, String>());
+        for (Pair<String, ConfigurationParameter> pair : entryPairs) {
+          Object entryValue = tsp.get(pair.getKey());
+          if (entryValue != null) {
+            this.tspMap.get(country.toString()).put(pair.getValue(), entryValue.toString());
+          } else {
+            this.logError(String.format("No value found for an entry <%s(%s)>", pair.getKey(), i + 1));
+          }
+        }
+      } else {
+        this.logError(String.format("No value found for an entry <TSP_C(%s)>", i + 1));
+      }
+    }
+  }
+
   /**
    * Gives back all configuration parameters needed for jDigiDoc
    *
@@ -1298,7 +1341,7 @@ public class Configuration implements Serializable {
     }
   }
 
-  private void updateTrustedTerritories() {
+  private void loadYamlTrustedTerritories() {
     List<String> territories = getStringListParameterFromFile("TRUSTED_TERRITORIES");
     if (territories != null) {
       trustedTerritories = territories;
