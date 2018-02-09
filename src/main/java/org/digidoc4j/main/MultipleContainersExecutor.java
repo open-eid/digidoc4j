@@ -22,6 +22,9 @@ import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.MimeType;
 
+/**
+ * Container executor for batch task e.g. input folder and output folder
+ */
 public class MultipleContainersExecutor {
 
   private final Logger log = LoggerFactory.getLogger(MultipleContainersExecutor.class);
@@ -30,6 +33,9 @@ public class MultipleContainersExecutor {
   private File inputDir;
   private File outputDir;
 
+  /**
+   * @param commandLine command line
+   */
   public MultipleContainersExecutor(CommandLine commandLine) {
     this.commandLineExecutor = new CommandLineExecutor(ExecutionContext.of(commandLine));
   }
@@ -47,6 +53,10 @@ public class MultipleContainersExecutor {
       }
     }
   }
+
+  /*
+   * RESTRICTED METHODS
+   */
 
   private void signDocument(File document) {
     String documentPath = document.getPath();
@@ -73,24 +83,24 @@ public class MultipleContainersExecutor {
   }
 
   private File getOutputDirectory() {
-    File outputDir = this.getDirectory(this.commandLineExecutor.getContext().getCommandLine().getOptionValue("outputDir"));
-    this.createOutputDirIfNeeded(outputDir);
+    this.createOutputFolder(
+        this.getDirectory(this.commandLineExecutor.getContext().getCommandLine().getOptionValue("outputDir")));
     return outputDir;
   }
 
   private File getDirectory(String outputDirPath) {
-    File outputDir = new File(outputDirPath);
-    if (outputDir.exists() && !outputDir.isDirectory()) {
+    File folder = new File(outputDirPath);
+    if (folder.exists() && !folder.isDirectory()) {
       this.log.error(outputDirPath + " is not a directory");
       throw new DigiDoc4JUtilityException(6, outputDirPath + " is not a directory");
     }
-    return outputDir;
+    return folder;
   }
 
-  private void createOutputDirIfNeeded(File outputDir) {
-    if (!outputDir.exists()) {
-      this.log.debug(outputDir.getPath() + " directory does not exist. Creating new directory");
-      outputDir.mkdir();
+  private void createOutputFolder(File folder) {
+    if (!folder.exists()) {
+      this.log.debug(folder.getPath() + " directory does not exist. Creating new folder");
+      folder.mkdir();
     }
   }
 

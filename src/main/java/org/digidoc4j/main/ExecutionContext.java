@@ -20,6 +20,8 @@ import org.digidoc4j.SignatureToken;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 
 /**
+ * Context holder for utility method. All the corresponding properties must be evaluated before final execution step
+ *
  * Created by Janar Rahumeel (CGI Estonia)
  */
 
@@ -40,10 +42,19 @@ public class ExecutionContext {
     this.command = command;
   }
 
+  /**
+   * @param commandLine command line arguments
+   * @return context
+   */
   public static ExecutionContext of(CommandLine commandLine) {
     return ExecutionContext.of(commandLine, null);
   }
 
+  /**
+   * @param commandLine command line arguments
+   * @param command internal command
+   * @return context
+   */
   public static ExecutionContext of(CommandLine commandLine, ExecutionCommand command) {
     return new ExecutionContext(commandLine, command);
   }

@@ -74,7 +74,7 @@ public abstract class AsicContainer implements Container {
   /**
    * ASicContainer constructor
    *
-   * @param configuration
+   * @param configuration configuration
    */
   public AsicContainer(Configuration configuration) {
     this.configuration = configuration;
@@ -83,8 +83,8 @@ public abstract class AsicContainer implements Container {
   /**
    * ASicContainer constructor
    *
-   * @param containerPath
-   * @param containerType
+   * @param containerPath path
+   * @param containerType type
    */
   public AsicContainer(String containerPath, String containerType){
     this.configuration = Configuration.getInstance();
@@ -95,9 +95,9 @@ public abstract class AsicContainer implements Container {
   /**
    * ASicContainer constructor
    *
-   * @param containerPath
-   * @param configuration
-   * @param containerType
+   * @param containerPath path
+   * @param configuration configuration
+   * @param containerType type
    */
   public AsicContainer(String containerPath, Configuration configuration, String containerType){
     this.configuration = configuration;
@@ -108,8 +108,8 @@ public abstract class AsicContainer implements Container {
   /**
    * ASicContainer constructor
    *
-   * @param stream
-   * @param containerType
+   * @param stream input stream
+   * @param containerType type
    */
   public AsicContainer(InputStream stream, String containerType){
     configuration = Configuration.getInstance();
@@ -120,9 +120,9 @@ public abstract class AsicContainer implements Container {
   /**
    * ASicContainer constructor
    *
-   * @param stream
-   * @param configuration
-   * @param containerType
+   * @param stream input stream
+   * @param configuration configuration
+   * @param containerType type
    */
   public AsicContainer(InputStream stream, Configuration configuration, String containerType){
     this.configuration = configuration;

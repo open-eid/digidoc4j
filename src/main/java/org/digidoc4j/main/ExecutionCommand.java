@@ -14,14 +14,20 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Internal command wrapper which defines possible combinations of mandatory execution arguments. All the arguments will
+ * be executed in the order they are defined in the array of argument options
+ * <p>
  * Created by Janar Rahumeel (CGI Estonia)
  */
 
 public enum ExecutionCommand {
 
-  EXTERNAL_COMPOSE_DTS(Arrays.asList(ExecutionOption.IN, ExecutionOption.ADD, ExecutionOption.CERTIFICATE, ExecutionOption.DTS)),
-  EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS11(Arrays.asList(ExecutionOption.DTS, ExecutionOption.PKCS11, ExecutionOption.SIGNAURE)),
-  EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS12(Arrays.asList(ExecutionOption.DTS, ExecutionOption.PKCS12, ExecutionOption.SIGNAURE)),
+  EXTERNAL_COMPOSE_DTS(
+      Arrays.asList(ExecutionOption.IN, ExecutionOption.ADD, ExecutionOption.CERTIFICATE, ExecutionOption.DTS)),
+  EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS11(
+      Arrays.asList(ExecutionOption.DTS, ExecutionOption.PKCS11, ExecutionOption.SIGNAURE)),
+  EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS12(
+      Arrays.asList(ExecutionOption.DTS, ExecutionOption.PKCS12, ExecutionOption.SIGNAURE)),
   EXTERNAL_ADD_SIGNATURE(Arrays.asList(ExecutionOption.IN, ExecutionOption.DTS, ExecutionOption.SIGNAURE));
 
   List<ExecutionOption> mandatoryOptions;

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.digidoc4j.Configuration;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.impl.asic.xades.XadesSignatureParser;
 import org.digidoc4j.impl.asic.xades.XadesValidationReportGenerator;
@@ -37,8 +36,9 @@ public class AsicESignatureOpener {
 
   /**
    * Constructor
-   * @param detachedContents
-   * @param configuration
+   *
+   * @param detachedContents list of detached content
+   * @param configuration configuration
    */
   public AsicESignatureOpener(List<DSSDocument> detachedContents, Configuration configuration) {
     this.configuration = configuration;

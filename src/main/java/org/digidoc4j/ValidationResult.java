@@ -89,7 +89,7 @@ public interface ValidationResult {
   /**
    * Get indication from simple report.
    *
-   * @param signatureId
+   * @param signatureId id of signature
    * @return signatureId
    */
   Indication getIndication(String signatureId);
@@ -97,7 +97,7 @@ public interface ValidationResult {
   /**
    * Get subIndication from simple report.
    *
-   * @param signatureId
+   * @param signatureId id of signature
    * @return subIndication
    */
   SubIndication getSubIndication(String signatureId);
@@ -105,7 +105,7 @@ public interface ValidationResult {
   /**
    * Get SignatureQualification from simple report.
    *
-   * @param signatureId
+   * @param signatureId id of signature
    * @return SignatureQualification
    */
   SignatureQualification getSignatureQualification(String signatureId);

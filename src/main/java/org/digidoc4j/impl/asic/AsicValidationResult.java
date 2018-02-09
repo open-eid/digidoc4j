@@ -26,7 +26,7 @@ import eu.europa.esig.dss.validation.reports.SimpleReport;
 
 /**
  * Validation result information.
- *
+ * <p>
  * For BDOC the ValidationResult contains only information for the first signature of each signature XML file
  */
 public class AsicValidationResult implements ValidationResult {
@@ -79,15 +79,15 @@ public class AsicValidationResult implements ValidationResult {
   }
 
   private List<SimpleReport> buildSignatureSimpleReports() {
-    if (simpleReports.isEmpty()){
+    if (simpleReports.isEmpty()) {
       simpleReports = reportBuilder.buildSignatureSimpleReports();
     }
     return simpleReports;
   }
 
   @Override
-  public Indication getIndication(String signatureId){
-    if (StringUtils.isBlank(signatureId)){
+  public Indication getIndication(String signatureId) {
+    if (StringUtils.isBlank(signatureId)) {
       SimpleReport simpleReport = getSimpleReport();
       return simpleReport != null ? simpleReport.getIndication(simpleReport.getFirstSignatureId()) : null;
     }
@@ -96,18 +96,18 @@ public class AsicValidationResult implements ValidationResult {
   }
 
   @Override
-  public SubIndication getSubIndication(String signatureId){
-    if (StringUtils.isBlank(signatureId)){
+  public SubIndication getSubIndication(String signatureId) {
+    if (StringUtils.isBlank(signatureId)) {
       SimpleReport simpleReport = getSimpleReport();
-      return  simpleReport != null ? simpleReport.getSubIndication(simpleReport.getFirstSignatureId()) : null;
+      return simpleReport != null ? simpleReport.getSubIndication(simpleReport.getFirstSignatureId()) : null;
     }
     SimpleReport reportBySignatureId = getSimpleReportBySignatureId(signatureId);
     return reportBySignatureId != null ? reportBySignatureId.getSubIndication(signatureId) : null;
   }
 
   @Override
-  public SignatureQualification getSignatureQualification(String signatureId){
-    if (StringUtils.isBlank(signatureId)){
+  public SignatureQualification getSignatureQualification(String signatureId) {
+    if (StringUtils.isBlank(signatureId)) {
       SimpleReport simpleReport = getSimpleReport();
       return simpleReport != null ? simpleReport.getSignatureQualification(simpleReport.getFirstSignatureId()) : null;
     }
@@ -116,18 +116,18 @@ public class AsicValidationResult implements ValidationResult {
   }
 
   private SimpleReport getSimpleReport() {
-    if (buildSignatureSimpleReports().size() > 0){
+    if (buildSignatureSimpleReports().size() > 0) {
       return buildSignatureSimpleReports().get(0);
     }
     return null;
   }
 
   private SimpleReport getSimpleReportBySignatureId(String signatureId) {
-      for (SimpleReport signatureReport: buildSignatureSimpleReports()) {
-        if (signatureReport.getFirstSignatureId().equals(signatureId)){
-          return signatureReport;
-        }
+    for (SimpleReport signatureReport : buildSignatureSimpleReports()) {
+      if (signatureReport.getFirstSignatureId().equals(signatureId)) {
+        return signatureReport;
       }
+    }
     return null;
   }
 
