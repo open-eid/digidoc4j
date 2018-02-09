@@ -9,11 +9,16 @@ import org.digidoc4j.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * BDOC-TS OCSP source
+ */
 public class BDocTSOcspSource extends SKOnlineOCSPSource {
 
   private static final Logger logger = LoggerFactory.getLogger(BDocTSOcspSource.class);
 
+  /**
+   * @param configuration configuration
+   */
   public BDocTSOcspSource(Configuration configuration) {
     super(configuration);
     logger.debug("Using TS OCSP source");

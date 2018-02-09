@@ -55,7 +55,9 @@ import eu.europa.esig.dss.x509.CommonCertificateSource;
 import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 import eu.europa.esig.dss.x509.ocsp.OCSPToken;
 
-
+/**
+ * Always valid OCSP source
+ */
 public class AlwaysValidOcspSource implements OCSPSource {
 
   private static final Logger logger = LoggerFactory.getLogger(AlwaysValidOcspSource.class);
@@ -88,9 +90,9 @@ public class AlwaysValidOcspSource implements OCSPSource {
   /**
    * The default constructor for MockOCSPSource.
    *
-   * @param signerPkcs12Name
-   * @param password
-   * @throws Exception
+   * @param signerPkcs12Name file name
+   * @param password password
+   * @throws DSSException DSS exception
    */
   public AlwaysValidOcspSource(final String signerPkcs12Name, final String password) {
 

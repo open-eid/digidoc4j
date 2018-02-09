@@ -58,10 +58,16 @@ public class CommandLineExecutor {
   private final ExecutionContext context;
   private boolean fileHasChanged;
 
+  /**
+   * @param context execution context
+   */
   public CommandLineExecutor(ExecutionContext context) {
     this.context = context;
   }
 
+  /**
+   * @param container container
+   */
   public void processContainer(Container container) {
     this.log.debug("Processing container");
     if (container instanceof PadesContainer) {
@@ -79,10 +85,16 @@ public class CommandLineExecutor {
     }
   }
 
+  /**
+   * @return indication whether this executor has internal command found
+   */
   public boolean hasCommand() {
     return this.context.getCommand() != null;
   }
 
+  /**
+   * Executes internal command
+   */
   public void executeCommand() {
     if (this.hasCommand()) {
       for (ExecutionOption option : this.context.getCommand().getMandatoryOptions()) {
@@ -144,7 +156,7 @@ public class CommandLineExecutor {
   /**
    * Gets container type for util logic
    *
-   * @return
+   * @return document type of container
    */
   public Container.DocumentType getContainerType() {
     if (StringUtils.equalsIgnoreCase(this.context.getCommandLine().getOptionValue("type"), "BDOC"))
@@ -172,10 +184,17 @@ public class CommandLineExecutor {
     return Container.DocumentType.BDOC;
   }
 
+  /**
+   * @return generated container
+   */
   public Container openContainer() {
     return this.openContainer("");
   }
 
+  /**
+   * @param containerPath path
+   * @return existing or generated container
+   */
   public Container openContainer(String containerPath) {
     Container.DocumentType type = this.getContainerType();
     if (new File(containerPath).exists() || this.context.getCommandLine().hasOption("verify") || this.context.getCommandLine().hasOption("remove")) {
@@ -187,6 +206,12 @@ public class CommandLineExecutor {
     }
   }
 
+  /**
+   * Stores container to given path
+   *
+   * @param container container
+   * @param containerPath path
+   */
   public void saveContainer(Container container, String containerPath) {
     if (this.fileHasChanged) {
       container.saveAsFile(containerPath);

@@ -22,11 +22,18 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * ASIC container parser from input stream
+ */
 public class AsicStreamContainerParser extends AsicContainerParser{
 
   private static final Logger logger = LoggerFactory.getLogger(AsicStreamContainerParser.class);
   private ZipInputStream zipInputStream;
 
+  /**
+   * @param inputStream input stream
+   * @param configuration configuration
+   */
   public AsicStreamContainerParser(InputStream inputStream, Configuration configuration) {
     super(configuration);
     zipInputStream = new ZipInputStream(inputStream);

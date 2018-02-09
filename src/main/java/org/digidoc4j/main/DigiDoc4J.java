@@ -58,6 +58,27 @@ public final class DigiDoc4J {
     System.exit(0);
   }
 
+  /**
+   * Checks is DigiDoc4JException predefined as warning for DDOC
+   *
+   * @param documentFormat format SignedDoc
+   * @param exception      error to check
+   * @return is this exception warning for DDOC utility program
+   * @see SignedDoc
+   */
+  public static boolean isWarning(String documentFormat, DigiDoc4JException exception) {
+    int errorCode = exception.getErrorCode();
+    return (errorCode == DigiDocException.ERR_DF_INV_HASH_GOOD_ALT_HASH
+        || errorCode == DigiDocException.ERR_OLD_VER
+        || errorCode == DigiDocException.ERR_TEST_SIGNATURE
+        || errorCode == DigiDocException.WARN_WEAK_DIGEST
+        || (errorCode == DigiDocException.ERR_ISSUER_XMLNS && !documentFormat.equals(SignedDoc.FORMAT_SK_XML)));
+  }
+
+  /*
+   * RESTRICTED METHODS
+   */
+
   private static void run(String[] args) {
     Options options = DigiDoc4J.createParameters();
     try {
@@ -84,11 +105,13 @@ public final class DigiDoc4J {
   }
 
   private static boolean shouldManipulateContainer(CommandLine commandLine) {
-    return commandLine.hasOption(ExecutionOption.DTS.getName()) || commandLine.hasOption(ExecutionOption.IN.getName()) || DigiDoc4J.isMultipleContainerCreation(commandLine);
+    return commandLine.hasOption(ExecutionOption.DTS.getName()) || commandLine.hasOption(
+        ExecutionOption.IN.getName()) || DigiDoc4J.isMultipleContainerCreation(commandLine);
   }
 
   private static void execute(CommandLine commandLine) {
-    CommandLineExecutor executor = new CommandLineExecutor(ExecutionContext.of(commandLine, DigiDoc4J.checkSupportedFunctionality(commandLine)));
+    CommandLineExecutor executor = new CommandLineExecutor(
+        ExecutionContext.of(commandLine, DigiDoc4J.checkSupportedFunctionality(commandLine)));
     try {
       if (executor.hasCommand()) {
         executor.executeCommand();
@@ -163,23 +186,6 @@ public final class DigiDoc4J {
     return commandLine.hasOption("inputDir") && commandLine.hasOption("outputDir");
   }
 
-  /**
-   * Checks is DigiDoc4JException predefined as warning for DDOC
-   *
-   * @param documentFormat format SignedDoc
-   * @param exception      error to check
-   * @return is this exception warning for DDOC utility program
-   * @see SignedDoc
-   */
-  public static boolean isWarning(String documentFormat, DigiDoc4JException exception) {
-    int errorCode = exception.getErrorCode();
-    return (errorCode == DigiDocException.ERR_DF_INV_HASH_GOOD_ALT_HASH
-        || errorCode == DigiDocException.ERR_OLD_VER
-        || errorCode == DigiDocException.ERR_TEST_SIGNATURE
-        || errorCode == DigiDocException.WARN_WEAK_DIGEST
-        || (errorCode == DigiDocException.ERR_ISSUER_XMLNS && !documentFormat.equals(SignedDoc.FORMAT_SK_XML)));
-  }
-
   private static Options createParameters() {
     Options options = new Options();
     options.addOption("v", "verify", false, "verify input file");
@@ -218,7 +224,8 @@ public final class DigiDoc4J {
   }
 
   private static Option certificateFile() {
-    return OptionBuilder.withArgName("path").hasArg().withDescription("specifies loaction path of public certificate file")
+    return OptionBuilder.withArgName("path").hasArg().withDescription(
+        "specifies loaction path of public certificate file")
         .withLongOpt("certificateFile").create(ExecutionOption.CERTIFICATE.getName());
   }
 
@@ -229,7 +236,8 @@ public final class DigiDoc4J {
 
   private static Option signatureProfile() {
     return OptionBuilder.withArgName("signatureProfile").hasArg()
-        .withDescription("sets signature profile. Profile can be B_BES, LT, LT_TM or LTA").withLongOpt("profile").create("p");
+        .withDescription("sets signature profile. Profile can be B_BES, LT, LT_TM or LTA").withLongOpt(
+            "profile").create("p");
   }
 
   private static Option encryptionAlgorithm() {
@@ -271,7 +279,8 @@ public final class DigiDoc4J {
   }
 
   private static Option mimeType() {
-    return OptionBuilder.withArgName("mimeType").hasArg().withDescription("specifies input file mime type when using inputDir")
+    return OptionBuilder.withArgName("mimeType").hasArg().withDescription(
+        "specifies input file mime type when using inputDir")
         .create("mimeType");
   }
 
@@ -282,12 +291,14 @@ public final class DigiDoc4J {
 
   private static Option type() {
     return OptionBuilder.withArgName("type").hasArg()
-        .withDescription("sets container type. Types can be DDOC, BDOC, ASICE or ASICS").withLongOpt("type").create("t");
+        .withDescription("sets container type. Types can be DDOC, BDOC, ASICE or ASICS").withLongOpt("type").create(
+            "t");
   }
 
   private static Option extractDataFile() {
     return OptionBuilder.withArgName("fileName destination").hasArgs(2)
-        .withDescription("extracts the file from the container to the specified destination").create(ExecutionOption.EXTRACT.getName());
+        .withDescription("extracts the file from the container to the specified destination").create(
+            ExecutionOption.EXTRACT.getName());
   }
 
   private static void showVersion() {

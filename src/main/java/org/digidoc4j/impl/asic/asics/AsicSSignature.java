@@ -12,8 +12,8 @@ public class AsicSSignature extends AsicSignature {
   /**
    * AsicS signature constructor.
    *
-   * @param xadesSignature
-   * @param validator
+   * @param xadesSignature XADES signature
+   * @param validator signature validator
    */
   public AsicSSignature(XadesSignature xadesSignature, SignatureValidator validator) {
     super(xadesSignature, validator);

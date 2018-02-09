@@ -728,6 +728,9 @@ public class Configuration implements Serializable {
     return DigestAlgorithm.findByAlgorithm(getConfigurationParameter(ConfigurationParameter.SignatureDigestAlgorithm));
   }
 
+  /**
+   * @return HTTPS proxy host
+   */
   public String getHttpsProxyHost() {
     return this.getConfigurationParameter(ConfigurationParameter.HttpsProxyHost);
   }
@@ -741,6 +744,9 @@ public class Configuration implements Serializable {
     this.setConfigurationParameter(ConfigurationParameter.HttpsProxyHost, httpsProxyHost);
   }
 
+  /**
+   * @return HTTPS proxy port
+   */
   public Integer getHttpsProxyPort() {
     return this.getConfigurationParameter(ConfigurationParameter.HttpsProxyPort, Integer.class);
   }

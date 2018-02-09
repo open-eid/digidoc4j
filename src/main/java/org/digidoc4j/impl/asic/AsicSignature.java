@@ -36,8 +36,8 @@ public class AsicSignature implements Signature {
   /**
    * Asic signature constructor.
    *
-   * @param xadesSignature
-   * @param validator
+   * @param xadesSignature XADES signature
+   * @param validator signature validator
    */
   public AsicSignature(XadesSignature xadesSignature, SignatureValidator validator){
     this.xadesSignature = xadesSignature;

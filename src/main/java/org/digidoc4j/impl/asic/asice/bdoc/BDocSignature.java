@@ -26,13 +26,12 @@ public class BDocSignature extends AsicESignature {
   /**
    * BDoc signature constructor.
    *
-   * @param xadesSignature
-   * @param validator
+   * @param xadesSignature XADES signature
+   * @param validator signature validator
    */
   public BDocSignature(XadesSignature xadesSignature, SignatureValidator validator) {
     super(xadesSignature, validator);
     logger.debug("New BDoc signature created");
   }
-
 
 }

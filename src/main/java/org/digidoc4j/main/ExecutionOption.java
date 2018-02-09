@@ -11,6 +11,8 @@
 package org.digidoc4j.main;
 
 /**
+ * Wrapper of command line option. This holds argument name and the count of extra arguments
+ *
  * Created by Janar Rahumeel (CGI Estonia)
  */
 

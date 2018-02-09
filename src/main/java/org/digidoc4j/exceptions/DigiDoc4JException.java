@@ -43,6 +43,7 @@ public class DigiDoc4JException extends RuntimeException {
    *
    * @param message the detail message (which is saved for later retrieval
    *                by the {@link #getMessage()} method).
+   * @param cause cause of exception
    */
   public DigiDoc4JException(String message, Throwable cause) {
     super(message, cause);
@@ -110,7 +111,7 @@ public class DigiDoc4JException extends RuntimeException {
   /**
    * Get the Signature Id of the exception
    *
-   * @return
+   * @return id of signature
    */
   public String getSignatureId() {
     return signatureId;
@@ -118,7 +119,8 @@ public class DigiDoc4JException extends RuntimeException {
 
   /**
    * Set the Signature Id of the exception
-   * @param signatureId
+   *
+   * @param signatureId id of signature
    */
   public void setSignatureId(String signatureId) {
     this.signatureId = signatureId;

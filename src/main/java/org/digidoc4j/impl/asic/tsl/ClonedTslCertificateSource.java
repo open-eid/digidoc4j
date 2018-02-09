@@ -35,6 +35,9 @@ public class ClonedTslCertificateSource implements CertificateSource {
   private CertificateSource clonedCertificateSource;
   private TrustedListsCertificateSource trustedListsCertificateSource;
 
+  /**
+   * @param certificateSource source of certificate
+   */
   public ClonedTslCertificateSource(CertificateSource certificateSource) {
     logger.debug("Instantiating cloned tsl cert source");
     this.certificateSource = certificateSource;

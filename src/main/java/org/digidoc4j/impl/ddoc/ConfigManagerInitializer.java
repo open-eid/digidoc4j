@@ -18,11 +18,17 @@ import org.slf4j.LoggerFactory;
 
 import ee.sk.utils.ConfigManager;
 
+/**
+ * Configuration manager initializer
+ */
 public class ConfigManagerInitializer implements Serializable{
 
   private static final Logger logger = LoggerFactory.getLogger(ConfigManagerInitializer.class);
   protected static boolean configManagerInitialized = false;
 
+  /**
+   * @param configuration configuration
+   */
   public void initConfigManager(Configuration configuration) {
     if(!configManagerInitialized) {
       initializeJDigidocConfigManager(configuration);
@@ -31,6 +37,9 @@ public class ConfigManagerInitializer implements Serializable{
     }
   }
 
+  /**
+   * @param configuration configuration
+   */
   public static synchronized void forceInitConfigManager(Configuration configuration) {
     logger.info("Initializing DDoc configuration manager");
     ConfigManager.init(configuration.getJDigiDocConfiguration());
@@ -38,6 +47,9 @@ public class ConfigManagerInitializer implements Serializable{
     configManagerInitialized = true;
   }
 
+  /**
+   * @return indication whether config manager is initialized
+   */
   public static boolean isConfigManagerInitialized() {
     return configManagerInitialized;
   }
