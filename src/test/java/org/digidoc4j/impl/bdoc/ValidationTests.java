@@ -97,7 +97,7 @@ public class ValidationTests extends AbstractTest {
   public void testExpiredCertSign() {
     try {
       DataToSign dataToSign = SignatureBuilder.aSignature(this.createNonEmptyContainer()).withSigningCertificate(TestSigningUtil
-          .getSigningCert("src/test/resources/testFiles/p12/expired_signer.p12", "test")).buildDataToSign();
+          .getSigningCertificate("src/test/resources/testFiles/p12/expired_signer.p12", "test")).buildDataToSign();
       dataToSign.finalize(TestSigningUtil.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm()));
     } catch (Exception e) {
       Assert.assertTrue(e.getMessage().contains("not in certificate validity range"));
