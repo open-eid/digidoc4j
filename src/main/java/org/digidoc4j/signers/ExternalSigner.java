@@ -20,8 +20,7 @@ import org.digidoc4j.SignatureToken;
 public abstract class ExternalSigner implements SignatureToken {
 
   private X509Certificate signingCertificate;
-
-
+  
   /**
    * Creates new external signer
    *
@@ -35,4 +34,5 @@ public abstract class ExternalSigner implements SignatureToken {
   public X509Certificate getCertificate() {
     return this.signingCertificate;
   }
+
 }
