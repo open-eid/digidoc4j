@@ -10,82 +10,80 @@
 
 package org.digidoc4j.utils;
 
-import static org.apache.commons.lang3.time.DateUtils.addMinutes;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Date;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 public class DateUtilsTest {
 
   @Test
   public void testIsAlmostNowComparedToNow() throws Exception {
-    assertTrue(DateUtils.isAlmostNow(new Date()));
+    Assert.assertTrue(DateUtils.isAlmostNow(new Date()));
   }
 
   @Test
   public void testIsAlmostNowComparedToOneSecondsBeforeNow() throws Exception {
     Date nowMinusOneSecond = org.apache.commons.lang3.time.DateUtils.addSeconds(new Date(), -1);
-    assertTrue(DateUtils.isAlmostNow(nowMinusOneSecond));
+    Assert.assertTrue(DateUtils.isAlmostNow(nowMinusOneSecond));
   }
 
   @Test
   public void testIsAlmostNowComparedToOneSecondsAfterNow() throws Exception {
     Date nowPlusOneSecond = org.apache.commons.lang3.time.DateUtils.addSeconds(new Date(), 1);
-    assertTrue(DateUtils.isAlmostNow(nowPlusOneSecond));
+    Assert.assertTrue(DateUtils.isAlmostNow(nowPlusOneSecond));
   }
 
   @Test
   public void testIsAlmostNowComparedToOneMInuteBeforeNow() throws Exception {
-    assertFalse(DateUtils.isAlmostNow(org.apache.commons.lang3.time.DateUtils.addSeconds(new Date(), -61)));
+    Assert.assertFalse(DateUtils.isAlmostNow(org.apache.commons.lang3.time.DateUtils.addSeconds(new Date(), -61)));
   }
 
   @Test
   public void testIsAlmostNowComparedToOneMinuteAfterNow() throws Exception {
-    assertFalse(DateUtils.isAlmostNow(org.apache.commons.lang3.time.DateUtils.addSeconds(new Date(), 61)));
+    Assert.assertFalse(DateUtils.isAlmostNow(org.apache.commons.lang3.time.DateUtils.addSeconds(new Date(), 61)));
   }
 
   @Test
   public void testRangeNotIn10Min() throws Exception {
     int range10min = 10;
-    Date date100MinInFuture = addMinutes(new Date(), 100);
-    assertFalse(DateUtils.isInRangeMinutes(new Date(), date100MinInFuture, range10min));
+    Date date100MinInFuture = org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), 100);
+    Assert.assertFalse(DateUtils.isInRangeMinutes(new Date(), date100MinInFuture, range10min));
   }
 
   @Test
   public void testRangeNotIn10MinSwitched() throws Exception {
     int range10min = 10;
-    Date date100MinInFuture = addMinutes(new Date(), 100);
-    assertFalse(DateUtils.isInRangeMinutes(date100MinInFuture, new Date(), range10min));
+    Date date100MinInFuture = org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), 100);
+    Assert.assertFalse(DateUtils.isInRangeMinutes(date100MinInFuture, new Date(), range10min));
   }
 
   @Test
   public void testRangeIn10Min() throws Exception {
     int range10min = 10;
-    Date date5MinInFuture = addMinutes(new Date(), 5);
-    assertTrue(DateUtils.isInRangeMinutes(new Date(), date5MinInFuture, range10min));
+    Date date5MinInFuture = org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), 5);
+    Assert.assertTrue(DateUtils.isInRangeMinutes(new Date(), date5MinInFuture, range10min));
   }
 
   @Test
   public void testRangeIn10MinWithFuture() throws Exception {
     int range10min = 10;
-    Date date5MinInFuture = addMinutes(new Date(), 5);
-    assertTrue(DateUtils.isInRangeMinutes(date5MinInFuture, new Date(), range10min));
+    Date date5MinInFuture = org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), 5);
+    Assert.assertTrue(DateUtils.isInRangeMinutes(date5MinInFuture, new Date(), range10min));
   }
 
   @Test
   public void testRangeIn10MinWithPast() throws Exception {
     int range10min = 10;
-    Date date5MinInPast = addMinutes(new Date(), -5);
-    assertTrue(DateUtils.isInRangeMinutes(date5MinInPast, new Date(), range10min));
+    Date date5MinInPast = org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), -5);
+    Assert.assertTrue(DateUtils.isInRangeMinutes(date5MinInPast, new Date(), range10min));
   }
 
   @Test
   public void testRangeIn5MinWithPastSwitched() throws Exception {
     int range10min = 10;
-    Date date5MinInPast = addMinutes(new Date(), -5);
-    assertTrue(DateUtils.isInRangeMinutes(new Date(), date5MinInPast, range10min));
+    Date date5MinInPast = org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), -5);
+    Assert.assertTrue(DateUtils.isInRangeMinutes(new Date(), date5MinInPast, range10min));
   }
+
 }

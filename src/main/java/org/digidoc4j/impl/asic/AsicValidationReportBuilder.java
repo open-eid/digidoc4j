@@ -40,6 +40,9 @@ import eu.europa.esig.dss.jaxb.simplereport.SimpleReport;
 import eu.europa.esig.dss.jaxb.simplereport.XmlPolicy;
 import eu.europa.esig.dss.validation.reports.Reports;
 
+/**
+ * ASIC validation report builder
+ */
 public class AsicValidationReportBuilder {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicValidationReportBuilder.class);
@@ -47,6 +50,10 @@ public class AsicValidationReportBuilder {
   private List<SignatureValidationData> signatureValidationData;
   private String reportInXml;
 
+  /**
+   * @param signatureValidationData list of signature validation data
+   * @param manifestErrors list of manifest errors
+   */
   public AsicValidationReportBuilder(List<SignatureValidationData> signatureValidationData, List<DigiDoc4JException> manifestErrors) {
     logger.debug("Initializing ASiC validation report builder");
     this.manifestErrors = manifestErrors;

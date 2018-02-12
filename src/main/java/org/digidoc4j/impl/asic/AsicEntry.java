@@ -15,6 +15,9 @@ import java.util.zip.ZipEntry;
 
 import eu.europa.esig.dss.DSSDocument;
 
+/**
+ * ASIC entry
+ */
 public class AsicEntry implements Serializable {
 
   private String name;
@@ -23,20 +26,32 @@ public class AsicEntry implements Serializable {
   private DSSDocument content;
   private boolean isSignature;
 
+  /**
+   * @param zipEntry entry
+   */
   public AsicEntry(ZipEntry zipEntry) {
     name = zipEntry.getName();
     comment = zipEntry.getComment();
     extraFieldData = zipEntry.getExtra();
   }
 
+  /**
+   * @return DSS document
+   */
   public DSSDocument getContent() {
     return content;
   }
 
+  /**
+   * @param content DSS document
+   */
   public void setContent(DSSDocument content) {
     this.content = content;
   }
 
+  /**
+   * @return entry
+   */
   public ZipEntry getZipEntry() {
     ZipEntry entry = new ZipEntry(name);
     entry.setComment(comment);
@@ -44,11 +59,18 @@ public class AsicEntry implements Serializable {
     return entry;
   }
 
+  /**
+   * @return indication whether it's a signature
+   */
   public boolean isSignature() {
     return isSignature;
   }
 
+  /**
+   * @param signature signature flag
+   */
   public void setSignature(boolean signature) {
     isSignature = signature;
   }
+
 }

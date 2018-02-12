@@ -32,23 +32,40 @@ public class AsicSContainer extends AsicContainer {
     setType(Constant.ASICS_CONTAINER_TYPE);
   }
 
+  /**
+   * @param configuration configuration
+   */
   public AsicSContainer(Configuration configuration) {
     super(configuration);
     setType(Constant.ASICS_CONTAINER_TYPE);
   }
 
+  /**
+   * @param containerPath path
+   */
   public AsicSContainer(String containerPath) {
     super(containerPath, Constant.ASICS_CONTAINER_TYPE);
   }
 
+  /**
+   * @param containerPath path
+   * @param configuration configuration
+   */
   public AsicSContainer(String containerPath, Configuration configuration) {
     super(containerPath, configuration, Constant.ASICS_CONTAINER_TYPE);
   }
 
+  /**
+   * @param stream input stream
+   */
   public AsicSContainer(InputStream stream) {
     super(stream, Constant.ASICS_CONTAINER_TYPE);
   }
 
+  /**
+   * @param stream input stream
+   * @param configuration configuration
+   */
   public AsicSContainer(InputStream stream, Configuration configuration) {
     super(stream, configuration, Constant.ASICS_CONTAINER_TYPE);
   }

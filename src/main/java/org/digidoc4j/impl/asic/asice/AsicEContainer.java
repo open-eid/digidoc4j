@@ -36,7 +36,7 @@ public class AsicEContainer extends AsicContainer {
   /**
    * AsicEContainer constructor
    *
-   * @param configuration
+   * @param configuration configuration
    */
   public AsicEContainer(Configuration configuration) {
     super(configuration);
@@ -46,7 +46,7 @@ public class AsicEContainer extends AsicContainer {
   /**
    * AsicEContainer constructor
    *
-   * @param containerPath
+   * @param containerPath path
    */
   public AsicEContainer(String containerPath) {
     super(containerPath, Constant.ASICE_CONTAINER_TYPE);
@@ -55,8 +55,8 @@ public class AsicEContainer extends AsicContainer {
   /**
    * AsicEContainer constructor for subclasses
    *
-   * @param containerPath
-   * @param containerType
+   * @param containerPath path
+   * @param containerType type
    */
   protected AsicEContainer(String containerPath, String containerType) {
     super(containerPath, containerType);
@@ -65,8 +65,8 @@ public class AsicEContainer extends AsicContainer {
   /**
    * AsicEContainer constructor
    *
-   * @param containerPath
-   * @param configuration
+   * @param containerPath path
+   * @param configuration configuration
    */
   public AsicEContainer(String containerPath, Configuration configuration) {
     super(containerPath, configuration, Constant.ASICE_CONTAINER_TYPE);
@@ -86,7 +86,7 @@ public class AsicEContainer extends AsicContainer {
   /**
    * AsicEContainer constructor
    *
-   * @param stream
+   * @param stream input stream
    */
   public AsicEContainer(InputStream stream) {
     super(stream, Constant.ASICE_CONTAINER_TYPE);
@@ -95,7 +95,8 @@ public class AsicEContainer extends AsicContainer {
   /**
    * AsicEContainer constructor
    *
-   * @param stream
+   * @param stream input stream
+   * @param containerType type
    */
   protected AsicEContainer(InputStream stream, String containerType) {
     super(stream, containerType);
@@ -104,8 +105,8 @@ public class AsicEContainer extends AsicContainer {
   /**
    * AsicEContainer constructor
    *
-   * @param stream
-   * @param configuration
+   * @param stream input stream
+   * @param configuration configuration
    */
   public AsicEContainer(InputStream stream, Configuration configuration) {
     super(stream, configuration, Constant.ASICE_CONTAINER_TYPE);
@@ -114,8 +115,9 @@ public class AsicEContainer extends AsicContainer {
   /**
    * AsicEContainer constructor
    *
-   * @param stream
-   * @param configuration
+   * @param stream input stream
+   * @param configuration configuration
+   * @param containerType type
    */
   protected AsicEContainer(InputStream stream, Configuration configuration, String containerType) {
     super(stream, configuration, containerType);

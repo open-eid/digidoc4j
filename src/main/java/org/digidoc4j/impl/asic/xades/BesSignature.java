@@ -37,6 +37,9 @@ import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
+/**
+ * BES signature
+ */
 public class BesSignature extends DssXadesSignature {
 
   private final static Logger logger = LoggerFactory.getLogger(BesSignature.class);
@@ -46,6 +49,9 @@ public class BesSignature extends DssXadesSignature {
   private X509Cert signingCertificate;
   private Set<CertificateToken> encapsulatedCertificates;
 
+  /**
+   * @param xadesReportGenerator XADES validation report generator
+   */
   public BesSignature(XadesValidationReportGenerator xadesReportGenerator) {
     super(xadesReportGenerator);
     XAdESSignature dssSignature = xadesReportGenerator.openDssSignature();
@@ -61,12 +67,10 @@ public class BesSignature extends DssXadesSignature {
 
   @Override
   public String getSignatureMethod() {
-
     String xmlId = null;
-
-    DigestAlgorithm digestAlgorithm = getDssSignature().getDigestAlgorithm();
-    if(digestAlgorithm != null){
-      xmlId =  digestAlgorithm.getXmlId();
+    DigestAlgorithm algorithm = this.getDssSignature().getDigestAlgorithm();
+    if (algorithm != null){
+      xmlId =  algorithm.getXmlId();
     }
     return xmlId == null ? "" : xmlId;
   }

@@ -115,11 +115,11 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   @After
   public void afterMethod() {
-    try {
+    /*try {
       FileUtils.deleteDirectory(this.testFolder.getRoot());
     } catch (IOException e) {
       this.log.warn("Unable to clean folder <{}>", this.testFolder.getRoot());
-    }
+    }*/
     this.after();
   }
 
