@@ -61,7 +61,7 @@ public class XadesSigningDssFacadeTest extends AbstractTest {
 
   @Test
   public void signDocumentWithECC() throws Exception {
-    PKCS12SignatureToken eccSignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/ec-digiid.p12", "inno".toCharArray());
+    PKCS12SignatureToken eccSignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray());
     X509Certificate signingCert = eccSignatureToken.getCertificate();
     this.facade.setEncryptionAlgorithm(EncryptionAlgorithm.ECDSA);
     this.facade.setSigningCertificate(signingCert);

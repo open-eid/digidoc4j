@@ -14,6 +14,9 @@ import org.digidoc4j.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Configuration holder
+ */
 public class ConfigurationSingeltonHolder {
 
   private static final Logger logger = LoggerFactory.getLogger(ConfigurationSingeltonHolder.class);

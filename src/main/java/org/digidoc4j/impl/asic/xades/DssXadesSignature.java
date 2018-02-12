@@ -17,11 +17,17 @@ import org.slf4j.LoggerFactory;
 import eu.europa.esig.dss.validation.reports.Reports;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
+/**
+ * DSS XADES signature
+ */
 public abstract class DssXadesSignature implements XadesSignature {
 
   private final static Logger logger = LoggerFactory.getLogger(DssXadesSignature.class);
   private XadesValidationReportGenerator reportGenerator;
 
+  /**
+   * @param reportGenerator XADES validation report generator
+   */
   public DssXadesSignature(XadesValidationReportGenerator reportGenerator) {
     this.reportGenerator = reportGenerator;
   }
@@ -29,8 +35,7 @@ public abstract class DssXadesSignature implements XadesSignature {
   @Override
   public XadesValidationResult validate() {
     logger.debug("Validating xades signature");
-    Reports validationReport = reportGenerator.openValidationReport();
-    return new XadesValidationResult(validationReport);
+    return new XadesValidationResult(this.reportGenerator.openValidationReport());
   }
 
   @Override

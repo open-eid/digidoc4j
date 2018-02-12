@@ -45,8 +45,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.asn1.ASN1Primitive;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.DataFile;
@@ -63,7 +61,6 @@ import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.MimeType;
 import eu.europa.esig.dss.SignatureLevel;
-import eu.europa.esig.dss.utils.Utils;
 import eu.europa.esig.dss.validation.SignaturePolicyProvider;
 import eu.europa.esig.dss.xades.DSSXMLUtils;
 
@@ -71,8 +68,8 @@ import eu.europa.esig.dss.xades.DSSXMLUtils;
  * Class of helper methods.
  */
 public final class Helper {
-  private static final Logger logger = LoggerFactory.getLogger(Helper.class);
 
+  private static final Logger logger = LoggerFactory.getLogger(Helper.class);
   private static final int ZIP_VERIFICATION_CODE = 0x504b0304;
   private static final int INT_LENGTH = 4;
   private static final String ASIC_E_TM_SIGNATURE_LEVEL = "ASiC_E_BASELINE_LT_TM";
@@ -256,32 +253,31 @@ public final class Helper {
     return createUserAgent(documentType, version, signatureProfile);
   }
 
+  /**
+   * @param documentType type
+   * @param version version
+   * @param signatureProfile signature profile
+   * @return user agent
+   */
   public static String createUserAgent(String documentType, String version, String signatureProfile) {
     StringBuilder ua = new StringBuilder("LIB DigiDoc4j/").append(Version.VERSION == null ? "DEV" : Version.VERSION);
-
     ua.append(" format: ").append(documentType);
     if (version != null) {
       ua.append("/").append(version);
     }
-
     if (signatureProfile != null) {
       ua.append(" signatureProfile: ").append(signatureProfile);
     }
-
     ua.append(" Java: ").append(System.getProperty("java.version"));
     ua.append("/").append(System.getProperty("java.vendor"));
-
     ua.append(" OS: ").append(System.getProperty("os.name"));
     ua.append("/").append(System.getProperty("os.arch"));
     ua.append("/").append(System.getProperty("os.version"));
-
     ua.append(" JVM: ").append(System.getProperty("java.vm.name"));
     ua.append("/").append(System.getProperty("java.vm.vendor"));
     ua.append("/").append(System.getProperty("java.vm.version"));
-
     String userAgent = ua.toString();
     logger.debug("User-Agent: " + userAgent);
-
     return userAgent;
   }
 

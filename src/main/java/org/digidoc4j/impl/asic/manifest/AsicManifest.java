@@ -48,6 +48,9 @@ public class AsicManifest {
     generateAsicManifest(null);
   }
 
+  /**
+   * @param containerType type
+   */
   public AsicManifest(String containerType) {
     generateAsicManifest(containerType);
   }

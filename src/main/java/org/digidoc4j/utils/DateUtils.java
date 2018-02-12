@@ -20,14 +20,16 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Date utils
+ */
 public final class DateUtils {
-  private static final Logger logger = LoggerFactory.getLogger(DateUtils.class);
 
+  private static final Logger logger = LoggerFactory.getLogger(DateUtils.class);
   private static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
   private static final String GREENWICH_MEAN_TIME = "Etc/GMT";
 
   private DateUtils() {
-    logger.debug("");
   }
 
   /**

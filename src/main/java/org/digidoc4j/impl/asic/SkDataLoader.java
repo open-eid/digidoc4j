@@ -53,7 +53,7 @@ public class SkDataLoader extends CommonsDataLoader {
 
   protected SkDataLoader(Configuration configuration) {
     DataLoaderDecorator.decorateWithProxySettings(this, configuration);
-    DataLoaderDecorator.decarateWithSslSettings(this, configuration);
+    DataLoaderDecorator.decorateWithSslSettings(this, configuration);
   }
 
   @Override

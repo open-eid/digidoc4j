@@ -38,6 +38,9 @@ import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
 
+/**
+ * ASIC-E container validator
+ */
 public class AsicEContainerValidator implements Serializable {
 
   private final static Logger logger = LoggerFactory.getLogger(AsicEContainerValidator.class);
@@ -49,17 +52,28 @@ public class AsicEContainerValidator implements Serializable {
   private List<DigiDoc4JException> manifestErrors;
   private ThreadPoolManager threadPoolManager;
 
+  /**
+   * @param configuration configuration
+   */
   public AsicEContainerValidator(Configuration configuration) {
     threadPoolManager = new ThreadPoolManager(configuration);
     validateManifest = false;
   }
 
+  /**
+   * @param containerParseResult parse result
+   * @param configuration configuration
+   */
   public AsicEContainerValidator(AsicParseResult containerParseResult, Configuration configuration) {
     this.containerParseResult = containerParseResult;
     threadPoolManager = new ThreadPoolManager(configuration);
     validateManifest = true;
   }
 
+  /**
+   * @param signatures list of signatures
+   * @return validation result
+   */
   public ValidationResult validate(List<Signature> signatures) {
     logger.debug("Validating container");
     validateSignatures(signatures);
@@ -97,6 +111,9 @@ public class AsicEContainerValidator implements Serializable {
     }
   }
 
+  /**
+   * @param validateManifest validate manifest flag
+   */
   public void setValidateManifest(boolean validateManifest) {
     this.validateManifest = validateManifest;
   }

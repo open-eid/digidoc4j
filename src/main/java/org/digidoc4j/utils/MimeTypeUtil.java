@@ -17,9 +17,10 @@ public final class MimeTypeUtil {
   }
 
   /**
-   * When DD4J discovers mimeType which is in wrong format, then we try to fix it.
-   * @param mimeType Given mimetype string
-   * @return
+   * When DD4J discovers mimeType which is in wrong format, then we try to fix it
+   *
+   * @param mimeType mime type
+   * @return correct mime type
    */
   public static MimeType mimeTypeOf(String mimeType) {
     switch (mimeType) {

@@ -11,5 +11,11 @@ package org.digidoc4j.exceptions;
 
 public class DuplicateDataFileException extends DigiDoc4JException{
 
-  public DuplicateDataFileException(String message) {super(message);}
+  /**
+   * @param message error message
+   */
+  public DuplicateDataFileException(String message) {
+    super(message);
+  }
+
 }

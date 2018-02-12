@@ -18,6 +18,9 @@ import org.digidoc4j.impl.asic.manifest.ManifestParser;
 
 import eu.europa.esig.dss.DSSDocument;
 
+/**
+ * ASIC parse result
+ */
 public class AsicParseResult implements Serializable {
 
   private List<DSSDocument> signatures;
@@ -30,22 +33,37 @@ public class AsicParseResult implements Serializable {
   private DataFile timeStampToken;
   private String mimeType;
 
+  /**
+   * @return list of data files
+   */
   public List<DataFile> getDataFiles() {
     return dataFiles;
   }
 
+  /**
+   * @param dataFiles list of data files
+   */
   public void setDataFiles(List<DataFile> dataFiles) {
     this.dataFiles = dataFiles;
   }
 
+  /**
+   * @return list of signatures
+   */
   public List<DSSDocument> getSignatures() {
     return signatures;
   }
 
+  /**
+   * @param signatures list of signatures
+   */
   public void setSignatures(List<DSSDocument> signatures) {
     this.signatures = signatures;
   }
 
+  /**
+   * @return list of detached content
+   */
   public List<DSSDocument> getDetachedContents() {
     return detachedContents;
   }

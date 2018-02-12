@@ -40,6 +40,7 @@ public interface Container extends Serializable {
    *
    * @param path     data file to be added to the container
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
+   * @return data file
    */
   DataFile addDataFile(String path, String mimeType);
 
@@ -53,6 +54,7 @@ public interface Container extends Serializable {
    * @param is       input stream from where data is read
    * @param fileName data file name in the container
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
+   * @return data file
    */
   DataFile addDataFile(InputStream is, String fileName, String mimeType);
 
@@ -65,6 +67,7 @@ public interface Container extends Serializable {
    *
    * @param file     data file to be added to the container
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
+   * @return data file
    */
   DataFile addDataFile(File file, String mimeType);
 
@@ -95,6 +98,8 @@ public interface Container extends Serializable {
 
   /**
    * Returns container type "BDOC" or "DDOC"
+   *
+   * @return type
    */
   String getType();
 
