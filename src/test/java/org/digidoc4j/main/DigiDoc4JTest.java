@@ -138,8 +138,9 @@ public class DigiDoc4JTest extends AbstractTest {
     Assert.assertEquals(SignatureProfile.B_BES, ContainerOpener.open(file).getSignature(0).getProfile());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void createsECCSignatureWithInvalidEncryptionType() throws Exception {
+    this.systemExit.expectSystemExitWithStatus(1);
     String file = this.getFileBy("bdoc");
     String[] parameters = new String[]{"-in", file, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "src/test/resources/testFiles/p12/ec-digiid.p12", "inno", "-e", "INVALID"};
@@ -322,7 +323,6 @@ public class DigiDoc4JTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("TODO: Fix it!")
   public void createMultipleSignedContainers_withinInputDirectory() throws Exception {
     String inputFolder = this.testFolder.newFolder("inputFolder").getPath();
     String outputFolder = this.testFolder.newFolder("outputFolder").getPath();
@@ -339,7 +339,6 @@ public class DigiDoc4JTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("TODO: Fix it!")
   public void createMultipleSignedContainers_withoutOutputDirectory_shouldCreateOutputDir() throws Exception {
     String inputFolder = this.testFolder.newFolder("inputFolder").getPath();
     String outputFolder = new File(inputFolder, "notExistingOutputFolder").getPath();
@@ -369,7 +368,6 @@ public class DigiDoc4JTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("TODO: Fix it!")
   public void createSignedContainer_forEachFile_withInputDirectoryAndMimeType() throws Exception {
     String inputFolder = this.testFolder.newFolder().getPath();
     String outputFolder = this.testFolder.newFolder().getPath();

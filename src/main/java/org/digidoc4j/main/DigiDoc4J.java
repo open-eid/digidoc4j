@@ -50,9 +50,13 @@ public final class DigiDoc4J {
       }
       DigiDoc4J.run(args);
     } catch (DigiDoc4JUtilityException e) {
-      logger.error("Errors occurred when running utility method: " + e.getMessage());
+      logger.error("Running DigiDoc4J has been failed", e);
       System.err.print(e.getMessage());
       System.exit(e.getErrorCode());
+    } catch (Exception e) {
+      logger.error("Running DigiDoc4J has been failed", e);
+      System.err.print(e.getMessage());
+      System.exit(1);
     }
     logger.info("Finished running utility method");
     System.exit(0);
@@ -121,8 +125,7 @@ public final class DigiDoc4J {
         executor.processContainer(container);
         executor.saveContainer(container, containerPath);
       } else if (DigiDoc4J.isMultipleContainerCreation(commandLine)) {
-        MultipleContainersExecutor containersCreator = new MultipleContainersExecutor(commandLine);
-        containersCreator.signDocuments();
+        new MultipleContainersExecutor(commandLine).execute();
       }
     } catch (DigiDoc4JUtilityException e) {
       throw e;
