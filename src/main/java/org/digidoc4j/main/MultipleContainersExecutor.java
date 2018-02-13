@@ -11,6 +11,8 @@
 package org.digidoc4j.main;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.FilenameUtils;
@@ -40,9 +42,12 @@ public class MultipleContainersExecutor {
     this.commandLineExecutor = new CommandLineExecutor(ExecutionContext.of(commandLine));
   }
 
-  public void signDocuments() {
-    this.inputDir = getInputDirectory();
-    this.outputDir = getOutputDirectory();
+  /**
+   * Processing all the files from input folder
+   */
+  public void execute() {
+    this.inputDir = this.getInputDirectory();
+    this.outputDir = this.getOutputDirectory();
     this.containerType = this.commandLineExecutor.getContainerType();
     File[] documents = this.inputDir.listFiles();
     for (File document : documents) {
@@ -68,12 +73,12 @@ public class MultipleContainersExecutor {
   }
 
   private String createContainerPathToSave(File document) {
-    String extension = containerType.name().toLowerCase();
+    String extension = this.containerType.name().toLowerCase();
     String containerName = FilenameUtils.removeExtension(document.getName()) + "." + extension;
-    String pathToSave = new File(outputDir, containerName).getPath();
+    String pathToSave = new File(this.outputDir, containerName).getPath();
     if (new File(pathToSave).exists()) {
-      this.log.error("Failed to save container to '" + pathToSave + "'. File already exists");
-      throw new DigiDoc4JUtilityException(7, "Failed to save container to '" + pathToSave + "'. File already exists");
+      throw new DigiDoc4JUtilityException(7,
+          String.format("Failed to save container to <%s>, file already exists", pathToSave));
     }
     return pathToSave;
   }
@@ -83,25 +88,23 @@ public class MultipleContainersExecutor {
   }
 
   private File getOutputDirectory() {
-    this.createOutputFolder(
-        this.getDirectory(this.commandLineExecutor.getContext().getCommandLine().getOptionValue("outputDir")));
-    return outputDir;
+    File folder = this.getDirectory(this.commandLineExecutor.getContext().getCommandLine().getOptionValue("outputDir"));
+    if (!folder.exists()) {
+      try {
+        Files.createDirectory(folder.toPath());
+      } catch (IOException e) {
+        throw new DigiDoc4JUtilityException(8, String.format("Unable to create output folder to <%s>", folder));
+      }
+    }
+    return folder;
   }
 
   private File getDirectory(String outputDirPath) {
     File folder = new File(outputDirPath);
     if (folder.exists() && !folder.isDirectory()) {
-      this.log.error(outputDirPath + " is not a directory");
-      throw new DigiDoc4JUtilityException(6, outputDirPath + " is not a directory");
+      throw new DigiDoc4JUtilityException(6, String.format("Path <%s> is not a directory", outputDirPath));
     }
     return folder;
-  }
-
-  private void createOutputFolder(File folder) {
-    if (!folder.exists()) {
-      this.log.debug(folder.getPath() + " directory does not exist. Creating new folder");
-      folder.mkdir();
-    }
   }
 
   private String getMimeType(String documentPath) {
