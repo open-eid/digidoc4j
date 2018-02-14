@@ -778,6 +778,26 @@ public class DigiDoc4JTest extends AbstractTest {
     DigiDoc4J.main(new String[]{"-in", "src/test/resources/testFiles/invalid-containers/two_signatures_one_invalid.bdoc", "-v"});
   }
 
+  @Test
+  public void verifyValidBDocUnsafeInteger() throws Exception {
+    this.systemExit.expectSystemExitWithStatus(1);
+    this.systemExit.checkAssertionAfterwards(new Assertion() {
+      @Override
+      public void checkAssertion() throws Exception {
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("invalid info structure in RSA public key"));
+      }
+    });
+    DigiDoc4J.main(new String[]{"-in", "src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc", "-verify"});
+  }
+
+  @Test
+  public void verifyValidBDocUnsafeIntegerSystemParam() throws Exception {
+    this.setGlobalMode(Configuration.Mode.PROD);
+    this.systemExit.expectSystemExitWithStatus(0);
+    System.setProperty("bc.allowUnsafeInteger", "true");
+    DigiDoc4J.main(new String[]{"-in", "src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc", "-verify"});
+  }
+
   private void assertExtractingDataFile(String containerPath, String fileToExtract) throws IOException {
     final String outputPath = String.format("%s%s%s", this.testFolder.newFolder("outputFolder").getPath(), File.pathSeparator, "output.txt");
     this.systemExit.expectSystemExitWithStatus(0);
