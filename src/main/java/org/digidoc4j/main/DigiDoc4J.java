@@ -50,9 +50,21 @@ public final class DigiDoc4J {
       }
       DigiDoc4J.run(args);
     } catch (DigiDoc4JUtilityException e) {
-      logger.error("Errors occurred when running utility method: " + e.getMessage());
+      if (DigiDoc4J.logger.isDebugEnabled()) {
+        DigiDoc4J.logger.error("Utility error", e);
+      } else {
+        DigiDoc4J.logger.error("Utility error (please apply DEBUG level for stacktrace): {}", e.getMessage());
+      }
       System.err.print(e.getMessage());
       System.exit(e.getErrorCode());
+    } catch (Exception e) {
+      if (DigiDoc4J.logger.isDebugEnabled()) {
+        DigiDoc4J.logger.error("Utility error", e);
+      } else {
+        DigiDoc4J.logger.error("Utility error (please apply DEBUG level for stacktrace): {}", e.getMessage());
+      }
+      System.err.print(e.getMessage());
+      System.exit(1);
     }
     logger.info("Finished running utility method");
     System.exit(0);
@@ -94,9 +106,8 @@ public final class DigiDoc4J {
         DigiDoc4J.showUsage(options);
       }
     } catch (ParseException e) {
-      logger.error(e.getMessage());
       DigiDoc4J.showUsage(options);
-      throw new DigiDoc4JUtilityException(2, "problem with given parameters");
+      throw new DigiDoc4JUtilityException(2, new RuntimeException("Problem with given parameters", e));
     }
   }
 

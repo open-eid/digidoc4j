@@ -138,8 +138,9 @@ public class DigiDoc4JTest extends AbstractTest {
     Assert.assertEquals(SignatureProfile.B_BES, ContainerOpener.open(file).getSignature(0).getProfile());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void createsECCSignatureWithInvalidEncryptionType() throws Exception {
+    this.systemExit.expectSystemExitWithStatus(1);
     String file = this.getFileBy("bdoc");
     String[] parameters = new String[]{"-in", file, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "src/test/resources/testFiles/p12/ec-digiid.p12", "inno", "-e", "INVALID"};
