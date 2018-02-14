@@ -15,6 +15,9 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 
+/**
+ * DDOC container builder
+ */
 public class DDocContainerBuilder extends ContainerBuilder {
 
   private String temporaryDirectoryPath;

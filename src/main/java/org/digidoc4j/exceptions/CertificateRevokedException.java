@@ -10,10 +10,16 @@
 
 package org.digidoc4j.exceptions;
 
+/**
+ * Certificate has been revoked exception
+ */
 public class CertificateRevokedException extends DigiDoc4JException {
 
-    public CertificateRevokedException(String message) {
-        super(message);
-    }
+  /**
+   * @param message error message
+   */
+  public CertificateRevokedException(String message) {
+    super(message);
+  }
 
 }

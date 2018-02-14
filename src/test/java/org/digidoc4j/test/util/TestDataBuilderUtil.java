@@ -95,7 +95,7 @@ public class TestDataBuilderUtil {
 
   private static SignatureBuilder prepareDataToSign(Container container) {
     return SignatureBuilder.aSignature(container).withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
-        withSignatureProfile(SignatureProfile.LT_TM).withSigningCertificate(TestSigningUtil.getSigningCert());
+        withSignatureProfile(SignatureProfile.LT_TM).withSigningCertificate(TestSigningUtil.getSigningCertificate());
   }
 
   public static File createTestFile(TemporaryFolder testFolder) throws IOException {

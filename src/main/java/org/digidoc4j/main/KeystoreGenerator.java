@@ -28,7 +28,7 @@ import eu.europa.esig.dss.x509.CertificateToken;
 /**
  * Utility to generate keystore.
  */
-public class KeystoreGenerator {
+public final class KeystoreGenerator {
 
   private static final String DEFAULT_KEYSTORE_CERTIFICATES_FILEPATH = "keystore/keystore_certs";
   private static final String DEFAULT_KEYSTORE_FILEPATH = "keystore/keystore.jks";
@@ -42,6 +42,9 @@ public class KeystoreGenerator {
   private String keyStoreFilepath;
   private String keyStorePassword;
 
+  /**
+   * @param args input arguments
+   */
   public static void main(String[] args) {
     try {
       KeystoreGenerator.aGenerator()
@@ -75,7 +78,7 @@ public class KeystoreGenerator {
   }
 
   /**
-   * Generate a keystore with default options.
+   * Generate a keystore with default mandatoryOptions.
    * @throws CertificateException
    * @throws NoSuchAlgorithmException
    * @throws KeyStoreException

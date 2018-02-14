@@ -24,6 +24,9 @@ import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
 
+/**
+ * BDOC signature opener
+ */
 public class BDocSignatureOpener {
 
   private final static Logger logger = LoggerFactory.getLogger(BDocSignatureOpener.class);
@@ -31,11 +34,19 @@ public class BDocSignatureOpener {
   private Configuration configuration;
   private XadesSignatureParser xadesSignatureParser = new XadesSignatureParser();
 
+  /**
+   * @param detachedContents list of detached content
+   * @param configuration configuration
+   */
   public BDocSignatureOpener(List<DSSDocument> detachedContents, Configuration configuration) {
     this.configuration = configuration;
     this.detachedContents = detachedContents;
   }
 
+  /**
+   * @param xadesDocument XADES document
+   * @return list of BDOC signatures
+   */
   public List<BDocSignature> parse(DSSDocument xadesDocument) {
     logger.debug("Parsing xades document");
     List<BDocSignature> signatures = new ArrayList<>(1);

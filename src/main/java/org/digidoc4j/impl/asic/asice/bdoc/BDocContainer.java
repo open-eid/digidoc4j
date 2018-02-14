@@ -43,7 +43,7 @@ public class BDocContainer extends AsicEContainer {
   /**
    * BDocContainer constructor
    *
-   * @param configuration
+   * @param configuration configuration
    */
   public BDocContainer(Configuration configuration) {
     super(configuration);
@@ -53,7 +53,7 @@ public class BDocContainer extends AsicEContainer {
   /**
    * BDocContainer constructor
    *
-   * @param containerPath
+   * @param containerPath path
    */
   public BDocContainer(String containerPath) {
     super(containerPath, Constant.BDOC_CONTAINER_TYPE);
@@ -62,8 +62,8 @@ public class BDocContainer extends AsicEContainer {
   /**
    * BDocContainer constructor
    *
-   * @param containerPath
-   * @param configuration
+   * @param containerPath path
+   * @param configuration configuration
    */
   public BDocContainer(String containerPath, Configuration configuration) {
     super(containerPath, configuration, Constant.BDOC_CONTAINER_TYPE);
@@ -72,7 +72,7 @@ public class BDocContainer extends AsicEContainer {
   /**
    * BDocContainer constructor
    *
-   * @param stream
+   * @param stream input stream
    */
   public BDocContainer(InputStream stream) {
     super(stream, Constant.BDOC_CONTAINER_TYPE);
@@ -81,8 +81,8 @@ public class BDocContainer extends AsicEContainer {
   /**
    * BDocContainer constructor
    *
-   * @param stream
-   * @param configuration
+   * @param stream input stream
+   * @param configuration configuration
    */
   public BDocContainer(InputStream stream, Configuration configuration) {
     super(stream, configuration, Constant.BDOC_CONTAINER_TYPE);

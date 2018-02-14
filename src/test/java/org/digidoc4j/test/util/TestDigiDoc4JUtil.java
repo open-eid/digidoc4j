@@ -30,7 +30,7 @@ public final class TestDigiDoc4JUtil {
     @Override
     public void checkExit(int status) {
       super.checkExit(status);
-      throw new DigiDoc4JUtilityException(status, "Preventing system systemExit");
+      throw new DigiDoc4JUtilityException(status, "Preventing system exit");
     }
 
   };

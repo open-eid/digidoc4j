@@ -44,6 +44,9 @@ public class TimemarkSignature extends BesSignature {
   private BasicOCSPResp ocspResponse;
   private Date ocspResponseTime;
 
+  /**
+   * @param xadesReportGenerator XADES validation report generator
+   */
   public TimemarkSignature(XadesValidationReportGenerator xadesReportGenerator) {
     super(xadesReportGenerator);
   }

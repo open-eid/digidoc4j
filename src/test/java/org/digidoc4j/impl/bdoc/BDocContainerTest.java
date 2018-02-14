@@ -769,7 +769,7 @@ public class BDocContainerTest extends AbstractTest {
   public void signWithECCCertificate() throws Exception {
     Container container = this.createNonEmptyContainerBy(Container.DocumentType.BDOC);
     Signature signature = SignatureBuilder.aSignature(container).
-        withSignatureToken(new PKCS12SignatureToken("src/test/resources/testFiles/p12/ec-digiid.p12", "inno".toCharArray())).
+        withSignatureToken(new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray())).
         withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA).invokeSigning();
     container.addSignature(signature);
     Assert.assertEquals(1, container.getSignatures().size());

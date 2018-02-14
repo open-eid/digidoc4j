@@ -10,10 +10,17 @@
 
 package org.digidoc4j.exceptions;
 
+/**
+ * Certificate not found exception
+ */
 public class CertificateNotFoundException extends DigiDoc4JException {
 
-  public CertificateNotFoundException(String s, String sigId) {
-    super(s, sigId);
+  /**
+   * @param message error message
+   * @param signatureId id of signature
+   */
+  public CertificateNotFoundException(String message, String signatureId) {
+    super(message, signatureId);
   }
 
 }

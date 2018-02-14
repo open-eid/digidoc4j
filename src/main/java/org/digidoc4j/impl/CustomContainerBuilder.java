@@ -20,12 +20,18 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Custom container builder
+ */
 public class CustomContainerBuilder extends ContainerBuilder {
 
   private static final Logger logger = LoggerFactory.getLogger(CustomContainerBuilder.class);
 
   private String containerType;
 
+  /**
+   * @param containerType type
+   */
   public CustomContainerBuilder(String containerType) {
     this.containerType = containerType;
   }
@@ -58,36 +64,36 @@ public class CustomContainerBuilder extends ContainerBuilder {
   }
 
   private Container instantiateContainer() {
-    return instantiateContainer((Class<?>[])null, (Object[])null);
+    return instantiateContainer(null, (Object[]) null);
   }
-  
+
   private Container instantiateContainer(Configuration configuration) {
-    Class<?>[] parameterTypes = new Class[] { Configuration.class };
-    Object[] constructorArguments = new Object[] { configuration };
+    Class<?>[] parameterTypes = new Class[]{Configuration.class};
+    Object[] constructorArguments = new Object[]{configuration};
     return instantiateContainer(parameterTypes, constructorArguments);
   }
-  
+
   private Container instantiateContainer(String containerFilePath) {
-    Class<?>[] parameterTypes = new Class[] { String.class };
-    Object[] constructorArguments = new Object[] { containerFilePath };
+    Class<?>[] parameterTypes = new Class[]{String.class};
+    Object[] constructorArguments = new Object[]{containerFilePath};
     return instantiateContainer(parameterTypes, constructorArguments);
   }
-  
+
   private Container instantiateContainer(String containerFilePath, Configuration configuration) {
-    Class<?>[] parameterTypes = new Class[] { String.class, Configuration.class };
-    Object[] constructorArguments = new Object[] { containerFilePath, configuration };
+    Class<?>[] parameterTypes = new Class[]{String.class, Configuration.class};
+    Object[] constructorArguments = new Object[]{containerFilePath, configuration};
     return instantiateContainer(parameterTypes, constructorArguments);
   }
-  
+
   private Container instantiateContainer(InputStream containerInputStream) {
-    Class<?>[] parameterTypes = new Class[] { InputStream.class };
-    Object[] constructorArguments = new Object[] { containerInputStream };
+    Class<?>[] parameterTypes = new Class[]{InputStream.class};
+    Object[] constructorArguments = new Object[]{containerInputStream};
     return instantiateContainer(parameterTypes, constructorArguments);
   }
-  
+
   private Container instantiateContainer(InputStream containerInputStream, Configuration configuration) {
-    Class<?>[] parameterTypes = new Class[] { InputStream.class, Configuration.class };
-    Object[] constructorArguments = new Object[] { containerInputStream, configuration };
+    Class<?>[] parameterTypes = new Class[]{InputStream.class, Configuration.class};
+    Object[] constructorArguments = new Object[]{containerInputStream, configuration};
     return instantiateContainer(parameterTypes, constructorArguments);
   }
 
@@ -104,10 +110,12 @@ public class CustomContainerBuilder extends ContainerBuilder {
     } catch (NoSuchMethodException e) {
       logger.error("Unable to instantiate " + containerType + " container from class " + containerClass.getName() +
           " - The class must be public and should have a default constructor and a constructor with Configuration parameter available.");
-      throw new TechnicalException("Unable to instantiate " + containerType + " container from class " + containerClass.getName(), e);
+      throw new TechnicalException(
+          "Unable to instantiate " + containerType + " container from class " + containerClass.getName(), e);
     } catch (ReflectiveOperationException e) {
       logger.error("Unable to instantiate " + containerType + " container from class " + containerClass.getName());
-      throw new TechnicalException("Unable to instantiate " + containerType + " container from class " + containerClass.getName(), e);
+      throw new TechnicalException(
+          "Unable to instantiate " + containerType + " container from class " + containerClass.getName(), e);
     }
   }
 

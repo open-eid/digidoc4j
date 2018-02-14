@@ -12,10 +12,11 @@ public class AsicESignature extends AsicSignature {
   /**
    * AsicE signature constructor.
    *
-   * @param xadesSignature
-   * @param validator
+   * @param xadesSignature XADES signature
+   * @param validator signature validator
    */
   public AsicESignature(XadesSignature xadesSignature, SignatureValidator validator) {
     super(xadesSignature, validator);
   }
+
 }

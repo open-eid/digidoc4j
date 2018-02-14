@@ -41,4 +41,9 @@ public class TargetTemporaryFolderRule extends TemporaryFolder {
     this.create();
   }
 
+  @Override
+  protected void after() {
+    // Do nothing
+  }
+
 }

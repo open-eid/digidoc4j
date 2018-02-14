@@ -205,7 +205,7 @@ public class SignatureBuilderTest extends AbstractTest {
     Assert.assertTrue(signature.validateSignature().isValid());
     container.addSignature(signature);
     signature = SignatureBuilder.aSignature(container).
-        withSignatureToken(new PKCS12SignatureToken("src/test/resources/testFiles/p12/ec-digiid.p12", "inno".toCharArray())).
+        withSignatureToken(new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray())).
         withEncryptionAlgorithm(EncryptionAlgorithm.RSA).withSignatureProfile(SignatureProfile.LT).invokeSigning();
     Assert.assertTrue(signature.validateSignature().isValid());
     container.addSignature(signature);
@@ -216,7 +216,7 @@ public class SignatureBuilderTest extends AbstractTest {
   public void signTMWithEccCertificate() throws Exception {
     Container container = this.createNonEmptyContainer();
     Signature signature = SignatureBuilder.aSignature(container).
-        withSignatureToken(new PKCS12SignatureToken("src/test/resources/testFiles/p12/ec-digiid.p12", "inno".toCharArray())).
+        withSignatureToken(new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray())).
         withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA).withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
         withSignatureProfile(SignatureProfile.LT_TM).invokeSigning();
     Assert.assertNotNull(signature);
@@ -228,7 +228,7 @@ public class SignatureBuilderTest extends AbstractTest {
   @Test
   public void signWithEccCertificate_determiningEncryptionAlgorithmAutomatically() throws Exception {
     Container container = this.createNonEmptyContainer();
-    Signature signature = this.createSignatureBy(container, new PKCS12SignatureToken("src/test/resources/testFiles/p12/ec-digiid.p12", "inno".toCharArray()));
+    Signature signature = this.createSignatureBy(container, new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray()));
     Assert.assertNotNull(signature);
     Assert.assertTrue(signature.validateSignature().isValid());
   }

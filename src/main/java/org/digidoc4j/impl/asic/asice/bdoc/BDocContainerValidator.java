@@ -38,6 +38,9 @@ import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
 
+/**
+ * BDOC container validator
+ */
 public class BDocContainerValidator implements Serializable {
 
   private final static Logger logger = LoggerFactory.getLogger(BDocContainerValidator.class);
@@ -49,17 +52,28 @@ public class BDocContainerValidator implements Serializable {
   private List<DigiDoc4JException> manifestErrors;
   private ThreadPoolManager threadPoolManager;
 
+  /**
+   * @param configuration configuration
+   */
   public BDocContainerValidator(Configuration configuration) {
     threadPoolManager = new ThreadPoolManager(configuration);
     validateManifest = false;
   }
 
+  /**
+   * @param containerParseResult ASIC container parse result
+   * @param configuration configuration
+   */
   public BDocContainerValidator(AsicParseResult containerParseResult, Configuration configuration) {
     this.containerParseResult = containerParseResult;
     threadPoolManager = new ThreadPoolManager(configuration);
     validateManifest = true;
   }
 
+  /**
+   * @param signatures list of signatures
+   * @return validation result
+   */
   public ValidationResult validate(List<Signature> signatures) {
     logger.debug("Validating BDOC container");
     validateSignatures(signatures);

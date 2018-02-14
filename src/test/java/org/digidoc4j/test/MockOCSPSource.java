@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package prototype;
+package org.digidoc4j.test;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,7 +26,6 @@ import org.bouncycastle.asn1.x509.CRLReason;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.Extensions;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.BasicOCSPRespBuilder;
 import org.bouncycastle.cert.ocsp.CertificateID;
 import org.bouncycastle.cert.ocsp.CertificateStatus;
@@ -38,7 +37,6 @@ import org.bouncycastle.cert.ocsp.RevokedStatus;
 import org.bouncycastle.cert.ocsp.UnknownStatus;
 import org.bouncycastle.cert.ocsp.jcajce.JcaBasicOCSPRespBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.DigestCalculator;
 import org.bouncycastle.operator.DigestCalculatorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -56,74 +54,96 @@ import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 import eu.europa.esig.dss.x509.ocsp.OCSPToken;
 
 
-public class AlwaysValidOcspSource implements OCSPSource {
+public class MockOCSPSource implements OCSPSource {
 
-  private static final Logger logger = LoggerFactory.getLogger(AlwaysValidOcspSource.class);
-
-  private final PrivateKey privateKey;
-
-  private final X509Certificate signingCert;
+  private final Logger log = LoggerFactory.getLogger(MockOCSPSource.class);
+  private final PrivateKey key;
+  private final X509Certificate certificate;
+  private CertificateStatus expectedResponse = CertificateStatus.GOOD;
   private Date ocspDate = new Date();
 
-  private CertificateStatus expectedResponse = CertificateStatus.GOOD;
-
   static {
-
     try {
-
       Security.addProvider(new BouncyCastleProvider());
     } catch (Throwable e) {
-      logger.error(e.getMessage(), e);
+      e.printStackTrace();
     }
   }
 
   /**
    * The default constructor for MockConfigurableOCSPSource using "src/test/resources/ocsp.p12" file as OCSP responses source.
    */
-  public AlwaysValidOcspSource() {
-
+  public MockOCSPSource() { // TODO
     this("testFiles/ocsp.p12", "password");
   }
 
   /**
    * The default constructor for MockOCSPSource.
    *
-   * @param signerPkcs12Name
+   * @param pkcs12FilePath
    * @param password
    * @throws Exception
    */
-  public AlwaysValidOcspSource(final String signerPkcs12Name, final String password) {
-
-    try {
-
-      final KeyStore keyStore = KeyStore.getInstance("PKCS12");
-      final FileInputStream fileInputStream = new FileInputStream(signerPkcs12Name);
-      keyStore.load(fileInputStream, password.toCharArray());
-      final String alias = keyStore.aliases().nextElement();
-      signingCert = (X509Certificate) keyStore.getCertificate(alias);
-      privateKey = (PrivateKey) keyStore.getKey(alias, password.toCharArray());
-      if (logger.isTraceEnabled()) {
-
-        final CommonCertificateSource certificateSource = new CommonCertificateSource();
-        final CertificateToken certificateToken = certificateSource.addCertificate(new CertificateToken(signingCert));
-        logger.trace("OCSP mockup with signing certificate:\n" + certificateToken);
+  public MockOCSPSource(final String pkcs12FilePath, final String password) {
+    try (FileInputStream stream = new FileInputStream(pkcs12FilePath)) {
+      KeyStore keyStore = KeyStore.getInstance("PKCS12");
+      keyStore.load(stream, password.toCharArray());
+      String alias = keyStore.aliases().nextElement();
+      this.certificate = (X509Certificate) keyStore.getCertificate(alias);
+      this.key = (PrivateKey) keyStore.getKey(alias, password.toCharArray());
+      if (this.log.isTraceEnabled()) {
+        CertificateToken certificateToken = new CommonCertificateSource().addCertificate(new CertificateToken(this.certificate));
+        this.log.trace("Mock OCSP source with signing certificate: {}", certificateToken);
       }
     } catch (Exception e) {
-
       throw new DSSException(e);
     }
   }
 
-  public CertificateStatus getExpectedResponse() {
-
-    return expectedResponse;
+  @Override
+  public OCSPToken getOCSPToken(CertificateToken certificateToken, CertificateToken issuerCertificateToken) {
+    try {
+      BigInteger serialNumber = certificateToken.getCertificate().getSerialNumber();
+      X509Certificate issuerCertificate = issuerCertificateToken.getCertificate();
+      OCSPReq ocspRequest = generateOCSPRequest(issuerCertificate, serialNumber);
+      BasicOCSPRespBuilder builder = new JcaBasicOCSPRespBuilder(issuerCertificate.getPublicKey(), this.getSHA1DigestCalculator());
+      Extension extension = ocspRequest.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
+      if (extension != null) {
+        builder.setResponseExtensions(new Extensions(new Extension[]{extension}));
+      }
+      for (Req request : ocspRequest.getRequestList()) {
+        final CertificateID certificateID = request.getCertID();
+        boolean isOK = true; // TODO Whaat?
+        if (isOK) {
+          builder.addResponse(certificateID, CertificateStatus.GOOD, this.ocspDate, null, null);
+        } else {
+          builder.addResponse(certificateID, new RevokedStatus(DSSUtils.getDate(this.ocspDate, -1), CRLReason.privilegeWithdrawn));
+        }
+      }
+      X509CertificateHolder[] chain = {new X509CertificateHolder(issuerCertificate.getEncoded()), new X509CertificateHolder(this.certificate.getEncoded())};
+      OCSPToken ocspToken = new OCSPToken();
+      ocspToken.setBasicOCSPResp(builder.build(new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(this.key), chain, this.ocspDate));
+      //TODO replace with new DSS 5.0 code
+      //SingleResp singleResp = basicResp.getResponses()[0];
+      //ocspToken.setBestSingleResp(singleResp);
+      ocspToken.setCertId(DSSRevocationUtils.getOCSPCertificateID(certificateToken, issuerCertificateToken));
+      certificateToken.addRevocationToken(ocspToken);
+      return ocspToken;
+    } catch (OCSPException e) {
+      throw new DSSException(e);
+    } catch (IOException e) {
+      throw new DSSException(e);
+    } catch (CertificateEncodingException e) {
+      throw new DSSException(e);
+    } catch (OperatorCreationException e) {
+      throw new DSSException(e);
+    }
   }
 
   /**
    * This method allows to set the status of the cert to GOOD.
    */
   public void setGoodStatus() {
-
     this.expectedResponse = CertificateStatus.GOOD;
   }
 
@@ -131,7 +151,6 @@ public class AlwaysValidOcspSource implements OCSPSource {
    * This method allows to set the status of the cert to UNKNOWN.
    */
   public void setUnknownStatus() {
-
     this.expectedResponse = new UnknownStatus();
   }
 
@@ -144,100 +163,32 @@ public class AlwaysValidOcspSource implements OCSPSource {
    * @param revocationDate
    * @param revocationReasonId
    */
-  public void setRevokedStatus(final Date revocationDate, final int revocationReasonId) {
-
+  public void setRevokedStatus(Date revocationDate, int revocationReasonId) {
     this.expectedResponse = new RevokedStatus(revocationDate, revocationReasonId);
   }
 
+  /**
+   * @param issuerCert
+   * @param serialNumber
+   * @return
+   * @throws DSSException
+   */
   public OCSPReq generateOCSPRequest(X509Certificate issuerCert, BigInteger serialNumber) throws DSSException {
-
     try {
-
       final DigestCalculator digestCalculator = getSHA1DigestCalculator();
       // Generate the getFileId for the certificate we are looking for
-      CertificateID id = new CertificateID(digestCalculator, new X509CertificateHolder(issuerCert.getEncoded()), serialNumber);
-
       // basic request generation with nonce
       OCSPReqBuilder ocspGen = new OCSPReqBuilder();
-
-      ocspGen.addRequest(id);
-
+      ocspGen.addRequest(new CertificateID(digestCalculator, new X509CertificateHolder(issuerCert.getEncoded()), serialNumber));
       // create details for nonce extension
-      BigInteger nonce = BigInteger.valueOf(ocspDate.getTime());
-
-      Extension ext = new Extension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, true, new DEROctetString(nonce.toByteArray()));
-      ocspGen.setRequestExtensions(new Extensions(new Extension[]{ext}));
-
+      BigInteger nonce = BigInteger.valueOf(this.ocspDate.getTime());
+      ocspGen.setRequestExtensions(new Extensions(new Extension[]{new Extension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, true, new DEROctetString(nonce.toByteArray()))}));
       return ocspGen.build();
     } catch (OCSPException e) {
       throw new DSSException(e);
     } catch (IOException e) {
       throw new DSSException(e);
     } catch (CertificateEncodingException e) {
-      throw new DSSException(e);
-    }
-  }
-
-  public void setOcspDate(Date ocspDate) {
-    this.ocspDate = ocspDate;
-  }
-
-  @Override
-  public OCSPToken getOCSPToken(CertificateToken certificateToken, CertificateToken issuerCertificateToken) {
-    try {
-      final X509Certificate cert = certificateToken.getCertificate();
-      final BigInteger serialNumber = cert.getSerialNumber();
-      final X509Certificate issuerCert = issuerCertificateToken.getCertificate();
-      final OCSPReq ocspReq = generateOCSPRequest(issuerCert, serialNumber);
-
-      final CertificateID certId = DSSRevocationUtils.getOCSPCertificateID(certificateToken, issuerCertificateToken);
-      final DigestCalculator digestCalculator = getSHA1DigestCalculator();
-      final BasicOCSPRespBuilder basicOCSPRespBuilder = new JcaBasicOCSPRespBuilder(issuerCert.getPublicKey(), digestCalculator);
-      final Extension extension = ocspReq.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
-      if (extension != null) {
-
-        basicOCSPRespBuilder.setResponseExtensions(new Extensions(new Extension[]{extension}));
-      }
-      final Req[] requests = ocspReq.getRequestList();
-      for (int ii = 0; ii != requests.length; ii++) {
-
-        final Req req = requests[ii];
-        final CertificateID certID = req.getCertID();
-
-        boolean isOK = true;
-
-        if (isOK) {
-
-          basicOCSPRespBuilder.addResponse(certID, CertificateStatus.GOOD, ocspDate, null, null);
-        } else {
-
-          Date revocationDate = DSSUtils.getDate(ocspDate, -1);
-          basicOCSPRespBuilder.addResponse(certID, new RevokedStatus(revocationDate, CRLReason.privilegeWithdrawn));
-        }
-      }
-
-      final ContentSigner contentSigner = new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(privateKey);
-
-      final X509CertificateHolder[] chain = {new X509CertificateHolder(issuerCert.getEncoded()),
-          new X509CertificateHolder(signingCert.getEncoded())};
-      BasicOCSPResp basicResp = basicOCSPRespBuilder.build(contentSigner, chain, ocspDate);
-
-      final OCSPToken ocspToken = new OCSPToken();
-      ocspToken.setBasicOCSPResp(basicResp);
-      //TODO replace with new DSS 5.0 code
-      //SingleResp singleResp = basicResp.getResponses()[0];
-      //ocspToken.setBestSingleResp(singleResp);
-      ocspToken.setCertId(certId);
-      certificateToken.addRevocationToken(ocspToken);
-
-      return ocspToken;
-    } catch (OCSPException e) {
-      throw new DSSException(e);
-    } catch (IOException e) {
-      throw new DSSException(e);
-    } catch (CertificateEncodingException e) {
-      throw new DSSException(e);
-    } catch (OperatorCreationException e) {
       throw new DSSException(e);
     }
   }
@@ -254,4 +205,17 @@ public class AlwaysValidOcspSource implements OCSPSource {
       throw new DSSException(e);
     }
   }
+
+  /*
+   * ACCESSORS
+   */
+
+  public CertificateStatus getExpectedResponse() {
+    return expectedResponse;
+  }
+
+  public void setOcspDate(Date ocspDate) {
+    this.ocspDate = ocspDate;
+  }
+
 }

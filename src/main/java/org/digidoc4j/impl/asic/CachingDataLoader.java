@@ -14,10 +14,17 @@ import org.digidoc4j.Configuration;
 
 import eu.europa.esig.dss.client.http.commons.FileCacheDataLoader;
 
+/**
+ * Cache data loader
+ */
 public class CachingDataLoader extends FileCacheDataLoader {
 
+  /**
+   * @param configuration configuration
+   */
   public CachingDataLoader(Configuration configuration) {
     DataLoaderDecorator.decorateWithProxySettings(this, configuration);
-    DataLoaderDecorator.decarateWithSslSettings(this, configuration);
+    DataLoaderDecorator.decorateWithSslSettings(this, configuration);
   }
+
 }
