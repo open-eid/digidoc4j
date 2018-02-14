@@ -36,7 +36,16 @@ public class DigiDoc4JUtilityException extends DigiDoc4JException {
    * @param message   error message
    */
   public DigiDoc4JUtilityException(int errorCode, String message) {
-    super("DigiDoc4J utility - " + message + "\n");
+    super(message);
+    this.errorCode = errorCode;
+  }
+
+  /**
+   * @param errorCode error code
+   * @param cause cause
+   */
+  public DigiDoc4JUtilityException(int errorCode, Throwable cause) {
+    super(cause);
     this.errorCode = errorCode;
   }
 

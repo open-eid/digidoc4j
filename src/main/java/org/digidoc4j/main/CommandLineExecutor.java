@@ -381,6 +381,7 @@ public class CommandLineExecutor {
       case EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS11:
       case EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS12:
         this.storeSignature();
+        break;
       case EXTERNAL_ADD_SIGNATURE:
         this.storeContainerWithSignature();
         break;
