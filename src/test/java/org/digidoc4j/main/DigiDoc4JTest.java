@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.SignatureProfile;
@@ -794,7 +795,7 @@ public class DigiDoc4JTest extends AbstractTest {
   public void verifyValidBDocUnsafeIntegerSystemParam() throws Exception {
     this.setGlobalMode(Configuration.Mode.PROD);
     this.systemExit.expectSystemExitWithStatus(0);
-    System.setProperty("bc.allowUnsafeInteger", "true");
+    System.setProperty(Constant.System.BC_ALLOW_UNSAFE_INTEGER, "true");
     DigiDoc4J.main(new String[]{"-in", "src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc", "-verify"});
   }
 
