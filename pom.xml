@@ -649,25 +649,21 @@
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-crl-parser-stream</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-crl-parser</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-crl-parser-x509crl</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-crl-parser-stream</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 
