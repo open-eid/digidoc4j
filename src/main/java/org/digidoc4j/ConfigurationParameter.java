@@ -39,6 +39,6 @@ public enum ConfigurationParameter {
   TspCountryKeystorePath,
   TspCountryKeystoreType,
   TspCountryKeystorePassword,
-  BouncyCastleAllowUnsafeInteger
+  AllowASN1UnsafeInteger
 
 }

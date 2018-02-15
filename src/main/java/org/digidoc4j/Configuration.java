@@ -1149,7 +1149,7 @@ public class Configuration implements Serializable {
     this.setConfigurationParameter(ConfigurationParameter.SslKeystorePassword, this.getParameter(Constant.System.JAVAX_NET_SSL_KEY_STORE_PASSWORD, "SSL_KEYSTORE_PASSWORD"));
     this.setConfigurationParameter(ConfigurationParameter.SslTruststorePath, this.getParameter(Constant.System.JAVAX_NET_SSL_TRUST_STORE, "SSL_TRUSTSTORE_PATH"));
     this.setConfigurationParameter(ConfigurationParameter.SslTruststorePassword, this.getParameter(Constant.System.JAVAX_NET_SSL_TRUST_STORE_PASSWORD, "SSL_TRUSTSTORE_PASSWORD"));
-    this.setConfigurationParameter(ConfigurationParameter.BouncyCastleAllowUnsafeInteger, this.getParameter(Constant
+    this.setConfigurationParameter(ConfigurationParameter.AllowASN1UnsafeInteger, this.getParameter(Constant
         .System.BC_ALLOW_UNSAFE_INTEGER, "BC_ALLOW_UNSAFE_INTEGER"));
     this.loadYamlTrustedTerritories();
     this.loadYamlTSPs();
@@ -1157,7 +1157,7 @@ public class Configuration implements Serializable {
 
   private void setBCUnsafeIntegerParam() {
     Boolean bcAllowUnsafeInteger = Boolean.parseBoolean(getConfigurationParameter(ConfigurationParameter
-        .BouncyCastleAllowUnsafeInteger));
+        .AllowASN1UnsafeInteger));
     if (bcAllowUnsafeInteger) {
       System.setProperty("org.bouncycastle.asn1.allow_unsafe_integer", "true");
       log.debug("BouncyCastle allow_unsafe_integer property is true");
