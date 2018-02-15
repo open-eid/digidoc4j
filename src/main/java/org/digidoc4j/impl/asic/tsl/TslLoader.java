@@ -101,8 +101,9 @@ public class TslLoader implements Serializable {
     tslValidationJob.setRepository(tslRepository);
     tslValidationJob.setCheckLOTLSignature(checkSignature);
     tslValidationJob.setCheckTSLSignatures(checkSignature);
+    tslValidationJob.setOjUrl("");
     tslValidationJob.setFilterTerritories(configuration.getTrustedTerritories());
-    //tslValidationJob.setLotlRootSchemeInfoUri("https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl.html");
+    tslValidationJob.setLotlRootSchemeInfoUri("");
     return tslValidationJob;
   }
 

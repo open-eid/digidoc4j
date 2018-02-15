@@ -40,7 +40,7 @@ public final class Constant {
     public static final String HTTPS_PROXY_HOST = "https.proxyHost";
     public static final String HTTP_PROXY_PORT = "http.proxyPort";
     public static final String HTTP_PROXY_HOST = "http.proxyHost";
-
+    public static final String BC_ALLOW_UNSAFE_INTEGER = "bc.allowUnsafeInteger";
   }
 
   public static class Default {

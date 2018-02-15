@@ -146,6 +146,10 @@ import eu.europa.esig.dss.client.http.Protocol;
  * <li>SSL_TRUSTSTORE_TYPE: SSL TrustStore type (default is "jks")</li>
  * <li>SSL_TRUSTSTORE_PASSWORD: SSL TrustStore password (default is an empty string)</li>
  * <li>ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES: Allowed delay between timestamp and OCSP response in minutes.</li>
+ * <li>BC_ALLOW_UNSAFE_INTEGER: Allows to use unsafe Integer because of few applications still struggle with the
+ * ASN.1 BER encoding rules for an INTEGER as described in:
+ * {@link https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf. }
+ * NB! Strict Validation applied by default.</li>
  * </ul>
  */
 public class Configuration implements Serializable {
@@ -213,6 +217,7 @@ public class Configuration implements Serializable {
     this.mode = mode;
     this.loadConfiguration("digidoc4j.yaml");
     this.initDefaultValues();
+    this.setBCUnsafeIntegerParam();
     this.log.debug("------------------------ </MODE: {}> ------------------------", mode);
     if (!this.log.isDebugEnabled()) {
       this.log.info("Configuration loaded ...");
@@ -1144,8 +1149,19 @@ public class Configuration implements Serializable {
     this.setConfigurationParameter(ConfigurationParameter.SslKeystorePassword, this.getParameter(Constant.System.JAVAX_NET_SSL_KEY_STORE_PASSWORD, "SSL_KEYSTORE_PASSWORD"));
     this.setConfigurationParameter(ConfigurationParameter.SslTruststorePath, this.getParameter(Constant.System.JAVAX_NET_SSL_TRUST_STORE, "SSL_TRUSTSTORE_PATH"));
     this.setConfigurationParameter(ConfigurationParameter.SslTruststorePassword, this.getParameter(Constant.System.JAVAX_NET_SSL_TRUST_STORE_PASSWORD, "SSL_TRUSTSTORE_PASSWORD"));
+    this.setConfigurationParameter(ConfigurationParameter.AllowASN1UnsafeInteger, this.getParameter(Constant
+        .System.BC_ALLOW_UNSAFE_INTEGER, "BC_ALLOW_UNSAFE_INTEGER"));
     this.loadYamlTrustedTerritories();
     this.loadYamlTSPs();
+  }
+
+  private void setBCUnsafeIntegerParam() {
+    Boolean bcAllowUnsafeInteger = Boolean.parseBoolean(getConfigurationParameter(ConfigurationParameter
+        .AllowASN1UnsafeInteger));
+    if (bcAllowUnsafeInteger) {
+      System.setProperty("org.bouncycastle.asn1.allow_unsafe_integer", "true");
+      log.debug("BouncyCastle allow_unsafe_integer property is true");
+    }
   }
 
   private Hashtable<String, String> loadConfigurationSettings(InputStream stream) {
@@ -1299,6 +1315,7 @@ public class Configuration implements Serializable {
     this.log.debug("loading JDigiDoc configuration");
     inputSourceParseErrors = new ArrayList<>();
     loadInitialConfigurationValues();
+    setBCUnsafeIntegerParam();
     reportFileParseErrors();
     return jDigiDocConfiguration;
   }
