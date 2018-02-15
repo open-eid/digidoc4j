@@ -68,9 +68,10 @@ public class DigiDoc4JTest extends AbstractTest {
   }
 
   @Test
-  public void testAddingSignatureToContainer() {
+  public void testAddingSignatureToContainer() throws IOException {
     this.systemExit.expectSystemExitWithStatus(0);
-    String file = "src/test/resources/testFiles/external/test.bdoc";
+    String file = this.getFileBy("bdoc");
+    FileUtils.copyFile(new File("src/test/resources/testFiles/external/test.bdoc"), new File(file));
     String[] parameters = new String[]{"-in", file, "-sig", "src/test/resources/testFiles/external/test.sig",
         "-dts", "src/test/resources/testFiles/external/test.ser"};
     DigiDoc4J.main(parameters);
