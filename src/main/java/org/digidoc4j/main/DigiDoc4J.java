@@ -50,11 +50,19 @@ public final class DigiDoc4J {
       }
       DigiDoc4J.run(args);
     } catch (DigiDoc4JUtilityException e) {
-      logger.error("Running DigiDoc4J has been failed", e);
+      if (DigiDoc4J.logger.isDebugEnabled()) {
+        DigiDoc4J.logger.error("Utility error", e);
+      } else {
+        DigiDoc4J.logger.error("Utility error (please apply DEBUG level for stacktrace): {}", e.getMessage());
+      }
       System.err.print(e.getMessage());
       System.exit(e.getErrorCode());
     } catch (Exception e) {
-      logger.error("Running DigiDoc4J has been failed", e);
+      if (DigiDoc4J.logger.isDebugEnabled()) {
+        DigiDoc4J.logger.error("Utility error", e);
+      } else {
+        DigiDoc4J.logger.error("Utility error (please apply DEBUG level for stacktrace): {}", e.getMessage());
+      }
       System.err.print(e.getMessage());
       System.exit(1);
     }
@@ -98,9 +106,8 @@ public final class DigiDoc4J {
         DigiDoc4J.showUsage(options);
       }
     } catch (ParseException e) {
-      logger.error(e.getMessage());
       DigiDoc4J.showUsage(options);
-      throw new DigiDoc4JUtilityException(2, "problem with given parameters");
+      throw new DigiDoc4JUtilityException(2, new RuntimeException("Problem with given parameters", e));
     }
   }
 
@@ -125,7 +132,8 @@ public final class DigiDoc4J {
         executor.processContainer(container);
         executor.saveContainer(container, containerPath);
       } else if (DigiDoc4J.isMultipleContainerCreation(commandLine)) {
-        new MultipleContainersExecutor(commandLine).execute();
+        MultipleContainersExecutor containersCreator = new MultipleContainersExecutor(commandLine);
+        containersCreator.execute();
       }
     } catch (DigiDoc4JUtilityException e) {
       throw e;
