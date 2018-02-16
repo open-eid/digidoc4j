@@ -6,6 +6,7 @@ Summary of the major changes since 2.0.0
 ------------------------------------------
 * In unit-tests the expired keys are replaced
 * Unit-test for digidoc4j-util are fixed
+* Added functionality for digidoc4j-util in order to test external signing
 
 Release 2.0.0
 ------------------
