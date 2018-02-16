@@ -36,7 +36,8 @@ public class SignatureValidationReport extends XmlSignature {
     report.getInfos().addAll(xmlSignature.getInfos());
     report.getSignatureScope().addAll(xmlSignature.getSignatureScope());
     report.setId(xmlSignature.getId());
-    report.setType(xmlSignature.getType());
+    //TODO not in use in DSS 5.2
+    //report.setType(xmlSignature.getType());
     report.setParentId(xmlSignature.getParentId());
     report.setSignatureFormat(xmlSignature.getSignatureFormat());
     return report;

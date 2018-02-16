@@ -59,6 +59,7 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
         qualifiersAndConditions,
         null,
         null,
+        null,
         certificate.getNotBefore(),
         null);
     TimeDependentValues timeDependentValues = new TimeDependentValues(Arrays.asList(status));
