@@ -19,40 +19,61 @@ import org.digidoc4j.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Thread pool manager
+ */
 public class ThreadPoolManager {
 
-  private final static Logger logger = LoggerFactory.getLogger(ThreadPoolManager.class);
+  private static final Logger logger = LoggerFactory.getLogger(ThreadPoolManager.class);
   private static ExecutorService defaultThreadExecutor;
   private Configuration configuration;
 
+  /**
+   * @param configuration configuration context
+   */
   public ThreadPoolManager(Configuration configuration) {
     this.configuration = configuration;
   }
 
+  /**
+   * @param threadExecutor default thread executor
+   */
   public static void setDefaultThreadExecutor(ExecutorService threadExecutor) {
     ThreadPoolManager.defaultThreadExecutor = threadExecutor;
   }
 
-  public ExecutorService getThreadExecutor() {
-    if (configuration.getThreadExecutor() != null) {
-      return configuration.getThreadExecutor();
-    }
-    if (defaultThreadExecutor == null) {
-      initializeDefaultThreadExecutor();
-    }
-    return defaultThreadExecutor;
+  /**
+   * @return default thread executor
+   */
+  public static ExecutorService getDefaultThreadExecutor() {
+    return ThreadPoolManager.defaultThreadExecutor;
   }
 
-  private static synchronized void initializeDefaultThreadExecutor() {
-    //Using double-checked locking to avoid other threads to start initializing another executor
-    if (defaultThreadExecutor == null) {
-      int numberOfProcessors = Runtime.getRuntime().availableProcessors();
-      logger.debug("Initializing a new default thread pool executor with " + numberOfProcessors + " threads");
-      defaultThreadExecutor = Executors.newFixedThreadPool(numberOfProcessors);
+  public ExecutorService getThreadExecutor() {
+    if (this.configuration.getThreadExecutor() != null) {
+      return this.configuration.getThreadExecutor();
     }
+    if (ThreadPoolManager.defaultThreadExecutor == null) {
+      ThreadPoolManager.initializeDefaultThreadExecutor();
+    }
+    return ThreadPoolManager.defaultThreadExecutor;
   }
 
   public <T> Future<T> submit(Callable<T> task) {
-    return getThreadExecutor().submit(task);
+    return this.getThreadExecutor().submit(task);
   }
+
+  /*
+   * RESTRICTED METHODS
+   */
+
+  private static synchronized void initializeDefaultThreadExecutor() {
+    //Using double-checked locking to avoid other threads to start initializing another executor
+    if (ThreadPoolManager.defaultThreadExecutor == null) {
+      int numberOfProcessors = Runtime.getRuntime().availableProcessors();
+      logger.debug("Initializing a new default thread pool executor with <{}> threads", numberOfProcessors);
+      ThreadPoolManager.defaultThreadExecutor = Executors.newFixedThreadPool(numberOfProcessors);
+    }
+  }
+
 }
