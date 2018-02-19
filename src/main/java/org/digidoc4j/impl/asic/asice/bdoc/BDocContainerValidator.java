@@ -100,14 +100,16 @@ public class BDocContainerValidator implements Serializable {
 
   private void extractValidatedSignatureErrors(List<Future<SignatureValidationData>> validationFutures) {
     logger.debug("Extracting errors from the signatures");
-    for (Future<SignatureValidationData> validationFuture : validationFutures) {
-      try {
-        SignatureValidationData validationData = validationFuture.get();
-        extractSignatureErrors(validationData);
-      } catch (InterruptedException | ExecutionException e) {
-        logger.error("Error validating signatures on multiple threads: " + e.getMessage());
-        throw new TechnicalException("Error validating signatures on multiple threads: " + e.getMessage(), e);
+    try {
+      for (Future<SignatureValidationData> validationFuture : validationFutures) {
+        try {
+          this.extractSignatureErrors(validationFuture.get());
+        } catch (InterruptedException | ExecutionException e) {
+          throw new TechnicalException("Error validating signatures on multiple threads", e);
+        }
       }
+    } finally {
+      this.threadPoolManager.getThreadExecutor().shutdown();
     }
   }
 

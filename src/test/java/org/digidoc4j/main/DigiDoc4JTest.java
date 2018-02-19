@@ -786,7 +786,8 @@ public class DigiDoc4JTest extends AbstractTest {
     this.systemExit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        Assert.assertThat(stdOut.getLog(), StringContains.containsString("invalid info structure in RSA public key"));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("invalid info structure in RSA public " +
+            "key"));
       }
     });
     DigiDoc4J.main(new String[]{"-in", "src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc", "-verify"});
