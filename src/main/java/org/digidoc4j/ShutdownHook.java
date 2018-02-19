@@ -11,8 +11,8 @@ import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 
 /**
  * Shutdown hook for clean shutdown. Please register this hook by Runtime.getRuntime().addShutdownHook(new
- * ShutdownHook()) when necessary. This hook works only for limited cases
- * <p>
+ * ShutdownHook()) when necessary. This hook works only for limited cases. NB! Currently in experimental status
+ *
  * Created by Janar Rahumeel (CGI Estonia)
  */
 
