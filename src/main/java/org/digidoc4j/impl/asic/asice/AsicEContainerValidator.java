@@ -43,7 +43,7 @@ import eu.europa.esig.dss.DSSDocument;
  */
 public class AsicEContainerValidator implements Serializable {
 
-  private final static Logger logger = LoggerFactory.getLogger(AsicEContainerValidator.class);
+  private static final Logger logger = LoggerFactory.getLogger(AsicEContainerValidator.class);
   private List<DigiDoc4JException> errors = new ArrayList<>();
   private List<DigiDoc4JException> warnings = new ArrayList<>();
   private AsicParseResult containerParseResult;
@@ -83,7 +83,7 @@ public class AsicEContainerValidator implements Serializable {
     return result;
   }
 
-  private void validateSignatures(List<Signature> signatures) {
+  protected void validateSignatures(List<Signature> signatures) {
     List<Future<SignatureValidationData>> validationData = startSignatureValidationInParallel(signatures);
     extractValidatedSignatureErrors(validationData);
   }
@@ -118,7 +118,7 @@ public class AsicEContainerValidator implements Serializable {
     this.validateManifest = validateManifest;
   }
 
-  private void extractSignatureErrors(SignatureValidationData validationData) {
+  protected void extractSignatureErrors(SignatureValidationData validationData) {
     logger.debug("Extracting signature errors for signature " + validationData.getSignatureId());
     signatureValidationData.add(validationData);
     SignatureValidationResult validationResult = validationData.getValidationResult();
@@ -127,13 +127,13 @@ public class AsicEContainerValidator implements Serializable {
     warnings.addAll(validationResult.getWarnings());
   }
 
-  private void extractManifestErrors(List<Signature> signatures) {
+  protected void extractManifestErrors(List<Signature> signatures) {
     logger.debug("Extracting manifest errors");
     manifestErrors = findManifestErrors(signatures);
     errors.addAll(manifestErrors);
   }
 
-  private AsicValidationResult createValidationResult() {
+  protected AsicValidationResult createValidationResult() {
     AsicValidationReportBuilder reportBuilder = new AsicValidationReportBuilder(signatureValidationData, manifestErrors);
     AsicValidationResult result = new AsicValidationResult();
     result.setErrors(errors);
@@ -143,7 +143,7 @@ public class AsicEContainerValidator implements Serializable {
     return result;
   }
 
-  private List<DigiDoc4JException> findManifestErrors(List<Signature> signatures) {
+  protected List<DigiDoc4JException> findManifestErrors(List<Signature> signatures) {
     if (!validateManifest || containerParseResult == null) {
       return Collections.emptyList();
     }

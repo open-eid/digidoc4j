@@ -34,7 +34,7 @@ public class AsicValidationResult implements ValidationResult {
   private List<DigiDoc4JException> errors = new ArrayList<>();
   private List<DigiDoc4JException> warnings = new ArrayList<>();
   private List<DigiDoc4JException> containerErrorsOnly = new ArrayList<>();
-  private AsicValidationReportBuilder reportBuilder;
+  private AsicValidationReportBuilder reportBuilder = null;
   private List<SimpleReport> simpleReports = new ArrayList<>();
 
   @Override
@@ -60,12 +60,15 @@ public class AsicValidationResult implements ValidationResult {
 
   @Override
   public boolean isValid() {
-    return !hasErrors();
+    return errors.isEmpty();
   }
 
   @Override
   public String getReport() {
-    return reportBuilder.buildXmlReport();
+    if (reportBuilder != null) {
+      return reportBuilder.buildXmlReport();
+    }
+    throw new DigiDoc4JException("Report builder is missing!");
   }
 
   @Override
@@ -143,24 +146,28 @@ public class AsicValidationResult implements ValidationResult {
    */
   @Override
   public void saveXmlReports(Path directory) {
-    if (directory != null) {
-      reportBuilder.saveXmlReports(directory);
+    if (reportBuilder != null) {
+      if (directory != null) {
+        reportBuilder.saveXmlReports(directory);
+      }
+    } else {
+      throw new DigiDoc4JException("Report builder is missing!");
     }
   }
 
   /**
    * Set container errors only.
    *
-   * @param containerErrorsOnly
+   * @param containerErrors Discovered list of container errors
    */
-  public void setContainerErrorsOnly(List<DigiDoc4JException> containerErrorsOnly) {
-    this.containerErrorsOnly = containerErrorsOnly;
+  public void setContainerErrorsOnly(List<DigiDoc4JException> containerErrors) {
+    this.containerErrorsOnly = containerErrors;
   }
 
   /**
    * Set Errors.
    *
-   * @param errors
+   * @param errors Discovered list of errors
    */
   public void setErrors(List<DigiDoc4JException> errors) {
     this.errors = errors;
@@ -169,7 +176,7 @@ public class AsicValidationResult implements ValidationResult {
   /**
    * Set warnings.
    *
-   * @param warnings
+   * @param warnings Discovered list of warnings
    */
   public void setWarnings(List<DigiDoc4JException> warnings) {
     this.warnings = warnings;
@@ -178,7 +185,7 @@ public class AsicValidationResult implements ValidationResult {
   /**
    * Set report builder.
    *
-   * @param reportBuilder
+   * @param reportBuilder Report builder to use
    */
   public void setReportBuilder(AsicValidationReportBuilder reportBuilder) {
     this.reportBuilder = reportBuilder;
