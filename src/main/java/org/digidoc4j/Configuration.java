@@ -1243,7 +1243,6 @@ public class Configuration implements Serializable {
   }
 
   private void loadOCSPCertificates(LinkedHashMap digiDocCA, String caPrefix) {
-    this.log.debug("");
     String errorMessage;
     @SuppressWarnings("unchecked")
     ArrayList<LinkedHashMap> ocsps = (ArrayList<LinkedHashMap>) digiDocCA.get("OCSPS");

@@ -9,7 +9,7 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.asic.SkDataLoader;
 import org.digidoc4j.impl.asic.ocsp.BDocTSOcspSource;
-import org.digidoc4j.impl.asic.ocsp.SKOnlineOCSPSource;
+import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.junit.Assert;
 import org.junit.Test;

@@ -27,7 +27,6 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.impl.Certificates;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
-import org.digidoc4j.impl.asic.ocsp.OcspSourceBuilder;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
 import org.digidoc4j.impl.asic.tsl.TslManager;
 import org.digidoc4j.impl.ddoc.DDocFacade;
@@ -375,7 +374,7 @@ public class SignatureTest extends AbstractTest {
     DSSDocument document = new FileDocument("src/test/resources/prodFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc");
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
     SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
-    OcspSourceBuilder ocspSourceBuilder = new OcspSourceBuilder();
+    OCSPSourceBuilder ocspSourceBuilder = new OCSPSourceBuilder();
     OCSPSource ocspSource = ocspSourceBuilder.withConfiguration(this.configuration).build();
     verifier.setOcspSource(ocspSource);
     verifier.setTrustedCertSource(this.configuration.getTSL());

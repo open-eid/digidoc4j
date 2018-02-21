@@ -3,7 +3,6 @@ package org.digidoc4j;
 /**
  * Created by Janar Rahumeel (CGI Estonia)
  */
-
 public enum ConfigurationParameter {
 
   ConnectionTimeoutInMillis,

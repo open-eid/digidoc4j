@@ -424,15 +424,15 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected BDocTSOcspSource createOCSPSource() {
     BDocTSOcspSource source = new BDocTSOcspSource(this.configuration);
-    SkDataLoader loader = SkDataLoader.createOcspDataLoader(this.configuration);
-    loader.setUserAgentSignatureProfile(SignatureProfile.LT);
+    SkDataLoader loader = SkDataLoader.ocsp(this.configuration);
+    loader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
     source.setDataLoader(loader);
     return source;
   }
 
   private OnlineTSPSource createTSPSource() {
-    SkDataLoader loader = SkDataLoader.createTimestampDataLoader(this.configuration);
-    loader.setUserAgentSignatureProfile(SignatureProfile.LT);
+    SkDataLoader loader = SkDataLoader.timestamp(this.configuration);
+    loader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
     OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
     source.setDataLoader(loader);
     return source;

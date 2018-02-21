@@ -18,6 +18,7 @@ import org.digidoc4j.impl.asic.SkDataLoader;
 import org.digidoc4j.impl.asic.tsl.TslLoader;
 import org.digidoc4j.test.MockSkDataLoader;
 import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -42,8 +43,8 @@ public class SkDataLoaderTest extends AbstractTest {
   public void getTimestampViaSpy() throws Exception {
     WireMock.stubFor(WireMock.post(WireMock.urlEqualTo("/")).willReturn(WireMock.aResponse().proxiedFrom(this.configuration.getTspSource())));
     byte[] tsRequest = new byte[]{48, 57, 2, 1, 1, 48, 49, 48, 13, 6, 9, 96, -122, 72, 1, 101, 3, 4, 2, 1, 5, 0, 4, 32, 2, 91, 64, 111, 35, -23, -19, -46, 57, -80, -63, -80, -74, 100, 72, 97, -47, -17, -35, -62, 102, 52, 116, 73, -10, -120, 115, 62, 2, 87, -29, -21, 1, 1, -1};
-    SkDataLoader dataLoader = SkDataLoader.createTimestampDataLoader(this.configuration);
-    dataLoader.setUserAgentSignatureProfile(SignatureProfile.LT);
+    SkDataLoader dataLoader = SkDataLoader.timestamp(this.configuration);
+    dataLoader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
     byte[] response = dataLoader.post(MOCK_PROXY_URL, tsRequest);
     Assert.assertNotNull(response);
     TimeStampResponse timeStampResponse = new TimeStampResponse(response);
@@ -59,8 +60,8 @@ public class SkDataLoaderTest extends AbstractTest {
     WireMock.stubFor(WireMock.post(WireMock.urlEqualTo("/")).willReturn(WireMock.aResponse()
         .proxiedFrom(configuration.getOcspSource())));
     byte[] ocspRequest = new byte[]{48, 120, 48, 118, 48, 77, 48, 75, 48, 73, 48, 9, 6, 5, 43, 14, 3, 2, 26, 5, 0, 4, 20, -20, -37, 96, 16, 51, -48, 76, 118, -7, -123, -78, 28, -40, 58, -45, -98, 2, -101, -109, 49, 4, 20, 73, -64, -14, 68, 57, 101, -43, -101, 70, 59, 13, 56, 96, -125, -79, -42, 45, 40, -122, -90, 2, 16, 83, 11, -28, 27, -68, 89, 124, 68, 87, 14, 43, 124, 19, -68, -6, 12, -94, 37, 48, 35, 48, 33, 6, 9, 43, 6, 1, 5, 5, 7, 48, 1, 2, 4, 20, -55, 25, 66, -2, -90, 61, 30, -49, 20, -82, 91, 49, -4, -52, -64, 23, 106, 12, -114, 67};
-    SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(this.configuration);
-    dataLoader.setUserAgentSignatureProfile(SignatureProfile.LT);
+    SkDataLoader dataLoader = SkDataLoader.ocsp(this.configuration);
+    dataLoader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
     byte[] response = dataLoader.post(MOCK_PROXY_URL, ocspRequest);
     OCSPResp ocspResp = new OCSPResp(response);
     Assert.assertNotNull(ocspResp.getResponseObject());
@@ -71,7 +72,7 @@ public class SkDataLoaderTest extends AbstractTest {
 
   @Test
   public void ocspDataLoader_withoutProxyConfiguration() throws Exception {
-    SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(this.configuration);
+    SkDataLoader dataLoader = SkDataLoader.ocsp(this.configuration);
     Assert.assertNull(dataLoader.getProxyConfig());
   }
 
@@ -85,7 +86,7 @@ public class SkDataLoaderTest extends AbstractTest {
   public void ocspDataLoader_withProxyConfiguration() throws Exception {
     this.configuration.setHttpProxyHost("proxyHost");
     this.configuration.setHttpProxyPort(1345);
-    SkDataLoader dataLoader = SkDataLoader.createOcspDataLoader(this.configuration);
+    SkDataLoader dataLoader = SkDataLoader.ocsp(this.configuration);
     TestAssert.assertHTTPProxyIsConfigured(dataLoader, "proxyHost", 1345);
     TestAssert.assertProxyCredentialsAreUnset(dataLoader);
   }
@@ -105,7 +106,7 @@ public class SkDataLoaderTest extends AbstractTest {
     this.configuration.setHttpProxyPort(1345);
     this.configuration.setHttpProxyUser("proxyUser");
     this.configuration.setHttpProxyPassword("proxyPassword");
-    SkDataLoader loader = SkDataLoader.createOcspDataLoader(this.configuration);
+    SkDataLoader loader = SkDataLoader.ocsp(this.configuration);
     TestAssert.assertHTTPProxyIsConfigured(loader, "proxyHost", 1345);
     ProxyConfig config = loader.getProxyConfig();
     ProxyProperties httpProperties = config.getHttpProperties();

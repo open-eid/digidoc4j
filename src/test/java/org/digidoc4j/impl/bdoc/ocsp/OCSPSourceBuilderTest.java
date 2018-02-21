@@ -12,37 +12,37 @@ package org.digidoc4j.impl.bdoc.ocsp;
 
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.asic.ocsp.BDocTMOcspSource;
 import org.digidoc4j.impl.asic.ocsp.BDocTSOcspSource;
-import org.digidoc4j.impl.asic.ocsp.OcspSourceBuilder;
-import org.digidoc4j.impl.asic.ocsp.SKOnlineOCSPSource;
 import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class OcspSourceBuilderTest extends AbstractTest {
+public class OCSPSourceBuilderTest extends AbstractTest {
 
   @Test
   public void buildTimeStampOcspSource_whenProfileIsNotSet() throws Exception {
-    SKOnlineOCSPSource ocspSource = OcspSourceBuilder.anOcspSource().withConfiguration(this.configuration).
-        build();
+    SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withConfiguration(
+        this.configuration).build();
     Assert.assertEquals(BDocTSOcspSource.class, ocspSource.getClass());
     TestAssert.assertOCSPSource(this.configuration, ocspSource, "XAdES_BASELINE_LT");
   }
 
   @Test
   public void buildTimeStampOcspSource() throws Exception {
-    SKOnlineOCSPSource ocspSource = OcspSourceBuilder.anOcspSource().withSignatureProfile(SignatureProfile.LT)
-        .withConfiguration(this.configuration).build();
+    SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withSignatureProfile(
+        SignatureProfile.LT).withConfiguration(this.configuration).build();
     Assert.assertEquals(BDocTSOcspSource.class, ocspSource.getClass());
     TestAssert.assertOCSPSource(this.configuration, ocspSource, "XAdES_BASELINE_LT");
   }
 
   @Test
   public void buildTimeMarkOcspSource() throws Exception {
-    SKOnlineOCSPSource ocspSource = OcspSourceBuilder.anOcspSource().withSignatureProfile(SignatureProfile.LT_TM).
-        withSignatureValue(new byte[]{1, 2, 3}).withConfiguration(this.configuration).build();
+    SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withSignatureProfile(
+        SignatureProfile.LT_TM).withSignatureValue(new byte[]{1, 2, 3}).withConfiguration(this.configuration).build();
     Assert.assertEquals(BDocTMOcspSource.class, ocspSource.getClass());
     TestAssert.assertOCSPSource(this.configuration, ocspSource, "ASiC_E_BASELINE_LT_TM");
   }

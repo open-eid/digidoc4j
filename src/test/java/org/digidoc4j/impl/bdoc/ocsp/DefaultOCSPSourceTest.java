@@ -14,7 +14,7 @@ import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x509.Extension;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.impl.asic.ocsp.BDocTSOcspSource;
+import org.digidoc4j.impl.DefaultOCSPSource;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class BDocTSOcspSourceTest extends AbstractTest {
 
   @Test
   public void gettingOcspNonce() throws Exception {
-    BDocTSOcspSource ocspSource = new BDocTSOcspSource(this.configuration);
+    DefaultOCSPSource ocspSource = new DefaultOCSPSource(this.configuration);
     Extension nonce = ocspSource.createNonce();
     Assert.assertFalse(nonce.isCritical());
     Assert.assertEquals(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, nonce.getExtnId());
