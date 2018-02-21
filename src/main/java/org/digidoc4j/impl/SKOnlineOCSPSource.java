@@ -12,8 +12,8 @@ package org.digidoc4j.impl;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
-import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x509.Extension;
@@ -23,17 +23,20 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.CertificateID;
-import org.bouncycastle.cert.ocsp.OCSPException;
 import org.bouncycastle.cert.ocsp.OCSPReqBuilder;
 import org.bouncycastle.cert.ocsp.OCSPResp;
-import org.bouncycastle.cert.ocsp.SingleResp;
+import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.ConfigurationParameter;
 import org.digidoc4j.Constant;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.SignatureVerificationException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.asic.SkDataLoader;
+import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +87,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
         throw new TechnicalException("Data loader is null");
       }
       if (this.log.isTraceEnabled()) {
-        this.log.trace("Quering by DSS ID <{}>", certificateToken.getDSSIdAsString());
+        this.log.trace("Querying by DSS ID <{}>", certificateToken.getDSSIdAsString());
       }
       CertificateID certificateID = DSSRevocationUtils.getOCSPCertificateID(certificateToken, issuerCertificateToken);
       Extension nonceExtension = this.createNonce();
@@ -94,28 +97,24 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
         this.log.warn("Basic OCSP response is empty");
         return null;
       }
+      this.verifyResponse(response);
       this.checkNonce(response, nonceExtension);
       OCSPToken token = new OCSPToken();
       token.setBasicOCSPResp(response);
       token.setCertId(certificateID);
       token.setSourceURL(this.getAccessLocation());
-      //try {
-        token.extractInfo();
-      //} catch (Exception e) {
-        //this.log.error("Unable to extract token information from OCSP response", e);
-      //}
+      token.extractInfo();
       if (token.getThisUpdate() == null) {
         this.log.warn("No best single match of OCSP response found");
         return null;
       }
       certificateToken.addRevocationToken(token);
       return token;
-    } catch (OCSPException e) {
-      this.log.warn("OCSP error detected", e);
-    } catch (IOException e) {
+    } catch (DigiDoc4JException e) {
+      throw e; // TODO should we throw only DSS exceptions?
+    } catch (Exception e) {
       throw new DSSException(e);
     }
-    return null;
   }
 
   /*
@@ -130,7 +129,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     DEROctetString receivedNonce = (DEROctetString) extension.getExtnValue();
     if (!receivedNonce.equals(expectedNonce)) {
       throw new DigiDoc4JException(
-          String.format("The OCSP request was the victim of replay attack (nonce sent <%s>, received <%s>)",
+          String.format("The OCSP request was the victim of replay attack (nonce sent <%s>, nonce received <%s>)",
               expectedNonce, receivedNonce));
     }
   }
@@ -147,7 +146,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
         if (!this.configuration.isOCSPSigningConfigurationAvailable()) {
           throw new ConfigurationException("Configuration needed for OCSP request signing is not complete");
         }
-        DSSPrivateKeyEntry privateKeyEntry = getOCSPAccessCertificatePrivateKey();
+        DSSPrivateKeyEntry privateKeyEntry = this.getOCSPAccessCertificatePrivateKey();
         X509Certificate signingCertificate = privateKeyEntry.getCertificate().getCertificate();
         builder.setRequestorName(new GeneralName(new JcaX509CertificateHolder(signingCertificate).getSubject()));
         return builder.build(signerBuilder.build(((KSPrivateKeyEntry) privateKeyEntry).getPrivateKey()),
@@ -156,6 +155,32 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
       return builder.build().getEncoded();
     } catch (Exception e) {
       throw new DSSException(e);
+    }
+  }
+
+  private void verifyResponse(BasicOCSPResp response) {
+    String verificationCertificatePath = this.configuration.getOCSPResponseVerificationCertificatePath();
+    if (StringUtils.isNotBlank(verificationCertificatePath)) {
+      try {
+        X509Certificate verificationCertificate = Helper.loadCertificate(verificationCertificatePath);
+        ContentVerifierProvider provider = new JcaContentVerifierProviderBuilder().setProvider("BC").build(new
+            X509CertificateHolder(verificationCertificate.getEncoded()));
+        if (!response.isSignatureValid(provider)) {
+          throw new SignatureVerificationException("OCSP response signature is invalid");
+        }
+      } catch (SignatureVerificationException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new SignatureVerificationException("Unable to verify response signature", e);
+      }
+    } else {
+      if (!this.configuration.isTest()) {
+        String warningMessage = String.format("It's strictly recommended to use signature verification of OCSP response. " +
+            "Configure <%s> parameter to activate", ConfigurationParameter.OcspResponseVerificationCertificatePath);
+        this.log.warn(StringUtils.rightPad("-", warningMessage.length(), "-"));
+        this.log.warn(warningMessage);
+        this.log.warn(StringUtils.rightPad("-", warningMessage.length(), "-"));
+      }
     }
   }
 

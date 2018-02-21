@@ -7,9 +7,11 @@ import java.util.List;
 import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.CertificateStatus;
 import org.digidoc4j.CertificateValidator;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.CertificateValidationException;
+import org.digidoc4j.exceptions.SignatureVerificationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +55,8 @@ public class OCSPCertificateValidator implements CertificateValidator {
       this.verifyOCSPToken(
           this.ocspSource.getOCSPToken(new CertificateToken(subjectCertificate), new CertificateToken(this
               .getRootIssuerCertificate(subjectCertificate))));
+    } catch (SignatureVerificationException e) {
+      throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNTRUSTED);
     } catch (CertificateValidationException e) {
       throw e;
     } catch (Exception e) {
@@ -76,7 +80,7 @@ public class OCSPCertificateValidator implements CertificateValidator {
         return certificateToken.getCertificate();
       }
     } catch (IllegalStateException e) {
-      this.log.warn("Certificate <{}> is untrusted. Not all the chained certificates are added into TSL source?",
+      this.log.warn("Certificate <{}> is untrusted. Not all the chained certificates added into TSL source?",
           certificate.getSubjectX500Principal().getName(), e);
     }
     throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNTRUSTED);

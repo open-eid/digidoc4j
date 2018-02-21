@@ -41,20 +41,45 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
       validator.validate(
           this.openX509Certificate(Paths.get("src/test/resources/testFiles/certs/TESTofStatusUnknown.cer")));
     } catch (CertificateValidationException e) {
-      e.printStackTrace();
       Assert.assertEquals("Not equals", CertificateValidationException.CertificateValidationStatus.UNKNOWN, e
           .getCertificateStatus());
     }
   }
 
   @Test
-  public void testCertificateSssstatusUntrusted() {
-    this.addCertificateToTSL(Paths.get("src/test/resources/prodFiles/certs/ESTEID-SK2015.crt"), this
+  public void testProductionCertificateStatusUntrustedWithWrongOCSPResponseVerificationCertificate() {
+    this.configuration = Configuration.of(Configuration.Mode.PROD);
+    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/TESTofEECertificationCentreRootCA.crt"), this
         .configuration.getTSL());
-    this.addCertificateToTSL(Paths.get("src/test/resources/prodFiles/certs/test222.cer"), this
+    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/TESTofESTEID-SK2011.crt"), this
         .configuration.getTSL());
+    this.configuration.setOCSPResponseVerificationCertificatePath(
+        "src/test/resources/testFiles/certs/TESTofESTEID-SK2011.crt");
     CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(this.configuration).build();
-    validator.validate(this.openX509Certificate(Paths.get("src/test/resources/prodFiles/certs/38207160020.cer")));
+    try {
+      validator.validate(
+          this.openX509Certificate(Paths.get("src/test/resources/testFiles/certs/TESTofStatusUnknown.cer")));
+    } catch (CertificateValidationException e) {
+      Assert.assertEquals("Not equals", CertificateValidationException.CertificateValidationStatus.UNTRUSTED, e
+          .getCertificateStatus());
+    }
+  }
+
+  @Test
+  public void testProductionCertificateStatusUnknownWithOCSPResponseVerificationCertificate() {
+    this.configuration = Configuration.of(Configuration.Mode.PROD);
+    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/TESTofEECertificationCentreRootCA.crt"), this
+        .configuration.getTSL());
+    this.configuration.setOCSPResponseVerificationCertificatePath
+        ("src/test/resources/prodFiles/certs/SK_OCSP_RESPONDER_2011.pem.cer");
+    CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(this.configuration).build();
+    try {
+      validator.validate(
+          this.openX509Certificate(Paths.get("src/test/resources/testFiles/certs/TESTofESTEID-SK2011.crt")));
+    } catch (CertificateValidationException e) {
+      Assert.assertEquals("Not equals", CertificateValidationException.CertificateValidationStatus.UNKNOWN, e
+          .getCertificateStatus());
+    }
   }
 
   /*

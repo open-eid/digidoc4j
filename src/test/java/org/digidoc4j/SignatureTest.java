@@ -374,8 +374,7 @@ public class SignatureTest extends AbstractTest {
     DSSDocument document = new FileDocument("src/test/resources/prodFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc");
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
     SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
-    OCSPSourceBuilder ocspSourceBuilder = new OCSPSourceBuilder();
-    OCSPSource ocspSource = ocspSourceBuilder.withConfiguration(this.configuration).build();
+    OCSPSource ocspSource = OCSPSourceBuilder.anOcspSource().withConfiguration(this.configuration).build();
     verifier.setOcspSource(ocspSource);
     verifier.setTrustedCertSource(this.configuration.getTSL());
     verifier.setDataLoader(new CommonsDataLoader());

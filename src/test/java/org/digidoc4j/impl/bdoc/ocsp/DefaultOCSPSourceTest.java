@@ -18,12 +18,12 @@ import org.digidoc4j.impl.DefaultOCSPSource;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class BDocTSOcspSourceTest extends AbstractTest {
+public class DefaultOCSPSourceTest extends AbstractTest {
 
   @Test
-  public void gettingOcspNonce() throws Exception {
-    DefaultOCSPSource ocspSource = new DefaultOCSPSource(this.configuration);
-    Extension nonce = ocspSource.createNonce();
+  public void gettingOCSPNonce() throws Exception {
+    DefaultOCSPSource source = new DefaultOCSPSource(this.configuration);
+    Extension nonce = source.createNonce();
     Assert.assertFalse(nonce.isCritical());
     Assert.assertEquals(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, nonce.getExtnId());
     Assert.assertTrue(nonce.getExtnValue().toString().length() > 0);

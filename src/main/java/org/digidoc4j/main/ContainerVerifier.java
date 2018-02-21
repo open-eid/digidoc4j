@@ -158,23 +158,18 @@ public class ContainerVerifier {
       logger.info("Validation canceled. Option -v2 is not working with DDOC container.");
       throw new DigiDoc4JException("Option -v2 is not working with DDOC container");
     }
-
     Configuration configuration = Configuration.getInstance();
     TslManager tslManager = new TslManager(configuration);
     TSLCertificateSource certificateSource = tslManager.getTsl();
     configuration.setTSL(certificateSource);
-
     DSSDocument document = new InMemoryDocument(container.saveAsStream());
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
     SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
-    OCSPSourceBuilder ocspSourceBuilder = new OCSPSourceBuilder();
-    OCSPSource ocspSource = ocspSourceBuilder.withConfiguration(configuration).build();
-    verifier.setOcspSource(ocspSource);
+    verifier.setOcspSource(OCSPSourceBuilder.anOcspSource().withConfiguration(configuration).build());
     verifier.setTrustedCertSource(configuration.getTSL());
     verifier.setDataLoader(SkDataLoader.ocsp(configuration));
     validator.setCertificateVerifier(verifier);
     Reports reports = validator.validateDocument();
-
     if (reportsDir != null) {
       InputStream is;
       try {
@@ -186,7 +181,6 @@ public class ContainerVerifier {
       } catch (IOException e) {
         logger.info(e.getMessage());
       }
-
       try {
         is = new ByteArrayInputStream(reports.getXmlSimpleReport().getBytes("UTF-8"));
         DSSUtils.saveToFile(is, reportsDir + File.separator + "validationSimpleReport.xml");
@@ -196,7 +190,6 @@ public class ContainerVerifier {
       } catch (IOException e) {
         logger.info(e.getMessage());
       }
-
       try {
         is = new ByteArrayInputStream(reports.getXmlDetailedReport().getBytes("UTF-8"));
         DSSUtils.saveToFile(is, reportsDir + File.separator + "validationDetailReport.xml");
@@ -207,7 +200,6 @@ public class ContainerVerifier {
         logger.info(e.getMessage());
       }
     }
-
     boolean isValid = true;
     for (String signatureId : reports.getSimpleReport().getSignatureIdList()) {
       isValid = isValid && reports.getSimpleReport().isSignatureValid(signatureId);

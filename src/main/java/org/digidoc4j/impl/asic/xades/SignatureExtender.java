@@ -103,11 +103,8 @@ public class SignatureExtender {
   }
 
   private OCSPSource createOcspSource(SignatureProfile profile, byte[] signatureValue) {
-    return OCSPSourceBuilder.anOcspSource().
-        withSignatureProfile(profile).
-        withSignatureValue(signatureValue).
-        withConfiguration(this.configuration).
-        build();
+    return OCSPSourceBuilder.anOcspSource().withSignatureProfile(profile).withSignatureValue(signatureValue).
+        withConfiguration(this.configuration).build();
   }
 
   private OnlineTSPSource createTimeStampProviderSource(SignatureProfile profile) {

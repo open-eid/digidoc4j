@@ -833,7 +833,7 @@ public class DigiDoc4JTest extends AbstractTest {
   @Test
   public void verifyValidBDocUnsafeInteger() throws Exception {
     this.setGlobalMode(Configuration.Mode.PROD);
-    this.systemExit.expectSystemExitWithStatus(1);
+    this.systemExit.expectSystemExitWithStatus(0);
     this.systemExit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
@@ -848,7 +848,7 @@ public class DigiDoc4JTest extends AbstractTest {
   public void verifyValidBDocUnsafeIntegerSystemParam() throws Exception {
     this.setGlobalMode(Configuration.Mode.PROD);
     this.systemExit.expectSystemExitWithStatus(0);
-    System.setProperty(Constant.System.BC_ALLOW_UNSAFE_INTEGER, "true");
+    System.setProperty(Constant.System.ORG_BOUNCYCASTLE_ASN1_ALLOW_UNSAFE_INTEGER, "true");
     DigiDoc4J.main(new String[]{"-in", "src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc", "-verify"});
   }
 

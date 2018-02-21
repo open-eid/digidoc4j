@@ -28,6 +28,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -253,6 +255,21 @@ public final class Helper {
   }
 
   /**
+   * @param filePath file location
+   * @return X509Certificate
+   */
+  public static X509Certificate loadCertificate(String filePath) {
+    try {
+      CertificateFactory factory = CertificateFactory.getInstance("X.509");
+      try (FileInputStream is = new FileInputStream(filePath)) {
+        return (X509Certificate) factory.generateCertificate(is);
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(String.format("Unable to load certificate from <%s>", filePath), e);
+    }
+  }
+
+  /**
    * creates user agent value for given container
    * format is:
    * LIB DigiDoc4J/VERSION format: CONTAINER_TYPE signatureProfile: SIGNATURE_PROFILE
@@ -265,7 +282,14 @@ public final class Helper {
     String documentType = container.getDocumentType().toString();
     String version = container.getVersion();
     String signatureProfile = container.getSignatureProfile();
-    return createUserAgent(documentType, version, signatureProfile);
+    return Helper.createUserAgent(documentType, version, signatureProfile);
+  }
+
+  /**
+   * @return user agent
+   */
+  public static String createUserAgent() {
+    return Helper.createUserAgent(null, null, null);
   }
 
   /**
@@ -276,11 +300,13 @@ public final class Helper {
    */
   public static String createUserAgent(String documentType, String version, String signatureProfile) {
     StringBuilder ua = new StringBuilder("LIB DigiDoc4j/").append(Version.VERSION == null ? "DEV" : Version.VERSION);
-    ua.append(" format: ").append(documentType);
-    if (version != null) {
+    if (StringUtils.isNotBlank(documentType)) {
+      ua.append(" format: ").append(documentType);
+    }
+    if (StringUtils.isNotBlank(version)) {
       ua.append("/").append(version);
     }
-    if (signatureProfile != null) {
+    if (StringUtils.isNotBlank(signatureProfile)) {
       ua.append(" signatureProfile: ").append(signatureProfile);
     }
     ua.append(" Java: ").append(System.getProperty("java.version"));

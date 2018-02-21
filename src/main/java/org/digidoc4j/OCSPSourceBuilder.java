@@ -10,11 +10,11 @@
 
 package org.digidoc4j;
 
+import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.impl.DefaultOCSPSource;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.asic.SkDataLoader;
 import org.digidoc4j.impl.asic.ocsp.BDocTMOcspSource;
-import org.digidoc4j.impl.asic.ocsp.BDocTSOcspSource;
 import org.digidoc4j.utils.Helper;
 
 import eu.europa.esig.dss.x509.ocsp.OCSPSource;
@@ -24,35 +24,53 @@ import eu.europa.esig.dss.x509.ocsp.OCSPSource;
  */
 public class OCSPSourceBuilder {
 
+  private final boolean defaultOCSPSource;
   private Configuration configuration;
-  private byte[] signatureValue;
   private SignatureProfile signatureProfile;
+  private byte[] signatureValue;
+
+  /**
+   * @param defaultOCSPSource whether to use default OCSP source
+   */
+  protected OCSPSourceBuilder(boolean defaultOCSPSource) {
+    this.defaultOCSPSource = defaultOCSPSource;
+  }
+
+  /**
+   * Using default OCSP source and user agent token
+   *
+   * @return OCSPSourceBuilder
+   */
+  public static OCSPSourceBuilder defaultOCSPSource() {
+    return new OCSPSourceBuilder(true);
+  }
 
   /**
    * @return OCSPSourceBuilder
    */
   public static OCSPSourceBuilder anOcspSource() {
-    return new OCSPSourceBuilder();
+    return new OCSPSourceBuilder(false);
   }
 
   /**
    * @return OCSPSource
    */
   public OCSPSource build() {
+    if (this.configuration == null) {
+      this.configuration = ConfigurationSingeltonHolder.getInstance();
+    }
     SkDataLoader loader = SkDataLoader.ocsp(this.configuration);
     SKOnlineOCSPSource source;
-    if (this.signatureProfile != null) {
-      switch (this.signatureProfile) {
-        case LT_TM:
-          source = new BDocTMOcspSource(this.configuration, this.signatureValue);
-          break;
-        default:
-          source = new BDocTSOcspSource(this.configuration);
+    if (this.defaultOCSPSource) {
+      source = new DefaultOCSPSource(this.configuration);
+      loader.setUserAgent(Helper.createUserAgent());
+    } else {
+      if (SignatureProfile.LT_TM.equals(this.signatureProfile)) {
+        source = new BDocTMOcspSource(this.configuration, this.signatureValue);
+      } else {
+        source = new DefaultOCSPSource(this.configuration);
       }
       loader.setUserAgent(Helper.createBDocUserAgent(this.signatureProfile));
-    } else {
-      source = new DefaultOCSPSource(this.configuration);
-      loader.setUserAgent(Helper.createUserAgent("None", null, null));
     }
     source.setDataLoader(loader);
     return source;
@@ -72,6 +90,9 @@ public class OCSPSourceBuilder {
    * @return OCSPSourceBuilder
    */
   public OCSPSourceBuilder withSignatureValue(byte[] signatureValue) {
+    if (this.defaultOCSPSource) {
+      throw new IllegalStateException("Not applicable for default OCSP source");
+    }
     this.signatureValue = signatureValue;
     return this;
   }
@@ -81,6 +102,9 @@ public class OCSPSourceBuilder {
    * @return OCSPSourceBuilder
    */
   public OCSPSourceBuilder withSignatureProfile(SignatureProfile signatureProfile) {
+    if (this.defaultOCSPSource) {
+      throw new IllegalStateException("Not applicable for default OCSP source");
+    }
     this.signatureProfile = signatureProfile;
     return this;
   }
