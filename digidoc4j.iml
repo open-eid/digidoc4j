@@ -4,7 +4,6 @@
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
@@ -90,5 +89,6 @@
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-crl-parser:5.2.d4j.2" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-crl-parser-x509crl:5.2.d4j.2" level="project" />
     <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-crl-parser-stream:5.2.d4j.2" level="project" />
+    <orderEntry type="library" name="lib" level="project" />
   </component>
 </module>
