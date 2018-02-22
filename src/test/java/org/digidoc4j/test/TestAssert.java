@@ -99,6 +99,10 @@ public final class TestAssert {
     Assert.assertTrue("Container is invalid", container.validate().isValid());
   }
 
+  public static void assertContainerIsInvalid(Container container) {
+    Assert.assertFalse("Container is valid", container.validate().isValid());
+  }
+
   public static void assertContainerIsValidWithJDigiDoc(String containerFilePath) throws DigiDocException {
     List errors = new ArrayList();
     ConfigManager.instance().getDigiDocFactory().readSignedDocOfType(containerFilePath, true, errors);
