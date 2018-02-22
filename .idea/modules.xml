@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../jdigidoc/ddoc4j.iml" filepath="$PROJECT_DIR$/../jdigidoc/ddoc4j.iml" />
       <module fileurl="file://$PROJECT_DIR$/digidoc4j.iml" filepath="$PROJECT_DIR$/digidoc4j.iml" />
     </modules>
   </component>

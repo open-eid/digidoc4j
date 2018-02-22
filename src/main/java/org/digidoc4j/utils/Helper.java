@@ -17,6 +17,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -26,6 +27,8 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.security.cert.CertificateFactory;
@@ -41,13 +44,16 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.CanReadFileFilter;
 import org.apache.commons.io.input.BOMInputStream;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
@@ -85,6 +91,58 @@ public final class Helper {
   private static Random random = new SecureRandom();
 
   private Helper() {
+  }
+
+  /**
+   * @param path   folder path
+   * @return list of files
+   */
+  public static File[] getFilesFromPath(Path path) {
+    return Helper.getFilesFromPath(path, CanReadFileFilter.CAN_READ);
+  }
+
+  /**
+   * @param path   folder path
+   * @param filter file filter
+   * @return list of files
+   */
+  public static File[] getFilesFromPath(Path path, FileFilter filter) {
+    File folder = path.toFile();
+    if (folder.isDirectory()) {
+      return folder.listFiles(filter);
+    } else {
+      try {
+        return Helper.getFilesFromResourcePath(path, CanReadFileFilter.CAN_READ);
+      } catch (IllegalArgumentException e) {
+        logger.warn(String.format("Unable to load any file from <%s>", path), e);
+      }
+    }
+    return new File[]{};
+  }
+
+  /**
+   * @param path   resource path
+   * @return list of files
+   */
+  public static File[] getFilesFromResourcePath(Path path) {
+    return Helper.getFilesFromResourcePath(path, CanReadFileFilter.CAN_READ);
+  }
+
+  /**
+   * @param path   resource path
+   * @param filter file filter
+   * @return list of files
+   */
+  public static File[] getFilesFromResourcePath(Path path, FileFilter filter) {
+    URL url = Thread.currentThread().getContextClassLoader().getResource(path.toString());
+    if (url == null) {
+      throw new IllegalArgumentException("Invalid resource");
+    }
+    File folder = new File(url.getPath());
+    if (!folder.isDirectory()) {
+      throw new IllegalArgumentException("Folder paths allowed only");
+    }
+    return folder.listFiles(filter);
   }
 
   /**
@@ -604,4 +662,26 @@ public final class Helper {
     }
     return new String(hexChars);
   }
+
+  public static class FileExtensionFilter implements FileFilter {
+
+    private final FileNameExtensionFilter filter;
+
+    /**
+     * @param extensions extensions
+     */
+    public FileExtensionFilter(String... extensions) {
+      if (ArrayUtils.isEmpty(extensions)) {
+        throw new IllegalArgumentException("File extensions can't be unset");
+      }
+      this.filter = new FileNameExtensionFilter("Missing", extensions);
+    }
+
+    @Override
+    public boolean accept(File file) {
+      return this.filter.accept(file);
+    }
+
+  }
+
 }

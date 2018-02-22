@@ -7,9 +7,7 @@ import java.util.List;
 import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.lang3.StringUtils;
-import org.digidoc4j.CertificateStatus;
 import org.digidoc4j.CertificateValidator;
-import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.exceptions.SignatureVerificationException;
 import org.slf4j.Logger;
@@ -30,18 +28,14 @@ import eu.europa.esig.dss.x509.ocsp.OCSPToken;
 public class OCSPCertificateValidator implements CertificateValidator {
 
   private final Logger log = LoggerFactory.getLogger(OCSPCertificateValidator.class);
-  private final Configuration configuration;
   private final CertificateSource certificateSource;
   private final OCSPSource ocspSource;
 
   /**
-   * @param configuration     configuration context
    * @param certificateSource the source of certificates
    * @param ocspSource        the source of OCSP
    */
-  public OCSPCertificateValidator(Configuration configuration, CertificateSource certificateSource,
-                                  OCSPSource ocspSource) {
-    this.configuration = configuration;
+  public OCSPCertificateValidator(CertificateSource certificateSource, OCSPSource ocspSource) {
     this.certificateSource = certificateSource;
     this.ocspSource = ocspSource;
   }
@@ -52,11 +46,10 @@ public class OCSPCertificateValidator implements CertificateValidator {
       if (subjectCertificate == null) {
         throw new IllegalArgumentException("Subject certificate is not provided");
       }
-      this.verifyOCSPToken(
-          this.ocspSource.getOCSPToken(new CertificateToken(subjectCertificate), new CertificateToken(this
-              .getRootIssuerCertificate(subjectCertificate))));
+      this.verifyOCSPToken(this.ocspSource.getOCSPToken(new CertificateToken(subjectCertificate),
+          this.getIssuerCertificateToken(subjectCertificate)));
     } catch (SignatureVerificationException e) {
-      throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNTRUSTED);
+      throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNTRUSTED, e);
     } catch (CertificateValidationException e) {
       throw e;
     } catch (Exception e) {
@@ -68,31 +61,29 @@ public class OCSPCertificateValidator implements CertificateValidator {
    * RESTRICTED METHODS
    */
 
-  private X509Certificate getRootIssuerCertificate(X509Certificate certificate) throws CertificateEncodingException {
+  private CertificateToken getIssuerCertificateToken(X509Certificate certificate) throws CertificateEncodingException {
+    CertificateToken certificateToken = null;
     try {
-      if (certificate != null) {
-        CertificateToken certificateToken = DSSUtils.loadCertificate(certificate.getEncoded());
-        if (certificateToken.getIssuerX500Principal() != null && !certificate.getSubjectDN().equals(certificate
-            .getIssuerDN())) {
-          return this.getRootIssuerCertificate(
-              this.getFromCertificateSource(certificateToken.getIssuerX500Principal()));
-        }
-        return certificateToken.getCertificate();
+      certificateToken = DSSUtils.loadCertificate(certificate.getEncoded());
+      if (certificateToken.getIssuerX500Principal() != null) {
+        return this.getFromCertificateSource(certificateToken.getIssuerX500Principal());
       }
     } catch (IllegalStateException e) {
-      this.log.warn("Certificate <{}> is untrusted. Not all the chained certificates added into TSL source?",
-          certificate.getSubjectX500Principal().getName(), e);
+      this.log.warn("Certificate with DSS ID <{}> is untrusted. Not all the intermediate certificates added into OCSP" +
+              " certificate source?",
+          (certificateToken == null) ? certificate.getSubjectX500Principal().getName() : certificateToken
+              .getDSSIdAsString(), e);
     }
     throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNTRUSTED);
   }
 
-  private X509Certificate getFromCertificateSource(X500Principal principal) {
+  private CertificateToken getFromCertificateSource(X500Principal principal) {
     List<CertificateToken> tokens = this.certificateSource.get(principal);
     if (tokens.size() != 1) {
-      throw new IllegalStateException(String.format("<%s> certificate tokens found from certificate source", tokens.size
-          ()));
+      throw new IllegalStateException(String.format("<%s> matching certificate tokens found from certificate source",
+          tokens.size()));
     }
-    return tokens.get(0).getCertificate();
+    return tokens.get(0);
   }
 
   private void verifyOCSPToken(OCSPToken token) {
@@ -120,6 +111,15 @@ public class OCSPCertificateValidator implements CertificateValidator {
     } catch (Exception e) {
       throw CertificateValidationException.of(e);
     }
+  }
+
+  /*
+   * ACCESSORS
+   */
+
+  @Override
+  public CertificateSource getCertificateSource() {
+    return certificateSource;
   }
 
 }

@@ -14,7 +14,7 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.impl.DefaultOCSPSource;
+import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.asic.ocsp.BDocTMOcspSource;
 import org.digidoc4j.test.TestAssert;
@@ -27,7 +27,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
   public void buildTimestampOCSPSource_whenProfileIsNotSet() throws Exception {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withConfiguration(
         this.configuration).build();
-    Assert.assertEquals(DefaultOCSPSource.class, source.getClass());
+    Assert.assertEquals(CommonOCSPSource.class, source.getClass());
     TestAssert.assertOCSPSource(this.configuration, source, "XAdES_BASELINE_LT");
   }
 
@@ -35,7 +35,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
   public void buildTimestampOCSPSource() throws Exception {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withSignatureProfile(
         SignatureProfile.LT).withConfiguration(this.configuration).build();
-    Assert.assertEquals(DefaultOCSPSource.class, source.getClass());
+    Assert.assertEquals(CommonOCSPSource.class, source.getClass());
     TestAssert.assertOCSPSource(this.configuration, source, "XAdES_BASELINE_LT");
   }
 

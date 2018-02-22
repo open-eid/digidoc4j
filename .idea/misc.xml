@@ -41,7 +41,6 @@
       <list>
         <option value="$PROJECT_DIR$/sd-dss/apps/dss/core/pom.xml" />
         <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/../jdigidoc/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

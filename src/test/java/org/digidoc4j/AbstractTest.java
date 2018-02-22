@@ -21,7 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
-import org.digidoc4j.impl.DefaultOCSPSource;
+import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.asic.AsicFileContainerParser;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.SkDataLoader;
@@ -422,8 +422,8 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     return facade;
   }
 
-  protected DefaultOCSPSource createOCSPSource() {
-    DefaultOCSPSource source = new DefaultOCSPSource(this.configuration);
+  protected CommonOCSPSource createOCSPSource() {
+    CommonOCSPSource source = new CommonOCSPSource(this.configuration);
     SkDataLoader loader = SkDataLoader.ocsp(this.configuration);
     loader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
     source.setDataLoader(loader);

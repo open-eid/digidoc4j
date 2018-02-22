@@ -11,7 +11,7 @@
 package org.digidoc4j;
 
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
-import org.digidoc4j.impl.DefaultOCSPSource;
+import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.asic.SkDataLoader;
 import org.digidoc4j.impl.asic.ocsp.BDocTMOcspSource;
@@ -62,13 +62,13 @@ public class OCSPSourceBuilder {
     SkDataLoader loader = SkDataLoader.ocsp(this.configuration);
     SKOnlineOCSPSource source;
     if (this.defaultOCSPSource) {
-      source = new DefaultOCSPSource(this.configuration);
+      source = new CommonOCSPSource(this.configuration);
       loader.setUserAgent(Helper.createUserAgent());
     } else {
       if (SignatureProfile.LT_TM.equals(this.signatureProfile)) {
         source = new BDocTMOcspSource(this.configuration, this.signatureValue);
       } else {
-        source = new DefaultOCSPSource(this.configuration);
+        source = new CommonOCSPSource(this.configuration);
       }
       loader.setUserAgent(Helper.createBDocUserAgent(this.signatureProfile));
     }

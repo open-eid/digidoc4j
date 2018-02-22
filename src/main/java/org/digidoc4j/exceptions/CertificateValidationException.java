@@ -29,6 +29,11 @@ public class CertificateValidationException extends RuntimeException {
     this.certificateStatus = certificateStatus;
   }
 
+  protected CertificateValidationException(CertificateStatus certificateStatus, Exception cause) {
+    super(cause);
+    this.certificateStatus = certificateStatus;
+  }
+
   protected CertificateValidationException(String message) {
     super(message);
     this.certificateStatus = CertificateValidationStatus.TECHNICAL;
@@ -45,6 +50,15 @@ public class CertificateValidationException extends RuntimeException {
    */
   public static CertificateValidationException of(CertificateStatus status) {
     return new CertificateValidationException(status);
+  }
+
+  /**
+   * @param status status of certificate
+   * @param  cause cause of error
+   * @return CertificateValidationException
+   */
+  public static CertificateValidationException of(CertificateStatus status, Exception cause) {
+    return new CertificateValidationException(status, cause);
   }
 
   /**

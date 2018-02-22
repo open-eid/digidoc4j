@@ -11,14 +11,14 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by Janar Rahumeel (CGI Estonia)
  */
-public class DefaultOCSPSource extends SKOnlineOCSPSource {
+public class CommonOCSPSource extends SKOnlineOCSPSource {
 
-  private final Logger log = LoggerFactory.getLogger(DefaultOCSPSource.class);
+  private final Logger log = LoggerFactory.getLogger(CommonOCSPSource.class);
 
   /**
    * @param configuration configuration
    */
-  public DefaultOCSPSource(Configuration configuration) {
+  public CommonOCSPSource(Configuration configuration) {
     super(configuration);
   }
 

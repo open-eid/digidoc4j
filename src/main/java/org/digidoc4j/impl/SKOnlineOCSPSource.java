@@ -110,8 +110,8 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
       }
       certificateToken.addRevocationToken(token);
       return token;
-    } catch (DigiDoc4JException e) {
-      throw e; // TODO should we throw only DSS exceptions?
+    } catch (DSSException e) {
+      throw e;
     } catch (Exception e) {
       throw new DSSException(e);
     }

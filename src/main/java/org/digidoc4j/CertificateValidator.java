@@ -4,6 +4,8 @@ import java.security.cert.X509Certificate;
 
 import org.digidoc4j.exceptions.CertificateValidationException;
 
+import eu.europa.esig.dss.x509.CertificateSource;
+
 /**
  * Created by Janar Rahumeel (CGI Estonia)
  */
@@ -17,5 +19,10 @@ public interface CertificateValidator {
    * @throws CertificateValidationException exception containing validation status
    */
   void validate(X509Certificate subjectCertificate) throws CertificateValidationException;
+
+  /**
+   * @return CertificateSource
+   */
+  CertificateSource getCertificateSource();
 
 }

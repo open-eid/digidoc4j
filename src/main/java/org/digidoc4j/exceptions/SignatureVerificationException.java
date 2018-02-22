@@ -1,9 +1,11 @@
 package org.digidoc4j.exceptions;
 
+import eu.europa.esig.dss.DSSException;
+
 /**
  * Created by Janar Rahumeel (CGI Estonia)
  */
-public class SignatureVerificationException extends DigiDoc4JException {
+public class SignatureVerificationException extends DSSException {
 
   /**
    * @param message error message
