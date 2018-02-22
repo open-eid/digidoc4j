@@ -18,10 +18,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="ddoc4j" />
         <module name="digidoc4j" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.7">
+      <module name="ddoc4j" target="1.7" />
       <module name="digidoc4j" target="1.7" />
     </bytecodeTargetLevel>
   </component>
