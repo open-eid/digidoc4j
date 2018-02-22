@@ -49,13 +49,13 @@ public class LibraryInteroperabilityTest extends AbstractTest {
     TestAssert.assertContainerIsValid(container);
   }
 
-  @Test(expected = TechnicalException.class)
+  @Test
   public void verifySignatureWithDigiDoc4j_BC_unsafe_integer_by_default() {
     this.setGlobalMode(Configuration.Mode.PROD);
     Container container = ContainerBuilder.aContainer().
-        fromExistingFile("src/test/resources/testFiles/invalid-containers/Libdigidoc_created_tsa_signature_TS.bdoc").
+        fromExistingFile("src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc").
         withConfiguration(Configuration.of(Configuration.Mode.PROD)).build();
-    TestAssert.assertContainerIsValid(container);
+    TestAssert.assertContainerIsInvalid(container);
   }
 
   @Test
