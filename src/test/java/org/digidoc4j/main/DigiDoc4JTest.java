@@ -833,7 +833,7 @@ public class DigiDoc4JTest extends AbstractTest {
   @Test
   public void verifyValidBDocUnsafeInteger() throws Exception {
     this.setGlobalMode(Configuration.Mode.PROD);
-    this.systemExit.expectSystemExitWithStatus(0);
+    this.systemExit.expectSystemExitWithStatus(1);
     this.systemExit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
