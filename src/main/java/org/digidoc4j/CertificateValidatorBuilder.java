@@ -12,13 +12,13 @@ import eu.europa.esig.dss.x509.CertificateSource;
 import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 
 /**
- * Builder for certificate validator
+ * Builder for certificate validator. Currently only OCSP is supported
  * <p>
  * Created by Janar Rahumeel (CGI Estonia)
  */
 public final class CertificateValidatorBuilder {
 
-  private static final CertificateSource defaultIssuerCertificateSource = new CommonOCSPCertificateSource();
+  private static final CertificateSource defaultCertificateSource = new CommonOCSPCertificateSource();
 
   static {
     try {
@@ -31,14 +31,14 @@ public final class CertificateValidatorBuilder {
   }
 
   private Configuration configuration;
-  private CertificateSource issuerCertificateSource;
+  private CertificateSource certificateSource;
   private OCSPSource ocspSource;
 
   /**
    * @return CertificateSource
    */
-  public static CommonCertificateSource getDefaultIssuerCertificateSource() {
-    return (CommonCertificateSource) CertificateValidatorBuilder.defaultIssuerCertificateSource;
+  public static ExtendedCertificateSource getDefaultCertificateSource() {
+    return (ExtendedCertificateSource) CertificateValidatorBuilder.defaultCertificateSource;
   }
 
   /**
@@ -60,11 +60,11 @@ public final class CertificateValidatorBuilder {
   }
 
   /**
-   * @param issuerCertificateSource the source of issuer certificate
+   * @param certificateSource the source of certificate
    * @return CertificateValidatorBuilder
    */
-  public CertificateValidatorBuilder withIssuerCertificateSource(CertificateSource issuerCertificateSource) {
-    this.issuerCertificateSource = issuerCertificateSource;
+  public CertificateValidatorBuilder withIssuerCertificateSource(CertificateSource certificateSource) {
+    this.certificateSource = certificateSource;
     return this;
   }
 
@@ -75,13 +75,13 @@ public final class CertificateValidatorBuilder {
     if (this.configuration == null) {
       this.configuration = ConfigurationSingeltonHolder.getInstance();
     }
-    if (this.issuerCertificateSource == null) {
-      this.issuerCertificateSource = CertificateValidatorBuilder.defaultIssuerCertificateSource;
+    if (this.certificateSource == null) {
+      this.certificateSource = CertificateValidatorBuilder.defaultCertificateSource;
     }
     if (this.ocspSource == null) {
       this.ocspSource = OCSPSourceBuilder.defaultOCSPSource().withConfiguration(this.configuration).build();
     }
-    return new OCSPCertificateValidator(this.issuerCertificateSource, this.ocspSource);
+    return new OCSPCertificateValidator(this.certificateSource, this.ocspSource);
   }
 
 }

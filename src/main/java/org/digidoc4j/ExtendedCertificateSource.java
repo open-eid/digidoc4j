@@ -8,21 +8,21 @@ import eu.europa.esig.dss.x509.CertificateSource;
 /**
  * Created by Janar Rahumeel (CGI Estonia)
  */
-public interface CommonCertificateSource extends CertificateSource {
+public interface ExtendedCertificateSource extends CertificateSource {
 
   /**
    * Loads all certificates from path location
    *
    * @param path   folder to load
    */
-  void loadFromPath(Path path);
+  void importFromPath(Path path);
 
   /**
-   * Loads all certificates from path location
+   * Loads all certificates from path location by filter
    *
    * @param path   folder to load
    * @param filter filter
    */
-  void loadFromPath(Path path, FileFilter filter);
+  void importFromPath(Path path, FileFilter filter);
 
 }

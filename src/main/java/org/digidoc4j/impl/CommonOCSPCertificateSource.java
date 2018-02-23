@@ -6,18 +6,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-import org.digidoc4j.CommonCertificateSource;
+import org.digidoc4j.ExtendedCertificateSource;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.x509.CommonCertificateSource;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
  */
-public class CommonOCSPCertificateSource extends eu.europa.esig.dss.x509.CommonCertificateSource
-    implements CommonCertificateSource {
+public class CommonOCSPCertificateSource extends CommonCertificateSource implements ExtendedCertificateSource {
 
   private final Logger log = LoggerFactory.getLogger(CommonOCSPCertificateSource.class);
 
@@ -30,12 +30,12 @@ public class CommonOCSPCertificateSource extends eu.europa.esig.dss.x509.CommonC
   }
 
   @Override
-  public void loadFromPath(Path path) {
-    this.loadFromPath(path, new Helper.FileExtensionFilter("crt"));
+  public void importFromPath(Path path) {
+    this.importFromPath(path, new Helper.FileExtensionFilter("crt"));
   }
 
   @Override
-  public void loadFromPath(Path path, FileFilter filter) {
+  public void importFromPath(Path path, FileFilter filter) {
     this.log.info("Loading OCSP certificates from <{}>", path);
     this.loadFiles(Helper.getFilesFromPath(path, filter));
   }

@@ -84,8 +84,8 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
 
   @Test
   public void testLoadingOCSPIntermediateCertificatesFromCustomLocation() {
-    CommonCertificateSource source = CertificateValidatorBuilder.getDefaultIssuerCertificateSource();
-    source.loadFromPath(Paths.get("src/test/resources/testFiles/certs"));
+    ExtendedCertificateSource source = CertificateValidatorBuilder.getDefaultCertificateSource();
+    source.importFromPath(Paths.get("src/test/resources/testFiles/certs"));
     Assert.assertEquals("Not equals", 7, source.getCertificatePool().getNumberOfCertificates());
   }
 
