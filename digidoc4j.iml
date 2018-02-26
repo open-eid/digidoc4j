@@ -12,32 +12,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-common-validation-jaxb:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-detailed-report-jaxb:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-diagnostic-jaxb:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-document:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-model:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-policy-jaxb:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-reports:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-service:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-simple-report-jaxb:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-spi:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-token:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-tsl-jaxb:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-tsl-validation:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-xades:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-cades:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:validation-policy:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-common:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-cades:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-asic-xades:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-pades:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils-apache-commons:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-utils-google-guava:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-crl-parser:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-crl-parser-x509crl:5.2.d4j.2" level="project" />
-    <orderEntry type="library" name="Maven: org.digidoc4j.dss:dss-crl-parser-stream:5.2.d4j.2" level="project" />
     <orderEntry type="library" name="lib" level="project" />
     <orderEntry type="library" name="Maven: ee.sk.digidoc:jdigidoc:3.12.1" level="project" />
     <orderEntry type="library" name="Maven: commons-cli:commons-cli:1.4" level="project" />
