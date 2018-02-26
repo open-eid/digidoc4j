@@ -6,8 +6,10 @@ import java.util.List;
 
 import javax.security.auth.x500.X500Principal;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.CertificateValidator;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.exceptions.SignatureVerificationException;
 import org.slf4j.Logger;
@@ -28,14 +30,18 @@ import eu.europa.esig.dss.x509.ocsp.OCSPToken;
 public class OCSPCertificateValidator implements CertificateValidator {
 
   private final Logger log = LoggerFactory.getLogger(OCSPCertificateValidator.class);
+  private final Configuration configuration;
   private final CertificateSource certificateSource;
   private final OCSPSource ocspSource;
 
   /**
+   * @param configuration     configuration context
    * @param certificateSource the source of certificates
    * @param ocspSource        the source of OCSP
    */
-  public OCSPCertificateValidator(CertificateSource certificateSource, OCSPSource ocspSource) {
+  public OCSPCertificateValidator(Configuration configuration, CertificateSource certificateSource, OCSPSource
+      ocspSource) {
+    this.configuration = configuration;
     this.certificateSource = certificateSource;
     this.ocspSource = ocspSource;
   }
@@ -78,12 +84,20 @@ public class OCSPCertificateValidator implements CertificateValidator {
   }
 
   private CertificateToken getFromCertificateSource(X500Principal principal) {
-    List<CertificateToken> tokens = this.certificateSource.get(principal);
+    List<CertificateToken> tokens = this.getCertificateTokens(principal);
     if (tokens.size() != 1) {
       throw new IllegalStateException(String.format("<%s> matching certificate tokens found from certificate source",
           tokens.size()));
     }
     return tokens.get(0);
+  }
+
+  private List<CertificateToken> getCertificateTokens(X500Principal principal) {
+    List<CertificateToken> tokens = this.configuration.getTSL().get(principal);
+    if (CollectionUtils.isEmpty(tokens)) {
+      tokens = this.certificateSource.get(principal);
+    }
+    return tokens;
   }
 
   private void verifyOCSPToken(OCSPToken token) {

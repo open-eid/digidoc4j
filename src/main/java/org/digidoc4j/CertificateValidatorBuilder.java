@@ -81,7 +81,7 @@ public final class CertificateValidatorBuilder {
     if (this.ocspSource == null) {
       this.ocspSource = OCSPSourceBuilder.defaultOCSPSource().withConfiguration(this.configuration).build();
     }
-    return new OCSPCertificateValidator(this.certificateSource, this.ocspSource);
+    return new OCSPCertificateValidator(this.configuration, this.certificateSource, this.ocspSource);
   }
 
 }

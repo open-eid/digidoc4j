@@ -12,8 +12,10 @@ package org.digidoc4j.impl;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x509.Extension;
@@ -29,19 +31,18 @@ import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.ConfigurationParameter;
 import org.digidoc4j.Constant;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureVerificationException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.asic.SkDataLoader;
-import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.DSSRevocationUtils;
+import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
 import eu.europa.esig.dss.token.KSPrivateKeyEntry;
 import eu.europa.esig.dss.token.Pkcs12SignatureToken;
@@ -158,28 +159,33 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     }
   }
 
-  private void verifyResponse(BasicOCSPResp response) {
-    String verificationCertificatePath = this.configuration.getOCSPResponseVerificationCertificatePath();
-    if (StringUtils.isNotBlank(verificationCertificatePath)) {
-      try {
-        X509Certificate verificationCertificate = Helper.loadCertificate(verificationCertificatePath);
-        ContentVerifierProvider provider = new JcaContentVerifierProviderBuilder().setProvider("BC").build(new
-            X509CertificateHolder(verificationCertificate.getEncoded()));
-        if (!response.isSignatureValid(provider)) {
-          throw new SignatureVerificationException("OCSP response signature is invalid");
+  private void verifyResponse(BasicOCSPResp response) throws IOException {
+    List<X509CertificateHolder> holders = Arrays.asList(response.getCerts());
+    if (CollectionUtils.isNotEmpty(holders)) {
+      for (X509CertificateHolder holder : holders) {
+        CertificateToken token = DSSUtils.loadCertificate(holder.getEncoded());
+        List<CertificateToken> tokens = this.configuration.getTSL().get(
+            token.getCertificate().getSubjectX500Principal());
+        if (CollectionUtils.isEmpty(tokens) || tokens.size() != 1) {
+          throw new SignatureVerificationException(String.format("OCSP response certificate <%s> match is not found " +
+              "in TSL (<%s> results in total)", token.getDSSIdAsString(), tokens.size()));
+        } else {
+          try {
+            ContentVerifierProvider provider = new JcaContentVerifierProviderBuilder().setProvider("BC").build(new
+                X509CertificateHolder(tokens.get(0).getEncoded()));
+            if (!response.isSignatureValid(provider)) {
+              throw new SignatureVerificationException("OCSP response signature is invalid");
+            }
+          } catch (SignatureVerificationException e) {
+            throw e;
+          } catch (Exception e) {
+            throw new SignatureVerificationException("Unable to verify response signature", e);
+          }
         }
-      } catch (SignatureVerificationException e) {
-        throw e;
-      } catch (Exception e) {
-        throw new SignatureVerificationException("Unable to verify response signature", e);
       }
     } else {
       if (!this.configuration.isTest()) {
-        String warningMessage = String.format("It's strictly recommended to use signature verification of OCSP response. " +
-            "Configure <%s> parameter to activate", ConfigurationParameter.OcspResponseVerificationCertificatePath);
-        this.log.warn(StringUtils.rightPad("-", warningMessage.length(), "-"));
-        this.log.warn(warningMessage);
-        this.log.warn(StringUtils.rightPad("-", warningMessage.length(), "-"));
+        this.log.warn("OCSP response signature will not be verified. No response certificates has been found");
       }
     }
   }

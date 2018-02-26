@@ -28,12 +28,12 @@ public class TslManager implements Serializable {
   }
 
   public TSLCertificateSource getTsl() {
-    if (tslCertificateSource != null) {
+    if (this.tslCertificateSource != null) {
       logger.debug("Using TSL cached copy");
       return tslCertificateSource;
     }
-    loadTsl();
-    return tslCertificateSource;
+    this.loadTsl();
+    return this.tslCertificateSource;
   }
 
   public void setTsl(TSLCertificateSource certificateSource) {
@@ -45,13 +45,13 @@ public class TslManager implements Serializable {
    */
   private synchronized void loadTsl() {
     //Using double-checked locking to avoid other threads to start loading TSL
-    if(tslCertificateSource == null) {
+    if (this.tslCertificateSource == null) {
       logger.debug("Loading TSL in a synchronized block");
-      TslLoader tslLoader = new TslLoader(configuration);
-      tslLoader.setCheckSignature(configuration.shouldValidateTslSignature());
+      TslLoader tslLoader = new TslLoader(this.configuration);
+      tslLoader.setCheckSignature(this.configuration.shouldValidateTslSignature());
       LazyTslCertificateSource lazyTsl = new LazyTslCertificateSource(tslLoader);
-      lazyTsl.setCacheExpirationTime(configuration.getTslCacheExpirationTime());
-      tslCertificateSource = lazyTsl;
+      lazyTsl.setCacheExpirationTime(this.configuration.getTslCacheExpirationTime());
+      this.tslCertificateSource = lazyTsl;
       logger.debug("Finished loading TSL in a synchronized block");
     }
   }

@@ -942,23 +942,6 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Get OCSP verification certificate path
-   *
-   * @return path to a file
-   */
-  public String getOCSPResponseVerificationCertificatePath() {
-    return this.getConfigurationParameter(ConfigurationParameter.OcspResponseVerificationCertificatePath);
-  }
-
-  /**
-   * @param verificationCertificatePath path to certificate file
-   */
-  public void setOCSPResponseVerificationCertificatePath(String verificationCertificatePath) {
-    this.setConfigurationParameter(ConfigurationParameter.OcspResponseVerificationCertificatePath,
-        verificationCertificatePath);
-  }
-
-  /**
    * Get SSL TrustStore path
    *
    * @return path to a file.
@@ -1188,8 +1171,6 @@ public class Configuration implements Serializable {
         this.getParameterFromFile("SSL_KEYSTORE_TYPE"));
     this.setConfigurationParameter(ConfigurationParameter.SslTruststoreType,
         this.getParameterFromFile("SSL_TRUSTSTORE_TYPE"));
-    this.setConfigurationParameter(ConfigurationParameter.OcspResponseVerificationCertificatePath,
-        this.getParameterFromFile("OCSP_RESPONSE_VERIFICATION_CERTIFICATE_PATH"));
     this.setConfigurationParameter(ConfigurationParameter.SslKeystorePath,
         this.getParameter(Constant.System.JAVAX_NET_SSL_KEY_STORE, "SSL_KEYSTORE_PATH"));
     this.setConfigurationParameter(ConfigurationParameter.SslKeystorePassword,
