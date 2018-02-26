@@ -14,7 +14,6 @@ import org.digidoc4j.impl.asic.xades.validation.XadesValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.validation.reports.Reports;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 /**
@@ -22,7 +21,7 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
  */
 public abstract class DssXadesSignature implements XadesSignature {
 
-  private final static Logger logger = LoggerFactory.getLogger(DssXadesSignature.class);
+  private final Logger log = LoggerFactory.getLogger(DssXadesSignature.class);
   private XadesValidationReportGenerator reportGenerator;
 
   /**
@@ -34,12 +33,13 @@ public abstract class DssXadesSignature implements XadesSignature {
 
   @Override
   public XadesValidationResult validate() {
-    logger.debug("Validating xades signature");
+    this.log.debug("Validating xades signature");
     return new XadesValidationResult(this.reportGenerator.openValidationReport());
   }
 
   @Override
   public XAdESSignature getDssSignature() {
-    return reportGenerator.openDssSignature();
+    return this.reportGenerator.openDssSignature();
   }
+
 }

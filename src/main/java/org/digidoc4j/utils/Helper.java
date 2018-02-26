@@ -165,7 +165,7 @@ public final class Helper {
    * Serialize object.
    *
    * @param object object to be serialized
-   * @param file  file to store serialized object in
+   * @param file   file to store serialized object in
    */
   public static <T> void serialize(T object, File file) {
     FileOutputStream fileOut = null;
@@ -186,8 +186,8 @@ public final class Helper {
   /**
    * Serialize object.
    *
-   * @param object object to be serialized
-   * @param filename  name of file to store serialized object in
+   * @param object   object to be serialized
+   * @param filename name of file to store serialized object in
    */
   public static <T> void serialize(T object, String filename) {
     Helper.serialize(object, new File(filename));
@@ -227,6 +227,7 @@ public final class Helper {
 
   /**
    * Creates a buffered output stream for a given file.
+   *
    * @param file target file.
    * @return stream
    */
@@ -238,12 +239,13 @@ public final class Helper {
     }
   }
 
-  /** creates user agent value for given container
+  /**
+   * creates user agent value for given container
    * format is:
-   *    LIB DigiDoc4J/VERSION format: CONTAINER_TYPE signatureProfile: SIGNATURE_PROFILE
-   *    Java: JAVA_VERSION/JAVA_PROVIDER OS: OPERATING_SYSTEM JVM: JVM
+   * LIB DigiDoc4J/VERSION format: CONTAINER_TYPE signatureProfile: SIGNATURE_PROFILE
+   * Java: JAVA_VERSION/JAVA_PROVIDER OS: OPERATING_SYSTEM JVM: JVM
    *
-   * @param container  container used for creation user agent
+   * @param container container used for creation user agent
    * @return user agent string
    */
   public static String createUserAgent(Container container) {
@@ -332,7 +334,7 @@ public final class Helper {
     return hasSpecial.find();
   }
 
-  public static String getIdentifier(String identifier){
+  public static String getIdentifier(String identifier) {
     String id = identifier.trim();
     if (DSSXMLUtils.isOid(id)) {
       id = id.substring(id.lastIndexOf(':') + 1);
@@ -343,7 +345,7 @@ public final class Helper {
   }
 
   public static SignaturePolicyProvider getBdocSignaturePolicyProvider(DSSDocument signature) {
-    SignaturePolicyProvider signaturePolicyProvider  = new SignaturePolicyProvider();
+    SignaturePolicyProvider signaturePolicyProvider = new SignaturePolicyProvider();
     Map<String, DSSDocument> signaturePoliciesById = new HashMap<String, DSSDocument>();
     signaturePoliciesById.put(XadesSignatureValidator.TM_POLICY, signature);
 
@@ -360,9 +362,9 @@ public final class Helper {
    *
    * @param container as Container object
    */
-  public static List<byte[]> getAllFilesFromContainerAsBytes(Container container){
+  public static List<byte[]> getAllFilesFromContainerAsBytes(Container container) {
     List<byte[]> files = new ArrayList<>();
-    for(DataFile dataFile: container.getDataFiles()){
+    for (DataFile dataFile : container.getDataFiles()) {
       files.add(dataFile.getBytes());
     }
     return files;
@@ -373,14 +375,14 @@ public final class Helper {
    *
    * @param pathFrom as String
    */
-  public static List<byte[]> getAllFilesFromContainerPathAsBytes(String pathFrom){
+  public static List<byte[]> getAllFilesFromContainerPathAsBytes(String pathFrom) {
     Container container = ContainerBuilder.
         aContainer().
         fromExistingFile(pathFrom).
         build();
 
     List<byte[]> files = new ArrayList<>();
-    for(DataFile dataFile: container.getDataFiles()){
+    for (DataFile dataFile : container.getDataFiles()) {
       files.add(dataFile.getBytes());
     }
     return files;
@@ -390,10 +392,10 @@ public final class Helper {
    * Saves all datafiles to specified folder
    *
    * @param container as Container object
-   * @param path as String
+   * @param path      as String
    */
-  public static void saveAllFilesFromContainerToFolder(Container container, String path){
-    for(DataFile dataFile: container.getDataFiles()){
+  public static void saveAllFilesFromContainerToFolder(Container container, String path) {
+    for (DataFile dataFile : container.getDataFiles()) {
       File file = new File(path + File.separator + dataFile.getName());
       DSSUtils.saveToFile(dataFile.getBytes(), file);
     }
@@ -403,15 +405,15 @@ public final class Helper {
    * Saves all datafiles to specified folder
    *
    * @param pathFrom as String
-   * @param pathTo as String
+   * @param pathTo   as String
    */
-  public static void saveAllFilesFromContainerPathToFolder(String pathFrom, String pathTo){
+  public static void saveAllFilesFromContainerPathToFolder(String pathFrom, String pathTo) {
     Container container = ContainerBuilder.
         aContainer().
         fromExistingFile(pathFrom).
         build();
 
-    for(DataFile dataFile: container.getDataFiles()){
+    for (DataFile dataFile : container.getDataFiles()) {
       File file = new File(pathTo + File.separator + dataFile.getName());
       DSSUtils.saveToFile(dataFile.getBytes(), file);
     }
@@ -419,9 +421,8 @@ public final class Helper {
 
   /**
    * delete tmp files from temp folder created by StreamDocument
-   *
    */
-  public static void deleteTmpFiles(){
+  public static void deleteTmpFiles() {
     File dir = new File(System.getProperty("java.io.tmpdir"));
     FilenameFilter filenameFilter = new FilenameFilter() {
       @Override
@@ -430,7 +431,7 @@ public final class Helper {
       }
     };
     for (File f : dir.listFiles(filenameFilter)) {
-      if (!f.delete()){
+      if (!f.delete()) {
         f.deleteOnExit();
         System.gc();
       }
@@ -445,9 +446,9 @@ public final class Helper {
    */
   public static boolean isAsicEContainer(String path) {
     String extension = FilenameUtils.getExtension(path);
-    if ("sce".equals(extension) || "asice".equals(extension)){
+    if ("sce".equals(extension) || "asice".equals(extension)) {
       return true;
-    } else if ("zip".equals(extension)){
+    } else if ("zip".equals(extension)) {
       try {
         return parseAsicContainer(new BufferedInputStream(new FileInputStream(path)), MimeType.ASICE);
       } catch (FileNotFoundException e) {
@@ -483,9 +484,9 @@ public final class Helper {
    */
   public static boolean isAsicSContainer(String path) {
     String extension = FilenameUtils.getExtension(path);
-    if ("scs".equals(extension) || "asics".equals(extension)){
+    if ("scs".equals(extension) || "asics".equals(extension)) {
       return true;
-    } else if ("zip".equals(extension)){
+    } else if ("zip".equals(extension)) {
       try {
         return parseAsicContainer(new BufferedInputStream(new FileInputStream(path)), MimeType.ASICS);
       } catch (FileNotFoundException e) {
@@ -519,12 +520,12 @@ public final class Helper {
     try {
       ZipEntry entry;
       while ((entry = zipInputStream.getNextEntry()) != null) {
-        if (StringUtils.equalsIgnoreCase("mimetype", entry.getName())){
+        if (StringUtils.equalsIgnoreCase("mimetype", entry.getName())) {
           InputStream zipFileInputStream = zipInputStream;
           BOMInputStream bomInputStream = new BOMInputStream(zipFileInputStream);
           DSSDocument document = new InMemoryDocument(bomInputStream);
           String mimeType = StringUtils.trim(IOUtils.toString(IOUtils.toByteArray(document.openStream()), "UTF-8"));
-          if (StringUtils.equalsIgnoreCase(mimeType, mtype.getMimeTypeString())){
+          if (StringUtils.equalsIgnoreCase(mimeType, mtype.getMimeTypeString())) {
             return true;
           }
         }
@@ -550,7 +551,8 @@ public final class Helper {
 
   /**
    * Method for converting bytes to hex string.
-   * @param bytes Given byte array.
+   *
+   * @param bytes  Given byte array.
    * @param maxLen Max length of result string.
    * @return String of hex characters.
    */
@@ -563,4 +565,17 @@ public final class Helper {
     }
     return new String(hexChars);
   }
+
+  public static void printWarningSection(Logger logger, String warningMessage) {
+    logger.warn(StringUtils.rightPad("-", warningMessage.length(), "-"));
+    logger.warn(warningMessage);
+    logger.warn(StringUtils.rightPad("-", warningMessage.length(), "-"));
+  }
+
+  public static void printErrorSection(Logger logger, String errorMessage) {
+    logger.error(StringUtils.rightPad("-", errorMessage.length(), "-"));
+    logger.error(errorMessage);
+    logger.error(StringUtils.rightPad("-", errorMessage.length(), "-"));
+  }
+
 }
