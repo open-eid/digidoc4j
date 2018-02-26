@@ -138,7 +138,7 @@ public final class DigiDoc4J {
     } catch (DigiDoc4JUtilityException e) {
       throw e;
     } catch (DigiDoc4JException e) {
-      throw new DigiDoc4JUtilityException(1, e.getMessage());
+      throw new DigiDoc4JUtilityException(1, e);
     }
   }
 
