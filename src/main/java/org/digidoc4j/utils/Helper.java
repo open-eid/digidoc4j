@@ -313,6 +313,8 @@ public final class Helper {
   }
 
   /**
+   * creates user agent value for given container
+  /**
    * @param filePath file location
    * @return X509Certificate
    */
@@ -661,6 +663,18 @@ public final class Helper {
       hexChars[j * 2 + 1] = hexArray[v & 0x0F];
     }
     return new String(hexChars);
+  }
+
+  public static void printWarningSection(Logger logger, String warningMessage) {
+    logger.warn(StringUtils.rightPad("-", warningMessage.length(), "-"));
+    logger.warn(warningMessage);
+    logger.warn(StringUtils.rightPad("-", warningMessage.length(), "-"));
+  }
+
+  public static void printErrorSection(Logger logger, String errorMessage) {
+    logger.error(StringUtils.rightPad("-", errorMessage.length(), "-"));
+    logger.error(errorMessage);
+    logger.error(StringUtils.rightPad("-", errorMessage.length(), "-"));
   }
 
   public static class FileExtensionFilter implements FileFilter {

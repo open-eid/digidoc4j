@@ -12,9 +12,10 @@ package org.digidoc4j.exceptions;
 
 public class InvalidOcspNonceException extends DigiDoc4JException {
 
-  public static final String MESSAGE = "Nonce is invalid";
+  public static final String MESSAGE = "OCSP nonce is invalid";
 
   public InvalidOcspNonceException() {
     super(MESSAGE);
   }
+
 }

@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.DataFile;
 import org.digidoc4j.impl.asic.AsicEntry;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicStreamContainerParser;
@@ -26,27 +27,27 @@ public class AsicContainerParserTest extends AbstractTest {
 
   @Test
   public void findingNextSignatureFileIndex_onEmptyContainer_shouldReturn_null() throws Exception {
-    Assert.assertEquals(null, this.getParseResult(Paths.get("src/test/resources/testFiles/invalid-containers/asics_without_signatures.bdoc")).getCurrentUsedSignatureFileIndex());
+    Assert.assertEquals(null, this.getParseResultFromFile(Paths.get("src/test/resources/testFiles/invalid-containers/asics_without_signatures.bdoc")).getCurrentUsedSignatureFileIndex());
   }
 
   @Test
   public void findingNextSignatureFileIndex_onContainerWithOneSignature_withoutIndex_shouldReturn_null() throws Exception {
-    Assert.assertEquals(null, this.getParseResult(Paths.get("src/test/resources/testFiles/invalid-containers/asics_for_testing.bdoc")).getCurrentUsedSignatureFileIndex());
+    Assert.assertEquals(null, this.getParseResultFromFile(Paths.get("src/test/resources/testFiles/invalid-containers/asics_for_testing.bdoc")).getCurrentUsedSignatureFileIndex());
   }
 
   @Test
   public void findingNextSignatureFileIndex_onContainerWithOneSignature_withIndex0_shouldReturn_0() throws Exception {
-    Assert.assertEquals(Integer.valueOf(0), this.getParseResult(Paths.get("src/test/resources/testFiles/valid-containers/asics_with_one_signature.bdoc")).getCurrentUsedSignatureFileIndex());
+    Assert.assertEquals(Integer.valueOf(0), this.getParseResultFromFile(Paths.get("src/test/resources/testFiles/valid-containers/asics_with_one_signature.bdoc")).getCurrentUsedSignatureFileIndex());
   }
 
   @Test
   public void findingNextSignatureFileIndex_onContainerWithTwoSignature_shouldReturn_1() throws Exception {
-    Assert.assertEquals(Integer.valueOf(1), this.getParseResult(Paths.get("src/test/resources/testFiles/valid-containers/asics_testing_two_signatures.bdoc")).getCurrentUsedSignatureFileIndex());
+    Assert.assertEquals(Integer.valueOf(1), this.getParseResultFromFile(Paths.get("src/test/resources/testFiles/valid-containers/asics_testing_two_signatures.bdoc")).getCurrentUsedSignatureFileIndex());
   }
 
   @Test
   public void parseBdocContainer() throws Exception {
-    this.assertParseResultValid(this.getParseResult(Paths.get("src/test/resources/testFiles/invalid-containers/two_signatures.bdoc")));
+    this.assertParseResultValid(this.getParseResultFromFile(Paths.get("src/test/resources/testFiles/invalid-containers/two_signatures.bdoc")));
   }
 
   @Test
@@ -56,10 +57,30 @@ public class AsicContainerParserTest extends AbstractTest {
 
   @Test
   public void parseBDoc_containingSignaturesFile_withNonNumericCharacters() throws Exception {
-    AsicParseResult result = this.getParseResult(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-ts-signature-file-name-with-non-numeric-characters.asice"));
+    AsicParseResult result = this.getParseResultFromFile(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-ts-signature-file-name-with-non-numeric-characters.asice"));
     this.assertIsAsiceContainer(result);
     Assert.assertEquals("META-INF/l77Tsignaturesn00B.xml", result.getSignatures().get(0).getName());
     Assert.assertNull(result.getCurrentUsedSignatureFileIndex());
+  }
+
+  @Test
+  public void parseBDocFromFile() throws Exception {
+    AsicParseResult result = this.getParseResultFromFile
+        (Paths.get("src/test/resources/testFiles/valid-containers/23147_weak-warning-sha1.bdoc"));
+    for (DataFile dataFile : result.getDataFiles()){
+      Assert.assertEquals(dataFile.getName(), "jdigidoc.cfg");
+      Assert.assertEquals(dataFile.getMediaType(), "text/html");
+    }
+  }
+
+  @Test
+  public void parseBdocFromStream() throws Exception {
+    AsicParseResult result = getParseResultFromStream
+        ("src/test/resources/testFiles/valid-containers/23147_weak-warning-sha1.bdoc");
+    for (DataFile dataFile : result.getDataFiles()){
+      Assert.assertEquals(dataFile.getName(), "jdigidoc.cfg");
+      Assert.assertEquals(dataFile.getMediaType(), "text/html");
+    }
   }
 
   /*

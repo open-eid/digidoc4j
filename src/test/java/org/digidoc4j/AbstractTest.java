@@ -2,6 +2,7 @@ package org.digidoc4j;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -24,6 +25,7 @@ import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.asic.AsicFileContainerParser;
 import org.digidoc4j.impl.asic.AsicParseResult;
+import org.digidoc4j.impl.asic.AsicStreamContainerParser;
 import org.digidoc4j.impl.asic.SkDataLoader;
 import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
 import org.digidoc4j.signers.PKCS12SignatureToken;
@@ -155,8 +157,12 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     }
   }
 
-  protected AsicParseResult getParseResult(Path path) {
+  protected AsicParseResult getParseResultFromFile(Path path) {
     return new AsicFileContainerParser(path.toString(), Configuration.getInstance()).read();
+  }
+
+  protected AsicParseResult getParseResultFromStream(String path) throws FileNotFoundException {
+    return new AsicStreamContainerParser(new FileInputStream(path.toString()), Configuration.getInstance()).read();
   }
 
   protected Pair<SignedDoc, List<DigiDocException>> openDigiDocContainerBy(Path path) {

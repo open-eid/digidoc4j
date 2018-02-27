@@ -51,11 +51,16 @@ public class ValidationTests extends AbstractTest {
 
   public static final Configuration PROD_CONFIGURATION = new Configuration(Configuration.Mode.PROD);
   public static final Configuration PROD_CONFIGURATION_WITH_TEST_POLICY = new Configuration(Configuration.Mode.PROD);
-  private String containerLocation;
 
   @BeforeClass
   public static void setUpOnce() throws Exception {
     PROD_CONFIGURATION_WITH_TEST_POLICY.setValidationPolicy("conf/test_constraint.xml");
+  }
+
+  @Test
+  public void testUnknownOcspContainer() {
+    Container container = this.openContainerBy(Paths.get("src/test/resources/testFiles/invalid-containers/unknown_ocsp.asice"));
+    TestAssert.assertContainerIsValid(container);
   }
 
   @Test
@@ -72,8 +77,7 @@ public class ValidationTests extends AbstractTest {
 
   @Test
   public void testValidateEmptyDocument() {
-    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
-    Assert.assertTrue(container.validate().isValid());
+    TestAssert.assertContainerIsValid(this.createEmptyContainerBy(Container.DocumentType.BDOC, Container.class));
   }
 
   @Test
@@ -111,7 +115,7 @@ public class ValidationTests extends AbstractTest {
     ValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
     Assert.assertEquals(1, errors.size());
-    TestAssert.assertContainsError("(Signature ID: S0) The reference data object(s) is not found!", errors);
+    TestAssert.assertContainsError("(Signature ID: S0) - The reference data object(s) is not found!", errors);
   }
 
   @Test
@@ -120,7 +124,7 @@ public class ValidationTests extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/invalid-data-file.bdoc");
     ValidationResult validate = container.validate();
     Assert.assertEquals(1, validate.getErrors().size());
-    Assert.assertEquals("(Signature ID: S0) The reference data object(s) is not intact!", validate.getErrors().get(0).toString());
+    Assert.assertEquals("(Signature ID: S0) - The reference data object(s) is not intact!", validate.getErrors().get(0).toString());
   }
 
   @Test
@@ -130,8 +134,8 @@ public class ValidationTests extends AbstractTest {
     ValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
     Assert.assertEquals(3, errors.size());
-    Assert.assertEquals("(Signature ID: S1) The reference data object(s) is not intact!", errors.get(0).toString());
-    Assert.assertEquals("(Signature ID: S1) Manifest file has an entry for file test.txt with mimetype text/plain but the signature file for " +
+    Assert.assertEquals("(Signature ID: S1) - The reference data object(s) is not intact!", errors.get(0).toString());
+    Assert.assertEquals("(Signature ID: S1) - Manifest file has an entry for file test.txt with mimetype text/plain but the signature file for " +
         "signature S1 does not have an entry for this file", errors.get(1).toString());
     Assert.assertEquals("Container contains a file named test.txt which is not found in the signature file",
         errors.get(2).toString());
@@ -142,9 +146,9 @@ public class ValidationTests extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/filename_mismatch_manifest.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
     ValidationResult validate = container.validate();
     Assert.assertEquals(2, validate.getErrors().size());
-    Assert.assertEquals("(Signature ID: S0) Manifest file has an entry for file incorrect.txt with mimetype text/plain but the signature file " +
+    Assert.assertEquals("(Signature ID: S0) - Manifest file has an entry for file incorrect.txt with mimetype text/plain but the signature file " +
         "for signature S0 does not have an entry for this file", validate.getErrors().get(0).toString());
-    Assert.assertEquals("(Signature ID: S0) The signature file for signature S0 has an entry for file RELEASE-NOTES.txt with mimetype " +
+    Assert.assertEquals("(Signature ID: S0) - The signature file for signature S0 has an entry for file RELEASE-NOTES.txt with mimetype " +
             "text/plain but the manifest file does not have an entry for this file",
         validate.getErrors().get(1).toString());
   }
@@ -161,7 +165,7 @@ public class ValidationTests extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/revocation_timestamp_delta_26h.asice", PROD_CONFIGURATION);
     ValidationResult validate = container.validate();
     Assert.assertEquals(1, validate.getErrors().size());
-    Assert.assertEquals("(Signature ID: S0) The difference between the OCSP response time and the signature timestamp is too large",
+    Assert.assertEquals("(Signature ID: S0) - The difference between the OCSP response time and the signature timestamp is too large",
         validate.getErrors().get(0).toString());
   }
 
@@ -180,7 +184,7 @@ public class ValidationTests extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/mimetype_mismatch.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
     ValidationResult validate = container.validate();
     Assert.assertEquals(1, validate.getErrors().size());
-    Assert.assertEquals("(Signature ID: S0) Manifest file has an entry for file RELEASE-NOTES.txt with mimetype application/pdf but the " +
+    Assert.assertEquals("(Signature ID: S0) - Manifest file has an entry for file RELEASE-NOTES.txt with mimetype application/pdf but the " +
         "signature file for signature S0 indicates the mimetype is text/plain", validate.getErrors().get(0).toString());
   }
 
@@ -223,7 +227,7 @@ public class ValidationTests extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/zip_misses_file_which_is_in_manifest.asice");
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    TestAssert.assertContainsError("(Signature ID: S0) The reference data object(s) is not found!", errors);
+    TestAssert.assertContainsError("(Signature ID: S0) - The reference data object(s) is not found!", errors);
   }
 
   @Test
@@ -232,8 +236,8 @@ public class ValidationTests extends AbstractTest {
     ValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
     Assert.assertEquals(SignatureProfile.LT, container.getSignatures().get(0).getProfile());
-    TestAssert.assertContainsError("(Signature ID: S0) No revocation data for the certificate", errors);
-    TestAssert.assertContainsError("(Signature ID: S0) Manifest file has an entry for file test.txt with mimetype text/plain but the signature file for signature S0 indicates the mimetype is application/octet-stream", errors);
+    TestAssert.assertContainsError("(Signature ID: S0) - No revocation data for the certificate", errors);
+    TestAssert.assertContainsError("(Signature ID: S0) - Manifest file has an entry for file test.txt with mimetype text/plain but the signature file for signature S0 indicates the mimetype is application/octet-stream", errors);
   }
 
   @Ignore("This signature has two OCSP responses: one correct and one is technically corrupted. Opening a container should not throw an exception")
@@ -248,7 +252,7 @@ public class ValidationTests extends AbstractTest {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(1, errors.size());
-    Assert.assertEquals("(Signature ID: S0) Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.4.3", errors.get(0).toString());
+    Assert.assertEquals("(Signature ID: S0) - Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.4.3", errors.get(0).toString());
   }
 
   @Test
@@ -257,7 +261,7 @@ public class ValidationTests extends AbstractTest {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(1, errors.size());
-    Assert.assertEquals("(Signature ID: S0) Nonce is invalid", errors.get(0).toString());
+    Assert.assertEquals("(Signature ID: S0) - OCSP nonce is invalid", errors.get(0).toString());
   }
 
   @Test
@@ -266,8 +270,8 @@ public class ValidationTests extends AbstractTest {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(2, errors.size());
-    TestAssert.assertContainsError("(Signature ID: S0) Signed properties missing", errors);
-    TestAssert.assertContainsError("(Signature ID: S0) The reference data object(s) is not found!", errors);
+    TestAssert.assertContainsError("(Signature ID: S0) - Signed properties missing", errors);
+    TestAssert.assertContainsError("(Signature ID: S0) - The reference data object(s) is not found!", errors);
     Assert.assertEquals(2, container.getSignatures().get(0).validateSignature().getErrors().size());
   }
 
@@ -277,8 +281,8 @@ public class ValidationTests extends AbstractTest {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(2, errors.size());
-    TestAssert.assertContainsError("(Signature ID: S0) Signed properties missing", errors);
-    TestAssert.assertContainsError("(Signature ID: S0) The reference data object(s) is not found!", errors);
+    TestAssert.assertContainsError("(Signature ID: S0) - Signed properties missing", errors);
+    TestAssert.assertContainsError("(Signature ID: S0) - The reference data object(s) is not found!", errors);
   }
 
   @Test
@@ -296,7 +300,7 @@ public class ValidationTests extends AbstractTest {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(1, errors.size());
-    Assert.assertEquals("(Signature ID: S0) The reference data object(s) is not found!", errors.get(0).toString());
+    Assert.assertEquals("(Signature ID: S0) - The reference data object(s) is not found!", errors.get(0).toString());
   }
 
   @Test
@@ -305,9 +309,9 @@ public class ValidationTests extends AbstractTest {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(3, errors.size());
-    Assert.assertEquals("(Signature ID: S0) Wrong policy identifier: 1.3.6.1.4.1.10015.1000.2.10.10", errors.get(0).toString());
-    Assert.assertEquals("(Signature ID: S0) The signature policy is not available!", errors.get(1).toString());
-    Assert.assertEquals("(Signature ID: S0) Nonce is invalid", errors.get(2).toString());
+    Assert.assertEquals("(Signature ID: S0) - Wrong policy identifier: 1.3.6.1.4.1.10015.1000.2.10.10", errors.get(0).toString());
+    Assert.assertEquals("(Signature ID: S0) - The signature policy is not available!", errors.get(1).toString());
+    Assert.assertEquals("(Signature ID: S0) - OCSP nonce is invalid", errors.get(2).toString());
   }
 
   @Test
@@ -316,7 +320,7 @@ public class ValidationTests extends AbstractTest {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(1, errors.size());
-    Assert.assertEquals("(Signature ID: S0) Wrong policy identifier qualifier: OIDAsURI", errors.get(0).toString());
+    Assert.assertEquals("(Signature ID: S0) - Wrong policy identifier qualifier: OIDAsURI", errors.get(0).toString());
     Assert.assertEquals(1, container.getSignatures().get(0).validateSignature().getErrors().size());
   }
 
@@ -326,7 +330,7 @@ public class ValidationTests extends AbstractTest {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(1, errors.size());
-    Assert.assertEquals("(Signature ID: S0) Nonce is invalid", errors.get(0).toString());
+    Assert.assertEquals("(Signature ID: S0) - OCSP nonce is invalid", errors.get(0).toString());
   }
 
   @Test
@@ -335,8 +339,8 @@ public class ValidationTests extends AbstractTest {
     ValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(2, errors.size());
-    Assert.assertEquals("(Signature ID: S0) " + "The result of the timestamps validation process is not conclusive!", errors.get(0).toString());
-    Assert.assertEquals("(Signature ID: S0) " + InvalidTimestampException.MESSAGE, errors.get(1).toString());
+    Assert.assertEquals("(Signature ID: S0) - The result of the timestamps validation process is not conclusive!", errors.get(0).toString());
+    Assert.assertEquals("(Signature ID: S0) - " + InvalidTimestampException.MESSAGE, errors.get(1).toString());
   }
 
   @Test
@@ -473,7 +477,6 @@ public class ValidationTests extends AbstractTest {
   @Override
   protected void before() {
     this.configuration = Configuration.of(Configuration.Mode.TEST);
-    this.containerLocation = this.getFileBy("bdoc");
   }
 
 }

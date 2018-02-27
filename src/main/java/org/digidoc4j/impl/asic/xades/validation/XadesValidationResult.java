@@ -24,18 +24,21 @@ public class XadesValidationResult {
     this.validationReport = validationReport;
   }
 
-  public Reports getReport() {
-    return validationReport;
-  }
-
-  //TODO test - no more method for ASiC_E report
   public Map<String, SimpleReport> extractSimpleReports() {
     Map<String, SimpleReport> simpleReports = new LinkedHashMap<>();
-      SimpleReport simpleReport = validationReport.getSimpleReport();
-      if (simpleReport.getSignatureIdList().size() > 0) {
-        simpleReports.put(simpleReport.getSignatureIdList().get(0), simpleReport);
-      }
+    SimpleReport simpleReport = this.validationReport.getSimpleReport();
+    if (simpleReport.getSignatureIdList().size() > 0) {
+      simpleReports.put(simpleReport.getSignatureIdList().get(0), simpleReport);
+    }
     return simpleReports;
+  }
+
+  /*
+   * ACCESSORS
+   */
+
+  public Reports getReport() {
+    return validationReport;
   }
 
 }
