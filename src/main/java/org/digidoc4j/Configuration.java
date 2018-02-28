@@ -699,6 +699,20 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * @return whether to print validation report
+   */
+  public boolean getPrintValidationReport() {
+    return this.getConfigurationParameter(ConfigurationParameter.PrintValidationReport, Boolean.class);
+  }
+
+  /**
+   * @param printValidationReport whether to print validation report
+   */
+  public void setPrintValidationReport(Boolean printValidationReport) {
+    this.setConfigurationParameter(ConfigurationParameter.PrintValidationReport, printValidationReport.toString());
+  }
+
+  /**
    * Revocation and timestamp delta in minutes.
    *
    * @return timestamp delta in minutes.
@@ -1099,6 +1113,7 @@ public class Configuration implements Serializable {
       this.setConfigurationParameter(ConfigurationParameter.ValidationPolicy, Constant.Test.VALIDATION_POLICY);
       this.setConfigurationParameter(ConfigurationParameter.OcspSource, Constant.Test.OCSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, "false");
+      this.setConfigurationParameter(ConfigurationParameter.PrintValidationReport, "true");
       this.setJDigiDocParameter("SIGN_OCSP_REQUESTS", "false");
     } else {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Production.TSP_SOURCE);
@@ -1108,6 +1123,7 @@ public class Configuration implements Serializable {
       this.setConfigurationParameter(ConfigurationParameter.ValidationPolicy, Constant.Production.VALIDATION_POLICY);
       this.setConfigurationParameter(ConfigurationParameter.OcspSource, Constant.Production.OCSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, "false");
+      this.setConfigurationParameter(ConfigurationParameter.PrintValidationReport, "false");
       this.trustedTerritories = Constant.Production.DEFAULT_TRUESTED_TERRITORIES;
       this.setJDigiDocParameter("SIGN_OCSP_REQUESTS", "false");
     }
@@ -1153,6 +1169,7 @@ public class Configuration implements Serializable {
     this.setConfigurationParameterFromFile("SIGNATURE_PROFILE", ConfigurationParameter.SignatureProfile);
     this.setConfigurationParameterFromFile("SIGNATURE_DIGEST_ALGORITHM",
         ConfigurationParameter.SignatureDigestAlgorithm);
+    this.setConfigurationParameterFromFile("PRINT_VALIDATION_REPORT", ConfigurationParameter.PrintValidationReport);
     this.setJDigiDocConfigurationValue("SIGN_OCSP_REQUESTS", Boolean.toString(this.hasToBeOCSPRequestSigned()));
     this.setJDigiDocConfigurationValue("DIGIDOC_PKCS12_CONTAINER", this.getOCSPAccessCertificateFileName());
     this.initOcspAccessCertPasswordForJDigidoc();
@@ -1230,7 +1247,7 @@ public class Configuration implements Serializable {
 
   private boolean valueIsAllowed(String configParameter, String value) {
     List<String> mustBeBooleans = Arrays.asList("SIGN_OCSP_REQUESTS", "KEY_USAGE_CHECK", "DATAFILE_HASHCODE_MODE",
-        "DIGIDOC_USE_LOCAL_TSL", "ALLOW_UNSAFE_INTEGER");
+        "DIGIDOC_USE_LOCAL_TSL", "ALLOW_UNSAFE_INTEGER", "PRINT_VALIDATION_REPORT");
     List<String> mustBeIntegers = Arrays.asList("DIGIDOC_MAX_DATAFILE_CACHED", "HTTP_PROXY_PORT");
     boolean errorFound = false;
     if (mustBeBooleans.contains(configParameter)) {
@@ -1246,7 +1263,7 @@ public class Configuration implements Serializable {
     if (!("true".equals(value.toLowerCase()) || "false".equals(value.toLowerCase()))) {
       String errorMessage = "Configuration parameter " + configParameter + " should be set to true or false"
           + " but the actual value is: " + value + ".";
-      logError(errorMessage);
+      this.logError(errorMessage);
       return false;
     }
     return true;
@@ -1259,13 +1276,13 @@ public class Configuration implements Serializable {
     } catch (Exception e) {
       String errorMessage = "Configuration parameter " + configParameter + " should have an integer value"
           + " but the actual value is: " + value + ".";
-      logError(errorMessage);
+      this.logError(errorMessage);
       return false;
     }
     if (configParameter.equals("DIGIDOC_MAX_DATAFILE_CACHED") && parameterValue < -1) {
       String errorMessage = "Configuration parameter " + configParameter + " should be greater or equal -1"
           + " but the actual value is: " + value + ".";
-      logError(errorMessage);
+      this.logError(errorMessage);
       return false;
     }
     return true;
@@ -1278,7 +1295,7 @@ public class Configuration implements Serializable {
     if (ocsps == null) {
       errorMessage = "No OCSPS entry found or OCSPS entry is empty. Configuration from: "
           + configurationInputSourceName;
-      logError(errorMessage);
+      this.logError(errorMessage);
       return;
     }
     int numberOfOCSPCertificates = ocsps.size();
@@ -1291,12 +1308,12 @@ public class Configuration implements Serializable {
         if (!loadOCSPCertificateEntry(entry, ocsp, prefix)) {
           errorMessage = "OCSPS list entry " + i + " does not have an entry for " + entry
               + " or the entry is empty\n";
-          logError(errorMessage);
+          this.logError(errorMessage);
         }
       }
       if (!getOCSPCertificates(prefix, ocsp)) {
         errorMessage = "OCSPS list entry " + i + " does not have an entry for CERTS or the entry is empty\n";
-        logError(errorMessage);
+        this.logError(errorMessage);
       }
     }
   }
@@ -1348,12 +1365,11 @@ public class Configuration implements Serializable {
   }
 
   private void loadCertificateAuthoritiesAndCertificates() {
-    this.log.debug("");
     @SuppressWarnings("unchecked")
     ArrayList<LinkedHashMap> digiDocCAs = (ArrayList<LinkedHashMap>) configurationFromFile.get("DIGIDOC_CAS");
     if (digiDocCAs == null) {
       String errorMessage = "Empty or no DIGIDOC_CAS entry";
-      logError(errorMessage);
+      this.logError(errorMessage);
       return;
     }
 
@@ -1364,7 +1380,7 @@ public class Configuration implements Serializable {
       LinkedHashMap digiDocCA = (LinkedHashMap) digiDocCAs.get(i).get("DIGIDOC_CA");
       if (digiDocCA == null) {
         String errorMessage = "Empty or no DIGIDOC_CA for entry " + (i + 1);
-        logError(errorMessage);
+        this.logError(errorMessage);
       } else {
         loadCertificateAuthorityCerts(digiDocCA, caPrefix);
         loadOCSPCertificates(digiDocCA, caPrefix);
@@ -1378,7 +1394,6 @@ public class Configuration implements Serializable {
   }
 
   private void reportFileParseErrors() {
-    this.log.debug("");
     if (inputSourceParseErrors.size() > 0) {
       StringBuilder errorMessage = new StringBuilder();
       errorMessage.append("Configuration from ");
@@ -1494,6 +1509,8 @@ public class Configuration implements Serializable {
         return (T) Integer.valueOf(value);
       } else if (clazz.isAssignableFrom(Long.class)) {
         return (T) Long.valueOf(value);
+      } else if (clazz.isAssignableFrom(Boolean.class)) {
+        return (T) Boolean.valueOf(value);
       }
       throw new RuntimeException(String.format("Type <%s> not supported", clazz.getSimpleName()));
     }

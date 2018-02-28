@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.utils.Helper;
@@ -29,30 +30,35 @@ public abstract class AbstractValidationResult implements ValidationResult {
     return CollectionUtils.isNotEmpty(this.warnings);
   }
 
-  public void print() {
-    boolean hasWarningsOnly = CollectionUtils.isNotEmpty(this.warnings) && this.isValid();
-    if (hasWarningsOnly || CollectionUtils.isNotEmpty(this.errors)) {
-      if (hasWarningsOnly) {
-        Helper.printWarningSection(this.log, String.format("Start of <%s> validation result", this.getValidationName
-            ()));
-      } else {
-        Helper.printErrorSection(this.log, String.format("Start of <%s> validation result", this.getValidationName()));
-      }
-      if (CollectionUtils.isNotEmpty(this.errors)) {
-        for (DigiDoc4JException error : this.errors) {
-          this.log.error(error.toString());
+  /**
+   * @param configuration configuration context
+   */
+  public void print(Configuration configuration) {
+    if (configuration.getPrintValidationReport()) {
+      boolean hasWarningsOnly = CollectionUtils.isNotEmpty(this.warnings) && this.isValid();
+      if (hasWarningsOnly || CollectionUtils.isNotEmpty(this.errors)) {
+        if (hasWarningsOnly) {
+          Helper.printWarningSection(this.log, String.format("Start of <%s> validation result", this.getResultName
+              ()));
+        } else {
+          Helper.printErrorSection(this.log, String.format("Start of <%s> validation result", this.getResultName()));
         }
-      }
-      if (CollectionUtils.isNotEmpty(this.warnings)) {
-        for (DigiDoc4JException warning : this.warnings) {
-          this.log.warn(warning.toString());
+        if (CollectionUtils.isNotEmpty(this.errors)) {
+          for (DigiDoc4JException error : this.errors) {
+            this.log.error(error.toString());
+          }
         }
-      }
-      if (hasWarningsOnly) {
-        Helper.printWarningSection(this.log, String.format("End of <%s> validation result", this
-            .getValidationName()));
-      } else {
-        Helper.printErrorSection(this.log, String.format("End of <%s> validation result", this.getValidationName()));
+        if (CollectionUtils.isNotEmpty(this.warnings)) {
+          for (DigiDoc4JException warning : this.warnings) {
+            this.log.warn(warning.toString());
+          }
+        }
+        if (hasWarningsOnly) {
+          Helper.printWarningSection(this.log, String.format("End of <%s> validation result", this
+              .getResultName()));
+        } else {
+          Helper.printErrorSection(this.log, String.format("End of <%s> validation result", this.getResultName()));
+        }
       }
     }
   }
@@ -61,7 +67,7 @@ public abstract class AbstractValidationResult implements ValidationResult {
    * RESTRICTED METHODS
    */
 
-  protected abstract String getValidationName();
+  protected abstract String getResultName();
 
   /*
    * ACCESSORS

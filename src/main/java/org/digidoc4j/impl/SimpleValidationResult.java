@@ -19,7 +19,7 @@ public class SimpleValidationResult extends AbstractValidationResult {
    */
 
   @Override
-  protected String getValidationName() {
+  protected String getResultName() {
     return this.validationName;
   }
 
