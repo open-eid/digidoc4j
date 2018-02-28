@@ -41,7 +41,7 @@ public class TimeStampContainerValidationResult extends AbstractSignatureValidat
    */
 
   @Override
-  protected String getValidationName() {
+  protected String getResultName() {
     return "Timestamp container";
   }
 

@@ -48,35 +48,26 @@ public class DigiDoc4JTest extends AbstractTest {
   public final SystemOutRule stdOut = new SystemOutRule().enableLog();
 
   @Test
-  public void testComposingSigningDataFile() {
+  public void testComposingAndSigningAndAddingDataToSignFile() {
+    this.systemExit.expectSystemExitWithStatus(0);
     String containerFile = this.getFileBy("bdoc");
-    String signingDataFile = this.getFileBy("ser");
+    String dataToSignFile = this.getFileBy("ser");
     String[] parameters = new String[]{"-in", containerFile,
         "-add", "src/test/resources/testFiles/helper-files/test.txt",
-        "text/plain", "-dts", signingDataFile, "text/plain", "-cert", "src/test/resources/testFiles/certs/signout.pem"};
+        "text/plain", "-dts", dataToSignFile, "text/plain", "-cert", "src/test/resources/testFiles/certs/signout.pem"};
     TestDigiDoc4JUtil.call(parameters);
-    Assert.assertTrue(String.format("No signing data file <%s>", signingDataFile), new File(signingDataFile).exists());
+    Assert.assertTrue(String.format("No data to sign file <%s>", dataToSignFile), new File(dataToSignFile).exists
+        ());
     Assert.assertTrue(String.format("No container file <%s>", containerFile), new File(containerFile).exists());
-  }
-
-  @Test
-  public void testSigningSignatureDataFile() {
-    String file = this.getFileBy("sig");
-    String[] parameters = new String[]{"-dts", "src/test/resources/testFiles/external/test.ser",
-        "-sig", file, "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
+    String signatureFile = this.getFileBy("sig");
+    parameters = new String[]{"-dts", dataToSignFile,
+        "-sig", signatureFile, "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
     TestDigiDoc4JUtil.call(parameters);
-    Assert.assertTrue(String.format("No signature file <%s>", file), new File(file).exists());
-  }
-
-  @Test
-  public void testAddingSignatureToContainer() throws IOException {
-    this.systemExit.expectSystemExitWithStatus(0);
-    String file = this.getFileBy("bdoc");
-    FileUtils.copyFile(new File("src/test/resources/testFiles/external/test.bdoc"), new File(file));
-    String[] parameters = new String[]{"-in", file, "-sig", "src/test/resources/testFiles/external/test.sig",
-        "-dts", "src/test/resources/testFiles/external/test.ser"};
+    Assert.assertTrue(String.format("No signature file <%s>", signatureFile), new File(signatureFile).exists());
+    parameters = new String[]{"-in", containerFile, "-sig", signatureFile,
+        "-dts", dataToSignFile};
     DigiDoc4J.main(parameters);
-    TestAssert.assertContainerIsValid(this.openContainerBy(Paths.get(file)));
+    TestAssert.assertContainerIsValid(this.openContainerBy(Paths.get(containerFile)));
   }
 
   @Test
