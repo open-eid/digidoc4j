@@ -63,7 +63,7 @@ public class ContainerTest extends AbstractTest {
     this.configuration.setValidationPolicy(EIDAS_POLICY);
     Container container = this.openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc"));
-    ValidationResult result = container.validate();
+    SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     List<DigiDoc4JException> warnings = result.getWarnings();
     Assert.assertFalse(result.isValid());
@@ -78,7 +78,7 @@ public class ContainerTest extends AbstractTest {
     this.configuration = Configuration.of(Configuration.Mode.TEST);
     Container container = this.openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc"));
-    ValidationResult result = container.validate();
+    SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertTrue(errors.size() == 0);
     Assert.assertTrue(result.isValid());
@@ -215,7 +215,7 @@ public class ContainerTest extends AbstractTest {
   public void testValidateDDoc() throws Exception {
     Container dDocContainer = ContainerOpener.open(
         "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    Assert.assertFalse(dDocContainer.validate().hasErrors());
+    Assert.assertTrue(dDocContainer.validate().isValid());
     Assert.assertFalse(dDocContainer.validate().hasWarnings());
   }
 
@@ -223,7 +223,7 @@ public class ContainerTest extends AbstractTest {
   public void openDDocContainerFromFile() throws Exception {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.DDOC).
         fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_wo_x509IssueName_xmlns.ddoc").build();
-    ValidationResult validate = container.validate();
+    SignatureValidationResult validate = container.validate();
     Assert.assertTrue(validate.isValid());
     Assert.assertEquals(0, validate.getErrors().size());
     Assert.assertTrue(validate.getReport().contains("X509IssuerName has none or invalid namespace:"));

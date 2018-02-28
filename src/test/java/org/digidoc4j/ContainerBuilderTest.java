@@ -124,8 +124,8 @@ public class ContainerBuilderTest extends AbstractTest {
   public void signAndValidateContainer() throws Exception {
     Container container = this.createNonEmptyContainer();
     TestDataBuilderUtil.signContainer(container);
-    ValidationResult result = container.validate();
-    Assert.assertFalse(result.hasErrors());
+    ContainerValidationResult result = container.validate();
+    Assert.assertTrue(result.isValid());
     Assert.assertFalse(result.hasWarnings());
     Assert.assertTrue(result.getContainerErrors().isEmpty());
     Assert.assertTrue(result.isValid());

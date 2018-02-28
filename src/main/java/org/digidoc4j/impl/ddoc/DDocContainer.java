@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
+import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
@@ -27,7 +28,7 @@ import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
-import org.digidoc4j.ValidationResult;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,7 +142,7 @@ public class DDocContainer implements Container {
   }
 
   @Override
-  public ValidationResult validate() {
+  public ContainerValidationResult validate() {
     return jDigiDocFacade.validate();
   }
 

@@ -18,15 +18,21 @@ import eu.europa.esig.dss.validation.reports.SimpleReport;
 
 public class XadesValidationResult {
 
-  private Reports validationReport;
+  private Reports reports;
 
-  public XadesValidationResult(Reports validationReport) {
-    this.validationReport = validationReport;
+  /**
+   * @param reports validation report
+   */
+  public XadesValidationResult(Reports reports) {
+    this.reports = reports;
   }
 
-  public Map<String, SimpleReport> extractSimpleReports() {
+  /**
+   * @return map of simple reports
+   */
+  public Map<String, SimpleReport> buildSimpleReports() {
     Map<String, SimpleReport> simpleReports = new LinkedHashMap<>();
-    SimpleReport simpleReport = this.validationReport.getSimpleReport();
+    SimpleReport simpleReport = this.reports.getSimpleReport();
     if (simpleReport.getSignatureIdList().size() > 0) {
       simpleReports.put(simpleReport.getSignatureIdList().get(0), simpleReport);
     }
@@ -37,8 +43,8 @@ public class XadesValidationResult {
    * ACCESSORS
    */
 
-  public Reports getReport() {
-    return validationReport;
+  public Reports getReports() {
+    return reports;
   }
 
 }

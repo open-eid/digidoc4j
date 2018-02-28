@@ -9,10 +9,11 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
-import org.digidoc4j.ValidationResult;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.asic.TimeStampValidationResult;
+import org.digidoc4j.impl.asic.TimeStampContainerValidationResult;
 import org.digidoc4j.impl.asic.manifest.ManifestValidator;
+import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDigiDoc4JUtil;
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
@@ -46,21 +47,21 @@ public class TimeStampTokenTest extends AbstractTest {
         withDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain").
         withTimeStampToken(DigestAlgorithm.SHA256).build();
     container.saveAsFile(this.getFileBy("asics"));
-    Assert.assertTrue(container.validate().isValid());
+    TestAssert.assertContainerIsValid(container);
   }
 
   @Test
   public void testOpenTimeStampContainer() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(this.configuration).
         fromExistingFile("src/test/resources/testFiles/valid-containers/testtimestamp.asics").build();
-    Assert.assertTrue(container.validate().isValid());
+    TestAssert.assertContainerIsValid(container);
   }
 
   @Test
   public void testOpenValidTimeStampContainer() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(this.configuration).
         fromExistingFile("src/test/resources/testFiles/valid-containers/timestamptoken-ddoc.asics").build();
-    TimeStampValidationResult validate = (TimeStampValidationResult) container.validate();
+    TimeStampContainerValidationResult validate = (TimeStampContainerValidationResult) container.validate();
     Assert.assertEquals("SK TIMESTAMPING AUTHORITY", validate.getSignedBy());
     Assert.assertEquals(Indication.TOTAL_PASSED, validate.getIndication());
     Assert.assertTrue(validate.isValid());
@@ -120,7 +121,7 @@ public class TimeStampTokenTest extends AbstractTest {
     String manifestContent = this.getFileContent(zipFile.getInputStream(manifestEntry));
     Assert.assertTrue(manifestContent.contains(MimeType.ASICS.getMimeTypeString()));
     Container container = ContainerOpener.open(fileName);
-    ValidationResult validate = container.validate();
+    SignatureValidationResult validate = container.validate();
     Assert.assertTrue(validate.isValid());
     Assert.assertEquals("ASICS", container.getType());
   }

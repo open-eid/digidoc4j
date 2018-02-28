@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
+import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
@@ -17,7 +18,6 @@ import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
-import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
@@ -36,6 +36,10 @@ public class PadesContainer implements Container {
   public static final String PADES = "PADES";
   private String containerPath = "";
 
+  /**
+   * @param path the path of container
+   * @param configuration configuration context
+   */
   public PadesContainer(String path, Configuration configuration){
     containerPath = path;
   }
@@ -110,25 +114,20 @@ public class PadesContainer implements Container {
    *
    * @return ValidationResult
    */
-  public ValidationResult validate() {
+  public ContainerValidationResult validate() {
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(new FileDocument(new File(containerPath)));
     validator.setCertificateVerifier(new SKCommonCertificateVerifier());
-
     Reports reports = validator.validateDocument();
-    PadesValidationResult result = new PadesValidationResult(reports.getSimpleReport());
+    PadesContainerValidationResult result = new PadesContainerValidationResult(reports.getSimpleReport());
     result.setReport(reports.getXmlSimpleReport());
-    List<String> signatureIdList = reports.getSimpleReport().getSignatureIdList();
-    List<DigiDoc4JException> errors = new ArrayList<>();
-    List<DigiDoc4JException> warnings = new ArrayList<>();
-    for (String id: signatureIdList) {
+    for (String id: reports.getSimpleReport().getSignatureIdList()) {
       Indication indication = reports.getSimpleReport().getIndication(id);
       if (!Indication.TOTAL_PASSED.equals(indication)){
-        errors.addAll(getExceptions(reports.getSimpleReport().getErrors(id)));
-        warnings.addAll(getExceptions(reports.getSimpleReport().getWarnings(id)));
+        result.getErrors().addAll(this.getExceptions(reports.getSimpleReport().getErrors(id)));
+        result.getWarnings().addAll(this.getExceptions(reports.getSimpleReport().getWarnings(id)));
       }
     }
-    result.setErrors(errors);
-    result.setWarnings(warnings);
+    result.print();
     return result;
   }
 

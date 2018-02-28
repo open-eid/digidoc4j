@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
+import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
@@ -24,7 +25,6 @@ import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
-import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DataFileNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
@@ -32,6 +32,7 @@ import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.AbstractValidationResult;
 import org.digidoc4j.impl.asic.asice.AsicEContainerValidator;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainerValidator;
@@ -57,7 +58,7 @@ public abstract class AsicContainer implements Container {
   private List<Signature> signatures = new ArrayList<>();
   private List<DataFile> newDataFiles = new ArrayList<>();
   private AsicParseResult containerParseResult;
-  private ValidationResult validationResult;
+  private ContainerValidationResult validationResult;
   private boolean dataFilesHaveChanged;
   private String containerType = "";
   private DataFile timeStampToken;
@@ -67,8 +68,8 @@ public abstract class AsicContainer implements Container {
   /**
    * ASicContainer constructor
    */
-  public AsicContainer(){
-    configuration = Configuration.getInstance();
+  public AsicContainer() {
+    this.configuration = Configuration.getInstance();
   }
 
   /**
@@ -86,10 +87,10 @@ public abstract class AsicContainer implements Container {
    * @param containerPath path
    * @param containerType type
    */
-  public AsicContainer(String containerPath, String containerType){
+  public AsicContainer(String containerPath, String containerType) {
     this.configuration = Configuration.getInstance();
     this.containerType = containerType;
-    openContainer(containerPath);
+    this.openContainer(containerPath);
   }
 
   /**
@@ -99,75 +100,75 @@ public abstract class AsicContainer implements Container {
    * @param configuration configuration
    * @param containerType type
    */
-  public AsicContainer(String containerPath, Configuration configuration, String containerType){
+  public AsicContainer(String containerPath, Configuration configuration, String containerType) {
     this.configuration = configuration;
     this.containerType = containerType;
-    openContainer(containerPath);
+    this.openContainer(containerPath);
   }
 
   /**
    * ASicContainer constructor
    *
-   * @param stream input stream
+   * @param stream        input stream
    * @param containerType type
    */
-  public AsicContainer(InputStream stream, String containerType){
-    configuration = Configuration.getInstance();
+  public AsicContainer(InputStream stream, String containerType) {
+    this.configuration = Configuration.getInstance();
     this.containerType = containerType;
-    openContainer(stream);
+    this.openContainer(stream);
   }
 
   /**
    * ASicContainer constructor
    *
-   * @param stream input stream
+   * @param stream        input stream
    * @param configuration configuration
    * @param containerType type
    */
-  public AsicContainer(InputStream stream, Configuration configuration, String containerType){
+  public AsicContainer(InputStream stream, Configuration configuration, String containerType) {
     this.configuration = configuration;
     this.containerType = containerType;
-    openContainer(stream);
+    this.openContainer(stream);
   }
 
   @Override
-  public ValidationResult validate() {
-    if (validationResult == null) {
-      validationResult = validateContainer();
+  public ContainerValidationResult validate() {
+    if (this.validationResult == null) {
+      this.validationResult = this.validateContainer();
     }
-    return validationResult;
+    if (this.validationResult instanceof AbstractValidationResult) {
+      ((AbstractValidationResult) this.validationResult).print();
+    }
+    return this.validationResult;
   }
 
-  protected ValidationResult validateContainer() {
-    if (timeStampToken != null){
-      return validateTimestampToken();
-    } else{
-      if (!isNewContainer()){
-        if (containerType.equals(DocumentType.BDOC.toString())) {
-          BDocContainerValidator validator = new BDocContainerValidator(containerParseResult, getConfiguration());
-          validator.setValidateManifest(!dataFilesHaveChanged);
-          return validator.validate(getSignatures());
+  protected ContainerValidationResult validateContainer() {
+    if (this.timeStampToken != null) {
+      return this.validateTimestampToken();
+    } else {
+      if (!this.isNewContainer()) {
+        if (DocumentType.BDOC.toString().equals(this.containerType)) {
+          return new BDocContainerValidator(this.containerParseResult, this.getConfiguration(),
+              !this.dataFilesHaveChanged).validate(this.getSignatures());
         } else {
-          AsicEContainerValidator validator = new AsicEContainerValidator(containerParseResult, getConfiguration());
-          validator.setValidateManifest(!dataFilesHaveChanged);
-          return validator.validate(getSignatures());
+          return new AsicEContainerValidator(this.containerParseResult, this.getConfiguration(),
+              !this.dataFilesHaveChanged).validate(this.getSignatures());
         }
       } else {
-        if (containerType.equals(DocumentType.BDOC.toString())) {
-          return new BDocContainerValidator(getConfiguration()).validate(getSignatures());
+        if (DocumentType.BDOC.toString().equals(this.containerType)) {
+          return new BDocContainerValidator(this.getConfiguration()).validate(this.getSignatures());
         } else {
-          return new AsicEContainerValidator(getConfiguration()).validate(getSignatures());
+          return new AsicEContainerValidator(this.getConfiguration()).validate(this.getSignatures());
         }
       }
     }
   }
 
-  private ValidationResult validateTimestampToken() {
-    if (containerParseResult == null){
-      containerParseResult = new AsicStreamContainerParser(this.saveAsStream(), getConfiguration()).read();
+  private ContainerValidationResult validateTimestampToken() {
+    if (this.containerParseResult == null) {
+      this.containerParseResult = new AsicStreamContainerParser(this.saveAsStream(), this.getConfiguration()).read();
     }
-    TimeStampTokenValidator timeStampTokenValidator = new TimeStampTokenValidator(containerParseResult);
-    return timeStampTokenValidator.validate();
+    return new TimeStampTokenValidator(this.containerParseResult).validate();
   }
 
   @Override
@@ -188,7 +189,8 @@ public abstract class AsicContainer implements Container {
     return configuration;
   }
 
-  protected abstract List<Signature> parseSignatureFiles(List<DSSDocument> signatureFiles, List<DSSDocument> detachedContents);
+  protected abstract List<Signature> parseSignatureFiles(List<DSSDocument> signatureFiles,
+                                                         List<DSSDocument> detachedContents);
 
   @Override
   public InputStream saveAsStream() {
@@ -201,7 +203,7 @@ public abstract class AsicContainer implements Container {
   }
 
   protected void validateIncomingSignature(Signature signature) {
-    if (signature == null){
+    if (signature == null) {
       throw new TechnicalException("ValidateIncomingSignature is null");
     }
     if (!((signature instanceof BDocSignature) || (signature instanceof AsicSSignature) || (signature instanceof AsicESignature)
@@ -210,7 +212,8 @@ public abstract class AsicContainer implements Container {
     }
   }
 
-  protected List<Signature> extendAllSignatureProfile(SignatureProfile profile, List<Signature> signatures, List<DataFile> dataFiles) {
+  protected List<Signature> extendAllSignatureProfile(SignatureProfile profile, List<Signature> signatures,
+                                                      List<DataFile> dataFiles) {
     log.info("Extending all signatures' profile to " + profile.name());
     DetachedContentCreator detachedContentCreator = null;
     try {
@@ -256,16 +259,15 @@ public abstract class AsicContainer implements Container {
   }
 
   /**
-   *
    * @param containerType
    */
 
-  public void setType(String containerType){
+  public void setType(String containerType) {
     this.containerType = containerType;
   }
 
   @Override
-  public String getType(){
+  public String getType() {
     return containerType;
   }
 
@@ -297,16 +299,16 @@ public abstract class AsicContainer implements Container {
 
   private void removeExistingFileFromContainer(String filePath) {
     log.debug("Removing file from the container: " + filePath);
-    if (containerParseResult != null){
-    List<AsicEntry> asicEntries = containerParseResult.getAsicEntries();
-    for (AsicEntry entry : asicEntries) {
-      String entryFileName = entry.getZipEntry().getName();
-      if (StringUtils.equalsIgnoreCase(filePath, entryFileName)) {
-        asicEntries.remove(entry);
-        log.debug("File was successfully removed");
-        break;
+    if (containerParseResult != null) {
+      List<AsicEntry> asicEntries = containerParseResult.getAsicEntries();
+      for (AsicEntry entry : asicEntries) {
+        String entryFileName = entry.getZipEntry().getName();
+        if (StringUtils.equalsIgnoreCase(filePath, entryFileName)) {
+          asicEntries.remove(entry);
+          log.debug("File was successfully removed");
+          break;
+        }
       }
-    }
     }
   }
 
@@ -380,7 +382,7 @@ public abstract class AsicContainer implements Container {
    *
    * @param timeStampToken
    */
-  public void setTimeStampToken(DataFile timeStampToken){
+  public void setTimeStampToken(DataFile timeStampToken) {
     this.timeStampToken = timeStampToken;
   }
 
@@ -394,7 +396,7 @@ public abstract class AsicContainer implements Container {
    *
    * @return true if timestemp token defined
    */
-  public boolean isTimestampTokenDefined(){
+  public boolean isTimestampTokenDefined() {
     return timeStampToken != null;
   }
 
@@ -407,16 +409,17 @@ public abstract class AsicContainer implements Container {
       List<Signature> signatures = extendAllSignaturesProfile(profile, this.signatures, dataFiles);
       this.signatures = signatures;
       newSignatures = new ArrayList<>(signatures);
-    } else{
+    } else {
       signatures = extendAllSignaturesProfile(profile, signatures, dataFiles);
     }
   }
 
-  private List<Signature> extendAllSignaturesProfile(SignatureProfile profile, List<Signature> signatures, List<DataFile> dataFiles) {
+  private List<Signature> extendAllSignaturesProfile(SignatureProfile profile, List<Signature> signatures,
+                                                     List<DataFile> dataFiles) {
     List<Signature> extendedSignatures;
-    if (Constant.ASICS_CONTAINER_TYPE.equals(getType())){
+    if (Constant.ASICS_CONTAINER_TYPE.equals(getType())) {
       extendedSignatures = extendAllSignatureProfile(profile, signatures, Arrays.asList(dataFiles.get(0)));
-    } else{
+    } else {
       extendedSignatures = extendAllSignatureProfile(profile, signatures, dataFiles);
     }
     return extendedSignatures;
@@ -425,7 +428,7 @@ public abstract class AsicContainer implements Container {
   @Override
   public void removeSignature(Signature signature) {
     log.info("Removing signature " + signature.getId());
-    if (!isNewContainer()){
+    if (!isNewContainer()) {
       validateIncomingSignature(signature);
       boolean wasNewlyAddedSignature = newSignatures.remove(signature);
       boolean wasIncludedInContainer = signatures.remove(signature);
@@ -433,7 +436,7 @@ public abstract class AsicContainer implements Container {
         log.debug("This signature was included in the container before the container was opened");
         removeExistingSignature((BDocSignature) signature);
       }
-    } else{
+    } else {
       signatures.remove(signature);
     }
   }
@@ -442,12 +445,12 @@ public abstract class AsicContainer implements Container {
   @Deprecated
   public void removeSignature(int signatureId) {
     log.debug("Removing signature from index " + signatureId);
-    if (!isNewContainer()){
+    if (!isNewContainer()) {
       Signature signature = signatures.get(signatureId);
       if (signature != null) {
         removeSignature(signature);
       }
-    } else{
+    } else {
       signatures.remove(signatureId);
     }
 
@@ -458,7 +461,7 @@ public abstract class AsicContainer implements Container {
     if (!isNewContainer()) {
       log.error("Datafiles cannot be removed from an already signed container");
       throw new RemovingDataFileException();
-    } else{
+    } else {
       log.info("Removing data file: " + fileName);
       validateDataFilesRemoval();
 
@@ -476,10 +479,10 @@ public abstract class AsicContainer implements Container {
 
   @Override
   public void removeDataFile(DataFile file) {
-    if (!isNewContainer()){
+    if (!isNewContainer()) {
       log.error("Datafiles cannot be removed from an already signed container");
       throw new RemovingDataFileException();
-    } else{
+    } else {
       log.info("Removing data file: " + file.getName());
       validateDataFilesRemoval();
       boolean wasRemovalSuccessful = dataFiles.remove(file);
@@ -502,7 +505,7 @@ public abstract class AsicContainer implements Container {
   protected void writeAsicContainer(AsicContainerCreator zipCreator) {
     String userAgent = createUserAgent();
     zipCreator.setZipComment(userAgent);
-    if (!isNewContainer()){
+    if (!isNewContainer()) {
       int nextSignatureFileIndex = determineNextSignatureFileIndex();
       zipCreator.writeExistingEntries(containerParseResult.getAsicEntries());
       if (dataFilesHaveChanged) {
@@ -513,12 +516,12 @@ public abstract class AsicContainer implements Container {
       if (StringUtils.isNotBlank(containerParseResult.getZipFileComment())) {
         zipCreator.writeContainerComment(containerParseResult.getZipFileComment());
       }
-    } else{
+    } else {
       int startingSignatureFileIndex = 0;
       zipCreator.writeAsiceMimeType(getType());
       zipCreator.writeManifest(dataFiles, getType());
       zipCreator.writeDataFiles(dataFiles);
-      if (timeStampToken != null && Constant.ASICS_CONTAINER_TYPE.equals(getType())){
+      if (timeStampToken != null && Constant.ASICS_CONTAINER_TYPE.equals(getType())) {
         zipCreator.writeTimestampToken(timeStampToken);
       } else {
         zipCreator.writeSignatures(signatures, startingSignatureFileIndex);
@@ -614,7 +617,7 @@ public abstract class AsicContainer implements Container {
   }
 
   /**
-   *  Getting signature profile method is not supported by ASiC container.
+   * Getting signature profile method is not supported by ASiC container.
    *
    * @return NotSupportedException
    */

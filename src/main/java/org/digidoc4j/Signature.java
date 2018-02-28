@@ -187,7 +187,7 @@ public interface Signature extends Serializable {
    *
    * @return the validation result.
    */
-  SignatureValidationResult validateSignature();
+  ValidationResult validateSignature();
 
   /**
    * Validates the signature.

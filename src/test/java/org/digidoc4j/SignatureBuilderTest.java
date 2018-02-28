@@ -278,7 +278,7 @@ public class SignatureBuilderTest extends AbstractTest {
   public void openSignature_withDataFilesMismatch_shouldBeInvalid() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/word_file.docx"));
     Signature signature = this.openAdESSignature(container);
-    SignatureValidationResult result = signature.validateSignature();
+    ValidationResult result = signature.validateSignature();
     Assert.assertFalse(result.isValid());
     Assert.assertEquals("The reference data object(s) is not found!", result.getErrors().get(0).getMessage());
   }

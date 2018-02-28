@@ -69,7 +69,7 @@ public class TimemarkSignatureValidator extends XadesSignatureValidator {
     }
 
     private void addRevocationErrors() {
-        DiagnosticData diagnosticData = this.signature.validate().getReport().getDiagnosticData();
+        DiagnosticData diagnosticData = this.signature.validate().getReports().getDiagnosticData();
         if (diagnosticData == null) {
             return;
         }

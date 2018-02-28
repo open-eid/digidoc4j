@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DataToSign;
 import org.digidoc4j.EncryptionAlgorithm;
@@ -33,7 +34,6 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
-import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.AsicContainer;
 import org.digidoc4j.impl.asic.asics.AsicSContainer;
@@ -495,7 +495,7 @@ public class CommandLineExecutor {
   }
 
   private void verifyPadesContainer(Container container) {
-    ValidationResult validate = container.validate();
+    SignatureValidationResult validate = container.validate();
     if (!validate.isValid()) {
       String report = validate.getReport();
       throw new DigiDoc4JException("Pades container has errors" + report);

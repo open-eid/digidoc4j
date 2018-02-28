@@ -4,7 +4,7 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
-import org.digidoc4j.ValidationResult;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.main.DigiDoc4J;
 import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
@@ -32,7 +32,7 @@ public class PadesValidationTest extends AbstractTest {
   public void padesValidationTestTwoSignature() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.PADES).withConfiguration(this.configuration).
         fromExistingFile("src/test/resources/testFiles/invalid-containers/hello_signed_INCSAVE_signed_EDITED.pdf").build();
-    ValidationResult result = container.validate();
+    SignatureValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
     Assert.assertEquals(4, result.getErrors().size());
     TestAssert.assertContainsError("The certificate chain for signature is not trusted, there is no trusted anchor.", result.getErrors());
@@ -45,7 +45,7 @@ public class PadesValidationTest extends AbstractTest {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.PADES).
         withConfiguration(this.configuration).fromExistingFile("src/test/resources/testFiles/invalid-containers/EE_AS-P-BpLT-V-009.pdf").
         build();
-    ValidationResult result = container.validate();
+    SignatureValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
     Assert.assertEquals(3, result.getErrors().size());
     Assert.assertEquals(3, result.getWarnings().size());

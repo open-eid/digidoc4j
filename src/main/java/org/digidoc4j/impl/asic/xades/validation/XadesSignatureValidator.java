@@ -19,7 +19,7 @@ import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.CertificateRevokedException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidOcspNonceException;
@@ -28,6 +28,7 @@ import org.digidoc4j.exceptions.MultipleSignedPropertiesException;
 import org.digidoc4j.exceptions.SignedPropertiesMissingException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
+import org.digidoc4j.impl.SimpleValidationResult;
 import org.digidoc4j.impl.asic.OcspNonceValidator;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.utils.Helper;
@@ -73,11 +74,11 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   @Override
-  public SignatureValidationResult extractValidationErrors() {
+  public ValidationResult extractResult() {
     this.log.debug("Extracting validation errors");
     XadesValidationResult validationResult = this.signature.validate();
-    this.validationReport = validationResult.getReport();
-    this.simpleReport = this.getSimpleReport(validationResult.extractSimpleReports());
+    this.validationReport = validationResult.getReports();
+    this.simpleReport = this.getSimpleReport(validationResult.buildSimpleReports());
     this.populateValidationErrors();
     return this.createValidationResult();
   }
@@ -94,7 +95,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     this.addReportedErrors();
     this.addReportedWarnings();
     this.addTimestampErrors();
-    this.addOcspErrors();
+    this.addOCSPErrors();
   }
 
   protected void addValidationError(DigiDoc4JException error) {
@@ -239,18 +240,17 @@ public class XadesSignatureValidator implements SignatureValidator {
     return simpleRep;
   }
 
-  private void addOcspErrors() {
+  private void addOCSPErrors() {
     OcspNonceValidator ocspValidator = new OcspNonceValidator(getDssSignature());
     if (!ocspValidator.isValid()) {
       this.addValidationError(new InvalidOcspNonceException());
     }
   }
 
-  private SignatureValidationResult createValidationResult() {
-    SignatureValidationResult result = new SignatureValidationResult();
+  private ValidationResult createValidationResult() {
+    SimpleValidationResult result = new SimpleValidationResult("XAdES signature");
     result.setErrors(this.validationErrors);
     result.setWarnings(this.validationWarnings);
-    result.print();
     return result;
   }
 

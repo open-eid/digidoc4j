@@ -185,7 +185,7 @@ public class PerformanceTest extends AbstractTest {
   }
 
   private void validateInvalidContainer(String containerLocation, String expectedError) {
-    ValidationResult result = this.openContainerByConfiguration(Paths.get(containerLocation)).validate();
+    SignatureValidationResult result = this.openContainerByConfiguration(Paths.get(containerLocation)).validate();
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(1, errors.size());
     Assert.assertEquals(expectedError, errors.get(0).getMessage());

@@ -8,7 +8,7 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.ValidationResult;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
@@ -28,7 +28,7 @@ import eu.europa.esig.dss.DigestAlgorithm;
 public class AsicSignature implements Signature {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicSignature.class);
-  private SignatureValidationResult validationResult;
+  private ValidationResult validationResult;
   private XadesSignature xadesSignature;
   private SignatureValidator validator;
   private DSSDocument signatureDocument;
@@ -37,9 +37,9 @@ public class AsicSignature implements Signature {
    * Asic signature constructor.
    *
    * @param xadesSignature XADES signature
-   * @param validator signature validator
+   * @param validator      signature validator
    */
-  public AsicSignature(XadesSignature xadesSignature, SignatureValidator validator){
+  public AsicSignature(XadesSignature xadesSignature, SignatureValidator validator) {
     this.xadesSignature = xadesSignature;
     this.validator = validator;
   }
@@ -125,7 +125,7 @@ public class AsicSignature implements Signature {
   @Override
   public SignatureProfile getProfile() {
     return xadesSignature.getProfile();
-}
+  }
 
   @Override
   public String getSignatureMethod() {
@@ -188,13 +188,15 @@ public class AsicSignature implements Signature {
   }
 
   @Override
-  public SignatureValidationResult validateSignature() {
+  public ValidationResult validateSignature() {
     logger.debug("Validating signature");
     if (validationResult == null) {
-      validationResult = validator.extractValidationErrors();
-      logger.info("Signature has " + validationResult.getErrors().size() + " validation errors and " + validationResult.getWarnings().size() + " warnings");
+      validationResult = this.validator.extractResult();
+      logger.info(
+          "Signature has " + validationResult.getErrors().size() + " validation errors and " + validationResult.getWarnings().size() + " warnings");
     } else {
-      logger.debug("Using existing validation errors with " + validationResult.getErrors().size() + " validation errors and " + validationResult.getWarnings().size() + " warnings");
+      logger.debug(
+          "Using existing validation errors with " + validationResult.getErrors().size() + " validation errors and " + validationResult.getWarnings().size() + " warnings");
     }
     return validationResult;
   }
@@ -231,7 +233,7 @@ public class AsicSignature implements Signature {
   }
 
   /**
-   *  Set signature document.
+   * Set signature document.
    *
    * @param signatureDocument
    */

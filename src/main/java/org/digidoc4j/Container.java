@@ -153,7 +153,7 @@ public interface Container extends Serializable {
    *
    * @return validation result
    */
-  ValidationResult validate();
+  ContainerValidationResult validate();
 
   /**
    * Adds timestamp token

@@ -18,15 +18,15 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.digidoc4j.Configuration;
+import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
+import org.digidoc4j.impl.asic.AsicContainerValidationResult;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicValidationReportBuilder;
-import org.digidoc4j.impl.asic.AsicValidationResult;
 import org.digidoc4j.impl.asic.manifest.ManifestErrorMessage;
 import org.digidoc4j.impl.asic.manifest.ManifestParser;
 import org.digidoc4j.impl.asic.manifest.ManifestValidator;
@@ -62,23 +62,33 @@ public class AsicEContainerValidator implements Serializable {
 
   /**
    * @param containerParseResult parse result
-   * @param configuration configuration
+   * @param configuration        configuration
    */
   public AsicEContainerValidator(AsicParseResult containerParseResult, Configuration configuration) {
+    this(containerParseResult, configuration, true);
+  }
+
+  /**
+   * @param containerParseResult parse result
+   * @param configuration        configuration context
+   * @param validateManifest     validate manifest
+   */
+  public AsicEContainerValidator(AsicParseResult containerParseResult, Configuration configuration,
+                                 boolean validateManifest) {
     this.containerParseResult = containerParseResult;
-    threadPoolManager = new ThreadPoolManager(configuration);
-    validateManifest = true;
+    this.threadPoolManager = new ThreadPoolManager(configuration);
+    this.validateManifest = validateManifest;
   }
 
   /**
    * @param signatures list of signatures
    * @return validation result
    */
-  public ValidationResult validate(List<Signature> signatures) {
+  public ContainerValidationResult validate(List<Signature> signatures) {
     logger.debug("Validating container");
     validateSignatures(signatures);
     extractManifestErrors(signatures);
-    AsicValidationResult result = createValidationResult();
+    AsicContainerValidationResult result = createValidationResult();
     logger.info("Is container valid: " + result.isValid());
     return result;
   }
@@ -121,9 +131,8 @@ public class AsicEContainerValidator implements Serializable {
   protected void extractSignatureErrors(SignatureValidationData validationData) {
     logger.debug("Extracting signature errors for signature " + validationData.getSignatureId());
     signatureValidationData.add(validationData);
-    SignatureValidationResult validationResult = validationData.getValidationResult();
-    List<DigiDoc4JException> signatureErrors = validationResult.getErrors();
-    errors.addAll(signatureErrors);
+    ValidationResult validationResult = validationData.getValidationResult();
+    errors.addAll(validationResult.getErrors());
     warnings.addAll(validationResult.getWarnings());
   }
 
@@ -133,13 +142,14 @@ public class AsicEContainerValidator implements Serializable {
     errors.addAll(manifestErrors);
   }
 
-  protected AsicValidationResult createValidationResult() {
-    AsicValidationReportBuilder reportBuilder = new AsicValidationReportBuilder(signatureValidationData, manifestErrors);
-    AsicValidationResult result = new AsicValidationResult();
+  protected AsicContainerValidationResult createValidationResult() {
+    AsicValidationReportBuilder reportBuilder = new AsicValidationReportBuilder(signatureValidationData,
+        manifestErrors);
+    AsicContainerValidationResult result = new AsicContainerValidationResult();
     result.setErrors(errors);
     result.setWarnings(warnings);
-    result.setContainerErrorsOnly(manifestErrors);
-    result.setReportBuilder(reportBuilder);
+    result.setContainerErrors(manifestErrors);
+    result.generate(reportBuilder);
     return result;
   }
 
@@ -156,9 +166,11 @@ public class AsicEContainerValidator implements Serializable {
     }
     List<DigiDoc4JException> manifestExceptions = new ArrayList<>();
     List<DSSDocument> detachedContents = containerParseResult.getDetachedContents();
-    List<ManifestErrorMessage> manifestErrorMessageList = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
+    List<ManifestErrorMessage> manifestErrorMessageList = new ManifestValidator(manifestParser, detachedContents,
+        signatures).validateDocument();
     for (ManifestErrorMessage manifestErrorMessage : manifestErrorMessageList) {
-      manifestExceptions.add(new DigiDoc4JException(manifestErrorMessage.getErrorMessage(), manifestErrorMessage.getSignatureId()));
+      manifestExceptions.add(
+          new DigiDoc4JException(manifestErrorMessage.getErrorMessage(), manifestErrorMessage.getSignatureId()));
     }
     return manifestExceptions;
   }

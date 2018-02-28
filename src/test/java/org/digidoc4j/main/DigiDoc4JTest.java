@@ -132,7 +132,7 @@ public class DigiDoc4JTest extends AbstractTest {
     TestDigiDoc4JUtil.call(params);
     Container container = ContainerOpener.open(fileName);
     Assert.assertEquals(SignatureProfile.LT, container.getSignature(0).getProfile());
-    System.clearProperty("digidoc4j.mode");
+    this.clearGlobalMode();
     TestAssert.assertContainerIsValid(container);
   }
 
@@ -446,7 +446,7 @@ public class DigiDoc4JTest extends AbstractTest {
       @Override
       public void checkAssertion() throws Exception {
         Assert.assertThat(stdOut.getLog(), StringContains.containsString(
-            "Container contains a file named AdditionalFile.txt which is not found in the signature file"));
+            "Container contains a file named <AdditionalFile.txt> which is not found in the signature file"));
       }
 
     });

@@ -20,11 +20,13 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
+import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
@@ -32,7 +34,6 @@ import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
-import org.digidoc4j.ValidationResult;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
@@ -74,10 +75,9 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
   }
 
   public DDocFacade(Configuration configuration) {
-    logger.debug("");
     this.configuration = configuration;
-    initConfigManager(configuration);
-    createDDOCContainer();
+    this.initConfigManager();
+    this.createDDOCContainer();
   }
 
   DDocFacade(SignedDoc ddoc) {
@@ -96,7 +96,7 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
         signatureProductionPlace.getStateOrProvince(), signatureProductionPlace.getCountry(),
         signatureProductionPlace.getPostalCode());
 
-    if(signatureParameters.getDigestAlgorithm() == null) {
+    if (signatureParameters.getDigestAlgorithm() == null) {
       signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA1);
     }
 
@@ -136,7 +136,7 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
   }
 
   private void addSignatureProfile(SignatureParameters signatureParameters) {
-    if(signatureParameters.getSignatureProfile() != null) {
+    if (signatureParameters.getSignatureProfile() != null) {
       setSignatureProfile(signatureParameters.getSignatureProfile());
     }
   }
@@ -148,31 +148,27 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
   }
 
   private void intConfiguration() {
-    logger.debug("");
-    configuration = Configuration.getInstance();
-    initConfigManager(configuration);
+    this.configuration = Configuration.getInstance();
+    this.initConfigManager();
   }
 
   private void createDDOCContainer() {
-    logger.debug("");
     try {
       ddoc = new SignedDoc("DIGIDOC-XML", "1.3");
       signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA1);
-      logger.info("DDoc container created");
+      logger.debug("DDoc container created");
     } catch (DigiDocException e) {
-      logger.error(e.getMessage());
-      throw new DigiDoc4JException(e.getNestedException());
+      throw new DigiDoc4JException(e.getMessage(), e.getNestedException());
     }
   }
 
   public DataFile addDataFile(String path, String mimeType) {
-    logger.info("Adding data file: " + path + ", mime type " + mimeType);
+    logger.debug("Adding data file: " + path + ", mime type " + mimeType);
     try {
       ddoc.addDataFile(new File(path), mimeType, CONTENT_EMBEDDED_BASE64);
       return new DataFile(path, mimeType);
     } catch (DigiDocException e) {
-      logger.error(e.getMessage());
-      throw new DigiDoc4JException(e.getNestedException());
+      throw new DigiDoc4JException(e.getMessage(), e.getNestedException());
     }
   }
 
@@ -249,7 +245,7 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
 
   public int countDataFiles() {
     logger.debug("Get the number of data files");
-    List<DataFile> dataFiles  = getDataFiles();
+    List<DataFile> dataFiles = getDataFiles();
 
     return (dataFiles == null) ? 0 : dataFiles.size();
   }
@@ -381,50 +377,40 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
   public int countSignatures() {
     logger.debug("Get the number of signatures");
     List<Signature> signatures = getSignatures();
-
     return (signatures == null) ? 0 : signatures.size();
   }
 
   private DDocSignature mapJDigiDocSignatureToDigiDoc4J(ee.sk.digidoc.Signature signature) {
-    logger.debug("");
     DDocSignature finalSignature = new DDocSignature(signature);
-
     KeyInfo keyInfo = signature.getKeyInfo();
     if (keyInfo == null) {
       return null;
     }
     X509Certificate signersCertificate = keyInfo.getSignersCertificate();
     finalSignature.setCertificate(new X509Cert(signersCertificate));
-
     return finalSignature;
   }
 
   public Container.DocumentType getDocumentType() {
-    logger.debug("");
     return Container.DocumentType.DDOC;
   }
 
-  @SuppressWarnings("unchecked")
-  public ValidationResult validate() {
-    logger.info("Validating DDoc container");
-
-    ArrayList exceptions = ddoc.verify(true, true);
-
-    ArrayList containerExceptions = ddoc.validate(true);
-    containerExceptions.addAll(openContainerExceptions);
-    ValidationResultForDDoc result = new ValidationResultForDDoc(exceptions, containerExceptions);
-    logger.info("DDoc container is valid: " + result.isValid());
+  public ContainerValidationResult validate() {
+    logger.debug("Validating DDoc container ...");
+    List containerExceptions = this.ddoc.validate(true);
+    containerExceptions.addAll(this.openContainerExceptions);
+    DDocSignatureValidationResult result = new DDocSignatureValidationResult(this.ddoc.verify(true, true),
+        containerExceptions);
+    result.print();
     return result;
   }
 
   protected ee.sk.digidoc.Signature calculateSignature(SignatureToken signer) {
-    logger.debug("");
     prepareSigning(signer.getCertificate());
     return ddocSignature;
   }
 
   private void addConfirmation() {
-    logger.debug("");
     for (Object signature : ddoc.getSignatures()) {
       try {
         ((ee.sk.digidoc.Signature) signature).getConfirmation();
@@ -451,14 +437,15 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
     addConfirmation();
   }
 
+  /**
+   * @param profile signature profile
+   */
   public void setSignatureProfile(SignatureProfile profile) {
-    logger.debug("Adding signature profile " + profile);
-    if (profile != SignatureProfile.LT_TM && profile != SignatureProfile.B_BES) {
-      String errorMessage = profile + " profile is not supported for DDOC";
-      logger.error(errorMessage);
-      throw new NotSupportedException(errorMessage);
+    logger.debug("Adding signature profile <{}>", profile);
+    if (!Arrays.asList(SignatureProfile.LT_TM, SignatureProfile.B_BES).contains(profile)) {
+      throw new NotSupportedException(String.format("Profile <%s> is not supported by DDoc", profile));
     }
-    signatureProfile = profile;
+    this.signatureProfile = profile;
   }
 
   /**
@@ -481,8 +468,8 @@ public class DDocFacade implements SignatureFinalizer, Serializable {
     return signRaw(signatureValue);
   }
 
-  private void initConfigManager(Configuration configuration) {
-    configManagerInitializer.initConfigManager(configuration);
+  private void initConfigManager() {
+    configManagerInitializer.initConfigManager(this.configuration);
   }
 
   protected void setSignedDoc(SignedDoc signedDoc) {

@@ -10,66 +10,73 @@
 
 package org.digidoc4j;
 
-import java.io.Serializable;
-import java.util.ArrayList;
+import java.nio.file.Path;
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.utils.Helper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.digidoc4j.impl.asic.report.SignatureValidationReport;
 
-public class SignatureValidationResult implements Serializable {
+import eu.europa.esig.dss.validation.SignatureQualification;
+import eu.europa.esig.dss.validation.policy.rules.Indication;
+import eu.europa.esig.dss.validation.policy.rules.SubIndication;
+import eu.europa.esig.dss.validation.reports.SimpleReport;
 
-  private final Logger log = LoggerFactory.getLogger(SignatureValidationResult.class);
-  private List<DigiDoc4JException> errors = new ArrayList<>();
-  private List<DigiDoc4JException> warnings = new ArrayList<>();
+/**
+ * Validation result information.
+ *
+ * For Asic the SignatureValidationResult contains only information for the first signature of each signature XML file
+ */
+public interface SignatureValidationResult extends ValidationResult {
 
-  public boolean isValid() {
-    return errors.isEmpty();
-  }
+  /**
+   * Get SignatureValidationReports from signature validation data.
+   *
+   * @return SignatureValidationReport
+   */
+  List<SignatureValidationReport> getReports();
 
-  public List<DigiDoc4JException> getErrors() {
-    return errors;
-  }
+  /**
+   * Get SignatureSimpleReport from signature validation data.
+   *
+   * @return SignatureValidationReport
+   */
+  List<SimpleReport> getSimpleReports();
 
-  public void setErrors(List<DigiDoc4JException> errors) {
-    this.errors = errors;
-  }
+  /**
+   * Get indication from simple report.
+   *
+   * @param signatureId id of signature
+   * @return signatureId
+   */
+  Indication getIndication(String signatureId);
 
-  public List<DigiDoc4JException> getWarnings() {
-    return warnings;
-  }
+  /**
+   * Get subIndication from simple report.
+   *
+   * @param signatureId id of signature
+   * @return subIndication
+   */
+  SubIndication getSubIndication(String signatureId);
 
-  public void setWarnings(List<DigiDoc4JException> warnings) {
-    this.warnings = warnings;
-  }
+  /**
+   * Get SignatureQualification from simple report.
+   *
+   * @param signatureId id of signature
+   * @return SignatureQualification
+   */
+  SignatureQualification getSignatureQualification(String signatureId);
 
-  public void print() {
-    boolean hasWarningsOnly = CollectionUtils.isNotEmpty(this.warnings) && this.isValid();
-    if (hasWarningsOnly || CollectionUtils.isNotEmpty(this.errors)) {
-      if (hasWarningsOnly) {
-        Helper.printWarningSection(this.log, "Start of signature validation result");
-      } else {
-        Helper.printErrorSection(this.log, "Start of signature validation result");
-      }
-      if (CollectionUtils.isNotEmpty(this.errors)) {
-        for (DigiDoc4JException error : this.errors) {
-          this.log.error(error.toString());
-        }
-      }
-      if (CollectionUtils.isNotEmpty(this.warnings)) {
-        for (DigiDoc4JException warning : this.warnings) {
-          this.log.warn(warning.toString());
-        }
-      }
-      if (hasWarningsOnly) {
-        Helper.printWarningSection(this.log, "End of signature validation result");
-      } else {
-        Helper.printErrorSection(this.log, "End of signature validation result");
-      }
-    }
-  }
+  /**
+   * Get validation report.
+   *
+   * @return report
+   */
+  String getReport();
+
+  /**
+   * Save validation reports in given directory.
+   *
+   * @param directory Directory where to save XML files.
+   */
+  void saveXmlReports(Path directory);
 
 }

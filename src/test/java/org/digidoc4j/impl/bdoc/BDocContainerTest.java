@@ -32,6 +32,7 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DataToSign;
 import org.digidoc4j.DigestAlgorithm;
@@ -39,7 +40,6 @@ import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
@@ -664,7 +664,7 @@ public class BDocContainerTest extends AbstractTest {
     String file = this.getFileBy("bdoc");
     container.save(file);
     container = ContainerOpener.open(file);
-    ValidationResult result = container.validate();
+    SignatureValidationResult result = container.validate();
     Assert.assertEquals(0, result.getErrors().size());
     Assert.assertEquals("text/newtype", container.getDataFile(0).getMediaType());
   }
@@ -884,7 +884,7 @@ public class BDocContainerTest extends AbstractTest {
 
   @Test
   public void whenExistingContainer_hasWrongMimeSlash_weShouldNotThrowException() {
-    ValidationResult result = ContainerBuilder.aContainer()
+    SignatureValidationResult result = ContainerBuilder.aContainer()
         .fromExistingFile("src/test/resources/testFiles/invalid-containers/INC166120_wrong_mime_slash.bdoc")
         .withConfiguration(new Configuration(Configuration.Mode.TEST)).build().validate();
     Assert.assertFalse("Container is not invalid", result.isValid());
@@ -899,7 +899,7 @@ public class BDocContainerTest extends AbstractTest {
 
   @Test
   public void whenOpeningContainer_withSignaturePolicyImpliedElement_inTMSignatures_shouldThrowException() {
-    ValidationResult result = ContainerBuilder.aContainer()
+    SignatureValidationResult result = ContainerBuilder.aContainer()
         .fromExistingFile("src/test/resources/testFiles/invalid-containers/23608_bdoc21-invalid-nonce-policy-and-implied.bdoc")
         .withConfiguration(new Configuration(Configuration.Mode.TEST)).build().validate();
     Assert.assertFalse("Container should be invalid", result.isValid());

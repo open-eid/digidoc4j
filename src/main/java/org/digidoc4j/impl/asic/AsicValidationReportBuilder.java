@@ -25,7 +25,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
-import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.asic.report.ContainerValidationReport;
@@ -52,9 +52,10 @@ public class AsicValidationReportBuilder {
 
   /**
    * @param signatureValidationData list of signature validation data
-   * @param manifestErrors list of manifest errors
+   * @param manifestErrors          list of manifest errors
    */
-  public AsicValidationReportBuilder(List<SignatureValidationData> signatureValidationData, List<DigiDoc4JException> manifestErrors) {
+  public AsicValidationReportBuilder(List<SignatureValidationData> signatureValidationData,
+                                     List<DigiDoc4JException> manifestErrors) {
     logger.debug("Initializing ASiC validation report builder");
     this.manifestErrors = manifestErrors;
     this.signatureValidationData = signatureValidationData;
@@ -84,7 +85,7 @@ public class AsicValidationReportBuilder {
   public List<eu.europa.esig.dss.validation.reports.SimpleReport> buildSignatureSimpleReports() {
     List<eu.europa.esig.dss.validation.reports.SimpleReport> signaturesReport = new ArrayList<>();
     for (SignatureValidationData validationData : signatureValidationData) {
-      signaturesReport.add(validationData.getReport().getReport().getSimpleReport());
+      signaturesReport.add(validationData.getReport().getReports().getSimpleReport());
     }
     return signaturesReport;
   }
@@ -109,10 +110,11 @@ public class AsicValidationReportBuilder {
       int n = signatureValidationData.size();
       for (int i = 0; i < n; i++) {
         SignatureValidationData validationData = signatureValidationData.get(i);
-        Reports reports = validationData.getReport().getReport();
+        Reports reports = validationData.getReport().getReports();
         try {
           is = new ByteArrayInputStream(reports.getXmlDiagnosticData().getBytes("UTF-8"));
-          DSSUtils.saveToFile(is, directory + File.separator + "validationDiagnosticData" + Integer.toString(i) + ".xml");
+          DSSUtils.saveToFile(is,
+              directory + File.separator + "validationDiagnosticData" + Integer.toString(i) + ".xml");
           logger.info("Validation diagnostic data report is generated");
         } catch (UnsupportedEncodingException e) {
           logger.error(e.getMessage());
@@ -169,14 +171,14 @@ public class AsicValidationReportBuilder {
       return null;
     }
     SignatureValidationData validationData = signatureValidationData.get(0);
-    SimpleReport simpleReport = validationData.getReport().getReport().getSimpleReportJaxb();
+    SimpleReport simpleReport = validationData.getReport().getReports().getSimpleReportJaxb();
     return simpleReport.getPolicy();
   }
 
   private int extractValidSignaturesCount() {
     int validSignaturesCount = 0;
     for (SignatureValidationData validationData : signatureValidationData) {
-      SignatureValidationResult validationResult = validationData.getValidationResult();
+      ValidationResult validationResult = validationData.getValidationResult();
       if (validationResult.isValid()) {
         validSignaturesCount++;
       }
