@@ -4,7 +4,7 @@ Release 2.1.0
 ------------------
 Summary of the major changes since 2.0.1
 ------------------------------------------
-* Support of OCSP request has been added
+* Support to OCSP request has been added
 
 Release 2.0.1
 ------------------
