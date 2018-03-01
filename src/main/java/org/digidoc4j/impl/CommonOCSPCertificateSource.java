@@ -53,7 +53,7 @@ public class CommonOCSPCertificateSource extends CommonCertificateSource impleme
 
   private void loadFiles(File... files) {
     for (File file : files) {
-      this.log.debug("Trying to load certificate from <{}>", file);
+      this.log.debug("Loading certificate from <{}>", file);
       if (file.isFile() && file.canRead()) {
         try {
           this.addCertificate(new CertificateToken(Helper.loadCertificate(file.getPath())));
