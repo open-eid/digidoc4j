@@ -87,7 +87,7 @@ public class DDocSignatureValidationResult extends AbstractSignatureValidationRe
    */
 
   @Override
-  protected String getValidationName() {
+  protected String getResultName() {
     return "DDoc container";
   }
 

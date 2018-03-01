@@ -235,7 +235,7 @@ public final class Helper {
   }
 
   /**
-   * Serialize object.
+   * Serialize object. NB! Use only for temporal storage. May not be compatible between different product releases
    *
    * @param object object to be serialized
    * @param file   file to store serialized object in
@@ -257,7 +257,7 @@ public final class Helper {
   }
 
   /**
-   * Serialize object.
+   * Serialize object. NB! Use only for temporal storage. May not be compatible between different product releases
    *
    * @param object   object to be serialized
    * @param filename name of file to store serialized object in
@@ -267,7 +267,8 @@ public final class Helper {
   }
 
   /**
-   * Deserialize a previously serialized container
+   * Deserialize a previously serialized container. NB! Use only for temporal storage. May not be compatible between
+   * different product releases
    *
    * @param file file containing the serialized container
    * @return container
@@ -289,7 +290,8 @@ public final class Helper {
   }
 
   /**
-   * Deserialize a previously serialized container
+   * Deserialize a previously serialized container. NB! Use only for temporal storage. May not be compatible between
+   * different product releases
    *
    * @param filename name of the file containing the serialized container
    * @return container
