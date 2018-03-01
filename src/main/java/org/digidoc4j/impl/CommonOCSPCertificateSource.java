@@ -61,7 +61,7 @@ public class CommonOCSPCertificateSource extends CommonCertificateSource impleme
         }
       }
     }
-    this.log.info("OCSP certificate source contains <{}> certificate(s) in total",
+    this.log.info("OCSP certificate source contains <{}> additional certificate(s)",
         this.getCertificatePool().getNumberOfCertificates());
   }
 
