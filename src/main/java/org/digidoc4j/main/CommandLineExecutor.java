@@ -23,6 +23,7 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
@@ -199,11 +200,7 @@ public class CommandLineExecutor {
     Container.DocumentType type = this.getContainerType();
     if (new File(containerPath).exists() || this.context.getCommandLine().hasOption("verify") || this.context.getCommandLine().hasOption("remove")) {
       this.log.debug("Opening container " + containerPath);
-      if (this.context.getCommandLine().hasOption("showerrors")){
-        return ContainerOpener.open(containerPath, true);
-      } else{
-        return ContainerOpener.open(containerPath, false);
-      }
+      return ContainerOpener.open(containerPath);
     } else {
       this.log.debug("Creating new " + type + "container " + containerPath);
       return ContainerBuilder.aContainer(type.name()).build();
@@ -495,7 +492,9 @@ public class CommandLineExecutor {
     if (this.context.getCommandLine().hasOption("verify")) {
       ContainerVerifier verifier = new ContainerVerifier(this.context.getCommandLine());
       if (this.context.getCommandLine().hasOption("showerrors")){
-        verifier.verify(container, reports, true);
+        Configuration configuration = container.getConfiguration();
+        configuration.setIsFullReportNeeded(Boolean.TRUE.toString());
+        verifier.verify(container, reports);
       } else{
         verifier.verify(container, reports);
       }

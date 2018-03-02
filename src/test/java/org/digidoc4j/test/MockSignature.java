@@ -148,14 +148,4 @@ public class MockSignature implements Signature {
     return new byte[0];
   }
 
-  @Override
-  public void setConfiguration(Configuration configuration) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public Configuration getConfiguration() {
-    throw new NotYetImplementedException();
-  }
-
 }

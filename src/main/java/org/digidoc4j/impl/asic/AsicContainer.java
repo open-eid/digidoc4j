@@ -132,16 +132,6 @@ public abstract class AsicContainer implements Container {
   }
 
   @Override
-  public ContainerValidationResult validate(Configuration configuration){
-    if (this.configuration == null){
-      this.configuration = configuration;
-    } else {
-      this.configuration.setIsFullReport(configuration.getIsFullReport());
-    }
-    return validate();
-  }
-
-  @Override
   public ContainerValidationResult validate() {
     if (this.validationResult == null) {
       this.validationResult = this.validateContainer();
@@ -195,6 +185,7 @@ public abstract class AsicContainer implements Container {
     }
   }
 
+  @Override
   public Configuration getConfiguration() {
     return configuration;
   }
@@ -509,11 +500,6 @@ public abstract class AsicContainer implements Container {
 
   @Override
   public List<Signature> getSignatures() {
-    if (getConfiguration() != null){
-      for (Signature signature: signatures){
-        signature.setConfiguration(getConfiguration());
-      }
-    }
     return signatures;
   }
 

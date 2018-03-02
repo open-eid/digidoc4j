@@ -64,7 +64,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   private List<DigiDoc4JException> validationErrors = new ArrayList<>();
   private List<DigiDoc4JException> validationWarnings = new ArrayList<>();
   private String signatureId;
-  private Configuration configuration;
+  protected Configuration configuration;
 
   /**
    * Constructor.
@@ -85,7 +85,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     this.validationReport = validationResult.getReports();
     this.simpleReport = this.getSimpleReport(validationResult.buildSimpleReports());
     this.populateValidationErrors();
-    if (configuration.getIsFullReport()){
+    if (Boolean.parseBoolean(configuration.getIsFullReportNeeded())){
       FullSimpleReportBuilder detailedReportParser = new FullSimpleReportBuilder(validationReport.getDetailedReport());
       detailedReportParser.addDetailedReportEexeptions(validationErrors, validationWarnings);
     }

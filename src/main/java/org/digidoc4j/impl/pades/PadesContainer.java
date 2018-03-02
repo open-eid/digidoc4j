@@ -133,16 +133,6 @@ public class PadesContainer implements Container {
   }
 
   @Override
-  public ContainerValidationResult validate(Configuration configuration){
-    if (this.configuration == null){
-      this.configuration = configuration;
-    } else {
-      this.configuration.setIsFullReport(configuration.getIsFullReport());
-    }
-    return validate();
-  }
-
-  @Override
   public void setTimeStampToken(DataFile timeStampToken) {
     throw new NotSupportedException("Not for Pades container");
   }
@@ -158,6 +148,11 @@ public class PadesContainer implements Container {
   @Override
   public SignedInfo prepareSigning(X509Certificate signerCert) {
     throw new NotYetImplementedException();
+  }
+
+  @Override
+  public Configuration getConfiguration() {
+    return configuration;
   }
 
   @Override

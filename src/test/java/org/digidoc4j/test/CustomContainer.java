@@ -150,11 +150,6 @@ public class CustomContainer implements Container {
   }
 
   @Override
-  public ContainerValidationResult validate(Configuration configuration) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
   public void setTimeStampToken(DataFile timeStampToken) {
     throw new NotYetImplementedException();
   }

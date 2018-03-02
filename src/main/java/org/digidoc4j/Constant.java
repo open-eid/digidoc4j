@@ -47,7 +47,7 @@ public final class Constant {
 
     public static final String SIGNATURE_PROFILE = "LT";
     public static final String SIGNATURE_DIGEST_ALGORITHM = "SHA256";
-
+    public static final String FULL_SIMPLE_REPORT = "false";
   }
 
   public static class Test {

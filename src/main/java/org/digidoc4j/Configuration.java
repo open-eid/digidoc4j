@@ -166,7 +166,6 @@ public class Configuration implements Serializable {
   private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
   private LinkedHashMap configurationFromFile;
   private String configurationInputSourceName;
-  private boolean isFullReport = false;
 
   /**
    * Application mode
@@ -989,21 +988,21 @@ public class Configuration implements Serializable {
 
 
   /**
-   * Set boolean value if full report needed.
+   * Set flag if full report needed.
    *
    * @param isFullReport needed value.
    */
-  public void setIsFullReport(boolean isFullReport) {
-    this.isFullReport = isFullReport;
+  public void setIsFullReportNeeded(String isFullReport) {
+    this.setConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded, isFullReport);
   }
 
   /**
-   * Get boolean value if full report needed.
+   * Get flag if full report needed.
    *
    * @return isFullReport needed boolean value.
    */
-  public boolean getIsFullReport() {
-    return this.isFullReport;
+  public String getIsFullReportNeeded() {
+    return this.getConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded);
   }
 
 
@@ -1113,6 +1112,8 @@ public class Configuration implements Serializable {
     this.setConfigurationParameter(ConfigurationParameter.SignatureProfile, Constant.Default.SIGNATURE_PROFILE);
     this.setConfigurationParameter(ConfigurationParameter.SignatureDigestAlgorithm,
         Constant.Default.SIGNATURE_DIGEST_ALGORITHM);
+    this.setConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded,
+        Constant.Default.FULL_SIMPLE_REPORT);
     if (Mode.TEST.equals(this.mode)) {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Test.TSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.TslLocation, Constant.Test.TSL_LOCATION);

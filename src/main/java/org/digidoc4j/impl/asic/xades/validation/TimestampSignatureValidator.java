@@ -28,11 +28,9 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 public class TimestampSignatureValidator extends TimemarkSignatureValidator {
 
   private final Logger log = LoggerFactory.getLogger(TimestampSignatureValidator.class);
-  private Configuration configuration;
 
   public TimestampSignatureValidator(XadesSignature signature, Configuration configuration) {
     super(signature, configuration);
-    this.configuration = configuration;
   }
 
   @Override

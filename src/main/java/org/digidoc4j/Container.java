@@ -156,14 +156,6 @@ public interface Container extends Serializable {
   ContainerValidationResult validate();
 
   /**
-   * Validate container
-   *
-   * @param configuration
-   * @return validation result
-   */
-  ContainerValidationResult validate(Configuration configuration);
-
-  /**
    * Adds timestamp token
    *
    * @param timeStampToken
@@ -182,6 +174,12 @@ public interface Container extends Serializable {
    */
   @Deprecated
   SignedInfo prepareSigning(X509Certificate signerCert);
+
+  /**
+   * Gets Configuration
+   * @return Configuration
+   */
+  Configuration getConfiguration();
 
   /**
    * Document types

@@ -265,16 +265,6 @@ public class DDocSignature implements Signature {
     return getAdESSignature();
   }
 
-  @Override
-  public void setConfiguration(Configuration configuration) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public Configuration getConfiguration() {
-    throw new NotYetImplementedException();
-  }
-
   /**
    * Get index In array.
    *

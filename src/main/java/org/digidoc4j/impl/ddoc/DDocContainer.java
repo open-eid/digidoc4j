@@ -148,11 +148,6 @@ public class DDocContainer implements Container {
   }
 
   @Override
-  public ContainerValidationResult validate(Configuration configuration) {
-    throw new NotSupportedException("Not for DDOC container");
-  }
-
-  @Override
   public void setTimeStampToken(DataFile timeStampToken) {
     throw new NotSupportedException("Not for DDOC container");
   }
@@ -169,6 +164,11 @@ public class DDocContainer implements Container {
   @Deprecated
   public SignedInfo prepareSigning(X509Certificate signerCert) {
     return jDigiDocFacade.prepareSigning(signerCert);
+  }
+
+  @Override
+  public Configuration getConfiguration() {
+    return configuration;
   }
 
   /**

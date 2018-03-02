@@ -211,18 +211,4 @@ public interface Signature extends Serializable {
    */
   @Deprecated
   byte[] getRawSignature();
-
-  /**
-   *
-   * Setter for Configuration
-   * @param configuration
-   */
-  void setConfiguration(Configuration configuration);
-
-  /**
-   * Getter for Configuration
-
-   * @return Configuration
-   */
-  Configuration getConfiguration();
 }
