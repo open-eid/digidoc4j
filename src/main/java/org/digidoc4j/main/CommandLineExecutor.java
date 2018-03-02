@@ -493,7 +493,7 @@ public class CommandLineExecutor {
       ContainerVerifier verifier = new ContainerVerifier(this.context.getCommandLine());
       if (this.context.getCommandLine().hasOption("showerrors")){
         Configuration configuration = container.getConfiguration();
-        configuration.setIsFullReportNeeded(Boolean.TRUE.toString());
+        configuration.setFullReportNeeded(true);
         verifier.verify(container, reports);
       } else{
         verifier.verify(container, reports);

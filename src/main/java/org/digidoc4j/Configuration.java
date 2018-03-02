@@ -1006,8 +1006,8 @@ public class Configuration implements Serializable {
    *
    * @param isFullReport needed value.
    */
-  public void setIsFullReportNeeded(String isFullReport) {
-    this.setConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded, isFullReport);
+  public void setFullReportNeeded(boolean isFullReport) {
+    this.setConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded, String.valueOf(isFullReport));
   }
 
   /**
@@ -1015,10 +1015,9 @@ public class Configuration implements Serializable {
    *
    * @return isFullReport needed boolean value.
    */
-  public String getIsFullReportNeeded() {
-    return this.getConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded);
+  public boolean isFullReportNeeded() {
+    return Boolean.parseBoolean(this.getConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded));
   }
-
 
   /**
    * Set thread executor service.

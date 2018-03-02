@@ -34,15 +34,16 @@ import eu.europa.esig.dss.validation.reports.Reports;
 public class PadesContainer implements Container {
 
   public static final String PADES = "PADES";
-  private String containerPath = "";
-  private Configuration configuration;
+  private final Configuration configuration;
+  private final String containerPath;
 
   /**
-   * @param path the path of container
    * @param configuration configuration context
+   * @param containerPath the path of container
    */
-  public PadesContainer(String path, Configuration configuration){
-    containerPath = path;
+  public PadesContainer(Configuration configuration, String containerPath) {
+    this.configuration = configuration;
+    this.containerPath = containerPath;
   }
 
   @Override

@@ -85,7 +85,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     this.validationReport = validationResult.getReports();
     this.simpleReport = this.getSimpleReport(validationResult.buildSimpleReports());
     this.populateValidationErrors();
-    if (Boolean.parseBoolean(configuration.getIsFullReportNeeded())){
+    if (configuration.isFullReportNeeded()){
       FullSimpleReportBuilder detailedReportParser = new FullSimpleReportBuilder(validationReport.getDetailedReport());
       detailedReportParser.addDetailedReportEexeptions(validationErrors, validationWarnings);
     }
