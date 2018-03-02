@@ -153,6 +153,11 @@ public class PadesContainer implements Container {
   }
 
   @Override
+  public Configuration getConfiguration() {
+    return configuration;
+  }
+
+  @Override
   public String getSignatureProfile() {
     throw new NotYetImplementedException();
   }

@@ -176,6 +176,12 @@ public interface Container extends Serializable {
   SignedInfo prepareSigning(X509Certificate signerCert);
 
   /**
+   * Gets Configuration
+   * @return Configuration
+   */
+  Configuration getConfiguration();
+
+  /**
    * Document types
    */
   enum DocumentType {

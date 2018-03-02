@@ -14,6 +14,7 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.InvalidTimemarkSignatureException;
 import org.digidoc4j.exceptions.SignedWithExpiredCertificateException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
@@ -30,8 +31,8 @@ public class TimemarkSignatureValidator extends XadesSignatureValidator {
 
     private final Logger log = LoggerFactory.getLogger(TimemarkSignatureValidator.class);
 
-    public TimemarkSignatureValidator(XadesSignature signature) {
-        super(signature);
+    public TimemarkSignatureValidator(XadesSignature signature, Configuration configuration) {
+        super(signature, configuration);
     }
 
     @Override

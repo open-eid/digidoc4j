@@ -23,6 +23,7 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
@@ -490,7 +491,13 @@ public class CommandLineExecutor {
     }
     if (this.context.getCommandLine().hasOption("verify")) {
       ContainerVerifier verifier = new ContainerVerifier(this.context.getCommandLine());
-      verifier.verify(container, reports);
+      if (this.context.getCommandLine().hasOption("showerrors")){
+        Configuration configuration = container.getConfiguration();
+        configuration.setFullReportNeeded(true);
+        verifier.verify(container, reports);
+      } else{
+        verifier.verify(container, reports);
+      }
     }
   }
 

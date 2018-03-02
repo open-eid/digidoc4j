@@ -1000,6 +1000,25 @@ public class Configuration implements Serializable {
     return this.getConfigurationParameter(ConfigurationParameter.SslTruststorePassword);
   }
 
+
+  /**
+   * Set flag if full report needed.
+   *
+   * @param isFullReport needed value.
+   */
+  public void setFullReportNeeded(boolean isFullReport) {
+    this.setConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded, String.valueOf(isFullReport));
+  }
+
+  /**
+   * Get flag if full report needed.
+   *
+   * @return isFullReport needed boolean value.
+   */
+  public boolean isFullReportNeeded() {
+    return Boolean.parseBoolean(this.getConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded));
+  }
+
   /**
    * Set thread executor service.
    *
@@ -1106,6 +1125,8 @@ public class Configuration implements Serializable {
     this.setConfigurationParameter(ConfigurationParameter.SignatureProfile, Constant.Default.SIGNATURE_PROFILE);
     this.setConfigurationParameter(ConfigurationParameter.SignatureDigestAlgorithm,
         Constant.Default.SIGNATURE_DIGEST_ALGORITHM);
+    this.setConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded,
+        Constant.Default.FULL_SIMPLE_REPORT);
     if (Mode.TEST.equals(this.mode)) {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Test.TSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.TslLocation, Constant.Test.TSL_LOCATION);

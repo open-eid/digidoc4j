@@ -185,6 +185,7 @@ public abstract class AsicContainer implements Container {
     }
   }
 
+  @Override
   public Configuration getConfiguration() {
     return configuration;
   }

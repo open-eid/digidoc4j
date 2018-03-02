@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
@@ -32,6 +33,7 @@ public class AsicSignature implements Signature {
   private XadesSignature xadesSignature;
   private SignatureValidator validator;
   private DSSDocument signatureDocument;
+  private Configuration configuration;
 
   /**
    * Asic signature constructor.
@@ -268,4 +270,21 @@ public class AsicSignature implements Signature {
     return xadesSignature.getDssSignature().getDigestAlgorithm();
   }
 
+  /**
+   * Setter for Configuration
+   *
+   * @param configuration
+   */
+  public void setConfiguration(Configuration configuration){
+    this.configuration = configuration;
+  }
+
+  /**
+   * Getter for Configuration
+
+   * @return Configuration
+   */
+  public Configuration getConfiguration(){
+    return this.configuration;
+  }
 }

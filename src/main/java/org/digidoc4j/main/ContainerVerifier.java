@@ -93,6 +93,7 @@ public class ContainerVerifier {
    * @return ValidationResult
    */
   public ContainerValidationResult verify(Container container, Path reports, boolean isReportNeeded) {
+
     ContainerValidationResult containerValidationResult = container.validate();
     if (reports != null) {
       containerValidationResult.saveXmlReports(reports);
