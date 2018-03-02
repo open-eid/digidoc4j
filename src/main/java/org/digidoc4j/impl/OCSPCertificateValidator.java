@@ -107,7 +107,7 @@ public class OCSPCertificateValidator implements CertificateValidator {
     try {
       if (token.getStatus() != null) {
         if (!token.getStatus()) {
-          this.log.debug("DSS ID <{}> - status <{}>", token.getDSSIdAsString(), CRLReasonEnum.valueOf(token.getReason())
+          this.log.debug("Certificate with DSS ID <{}> - status <{}>", token.getDSSIdAsString(), CRLReasonEnum.valueOf(token.getReason())
               .name());
           throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.REVOKED);
         }
@@ -115,7 +115,7 @@ public class OCSPCertificateValidator implements CertificateValidator {
         return;
       }
       if (StringUtils.isNotBlank(token.getReason())) {
-        this.log.debug("DSS ID <{}> - status <{}>", token.getDSSIdAsString(), CRLReasonEnum.valueOf(token.getReason())
+        this.log.debug("Certificate with DSS ID <{}> - status <{}>", token.getDSSIdAsString(), CRLReasonEnum.valueOf(token.getReason())
             .name());
         throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNKNOWN);
 

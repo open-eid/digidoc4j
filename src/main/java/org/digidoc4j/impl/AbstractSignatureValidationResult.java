@@ -62,7 +62,7 @@ public abstract class AbstractSignatureValidationResult extends AbstractValidati
    */
 
   protected String getNotSupportedMessage() {
-    return String.format("Not supported for <%s>", this.getValidationName());
+    return String.format("Not supported for <%s>", this.getResultName());
   }
 
   /*

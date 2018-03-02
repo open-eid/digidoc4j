@@ -38,6 +38,7 @@ public enum ConfigurationParameter {
   TspCountryKeystorePath,
   TspCountryKeystoreType,
   TspCountryKeystorePassword,
-  AllowASN1UnsafeInteger
+  AllowASN1UnsafeInteger,
+  PrintValidationReport
 
 }

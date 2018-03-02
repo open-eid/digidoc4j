@@ -98,7 +98,7 @@ public class AsicContainerValidationResult extends AbstractSignatureValidationRe
    */
 
   @Override
-  protected String getValidationName() {
+  protected String getResultName() {
     return "ASiC container";
   }
 

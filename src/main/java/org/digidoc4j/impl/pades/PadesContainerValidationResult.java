@@ -47,7 +47,7 @@ public class PadesContainerValidationResult extends AbstractSignatureValidationR
    */
 
   @Override
-  protected String getValidationName() {
+  protected String getResultName() {
     return "PAdES container";
   }
 
