@@ -156,6 +156,14 @@ public interface Container extends Serializable {
   ContainerValidationResult validate();
 
   /**
+   * Validate container
+   *
+   * @param configuration
+   * @return validation result
+   */
+  ContainerValidationResult validate(Configuration configuration);
+
+  /**
    * Adds timestamp token
    *
    * @param timeStampToken

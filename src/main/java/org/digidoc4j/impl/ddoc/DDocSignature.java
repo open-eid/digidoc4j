@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
@@ -262,6 +263,16 @@ public class DDocSignature implements Signature {
   @Deprecated
   public byte[] getRawSignature() {
     return getAdESSignature();
+  }
+
+  @Override
+  public void setConfiguration(Configuration configuration) {
+    throw new NotYetImplementedException();
+  }
+
+  @Override
+  public Configuration getConfiguration() {
+    throw new NotYetImplementedException();
   }
 
   /**

@@ -78,6 +78,12 @@ public class ContainerOpener {
     return open(path, Configuration.getInstance());
   }
 
+  public static Container open(String path, boolean isFullReport) throws DigiDoc4JException {
+    Configuration configuration = Configuration.getInstance();
+    configuration.setIsFullReport(isFullReport);
+    return open(path, configuration);
+  }
+
   /**
    * Open container from a stream. Use {@link ContainerBuilder#fromStream(InputStream)} instead.
    *

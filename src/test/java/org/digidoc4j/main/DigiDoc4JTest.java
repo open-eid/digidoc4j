@@ -853,6 +853,22 @@ public class DigiDoc4JTest extends AbstractTest {
     DigiDoc4J.main(new String[]{"-in", "src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc", "-verify"});
   }
 
+  @Test
+  public void verifyBDocFullReport() throws Exception {
+    this.systemExit.expectSystemExitWithStatus(1);
+    this.systemExit.checkAssertionAfterwards(new Assertion() {
+      @Override
+      public void checkAssertion() throws Exception {
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Type = REVOCATION. BBB_XCV_CCCBB_REV_ANS:"));
+      }
+    });
+    String outputFolder = this.testFolder.newFolder("outputFolder").getPath();
+    String[] parameters = new String[]{"-in",
+        "src/test/resources/testFiles/invalid-containers/tundmatuocsp.asice", "-v",
+        "-r", outputFolder, "-showerrors"};
+    DigiDoc4J.main(parameters);
+  }
+
   private void assertExtractingDataFile(String containerPath, String fileToExtract) throws IOException {
     final String outputPath = String.format("%s%s%s",
         this.testFolder.newFolder("outputFolder").getPath(), File.pathSeparator, "output.txt");

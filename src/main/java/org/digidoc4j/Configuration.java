@@ -166,6 +166,7 @@ public class Configuration implements Serializable {
   private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
   private LinkedHashMap configurationFromFile;
   private String configurationInputSourceName;
+  private boolean isFullReport = false;
 
   /**
    * Application mode
@@ -985,6 +986,26 @@ public class Configuration implements Serializable {
   public String getSslTruststorePassword() {
     return this.getConfigurationParameter(ConfigurationParameter.SslTruststorePassword);
   }
+
+
+  /**
+   * Set boolean value if full report needed.
+   *
+   * @param isFullReport needed value.
+   */
+  public void setIsFullReport(boolean isFullReport) {
+    this.isFullReport = isFullReport;
+  }
+
+  /**
+   * Get boolean value if full report needed.
+   *
+   * @return isFullReport needed boolean value.
+   */
+  public boolean getIsFullReport() {
+    return this.isFullReport;
+  }
+
 
   /**
    * Set thread executor service.

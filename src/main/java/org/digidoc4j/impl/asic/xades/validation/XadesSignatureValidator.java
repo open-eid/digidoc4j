@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.CertificateRevokedException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -52,25 +53,29 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
  */
 public class XadesSignatureValidator implements SignatureValidator {
 
+  private final Logger log = LoggerFactory.getLogger(XadesSignatureValidator.class);
+
   public static final String TM_POLICY = "1.3.6.1.4.1.10015.1000.3.2.1";
   private static final String OIDAS_URN = "OIDAsURN";
   private static final String XADES_SIGNED_PROPERTIES = "http://uri.etsi.org/01903#SignedProperties";
   protected XadesSignature signature;
-  private final Logger log = LoggerFactory.getLogger(XadesSignatureValidator.class);
   private transient Reports validationReport;
   private transient SimpleReport simpleReport;
   private List<DigiDoc4JException> validationErrors = new ArrayList<>();
   private List<DigiDoc4JException> validationWarnings = new ArrayList<>();
   private String signatureId;
+  private Configuration configuration;
 
   /**
    * Constructor.
    *
    * @param signature Signature object for validation
+   * @param configuration configuretion
    */
-  public XadesSignatureValidator(XadesSignature signature) {
+  public XadesSignatureValidator(XadesSignature signature, Configuration configuration) {
     this.signature = signature;
     this.signatureId = signature.getId();
+    this.configuration = configuration;
   }
 
   @Override
@@ -80,6 +85,10 @@ public class XadesSignatureValidator implements SignatureValidator {
     this.validationReport = validationResult.getReports();
     this.simpleReport = this.getSimpleReport(validationResult.buildSimpleReports());
     this.populateValidationErrors();
+    if (configuration.getIsFullReport()){
+      FullSimpleReportBuilder detailedReportParser = new FullSimpleReportBuilder(validationReport.getDetailedReport());
+      detailedReportParser.addDetailedReportEexeptions(validationErrors, validationWarnings);
+    }
     return this.createValidationResult();
   }
 

@@ -82,7 +82,17 @@ public class ContainerVerifier {
    * @param reports Directory where to save reports.
    */
   public void verify(Container container, Path reports) {
-    verify(container, reports, false);
+    verify(container, reports, false, false);
+  }
+
+  /**
+   * Method for verifying, old BDOC style.
+   * @param container Given container to verify.
+   * @param reports Directory where to save reports.
+   * @param fullReport If full simple report needed.
+   */
+  public void verify(Container container, Path reports, boolean fullReport) {
+    verify(container, reports, false, fullReport);
   }
 
   /**
@@ -90,10 +100,14 @@ public class ContainerVerifier {
    * @param container Given container to verify.
    * @param reports Directory where to save reports.
    * @param isReportNeeded Define if need report
+   * @param fullReport If full simple report needed.
    * @return ValidationResult
    */
-  public ContainerValidationResult verify(Container container, Path reports, boolean isReportNeeded) {
-    ContainerValidationResult containerValidationResult = container.validate();
+  public ContainerValidationResult verify(Container container, Path reports, boolean isReportNeeded, boolean fullReport) {
+    Configuration configuration = Configuration.getInstance();
+    configuration.setIsFullReport(fullReport);
+
+    ContainerValidationResult containerValidationResult = container.validate(configuration);
     if (reports != null) {
       containerValidationResult.saveXmlReports(reports);
     }

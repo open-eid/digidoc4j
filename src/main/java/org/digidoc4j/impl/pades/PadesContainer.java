@@ -35,6 +35,7 @@ public class PadesContainer implements Container {
 
   public static final String PADES = "PADES";
   private String containerPath = "";
+  private Configuration configuration;
 
   /**
    * @param path the path of container
@@ -129,6 +130,16 @@ public class PadesContainer implements Container {
     }
     result.print();
     return result;
+  }
+
+  @Override
+  public ContainerValidationResult validate(Configuration configuration){
+    if (this.configuration == null){
+      this.configuration = configuration;
+    } else {
+      this.configuration.setIsFullReport(configuration.getIsFullReport());
+    }
+    return validate();
   }
 
   @Override

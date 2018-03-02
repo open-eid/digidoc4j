@@ -31,7 +31,7 @@ public class TimestampSignatureValidator extends TimemarkSignatureValidator {
   private Configuration configuration;
 
   public TimestampSignatureValidator(XadesSignature signature, Configuration configuration) {
-    super(signature);
+    super(signature, configuration);
     this.configuration = configuration;
   }
 

@@ -28,7 +28,6 @@ import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
-import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +40,7 @@ public class DDocContainer implements Container {
   private static final Logger logger = LoggerFactory.getLogger(DDocContainer.class);
 
   private DDocFacade jDigiDocFacade;
+  private Configuration configuration;
 
   /**
    * DDocContainer constructor.
@@ -65,7 +65,8 @@ public class DDocContainer implements Container {
    * @param configuration
    */
   public DDocContainer(Configuration configuration) {
-    jDigiDocFacade = new DDocFacade(configuration);
+    this.configuration = configuration;
+    jDigiDocFacade = new DDocFacade(this.configuration);
   }
 
   @Override
@@ -144,6 +145,11 @@ public class DDocContainer implements Container {
   @Override
   public ContainerValidationResult validate() {
     return jDigiDocFacade.validate();
+  }
+
+  @Override
+  public ContainerValidationResult validate(Configuration configuration) {
+    throw new NotSupportedException("Not for DDOC container");
   }
 
   @Override

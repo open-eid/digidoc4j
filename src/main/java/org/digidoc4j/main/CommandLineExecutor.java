@@ -199,7 +199,11 @@ public class CommandLineExecutor {
     Container.DocumentType type = this.getContainerType();
     if (new File(containerPath).exists() || this.context.getCommandLine().hasOption("verify") || this.context.getCommandLine().hasOption("remove")) {
       this.log.debug("Opening container " + containerPath);
-      return ContainerOpener.open(containerPath);
+      if (this.context.getCommandLine().hasOption("showerrors")){
+        return ContainerOpener.open(containerPath, true);
+      } else{
+        return ContainerOpener.open(containerPath, false);
+      }
     } else {
       this.log.debug("Creating new " + type + "container " + containerPath);
       return ContainerBuilder.aContainer(type.name()).build();
@@ -490,7 +494,11 @@ public class CommandLineExecutor {
     }
     if (this.context.getCommandLine().hasOption("verify")) {
       ContainerVerifier verifier = new ContainerVerifier(this.context.getCommandLine());
-      verifier.verify(container, reports);
+      if (this.context.getCommandLine().hasOption("showerrors")){
+        verifier.verify(container, reports, true);
+      } else{
+        verifier.verify(container, reports);
+      }
     }
   }
 
