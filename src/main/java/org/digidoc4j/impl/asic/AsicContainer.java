@@ -137,7 +137,7 @@ public abstract class AsicContainer implements Container {
       this.validationResult = this.validateContainer();
     }
     if (this.validationResult instanceof AbstractValidationResult) {
-      ((AbstractValidationResult) this.validationResult).print();
+      ((AbstractValidationResult) this.validationResult).print(this.configuration);
     }
     return this.validationResult;
   }

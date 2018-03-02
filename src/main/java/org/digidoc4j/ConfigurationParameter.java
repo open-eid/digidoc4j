@@ -39,6 +39,7 @@ public enum ConfigurationParameter {
   TspCountryKeystoreType,
   TspCountryKeystorePassword,
   AllowASN1UnsafeInteger,
+  PrintValidationReport,
   IsFullSimpleReportNeeded
 
 }

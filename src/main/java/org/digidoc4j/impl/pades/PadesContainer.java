@@ -38,11 +38,12 @@ public class PadesContainer implements Container {
   private Configuration configuration;
 
   /**
-   * @param path the path of container
    * @param configuration configuration context
+   * @param containerPath the path of container
    */
-  public PadesContainer(String path, Configuration configuration){
-    containerPath = path;
+  public PadesContainer(Configuration configuration, String containerPath) {
+    this.configuration = configuration;
+    this.containerPath = containerPath;
   }
 
   @Override
@@ -116,19 +117,20 @@ public class PadesContainer implements Container {
    * @return ValidationResult
    */
   public ContainerValidationResult validate() {
-    SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(new FileDocument(new File(containerPath)));
+    SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(new FileDocument(new File
+        (this.containerPath)));
     validator.setCertificateVerifier(new SKCommonCertificateVerifier());
     Reports reports = validator.validateDocument();
     PadesContainerValidationResult result = new PadesContainerValidationResult(reports.getSimpleReport());
     result.setReport(reports.getXmlSimpleReport());
-    for (String id: reports.getSimpleReport().getSignatureIdList()) {
+    for (String id : reports.getSimpleReport().getSignatureIdList()) {
       Indication indication = reports.getSimpleReport().getIndication(id);
-      if (!Indication.TOTAL_PASSED.equals(indication)){
+      if (!Indication.TOTAL_PASSED.equals(indication)) {
         result.getErrors().addAll(this.getExceptions(reports.getSimpleReport().getErrors(id)));
         result.getWarnings().addAll(this.getExceptions(reports.getSimpleReport().getWarnings(id)));
       }
     }
-    result.print();
+    result.print(this.configuration);
     return result;
   }
 
@@ -139,7 +141,7 @@ public class PadesContainer implements Container {
 
   private List<DigiDoc4JException> getExceptions(List<String> exceptionString) {
     List<DigiDoc4JException> exc = new ArrayList<>();
-    for (String s: exceptionString) {
+    for (String s : exceptionString) {
       exc.add(new DigiDoc4JException(s));
     }
     return exc;

@@ -53,6 +53,7 @@ public class CommonOCSPCertificateSource extends CommonCertificateSource impleme
 
   private void loadFiles(File... files) {
     for (File file : files) {
+      this.log.debug("Loading certificate from <{}>", file);
       if (file.isFile() && file.canRead()) {
         try {
           this.addCertificate(new CertificateToken(Helper.loadCertificate(file.getPath())));
@@ -61,7 +62,7 @@ public class CommonOCSPCertificateSource extends CommonCertificateSource impleme
         }
       }
     }
-    this.log.info("OCSP certificate source contains <{}> certificate(s) in total",
+    this.log.info("OCSP certificate source contains <{}> additional certificate(s)",
         this.getCertificatePool().getNumberOfCertificates());
   }
 

@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,6 +35,7 @@ import java.security.SecureRandom;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +96,7 @@ public final class Helper {
   }
 
   /**
-   * @param path   folder path
+   * @param path folder path
    * @return list of files
    */
   public static File[] getFilesFromPath(Path path) {
@@ -121,7 +123,7 @@ public final class Helper {
   }
 
   /**
-   * @param path   resource path
+   * @param path resource path
    * @return list of files
    */
   public static File[] getFilesFromResourcePath(Path path) {
@@ -134,15 +136,24 @@ public final class Helper {
    * @return list of files
    */
   public static File[] getFilesFromResourcePath(Path path, FileFilter filter) {
-    URL url = Thread.currentThread().getContextClassLoader().getResource(path.toString());
+    URL url = Helper.class.getClassLoader().getResource(path.toString());
     if (url == null) {
-      throw new IllegalArgumentException("Invalid resource");
+      throw new IllegalArgumentException(String.format("No resource <%s> found", path));
     }
-    File folder = new File(url.getPath());
-    if (!folder.isDirectory()) {
-      throw new IllegalArgumentException("Folder paths allowed only");
+    if ("jar".equals(url.getProtocol())) {
+      return Helper.getFilesFromJar(url, filter);
+    } else {
+      File folder;
+      try {
+        folder = new File(url.toURI());
+      } catch (URISyntaxException e) {
+        throw new IllegalArgumentException(String.format("Resource path <%s> is malformed", url));
+      }
+      if (!folder.isDirectory()) {
+        throw new IllegalArgumentException(String.format("Resource <%s> is not a folder", path));
+      }
+      return folder.listFiles(filter);
     }
-    return folder.listFiles(filter);
   }
 
   /**
@@ -162,15 +173,11 @@ public final class Helper {
    */
   public static boolean isZipFile(InputStream stream) throws IOException {
     DataInputStream in = new DataInputStream(stream);
-
     if (stream.markSupported())
       stream.mark(INT_LENGTH);
-
     int test = in.readInt();
-
     if (stream.markSupported())
       stream.reset();
-
     final int zipVerificationCode = ZIP_VERIFICATION_CODE;
     return test == zipVerificationCode;
   }
@@ -235,7 +242,7 @@ public final class Helper {
   }
 
   /**
-   * Serialize object.
+   * Serialize object. NB! Use only for temporal storage. May not be compatible between different product releases
    *
    * @param object object to be serialized
    * @param file   file to store serialized object in
@@ -257,7 +264,7 @@ public final class Helper {
   }
 
   /**
-   * Serialize object.
+   * Serialize object. NB! Use only for temporal storage. May not be compatible between different product releases
    *
    * @param object   object to be serialized
    * @param filename name of file to store serialized object in
@@ -267,7 +274,8 @@ public final class Helper {
   }
 
   /**
-   * Deserialize a previously serialized container
+   * Deserialize a previously serialized container. NB! Use only for temporal storage. May not be compatible between
+   * different product releases
    *
    * @param file file containing the serialized container
    * @return container
@@ -289,7 +297,8 @@ public final class Helper {
   }
 
   /**
-   * Deserialize a previously serialized container
+   * Deserialize a previously serialized container. NB! Use only for temporal storage. May not be compatible between
+   * different product releases
    *
    * @param filename name of the file containing the serialized container
    * @return container
@@ -314,7 +323,8 @@ public final class Helper {
 
   /**
    * creates user agent value for given container
-  /**
+   * /**
+   *
    * @param filePath file location
    * @return X509Certificate
    */
@@ -675,6 +685,46 @@ public final class Helper {
     logger.error(StringUtils.rightPad("-", errorMessage.length(), "-"));
     logger.error(errorMessage);
     logger.error(StringUtils.rightPad("-", errorMessage.length(), "-"));
+  }
+
+  /*
+   * RESTRICTED METHODS
+   */
+
+  private static File[] getFilesFromJar(URL jarUrl, FileFilter filter) {
+    try {
+      String[] fragments = jarUrl.getPath().split("!", 2);
+      if (fragments[1].startsWith("/")) {
+        fragments[1] = fragments[1].substring(1);
+      }
+      File file = new File(new URL(fragments[0]).toURI());
+      File outputFolder = Paths.get(System.getProperty("java.io.tmpdir"), file.getName(), fragments[1]).toFile();
+      if (!outputFolder.exists()) {
+        if (outputFolder.mkdirs()) {
+          List<ZipEntry> entries = new ArrayList<>();
+          ZipFile zipFile = new ZipFile(file);
+          Enumeration<? extends ZipEntry> e = zipFile.entries();
+          while (e.hasMoreElements()) {
+            ZipEntry entry = e.nextElement();
+            if (entry.getName().startsWith(fragments[1]) && !entry.isDirectory()) {
+              entries.add(entry);
+            }
+          }
+          for (ZipEntry entry : entries) {
+            try (InputStream inputStream = zipFile.getInputStream(entry); OutputStream outputStream = new
+                FileOutputStream(Paths.get(outputFolder.getPath(), new File(entry.getName()).getName()).toFile())) {
+              IOUtils.copy(inputStream, outputStream);
+            }
+          }
+        } else {
+          throw new RuntimeException(String.format("Unable to create output folder <%s>", outputFolder));
+        }
+      }
+      return outputFolder.listFiles(filter);
+    } catch (Exception e) {
+      logger.error(String.format("Unable to read files from <%s>", jarUrl), e);
+    }
+    return new File[]{};
   }
 
   public static class FileExtensionFilter implements FileFilter {
