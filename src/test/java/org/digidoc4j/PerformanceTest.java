@@ -38,7 +38,7 @@ import ee.sk.digidoc.SignedDoc;
 public class PerformanceTest extends AbstractTest {
 
   private static final ConfigManagerInitializer configManagerInitializer = new ConfigManagerInitializer();
-  private static final int INVOCATIONS = 1;
+  private static final int INVOCATIONS = 1000;
 
   @Rule
   public ContiPerfRule performanceTestRule = new ContiPerfRule();
