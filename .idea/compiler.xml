@@ -22,6 +22,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.7">
+      <module name="ddoc4j" target="1.7" />
       <module name="digidoc4j" target="1.7" />
     </bytecodeTargetLevel>
   </component>

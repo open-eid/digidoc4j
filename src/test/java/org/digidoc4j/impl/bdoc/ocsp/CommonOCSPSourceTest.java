@@ -14,16 +14,16 @@ import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x509.Extension;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.impl.asic.ocsp.BDocTSOcspSource;
+import org.digidoc4j.impl.CommonOCSPSource;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class BDocTSOcspSourceTest extends AbstractTest {
+public class CommonOCSPSourceTest extends AbstractTest {
 
   @Test
-  public void gettingOcspNonce() throws Exception {
-    BDocTSOcspSource ocspSource = new BDocTSOcspSource(this.configuration);
-    Extension nonce = ocspSource.createNonce();
+  public void gettingOCSPNonce() throws Exception {
+    CommonOCSPSource source = new CommonOCSPSource(this.configuration);
+    Extension nonce = source.createNonce();
     Assert.assertFalse(nonce.isCritical());
     Assert.assertEquals(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, nonce.getExtnId());
     Assert.assertTrue(nonce.getExtnValue().toString().length() > 0);

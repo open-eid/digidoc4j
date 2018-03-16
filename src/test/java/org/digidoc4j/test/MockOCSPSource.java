@@ -56,7 +56,7 @@ import eu.europa.esig.dss.x509.ocsp.OCSPToken;
 
 public class MockOCSPSource implements OCSPSource {
 
-  private final Logger log = LoggerFactory.getLogger(MockOCSPSource.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MockOCSPSource.class);
   private final PrivateKey key;
   private final X509Certificate certificate;
   private CertificateStatus expectedResponse = CertificateStatus.GOOD;
@@ -91,9 +91,9 @@ public class MockOCSPSource implements OCSPSource {
       String alias = keyStore.aliases().nextElement();
       this.certificate = (X509Certificate) keyStore.getCertificate(alias);
       this.key = (PrivateKey) keyStore.getKey(alias, password.toCharArray());
-      if (this.log.isTraceEnabled()) {
+      if (LOGGER.isTraceEnabled()) {
         CertificateToken certificateToken = new CommonCertificateSource().addCertificate(new CertificateToken(this.certificate));
-        this.log.trace("Mock OCSP source with signing certificate: {}", certificateToken);
+        LOGGER.trace("Mock OCSP source with signing certificate: {}", certificateToken);
       }
     } catch (Exception e) {
       throw new DSSException(e);
@@ -121,14 +121,12 @@ public class MockOCSPSource implements OCSPSource {
         }
       }
       X509CertificateHolder[] chain = {new X509CertificateHolder(issuerCertificate.getEncoded()), new X509CertificateHolder(this.certificate.getEncoded())};
-      OCSPToken ocspToken = new OCSPToken();
-      ocspToken.setBasicOCSPResp(builder.build(new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(this.key), chain, this.ocspDate));
-      //TODO replace with new DSS 5.0 code
-      //SingleResp singleResp = basicResp.getResponses()[0];
-      //ocspToken.setBestSingleResp(singleResp);
-      ocspToken.setCertId(DSSRevocationUtils.getOCSPCertificateID(certificateToken, issuerCertificateToken));
-      certificateToken.addRevocationToken(ocspToken);
-      return ocspToken;
+      OCSPToken token = new OCSPToken();
+      token.setBasicOCSPResp(builder.build(new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(this.key), chain, this.ocspDate));
+      token.setCertId(DSSRevocationUtils.getOCSPCertificateID(certificateToken, issuerCertificateToken));
+      token.extractInfo();
+      certificateToken.addRevocationToken(token);
+      return token;
     } catch (OCSPException e) {
       throw new DSSException(e);
     } catch (IOException e) {

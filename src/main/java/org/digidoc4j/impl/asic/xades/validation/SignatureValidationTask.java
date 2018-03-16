@@ -13,7 +13,7 @@ package org.digidoc4j.impl.asic.xades.validation;
 import java.util.concurrent.Callable;
 
 import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.ValidationResult;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.asics.AsicSSignature;
@@ -33,7 +33,7 @@ public class SignatureValidationTask implements Callable<SignatureValidationData
   @Override
   public SignatureValidationData call() throws Exception {
     logger.debug("Starting to validate signature " + signature.getId());
-    SignatureValidationResult validationResult = signature.validateSignature();
+    ValidationResult validationResult = signature.validateSignature();
     SignatureValidationData validationData = new SignatureValidationData();
     validationData.setValidationResult(validationResult);
     validationData.setSignatureId(signature.getId());

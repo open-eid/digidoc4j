@@ -138,7 +138,7 @@ public final class DigiDoc4J {
     } catch (DigiDoc4JUtilityException e) {
       throw e;
     } catch (DigiDoc4JException e) {
-      throw new DigiDoc4JUtilityException(1, e.getMessage());
+      throw new DigiDoc4JUtilityException(1, e);
     }
   }
 
@@ -204,6 +204,7 @@ public final class DigiDoc4J {
     options.addOption("w", "warnings", false, "show warnings");
     options.addOption("version", "version", false, "show version");
     options.addOption("tst", "timestamp", false, "adds timestamp token to container");
+    options.addOption("err", "showerrors", false, "show container errors");
     options.addOption(DigiDoc4J.type());
     options.addOption(DigiDoc4J.inputFile());
     options.addOption(DigiDoc4J.inputDir());

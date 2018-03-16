@@ -162,7 +162,8 @@ public class ManifestValidatorTest {
     List<ManifestErrorMessage> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
     Assert.assertFalse(errors.isEmpty());
     ManifestErrorMessage manifestErrorMessage = errors.get(0);
-    Assert.assertEquals("Container contains a file named other.txt which is not found in the signature file", manifestErrorMessage.getErrorMessage());
+    Assert.assertEquals("Container contains a file named <other.txt> which is not found in the signature file",
+        manifestErrorMessage.getErrorMessage());
     Assert.assertEquals("", manifestErrorMessage.getSignatureId());
   }
 

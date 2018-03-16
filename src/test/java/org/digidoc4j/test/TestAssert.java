@@ -33,7 +33,7 @@ import org.digidoc4j.Container;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
-import org.digidoc4j.impl.asic.ocsp.SKOnlineOCSPSource;
+import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -97,6 +97,10 @@ public final class TestAssert {
 
   public static void assertContainerIsValid(Container container) {
     Assert.assertTrue("Container is invalid", container.validate().isValid());
+  }
+
+  public static void assertContainerIsInvalid(Container container) {
+    Assert.assertFalse("Container is valid", container.validate().isValid());
   }
 
   public static void assertContainerIsValidWithJDigiDoc(String containerFilePath) throws DigiDocException {

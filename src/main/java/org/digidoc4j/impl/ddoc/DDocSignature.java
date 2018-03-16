@@ -16,12 +16,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.ValidationResult;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.impl.SimpleValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +43,6 @@ public class DDocSignature implements Signature {
    * @param signature add description
    */
   public DDocSignature(ee.sk.digidoc.Signature signature) {
-    logger.debug("");
     this.origin = signature;
   }
 
@@ -51,7 +52,6 @@ public class DDocSignature implements Signature {
    * @param cert
    */
   public void setCertificate(X509Cert cert) {
-    logger.debug("");
     this.certificate = cert;
   }
 
@@ -227,18 +227,12 @@ public class DDocSignature implements Signature {
   }
 
   @Override
-  public SignatureValidationResult validateSignature() {
-    logger.debug("");
-    List<DigiDoc4JException> validationErrors = new ArrayList<>();
-    ArrayList validationResult = origin.verify(origin.getSignedDoc(), true, true);
+  public ValidationResult validateSignature() {
+    SimpleValidationResult result = new SimpleValidationResult("DDoc signature");
+    List validationResult = this.origin.verify(origin.getSignedDoc(), true, true);
     for (Object exception : validationResult) {
-      String errorMessage = exception.toString();
-      logger.info(errorMessage);
-      validationErrors.add(new DigiDoc4JException(errorMessage));
+      result.getErrors().add(new DigiDoc4JException(exception.toString()));
     }
-    logger.info("Signature has " + validationErrors.size() + " validation errors");
-    SignatureValidationResult result = new SignatureValidationResult();
-    result.setErrors(validationErrors);
     return result;
   }
 

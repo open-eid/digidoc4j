@@ -33,9 +33,6 @@
           </value>
         </option>
         <option name="WRAP_WHEN_TYPING_REACHES_RIGHT_MARGIN" value="true" />
-        <MarkdownNavigatorCodeStyleSettings>
-          <option name="RIGHT_MARGIN" value="80" />
-        </MarkdownNavigatorCodeStyleSettings>
         <XML>
           <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
         </XML>

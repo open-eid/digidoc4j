@@ -38,7 +38,7 @@ import ee.sk.digidoc.SignedDoc;
 public class PerformanceTest extends AbstractTest {
 
   private static final ConfigManagerInitializer configManagerInitializer = new ConfigManagerInitializer();
-  private static final int INVOCATIONS = 1;
+  private static final int INVOCATIONS = 1000;
 
   @Rule
   public ContiPerfRule performanceTestRule = new ContiPerfRule();
@@ -185,7 +185,7 @@ public class PerformanceTest extends AbstractTest {
   }
 
   private void validateInvalidContainer(String containerLocation, String expectedError) {
-    ValidationResult result = this.openContainerByConfiguration(Paths.get(containerLocation)).validate();
+    SignatureValidationResult result = this.openContainerByConfiguration(Paths.get(containerLocation)).validate();
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(1, errors.size());
     Assert.assertEquals(expectedError, errors.get(0).getMessage());

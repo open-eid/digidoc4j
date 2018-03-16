@@ -8,16 +8,14 @@ import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.apache.commons.io.FileUtils;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
-import org.digidoc4j.ValidationResult;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.manifest.ManifestValidator;
 import org.digidoc4j.test.util.TestDigiDoc4JUtil;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -37,7 +35,7 @@ public class AsicSContainerTest extends AbstractTest {
     this.createSignatureBy(container, this.pkcs12SignatureToken);
     String file = Paths.get(this.testFolder.getRoot().getPath(), "testasics.asics").toString();
     container.saveAsFile(file);
-    ValidationResult result = container.validate();
+    SignatureValidationResult result = container.validate();
     Assert.assertTrue(result.isValid());
     ZipFile zipFile = new ZipFile(file);
     ZipEntry mimeTypeEntry = zipFile.getEntry(ManifestValidator.MIMETYPE_PATH);

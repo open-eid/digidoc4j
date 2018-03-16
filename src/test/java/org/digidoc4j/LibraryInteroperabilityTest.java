@@ -13,6 +13,7 @@ package org.digidoc4j;
 import java.io.FileInputStream;
 import java.nio.file.Paths;
 
+import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
@@ -37,12 +38,24 @@ public class LibraryInteroperabilityTest extends AbstractTest {
   }
 
   @Test
-  public void verifyLibdigidocTS_SignatureWithDigiDoc4j() {
+  public void verifySignatureWithDigiDoc4j_BC_unsafe_integer_from_yaml() {
+    Configuration configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.loadConfiguration
+        ("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_bs_allow_unsafe_integer.yaml");
+    Container container = ContainerBuilder.aContainer().
+        fromExistingFile("src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc").
+        withConfiguration(configuration).
+        build();
+    TestAssert.assertContainerIsValid(container);
+  }
+
+  @Test
+  public void verifySignatureWithDigiDoc4j_BC_unsafe_integer_by_default() {
     this.setGlobalMode(Configuration.Mode.PROD);
     Container container = ContainerBuilder.aContainer().
-        fromExistingFile("src/test/resources/testFiles/invalid-containers/Libdigidoc_created_tsa_signature_TS.bdoc").
+        fromExistingFile("src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc").
         withConfiguration(Configuration.of(Configuration.Mode.PROD)).build();
-    TestAssert.assertContainerIsValid(container);
+    TestAssert.assertContainerIsInvalid(container);
   }
 
   @Test

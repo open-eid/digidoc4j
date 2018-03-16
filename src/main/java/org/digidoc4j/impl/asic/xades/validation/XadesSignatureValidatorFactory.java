@@ -23,9 +23,9 @@ public class XadesSignatureValidatorFactory {
     SignatureProfile profile = signature.getProfile();
     XadesSignatureValidator xadesValidator;
     if (profile == SignatureProfile.B_BES) {
-      xadesValidator = new XadesSignatureValidator(signature);
+      xadesValidator = new XadesSignatureValidator(signature, configuration);
     } else if (profile == SignatureProfile.LT_TM) {
-      xadesValidator = new TimemarkSignatureValidator(signature);
+      xadesValidator = new TimemarkSignatureValidator(signature, configuration);
     } else if (profile == SignatureProfile.LT) {
       xadesValidator = new TimestampSignatureValidator(signature, configuration);
     } else {

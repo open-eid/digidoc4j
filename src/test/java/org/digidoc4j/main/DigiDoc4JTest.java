@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.SignatureProfile;
@@ -47,40 +48,33 @@ public class DigiDoc4JTest extends AbstractTest {
   public final SystemOutRule stdOut = new SystemOutRule().enableLog();
 
   @Test
-  public void testComposingSigningDataFile() {
-    String containerFile = this.getFileBy("bdoc");
-    String signingDataFile = this.getFileBy("ser");
-    String[] parameters = new String[]{"-in", containerFile, "-add", "src/test/resources/testFiles/helper-files/test.txt",
-        "text/plain", "-dts", signingDataFile, "text/plain", "-cert", "src/test/resources/testFiles/certs/signout.pem"};
-    TestDigiDoc4JUtil.call(parameters);
-    Assert.assertTrue(String.format("No signing data file <%s>", signingDataFile), new File(signingDataFile).exists());
-    Assert.assertTrue(String.format("No container file <%s>", containerFile), new File(containerFile).exists());
-  }
-
-  @Test
-  public void testSigningSignatureDataFile() {
-    String file = this.getFileBy("sig");
-    String[] parameters = new String[]{"-dts", "src/test/resources/testFiles/external/test.ser",
-        "-sig", file, "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
-    TestDigiDoc4JUtil.call(parameters);
-    Assert.assertTrue(String.format("No signature file <%s>", file), new File(file).exists());
-  }
-
-  @Test
-  public void testAddingSignatureToContainer() throws IOException {
+  public void testComposingAndSigningAndAddingDataToSignFile() {
     this.systemExit.expectSystemExitWithStatus(0);
-    String file = this.getFileBy("bdoc");
-    FileUtils.copyFile(new File("src/test/resources/testFiles/external/test.bdoc"), new File(file));
-    String[] parameters = new String[]{"-in", file, "-sig", "src/test/resources/testFiles/external/test.sig",
-        "-dts", "src/test/resources/testFiles/external/test.ser"};
+    String containerFile = this.getFileBy("bdoc");
+    String dataToSignFile = this.getFileBy("ser");
+    String[] parameters = new String[]{"-in", containerFile,
+        "-add", "src/test/resources/testFiles/helper-files/test.txt",
+        "text/plain", "-dts", dataToSignFile, "text/plain", "-cert", "src/test/resources/testFiles/certs/signout.pem"};
+    TestDigiDoc4JUtil.call(parameters);
+    Assert.assertTrue(String.format("No data to sign file <%s>", dataToSignFile), new File(dataToSignFile).exists
+        ());
+    Assert.assertTrue(String.format("No container file <%s>", containerFile), new File(containerFile).exists());
+    String signatureFile = this.getFileBy("sig");
+    parameters = new String[]{"-dts", dataToSignFile,
+        "-sig", signatureFile, "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
+    TestDigiDoc4JUtil.call(parameters);
+    Assert.assertTrue(String.format("No signature file <%s>", signatureFile), new File(signatureFile).exists());
+    parameters = new String[]{"-in", containerFile, "-sig", signatureFile,
+        "-dts", dataToSignFile};
     DigiDoc4J.main(parameters);
-    TestAssert.assertContainerIsValid(this.openContainerBy(Paths.get(file)));
+    TestAssert.assertContainerIsValid(this.openContainerBy(Paths.get(containerFile)));
   }
 
   @Test
   public void createsContainerWithTypeSettingDDoc() {
     String file = this.getFileBy("bdoc");
-    String[] parameters = new String[]{"-in", file, "-type", "DDOC", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+    String[] parameters = new String[]{"-in", file, "-type", "DDOC",
+        "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
     TestDigiDoc4JUtil.call(parameters);
     Assert.assertEquals("DDOC", ContainerOpener.open(file).getType());
@@ -90,9 +84,10 @@ public class DigiDoc4JTest extends AbstractTest {
   public void signDDocContainerTwice() {
     String file = this.getFileBy("bdoc");
     String[] signNewContainerParams = new String[]{"-in", file, "-type", "DDOC", "-add",
-        "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
-    String[] signExistingContainerParams = new String[]{"-in", file, "-pkcs12", "src/test/resources/testFiles/p12/signout.p12",
-        "test"};
+        "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
+        "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
+    String[] signExistingContainerParams = new String[]{"-in", file,
+        "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
     TestDigiDoc4JUtil.call(signNewContainerParams);
     TestDigiDoc4JUtil.call(signExistingContainerParams);
     Assert.assertEquals(2, ContainerOpener.open(file).getSignatures().size());
@@ -101,7 +96,8 @@ public class DigiDoc4JTest extends AbstractTest {
   @Test
   public void createsContainerWithSignatureProfileIsTSAForBDoc() throws Exception {
     String file = this.getFileBy("bdoc");
-    String[] parameters = new String[]{"-in", file, "-type", "BDOC", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+    String[] parameters = new String[]{"-in", file, "-type", "BDOC",
+        "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "LTA"};
     TestDigiDoc4JUtil.call(parameters);
     Container container = ContainerOpener.open(file);
@@ -111,7 +107,8 @@ public class DigiDoc4JTest extends AbstractTest {
   @Test
   public void createsContainerWithSignatureProfileIsTSForBDoc() throws Exception {
     String file = this.getFileBy("bdoc");
-    String[] parameters = new String[]{"-in", file, "-type", "BDOC", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+    String[] parameters = new String[]{"-in", file, "-type", "BDOC",
+        "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "LT"};
     TestDigiDoc4JUtil.call(parameters);
     Assert.assertEquals(SignatureProfile.LT, ContainerOpener.open(file).getSignature(0).getProfile());
@@ -126,14 +123,15 @@ public class DigiDoc4JTest extends AbstractTest {
     TestDigiDoc4JUtil.call(params);
     Container container = ContainerOpener.open(fileName);
     Assert.assertEquals(SignatureProfile.LT, container.getSignature(0).getProfile());
-    System.clearProperty("digidoc4j.mode");
-    Assert.assertTrue(container.validate().isValid());
+    this.clearGlobalMode();
+    TestAssert.assertContainerIsValid(container);
   }
 
   @Test
   public void createsContainerWithSignatureProfileIsBESForBDoc() throws Exception {
     String file = this.getFileBy("bdoc");
-    String[] parameters = new String[]{"-in", file, "-type", "BDOC", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+    String[] parameters = new String[]{"-in", file, "-type", "BDOC",
+        "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "B_BES"};
     TestDigiDoc4JUtil.call(parameters);
     Assert.assertEquals(SignatureProfile.B_BES, ContainerOpener.open(file).getSignature(0).getProfile());
@@ -143,7 +141,8 @@ public class DigiDoc4JTest extends AbstractTest {
   public void createsECCSignatureWithInvalidEncryptionType() throws Exception {
     this.systemExit.expectSystemExitWithStatus(1);
     String file = this.getFileBy("bdoc");
-    String[] parameters = new String[]{"-in", file, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
+    String[] parameters = new String[]{"-in", file,
+        "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "src/test/resources/testFiles/p12/ec-digiid.p12", "inno", "-e", "INVALID"};
     DigiDoc4J.main(parameters);
   }
@@ -151,7 +150,8 @@ public class DigiDoc4JTest extends AbstractTest {
   @Test
   public void createsECCSignature() throws Exception {
     String file = this.getFileBy("bdoc");
-    String[] parameters = new String[]{"-in", file, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
+    String[] parameters = new String[]{"-in", file,
+        "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
         "-pkcs12", "src/test/resources/testFiles/p12/MadDogOY.p12", "test", "-e", "ECDSA"};
     TestDigiDoc4JUtil.call(parameters);
     Assert.assertTrue(ContainerOpener.open(file).validate().isValid());
@@ -160,7 +160,8 @@ public class DigiDoc4JTest extends AbstractTest {
   @Test
   public void createsContainerWithUnknownSignatureProfile() throws Exception {
     String file = this.getFileBy("bdoc");
-    String[] parameters = new String[]{"-in", file, "-type", "BDOC", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+    String[] parameters = new String[]{"-in", file, "-type", "BDOC",
+        "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "Unknown"};
     TestDigiDoc4JUtil.call(parameters);
     Assert.assertEquals(SignatureProfile.LT, ContainerOpener.open(file).getSignature(0).getProfile());
@@ -169,7 +170,8 @@ public class DigiDoc4JTest extends AbstractTest {
   @Test
   public void createsContainerWithSignatureProfileIsTMForDDoc() throws Exception {
     String file = this.getFileBy("ddoc");
-    String[] parameters = new String[]{"-in", file, "-type", "DDOC", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+    String[] parameters = new String[]{"-in", file, "-type", "DDOC",
+        "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "LT_TM"};
     TestDigiDoc4JUtil.call(parameters);
     Assert.assertEquals(SignatureProfile.LT_TM, ContainerOpener.open(file).getSignature(0).getProfile());
@@ -179,7 +181,8 @@ public class DigiDoc4JTest extends AbstractTest {
   public void createsContainerWithSignatureProfileTSForDDocReturnsFailureCode() throws Exception {
     this.systemExit.expectSystemExitWithStatus(1);
     String file = this.getFileBy("ddoc");
-    String[] parameters = new String[]{"-in", file, "-type", "DDOC", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+    String[] parameters = new String[]{"-in", file, "-type", "DDOC",
+        "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "LT"};
     DigiDoc4J.main(parameters);
   }
@@ -188,7 +191,8 @@ public class DigiDoc4JTest extends AbstractTest {
   public void createsContainerWithSignatureProfileTSAForDDocReturnsFailureCode() throws Exception {
     this.systemExit.expectSystemExitWithStatus(1);
     String file = this.getFileBy("ddoc");
-    String[] parameters = new String[]{"-in", file, "-type", "DDOC", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+    String[] parameters = new String[]{"-in", file, "-type", "DDOC",
+        "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "LTA"};
     DigiDoc4J.main(parameters);
   }
@@ -197,7 +201,8 @@ public class DigiDoc4JTest extends AbstractTest {
   @Ignore("JDigiDoc by default returns LT_TM profile but should be B_BES profile")
   public void createsContainerWithSignatureProfileBESForDDoc() throws Exception {
     String file = this.getFileBy("ddoc");
-    String[] parameters = new String[]{"-in", file, "-type", "DDOC", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+    String[] parameters = new String[]{"-in", file, "-type", "DDOC",
+        "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "B_BES"};
     TestDigiDoc4JUtil.call(parameters);
     Assert.assertEquals(SignatureProfile.B_BES, ContainerOpener.open(file).getSignatures().get(0).getProfile());
@@ -206,7 +211,8 @@ public class DigiDoc4JTest extends AbstractTest {
   @Test
   public void createsContainerWithTypeSettingBDoc() throws Exception {
     String file = this.getFileBy("bdoc");
-    String[] parameters = new String[]{"-in", file, "-type", "BDOC", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+    String[] parameters = new String[]{"-in", file, "-type", "BDOC",
+        "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
     TestDigiDoc4JUtil.call(parameters);
     Assert.assertEquals("BDOC", ContainerOpener.open(file).getType());
@@ -231,7 +237,8 @@ public class DigiDoc4JTest extends AbstractTest {
   @Test
   public void createsContainerWithTypeSettingBasedOnFileExtensionDDoc() throws Exception {
     String file = this.getFileBy("ddoc");
-    String[] parameters = new String[]{"-in", file, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
+    String[] parameters = new String[]{"-in", file,
+        "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
         "src/test/resources/testFiles/p12/signout.p12", "test"};
     TestDigiDoc4JUtil.call(parameters);
     Assert.assertEquals("DDOC", ContainerOpener.open(file).getType());
@@ -240,7 +247,8 @@ public class DigiDoc4JTest extends AbstractTest {
   @Test
   public void createsContainerWithTypeSettingBasedOnFileExtensionBDoc() throws Exception {
     String file = this.getFileBy("bdoc");
-    String[] parameters = new String[]{"-in", file, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
+    String[] parameters = new String[]{"-in", file,
+        "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
         "src/test/resources/testFiles/p12/signout.p12", "test"};
     TestDigiDoc4JUtil.call(parameters);
     Container container = ContainerOpener.open(file);
@@ -250,7 +258,8 @@ public class DigiDoc4JTest extends AbstractTest {
   @Test
   public void createsContainerWithTypeSettingBDocIfNoSuitableFileExtensionAndNoType() throws Exception {
     String file = this.getFileBy("bdoc");
-    String[] parameters = new String[]{"-in", file, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
+    String[] parameters = new String[]{"-in", file,
+        "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
         "src/test/resources/testFiles/p12/signout.p12", "test"};
     TestDigiDoc4JUtil.call(parameters);
     Assert.assertEquals("BDOC", ContainerOpener.open(file).getType());
@@ -260,7 +269,8 @@ public class DigiDoc4JTest extends AbstractTest {
   public void createsContainerAndSignsIt() throws Exception {
     this.systemExit.expectSystemExitWithStatus(0);
     String file = this.getFileBy("bdoc");
-    String[] parameters = new String[]{"-in", file, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
+    String[] parameters = new String[]{"-in", file,
+        "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
         "src/test/resources/testFiles/p12/signout.p12", "test"};
     DigiDoc4J.main(parameters);
   }
@@ -269,7 +279,8 @@ public class DigiDoc4JTest extends AbstractTest {
   @Ignore("Requires a physical smart card")
   public void createContainer_andSignIt_withPkcs11() throws Exception {
     String file = this.getFileBy("bdoc");
-    String[] parameters = new String[]{"-in", file, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
+    String[] parameters = new String[]{"-in", file,
+        "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
         "-pkcs11", "/usr/local/lib/opensc-pkcs11.so", "22975", "2"};
     TestDigiDoc4JUtil.call(parameters);
     Container container = ContainerOpener.open(file);
@@ -283,8 +294,10 @@ public class DigiDoc4JTest extends AbstractTest {
   public void itShouldNotBePossible_ToSignWithBoth_Pkcs11AndPkcs12() throws Exception {
     this.systemExit.expectSystemExitWithStatus(5);
     String file = this.getFileBy("bdoc");
-    String[] parameters = new String[]{"-in", file, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
-        "-pkcs11", "/usr/local/lib/opensc-pkcs11.so", "01497", "2", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
+    String[] parameters = new String[]{"-in", file,
+        "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
+        "-pkcs11", "/usr/local/lib/opensc-pkcs11.so", "01497", "2",
+        "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
     DigiDoc4J.main(parameters);
   }
 
@@ -292,16 +305,17 @@ public class DigiDoc4JTest extends AbstractTest {
   public void createsContainerAndAddsFileWithoutMimeType() throws Exception {
     this.systemExit.expectSystemExitWithStatus(2);
     String file = this.getFileBy("bdoc");
-    String[] parameters = new String[]{"-in", file, "-add", "src/test/resources/testFiles/helper-files/test.txt", "-pkcs12",
-        "src/test/resources/testFiles/p12/signout.p12", "test"};
+    String[] parameters = new String[]{"-in", file, "-add", "src/test/resources/testFiles/helper-files/test.txt",
+        "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
     DigiDoc4J.main(parameters);
   }
 
   @Test
   public void createMultipleSignedContainers_whereInputDirIsFile_shouldThrowException() throws Exception {
     this.systemExit.expectSystemExitWithStatus(6);
-    String[] parameters = new String[]{"-inputDir", this.testFolder.newFile("inputFolder").getPath(), "-outputDir",
-        this.testFolder.newFolder("outputFolder").getPath(), "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
+    String[] parameters = new String[]{"-inputDir", this.testFolder.newFile("inputFolder").getPath(),
+        "-outputDir", this.testFolder.newFolder("outputFolder").getPath(), "-pkcs12",
+        "src/test/resources/testFiles/p12/signout.p12", "test"};
     DigiDoc4J.main(parameters);
   }
 
@@ -319,7 +333,8 @@ public class DigiDoc4JTest extends AbstractTest {
   public void createMultipleSignedContainers_withEmptyInputDir_shouldDoNothing() throws Exception {
     this.systemExit.expectSystemExitWithStatus(0);
     String[] parameters = new String[]{"-inputDir", this.testFolder.newFolder("inputFolder").getPath(), "-outputDir",
-        this.testFolder.newFolder("outputFolder").getPath(), "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
+        this.testFolder.newFolder("outputFolder").getPath(), "-pkcs12",
+        "src/test/resources/testFiles/p12/signout.p12", "test"};
     DigiDoc4J.main(parameters);
   }
 
@@ -410,7 +425,8 @@ public class DigiDoc4JTest extends AbstractTest {
       }
 
     });
-    DigiDoc4J.main(new String[]{"-in", "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc", "-verify"});
+    DigiDoc4J.main(new String[]{"-in",
+        "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc", "-verify"});
   }
 
   @Test
@@ -421,11 +437,12 @@ public class DigiDoc4JTest extends AbstractTest {
       @Override
       public void checkAssertion() throws Exception {
         Assert.assertThat(stdOut.getLog(), StringContains.containsString(
-            "Container contains a file named AdditionalFile.txt which is not found in the signature file"));
+            "Container contains a file named <AdditionalFile.txt> which is not found in the signature file"));
       }
 
     });
-    DigiDoc4J.main(new String[]{"-in", "src/test/resources/testFiles/invalid-containers/manifest_validation_error.asice", "-verify"});
+    DigiDoc4J.main(new String[]{"-in",
+        "src/test/resources/testFiles/invalid-containers/manifest_validation_error.asice", "-verify"});
   }
 
   @Test
@@ -440,7 +457,8 @@ public class DigiDoc4JTest extends AbstractTest {
       }
 
     });
-    DigiDoc4J.main(new String[]{"-in", "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc", "-verify", "-verbose"});
+    DigiDoc4J.main(new String[]{"-in",
+        "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc", "-verify", "-verbose"});
   }
 
   @Test
@@ -454,7 +472,8 @@ public class DigiDoc4JTest extends AbstractTest {
       }
 
     });
-    DigiDoc4J.main(new String[]{"-in", "src/test/resources/testFiles/invalid-containers/changed_digidoc_test.ddoc", "-verify"});
+    DigiDoc4J.main(new String[]{"-in",
+        "src/test/resources/testFiles/invalid-containers/changed_digidoc_test.ddoc", "-verify"});
   }
 
   @Test
@@ -474,13 +493,15 @@ public class DigiDoc4JTest extends AbstractTest {
   @Test
   public void verifyDDocWithoutSignature() throws Exception {
     this.systemExit.expectSystemExitWithStatus(1);
-    DigiDoc4J.main(new String[]{"-in", "src/test/resources/testFiles/invalid-containers/no_signed_doc_no_signature.ddoc", "-verify"});
+    DigiDoc4J.main(new String[]{"-in",
+        "src/test/resources/testFiles/invalid-containers/no_signed_doc_no_signature.ddoc", "-verify"});
   }
 
   @Test
   public void verifyDDocWithEmptyContainer() throws Exception {
     this.systemExit.expectSystemExitWithStatus(1);
-    DigiDoc4J.main(new String[]{"-in", "src/test/resources/testFiles/invalid-containers/empty_container_no_signature.ddoc", "-verify"});
+    DigiDoc4J.main(new String[]{"-in",
+        "src/test/resources/testFiles/invalid-containers/empty_container_no_signature.ddoc", "-verify"});
   }
 
   @Test
@@ -510,8 +531,10 @@ public class DigiDoc4JTest extends AbstractTest {
       }
 
     });
-    String[] parameters = new String[]{"-in", "src/test/resources/testFiles/invalid-containers/warning.asice", "-verify", "-warnings"};
-    FileUtils.copyFile(new File("src/test/resources/testFiles/yaml-configurations/digidoc4j_ForBDocWarningTest.yaml"),
+    String[] parameters = new String[]{"-in",
+        "src/test/resources/testFiles/invalid-containers/warning.asice", "-verify", "-warnings"};
+    FileUtils.copyFile(
+        new File("src/test/resources/testFiles/yaml-configurations/digidoc4j_ForBDocWarningTest.yaml"),
         new File("src/main/resources/digidoc4j.yaml")); // TODO Whaaaaat?
     DigiDoc4J.main(parameters);
   }
@@ -523,11 +546,13 @@ public class DigiDoc4JTest extends AbstractTest {
 
       @Override
       public void checkAssertion() throws Exception {
-        Assert.assertThat(stdOut.getLog(), StringContains.containsString("ERROR: 13 - Format attribute is mandatory!"));
+        Assert.assertThat(stdOut.getLog(),
+            StringContains.containsString("ERROR: 13 - Format attribute is mandatory!"));
       }
 
     });
-    DigiDoc4J.main(new String[]{"-in", "src/test/resources/testFiles/invalid-containers/empty_container_no_signature.ddoc", "-verify"});
+    DigiDoc4J.main(new String[]{"-in",
+        "src/test/resources/testFiles/invalid-containers/empty_container_no_signature.ddoc", "-verify"});
   }
 
   @Test
@@ -591,24 +616,28 @@ public class DigiDoc4JTest extends AbstractTest {
 
   @Test
   public void extractDataFileFromBdoc() throws Exception {
-    this.assertExtractingDataFile("src/test/resources/testFiles/valid-containers/one_signature.bdoc", "test.txt");
+    this.assertExtractingDataFile("src/test/resources/testFiles/valid-containers/one_signature.bdoc",
+        "test.txt");
   }
 
   @Test
   public void extractDataFileFromDdoc() throws Exception {
-    this.assertExtractingDataFile("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc", "test.txt");
+    this.assertExtractingDataFile("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc",
+        "test.txt");
   }
 
   @Test
   public void extractDataFile_withIncorrectParameters_shouldThrowException() throws Exception {
     this.systemExit.expectSystemExitWithStatus(2);
-    DigiDoc4J.main(new String[]{"-in", "src/test/resources/testFiles/valid-containers/one_signature.bdoc", "-extract", "test.txt"});
+    DigiDoc4J.main(new String[]{"-in",
+        "src/test/resources/testFiles/valid-containers/one_signature.bdoc", "-extract", "test.txt"});
   }
 
   @Test
   public void extractDataFile_withNonExistingFile_shouldThrowException() throws Exception {
     this.systemExit.expectSystemExitWithStatus(4);
-    String[] parameters = new String[]{"-in", "src/test/resources/testFiles/valid-containers/one_signature.bdoc", "-extract",
+    String[] parameters = new String[]{"-in",
+        "src/test/resources/testFiles/valid-containers/one_signature.bdoc", "-extract",
         "notExistingFile.dmc", this.testFolder.newFolder("outputFolder").getPath() + "/output.txt"};
     DigiDoc4J.main(parameters);
   }
@@ -652,7 +681,8 @@ public class DigiDoc4JTest extends AbstractTest {
 
       @Override
       public void checkAssertion() throws Exception {
-        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Validation was successful. Container is valid"));
+        Assert.assertThat(stdOut.getLog(),
+            StringContains.containsString("Validation was successful. Container is valid"));
       }
 
     });
@@ -671,7 +701,8 @@ public class DigiDoc4JTest extends AbstractTest {
       }
 
     });
-    String[] parameters = new String[]{"-in", "src/test/resources/prodFiles/valid-containers/valid_prod_bdoc_eid.bdoc", "-v"};
+    String[] parameters = new String[]{"-in",
+        "src/test/resources/prodFiles/valid-containers/valid_prod_bdoc_eid.bdoc", "-v"};
     DigiDoc4J.main(parameters);
   }
 
@@ -683,7 +714,8 @@ public class DigiDoc4JTest extends AbstractTest {
 
       @Override
       public void checkAssertion() throws Exception {
-        Assert.assertThat("No match", stdOut.getLog(), StringContains.containsString("Validation was successful. Container is valid"));
+        Assert.assertThat("No match", stdOut.getLog(),
+            StringContains.containsString("Validation was successful. Container is valid"));
       }
 
     });
@@ -703,7 +735,8 @@ public class DigiDoc4JTest extends AbstractTest {
 
     });
     String outputFolder = this.testFolder.newFolder("outputFolder").getPath();
-    String[] parameters = new String[]{"-in", "src/test/resources/prodFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc", "-v",
+    String[] parameters = new String[]{"-in",
+        "src/test/resources/prodFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc", "-v",
         "-r", outputFolder};
     DigiDoc4J.main(parameters);
   }
@@ -716,11 +749,13 @@ public class DigiDoc4JTest extends AbstractTest {
 
       @Override
       public void checkAssertion() throws Exception {
-        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Validation was successful. Container is valid"));
+        Assert.assertThat(stdOut.getLog(),
+            StringContains.containsString("Validation was successful. Container is valid"));
       }
 
     });
-    DigiDoc4J.main(new String[]{"-in", "src/test/resources/prodFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc", "-v"});
+    DigiDoc4J.main(new String[]{"-in",
+        "src/test/resources/prodFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc", "-v"});
   }
 
   @Test
@@ -730,11 +765,13 @@ public class DigiDoc4JTest extends AbstractTest {
 
       @Override
       public void checkAssertion() throws Exception {
-        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature id-c0be584463a9dca56c3e9500a3d17e75 is valid"));
+        Assert.assertThat(stdOut.getLog(),
+            StringContains.containsString("Signature id-c0be584463a9dca56c3e9500a3d17e75 is valid"));
       }
 
     });
-    DigiDoc4J.main(new String[]{"-in", "src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc", "-v"});
+    DigiDoc4J.main(new String[]{"-in",
+        "src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc", "-v"});
   }
 
   @Test
@@ -744,11 +781,13 @@ public class DigiDoc4JTest extends AbstractTest {
 
       @Override
       public void checkAssertion() throws Exception {
-        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Validation was successful. Container is valid"));
+        Assert.assertThat(stdOut.getLog(),
+            StringContains.containsString("Validation was successful. Container is valid"));
       }
 
     });
-    DigiDoc4J.main(new String[]{"-in", "src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc", "-v"});
+    DigiDoc4J.main(new String[]{"-in",
+        "src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc", "-v"});
   }
 
   @Test
@@ -762,7 +801,8 @@ public class DigiDoc4JTest extends AbstractTest {
       }
 
     });
-    DigiDoc4J.main(new String[]{"-in", "src/test/resources/testFiles/invalid-containers/two_signatures_one_invalid.bdoc", "-v"});
+    DigiDoc4J.main(new String[]{"-in",
+        "src/test/resources/testFiles/invalid-containers/two_signatures_one_invalid.bdoc", "-v"});
   }
 
   @Test
@@ -772,15 +812,62 @@ public class DigiDoc4JTest extends AbstractTest {
 
       @Override
       public void checkAssertion() throws Exception {
-        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Validation finished. Container is NOT valid!"));
+        Assert.assertThat(stdOut.getLog(),
+            StringContains.containsString("Validation finished. Container is NOT valid!"));
       }
 
     });
-    DigiDoc4J.main(new String[]{"-in", "src/test/resources/testFiles/invalid-containers/two_signatures_one_invalid.bdoc", "-v"});
+    DigiDoc4J.main(new String[]{"-in",
+        "src/test/resources/testFiles/invalid-containers/two_signatures_one_invalid.bdoc", "-v"});
+  }
+
+  @Test
+  @Ignore // unstable result
+  public void verifyValidBDocUnsafeInteger() throws Exception {
+    this.setGlobalMode(Configuration.Mode.PROD);
+    this.systemExit.expectSystemExitWithStatus(1);
+    this.systemExit.checkAssertionAfterwards(new Assertion() {
+      @Override
+      public void checkAssertion() throws Exception {
+        Assert.assertThat(stdOut.getLog(),
+            StringContains.containsString("invalid info structure in RSA public key"));
+      }
+    });
+    DigiDoc4J.main(new String[]{"-in", "src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc", "-verify"});
+  }
+
+  @Test
+  public void verifyValidBDocUnsafeIntegerSystemParam() throws Exception {
+    this.setGlobalMode(Configuration.Mode.PROD);
+    this.systemExit.expectSystemExitWithStatus(0);
+    System.setProperty(Constant.System.ORG_BOUNCYCASTLE_ASN1_ALLOW_UNSAFE_INTEGER, "true");
+    DigiDoc4J.main(new String[]{"-in", "src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc", "-verify"});
+  }
+
+  @Test
+  public void verifyBDocFullReport() throws Exception {
+    this.systemExit.expectSystemExitWithStatus(1);
+    this.systemExit.checkAssertionAfterwards(new Assertion() {
+      @Override
+      public void checkAssertion() throws Exception {
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Type = REVOCATION. BBB_XCV_CCCBB_REV_ANS: " +
+            "The certificate chain for revocation data is not trusted, there is no trusted anchor" +
+            ""));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Block Id: 3a106470aba0437..." +
+            " Type = REVOCATION. BBB_XCV_ICSI_ANS: The signature of the certificate is spoiled or it is not possible" +
+            " to validate it!"));
+      }
+    });
+    String outputFolder = this.testFolder.newFolder("outputFolder").getPath();
+    String[] parameters = new String[]{"-in",
+        "src/test/resources/testFiles/invalid-containers/tundmatuocsp.asice", "-v",
+        "-r", outputFolder, "-showerrors"};
+    DigiDoc4J.main(parameters);
   }
 
   private void assertExtractingDataFile(String containerPath, String fileToExtract) throws IOException {
-    final String outputPath = String.format("%s%s%s", this.testFolder.newFolder("outputFolder").getPath(), File.pathSeparator, "output.txt");
+    final String outputPath = String.format("%s%s%s",
+        this.testFolder.newFolder("outputFolder").getPath(), File.pathSeparator, "output.txt");
     this.systemExit.expectSystemExitWithStatus(0);
     DigiDoc4J.main(new String[]{"-in", containerPath, "-extract", fileToExtract, outputPath});
     TestCommonUtil.sleepInSeconds(1);

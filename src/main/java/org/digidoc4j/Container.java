@@ -153,7 +153,7 @@ public interface Container extends Serializable {
    *
    * @return validation result
    */
-  ValidationResult validate();
+  ContainerValidationResult validate();
 
   /**
    * Adds timestamp token
@@ -174,6 +174,12 @@ public interface Container extends Serializable {
    */
   @Deprecated
   SignedInfo prepareSigning(X509Certificate signerCert);
+
+  /**
+   * Gets Configuration
+   * @return Configuration
+   */
+  Configuration getConfiguration();
 
   /**
    * Document types

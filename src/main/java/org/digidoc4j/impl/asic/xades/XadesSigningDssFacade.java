@@ -11,6 +11,7 @@
 package org.digidoc4j.impl.asic.xades;
 
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -168,9 +169,8 @@ public class XadesSigningDssFacade {
 
   public void setSignerRoles(Collection<String> signerRoles) {
     BLevelParameters bLevelParameters = xAdESSignatureParameters.bLevel();
-    for (String signerRole : signerRoles) {
-      bLevelParameters.addClaimedSignerRole(signerRole);
-    }
+    bLevelParameters.setClaimedSignerRoles(new ArrayList<String>(signerRoles));
+
   }
 
   public void setSignaturePolicy(Policy signaturePolicy) {

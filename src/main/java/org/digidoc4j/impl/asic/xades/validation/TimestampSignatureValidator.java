@@ -27,12 +27,10 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class TimestampSignatureValidator extends TimemarkSignatureValidator {
 
-  private final Logger log = LoggerFactory.getLogger(TimestampSignatureValidator.class);
-  private Configuration configuration;
+  private static final Logger LOGGER = LoggerFactory.getLogger(TimestampSignatureValidator.class);
 
   public TimestampSignatureValidator(XadesSignature signature, Configuration configuration) {
-    super(signature);
-    this.configuration = configuration;
+    super(signature, configuration);
   }
 
   @Override
@@ -61,12 +59,12 @@ public class TimestampSignatureValidator extends TimemarkSignatureValidator {
     }
     int deltaLimit = this.configuration.getRevocationAndTimestampDeltaInMinutes();
     long differenceInMinutes = DateUtils.differenceInMinutes(timestamp, ocspTime);
-    this.log.debug("Difference in minutes: <{}>", differenceInMinutes);
+    LOGGER.debug("Difference in minutes: <{}>", differenceInMinutes);
     if (!DateUtils.isInRangeMinutes(timestamp, ocspTime, deltaLimit)) {
-      this.log.error("The difference between the OCSP response production time and the signature timestamp is too large <{} minutes>", differenceInMinutes);
+      LOGGER.error("The difference between the OCSP response production time and the signature timestamp is too large <{} minutes>", differenceInMinutes);
       this.addValidationError(new TimestampAndOcspResponseTimeDeltaTooLargeException());
     } else if (this.configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes() < differenceInMinutes && differenceInMinutes < deltaLimit) {
-      this.log.warn("The difference (in minutes) between the OCSP response production time and the signature timestamp is in allowable range (<{}>, allowed maximum <{}>)", differenceInMinutes, deltaLimit);
+      LOGGER.warn("The difference (in minutes) between the OCSP response production time and the signature timestamp is in allowable range (<{}>, allowed maximum <{}>)", differenceInMinutes, deltaLimit);
       this.addValidationWarning(new DigiDoc4JException("The difference between the OCSP response time and the signature timestamp is in allowable range"));
     }
   }

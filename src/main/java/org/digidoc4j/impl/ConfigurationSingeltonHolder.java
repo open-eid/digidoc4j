@@ -40,6 +40,13 @@ public class ConfigurationSingeltonHolder {
     return configuration;
   }
 
+  /**
+   * @return configuration context
+   */
+  public static boolean isInitialized() {
+    return ConfigurationSingeltonHolder.configuration != null;
+  }
+
   protected static void reset() {
     configuration = null;
   }

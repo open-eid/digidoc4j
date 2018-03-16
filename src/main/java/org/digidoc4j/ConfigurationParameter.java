@@ -3,7 +3,6 @@ package org.digidoc4j;
 /**
  * Created by Janar Rahumeel (CGI Estonia)
  */
-
 public enum ConfigurationParameter {
 
   ConnectionTimeoutInMillis,
@@ -38,6 +37,8 @@ public enum ConfigurationParameter {
   TspCountrySource,
   TspCountryKeystorePath,
   TspCountryKeystoreType,
-  TspCountryKeystorePassword
-
+  TspCountryKeystorePassword,
+  AllowASN1UnsafeInteger,
+  PrintValidationReport,
+  IsFullSimpleReportNeeded
 }

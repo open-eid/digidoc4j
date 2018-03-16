@@ -40,14 +40,14 @@ public final class Constant {
     public static final String HTTPS_PROXY_HOST = "https.proxyHost";
     public static final String HTTP_PROXY_PORT = "http.proxyPort";
     public static final String HTTP_PROXY_HOST = "http.proxyHost";
-
+    public static final String ORG_BOUNCYCASTLE_ASN1_ALLOW_UNSAFE_INTEGER = "org.bouncycastle.asn1.allow_unsafe_integer";
   }
 
   public static class Default {
 
     public static final String SIGNATURE_PROFILE = "LT";
     public static final String SIGNATURE_DIGEST_ALGORITHM = "SHA256";
-
+    public static final String FULL_SIMPLE_REPORT = "false";
   }
 
   public static class Test {

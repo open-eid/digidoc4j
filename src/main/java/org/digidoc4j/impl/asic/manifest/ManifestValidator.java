@@ -43,14 +43,16 @@ public class ManifestValidator {
   private ManifestParser manifestParser;
   private Collection<Signature> signatures;
 
-  public ManifestValidator(ManifestParser manifestParser, List<DSSDocument> detachedContents, Collection<Signature> signatures) {
+  public ManifestValidator(ManifestParser manifestParser, List<DSSDocument> detachedContents,
+                           Collection<Signature> signatures) {
     this.manifestParser = manifestParser;
     this.detachedContents = detachedContents;
     this.signatures = signatures;
   }
 
-  public static List<ManifestErrorMessage> validateEntries(Map<String, ManifestEntry> manifestEntries, Set<ManifestEntry> signatureEntries,
-                                      String signatureId) {
+  public static List<ManifestErrorMessage> validateEntries(Map<String, ManifestEntry> manifestEntries,
+                                                           Set<ManifestEntry> signatureEntries,
+                                                           String signatureId) {
     logger.debug("");
     ArrayList<ManifestErrorMessage> errorMessages = new ArrayList<>();
 
@@ -144,20 +146,17 @@ public class ManifestValidator {
   }
 
   private List<ManifestErrorMessage> validateFilesInContainer(Set<ManifestEntry> signatureEntries) {
-    logger.debug("");
-    ArrayList<ManifestErrorMessage> errorMessages = new ArrayList<>();
-
-    if (signatureEntries.size() == 0)
+    List<ManifestErrorMessage> errorMessages = new ArrayList<>();
+    if (signatureEntries.size() == 0) {
       return errorMessages;
-
-    Set<String> signatureEntriesFileNames = getFileNamesFromManifestEntrySet(signatureEntries);
+    }
+    Set<String> signatureEntriesFileNames = this.getFileNamesFromManifestEntrySet(signatureEntries);
     List<String> filesInContainer = getFilesInContainer();
     for (String fileInContainer : filesInContainer) {
       String alterName = fileInContainer.replaceAll("\\ ", "+");
       if (!signatureEntriesFileNames.contains(fileInContainer) && !signatureEntriesFileNames.contains(alterName)) {
-        logger.error("Container contains unsigned data file '" + fileInContainer + "'");
-        errorMessages.add(new ManifestErrorMessage("Container contains a file named "
-            + fileInContainer + " which is not found in the signature file"));
+        errorMessages.add(new ManifestErrorMessage(String.format("Container contains a file named <%s> which is not " +
+            "found in the signature file", fileInContainer)));
       }
     }
     return errorMessages;

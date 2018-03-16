@@ -22,12 +22,12 @@ import org.xml.sax.SAXException;
 
 import ee.sk.digidoc.DigiDocException;
 
-public class ValidationResultForDDocTest {
+public class DDocSignatureValidationResultTest {
 
   @Test
   public void testFromListHasNoErrorsAndNoWarnings() {
-    ValidationResultForDDoc result = new ValidationResultForDDoc(new ArrayList<DigiDocException>());
-    Assert.assertFalse(result.hasErrors());
+    DDocSignatureValidationResult result = new DDocSignatureValidationResult(new ArrayList<DigiDocException>());
+    Assert.assertTrue(result.isValid());
     Assert.assertEquals(0, result.getErrors().size());
     Assert.assertFalse(result.hasWarnings());
     Assert.assertEquals(0, result.getWarnings().size());
@@ -39,10 +39,10 @@ public class ValidationResultForDDocTest {
     ArrayList<DigiDocException> exceptions = new ArrayList<DigiDocException>();
     exceptions.add(new DigiDocException(DigiDocException.ERR_UNSUPPORTED, "test", new Throwable("exception1")));
     exceptions.add(new DigiDocException(DigiDocException.ERR_CALCULATE_DIGEST, "test2", new Throwable("exception2")));
-    ValidationResultForDDoc result = new ValidationResultForDDoc(exceptions);
+    DDocSignatureValidationResult result = new DDocSignatureValidationResult(exceptions);
     List<DigiDoc4JException> errors = result.getErrors();
     List<DigiDoc4JException> warnings = result.getWarnings();
-    Assert.assertTrue(result.hasErrors());
+    Assert.assertFalse(result.isValid());
     Assert.assertEquals(2, errors.size());
     Assert.assertFalse(result.hasWarnings());
     Assert.assertEquals(0, warnings.size());
@@ -60,10 +60,10 @@ public class ValidationResultForDDocTest {
     ArrayList<DigiDocException> exceptions = new ArrayList<>();
     exceptions.add(new DigiDocException(DigiDocException.ERR_OLD_VER, "test", new Throwable("exception1")));
     exceptions.add(new DigiDocException(DigiDocException.WARN_WEAK_DIGEST, "test2", new Throwable("exception2")));
-    ValidationResultForDDoc result = new ValidationResultForDDoc(exceptions);
+    DDocSignatureValidationResult result = new DDocSignatureValidationResult(exceptions);
     List<DigiDoc4JException> errors = result.getErrors();
     List<DigiDoc4JException> warnings = result.getWarnings();
-    Assert.assertTrue(result.hasErrors());
+    Assert.assertFalse(result.isValid());
     Assert.assertEquals(2, errors.size());
     Assert.assertFalse(result.hasWarnings());
     Assert.assertEquals(0, warnings.size());
@@ -83,7 +83,7 @@ public class ValidationResultForDDocTest {
     exceptions.add(new DigiDocException(DigiDocException.ERR_CALCULATE_DIGEST, "test2", new Throwable("exception2")));
     exceptions.add(new DigiDocException(DigiDocException.ERR_OLD_VER, "test", new Throwable("exception1")));
     exceptions.add(new DigiDocException(DigiDocException.WARN_WEAK_DIGEST, "test2", new Throwable("exception2")));
-    ValidationResultForDDoc result = new ValidationResultForDDoc(exceptions);
+    DDocSignatureValidationResult result = new DDocSignatureValidationResult(exceptions);
     XMLAssert.assertXMLEqual("<?xml version=\"1.0\" encoding=\"UTF-16\"?>" +
             "<!--DDoc verification result-->" +
             "<root>" +

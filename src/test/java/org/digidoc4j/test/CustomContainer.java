@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
+import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
@@ -25,7 +26,6 @@ import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
-import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 
 /**
@@ -145,7 +145,7 @@ public class CustomContainer implements Container {
   }
 
   @Override
-  public ValidationResult validate() {
+  public ContainerValidationResult validate() {
     return null;
   }
 

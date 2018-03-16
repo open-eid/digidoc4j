@@ -24,7 +24,7 @@ import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.ValidationResult;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.hamcrest.Matchers;
@@ -52,7 +52,7 @@ public class BDocSerializationTest extends AbstractTest {
     container.addSignature(signature);
     container.saveAsFile(this.containerLocation);
     container = ContainerOpener.open(this.containerLocation);
-    ValidationResult validate = container.validate();
+    SignatureValidationResult validate = container.validate();
     Assert.assertTrue(validate.isValid());
     Assert.assertEquals(1, container.getSignatures().size());
   }

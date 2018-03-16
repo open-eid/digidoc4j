@@ -14,11 +14,13 @@ import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.ValidationResult;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.NotYetImplementedException;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
@@ -127,7 +129,7 @@ public class MockSignature implements Signature {
   }
 
   @Override
-  public SignatureValidationResult validateSignature() {
+  public ValidationResult validateSignature() {
     return null;
   }
 

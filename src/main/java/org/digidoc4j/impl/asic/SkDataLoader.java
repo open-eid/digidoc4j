@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -23,9 +24,7 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,63 +32,70 @@ import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.client.http.commons.OCSPDataLoader;
 
+/**
+ * Data loader implementation for SK ID Solutions AS
+ */
 public class SkDataLoader extends CommonsDataLoader {
 
-  private static final Logger logger = LoggerFactory.getLogger(SkDataLoader.class);
-  public static final String TIMESTAMP_CONTENT_TYPE = "application/timestamp-query";
+  private static final String TIMESTAMP_CONTENT_TYPE = "application/timestamp-query";
+  private final Logger log = LoggerFactory.getLogger(SkDataLoader.class);
   private String userAgent;
-
-  public static SkDataLoader createOcspDataLoader(Configuration configuration) {
-    SkDataLoader dataLoader = new SkDataLoader(configuration);
-    dataLoader.setContentType(OCSPDataLoader.OCSP_CONTENT_TYPE);
-    return dataLoader;
-  }
-
-  public static SkDataLoader createTimestampDataLoader(Configuration configuration) {
-    SkDataLoader dataLoader = new SkDataLoader(configuration);
-    dataLoader.setContentType(TIMESTAMP_CONTENT_TYPE);
-    return dataLoader;
-  }
 
   protected SkDataLoader(Configuration configuration) {
     DataLoaderDecorator.decorateWithProxySettings(this, configuration);
     DataLoaderDecorator.decorateWithSslSettings(this, configuration);
   }
 
+  /**
+   * Content type "application/ocsp-request"
+   *
+   * @param configuration configuration context
+   * @return DataLoader
+   */
+  public static SkDataLoader ocsp(Configuration configuration) {
+    SkDataLoader dataLoader = new SkDataLoader(configuration);
+    dataLoader.setContentType(OCSPDataLoader.OCSP_CONTENT_TYPE);
+    return dataLoader;
+  }
+
+  /**
+   * Content type "application/timestamp-query"
+   *
+   * @param configuration configuration context
+   * @return
+   */
+  public static SkDataLoader timestamp(Configuration configuration) {
+    SkDataLoader dataLoader = new SkDataLoader(configuration);
+    dataLoader.setContentType(SkDataLoader.TIMESTAMP_CONTENT_TYPE);
+    return dataLoader;
+  }
+
   @Override
   public byte[] post(final String url, final byte[] content) throws DSSException {
-    logger.info("Getting OCSP response from " + url);
-    if (userAgent == null) {
-      throw new TechnicalException("User Agent must be set for OCSP requests");
+    if (StringUtils.isBlank(url)) {
+      throw new TechnicalException("SK endpoint url is unset");
     }
-
+    this.log.debug("Getting OCSP response from <{}>", url);
+    if (StringUtils.isBlank(this.userAgent)) {
+      throw new TechnicalException("Header <User-Agent> is unset");
+    }
     HttpPost httpRequest = null;
     HttpResponse httpResponse = null;
     CloseableHttpClient client = null;
-
     try {
       final URI uri = URI.create(url.trim());
       httpRequest = new HttpPost(uri);
-      httpRequest.setHeader("User-Agent", userAgent);
-
-      // The length for the InputStreamEntity is needed, because some receivers (on the other side) need this information.
-      // To determine the length, we cannot read the content-stream up to the end and re-use it afterwards.
-      // This is because, it may not be possible to reset the stream (= go to position 0).
-      // So, the solution is to cache temporarily the complete content data (as we do not expect much here) in a byte-array.
-      final ByteArrayInputStream bis = new ByteArrayInputStream(content);
-
-      final HttpEntity httpEntity = new InputStreamEntity(bis, content.length);
-      final HttpEntity requestEntity = new BufferedHttpEntity(httpEntity);
+      httpRequest.setHeader("User-Agent", this.userAgent);
+      ByteArrayInputStream bis = new ByteArrayInputStream(content);
+      HttpEntity httpEntity = new InputStreamEntity(bis, content.length);
+      HttpEntity requestEntity = new BufferedHttpEntity(httpEntity);
       httpRequest.setEntity(requestEntity);
-      if (contentType != null) {
-        httpRequest.setHeader(CONTENT_TYPE, contentType);
+      if (StringUtils.isNotBlank(this.contentType)) {
+        httpRequest.setHeader(CONTENT_TYPE, this.contentType);
       }
-
-      client = getHttpClient(url);
-      httpResponse = getHttpResponse(client, httpRequest, url);
-
-      final byte[] returnedBytes = readHttpResponse(url, httpResponse);
-      return returnedBytes;
+      client = this.getHttpClient(url);
+      httpResponse = this.getHttpResponse(client, httpRequest, url);
+      return readHttpResponse(url, httpResponse);
     } catch (IOException e) {
       throw new DSSException(e);
     } finally {
@@ -106,15 +112,16 @@ public class SkDataLoader extends CommonsDataLoader {
     }
   }
 
-  public void setUserAgentSignatureProfile(SignatureProfile signatureProfile) {
-    userAgent = Helper.createBDocUserAgent(signatureProfile);
-  }
+  /*
+   * ACCESSORS
+   */
 
-  public void setAsicSUserAgentSignatureProfile() {
-    userAgent = Helper.createBDocAsicSUserAgent();
+  public void setUserAgent(String userAgent) {
+    this.userAgent = userAgent;
   }
 
   public String getUserAgent() {
     return userAgent;
   }
+
 }

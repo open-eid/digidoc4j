@@ -2,6 +2,7 @@ package org.digidoc4j;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -21,10 +22,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
+import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.asic.AsicFileContainerParser;
 import org.digidoc4j.impl.asic.AsicParseResult;
+import org.digidoc4j.impl.asic.AsicStreamContainerParser;
 import org.digidoc4j.impl.asic.SkDataLoader;
-import org.digidoc4j.impl.asic.ocsp.BDocTSOcspSource;
 import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.TargetTemporaryFolderRule;
@@ -56,10 +58,10 @@ import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 
 public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTest.class);
   protected final PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
   protected final PKCS12SignatureToken pkcs12EccSignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray());
   protected Configuration configuration;
-  private final Logger log = LoggerFactory.getLogger(AbstractTest.class);
 
   @Rule
   public TemporaryFolder testFolder = new TargetTemporaryFolderRule("tmp");
@@ -76,41 +78,41 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     @Override
     protected void starting(Description description) {
       String starting = String.format("Starting <%s.%s>", description.getClassName(), description.getMethodName());
-      this.log.info(StringUtils.rightPad("-", starting.length(), '-'));
-      this.log.info(starting);
-      this.log.info(StringUtils.rightPad("-", starting.length(), '-'));
+      LOGGER.info(StringUtils.rightPad("-", starting.length(), '-'));
+      LOGGER.info(starting);
+      LOGGER.info(StringUtils.rightPad("-", starting.length(), '-'));
       this.startTimestamp = System.currentTimeMillis();
     }
 
     @Override
     protected void succeeded(Description description) {
       long endTimestamp = System.currentTimeMillis();
-      this.log.info("Finished <{}.{}> - took <{}> ms", description.getClassName(), description.getMethodName(),
+      LOGGER.info("Finished <{}.{}> - took <{}> ms", description.getClassName(), description.getMethodName(),
           endTimestamp - this.startTimestamp);
     }
 
     @Override
     protected void failed(Throwable e, Description description) {
-      this.log.error(String.format("Finished <%s.%s> - failed", description.getClassName(), description.getMethodName()), e);
+      LOGGER.error(String.format("Finished <%s.%s> - failed", description.getClassName(), description.getMethodName()), e);
     }
 
     @Override
     protected void skipped(AssumptionViolatedException e, Description description) {
       String skipped = String.format("Skipped <%s.%s>", description.getClassName(), description.getMethodName());
-      this.log.debug(StringUtils.rightPad("-", skipped.length(), '-'));
-      this.log.debug(skipped);
-      this.log.debug(StringUtils.rightPad("-", skipped.length(), '-'));
+      LOGGER.debug(StringUtils.rightPad("-", skipped.length(), '-'));
+      LOGGER.debug(skipped);
+      LOGGER.debug(StringUtils.rightPad("-", skipped.length(), '-'));
     }
 
   };
 
   @Before
   public void beforeMethod() {
-    this.log.info("NB! Before method --> START");
+    LOGGER.info("NB! Before method --> START");
     ConfigurationSingeltonHolder.reset();
     this.setGlobalMode(Configuration.Mode.TEST);
     this.before();
-    this.log.info("NB! Before method --> END");
+    LOGGER.info("NB! Before method --> END");
   }
 
   @After
@@ -118,7 +120,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     try {
       FileUtils.deleteDirectory(this.testFolder.getRoot());
     } catch (IOException e) {
-      this.log.warn("Unable to clean folder <{}>", this.testFolder.getRoot());
+      LOGGER.warn("Unable to clean folder <{}>", this.testFolder.getRoot());
     }
     this.after();
   }
@@ -155,8 +157,12 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     }
   }
 
-  protected AsicParseResult getParseResult(Path path) {
+  protected AsicParseResult getParseResultFromFile(Path path) {
     return new AsicFileContainerParser(path.toString(), Configuration.getInstance()).read();
+  }
+
+  protected AsicParseResult getParseResultFromStream(String path) throws FileNotFoundException {
+    return new AsicStreamContainerParser(new FileInputStream(path.toString()), Configuration.getInstance()).read();
   }
 
   protected Pair<SignedDoc, List<DigiDocException>> openDigiDocContainerBy(Path path) {
@@ -422,17 +428,17 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     return facade;
   }
 
-  protected BDocTSOcspSource createOCSPSource() {
-    BDocTSOcspSource source = new BDocTSOcspSource(this.configuration);
-    SkDataLoader loader = SkDataLoader.createOcspDataLoader(this.configuration);
-    loader.setUserAgentSignatureProfile(SignatureProfile.LT);
+  protected CommonOCSPSource createOCSPSource() {
+    CommonOCSPSource source = new CommonOCSPSource(this.configuration);
+    SkDataLoader loader = SkDataLoader.ocsp(this.configuration);
+    loader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
     source.setDataLoader(loader);
     return source;
   }
 
   private OnlineTSPSource createTSPSource() {
-    SkDataLoader loader = SkDataLoader.createTimestampDataLoader(this.configuration);
-    loader.setUserAgentSignatureProfile(SignatureProfile.LT);
+    SkDataLoader loader = SkDataLoader.timestamp(this.configuration);
+    loader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
     OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
     source.setDataLoader(loader);
     return source;

@@ -15,9 +15,9 @@ import java.nio.file.Paths;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.ValidationResult;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
@@ -32,7 +32,7 @@ public class ValidationReportTest extends AbstractTest {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
     Signature signature = this.createSignatureBy(container, SignatureProfile.LT, this.pkcs12SignatureToken);
     String signatureId = signature.getId();
-    ValidationResult result = container.validate();
+    SignatureValidationResult result = container.validate();
     Assert.assertTrue(result.isValid());
     String report = result.getReport();
     TestAssert.assertXPathHasValue("1", "//SignaturesCount", report);
@@ -92,7 +92,7 @@ public class ValidationReportTest extends AbstractTest {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
     Signature signature1 = this.createSignatureBy(container, SignatureProfile.LT_TM, this.pkcs12SignatureToken);
     Signature signature2 = this.createSignatureBy(container, SignatureProfile.LT, this.pkcs12SignatureToken);
-    ValidationResult result = container.validate();
+    SignatureValidationResult result = container.validate();
     Assert.assertTrue(result.isValid());
     String report = result.getReport();
     TestAssert.assertXPathHasValue("2", "/SimpleReport/SignaturesCount", report);
@@ -108,7 +108,7 @@ public class ValidationReportTest extends AbstractTest {
   @Test
   public void invalidContainerWithOneSignature() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc");
-    ValidationResult result = container.validate();
+    SignatureValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
     String report = result.getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
@@ -125,12 +125,12 @@ public class ValidationReportTest extends AbstractTest {
   @Test
   public void invalidContainerWithManifestErrors() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/filename_mismatch_manifest.asice");
-    ValidationResult result = container.validate();
+    SignatureValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
     String report = result.getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
-    TestAssert.assertXPathHasValue("XAdES-BASELINE-LT", "/SimpleReport/Signature/@SignatureFormat", report);
+    TestAssert.assertXPathHasValue("XAdES-BASELINE-T", "/SimpleReport/Signature/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
     TestAssert.assertXPathHasValue("NO_CERTIFICATE_CHAIN_FOUND", "/SimpleReport/Signature/SubIndication", report);
     TestAssert.assertXPathHasValue("META-INF/signatures0.xml", "/SimpleReport/Signature/DocumentName", report);
@@ -154,10 +154,10 @@ public class ValidationReportTest extends AbstractTest {
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
-    TestAssert.assertXPathHasValue("XAdES-BASELINE-LT", "/SimpleReport/Signature/@SignatureFormat", report);
+    TestAssert.assertXPathHasValue("XAdES-BASELINE-T", "/SimpleReport/Signature/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("ŽAIKOVSKI,IGOR,37101010021", "/SimpleReport/Signature/SignedBy", report);
     TestAssert.assertXPathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
-    TestAssert.assertXPathHasValue("Signature has an invalid timestamp", "/SimpleReport/Signature/Errors[1]", report);
+    TestAssert.assertXPathHasValue("The result of the timestamps validation process is not conclusive!", "/SimpleReport/Signature/Errors[1]", report);
     TestAssert.assertXPathHasValue("META-INF/signatures0.xml", "/SimpleReport/Signature/DocumentName", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
   }

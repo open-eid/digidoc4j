@@ -27,7 +27,6 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.impl.Certificates;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
-import org.digidoc4j.impl.asic.ocsp.OcspSourceBuilder;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
 import org.digidoc4j.impl.asic.tsl.TslManager;
 import org.digidoc4j.impl.ddoc.DDocFacade;
@@ -199,7 +198,7 @@ public class SignatureTest extends AbstractTest {
     Signature signature = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
     List<DigiDoc4JException> errors = signature.validateSignature().getErrors();
     TestAssert.assertContainsError("The reference data object(s) is not intact!", errors);
-    TestAssert.assertContainsError("Signature has an invalid timestamp", errors);
+    TestAssert.assertContainsError("Invalid timestamp", errors);
   }
 
   @Test
@@ -209,7 +208,7 @@ public class SignatureTest extends AbstractTest {
     Assert.assertEquals(0, signature.validateSignature().getErrors().size());
     signature = container.getSignatures().get(1);
     Assert.assertEquals(1, signature.validateSignature().getErrors().size());
-    ValidationResult validate = container.validate();
+    SignatureValidationResult validate = container.validate();
     Assert.assertEquals(1, validate.getErrors().size());
     String report = validate.getReport();
     Assert.assertTrue(report.contains("Id=\"S0\" SignatureFormat=\"XAdES-BASELINE-LT\""));
@@ -375,8 +374,7 @@ public class SignatureTest extends AbstractTest {
     DSSDocument document = new FileDocument("src/test/resources/prodFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc");
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
     SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
-    OcspSourceBuilder ocspSourceBuilder = new OcspSourceBuilder();
-    OCSPSource ocspSource = ocspSourceBuilder.withConfiguration(this.configuration).build();
+    OCSPSource ocspSource = OCSPSourceBuilder.anOcspSource().withConfiguration(this.configuration).build();
     verifier.setOcspSource(ocspSource);
     verifier.setTrustedCertSource(this.configuration.getTSL());
     verifier.setDataLoader(new CommonsDataLoader());
@@ -393,7 +391,7 @@ public class SignatureTest extends AbstractTest {
   public void signatureReportForTwoSignature() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/asics_testing_two_signatures.bdoc"), this.configuration);
-    ValidationResult result = container.validate();
+    SignatureValidationResult result = container.validate();
     Assert.assertEquals(Indication.INDETERMINATE, result.getIndication("S0"));
     Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, result.getSubIndication("S0"));
     Assert.assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification("S0").getLabel());
@@ -409,8 +407,8 @@ public class SignatureTest extends AbstractTest {
   public void signatureReportForOneSignature() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.TEST);
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"), this.configuration);
-    ValidationResult result = container.validate();
-    for (SimpleReport signatureSimpleReport : result.getSignatureSimpleReports()) {
+    SignatureValidationResult result = container.validate();
+    for (SimpleReport signatureSimpleReport : result.getSimpleReports()) {
       for (String id : signatureSimpleReport.getSignatureIdList()) {
         //"id-6a5d6671af7a9e0ab9a5e4d49d69800d"
         Assert.assertEquals(Indication.TOTAL_PASSED, result.getIndication(id));
@@ -427,7 +425,7 @@ public class SignatureTest extends AbstractTest {
   public void signatureReportNoSignature() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.TEST);
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc"), this.configuration);
-    ValidationResult result = container.validate();
+    SignatureValidationResult result = container.validate();
     Assert.assertEquals(null, result.getIndication("S0"));
     Assert.assertEquals(null, result.getSubIndication("S0"));
     Assert.assertEquals(null, result.getSignatureQualification("S0"));
@@ -440,7 +438,7 @@ public class SignatureTest extends AbstractTest {
   public void signatureReportOnlyOneSignatureValid() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.TEST);
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/invalid-containers/two_signatures_one_invalid.bdoc"), this.configuration);
-    ValidationResult result = container.validate();
+    SignatureValidationResult result = container.validate();
     //Signature with id "S1" is invalid
     Assert.assertEquals(Indication.INDETERMINATE, result.getIndication("S1"));
     Assert.assertEquals(SubIndication.NO_SIGNING_CERTIFICATE_FOUND, result.getSubIndication("S1"));
