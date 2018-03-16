@@ -12,10 +12,13 @@ package org.digidoc4j.impl.asic.xades.validation;
 
 import java.io.Serializable;
 
-import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.ValidationResult;
 
 public interface SignatureValidator extends Serializable {
 
-  SignatureValidationResult extractValidationErrors();
+  /**
+   * @return validation result
+   */
+  ValidationResult extractResult();
 
 }

@@ -18,24 +18,33 @@ import eu.europa.esig.dss.validation.reports.SimpleReport;
 
 public class XadesValidationResult {
 
-  private Reports validationReport;
+  private Reports reports;
 
-  public XadesValidationResult(Reports validationReport) {
-    this.validationReport = validationReport;
+  /**
+   * @param reports validation report
+   */
+  public XadesValidationResult(Reports reports) {
+    this.reports = reports;
   }
 
-  public Reports getReport() {
-    return validationReport;
-  }
-
-  //TODO test - no more method for ASiC_E report
-  public Map<String, SimpleReport> extractSimpleReports() {
+  /**
+   * @return map of simple reports
+   */
+  public Map<String, SimpleReport> buildSimpleReports() {
     Map<String, SimpleReport> simpleReports = new LinkedHashMap<>();
-      SimpleReport simpleReport = validationReport.getSimpleReport();
-      if (simpleReport.getSignatureIdList().size() > 0) {
-        simpleReports.put(simpleReport.getSignatureIdList().get(0), simpleReport);
-      }
+    SimpleReport simpleReport = this.reports.getSimpleReport();
+    if (simpleReport.getSignatureIdList().size() > 0) {
+      simpleReports.put(simpleReport.getSignatureIdList().get(0), simpleReport);
+    }
     return simpleReports;
+  }
+
+  /*
+   * ACCESSORS
+   */
+
+  public Reports getReports() {
+    return reports;
   }
 
 }

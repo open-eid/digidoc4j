@@ -12,8 +12,14 @@ package org.digidoc4j.impl.asic.xades;
 
 import org.digidoc4j.SignatureProfile;
 
+/**
+ * EPES signature
+ */
 public class EpesSignature extends BesSignature {
 
+  /**
+   * @param xadesReportGenerator XADES validation report generator
+   */
   public EpesSignature(XadesValidationReportGenerator xadesReportGenerator) {
     super(xadesReportGenerator);
   }
@@ -22,4 +28,5 @@ public class EpesSignature extends BesSignature {
   public SignatureProfile getProfile() {
     return SignatureProfile.B_EPES;
   }
+  
 }

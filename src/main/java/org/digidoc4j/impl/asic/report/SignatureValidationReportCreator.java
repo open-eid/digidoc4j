@@ -33,7 +33,7 @@ public class SignatureValidationReportCreator {
 
   public SignatureValidationReportCreator(SignatureValidationData validationData) {
     this.validationData = validationData;
-    this.reports = validationData.getReport().getReport();
+    this.reports = validationData.getReport().getReports();
     this.simpleReport = reports.getSimpleReportJaxb();
   }
 

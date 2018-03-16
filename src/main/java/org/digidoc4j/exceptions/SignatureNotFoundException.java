@@ -11,7 +11,13 @@
 package org.digidoc4j.exceptions;
 
 public class SignatureNotFoundException extends DigiDoc4JException {
+
   public SignatureNotFoundException() {
-    super("Signature not found");
+    this("Signature not found");
   }
+
+  public SignatureNotFoundException(String message) {
+    super(message);
+  }
+
 }

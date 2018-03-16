@@ -20,10 +20,17 @@ import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.client.http.proxy.ProxyConfig;
 import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
 
+/**
+ * Data loader decorator
+ */
 public class DataLoaderDecorator {
 
   private final static Logger logger = LoggerFactory.getLogger(DataLoaderDecorator.class);
 
+  /**
+   * @param dataLoader data loader
+   * @param configuration configuration
+   */
   public static void decorateWithProxySettings(CommonsDataLoader dataLoader, Configuration configuration) {
     if (configuration.isNetworkProxyEnabled()) {
       ProxyConfig proxyConfig = DataLoaderDecorator.create(configuration);
@@ -65,7 +72,11 @@ public class DataLoaderDecorator {
     return proxy;
   }
 
-  public static void decarateWithSslSettings(CommonsDataLoader dataLoader, Configuration configuration) {
+  /**
+   * @param dataLoader data loader
+   * @param configuration configuration
+   */
+  public static void decorateWithSslSettings(CommonsDataLoader dataLoader, Configuration configuration) {
     if (configuration.isSslConfigurationEnabled()) {
       logger.debug("Configuring SSL");
       dataLoader.setSslKeystorePath(configuration.getSslKeystorePath());

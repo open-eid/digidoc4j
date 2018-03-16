@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
@@ -33,7 +34,7 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class XadesValidationReportGenerator implements Serializable {
 
-  private final static Logger logger = LoggerFactory.getLogger(XadesValidationReportGenerator.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(XadesValidationReportGenerator.class);
   private transient SignedDocumentValidator validator;
   private transient Reports validationReport;
   private transient XAdESSignature dssSignature;
@@ -48,86 +49,87 @@ public class XadesValidationReportGenerator implements Serializable {
   }
 
   public Reports openValidationReport() {
-    if (validationReport != null) {
-      logger.debug("Using existing validation report");
-      return validationReport;
+    if (this.validationReport != null) {
+      LOGGER.debug("Using existing validation report");
+      return this.validationReport;
     }
-    validationReport = createNewValidationReport();
-    printReport(validationReport);
-    return validationReport;
+    this.validationReport = this.createNewValidationReport();
+    this.print();
+    return this.validationReport;
   }
 
   public XAdESSignature openDssSignature() {
-    if (dssSignature == null) {
-      initXadesValidator();
-      dssSignature = getXAdESSignature();
+    if (this.dssSignature == null) {
+      this.dssSignature = this.getXAdESSignature();
     }
-    return dssSignature;
+    return this.dssSignature;
   }
 
-  public void setValidator(SignedDocumentValidator validator) {
-    this.validator = validator;
-  }
+  /*
+   * RESTRICTED METHODS
+   */
 
   private Reports createNewValidationReport() {
     try {
-      logger.debug("Creating a new validation report");
-      InputStream validationPolicyAsStream = getValidationPolicyAsStream();
-      initXadesValidator();
-      return validator.validateDocument(validationPolicyAsStream);
+      LOGGER.debug("Creating a new validation report");
+      return this.getSignedDocumentValidator().validateDocument(this.getValidationPolicyAsStream());
     } catch (DSSException e) {
-      logger.error("Error creating a new validation report: " + e.getMessage());
+      LOGGER.error("Error creating a new validation report: {}", e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
 
-  private void initXadesValidator() {
-    if (validator == null) {
-      validator = createXadesValidator();
-    }
-  }
-
-  private SignedDocumentValidator createXadesValidator() {
-    logger.debug("Creating a new xades validator");
-    XadesValidationDssFacade validationFacade = new XadesValidationDssFacade(detachedContents, configuration);
-    SignedDocumentValidator validator = validationFacade.openXadesValidator(signatureDocument);
-    return validator;
-  }
-
   private InputStream getValidationPolicyAsStream() {
-    String policyFile = configuration.getValidationPolicy();
+    String policyFile = this.configuration.getValidationPolicy();
     if (Files.exists(Paths.get(policyFile))) {
       try {
         return new FileInputStream(policyFile);
       } catch (FileNotFoundException ignore) {
-        logger.warn(ignore.getMessage());
+        LOGGER.warn(ignore.getMessage());
       }
     }
-    return getClass().getClassLoader().getResourceAsStream(policyFile);
+    return this.getClass().getClassLoader().getResourceAsStream(policyFile);
   }
 
   private XAdESSignature getXAdESSignature() {
-    logger.debug("Opening XAdES signature");
-    List<AdvancedSignature> signatures = validator.getSignatures();
-    if (signatures == null || signatures.isEmpty()) {
-      logger.error("Unable to open XAdES signature. Content is empty");
-      throw new SignatureNotFoundException();
+    LOGGER.debug("Opening XAdES signature");
+    List<AdvancedSignature> signatures = this.getSignedDocumentValidator().getSignatures();
+    if (CollectionUtils.isEmpty(signatures)) {
+      throw new SignatureNotFoundException("Unable to open XAdES signature. Content is empty");
     }
     if (signatures.size() > 1) {
-      logger.warn("Signatures xml file contains more than one signature. This is not properly supported.");
+      LOGGER.warn("Signatures xml file contains more than one signature. This is not properly supported");
     }
     return (XAdESSignature) signatures.get(0);
   }
 
-  //TODO test report
-  private void printReport(Reports report) {
-    if (logger.isTraceEnabled()) {
-        logger.trace("----------------Validation report---------------");
-        logger.trace(report.getXmlDetailedReport());
-
-        logger.trace("----------------Simple report-------------------");
-        logger.trace(report.getXmlSimpleReport());
+  private SignedDocumentValidator getSignedDocumentValidator() {
+    if (this.validator == null) {
+      this.validator = this.createXadesValidator();
     }
+    return this.validator;
+  }
+
+  private SignedDocumentValidator createXadesValidator() {
+    LOGGER.debug("Creating a new xades validator");
+    return new XadesValidationDssFacade(this.detachedContents, this.configuration).openXadesValidator(this.signatureDocument);
+  }
+
+  private void print() {
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("----------------Validation report---------------");
+      LOGGER.trace(this.validationReport.getXmlDetailedReport());
+      LOGGER.trace("----------------Simple report-------------------");
+      LOGGER.trace(this.validationReport.getXmlSimpleReport());
+    }
+  }
+
+  /*
+   * ACCESSORS
+   */
+
+  public void setValidator(SignedDocumentValidator validator) {
+    this.validator = validator;
   }
 
 }

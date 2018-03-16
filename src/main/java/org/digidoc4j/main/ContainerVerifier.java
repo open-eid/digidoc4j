@@ -22,18 +22,19 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
+import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.TSLCertificateSource;
-import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
 import org.digidoc4j.impl.asic.SkDataLoader;
-import org.digidoc4j.impl.asic.ocsp.OcspSourceBuilder;
+import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.impl.asic.tsl.TslManager;
+import org.digidoc4j.impl.ddoc.DDocSignatureValidationResult;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.impl.ddoc.DDocSignature;
-import org.digidoc4j.impl.ddoc.ValidationResultForDDoc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,6 @@ import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.reports.Reports;
-import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 
 /**
  * Container verifying functionality for digidoc4j-util.
@@ -92,12 +92,13 @@ public class ContainerVerifier {
    * @param isReportNeeded Define if need report
    * @return ValidationResult
    */
-  public ValidationResult verify(Container container, Path reports, boolean isReportNeeded) {
-    ValidationResult validationResult = container.validate();
+  public ContainerValidationResult verify(Container container, Path reports, boolean isReportNeeded) {
+
+    ContainerValidationResult containerValidationResult = container.validate();
     if (reports != null) {
-      validationResult.saveXmlReports(reports);
+      containerValidationResult.saveXmlReports(reports);
     }
-    List<DigiDoc4JException> exceptions = validationResult.getContainerErrors();
+    List<DigiDoc4JException> exceptions = containerValidationResult.getContainerErrors();
     boolean isDDoc = StringUtils.equalsIgnoreCase("DDOC", container.getType());
     for (DigiDoc4JException exception : exceptions) {
       if (isDDoc && isWarning(((DDocContainer) container).getFormat(), exception))
@@ -106,7 +107,7 @@ public class ContainerVerifier {
         System.out.println((isDDoc ? " " : " Error: ") + exception.toString());
     }
 
-    if (isDDoc && (((ValidationResultForDDoc) validationResult).hasFatalErrors())) {
+    if (isDDoc && (((DDocSignatureValidationResult) containerValidationResult).hasFatalErrors())) {
       throw new DigiDoc4JException("DDoc container has fatal errors");
     }
 
@@ -131,10 +132,10 @@ public class ContainerVerifier {
       }
     }
 
-    showWarnings(validationResult);
-    verboseMessage(validationResult.getReport());
+    showWarnings(containerValidationResult);
+    verboseMessage(containerValidationResult.getReport());
 
-    if (validationResult.isValid()) {
+    if (containerValidationResult.isValid()) {
       logger.info("Validation was successful. Container is valid");
     } else {
       logger.info("Validation finished. Container is NOT valid!");
@@ -142,7 +143,7 @@ public class ContainerVerifier {
         throw new DigiDoc4JException("Container is NOT valid");
       }
     }
-    return validationResult;
+    return containerValidationResult;
   }
 
   /**
@@ -158,23 +159,18 @@ public class ContainerVerifier {
       logger.info("Validation canceled. Option -v2 is not working with DDOC container.");
       throw new DigiDoc4JException("Option -v2 is not working with DDOC container");
     }
-
     Configuration configuration = Configuration.getInstance();
     TslManager tslManager = new TslManager(configuration);
     TSLCertificateSource certificateSource = tslManager.getTsl();
     configuration.setTSL(certificateSource);
-
     DSSDocument document = new InMemoryDocument(container.saveAsStream());
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
     SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
-    OcspSourceBuilder ocspSourceBuilder = new OcspSourceBuilder();
-    OCSPSource ocspSource = ocspSourceBuilder.withConfiguration(configuration).build();
-    verifier.setOcspSource(ocspSource);
+    verifier.setOcspSource(OCSPSourceBuilder.anOcspSource().withConfiguration(configuration).build());
     verifier.setTrustedCertSource(configuration.getTSL());
-    verifier.setDataLoader(SkDataLoader.createOcspDataLoader(configuration));
+    verifier.setDataLoader(SkDataLoader.ocsp(configuration));
     validator.setCertificateVerifier(verifier);
     Reports reports = validator.validateDocument();
-
     if (reportsDir != null) {
       InputStream is;
       try {
@@ -186,7 +182,6 @@ public class ContainerVerifier {
       } catch (IOException e) {
         logger.info(e.getMessage());
       }
-
       try {
         is = new ByteArrayInputStream(reports.getXmlSimpleReport().getBytes("UTF-8"));
         DSSUtils.saveToFile(is, reportsDir + File.separator + "validationSimpleReport.xml");
@@ -196,7 +191,6 @@ public class ContainerVerifier {
       } catch (IOException e) {
         logger.info(e.getMessage());
       }
-
       try {
         is = new ByteArrayInputStream(reports.getXmlDetailedReport().getBytes("UTF-8"));
         DSSUtils.saveToFile(is, reportsDir + File.separator + "validationDetailReport.xml");
@@ -207,7 +201,6 @@ public class ContainerVerifier {
         logger.info(e.getMessage());
       }
     }
-
     boolean isValid = true;
     for (String signatureId : reports.getSimpleReport().getSignatureIdList()) {
       isValid = isValid && reports.getSimpleReport().isSignatureValid(signatureId);
@@ -225,9 +218,9 @@ public class ContainerVerifier {
       System.out.println(message);
   }
 
-  private void showWarnings(ValidationResult validationResult) {
+  private void showWarnings(SignatureValidationResult signatureValidationResult) {
     if (showWarnings) {
-      for (DigiDoc4JException warning : validationResult.getWarnings()) {
+      for (DigiDoc4JException warning : signatureValidationResult.getWarnings()) {
         System.out.println("Warning: " + warning.toString());
       }
     }

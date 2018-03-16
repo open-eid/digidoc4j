@@ -101,13 +101,15 @@ public class X509Cert implements Serializable {
    * @param path X509 certificate path
    * @throws Exception throws an exception if the X509 certificate parsing fails
    */
-  X509Cert(String path) throws CertificateException, IOException {
-    logger.debug("");
-    CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-    try (FileInputStream inStream = new FileInputStream(new File(path))) {
-      originalCert = (X509Certificate) certificateFactory.generateCertificate(inStream);
+  X509Cert(String path) {
+    try {
+      CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+      try (FileInputStream inStream = new FileInputStream(new File(path))) {
+        this.originalCert = (X509Certificate) certificateFactory.generateCertificate(inStream);
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
-    logger.debug("Certificate created from path: " + path);
   }
 
   /**

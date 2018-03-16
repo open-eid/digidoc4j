@@ -14,8 +14,14 @@ import org.digidoc4j.DataFile;
 
 import eu.europa.esig.dss.DSSDocument;
 
+/**
+ * ASIC data file
+ */
 public class AsicDataFile extends DataFile {
 
+  /**
+   * @param document DSS document
+   */
   public AsicDataFile(DSSDocument document) {
     super(document);
   }

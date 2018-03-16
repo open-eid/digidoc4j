@@ -10,111 +10,86 @@
 
 package org.digidoc4j;
 
-import static org.digidoc4j.utils.Helper.deleteFile;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
+import org.digidoc4j.test.MockDataFile;
+import org.junit.Assert;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.InMemoryDocument;
+public class DataFileTest extends AbstractTest {
 
-public class DataFileTest {
-  private static DataFile dataFile;
-
-  @Before
-  public void setUp() throws Exception {
-    dataFile = new DataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-  }
-
-  @Rule
-  public TemporaryFolder testFolder = new TemporaryFolder();
+  private DataFile dataFile;
 
   @Test
   public void testGetFileSize() throws Exception {
-    assertEquals(15, dataFile.getFileSize());
+    Assert.assertEquals(15, this.dataFile.getFileSize());
   }
 
   @Test
   public void testGetFileSizeForInMemoryDocument() {
-    DataFile mockDataFile = new MockDataFile(new byte[]{1, 2}, "fileName", "text/plain");
-    assertEquals(2, mockDataFile.getFileSize());
+    Assert.assertEquals(2, new MockDataFile(new byte[]{1, 2}, "fileName", "text/plain").getFileSize());
   }
 
   @Test
   public void testGetMediaType() throws Exception {
-    assertEquals("text/plain", dataFile.getMediaType());
+    Assert.assertEquals("text/plain", this.dataFile.getMediaType());
   }
 
   @Test
   public void testGetFileName() throws Exception {
-    assertEquals("test.txt", dataFile.getName());
+    Assert.assertEquals("test.txt", this.dataFile.getName());
   }
 
   @Test
   public void testCalculateDigest() throws Exception {
-    assertEquals("RqDqtqi3rTsWj07rrWc5kATAZIw7T1XHP/NPLCF05RU=", Base64.encodeBase64String(dataFile.calculateDigest()));
+    Assert.assertEquals("RqDqtqi3rTsWj07rrWc5kATAZIw7T1XHP/NPLCF05RU=", Base64.encodeBase64String(this.dataFile.calculateDigest()));
   }
 
   @Test
   public void testCalculateDigestWithEnumTypeSHA256() throws Exception {
-    assertEquals("RqDqtqi3rTsWj07rrWc5kATAZIw7T1XHP/NPLCF05RU=",
-        Base64.encodeBase64String(dataFile.calculateDigest(DigestAlgorithm.SHA256)));
+    Assert.assertEquals("RqDqtqi3rTsWj07rrWc5kATAZIw7T1XHP/NPLCF05RU=",
+        Base64.encodeBase64String(this.dataFile.calculateDigest(DigestAlgorithm.SHA256)));
   }
 
   @Test
   public void testCalculateDigestWithEnumTypeSHA1() throws Exception {
-    assertEquals("OQj17m9Rt2vPXYrry+v/KHpf98Q=", Base64.encodeBase64String(dataFile.calculateDigest(DigestAlgorithm.SHA1)));
+    Assert.assertEquals("OQj17m9Rt2vPXYrry+v/KHpf98Q=", Base64.encodeBase64String(this.dataFile.calculateDigest(DigestAlgorithm.SHA1)));
   }
 
   @Test
   public void testSaveToFile() throws IOException {
-    String fileName = "testSaveToFile.txt";
-    dataFile.saveAs(fileName);
-    assertTrue(new File(fileName).exists());
-
+    String file = this.getFileBy("txt");
+    this.dataFile.saveAs(file);
+    Assert.assertTrue(new File(file).exists());
     byte[] testFileContent = FileUtils.readFileToByteArray(new File("src/test/resources/testFiles/helper-files/test.txt"));
-
-    byte[] savedFileContent = FileUtils.readFileToByteArray(new File(fileName));
-    assertArrayEquals(testFileContent, savedFileContent);
-
-    deleteFile(fileName);
+    byte[] savedFileContent = FileUtils.readFileToByteArray(new File(file));
+    Assert.assertArrayEquals(testFileContent, savedFileContent);
   }
 
   @Test
   public void testSaveToOutputStream() throws IOException {
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    dataFile.saveAs(out);
-    out.flush();
-
-    assertEquals("see on testfail", out.toString());
-    out.close();
+    try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
+      this.dataFile.saveAs(stream);
+      stream.flush();
+      Assert.assertEquals("see on testfail", stream.toString());
+    }
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void incorrectMimeType() {
-    dataFile = new DataFile("src/test/resources/testFiles/helper-files/test.txt", "incorrect");
+    this.dataFile = new DataFile("src/test/resources/testFiles/helper-files/test.txt", "incorrect");
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void incorrectMimeTypeByteArrayConstructor() {
-    dataFile = new DataFile(new byte[]{0x041}, "src/test/resources/testFiles/helper-files/test.txt", "incorrect");
+    this.dataFile = new DataFile(new byte[]{0x041}, "src/test/resources/testFiles/helper-files/test.txt", "incorrect");
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -130,65 +105,54 @@ public class DataFileTest {
   @Test
   public void testInMemoryDocumentRetrievesFileName() {
     DataFile dataFile = new DataFile(new byte[]{0x041}, "suura.txt", "text/plain");
-    assertEquals("suura.txt", dataFile.getName());
+    Assert.assertEquals("suura.txt", dataFile.getName());
   }
 
   @Test
   public void testGetBytes() throws Exception {
     DataFile dataFile = new DataFile(new byte[]{0x041}, "suura.txt", "text/plain");
-    assertArrayEquals(new byte[]{0x041}, dataFile.getBytes());
+    Assert.assertArrayEquals(new byte[]{0x041}, dataFile.getBytes());
   }
 
   @Test
   public void createDocumentFromStream() throws Exception {
-    String dataFileName = testFolder.newFolder().getAbsolutePath()+ File.separator + "createDocumentFromStream.txt";
-    try(ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
-      DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
-      dataFile.saveAs(dataFileName);
-
-      DataFile dataFileToCompare = new DataFile(dataFileName, "text/plain");
-      assertArrayEquals("tere tere tipajalga".getBytes(), dataFileToCompare.getBytes());
+    String file = this.getFileBy("txt");
+    try (ByteArrayInputStream stream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
+      DataFile dataFile = new DataFile(stream, "test.txt", "text/plain");
+      dataFile.saveAs(file);
+      DataFile dataFileToCompare = new DataFile(file, "text/plain");
+      Assert.assertArrayEquals("tere tere tipajalga".getBytes(), dataFileToCompare.getBytes());
     }
-    testFolder.delete();
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void createDocumentFromInoutStreamThrowsException() throws IOException {
-    try(ByteArrayInputStream inputStream = new ByteArrayInputStream("test".getBytes())) {
-      new DataFile(inputStream, "test.txt", "unknown");
+    try (ByteArrayInputStream stream = new ByteArrayInputStream("test".getBytes())) {
+      new DataFile(stream, "test.txt", "unknown");
     }
   }
 
   @Test
   public void calculateSizeForStreamedFile() throws Exception {
-    try(ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
-      DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
-
-      assertEquals(19, dataFile.getFileSize());
-    }
-  }
-
-  @Ignore("Data files are not written on disk")
-  @Test(expected = DigiDoc4JException.class)
-  public void askingDataFileSizeWhenTemporoaryFileIsDeleted() throws Exception {
-    try(ByteArrayInputStream inputStream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
-      DataFile dataFile = new DataFile(inputStream, "test.txt", "text/plain");
-      Files.deleteIfExists(Paths.get(dataFile.getDocument().getAbsolutePath()));
-      dataFile.getFileSize();
+    try (ByteArrayInputStream stream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
+      DataFile dataFile = new DataFile(stream, "test.txt", "text/plain");
+      Assert.assertEquals(19, dataFile.getFileSize());
     }
   }
 
   @Test
   public void testDigestIsCalculatedOnlyOnce() throws Exception {
-    byte[] digest = dataFile.calculateDigest();
-    assertEquals(digest, dataFile.calculateDigest(new URL("http://NonExisting.test")));
+    byte[] digest = this.dataFile.calculateDigest();
+    Assert.assertEquals(digest, this.dataFile.calculateDigest(new URL("http://NonExisting.test")));
   }
 
-  private class MockDataFile extends DataFile {
-    public MockDataFile(byte[] data, String fileName, String mimeType) {
-      super(data, fileName, mimeType);
-      DSSDocument document = new InMemoryDocument(data, mimeType);
-      setDocument(document);
-    }
+  /*
+   * RESTRICTED METHODS
+   */
+
+  @Override
+  protected void before() {
+    this.dataFile = new DataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
   }
+
 }

@@ -92,11 +92,6 @@ public class StreamDocument extends CommonDocument {
     }
   }
 
-  FileInputStream getTemporaryFileAsStream() throws FileNotFoundException {
-    logger.debug("");
-    return new FileInputStream(temporaryFile);
-  }
-
   @Override
   public String getName() {
     logger.debug("");
@@ -154,4 +149,9 @@ public class StreamDocument extends CommonDocument {
     }
     return Base64.encodeBase64String(digestBytes);
   }
+
+  protected FileInputStream getTemporaryFileAsStream() throws FileNotFoundException {
+    return new FileInputStream(this.temporaryFile);
+  }
+
 }

@@ -10,17 +10,6 @@
 
 package org.digidoc4j.utils;
 
-import static eu.europa.esig.dss.MimeType.ASICE;
-import static org.digidoc4j.Constant.DDOC_CONTAINER_TYPE;
-import static org.digidoc4j.utils.Helper.deleteFile;
-import static org.digidoc4j.utils.Helper.deserializer;
-import static org.digidoc4j.utils.Helper.serialize;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -30,315 +19,259 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FileUtils;
+import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.junit.After;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
-public class HelperTest {
-  @Rule
-  public TemporaryFolder testFolder = new TemporaryFolder();
+import eu.europa.esig.dss.MimeType;
 
-  @After
-  public void cleanup() throws IOException {
-    testFolder.delete();
-  }
+public class HelperTest extends AbstractTest {
 
   @Test
   public void testIsXMLFileWhenFileIsNotXMLFile() throws Exception {
-    assertFalse(Helper.isXMLFile(new File("src/test/resources/testFiles/helper-files/test.txt")));
+    Assert.assertFalse(Helper.isXMLFile(new File("src/test/resources/testFiles/helper-files/test.txt")));
   }
 
   @Test
   public void testIsXMLFileWhenFileIsXMLFile() throws Exception {
-    createXMLFile("testIsXMLFileWhenFileIsXMLFile.xml");
-    assertTrue(Helper.isXMLFile(new File("testIsXMLFileWhenFileIsXMLFile.xml")));
-    deleteFile("testIsXMLFileWhenFileIsXMLFile.xml");
-  }
-
-  private void createXMLFile(String fileName) throws IOException {
-    FileWriter writer = new FileWriter(fileName);
-    writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?><test></test>");
-    writer.flush();
-    writer.close();
+    Assert.assertTrue(Helper.isXMLFile(new File(this.createXMLFile())));
   }
 
   @Test
   public void testIsZIPFileWhenFileIsNotZIPFile() throws Exception {
-    assertFalse(Helper.isZipFile(new File("src/test/resources/testFiles/helper-files/test.txt")));
+    Assert.assertFalse(Helper.isZipFile(new File("src/test/resources/testFiles/helper-files/test.txt")));
   }
 
   @Test
   public void testIsZIPFileWhenFileIsZIPFile() throws Exception {
-    FileOutputStream fileOutputStream = new FileOutputStream("test.zip");
-    ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
-    zipOutputStream.putNextEntry(new ZipEntry("src/test/resources/testFiles/helper-files/test.txt"));
-    zipOutputStream.closeEntry();
-
-    assertTrue(Helper.isZipFile(new File("test.zip")));
-
-    fileOutputStream.close();
-
-    deleteFile("test.zip");
+    String file = this.getFileBy("zip");
+    try (FileOutputStream stream = new FileOutputStream(file)) {
+      ZipOutputStream zipStream = new ZipOutputStream(stream);
+      zipStream.putNextEntry(new ZipEntry("src/test/resources/testFiles/helper-files/test.txt"));
+      zipStream.closeEntry();
+      Assert.assertTrue(Helper.isZipFile(new File(file)));
+    }
   }
 
   @Test
   public void testDeleteFileIfExists() throws Exception {
-    File file = new File("testDelete.txt");
-    //noinspection ResultOfMethodCallIgnored
-    file.createNewFile();
-
-    assertTrue(file.exists());
-    deleteFile("testDelete.txt");
-    assertFalse(file.exists());
+    String filePath = this.getFileBy("txt", true);
+    File file = new File(filePath);
+    Assert.assertTrue(file.exists());
+    Helper.deleteFile(filePath);
+    Assert.assertFalse(file.exists());
   }
 
   @Test
   public void testDeleteFileIfNotExists() throws Exception {
-    deleteFile("testDeleteNotExists.txt");
-    assertFalse(new File("testDeleteNotExists.txt").exists());
+    Helper.deleteFile("testDeleteNotExists.txt");
+    Assert.assertFalse(new File("testDeleteNotExists.txt").exists());
   }
 
   @Test
   public void extractSignatureS0() throws Exception {
-    createZIPFile();
-    assertEquals("A", Helper.extractSignature("extractSignature.zip", 0));
-
-    deleteFile("extractSignature.zip");
+    Assert.assertEquals("A", Helper.extractSignature(this.createZIPFile(), 0));
   }
 
   @Test
   public void extractSignatureS1() throws Exception {
-    createZIPFile();
-    assertEquals("B", Helper.extractSignature("extractSignature.zip", 1));
-
-    deleteFile("extractSignature.zip");
+    Assert.assertEquals("B", Helper.extractSignature(this.createZIPFile(), 1));
   }
 
   @Test(expected = IOException.class)
   public void extractSignatureThrowsErrorWhenSignatureIsNotFound() throws Exception {
-    String fileName = testFolder.newFolder().getAbsolutePath() + File.separator + "extractSignatureThrowsErrorWhenSignatureIsNotFound.zip";
+    String file = this.getFileBy("zip");
     try (
-        FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-        ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
-
+        FileOutputStream fileStream = new FileOutputStream(file);
+        ZipOutputStream zipStream = new ZipOutputStream(fileStream)) {
       ZipEntry zipEntry = new ZipEntry("test");
-      zipOutputStream.putNextEntry(zipEntry);
-
-      zipOutputStream.write(0x42);
-      zipOutputStream.closeEntry();
-      fileOutputStream.close();
+      zipStream.putNextEntry(zipEntry);
+      zipStream.write(0x42);
+      zipStream.closeEntry();
     }
-
-    Helper.extractSignature(fileName, 0);
-  }
-
-  private void createZIPFile() throws IOException {
-    try(FileOutputStream out = new FileOutputStream("extractSignature.zip");
-        ZipOutputStream zout = new ZipOutputStream(out)) {
-      ZipEntry signature0 = new ZipEntry("META-INF/signatures0.xml");
-      zout.putNextEntry(signature0);
-      zout.write(0x41);
-      zout.closeEntry();
-
-      ZipEntry signature1 = new ZipEntry("META-INF/signatures1.xml");
-      zout.putNextEntry(signature1);
-      zout.write(0x42);
-      zout.closeEntry();
-    }
+    Helper.extractSignature(file, 0);
   }
 
   @Test
   public void createUserAgentForBDOC() throws Exception {
     String userAgent = Helper.createBDocUserAgent();
-    assertThat(userAgent, containsString(ASICE.getMimeTypeString()));
+    Assert.assertThat(userAgent, Matchers.containsString(MimeType.ASICE.getMimeTypeString()));
   }
 
   @Test
   public void createUserAgentForDDOC() throws Exception {
-    String userAgent = Helper.createUserAgent(ContainerBuilder.aContainer(DDOC_CONTAINER_TYPE).build());
-    assertThat(userAgent, containsString("DDOC"));
+    String userAgent = Helper.createUserAgent(ContainerBuilder.aContainer(Container.DocumentType.DDOC).build());
+    Assert.assertThat(userAgent, Matchers.containsString("DDOC"));
   }
 
   @Test
-  public void  createUserAgentSignatureProfileForBDOC() {
+  public void createUserAgentSignatureProfileForBDOC() {
     String userAgent = Helper.createBDocUserAgent(SignatureProfile.LTA);
-    assertThat(userAgent, containsString("signatureProfile: XAdES_BASELINE_LTA"));
+    Assert.assertThat(userAgent, Matchers.containsString("signatureProfile: XAdES_BASELINE_LTA"));
   }
 
   @Test
   public void createUserAgentForUnknownSignatureProfile() {
     String userAgent = Helper.createBDocUserAgent();
-    assertThat(userAgent, containsString("signatureProfile: ASiC_E"));
+    Assert.assertThat(userAgent, Matchers.containsString("signatureProfile: ASiC_E"));
   }
 
   @Test
   public void createUserAgentSignatureProfileForBDocTm() throws Exception {
     String userAgent = Helper.createBDocUserAgent(SignatureProfile.LT_TM);
-    assertThat(userAgent, containsString("signatureProfile: ASiC_E_BASELINE_LT_TM"));
+    Assert.assertThat(userAgent, Matchers.containsString("signatureProfile: ASiC_E_BASELINE_LT_TM"));
   }
 
   @Test
   public void createUserAgentSignatureProfileForBDocTs() throws Exception {
     String userAgent = Helper.createBDocUserAgent(SignatureProfile.LT);
-    assertThat(userAgent, containsString("signatureProfile: XAdES_BASELINE_LT"));
+    Assert.assertThat(userAgent, Matchers.containsString("signatureProfile: XAdES_BASELINE_LT"));
   }
 
   @Test
-  public void  createUserAgentSignatureProfileForDDOC() {
-    Container container = ContainerBuilder.aContainer(DDOC_CONTAINER_TYPE).build();
-    String userAgent = Helper.createUserAgent(container);
-    assertThat(userAgent, containsString("signatureProfile: LT_TM"));
+  public void createUserAgentSignatureProfileForDDOC() {
+    String userAgent = Helper.createUserAgent(ContainerBuilder.aContainer(Container.DocumentType.DDOC).build());
+    Assert.assertThat(userAgent, Matchers.containsString("signatureProfile: LT_TM"));
   }
 
   @Test
-  public void  createUserAgentSignatureVersionForDDOC() {
-    Container container = ContainerBuilder.aContainer(DDOC_CONTAINER_TYPE).build();
-    String userAgent = Helper.createUserAgent(container);
-    assertThat(userAgent, containsString("format: DDOC/1.3"));
+  public void createUserAgentSignatureVersionForDDOC() {
+    String userAgent = Helper.createUserAgent(ContainerBuilder.aContainer(Container.DocumentType.DDOC).build());
+    Assert.assertThat(userAgent, Matchers.containsString("format: DDOC/1.3"));
   }
 
   @Test
-  public void  createUserAgentSignatureVersionForBDOC() {
+  public void createUserAgentSignatureVersionForBDOC() {
     String userAgent = Helper.createBDocUserAgent();
-    assertThat(userAgent, containsString("format: application/vnd.etsi.asic-e+zip"));
+    Assert.assertThat(userAgent, Matchers.containsString("format: application/vnd.etsi.asic-e+zip"));
   }
 
-  @Test (expected = DigiDoc4JException.class)
+  @Test(expected = DigiDoc4JException.class)
   public void deserializeThrowsException() {
-    deserializer(null);
+    Helper.deserializer((File) null);
   }
 
-  @Test (expected = DigiDoc4JException.class)
+  @Test(expected = DigiDoc4JException.class)
   public void serializeThrowsException() {
-    serialize(ContainerBuilder.aContainer().build(), null);
+    Helper.serialize(ContainerBuilder.aContainer().build(), (File) null);
   }
 
 
   @Test
-  public void testSaveFileNamesFromString(){
-      String pathToContainer = "src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc";
-
-      String tmpFolder = "src/test/resources/testFiles/tmp";
-
-      Helper.saveAllFilesFromContainerPathToFolder(pathToContainer, tmpFolder);
-      File file1 = new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf");
-      File file2 = new File(tmpFolder + File.separator + "sample_file.pdf");
-
-      assertExistsAndDeleteFile(file1);
-      assertExistsAndDeleteFile(file2);
+  public void testSaveFileNamesFromString() {
+    String pathToContainer = "src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc";
+    String folder = this.testFolder.getRoot().getPath();
+    Helper.saveAllFilesFromContainerPathToFolder(pathToContainer, folder);
+    Assert.assertTrue(new File(folder + File.separator + "DigiDocService_spec_est.pdf").exists());
+    Assert.assertTrue(new File(folder + File.separator + "sample_file.pdf").exists());
   }
 
   @Test
   public void testSaveFileNamesFromContainer() {
-      Container container = ContainerBuilder.
-          aContainer().
-          fromExistingFile("src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").
-          build();
-
-      String tmpFolder = "src/test/resources/testFiles/tmp";
-
-      Helper.saveAllFilesFromContainerToFolder(container, tmpFolder);
-      File file1 = new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf");
-      File file2 = new File(tmpFolder + File.separator + "sample_file.pdf");
-
-      assertExistsAndDeleteFile(file1);
-      assertExistsAndDeleteFile(file2);
+    Container container = ContainerBuilder.aContainer().
+        fromExistingFile("src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").build();
+    String folder = this.testFolder.getRoot().getPath();
+    Helper.saveAllFilesFromContainerToFolder(container, folder);
+    Assert.assertTrue(new File(folder + File.separator + "DigiDocService_spec_est.pdf").exists());
+    Assert.assertTrue(new File(folder + File.separator + "sample_file.pdf").exists());
   }
 
   @Test
-  public void testGetFilesFromString(){
-    Container container = ContainerBuilder.
-        aContainer().
-        fromExistingFile("src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").
-        build();
-    String tmpFolder = "src/test/resources/testFiles/tmp";
+  public void testGetFilesFromString() {
+    Container container = ContainerBuilder.        aContainer().
+        fromExistingFile("src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").        build();
+    String folder = this.testFolder.getRoot().getPath();
     String helperFolder = "src/test/resources/testFiles/helper-files";
-
     List<byte[]> files = Helper.getAllFilesFromContainerAsBytes(container);
     Assert.assertEquals(2, files.size());
-
     try {
-        FileUtils.writeByteArrayToFile(new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf"), files.get(0));
-        FileUtils.writeByteArrayToFile(new File(tmpFolder + File.separator + "sample_file.pdf"), files.get(1));
+      FileUtils.writeByteArrayToFile(new File(folder + File.separator + "DigiDocService_spec_est.pdf"), files.get(0));
+      FileUtils.writeByteArrayToFile(new File(folder + File.separator + "sample_file.pdf"), files.get(1));
     } catch (IOException e) {
-        e.printStackTrace();
+      throw new RuntimeException(e);
     }
-
-    File helperfile1 = new File(helperFolder + File.separator + "DigiDocService_spec_est.pdf");
-    File helperfile2 = new File(helperFolder + File.separator + "sample_file.pdf");
-
-    File testfile1 = new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf");
-    File testfile2 = new File(tmpFolder + File.separator + "sample_file.pdf");
-
-    Assert.assertEquals(FileUtils.sizeOf(helperfile1), FileUtils.sizeOf(testfile1) );
-    Assert.assertEquals(FileUtils.sizeOf(helperfile2), FileUtils.sizeOf(testfile2));
-
-    compareFileSize(tmpFolder, helperFolder);
+    this.compareFileSize(folder, helperFolder);
   }
 
   @Test
-  public void testGetFilesFromContainer(){
-    String pathToContainer = "src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc";
-    String tmpFolder = "src/test/resources/testFiles/tmp";
+  public void testGetFilesFromContainer() {
+    String containerFile = "src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc";
+    String folder = this.testFolder.getRoot().getPath();
     String helperFolder = "src/test/resources/testFiles/helper-files";
-
-    List<byte[]> files = Helper.getAllFilesFromContainerPathAsBytes(pathToContainer);
+    List<byte[]> files = Helper.getAllFilesFromContainerPathAsBytes(containerFile);
     Assert.assertEquals(2, files.size());
-
     try {
-      FileUtils.writeByteArrayToFile(new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf"), files.get(0));
-      FileUtils.writeByteArrayToFile(new File(tmpFolder + File.separator + "sample_file.pdf"), files.get(1));
+      FileUtils.writeByteArrayToFile(new File(folder + File.separator + "DigiDocService_spec_est.pdf"), files.get(0));
+      FileUtils.writeByteArrayToFile(new File(folder + File.separator + "sample_file.pdf"), files.get(1));
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
-
-    compareFileSize(tmpFolder, helperFolder);
+    this.compareFileSize(folder, helperFolder);
   }
 
   @Test
-  public void testIsAsicSContainer(){
+  public void testIsAsicSContainer() {
     String asics = "test.asics";
     String scs = "test.scs";
     String sce = "test.sce";
     String asice = "tets.asice";
-
-    assertTrue(Helper.isAsicSContainer(asics));
-    assertTrue(Helper.isAsicSContainer(scs));
-    assertTrue(Helper.isAsicSContainer("src\\test\\resources\\testFiles\\valid-containers\\testasics.zip"));
-
-    assertFalse(Helper.isAsicSContainer(sce));
-    assertFalse(Helper.isAsicSContainer(asice));
-    assertFalse(Helper.isAsicSContainer("src\\test\\resources\\testFiles\\valid-containers\\one_signature.bdoc"));
+    Assert.assertTrue(Helper.isAsicSContainer(asics));
+    Assert.assertTrue(Helper.isAsicSContainer(scs));
+    Assert.assertTrue(Helper.isAsicSContainer("src/test/resources/testFiles/valid-containers/testasics.zip"));
+    Assert.assertFalse(Helper.isAsicSContainer(sce));
+    Assert.assertFalse(Helper.isAsicSContainer(asice));
+    Assert.assertFalse(Helper.isAsicSContainer("src/test/resources/testFiles/valid-containers/one_signature.bdoc"));
   }
 
   @Test
-  public void testPDFContainer(){
-    assertTrue(Helper.isPdfFile("src\\test\\resources\\testFiles\\invalid-containers\\EE_AS-P-BpLT-V-009.pdf"));
-    assertFalse(Helper.isPdfFile("src\\test\\resources\\testFiles\\valid-containers\\one_signature.bdoc"));
+  public void testPDFContainer() {
+    Assert.assertTrue(Helper.isPdfFile("src/test/resources/testFiles/invalid-containers/EE_AS-P-BpLT-V-009.pdf"));
+    Assert.assertFalse(Helper.isPdfFile("src/test/resources/testFiles/valid-containers/one_signature.bdoc"));
   }
 
-  private void compareFileSize(String tmpFolder, String helperFolder) {
-    File helperfile1 = new File(helperFolder + File.separator + "DigiDocService_spec_est.pdf");
-    File helperfile2 = new File(helperFolder + File.separator + "sample_file.pdf");
+  /*
+   * RESTRICTED METHODS
+   */
 
-    File testfile1 = new File(tmpFolder + File.separator + "DigiDocService_spec_est.pdf");
-    File testfile2 = new File(tmpFolder + File.separator + "sample_file.pdf");
-
-    Assert.assertEquals(FileUtils.sizeOf(helperfile1), FileUtils.sizeOf(testfile1) );
-    Assert.assertEquals(FileUtils.sizeOf(helperfile2), FileUtils.sizeOf(testfile2));
-
-    assertExistsAndDeleteFile(testfile1);
-    assertExistsAndDeleteFile(testfile2);
+  private String createXMLFile() throws IOException {
+    String xmlFile = this.getFileBy("xml", true);
+    try (FileWriter writer = new FileWriter(xmlFile)) {
+      writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?><test></test>");
+      writer.flush();
+    }
+    return xmlFile;
   }
 
-  private void assertExistsAndDeleteFile(File file) {
-    Assert.assertTrue(file.exists());
-    file.delete();
+  private String createZIPFile() throws IOException {
+    String zipFile = this.getFileBy("zip", true);
+    try (FileOutputStream stream = new FileOutputStream(zipFile);
+         ZipOutputStream zipStream = new ZipOutputStream(stream)) {
+      ZipEntry signature0 = new ZipEntry("META-INF/signatures0.xml");
+      zipStream.putNextEntry(signature0);
+      zipStream.write(0x41);
+      zipStream.closeEntry();
+      ZipEntry signature1 = new ZipEntry("META-INF/signatures1.xml");
+      zipStream.putNextEntry(signature1);
+      zipStream.write(0x42);
+      zipStream.closeEntry();
+    }
+    return zipFile;
   }
+
+  private void compareFileSize(String folder, String helperFolder) {
+    File helperFile1 = new File(helperFolder + File.separator + "DigiDocService_spec_est.pdf");
+    File helperFile2 = new File(helperFolder + File.separator + "sample_file.pdf");
+    File file1 = new File(folder + File.separator + "DigiDocService_spec_est.pdf");
+    File file2 = new File(folder + File.separator + "sample_file.pdf");
+    Assert.assertEquals(FileUtils.sizeOf(helperFile1), FileUtils.sizeOf(file1));
+    Assert.assertEquals(FileUtils.sizeOf(helperFile2), FileUtils.sizeOf(file2));
+    Assert.assertTrue(file1.exists());
+    Assert.assertTrue(file2.exists());
+  }
+
 }

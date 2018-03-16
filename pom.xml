@@ -6,7 +6,7 @@
     <groupId>org.digidoc4j</groupId>
     <artifactId>digidoc4j</artifactId>
     <packaging>jar</packaging>
-    <version>2.0.0.RC.2</version>
+    <version>2.1.0-RC.1</version>
     <name>DigiDoc4j</name>
     <description>DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers
         of signed documents
@@ -113,14 +113,15 @@
         <project.encoding>UTF-8</project.encoding>
         <slf4j.version>1.7.25</slf4j.version>
         <logback-classic.version>1.2.3</logback-classic.version>
-        <bouncycastle.version>1.54</bouncycastle.version>
+        <bouncycastle.version>1.58</bouncycastle.version>
         <junit.version>4.11</junit.version>
         <dss.groupId>org.digidoc4j.dss</dss.groupId>
-        <dss.version>5.1.d4j.5</dss.version>
+        <dss.version>5.2.d4j.3</dss.version>
         <dss.util.build>${project.build.directory}/build/util</dss.util.build>
         <dss.util.lib>${project.build.directory}/library/util</dss.util.lib>
         <dss.zip.lib>${project.build.directory}/library/zip</dss.zip.lib>
         <argLine>-Dfile.encoding=UTF-8</argLine>
+        <javadocOpt>-Xdoclint:none</javadocOpt>
     </properties>
 
     <profiles>
@@ -134,6 +135,7 @@
             </activation>
             <properties>
                 <project.source.version>1.7</project.source.version>
+                <javadocOpt></javadocOpt>
                 <jfxrt.jar>${java.home}/lib/jfxrt.jar</jfxrt.jar>
             </properties>
         </profile>
@@ -142,13 +144,12 @@
             <activation>
                 <jdk>[1.8,)</jdk>
                 <file>
-                    <exists>${java.home}/lib/ext/jfxrt.jar</exists>
+                    <exists>${java.home}/jre/lib/ext/jfxrt.jar</exists>
                 </file>
             </activation>
             <properties>
                 <project.source.version>1.7</project.source.version>
-                <jfxrt.jar>${java.home}/lib/ext/jfxrt.jar</jfxrt.jar>
-                <additionalparam>-Xdoclint:none</additionalparam>
+                <jfxrt.jar>${java.home}/jre/lib/ext/jfxrt.jar</jfxrt.jar>
             </properties>
         </profile>
         <profile>
@@ -232,11 +233,22 @@
             <groupId>ee.sk.digidoc</groupId>
             <artifactId>jdigidoc</artifactId>
             <version>3.12.1</version>
-            <scope>compile</scope>
             <exclusions>
                 <exclusion>
                     <groupId>iaik.pkcs</groupId>
                     <artifactId>iaikPkcs11Wrapper</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcmail-jdk15on</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcpkix-jdk15on</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -244,61 +256,51 @@
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
             <version>1.4</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
             <version>1.3</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.5</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.10</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.6</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.2</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
             <version>4.1</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.3</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
             <version>4.4.6</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.santuario</groupId>
             <artifactId>xmlsec</artifactId>
             <version>2.0.9</version>
-            <scope>compile</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.codehaus.woodstox</groupId>
@@ -310,25 +312,21 @@
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcmail-jdk15on</artifactId>
             <version>${bouncycastle.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15on</artifactId>
             <version>${bouncycastle.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
             <version>${bouncycastle.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>xalan</groupId>
             <artifactId>serializer</artifactId>
             <version>2.7.2</version>
-            <scope>compile</scope>
             <exclusions>
                 <exclusion>
                     <groupId>xml-apis</groupId>
@@ -340,38 +338,32 @@
             <groupId>xalan</groupId>
             <artifactId>xalan</artifactId>
             <version>2.7.2</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
             <version>1.18</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback-classic.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <version>${logback-classic.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
             <version>${slf4j.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
@@ -443,7 +435,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>20.0</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -463,20 +454,16 @@
             <version>2.8.8</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
             <version>2.0.8</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>fontbox</artifactId>
             <version>2.0.8</version>
-            <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>org.skyscreamer</groupId>
             <artifactId>jsonassert</artifactId>
@@ -506,148 +493,140 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-            <scope>compile</scope>
+            <groupId>com.googlecode.junit-toolbox</groupId>
+            <artifactId>junit-toolbox</artifactId>
+            <version>1.11</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-common-validation-jaxb</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-detailed-report-jaxb</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-diagnostic-jaxb</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-document</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-model</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-policy-jaxb</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-reports</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-service</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-simple-report-jaxb</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-spi</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-token</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-tsl-jaxb</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-tsl-validation</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-xades</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-cades</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>validation-policy</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-asic-common</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-asic-cades</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-asic-xades</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-pades</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-utils</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-utils-apache-commons</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-utils-google-guava</artifactId>
             <version>${dss.version}</version>
-            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>${dss.groupId}</groupId>
+            <artifactId>dss-crl-parser</artifactId>
+            <version>${dss.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${dss.groupId}</groupId>
+            <artifactId>dss-crl-parser-x509crl</artifactId>
+            <version>${dss.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${dss.groupId}</groupId>
+            <artifactId>dss-crl-parser-stream</artifactId>
+            <version>${dss.version}</version>
         </dependency>
     </dependencies>
 
@@ -806,10 +785,14 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.20.1</version>
                 <configuration>
+                    <argLine>-Dhttps.protocols=TLSv1.2</argLine>
                     <additionalClasspathElements>
                         <additionalClasspathElement>${project.basedir}/src/main/lib/esteidtestcerts.jar
                         </additionalClasspathElement>
                     </additionalClasspathElements>
+                    <includes>
+                        <include>**/TestSuite.java</include>
+                    </includes>
                 </configuration>
             </plugin>
             <plugin>
@@ -899,6 +882,21 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <additionalOptions>
+                                <!-- <additionalOption>-Xdoclint:none</additionalOption> -->
+                                <additionalOption>${javadocOpt}</additionalOption>
+                            </additionalOptions>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -993,7 +991,8 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.0.0</version>
                     <configuration>
-                        <excludePackageNames>prototype,org.digidoc4j.impl,org.digidoc4j.main,org.digidoc4j.utils</excludePackageNames>
+                        <excludePackageNames>prototype,org.digidoc4j.impl,org.digidoc4j.main,org.digidoc4j.utils
+                        </excludePackageNames>
                         <javadocDirectory>${project.basedir}/src/main/doc</javadocDirectory>
                         <docfilessubdirs>true</docfilessubdirs>
                         <overview>${project.basedir}/src/main/doc/overview.html</overview>
@@ -1050,7 +1049,8 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.0.0</version>
                 <configuration>
-                    <excludePackageNames>prototype,org.digidoc4j.impl,org.digidoc4j.main,org.digidoc4j.utils</excludePackageNames>
+                    <excludePackageNames>prototype,org.digidoc4j.impl,org.digidoc4j.main,org.digidoc4j.utils
+                    </excludePackageNames>
                     <javadocDirectory>${project.basedir}/src/main/doc</javadocDirectory>
                     <docfilessubdirs>true</docfilessubdirs>
                     <overview>${project.basedir}/src/main/doc/overview.html</overview>

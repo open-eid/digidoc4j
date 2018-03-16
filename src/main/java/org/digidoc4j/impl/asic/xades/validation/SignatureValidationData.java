@@ -13,20 +13,20 @@ package org.digidoc4j.impl.asic.xades.validation;
 import java.io.Serializable;
 
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.ValidationResult;
 
 public class SignatureValidationData implements Serializable {
 
-  private SignatureValidationResult validationResult;
+  private ValidationResult validationResult;
   private String signatureId;
   private XadesValidationResult report;
   private SignatureProfile signatureProfile;
 
-  public void setValidationResult(SignatureValidationResult validationResult) {
+  public void setValidationResult(ValidationResult validationResult) {
     this.validationResult = validationResult;
   }
 
-  public SignatureValidationResult getValidationResult() {
+  public ValidationResult getValidationResult() {
     return validationResult;
   }
 

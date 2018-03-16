@@ -19,14 +19,22 @@ import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.utils.MimeTypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * ASIC container parser from input stream
+ */
 public class AsicStreamContainerParser extends AsicContainerParser{
 
   private static final Logger logger = LoggerFactory.getLogger(AsicStreamContainerParser.class);
   private ZipInputStream zipInputStream;
 
+  /**
+   * @param inputStream input stream
+   * @param configuration configuration
+   */
   public AsicStreamContainerParser(InputStream inputStream, Configuration configuration) {
     super(configuration);
     zipInputStream = new ZipInputStream(inputStream);
@@ -56,7 +64,7 @@ public class AsicStreamContainerParser extends AsicContainerParser{
   private void updateDataFilesMimeType() {
     for (DataFile dataFile : getDataFiles().values()) {
       String fileName = dataFile.getName();
-      String mimeType = getDataFileMimeType(fileName);
+      String mimeType = MimeTypeUtil.mimeTypeOf(getDataFileMimeType(fileName)).getMimeTypeString();
       dataFile.setMediaType(mimeType);
     }
   }

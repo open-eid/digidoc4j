@@ -146,18 +146,22 @@ import eu.europa.esig.dss.client.http.Protocol;
  * <li>SSL_TRUSTSTORE_TYPE: SSL TrustStore type (default is "jks")</li>
  * <li>SSL_TRUSTSTORE_PASSWORD: SSL TrustStore password (default is an empty string)</li>
  * <li>ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES: Allowed delay between timestamp and OCSP response in minutes.</li>
+ * <li>ALLOW_UNSAFE_INTEGER: Allows to use unsafe Integer because of few applications still struggle with the
+ * ASN.1 BER encoding rules for an INTEGER as described in:
+ * {@link https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf. }
+ * NB! Strict Validation applied by default.</li>
  * </ul>
  */
 public class Configuration implements Serializable {
 
-  private final Logger log = LoggerFactory.getLogger(Configuration.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
   private final Mode mode;
   private transient ExecutorService threadExecutor;
   private TslManager tslManager;
   private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<>();
   private ConfigurationRegistry registry = new ConfigurationRegistry();
   // TODO integrate tspMap (multilevel arrays) into configuration registry
-  private HashMap<String, Map<ConfigurationParameter, String>>  tspMap = new HashMap<>();
+  private HashMap<String, Map<ConfigurationParameter, String>> tspMap = new HashMap<>();
   private List<String> trustedTerritories = new ArrayList<>();
   private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
   private LinkedHashMap configurationFromFile;
@@ -185,6 +189,15 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Create new configuration in static context with application mode specified
+   *
+   * @param mode Application mode
+   */
+  public static Configuration of(Mode mode) {
+    return new Configuration(mode);
+  }
+
+  /**
    * Create new configuration
    */
   public Configuration() {
@@ -192,21 +205,21 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Create new configuration for application mode specified
+   * Create new configuration with application mode specified
    *
    * @param mode Application mode
    */
   public Configuration(Mode mode) {
-    if (log.isInfoEnabled() && !log.isDebugEnabled()) {
-      log.info("DigiDoc4J will be executed in <{}> mode", mode);
+    if (LOGGER.isInfoEnabled() && !LOGGER.isDebugEnabled()) {
+      LOGGER.info("DigiDoc4J will be executed in <{}> mode", mode);
     }
-    log.debug("------------------------ <MODE: {}> ------------------------", mode);
+    LOGGER.debug("------------------------ <MODE: {}> ------------------------", mode);
     this.mode = mode;
     this.loadConfiguration("digidoc4j.yaml");
     this.initDefaultValues();
-    log.debug("------------------------ </MODE: {}> ------------------------", mode);
-    if (!log.isDebugEnabled()) {
-      log.info("Configuration loaded ...");
+    LOGGER.debug("------------------------ </MODE: {}> ------------------------", mode);
+    if (!LOGGER.isDebugEnabled()) {
+      LOGGER.info("Configuration loaded ...");
     }
   }
 
@@ -218,7 +231,7 @@ public class Configuration implements Serializable {
   public boolean isOCSPSigningConfigurationAvailable() {
     boolean available = StringUtils.isNotBlank(this.getOCSPAccessCertificateFileName())
         && this.getOCSPAccessCertificatePassword().length != 0;
-    log.debug("Is OCSP signing configuration available? {}", available);
+    LOGGER.debug("Is OCSP signing configuration available? {}", available);
     return available;
   }
 
@@ -317,16 +330,16 @@ public class Configuration implements Serializable {
    */
   public Hashtable<String, String> loadConfiguration(String file, boolean isReloadFromYaml) {
     if (!isReloadFromYaml) {
-      log.info("Should not reload conf from yaml when open container");
+      LOGGER.debug("Should not reload conf from yaml when open container");
       return jDigiDocConfiguration;
     }
-    log.info("Loading configuration from file " + file);
+    LOGGER.debug("Loading configuration from file <{}>", file);
     configurationInputSourceName = file;
     InputStream resourceAsStream = null;
     try {
       resourceAsStream = new FileInputStream(file);
     } catch (FileNotFoundException e) {
-      log.info("Configuration file " + file + " not found. Trying to search from jar file.");
+      LOGGER.debug("Configuration file <{}> not found. Trying to search from jar file", file);
     }
     if (resourceAsStream == null) {
       resourceAsStream = getResourceAsStream(file);
@@ -356,7 +369,7 @@ public class Configuration implements Serializable {
    */
   @Deprecated
   public void enableBigFilesSupport(long maxFileSizeCachedInMB) {
-    log.debug("Set maximum datafile cached to: " + maxFileSizeCachedInMB);
+    LOGGER.debug("Set maximum datafile cached to: " + maxFileSizeCachedInMB);
     String value = Long.toString(maxFileSizeCachedInMB);
     if (isValidIntegerParameter("DIGIDOC_MAX_DATAFILE_CACHED", value)) {
       jDigiDocConfiguration.put("DIGIDOC_MAX_DATAFILE_CACHED", value);
@@ -402,8 +415,7 @@ public class Configuration implements Serializable {
    * @return must be OCSP request signed
    */
   public boolean hasToBeOCSPRequestSigned() {
-    String signOcspRequests = getConfigurationParameter(ConfigurationParameter.SignOcspRequests);
-    return StringUtils.equalsIgnoreCase("true", signOcspRequests);
+    return Boolean.parseBoolean(this.getConfigurationParameter(ConfigurationParameter.SignOcspRequests));
   }
 
   /**
@@ -413,8 +425,7 @@ public class Configuration implements Serializable {
    */
   public long getMaxDataFileCachedInMB() {
     String maxDataFileCached = jDigiDocConfiguration.get("DIGIDOC_MAX_DATAFILE_CACHED");
-    log.debug("Maximum datafile cached in MB: " + maxDataFileCached);
-
+    LOGGER.debug("Maximum datafile cached in MB: " + maxDataFileCached);
     if (maxDataFileCached == null) return Constant.CACHE_ALL_DATA_FILES;
     return Long.parseLong(maxDataFileCached);
   }
@@ -449,7 +460,7 @@ public class Configuration implements Serializable {
           urlString = resource.toString();
       }
     } catch (MalformedURLException e) {
-      log.warn(e.getMessage());
+      LOGGER.warn(e.getMessage());
     }
     return urlString == null ? "" : urlString;
   }
@@ -524,7 +535,7 @@ public class Configuration implements Serializable {
         return source;
       }
     }
-    this.log.info("Source by country <{}> not found, using default TSP source", country);
+    LOGGER.info("Source by country <{}> not found, using default TSP source", country);
     return this.getTspSource();
   }
 
@@ -543,7 +554,8 @@ public class Configuration implements Serializable {
    * @param socketTimeoutMilliseconds socket timeout in milliseconds
    */
   public void setSocketTimeout(int socketTimeoutMilliseconds) {
-    this.setConfigurationParameter(ConfigurationParameter.SocketTimeoutInMillis, String.valueOf(socketTimeoutMilliseconds));
+    this.setConfigurationParameter(ConfigurationParameter.SocketTimeoutInMillis,
+        String.valueOf(socketTimeoutMilliseconds));
   }
 
   /**
@@ -626,7 +638,8 @@ public class Configuration implements Serializable {
    * @param cacheExpirationTimeInMilliseconds cache expiration time in milliseconds
    */
   public void setTslCacheExpirationTime(long cacheExpirationTimeInMilliseconds) {
-    this.setConfigurationParameter(ConfigurationParameter.TslCacheExpirationTimeInMillis, String.valueOf(cacheExpirationTimeInMilliseconds));
+    this.setConfigurationParameter(ConfigurationParameter.TslCacheExpirationTimeInMillis,
+        String.valueOf(cacheExpirationTimeInMilliseconds));
   }
 
   /**
@@ -644,7 +657,8 @@ public class Configuration implements Serializable {
    * @return Allowed delay between timestamp and OCSP response in minutes.
    */
   public Integer getAllowedTimestampAndOCSPResponseDeltaInMinutes() {
-    return this.getConfigurationParameter(ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes, Integer.class);
+    return this.getConfigurationParameter(ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes,
+        Integer.class);
   }
 
   /**
@@ -653,7 +667,8 @@ public class Configuration implements Serializable {
    * @param timeInMinutes Allowed delay between timestamp and OCSP response in minutes
    */
   public void setAllowedTimestampAndOCSPResponseDeltaInMinutes(int timeInMinutes) {
-    this.setConfigurationParameter(ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes, String.valueOf(timeInMinutes));
+    this.setConfigurationParameter(ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes,
+        String.valueOf(timeInMinutes));
   }
 
   /**
@@ -684,6 +699,20 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * @return whether to print validation report
+   */
+  public boolean getPrintValidationReport() {
+    return this.getConfigurationParameter(ConfigurationParameter.PrintValidationReport, Boolean.class);
+  }
+
+  /**
+   * @param printValidationReport whether to print validation report
+   */
+  public void setPrintValidationReport(Boolean printValidationReport) {
+    this.setConfigurationParameter(ConfigurationParameter.PrintValidationReport, printValidationReport.toString());
+  }
+
+  /**
    * Revocation and timestamp delta in minutes.
    *
    * @return timestamp delta in minutes.
@@ -698,7 +727,8 @@ public class Configuration implements Serializable {
    * @param timeInMinutes delta in minutes.
    */
   public void setRevocationAndTimestampDeltaInMinutes(int timeInMinutes) {
-    this.setConfigurationParameter(ConfigurationParameter.RevocationAndTimestampDeltaInMinutes, String.valueOf(timeInMinutes));
+    this.setConfigurationParameter(ConfigurationParameter.RevocationAndTimestampDeltaInMinutes,
+        String.valueOf(timeInMinutes));
   }
 
   /**
@@ -719,6 +749,9 @@ public class Configuration implements Serializable {
     return DigestAlgorithm.findByAlgorithm(getConfigurationParameter(ConfigurationParameter.SignatureDigestAlgorithm));
   }
 
+  /**
+   * @return HTTPS proxy host
+   */
   public String getHttpsProxyHost() {
     return this.getConfigurationParameter(ConfigurationParameter.HttpsProxyHost);
   }
@@ -732,6 +765,9 @@ public class Configuration implements Serializable {
     this.setConfigurationParameter(ConfigurationParameter.HttpsProxyHost, httpsProxyHost);
   }
 
+  /**
+   * @return HTTPS proxy port
+   */
   public Integer getHttpsProxyPort() {
     return this.getConfigurationParameter(ConfigurationParameter.HttpsProxyPort, Integer.class);
   }
@@ -830,6 +866,10 @@ public class Configuration implements Serializable {
         StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.HttpsProxyHost));
   }
 
+  /**
+   * @param protocol protocol
+   * @return boolean
+   */
   public boolean isProxyOfType(Protocol protocol) {
     switch (protocol) {
       case HTTP:
@@ -916,7 +956,7 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Get SSL TrustStore path.
+   * Get SSL TrustStore path
    *
    * @return path to a file.
    */
@@ -958,6 +998,25 @@ public class Configuration implements Serializable {
    */
   public String getSslTruststorePassword() {
     return this.getConfigurationParameter(ConfigurationParameter.SslTruststorePassword);
+  }
+
+
+  /**
+   * Set flag if full report needed.
+   *
+   * @param isFullReport needed value.
+   */
+  public void setFullReportNeeded(boolean isFullReport) {
+    this.setConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded, String.valueOf(isFullReport));
+  }
+
+  /**
+   * Get flag if full report needed.
+   *
+   * @return isFullReport needed boolean value.
+   */
+  public boolean isFullReportNeeded() {
+    return Boolean.parseBoolean(this.getConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded));
   }
 
   /**
@@ -1009,7 +1068,7 @@ public class Configuration implements Serializable {
    */
   public boolean isTest() {
     boolean isTest = Mode.TEST.equals(this.mode);
-    log.debug("Is test: " + isTest);
+    LOGGER.debug("Is test: " + isTest);
     return isTest;
   }
 
@@ -1051,16 +1110,23 @@ public class Configuration implements Serializable {
   }
 
   private void initDefaultValues() {
-    log.debug("------------------------ DEFAULTS ------------------------");
+    LOGGER.debug("------------------------ DEFAULTS ------------------------");
     this.tslManager = new TslManager(this);
-    this.setConfigurationParameter(ConfigurationParameter.ConnectionTimeoutInMillis, String.valueOf(Constant.ONE_SECOND_IN_MILLISECONDS));
-    this.setConfigurationParameter(ConfigurationParameter.SocketTimeoutInMillis, String.valueOf(Constant.ONE_SECOND_IN_MILLISECONDS));
+    this.setConfigurationParameter(ConfigurationParameter.ConnectionTimeoutInMillis,
+        String.valueOf(Constant.ONE_SECOND_IN_MILLISECONDS));
+    this.setConfigurationParameter(ConfigurationParameter.SocketTimeoutInMillis,
+        String.valueOf(Constant.ONE_SECOND_IN_MILLISECONDS));
     this.setConfigurationParameter(ConfigurationParameter.TslKeyStorePassword, "digidoc4j-password");
-    this.setConfigurationParameter(ConfigurationParameter.RevocationAndTimestampDeltaInMinutes, String.valueOf(Constant.ONE_DAY_IN_MINUTES));
-    this.setConfigurationParameter(ConfigurationParameter.TslCacheExpirationTimeInMillis, String.valueOf(Constant.ONE_DAY_IN_MILLISECONDS));
+    this.setConfigurationParameter(ConfigurationParameter.RevocationAndTimestampDeltaInMinutes,
+        String.valueOf(Constant.ONE_DAY_IN_MINUTES));
+    this.setConfigurationParameter(ConfigurationParameter.TslCacheExpirationTimeInMillis,
+        String.valueOf(Constant.ONE_DAY_IN_MILLISECONDS));
     this.setConfigurationParameter(ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes, "15");
     this.setConfigurationParameter(ConfigurationParameter.SignatureProfile, Constant.Default.SIGNATURE_PROFILE);
-    this.setConfigurationParameter(ConfigurationParameter.SignatureDigestAlgorithm, Constant.Default.SIGNATURE_DIGEST_ALGORITHM);
+    this.setConfigurationParameter(ConfigurationParameter.SignatureDigestAlgorithm,
+        Constant.Default.SIGNATURE_DIGEST_ALGORITHM);
+    this.setConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded,
+        Constant.Default.FULL_SIMPLE_REPORT);
     if (Mode.TEST.equals(this.mode)) {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Test.TSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.TslLocation, Constant.Test.TSL_LOCATION);
@@ -1068,29 +1134,33 @@ public class Configuration implements Serializable {
       this.setConfigurationParameter(ConfigurationParameter.ValidationPolicy, Constant.Test.VALIDATION_POLICY);
       this.setConfigurationParameter(ConfigurationParameter.OcspSource, Constant.Test.OCSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, "false");
+      this.setConfigurationParameter(ConfigurationParameter.PrintValidationReport, "true");
       this.setJDigiDocParameter("SIGN_OCSP_REQUESTS", "false");
     } else {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Production.TSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.TslLocation, Constant.Production.TSL_LOCATION);
-      this.setConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation, Constant.Production.TSL_KEYSTORE_LOCATION);
+      this.setConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation,
+          Constant.Production.TSL_KEYSTORE_LOCATION);
       this.setConfigurationParameter(ConfigurationParameter.ValidationPolicy, Constant.Production.VALIDATION_POLICY);
       this.setConfigurationParameter(ConfigurationParameter.OcspSource, Constant.Production.OCSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, "false");
+      this.setConfigurationParameter(ConfigurationParameter.PrintValidationReport, "false");
       this.trustedTerritories = Constant.Production.DEFAULT_TRUESTED_TERRITORIES;
       this.setJDigiDocParameter("SIGN_OCSP_REQUESTS", "false");
     }
-    log.debug("{} configuration: {}", this.mode, this.registry);
+    LOGGER.debug("{} configuration: {}", this.mode, this.registry);
     this.loadInitialConfigurationValues();
   }
 
   private void loadInitialConfigurationValues() {
-    log.debug("------------------------ LOADING INITIAL CONFIGURATION ------------------------");
+    LOGGER.debug("------------------------ LOADING INITIAL CONFIGURATION ------------------------");
     this.setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER", Constant.JDigiDoc.SECURITY_PROVIDER);
     this.setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER_NAME", Constant.JDigiDoc.SECURITY_PROVIDER_NAME);
     this.setJDigiDocConfigurationValue("KEY_USAGE_CHECK", Constant.JDigiDoc.KEY_USAGE_CHECK);
     this.setJDigiDocConfigurationValue("DIGIDOC_OCSP_SIGN_CERT_SERIAL", "");
     this.setJDigiDocConfigurationValue("DATAFILE_HASHCODE_MODE", "false");
-    this.setJDigiDocConfigurationValue("CANONICALIZATION_FACTORY_IMPL", Constant.JDigiDoc.CANONICALIZATION_FACTORY_IMPLEMENTATION);
+    this.setJDigiDocConfigurationValue("CANONICALIZATION_FACTORY_IMPL",
+        Constant.JDigiDoc.CANONICALIZATION_FACTORY_IMPLEMENTATION);
     this.setJDigiDocConfigurationValue("DIGIDOC_MAX_DATAFILE_CACHED", Constant.JDigiDoc.MAX_DATAFILE_CACHED);
     this.setJDigiDocConfigurationValue("DIGIDOC_USE_LOCAL_TSL", Constant.JDigiDoc.USE_LOCAL_TSL);
     this.setJDigiDocConfigurationValue("DIGIDOC_NOTARY_IMPL", Constant.JDigiDoc.NOTARY_IMPLEMENTATION);
@@ -1098,39 +1168,66 @@ public class Configuration implements Serializable {
     this.setJDigiDocConfigurationValue("DIGIDOC_OCSP_RESPONDER_URL", this.getOcspSource());
     this.setJDigiDocConfigurationValue("DIGIDOC_FACTORY_IMPL", Constant.JDigiDoc.FACTORY_IMPLEMENTATION);
     this.setJDigiDocConfigurationValue("DIGIDOC_DF_CACHE_DIR", null);
-    this.setConfigurationValue("TSL_LOCATION", ConfigurationParameter.TslLocation);
-    this.setConfigurationValue("TSP_SOURCE", ConfigurationParameter.TspSource);
-    this.setConfigurationValue("VALIDATION_POLICY", ConfigurationParameter.ValidationPolicy);
-    this.setConfigurationValue("OCSP_SOURCE", ConfigurationParameter.OcspSource);
-    this.setConfigurationValue("DIGIDOC_PKCS12_CONTAINER", ConfigurationParameter.OcspAccessCertificateFile);
-    this.setConfigurationValue("DIGIDOC_PKCS12_PASSWD", ConfigurationParameter.OcspAccessCertificatePassword);
-    this.setConfigurationValue("CONNECTION_TIMEOUT", ConfigurationParameter.ConnectionTimeoutInMillis);
-    this.setConfigurationValue("SOCKET_TIMEOUT", ConfigurationParameter.SocketTimeoutInMillis);
-    this.setConfigurationValue("SIGN_OCSP_REQUESTS", ConfigurationParameter.SignOcspRequests);
-    this.setConfigurationValue("TSL_KEYSTORE_LOCATION", ConfigurationParameter.TslKeyStoreLocation);
-    this.setConfigurationValue("TSL_KEYSTORE_PASSWORD", ConfigurationParameter.TslKeyStorePassword);
-    this.setConfigurationValue("TSL_CACHE_EXPIRATION_TIME", ConfigurationParameter.TslCacheExpirationTimeInMillis);
-    this.setConfigurationValue("REVOCATION_AND_TIMESTAMP_DELTA_IN_MINUTES", ConfigurationParameter.RevocationAndTimestampDeltaInMinutes);
-    this.setConfigurationValue("ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES", ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes);
-    this.setConfigurationValue("SIGNATURE_PROFILE", ConfigurationParameter.SignatureProfile);
-    this.setConfigurationValue("SIGNATURE_DIGEST_ALGORITHM", ConfigurationParameter.SignatureDigestAlgorithm);
+    this.setConfigurationParameterFromFile("TSL_LOCATION", ConfigurationParameter.TslLocation);
+    this.setConfigurationParameterFromFile("TSP_SOURCE", ConfigurationParameter.TspSource);
+    this.setConfigurationParameterFromFile("VALIDATION_POLICY", ConfigurationParameter.ValidationPolicy);
+    this.setConfigurationParameterFromFile("OCSP_SOURCE", ConfigurationParameter.OcspSource);
+    this.setConfigurationParameterFromFile("DIGIDOC_PKCS12_CONTAINER",
+        ConfigurationParameter.OcspAccessCertificateFile);
+    this.setConfigurationParameterFromFile("DIGIDOC_PKCS12_PASSWD",
+        ConfigurationParameter.OcspAccessCertificatePassword);
+    this.setConfigurationParameterFromFile("CONNECTION_TIMEOUT", ConfigurationParameter.ConnectionTimeoutInMillis);
+    this.setConfigurationParameterFromFile("SOCKET_TIMEOUT", ConfigurationParameter.SocketTimeoutInMillis);
+    this.setConfigurationParameterFromFile("SIGN_OCSP_REQUESTS", ConfigurationParameter.SignOcspRequests);
+    this.setConfigurationParameterFromFile("TSL_KEYSTORE_LOCATION", ConfigurationParameter.TslKeyStoreLocation);
+    this.setConfigurationParameterFromFile("TSL_KEYSTORE_PASSWORD", ConfigurationParameter.TslKeyStorePassword);
+    this.setConfigurationParameterFromFile("TSL_CACHE_EXPIRATION_TIME",
+        ConfigurationParameter.TslCacheExpirationTimeInMillis);
+    this.setConfigurationParameterFromFile("REVOCATION_AND_TIMESTAMP_DELTA_IN_MINUTES",
+        ConfigurationParameter.RevocationAndTimestampDeltaInMinutes);
+    this.setConfigurationParameterFromFile("ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES",
+        ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes);
+    this.setConfigurationParameterFromFile("SIGNATURE_PROFILE", ConfigurationParameter.SignatureProfile);
+    this.setConfigurationParameterFromFile("SIGNATURE_DIGEST_ALGORITHM",
+        ConfigurationParameter.SignatureDigestAlgorithm);
+    this.setConfigurationParameterFromFile("PRINT_VALIDATION_REPORT", ConfigurationParameter.PrintValidationReport);
     this.setJDigiDocConfigurationValue("SIGN_OCSP_REQUESTS", Boolean.toString(this.hasToBeOCSPRequestSigned()));
     this.setJDigiDocConfigurationValue("DIGIDOC_PKCS12_CONTAINER", this.getOCSPAccessCertificateFileName());
     this.initOcspAccessCertPasswordForJDigidoc();
-    this.setConfigurationParameter(ConfigurationParameter.HttpProxyHost, this.getParameter(Constant.System.HTTP_PROXY_HOST, "HTTP_PROXY_HOST"));
-    this.setConfigurationParameter(ConfigurationParameter.HttpProxyPort, this.getParameter(Constant.System.HTTP_PROXY_PORT, "HTTP_PROXY_PORT"));
-    this.setConfigurationParameter(ConfigurationParameter.HttpsProxyHost, this.getParameter(Constant.System.HTTPS_PROXY_HOST, "HTTPS_PROXY_HOST"));
-    this.setConfigurationParameter(ConfigurationParameter.HttpsProxyPort, this.getParameter(Constant.System.HTTPS_PROXY_PORT, "HTTPS_PROXY_PORT"));
+    this.setConfigurationParameter(ConfigurationParameter.HttpProxyHost,
+        this.getParameter(Constant.System.HTTP_PROXY_HOST, "HTTP_PROXY_HOST"));
+    this.setConfigurationParameter(ConfigurationParameter.HttpProxyPort,
+        this.getParameter(Constant.System.HTTP_PROXY_PORT, "HTTP_PROXY_PORT"));
+    this.setConfigurationParameter(ConfigurationParameter.HttpsProxyHost,
+        this.getParameter(Constant.System.HTTPS_PROXY_HOST, "HTTPS_PROXY_HOST"));
+    this.setConfigurationParameter(ConfigurationParameter.HttpsProxyPort,
+        this.getParameter(Constant.System.HTTPS_PROXY_PORT, "HTTPS_PROXY_PORT"));
     this.setConfigurationParameter(ConfigurationParameter.HttpProxyUser, this.getParameterFromFile("HTTP_PROXY_USER"));
-    this.setConfigurationParameter(ConfigurationParameter.HttpProxyPassword, this.getParameterFromFile("HTTP_PROXY_PASSWORD"));
-    this.setConfigurationParameter(ConfigurationParameter.SslKeystoreType, this.getParameterFromFile("SSL_KEYSTORE_TYPE"));
-    this.setConfigurationParameter(ConfigurationParameter.SslTruststoreType, this.getParameterFromFile("SSL_TRUSTSTORE_TYPE"));
-    this.setConfigurationParameter(ConfigurationParameter.SslKeystorePath, this.getParameter(Constant.System.JAVAX_NET_SSL_KEY_STORE, "SSL_KEYSTORE_PATH"));
-    this.setConfigurationParameter(ConfigurationParameter.SslKeystorePassword, this.getParameter(Constant.System.JAVAX_NET_SSL_KEY_STORE_PASSWORD, "SSL_KEYSTORE_PASSWORD"));
-    this.setConfigurationParameter(ConfigurationParameter.SslTruststorePath, this.getParameter(Constant.System.JAVAX_NET_SSL_TRUST_STORE, "SSL_TRUSTSTORE_PATH"));
-    this.setConfigurationParameter(ConfigurationParameter.SslTruststorePassword, this.getParameter(Constant.System.JAVAX_NET_SSL_TRUST_STORE_PASSWORD, "SSL_TRUSTSTORE_PASSWORD"));
+    this.setConfigurationParameter(ConfigurationParameter.HttpProxyPassword,
+        this.getParameterFromFile("HTTP_PROXY_PASSWORD"));
+    this.setConfigurationParameter(ConfigurationParameter.SslKeystoreType,
+        this.getParameterFromFile("SSL_KEYSTORE_TYPE"));
+    this.setConfigurationParameter(ConfigurationParameter.SslTruststoreType,
+        this.getParameterFromFile("SSL_TRUSTSTORE_TYPE"));
+    this.setConfigurationParameter(ConfigurationParameter.SslKeystorePath,
+        this.getParameter(Constant.System.JAVAX_NET_SSL_KEY_STORE, "SSL_KEYSTORE_PATH"));
+    this.setConfigurationParameter(ConfigurationParameter.SslKeystorePassword,
+        this.getParameter(Constant.System.JAVAX_NET_SSL_KEY_STORE_PASSWORD, "SSL_KEYSTORE_PASSWORD"));
+    this.setConfigurationParameter(ConfigurationParameter.SslTruststorePath,
+        this.getParameter(Constant.System.JAVAX_NET_SSL_TRUST_STORE, "SSL_TRUSTSTORE_PATH"));
+    this.setConfigurationParameter(ConfigurationParameter.SslTruststorePassword,
+        this.getParameter(Constant.System.JAVAX_NET_SSL_TRUST_STORE_PASSWORD, "SSL_TRUSTSTORE_PASSWORD"));
+    this.setConfigurationParameter(ConfigurationParameter.AllowASN1UnsafeInteger, this.getParameter(Constant
+        .System.ORG_BOUNCYCASTLE_ASN1_ALLOW_UNSAFE_INTEGER, "ALLOW_UNSAFE_INTEGER"));
     this.loadYamlTrustedTerritories();
     this.loadYamlTSPs();
+    this.postLoad();
+  }
+
+  private void postLoad() {
+    if (Boolean.parseBoolean(this.getConfigurationParameter(ConfigurationParameter.AllowASN1UnsafeInteger))) {
+      System.setProperty(Constant.System.ORG_BOUNCYCASTLE_ASN1_ALLOW_UNSAFE_INTEGER, "true");
+    }
   }
 
   private Hashtable<String, String> loadConfigurationSettings(InputStream stream) {
@@ -1141,7 +1238,7 @@ public class Configuration implements Serializable {
     } catch (Exception e) {
       ConfigurationException exception = new ConfigurationException("Configuration from "
           + configurationInputSourceName + " is not correctly formatted");
-      log.error(exception.getMessage());
+      LOGGER.error(exception.getMessage());
       throw exception;
     }
     IOUtils.closeQuietly(stream);
@@ -1152,14 +1249,14 @@ public class Configuration implements Serializable {
     InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(certFile);
     if (resourceAsStream == null) {
       String message = "File " + certFile + " not found in classpath.";
-      log.error(message);
+      LOGGER.error(message);
       throw new ConfigurationException(message);
     }
     return resourceAsStream;
   }
 
   private String defaultIfNull(String configParameter, String defaultValue) {
-    log.debug("Parameter: " + configParameter);
+    LOGGER.debug("Parameter: " + configParameter);
     if (configurationFromFile == null) return defaultValue;
     Object value = configurationFromFile.get(configParameter);
     if (value != null) {
@@ -1170,14 +1267,15 @@ public class Configuration implements Serializable {
   }
 
   private boolean valueIsAllowed(String configParameter, String value) {
-    List<String> mustBeBooleans = Arrays.asList("SIGN_OCSP_REQUESTS", "KEY_USAGE_CHECK", "DATAFILE_HASHCODE_MODE", "DIGIDOC_USE_LOCAL_TSL");
+    List<String> mustBeBooleans = Arrays.asList("SIGN_OCSP_REQUESTS", "KEY_USAGE_CHECK", "DATAFILE_HASHCODE_MODE",
+        "DIGIDOC_USE_LOCAL_TSL", "ALLOW_UNSAFE_INTEGER", "PRINT_VALIDATION_REPORT");
     List<String> mustBeIntegers = Arrays.asList("DIGIDOC_MAX_DATAFILE_CACHED", "HTTP_PROXY_PORT");
     boolean errorFound = false;
     if (mustBeBooleans.contains(configParameter)) {
-      errorFound = !(isValidBooleanParameter(configParameter, value));
+      errorFound = !(this.isValidBooleanParameter(configParameter, value));
     }
     if (mustBeIntegers.contains(configParameter)) {
-      errorFound = !(isValidIntegerParameter(configParameter, value)) || errorFound;
+      errorFound = !(this.isValidIntegerParameter(configParameter, value)) || errorFound;
     }
     return (!errorFound);
   }
@@ -1186,7 +1284,7 @@ public class Configuration implements Serializable {
     if (!("true".equals(value.toLowerCase()) || "false".equals(value.toLowerCase()))) {
       String errorMessage = "Configuration parameter " + configParameter + " should be set to true or false"
           + " but the actual value is: " + value + ".";
-      logError(errorMessage);
+      this.logError(errorMessage);
       return false;
     }
     return true;
@@ -1199,27 +1297,26 @@ public class Configuration implements Serializable {
     } catch (Exception e) {
       String errorMessage = "Configuration parameter " + configParameter + " should have an integer value"
           + " but the actual value is: " + value + ".";
-      logError(errorMessage);
+      this.logError(errorMessage);
       return false;
     }
     if (configParameter.equals("DIGIDOC_MAX_DATAFILE_CACHED") && parameterValue < -1) {
       String errorMessage = "Configuration parameter " + configParameter + " should be greater or equal -1"
           + " but the actual value is: " + value + ".";
-      logError(errorMessage);
+      this.logError(errorMessage);
       return false;
     }
     return true;
   }
 
   private void loadOCSPCertificates(LinkedHashMap digiDocCA, String caPrefix) {
-    log.debug("");
     String errorMessage;
     @SuppressWarnings("unchecked")
     ArrayList<LinkedHashMap> ocsps = (ArrayList<LinkedHashMap>) digiDocCA.get("OCSPS");
     if (ocsps == null) {
       errorMessage = "No OCSPS entry found or OCSPS entry is empty. Configuration from: "
           + configurationInputSourceName;
-      logError(errorMessage);
+      this.logError(errorMessage);
       return;
     }
     int numberOfOCSPCertificates = ocsps.size();
@@ -1232,12 +1329,12 @@ public class Configuration implements Serializable {
         if (!loadOCSPCertificateEntry(entry, ocsp, prefix)) {
           errorMessage = "OCSPS list entry " + i + " does not have an entry for " + entry
               + " or the entry is empty\n";
-          logError(errorMessage);
+          this.logError(errorMessage);
         }
       }
       if (!getOCSPCertificates(prefix, ocsp)) {
         errorMessage = "OCSPS list entry " + i + " does not have an entry for CERTS or the entry is empty\n";
-        logError(errorMessage);
+        this.logError(errorMessage);
       }
     }
   }
@@ -1281,7 +1378,7 @@ public class Configuration implements Serializable {
    */
 
   private Hashtable<String, String> mapToJDigiDocConfiguration() {
-    log.debug("loading JDigiDoc configuration");
+    LOGGER.debug("loading JDigiDoc configuration");
     inputSourceParseErrors = new ArrayList<>();
     loadInitialConfigurationValues();
     reportFileParseErrors();
@@ -1289,12 +1386,11 @@ public class Configuration implements Serializable {
   }
 
   private void loadCertificateAuthoritiesAndCertificates() {
-    log.debug("");
     @SuppressWarnings("unchecked")
     ArrayList<LinkedHashMap> digiDocCAs = (ArrayList<LinkedHashMap>) configurationFromFile.get("DIGIDOC_CAS");
     if (digiDocCAs == null) {
       String errorMessage = "Empty or no DIGIDOC_CAS entry";
-      logError(errorMessage);
+      this.logError(errorMessage);
       return;
     }
 
@@ -1305,7 +1401,7 @@ public class Configuration implements Serializable {
       LinkedHashMap digiDocCA = (LinkedHashMap) digiDocCAs.get(i).get("DIGIDOC_CA");
       if (digiDocCA == null) {
         String errorMessage = "Empty or no DIGIDOC_CA for entry " + (i + 1);
-        logError(errorMessage);
+        this.logError(errorMessage);
       } else {
         loadCertificateAuthorityCerts(digiDocCA, caPrefix);
         loadOCSPCertificates(digiDocCA, caPrefix);
@@ -1314,12 +1410,11 @@ public class Configuration implements Serializable {
   }
 
   private void logError(String errorMessage) {
-    log.error(errorMessage);
+    LOGGER.error(errorMessage);
     inputSourceParseErrors.add(errorMessage);
   }
 
   private void reportFileParseErrors() {
-    log.debug("");
     if (inputSourceParseErrors.size() > 0) {
       StringBuilder errorMessage = new StringBuilder();
       errorMessage.append("Configuration from ");
@@ -1340,26 +1435,18 @@ public class Configuration implements Serializable {
   }
 
   private String getParameterFromFile(String key) {
-    if (configurationFromFile == null) {
+    if (this.configurationFromFile == null) {
       return null;
     }
-    Object fileValue = configurationFromFile.get(key);
+    Object fileValue = this.configurationFromFile.get(key);
     if (fileValue == null) {
       return null;
     }
     String value = fileValue.toString();
-    if (valueIsAllowed(key, value)) {
+    if (this.valueIsAllowed(key, value)) {
       return value;
     }
     return null;
-  }
-
-  private Integer getIntParameterFromFile(String key) {
-    String value = getParameterFromFile(key);
-    if (value == null) {
-      return null;
-    }
-    return new Integer(value);
   }
 
   private List<String> getStringListParameterFromFile(String key) {
@@ -1370,7 +1457,7 @@ public class Configuration implements Serializable {
     return Arrays.asList(value.split("\\s*,\\s*")); //Split by comma and trim whitespace
   }
 
-  private void setConfigurationValue(String fileKey, ConfigurationParameter parameter) {
+  private void setConfigurationParameterFromFile(String fileKey, ConfigurationParameter parameter) {
     if (this.configurationFromFile == null) {
       return;
     }
@@ -1411,7 +1498,7 @@ public class Configuration implements Serializable {
   }
 
   private void loadCertificateAuthorityCerts(LinkedHashMap digiDocCA, String caPrefix) {
-    log.debug("Loading CA certificates");
+    LOGGER.debug("Loading CA certificates");
     ArrayList<String> certificateAuthorityCerts = this.getCACertsAsArray(digiDocCA);
     this.setJDigiDocParameter(String.format("%s_NAME", caPrefix), digiDocCA.get("NAME").toString());
     this.setJDigiDocParameter(String.format("%s_TRADENAME", caPrefix), digiDocCA.get("TRADENAME").toString());
@@ -1429,10 +1516,10 @@ public class Configuration implements Serializable {
 
   private void setConfigurationParameter(ConfigurationParameter parameter, String value) {
     if (StringUtils.isBlank(value)) {
-      log.info("Parameter <{}> has blank value, hence will not be registered", parameter);
+      LOGGER.debug("Parameter <{}> has blank value, hence will not be registered", parameter);
       return;
     }
-    log.debug("Setting parameter <{}> to <{}>", parameter, value);
+    LOGGER.debug("Setting parameter <{}> to <{}>", parameter, value);
     this.registry.put(parameter, value);
   }
 
@@ -1443,6 +1530,8 @@ public class Configuration implements Serializable {
         return (T) Integer.valueOf(value);
       } else if (clazz.isAssignableFrom(Long.class)) {
         return (T) Long.valueOf(value);
+      } else if (clazz.isAssignableFrom(Boolean.class)) {
+        return (T) Boolean.valueOf(value);
       }
       throw new RuntimeException(String.format("Type <%s> not supported", clazz.getSimpleName()));
     }
@@ -1451,18 +1540,19 @@ public class Configuration implements Serializable {
 
   private String getConfigurationParameter(ConfigurationParameter parameter) {
     if (!this.registry.containsKey(parameter)) {
-      log.debug("Requested parameter <{}> not found", parameter);
+      LOGGER.debug("Requested parameter <{}> not found", parameter);
       return null;
     }
     String value = this.registry.get(parameter);
-    log.debug("Requesting parameter <{}>. Returned value is <{}>", parameter, value);
+    LOGGER.debug("Requesting parameter <{}>. Returned value is <{}>", parameter, value);
     return value;
   }
 
   private void initOcspAccessCertPasswordForJDigidoc() {
     char[] ocspAccessCertificatePassword = this.getOCSPAccessCertificatePassword();
     if (ocspAccessCertificatePassword != null && ocspAccessCertificatePassword.length > 0) {
-      this.setJDigiDocConfigurationValue(Constant.JDigiDoc.OCSP_PKCS_12_PASSWORD, String.valueOf(ocspAccessCertificatePassword));
+      this.setJDigiDocConfigurationValue(Constant.JDigiDoc.OCSP_PKCS_12_PASSWORD,
+          String.valueOf(ocspAccessCertificatePassword));
     }
   }
 
@@ -1481,16 +1571,17 @@ public class Configuration implements Serializable {
   }
 
   private void setJDigiDocParameter(String key, String value) {
-    log.debug("Setting JDigiDoc parameter <{}> to <{}>", key, value);
+    LOGGER.debug("Setting JDigiDoc parameter <{}> to <{}>", key, value);
     this.jDigiDocConfiguration.put(key, value);
   }
 
   private void log(Object jvmParam, Object fileParam, String sysParamKey, String fileKey) {
     if (jvmParam != null) {
-      log.debug(String.format("JVM parameter <%s> detected and applied with value <%s>", sysParamKey, jvmParam));
+      LOGGER.debug(String.format("JVM parameter <%s> detected and applied with value <%s>", sysParamKey, jvmParam));
     }
     if (jvmParam == null && fileParam != null) {
-      log.debug(String.format("YAML file parameter <%s> detected and applied with value <%s>", fileKey, fileParam));
+      LOGGER.debug(
+          String.format("YAML file parameter <%s> detected and applied with value <%s>", fileKey, fileParam));
     }
   }
 

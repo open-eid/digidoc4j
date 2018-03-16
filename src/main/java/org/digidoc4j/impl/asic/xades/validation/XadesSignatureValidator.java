@@ -13,11 +13,14 @@ package org.digidoc4j.impl.asic.xades.validation;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.CertificateRevokedException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidOcspNonceException;
@@ -26,6 +29,7 @@ import org.digidoc4j.exceptions.MultipleSignedPropertiesException;
 import org.digidoc4j.exceptions.SignedPropertiesMissingException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
 import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
+import org.digidoc4j.impl.SimpleValidationResult;
 import org.digidoc4j.impl.asic.OcspNonceValidator;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.utils.Helper;
@@ -49,8 +53,8 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
  */
 public class XadesSignatureValidator implements SignatureValidator {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(XadesSignatureValidator.class);
   public static final String TM_POLICY = "1.3.6.1.4.1.10015.1000.3.2.1";
-  private static final Logger logger = LoggerFactory.getLogger(XadesSignatureValidator.class);
   private static final String OIDAS_URN = "OIDAsURN";
   private static final String XADES_SIGNED_PROPERTIES = "http://uri.etsi.org/01903#SignedProperties";
   protected XadesSignature signature;
@@ -59,26 +63,32 @@ public class XadesSignatureValidator implements SignatureValidator {
   private List<DigiDoc4JException> validationErrors = new ArrayList<>();
   private List<DigiDoc4JException> validationWarnings = new ArrayList<>();
   private String signatureId;
+  protected Configuration configuration;
 
   /**
    * Constructor.
    *
    * @param signature Signature object for validation
+   * @param configuration configuretion
    */
-  public XadesSignatureValidator(XadesSignature signature) {
+  public XadesSignatureValidator(XadesSignature signature, Configuration configuration) {
     this.signature = signature;
-    signatureId = signature.getId();
+    this.signatureId = signature.getId();
+    this.configuration = configuration;
   }
 
   @Override
-  public SignatureValidationResult extractValidationErrors() {
-    logger.debug("Extracting validation errors");
-    XadesValidationResult validationResult = signature.validate();
-    validationReport = validationResult.getReport();
-    Map<String, SimpleReport> simpleReports = validationResult.extractSimpleReports();
-    simpleReport = getSimpleReport(simpleReports);
-    populateValidationErrors();
-    return createValidationResult();
+  public ValidationResult extractResult() {
+    LOGGER.debug("Extracting validation errors");
+    XadesValidationResult validationResult = this.signature.validate();
+    this.validationReport = validationResult.getReports();
+    this.simpleReport = this.getSimpleReport(validationResult.buildSimpleReports());
+    this.populateValidationErrors();
+    if (configuration.isFullReportNeeded()){
+      FullSimpleReportBuilder detailedReportParser = new FullSimpleReportBuilder(validationReport.getDetailedReport());
+      detailedReportParser.addDetailedReportEexeptions(validationErrors, validationWarnings);
+    }
+    return this.createValidationResult();
   }
 
   /*
@@ -93,7 +103,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     this.addReportedErrors();
     this.addReportedWarnings();
     this.addTimestampErrors();
-    this.addOcspErrors();
+    this.addOCSPErrors();
   }
 
   protected void addValidationError(DigiDoc4JException error) {
@@ -115,87 +125,79 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   private void addPolicyValidationErrors() {
-    logger.debug("Extracting policy validation errors");
-    XAdESSignature dssSignature = getDssSignature();
+    LOGGER.debug("Extracting policy validation errors");
+    XAdESSignature dssSignature = this.getDssSignature();
     SignaturePolicy policy = dssSignature.getPolicyId();
     if (policy != null && dssSignature.getSignatureTimestamps().isEmpty()) {
       String policyIdentifier = Helper.getIdentifier(policy.getIdentifier());
-      if (!StringUtils.equals(TM_POLICY, policyIdentifier)) {
-        addValidationError(new WrongPolicyIdentifierException("Wrong policy identifier: " + policyIdentifier));
+      if (!StringUtils.equals(XadesSignatureValidator.TM_POLICY, policyIdentifier)) {
+        this.addValidationError(new WrongPolicyIdentifierException(String.format("Wrong policy identifier: %s", policyIdentifier)));
       } else {
-        addPolicyIdentifierQualifierValidationErrors();
+        this.addPolicyIdentifierQualifierValidationErrors();
       }
     } else if (policy != null && !dssSignature.getSignatureTimestamps().isEmpty()) {
-      logger.debug("Signature profile is not LT_TM, but has defined policy");
+      LOGGER.debug("Signature profile is not LT_TM, but has defined policy");
     }
   }
 
   private void addPolicyUriValidationErrors() {
-    logger.debug("Extracting policy URL validation errors");
-    SignaturePolicy policy = getDssSignature().getPolicyId();
+    LOGGER.debug("Extracting policy URL validation errors");
+    SignaturePolicy policy = this.getDssSignature().getPolicyId();
     if (policy != null) {
       if (StringUtils.isBlank(policy.getUrl())) {
-        addValidationError(
-            new WrongPolicyIdentifierException("Error: The URL in signature policy is empty or not available"));
+        this.addValidationError(new WrongPolicyIdentifierException("Error: The URL in signature policy is empty or not available"));
       }
     }
   }
 
   private void addPolicyIdentifierQualifierValidationErrors() {
-    logger.debug("Extracting policy identifier qualifier validation errors");
+    LOGGER.debug("Extracting policy identifier qualifier validation errors");
     XPathQueryHolder xPathQueryHolder = getDssSignature().getXPathQueryHolder();
     Element signatureElement = getDssSignature().getSignatureElement();
     Element element = DomUtils.getElement(signatureElement, xPathQueryHolder.XPATH_SIGNATURE_POLICY_IDENTIFIER);
     Element identifier = DomUtils.getElement(element, "./xades:SignaturePolicyId/xades:SigPolicyId/xades:Identifier");
     String qualifier = identifier.getAttribute("Qualifier");
-    if (!StringUtils.equals(OIDAS_URN, qualifier)) {
-      addValidationError(
-          new WrongPolicyIdentifierQualifierException("Wrong policy identifier qualifier: " + qualifier));
+    if (!StringUtils.equals(XadesSignatureValidator.OIDAS_URN, qualifier)) {
+      this.addValidationError(new WrongPolicyIdentifierQualifierException(String.format("Wrong policy identifier qualifier: %s", qualifier)));
     }
   }
 
   private void addSignedPropertiesReferenceValidationErrors() {
-    logger.debug("Extracting signed properties reference validation errors");
-    int propertiesReferencesCount = findSignedPropertiesReferencesCount();
-    String sigId = getDssSignature().getId();
+    LOGGER.debug("Extracting signed properties reference validation errors");
+    int propertiesReferencesCount = this.findSignedPropertiesReferencesCount();
     if (propertiesReferencesCount == 0) {
-      logger.error("Signed properties are missing for signature " + sigId);
-      addValidationError(new SignedPropertiesMissingException("Signed properties missing"));
+      this.addValidationError(new SignedPropertiesMissingException(String.format("Signed properties missing")));
     }
     if (propertiesReferencesCount > 1) {
-      logger.error("Multiple signed properties for signature " + sigId);
-      DigiDoc4JException error = new MultipleSignedPropertiesException("Multiple signed properties");
-      addValidationError(error);
+      this.addValidationError(new MultipleSignedPropertiesException(String.format("Multiple signed properties")));
     }
   }
 
   private int findSignedPropertiesReferencesCount() {
-    List<Element> signatureReferences = getDssSignature().getSignatureReferences();
+    List<Element> signatureReferences = this.getDssSignature().getSignatureReferences();
     int nrOfSignedPropertiesReferences = 0;
     for (Element signatureReference : signatureReferences) {
       String type = signatureReference.getAttribute("Type");
-      if (StringUtils.equals(XADES_SIGNED_PROPERTIES, type))
+      if (StringUtils.equals(XadesSignatureValidator.XADES_SIGNED_PROPERTIES, type))
         nrOfSignedPropertiesReferences++;
     }
     return nrOfSignedPropertiesReferences;
   }
 
   private void addReportedErrors() {
-    logger.debug("Extracting reported errors");
-    if (simpleReport != null) {
-      for (String errorMessage : simpleReport.getErrors(signatureId)) {
-        if (isRedundantErrorMessage(errorMessage)) {
-          logger.debug("Ignoring redundant error message: " + errorMessage);
+    LOGGER.debug("Extracting reported errors");
+    if (this.simpleReport != null) {
+      for (String errorMessage : this.simpleReport.getErrors(this.signatureId)) {
+        if (this.isRedundantErrorMessage(errorMessage)) {
+          LOGGER.debug("Ignoring redundant error message: " + errorMessage);
           continue;
         }
-        logger.error(errorMessage);
         if (errorMessage.contains(MessageTag.BBB_XCV_ISCR_ANS.getMessage())) {
-          addValidationError(new CertificateRevokedException(errorMessage));
+          this.addValidationError(new CertificateRevokedException(errorMessage));
         } else if (errorMessage.contains(MessageTag.PSV_IPSVC_ANS.getMessage())) {
-          addValidationError(new CertificateRevokedException(errorMessage));
+          this.addValidationError(new CertificateRevokedException(errorMessage));
         } else {
-          String sigId = getDssSignature().getId();
-          addValidationError(new DigiDoc4JException(errorMessage, sigId));
+          this.addValidationError(new DigiDoc4JException(errorMessage, this.getDssSignature().getId()));
         }
       }
     }
@@ -210,62 +212,58 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   private void addReportedWarnings() {
-    if (simpleReport != null) {
-      for (String warning : simpleReport.getWarnings(signatureId)) {
-        logger.warn(warning);
-        validationWarnings.add(new DigiDoc4JException(warning, signatureId));
+    if (this.simpleReport != null) {
+      for (String warning : this.simpleReport.getWarnings(this.signatureId)) {
+        this.validationWarnings.add(new DigiDoc4JException(warning, this.signatureId));
       }
     }
   }
 
   private void addTimestampErrors() {
     if (!isTimestampValidForSignature()) {
-      logger.error("Signature " + signatureId + " has an invalid timestamp");
-      addValidationError(new InvalidTimestampException());
+      this.addValidationError(new InvalidTimestampException());
     }
   }
 
   private boolean isTimestampValidForSignature() {
-    logger.debug("Finding timestamp errors for signature " + signatureId);
-    DiagnosticData diagnosticData = validationReport.getDiagnosticData();
+    LOGGER.debug("Finding timestamp errors for signature " + signatureId);
+    DiagnosticData diagnosticData = this.validationReport.getDiagnosticData();
     if (diagnosticData == null) {
       return true;
     }
     List<String> timestampIdList = diagnosticData.getTimestampIdList(signatureId);
-    if (timestampIdList == null || timestampIdList.isEmpty()) {
+    if (CollectionUtils.isEmpty(timestampIdList)) {
       return true;
     }
     String timestampId = timestampIdList.get(0);
-    DetailedReport detailedReport = validationReport.getDetailedReport();
-    Indication indication = detailedReport.getTimestampValidationIndication(timestampId);
-    return isIndicationValid(indication);
+    DetailedReport detailedReport = this.validationReport.getDetailedReport();
+    return this.isIndicationValid(detailedReport.getTimestampValidationIndication(timestampId));
   }
 
   private SimpleReport getSimpleReport(Map<String, SimpleReport> simpleReports) {
-    SimpleReport simpleRep = simpleReports.get(signatureId);
+    SimpleReport simpleRep = simpleReports.get(this.signatureId);
     if (simpleRep != null && simpleReports.size() == 1) {
       return simpleReports.values().iterator().next();
     }
     return simpleRep;
   }
 
-  private void addOcspErrors() {
+  private void addOCSPErrors() {
     OcspNonceValidator ocspValidator = new OcspNonceValidator(getDssSignature());
     if (!ocspValidator.isValid()) {
-      logger.error("OCSP nonce is invalid");
-      addValidationError(new InvalidOcspNonceException());
+      this.addValidationError(new InvalidOcspNonceException());
     }
   }
 
-  private SignatureValidationResult createValidationResult() {
-    SignatureValidationResult result = new SignatureValidationResult();
-    result.setErrors(validationErrors);
-    result.setWarnings(validationWarnings);
+  private ValidationResult createValidationResult() {
+    SimpleValidationResult result = new SimpleValidationResult("XAdES signature");
+    result.setErrors(this.validationErrors);
+    result.setWarnings(this.validationWarnings);
     return result;
   }
 
   private boolean isIndicationValid(Indication indication) {
-    return indication == Indication.PASSED || indication == Indication.TOTAL_PASSED;
+    return Arrays.asList(Indication.PASSED, Indication.TOTAL_PASSED).contains(indication);
   }
 
 }

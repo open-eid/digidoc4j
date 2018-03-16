@@ -7,4 +7,5 @@ public class TimestampAfterOCSPResponseTimeException extends DigiDoc4JException 
   public TimestampAfterOCSPResponseTimeException() {
     super(MESSAGE);
   }
+
 }
