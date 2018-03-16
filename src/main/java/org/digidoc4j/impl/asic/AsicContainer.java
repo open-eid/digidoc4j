@@ -51,8 +51,8 @@ import eu.europa.esig.dss.DSSDocument;
  */
 public abstract class AsicContainer implements Container {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(AsicContainer.class);
   protected Configuration configuration;
-  private final Logger log = LoggerFactory.getLogger(AsicContainer.class);
   private List<DataFile> dataFiles = new ArrayList<>();
   private List<Signature> newSignatures = new ArrayList<>();
   private List<Signature> signatures = new ArrayList<>();
@@ -173,14 +173,14 @@ public abstract class AsicContainer implements Container {
 
   @Override
   public File saveAsFile(String filePath) {
-    log.debug("Saving container to file: " + filePath);
+    LOGGER.debug("Saving container to file: " + filePath);
     File file = new File(filePath);
     try (OutputStream stream = Helper.bufferedOutputStream(file)) {
       save(stream);
-      log.info("Container was saved to file " + filePath);
+      LOGGER.info("Container was saved to file " + filePath);
       return file;
     } catch (IOException e) {
-      log.error("Unable to close stream: " + e.getMessage());
+      LOGGER.error("Unable to close stream: " + e.getMessage());
       throw new TechnicalException("Unable to close stream", e);
     }
   }
@@ -195,11 +195,11 @@ public abstract class AsicContainer implements Container {
 
   @Override
   public InputStream saveAsStream() {
-    log.debug("Saving container as stream");
+    LOGGER.debug("Saving container as stream");
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     save(outputStream);
     InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-    log.info("Container was saved to stream");
+    LOGGER.info("Container was saved to stream");
     return inputStream;
   }
 
@@ -215,25 +215,25 @@ public abstract class AsicContainer implements Container {
 
   protected List<Signature> extendAllSignatureProfile(SignatureProfile profile, List<Signature> signatures,
                                                       List<DataFile> dataFiles) {
-    log.info("Extending all signatures' profile to " + profile.name());
+    LOGGER.info("Extending all signatures' profile to " + profile.name());
     DetachedContentCreator detachedContentCreator = null;
     try {
       detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
     } catch (Exception e) {
-      log.error("Error in datafiles processing: " + e.getMessage());
+      LOGGER.error("Error in datafiles processing: " + e.getMessage());
       throw new DigiDoc4JException(e);
     }
     List<DSSDocument> detachedContentList = detachedContentCreator.getDetachedContentList();
     SignatureExtender signatureExtender = new SignatureExtender(getConfiguration(), detachedContentList);
     List<DSSDocument> extendedSignatureDocuments = signatureExtender.extend(signatures, profile);
     List<Signature> extendedSignatures = parseSignatureFiles(extendedSignatureDocuments, detachedContentList);
-    log.debug("Finished extending all signatures");
+    LOGGER.debug("Finished extending all signatures");
     return extendedSignatures;
   }
 
   protected void validateDataFilesRemoval() {
     if (!getSignatures().isEmpty()) {
-      log.error("Datafiles cannot be removed from an already signed container");
+      LOGGER.error("Datafiles cannot be removed from an already signed container");
       throw new RemovingDataFileException();
     }
   }
@@ -241,19 +241,18 @@ public abstract class AsicContainer implements Container {
   protected void verifyIfAllowedToAddDataFile(String fileName) {
     if (getSignatures().size() > 0) {
       String errorMessage = "Datafiles cannot be added to an already signed container";
-      log.error(errorMessage);
+      LOGGER.error(errorMessage);
       throw new DigiDoc4JException(errorMessage);
     }
     checkForDuplicateDataFile(fileName);
   }
 
   private void checkForDuplicateDataFile(String fileName) {
-    log.debug("");
     for (DataFile dataFile : getDataFiles()) {
       String dataFileName = dataFile.getName();
       if (StringUtils.equals(dataFileName, fileName)) {
         String errorMessage = "Data file " + fileName + " already exists";
-        log.error(errorMessage);
+        LOGGER.error(errorMessage);
         throw new DuplicateDataFileException(errorMessage);
       }
     }
@@ -273,12 +272,12 @@ public abstract class AsicContainer implements Container {
   }
 
   private void openContainer(String containerPath) {
-    this.log.debug("Opening container from <{}>", containerPath);
+    LOGGER.debug("Opening container from <{}>", containerPath);
     this.populateContainerWithParseResult(new AsicFileContainerParser(containerPath, this.getConfiguration()).read());
   }
 
   private void openContainer(InputStream inputStream) {
-    this.log.debug("Opening container from stream");
+    LOGGER.debug("Opening container from stream");
     this.populateContainerWithParseResult(new AsicStreamContainerParser(inputStream, this.getConfiguration()).read());
   }
 
@@ -299,14 +298,14 @@ public abstract class AsicContainer implements Container {
   }
 
   private void removeExistingFileFromContainer(String filePath) {
-    log.debug("Removing file from the container: " + filePath);
+    LOGGER.debug("Removing file from the container: " + filePath);
     if (containerParseResult != null) {
       List<AsicEntry> asicEntries = containerParseResult.getAsicEntries();
       for (AsicEntry entry : asicEntries) {
         String entryFileName = entry.getZipEntry().getName();
         if (StringUtils.equalsIgnoreCase(filePath, entryFileName)) {
           asicEntries.remove(entry);
-          log.debug("File was successfully removed");
+          LOGGER.debug("File was successfully removed");
           break;
         }
       }
@@ -314,7 +313,7 @@ public abstract class AsicContainer implements Container {
   }
 
   private void removeAllExistingSignaturesFromContainer() {
-    log.debug("Removing all existing signatures");
+    LOGGER.debug("Removing all existing signatures");
     for (Signature signature : signatures) {
       removeExistingSignature((BDocSignature) signature);
     }
@@ -428,13 +427,13 @@ public abstract class AsicContainer implements Container {
 
   @Override
   public void removeSignature(Signature signature) {
-    log.info("Removing signature " + signature.getId());
+    LOGGER.info("Removing signature " + signature.getId());
     if (!isNewContainer()) {
       validateIncomingSignature(signature);
       boolean wasNewlyAddedSignature = newSignatures.remove(signature);
       boolean wasIncludedInContainer = signatures.remove(signature);
       if (wasIncludedInContainer && !wasNewlyAddedSignature) {
-        log.debug("This signature was included in the container before the container was opened");
+        LOGGER.debug("This signature was included in the container before the container was opened");
         removeExistingSignature((BDocSignature) signature);
       }
     } else {
@@ -445,7 +444,7 @@ public abstract class AsicContainer implements Container {
   @Override
   @Deprecated
   public void removeSignature(int signatureId) {
-    log.debug("Removing signature from index " + signatureId);
+    LOGGER.debug("Removing signature from index " + signatureId);
     if (!isNewContainer()) {
       Signature signature = signatures.get(signatureId);
       if (signature != null) {
@@ -460,17 +459,17 @@ public abstract class AsicContainer implements Container {
   @Override
   public void removeDataFile(String fileName) {
     if (!isNewContainer()) {
-      log.error("Datafiles cannot be removed from an already signed container");
+      LOGGER.error("Datafiles cannot be removed from an already signed container");
       throw new RemovingDataFileException();
     } else {
-      log.info("Removing data file: " + fileName);
+      LOGGER.info("Removing data file: " + fileName);
       validateDataFilesRemoval();
 
       for (DataFile dataFile : dataFiles) {
         String name = dataFile.getName();
         if (StringUtils.equals(fileName, name)) {
           dataFiles.remove(dataFile);
-          log.debug("Data file has been removed");
+          LOGGER.debug("Data file has been removed");
           return;
         }
       }
@@ -481,10 +480,10 @@ public abstract class AsicContainer implements Container {
   @Override
   public void removeDataFile(DataFile file) {
     if (!isNewContainer()) {
-      log.error("Datafiles cannot be removed from an already signed container");
+      LOGGER.error("Datafiles cannot be removed from an already signed container");
       throw new RemovingDataFileException();
     } else {
-      log.info("Removing data file: " + file.getName());
+      LOGGER.info("Removing data file: " + file.getName());
       validateDataFilesRemoval();
       boolean wasRemovalSuccessful = dataFiles.remove(file);
 
@@ -537,7 +536,7 @@ public abstract class AsicContainer implements Container {
   @Override
   @Deprecated
   public void addRawSignature(byte[] signatureDocument) {
-    log.info("Adding raw signature");
+    LOGGER.info("Adding raw signature");
     Signature signature = SignatureBuilder.
         aSignature(this).
         openAdESSignature(signatureDocument);
@@ -551,7 +550,7 @@ public abstract class AsicContainer implements Container {
       byte[] bytes = IOUtils.toByteArray(signatureStream);
       addRawSignature(bytes);
     } catch (IOException e) {
-      log.error("Failed to read signature stream: " + e.getMessage());
+      LOGGER.error("Failed to read signature stream: " + e.getMessage());
       throw new InvalidSignatureException();
     }
   }

@@ -53,8 +53,7 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
  */
 public class XadesSignatureValidator implements SignatureValidator {
 
-  private final Logger log = LoggerFactory.getLogger(XadesSignatureValidator.class);
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(XadesSignatureValidator.class);
   public static final String TM_POLICY = "1.3.6.1.4.1.10015.1000.3.2.1";
   private static final String OIDAS_URN = "OIDAsURN";
   private static final String XADES_SIGNED_PROPERTIES = "http://uri.etsi.org/01903#SignedProperties";
@@ -80,7 +79,7 @@ public class XadesSignatureValidator implements SignatureValidator {
 
   @Override
   public ValidationResult extractResult() {
-    this.log.debug("Extracting validation errors");
+    LOGGER.debug("Extracting validation errors");
     XadesValidationResult validationResult = this.signature.validate();
     this.validationReport = validationResult.getReports();
     this.simpleReport = this.getSimpleReport(validationResult.buildSimpleReports());
@@ -126,7 +125,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   private void addPolicyValidationErrors() {
-    this.log.debug("Extracting policy validation errors");
+    LOGGER.debug("Extracting policy validation errors");
     XAdESSignature dssSignature = this.getDssSignature();
     SignaturePolicy policy = dssSignature.getPolicyId();
     if (policy != null && dssSignature.getSignatureTimestamps().isEmpty()) {
@@ -137,12 +136,12 @@ public class XadesSignatureValidator implements SignatureValidator {
         this.addPolicyIdentifierQualifierValidationErrors();
       }
     } else if (policy != null && !dssSignature.getSignatureTimestamps().isEmpty()) {
-      this.log.debug("Signature profile is not LT_TM, but has defined policy");
+      LOGGER.debug("Signature profile is not LT_TM, but has defined policy");
     }
   }
 
   private void addPolicyUriValidationErrors() {
-    this.log.debug("Extracting policy URL validation errors");
+    LOGGER.debug("Extracting policy URL validation errors");
     SignaturePolicy policy = this.getDssSignature().getPolicyId();
     if (policy != null) {
       if (StringUtils.isBlank(policy.getUrl())) {
@@ -152,7 +151,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   private void addPolicyIdentifierQualifierValidationErrors() {
-    this.log.debug("Extracting policy identifier qualifier validation errors");
+    LOGGER.debug("Extracting policy identifier qualifier validation errors");
     XPathQueryHolder xPathQueryHolder = getDssSignature().getXPathQueryHolder();
     Element signatureElement = getDssSignature().getSignatureElement();
     Element element = DomUtils.getElement(signatureElement, xPathQueryHolder.XPATH_SIGNATURE_POLICY_IDENTIFIER);
@@ -164,7 +163,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   private void addSignedPropertiesReferenceValidationErrors() {
-    this.log.debug("Extracting signed properties reference validation errors");
+    LOGGER.debug("Extracting signed properties reference validation errors");
     int propertiesReferencesCount = this.findSignedPropertiesReferencesCount();
     if (propertiesReferencesCount == 0) {
       this.addValidationError(new SignedPropertiesMissingException(String.format("Signed properties missing")));
@@ -186,11 +185,11 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   private void addReportedErrors() {
-    this.log.debug("Extracting reported errors");
+    LOGGER.debug("Extracting reported errors");
     if (this.simpleReport != null) {
       for (String errorMessage : this.simpleReport.getErrors(this.signatureId)) {
         if (this.isRedundantErrorMessage(errorMessage)) {
-          this.log.debug("Ignoring redundant error message: " + errorMessage);
+          LOGGER.debug("Ignoring redundant error message: " + errorMessage);
           continue;
         }
         if (errorMessage.contains(MessageTag.BBB_XCV_ISCR_ANS.getMessage())) {
@@ -227,7 +226,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   private boolean isTimestampValidForSignature() {
-    this.log.debug("Finding timestamp errors for signature " + signatureId);
+    LOGGER.debug("Finding timestamp errors for signature " + signatureId);
     DiagnosticData diagnosticData = this.validationReport.getDiagnosticData();
     if (diagnosticData == null) {
       return true;

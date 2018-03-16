@@ -21,7 +21,7 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
  */
 public abstract class DssXadesSignature implements XadesSignature {
 
-  private final Logger log = LoggerFactory.getLogger(DssXadesSignature.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DssXadesSignature.class);
   private XadesValidationReportGenerator reportGenerator;
 
   /**
@@ -33,7 +33,7 @@ public abstract class DssXadesSignature implements XadesSignature {
 
   @Override
   public XadesValidationResult validate() {
-    this.log.debug("Validating xades signature");
+    LOGGER.debug("Validating xades signature");
     return new XadesValidationResult(this.reportGenerator.openValidationReport());
   }
 

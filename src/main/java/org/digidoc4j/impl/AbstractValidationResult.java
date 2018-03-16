@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractValidationResult implements ValidationResult {
 
-  private final Logger log = LoggerFactory.getLogger(AbstractValidationResult.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractValidationResult.class);
   protected List<DigiDoc4JException> errors = new ArrayList<>();
   protected List<DigiDoc4JException> warnings = new ArrayList<>();
 
@@ -38,26 +38,26 @@ public abstract class AbstractValidationResult implements ValidationResult {
       boolean hasWarningsOnly = CollectionUtils.isNotEmpty(this.warnings) && this.isValid();
       if (hasWarningsOnly || CollectionUtils.isNotEmpty(this.errors)) {
         if (hasWarningsOnly) {
-          Helper.printWarningSection(this.log, String.format("Start of <%s> validation result", this.getResultName
+          Helper.printWarningSection(LOGGER, String.format("Start of <%s> validation result", this.getResultName
               ()));
         } else {
-          Helper.printErrorSection(this.log, String.format("Start of <%s> validation result", this.getResultName()));
+          Helper.printErrorSection(LOGGER, String.format("Start of <%s> validation result", this.getResultName()));
         }
         if (CollectionUtils.isNotEmpty(this.errors)) {
           for (DigiDoc4JException error : this.errors) {
-            this.log.error(error.toString());
+            LOGGER.error(error.toString());
           }
         }
         if (CollectionUtils.isNotEmpty(this.warnings)) {
           for (DigiDoc4JException warning : this.warnings) {
-            this.log.warn(warning.toString());
+            LOGGER.warn(warning.toString());
           }
         }
         if (hasWarningsOnly) {
-          Helper.printWarningSection(this.log, String.format("End of <%s> validation result", this
+          Helper.printWarningSection(LOGGER, String.format("End of <%s> validation result", this
               .getResultName()));
         } else {
-          Helper.printErrorSection(this.log, String.format("End of <%s> validation result", this.getResultName()));
+          Helper.printErrorSection(LOGGER, String.format("End of <%s> validation result", this.getResultName()));
         }
       }
     }

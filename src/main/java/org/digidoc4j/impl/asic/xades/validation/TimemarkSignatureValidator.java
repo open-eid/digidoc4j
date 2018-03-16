@@ -29,7 +29,7 @@ import eu.europa.esig.dss.xades.XPathQueryHolder;
 
 public class TimemarkSignatureValidator extends XadesSignatureValidator {
 
-    private final Logger log = LoggerFactory.getLogger(TimemarkSignatureValidator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TimemarkSignatureValidator.class);
 
     public TimemarkSignatureValidator(XadesSignature signature, Configuration configuration) {
         super(signature, configuration);
@@ -44,13 +44,13 @@ public class TimemarkSignatureValidator extends XadesSignatureValidator {
 
     @Override
     protected void addPolicyErrors() {
-        this.log.debug("Extracting TM signature policy errors");
+        LOGGER.debug("Extracting TM signature policy errors");
         XPathQueryHolder xPathQueryHolder = this.getDssSignature().getXPathQueryHolder();
         Element signaturePolicyImpliedElement = DomUtils.getElement(this.getDssSignature().getSignatureElement(),
             String.format("%s%s", xPathQueryHolder.XPATH_SIGNATURE_POLICY_IDENTIFIER,
                 xPathQueryHolder.XPATH__SIGNATURE_POLICY_IMPLIED.replace(".", "")));
         if (signaturePolicyImpliedElement != null) {
-            this.log.error("Signature contains forbidden element");
+            LOGGER.error("Signature contains forbidden element");
             this.addValidationError(new InvalidTimemarkSignatureException("Signature contains forbidden <SignaturePolicyImplied> element"));
         }
     }
@@ -64,7 +64,7 @@ public class TimemarkSignatureValidator extends XadesSignatureValidator {
         boolean isCertValid = signingTime.compareTo(signerCert.getNotBefore()) >= 0 &&
             signingTime.compareTo(signerCert.getNotAfter()) <= 0;
         if (!isCertValid) {
-            this.log.error("Signature has been created with expired certificate");
+            LOGGER.error("Signature has been created with expired certificate");
             this.addValidationError(new SignedWithExpiredCertificateException());
         }
     }
@@ -75,9 +75,9 @@ public class TimemarkSignatureValidator extends XadesSignatureValidator {
             return;
         }
         String certificateRevocationSource = diagnosticData.getCertificateRevocationSource(diagnosticData.getSigningCertificateId());
-        this.log.debug("Revocation source is <{}>", certificateRevocationSource);
+        LOGGER.debug("Revocation source is <{}>", certificateRevocationSource);
         if (StringUtils.equalsIgnoreCase("CRLToken", certificateRevocationSource)) {
-            this.log.error("Signing certificate revocation source is CRL instead of OCSP");
+            LOGGER.error("Signing certificate revocation source is CRL instead of OCSP");
             this.addValidationError(new UntrustedRevocationSourceException());
         }
     }

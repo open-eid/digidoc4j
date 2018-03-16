@@ -19,7 +19,7 @@ import eu.europa.esig.dss.x509.CommonCertificateSource;
  */
 public class CommonOCSPCertificateSource extends CommonCertificateSource implements ExtendedCertificateSource {
 
-  private final Logger log = LoggerFactory.getLogger(CommonOCSPCertificateSource.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CommonOCSPCertificateSource.class);
 
   /**
    * Loads all certificates found from classpath
@@ -36,7 +36,7 @@ public class CommonOCSPCertificateSource extends CommonCertificateSource impleme
 
   @Override
   public void importFromPath(Path path, FileFilter filter) {
-    this.log.info("Loading OCSP certificates from <{}>", path);
+    LOGGER.info("Loading OCSP certificates from <{}>", path);
     this.loadFiles(Helper.getFilesFromPath(path, filter));
   }
 
@@ -46,23 +46,23 @@ public class CommonOCSPCertificateSource extends CommonCertificateSource impleme
 
   private void initialize() {
     if (this.getCertificatePool().getNumberOfCertificates() == 0) {
-      this.log.info("Initializing OCSP certificate source ...");
+      LOGGER.info("Initializing OCSP certificate source ...");
       this.loadFiles(Helper.getFilesFromResourcePath(Paths.get("ocsp"), new Helper.FileExtensionFilter("crt")));
     }
   }
 
   private void loadFiles(File... files) {
     for (File file : files) {
-      this.log.debug("Loading certificate from <{}>", file);
+      LOGGER.debug("Loading certificate from <{}>", file);
       if (file.isFile() && file.canRead()) {
         try {
           this.addCertificate(new CertificateToken(Helper.loadCertificate(file.getPath())));
         } catch (Exception e) {
-          this.log.warn("Unable to load OCSP certificate from <{}>", file.getPath());
+          LOGGER.warn("Unable to load OCSP certificate from <{}>", file.getPath());
         }
       }
     }
-    this.log.info("OCSP certificate source contains <{}> additional certificate(s)",
+    LOGGER.info("OCSP certificate source contains <{}> additional certificate(s)",
         this.getCertificatePool().getNumberOfCertificates());
   }
 

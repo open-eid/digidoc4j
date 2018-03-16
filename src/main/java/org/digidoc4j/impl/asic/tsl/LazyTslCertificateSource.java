@@ -40,7 +40,7 @@ import eu.europa.esig.dss.x509.CertificateToken;
  */
 public class LazyTslCertificateSource implements TSLCertificateSource {
 
-  private final Logger log = LoggerFactory.getLogger(LazyTslCertificateSource.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(LazyTslCertificateSource.class);
   private transient TSLValidationJob tslValidationJob;
   private TSLCertificateSource certificateSource;
   private Long lastCacheReloadingTime;
@@ -51,7 +51,7 @@ public class LazyTslCertificateSource implements TSLCertificateSource {
    * @param tslLoader TSL loader
    */
   public LazyTslCertificateSource(TslLoader tslLoader) {
-    this.log.debug("Initializing lazy TSL certificate source");
+    LOGGER.debug("Initializing lazy TSL certificate source");
     this.tslLoader = tslLoader;
   }
 
@@ -87,7 +87,7 @@ public class LazyTslCertificateSource implements TSLCertificateSource {
 
   @Override
   public void invalidateCache() {
-    this.log.debug("Invalidating TSL cache");
+    LOGGER.debug("Invalidating TSL cache");
     TslLoader.invalidateCache();
   }
 
@@ -107,7 +107,7 @@ public class LazyTslCertificateSource implements TSLCertificateSource {
   }
 
   private TSLCertificateSource getCertificateSource() {
-    this.log.debug("Accessing TSL");
+    LOGGER.debug("Accessing TSL");
     this.refreshIfCacheExpired();
     return this.certificateSource;
   }
@@ -115,7 +115,7 @@ public class LazyTslCertificateSource implements TSLCertificateSource {
   private synchronized void initTsl() {
     //Using double-checked locking to avoid other threads to start loading TSL
     if (this.isCacheExpired()) {
-      this.log.debug("Initializing TSL");
+      LOGGER.debug("Initializing TSL");
       this.refreshTsl();
     }
   }
@@ -123,11 +123,11 @@ public class LazyTslCertificateSource implements TSLCertificateSource {
   private synchronized void refreshTsl() {
     try {
       this.populateTsl();
-      this.log.debug("Refreshing TSL");
+      LOGGER.debug("Refreshing TSL");
       this.tslValidationJob.refresh();
       this.lastCacheReloadingTime = new Date().getTime();
-      if (this.log.isDebugEnabled()) {
-        this.log.debug("Finished refreshing TSL, cache expires at {}", this.getNextCacheExpirationDate());
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Finished refreshing TSL, cache expires at {}", this.getNextCacheExpirationDate());
       }
     } catch (DSSException e) {
       throw new TslCertificateSourceInitializationException("Unable to load TSL", e);
