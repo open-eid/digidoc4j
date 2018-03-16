@@ -4,6 +4,7 @@ Release 2.1.0.RC.1
 ------------------
 Summary of the major changes since 2.0.1
 ------------------------------------------
+* Started to use DSS version 5.2 (sd-dss.5.2.d4j.3).
 * Support to validate user certificate via OCSP has been added
 
 Release 2.0.1
