@@ -14,6 +14,9 @@ import org.digidoc4j.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Configuration holder
+ */
 public class ConfigurationSingeltonHolder {
 
   private static final Logger logger = LoggerFactory.getLogger(ConfigurationSingeltonHolder.class);
@@ -27,17 +30,24 @@ public class ConfigurationSingeltonHolder {
       //Using double-checked locking for ensuring that no other thread has started initializing Configuration object already
       synchronized (ConfigurationSingeltonHolder.class) {
         if (configuration == null) {
-          logger.debug("Creating a new configuration instance");
+          logger.info("Creating a new configuration instance");
           configuration = new Configuration();
         }
       }
     } else {
-      logger.debug("Using existing configuration instance");
+      logger.info("Using existing configuration instance");
     }
     return configuration;
   }
 
-  static void reset() {
+  /**
+   * @return configuration context
+   */
+  public static boolean isInitialized() {
+    return ConfigurationSingeltonHolder.configuration != null;
+  }
+
+  protected static void reset() {
     configuration = null;
   }
 

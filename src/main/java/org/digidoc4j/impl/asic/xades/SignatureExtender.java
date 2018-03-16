@@ -27,15 +27,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.digidoc4j.Configuration;
+import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.impl.asic.SkDataLoader;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureBuilder;
-import org.digidoc4j.impl.asic.ocsp.OcspSourceBuilder;
-import org.digidoc4j.impl.asic.ocsp.SKOnlineOCSPSource;
+import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,27 +96,23 @@ public class SignatureExtender {
   }
 
   private DSSDocument extendSignature(Signature signature, SignatureProfile profile) {
-    OCSPSource ocspSource = createOcspSource(profile, ((AsicSignature)signature).getOrigin().getSignatureValue());
+    OCSPSource ocspSource = createOcspSource(profile, ((AsicSignature) signature).getOrigin().getSignatureValue());
     extendingFacade.setOcspSource(ocspSource);
-    DSSDocument signatureDocument = ((AsicSignature)signature).getSignatureDocument();
+    DSSDocument signatureDocument = ((AsicSignature) signature).getSignatureDocument();
     return extendingFacade.extendSignature(signatureDocument, detachedContents);
   }
 
   private OCSPSource createOcspSource(SignatureProfile profile, byte[] signatureValue) {
-    SKOnlineOCSPSource ocspSource = OcspSourceBuilder.anOcspSource().
-        withSignatureProfile(profile).
-        withSignatureValue(signatureValue).
-        withConfiguration(configuration).
-        build();
-    return ocspSource;
+    return OCSPSourceBuilder.anOcspSource().withSignatureProfile(profile).withSignatureValue(signatureValue).
+        withConfiguration(this.configuration).build();
   }
 
   private OnlineTSPSource createTimeStampProviderSource(SignatureProfile profile) {
-    OnlineTSPSource tspSource = new OnlineTSPSource(configuration.getTspSource());
-    SkDataLoader dataLoader = SkDataLoader.createTimestampDataLoader(configuration);
-    dataLoader.setUserAgentSignatureProfile(profile);
-    tspSource.setDataLoader(dataLoader);
-    return tspSource;
+    OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
+    SkDataLoader loader = SkDataLoader.timestamp(this.configuration);
+    loader.setUserAgent(Helper.createBDocUserAgent(profile));
+    source.setDataLoader(loader);
+    return source;
   }
 
   private SignatureLevel getSignatureLevel(SignatureProfile profile) {

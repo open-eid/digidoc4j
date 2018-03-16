@@ -43,6 +43,7 @@ public class DigiDoc4JException extends RuntimeException {
    *
    * @param message the detail message (which is saved for later retrieval
    *                by the {@link #getMessage()} method).
+   * @param cause cause of exception
    */
   public DigiDoc4JException(String message, Throwable cause) {
     super(message, cause);
@@ -110,7 +111,7 @@ public class DigiDoc4JException extends RuntimeException {
   /**
    * Get the Signature Id of the exception
    *
-   * @return
+   * @return id of signature
    */
   public String getSignatureId() {
     return signatureId;
@@ -118,7 +119,8 @@ public class DigiDoc4JException extends RuntimeException {
 
   /**
    * Set the Signature Id of the exception
-   * @param signatureId
+   *
+   * @param signatureId id of signature
    */
   public void setSignatureId(String signatureId) {
     this.signatureId = signatureId;
@@ -126,10 +128,15 @@ public class DigiDoc4JException extends RuntimeException {
 
   @Override
   public String toString() {
-    StringBuilder msg = new StringBuilder();
-    if (StringUtils.isNotBlank(signatureId)) msg.append("(Signature ID: ").append(signatureId).append(") ");
-    if (errorCode != 0) msg.append("ERROR: ").append(errorCode).append(" - ");
-    msg.append(getMessage());
-    return msg.toString();
+    StringBuilder sb = new StringBuilder();
+    if (StringUtils.isNotBlank(this.signatureId))  {
+      sb.append("(Signature ID: ").append(this.signatureId).append(") - ");
+    }
+    if (this.errorCode != 0) {
+      sb.append("ERROR: ").append(this.errorCode).append(" - ");
+    }
+    sb.append(this.getMessage());
+    return sb.toString();
   }
+
 }

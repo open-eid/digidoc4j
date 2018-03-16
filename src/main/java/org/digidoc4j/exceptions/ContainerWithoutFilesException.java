@@ -10,6 +10,9 @@
 
 package org.digidoc4j.exceptions;
 
+/**
+ * Container without files exception
+ */
 public class ContainerWithoutFilesException extends DigiDoc4JException {
 
   public static final String MESSAGE = "Container does not contain any data files";
@@ -18,7 +21,11 @@ public class ContainerWithoutFilesException extends DigiDoc4JException {
     super(MESSAGE);
   }
 
+  /**
+   * @param message error message
+   */
   public ContainerWithoutFilesException(String message) {
     super(message);
   }
+
 }

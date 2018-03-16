@@ -151,43 +151,6 @@ public class PKCS12SignatureToken implements SignatureToken {
     return signature.getValue();
   }
 
-  public byte[] sign2(DigestAlgorithm digestAlgorithm, byte[] dataToSign) throws Exception {
-    MessageDigest sha = MessageDigest.getInstance(digestAlgorithm.name(), "BC");
-    byte[] digest = sha.digest(dataToSign);
-    DERObjectIdentifier shaoid = new DERObjectIdentifier(digestAlgorithm.getDssDigestAlgorithm().getOid());
-
-    AlgorithmIdentifier shaaid = new AlgorithmIdentifier(shaoid, null);
-    DigestInfo di = new DigestInfo(shaaid, digest);
-
-    byte[] plainSig = di.getEncoded(ASN1Encoding.DER);
-    Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");
-    cipher.init(Cipher.ENCRYPT_MODE, keyEntry.getPrivateKey());
-    byte[] signature = cipher.doFinal(plainSig);
-    return signature;
-  }
-
-
-  public byte[] sign3(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
-    byte[] result = new byte[512];
-    try {
-      EncryptionAlgorithm encryptionAlgorithm = keyEntry.getEncryptionAlgorithm();
-      SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.getAlgorithm(encryptionAlgorithm, digestAlgorithm.getDssDigestAlgorithm());
-      String javaSignatureAlgorithm = signatureAlgorithm.getJCEId();
-      logger.debug("  ... Signing with PKCS#11 and " + javaSignatureAlgorithm);
-      java.security.Signature signature = java.security.Signature.getInstance(javaSignatureAlgorithm);
-      signature.initSign(keyEntry.getPrivateKey());
-      signature.update(dataToSign);
-      result = signature.sign();
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
-    } catch (InvalidKeyException e) {
-      e.printStackTrace();
-    } catch (SignatureException e) {
-      e.printStackTrace();
-    }
-    return result;
-  }
-
   /**
    * Returns key entry alias in keyStore.
    */

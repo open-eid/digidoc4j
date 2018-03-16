@@ -1,11 +1,32 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+Release 2.1.0.RC.1
+------------------
+Summary of the major changes since 2.0.1
+------------------------------------------
+* Started to use DSS version 5.2 (sd-dss.5.2.d4j.3).
+* Support to validate user certificate via OCSP has been added
+
+Release 2.0.1
+------------------
+Summary of the major changes since 2.0.0
+------------------------------------------
+* In unit-tests the expired keys are replaced
+* Unit-test for digidoc4j-util are fixed
+* Added functionality for digidoc4j-util in order to test external signing
+
+Release 2.0.0
+------------------
+Summary of the major changes since 2.0.0.RC.2
+------------------------------------------
+* Unit-test are refactored.
+
 Release 2.0.0.RC.2
 ------------------
 Summary of the major changes since 2.0.0.RC.1
 ------------------------------------------
 * Added support for TLWellSigned parameter.
-* Some refctoring in Signature classes and utilities.
+* Some refactoring in Signature classes and utilities.
 
 Release 2.0.0.RC.1
 ------------------

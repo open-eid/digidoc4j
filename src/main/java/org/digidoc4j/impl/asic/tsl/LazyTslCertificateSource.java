@@ -40,133 +40,139 @@ import eu.europa.esig.dss.x509.CertificateToken;
  */
 public class LazyTslCertificateSource implements TSLCertificateSource {
 
-  private static final Logger logger = LoggerFactory.getLogger(LazyTslCertificateSource.class);
-  private TSLCertificateSource certificateSource;
+  private static final Logger LOGGER = LoggerFactory.getLogger(LazyTslCertificateSource.class);
   private transient TSLValidationJob tslValidationJob;
+  private TSLCertificateSource certificateSource;
   private Long lastCacheReloadingTime;
   private Long cacheExpirationTime;
   private TslLoader tslLoader;
 
+  /**
+   * @param tslLoader TSL loader
+   */
   public LazyTslCertificateSource(TslLoader tslLoader) {
-    logger.debug("Initializing lazy TSL certificate source");
+    LOGGER.debug("Initializing lazy TSL certificate source");
     this.tslLoader = tslLoader;
   }
 
   @Override
   public CertificatePool getCertificatePool() {
-    return getCertificateSource().getCertificatePool();
+    return this.getCertificateSource().getCertificatePool();
   }
 
   @Override
   public CertificateToken addCertificate(CertificateToken certificate) {
-    return getCertificateSource().addCertificate(certificate);
+    return this.getCertificateSource().addCertificate(certificate);
   }
 
   @Override
   public List<CertificateToken> get(X500Principal x500Principal) {
-    return getCertificateSource().get(x500Principal);
+    return this.getCertificateSource().get(x500Principal);
   }
 
   @Override
   public void addTSLCertificate(X509Certificate certificate) {
-    getCertificateSource().addTSLCertificate(certificate);
+    this.getCertificateSource().addTSLCertificate(certificate);
   }
 
   @Override
   public CertificateToken addCertificate(CertificateToken certificate, ServiceInfo serviceInfo) {
-    return getCertificateSource().addCertificate(certificate, serviceInfo);
+    return this.getCertificateSource().addCertificate(certificate, serviceInfo);
   }
 
   @Override
   public List<CertificateToken> getCertificates() {
-    return getCertificateSource().getCertificates();
+    return this.getCertificateSource().getCertificates();
   }
 
   @Override
   public void invalidateCache() {
-    logger.debug("Invalidating TSL cache");
+    LOGGER.debug("Invalidating TSL cache");
     TslLoader.invalidateCache();
   }
 
   @Override
   public void refresh() {
-    refreshTsl();
+    this.refreshTsl();
   }
 
-  public void setCacheExpirationTime(Long cacheExpirationTime) {
-    this.cacheExpirationTime = cacheExpirationTime;
-  }
+  /*
+   * RESTRICTED METHODS
+   */
 
   protected void refreshIfCacheExpired() {
-    if (isCacheExpired()) {
-      initTsl();
+    if (this.isCacheExpired()) {
+      this.initTsl();
     }
+  }
+
+  private TSLCertificateSource getCertificateSource() {
+    LOGGER.debug("Accessing TSL");
+    this.refreshIfCacheExpired();
+    return this.certificateSource;
+  }
+
+  private synchronized void initTsl() {
+    //Using double-checked locking to avoid other threads to start loading TSL
+    if (this.isCacheExpired()) {
+      LOGGER.debug("Initializing TSL");
+      this.refreshTsl();
+    }
+  }
+
+  private synchronized void refreshTsl() {
+    try {
+      this.populateTsl();
+      LOGGER.debug("Refreshing TSL");
+      this.tslValidationJob.refresh();
+      this.lastCacheReloadingTime = new Date().getTime();
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Finished refreshing TSL, cache expires at {}", this.getNextCacheExpirationDate());
+      }
+    } catch (DSSException e) {
+      throw new TslCertificateSourceInitializationException("Unable to load TSL", e);
+    }
+  }
+
+  private void populateTsl() {
+    if (this.tslValidationJob == null || this.certificateSource == null) {
+      this.tslLoader.prepareTsl();
+      this.tslValidationJob = this.tslLoader.getTslValidationJob();
+      this.certificateSource = this.tslLoader.getTslCertificateSource();
+    }
+  }
+
+  private boolean isCacheExpired() {
+    if (this.lastCacheReloadingTime == null) {
+      return true;
+    }
+    long currentTime = new Date().getTime();
+    long timeToReload = this.lastCacheReloadingTime + this.cacheExpirationTime;
+    return currentTime > timeToReload;
+  }
+
+  private String getNextCacheExpirationDate() {
+    return new Date(this.lastCacheReloadingTime + this.cacheExpirationTime).toString();
+  }
+
+  /*
+   * ACCESSORS
+   */
+
+  public Long getLastCacheReloadingTime() {
+    return lastCacheReloadingTime;
   }
 
   public Long getCacheExpirationTime() {
     return cacheExpirationTime;
   }
 
-  public Long getLastCacheReloadingTime() {
-    return lastCacheReloadingTime;
+  public void setCacheExpirationTime(Long cacheExpirationTime) {
+    this.cacheExpirationTime = cacheExpirationTime;
   }
 
-  private TSLCertificateSource getCertificateSource() {
-    logger.debug("Accessing TSL");
-    refreshIfCacheExpired();
-    return certificateSource;
-  }
-
-  private synchronized void initTsl() {
-    //Using double-checked locking to avoid other threads to start loading TSL
-    if (isCacheExpired()) {
-      logger.debug("Initializing TSL");
-      refreshTsl();
-    }
-  }
-
-  private synchronized void refreshTsl() {
-    try {
-      populateTsl();
-      logger.debug("Refreshing TSL");
-      tslValidationJob.refresh();
-      lastCacheReloadingTime = new Date().getTime();
-      if (logger.isDebugEnabled()) {
-        logger.debug("Finished refreshing TSL, cache expires at " + getNextCacheExpirationDate());
-      }
-    } catch (DSSException e) {
-      logger.error("Unable to load TSL: " + e.getMessage());
-      throw new TslCertificateSourceInitializationException(e.getMessage());
-    }
-  }
-
-  private void populateTsl() {
-    if (tslValidationJob == null || certificateSource == null) {
-      tslLoader.prepareTsl();
-      tslValidationJob = tslLoader.getTslValidationJob();
-      certificateSource = tslLoader.getTslCertificateSource();
-    }
-  }
-
-  /**
-   * Get TslLoader
-   *
-   * @return TslLoader
-   */
   public TslLoader getTslLoader(){
     return tslLoader;
   }
 
-  private boolean isCacheExpired() {
-    if (lastCacheReloadingTime == null) {
-      return true;
-    }
-    long currentTime = new Date().getTime();
-    long timeToReload = lastCacheReloadingTime + cacheExpirationTime;
-    return currentTime > timeToReload;
-  }
-
-  private String getNextCacheExpirationDate() {
-    return new Date(lastCacheReloadingTime + cacheExpirationTime).toString();
-  }
 }

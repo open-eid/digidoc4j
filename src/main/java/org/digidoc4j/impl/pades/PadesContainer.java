@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
+import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
@@ -17,7 +18,6 @@ import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
-import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
@@ -34,10 +34,16 @@ import eu.europa.esig.dss.validation.reports.Reports;
 public class PadesContainer implements Container {
 
   public static final String PADES = "PADES";
-  private String containerPath = "";
+  private final Configuration configuration;
+  private final String containerPath;
 
-  public PadesContainer(String path, Configuration configuration){
-    containerPath = path;
+  /**
+   * @param configuration configuration context
+   * @param containerPath the path of container
+   */
+  public PadesContainer(Configuration configuration, String containerPath) {
+    this.configuration = configuration;
+    this.containerPath = containerPath;
   }
 
   @Override
@@ -110,25 +116,21 @@ public class PadesContainer implements Container {
    *
    * @return ValidationResult
    */
-  public ValidationResult validate() {
-    SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(new FileDocument(new File(containerPath)));
+  public ContainerValidationResult validate() {
+    SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(new FileDocument(new File
+        (this.containerPath)));
     validator.setCertificateVerifier(new SKCommonCertificateVerifier());
-
     Reports reports = validator.validateDocument();
-    PadesValidationResult result = new PadesValidationResult(reports.getSimpleReport());
+    PadesContainerValidationResult result = new PadesContainerValidationResult(reports.getSimpleReport());
     result.setReport(reports.getXmlSimpleReport());
-    List<String> signatureIdList = reports.getSimpleReport().getSignatureIdList();
-    List<DigiDoc4JException> errors = new ArrayList<>();
-    List<DigiDoc4JException> warnings = new ArrayList<>();
-    for (String id: signatureIdList) {
+    for (String id : reports.getSimpleReport().getSignatureIdList()) {
       Indication indication = reports.getSimpleReport().getIndication(id);
-      if (!Indication.TOTAL_PASSED.equals(indication)){
-        errors.addAll(getExceptions(reports.getSimpleReport().getErrors(id)));
-        warnings.addAll(getExceptions(reports.getSimpleReport().getWarnings(id)));
+      if (!Indication.TOTAL_PASSED.equals(indication)) {
+        result.getErrors().addAll(this.getExceptions(reports.getSimpleReport().getErrors(id)));
+        result.getWarnings().addAll(this.getExceptions(reports.getSimpleReport().getWarnings(id)));
       }
     }
-    result.setErrors(errors);
-    result.setWarnings(warnings);
+    result.print(this.configuration);
     return result;
   }
 
@@ -139,7 +141,7 @@ public class PadesContainer implements Container {
 
   private List<DigiDoc4JException> getExceptions(List<String> exceptionString) {
     List<DigiDoc4JException> exc = new ArrayList<>();
-    for (String s: exceptionString) {
+    for (String s : exceptionString) {
       exc.add(new DigiDoc4JException(s));
     }
     return exc;
@@ -148,6 +150,11 @@ public class PadesContainer implements Container {
   @Override
   public SignedInfo prepareSigning(X509Certificate signerCert) {
     throw new NotYetImplementedException();
+  }
+
+  @Override
+  public Configuration getConfiguration() {
+    return configuration;
   }
 
   @Override

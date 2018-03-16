@@ -10,13 +10,10 @@
 
 package org.digidoc4j.impl.asic;
 
-import static eu.europa.esig.dss.DigestAlgorithm.SHA256;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LTA;
-import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.digidoc4j.impl.asic.ocsp.OcspSourceBuilder.anOcspSource;
 
 import java.security.cert.X509Certificate;
 import java.util.Collection;
@@ -29,6 +26,7 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DataToSign;
 import org.digidoc4j.EncryptionAlgorithm;
+import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
@@ -39,6 +37,7 @@ import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
@@ -47,17 +46,14 @@ import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
 import org.digidoc4j.impl.asic.asics.AsicSContainer;
-import org.digidoc4j.impl.asic.ocsp.SKOnlineOCSPSource;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
-import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.InMemoryDocument;
-import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.SignerLocation;
 import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
@@ -112,7 +108,8 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
         && DSSSignatureUtils.isAsn1Encoded(signatureValueBytes)) {
       logger.debug("Finalizing signature ASN1: " + Helper.bytesToHex(signatureValueBytes, hexMaxlen) + " ["
           + String.valueOf(signatureValueBytes.length) + "]");
-      signatureValueBytes = DSSSignatureUtils.convertToXmlDSig(eu.europa.esig.dss.EncryptionAlgorithm.ECDSA, signatureValueBytes);
+      signatureValueBytes = DSSSignatureUtils.convertToXmlDSig(eu.europa.esig.dss.EncryptionAlgorithm.ECDSA,
+          signatureValueBytes);
     }
     logger.debug("Finalizing signature XmlDSig: " + Helper.bytesToHex(signatureValueBytes, hexMaxlen) + " ["
         + String.valueOf(signatureValueBytes.length) + "]");
@@ -139,7 +136,7 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
       BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
       List<BDocSignature> signatureList = signatureOpener.parse(signedDocument);
       signature = signatureList.get(0); //Only one signature was created
-      validateOcspResponse(((BDocSignature)signature).getOrigin());
+      validateOcspResponse(((BDocSignature) signature).getOrigin());
     } else {
       AsicESignatureOpener signatureOpener = new AsicESignatureOpener(detachedContents, configuration);
       List<AsicESignature> signatureList = signatureOpener.parse(signedDocument);
@@ -222,21 +219,21 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   protected void setOcspSource(byte[] signatureValueBytes) {
-    SKOnlineOCSPSource ocspSource = anOcspSource().
-        withSignatureProfile(signatureParameters.getSignatureProfile()).
+    SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().
+        withSignatureProfile(this.signatureParameters.getSignatureProfile()).
         withSignatureValue(signatureValueBytes).
         withConfiguration(getConfiguration()).
         build();
-    facade.setOcspSource(ocspSource);
+    this.facade.setOcspSource(ocspSource);
   }
 
   protected void setTimeStampProviderSource() {
-    Configuration configuration = getConfiguration();
-    OnlineTSPSource tspSource = new OnlineTSPSource(getTspSource(configuration));
-    SkDataLoader dataLoader = SkDataLoader.createTimestampDataLoader(configuration);
-    dataLoader.setUserAgentSignatureProfile(signatureParameters.getSignatureProfile());
+    Configuration configuration = this.getConfiguration();
+    OnlineTSPSource tspSource = new OnlineTSPSource(this.getTspSource(configuration));
+    SkDataLoader dataLoader = SkDataLoader.timestamp(configuration);
+    dataLoader.setUserAgent(Helper.createBDocUserAgent(this.signatureParameters.getSignatureProfile()));
     tspSource.setDataLoader(dataLoader);
-    facade.setTspSource(tspSource);
+    this.facade.setTspSource(tspSource);
   }
 
   protected void setDigestAlgorithm() {
@@ -368,14 +365,15 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   private String getTspSource(Configuration configuration) {
-    if (isLTorLTAprofile){
+    if (isLTorLTAprofile) {
       X509Cert x509Cert = new X509Cert(signatureParameters.getSigningCertificate());
       String certCountry = x509Cert.getSubjectName(X509Cert.SubjectName.C);
       String tspSourceByCountry = configuration.getTspSourceByCountry(certCountry);
-      if (StringUtils.isNotBlank(tspSourceByCountry)){
+      if (StringUtils.isNotBlank(tspSourceByCountry)) {
         return tspSourceByCountry;
       }
     }
     return configuration.getTspSource();
   }
+
 }

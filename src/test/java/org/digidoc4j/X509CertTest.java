@@ -10,141 +10,121 @@
 
 package org.digidoc4j;
 
-import static java.util.Arrays.asList;
-import static org.digidoc4j.X509Cert.SubjectName.C;
-import static org.digidoc4j.X509Cert.SubjectName.CN;
-import static org.digidoc4j.X509Cert.SubjectName.GIVENNAME;
-import static org.digidoc4j.X509Cert.SubjectName.O;
-import static org.digidoc4j.X509Cert.SubjectName.OU;
-import static org.digidoc4j.X509Cert.SubjectName.SERIALNUMBER;
-import static org.digidoc4j.X509Cert.SubjectName.SURNAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-
 import java.io.IOException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.junit.BeforeClass;
+import org.digidoc4j.test.TestConstants;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 public class X509CertTest {
 
-  private static X509Cert cert;
-  private final int ONE_DAY = 1000 * 60 * 60 * 24;
+  private final X509Cert certificate = new X509Cert("src/test/resources/testFiles/certs/signout.pem");
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-
-  @BeforeClass
-  public static void setUp() throws Exception {
-    cert = new X509Cert("src/test/resources/testFiles/certs/signout.pem");
-  }
 
   @Test
   public void testGetX509Certificate() throws Exception {
-    X509Certificate x509Certificate = cert.getX509Certificate();
-    assertEquals("SERIALNUMBER=11404176865, GIVENNAME=MÄRÜ-LÖÖZ, SURNAME=ŽÕRINÜWŠKY, " +
+    X509Certificate x509Certificate = this.certificate.getX509Certificate();
+    Assert.assertEquals("SERIALNUMBER=11404176865, GIVENNAME=MÄRÜ-LÖÖZ, SURNAME=ŽÕRINÜWŠKY, " +
             "CN=\"ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865\", OU=digital signature, O=ESTEID, C=EE",
         x509Certificate.getSubjectDN().getName());
   }
 
   @Test
   public void testGetSerialNumber() {
-    assertEquals("530be41bbc597c44570e2b7c13bcfa0c", cert.getSerial());
+    Assert.assertEquals("530be41bbc597c44570e2b7c13bcfa0c", this.certificate.getSerial());
   }
 
   @Test
   public void testGetIssuerName() {
-    assertEquals("cn=test of esteid-sk 2015, oid.2.5.4.97=ntree-10747013, o=as sertifitseerimiskeskus, c=ee",
-        cert.issuerName().toLowerCase());
+    Assert.assertEquals("cn=test of esteid-sk 2015, oid.2.5.4.97=ntree-10747013, o=as sertifitseerimiskeskus, c=ee",
+        this.certificate.issuerName().toLowerCase());
   }
 
   @Test
   public void testGetIssuerNameByPart() {
-    assertNull(cert.issuerName(X509Cert.Issuer.EMAILADDRESS));
-    assertEquals("as sertifitseerimiskeskus", cert.issuerName(X509Cert.Issuer.O).toLowerCase());
-    assertEquals("test of esteid-sk 2015", cert.issuerName(X509Cert.Issuer.CN).toLowerCase());
-    assertEquals("ee", cert.issuerName(X509Cert.Issuer.C).toLowerCase());
+    Assert.assertNull(this.certificate.issuerName(X509Cert.Issuer.EMAILADDRESS));
+    Assert.assertEquals("as sertifitseerimiskeskus", this.certificate.issuerName(X509Cert.Issuer.O).toLowerCase());
+    Assert.assertEquals("test of esteid-sk 2015", this.certificate.issuerName(X509Cert.Issuer.CN).toLowerCase());
+    Assert.assertEquals("ee", this.certificate.issuerName(X509Cert.Issuer.C).toLowerCase());
   }
 
   @Test
   public void testGetPolicies() throws IOException {
-    assertEquals(1, cert.getCertificatePolicies().size());
+    Assert.assertEquals(1, this.certificate.getCertificatePolicies().size());
   }
 
   @Test
   public void testIsValidAtSpecifiedDate() {
-    assertTrue(cert.isValid(new Date()));
+    Assert.assertTrue(this.certificate.isValid(new Date()));
   }
 
   @Test
   public void testIsNotValidYet() throws ParseException {
-    Date certValidFrom = dateFormat.parse("17.04.2014");
-    assertFalse(cert.isValid(new Date(certValidFrom.getTime() - ONE_DAY)));
+    Date certValidFrom = this.dateFormat.parse("17.04.2014");
+    Assert.assertFalse(this.certificate.isValid(new Date(certValidFrom.getTime() - TestConstants.ONE_DAY_IN_MILLIS)));
   }
 
   @Test
   public void testIsNoLongerValid() throws ParseException {
-    Date certValidFrom = dateFormat.parse("12.04.2016");
-    assertFalse(cert.isValid(new Date(certValidFrom.getTime() + ONE_DAY)));
+    Date certValidFrom = this.dateFormat.parse("12.04.2016");
+    Assert.assertFalse(this.certificate.isValid(new Date(certValidFrom.getTime() + TestConstants.ONE_DAY_IN_MILLIS)));
   }
 
   @Test
   public void testIsValidThrowsCertificateExpiredException() throws Exception {
-    X509Certificate mock = mock(X509Certificate.class);
+    X509Certificate mock = Mockito.mock(X509Certificate.class);
     Mockito.doThrow(new CertificateExpiredException()).when(mock).checkValidity();
-    X509Cert x509Cert = new X509Cert(mock);
-    x509Cert.isValid();
+    new X509Cert(mock).isValid();
   }
 
   @Test
   public void testIsValidThrowsCertificateNotYetValidException() throws Exception {
-    X509Certificate mock = mock(X509Certificate.class);
+    X509Certificate mock = Mockito.mock(X509Certificate.class);
     Mockito.doThrow(new CertificateNotYetValidException()).when(mock).checkValidity();
-    X509Cert x509Cert = new X509Cert(mock);
-    x509Cert.isValid();
+    new X509Cert(mock).isValid();
   }
 
   @Test
   public void testIsCertValidToday() {
-    assertTrue(cert.isValid());
+    Assert.assertTrue(this.certificate.isValid());
   }
 
   @Test
   public void testKeyUsage() {
-    assertEquals(asList(X509Cert.KeyUsage.NON_REPUDIATION), cert.getKeyUsages());
+    Assert.assertEquals(Arrays.asList(X509Cert.KeyUsage.NON_REPUDIATION), this.certificate.getKeyUsages());
   }
 
   @Test
   public void testGetPartOfSubjectName() throws Exception {
-    assertEquals("11404176865", cert.getSubjectName(SERIALNUMBER));
-    assertEquals("märü-lööz", cert.getSubjectName(GIVENNAME).toLowerCase());
-    assertEquals("žõrinüwšky", cert.getSubjectName(SURNAME).toLowerCase());
-    assertEquals("\"žõrinüwšky,märü-lööz,11404176865\"", cert.getSubjectName(CN).toLowerCase());
-    assertEquals("digital signature", cert.getSubjectName(OU).toLowerCase());
-    assertEquals("esteid", cert.getSubjectName(O).toLowerCase());
-    assertEquals("ee", cert.getSubjectName(C).toLowerCase());
+    Assert.assertEquals("11404176865", this.certificate.getSubjectName(X509Cert.SubjectName.SERIALNUMBER));
+    Assert.assertEquals("märü-lööz", this.certificate.getSubjectName(X509Cert.SubjectName.GIVENNAME).toLowerCase());
+    Assert.assertEquals("žõrinüwšky", this.certificate.getSubjectName(X509Cert.SubjectName.SURNAME).toLowerCase());
+    Assert.assertEquals("\"žõrinüwšky,märü-lööz,11404176865\"", this.certificate.getSubjectName(X509Cert.SubjectName.CN).toLowerCase());
+    Assert.assertEquals("digital signature", this.certificate.getSubjectName(X509Cert.SubjectName.OU).toLowerCase());
+    Assert.assertEquals("esteid", this.certificate.getSubjectName(X509Cert.SubjectName.O).toLowerCase());
+    Assert.assertEquals("ee", this.certificate.getSubjectName(X509Cert.SubjectName.C).toLowerCase());
   }
 
   @Test
   public void testGetSubjectName() throws Exception {
-    assertEquals("SERIALNUMBER=11404176865, GIVENNAME=MÄRÜ-LÖÖZ, SURNAME=ŽÕRINÜWŠKY, CN=\"ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ," +
-        "11404176865\", OU=digital signature, O=ESTEID, C=EE", cert.getSubjectName());
+    Assert.assertEquals("SERIALNUMBER=11404176865, GIVENNAME=MÄRÜ-LÖÖZ, SURNAME=ŽÕRINÜWŠKY, CN=\"ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ," +
+        "11404176865\", OU=digital signature, O=ESTEID, C=EE", this.certificate.getSubjectName());
   }
 
   @Test
   public void testDateCompare() throws Exception {
     Date startTime = Calendar.getInstance().getTime();
     Date usageTime = Calendar.getInstance().getTime();
-    assertTrue(usageTime.compareTo(startTime) >= 0);
+    Assert.assertTrue(usageTime.compareTo(startTime) >= 0);
   }
 
 }

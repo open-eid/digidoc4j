@@ -58,7 +58,7 @@
   <li>Generating  validation report in XML format. </li>
   <li>Enabling configuration of signature validation policies according to  ETSI TR 102 038 standard <a href="http://www.etsi.org/deliver/etsi_tr/102000_102099/102038/01.01.01_60/tr_102038v010101p.pdf" target="_blank">XML format for signature policies</a>.</li>
 </ol>
-<p>See also: {@link org.digidoc4j.ValidationResult org.digidoc4j.ValidationResult}</p>
+<p>See also: {@link org.digidoc4j.SignatureValidationResult org.digidoc4j.ValidationResult}</p>
 <h2>Using TSL lists as  trust  anchors</h2>
 <p>TSL (Trust Service status List) list is a signed XML document that provides information about the status of trust services. The format is based on <a href="http://www.etsi.org/deliver/etsi_ts/119600_119699/119612/01.02.01_60/ts_119612v010201p.pdf" target="_blank">ETSI 119 612</a> standard.  </p>
 <p>digidoc4j uses TSL lists for checking the trustworthiness of  the certificates that are used in the signature.  The <a href="https://ec.europa.eu/information_society/policy/esignature/trusted-list/" target="_blank">European Commission's  TSL</a> list is used as the List Of Trusted List (LOTL) (accessible from: <a href="https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml" target="_blank">https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml</a>).</p>
@@ -353,12 +353,12 @@
 </p>
 <h3>Validation </h3>
 <p>Validation process of a container and all of its contents can be initiated as follows:</p>
-<p><code>{@link org.digidoc4j.ValidationResult ValidationResult} <strong>result</strong> = <strong>container</strong>.{@link org.digidoc4j.Container#validate validate()};</code>
+<p><code>{@link org.digidoc4j.SignatureValidationResult ValidationResult} <strong>result</strong> = <strong>container</strong>.{@link org.digidoc4j.Container#validate validate()};</code>
 </p>
 <p>Possible validation errors can be handled as follows: </p>
 <p><code>
-  if (!<strong>result</strong>.{@link org.digidoc4j.ValidationResult#isValid isValid()} ) { <br>
-&nbsp;&nbsp;  for ({@link org.digidoc4j.exceptions.DigiDoc4JException DigiDoc4JException} <strong>error</strong> : <strong>result</strong>.{@link org.digidoc4j.ValidationResult#getErrors getErrors()}) { <br>
+  if (!<strong>result</strong>.{@link org.digidoc4j.SignatureValidationResult#isValid isValid()} ) { <br>
+&nbsp;&nbsp;  for ({@link org.digidoc4j.exceptions.DigiDoc4JException DigiDoc4JException} <strong>error</strong> : <strong>result</strong>.{@link org.digidoc4j.SignatureValidationResult#getErrors getErrors()}) { <br>
 &nbsp;&nbsp;&nbsp;&nbsp;  System.out.println(<strong>error</strong>.{@link org.digidoc4j.exceptions.DigiDoc4JException#getMessage getMessage()}); <br>
 &nbsp;&nbsp;  } <br>
  } </code>

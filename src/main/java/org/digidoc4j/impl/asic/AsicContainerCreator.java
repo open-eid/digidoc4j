@@ -38,6 +38,9 @@ import org.slf4j.LoggerFactory;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.MimeType;
 
+/**
+ * ASIC container creator
+ */
 public class AsicContainerCreator {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicContainerCreator.class);
@@ -47,7 +50,6 @@ public class AsicContainerCreator {
 
   private final ZipOutputStream zipOutputStream;
   private final OutputStream outputStream;
-
   private String zipComment;
 
   @Deprecated
@@ -55,6 +57,9 @@ public class AsicContainerCreator {
     this(Helper.bufferedOutputStream(containerPathToSave));
   }
 
+  /**
+   * @param outputStream stream
+   */
   public AsicContainerCreator(OutputStream outputStream) {
     this.outputStream = outputStream;
     this.zipOutputStream = new ZipOutputStream(outputStream, CHARSET);
@@ -85,7 +90,9 @@ public class AsicContainerCreator {
     throw new NotSupportedException("instance not backed by an in-memory stream");
   }
 
-
+  /**
+   * @param containerType type
+   */
   public void writeAsiceMimeType(String containerType) {
     logger.debug("Writing asic mime type to asic zip file");
     String mimeTypeString;
@@ -98,6 +105,10 @@ public class AsicContainerCreator {
     new BytesEntryCallback(getAsicMimeTypeZipEntry(mimeTypeBytes), mimeTypeBytes).write();
   }
 
+  /**
+   * @param dataFiles list of data files
+   * @param containerType type
+   */
   public void writeManifest(Collection<DataFile> dataFiles, String containerType) {
     logger.debug("Writing asic manifest");
     final AsicManifest manifest = new AsicManifest(containerType);
@@ -110,6 +121,9 @@ public class AsicContainerCreator {
     }.write();
   }
 
+  /**
+   * @param dataFiles list of data files
+   */
   public void writeDataFiles(Collection<DataFile> dataFiles) {
     logger.debug("Adding data files to the asic zip container");
     for (DataFile dataFile : dataFiles) {
@@ -120,6 +134,10 @@ public class AsicContainerCreator {
     }
   }
 
+  /**
+   * @param signatures list of signatures
+   * @param nextSignatureFileNameIndex index
+   */
   public void writeSignatures(Collection<Signature> signatures, int nextSignatureFileNameIndex) {
     logger.debug("Adding signatures to the asic zip container");
     int index = nextSignatureFileNameIndex;
@@ -130,12 +148,18 @@ public class AsicContainerCreator {
     }
   }
 
+  /**
+   * @param dataFile data file
+   */
   public void writeTimestampToken(DataFile dataFile) {
     logger.debug("Adding signatures to the asic zip container");
     String signatureFileName = "META-INF/timestamp.tst";
     new BytesEntryCallback(new ZipEntry(signatureFileName), dataFile.getBytes()).write();
   }
 
+  /**
+   * @param asicEntries list of ASIC entries
+   */
   public void writeExistingEntries(Collection<AsicEntry> asicEntries) {
     logger.debug("Writing existing zip container entries");
     for (AsicEntry asicEntry : asicEntries) {
@@ -148,11 +172,17 @@ public class AsicContainerCreator {
     }
   }
 
+  /**
+   * @param comment comment
+   */
   public void writeContainerComment(String comment) {
     logger.debug("Writing container comment: " + comment);
     zipOutputStream.setComment(comment);
   }
 
+  /**
+   * @param zipComment comment
+   */
   public void setZipComment(String zipComment) {
     this.zipComment = zipComment;
   }

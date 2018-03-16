@@ -57,11 +57,8 @@ public class ContainerOpener {
         return new DDocOpener().open(path, configuration);
       }
     } catch (EOFException eof) {
-      String msg = "File is not valid.";
-      logger.error(msg);
-      throw new DigiDoc4JException(msg);
+      throw new DigiDoc4JException("File is invalid");
     } catch (IOException e) {
-      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     }
   }
@@ -75,7 +72,6 @@ public class ContainerOpener {
    * @see ContainerBuilder
    */
   public static Container open(String path) throws DigiDoc4JException {
-    logger.debug("");
     return open(path, Configuration.getInstance());
   }
 
@@ -91,7 +87,6 @@ public class ContainerOpener {
   public static Container open(InputStream stream, boolean actAsBigFilesSupportEnabled) {
     logger.debug("Opening container from stream");
     BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);
-
     try {
       if (Helper.isZipFile(bufferedInputStream)) {
         if (Helper.isAsicSContainer(bufferedInputStream)){
@@ -104,7 +99,6 @@ public class ContainerOpener {
         return new DDocOpener().open(bufferedInputStream);
       }
     } catch (IOException e) {
-      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     } finally {
       IOUtils.closeQuietly(bufferedInputStream);
@@ -122,7 +116,6 @@ public class ContainerOpener {
   public static Container open(InputStream stream, Configuration configuration) {
     logger.debug("Opening container from stream");
     BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);
-
     try {
       if (Helper.isZipFile(bufferedInputStream)) {
         if (Helper.isAsicSContainer(bufferedInputStream)){
@@ -135,7 +128,6 @@ public class ContainerOpener {
         return new DDocOpener().open(bufferedInputStream, configuration);
       }
     } catch (IOException e) {
-      logger.error(e.getMessage());
       throw new DigiDoc4JException(e);
     } finally {
       IOUtils.closeQuietly(bufferedInputStream);
@@ -154,6 +146,7 @@ public class ContainerOpener {
 
   private static Container openPadesContainer(String path, Configuration configuration) {
     configuration.loadConfiguration("digidoc4j.yaml", false);
-    return new PadesContainer(path, configuration);
+    return new PadesContainer(configuration, path);
   }
+
 }

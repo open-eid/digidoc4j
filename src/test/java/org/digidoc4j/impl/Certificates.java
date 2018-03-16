@@ -11,6 +11,7 @@
 package org.digidoc4j.impl;
 
 public class Certificates {
+
   public final static String TS_CERTIFICATE = "MIIGOzCCBSOgAwIBAgIUe6m/OP/GwmsrkHR8Mz8LJoNedfgwDQYJKoZIhvcNAQELBQAw" +
       "fzELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxJTAjBgNVBAsTHFJvb3QgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkx" +
       "LjAsBgNVBAMTJVF1b1ZhZGlzIFJvb3QgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkwHhcNMTIwMjIwMTYyNTAwWhcNMjEwMzE3MTgzMzMzWjCB" +

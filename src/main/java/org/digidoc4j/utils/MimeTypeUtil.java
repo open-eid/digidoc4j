@@ -16,11 +16,21 @@ public final class MimeTypeUtil {
   private MimeTypeUtil() {
   }
 
+  /**
+   * When DD4J discovers mimeType which is in wrong format, then we try to fix it
+   *
+   * @param mimeType mime type
+   * @return correct mime type
+   */
   public static MimeType mimeTypeOf(String mimeType) {
     switch (mimeType) {
       case "txt.html":
         log.warn("Incorrect Mime-Type <{}> detected, fixing ...", mimeType);
         mimeType = "text/html";
+        break;
+      case "file":
+        log.warn("Incorrect Mime-Type <{}> detected, fixing ...", mimeType);
+        mimeType = "application/octet-stream";
         break;
     }
     if (mimeType.indexOf('\\') > 0) {

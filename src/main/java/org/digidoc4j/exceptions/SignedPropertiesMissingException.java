@@ -15,4 +15,5 @@ public class SignedPropertiesMissingException extends DigiDoc4JException {
   public SignedPropertiesMissingException(String msg) {
     super(msg);
   }
+
 }
