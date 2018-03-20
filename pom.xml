@@ -698,7 +698,7 @@
                             <overWriteIfNewer>true</overWriteIfNewer>
                             <excludeTransitive>true</excludeTransitive>
                             <excludeArtifactIds>
-                                contiperf, log4j-over-slf4j
+                                contiperf
                             </excludeArtifactIds>
                         </configuration>
                     </execution>
