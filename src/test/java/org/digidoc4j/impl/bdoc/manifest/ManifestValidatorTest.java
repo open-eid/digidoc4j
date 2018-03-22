@@ -79,8 +79,8 @@ public class ManifestValidatorTest {
     List<ManifestErrorMessage> manifestErrorMessageList = ManifestValidator.validateEntries(entriesFromManifest, entriesFromSignature, "S0");
     Assert.assertEquals(1, manifestErrorMessageList.size());
     ManifestErrorMessage manifestErrorMessage = manifestErrorMessageList.get(0);
-    Assert.assertEquals("Manifest file has an entry for file 2 with mimetype f but the signature file for signature S0 " +
-        "indicates the mimetype is b", manifestErrorMessage.getErrorMessage());
+    Assert.assertEquals("Manifest file has an entry for file <2> with mimetype <f> but the signature file for "
+        + "signature S0 indicates the mimetype is <b>", manifestErrorMessage.getErrorMessage());
     Assert.assertEquals("S0", manifestErrorMessage.getSignatureId());
   }
 
@@ -94,16 +94,17 @@ public class ManifestValidatorTest {
       add(new ManifestEntry("1", "b"));
       add(new ManifestEntry("2", "a"));
     }};
-    List<ManifestErrorMessage> manifestErrorMessageList = ManifestValidator.validateEntries(entriesFromManifest, entriesFromSignature, "S0");
+    List<ManifestErrorMessage> manifestErrorMessageList = ManifestValidator
+        .validateEntries(entriesFromManifest, entriesFromSignature, "S0");
     Assert.assertEquals(2, manifestErrorMessageList.size());
     ManifestErrorMessage file1ManifestErrorMessage = manifestErrorMessageList.get(0);
-    Assert.assertEquals("Manifest file has an entry for file 1 with mimetype a but the signature file for signature S0 " +
-        "indicates the mimetype is b", file1ManifestErrorMessage.getErrorMessage());
+    Assert.assertEquals("Manifest file has an entry for file <1> with mimetype <a> but the signature file for "
+        + "signature S0 indicates the mimetype is <b>", file1ManifestErrorMessage.getErrorMessage());
     Assert.assertEquals("S0", file1ManifestErrorMessage.getSignatureId());
 
     ManifestErrorMessage file2ManifestErrorMessage = manifestErrorMessageList.get(1);
-    Assert.assertEquals("Manifest file has an entry for file 2 with mimetype b but the signature file for signature S0 " +
-        "indicates the mimetype is a", file2ManifestErrorMessage.getErrorMessage());
+    Assert.assertEquals("Manifest file has an entry for file <2> with mimetype <b> but the signature file for "
+        + "signature S0 indicates the mimetype is <a>", file2ManifestErrorMessage.getErrorMessage());
     Assert.assertEquals("S0", file2ManifestErrorMessage.getSignatureId());
   }
 
@@ -121,8 +122,8 @@ public class ManifestValidatorTest {
     List<ManifestErrorMessage> manifestErrorMessageList = ManifestValidator.validateEntries(entriesFromManifest, entriesFromSignature, "S0");
     Assert.assertEquals(1, manifestErrorMessageList.size());
     ManifestErrorMessage manifestErrorMessage = manifestErrorMessageList.get(0);
-    Assert.assertEquals("Manifest file has an entry for file 2 with mimetype b but the signature file for signature S0 does" +
-        " not have an entry for this file", manifestErrorMessage.getErrorMessage());
+    Assert.assertEquals("Manifest file has an entry for file <2> with mimetype <b> but the signature file for "
+        + "signature S0 does not have an entry for this file", manifestErrorMessage.getErrorMessage());
     Assert.assertEquals("S0", manifestErrorMessage.getSignatureId());
   }
 
@@ -137,11 +138,12 @@ public class ManifestValidatorTest {
       add(new ManifestEntry("2", "b"));
       add(new ManifestEntry("3", "c"));
     }};
-    List<ManifestErrorMessage> manifestErrorMessageList = ManifestValidator.validateEntries(entriesFromManifest, entriesFromSignature, "S1");
+    List<ManifestErrorMessage> manifestErrorMessageList = ManifestValidator
+        .validateEntries(entriesFromManifest, entriesFromSignature, "S1");
     Assert.assertEquals(1, manifestErrorMessageList.size());
     ManifestErrorMessage manifestErrorMessage = manifestErrorMessageList.get(0);
-    Assert.assertEquals("The signature file for signature S1 has an entry for file 2 with mimetype b but the manifest file" +
-        " does not have an entry for this file", manifestErrorMessage.getErrorMessage());
+    Assert.assertEquals("The signature file for signature S1 has an entry for file <2> with mimetype <b> but the "
+        + "manifest file does not have an entry for this file", manifestErrorMessage.getErrorMessage());
     Assert.assertEquals("S1", manifestErrorMessage.getSignatureId());
   }
 

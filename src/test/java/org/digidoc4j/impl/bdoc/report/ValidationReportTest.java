@@ -124,7 +124,8 @@ public class ValidationReportTest extends AbstractTest {
 
   @Test
   public void invalidContainerWithManifestErrors() throws Exception {
-    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/filename_mismatch_manifest.asice");
+    Container container = TestDataBuilderUtil.open
+        ("src/test/resources/prodFiles/invalid-containers/filename_mismatch_manifest.asice");
     SignatureValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
     String report = result.getReport();
@@ -136,8 +137,11 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("META-INF/signatures0.xml", "/SimpleReport/Signature/DocumentName", report);
     TestAssert.assertXPathHasValue("RELEASE-NOTES.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
     TestAssert.assertXPathHasValue("The certificate chain for signature is not trusted, there is no trusted anchor.", "/SimpleReport/Signature/Errors", report);
-    TestAssert.assertXPathHasValue("Manifest file has an entry for file incorrect.txt with mimetype text/plain but the signature file for signature S0 does not have an entry for this file", "/SimpleReport/ContainerError[1]", report);
-    TestAssert.assertXPathHasValue("The signature file for signature S0 has an entry for file RELEASE-NOTES.txt with mimetype text/plain but the manifest file does not have an entry for this file", "/SimpleReport/ContainerError[2]", report);
+    TestAssert.assertXPathHasValue("Manifest file has an entry for file <incorrect.txt> with mimetype <text/plain> " +
+        "but the signature file for signature S0 does not have an entry for this file", "/SimpleReport/ContainerError[1]", report);
+    TestAssert.assertXPathHasValue("The signature file for signature S0 has an entry for file <RELEASE-NOTES.txt> " +
+        "with mimetype <text/plain> but the manifest file does not have an entry for this file",
+        "/SimpleReport/ContainerError[2]", report);
   }
 
   @Test

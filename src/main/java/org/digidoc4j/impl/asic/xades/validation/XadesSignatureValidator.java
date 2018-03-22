@@ -120,6 +120,14 @@ public class XadesSignatureValidator implements SignatureValidator {
     // Do nothing here
   }
 
+  protected boolean isSignaturePolicyImpliedElementPresented() {
+    XPathQueryHolder xPathQueryHolder = this.getDssSignature().getXPathQueryHolder();
+    Element signaturePolicyImpliedElement = DomUtils.getElement(this.getDssSignature().getSignatureElement(),
+        String.format("%s%s", xPathQueryHolder.XPATH_SIGNATURE_POLICY_IDENTIFIER,
+            xPathQueryHolder.XPATH__SIGNATURE_POLICY_IMPLIED.replace(".", "")));
+    return signaturePolicyImpliedElement != null;
+  }
+
   protected XAdESSignature getDssSignature() {
     return this.signature.getDssSignature();
   }
@@ -143,7 +151,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   private void addPolicyUriValidationErrors() {
     LOGGER.debug("Extracting policy URL validation errors");
     SignaturePolicy policy = this.getDssSignature().getPolicyId();
-    if (policy != null) {
+    if (policy != null && !isSignaturePolicyImpliedElementPresented()) {
       if (StringUtils.isBlank(policy.getUrl())) {
         this.addValidationError(new WrongPolicyIdentifierException("Error: The URL in signature policy is empty or not available"));
       }

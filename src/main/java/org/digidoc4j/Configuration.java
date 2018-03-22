@@ -1000,7 +1000,6 @@ public class Configuration implements Serializable {
     return this.getConfigurationParameter(ConfigurationParameter.SslTruststorePassword);
   }
 
-
   /**
    * Set flag if full report needed.
    *
@@ -1017,6 +1016,25 @@ public class Configuration implements Serializable {
    */
   public boolean isFullReportNeeded() {
     return Boolean.parseBoolean(this.getConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded));
+  }
+
+  /**
+   * Set flag if ASN1 Unsafe Integer is Allowed.
+   *
+   * @param isAllowed - True when ASN1 Unsafe Integer is Allowed.
+   */
+  public void setAllowASN1UnsafeInteger(boolean isAllowed) {
+    this.setConfigurationParameter(ConfigurationParameter.AllowASN1UnsafeInteger, String.valueOf(isAllowed));
+    this.postLoad();
+  }
+
+  /**
+   * Get flag if ASN1 Unsafe Integer is Allowed.
+   *
+   * @return isASN1UnsafeIntegerAllowed boolean value.
+   */
+  public boolean isASN1UnsafeIntegerAllowed() {
+    return Boolean.parseBoolean(this.getConfigurationParameter(ConfigurationParameter.AllowASN1UnsafeInteger));
   }
 
   /**

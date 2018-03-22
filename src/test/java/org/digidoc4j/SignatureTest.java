@@ -198,7 +198,7 @@ public class SignatureTest extends AbstractTest {
     Signature signature = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
     List<DigiDoc4JException> errors = signature.validateSignature().getErrors();
     TestAssert.assertContainsError("The reference data object(s) is not intact!", errors);
-    TestAssert.assertContainsError("Invalid timestamp", errors);
+    TestAssert.assertContainsError("Signature has an invalid timestamp", errors);
   }
 
   @Test

@@ -21,65 +21,27 @@ import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
 
-import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.validation.reports.wrapper.DiagnosticData;
-import eu.europa.esig.dss.xades.XPathQueryHolder;
 
-public class TimemarkSignatureValidator extends XadesSignatureValidator {
+public class TimemarkSignatureValidator extends TimestampSignatureValidator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TimemarkSignatureValidator.class);
+    private final Logger log = LoggerFactory.getLogger(TimemarkSignatureValidator.class);
+
+    public TimemarkSignatureValidator(XadesSignature signature) {
+        super(signature);
+    }
 
     public TimemarkSignatureValidator(XadesSignature signature, Configuration configuration) {
         super(signature, configuration);
     }
 
     @Override
-    protected void populateValidationErrors() {
-        super.populateValidationErrors();
-        this.addCertificateExpirationError();
-        this.addRevocationErrors();
-    }
-
-    @Override
     protected void addPolicyErrors() {
-        LOGGER.debug("Extracting TM signature policy errors");
-        XPathQueryHolder xPathQueryHolder = this.getDssSignature().getXPathQueryHolder();
-        Element signaturePolicyImpliedElement = DomUtils.getElement(this.getDssSignature().getSignatureElement(),
-            String.format("%s%s", xPathQueryHolder.XPATH_SIGNATURE_POLICY_IDENTIFIER,
-                xPathQueryHolder.XPATH__SIGNATURE_POLICY_IMPLIED.replace(".", "")));
-        if (signaturePolicyImpliedElement != null) {
-            LOGGER.error("Signature contains forbidden element");
+        this.log.debug("Extracting TM signature policy errors");
+        if (isSignaturePolicyImpliedElementPresented()) {
+            this.log.error("Signature contains forbidden element");
             this.addValidationError(new InvalidTimemarkSignatureException("Signature contains forbidden <SignaturePolicyImplied> element"));
         }
     }
-
-    private void addCertificateExpirationError() {
-        Date signingTime = this.signature.getTrustedSigningTime();
-        if (signingTime == null) {
-            return;
-        }
-        X509Certificate signerCert = this.signature.getSigningCertificate().getX509Certificate();
-        boolean isCertValid = signingTime.compareTo(signerCert.getNotBefore()) >= 0 &&
-            signingTime.compareTo(signerCert.getNotAfter()) <= 0;
-        if (!isCertValid) {
-            LOGGER.error("Signature has been created with expired certificate");
-            this.addValidationError(new SignedWithExpiredCertificateException());
-        }
-    }
-
-    private void addRevocationErrors() {
-        DiagnosticData diagnosticData = this.signature.validate().getReports().getDiagnosticData();
-        if (diagnosticData == null) {
-            return;
-        }
-        String certificateRevocationSource = diagnosticData.getCertificateRevocationSource(diagnosticData.getSigningCertificateId());
-        LOGGER.debug("Revocation source is <{}>", certificateRevocationSource);
-        if (StringUtils.equalsIgnoreCase("CRLToken", certificateRevocationSource)) {
-            LOGGER.error("Signing certificate revocation source is CRL instead of OCSP");
-            this.addValidationError(new UntrustedRevocationSourceException());
-        }
-    }
-
 }

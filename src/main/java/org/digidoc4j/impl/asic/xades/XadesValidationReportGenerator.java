@@ -34,48 +34,52 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class XadesValidationReportGenerator implements Serializable {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(XadesValidationReportGenerator.class);
-  private transient SignedDocumentValidator validator;
-  private transient Reports validationReport;
-  private transient XAdESSignature dssSignature;
-  private DSSDocument signatureDocument;
+  private final Logger log = LoggerFactory.getLogger(XadesValidationReportGenerator.class);
+  private transient SignedDocumentValidator signedDocumentValidator;
+  private transient Reports reports;
+  private transient XAdESSignature xadesSignature;
+  private DSSDocument document;
   private List<DSSDocument> detachedContents;
   private Configuration configuration;
 
-  public XadesValidationReportGenerator(DSSDocument signatureDocument, List<DSSDocument> detachedContents, Configuration configuration) {
-    this.signatureDocument = signatureDocument;
+  /**
+   * @param document signature document
+   * @param detachedContents detached content
+   * @param configuration configuration context
+   */
+  public XadesValidationReportGenerator(DSSDocument document, List<DSSDocument> detachedContents,
+                                        Configuration configuration) {
+    this.document = document;
     this.detachedContents = detachedContents;
     this.configuration = configuration;
   }
 
   public Reports openValidationReport() {
-    if (this.validationReport != null) {
-      LOGGER.debug("Using existing validation report");
-      return this.validationReport;
+    if (this.reports == null) {
+      this.reports = this.generateReports();
     }
-    this.validationReport = this.createNewValidationReport();
-    this.print();
-    return this.validationReport;
+    return this.reports;
   }
 
   public XAdESSignature openDssSignature() {
-    if (this.dssSignature == null) {
-      this.dssSignature = this.getXAdESSignature();
+    if (this.xadesSignature == null) {
+      this.xadesSignature = this.getXAdESSignature();
     }
-    return this.dssSignature;
+    return this.xadesSignature;
   }
 
   /*
    * RESTRICTED METHODS
    */
 
-  private Reports createNewValidationReport() {
+  private Reports generateReports() {
     try {
-      LOGGER.debug("Creating a new validation report");
+      this.log.debug("Creating a new validation report");
       return this.getSignedDocumentValidator().validateDocument(this.getValidationPolicyAsStream());
     } catch (DSSException e) {
-      LOGGER.error("Error creating a new validation report: {}", e.getMessage());
       throw new DigiDoc4JException(e);
+    } finally {
+      this.print();
     }
   }
 
@@ -85,42 +89,43 @@ public class XadesValidationReportGenerator implements Serializable {
       try {
         return new FileInputStream(policyFile);
       } catch (FileNotFoundException ignore) {
-        LOGGER.warn(ignore.getMessage());
+        this.log.warn(ignore.getMessage());
       }
     }
     return this.getClass().getClassLoader().getResourceAsStream(policyFile);
   }
 
   private XAdESSignature getXAdESSignature() {
-    LOGGER.debug("Opening XAdES signature");
+    this.log.debug("Opening XAdES signature");
     List<AdvancedSignature> signatures = this.getSignedDocumentValidator().getSignatures();
     if (CollectionUtils.isEmpty(signatures)) {
-      throw new SignatureNotFoundException("Unable to open XAdES signature. Content is empty");
+      throw new SignatureNotFoundException("No any XAdES signature found");
     }
     if (signatures.size() > 1) {
-      LOGGER.warn("Signatures xml file contains more than one signature. This is not properly supported");
+      this.log.warn("Signatures xml file contains more than one XAdES signature. This is not properly supported");
     }
     return (XAdESSignature) signatures.get(0);
   }
 
   private SignedDocumentValidator getSignedDocumentValidator() {
-    if (this.validator == null) {
-      this.validator = this.createXadesValidator();
+    if (this.signedDocumentValidator == null) {
+      this.signedDocumentValidator = this.createValidator();
     }
-    return this.validator;
+    return this.signedDocumentValidator;
   }
 
-  private SignedDocumentValidator createXadesValidator() {
-    LOGGER.debug("Creating a new xades validator");
-    return new XadesValidationDssFacade(this.detachedContents, this.configuration).openXadesValidator(this.signatureDocument);
+  private SignedDocumentValidator createValidator() {
+    this.log.debug("Creating a new XAdES validator");
+    return new XadesValidationDssFacade(this.detachedContents, this.configuration).openXadesValidator(
+        this.document);
   }
 
   private void print() {
-    if (LOGGER.isTraceEnabled()) {
-      LOGGER.trace("----------------Validation report---------------");
-      LOGGER.trace(this.validationReport.getXmlDetailedReport());
-      LOGGER.trace("----------------Simple report-------------------");
-      LOGGER.trace(this.validationReport.getXmlSimpleReport());
+    if (this.log.isTraceEnabled()) {
+      this.log.trace("----------------Validation report---------------");
+      this.log.trace(this.reports.getXmlDetailedReport());
+      this.log.trace("----------------Simple report-------------------");
+      this.log.trace(this.reports.getXmlSimpleReport());
     }
   }
 
@@ -128,8 +133,8 @@ public class XadesValidationReportGenerator implements Serializable {
    * ACCESSORS
    */
 
-  public void setValidator(SignedDocumentValidator validator) {
-    this.validator = validator;
+  public void setSignedDocumentValidator(SignedDocumentValidator signedDocumentValidator) {
+    this.signedDocumentValidator = signedDocumentValidator;
   }
 
 }
