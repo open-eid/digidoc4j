@@ -12,7 +12,7 @@ package org.digidoc4j.exceptions;
 
 public class InvalidTimestampException extends DigiDoc4JException {
 
-  public static final String MESSAGE = "Invalid timestamp";
+  public static final String MESSAGE = "Signature has an invalid timestamp";
 
   public InvalidTimestampException() {
     super(MESSAGE);

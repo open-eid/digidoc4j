@@ -32,6 +32,7 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
+import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DataToSign;
@@ -900,10 +901,22 @@ public class BDocContainerTest extends AbstractTest {
   @Test
   public void whenOpeningContainer_withSignaturePolicyImpliedElement_inTMSignatures_shouldThrowException() {
     SignatureValidationResult result = ContainerBuilder.aContainer()
-        .fromExistingFile("src/test/resources/testFiles/invalid-containers/23608_bdoc21-invalid-nonce-policy-and-implied.bdoc")
-        .withConfiguration(new Configuration(Configuration.Mode.TEST)).build().validate();
+        .fromExistingFile(
+            "src/test/resources/prodFiles/invalid-containers/23608_bdoc21-invalid-nonce-policy-and-implied.bdoc")
+        .withConfiguration(new Configuration(Configuration.Mode.PROD)).build().validate();
     Assert.assertFalse("Container should be invalid", result.isValid());
-    Assert.assertEquals("Incorrect errors count", 2, result.getErrors().size());
+    Assert.assertEquals("Incorrect errors count", 1, result.getErrors().size());
+    Assert.assertEquals("(Signature ID: S0) - Signature contains forbidden <SignaturePolicyImplied> element",
+        result.getErrors().get(0).toString());
+  }
+
+  @Test
+  public void containerWithImplicitPolicy(){
+    setGlobalMode(Configuration.Mode.TEST);
+    Container container = ContainerOpener.open
+        ("src\\test\\resources\\testFiles\\valid-containers\\validTSwImplicitPolicy.asice" );
+    ContainerValidationResult validate = container.validate();
+    Assert.assertTrue(validate.isValid());
   }
 
   @Test(expected = OCSPRequestFailedException.class)

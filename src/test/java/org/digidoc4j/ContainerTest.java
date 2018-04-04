@@ -29,6 +29,7 @@ import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
+import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -37,7 +38,6 @@ import org.xml.sax.SAXException;
 
 public class ContainerTest extends AbstractTest {
 
-  private static final String EIDAS_POLICY = "src/test/resources/testFiles/constraints/eIDAS_test_constraint.xml";
   private static final String CERTIFICATE =
       "MIIFEzCCA/ugAwIBAgIQSXxaK/qTYahTT77Z9I56EjANBgkqhkiG9w0BAQUFADBsMQswCQYDVQQGEwJFRTEiMCAGA1UECgwZQVMgU2VydGlmaX" +
           "RzZWVyaW1pc2tlc2t1czEfMB0GA1UEAwwWVEVTVCBvZiBFU1RFSUQtU0sgMjAxMTEYMBYGCSqGSIb3DQEJARYJcGtpQHNrLmVlMB4XDTE0" +
@@ -58,19 +58,61 @@ public class ContainerTest extends AbstractTest {
           "rJJ6H8j+h+nCKLjIdYImvnznKyR0N2CRc/zQ+g==";
 
   @Test
-  public void eIDASConfigurationTest() {
+  public void eIDASAllErrorsPolicyConfigurationTest() {
     this.configuration = Configuration.of(Configuration.Mode.TEST);
-    this.configuration.setValidationPolicy(EIDAS_POLICY);
+    this.configuration.setValidationPolicy
+        ("src/test/resources/testFiles/constraints/eIDAS_test_constraint_all_fail_level.xml");
     Container container = this.openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc"));
     SignatureValidationResult result = container.validate();
-    List<DigiDoc4JException> errors = result.getErrors();
-    List<DigiDoc4JException> warnings = result.getWarnings();
-    Assert.assertFalse(result.isValid());
-    Assert.assertTrue(errors.size() == 2);
-    Assert.assertTrue(warnings.size() == 0);
+    Assert.assertFalse("Container is valid", result.isValid());
+    Assert.assertEquals("No errors count match", 2, result.getErrors().size());
+    Assert.assertEquals("No warnings count match", 0, result.getWarnings().size());
     Assert.assertTrue(result.getReport().contains("The trusted list is not acceptable"));
     Assert.assertTrue(result.getReport().contains("The trusted list has not the expected version"));
+  }
+
+  @Test
+  public void eIDASWellSignedFailPolicyConfigurationTest() {
+    this.setGlobalMode(Configuration.Mode.PROD);
+    this.configuration = Configuration.of(Configuration.Mode.PROD);
+    this.configuration.setTslKeyStoreLocation("src/test/resources/prodFiles/keystore/keystore_old_signer.jks");
+    this.configuration.setValidationPolicy
+        ("src/test/resources/testFiles/constraints/eIDAS_test_constraint_well_signed_fail.xml");
+    Container container = this.openContainerByConfiguration(
+        Paths.get("src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc"));
+    SignatureValidationResult result = container.validate();
+    Assert.assertFalse("Container is valid", result.isValid());
+    Assert.assertEquals("No errors count match", 2, result.getErrors().size());
+    Assert.assertEquals("No warnings count match", 1, result.getWarnings().size());
+    Assert.assertTrue(result.getReport().contains("The signed attribute: 'signing-certificate' is absent!"));
+  }
+
+  @Test
+  public void eIDASVersionFailPolicyConfigurationTest() {
+    this.setGlobalMode(Configuration.Mode.PROD);
+    this.configuration = Configuration.of(Configuration.Mode.PROD);
+    this.configuration.setValidationPolicy
+        ("src/test/resources/testFiles/constraints/eIDAS_test_constraint_version_fail.xml");
+    Container container = this.openContainerByConfiguration(
+        Paths.get("src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc"));
+    SignatureValidationResult result = container.validate();
+    Assert.assertFalse("Container is valid", result.isValid());
+    Assert.assertEquals("No errors count match", 2, result.getErrors().size());
+    Assert.assertEquals("No warnings count match", 1, result.getWarnings().size());
+  }
+
+  @Test
+  public void eIDASAllWarningsPolicyConfigurationTest() {
+    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    this.configuration.setValidationPolicy
+        ("src/test/resources/testFiles/constraints/eIDAS_test_constraint_all_warn_level.xml");
+    Container container = this.openContainerByConfiguration(
+        Paths.get("src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc"));
+    SignatureValidationResult result = container.validate();
+    Assert.assertTrue("Container is invalid", result.isValid());
+    Assert.assertEquals("No errors count match", 0, result.getErrors().size());
+    Assert.assertEquals("No warnings count match", 2, result.getWarnings().size());
   }
 
   @Test

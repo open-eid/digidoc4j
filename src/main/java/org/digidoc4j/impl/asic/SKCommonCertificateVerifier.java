@@ -34,116 +34,110 @@ import eu.europa.esig.dss.x509.ocsp.OCSPSource;
  * Delegate class for SD-DSS CommonCertificateVerifier. Needed for making serialization possible
  */
 public class SKCommonCertificateVerifier implements Serializable, CertificateVerifier {
-  private static final Logger logger = LoggerFactory.getLogger(SKCommonCertificateVerifier.class);
+
+  private final Logger log = LoggerFactory.getLogger(SKCommonCertificateVerifier.class);
   private transient CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
   private transient CertificateSource trustedCertSource;
 
-  private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
-    stream.defaultReadObject();
-    commonCertificateVerifier = new CommonCertificateVerifier();
-  }
-
   @Override
   public CertificateSource getTrustedCertSource() {
-    if (trustedCertSource instanceof ClonedTslCertificateSource){
-      if (((ClonedTslCertificateSource)trustedCertSource).getTrustedListsCertificateSource() != null){
-        logger.debug("get TrustedListCertificateSource from ClonedTslCertificateSource");
-        return ((ClonedTslCertificateSource)trustedCertSource).getTrustedListsCertificateSource();
+    if (this.trustedCertSource instanceof ClonedTslCertificateSource) {
+      if (((ClonedTslCertificateSource) this.trustedCertSource).getTrustedListsCertificateSource() != null) {
+        this.log.debug("get TrustedListCertificateSource from ClonedTslCertificateSource");
+        return ((ClonedTslCertificateSource) this.trustedCertSource).getTrustedListsCertificateSource();
       }
     }
-    return commonCertificateVerifier.getTrustedCertSource();
-  }
-
-  @Override
-  public OCSPSource getOcspSource() {
-    logger.debug("");
-    return commonCertificateVerifier.getOcspSource();
-  }
-
-  @Override
-  public CRLSource getCrlSource() {
-    logger.debug("");
-    return commonCertificateVerifier.getCrlSource();
-  }
-
-  @Override
-  public void setCrlSource(final CRLSource crlSource) {
-    logger.debug("");
-    commonCertificateVerifier.setCrlSource(crlSource);
-  }
-
-  @Override
-  public void setOcspSource(final OCSPSource ocspSource) {
-    logger.debug("");
-    commonCertificateVerifier.setOcspSource(ocspSource);
+    return this.commonCertificateVerifier.getTrustedCertSource();
   }
 
   @Override
   public void setTrustedCertSource(final CertificateSource trustedCertSource) {
     ClonedTslCertificateSource clonedTslCertificateSource = new ClonedTslCertificateSource(trustedCertSource);
     this.trustedCertSource = clonedTslCertificateSource;
-    if (trustedCertSource instanceof LazyTslCertificateSource){
-      logger.debug("get TrustedCertSource from LazyTslCertificateSource");
-      commonCertificateVerifier.setTrustedCertSource(((LazyTslCertificateSource)trustedCertSource).getTslLoader().getTslCertificateSource());
-    } else{
-      commonCertificateVerifier.setTrustedCertSource(clonedTslCertificateSource);
+    if (trustedCertSource instanceof LazyTslCertificateSource) {
+      this.log.debug("get TrustedCertSource from LazyTslCertificateSource");
+      this.commonCertificateVerifier.setTrustedCertSource(
+          ((LazyTslCertificateSource) trustedCertSource).getTslLoader().getTslCertificateSource());
+    } else {
+      this.commonCertificateVerifier.setTrustedCertSource(clonedTslCertificateSource);
     }
+  }
+
+  @Override
+  public OCSPSource getOcspSource() {
+    return this.commonCertificateVerifier.getOcspSource();
+  }
+
+  @Override
+  public CRLSource getCrlSource() {
+    return this.commonCertificateVerifier.getCrlSource();
+  }
+
+  @Override
+  public void setCrlSource(final CRLSource crlSource) {
+    commonCertificateVerifier.setCrlSource(crlSource);
+  }
+
+  @Override
+  public void setOcspSource(final OCSPSource ocspSource) {
+    this.commonCertificateVerifier.setOcspSource(ocspSource);
   }
 
   @Override
   public CertificateSource getAdjunctCertSource() {
-    logger.debug("");
-    return commonCertificateVerifier.getAdjunctCertSource();
+    return this.commonCertificateVerifier.getAdjunctCertSource();
   }
 
   @Override
   public void setAdjunctCertSource(final CertificateSource adjunctCertSource) {
-    logger.debug("");
-    commonCertificateVerifier.setAdjunctCertSource(adjunctCertSource);
+    this.commonCertificateVerifier.setAdjunctCertSource(adjunctCertSource);
   }
 
   @Override
   public DataLoader getDataLoader() {
-    logger.debug("");
-    return commonCertificateVerifier.getDataLoader();
+    return this.commonCertificateVerifier.getDataLoader();
   }
 
   @Override
   public void setDataLoader(final DataLoader dataLoader) {
-    logger.debug("");
-    commonCertificateVerifier.setDataLoader(dataLoader);
+    this.commonCertificateVerifier.setDataLoader(dataLoader);
   }
 
   @Override
   public ListCRLSource getSignatureCRLSource() {
-    logger.debug("");
-    return commonCertificateVerifier.getSignatureCRLSource();
+    return this.commonCertificateVerifier.getSignatureCRLSource();
   }
 
   @Override
   public void setSignatureCRLSource(final ListCRLSource signatureCRLSource) {
-    logger.debug("");
-    commonCertificateVerifier.setSignatureCRLSource(signatureCRLSource);
+    this.commonCertificateVerifier.setSignatureCRLSource(signatureCRLSource);
   }
 
   @Override
   public ListOCSPSource getSignatureOCSPSource() {
-    logger.debug("");
-    return commonCertificateVerifier.getSignatureOCSPSource();
+    return this.commonCertificateVerifier.getSignatureOCSPSource();
   }
 
   @Override
   public void setSignatureOCSPSource(final ListOCSPSource signatureOCSPSource) {
-    logger.debug("");
-    commonCertificateVerifier.setSignatureOCSPSource(signatureOCSPSource);
+    this.commonCertificateVerifier.setSignatureOCSPSource(signatureOCSPSource);
   }
 
   @Override
   public CertificatePool createValidationPool() {
-    logger.debug("");
-    if (trustedCertSource == null) {
-      return commonCertificateVerifier.createValidationPool();
+    if (this.trustedCertSource == null) {
+      return this.commonCertificateVerifier.createValidationPool();
     }
-    return new LazyCertificatePool(trustedCertSource);
+    return new LazyCertificatePool(this.trustedCertSource);
   }
+  
+  /*
+   * RESTRICTED METHODS
+   */
+
+  private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+    stream.defaultReadObject();
+    this.commonCertificateVerifier = new CommonCertificateVerifier();
+  }
+
 }

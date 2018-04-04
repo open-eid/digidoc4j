@@ -80,16 +80,16 @@ public class ManifestValidator {
         String fileName = manifestEntry.getFileName();
         ManifestEntry signatureEntry = signatureEntryForFile(fileName, signatureEntries);
         if (signatureEntry != null) {
-          errorMessages.add(new ManifestErrorMessage("Manifest file has an entry for file "
-              + fileName + " with mimetype " +
-              manifestEntry.getMimeType() + " but the signature file for signature " + signatureId +
-              " indicates the mimetype is " + signatureEntry.getMimeType(), signatureId));
+          errorMessages.add(new ManifestErrorMessage("Manifest file has an entry for file <"
+              + fileName + "> with mimetype <"
+              + manifestEntry.getMimeType() + "> but the signature file for signature " + signatureId
+              + " indicates the mimetype is <" + signatureEntry.getMimeType() + ">", signatureId));
           two.remove(signatureEntry);
         } else {
-          errorMessages.add(new ManifestErrorMessage("Manifest file has an entry for file "
-              + fileName + " with mimetype "
-              + manifestEntry.getMimeType() + " but the signature file for signature " + signatureId +
-              " does not have an entry for this file", signatureId));
+          errorMessages.add(new ManifestErrorMessage("Manifest file has an entry for file <"
+              + fileName + "> with mimetype <"
+              + manifestEntry.getMimeType() + "> but the signature file for signature " + signatureId
+              + " does not have an entry for this file", signatureId));
         }
       }
     }
@@ -97,9 +97,9 @@ public class ManifestValidator {
     if (two.size() > 0 && twoPrim.size() > 0) {
       for (ManifestEntry manifestEntry : two) {
         errorMessages.add(new ManifestErrorMessage("The signature file for signature "
-            + signatureId + " has an entry for file "
-            + manifestEntry.getFileName() + " with mimetype " + manifestEntry.getMimeType()
-            + " but the manifest file does not have an entry for this file", signatureId));
+            + signatureId + " has an entry for file <"
+            + manifestEntry.getFileName() + "> with mimetype <" + manifestEntry.getMimeType()
+            + "> but the manifest file does not have an entry for this file", signatureId));
       }
     }
 
@@ -155,8 +155,8 @@ public class ManifestValidator {
     for (String fileInContainer : filesInContainer) {
       String alterName = fileInContainer.replaceAll("\\ ", "+");
       if (!signatureEntriesFileNames.contains(fileInContainer) && !signatureEntriesFileNames.contains(alterName)) {
-        errorMessages.add(new ManifestErrorMessage(String.format("Container contains a file named <%s> which is not " +
-            "found in the signature file", fileInContainer)));
+        errorMessages.add(new ManifestErrorMessage(String.format("Container contains a file named <%s> which is not "
+            + "found in the signature file", fileInContainer)));
       }
     }
     return errorMessages;
@@ -191,9 +191,9 @@ public class ManifestValidator {
         if (node != null) {
           String referenceId = node.getAttributes().getNamedItem("Id").getNodeValue();
           mimeTypeString = DomUtils.getValue(signatureNode,
-              "./ds:Object/xades:QualifyingProperties/xades:SignedProperties/" +
-                  "xades:SignedDataObjectProperties/xades:DataObjectFormat" +
-                  "[@ObjectReference=\"#" + referenceId + "\"]/xades:MimeType");
+              "./ds:Object/xades:QualifyingProperties/xades:SignedProperties/"
+                  + "xades:SignedDataObjectProperties/xades:DataObjectFormat"
+                  + "[@ObjectReference=\"#" + referenceId + "\"]/xades:MimeType");
         }
 
         // TODO: mimeTypeString == null ? node == null?

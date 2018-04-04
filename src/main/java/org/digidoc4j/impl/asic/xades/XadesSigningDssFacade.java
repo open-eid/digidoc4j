@@ -168,9 +168,10 @@ public class XadesSigningDssFacade {
   }
 
   public void setSignerRoles(Collection<String> signerRoles) {
-    BLevelParameters bLevelParameters = xAdESSignatureParameters.bLevel();
-    bLevelParameters.setClaimedSignerRoles(new ArrayList<String>(signerRoles));
-
+    if (signerRoles != null && !signerRoles.isEmpty()) {
+      BLevelParameters bLevelParameters = xAdESSignatureParameters.bLevel();
+      bLevelParameters.setClaimedSignerRoles(new ArrayList<String>(signerRoles));
+    }
   }
 
   public void setSignaturePolicy(Policy signaturePolicy) {

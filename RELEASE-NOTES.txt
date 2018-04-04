@@ -1,5 +1,14 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+Release 2.1.0
+------------------
+Summary of the major changes since 2.0.1.RC.1
+------------------------------------------
+* Corrected validation of ASiC-E with implicit signature policy and TimeStamp
+* Corrected error messages for integration tests
+* Corrected support for trusted lists eIDAS parameters (TLWellSigned etc)
+* Ensured that signature will not contain empty SignerRole tag
+
 Release 2.1.0.RC.1
 ------------------
 Summary of the major changes since 2.0.1
