@@ -914,7 +914,7 @@ public class BDocContainerTest extends AbstractTest {
   public void containerWithImplicitPolicy(){
     setGlobalMode(Configuration.Mode.TEST);
     Container container = ContainerOpener.open
-        ("src\\test\\resources\\testFiles\\valid-containers\\validTSwImplicitPolicy.asice" );
+        ("src/test/resources/testFiles/valid-containers/validTSwImplicitPolicy.asice");
     ContainerValidationResult validate = container.validate();
     Assert.assertTrue(validate.isValid());
   }
