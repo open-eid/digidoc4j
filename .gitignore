@@ -3,3 +3,5 @@
 .idea/*
 !.idea/codeStyleSettings.xml
 /buildNumber.properties
+*.iml
+**/.DS_Store
