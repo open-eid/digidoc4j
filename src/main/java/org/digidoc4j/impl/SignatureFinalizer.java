@@ -16,6 +16,12 @@ import org.digidoc4j.Signature;
 
 public interface SignatureFinalizer extends Serializable {
 
+  /**
+   * Adds signature value and constructs the signature object
+   *
+   * @param signatureValue signature value bytes
+   * @return signature object
+   */
   Signature finalizeSignature(byte[] signatureValue);
 
 }

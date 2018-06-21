@@ -103,20 +103,20 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   @Override
-  public Signature finalizeSignature(byte[] signatureValueBytes) {
+  public Signature finalizeSignature(byte[] signatureValue) {
     if ((signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA || isEcdsaCertificate())
-        && DSSSignatureUtils.isAsn1Encoded(signatureValueBytes)) {
-      logger.debug("Finalizing signature ASN1: " + Helper.bytesToHex(signatureValueBytes, hexMaxlen) + " ["
-          + String.valueOf(signatureValueBytes.length) + "]");
-      signatureValueBytes = DSSSignatureUtils.convertToXmlDSig(eu.europa.esig.dss.EncryptionAlgorithm.ECDSA,
-          signatureValueBytes);
+        && DSSSignatureUtils.isAsn1Encoded(signatureValue)) {
+      logger.debug("Finalizing signature ASN1: " + Helper.bytesToHex(signatureValue, hexMaxlen) + " ["
+          + String.valueOf(signatureValue.length) + "]");
+      signatureValue = DSSSignatureUtils.convertToXmlDSig(eu.europa.esig.dss.EncryptionAlgorithm.ECDSA,
+          signatureValue);
     }
-    logger.debug("Finalizing signature XmlDSig: " + Helper.bytesToHex(signatureValueBytes, hexMaxlen) + " ["
-        + String.valueOf(signatureValueBytes.length) + "]");
-    populateParametersForFinalizingSignature(signatureValueBytes);
+    logger.debug("Finalizing signature XmlDSig: " + Helper.bytesToHex(signatureValue, hexMaxlen) + " ["
+        + String.valueOf(signatureValue.length) + "]");
+    populateParametersForFinalizingSignature(signatureValue);
     Collection<DataFile> dataFilesToSign = getDataFiles();
     validateDataFilesToSign(dataFilesToSign);
-    DSSDocument signedDocument = facade.signDocument(signatureValueBytes, dataFilesToSign);
+    DSSDocument signedDocument = facade.signDocument(signatureValue, dataFilesToSign);
     return createSignature(signedDocument);
   }
 
