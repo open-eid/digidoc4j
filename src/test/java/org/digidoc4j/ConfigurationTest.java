@@ -199,14 +199,12 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  //@Ignore("RIA VPN")
-  //This test works and succeeds only in RIA VPN; outside of RIA VPN it will not fail
   public void TSLIsLoadedAfterSettingNewTSLLocation() {
     this.configuration.setTslLocation("https://open-eid.github.io/test-TL/tl-mp-test-EE.xml");
     BDocContainer container = (BDocContainer) ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE)
         .withConfiguration(this.configuration).build();
     container.getConfiguration().getTSL();
-    Assert.assertEquals(7, container.getConfiguration().getTSL().getCertificates().size());
+    Assert.assertEquals(8, container.getConfiguration().getTSL().getCertificates().size());
     try {
       int tenSeconds = 10000;
       String tslHost = "10.0.25.57";

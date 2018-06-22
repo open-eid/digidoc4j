@@ -49,6 +49,22 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
   }
 
   @Test
+  public void signWithMultipleDataFiles() throws Exception {
+    byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
+    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
+
+    byte[] digest2 = MessageDigest.getInstance("SHA-256").digest("hello2".getBytes());
+    DigestDataFile digestDataFile2 = new DigestDataFile("hello2.txt", DigestAlgorithm.SHA256, digest2);
+
+    Signature signature = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+        .withDataFile(digestDataFile)
+        .withDataFile(digestDataFile2)
+        .withSignatureToken(pkcs12EccSignatureToken)
+        .invokeSigning();
+    Assert.assertTrue(signature.validateSignature().isValid());
+  }
+
+  @Test
   public void signWithNormalDataFile() {
     DataFile dataFile = new DataFile("hello".getBytes(), "hello.txt", "text/plain");
 

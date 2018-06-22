@@ -59,7 +59,7 @@ import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
 
 /**
- * Signature builder for Asic conteiner.
+ * Signature builder for Asic container.
  */
 public class AsicSignatureBuilder extends SignatureBuilder implements SignatureFinalizer {
 
