@@ -12,8 +12,8 @@ package org.digidoc4j.main;
 
 import java.util.List;
 
-import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
@@ -95,7 +95,7 @@ public final class DigiDoc4J {
   private static void run(String[] args) {
     Options options = DigiDoc4J.createParameters();
     try {
-      CommandLine commandLine = new BasicParser().parse(options, args);
+      CommandLine commandLine = new DefaultParser().parse(options, args);
       if (commandLine.hasOption("version")) {
         DigiDoc4J.showVersion();
       }
@@ -277,12 +277,12 @@ public final class DigiDoc4J {
   }
 
   private static Option pkcs12Sign() {
-    return OptionBuilder.withArgName("pkcs12Keystore password").hasArgs(2).withValueSeparator(' ')
+    return OptionBuilder.withArgName("pkcs12Keystore password").hasArgs(2)
         .withDescription("sets pkcs12 keystore and keystore password").create("pkcs12");
   }
 
   private static Option pkcs11Sign() {
-    return OptionBuilder.withArgName("pkcs11ModulePath pin slot").hasArgs(3).withValueSeparator(' ')
+    return OptionBuilder.withArgName("pkcs11ModulePath pin slot").hasArgs(3)
         .withDescription("sets pkcs11 module path, pin(password) and a slot index").create("pkcs11");
   }
 
@@ -342,7 +342,7 @@ public final class DigiDoc4J {
   }
 
   private static Option addDigestFile() {
-    return OptionBuilder.withArgName("name digest").hasArgs(2).withValueSeparator(' ')
+    return OptionBuilder.withArgName("name digest").hasArgs(2)
         .withDescription("sets digest (in base64) data file for detached XadES").create(ExecutionOption.DIGEST_FILE
             .getName());
   }
