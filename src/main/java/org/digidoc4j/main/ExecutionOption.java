@@ -25,7 +25,12 @@ public enum ExecutionOption {
   EXTRACT("extract", 2),
   PKCS11("pkcs11", 2),
   PKCS12("pkcs12", 2),
-  SIGNAURE("sig", 1);
+  SIGNATURE("sig", 1),
+
+  DETACHED_XADES("xades", 0),
+  DIGEST_FILE("digFile" , 2),
+  XADES_OUTPUT_PATH("sigOutputPath" , 1),
+  XADES_INPUT_PATH("sigInputPath" , 1);
 
   private String name;
   private int count;

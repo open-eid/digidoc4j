@@ -10,6 +10,7 @@
 
 package org.digidoc4j.main;
 
+import static com.jcabi.matchers.RegexMatchers.containsPattern;
 import static org.digidoc4j.main.DigiDoc4J.isWarning;
 
 import java.io.File;
@@ -872,6 +873,33 @@ public class DigiDoc4JTest extends AbstractTest {
     DigiDoc4J.main(new String[]{"-in", containerPath, "-extract", fileToExtract, outputPath});
     TestCommonUtil.sleepInSeconds(1);
     Assert.assertTrue(new File(outputPath).exists());
+  }
+
+  @Test
+  public void createAndValidateDetachedXades() throws Exception {
+    String xadesSignaturePath = "singatures0.xml";
+
+    String[] parameters = new String[]{"-xades", "-digFile", "test.txt",
+        "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12",
+        "test", "-sigOutputPath", xadesSignaturePath};
+    TestDigiDoc4JUtil.call(parameters);
+
+    parameters = new String[]{"-xades", "-digFile", "test.txt",
+        "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg", "-sigInputPath", xadesSignaturePath};
+    TestDigiDoc4JUtil.call(parameters);
+
+    Assert.assertThat(stdOut.getLog(), containsPattern("Signature id-[a-z0-9]+ is valid"));
+    new File(xadesSignaturePath).delete();
+  }
+
+  @Test
+  public void validateDetachedXades_withWrongDigestFile_shouldFail() throws Exception {
+    String[] parameters = new String[]{"-xades", "-digFile", "test.txt",
+        "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg", "-sigInputPath",
+        "src/test/resources/testFiles/xades/test-bdoc-ts.xml"};
+    TestDigiDoc4JUtil.call(parameters);
+
+    Assert.assertThat(stdOut.getLog(), StringContains.containsString("The reference data object(s) is not intact!"));
   }
 
 }

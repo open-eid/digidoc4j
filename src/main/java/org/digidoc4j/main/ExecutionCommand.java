@@ -25,10 +25,19 @@ public enum ExecutionCommand {
   EXTERNAL_COMPOSE_DTS(
       Arrays.asList(ExecutionOption.IN, ExecutionOption.ADD, ExecutionOption.CERTIFICATE, ExecutionOption.DTS)),
   EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS11(
-      Arrays.asList(ExecutionOption.DTS, ExecutionOption.PKCS11, ExecutionOption.SIGNAURE)),
+      Arrays.asList(ExecutionOption.DTS, ExecutionOption.PKCS11, ExecutionOption.SIGNATURE)),
   EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS12(
-      Arrays.asList(ExecutionOption.DTS, ExecutionOption.PKCS12, ExecutionOption.SIGNAURE)),
-  EXTERNAL_ADD_SIGNATURE(Arrays.asList(ExecutionOption.IN, ExecutionOption.DTS, ExecutionOption.SIGNAURE));
+      Arrays.asList(ExecutionOption.DTS, ExecutionOption.PKCS12, ExecutionOption.SIGNATURE)),
+  EXTERNAL_ADD_SIGNATURE(Arrays.asList(ExecutionOption.IN, ExecutionOption.DTS, ExecutionOption.SIGNATURE)),
+
+  XADES_COMPOSE_SIGNATURE_WITH_PKCS11(
+      Arrays.asList(ExecutionOption.DETACHED_XADES, ExecutionOption.DIGEST_FILE, ExecutionOption.PKCS11,
+          ExecutionOption.XADES_OUTPUT_PATH)),
+  XADES_COMPOSE_SIGNATURE_WITH_PKCS12(
+      Arrays.asList(ExecutionOption.DETACHED_XADES, ExecutionOption.DIGEST_FILE, ExecutionOption.PKCS12,
+          ExecutionOption.XADES_OUTPUT_PATH)),
+  XADES_LOAD_SIGNATURE(
+      Arrays.asList(ExecutionOption.DETACHED_XADES, ExecutionOption.DIGEST_FILE, ExecutionOption.XADES_INPUT_PATH));
 
   List<ExecutionOption> mandatoryOptions;
 

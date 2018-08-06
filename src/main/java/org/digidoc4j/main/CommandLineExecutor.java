@@ -133,7 +133,7 @@ public class CommandLineExecutor {
           case PKCS12:
             this.context.setSignatureToken(this.loadPKCS12Token());
             break;
-          case SIGNAURE:
+          case SIGNATURE:
             switch (this.context.getCommand()) {
               case EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS11:
               case EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS12:
@@ -306,7 +306,7 @@ public class CommandLineExecutor {
 
   private byte[] loadSignature() {
     LOGGER.debug("Loading signature ...");
-    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.SIGNAURE.getName());
+    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.SIGNATURE.getName());
     try {
       return Files.readAllBytes(Paths.get(values[0]));
     } catch (IOException e) {
@@ -336,7 +336,7 @@ public class CommandLineExecutor {
 
   private void storeSignature() {
     LOGGER.debug("Storing signature ...");
-    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.SIGNAURE.getName());
+    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.SIGNATURE.getName());
     try (OutputStream stream = new FileOutputStream(values[0])) {
       IOUtils.write(this.context.getSignature(), stream);
     } catch (IOException e) {

@@ -22,6 +22,7 @@ import org.apache.commons.cli.ParseException;
 import org.digidoc4j.Container;
 import org.digidoc4j.Version;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.main.xades.DetachedXadesSignatureExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +99,7 @@ public final class DigiDoc4J {
       if (commandLine.hasOption("version")) {
         DigiDoc4J.showVersion();
       }
-      boolean execute = DigiDoc4J.shouldManipulateContainer(commandLine);
+      boolean execute = DigiDoc4J.shouldManipulateContainer(commandLine) || DigiDoc4J.shouldOperateWithDetachedXades(commandLine);
       if (execute) {
         DigiDoc4J.execute(commandLine);
       }
@@ -120,20 +121,29 @@ public final class DigiDoc4J {
         ExecutionOption.IN.getName()) || DigiDoc4J.isMultipleContainerCreation(commandLine);
   }
 
+  private static boolean shouldOperateWithDetachedXades(CommandLine commandLine) {
+    return commandLine.hasOption(ExecutionOption.DETACHED_XADES.getName());
+  }
+
   private static void execute(CommandLine commandLine) {
-    CommandLineExecutor executor = new CommandLineExecutor(
-        ExecutionContext.of(commandLine, DigiDoc4J.checkSupportedFunctionality(commandLine)));
     try {
-      if (executor.hasCommand()) {
-        executor.executeCommand();
-      } else if (commandLine.hasOption(ExecutionOption.IN.getName())) {
-        String containerPath = commandLine.getOptionValue(ExecutionOption.IN.getName());
-        Container container = executor.openContainer(containerPath);
-        executor.processContainer(container);
-        executor.saveContainer(container, containerPath);
-      } else if (DigiDoc4J.isMultipleContainerCreation(commandLine)) {
-        MultipleContainersExecutor containersCreator = new MultipleContainersExecutor(commandLine);
-        containersCreator.execute();
+      if (DigiDoc4J.isDetachedXades(commandLine)) {
+        DetachedXadesSignatureExecutor xadesCreator = new DetachedXadesSignatureExecutor(commandLine);
+        xadesCreator.executeCommand();
+      } else {
+        CommandLineExecutor executor = new CommandLineExecutor(
+            ExecutionContext.of(commandLine, DigiDoc4J.checkSupportedFunctionality(commandLine)));
+        if (executor.hasCommand()) {
+          executor.executeCommand();
+        } else if (commandLine.hasOption(ExecutionOption.IN.getName())) {
+          String containerPath = commandLine.getOptionValue(ExecutionOption.IN.getName());
+          Container container = executor.openContainer(containerPath);
+          executor.processContainer(container);
+          executor.saveContainer(container, containerPath);
+        } else if (DigiDoc4J.isMultipleContainerCreation(commandLine)) {
+          MultipleContainersExecutor containersCreator = new MultipleContainersExecutor(commandLine);
+          containersCreator.execute();
+        }
       }
     } catch (DigiDoc4JUtilityException e) {
       throw e;
@@ -162,7 +172,7 @@ public final class DigiDoc4J {
     return null;
   }
 
-  private static boolean hasOptionsMatch(CommandLine commandLine, List<ExecutionOption> commands) {
+  static boolean hasOptionsMatch(CommandLine commandLine, List<ExecutionOption> commands) {
     int matchCount = 0;
     for (ExecutionOption command : commands) {
       if (commandLine.hasOption(command.getName())) {
@@ -176,7 +186,7 @@ public final class DigiDoc4J {
     DigiDoc4J.checkOption(option, commandLine, false);
   }
 
-  private static void checkOption(ExecutionOption option, CommandLine commandLine, boolean mandatory) {
+  static void checkOption(ExecutionOption option, CommandLine commandLine, boolean mandatory) {
     if (commandLine.hasOption(option.getName())) {
       int count = 0;
       try {
@@ -195,6 +205,10 @@ public final class DigiDoc4J {
 
   private static boolean isMultipleContainerCreation(CommandLine commandLine) {
     return commandLine.hasOption("inputDir") && commandLine.hasOption("outputDir");
+  }
+
+  private static boolean isDetachedXades(CommandLine commandLine) {
+    return commandLine.hasOption("xades");
   }
 
   private static Options createParameters() {
@@ -222,6 +236,11 @@ public final class DigiDoc4J {
     options.addOption(DigiDoc4J.signingDataFile());
     options.addOption(DigiDoc4J.signatureFile());
     options.addOption(DigiDoc4J.certificateFile());
+
+    options.addOption(DigiDoc4J.detachedXades());
+    options.addOption(DigiDoc4J.addDigestFile());
+    options.addOption(DigiDoc4J.xadesOutputPath());
+    options.addOption(DigiDoc4J.xadesInputPath());
     return options;
   }
 
@@ -232,7 +251,7 @@ public final class DigiDoc4J {
 
   private static Option signatureFile() {
     return OptionBuilder.withArgName("path").hasArg().withDescription("specifies location path of signature file")
-        .withLongOpt("signatureFile").create(ExecutionOption.SIGNAURE.getName());
+        .withLongOpt("signatureFile").create(ExecutionOption.SIGNATURE.getName());
   }
 
   private static Option certificateFile() {
@@ -315,6 +334,31 @@ public final class DigiDoc4J {
 
   private static void showVersion() {
     System.out.println("DigiDoc4j version " + Version.VERSION);
+  }
+
+  private static Option detachedXades() {
+    return OptionBuilder.hasArg(false)
+        .withDescription("operates with detached XadES").create(ExecutionOption.DETACHED_XADES.getName());
+  }
+
+  private static Option addDigestFile() {
+    return OptionBuilder.withArgName("name digest").hasArgs(2).withValueSeparator(' ')
+        .withDescription("sets digest (in base64) data file for detached XadES").create(ExecutionOption.DIGEST_FILE
+            .getName());
+  }
+
+  private static Option xadesOutputPath() {
+    return OptionBuilder.withArgName("path").hasArg()
+        .withDescription("sets the destination where detached XadES signature will be saved").create(ExecutionOption
+            .XADES_OUTPUT_PATH
+            .getName());
+  }
+
+  private static Option xadesInputPath() {
+    return OptionBuilder.withArgName("path").hasArg()
+        .withDescription("sets the source where detached XadES signature will read from").create(ExecutionOption
+            .XADES_INPUT_PATH
+            .getName());
   }
 
 }
