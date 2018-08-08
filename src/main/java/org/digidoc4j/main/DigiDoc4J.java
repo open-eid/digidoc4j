@@ -282,8 +282,9 @@ public final class DigiDoc4J {
   }
 
   private static Option pkcs11Sign() {
-    return OptionBuilder.withArgName("pkcs11ModulePath pin slot").hasArgs(3)
-        .withDescription("sets pkcs11 module path, pin(password) and a slot index").create("pkcs11");
+    return OptionBuilder.withArgName("pkcs11ModulePath pin slot label").hasOptionalArgs(4)
+        .withDescription("sets pkcs11 module path, pin(password), slot index and (optionally) keypair label").create
+            ("pkcs11");
   }
 
   private static Option removeFile() {

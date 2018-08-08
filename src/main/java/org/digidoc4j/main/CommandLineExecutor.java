@@ -472,7 +472,8 @@ public class CommandLineExecutor {
       String pkcs11ModulePath = optionValues[0];
       char[] pin = optionValues[1].toCharArray();
       int slotIndex = Integer.parseInt(optionValues[2]);
-      SignatureToken pkcs11Signer = new PKCS11SignatureToken(pkcs11ModulePath, pin, slotIndex);
+      String label = optionValues[3];
+      SignatureToken pkcs11Signer = new PKCS11SignatureToken(pkcs11ModulePath, pin, slotIndex, label);
       Signature signature = this.invokeSigning(signatureBuilder, pkcs11Signer);
       container.addSignature(signature);
       this.fileHasChanged = true;

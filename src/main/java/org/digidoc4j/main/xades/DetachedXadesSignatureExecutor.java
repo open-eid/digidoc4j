@@ -127,7 +127,7 @@ public class DetachedXadesSignatureExecutor {
     LOGGER.debug("Loading PKCS11 token ...");
     String[] values = context.getCommandLine().getOptionValues(ExecutionOption.PKCS11.getName());
     try {
-      return new PKCS11SignatureToken(values[0], values[1].toCharArray(), Integer.parseInt(values[2]));
+      return new PKCS11SignatureToken(values[0], values[1].toCharArray(), Integer.parseInt(values[2]), values[3]);
     } catch (Exception e) {
       throw new DigiDoc4JException(String.format("Unable to load PKCS11 token <%s, %s, %s>", values[0], values[1], values[2]));
     }

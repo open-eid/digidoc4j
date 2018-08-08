@@ -64,6 +64,7 @@ public class PKCS11SignatureToken implements SignatureToken {
   private static final Logger logger = LoggerFactory.getLogger(PKCS11SignatureToken.class);
   private AbstractSignatureTokenConnection signatureTokenConnection;
   private KSPrivateKeyEntry privateKeyEntry;
+  private String label;
 
   /**
    * Initializes the PKCS#11 token.
@@ -92,6 +93,42 @@ public class PKCS11SignatureToken implements SignatureToken {
     signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, passwordCallback, slotIndex);
     privateKeyEntry = findPrivateKey(X509Cert.KeyUsage.NON_REPUDIATION);
   }
+
+  /**
+   * Initializes the PKCS#11 token.
+   *
+   * @param pkcs11ModulePath PKCS#11 module path, depends on your operating system and installed smart card or hardware token library.
+   * @param password         Secret pin code for digital signature.
+   * @param slotIndex        Token slot index, depends on the hardware token.
+   * @param label            Label of the keypair in HSM.
+   */
+   public PKCS11SignatureToken(String pkcs11ModulePath, char[] password, int slotIndex, String label) {
+     this.label = label;
+     logger.debug("Initializing PKCS#11 signature token from " + pkcs11ModulePath + " and slot " + slotIndex+ " and " +
+         "label " + label);
+     signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, password, slotIndex);
+     privateKeyEntry = findPrivateKey(X509Cert.KeyUsage.NON_REPUDIATION);
+   }
+
+   /**
+    * Initializes the PKCS#11 token with password callback.
+    * <p/>
+    * This Password Callback is used in order to retrieve the password from the user when accessing the Key Store.
+    *
+    * @param pkcs11ModulePath PKCS#11 module path, depends on your operating system and installed smart card or hardware
+    *                        token library.
+    * @param passwordCallback callback for providing the password for the private key.
+    * @param slotIndex        Token slot index, depends on the hardware token.
+    * @param label            Label of the keypair in HSM.
+    */
+    public PKCS11SignatureToken(String pkcs11ModulePath, PasswordInputCallback passwordCallback, int slotIndex,
+                                String label) {
+      this.label = label;
+      logger.debug("Initializing PKCS#11 signature token with password callback from " + pkcs11ModulePath + " and " +
+          "slot " + slotIndex + " Label " + label);
+      signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, passwordCallback, slotIndex);
+      privateKeyEntry = findPrivateKey(X509Cert.KeyUsage.NON_REPUDIATION);
+    }
 
   /**
    * Fetches the private key entries from the hardware token for information purposes.
@@ -125,9 +162,11 @@ public class PKCS11SignatureToken implements SignatureToken {
     selector.setKeyUsage(getUsageBitArray(keyUsage)); // TODO: Test this!
     for (DSSPrivateKeyEntry key : keys) {
       if (selector.match(key.getCertificate().getCertificate())) {
-        privateKeyEntry = (KSPrivateKeyEntry)key;
-        logger.debug("... Found key by keyUsage. Key encryption algorithm:" + privateKeyEntry.getEncryptionAlgorithm().getName());
-        break;
+        if (label == null || ((KSPrivateKeyEntry) key).getAlias().contains(label)) {
+          privateKeyEntry = (KSPrivateKeyEntry) key;
+          logger.debug("... Found key by keyUsage. Key encryption algorithm:" + privateKeyEntry.getEncryptionAlgorithm().getName());
+          break;
+        }
       }
     }
     return getPrivateKeyEntry();
