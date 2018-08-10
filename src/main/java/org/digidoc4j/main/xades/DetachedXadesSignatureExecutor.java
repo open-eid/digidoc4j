@@ -3,6 +3,7 @@ package org.digidoc4j.main.xades;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -18,7 +19,6 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.main.DigiDoc4JUtilityException;
 import org.digidoc4j.main.ExecutionCommand;
 import org.digidoc4j.main.ExecutionOption;
 import org.digidoc4j.signers.PKCS11SignatureToken;
@@ -49,7 +49,7 @@ public class DetachedXadesSignatureExecutor {
       for (ExecutionOption option : context.getCommand().getMandatoryOptions()) {
         switch (option) {
           case DIGEST_FILE:
-            addDigestFile();
+            addDigestFiles();
             break;
           case PKCS11:
             context.setSignatureToken(loadPKCS11Token());
@@ -59,8 +59,12 @@ public class DetachedXadesSignatureExecutor {
             break;
           case XADES_OUTPUT_PATH:
             saveSignature();
+            break;
           case XADES_INPUT_PATH:
             context.setSignature(openSignature());
+            break;
+          case DETACHED_XADES:
+            break;
           default:
             LOGGER.warn("No option <{}> implemented", option);
         }
@@ -84,10 +88,12 @@ public class DetachedXadesSignatureExecutor {
     try {
       String[] values = context.getCommandLine().getOptionValues(ExecutionOption.XADES_INPUT_PATH.getName());
       byte[] xadesSignature = IOUtils.toByteArray(new FileInputStream(values[0]));
-      Signature signature = DetachedXadesSignatureBuilder
-          .withConfiguration(new Configuration())
-          .withDataFile(context.getDigestDataFile())
-          .openAdESSignature(xadesSignature);
+      DetachedXadesSignatureBuilder signatureBuilder = DetachedXadesSignatureBuilder
+          .withConfiguration(new Configuration());
+      for (DigestDataFile digestDataFile : context.getDigestDataFiles()) {
+        signatureBuilder.withDataFile(digestDataFile);
+      }
+      Signature signature = signatureBuilder.openAdESSignature(xadesSignature);
       ValidationResult result = signature.validateSignature();
       result.getErrors();
       if (result.isValid()) {
@@ -107,29 +113,49 @@ public class DetachedXadesSignatureExecutor {
   private Signature sign() {
     setDigestAlgorithm();
     setSignatureProfile();
-    Signature signature = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
-        .withDataFile(context.getDigestDataFile())
-        .withSignatureToken(context.getSignatureToken())
+    DetachedXadesSignatureBuilder signatureBuilder = DetachedXadesSignatureBuilder.withConfiguration(new
+        Configuration());
+    for (DigestDataFile digestDataFile : context.getDigestDataFiles()) {
+      signatureBuilder.withDataFile(digestDataFile);
+    }
+    Signature signature = signatureBuilder.withSignatureToken(context.getSignatureToken())
         .withSignatureDigestAlgorithm(context.getDigestAlgorithm())
+        .withSignatureProfile(context.getProfile())
         .invokeSigning();
     return signature;
   }
 
-  private void addDigestFile() {
-    LOGGER.debug("Adding digest data file ...");
+  private void addDigestFiles() {
+    LOGGER.debug("Adding digest data file(s) ...");
     String[] values = context.getCommandLine().getOptionValues(ExecutionOption.DIGEST_FILE.getName());
-    DigestDataFile digestDataFile = new DigestDataFile(values[0], DigestAlgorithm.SHA256,
-        Base64.decodeBase64(values[1]));
-    context.setDigestDataFile(digestDataFile);
+    if (values.length % 2 != 0) {
+      throw new DigiDoc4JException("Invalid count of digest file(s) parameters!");
+    }
+    for (int i = 0; i < values.length; i+=2) {
+      String name = values[i];
+      String base64EncodedDigest = values[i+1];
+      LOGGER.debug("Adding digest data file with name: " + name + " ; and base64 encoded digest: " + base64EncodedDigest);
+      addDigestFile(name, base64EncodedDigest);
+    }
+  }
+
+  private void addDigestFile(String name, String base64EncodedDigest) {
+    DigestDataFile digestDataFile = new DigestDataFile(name, DigestAlgorithm.SHA256,
+        Base64.decodeBase64(base64EncodedDigest));
+    context.addDigestDataFile(digestDataFile);
   }
 
   private SignatureToken loadPKCS11Token() {
     LOGGER.debug("Loading PKCS11 token ...");
     String[] values = context.getCommandLine().getOptionValues(ExecutionOption.PKCS11.getName());
     try {
-      return new PKCS11SignatureToken(values[0], values[1].toCharArray(), Integer.parseInt(values[2]), values[3]);
+      if (values.length > 3) {
+        return new PKCS11SignatureToken(values[0], values[1].toCharArray(), Integer.parseInt(values[2]), values[3]);
+      } else {
+        return new PKCS11SignatureToken(values[0], values[1].toCharArray(), Integer.parseInt(values[2]));
+      }
     } catch (Exception e) {
-      throw new DigiDoc4JException(String.format("Unable to load PKCS11 token <%s, %s, %s>", values[0], values[1], values[2]));
+      throw new DigiDoc4JException("Unable to load PKCS11 token: " + Arrays.toString(values));
     }
   }
 
@@ -166,9 +192,6 @@ public class DetachedXadesSignatureExecutor {
   private ExecutionCommand checkSupportedFunctionality(CommandLine commandLine) {
     for (ExecutionCommand command : ExecutionCommand.values()) {
       if (hasOptionsMatch(commandLine, command.getMandatoryOptions())) {
-        for (ExecutionOption option : command.getMandatoryOptions()) {
-          checkOption(option, commandLine, true);
-        }
         return command;
       }
     }
@@ -183,23 +206,6 @@ public class DetachedXadesSignatureExecutor {
       }
     }
     return matchCount == commands.size();
-  }
-
-  private static void checkOption(ExecutionOption option, CommandLine commandLine, boolean mandatory) {
-    if (commandLine.hasOption(option.getName())) {
-      int count = 0;
-      try {
-        count = commandLine.getOptionValues(option.getName()).length;
-      } catch (NullPointerException ignore) {
-      }
-      if (count != option.getCount()) {
-        throw new DigiDoc4JUtilityException(String.format("Option <%s> parameter count is invalid", option));
-      }
-    } else {
-      if (mandatory) {
-        throw new DigiDoc4JUtilityException(String.format("Option <%s> is mandatory", option));
-      }
-    }
   }
 
 }

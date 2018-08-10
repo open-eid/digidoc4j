@@ -390,7 +390,7 @@ public class DetachedXadesSignatureBuilder implements SignatureFinalizer {
       signature = signatureList.get(0); //Only one signature was created
     }
     policyDefinedByUser = null;
-    logger.info("Signing asic successfully completed");
+    logger.info("Signing detached XadES successfully completed");
     return signature;
   }
 

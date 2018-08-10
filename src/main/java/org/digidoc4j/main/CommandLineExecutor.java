@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -318,9 +319,13 @@ public class CommandLineExecutor {
     LOGGER.debug("Loading PKCS11 token ...");
     String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.PKCS11.getName());
     try {
-      return new PKCS11SignatureToken(values[0], values[1].toCharArray(), Integer.parseInt(values[2]));
+      if (values.length > 3) {
+        return new PKCS11SignatureToken(values[0], values[1].toCharArray(), Integer.parseInt(values[2]), values[3]);
+      } else {
+        return new PKCS11SignatureToken(values[0], values[1].toCharArray(), Integer.parseInt(values[2]));
+      }
     } catch (Exception e) {
-      throw new DigiDoc4JException(String.format("Unable to load PKCS11 token <%s, %s, %s>", values[0], values[1], values[2]));
+      throw new DigiDoc4JException("Unable to load PKCS11 token: " + Arrays.toString(values));
     }
   }
 
@@ -472,8 +477,13 @@ public class CommandLineExecutor {
       String pkcs11ModulePath = optionValues[0];
       char[] pin = optionValues[1].toCharArray();
       int slotIndex = Integer.parseInt(optionValues[2]);
-      String label = optionValues[3];
-      SignatureToken pkcs11Signer = new PKCS11SignatureToken(pkcs11ModulePath, pin, slotIndex, label);
+      SignatureToken pkcs11Signer;
+      if (optionValues.length > 3) {
+        String label = optionValues[3];
+        pkcs11Signer = new PKCS11SignatureToken(pkcs11ModulePath, pin, slotIndex, label);
+      } else {
+        pkcs11Signer = new PKCS11SignatureToken(pkcs11ModulePath, pin, slotIndex);
+      }
       Signature signature = this.invokeSigning(signatureBuilder, pkcs11Signer);
       container.addSignature(signature);
       this.fileHasChanged = true;

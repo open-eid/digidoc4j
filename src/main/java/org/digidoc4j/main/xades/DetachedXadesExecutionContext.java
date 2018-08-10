@@ -1,6 +1,8 @@
 package org.digidoc4j.main.xades;
 
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.digidoc4j.DigestAlgorithm;
@@ -17,7 +19,7 @@ public class DetachedXadesExecutionContext {
   private final CommandLine commandLine;
 
   private SignatureToken signatureToken;
-  private DigestDataFile digestDataFile;
+  private List<DigestDataFile> digestDataFiles = new ArrayList<>();
   private Signature signature;
   private DigestAlgorithm digestAlgorithm = DigestAlgorithm.SHA256;
   private SignatureProfile profile = SignatureProfile.LT;
@@ -44,15 +46,15 @@ public class DetachedXadesExecutionContext {
     return commandLine;
   }
 
-  public DigestDataFile getDigestDataFile() {
-    if (digestDataFile == null) {
-      throw new DigiDoc4JException("Digest data file is not initialized");
+  public List<DigestDataFile> getDigestDataFiles() {
+    if (digestDataFiles == null || digestDataFiles.size() < 1) {
+      throw new DigiDoc4JException("Digest data file(s) not initialized");
     }
-    return digestDataFile;
+    return digestDataFiles;
   }
 
-  public void setDigestDataFile(DigestDataFile digestDataFile) {
-    this.digestDataFile = digestDataFile;
+  public void addDigestDataFile(DigestDataFile digestDataFile) {
+    this.digestDataFiles.add(digestDataFile);
   }
 
   public SignatureToken getSignatureToken() {

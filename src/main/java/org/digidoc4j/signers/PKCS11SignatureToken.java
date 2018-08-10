@@ -152,7 +152,7 @@ public class PKCS11SignatureToken implements SignatureToken {
   @Override
   public X509Certificate getCertificate() {
     logger.debug("Fetching certificate");
-    return getPrivateKeyEntry().getCertificate().getCertificate();
+    return privateKeyEntry.getCertificate().getCertificate();
   }
 
   private KSPrivateKeyEntry findPrivateKey(X509Cert.KeyUsage keyUsage) {
@@ -163,13 +163,12 @@ public class PKCS11SignatureToken implements SignatureToken {
     for (DSSPrivateKeyEntry key : keys) {
       if (selector.match(key.getCertificate().getCertificate())) {
         if (label == null || ((KSPrivateKeyEntry) key).getAlias().contains(label)) {
-          privateKeyEntry = (KSPrivateKeyEntry) key;
-          logger.debug("... Found key by keyUsage. Key encryption algorithm:" + privateKeyEntry.getEncryptionAlgorithm().getName());
-          break;
+          logger.debug("... Found key by keyUsage. Key encryption algorithm:" + key.getEncryptionAlgorithm().getName());
+          return (KSPrivateKeyEntry) key;
         }
       }
     }
-    return getPrivateKeyEntry();
+    throw new TechnicalException("Error getting private key entry!");
   }
 
   private boolean[] getUsageBitArray(X509Cert.KeyUsage keyUsage) {
@@ -180,14 +179,6 @@ public class PKCS11SignatureToken implements SignatureToken {
       e.printStackTrace();
     }
     return usage.getBits();
-  }
-
-  private KSPrivateKeyEntry getPrivateKeyEntry() {
-    if (privateKeyEntry == null) {
-      privateKeyEntry = (KSPrivateKeyEntry)getPrivateKeyEntries().get(0);
-      logger.debug("... Getting first available key");
-    }
-    return privateKeyEntry;
   }
 
   @Override
@@ -241,8 +232,7 @@ public class PKCS11SignatureToken implements SignatureToken {
 
   private byte[] signDigest(byte[] digestToSign) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException {
     logger.debug("Signing digest");
-    DSSPrivateKeyEntry privateKeyEntry = getPrivateKeyEntry();
-    PrivateKey privateKey = ((KSPrivateKeyEntry) privateKeyEntry).getPrivateKey();
+    PrivateKey privateKey = privateKeyEntry.getPrivateKey();
     EncryptionAlgorithm encryptionAlgorithm = privateKeyEntry.getEncryptionAlgorithm();
     String signatureAlgorithm = "NONEwith" + encryptionAlgorithm.getName();
     return invokeSigning(digestToSign, privateKey, signatureAlgorithm);
