@@ -325,7 +325,7 @@ public class CommandLineExecutor {
         return new PKCS11SignatureToken(values[0], values[1].toCharArray(), Integer.parseInt(values[2]));
       }
     } catch (Exception e) {
-      throw new DigiDoc4JException("Unable to load PKCS11 token: " + Arrays.toString(values));
+      throw new DigiDoc4JException("Unable to load PKCS11 token: " + Arrays.toString(values), e);
     }
   }
 
