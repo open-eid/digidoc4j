@@ -78,7 +78,7 @@ public abstract class ContainerBuilder {
   /**
    * Create a new container builder based on a container type.
    *
-   * @param type a type of container to be created, e.g. "BDOC(ASICE)" , "ASICS" or "DDOC".
+   * @param type a type of container to be created, e.g. "BDOC(ASICE)", "ASICS" or "DDOC".
    *
    * @return builder for creating a container.
    */
@@ -98,7 +98,7 @@ public abstract class ContainerBuilder {
   /**
    * Create a new container builder based on a container type.
    *
-   * @param type a type of container to be created, e.g. "BDOC(ASICE)" , "ASICS" or "DDOC".
+   * @param type a type of container to be created, e.g. "BDOC(ASICE)", "ASICS" or "DDOC".
    *
    * @return builder for creating a container.
    */

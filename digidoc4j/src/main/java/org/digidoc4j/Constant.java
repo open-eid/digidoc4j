@@ -22,8 +22,6 @@ public final class Constant {
   @Deprecated
   public static final String BDOC_CONTAINER_TYPE = "BDOC";
   @Deprecated
-  public static final String DDOC_CONTAINER_TYPE = "DDOC";
-  @Deprecated
   public static final String ASICE_CONTAINER_TYPE = "ASICE";
   @Deprecated
   public static final String ASICS_CONTAINER_TYPE = "ASICS";

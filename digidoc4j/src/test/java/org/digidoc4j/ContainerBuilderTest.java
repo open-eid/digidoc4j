@@ -19,10 +19,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.InvalidDataFileException;
+import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
-import org.digidoc4j.impl.ddoc.DDocSignature;
 import org.digidoc4j.test.CustomConfiguration;
 import org.digidoc4j.test.CustomContainer;
 import org.digidoc4j.test.TestAssert;
@@ -45,12 +45,9 @@ public class ContainerBuilderTest extends AbstractTest {
     Assert.assertTrue(container.getSignatures().isEmpty());
   }
 
-  @Test
-  public void buildDDocContainer() throws Exception {
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.DDOC).build();
-    Assert.assertEquals("DDOC", container.getType());
-    Assert.assertTrue(container.getDataFiles().isEmpty());
-    Assert.assertTrue(container.getSignatures().isEmpty());
+  @Test(expected = NotSupportedException.class)
+  public void buildEmptyDDocContainer() throws Exception {
+    ContainerBuilder.aContainer(Container.DocumentType.DDOC).build();
   }
 
   @Test
@@ -78,24 +75,6 @@ public class ContainerBuilderTest extends AbstractTest {
     Assert.assertEquals("ExampleFile.txt", container.getDataFiles().get(2).getName());
     Assert.assertEquals("testFile2.txt", container.getDataFiles().get(3).getName());
     Assert.assertEquals("largeStreamFile.txt", container.getDataFiles().get(4).getName());
-  }
-
-  @Test
-  public void buildDDocContainerWithDataFiles() throws Exception {
-    File testFile1 = this.createTemporaryFileBy("testFile.txt", "TEST");
-    File testFile2 = this.createTemporaryFileBy("testFile2.txt", "TEST");
-    Container container = ContainerBuilder.
-        aContainer(Container.DocumentType.DDOC).
-        withDataFile(testFile1.getPath(), "text/plain").
-        withDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "streamFile.txt", "text/plain").
-        withDataFile(this.createTemporaryFileBy("ExampleFile.txt", "TEST"), "text/plain").
-        withDataFile(new DataFile(testFile2.getPath(), "text/plain")).
-        build();
-    Assert.assertEquals(4, container.getDataFiles().size());
-    Assert.assertEquals("testFile.txt", container.getDataFiles().get(0).getName());
-    Assert.assertEquals("streamFile.txt", container.getDataFiles().get(1).getName());
-    Assert.assertEquals("ExampleFile.txt", container.getDataFiles().get(2).getName());
-    Assert.assertEquals("testFile2.txt", container.getDataFiles().get(3).getName());
   }
 
   @Test(expected = InvalidDataFileException.class)
@@ -165,32 +144,6 @@ public class ContainerBuilderTest extends AbstractTest {
       byte[] bytes = IOUtils.toByteArray(stream);
       Assert.assertTrue(bytes.length > 10);
     }
-  }
-
-  @Test
-  public void signAndSaveDDocContainerToStream() throws Exception {
-    File testFile = this.createTemporaryFileBy("testFile.txt", "TEST");
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.DDOC).
-        withConfiguration(Configuration.of(Configuration.Mode.TEST)).withDataFile(testFile, "text/plain").build();
-    TestDataBuilderUtil.signContainer(container, DigestAlgorithm.SHA1);
-    try (InputStream stream = container.saveAsStream()) {
-      byte[] bytes = IOUtils.toByteArray(stream);
-      Assert.assertTrue(bytes.length > 10);
-    }
-  }
-
-  @Test
-  public void addAndRemoveSignatureFromDDocContainer() throws Exception {
-    File testFile = this.createTemporaryFileBy("testFile.txt", "TEST");
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.DDOC).
-        withConfiguration(Configuration.of(Configuration.Mode.TEST)).withDataFile(testFile, "text/plain").
-        build();
-    DDocSignature signature1 = (DDocSignature) TestDataBuilderUtil.signContainer(container, DigestAlgorithm.SHA1);
-    DDocSignature signature2 = (DDocSignature) TestDataBuilderUtil.signContainer(container, DigestAlgorithm.SHA1);
-    Assert.assertEquals(0, ((DDocSignature) container.getSignatures().get(0)).getIndexInArray());
-    Assert.assertEquals(1, ((DDocSignature) container.getSignatures().get(1)).getIndexInArray());
-    Assert.assertEquals(0, signature1.getIndexInArray());
-    Assert.assertEquals(1, signature2.getIndexInArray());
   }
 
   @Test
@@ -278,8 +231,7 @@ public class ContainerBuilderTest extends AbstractTest {
 
   @Test
   public void openDDocContainerFromFile() throws Exception {
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.DDOC).fromExistingFile(DDOC_TEST_FILE).
-        build();
+    Container container = ContainerBuilder.aContainer("DDOC").fromExistingFile(DDOC_TEST_FILE).build();
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.DDOC);
   }
 
@@ -340,7 +292,7 @@ public class ContainerBuilderTest extends AbstractTest {
   @Test
   public void openDDocContainerFromStream() throws Exception {
     InputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE));
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.DDOC).fromStream(stream).build();
+    Container container = ContainerBuilder.aContainer().fromStream(stream).build();
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.DDOC);
   }
 
@@ -348,7 +300,7 @@ public class ContainerBuilderTest extends AbstractTest {
   public void openDDocContainerFromStream_withConfiguration() throws Exception {
     this.configuration = Configuration.of(Configuration.Mode.TEST);
     try (InputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE))) {
-      Container container = ContainerBuilder.aContainer("DDOC").withConfiguration(this.configuration).
+      Container container = ContainerBuilder.aContainer(Container.DocumentType.DDOC).withConfiguration(this.configuration).
           fromStream(stream).build();
       TestAssert.assertContainerIsOpened(container, Container.DocumentType.DDOC);
       Assert.assertSame(this.configuration, ((DDocContainer) container).getJDigiDocFacade().getConfiguration());

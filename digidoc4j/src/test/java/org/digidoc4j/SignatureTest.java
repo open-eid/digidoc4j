@@ -29,7 +29,6 @@ import org.digidoc4j.impl.Certificates;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
 import org.digidoc4j.impl.asic.tsl.TslManager;
-import org.digidoc4j.impl.ddoc.DDocFacade;
 import org.digidoc4j.impl.ddoc.DDocOpener;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
@@ -112,8 +111,9 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testGetSigningTimeForDDOC() {
-    Signature signature = this.createSignatureBy(Container.DocumentType.DDOC, this.pkcs12SignatureToken);
-    Assert.assertTrue(DateUtils.isAlmostNow(signature.getClaimedSigningTime()));
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    Signature signature = container.getSignatures().get(0);
+    Assert.assertNotNull(signature.getClaimedSigningTime());
   }
 
   @Test
@@ -124,7 +124,8 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testGetIdForDDOC() {
-    Signature signature = this.createSignatureBy(Container.DocumentType.DDOC, this.pkcs12SignatureToken);
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    Signature signature = container.getSignatures().get(0);
     Assert.assertEquals("S0", signature.getId());
   }
 
@@ -136,13 +137,15 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testGetNonce() {
-    Signature signature = this.createSignatureBy(Container.DocumentType.DDOC, this.pkcs12SignatureToken);
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    Signature signature = container.getSignatures().get(0);
     Assert.assertEquals(null, Base64.encodeBase64String(signature.getOCSPNonce())); //todo correct nonce is needed
   }
 
   @Test
   public void testGetOCSPCertificateForDDoc() throws CertificateEncodingException {
-    Signature signature = this.createSignatureBy(Container.DocumentType.DDOC, this.pkcs12SignatureToken);
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    Signature signature = container.getSignatures().get(0);
     byte[] encoded = signature.getOCSPCertificate().getX509Certificate().getEncoded();
     Assert.assertEquals(Certificates.OCSP_CERTIFICATE, Base64.encodeBase64String(encoded));
   }
@@ -156,7 +159,8 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testGetSignaturePolicyForDDoc() {
-    Assert.assertEquals("", this.createSignatureBy(Container.DocumentType.DDOC, this.pkcs12SignatureToken, Signature.class).getPolicy());
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    Assert.assertEquals("", container.getSignatures().get(0).getPolicy());
   }
 
   @Test(expected = NotYetImplementedException.class)
@@ -167,7 +171,9 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testGetProducedAtForDDoc() {
-    Assert.assertTrue(DateUtils.isAlmostNow(this.createSignatureBy(Container.DocumentType.DDOC, this.pkcs12SignatureToken, Signature.class).getProducedAt()));
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    Signature signature = container.getSignatures().get(0);
+    Assert.assertNotNull(signature.getProducedAt());
   }
 
   @Test
@@ -179,7 +185,8 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testValidationForDDoc() {
-    Assert.assertEquals(0, this.createSignatureBy(Container.DocumentType.DDOC, this.pkcs12SignatureToken, Signature.class).validateSignature().getErrors().size());
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    Assert.assertEquals(0, container.validate().getErrors().size());
   }
 
   @Test
@@ -225,7 +232,8 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testGetSignaturePolicyURIForDDoc() {
-    Assert.assertNull(this.createSignatureBy(Container.DocumentType.DDOC, this.pkcs12SignatureToken, Signature.class).getSignaturePolicyURI());
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    Assert.assertNull(container.getSignatures().get(0).getSignaturePolicyURI());
   }
 
   @Test(expected = NotYetImplementedException.class)
@@ -236,7 +244,8 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testGetSignatureMethodDDoc() {
-    Assert.assertEquals("http://www.w3.org/2000/09/xmldsig#rsa-sha1", this.createSignatureBy(Container.DocumentType.DDOC, this.pkcs12SignatureToken, Signature.class).getSignatureMethod());
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    Assert.assertEquals("http://www.w3.org/2000/09/xmldsig#rsa-sha1", container.getSignatures().get(0).getSignatureMethod());
   }
 
   @Test
@@ -248,7 +257,8 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testGetProfileForDDoc() {
-    Assert.assertEquals(SignatureProfile.LT_TM, this.createSignatureBy(Container.DocumentType.DDOC, this.pkcs12SignatureToken, Signature.class).getProfile());
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    Assert.assertEquals(SignatureProfile.LT_TM, container.getSignatures().get(0).getProfile());
   }
 
   @Test
@@ -265,7 +275,8 @@ public class SignatureTest extends AbstractTest {
 
   @Test(expected = NotYetImplementedException.class)
   public void testGetTimeStampTokenCertificateForDDoc() {
-    Assert.assertNull(this.createSignatureBy(Container.DocumentType.DDOC, this.pkcs12SignatureToken, Signature.class).getTimeStampTokenCertificate());
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    container.getSignatures().get(0).getTimeStampTokenCertificate();
   }
 
   @Test(expected = NotYetImplementedException.class)
@@ -276,7 +287,7 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testGetSignaturesWhereNoSignaturePresent() throws Exception {
-    DDocFacade container = new DDocFacade();
+    Container container = new DDocOpener().open("src/test/resources/testFiles/invalid-containers/empty_container_no_signature.ddoc");
     Assert.assertTrue(container.getSignatures().isEmpty());
   }
 
@@ -298,10 +309,8 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void signature_withoutProductionPlace_shouldNotThrowException() throws Exception {
-    Container bdocContainer = this.createNonEmptyContainerBy(Container.DocumentType.BDOC);
-    Container ddocContainer = this.createNonEmptyContainerBy(Container.DocumentType.DDOC);
-    this.assertProductionPlaceIsNull((Signature) this.createSignatureBy(bdocContainer, this.pkcs12SignatureToken));
-    this.assertProductionPlaceIsNull((Signature) this.createSignatureBy(ddocContainer, this.pkcs12SignatureToken));
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    this.assertProductionPlaceIsNull(container.getSignatures().get(0));
   }
 
   @Test
@@ -312,8 +321,8 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void dDocBESSignature_TrustedSigningTime_shouldReturnNull() throws Exception {
-    Signature signature = this.createSignatureBy(Container.DocumentType.DDOC, SignatureProfile.B_BES, this.pkcs12SignatureToken);
-    Assert.assertNull(signature.getTrustedSigningTime());
+    Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/B_BES-signature-profile.ddoc");
+    Assert.assertNull(container.getSignatures().get(0).getTrustedSigningTime());
   }
 
   @Test
@@ -325,7 +334,8 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void dDocTimeMarkSignature_TrustedSigningTime_shouldReturnOCSPResponseCreationTime() throws Exception {
-    Signature signature = this.createSignatureBy(Container.DocumentType.DDOC, SignatureProfile.LT_TM, this.pkcs12SignatureToken);
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    Signature signature = container.getSignatures().get(0);
     Assert.assertNotNull(signature.getTrustedSigningTime());
     Assert.assertEquals(signature.getOCSPResponseCreationTime(), signature.getTrustedSigningTime());
   }

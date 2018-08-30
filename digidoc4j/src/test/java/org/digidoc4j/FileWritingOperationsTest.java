@@ -48,7 +48,6 @@ public class FileWritingOperationsTest extends AbstractTest {
   @Test
   public void openingExistingDDocContainer_shouldNotStoreDataFilesOnDisk_byDefault() throws Exception {
     Container container = this.openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc"));
-    TestDataBuilderUtil.signContainer(container, DigestAlgorithm.SHA1);
     TestAssert.assertSaveAsStream(container);
   }
 
@@ -57,13 +56,6 @@ public class FileWritingOperationsTest extends AbstractTest {
   public void creatingNewContainer_shouldNotStoreDataFilesOnDisk_byDefault() throws Throwable {
     Container container = this.createNonEmptyContainerIncludingPDFFileBy(Container.DocumentType.BDOC);
     TestDataBuilderUtil.signContainer(container);
-    TestAssert.assertSaveAsStream(container);
-  }
-
-  @Test
-  public void creatingNewDDocContainer_shouldNotStoreDataFilesOnDisk_byDefault() throws Throwable {
-    Container container = this.createNonEmptyContainerIncludingPDFFileBy(Container.DocumentType.DDOC);
-    TestDataBuilderUtil.signContainer(container, DigestAlgorithm.SHA1);
     TestAssert.assertSaveAsStream(container);
   }
 
@@ -78,9 +70,7 @@ public class FileWritingOperationsTest extends AbstractTest {
 
   @Test
   public void creatingDataFilesForDDoc_shouldNotStoreDataFilesOnDisk_byDefault() throws Exception {
-    Container container = this.createNonEmptyContainerBy(Container.DocumentType.DDOC);
-    Assert.assertEquals(3, container.getDataFiles().size());
-    TestDataBuilderUtil.signContainer(container, DigestAlgorithm.SHA1);
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     TestAssert.assertSaveAsStream(container);
   }
 

@@ -14,7 +14,6 @@ import static java.util.Arrays.asList;
 import static org.digidoc4j.Constant.ASICE_CONTAINER_TYPE;
 import static org.digidoc4j.Constant.ASICS_CONTAINER_TYPE;
 import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
-import static org.digidoc4j.Constant.DDOC_CONTAINER_TYPE;
 
 import java.io.Serializable;
 import java.security.cert.X509Certificate;
@@ -30,7 +29,6 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.asic.AsicSignatureBuilder;
 import org.digidoc4j.impl.asic.asice.AsicESignatureBuilder;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureBuilder;
-import org.digidoc4j.impl.ddoc.DDocSignatureBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,8 +91,6 @@ public abstract class SignatureBuilder implements Serializable {
       return new AsicESignatureBuilder();
     } else if (isContainerType(containerType, ASICS_CONTAINER_TYPE)) {
       return new AsicSignatureBuilder();
-    } else if (isContainerType(containerType, DDOC_CONTAINER_TYPE)) {
-      return new DDocSignatureBuilder();
     } else {
       logger.error("Unknown container type: " + container.getType());
       throw new NotSupportedException("Unknown container type: " + container.getType());

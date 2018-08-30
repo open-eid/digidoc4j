@@ -14,6 +14,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.exceptions.NotSupportedException;
 
 /**
  * DDOC container builder
@@ -23,11 +24,7 @@ public class DDocContainerBuilder extends ContainerBuilder {
   private String temporaryDirectoryPath;
 
   protected Container createNewContainer() {
-    if (configuration == null) {
-      return new DDocContainer();
-    } else {
-      return new DDocContainer(configuration);
-    }
+    throw new NotSupportedException("Creating new container is not supported anymore for DDoc!");
   }
 
   @Override
@@ -62,4 +59,5 @@ public class DDocContainerBuilder extends ContainerBuilder {
     }
     return opener;
   }
+
 }

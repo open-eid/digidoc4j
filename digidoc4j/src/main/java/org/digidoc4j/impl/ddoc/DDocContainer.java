@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Offers functionality for handling data files and signatures in a container.
+ * Offers functionality for handling DDoc containers.
  */
 public class DDocContainer implements Container {
 
@@ -51,48 +51,29 @@ public class DDocContainer implements Container {
     this.jDigiDocFacade = jDigiDocFacade;
   }
 
-  /**
-   * DDocContainer constructor.
-   *
-   */
-  public DDocContainer() {
-    jDigiDocFacade = new DDocFacade();
-  }
-
-  /**
-   * DDocContainer constructor.
-   *
-   * @param configuration
-   */
-  public DDocContainer(Configuration configuration) {
-    this.configuration = configuration;
-    jDigiDocFacade = new DDocFacade(this.configuration);
-  }
-
   @Override
   public DataFile addDataFile(String path, String mimeType) {
-    jDigiDocFacade.addDataFile(path, mimeType);
-    return new DataFile(path, mimeType);
+    throw new NotSupportedException("Adding new data files is not supported anymore for DDoc!");
   }
 
   @Override
   public DataFile addDataFile(InputStream is, String fileName, String mimeType) {
-    return jDigiDocFacade.addDataFile(is, fileName, mimeType);
+    throw new NotSupportedException("Adding new data files is not supported anymore for DDoc!");
   }
 
   @Override
   public DataFile addDataFile(File file, String mimeType) {
-    return jDigiDocFacade.addDataFile(file.getPath(), mimeType);
+    throw new NotSupportedException("Adding new data files is not supported anymore for DDoc!");
   }
 
   @Override
   public void addDataFile(DataFile dataFile) {
-    jDigiDocFacade.addDataFile(dataFile);
+    throw new NotSupportedException("Adding new data files is not supported anymore for DDoc!");
   }
 
   @Override
   public void addSignature(Signature signature) {
-    logger.debug("Ignoring separate add signature call for DDoc containers, because signatures are added to container during signing process");
+    throw new NotSupportedException("Adding new signatures is not supported anymore for DDoc!");
   }
 
   @Override
@@ -115,18 +96,17 @@ public class DDocContainer implements Container {
 
   @Override
   public void removeDataFile(DataFile file) {
-    jDigiDocFacade.removeDataFile(file.getName());
+    throw new NotSupportedException("Removing data files is not supported anymore for DDoc!");
   }
 
   @Override
   public void removeSignature(Signature signature) {
-    DDocSignature dDocSignature = (DDocSignature) signature;
-    jDigiDocFacade.removeSignature(dDocSignature.getIndexInArray());
+    throw new NotSupportedException("Removing data files is not supported anymore for DDoc!");
   }
 
   @Override
   public void extendSignatureProfile(SignatureProfile profile) {
-    jDigiDocFacade.extendTo(profile);
+    throw new NotSupportedException("Extending signature profile is not supported anymore for DDoc!");
   }
 
   @Override
@@ -163,7 +143,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public SignedInfo prepareSigning(X509Certificate signerCert) {
-    return jDigiDocFacade.prepareSigning(signerCert);
+    throw new NotSupportedException("Adding new signatures is not supported anymore for DDoc!");
   }
 
   @Override
@@ -191,7 +171,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public void setSignatureParameters(SignatureParameters signatureParameters) {
-    jDigiDocFacade.setSignatureParameters(signatureParameters);
+    throw new NotSupportedException("Adding new signatures is not supported anymore for DDoc!");
   }
 
   /**
@@ -215,7 +195,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public void addRawSignature(byte[] signature) {
-    jDigiDocFacade.addRawSignature(signature);
+    throw new NotSupportedException("Adding new signatures is not supported anymore for DDoc!");
   }
 
   /**
@@ -228,7 +208,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public void addRawSignature(InputStream signatureStream) {
-    jDigiDocFacade.addRawSignature(signatureStream);
+    throw new NotSupportedException("Adding new signatures is not supported anymore for DDoc!");
   }
 
   /**
@@ -241,7 +221,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public DataFile getDataFile(int index) {
-    return jDigiDocFacade.getDataFile(index);
+    return jDigiDocFacade.getDataFiles().get(index);
   }
 
   /**
@@ -265,7 +245,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public void removeDataFile(String fileName) {
-    jDigiDocFacade.removeDataFile(fileName);
+    throw new NotSupportedException("Removing data files is not supported anymore for DDoc!");
   }
 
   /**
@@ -277,7 +257,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public void removeSignature(int signatureId) {
-    jDigiDocFacade.removeSignature(signatureId);
+    throw new NotSupportedException("Removing data files is not supported anymore for DDoc!");
   }
 
   /**
@@ -313,7 +293,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public Signature sign(SignatureToken signatureToken) {
-    return jDigiDocFacade.sign(signatureToken);
+    throw new NotSupportedException("Adding new signatures is not supported anymore for DDoc!");
   }
 
   /**
@@ -326,7 +306,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public Signature signRaw(byte[] rawSignature) {
-    return jDigiDocFacade.signRaw(rawSignature);
+    throw new NotSupportedException("Adding new signatures is not supported anymore for DDoc!");
   }
 
   /**
@@ -389,7 +369,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public void extendTo(SignatureProfile profile) {
-    jDigiDocFacade.extendTo(profile);
+    throw new NotSupportedException("Extending signature profile is not supported anymore for DDoc!");
   }
 
   /**
@@ -401,7 +381,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public void setSignatureProfile(SignatureProfile profile) {
-    jDigiDocFacade.setSignatureProfile(profile);
+    throw new NotSupportedException("Setting signature profile is not supported anymore for DDoc!");
   }
 
   /**

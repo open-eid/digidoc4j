@@ -19,10 +19,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FileUtils;
-import org.digidoc4j.AbstractTest;
-import org.digidoc4j.Container;
-import org.digidoc4j.ContainerBuilder;
-import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -105,7 +102,8 @@ public class HelperTest extends AbstractTest {
 
   @Test
   public void createUserAgentForDDOC() throws Exception {
-    String userAgent = Helper.createUserAgent(ContainerBuilder.aContainer(Container.DocumentType.DDOC).build());
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    String userAgent = Helper.createUserAgent(container);
     Assert.assertThat(userAgent, Matchers.containsString("DDOC"));
   }
 
@@ -135,13 +133,15 @@ public class HelperTest extends AbstractTest {
 
   @Test
   public void createUserAgentSignatureProfileForDDOC() {
-    String userAgent = Helper.createUserAgent(ContainerBuilder.aContainer(Container.DocumentType.DDOC).build());
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    String userAgent = Helper.createUserAgent(container);
     Assert.assertThat(userAgent, Matchers.containsString("signatureProfile: LT_TM"));
   }
 
   @Test
   public void createUserAgentSignatureVersionForDDOC() {
-    String userAgent = Helper.createUserAgent(ContainerBuilder.aContainer(Container.DocumentType.DDOC).build());
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    String userAgent = Helper.createUserAgent(container);
     Assert.assertThat(userAgent, Matchers.containsString("format: DDOC/1.3"));
   }
 

@@ -10,38 +10,31 @@
 
 package org.digidoc4j.impl.ddoc;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.digidoc4j.AbstractTest;
-import org.digidoc4j.SignatureParameters;
-import org.digidoc4j.SignatureProductionPlace;
+import org.digidoc4j.Signature;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class DDocSignatureTest extends AbstractTest {
 
-  private DDocFacade container;
+  private DDocContainer container;
 
   @Test
   public void testSignatureParameters() throws Exception {
-    Assert.assertEquals("City", this.container.getSignature(0).getCity());
-    Assert.assertEquals("Country", this.container.getSignature(0).getCountryName());
-    Assert.assertEquals("PostalCode", this.container.getSignature(0).getPostalCode());
-    Assert.assertEquals("State", this.container.getSignature(0).getStateOrProvince());
-    List<String> signerRoles = this.container.getSignature(0).getSignerRoles();
+    Signature signature = container.getSignatures().get(0);
+    Assert.assertEquals("City", signature.getCity());
+    Assert.assertEquals("Country", signature.getCountryName());
+    Assert.assertEquals("PostalCode", signature.getPostalCode());
+    Assert.assertEquals("State", signature.getStateOrProvince());
+    List<String> signerRoles = signature.getSignerRoles();
     Assert.assertEquals("Role1", signerRoles.get(0));
   }
 
   @Override
   protected void before() {
-    SignatureParameters signatureParameters = new SignatureParameters();
-    signatureParameters.setProductionPlace(new SignatureProductionPlace("City", "State", "PostalCode", "Country"));
-    signatureParameters.setRoles(Arrays.asList("Role1"));
-    this.container = new DDocFacade();
-    this.container.setSignatureParameters(signatureParameters);
-    this.container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    this.container.sign(this.pkcs12SignatureToken);
+    this.container = new DDocOpener().open("src/test/resources/testFiles/valid-containers/container-with-sig-params.ddoc");
   }
 
 }

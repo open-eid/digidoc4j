@@ -117,38 +117,10 @@ public class SignatureBuilderTest extends AbstractTest {
     Assert.assertTrue(signatureTimestamps == null || signatureTimestamps.isEmpty());
   }
 
-  @Test
-  public void signDDocContainerWithSignatureToken() throws Exception {
-    Container container = this.createNonEmptyContainerBy(Container.DocumentType.DDOC);
-    Assert.assertEquals("DDOC", container.getType());
-    Signature signature = SignatureBuilder.aSignature(container).
-        withSignatureDigestAlgorithm(DigestAlgorithm.SHA1).withSignatureToken(this.pkcs12SignatureToken).invokeSigning();
-    container.addSignature(signature);
-  }
-
   @Test(expected = SignatureTokenMissingException.class)
   public void signContainerWithMissingSignatureToken_shouldThrowException() throws Exception {
     Container container = this.createNonEmptyContainer();
     SignatureBuilder.aSignature(container).invokeSigning();
-  }
-
-  @Test
-  public void signDDocContainer() throws Exception {
-    Container container = this.createNonEmptyContainerBy(Container.DocumentType.DDOC);
-    DataToSign dataToSign = SignatureBuilder.aSignature(container).
-        withSigningCertificate(this.pkcs12SignatureToken.getCertificate()).buildDataToSign();
-    Assert.assertEquals(DigestAlgorithm.SHA1, dataToSign.getDigestAlgorithm());
-    byte[] bytesToSign = dataToSign.getDataToSign();
-    Assert.assertNotNull(bytesToSign);
-    Assert.assertTrue(bytesToSign.length > 1);
-    byte[] signatureValue = TestSigningUtil.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
-    Assert.assertNotNull(signatureValue);
-    Assert.assertTrue(signatureValue.length > 1);
-    Signature signature = dataToSign.finalize(signatureValue);
-    Assert.assertNotNull(signature);
-    Assert.assertNotNull(signature.getClaimedSigningTime());
-    container.addSignature(signature);
-    container.saveAsFile(this.getFileBy("bdoc"));
   }
 
   @Test
@@ -260,11 +232,10 @@ public class SignatureBuilderTest extends AbstractTest {
     Assert.assertTrue(signature.validateSignature().isValid());
   }
 
-  @Test
-  public void openSignatureForDDocFromExistingSignatureDocument() throws Exception {
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.DDOC).
-        withDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain").build();
-    this.openSignatureFromExistingSignatureDocument(container);
+  @Test(expected = NotSupportedException.class)
+  public void SignatureBuilderWithDDoc_throwsException() throws Exception {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    SignatureBuilder.aSignature(container).buildDataToSign();
   }
 
   @Test(expected = InvalidSignatureException.class)

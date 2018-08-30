@@ -58,8 +58,8 @@ public class DDocOpener implements Serializable {
     root.setLevel(ch.qos.logback.classic.Level.INFO);
 
     logger.info("Opening DDoc from stream");
-    ArrayList<DigiDocException> containerOpeningExceptions = new ArrayList<>();
     DDocFacade facade = new DDocFacade(configuration);
+    ArrayList<DigiDocException> containerOpeningExceptions = new ArrayList<>();
     SignedDoc signedDoc = openSignedDoc(stream, containerOpeningExceptions);
     validateOpenedContainerExceptions(containerOpeningExceptions);
     facade.setContainerOpeningExceptions(containerOpeningExceptions);

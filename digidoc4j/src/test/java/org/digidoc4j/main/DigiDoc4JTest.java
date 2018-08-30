@@ -25,6 +25,7 @@ import org.digidoc4j.Container;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestCommonUtil;
 import org.digidoc4j.test.util.TestDigiDoc4JUtil;
@@ -69,29 +70,6 @@ public class DigiDoc4JTest extends AbstractTest {
         "-dts", dataToSignFile};
     DigiDoc4J.main(parameters);
     TestAssert.assertContainerIsValid(this.openContainerBy(Paths.get(containerFile)));
-  }
-
-  @Test
-  public void createsContainerWithTypeSettingDDoc() {
-    String file = this.getFileBy("bdoc");
-    String[] parameters = new String[]{"-in", file, "-type", "DDOC",
-        "-add", "src/test/resources/testFiles/helper-files/test.txt",
-        "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
-    TestDigiDoc4JUtil.call(parameters);
-    Assert.assertEquals("DDOC", ContainerOpener.open(file).getType());
-  }
-
-  @Test
-  public void signDDocContainerTwice() {
-    String file = this.getFileBy("bdoc");
-    String[] signNewContainerParams = new String[]{"-in", file, "-type", "DDOC", "-add",
-        "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
-        "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
-    String[] signExistingContainerParams = new String[]{"-in", file,
-        "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
-    TestDigiDoc4JUtil.call(signNewContainerParams);
-    TestDigiDoc4JUtil.call(signExistingContainerParams);
-    Assert.assertEquals(2, ContainerOpener.open(file).getSignatures().size());
   }
 
   @Test
@@ -169,44 +147,43 @@ public class DigiDoc4JTest extends AbstractTest {
   }
 
   @Test
-  public void createsContainerWithSignatureProfileIsTMForDDoc() throws Exception {
+  public void createNewDDocContainer_throwsException() throws Exception {
+    this.systemExit.expectSystemExitWithStatus(1);
+    this.systemExit.checkAssertionAfterwards(new Assertion() {
+
+      @Override
+      public void checkAssertion() throws Exception {
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString(
+                "Not supported: Creating new container is not supported anymore for DDoc!"));
+      }
+
+    });
     String file = this.getFileBy("ddoc");
     String[] parameters = new String[]{"-in", file, "-type", "DDOC",
         "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "LT_TM"};
-    TestDigiDoc4JUtil.call(parameters);
-    Assert.assertEquals(SignatureProfile.LT_TM, ContainerOpener.open(file).getSignature(0).getProfile());
-  }
-
-  @Test
-  public void createsContainerWithSignatureProfileTSForDDocReturnsFailureCode() throws Exception {
-    this.systemExit.expectSystemExitWithStatus(1);
-    String file = this.getFileBy("ddoc");
-    String[] parameters = new String[]{"-in", file, "-type", "DDOC",
-        "-add", "src/test/resources/testFiles/helper-files/test.txt",
-        "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "LT"};
     DigiDoc4J.main(parameters);
   }
 
   @Test
-  public void createsContainerWithSignatureProfileTSAForDDocReturnsFailureCode() throws Exception {
+  public void addDataFileToDDocContainer_throwsException() throws Exception {
     this.systemExit.expectSystemExitWithStatus(1);
-    String file = this.getFileBy("ddoc");
-    String[] parameters = new String[]{"-in", file, "-type", "DDOC",
-        "-add", "src/test/resources/testFiles/helper-files/test.txt",
-        "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "LTA"};
-    DigiDoc4J.main(parameters);
-  }
+    this.systemExit.checkAssertionAfterwards(new Assertion() {
 
-  @Test
-  @Ignore("JDigiDoc by default returns LT_TM profile but should be B_BES profile")
-  public void createsContainerWithSignatureProfileBESForDDoc() throws Exception {
+      @Override
+      public void checkAssertion() throws Exception {
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString(
+                "Not supported: Adding new data files is not supported anymore for DDoc!"));
+      }
+
+    });
     String file = this.getFileBy("ddoc");
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    container.saveAsFile(file);
     String[] parameters = new String[]{"-in", file, "-type", "DDOC",
-        "-add", "src/test/resources/testFiles/helper-files/test.txt",
-        "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "B_BES"};
-    TestDigiDoc4JUtil.call(parameters);
-    Assert.assertEquals(SignatureProfile.B_BES, ContainerOpener.open(file).getSignatures().get(0).getProfile());
+            "-add", "src/test/resources/testFiles/helper-files/test.txt",
+            "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "LT_TM"};
+    DigiDoc4J.main(parameters);
   }
 
   @Test
@@ -233,16 +210,6 @@ public class DigiDoc4JTest extends AbstractTest {
     String[] parameters = new String[]{""};
     TestDigiDoc4JUtil.call(parameters);
     Assert.assertEquals(Configuration.Mode.PROD.name(), System.getProperty("digidoc4j.mode"));
-  }
-
-  @Test
-  public void createsContainerWithTypeSettingBasedOnFileExtensionDDoc() throws Exception {
-    String file = this.getFileBy("ddoc");
-    String[] parameters = new String[]{"-in", file,
-        "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
-        "src/test/resources/testFiles/p12/signout.p12", "test"};
-    TestDigiDoc4JUtil.call(parameters);
-    Assert.assertEquals("DDOC", ContainerOpener.open(file).getType());
   }
 
   @Test
@@ -362,14 +329,14 @@ public class DigiDoc4JTest extends AbstractTest {
     FileUtils.writeStringToFile(new File(inputFolder, "firstDoc.txt"), "Hello daddy");
     FileUtils.writeStringToFile(new File(inputFolder, "secondDoc.pdf"), "John Matrix");
     String[] parameters = new String[]{"-inputDir", inputFolder, "-outputDir", outputFolder, "-pkcs12",
-        "src/test/resources/testFiles/p12/signout.p12", "test", "-type", "DDOC"};
+        "src/test/resources/testFiles/p12/signout.p12", "test", "-type", "BDOC"};
     TestDigiDoc4JUtil.call(parameters);
     File folder = new File(outputFolder);
     Assert.assertTrue(folder.exists());
     Assert.assertTrue(folder.isDirectory());
     Assert.assertEquals(2, folder.listFiles().length);
-    TestAssert.assertFolderContainsFile(outputFolder, "firstDoc.ddoc");
-    TestAssert.assertFolderContainsFile(outputFolder, "secondDoc.ddoc");
+    TestAssert.assertFolderContainsFile(outputFolder, "firstDoc.bdoc");
+    TestAssert.assertFolderContainsFile(outputFolder, "secondDoc.bdoc");
   }
 
   @Test
@@ -406,11 +373,19 @@ public class DigiDoc4JTest extends AbstractTest {
   }
 
   @Test
-  public void removeFileFromContainer() throws Exception {
-    this.systemExit.expectSystemExitWithStatus(0);
+  public void removeFileFromDDocContainer_throwsException() throws Exception {
+    this.systemExit.expectSystemExitWithStatus(1);
+    this.systemExit.checkAssertionAfterwards(new Assertion() {
+
+      @Override
+      public void checkAssertion() throws Exception {
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString(
+                "Not supported: Removing data files is not supported anymore for DDoc!"));
+      }
+
+    });
     String file = this.getFileBy("ddoc");
-    Container container = this.createEmptyContainerBy(Container.DocumentType.DDOC);
-    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     container.saveAsFile(file);
     DigiDoc4J.main(new String[]{"-in", file, "-remove", "test.txt"});
   }

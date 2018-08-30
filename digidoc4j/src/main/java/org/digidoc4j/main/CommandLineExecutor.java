@@ -37,8 +37,10 @@ import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.asic.AsicContainer;
 import org.digidoc4j.impl.asic.asics.AsicSContainer;
+import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.impl.pades.PadesContainer;
 import org.digidoc4j.signers.PKCS11SignatureToken;
 import org.digidoc4j.signers.PKCS12SignatureToken;
@@ -73,6 +75,9 @@ public class CommandLineExecutor {
     LOGGER.debug("Processing container");
     if (container instanceof PadesContainer) {
       this.verifyPadesContainer(container);
+    } else if (container instanceof DDocContainer) {
+      this.manipulateContainer(container);
+      this.verifyContainer(container);
     } else {
       this.manipulateContainer(container);
       if (Container.DocumentType.ASICS.equals(this.getContainerType()) && this.isOptionsToSignAndAddFile()) {
