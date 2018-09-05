@@ -31,8 +31,8 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
-import ee.sk.digidoc.DigiDocException;
-import ee.sk.digidoc.SignedDoc;
+import org.digidoc4j.ddoc.DigiDocException;
+import org.digidoc4j.ddoc.SignedDoc;
 
 @Ignore
 public class PerformanceTest extends AbstractTest {
@@ -126,7 +126,7 @@ public class PerformanceTest extends AbstractTest {
   public void openBDocTmContainerDetailsWithJdigidoc() throws Exception {
     SignedDoc container = this.openDigiDocContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc")).getLeft();
     Assert.assertEquals("test.txt", container.getDataFile(0).getFileName());
-    ee.sk.digidoc.Signature signature = container.getSignature(0);
+    org.digidoc4j.ddoc.Signature signature = container.getSignature(0);
     Assert.assertEquals("id-6a5d6671af7a9e0ab9a5e4d49d69800d", signature.getId());
     Assert.assertEquals(1457964829000L, signature.getSignatureProducedAtTime().getTime());
     Assert.assertEquals("1.2.840.113549.1.9.1=#1609706b6940736b2e6565,CN=TEST of ESTEID-SK 2011,O=AS Sertifitseerimiskeskus,C=EE", signature.getCertID(0).getIssuer());

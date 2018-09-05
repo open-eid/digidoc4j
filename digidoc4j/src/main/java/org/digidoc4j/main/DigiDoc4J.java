@@ -26,8 +26,8 @@ import org.digidoc4j.main.xades.DetachedXadesSignatureExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ee.sk.digidoc.DigiDocException;
-import ee.sk.digidoc.SignedDoc;
+import org.digidoc4j.ddoc.DigiDocException;
+import org.digidoc4j.ddoc.SignedDoc;
 
 /**
  * Client commandline tool for DigiDoc4J library.

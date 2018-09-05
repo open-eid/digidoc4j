@@ -99,28 +99,28 @@ import eu.europa.esig.dss.client.http.Protocol;
  * <H3>Optional entries of the configuration file:</H3>
  * <ul>
  * <li>CANONICALIZATION_FACTORY_IMPL: Canonicalization factory implementation.<br>
- * Default value: {@value org.digidoc4j.Constant.JDigiDoc#CANONICALIZATION_FACTORY_IMPLEMENTATION}</li>
+ * Default value: {@value Constant.JDigiDoc#CANONICALIZATION_FACTORY_IMPLEMENTATION}</li>
  * <li>CONNECTION_TIMEOUT: TSL HTTP Connection timeout (milliseconds).<br>
  * Default value: 1000  </li>
  * <li>DIGIDOC_FACTORY_IMPL: Factory implementation.<br>
- * Default value: {@value org.digidoc4j.Constant.JDigiDoc#FACTORY_IMPLEMENTATION}</li>
+ * Default value: {@value Constant.JDigiDoc#FACTORY_IMPLEMENTATION}</li>
  * <li>DIGIDOC_DF_CACHE_DIR: Temporary directory to use. Default: uses system's default temporary directory</li>
  * <li>DIGIDOC_MAX_DATAFILE_CACHED: Maximum datafile size that will be cached in MB.
  * Must be numeric. Set to -1 to cache all files. Set to 0 to prevent caching for all files<br>
- * Default value: {@value org.digidoc4j.Constant.JDigiDoc#MAX_DATAFILE_CACHED}</li>
+ * Default value: {@value Constant.JDigiDoc#MAX_DATAFILE_CACHED}</li>
  * <li>DIGIDOC_NOTARY_IMPL: Notary implementation.<br>
- * Default value: {@value org.digidoc4j.Constant.JDigiDoc#NOTARY_IMPLEMENTATION}</li>
+ * Default value: {@value Constant.JDigiDoc#NOTARY_IMPLEMENTATION}</li>
  * <li>DIGIDOC_OCSP_SIGN_CERT_SERIAL: OCSP Signing certificate serial number</li>
  * <li>DIGIDOC_SECURITY_PROVIDER: Security provider.<br>
- * Default value: {@value org.digidoc4j.Constant.JDigiDoc#SECURITY_PROVIDER}</li>
+ * Default value: {@value Constant.JDigiDoc#SECURITY_PROVIDER}</li>
  * <li>DIGIDOC_SECURITY_PROVIDER_NAME: Name of the security provider.<br>
- * Default value: {@value org.digidoc4j.Constant.JDigiDoc#SECURITY_PROVIDER_NAME}</li>
+ * Default value: {@value Constant.JDigiDoc#SECURITY_PROVIDER_NAME}</li>
  * <li>DIGIDOC_TSLFAC_IMPL: TSL Factory implementation.<br>
- * Default value: {@value org.digidoc4j.Constant.JDigiDoc#TSL_FACTORY_IMPLEMENTATION}</li>
+ * Default value: {@value Constant.JDigiDoc#TSL_FACTORY_IMPLEMENTATION}</li>
  * <li>DIGIDOC_USE_LOCAL_TSL: Use local TSL? Allowed values: true, false<br>
- * Default value: {@value org.digidoc4j.Constant.JDigiDoc#USE_LOCAL_TSL}</li>
+ * Default value: {@value Constant.JDigiDoc#USE_LOCAL_TSL}</li>
  * <li>KEY_USAGE_CHECK: Should key usage be checked? Allowed values: true, false.<br>
- * Default value: {@value org.digidoc4j.Constant.JDigiDoc#KEY_USAGE_CHECK}</li>
+ * Default value: {@value Constant.JDigiDoc#KEY_USAGE_CHECK}</li>
  * <li>DIGIDOC_PKCS12_CONTAINER: OCSP access certificate file</li>
  * <li>DIGIDOC_PKCS12_PASSWD: OCSP access certificate password</li>
  * <li>OCSP_SOURCE: Online Certificate Service Protocol source</li>

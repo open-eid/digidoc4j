@@ -40,7 +40,6 @@ public class DDocContainer implements Container {
   private static final Logger logger = LoggerFactory.getLogger(DDocContainer.class);
 
   private DDocFacade jDigiDocFacade;
-  private Configuration configuration;
 
   /**
    * DDocContainer constructor.
@@ -148,7 +147,7 @@ public class DDocContainer implements Container {
 
   @Override
   public Configuration getConfiguration() {
-    return configuration;
+    return jDigiDocFacade.getConfiguration();
   }
 
   /**

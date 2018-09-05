@@ -79,10 +79,10 @@ public final class Constant {
     public static final String OCSP_SIGN_REQUESTS = "SIGN_OCSP_REQUESTS";
     public static final String SECURITY_PROVIDER = "org.bouncycastle.jce.provider.BouncyCastleProvider";
     public static final String SECURITY_PROVIDER_NAME = "BC";
-    public static final String CANONICALIZATION_FACTORY_IMPLEMENTATION = "ee.sk.digidoc.c14n.TinyXMLCanonicalizer";
-    public static final String NOTARY_IMPLEMENTATION = "ee.sk.digidoc.factory.BouncyCastleNotaryFactory";
-    public static final String TSL_FACTORY_IMPLEMENTATION = "ee.sk.digidoc.tsl.DigiDocTrustServiceFactory";
-    public static final String FACTORY_IMPLEMENTATION = "ee.sk.digidoc.factory.SAXDigiDocFactory";
+    public static final String CANONICALIZATION_FACTORY_IMPLEMENTATION = "org.digidoc4j.ddoc.c14n.TinyXMLCanonicalizer";
+    public static final String NOTARY_IMPLEMENTATION = "org.digidoc4j.ddoc.factory.BouncyCastleNotaryFactory";
+    public static final String TSL_FACTORY_IMPLEMENTATION = "org.digidoc4j.ddoc.tsl.DigiDocTrustServiceFactory";
+    public static final String FACTORY_IMPLEMENTATION = "org.digidoc4j.ddoc.factory.SAXDigiDocFactory";
     public static final String MAX_DATAFILE_CACHED = "-1";
     public static final String USE_LOCAL_TSL = "true";
     public static final String KEY_USAGE_CHECK = "false";

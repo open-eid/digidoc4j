@@ -28,9 +28,9 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ee.sk.digidoc.DigiDocException;
-import ee.sk.digidoc.KeyInfo;
-import ee.sk.digidoc.SignedDoc;
+import org.digidoc4j.ddoc.DigiDocException;
+import org.digidoc4j.ddoc.KeyInfo;
+import org.digidoc4j.ddoc.SignedDoc;
 
 /**
  * Offers validation specific functionality of a DDOC container.
@@ -77,7 +77,7 @@ public class DDocFacade implements Serializable {
     ArrayList ddocDataFiles = ddoc.getDataFiles();
     if (ddocDataFiles == null) return dataFiles;
     for (Object ddocDataFile : ddocDataFiles) {
-      ee.sk.digidoc.DataFile dataFile = (ee.sk.digidoc.DataFile) ddocDataFile;
+      org.digidoc4j.ddoc.DataFile dataFile = (org.digidoc4j.ddoc.DataFile) ddocDataFile;
       try {
         if (dataFile.getBody() == null) {
           DataFile dataFile1 = new DataFile(dataFile.getFileName(), dataFile.getMimeType());
@@ -127,7 +127,7 @@ public class DDocFacade implements Serializable {
     }
     int signatureIndexInArray = 0;
     for (Object signature : dDocSignatures) {
-      DDocSignature finalSignature = mapJDigiDocSignatureToDigiDoc4J((ee.sk.digidoc.Signature) signature);
+      DDocSignature finalSignature = mapJDigiDocSignatureToDigiDoc4J((org.digidoc4j.ddoc.Signature) signature);
       if (finalSignature != null) {
         finalSignature.setIndexInArray(signatureIndexInArray);
         signatures.add(finalSignature);
@@ -151,7 +151,7 @@ public class DDocFacade implements Serializable {
     return (signatures == null) ? 0 : signatures.size();
   }
 
-  private DDocSignature mapJDigiDocSignatureToDigiDoc4J(ee.sk.digidoc.Signature signature) {
+  private DDocSignature mapJDigiDocSignatureToDigiDoc4J(org.digidoc4j.ddoc.Signature signature) {
     DDocSignature finalSignature = new DDocSignature(signature);
     KeyInfo keyInfo = signature.getKeyInfo();
     if (keyInfo == null) {

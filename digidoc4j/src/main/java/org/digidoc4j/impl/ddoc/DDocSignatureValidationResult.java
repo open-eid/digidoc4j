@@ -28,8 +28,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
-import ee.sk.digidoc.DigiDocException;
-import ee.sk.digidoc.SignedDoc;
+import org.digidoc4j.ddoc.DigiDocException;
+import org.digidoc4j.ddoc.SignedDoc;
 
 /**
  * Overview of errors and warnings for DDoc

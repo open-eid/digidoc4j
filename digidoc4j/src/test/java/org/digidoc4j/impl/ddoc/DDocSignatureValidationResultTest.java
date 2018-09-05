@@ -20,7 +20,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import ee.sk.digidoc.DigiDocException;
+import org.digidoc4j.ddoc.DigiDocException;
 
 public class DDocSignatureValidationResultTest {
 

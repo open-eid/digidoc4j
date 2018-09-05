@@ -16,7 +16,7 @@ import org.digidoc4j.DigestAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ee.sk.digidoc.factory.DigiDocGenFactory;
+import org.digidoc4j.ddoc.factory.DigiDocGenFactory;
 
 public class TokenAlgorithmSupport {
 

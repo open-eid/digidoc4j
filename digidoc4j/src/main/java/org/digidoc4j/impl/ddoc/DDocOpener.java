@@ -21,10 +21,10 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ee.sk.digidoc.DigiDocException;
-import ee.sk.digidoc.SignedDoc;
-import ee.sk.digidoc.factory.DigiDocFactory;
-import ee.sk.digidoc.factory.SAXDigiDocFactory;
+import org.digidoc4j.ddoc.DigiDocException;
+import org.digidoc4j.ddoc.SignedDoc;
+import org.digidoc4j.ddoc.factory.DigiDocFactory;
+import org.digidoc4j.ddoc.factory.SAXDigiDocFactory;
 
 
 public class DDocOpener implements Serializable {

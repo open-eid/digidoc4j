@@ -26,7 +26,7 @@ import org.digidoc4j.impl.SimpleValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ee.sk.digidoc.CertValue;
+import org.digidoc4j.ddoc.CertValue;
 
 /**
  * Signature implementation. Provides an interface for handling a signature and the
@@ -35,13 +35,13 @@ import ee.sk.digidoc.CertValue;
 public class DDocSignature implements Signature {
   private static final Logger logger = LoggerFactory.getLogger(DDocSignature.class);
   private X509Cert certificate;
-  private final ee.sk.digidoc.Signature origin;
+  private final org.digidoc4j.ddoc.Signature origin;
   private int indexInArray = 0;
 
   /**
    * @param signature add description
    */
-  public DDocSignature(ee.sk.digidoc.Signature signature) {
+  public DDocSignature(org.digidoc4j.ddoc.Signature signature) {
     this.origin = signature;
   }
 

@@ -38,10 +38,10 @@ import org.digidoc4j.impl.ddoc.DDocSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ee.sk.digidoc.CertValue;
-import ee.sk.digidoc.DigiDocException;
-import ee.sk.digidoc.SignedDoc;
-import ee.sk.digidoc.factory.DigiDocGenFactory;
+import org.digidoc4j.ddoc.CertValue;
+import org.digidoc4j.ddoc.DigiDocException;
+import org.digidoc4j.ddoc.SignedDoc;
+import org.digidoc4j.ddoc.factory.DigiDocGenFactory;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.InMemoryDocument;

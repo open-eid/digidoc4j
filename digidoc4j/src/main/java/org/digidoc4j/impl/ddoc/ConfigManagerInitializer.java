@@ -16,7 +16,7 @@ import org.digidoc4j.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ee.sk.utils.ConfigManager;
+import org.digidoc4j.ddoc.utils.ConfigManager;
 
 /**
  * Configuration manager initializer

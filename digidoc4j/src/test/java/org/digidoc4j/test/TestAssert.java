@@ -42,8 +42,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import ee.sk.digidoc.DigiDocException;
-import ee.sk.utils.ConfigManager;
+import org.digidoc4j.ddoc.DigiDocException;
+import org.digidoc4j.ddoc.utils.ConfigManager;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.client.http.proxy.ProxyConfig;
