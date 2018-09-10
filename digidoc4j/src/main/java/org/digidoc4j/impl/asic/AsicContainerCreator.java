@@ -74,6 +74,7 @@ public class AsicContainerCreator {
     logger.debug("Finalizing asic zip file");
     try {
       zipOutputStream.finish();
+      zipOutputStream.close();
     } catch (IOException e) {
       handleIOException("Unable to finish creating asic ZIP container", e);
     } finally {
