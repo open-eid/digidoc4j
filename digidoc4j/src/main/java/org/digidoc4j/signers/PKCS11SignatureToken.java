@@ -12,7 +12,6 @@ package org.digidoc4j.signers;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.SignatureException;
@@ -20,14 +19,7 @@ import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
-import javax.crypto.Cipher;
-
 import org.apache.commons.lang3.ArrayUtils;
-import org.bouncycastle.asn1.ASN1Encoding;
-import org.bouncycastle.asn1.DERNull;
-import org.bouncycastle.asn1.DERObjectIdentifier;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
-import org.bouncycastle.asn1.x509.DigestInfo;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.X509Cert;
@@ -37,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.EncryptionAlgorithm;
-import eu.europa.esig.dss.SignatureAlgorithm;
 import eu.europa.esig.dss.SignatureValue;
 import eu.europa.esig.dss.ToBeSigned;
 import eu.europa.esig.dss.token.AbstractSignatureTokenConnection;

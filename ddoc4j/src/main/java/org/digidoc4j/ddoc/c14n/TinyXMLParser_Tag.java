@@ -26,23 +26,6 @@ public final class TinyXMLParser_Tag {
         return FragmentBase.GetDataBetweenFragments(this.Begin, this.End);
     }
 
-    public boolean get_CanHaveAttributes()
-    {
-
-        if (this.Begin.get_Item("<"))
-        {
-            return true;
-        }
-
-
-        if (this.Begin.get_Item("<?"))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
     public static TinyXMLParser_Tag Of(TinyXMLParser_Fragment f)
     {
         TinyXMLParser_Tag n;

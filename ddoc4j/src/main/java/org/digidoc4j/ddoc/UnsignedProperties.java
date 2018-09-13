@@ -225,25 +225,21 @@ public class UnsignedProperties implements Serializable
                     "No notarys certificate!", null));
             return errs;
         }
-        if(cert != null && !cert.getSerialNumber().equals(m_certRefs.getCertSerial()) &&
-                !m_signature.getSignedDoc().getFormat().equals(SignedDoc.FORMAT_BDOC)) {
+        if(cert != null && !cert.getSerialNumber().equals(m_certRefs.getCertSerial())) {
             errs.add(new DigiDocException(DigiDocException.ERR_RESPONDERS_CERT,
                     "Wrong notarys certificate: " + cert.getSerialNumber() + " ref: " + m_certRefs.getCertSerial(), null));
         }
         // verify notary certs digest using CompleteCertificateRefs
         try {
-            if(!m_signature.getSignedDoc().getFormat().equals(SignedDoc.FORMAT_BDOC)) {
-                byte[] digest = SignedDoc.digestOfType(cert.getEncoded(), (m_signature.getSignedDoc().getFormat().
-                        equals(SignedDoc.FORMAT_BDOC) ? SignedDoc.SHA256_DIGEST_TYPE : SignedDoc.SHA1_DIGEST_TYPE));
-                if(m_logger.isDebugEnabled())
-                    m_logger.debug("Not cert calc hash: " + Base64Util.encode(digest, 0) +
-                            " cert-ref hash: " + Base64Util.encode(m_certRefs.getCertDigestValue(), 0));
-                if(!SignedDoc.compareDigests(digest, m_certRefs.getCertDigestValue())) {
-                    errs.add(new DigiDocException(DigiDocException.ERR_RESPONDERS_CERT,
-                            "Notary certificates digest doesn't match!", null));
-                    m_logger.error("Notary certificates digest doesn't match!");
+            byte[] digest = SignedDoc.digestOfType(cert.getEncoded(), SignedDoc.SHA1_DIGEST_TYPE);
+            if(m_logger.isDebugEnabled())
+                m_logger.debug("Not cert calc hash: " + Base64Util.encode(digest, 0) +
+                        " cert-ref hash: " + Base64Util.encode(m_certRefs.getCertDigestValue(), 0));
+            if(!SignedDoc.compareDigests(digest, m_certRefs.getCertDigestValue())) {
+                errs.add(new DigiDocException(DigiDocException.ERR_RESPONDERS_CERT,
+                        "Notary certificates digest doesn't match!", null));
+                m_logger.error("Notary certificates digest doesn't match!");
                 }
-            }
         } catch(DigiDocException ex) {
             errs.add(ex);
         } catch(Exception ex) {
@@ -268,8 +264,7 @@ public class UnsignedProperties implements Serializable
                     errs.add(new DigiDocException(DigiDocException.ERR_NOTARY_DIGEST, "No OCSP ref for uri: #" + not.getId(), null));
                     continue;
                 }
-                byte[] digest1 = SignedDoc.digestOfType(ocspData, (m_signature.getSignedDoc().getFormat().
-                        equals(SignedDoc.FORMAT_BDOC) ? SignedDoc.SHA256_DIGEST_TYPE : SignedDoc.SHA1_DIGEST_TYPE));
+                byte[] digest1 = SignedDoc.digestOfType(ocspData, SignedDoc.SHA1_DIGEST_TYPE);
                 byte[] digest2 = orf.getDigestValue();
                 if(m_logger.isDebugEnabled())
                     m_logger.debug("Check ocsp: " + not.getId() +

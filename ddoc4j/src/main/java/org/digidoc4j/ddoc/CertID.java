@@ -209,7 +209,6 @@ public class CertID implements Serializable
     {
         DigiDocException ex = null;
         if(str == null && !m_signature.getSignedDoc().getVersion().equals(SignedDoc.VERSION_1_3)
-                && !m_signature.getSignedDoc().getFormat().equals(SignedDoc.FORMAT_BDOC)
                 && m_type == CERTID_TYPE_RESPONDER)
             ex = new DigiDocException(DigiDocException.ERR_RESPONDER_CERT_ID,
                     "Cert Id must be in form: <signature-id>-RESPONDER_CERTINFO", null);
@@ -247,12 +246,9 @@ public class CertID implements Serializable
     {
         DigiDocException ex = null;
         if(str == null ||
-                (!str.equals(SignedDoc.SHA1_DIGEST_ALGORITHM) &&
-                        !str.equals(SignedDoc.SHA256_DIGEST_ALGORITHM_1) &&
-                        !str.equals(SignedDoc.SHA256_DIGEST_ALGORITHM_2) &&
-                        !str.equals(SignedDoc.SHA512_DIGEST_ALGORITHM)))
+                !str.equals(SignedDoc.SHA1_DIGEST_ALGORITHM))
             ex = new DigiDocException(DigiDocException.ERR_DIGEST_ALGORITHM,
-                    "Currently supports only SHA-1, SHA-256 or SHA-512 digest algorithm", null);
+                    "Currently supports only SHA-1", null);
         return ex;
     }
 
@@ -287,9 +283,7 @@ public class CertID implements Serializable
     {
         DigiDocException ex = null;
         if(data == null ||
-                (data.length != SignedDoc.SHA1_DIGEST_LENGTH &&
-                        data.length != SignedDoc.SHA256_DIGEST_LENGTH &&
-                        data.length != SignedDoc.SHA512_DIGEST_LENGTH))
+                data.length != SignedDoc.SHA1_DIGEST_LENGTH)
             ex = new DigiDocException(DigiDocException.ERR_DIGEST_LENGTH,
                     "Invalid digest length", null);
         return ex;

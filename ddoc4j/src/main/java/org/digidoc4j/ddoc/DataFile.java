@@ -41,7 +41,7 @@ public class DataFile implements Serializable
     /** file size on bytes */
     private long m_size;
     /** digest value of detatched file */
-    private byte[] m_digestSha1, m_digestSha256, m_digestSha224, m_digestSha512;
+    private byte[] m_digestSha1;
     /** alternative (sha1) digest if requested */
     private byte[] m_digestAlt;
 
@@ -95,9 +95,6 @@ public class DataFile implements Serializable
         setMimeType(mimeType);
         m_size = 0;
         m_digestSha1 = null;
-        m_digestSha224 = null;
-        m_digestSha256 = null;
-        m_digestSha512 = null;
         m_attributes = null;
         m_body = null;
         m_codepage = "UTF-8";
@@ -293,8 +290,7 @@ public class DataFile implements Serializable
 
     public boolean isDigestsCalculated()
     {
-        return (m_digestSha1 != null || m_origDigestValue != null || m_digestSha224 != null ||
-                m_digestSha256 != null || m_digestSha512 != null);
+        return (m_digestSha1 != null);
     }
 
     /**
@@ -307,9 +303,6 @@ public class DataFile implements Serializable
     {
         try {
             MessageDigest sha1 = MessageDigest.getInstance(SignedDoc.SHA1_DIGEST_TYPE);
-            MessageDigest sha224 = MessageDigest.getInstance(SignedDoc.SHA224_DIGEST_TYPE);
-            MessageDigest sha256 = MessageDigest.getInstance(SignedDoc.SHA256_DIGEST_TYPE);
-            MessageDigest sha512 = MessageDigest.getInstance(SignedDoc.SHA512_DIGEST_TYPE);
             byte[] data = new byte[2048];
             int nRead = 0;
             m_size = 0;
@@ -317,37 +310,15 @@ public class DataFile implements Serializable
                 nRead = is.read(data);
                 if(nRead > 0) {
                     sha1.update(data, 0, nRead);
-                    sha224.update(data, 0, nRead);
-                    sha256.update(data, 0, nRead);
-                    sha512.update(data, 0, nRead);
                     if(os != null)
                         os.write(data, 0, nRead);
                     m_size += nRead;
                 }
             } while(nRead > 0);
             m_digestSha1 = m_origDigestValue = sha1.digest();
-            m_digestSha224 = sha224.digest();
-            m_digestSha256 = sha256.digest();
-            m_digestSha512 = sha512.digest();
-            if(m_sigDoc != null && m_sigDoc.getFormat() != null && m_sigDoc.getFormat().equals(SignedDoc.FORMAT_BDOC)) {
-                String sDigType = ConfigManager.instance().getStringProperty("DIGIDOC_DIGEST_TYPE", SignedDoc.SHA256_DIGEST_TYPE);
-                if(sDigType != null) {
-                    if(sDigType.equals(SignedDoc.SHA256_DIGEST_TYPE))
-                        m_origDigestValue = m_digestSha256;
-                    if(sDigType.equals(SignedDoc.SHA512_DIGEST_TYPE))
-                        m_origDigestValue = m_digestSha512;
-                    if(sDigType.equals(SignedDoc.SHA1_DIGEST_TYPE))
-                        m_origDigestValue = m_digestSha1;
-                    if(sDigType.equals(SignedDoc.SHA224_DIGEST_TYPE))
-                        m_origDigestValue = m_digestSha224;
-                }
-            }
             if(m_logger.isDebugEnabled())
                 m_logger.debug("DF: " + m_id + " size: " + m_size +
-                        " dig-sha1: " + Base64Util.encode(m_digestSha1) +
-                        " dig-sha224: " + Base64Util.encode(m_digestSha224) +
-                        " dig-sha256: " + Base64Util.encode(m_digestSha256) +
-                        " dig-sha512: " + Base64Util.encode(m_digestSha512));
+                        " dig-sha1: " + Base64Util.encode(m_digestSha1));
         } catch(Exception ex) {
             DigiDocException.handleException(ex, DigiDocException.ERR_READ_FILE);
         }
@@ -373,10 +344,7 @@ public class DataFile implements Serializable
         byte[] dig = null;
         InputStream is = null;
         try {
-            if(digType == null || (!digType.equals(SignedDoc.SHA1_DIGEST_TYPE) &&
-                    !digType.equals(SignedDoc.SHA224_DIGEST_TYPE) &&
-                    !digType.equals(SignedDoc.SHA256_DIGEST_TYPE) &&
-                    !digType.equals(SignedDoc.SHA512_DIGEST_TYPE))) {
+            if(digType == null || !digType.equals(SignedDoc.SHA1_DIGEST_TYPE)) {
                 throw new DigiDocException(DigiDocException.ERR_DIGEST_ALGORITHM, "Invalid digest type: " + digType, null);
             }
             if(m_sigDoc.getFormat().equals(SignedDoc.FORMAT_SK_XML) ||
@@ -430,10 +398,7 @@ public class DataFile implements Serializable
             if(m_logger.isDebugEnabled())
                 m_logger.debug("DF: " + m_id + " size: " + m_size +
                         " cache: " + ((m_fDfCache != null) ? m_fDfCache.getAbsolutePath() : "MEMORY") +
-                        " dig-sha1: " + Base64Util.encode(m_digestSha1) +
-                        " dig-sha224: " + Base64Util.encode(m_digestSha224) +
-                        " dig-sha256: " + Base64Util.encode(m_digestSha256) +
-                        " dig-sha512: " + Base64Util.encode(m_digestSha512));
+                        " dig-sha1: " + Base64Util.encode(m_digestSha1));
         } catch(Exception ex) {
             DigiDocException.handleException(ex, DigiDocException.ERR_WRITE_FILE);
         } finally {
@@ -709,11 +674,7 @@ public class DataFile implements Serializable
     {
         DigiDocException ex = null;
         boolean bUseHashcode = ConfigManager.instance().getBooleanProperty("DATAFILE_HASHCODE_MODE", false);
-        if(m_sigDoc != null && m_sigDoc.getFormat().equals(SignedDoc.FORMAT_BDOC) &&
-                (str == null || !str.equals(CONTENT_BINARY)))
-            ex = new DigiDocException(DigiDocException.ERR_DATA_FILE_CONTENT_TYPE,
-                    "Currently supports only content type BINARY for BDOC format", null);
-        if(m_sigDoc != null && !m_sigDoc.getFormat().equals(SignedDoc.FORMAT_BDOC) &&
+        if(m_sigDoc != null &&
                 (str == null ||
                         (!str.equals(CONTENT_EMBEDDED_BASE64) && !str.equals(CONTENT_HASHCODE)) ||
                         (str.equals(CONTENT_HASHCODE) && !bUseHashcode)))
@@ -795,7 +756,7 @@ public class DataFile implements Serializable
             ex = new DigiDocException(DigiDocException.ERR_DATA_FILE_ID,
                     "Id is a required attribute", null);
         if(str != null && bStrong &&
-                m_sigDoc.getFormat() != null && !m_sigDoc.getFormat().equalsIgnoreCase(SignedDoc.FORMAT_BDOC) &&
+                m_sigDoc.getFormat() != null &&
                 (str.charAt(0) != 'D' || (!Character.isDigit(str.charAt(1)) && str.charAt(1) != 'O')))
             ex = new DigiDocException(DigiDocException.ERR_DATA_FILE_ID,
                     "Id attribute value has to be in form D<number> or DO", null);
@@ -880,15 +841,11 @@ public class DataFile implements Serializable
      */
     public String getDigestType() {
         if(m_sigDoc != null && m_sigDoc.countSignatures() > 0) {
-            if(m_sigDoc != null && m_sigDoc.getFormat().equals(SignedDoc.FORMAT_BDOC)) { // bdoc
-                return null;
-            } else { // ddoc & all other cases
-                Reference ref = m_sigDoc.getSignature(0).getSignedInfo().getReferenceForDataFile(this);
-                if(ref != null)
-                    return ref.getDigestAlgorithm();
-                else
-                    return SignedDoc.SHA1_DIGEST_TYPE;
-            }
+            Reference ref = m_sigDoc.getSignature(0).getSignedInfo().getReferenceForDataFile(this);
+            if(ref != null)
+                return ref.getDigestAlgorithm();
+            else
+                return SignedDoc.SHA1_DIGEST_TYPE;
         }
         return null;
     }
@@ -902,12 +859,9 @@ public class DataFile implements Serializable
     private DigiDocException validateDigestType(String str)
     {
         DigiDocException ex = null;
-        if(str != null && !str.equals("sha1") && !str.equals(SignedDoc.SHA1_DIGEST_TYPE) &&
-                !str.equals(SignedDoc.SHA224_DIGEST_TYPE) &&
-                !str.equals(SignedDoc.SHA256_DIGEST_TYPE) &&
-                !str.equals(SignedDoc.SHA512_DIGEST_TYPE))
+        if(str != null && !str.equals("sha1") && !str.equals(SignedDoc.SHA1_DIGEST_TYPE))
             ex = new DigiDocException(DigiDocException.ERR_DATA_FILE_DIGEST_TYPE,
-                    "The only supported digest types are sha1, sha256 and sha512", null);
+                    "The only supported digest types are sha1", null);
         return ex;
     }
 
@@ -924,21 +878,6 @@ public class DataFile implements Serializable
                 if(m_digestSha1 == null && m_origDigestValue == null)
                     m_digestSha1 = m_origDigestValue = calcHashOfType(SignedDoc.SHA1_DIGEST_TYPE);
                 return ((m_digestSha1 != null) ? m_digestSha1 : m_origDigestValue);
-            }
-            if(digType.equals(SignedDoc.SHA256_DIGEST_TYPE)) {
-                if(m_digestSha256 == null)
-                    m_digestSha256 = calcHashOfType(SignedDoc.SHA256_DIGEST_TYPE);
-                return m_digestSha256;
-            }
-            if(digType.equals(SignedDoc.SHA224_DIGEST_TYPE)) {
-                if(m_digestSha224 == null)
-                    m_digestSha224 = calcHashOfType(SignedDoc.SHA224_DIGEST_TYPE);
-                return m_digestSha224;
-            }
-            if(digType.equals(SignedDoc.SHA512_DIGEST_TYPE)) {
-                if(m_digestSha512 == null)
-                    m_digestSha512 = calcHashOfType(SignedDoc.SHA512_DIGEST_TYPE);
-                return m_digestSha512;
             }
         }
         return m_digestSha1;
@@ -957,12 +896,6 @@ public class DataFile implements Serializable
             throw ex;
         if(data.length == SignedDoc.SHA1_DIGEST_LENGTH)
             m_digestSha1 = data;
-        if(data.length == SignedDoc.SHA256_DIGEST_LENGTH)
-            m_digestSha256 = data;
-        if(data.length == SignedDoc.SHA224_DIGEST_LENGTH)
-            m_digestSha224 = data;
-        if(data.length == SignedDoc.SHA512_DIGEST_LENGTH)
-            m_digestSha512 = data;
     }
 
     /**
@@ -972,13 +905,9 @@ public class DataFile implements Serializable
     public byte[] getDigest()
             throws DigiDocException
     {
-        if(m_sigDoc != null && m_sigDoc.getFormat().equals(SignedDoc.FORMAT_BDOC)) { // bdoc
-            return null;
-        } else { // ddoc & all other cases
-            if(m_origDigestValue == null)
-                calculateFileSizeAndDigest(null);
-            return m_origDigestValue;
-        }
+        if(m_origDigestValue == null)
+            calculateFileSizeAndDigest(null);
+        return m_origDigestValue;
     }
 
     /**
@@ -1023,12 +952,9 @@ public class DataFile implements Serializable
     private DigiDocException validateDigestValue(byte[] data)
     {
         DigiDocException ex = null;
-        if(data != null && data.length != SignedDoc.SHA1_DIGEST_LENGTH &&
-                data.length != SignedDoc.SHA224_DIGEST_LENGTH &&
-                data.length != SignedDoc.SHA256_DIGEST_LENGTH &&
-                data.length != SignedDoc.SHA512_DIGEST_LENGTH)
+        if(data != null && data.length != SignedDoc.SHA1_DIGEST_LENGTH)
             ex = new DigiDocException(DigiDocException.ERR_DATA_FILE_DIGEST_VALUE,
-                    "SHA1 digest value must be 20 bytes and sha256 digest 32 bytes - is: " + data.length, null);
+                    "SHA1 digest value must be 20 bytes - is: " + data.length, null);
         return ex;
     }
 

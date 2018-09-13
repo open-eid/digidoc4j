@@ -221,12 +221,9 @@ public class OcspRef implements Serializable
     {
         DigiDocException ex = null;
         if(str == null ||
-                (!str.equals(SignedDoc.SHA1_DIGEST_ALGORITHM) &&
-                        !str.equals(SignedDoc.SHA256_DIGEST_ALGORITHM_1) &&
-                        !str.equals(SignedDoc.SHA256_DIGEST_ALGORITHM_2) &&
-                        !str.equals(SignedDoc.SHA512_DIGEST_ALGORITHM)))
+                !str.equals(SignedDoc.SHA1_DIGEST_ALGORITHM))
             ex = new DigiDocException(DigiDocException.ERR_DIGEST_ALGORITHM,
-                    "Currently supports only SHA1, SHA256 or SHA256 digest algorithm", null);
+                    "Currently supports only SHA1", null);
         return ex;
     }
 
@@ -263,9 +260,7 @@ public class OcspRef implements Serializable
     {
         DigiDocException ex = null;
         if(data == null ||
-                (data.length != SignedDoc.SHA1_DIGEST_LENGTH &&
-                        data.length != SignedDoc.SHA256_DIGEST_LENGTH &&
-                        data.length != SignedDoc.SHA512_DIGEST_LENGTH))
+                data.length != SignedDoc.SHA1_DIGEST_LENGTH)
             ex = new DigiDocException(DigiDocException.ERR_DIGEST_LENGTH,
                     "Invalid digest length", null);
         return ex;

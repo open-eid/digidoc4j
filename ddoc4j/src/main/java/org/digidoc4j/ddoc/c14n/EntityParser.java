@@ -1,25 +1,17 @@
 package org.digidoc4j.ddoc.c14n;
 
-import org.digidoc4j.ddoc.c14n.common.Convert;
-
 public final class EntityParser
 {
     public byte[] Data;
     public int Offset;
     public int Length;
     public EntityParser_Handler Resolver;
-    private String _text;
+    private String text;
 
 
     public EntityParser()
     {
         this.Resolver = new EntityParser_DefaultHandler();
-    }
-
-
-    public String get_DataString()
-    {
-        return Convert.ToString(this.Data, this.Offset, this.Length);
     }
 
     private void Parse()
@@ -82,7 +74,7 @@ public final class EntityParser
 
             f = f.get_Next();
         }
-        this._text = b.toString();
+        this.text = b.toString();
     }
 
     public String get_Text()
@@ -94,12 +86,12 @@ public final class EntityParser
         }
 
 
-        if ((this._text == null))
+        if ((this.text == null))
         {
             this.Parse();
         }
 
-        return this._text;
+        return this.text;
     }
 
     public static EntityParser Of(byte[] data, int offset, int length)

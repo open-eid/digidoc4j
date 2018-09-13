@@ -2,7 +2,7 @@ package org.digidoc4j.ddoc.c14n;
 
 public final class EntityParser_Fragment extends FragmentBase {
 
-    private EntityParser_Fragment _next;
+    private EntityParser_Fragment next;
 
 
     public EntityParser_Fragment()
@@ -14,12 +14,12 @@ public final class EntityParser_Fragment extends FragmentBase {
     public EntityParser_Fragment get_InternalNext()
     {
 
-        if ((this._next == null))
+        if ((this.next == null))
         {
-            this._next = EntityParser_Fragment.Of(this.Data, this.get_LastOffset(), this.ExplicitBounds);
+            this.next = EntityParser_Fragment.Of(this.Data, this.get_LastOffset(), this.ExplicitBounds);
         }
 
-        return this._next;
+        return this.next;
     }
 
     public EntityParser_Fragment Clone()
@@ -69,9 +69,9 @@ public final class EntityParser_Fragment extends FragmentBase {
             {
                 n2 = this.get_InternalNext();
                 n1 = this.Clone();
-                this._next = n1;
-                if(this._next != null)
-                this._next._next = n2;
+                this.next = n1;
+                if(this.next != null)
+                this.next.next = n2;
                 FragmentBase.SplitBy(this, n1, e.length());
             }
 
@@ -102,17 +102,12 @@ public final class EntityParser_Fragment extends FragmentBase {
         return this.GetMarkupChar((int)0);
     }
 
-    public boolean get_IsLiteral()
-    {
-        return this.GetLiteralChar((int)0);
-    }
-
     private void SpawnAtOffset(int p)
     {
         this.Offset = p;
         this.Length = -1;
 
-        if (this.GetMarkupChar((int)0))
+        if (this.GetMarkupChar(0))
         {
 
             for (this.Length = 0; (this.InBounds(this.get_LastOffset()) && this.GetMarkupChar(this.Length)); this.Length = (this.Length + 1))

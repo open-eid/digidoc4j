@@ -73,8 +73,7 @@ public class DDocOpener implements Serializable {
   private SignedDoc openSignedDoc(String fileName, ArrayList<DigiDocException> openContainerExceptions) throws DigiDoc4JException {
     try {
       DigiDocFactory digFac = createDigiDocFactory();
-      boolean isBdoc = false;
-      return digFac.readSignedDocOfType(fileName, isBdoc, openContainerExceptions);
+      return digFac.readSignedDoc(fileName, openContainerExceptions);
     } catch (DigiDocException e) {
       logger.error("Failed to open DDoc from file " + fileName + ": " + e.getMessage());
       throw new DigiDoc4JException(e);
@@ -84,7 +83,7 @@ public class DDocOpener implements Serializable {
   private SignedDoc openSignedDoc(InputStream stream, ArrayList<DigiDocException> openContainerExceptions) throws DigiDoc4JException {
     try {
       DigiDocFactory digFac = createDigiDocFactory();
-      SignedDoc signedDoc = digFac.readSignedDocFromStreamOfType(stream, false, openContainerExceptions);
+      SignedDoc signedDoc = digFac.readSignedDocFromStream(stream, openContainerExceptions);
       logger.info("DDoc container opened from stream");
       return signedDoc;
     } catch (DigiDocException e) {

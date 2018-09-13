@@ -19,15 +19,6 @@ public abstract class FragmentBase {
     {
     }
 
-
-    /**
-     * gets the bytes held by the fragment
-     */
-    public byte[] get_DataBytes()
-    {
-        return Convert.ToByteArray(this.Data, this.Offset, this.Length);
-    }
-
     /**
      * if a fragment is too wide it can contain multiple child fragments like start and close
      * fragment both. So after this method is called they are split apart.
@@ -42,7 +33,7 @@ public abstract class FragmentBase {
         ret = false;
         stringArray3 = e;
 
-        for (num4 = 0; (num4 < ((int)stringArray3.length)); num4++)
+        for (num4 = 0; (num4 < (stringArray3.length)); num4++)
         {
             var = stringArray3[num4];
 
@@ -91,7 +82,7 @@ public abstract class FragmentBase {
         int i;
 
 
-        for (i = 0; (i < ((int)ds.length)); i++)
+        for (i = 0; (i < (ds.length)); i++)
         {
 
             if (this.get_Item(ds[i]))
@@ -139,7 +130,7 @@ public abstract class FragmentBase {
 
         }
 
-        return (p < ((int)this.Data.length));
+        return (p < (this.Data.length));
     }
 
     protected static void SplitBy(FragmentBase left, FragmentBase right, int length)

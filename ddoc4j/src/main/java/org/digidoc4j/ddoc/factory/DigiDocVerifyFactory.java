@@ -21,9 +21,10 @@ import java.util.List;
  * @author Veiko Sinivee
  */
 public class DigiDocVerifyFactory {
-    //private SignedDoc m_sdoc;
-    private static Logger m_logger = LoggerFactory.getLogger(DigiDocVerifyFactory.class);
+    private static final Logger m_logger = LoggerFactory.getLogger(DigiDocVerifyFactory.class);
     private static boolean m_prvInited = false;
+
+    private static final String DIGIDOC_VERIFY_ALGORITHM = "RSA/NONE/PKCS1Padding";
 
     public static void initProvider() {
         try {
@@ -31,7 +32,6 @@ public class DigiDocVerifyFactory {
                 // only need this if we must sign the requests
                 Provider prv = (Provider)Class.forName(ConfigManager.
                         instance().getProperty("DIGIDOC_SECURITY_PROVIDER")).newInstance();
-                //prv.list(System.out);
                 Security.addProvider(prv);
                 m_prvInited = true;
             }
@@ -57,120 +57,6 @@ public class DigiDocVerifyFactory {
         return ok;
     }
 
-    public static boolean verifyManifestEntries(SignedDoc sdoc, List lerrs)
-            throws DigiDocException
-    {
-        boolean bOk = true;
-        if(m_logger.isDebugEnabled())
-            m_logger.debug("Verifying manifest entries");
-        if(sdoc != null && sdoc.getFormat() != null && sdoc.getFormat().equals(SignedDoc.FORMAT_BDOC)) {
-            // compare ManifestFileEntry-s and DataFile-s match
-            for(int i = 0; i < sdoc.countDataFiles(); i++) {
-                DataFile df = sdoc.getDataFile(i);
-                boolean bF = false;
-                String sFileName = df.getFileName();
-                File ft1 = new File(df.getFileName());
-                sFileName = ft1.getName();
-                if(sdoc.getManifest() != null) {
-                    for(int j = 0; j < sdoc.getManifest().getNumFileEntries(); j++) {
-                        ManifestFileEntry mfe = sdoc.getManifest().getFileEntry(j);
-                        if(mfe != null) {
-                            if(m_logger.isDebugEnabled())
-                                m_logger.debug("Manifest entry: " + mfe.getFullPath() + " mime: " + mfe.getMediaType() + " df: " + df.getId() + " df-mime: " + df.getMimeType());
-                            if(mfe.getFullPath() != null && mfe.getFullPath().equals(sFileName)) {
-                                if(bF) {
-                                    lerrs.add(new DigiDocException(DigiDocException.ERR_MANIFEST_ENTRY,
-                                            "Duplicate ManifestFileEntry for: " + df.getFileName(), null));
-                                    if(m_logger.isDebugEnabled())
-                                        m_logger.error("Duplicate ManifestFileEntry for: " + df.getFileName());
-                                    bOk = false;
-                                } else {
-                                    bF = true;
-                                }
-                                if(mfe.getMediaType() == null || df.getMimeType() == null ||
-                                        !mfe.getMediaType().equals(df.getMimeType())) {
-                                    lerrs.add(new DigiDocException(DigiDocException.ERR_MANIFEST_MIME_TYPE,
-                                            "DataFile " + df.getFileName() + " mime-type: " + df.getMimeType() +
-                                                    " does not match manifest mime type: " + mfe.getMediaType(), null));
-                                    if(m_logger.isDebugEnabled())
-                                        m_logger.error("DataFile " + df.getFileName() + " mime-type: " + df.getMimeType() +
-                                                " does not match manifest mime type: " + mfe.getMediaType());
-                                    bOk = false;
-                                }
-                            }
-                        }
-                    } // for j
-                    for(int s = 0; s < sdoc.countSignatures(); s++) {
-                        Signature sig = sdoc.getSignature(s);
-                        Reference dRef = sig.getSignedInfo().getReferenceForDataFile(df);
-                        if(dRef != null) {
-                            DataObjectFormat dof = sig.getSignedInfo().getDataObjectFormatForReference(dRef);
-                            if(dof != null) {
-                                if(df.getMimeType() != null && dof.getMimeType() != null && !dof.getMimeType().equals(df.getMimeType())) {
-                                    lerrs.add(new DigiDocException(DigiDocException.ERR_MANIFEST_MIME_TYPE,
-                                            "DataFile " + df.getFileName() + " mime-type: " + df.getMimeType() +
-                                                    " does not match signature: " + sig.getId() + " mime type: " + dof.getMimeType(), null));
-                                    if(m_logger.isDebugEnabled())
-                                        m_logger.error("DataFile " + df.getFileName() + " mime-type: " + df.getMimeType() +
-                                                " does not match signature: " + sig.getId() + " mime type: " + dof.getMimeType());
-                                    bOk = false;
-                                }
-                            }
-                        }
-                    }
-                } // for s
-                if(!bF) {
-                    lerrs.add(new DigiDocException(DigiDocException.ERR_MANIFEST_ENTRY,
-                            "Missing ManifestFileEntry for: " + df.getFileName(), null));
-                    if(m_logger.isDebugEnabled())
-                        m_logger.error("Missing ManifestFileEntry1 for: " + sFileName);
-                }
-            }
-            for(int j = 0; j < sdoc.getManifest().getNumFileEntries(); j++) {
-                ManifestFileEntry mfe = sdoc.getManifest().getFileEntry(j);
-                if(mfe == null) {
-                    m_logger.error("Invalid manifest entry");
-                    continue;
-                }
-                if(m_logger.isDebugEnabled())
-                    m_logger.debug("Check manifest entry: " + mfe.getFullPath() + " mime: " + mfe.getMediaType());
-                if(mfe.getFullPath() != null && mfe.getFullPath().equals("/")) continue; // container root element
-                boolean bF = false;
-                for(int i = 0; i < sdoc.countDataFiles(); i++) {
-                    DataFile df = sdoc.getDataFile(i);
-                    String sFileName = df.getFileName();
-                    File ft1 = new File(df.getFileName());
-                    sFileName = ft1.getName();
-                    if(m_logger.isDebugEnabled())
-                        m_logger.debug("Manifest entry: " + mfe.getFullPath() + " mime: " + mfe.getMediaType() + " found df: " + df.getId() + " df-mime: " + df.getMimeType());
-                    if(mfe.getFullPath() != null && mfe.getFullPath().equals(sFileName)) {
-                        if(bF) {
-                            lerrs.add(new DigiDocException(DigiDocException.ERR_MANIFEST_ENTRY,
-                                    "Duplicate DataFile: " + df.getId() + " with name: " + df.getFileName(), null));
-                            if(m_logger.isDebugEnabled())
-                                m_logger.error("Duplicate DataFile: " + df.getId() + " with name: " + df.getFileName());
-                            bOk = false;
-                        } else {
-                            bF = true;
-                        }
-                    }
-                }
-                if(!bF) {
-                    lerrs.add(new DigiDocException(DigiDocException.ERR_MANIFEST_ENTRY,
-                            "Missing DataFile for ManifestFileEntry: " + mfe.getFullPath(), null));
-                    if(m_logger.isDebugEnabled())
-                        m_logger.error("Missing DataFile for ManifestFileEntry: " + mfe.getFullPath());
-                }
-            }
-        }
-        return bOk;
-    }
-
-    private static final String DIG_TYPE_WARNING = "The current BDoc container uses weaker encryption method than officialy accepted in Estonia. "+
-            "We do not recommend you to add signature to this document. There is an option to re-sign this document in a new container.";
-    private static final String DIGIDOC_VERIFY_ALGORITHM = "RSA/NONE/PKCS1Padding";
-
-
     /**
      * Verifies the hash of one data-file
      * @param df DataFile object
@@ -178,7 +64,7 @@ public class DigiDocVerifyFactory {
      * @param lerrs list of errors
      * @return true if ok
      */
-    private static boolean verifyDataFileHash(SignedDoc sdoc, DataFile df, Reference ref, List lerrs)
+    private static boolean verifyDataFileHash(DataFile df, Reference ref, List lerrs)
     {
         boolean bOk = true;
         if(df != null) {
@@ -226,7 +112,7 @@ public class DigiDocVerifyFactory {
                             lerrs.remove(exd);
                         ref.getSignedInfo().getSignature().setAltDigestMatch(true);
                         if(!ref.getSignedInfo().getSignature().getSignedDoc().getFormat().equals(SignedDoc.FORMAT_SK_XML))
-                            lerrs.add((exd = new DigiDocException(DigiDocException.ERR_DF_INV_HASH_GOOD_ALT_HASH,
+                            lerrs.add((new DigiDocException(DigiDocException.ERR_DF_INV_HASH_GOOD_ALT_HASH,
                                     "Bad digest for DataFile: " + df.getId() + " alternate digest matches!", null)));
                         bOk = false;
                     }
@@ -240,25 +126,6 @@ public class DigiDocVerifyFactory {
                         DigiDocException.ERR_DATA_FILE_NOT_SIGNED,
                         "No Reference element for DataFile: " + df.getId(), null));
                 bOk = false;
-            }
-            if(sdoc.getFormat().equals(SignedDoc.FORMAT_BDOC)) {
-                String sFile = df.getFileName();
-                if(sFile != null && (sFile.indexOf('/') != -1 || sFile.indexOf('\\') != -1)) {
-                    File fT = new File(sFile);
-                    sFile = fT.getName();
-                }
-                ManifestFileEntry mfe = sdoc.getManifest().findFileEntryByPath(sFile);
-                if(m_logger.isDebugEnabled()) {
-                    m_logger.debug("DF: " + df.getId() + " file: " + sFile + " manifest-entry: "+ ((mfe != null) ? "OK" : "NULL"));
-                    if(mfe == null) {
-                        if(m_logger.isDebugEnabled())
-                            m_logger.debug("No manifest.xml entry for: " + df.getFileName());
-                        lerrs.add(new DigiDocException(
-                                DigiDocException.ERR_DATA_FILE_FILE_NAME,
-                                "No manifest.xml entry for: " + df.getFileName(), null));
-                        bOk = false;
-                    }
-                }
             }
         } else {
             if(m_logger.isDebugEnabled())
@@ -280,16 +147,8 @@ public class DigiDocVerifyFactory {
         if(m_logger.isDebugEnabled())
             m_logger.debug("Verifying signed-props of: " + sig.getId());
         SignedProperties sp = sig.getSignedProperties();
-        boolean bSha1Check = ConfigManager.instance().getBooleanProperty("BDOC_SHA1_CHECK", true);
         if(sp != null) {
             Reference ref2 = sig.getSignedInfo().getReferenceForSignedProperties(sp);
-            if(ref2 != null && sig.getSignedDoc().getFormat().equals(SignedDoc.FORMAT_BDOC) && // check digest type
-                    ref2.getDigestAlgorithm().equals(SignedDoc.SHA1_DIGEST_ALGORITHM) &&
-                    ConfigManager.instance().getBooleanProperty("BDOC_SHA1_CHECK", true)) {
-                lerrs.add(new DigiDocException(DigiDocException.WARN_WEAK_DIGEST, DIG_TYPE_WARNING, null));
-                if(m_logger.isInfoEnabled())
-                    m_logger.info("SignedProperties for signature: " + sig.getId() + " has weak digest type: " + ref2.getDigestAlgorithm());
-            }
             if(ref2 != null) {
                 byte[] spDig = null;
                 try {
@@ -363,7 +222,7 @@ public class DigiDocVerifyFactory {
                     m_logger.debug("Verify sig: " + signature.length + " bytes, alg: " + DIGIDOC_VERIFY_ALGORITHM + " sig-alg: " + sigMethod);
                 Cipher cryptoEngine = Cipher.getInstance(DIGIDOC_VERIFY_ALGORITHM, "BC");
                 cryptoEngine.init(Cipher.DECRYPT_MODE, cert);
-                byte[] decdig = null;
+                byte[] decdig;
                 try {
                     decdig = cryptoEngine.doFinal(signature);
                 } catch(java.lang.ArrayIndexOutOfBoundsException ex2) {
@@ -403,7 +262,7 @@ public class DigiDocVerifyFactory {
             if(!rc)
                 throw new DigiDocException(DigiDocException.ERR_VERIFY, "Invalid signature value!", null);
         } catch(DigiDocException ex) {
-            throw ex; // pass it on, but check other exceptions
+            throw ex;
         } catch(Exception ex) {
             DigiDocException.handleException(ex, DigiDocException.ERR_VERIFY);
         }
@@ -430,29 +289,11 @@ public class DigiDocVerifyFactory {
                 m_logger.debug("SignedInfo real digest: " + Base64Util.encode(dig, 0) + " hex: " + SignedDoc.bin2hex(dig) +
                         " sig: " + ConvertUtils.bin2hex(sig.getSignatureValue().getValue()) +
                         " len: " + sig.getSignatureValue().getValue().length);
-            if(sdoc.getFormat().equals(SignedDoc.FORMAT_BDOC) && // check digest type
-                    (sig.getSignedInfo().getSignatureMethod().equals(SignedDoc.RSA_SHA1_SIGNATURE_METHOD) ||
-                            sig.getSignedInfo().getSignatureMethod().equals(SignedDoc.ECDSA_SHA1_SIGNATURE_METHOD)) &&
-                    ConfigManager.instance().getBooleanProperty("BDOC_SHA1_CHECK", true)) {
-                lerrs.add(new DigiDocException(DigiDocException.WARN_WEAK_DIGEST, DIG_TYPE_WARNING, null));
-                if(m_logger.isInfoEnabled())
-                    m_logger.info("Signature: " + sig.getId() + " has weak signature method: " + sig.getSignedInfo().getSignatureMethod());
-            }
             if(sig.getSignatureValue() != null && sig.getSignatureValue().getValue() != null && dig != null) {
-                if(sdoc.getFormat().equals(SignedDoc.FORMAT_BDOC) && sig.isEllipticCurveSiganture()) {
-                    if(m_logger.isDebugEnabled())
-                        m_logger.debug("Verify sdoc: " + sdoc.getFormat() + "/" + sdoc.getVersion() + " prefs: " + sdoc.getXmlDsigNs() + "/" + sdoc.getAsicNs() + "/" + sdoc.getXadesNs());
-                    //DigiDocXmlGenFactory genFac = new DigiDocXmlGenFactory(sdoc);
-                    byte[] xml = sig.getSignedInfo().getOrigXml(); //genFac.signedInfoToXML(sig, sig.getSignedInfo());
-                    if(m_logger.isDebugEnabled())
-                        m_logger.debug("Verify xml:\n---\n" + new String(xml) + "\n---\n");
-                    bOk = verify(xml, sig.getSignatureValue().getValue(), sig.getKeyInfo().getSignersCertificate(), true, sig.getSignedInfo().getSignatureMethod());
-                } else {
-                    if(m_logger.isDebugEnabled())
-                        m_logger.debug("Verify sig: " + ConvertUtils.bin2hex(sig.getSignatureValue().getValue()) +
-                                " len: " + sig.getSignatureValue().getValue().length + " hlen: " + ConvertUtils.bin2hex(sig.getSignatureValue().getValue()).length());
-                    bOk = verify(dig, sig.getSignatureValue().getValue(), sig.getKeyInfo().getSignersCertificate(), false, sig.getSignedInfo().getSignatureMethod());
-                }
+                if(m_logger.isDebugEnabled())
+                    m_logger.debug("Verify sig: " + ConvertUtils.bin2hex(sig.getSignatureValue().getValue()) +
+                            " len: " + sig.getSignatureValue().getValue().length + " hlen: " + ConvertUtils.bin2hex(sig.getSignatureValue().getValue()).length());
+                bOk = verify(dig, sig.getSignatureValue().getValue(), sig.getKeyInfo().getSignersCertificate(), false, sig.getSignedInfo().getSignatureMethod());
                 if(m_logger.isDebugEnabled())
                     m_logger.debug("GOOD DIGEST");
             } else {
@@ -635,31 +476,6 @@ public class DigiDocVerifyFactory {
         return bOk;
     }
 
-    public static boolean verifySignatureFromLiveAndOcspFromTest(Signature sig, List lerrs)
-    {
-        boolean bOk = true;
-        if(m_logger.isDebugEnabled())
-            m_logger.debug("Verifying live/test for signature: " + sig.getId());
-        X509Certificate cert = null, rCert = null;
-        if(sig != null) {
-            CertValue cvOcsp = sig.getCertValueOfType(CertValue.CERTVAL_TYPE_RESPONDER);
-            if(sig.getKeyInfo() != null && cvOcsp != null) {
-                cert = sig.getKeyInfo().getSignersCertificate();
-                rCert = cvOcsp.getCert();
-                if(cert != null && rCert != null &&
-                        DigiDocGenFactory.isTestCard(rCert) &&
-                        !DigiDocGenFactory.isTestCard(cert)) {
-                    if(m_logger.isDebugEnabled())
-                        m_logger.debug("Signer from LIVE CA-chain but OCSP from TEST CA-chain!");
-                    lerrs.add(new DigiDocException(DigiDocException.ERR_TEST_SIGNATURE,
-                            "Signer from LIVE CA-chain but OCSP from TEST CA-chain!", null));
-                    bOk = false;
-                }
-            }
-        }
-        return bOk;
-    }
-
     /**
      * Verifies OCSP confirmation for signature
      * @param sig Signature object
@@ -678,25 +494,19 @@ public class DigiDocVerifyFactory {
                 X509Certificate rCert = null;
                 String sIssuer = null;
                 BigInteger sSerial = null;
-                byte [] cHash = null;
                 if(cvOcsp != null)
                     rCert = cvOcsp.getCert();
-                //if(cidOcsp == null)
-                //	cidOcsp = sig.getCertIdOfType(CertID.CERTID_TYPE_SIGNER);
                 if(cidOcsp != null) {
                     sIssuer = cidOcsp.getIssuer();
                     sSerial = cidOcsp.getSerial();
-                    cHash = cidOcsp.getDigestValue();
                 }
-                X509Certificate cert = sig.getKeyInfo().getSignersCertificate();
                 if(m_logger.isDebugEnabled())
                     m_logger.debug("Responders cert: " + ((rCert != null) ? rCert.getSerialNumber().toString() : "NULL") + " - " +
                             ((rCert != null) ? rCert.getSubjectDN().getName() : "NULL") +
                             " complete cert refs nr: " + sSerial + " - " + sIssuer +
                             " ca-ahel: " + ((rCert != null) ? (DigiDocGenFactory.isTestCard(rCert) ? "TEST" : "LIVE") : "?"));
                 // signer/ocsp live/test verification moved to utility
-                if(rCert != null && !rCert.getSerialNumber().equals(sSerial) &&
-                        !sig.getSignedDoc().getFormat().equals(SignedDoc.FORMAT_BDOC)) {
+                if(rCert != null && !rCert.getSerialNumber().equals(sSerial)) {
                     if(m_logger.isDebugEnabled())
                         m_logger.debug("Wrong notarys certificate: " + rCert.getSerialNumber() + " ref: " + sSerial);
                     lerrs.add(new DigiDocException(DigiDocException.ERR_RESPONDERS_CERT,
@@ -705,30 +515,17 @@ public class DigiDocVerifyFactory {
                 }
                 // verify notary certs digest using CompleteCertificateRefs
                 try {
-                    if(!sig.getSignedDoc().getFormat().equals(SignedDoc.FORMAT_BDOC)) {
-                        byte[] digest = SignedDoc.digestOfType(rCert.getEncoded(), (sig.getSignedDoc().getFormat().
-                                equals(SignedDoc.FORMAT_BDOC) ? SignedDoc.SHA256_DIGEST_TYPE : SignedDoc.SHA1_DIGEST_TYPE));
+                    byte[] digest = SignedDoc.digestOfType(rCert.getEncoded(), SignedDoc.SHA1_DIGEST_TYPE);
+                    if(m_logger.isDebugEnabled())
+                        m_logger.debug("Not cert calc hash: " + Base64Util.encode(digest, 0) +
+                                " cert-ref hash: " + Base64Util.encode(sig.getUnsignedProperties().getCompleteCertificateRefs().getCertDigestValue(), 0));
+                    if(!compareDigests(digest, sig.getUnsignedProperties().getCompleteCertificateRefs().getCertDigestValue())) {
+                        lerrs.add(new DigiDocException(DigiDocException.ERR_RESPONDERS_CERT,
+                                "Notary certificates digest doesn't match!", null));
                         if(m_logger.isDebugEnabled())
-                            m_logger.debug("Not cert calc hash: " + Base64Util.encode(digest, 0) +
-                                    " cert-ref hash: " + Base64Util.encode(sig.getUnsignedProperties().getCompleteCertificateRefs().getCertDigestValue(), 0));
-                        if(!compareDigests(digest, sig.getUnsignedProperties().getCompleteCertificateRefs().getCertDigestValue())) {
-                            lerrs.add(new DigiDocException(DigiDocException.ERR_RESPONDERS_CERT,
-                                    "Notary certificates digest doesn't match!", null));
-                            if(m_logger.isDebugEnabled())
-                                m_logger.debug("Notary certificates digest doesn't match!");
-                            bOk = false;
-                        }
-                        if(sig.getSignedDoc().getFormat().equals(SignedDoc.FORMAT_BDOC) && // check digest type
-                                sig.getUnsignedProperties().getCompleteCertificateRefs().getCertDigestAlgorithm().equals(SignedDoc.SHA1_DIGEST_ALGORITHM) &&
-                                ConfigManager.instance().getBooleanProperty("BDOC_SHA1_CHECK", true)) {
-                            lerrs.add(new DigiDocException(DigiDocException.WARN_WEAK_DIGEST, DIG_TYPE_WARNING, null));
-                            if(m_logger.isInfoEnabled())
-                                m_logger.info("CompleteCertificateRefs for signature: " + sig.getId() + " has weak digest type: " +
-                                        sig.getUnsignedProperties().getCompleteCertificateRefs().getCertDigestAlgorithm());
-                        }
+                            m_logger.debug("Notary certificates digest doesn't match!");
+                        bOk = false;
                     }
-                    // TODO: in bdoc verify responders ca hash - verify all hashes in certrefs
-
                 } catch(DigiDocException ex) {
                     lerrs.add(ex);
                     bOk = false;
@@ -747,84 +544,64 @@ public class DigiDocVerifyFactory {
                 }
 
                 // verify notarys digest using CompleteRevocationRefs
-                if(!sig.getSignedDoc().getFormat().equals(SignedDoc.FORMAT_BDOC)) {
-                    try {
-                        for(int i = 0; i < sig.getUnsignedProperties().countNotaries(); i++) {
-                            if(m_logger.isDebugEnabled())
-                                m_logger.debug("Signature: " + sig.getId() + " not: " + i + " notaries: " + sig.getUnsignedProperties().countNotaries());
-                            Notary not = sig.getUnsignedProperties().getNotaryById(i);
+                try {
+                    for(int i = 0; i < sig.getUnsignedProperties().countNotaries(); i++) {
+                        if(m_logger.isDebugEnabled())
+                            m_logger.debug("Signature: " + sig.getId() + " not: " + i + " notaries: " + sig.getUnsignedProperties().countNotaries());
+                        Notary not = sig.getUnsignedProperties().getNotaryById(i);
 
-                            byte[] ocspData = not.getOcspResponseData();
-                            if(m_logger.isDebugEnabled())
-                                m_logger.debug("OCSP value: " + not.getId() + " data: " + ((ocspData != null) ? ocspData.length : 0) + " bytes");
-                            if(ocspData == null || ocspData.length == 0) {
-                                lerrs.add(new DigiDocException(DigiDocException.ERR_NOTARY_DIGEST, "OCSP value is empty!", null));
-                                bOk = false;
-                                continue;
-                            }
-                            OcspRef orf = sig.getUnsignedProperties().getCompleteRevocationRefs().getOcspRefByUri("#" + not.getId());
-                            if(m_logger.isDebugEnabled())
-                                m_logger.debug("OCSP ref: " + ((orf != null) ? orf.getUri() : "NULL"));
-                            if(orf == null) {
-                                lerrs.add(new DigiDocException(DigiDocException.ERR_NOTARY_DIGEST, "No OCSP ref for uri: #" + not.getId(), null));
-                                bOk = false;
-                                continue;
-                            }
-                            if(m_logger.isDebugEnabled())
-                                m_logger.debug("OCSP data len: " + ocspData.length);
-                            byte[] digest1 = SignedDoc.digestOfType(ocspData, ((sig.getSignedDoc().getFormat().
-                                    equals(SignedDoc.FORMAT_BDOC) && (orf.getDigestAlgorithm().equals(SignedDoc.SHA256_DIGEST_ALGORITHM_1) ||
-                                    orf.getDigestAlgorithm().equals(SignedDoc.SHA256_DIGEST_ALGORITHM_2))) ?
-                                    SignedDoc.SHA256_DIGEST_TYPE : SignedDoc.SHA1_DIGEST_TYPE));
-                            //if(m_logger.isDebugEnabled())
-                            //	m_logger.debug("Calculated digest: " + Base64Util.encode(digest1, 0));
-                            byte[] digest2 = orf.getDigestValue();
-                            //if(m_logger.isDebugEnabled())
-                            //	m_logger.debug("Real digest: " + Base64Util.encode(digest2, 0));
-                            if(m_logger.isDebugEnabled())
-                                m_logger.debug("Check ocsp: " + not.getId() +
-                                        " calc hash: " + Base64Util.encode(digest1, 0) +
-                                        " refs-hash: " + Base64Util.encode(digest2, 0));
-                            if(!sig.getSignedDoc().getFormat().equals(SignedDoc.FORMAT_SK_XML) &&
-                                    !compareDigests(digest1, digest2)) {
-                                lerrs.add(new DigiDocException(DigiDocException.ERR_NOTARY_DIGEST,
-                                        "Notarys digest doesn't match!", null));
-                                if(m_logger.isDebugEnabled())
-                                    m_logger.debug("Notarys digest doesn't match!");
-                                bOk = false;
-                            }
-                            if(sig.getSignedDoc().getFormat().equals(SignedDoc.FORMAT_BDOC) && // check digest type
-                                    orf.getDigestAlgorithm().equals(SignedDoc.SHA1_DIGEST_ALGORITHM) &&
-                                    ConfigManager.instance().getBooleanProperty("BDOC_SHA1_CHECK", true)) {
-                                lerrs.add(new DigiDocException(DigiDocException.WARN_WEAK_DIGEST, DIG_TYPE_WARNING, null));
-                                if(m_logger.isInfoEnabled())
-                                    m_logger.info("CompleteRevocationRefs for signature: " + sig.getId() + " has weak digest type: " +
-                                            orf.getDigestAlgorithm());
-                            }
-                            if(m_logger.isDebugEnabled())
-                                m_logger.debug("Check ocsp: " + not.getId() + " prodAt: " +
-                                        ((not.getProducedAt() != null) ? ConvertUtils.date2string(not.getProducedAt(), sig.getSignedDoc()) : "NULL") +
-                                        " orf prodAt: " + ((orf.getProducedAt() != null) ? ConvertUtils.date2string(orf.getProducedAt(), sig.getSignedDoc()) : "NULL"));
-                            //if(!sig.getSignedDoc().getFormat().equals(SignedDoc.FORMAT_SK_XML)) {
-                            if(not.getProducedAt() != null && orf.getProducedAt() != null &&
-                                    !ConvertUtils.date2string(not.getProducedAt(), sig.getSignedDoc()).
-                                            equals(ConvertUtils.date2string(orf.getProducedAt(), sig.getSignedDoc()))) {
-                                if(m_logger.isDebugEnabled())
-                                    m_logger.debug("Notary: " + not.getId() + " producedAt: " +
-                                            ((not.getProducedAt() != null) ? ConvertUtils.date2string(not.getProducedAt(), sig.getSignedDoc()) : "NULL") +
-                                            " does not match OcpsRef-s producedAt: " + ((orf.getProducedAt() != null) ? ConvertUtils.date2string(orf.getProducedAt(), sig.getSignedDoc()) : "NULL"));
-                                lerrs.add(new DigiDocException(DigiDocException.ERR_OCSP_VERIFY, "Notary: " + not.getId() + " producedAt: " +
-                                        ((not.getProducedAt() != null) ? ConvertUtils.date2string(not.getProducedAt(), sig.getSignedDoc()) : "NULL") +
-                                        " does not match OcpsRef-s producedAt: " + ((orf.getProducedAt() != null) ? ConvertUtils.date2string(orf.getProducedAt(), sig.getSignedDoc()) : "NULL"), null));
-                            }
-                            //}
+                        byte[] ocspData = not.getOcspResponseData();
+                        if(m_logger.isDebugEnabled())
+                               m_logger.debug("OCSP value: " + not.getId() + " data: " + ((ocspData != null) ? ocspData.length : 0) + " bytes");
+                        if(ocspData == null || ocspData.length == 0) {
+                            lerrs.add(new DigiDocException(DigiDocException.ERR_NOTARY_DIGEST, "OCSP value is empty!", null));
+                            bOk = false;
+                            continue;
                         }
+                        OcspRef orf = sig.getUnsignedProperties().getCompleteRevocationRefs().getOcspRefByUri("#" + not.getId());
+                        if(m_logger.isDebugEnabled())
+                            m_logger.debug("OCSP ref: " + ((orf != null) ? orf.getUri() : "NULL"));
+                        if(orf == null) {
+                            lerrs.add(new DigiDocException(DigiDocException.ERR_NOTARY_DIGEST, "No OCSP ref for uri: #" + not.getId(), null));
+                            bOk = false;
+                            continue;
+                        }
+                        if(m_logger.isDebugEnabled())
+                            m_logger.debug("OCSP data len: " + ocspData.length);
+                        byte[] digest1 = SignedDoc.digestOfType(ocspData, SignedDoc.SHA1_DIGEST_TYPE);
+                        byte[] digest2 = orf.getDigestValue();
+                        if(m_logger.isDebugEnabled())
+                            m_logger.debug("Check ocsp: " + not.getId() +
+                                    " calc hash: " + Base64Util.encode(digest1, 0) +
+                                    " refs-hash: " + Base64Util.encode(digest2, 0));
+                        if(!sig.getSignedDoc().getFormat().equals(SignedDoc.FORMAT_SK_XML) &&
+                                !compareDigests(digest1, digest2)) {
+                            lerrs.add(new DigiDocException(DigiDocException.ERR_NOTARY_DIGEST,
+                                    "Notarys digest doesn't match!", null));
+                            if(m_logger.isDebugEnabled())
+                                m_logger.debug("Notarys digest doesn't match!");
+                            bOk = false;
+                        }
+                        if(m_logger.isDebugEnabled())
+                            m_logger.debug("Check ocsp: " + not.getId() + " prodAt: " +
+                                    ((not.getProducedAt() != null) ? ConvertUtils.date2string(not.getProducedAt(), sig.getSignedDoc()) : "NULL") +
+                                    " orf prodAt: " + ((orf.getProducedAt() != null) ? ConvertUtils.date2string(orf.getProducedAt(), sig.getSignedDoc()) : "NULL"));
+                        if(not.getProducedAt() != null && orf.getProducedAt() != null &&
+                                !ConvertUtils.date2string(not.getProducedAt(), sig.getSignedDoc()).
+                                        equals(ConvertUtils.date2string(orf.getProducedAt(), sig.getSignedDoc()))) {
+                            if(m_logger.isDebugEnabled())
+                                m_logger.debug("Notary: " + not.getId() + " producedAt: " +
+                                        ((not.getProducedAt() != null) ? ConvertUtils.date2string(not.getProducedAt(), sig.getSignedDoc()) : "NULL") +
+                                        " does not match OcpsRef-s producedAt: " + ((orf.getProducedAt() != null) ? ConvertUtils.date2string(orf.getProducedAt(), sig.getSignedDoc()) : "NULL"));
+                            lerrs.add(new DigiDocException(DigiDocException.ERR_OCSP_VERIFY, "Notary: " + not.getId() + " producedAt: " +
+                                    ((not.getProducedAt() != null) ? ConvertUtils.date2string(not.getProducedAt(), sig.getSignedDoc()) : "NULL") +
+                                    " does not match OcpsRef-s producedAt: " + ((orf.getProducedAt() != null) ? ConvertUtils.date2string(orf.getProducedAt(), sig.getSignedDoc()) : "NULL"), null));
+                        }
+                    }
                     } catch(DigiDocException ex) {
                         lerrs.add(ex);
                         bOk = false;
                     }
-                } // don't verify complete revocation refs in bdoc
-                // verify notary status
                 try {
                     NotaryFactory notFac = ConfigManager.instance().getNotaryFactory();
                     for(int i = 0; i < sig.getUnsignedProperties().countNotaries(); i++) {
@@ -870,30 +647,14 @@ public class DigiDocVerifyFactory {
         initProvider();
         if(m_logger.isDebugEnabled())
             m_logger.debug("Verifying signature: " + sig.getId() + " profile: " + sig.getProfile());
-        if(sig.getProfile() != null &&
-                (sig.getProfile().equals(SignedDoc.BDOC_PROFILE_T) ||
-                        sig.getProfile().equals(SignedDoc.BDOC_PROFILE_TS) ||
-                        sig.getProfile().equals(SignedDoc.BDOC_PROFILE_TSA))) {
-            if(m_logger.isDebugEnabled())
-                m_logger.debug("T, TS and TSA profiles are currently not supported!");
-            lerrs.add(new DigiDocException(DigiDocException.ERR_VERIFY, "T, TS and TSA profiles are currently not supported!", null));
-        }
         // verify DataFile hashes
         for(int i = 0; i < sdoc.countDataFiles(); i++) {
             DataFile df = sdoc.getDataFile(i);
             if(m_logger.isDebugEnabled())
                 m_logger.debug("Verifying DF: " + df.getId() + " file: " + df.getFileName());
             Reference ref = sig.getSignedInfo().getReferenceForDataFile(df);
-            if(ref != null && ref.getDigestAlgorithm() != null &&
-                    sdoc.getFormat().equals(SignedDoc.FORMAT_BDOC) && // check digest type
-                    ref.getDigestAlgorithm().equals(SignedDoc.SHA1_DIGEST_ALGORITHM) &&
-                    ConfigManager.instance().getBooleanProperty("BDOC_SHA1_CHECK", true)) {
-                lerrs.add(new DigiDocException(DigiDocException.WARN_WEAK_DIGEST, DIG_TYPE_WARNING, null));
-                if(m_logger.isInfoEnabled())
-                    m_logger.info("DataFile: " + df.getId() + " has weak digest type: " + ref.getDigestAlgorithm());
-            } // kontrolli kas on Referencet millele ei ole andmefaili
             if(ref != null) {
-                b = verifyDataFileHash(sdoc, df, ref, lerrs);
+                b = verifyDataFileHash(df, ref, lerrs);
             } else {
                 b = false;
                 lerrs.add(new DigiDocException(DigiDocException.ERR_VERIFY, "Missing Reference for file: " + df.getFileName(), null));
@@ -905,9 +666,8 @@ public class DigiDocVerifyFactory {
             Signature sig1 = sdoc.getSignature(i);
             for(int j = 0; j < sig.getSignedInfo().countReferences(); j++) {
                 Reference ref1 = sig.getSignedInfo().getReference(j);
-                if(ref1.getType() != null ||
-                        (sdoc.getFormat().equals(SignedDoc.FORMAT_BDOC) && // bdoc 2.0-s ei ole manifest.xml-i r��si!
-                                ref1.getUri().indexOf("META-INF/manifest.xml") != -1)) continue;
+                if(ref1.getType() != null)
+                    continue;
                 if((sdoc.getFormat().equals(SignedDoc.FORMAT_DIGIDOC_XML) ||
                         sdoc.getFormat().equals(SignedDoc.FORMAT_SK_XML)) && // ddoc 1.0 formaadis erijuhtumid
                         (ref1.getUri().indexOf("-MIME") != -1 || ref1.getUri().indexOf("-SignedProperties") != -1)) continue;
@@ -925,30 +685,12 @@ public class DigiDocVerifyFactory {
                                 ref1.getUri().startsWith("#") &&
                                 df.getId().equals(ref1.getUri().substring(1)))
                             bFound = true;
-                        if(sdoc.getFormat().equals(SignedDoc.FORMAT_BDOC) &&
-                                ref1.getUri().indexOf(sFile) != -1)
-                            bFound = true;
                     }
                 }
                 if(!bFound) {
                     if(m_logger.isInfoEnabled())
                         m_logger.info("Missing DataFile for signature: " + sig.getId() + " reference " +ref1.getUri());
                     lerrs.add(new DigiDocException(DigiDocException.ERR_VERIFY, "Missing DataFile for signature: " + sig.getId() + " reference " +ref1.getUri(), null));
-                }
-            }
-        }
-        // verify mime-type hashes
-        if(sdoc.getFormat().equals(SignedDoc.FORMAT_BDOC)) {
-            for(int i = 0; i < sig.getSignedInfo().countReferences(); i++) {
-                Reference ref = sig.getSignedInfo().getReference(i);
-                if(!ref.getUri().startsWith("#")) {
-                    DataObjectFormat dof = sig.getSignedInfo().getDataObjectFormatForReference(ref);
-                    if(dof == null) {
-                        if(m_logger.isDebugEnabled())
-                            m_logger.debug("No DataObjectFormat element for Reference: " + ref.getId());
-                        lerrs.add(new DigiDocException(DigiDocException.ERR_DATA_FILE_MIME_TYPE,
-                                "No DataObjectFormat element for Reference: " + ref.getId(), null));
-                    }
                 }
             }
         }
@@ -966,135 +708,13 @@ public class DigiDocVerifyFactory {
         // check certificates CA
         b = verifySignersCerificate(sig, lerrs);
         if(!b) bOk = false;
-        // TODO: Profile T & CL verify Timestamp T0
-
-        if(sdoc.getFormat().equals(SignedDoc.FORMAT_BDOC)) {
-            b = verifySignaturePolicies(sdoc, sig, lerrs);
-            if(!b) bOk = false;
-        }
         // verify OCSP
         if(sdoc.getFormat().equals(SignedDoc.FORMAT_SK_XML) ||
                 sdoc.getFormat().equals(SignedDoc.FORMAT_DIGIDOC_XML) ||
                 (sig.getProfile() != null &&
-                        (sig.getProfile().equals(SignedDoc.BDOC_PROFILE_TM) ||
-                                sig.getProfile().equals(SignedDoc.BDOC_PROFILE_TMA) ||
-                                sig.getProfile().equals(SignedDoc.BDOC_PROFILE_TS) ||
-                                sig.getProfile().equals(SignedDoc.BDOC_PROFILE_TSA)))) {
+                        (sig.getProfile().equals(SignedDoc.PROFILE_TM)))) {
             b = verifySignatureOCSP(sig, lerrs);
             if(!b) bOk = false;
-        }
-
-        // verify timestamps
-        /*ArrayList tsaCerts = findTSACerts();
-        if(m_timestamps != null && m_timestamps.size() > 0) {
-        	TimestampFactory tsFac = null;
-        	try {
-        		tsFac = ConfigManager.instance().getTimestampFactory();
-        	} catch(DigiDocException ex) {
-        		//m_logger.error("Failed to get TimestampFactory: " + ex);
-        		errs.add(ex);
-        	}
-        	ArrayList e = tsFac.verifySignaturesTimestamps(this);
-        	if(!e.isEmpty())
-                errs.addAll(e);
-        	for(int i = 0; i < m_timestamps.size(); i++) {
-        		TimestampInfo ts = (TimestampInfo)m_timestamps.get(i);
-        		if(m_logger.isDebugEnabled())
-        			m_logger.debug("TS: " + ts.getId() + " type: " + ts.getType() + " time: " + ts.getTime());
-        		if(ts.getType() == TimestampInfo.TIMESTAMP_TYPE_SIGNATURE)
-        			dt1 = ts.getTime();
-        		if(ts.getType() == TimestampInfo.TIMESTAMP_TYPE_SIG_AND_REFS)
-        			dt2 = ts.getTime();
-        	}
-        	int nMaxTsTimeErrSecs = ConfigManager.instance().getIntProperty("MAX_TSA_TIME_ERR_SECS", 0);
-        	if(dt1 != null && dt2 != null) {
-        	  dt1 = new Date(dt1.getTime() - (nMaxTsTimeErrSecs * 1000));
-        	  dt2 = new Date(dt2.getTime() + (nMaxTsTimeErrSecs * 1000));
-        	  if(dt2.before(dt1))
-        		errs.add(new DigiDocException(DigiDocException.ERR_TIMESTAMP_VERIFY, "SignAndRefsTimeStamp is before SignatureTimeStamp", null));
-        	  if(do1.before(dt1) || do1.after(dt2))
-        		errs.add(new DigiDocException(DigiDocException.ERR_TIMESTAMP_VERIFY, "OCSP time is not between SignAndRefsTimeStamp and SignatureTimeStamp", null));
-        	}
-        }
-		} // profiles T/C/TM/TS
-	*/
-
-        return bOk;
-    }
-
-    /**
-     * Verifies signature policies
-     * @param sdoc SignedDoc object
-     * @param sig Signature object
-     * @param lerrs list of errors
-     * @return true if signature declares valid bdoc 2.0 nonce policy
-     */
-    public static boolean verifySignaturePolicies(SignedDoc sdoc, Signature sig, List lerrs)
-    {
-        boolean bOk = false;
-        if(m_logger.isInfoEnabled())
-            m_logger.debug("Check signature: " + sig.getId() + " profile: " + sig.getProfile() + " format: " + sdoc.getFormat() + " policies");
-        try {
-            if(sig.getSignedProperties() != null &&
-                    sig.getSignedProperties().getSignaturePolicyIdentifier() != null &&
-                    sig.getSignedProperties().getSignaturePolicyIdentifier().getSignaturePolicyId() != null &&
-                    sig.getSignedProperties().getSignaturePolicyIdentifier().getSignaturePolicyId().getSigPolicyId() != null &&
-                    sig.getSignedProperties().getSignaturePolicyIdentifier().getSignaturePolicyId().getSigPolicyId().getIdentifier() != null) {
-                Identifier id = sig.getSignedProperties().getSignaturePolicyIdentifier().getSignaturePolicyId().getSigPolicyId().getIdentifier();
-                if(m_logger.isInfoEnabled())
-                    m_logger.debug("Signature: " + sig.getId() + " has policy: " + id.getQualifier() +
-                            " uri: " + id.getUri() + " hash: " +
-                            Base64Util.encode(sig.getSignedProperties().getSignaturePolicyIdentifier().getSignaturePolicyId().getDigestValue()));
-                if(id.getQualifier().equals(Identifier.OIDAsURN) &&
-                        id.getUri().equals(DigiDocGenFactory.BDOC_210_OID)) { // has bdoc 2.0 nonce policy
-                    bOk = true;
-                    // check policy hash
-                    if(sig.getSignedProperties().getSignaturePolicyIdentifier().getSignaturePolicyId().getDigestValue() == null ||
-                            sig.getSignedProperties().getSignaturePolicyIdentifier().getSignaturePolicyId().getDigestValue().length == 0) {
-                        if(m_logger.isDebugEnabled())
-                            m_logger.debug("Signature: " + sig.getId() + " has no signature policy hash");
-                        lerrs.add(new DigiDocException(DigiDocException.ERR_NONCE_POLICY_HASH,
-                                "Signature: " + sig.getId() + " has invalid signature policy hash", null));
-                    }
-                    // check policy uri
-                    boolean bUriOk = false;
-                    for(int i = 0; i < sig.getSignedProperties().getSignaturePolicyIdentifier().getSignaturePolicyId().countSigPolicyQualifiers(); i++) {
-                        SigPolicyQualifier spq = sig.getSignedProperties().getSignaturePolicyIdentifier().getSignaturePolicyId().getSigPolicyQualifier(i);
-                        if(spq instanceof SpUri) {
-                            SpUri sna = (SpUri)spq;
-                            if(sna.getUri() != null && sna.getUri().trim().length() > 0) {
-                                bUriOk = true;
-                            }
-                        }
-                    }
-                    if(!bUriOk) { // invalid uri
-                        bOk = false;
-                        if(m_logger.isDebugEnabled())
-                            m_logger.debug("Signature: " + sig.getId() + " has no signature policy uri!");
-                        lerrs.add(new DigiDocException(DigiDocException.ERR_NONCE_POLICY_URL,
-                                "Signature: " + sig.getId() + " has no nonce policy uri!", null));
-                    }
-
-                } else { // unknown policy
-                    if(m_logger.isDebugEnabled())
-                        m_logger.debug("Signature: " + sig.getId() + " has unknown policy: " + id.getQualifier() + " uri: " + id.getUri());
-                    lerrs.add(new DigiDocException(DigiDocException.ERR_NONCE_POLICY_OID,
-                            "Signature: " + sig.getId() + " has unknown policy: " + id.getQualifier() + " uri: " + id.getUri(), null));
-                }
-            } else { // no policy
-                if(m_logger.isDebugEnabled())
-                    m_logger.debug("No signature policy for sig: " + sig.getId());
-                lerrs.add(new DigiDocException(DigiDocException.ERR_POLICY_NONE,
-                        "Signature: " + sig.getId() + " has no policy!", null));
-            }
-
-
-        } catch(Exception ex) {
-            if(m_logger.isDebugEnabled())
-                m_logger.debug("Failed to verify sig policies: " + sig.getId() + " - " + ex);
-            lerrs.add(new DigiDocException(DigiDocException.ERR_POLICY_NONE,
-                    "Failed to verify sig policies: " + sig.getId() + " - " + ex, null));
-            bOk = false;
         }
         return bOk;
     }

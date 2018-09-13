@@ -11,7 +11,6 @@
 package org.digidoc4j;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -31,8 +30,6 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
-import org.digidoc4j.ddoc.DigiDocException;
-import org.digidoc4j.ddoc.SignedDoc;
 
 @Ignore
 public class PerformanceTest extends AbstractTest {
@@ -65,25 +62,11 @@ public class PerformanceTest extends AbstractTest {
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 1)
-  public void validateTestBDocTmWithJDigidoc() throws Exception {
-    TestAssert.assertContainerIsValidWithJDigiDoc("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
-  }
-
-  @Test
   @PerfTest(invocations = INVOCATIONS, threads = 20)
   public void validateTestBDocTmSignaturesInThreads() throws Exception {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc")));
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM_TEST.bdoc")));
     this.validateInvalidContainer("src/test/resources/testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc", "The past signature validation is not conclusive!");
-  }
-
-  @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 20)
-  public void validateTestBDocTmWithJDigidocInThreads() throws Exception {
-    TestAssert.assertContainerIsValidWithJDigiDoc("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
-    TestAssert.assertContainerIsValidWithJDigiDoc("src/test/resources/testFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM_TEST.bdoc");
-    this.validateInvalidContainerWithJDigidoc(Paths.get("src/test/resources/testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc"), "ERROR: 91 - Certificate has been revoked!");
   }
 
   @Test
@@ -93,21 +76,9 @@ public class PerformanceTest extends AbstractTest {
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 1)
-  public void validateLargeContainerWithJDigidoc() throws Exception {
-    TestAssert.assertContainerIsValidWithJDigiDoc("src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc");
-  }
-
-  @Test
   @PerfTest(invocations = 1, threads = 1)
   public void validateBDocWith1000Signatures() throws Exception {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/bdoc-tm-1000-signatures.bdoc")));
-  }
-
-  @Test
-  @PerfTest(invocations = 1, threads = 1)
-  public void validateBDocWith1000SignaturesWithJDigidoc() throws Exception {
-    TestAssert.assertContainerIsValidWithJDigiDoc("src/test/resources/testFiles/valid-containers/bdoc-tm-1000-signatures.bdoc");
   }
 
   @Test
@@ -122,31 +93,10 @@ public class PerformanceTest extends AbstractTest {
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 1)
-  public void openBDocTmContainerDetailsWithJdigidoc() throws Exception {
-    SignedDoc container = this.openDigiDocContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc")).getLeft();
-    Assert.assertEquals("test.txt", container.getDataFile(0).getFileName());
-    org.digidoc4j.ddoc.Signature signature = container.getSignature(0);
-    Assert.assertEquals("id-6a5d6671af7a9e0ab9a5e4d49d69800d", signature.getId());
-    Assert.assertEquals(1457964829000L, signature.getSignatureProducedAtTime().getTime());
-    Assert.assertEquals("1.2.840.113549.1.9.1=#1609706b6940736b2e6565,CN=TEST of ESTEID-SK 2011,O=AS Sertifitseerimiskeskus,C=EE", signature.getCertID(0).getIssuer());
-  }
-
-  @Test
   @PerfTest(invocations = INVOCATIONS, threads = 20)
   public void saveExistingContainerOnDisk() throws Exception {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
     File file = container.saveAsFile(this.getFileBy("bdoc"));
-    Assert.assertTrue(file.exists());
-    Assert.assertTrue(file.length() > 0);
-  }
-
-  @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 20)
-  public void saveExistingContainerOnDiskWithJDigidoc() throws Exception {
-    SignedDoc doc = this.openDigiDocContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc")).getLeft();
-    File file = new File(this.getFileBy("bdoc"));
-    doc.writeToFile(file);
     Assert.assertTrue(file.exists());
     Assert.assertTrue(file.length() > 0);
   }
@@ -189,12 +139,6 @@ public class PerformanceTest extends AbstractTest {
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(1, errors.size());
     Assert.assertEquals(expectedError, errors.get(0).getMessage());
-  }
-
-  private void validateInvalidContainerWithJDigidoc(Path containerPath, String expectedError) throws DigiDocException {
-    List<DigiDocException> errors = this.openDigiDocContainerBy(containerPath).getRight();
-    Assert.assertEquals(1, errors.size());
-    Assert.assertEquals(expectedError, errors.get(0).toString());
   }
 
 }

@@ -51,22 +51,22 @@ public final class TinyXMLParser_Fragment extends FragmentBase {
 
     public boolean get_IsMarkup()
     {
-        return this.GetMarkupChar((int)0);
+        return this.GetMarkupChar(0);
     }
 
     public boolean get_IsSpace()
     {
-        return this.GetSpaceChar((int)0);
+        return this.GetSpaceChar(0);
     }
 
     public boolean get_IsQuote()
     {
-        return this.GetQuoteChar((int)0);
+        return this.GetQuoteChar(0);
     }
 
     public boolean get_IsLiteral()
     {
-        return this.GetLiteralChar((int)0);
+        return this.GetLiteralChar(0);
     }
 
     private void SpawnAtOffset(int p)
@@ -74,7 +74,7 @@ public final class TinyXMLParser_Fragment extends FragmentBase {
         this.Offset = p;
         this.Length = -1;
 
-        if (this.GetMarkupChar((int)0))
+        if (this.GetMarkupChar(0))
         {
 
             for (this.Length = 0; (this.InBounds(this.get_LastOffset()) && this.GetMarkupChar(this.Length)); this.Length = (this.Length + 1))
@@ -85,7 +85,7 @@ public final class TinyXMLParser_Fragment extends FragmentBase {
         }
 
 
-        if (this.GetSpaceChar((int)0))
+        if (this.GetSpaceChar(0))
         {
 
             for (this.Length = 0; (this.InBounds(this.get_LastOffset()) && this.GetSpaceChar(this.Length)); this.Length = (this.Length + 1))
@@ -96,7 +96,7 @@ public final class TinyXMLParser_Fragment extends FragmentBase {
         }
 
 
-        if (this.GetQuoteChar((int)0))
+        if (this.GetQuoteChar(0))
         {
 
             for (this.Length = 0; (this.InBounds(this.get_LastOffset()) && this.GetQuoteChar(this.Length)); this.Length = (this.Length + 1))
@@ -107,7 +107,7 @@ public final class TinyXMLParser_Fragment extends FragmentBase {
         }
 
 
-        if (this.GetLiteralChar((int)0))
+        if (this.GetLiteralChar(0))
         {
 
             for (this.Length = 0; (this.InBounds(this.get_LastOffset()) && this.GetLiteralChar(this.Length)); this.Length = (this.Length + 1))
@@ -116,10 +116,6 @@ public final class TinyXMLParser_Fragment extends FragmentBase {
 
         }
 
-    }
-
-    public void ToConsole()
-    {
     }
 
     public TinyXMLParser_Fragment Clone()
@@ -216,7 +212,7 @@ public final class TinyXMLParser_Fragment extends FragmentBase {
 
             if (!this.SplitBy(stringArray1))
             {
-                this.SplitBy((int)1);
+                this.SplitBy(1);
             }
 
             return;

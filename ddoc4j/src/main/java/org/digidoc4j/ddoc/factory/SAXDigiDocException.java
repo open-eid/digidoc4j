@@ -40,14 +40,6 @@ public class SAXDigiDocException extends SAXException
     }
 
     /**
-     * Accessor for nested exception
-     * @return nested exception
-     */
-    public Throwable getNestedException() {
-        return m_detail;
-    }
-
-    /**
      * Mutator for nested exception
      * @param detail nested exception
      */

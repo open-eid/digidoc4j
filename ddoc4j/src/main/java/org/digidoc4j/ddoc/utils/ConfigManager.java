@@ -27,8 +27,6 @@ public class ConfigManager {
     private static NotaryFactory m_notFac = null;
     /** canonicalization factory instance */
     private static CanonicalizationFactory m_canFac = null;
-    /** timestamp factory implementation */
-    private static TimestampFactory m_tsFac = null;
 
     /** log4j logger */
     private static Logger m_logger = LoggerFactory.getLogger(ConfigManager.class);
@@ -141,56 +139,6 @@ public class ConfigManager {
     }
 
     /**
-     * Returns the SignatureFactory instance
-     * @return SignatureFactory implementation
-     */
-    public SignatureFactory getSignatureFactory()
-            throws DigiDocException
-    {
-        try {
-            if(m_sigFac == null) {
-                m_sigFac = (SignatureFactory)Class.
-                        forName(getProperty("DIGIDOC_SIGN_IMPL")).newInstance();
-                if(m_sigFac != null) {
-                    m_sigFac.init();
-
-                }
-            }
-        } catch(DigiDocException ex) {
-            throw ex;
-        } catch(Exception ex) {
-            DigiDocException.handleException(ex, DigiDocException.ERR_INIT_SIG_FAC);
-        }
-        return m_sigFac;
-    }
-
-    /**
-     * Returns the SignatureFactory instance
-     * @return SignatureFactory implementation
-     */
-    public SignatureFactory getSignatureFactoryOfType(String sType)
-            throws DigiDocException
-    {
-        try {
-            SignatureFactory sFac = null;
-            if(SignatureFactory.SIGFAC_TYPE_PKCS11.equals(sType))
-                sFac = (SignatureFactory)Class.
-                        forName(getProperty("DIGIDOC_SIGN_IMPL_PKCS11")).newInstance();
-            if(SignatureFactory.SIGFAC_TYPE_PKCS12.equals(sType))
-                sFac = (SignatureFactory)Class.
-                        forName(getProperty("DIGIDOC_SIGN_IMPL_PKCS12")).newInstance();
-            if(sFac != null)
-                sFac.init();
-            return sFac;
-        } catch(DigiDocException ex) {
-            throw ex;
-        } catch(Exception ex) {
-            DigiDocException.handleException(ex, DigiDocException.ERR_INIT_SIG_FAC);
-        }
-        return m_sigFac;
-    }
-
-    /**
      * Returns the TrustServiceFactory instance
      * @return TrustServiceFactory implementation
      */
@@ -214,35 +162,6 @@ public class ConfigManager {
     }
 
     /**
-     * Returns the SignatureFactory instance
-     * @param type type of signature factory
-     * @return SignatureFactory implementation
-     */
-    public SignatureFactory getSignatureFactory(String type)
-            throws DigiDocException
-    {
-        SignatureFactory sigFac = null;
-        try {
-            String strClass = getProperty("DIGIDOC_SIGN_IMPL_" + type);
-            if(strClass != null) {
-                sigFac = (SignatureFactory)Class.
-                        forName(strClass).newInstance();
-                if(sigFac != null) {
-                    if(sigFac.getType().equals(SignatureFactory.SIGFAC_TYPE_PKCS11))
-                        sigFac.init();
-                }
-            }
-            if(sigFac == null)
-                throw new DigiDocException(DigiDocException.ERR_INIT_SIG_FAC, "No signature factory of type: " + type, null);
-        } catch(DigiDocException ex) {
-            throw ex;
-        } catch(Exception ex) {
-            DigiDocException.handleException(ex, DigiDocException.ERR_INIT_SIG_FAC);
-        }
-        return sigFac;
-    }
-
-    /**
      * Returns the NotaryFactory instance
      * @return NotaryFactory implementation
      */
@@ -261,27 +180,6 @@ public class ConfigManager {
             DigiDocException.handleException(ex, DigiDocException.ERR_NOT_FAC_INIT);
         }
         return m_notFac;
-    }
-
-    /**
-     * Returns the TimestampFactory instance
-     * @return TimestampFactory implementation
-     */
-    public TimestampFactory getTimestampFactory()
-            throws DigiDocException
-    {
-        try {
-            if(m_tsFac == null) {
-                m_tsFac = (TimestampFactory)Class.
-                        forName(getProperty("DIGIDOC_TIMESTAMP_IMPL")).newInstance();
-                m_tsFac.init();
-            }
-        } catch(DigiDocException ex) {
-            throw ex;
-        } catch(Exception ex) {
-            DigiDocException.handleException(ex, DigiDocException.ERR_TIMESTAMP_FAC_INIT);
-        }
-        return m_tsFac;
     }
 
     /**
@@ -410,10 +308,7 @@ public class ConfigManager {
      */
     public String getDefaultDigestType(SignedDoc sdoc)
     {
-        if(sdoc != null && sdoc.getFormat() != null && sdoc.getFormat().equals(SignedDoc.FORMAT_BDOC))
-            return getStringProperty("DIGIDOC_DIGEST_TYPE", SignedDoc.SHA256_DIGEST_TYPE);
-        else
-            return SignedDoc.SHA1_DIGEST_TYPE;
+        return SignedDoc.SHA1_DIGEST_TYPE;
     }
 
     /**
@@ -427,50 +322,6 @@ public class ConfigManager {
         if(digType != null) {
             if(digType.equals(SignedDoc.SHA1_DIGEST_TYPE))
                 return SignedDoc.SHA1_DIGEST_ALGORITHM;
-            if(digType.equals(SignedDoc.SHA224_DIGEST_TYPE))
-                return SignedDoc.SHA224_DIGEST_ALGORITHM;
-            if(digType.equals(SignedDoc.SHA256_DIGEST_TYPE))
-                return SignedDoc.SHA256_DIGEST_ALGORITHM_1;
-            if(digType.equals(SignedDoc.SHA384_DIGEST_TYPE))
-                return SignedDoc.SHA384_DIGEST_ALGORITHM;
-            if(digType.equals(SignedDoc.SHA512_DIGEST_TYPE))
-                return SignedDoc.SHA512_DIGEST_ALGORITHM;
-        }
-        return null;
-    }
-
-    /**
-     * Returns signature method URI corresponding to
-     * searched digest type value
-     * @param digType digest type
-     * @return signature method URI
-     */
-    public static String digType2SigMeth(String digType, boolean isEC)
-    {
-        if(digType != null) {
-            if(isEC) {
-                if(digType.equals(SignedDoc.SHA1_DIGEST_TYPE))
-                    return SignedDoc.ECDSA_SHA1_SIGNATURE_METHOD;
-                if(digType.equals(SignedDoc.SHA224_DIGEST_TYPE))
-                    return SignedDoc.ECDSA_SHA224_SIGNATURE_METHOD;
-                if(digType.equals(SignedDoc.SHA256_DIGEST_TYPE))
-                    return SignedDoc.ECDSA_SHA256_SIGNATURE_METHOD;
-                if(digType.equals(SignedDoc.SHA384_DIGEST_TYPE))
-                    return SignedDoc.ECDSA_SHA384_SIGNATURE_METHOD;
-                if(digType.equals(SignedDoc.SHA512_DIGEST_TYPE))
-                    return SignedDoc.ECDSA_SHA512_SIGNATURE_METHOD;
-            } else {
-                if(digType.equals(SignedDoc.SHA1_DIGEST_TYPE))
-                    return SignedDoc.RSA_SHA1_SIGNATURE_METHOD;
-                if(digType.equals(SignedDoc.SHA224_DIGEST_TYPE))
-                    return SignedDoc.RSA_SHA224_SIGNATURE_METHOD;
-                if(digType.equals(SignedDoc.SHA256_DIGEST_TYPE))
-                    return SignedDoc.RSA_SHA256_SIGNATURE_METHOD;
-                if(digType.equals(SignedDoc.SHA384_DIGEST_TYPE))
-                    return SignedDoc.RSA_SHA384_SIGNATURE_METHOD;
-                if(digType.equals(SignedDoc.SHA512_DIGEST_TYPE))
-                    return SignedDoc.RSA_SHA512_SIGNATURE_METHOD;
-            }
         }
         return null;
     }
@@ -487,24 +338,8 @@ public class ConfigManager {
         if(sigMeth != null) {
             if(sigMeth.equals(SignedDoc.ECDSA_SHA1_SIGNATURE_METHOD))
                 return bCvc ? "SHA1withCVC-ECDSA" : "SHA1withECDSA";
-            if(sigMeth.equals(SignedDoc.ECDSA_SHA224_SIGNATURE_METHOD))
-                return bCvc ? "SHA224withCVC-ECDSA" : "SHA224withECDSA";
-            if(sigMeth.equals(SignedDoc.ECDSA_SHA256_SIGNATURE_METHOD))
-                return bCvc ? "SHA256withCVC-ECDSA" : "SHA256withECDSA";
-            if(sigMeth.equals(SignedDoc.ECDSA_SHA384_SIGNATURE_METHOD))
-                return bCvc ? "SHA384withCVC-ECDSA" : "SHA384withECDSA";
-            if(sigMeth.equals(SignedDoc.ECDSA_SHA512_SIGNATURE_METHOD))
-                return bCvc ? "SHA512withCVC-ECDSA" : "SHA512withECDSA";
             if(sigMeth.equals(SignedDoc.RSA_SHA1_SIGNATURE_METHOD))
                 return "SHA1withRSA";
-            if(sigMeth.equals(SignedDoc.RSA_SHA224_SIGNATURE_METHOD))
-                return "SHA224withRSA";
-            if(sigMeth.equals(SignedDoc.RSA_SHA256_SIGNATURE_METHOD))
-                return "SHA256withRSA";
-            if(sigMeth.equals(SignedDoc.RSA_SHA384_SIGNATURE_METHOD))
-                return "SHA384withRSA";
-            if(sigMeth.equals(SignedDoc.RSA_SHA512_SIGNATURE_METHOD))
-                return "SHA512withRSA";
         }
         return null;
     }
@@ -519,27 +354,8 @@ public class ConfigManager {
         if(digAlg != null) {
             if(digAlg.equals(SignedDoc.SHA1_DIGEST_ALGORITHM))
                 return SignedDoc.SHA1_DIGEST_TYPE;
-            if(digAlg.equals(SignedDoc.SHA224_DIGEST_ALGORITHM))
-                return SignedDoc.SHA224_DIGEST_TYPE;
-            if(digAlg.equals(SignedDoc.SHA256_DIGEST_ALGORITHM_1) ||
-                    digAlg.equals(SignedDoc.SHA256_DIGEST_ALGORITHM_2))
-                return SignedDoc.SHA256_DIGEST_TYPE;
-            if(digAlg.equals(SignedDoc.SHA384_DIGEST_ALGORITHM))
-                return SignedDoc.SHA384_DIGEST_TYPE;
-            if(digAlg.equals(SignedDoc.SHA512_DIGEST_ALGORITHM))
-                return SignedDoc.SHA512_DIGEST_TYPE;
         }
         return null;
-    }
-
-    public static boolean isEcdsaCvcAlgorithm(String sAlgo)
-    {
-        return ((sAlgo != null) &&
-                ("SHA1withCVC-ECDSA".equals(sAlgo) ||
-                        "SHA224withCVC-ECDSA".equals(sAlgo) ||
-                        "SHA256withCVC-ECDSA".equals(sAlgo) ||
-                        "SHA384withCVC-ECDSA".equals(sAlgo) ||
-                        "SHA512withCVC-ECDSA".equals(sAlgo)));
     }
 
     /**
@@ -552,24 +368,8 @@ public class ConfigManager {
         if(sigMeth != null) {
             if(sigMeth.equals(SignedDoc.RSA_SHA1_SIGNATURE_METHOD))
                 return SignedDoc.SHA1_DIGEST_TYPE;
-            if(sigMeth.equals(SignedDoc.RSA_SHA224_SIGNATURE_METHOD))
-                return SignedDoc.SHA224_DIGEST_TYPE;
-            if(sigMeth.equals(SignedDoc.RSA_SHA256_SIGNATURE_METHOD))
-                return SignedDoc.SHA256_DIGEST_TYPE;
-            if(sigMeth.equals(SignedDoc.RSA_SHA384_SIGNATURE_METHOD))
-                return SignedDoc.SHA384_DIGEST_TYPE;
-            if(sigMeth.equals(SignedDoc.RSA_SHA512_SIGNATURE_METHOD))
-                return SignedDoc.SHA512_DIGEST_TYPE;
             if(sigMeth.equals(SignedDoc.ECDSA_SHA1_SIGNATURE_METHOD))
                 return SignedDoc.SHA1_DIGEST_TYPE;
-            if(sigMeth.equals(SignedDoc.ECDSA_SHA224_SIGNATURE_METHOD))
-                return SignedDoc.SHA224_DIGEST_TYPE;
-            if(sigMeth.equals(SignedDoc.ECDSA_SHA256_SIGNATURE_METHOD))
-                return SignedDoc.SHA256_DIGEST_TYPE;
-            if(sigMeth.equals(SignedDoc.ECDSA_SHA384_SIGNATURE_METHOD))
-                return SignedDoc.SHA384_DIGEST_TYPE;
-            if(sigMeth.equals(SignedDoc.ECDSA_SHA512_SIGNATURE_METHOD))
-                return SignedDoc.SHA512_DIGEST_TYPE;
         }
         return null;
     }

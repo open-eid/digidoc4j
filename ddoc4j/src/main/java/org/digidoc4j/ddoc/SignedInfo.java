@@ -162,13 +162,7 @@ public class SignedInfo implements Serializable
         DigiDocException ex = null;
         if(str == null ||
                 (!str.equals(SignedDoc.RSA_SHA1_SIGNATURE_METHOD) &&
-                        !str.equals(SignedDoc.RSA_SHA224_SIGNATURE_METHOD) &&
-                        !str.equals(SignedDoc.RSA_SHA256_SIGNATURE_METHOD) &&
-                        !str.equals(SignedDoc.RSA_SHA512_SIGNATURE_METHOD) &&
-                        !str.equals(SignedDoc.ECDSA_SHA1_SIGNATURE_METHOD) &&
-                        !str.equals(SignedDoc.ECDSA_SHA224_SIGNATURE_METHOD) &&
-                        !str.equals(SignedDoc.ECDSA_SHA256_SIGNATURE_METHOD) &&
-                        !str.equals(SignedDoc.ECDSA_SHA512_SIGNATURE_METHOD) ))
+                        !str.equals(SignedDoc.ECDSA_SHA1_SIGNATURE_METHOD)))
             ex = new DigiDocException(DigiDocException.ERR_SIGNATURE_METHOD,
                     "Currently supports only RSA-SHA1, RSA-SHA224, RSA-SHA256, RSA-SHA512, ECDSA-SHA1, ECDSA-SHA224, ECDSA-SHA256 and ECDSA-SHA512 signatures", null);
         return ex;
@@ -396,18 +390,6 @@ public class SignedInfo implements Serializable
             if(m_signatureMethod.equals(SignedDoc.RSA_SHA1_SIGNATURE_METHOD) ||
                     m_signatureMethod.equals(SignedDoc.ECDSA_SHA1_SIGNATURE_METHOD))
                 hash = SignedDoc.digestOfType(tmp, SignedDoc.SHA1_DIGEST_TYPE);
-            if(m_signatureMethod.equals(SignedDoc.RSA_SHA256_SIGNATURE_METHOD) ||
-                    m_signatureMethod.equals(SignedDoc.ECDSA_SHA256_SIGNATURE_METHOD))
-                hash = SignedDoc.digestOfType(tmp, SignedDoc.SHA256_DIGEST_TYPE);
-            if(m_signatureMethod.equals(SignedDoc.RSA_SHA224_SIGNATURE_METHOD) ||
-                    m_signatureMethod.equals(SignedDoc.ECDSA_SHA224_SIGNATURE_METHOD))
-                hash = SignedDoc.digestOfType(tmp, SignedDoc.SHA224_DIGEST_TYPE);
-            if(m_signatureMethod.equals(SignedDoc.RSA_SHA384_SIGNATURE_METHOD) ||
-                    m_signatureMethod.equals(SignedDoc.ECDSA_SHA384_SIGNATURE_METHOD))
-                hash = SignedDoc.digestOfType(tmp, SignedDoc.SHA384_DIGEST_TYPE);
-            if(m_signatureMethod.equals(SignedDoc.RSA_SHA512_SIGNATURE_METHOD) ||
-                    m_signatureMethod.equals(SignedDoc.ECDSA_SHA512_SIGNATURE_METHOD))
-                hash = SignedDoc.digestOfType(tmp, SignedDoc.SHA512_DIGEST_TYPE);
             return hash;
         }
         else

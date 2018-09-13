@@ -16,7 +16,6 @@
  * http://www.gnu.org/copyleft/lesser.html
  *==================================================
  */
-
 package org.digidoc4j.ddoc.tsl;
 
 import org.digidoc4j.ddoc.Base64Util;

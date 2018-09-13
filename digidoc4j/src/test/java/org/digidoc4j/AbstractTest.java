@@ -162,17 +162,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected AsicParseResult getParseResultFromStream(String path) throws FileNotFoundException {
-    return new AsicStreamContainerParser(new FileInputStream(path.toString()), Configuration.getInstance()).read();
-  }
-
-  protected Pair<SignedDoc, List<DigiDocException>> openDigiDocContainerBy(Path path) {
-    try {
-      List<DigiDocException> errors = new ArrayList<>();
-      SignedDoc doc = ConfigManager.instance().getDigiDocFactory().readSignedDocOfType(path.toString(), true, errors);
-      return new ImmutablePair<>(doc, errors);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    return new AsicStreamContainerParser(new FileInputStream(path), Configuration.getInstance()).read();
   }
 
   protected Container openContainerBy(Path path) {

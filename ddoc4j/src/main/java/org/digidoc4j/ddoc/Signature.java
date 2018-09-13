@@ -1,13 +1,10 @@
 package org.digidoc4j.ddoc;
 
-import org.digidoc4j.ddoc.factory.DigiDocGenFactory;
 import org.digidoc4j.ddoc.factory.DigiDocVerifyFactory;
 import org.digidoc4j.ddoc.factory.DigiDocXmlGenFactory;
-import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
@@ -181,11 +178,7 @@ public class Signature implements Serializable
     public boolean isEllipticCurveSiganture()
     {
         return (m_signedInfo != null) && (m_signedInfo.getSignatureMethod() != null) &&
-                (m_signedInfo.getSignatureMethod().equals(SignedDoc.ECDSA_SHA1_SIGNATURE_METHOD) ||
-                        m_signedInfo.getSignatureMethod().equals(SignedDoc.ECDSA_SHA224_SIGNATURE_METHOD) ||
-                        m_signedInfo.getSignatureMethod().equals(SignedDoc.ECDSA_SHA256_SIGNATURE_METHOD) ||
-                        m_signedInfo.getSignatureMethod().equals(SignedDoc.ECDSA_SHA384_SIGNATURE_METHOD) ||
-                        m_signedInfo.getSignatureMethod().equals(SignedDoc.ECDSA_SHA512_SIGNATURE_METHOD));
+                (m_signedInfo.getSignatureMethod().equals(SignedDoc.ECDSA_SHA1_SIGNATURE_METHOD));
     }
 
     /**
@@ -202,27 +195,6 @@ public class Signature implements Serializable
      * @param b flag to indicate that alternate digest matches instead of the real one
      */
     public void setAltDigestMatch(boolean b) { m_bAltDigMatch = b; }
-
-    /**
-     * Calculates the SignedInfo digest
-     * @return SignedInfo digest
-     */
-    public byte[] calculateSignedInfoDigest()
-            throws DigiDocException
-    {
-        return m_signedInfo.calculateDigest();
-    }
-
-    /**
-     * Calculates the SignedInfo xml to sign
-     * @return SignedInfo xml
-     */
-    public byte[] calculateSignedInfoXML()
-            throws DigiDocException
-    {
-        DigiDocXmlGenFactory genFac = new DigiDocXmlGenFactory(m_sigDoc);
-        return genFac.signedInfoToXML(this, m_signedInfo);
-    }
 
     /**
      * Returns HTTP_FROM value. This value is used
@@ -681,50 +653,6 @@ public class Signature implements Serializable
     public void setComment(String s)
     {
         m_comment = s;
-    }
-
-    /**
-     * Gets confirmation and adds the corresponding
-     * members that carry the returned info to
-     * this signature
-     * @throws DigiDocException for all errors
-     */
-    public void getConfirmation()
-            throws DigiDocException
-    {
-        if(m_sigDoc.getFormat().equals(SignedDoc.FORMAT_DIGIDOC_XML) ||
-                m_sigDoc.getFormat().equals(SignedDoc.FORMAT_SK_XML)) {
-            if(m_profile == null || m_profile.equalsIgnoreCase(SignedDoc.BDOC_PROFILE_TM)) {
-                DigiDocGenFactory.finalizeXadesT(m_sigDoc, this);
-                DigiDocGenFactory.finalizeXadesC(m_sigDoc, this);
-                DigiDocGenFactory.finalizeXadesXL_TM(m_sigDoc, this);
-            }
-        } else {
-            String profile = m_profile;
-            if(profile == null)
-                profile = m_sigDoc.getProfile();
-            if(profile == null || profile.trim().length() == 0)
-                profile = ConfigManager.instance().getStringProperty("DIGIDOC_DEFAULT_PROFILE", SignedDoc.BDOC_PROFILE_TM);
-            DigiDocGenFactory.finalizeSignature(m_sigDoc, this, m_signatureValue.getValue(), profile);
-        }
-        // reset original content since we just added to confirmation
-        if(m_origContent != null) {
-            DigiDocXmlGenFactory genFac = new DigiDocXmlGenFactory(m_sigDoc);
-            String str = new String(m_origContent);
-            int idx1 = str.indexOf("</SignedProperties>");
-            if(idx1 != -1) {
-                try {
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    bos.write(m_origContent, 0, idx1);
-                    bos.write("</SignedProperties>".getBytes());
-                    bos.write(genFac.unsignedPropertiesToXML(this, m_unsigProp));
-                    bos.write("</QualifyingProperties></Object></Signature>".getBytes());
-                    m_origContent = bos.toByteArray();
-                } catch(java.io.IOException ex) {
-                    DigiDocException.handleException(ex, DigiDocException.ERR_OCSP_GET_CONF);
-                }
-            }
-        }
     }
 
     /**

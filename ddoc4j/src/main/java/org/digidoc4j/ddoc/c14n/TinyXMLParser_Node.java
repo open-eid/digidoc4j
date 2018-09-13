@@ -7,7 +7,4 @@ public abstract class TinyXMLParser_Node {
     protected TinyXMLParser_Node() {
     }
 
-    public void ToConsole() {
-    }
-
 }

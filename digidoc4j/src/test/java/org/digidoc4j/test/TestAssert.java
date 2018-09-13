@@ -15,7 +15,6 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -101,12 +100,6 @@ public final class TestAssert {
 
   public static void assertContainerIsInvalid(Container container) {
     Assert.assertFalse("Container is valid", container.validate().isValid());
-  }
-
-  public static void assertContainerIsValidWithJDigiDoc(String containerFilePath) throws DigiDocException {
-    List errors = new ArrayList();
-    ConfigManager.instance().getDigiDocFactory().readSignedDocOfType(containerFilePath, true, errors);
-    Assert.assertTrue(StringUtils.join(errors, "; "), errors.isEmpty());
   }
 
   public static void assertContainerIsOpened(Container container, Container.DocumentType documentType) {

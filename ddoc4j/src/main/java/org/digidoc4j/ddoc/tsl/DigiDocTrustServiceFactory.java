@@ -273,7 +273,6 @@ public class DigiDocTrustServiceFactory
     private X509Certificate findCaForCertInTsl(TrustServiceStatusList tsl, X509Certificate cert, Date dtSigning)
     {
     	Principal caP = cert.getIssuerDN();
-    	//String caDn = cert.getIssuerDN().getName();
     	String subDn = cert.getSubjectDN().getName();
     	for(int j = 0; j < tsl.getNumProviders(); j++) {
 			TrustServiceProvider tsp = tsl.getTrustServiceProvider(j);
@@ -409,30 +408,6 @@ public class DigiDocTrustServiceFactory
      * Finds direct OCSP cert for given ocsp responder id
      * @param cn OCSP responder-id
      * @param bUseLocal use also ca certs registered in local config file
-     * @return OCSP cert or null if not found
-     */
-    public X509Certificate findOcspByCN(String cn, boolean bUseLocal) 
-    {
-    	if(m_logger.isDebugEnabled())
-			m_logger.debug("Search OCSP: " + cn + " use-local: " + bUseLocal);
-    	// find in TSL files at first
-    	for(int i = 0; (m_tsls != null) && (i < m_tsls.size()); i++) {
-    		TrustServiceStatusList tsl = (TrustServiceStatusList)m_tsls.get(i);
-    		if(m_logger.isDebugEnabled())
-    			m_logger.debug("TSL: " + tsl.getSchemeInformation().getSchemeName(0) + " local: " + tsl.isLocal());
-    		if((tsl.isLocal() && bUseLocal) || !tsl.isLocal()) {
-    			X509Certificate cert = findOcspInTsl(tsl, cn);
-    			if(cert != null)
-    				return cert;
-    		}
-    	}
-    	return null;
-    }
-    
-    /**
-     * Finds direct OCSP cert for given ocsp responder id
-     * @param cn OCSP responder-id
-     * @param bUseLocal use also ca certs registered in local config file
      * @param serialNr serial number or NULL
      * @return OCSP cert or null if not found
      */
@@ -454,47 +429,5 @@ public class DigiDocTrustServiceFactory
     	}
     	return lcert;
     }
-    
-    /**
-     * Finds OCSP url for given user cert
-     * @param cert user cert
-     * @param nUrl index of url if many exist
-     * @param bUseLocal use also ca certs registered in local config file
-     * @return CA cert or null if not found
-     */
-    public String findOcspUrlForCert(X509Certificate cert, int nUrl, boolean bUseLocal) 
-    {
-    	String caDn = cert.getIssuerDN().getName();
-    	String caCn = ConvertUtils.getCommonName(caDn);
-    	if(m_logger.isDebugEnabled())
-			m_logger.debug("Search ocsp url for CA: " + caCn);
-    	// find in TSL files at first
-    	for(int i = 0; (m_tsls != null) && (i < m_tsls.size()); i++) {
-    		TrustServiceStatusList tsl = (TrustServiceStatusList)m_tsls.get(i);
-    		if((tsl.isLocal() && bUseLocal) || !tsl.isLocal()) {
-    			for(int j = 0; j < tsl.getNumProviders(); j++) {
-    				TrustServiceProvider tsp = tsl.getTrustServiceProvider(j);
-    				for(int l = 0; l < tsp.getNumServices(); l++) {
-    				  TSPService tsps = tsp.getTSPService(l);
-    				  if(m_logger.isDebugEnabled())
-							m_logger.debug("Checking tsp service: " + caCn);
-    				  if(tsps.isOCSP() && tsps.getCaCn() != null && tsps.getCaCn().equals(caCn)) {
-    					  if(m_logger.isDebugEnabled())
-    							m_logger.debug("Found OCSP: " + caCn);
-    					  if(tsps.getServiceAccessPoints() != null && nUrl >= 0 && nUrl < tsps.getServiceAccessPoints().length) {
-    						  if(m_logger.isDebugEnabled())
-      							m_logger.debug("Found ocsp URL: " + tsps.getServiceAccessPoints()[nUrl]);
-    						  return tsps.getServiceAccessPoints()[nUrl];
-    					  }
-    				  }
-    				}
-    	    	}
-    		}
-    	}
-    	String sUrl = ConfigManager.instance().getProperty("DIGIDOC_OCSP_RESPONDER_URL");
-    	if(m_logger.isDebugEnabled())
-			m_logger.debug("Using default URL: " + sUrl);
-    	return sUrl;
-    }
-    
+
 }

@@ -4,7 +4,6 @@ import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -88,23 +87,9 @@ public class Reference implements Serializable
             sDigType = ConfigManager.instance().getDefaultDigestType(m_sigInfo.getSignature().getSignedDoc());
         String sDigAlg = ConfigManager.digType2Alg(sDigType);
         setDigestAlgorithm(sDigAlg);
-        // BDOC or plain xades
-        if(m_sigInfo.getSignature().getSignedDoc() != null &&
-                m_sigInfo.getSignature().getSignedDoc().getFormat() != null &&
-                m_sigInfo.getSignature().getSignedDoc().getFormat().equals(SignedDoc.FORMAT_BDOC) ) {
-            String s = df.getFileName();
-            int n1 = s.lastIndexOf(File.separator);
-            if(n1 > 0 && n1 < s.length())
-                s = s.substring(n1+1);
-            if(m_sigInfo.getSignature().getSignedDoc().getVersion().equals(SignedDoc.BDOC_VERSION_2_1))
-                setUri(s);
-            else
-                setUri("/" + s);
-        } else { // digidoc
-            if(df.getContentType().equals(DataFile.CONTENT_HASHCODE) ||
-                    df.getContentType().equals(DataFile.CONTENT_EMBEDDED_BASE64)) {
-                setUri("#" + df.getId());
-            }
+        if(df.getContentType().equals(DataFile.CONTENT_HASHCODE) ||
+                df.getContentType().equals(DataFile.CONTENT_EMBEDDED_BASE64)) {
+            setUri("#" + df.getId());
         }
         setDigestValue(df.getDigestValueOfType(sDigType));
     }
@@ -235,13 +220,9 @@ public class Reference implements Serializable
     {
         DigiDocException ex = null;
         if(str == null ||
-                (!str.equals(SignedDoc.SHA1_DIGEST_ALGORITHM) &&
-                        !str.equals(SignedDoc.SHA224_DIGEST_ALGORITHM) &&
-                        !str.equals(SignedDoc.SHA256_DIGEST_ALGORITHM_1) &&
-                        !str.equals(SignedDoc.SHA256_DIGEST_ALGORITHM_2) &&
-                        !str.equals(SignedDoc.SHA512_DIGEST_ALGORITHM)))
+                (!str.equals(SignedDoc.SHA1_DIGEST_ALGORITHM)))
             ex = new DigiDocException(DigiDocException.ERR_DIGEST_ALGORITHM,
-                    "Currently supports only SHA-1, SHA-256 or SHA-512 digest algorithm", null);
+                    "Currently supports only SHA-1", null);
         return ex;
     }
 
@@ -276,10 +257,7 @@ public class Reference implements Serializable
     {
         DigiDocException ex = null;
         if(data == null ||
-                (data.length != SignedDoc.SHA1_DIGEST_LENGTH &&
-                        data.length != SignedDoc.SHA224_DIGEST_LENGTH &&
-                        data.length != SignedDoc.SHA256_DIGEST_LENGTH &&
-                        data.length != SignedDoc.SHA512_DIGEST_LENGTH))
+                data.length != SignedDoc.SHA1_DIGEST_LENGTH)
             ex = new DigiDocException(DigiDocException.ERR_DIGEST_LENGTH,
                     "Invalid digest length", null);
         return ex;

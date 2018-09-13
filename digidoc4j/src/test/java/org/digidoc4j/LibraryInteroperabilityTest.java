@@ -10,14 +10,8 @@
 
 package org.digidoc4j;
 
-import java.io.FileInputStream;
-import java.nio.file.Paths;
-
-import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
 import org.digidoc4j.test.TestAssert;
-import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.digidoc4j.test.util.TestFileUtil;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -28,13 +22,6 @@ public class LibraryInteroperabilityTest extends AbstractTest {
   @BeforeClass
   public static void beforeClass() throws Exception {
     LibraryInteroperabilityTest.configManagerInitializer.initConfigManager(Configuration.of(Configuration.Mode.TEST));
-  }
-
-  @Test
-  public void verifyWithJDigidoc() throws Exception {
-    String file = this.getFileBy("bdoc");
-    createSignedNonEmptyContainer(file);
-    TestAssert.assertContainerIsValidWithJDigiDoc(file);
   }
 
   @Test
@@ -56,45 +43,6 @@ public class LibraryInteroperabilityTest extends AbstractTest {
         fromExistingFile("src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc").
         withConfiguration(Configuration.of(Configuration.Mode.PROD)).build();
     TestAssert.assertContainerIsInvalid(container);
-  }
-
-  @Test
-  public void verifyAddingSignatureToJDigiDocContainer() throws Exception {
-    Container container = ContainerBuilder.aContainer().
-        fromExistingFile("src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").
-        withConfiguration(Configuration.of(Configuration.Mode.TEST)).build();
-    TestDataBuilderUtil.signContainer(container);
-    TestAssert.assertContainerIsValid(container);
-    String file = this.getFileBy("bdoc");
-    container.saveAsFile(file);
-    container = TestDataBuilderUtil.open(file);
-    TestAssert.assertContainerIsValid(container);
-    TestAssert.assertContainerIsValidWithJDigiDoc(file);
-  }
-
-  @Test
-  public void verifyAddingMobileIdSignature_extractedByjDigidoc_shouldBeValid() throws Exception {
-    Container container = ContainerBuilder.aContainer().withConfiguration(Configuration.of(Configuration.Mode.PROD)).
-        withDataFile(new FileInputStream("src/test/resources/testFiles/special-char-files/pdf-containing-xml.pdf"), "Sularaha sissemakse.pdf", "application/octet-stream").
-        build();
-    container.addSignature(TestFileUtil.openAdESSignature(container, "src/test/resources/testFiles/xades/bdoc-tm-jdigidoc-mobile-id.xml"));
-    TestAssert.assertContainerIsValid(container);
-    String file = this.getFileBy("bdoc");
-    container.saveAsFile(file);
-    TestAssert.assertContainerIsValidWithJDigiDoc(file);
-  }
-
-  @Test
-  public void extendEpesToLtTm_validateWithJdigidoc() throws Exception {
-    Container container = this.createNonEmptyContainer();
-    TestDataBuilderUtil.signContainer(container, SignatureProfile.B_EPES);
-    String file = this.getFileBy("bdoc");
-    container.saveAsFile(file);
-    container = this.openContainerBy(Paths.get(file));
-    container.extendSignatureProfile(SignatureProfile.LT_TM);
-    file = this.getFileBy("bdoc");
-    container.saveAsFile(file);
-    TestAssert.assertContainerIsValidWithJDigiDoc(file);
   }
 
   /*

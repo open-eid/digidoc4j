@@ -47,7 +47,7 @@ public class TinyXMLParser {
             doc.ParseHandler = h;
             a = new Stack();
             h.startDocument();
-            f = TinyXMLParser_Fragment.Of(data, (int)0);
+            f = TinyXMLParser_Fragment.Of(data, 0);
             if(f == null) return;
             f.OwnerDocument = doc;
             f.SplitMarkup();
@@ -185,7 +185,7 @@ public class TinyXMLParser {
             }
             h.endDocument();
         }
-        catch (java.lang.Throwable exc)
+        catch (Throwable exc)
         {
         }
 

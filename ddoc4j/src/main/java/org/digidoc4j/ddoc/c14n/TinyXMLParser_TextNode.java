@@ -9,9 +9,4 @@ public final class TinyXMLParser_TextNode extends TinyXMLParser_Node {
         super();
     }
 
-    public void ToConsole()
-    {
-        this.ValueFragment.ToConsole();
-    }
-
 }

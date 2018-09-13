@@ -1,4 +1,5 @@
 package org.digidoc4j.ddoc.tsl;
+
 import org.digidoc4j.ddoc.utils.ConvertUtils;
 
 
@@ -11,11 +12,6 @@ public class Quality {
 	private String m_name;
 	/** quality value */
 	private int m_value;
-	
-	public static final String QUALITY_PRIVATE_KEY = "http://uri.eesti.ee/TSL/QualityParameter/PrivateKeyCarrier";
-	public static final String QUALITY_CRYPTO = "http://uri.eesti.ee/TSL/QualityParameter/CryptoAlgorithmLevel";
-	public static final String QUALITY_CA = "http://uri.eesti.ee/TSL/QualityParameter/CAQuality";
-	public static final String QUALITY_ASSESSMENT = "http://uri.eesti.ee/TSL/QualityParameter/AssessmentQuality";
 	
 	
 	/**

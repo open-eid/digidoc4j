@@ -31,7 +31,7 @@ public class TinyXMLCanonicalizerHandler implements TinyXMLParser_Handler {
         byte[] u;
 
         u = Convert.ToByteArray(e, "UTF-8");
-        this.BaseStream.write(u, (int)0, ((int)u.length));
+        this.BaseStream.write(u, 0, u.length);
     }
 
     public void startElement(TinyXMLParser_Element e)
@@ -252,26 +252,6 @@ public class TinyXMLCanonicalizerHandler implements TinyXMLParser_Handler {
             p = p.Parent;
         }
         return null;
-    }
-
-    private static void DumpBytes(String j, String[] enc)
-    {
-        String var;
-        String[] stringArray1;
-        int num2;
-
-        stringArray1 = enc;
-
-        for (num2 = 0; (num2 < ((int)stringArray1.length)); num2++)
-        {
-            var = stringArray1[num2];
-            TinyXMLCanonicalizerHandler.DumpBytes(j, var);
-        }
-
-    }
-
-    private static void DumpBytes(String j, String enc)
-    {
     }
 
 }

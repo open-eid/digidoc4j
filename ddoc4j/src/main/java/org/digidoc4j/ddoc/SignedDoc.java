@@ -1,18 +1,10 @@
 package org.digidoc4j.ddoc;
 
-import org.digidoc4j.ddoc.factory.DigiDocFactory;
-import org.digidoc4j.ddoc.factory.DigiDocGenFactory;
-import org.digidoc4j.ddoc.factory.DigiDocVerifyFactory;
 import org.digidoc4j.ddoc.factory.DigiDocXmlGenFactory;
-import org.digidoc4j.ddoc.utils.ConfigManager;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -63,54 +55,20 @@ public class SignedDoc implements Serializable
     /** the only supported formats are SK-XML and DIGIDOC-XML */
     public static final String FORMAT_SK_XML = "SK-XML";
     public static final String FORMAT_DIGIDOC_XML = "DIGIDOC-XML";
-    /**BDOC*/
-    public static final String FORMAT_BDOC = "BDOC";
-    /**application/vnd.bdoc*/
-    public static final String FORMAT_BDOC_MIME = "application/vnd.bdoc";
     /** supported versions are 1.0 and 1.1 */
     public static final String VERSION_1_0 = "1.0";
     public static final String VERSION_1_1 = "1.1";
     public static final String VERSION_1_2 = "1.2";
     public static final String VERSION_1_3 = "1.3";
-    /** bdoc versions are 1.0, 1.1 and 2.1 */
-    public static final String BDOC_VERSION_1_0 = "1.0";
-    public static final String BDOC_VERSION_1_1 = "1.1";
-    public static final String BDOC_VERSION_2_1 = "2.1";
-    /** bdoc profiles are - BES, T, C-L, TM, TS, TM-A, TS-A */
-    public static final String BDOC_PROFILE_BES = "BES";
-    public static final String BDOC_PROFILE_T = "T";
-    public static final String BDOC_PROFILE_CL = "C-L";
-    public static final String BDOC_PROFILE_TM = "TM";
-    public static final String BDOC_PROFILE_TS = "TS";
-    public static final String BDOC_PROFILE_TMA = "TM-A";
-    public static final String BDOC_PROFILE_TSA = "TS-A";
-
+    public static final String PROFILE_TM = "TM";
     /** the only supported algorithm for ddoc is SHA1 */
     public static final String SHA1_DIGEST_ALGORITHM = "http://www.w3.org/2000/09/xmldsig#sha1";
     public static final String SHA1_DIGEST_TYPE="SHA-1";
     public static final String SHA1_DIGEST_TYPE_BAD="SHA-1-00";
-    /** the only supported algorithm for bdoc is SHA256 */
-    public static final String SHA256_DIGEST_ALGORITHM_1 = "http://www.w3.org/2001/04/xmlenc#sha256";
-    public static final String SHA256_DIGEST_ALGORITHM_2 = "http://www.w3.org/2001/04/xmldsig-more#sha256";
-    public static final String SHA256_DIGEST_TYPE="SHA-256";
-    /** algorithms for sha 224 **/
-    public static final String SHA224_DIGEST_TYPE="SHA-224";
-    public static final String SHA224_DIGEST_ALGORITHM = "http://www.w3.org/2001/04/xmldsig-more#sha224";
-    /** algorithms for sha 384 **/
-    public static final String SHA384_DIGEST_TYPE="SHA-384";
-    public static final String SHA384_DIGEST_ALGORITHM = "http://www.w3.org/2001/04/xmldsig-more#sha384";
-    /** sha-512 digest type */
-    public static final String SHA512_DIGEST_TYPE="SHA-512";
-    public static final String SHA512_DIGEST_ALGORITHM = "http://www.w3.org/2001/04/xmlenc#sha512"; //"http://www.w3.org/2001/04/xmldsig-more#sha512";
 
     /** SHA1 digest data is allways 20 bytes */
     public static final int SHA1_DIGEST_LENGTH = 20;
     /** SHA224 digest data is allways 28 bytes */
-    public static final int SHA224_DIGEST_LENGTH = 28;
-    /** SHA256 digest data is allways 32 bytes */
-    public static final int SHA256_DIGEST_LENGTH = 32;
-    /** SHA512 digest data is allways 64 bytes */
-    public static final int SHA512_DIGEST_LENGTH = 64;
     /** the only supported canonicalization method is 20010315 */
     public static final String CANONICALIZATION_METHOD_20010315 = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315";
     /** canonical xml 1.1 */
@@ -119,16 +77,8 @@ public class SignedDoc implements Serializable
     public static final String TRANSFORM_20001026 = "http://www.w3.org/TR/2000/CR-xml-c14n-20001026";
     /** the only supported signature method is RSA-SHA1 */
     public static final String RSA_SHA1_SIGNATURE_METHOD = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
-    public static final String RSA_SHA224_SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha224";
-    public static final String RSA_SHA256_SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
-    public static final String RSA_SHA384_SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha384";
-    public static final String RSA_SHA512_SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512";
     /** elliptic curve algorithms */
     public static final String ECDSA_SHA1_SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1";
-    public static final String ECDSA_SHA224_SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha224";
-    public static final String ECDSA_SHA256_SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256";
-    public static final String ECDSA_SHA384_SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha384";
-    public static final String ECDSA_SHA512_SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha512";
 
     /** the only supported transform is digidoc detatched transform */
     public static final String DIGIDOC_DETATCHED_TRANSFORM = "http://www.sk.ee/2002/10/digidoc#detatched-document-signature";
@@ -140,25 +90,8 @@ public class SignedDoc implements Serializable
     public static String xmlns_etsi = "http://uri.etsi.org/01903/v1.1.1#";
     /** DigiDoc namespace */
     public static String xmlns_digidoc13 = "http://www.sk.ee/DigiDoc/v1.3.0#";
-    /** asic namespace */
-    public static String xmlns_asic = "http://uri.etsi.org/02918/v1.2.1#";
-
-    /** program & library name */
-    public static final String LIB_NAME = Version.LIB_NAME;
-    /** program & library version */
-    public static final String LIB_VERSION = Version.LIB_VERSION;
     /** Xades namespace */
     public static String xmlns_xades_123 = "http://uri.etsi.org/01903/v1.3.2#";
-    /** program & library name */
-    public static final String  SIG_FILE_NAME = "META-INF/signature";
-    public static final String  SIG_FILE_NAME_20 = "META-INF/signatures";
-    public static final String  MIMET_FILE_NAME = "mimetype";
-    public static final String  MIMET_FILE_CONTENT_10 = "application/vnd.bdoc-1.0";
-    public static final String  MIMET_FILE_CONTENT_11 = "application/vnd.bdoc-1.1";
-    public static final String  MIMET_FILE_CONTENT_20 = "application/vnd.etsi.asic-e+zip";
-    public static final String  MANIF_DIR_META_INF = "META-INF";
-    public static final String  MANIF_FILE_NAME = "META-INF/manifest.xml";
-    public static final String  MIME_SIGNATURE_BDOC_ = "signature/bdoc-";
 
     /**
      * Creates new SignedDoc
@@ -196,36 +129,15 @@ public class SignedDoc implements Serializable
         m_nsXmlDsig = null;
         m_nsXades = null;
         m_comment = null;
-        if(format.equals(SignedDoc.FORMAT_BDOC)) {
-            m_manifest = new Manifest();
-            ManifestFileEntry fe = new ManifestFileEntry(getManifestEntry(version), "/");
-            m_manifest.addFileEntry(fe);
-            setDefaultNsPref(SignedDoc.FORMAT_BDOC);
-        }
     }
 
     public void setDefaultNsPref(String format)
     {
-        if(format.equals(SignedDoc.FORMAT_BDOC)) {
-            m_nsXmlDsig = "ds";
-            m_nsXades = "xades";
-            m_nsAsic = "asic";
-        }
         if(format.equals(SignedDoc.FORMAT_DIGIDOC_XML) || format.equals(SignedDoc.FORMAT_SK_XML)) {
             m_nsXmlDsig = null;
             m_nsXades = null;
             m_nsAsic = null;
         }
-    }
-
-    private String getManifestEntry(String ver)
-    {
-        if(ver.equals(BDOC_VERSION_1_0))
-            return Manifest.MANIFEST_BDOC_MIME_1_0;
-        else if(ver.equals(BDOC_VERSION_1_1))
-            return Manifest.MANIFEST_BDOC_MIME_1_1;
-        else
-            return Manifest.MANIFEST_BDOC_MIME_2_0;
     }
 
     /**
@@ -437,19 +349,9 @@ public class SignedDoc implements Serializable
             ex = new DigiDocException(DigiDocException.ERR_DIGIDOC_FORMAT,
                     "Format attribute is mandatory!", null);
         } else {
-            if(!str.equals(FORMAT_BDOC) && !str.equals(FORMAT_SK_XML) &&
-                    !str.equals(FORMAT_DIGIDOC_XML)) {
+            if(!str.equals(FORMAT_SK_XML) && !str.equals(FORMAT_DIGIDOC_XML)) {
                 ex = new DigiDocException(DigiDocException.ERR_DIGIDOC_FORMAT,
-                        "Currently supports only SK-XML, DIGIDOC-XML and BDOC formats", null);
-            }
-            if(str.equals(SignedDoc.FORMAT_BDOC)) {
-                if(m_manifest == null)
-                    m_manifest = new Manifest();
-                if(m_manifest.findFileEntryByPath("/") == null) {
-                    ManifestFileEntry fe = new ManifestFileEntry(getManifestEntry(m_version), "/");
-                    m_manifest.addFileEntry(fe);
-                }
-                setDefaultNsPref(SignedDoc.FORMAT_BDOC);
+                        "Currently supports only SK-XML and DIGIDOC-XML formats", null);
             }
         }
         return ex;
@@ -497,9 +399,6 @@ public class SignedDoc implements Serializable
                         !str.equals(VERSION_1_2) && !str.equals(VERSION_1_3))
                     ex = new DigiDocException(DigiDocException.ERR_DIGIDOC_VERSION,
                             "Format DIGIDOC-XML supports only versions 1.1, 1.2, 1.3", null);
-                if(m_format.equals(FORMAT_BDOC) && !str.equals(BDOC_VERSION_2_1))
-                    ex = new DigiDocException(DigiDocException.ERR_DIGIDOC_VERSION,
-                            "Format BDOC supports only versions 2.1", null);
                 // don't check for XADES and XADES_T - test formats for ETSI plugin tests
             }
         }
@@ -536,10 +435,6 @@ public class SignedDoc implements Serializable
             if(!m_version.equals(VERSION_1_3))
                 return new DigiDocException(DigiDocException.ERR_DIGIDOC_FORMAT,
                         "Only format DIGIDOC-XML version 1.3 is supported!", null);
-        } else if(m_format.equals(FORMAT_BDOC)) {
-            if(!m_version.equals(BDOC_VERSION_2_1))
-                return new DigiDocException(DigiDocException.ERR_DIGIDOC_FORMAT,
-                        "Format BDOC supports only versions 2.1", null);
         } else {
             return new DigiDocException(DigiDocException.ERR_DIGIDOC_FORMAT,
                     "Invalid format attribute!", null);
@@ -600,31 +495,6 @@ public class SignedDoc implements Serializable
         }
     }
 
-    public InputStream findDataFileAsStream(String dfName)
-    {
-        try {
-            if(m_file != null) {
-                StringBuffer sbName = new StringBuffer();
-                if(m_path != null) {
-                    sbName.append(m_path);
-                    sbName.append(File.separator);
-                }
-                sbName.append(m_file);
-                File fZip = new File(sbName.toString());
-                if(fZip.isFile() && fZip.canRead()) {
-                    ZipFile zis = new ZipFile(fZip);
-                    ZipArchiveEntry ze = zis.getEntry(dfName);
-                    if(ze != null) {
-                        return zis.getInputStream(ze);
-                    }
-                }
-            }
-        } catch(Exception ex) {
-            m_logger.error("Error reading bdoc: " + ex);
-        }
-        return null;
-    }
-
     /**
      * return a new available DataFile id
      * @retusn new DataFile id
@@ -661,58 +531,12 @@ public class SignedDoc implements Serializable
     {
         DigiDocException ex1 = validateFormatAndVersion();
         if(ex1 != null) throw ex1;
-        boolean bExists = false;
-        for(int i = 0; i < countDataFiles(); i++) {
-            DataFile df1 = getDataFile(i);
-            if(df1.getFileName().equals(inputFile.getName()))
-                bExists = true;
-        }
-        if(bExists && m_format.equals(FORMAT_BDOC)) {
-            m_logger.error("Duplicate DataFile name: " + inputFile.getName());
-            throw new DigiDocException(DigiDocException.ERR_DATA_FILE_FILE_NAME,
-                    "Duplicate DataFile filename: " + inputFile.getName(), null);
-        }
         DataFile df = new DataFile(getNewDataFileId(), contentType, inputFile.getAbsolutePath(), mime, this);
         if(inputFile.canRead())
             df.setSize(inputFile.length());
         addDataFile(df);
-        if(m_format.equals(SignedDoc.FORMAT_BDOC)) {
-            df.setId(inputFile.getName());
-        }
         return df;
     }
-
-    /**
-     * Makes a copy of old file to be able to extrac data from it
-     * during the creation of new file
-     * @param sdocFile original existing container file
-     * @return new temporary file
-     * @throws DigiDocException
-     */
-    // TODO: research if this is necessary?
-    /*private File copyOldFile(File sdocFile)
-    	throws DigiDocException
-    {
-    	File fCopy = null;
-    	try {
-    	  if(sdocFile.canRead()) { // if old file exists
-    		fCopy = File.createTempFile("sdoc", null);
-    		if(m_logger.isDebugEnabled())
-    			m_logger.debug("Copying original sdoc: " + sdocFile.getAbsolutePath() + " to: " + fCopy.getAbsolutePath());
-    		FileInputStream fis = new FileInputStream(sdocFile);
-    		FileOutputStream fos = new FileOutputStream(fCopy);
-    		byte[] data = new byte[2048];
-    		int n = 0;
-    		while((n = fis.read(data)) > 0)
-    			fos.write(data, 0, n);
-    		fis.close();
-    		fos.close();
-    	  }
-    	} catch(Exception ex) {
-    		DigiDocException.handleException(ex, DigiDocException.ERR_WRITE_FILE);
-    	}
-    	return fCopy;
-    }*/
 
     /**
      * Writes the SignedDoc to an output file
@@ -751,134 +575,14 @@ public class SignedDoc implements Serializable
      * @param fTempSdoc temporrary file, copy of original for copying items
      * @throws DigiDocException for all errors
      */
-    public void writeToStream(OutputStream os/*, File fTempSdoc*/)
+    public void writeToStream(OutputStream os)
             throws DigiDocException
     {
         DigiDocException ex1 = validateFormatAndVersion();
         if(ex1 != null) throw ex1;
         try {
             DigiDocXmlGenFactory genFac = new DigiDocXmlGenFactory(this);
-            if(m_format.equals(SignedDoc.FORMAT_BDOC)) {
-                ZipArchiveOutputStream zos = new ZipArchiveOutputStream(os);
-                zos.setEncoding("UTF-8");
-                if(m_logger.isDebugEnabled())
-                    m_logger.debug("OS: " + ((os != null) ? "OK" : "NULL"));
-                // write mimetype
-                if(m_logger.isDebugEnabled())
-                    m_logger.debug("Writing: " + MIMET_FILE_NAME);
-                ZipArchiveEntry ze = new ZipArchiveEntry(MIMET_FILE_NAME);
-                if(m_comment == null)
-                    m_comment = DigiDocGenFactory.getUserInfo(m_format, m_version);
-                ze.setComment(m_comment);
-                ze.setMethod(ZipArchiveEntry.STORED);
-                java.util.zip.CRC32 crc = new java.util.zip.CRC32();
-                if(m_version.equals(BDOC_VERSION_1_0)) {
-                    ze.setSize(SignedDoc.MIMET_FILE_CONTENT_10.getBytes().length);
-                    crc.update(SignedDoc.MIMET_FILE_CONTENT_10.getBytes());
-                }
-                if(m_version.equals(BDOC_VERSION_1_1)) {
-                    ze.setSize(SignedDoc.MIMET_FILE_CONTENT_11.getBytes().length);
-                    crc.update(SignedDoc.MIMET_FILE_CONTENT_11.getBytes());
-                }
-                if(m_version.equals(BDOC_VERSION_2_1)) {
-                    ze.setSize(SignedDoc.MIMET_FILE_CONTENT_20.getBytes().length);
-                    crc.update(SignedDoc.MIMET_FILE_CONTENT_20.getBytes());
-                }
-                ze.setCrc(crc.getValue());
-                zos.putArchiveEntry(ze);
-                if(m_version.equals(BDOC_VERSION_1_0)) {
-                    zos.write(SignedDoc.MIMET_FILE_CONTENT_10.getBytes());
-                }
-                if(m_version.equals(BDOC_VERSION_1_1)) {
-                    zos.write(SignedDoc.MIMET_FILE_CONTENT_11.getBytes());
-                }
-                if(m_version.equals(BDOC_VERSION_2_1)) {
-                    zos.write(SignedDoc.MIMET_FILE_CONTENT_20.getBytes());
-                }
-                zos.closeArchiveEntry();
-                // write manifest.xml
-                if(m_logger.isDebugEnabled())
-                    m_logger.debug("Writing: " + MANIF_FILE_NAME);
-                ze = new ZipArchiveEntry(MANIF_DIR_META_INF);
-                ze = new ZipArchiveEntry(MANIF_FILE_NAME);
-                ze.setComment(DigiDocGenFactory.getUserInfo(m_format, m_version));
-                zos.putArchiveEntry(ze);
-                //if(m_logger.isDebugEnabled())
-                //	m_logger.debug("Writing manif:\n" + m_manifest.toString());
-                zos.write(m_manifest.toXML());
-                zos.closeArchiveEntry();
-                // write data files
-                for(int i = 0; i < countDataFiles(); i++) {
-                    DataFile df = getDataFile(i);
-                    if(m_logger.isDebugEnabled())
-                        m_logger.debug("Writing DF: " + df.getFileName() + " content: " + df.getContentType() + " df-cache: " +
-                                ((df.getDfCacheFile() != null) ? df.getDfCacheFile().getAbsolutePath() : "NONE"));
-                    InputStream is = null;
-                    if(df.hasAccessToDataFile())
-                        is = df.getBodyAsStream();
-                    else
-                        is = findDataFileAsStream(df.getFileName());
-                    if(is != null) {
-                        File dfFile = new File(df.getFileName());
-                        String fileName = dfFile.getName();
-                        ze = new ZipArchiveEntry(fileName);
-                        if(df.getComment() == null)
-                            df.setComment(DigiDocGenFactory.getUserInfo(m_format, m_version));
-                        ze.setComment(df.getComment());
-                        ze.setSize(dfFile.length());
-                        ze.setTime((df.getLastModDt() != null) ? df.getLastModDt().getTime() : dfFile.lastModified());
-                        zos.putArchiveEntry(ze);
-                        byte[] data = new byte[2048];
-                        int nRead = 0, nTotal = 0;
-                        crc = new java.util.zip.CRC32();
-                        while((nRead = is.read(data)) > 0) {
-                            zos.write(data, 0, nRead);
-                            nTotal += nRead;
-                            crc.update(data, 0, nRead);
-                        }
-                        ze.setSize(nTotal);
-                        ze.setCrc(crc.getValue());
-                        zos.closeArchiveEntry();
-                        is.close();
-                    }
-                }
-                for(int i = 0; i < countSignatures(); i++) {
-                    Signature sig = getSignature(i);
-                    String sFileName = sig.getPath();
-                    if(sFileName == null) {
-                        if(m_version.equals(BDOC_VERSION_2_1))
-                            sFileName = SIG_FILE_NAME_20 + (i+1) + ".xml";
-                        else
-                            sFileName = SIG_FILE_NAME + (i+1) + ".xml";
-                    }
-                    if(!sFileName.startsWith("META-INF"))
-                        sFileName = "META-INF/" + sFileName;
-                    if(m_logger.isDebugEnabled())
-                        m_logger.debug("Writing SIG: " + sFileName + " orig: " + ((sig.getOrigContent() != null) ? "OK" : "NULL"));
-                    ze = new ZipArchiveEntry(sFileName);
-                    if(sig.getComment() == null)
-                        sig.setComment(DigiDocGenFactory.getUserInfo(m_format, m_version));
-                    ze.setComment(sig.getComment());
-                    String sSig = null;
-                    if(sig.getOrigContent() != null)
-                        sSig = new String(sig.getOrigContent(), "UTF-8");
-                    else
-                        sSig = sig.toString();
-                    if(sSig != null && !sSig.startsWith("<?xml"))
-                        sSig = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + sSig;
-                    byte [] sdata = sSig.getBytes("UTF-8");
-                    if(m_logger.isDebugEnabled())
-                        m_logger.debug("Writing SIG: " + sFileName + " xml:\n---\n " + ((sSig != null) ? sSig : "NULL") + "\n---\n ");
-                    ze.setSize(sdata.length);
-                    crc = new java.util.zip.CRC32();
-                    crc.update(sdata);
-                    ze.setCrc(crc.getValue());
-                    zos.putArchiveEntry(ze);
-                    zos.write(sdata);
-                    zos.closeArchiveEntry();
-                }
-                zos.close();
-            } else if(m_format.equals(SignedDoc.FORMAT_DIGIDOC_XML)){ // ddoc format
+            if(m_format.equals(SignedDoc.FORMAT_DIGIDOC_XML)){ // ddoc format
                 os.write(xmlHeader().getBytes());
                 for(int i = 0; i < countDataFiles(); i++) {
                     DataFile df = getDataFile(i);
@@ -914,29 +618,6 @@ public class SignedDoc implements Serializable
         if(countSignatures() > 0)
             throw new DigiDocException(DigiDocException.ERR_SIGATURES_EXIST,
                     "Cannot add DataFiles when signatures exist!", null);
-        boolean bExists = false;
-        for(int i = 0; i < countDataFiles(); i++) {
-            DataFile df1 = getDataFile(i);
-            if(df1.getFileName().equals(df.getFileName()))
-                bExists = true;
-        }
-        if(bExists && m_format.equals(FORMAT_BDOC)) {
-            m_logger.error("Duplicate DataFile name: " + df.getFileName());
-            throw new DigiDocException(DigiDocException.ERR_DATA_FILE_FILE_NAME,
-                    "Duplicate DataFile filename: " + df.getFileName(), null);
-        }
-        if(m_format.equals(SignedDoc.FORMAT_BDOC) && df.getFileName() != null) {
-            df.setContentType(DataFile.CONTENT_BINARY);
-            String sFile = df.getFileName();
-            if(sFile.indexOf('/') != -1 || sFile.indexOf('\\') != -1) {
-                File fT = new File(sFile);
-                sFile = fT.getName();
-            }
-            if(findManifestEntryByPath(sFile) == null) {
-                ManifestFileEntry fe = new ManifestFileEntry(df.getMimeType(), sFile);
-                m_manifest.addFileEntry(fe);
-            }
-        }
         if(m_dataFiles == null)
             m_dataFiles = new ArrayList();
         if(df.getId() == null)
@@ -968,70 +649,12 @@ public class SignedDoc implements Serializable
     }
 
     /**
-     * Removes the datafile with the given index
-     * @param idx index of the data file
-     */
-    public void removeDataFile(int idx)
-            throws DigiDocException
-    {
-        if(countSignatures() > 0)
-            throw new DigiDocException(DigiDocException.ERR_SIGATURES_EXIST,
-                    "Cannot remove DataFiles when signatures exist!", null);
-        DataFile df = getDataFile(idx);
-        if(df != null) {
-            m_dataFiles.remove(idx);
-            if(m_manifest != null)
-                m_manifest.removeFileEntryWithPath(df.getFileName());
-        } else
-            throw new DigiDocException(DigiDocException.ERR_DATA_FILE_ID, "Invalid DataFile index!", null);
-    }
-
-    /**
-     * Returns DataFile with desired id
-     * @param id Id attribute value
-     * @return DataFile object or null if not found
-     */
-    public DataFile findDataFileById(String id)
-    {
-        for(int i = 0; (m_dataFiles != null) && (i < m_dataFiles.size()); i++) {
-            DataFile df = (DataFile)m_dataFiles.get(i);
-            if(df.getId() != null && id != null && df.getId().equals(id))
-                return df;
-        }
-        return null;
-    }
-
-    /**
      * return the count of Signature objects
      * @return count of Signature objects
      */
     public int countSignatures()
     {
         return ((m_signatures == null) ? 0 : m_signatures.size());
-    }
-
-    /**
-     * return a new available Signature id
-     * @return new Signature id
-     */
-    public String getNewSignatureId()
-    {
-        int nS = 0;
-        String id = "S" + nS;
-        boolean bExists = false;
-        do {
-            bExists = false;
-            for(int i = 0; i < countSignatures(); i++) {
-                Signature sig = getSignature(i);
-                if(sig.getId().equals(id)) {
-                    nS++;
-                    id = "S" + nS;
-                    bExists = true;
-                    continue;
-                }
-            }
-        } while(bExists);
-        return id;
     }
 
     /**
@@ -1065,54 +688,6 @@ public class SignedDoc implements Serializable
     }
 
     /**
-     * Adds a new uncomplete signature to signed doc
-     * @param cert signers certificate
-     * @param claimedRoles signers claimed roles
-     * @param adr signers address
-     * @return new Signature object
-     */
-    public Signature prepareSignature(X509Certificate cert,
-                                      String[] claimedRoles, SignatureProductionPlace adr)
-            throws DigiDocException
-    {
-        DigiDocException ex1 = validateFormatAndVersion();
-        if(ex1 != null) throw ex1;
-        return DigiDocGenFactory.prepareXadesBES(this, m_profile, cert, claimedRoles, adr, null, null, null);
-    }
-
-    /**
-     * Adds a new uncomplete signature to signed doc
-     * @param cert signers certificate
-     * @return new Signature object
-     */
-    public Signature prepareXadesTSignature(X509Certificate cert, String sigDatId, byte[] sigDatHash)
-            throws DigiDocException
-    {
-        Signature sig = new Signature(this);
-        sig.setId(getNewSignatureId());
-        // create SignedInfo block
-        SignedInfo si = new SignedInfo(sig, RSA_SHA1_SIGNATURE_METHOD,
-                CANONICALIZATION_METHOD_20010315);
-        // add DataFile references
-        Reference ref = new Reference(si, "#"+sigDatId, SignedDoc.SHA1_DIGEST_ALGORITHM,
-                sigDatHash, TRANSFORM_20001026);
-        si.addReference(ref);
-        sig.setSignedInfo(si);
-        // create key info
-        KeyInfo ki = new KeyInfo(cert);
-        sig.setKeyInfo(ki);
-        ki.setSignature(sig);
-        CertValue cval = new CertValue(null, cert, CertValue.CERTVAL_TYPE_SIGNER, sig);
-        sig.addCertValue(cval);
-        CertID cid = new CertID(sig, cert, CertID.CERTID_TYPE_SIGNER);
-        sig.addCertID(cid);
-        addSignature(sig);
-        UnsignedProperties usp = new UnsignedProperties(sig, null, null);
-        sig.setUnsignedProperties(usp);
-        return sig;
-    }
-
-    /**
      * Adds a new Signature object
      * @param attr Signature object to add
      */
@@ -1121,38 +696,6 @@ public class SignedDoc implements Serializable
         if(m_signatures == null)
             m_signatures = new ArrayList();
         m_signatures.add(sig);
-        if(m_format != null && m_format.equals(SignedDoc.FORMAT_BDOC)) {
-            Signature sig1 = null;
-            if(sig.getPath() != null)
-                sig1 = findSignatureByPath(sig.getPath());
-            if(sig1 == null) {
-                if(m_version.equals(BDOC_VERSION_2_1))
-                    sig.setPath(SIG_FILE_NAME_20 + m_signatures.size() + ".xml");
-                else
-                    sig.setPath(SIG_FILE_NAME + m_signatures.size() + ".xml");
-                // no manifest.xml entries for signatures in bdoc 2.0
-                if(!m_version.equals(SignedDoc.BDOC_VERSION_2_1)) {
-                    ManifestFileEntry fe = new ManifestFileEntry(SignedDoc.MIME_SIGNATURE_BDOC_ + m_version + "/" + sig.getProfile(), SignedDoc.SIG_FILE_NAME + m_signatures.size() + ".xml");
-                    m_manifest.addFileEntry(fe);
-                    if(m_logger.isDebugEnabled())
-                        m_logger.debug("Register in manifest new signature: " + sig.getId());
-                }
-            }
-        }
-    }
-
-    /**
-     * Adds a new Signature object by reading it from
-     * input stream. This method can be used for example
-     * during mobile signing process where the web-service
-     * returns new signature in XML
-     * @param is input stream
-     */
-    public void readSignature(InputStream is)
-            throws DigiDocException
-    {
-        DigiDocFactory ddfac = ConfigManager.instance().getDigiDocFactory();
-        Signature sig = ddfac.readSignature(this, is);
     }
 
     /**
@@ -1169,20 +712,6 @@ public class SignedDoc implements Serializable
     }
 
     /**
-     * Removes the desired Signature object
-     * @param idx index of the Signature object
-     */
-    public void removeSignature(int idx)
-            throws DigiDocException
-    {
-        if(m_signatures != null && idx >= 0 && idx < m_signatures.size())
-            m_signatures.remove(idx);
-        else
-            throw new DigiDocException(DigiDocException.ERR_SIGNATURE_ID, "Invalid signature index: " + idx, null);
-    }
-
-
-    /**
      * return the latest Signature object
      * @return desired Signature object
      */
@@ -1191,41 +720,6 @@ public class SignedDoc implements Serializable
             return (Signature)m_signatures.get(m_signatures.size()-1);
         else
             return null;
-    }
-
-    /**
-     * Deletes last signature
-     */
-    public void removeLastSiganture()
-    {
-        if(m_signatures.size() > 0)
-            m_signatures.remove(m_signatures.size()-1);
-    }
-
-    /**
-     * Removes signatures without value. Temporary signatures created
-     * during signing process but without completing the process
-     */
-    public int removeSignaturesWithoutValue()
-    {
-        int nRemove = 0;
-        boolean bOk = true;
-        do {
-            bOk = true;
-            for(int i = 0; (m_signatures != null) && (i < m_signatures.size()) && bOk; i++) {
-                Signature sig = (Signature)m_signatures.get(i);
-                if(sig.getSignatureValue() == null ||
-                        sig.getSignatureValue().getValue() == null ||
-                        sig.getSignatureValue().getValue().length == 0) {
-                    m_signatures.remove(sig);
-                    if(m_logger.isDebugEnabled())
-                        m_logger.debug("Remove invalid sig: " + sig.getId());
-                    bOk = false;
-                    nRemove++;
-                }
-            }
-        } while(!bOk);
-        return nRemove;
     }
 
     /**
@@ -1247,54 +741,23 @@ public class SignedDoc implements Serializable
             errs.add(ex);
         if(m_format != null && m_version != null &&
                 (m_format.equals(SignedDoc.FORMAT_SK_XML) ||
-                        (m_format.equals(SignedDoc.FORMAT_DIGIDOC_XML) && (m_version.equals(SignedDoc.VERSION_1_1) || m_version.equals(SignedDoc.VERSION_1_2))) ||
-                        (m_format.equals(SignedDoc.FORMAT_BDOC) && (m_version.equals(SignedDoc.VERSION_1_0)  || m_version.equals(SignedDoc.VERSION_1_1))))) {
+                        (m_format.equals(SignedDoc.FORMAT_DIGIDOC_XML) && (m_version.equals(SignedDoc.VERSION_1_1) || m_version.equals(SignedDoc.VERSION_1_2))))) {
             if(m_logger.isDebugEnabled())
                 m_logger.debug("Old and unsupported format: " + m_format + " version: " + m_version);
             ex = new DigiDocException(DigiDocException.ERR_OLD_VER, "Old and unsupported format: " + m_format + " version: " + m_version, null);
             errs.add(ex);
         }
-        if(m_profile != null &&
-                (m_profile.equals(SignedDoc.BDOC_PROFILE_T) ||
-                        m_profile.equals(SignedDoc.BDOC_PROFILE_TS) ||
-                        m_profile.equals(SignedDoc.BDOC_PROFILE_TSA))) {
-            if(m_logger.isDebugEnabled())
-                m_logger.debug("T, TS and TSA profiles are currently not supported!");
-            ex = new DigiDocException(DigiDocException.ERR_VERIFY, "T, TS and TSA profiles are currently not supported!", null);
-            errs.add(ex);
+        for(int i = 0; i < countDataFiles(); i++) {
+            DataFile df = getDataFile(i);
+            ArrayList e = df.validate(bStrong);
+            if(!e.isEmpty())
+                errs.addAll(e);
         }
-
-        try {
-            if(getFormat() != null && getFormat().equals(SignedDoc.FORMAT_BDOC))
-                DigiDocVerifyFactory.verifyManifestEntries(this, errs);
-            for(int i = 0; i < countDataFiles(); i++) {
-                DataFile df = getDataFile(i);
-                ArrayList e = df.validate(bStrong);
-                if(!e.isEmpty())
-                    errs.addAll(e);
-            }
-            for(int i = 0; i < countSignatures(); i++) {
-                Signature sig = getSignature(i);
-                ArrayList e = sig.validate();
-                if(!e.isEmpty())
-                    errs.addAll(e);
-            }
-            for(int i = 0; i < countSignatures(); i++) {
-                Signature sig1 = getSignature(i);
-                for(int j = 0; j < countSignatures(); j++) {
-                    Signature sig2 = getSignature(j);
-                    if(getFormat() != null && getFormat().equals(SignedDoc.FORMAT_BDOC) &&
-                            sig2.getId() != null && sig1.getId() != null && !sig2.getId().equals(sig1.getId()) &&
-                            sig2.getPath() != null && sig1.getPath() != null && sig2.getPath().equals(sig1.getPath())) {
-                        if(m_logger.isDebugEnabled())
-                            m_logger.debug("Signatures: " + sig1.getId() + " and " + sig2.getId() + " are in same file: " + sig1.getPath());
-                        ex = new DigiDocException(DigiDocException.ERR_PARSE_XML, "More than one signature in signatures.xml file is unsupported", null);
-                        errs.add(ex);
-                    }
-                }
-            }
-        } catch(DigiDocException ex2) {
-            errs.add(ex2);
+        for(int i = 0; i < countSignatures(); i++) {
+            Signature sig = getSignature(i);
+            ArrayList e = sig.validate();
+            if(!e.isEmpty())
+                errs.addAll(e);
         }
         return errs;
     }
@@ -1599,108 +1062,6 @@ public class SignedDoc implements Serializable
     }
 
     /**
-     * Reads the cert from a file
-     * @param certFile certificates file name
-     * @return certificate object
-     */
-    public static X509Certificate readCertificate(File certFile)
-            throws DigiDocException
-    {
-        X509Certificate cert = null;
-        try {
-            FileInputStream fis = new FileInputStream(certFile);
-            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-            cert = (X509Certificate)certificateFactory.generateCertificate(fis);
-            fis.close();
-            //byte[] data = readFile(certFile);
-            //cert = readCertificate(data);
-        } catch(Exception ex) {
-            DigiDocException.handleException(ex, DigiDocException.ERR_READ_FILE);
-        }
-        return cert;
-    }
-
-    private static final String PEM_HDR1 = "-----BEGIN CERTIFICATE-----\n";
-    private static final String PEM_HDR2 = "\n-----END CERTIFICATE-----";
-
-    /**
-     * Writes the cert from a file
-     * @param cert certificate
-     * @param certFile certificates file name
-     * @return true for success
-     */
-    public static boolean writeCertificate(X509Certificate cert, File certFile)
-            throws DigiDocException
-    {
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(certFile);
-            fos.write(PEM_HDR1.getBytes());
-            fos.write(Base64Util.encode(cert.getEncoded()).getBytes());
-            fos.write(PEM_HDR2.getBytes());
-            fos.close();
-            fos = null;
-            //byte[] data = readFile(certFile);
-            //cert = readCertificate(data);
-        } catch(Exception ex) {
-            DigiDocException.handleException(ex, DigiDocException.ERR_READ_FILE);
-        } finally {
-            if(fos != null) {
-                try {
-                    fos.close();
-                } catch(Exception ex2) {
-                    m_logger.error("Error closing streams: " + ex2);
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Reads the cert from a file, URL or from another
-     * location somewhere in the CLASSPATH such as
-     * in the librarys jar file.
-     * @param certLocation certificates file name,
-     * or URL. You can use url in form jar://<location> to read
-     * a certificate from the car file or some other location in the
-     * CLASSPATH
-     * @return certificate object
-     */
-    public static X509Certificate readCertificate(String certLocation)
-            throws DigiDocException
-    {
-        X509Certificate cert = null;
-        InputStream isCert = null;
-        try {
-            URL url = null;
-            if(certLocation.startsWith("http")) {
-                url = new URL(certLocation);
-                isCert = url.openStream();
-            } else if(certLocation.startsWith("jar://")) {
-                ClassLoader cl = ConfigManager.instance().getClass().getClassLoader();
-                isCert = cl.getResourceAsStream(certLocation.substring(6));
-            } else {
-                isCert = new FileInputStream(certLocation);
-            }
-            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-            cert = (X509Certificate)certificateFactory.generateCertificate(isCert);
-            isCert.close();
-            isCert = null;
-        } catch(Exception ex) {
-            DigiDocException.handleException(ex, DigiDocException.ERR_READ_FILE);
-        } finally {
-            if(isCert != null) {
-                try {
-                    isCert.close();
-                } catch(Exception ex2) {
-                    m_logger.error("Error closing streams: " + ex2);
-                }
-            }
-        }
-        return cert;
-    }
-
-    /**
      * Helper method for comparing
      * digest values
      * @param dig1 first digest value
@@ -1715,27 +1076,6 @@ public class SignedDoc implements Serializable
             if(dig1[i] != dig2[i])
                 ok = false;
         return ok;
-    }
-
-    /**
-     * Converts a hex string to byte array
-     * @param hexString input data
-     * @return byte array
-     */
-    public static byte[] hex2bin(String hexString)
-    {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
-            for(int i = 0; (hexString != null) &&
-                    (i < hexString.length()); i += 2) {
-                String tmp = hexString.substring(i, i+2);
-                Integer x = new Integer(Integer.parseInt(tmp, 16));
-                bos.write(x.byteValue());
-            }
-        } catch(Exception ex) {
-            m_logger.error("Error converting hex string: " + ex);
-        }
-        return bos.toByteArray();
     }
 
     /**
@@ -1759,6 +1099,5 @@ public class SignedDoc implements Serializable
         }
         return sb.toString();
     }
-
 
 }

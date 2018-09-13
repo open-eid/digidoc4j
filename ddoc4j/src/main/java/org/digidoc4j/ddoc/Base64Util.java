@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.StringTokenizer;
 
 /**
@@ -140,73 +139,6 @@ public class Base64Util  {
     }
 
     /**
-     * <p>Encodes a byte array in Base64 format and writes to
-     * output stream. For regular blocks writes only full
-     * lines and leaves the rest unused. Caller should check
-     * how many bytes wre actually enocded and return the rest
-     * at the beginning of the next block</p>
-     *
-     * @param raw <code>byte[]</code> data to be encoded
-     * @param outs output stream
-     * @param bLastBlock true if this is the last block to write
-     * @return number of raw bytes encoded and written to output stream. Thus
-     *
-     */
-    public static int encodeToStream(byte[] raw, OutputStream outs, boolean bLastBlock)
-            throws IOException
-    {
-        int wrap = Base64Util.BASE64DEFAULTLENGTH, outLen = 0;
-        int len3 = (raw.length / 3) * 3;
-        int nBytesPerLine = (wrap / 4) * 3;
-        int nUsedBytes = 0, nTotal = 0;
-
-        //if(m_logger.isDebugEnabled())
-        //	m_logger.debug("Encoding: " + raw.length + " bytes, last-block: " + bLastBlock);
-        if(!bLastBlock) {
-            nUsedBytes = (raw.length / nBytesPerLine) * nBytesPerLine;
-            for (int i = 0; i < nUsedBytes; i += 3, outLen += 4) {
-                if (outLen + 4 > wrap) {
-                    outs.write(LINE_SEPARATOR.getBytes());
-                    nTotal++;
-                    outLen = 0;
-                }
-                char[] encdata = encodeFullBlock(raw, i);
-                nTotal += encdata.length;
-                outs.write(new String(encdata).getBytes());
-            }
-            if (outLen >= wrap) {    //this will produce an extra newline if needed !? Sun had it this way...
-                outs.write(LINE_SEPARATOR.getBytes());
-                nTotal++;
-            }
-        }
-        else {
-            nUsedBytes = raw.length;
-            for (int i = 0; i < len3; i += 3, outLen += 4) {
-                if (outLen + 4 > wrap) {
-                    outs.write(LINE_SEPARATOR.getBytes());
-                    outLen = 0;
-                    nTotal++;
-                }
-                char[] encdata = encodeFullBlock(raw, i);
-                nTotal += encdata.length;
-                outs.write(new String(encdata).getBytes());
-            }
-            if (outLen >= wrap) {    //this will produce an extra newline if needed !? Sun had it this way...
-                outs.write(LINE_SEPARATOR.getBytes());
-                nTotal++;
-            }
-            if (len3 < raw.length) {
-                char[] encdata = encodeBlock(raw, raw.length, len3);
-                nTotal += encdata.length;
-                outs.write(new String(encdata).getBytes());
-            }
-        }
-        if(m_logger.isDebugEnabled())
-            m_logger.debug("Encoded: " + raw.length + " last: " + bLastBlock + " wrote: " + nTotal);
-        return nUsedBytes;
-    }
-
-    /**
      * Method encodeBlock
      *
      * @param raw
@@ -324,62 +256,6 @@ public class Base64Util  {
     }
 
     /**
-     * <p>Decode a Base64-encoded string to a byte array
-     * and writes decoded data to output stream. Returns
-     * the number of bytes from input data used. Caller must
-     * pass in the unused bytes on the next call.
-     * </p>
-     * @param base64 <code>String</code> encoded string. Whitespace will
-     * be ignored.
-     * @param out output stream to write decoded data
-     * @param bLastBlock true if this is the last block of input data
-     * @return number of handled bytes from input data
-     */
-    public static int decodeBlock(String base64, OutputStream out, boolean bLastBlock)
-    {
-        int nUsed = 0, nPos = 0, nDec = 0;
-        StringBuffer sbBlock = null;
-        do {
-            // collect the next 4 characters, skip whitespace
-            sbBlock = new StringBuffer();
-            while(nPos < base64.length() && sbBlock.length() < 4) {
-                char ch = base64.charAt(nPos);
-                if(ch != ' ' && ch != '\n' && ch != '\t' && ch != '\r')
-                    sbBlock.append(ch);
-                nPos++;
-            }
-            // if last block then pad
-            while(bLastBlock && sbBlock.length() < 4)
-                sbBlock.append('=');
-            // decode if possible
-            if(sbBlock.length() == 4) {
-                //byte[] decdata = decodeWithoutWhitespace(sbBlock.toString());
-                int block = (getValue(sbBlock.charAt(0)) << 18)
-                        + (getValue(sbBlock.charAt(1)) << 12)
-                        + (getValue(sbBlock.charAt(2)) << 6)
-                        + (getValue(sbBlock.charAt(3)));
-                byte[] decdata = new byte[3];
-                for (int j = 2; j >= 0; j--) {
-                    decdata[j] = (byte) (block & 0xff);
-                    block >>= 8;
-                }
-                nDec += decdata.length;
-                try {
-                    out.write(decdata);
-                } catch(IOException ex) {
-
-                }
-                nUsed = nPos;
-            }
-
-        } while(nPos < base64.length());
-        if(m_logger.isDebugEnabled())
-            m_logger.debug("Decoding: " + base64.length() + " last: " + bLastBlock + " used: " + nUsed + " decoded: " + nDec);
-        return nUsed;
-    }
-
-
-    /**
      * <p>Decode a Base64-encoded string to a byte array</p>
      *
      * @param base64 <code>String</code> encoded string (single line only !!)
@@ -407,34 +283,6 @@ public class Base64Util  {
         int length = base64.length() / 4 * 3 - pad;
         byte[] raw = new byte[length];
         for (int i = 0, rawIndex = 0; i < (base64.length()-3); i += 4, rawIndex += 3) {
-            int block = (getValue(base64.charAt(i)) << 18)
-                    + (getValue(base64.charAt(i + 1)) << 12)
-                    + (getValue(base64.charAt(i + 2)) << 6)
-                    + (getValue(base64.charAt(i + 3)));
-            for (int j = 2; j >= 0; j--) {
-                if (rawIndex + j < raw.length) {
-                    raw[rawIndex + j] = (byte) (block & 0xff);
-                }
-                block >>= 8;
-            }
-        }
-        return raw;
-    }
-
-    /**
-     * <p>Decode a Base64-encoded string to a byte array</p>
-     * This works only if you have stripped whitespace yourself
-     * @param base64 <code>String</code> encoded string (single line only !!)
-     * @return Decoded data in a byte array
-     */
-    public static byte[] decodeWithoutWhitespace(String base64) {
-        int pad = 0;
-        for (int i = base64.length() - 1; (i > 0) && (base64.charAt(i) == '='); i--) {
-            pad++;
-        }
-        int length = base64.length() / 4 * 3 - pad;
-        byte[] raw = new byte[length];
-        for (int i = 0, rawIndex = 0; i < base64.length(); i += 4, rawIndex += 3) {
             int block = (getValue(base64.charAt(i)) << 18)
                     + (getValue(base64.charAt(i + 1)) << 12)
                     + (getValue(base64.charAt(i + 2)) << 6)

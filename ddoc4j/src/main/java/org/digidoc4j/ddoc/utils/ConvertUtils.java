@@ -11,10 +11,8 @@ import java.io.*;
 import java.math.BigInteger;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Matcher;
 
 public class ConvertUtils
 {
@@ -44,27 +42,6 @@ public class ConvertUtils
             0x30, 0x1f, 0x30, 0x07, 0x06,
             0x05, 0x2b, 0x0e, 0x03, 0x02,
             0x1a, 0x04, 0x14 };
-    /** SHA224 prefix - 00302d300d06096086480165030402040500041c */
-    private static final byte[] sha224AlgPrefix1 = { // long
-            0x30, 0x2d, 0x30, 0x0d, 0x06, 0x09, 0x60,
-            (byte)0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02,
-            0x04, 0x05, 0x00, 0x04, 0x1c };
-    private static final byte[] sha224AlgPrefix2 = { // short
-            0x30, 0x2b, 0x30, 0x0b, 0x06, 0x09, 0x60,
-            (byte)0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02,
-            0x04, 0x04, 0x1c };
-    /** sha256 alg prefix - 003031300d060960864801650304020105000420 5ad8f86f90558d973aba4ce9be116646efd2c57758e5238b841d50abe788bae9 */
-    private static final byte[] sha256AlgPrefix1 = { // long
-            0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, (byte)0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20
-    };
-    private static final byte[] sha256AlgPrefix2 = { // short
-            0x30, 0x2f, 0x30, 0x0b, 0x06, 0x09, 0x60, (byte)0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x04, 0x20
-    };
-    private static final byte[] sha512AlgPrefix1 =   // long
-            { 0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, (byte)0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03, 0x05, 0x00, 0x04, 0x40 };
-    private static final byte[] sha512AlgPrefix2 =    // short
-            { 0x30, 0x4f, 0x30, 0x0b, 0x06, 0x09, 0x60, (byte)0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03, 0x04, 0x40 };
-
 
     /**
      * Helper method to convert a Date
@@ -80,8 +57,7 @@ public class ConvertUtils
         String str = null, sF = null;
         try {
             if(d != null) {
-                sF = (ddoc.getFormat().equals(SignedDoc.FORMAT_BDOC) ||
-                        (ddoc.getVersion().equals(SignedDoc.VERSION_1_3)) ? m_dateFormatXAdES : m_dateFormat);
+                sF = ddoc.getVersion().equals(SignedDoc.VERSION_1_3) ? m_dateFormatXAdES : m_dateFormat;
                 SimpleDateFormat f = new SimpleDateFormat(sF);
                 f.setTimeZone(TimeZone.getTimeZone("GMT+00:00"));
                 str = f.format(d);
@@ -106,47 +82,6 @@ public class ConvertUtils
         return sw.toString();
     }
 
-    /**
-     * Adds ASN.1 structure prefix to digest value to be signed
-     * @param digest digest value to be signed
-     * @return prefixed digest value
-     */
-    public static byte[] addDigestAsn1Prefix(byte[] digest)
-    {
-        byte[] ddata = null;
-    	/*if(digest.length == SignedDoc.SHA1_DIGEST_LENGTH) {
-      	  ddata = new byte[sha1AlgPrefix.length + digest.length + 1];
-      	  System.arraycopy(sha1AlgPrefix, 0, ddata, 0, sha1AlgPrefix.length);
-      	  System.arraycopy(digest, 0, ddata,
-      			sha1AlgPrefix.length + 1, digest.length);
-      	}*/
-        if(digest.length == SignedDoc.SHA1_DIGEST_LENGTH) {
-            ddata = new byte[sha1AlgPrefix1.length + digest.length];
-            System.arraycopy(sha1AlgPrefix1, 0, ddata, 0, sha1AlgPrefix1.length);
-            System.arraycopy(digest, 0, ddata,
-                    sha1AlgPrefix1.length, digest.length);
-        }
-        if(digest.length == SignedDoc.SHA224_DIGEST_LENGTH) {
-            ddata = new byte[sha224AlgPrefix1.length + digest.length];
-            System.arraycopy(sha224AlgPrefix1, 0, ddata, 0, sha224AlgPrefix1.length);
-            System.arraycopy(digest, 0, ddata,
-                    sha224AlgPrefix1.length, digest.length);
-        }
-        if(digest.length == SignedDoc.SHA256_DIGEST_LENGTH) {
-            ddata = new byte[sha256AlgPrefix1.length + digest.length];
-            System.arraycopy(sha256AlgPrefix1, 0, ddata, 0, sha256AlgPrefix1.length);
-            System.arraycopy(digest, 0, ddata,
-                    sha256AlgPrefix1.length, digest.length);
-        }
-        if(digest.length == SignedDoc.SHA512_DIGEST_LENGTH) {
-            ddata = new byte[sha512AlgPrefix1.length + digest.length];
-            System.arraycopy(sha512AlgPrefix1, 0, ddata, 0, sha512AlgPrefix1.length);
-            System.arraycopy(digest, 0, ddata,
-                    sha512AlgPrefix1.length, digest.length);
-        }
-        return ddata;
-    }
-
     public static boolean compareBytes(byte[] srch, byte[] from, int idx1)
     {
         if(m_logger.isDebugEnabled())
@@ -163,19 +98,6 @@ public class ConvertUtils
         return false;
     }
 
-    public static String findNonceDigType(byte[] digest)
-    {
-        if(digest.length == SignedDoc.SHA1_DIGEST_LENGTH + 2)
-            return SignedDoc.SHA1_DIGEST_TYPE;
-        if(digest.length == SignedDoc.SHA224_DIGEST_LENGTH + 2)
-            return SignedDoc.SHA224_DIGEST_TYPE;
-        if(digest.length == SignedDoc.SHA256_DIGEST_LENGTH + 2)
-            return SignedDoc.SHA256_DIGEST_TYPE;
-        if(digest.length == SignedDoc.SHA512_DIGEST_LENGTH + 2)
-            return SignedDoc.SHA512_DIGEST_TYPE;
-        return null;
-    }
-
     public static String findDigType(byte[] digest)
     {
         if((compareBytes(sha1AlgPrefix13Bad, digest, 0) && digest.length == 34) ||
@@ -184,15 +106,6 @@ public class ConvertUtils
         if(compareBytes(sha1AlgPrefix1, digest, 0) ||
                 compareBytes(sha1AlgPrefix2, digest, 0))
             return SignedDoc.SHA1_DIGEST_TYPE;
-        if(compareBytes(sha224AlgPrefix1, digest, 0) ||
-                compareBytes(sha224AlgPrefix2, digest, 0))
-            return SignedDoc.SHA224_DIGEST_TYPE;
-        if(compareBytes(sha256AlgPrefix1, digest, 0) ||
-                compareBytes(sha256AlgPrefix2, digest, 0))
-            return SignedDoc.SHA256_DIGEST_TYPE;
-        if(compareBytes(sha512AlgPrefix1, digest, 0) ||
-                compareBytes(sha512AlgPrefix2, digest, 0))
-            return SignedDoc.SHA512_DIGEST_TYPE;
         return null;
     }
 
@@ -203,18 +116,6 @@ public class ConvertUtils
             nLen = sha1AlgPrefix1.length;
         else if(compareBytes(sha1AlgPrefix2, digest, 0))
             nLen = sha1AlgPrefix2.length;
-        else if(compareBytes(sha224AlgPrefix1, digest, 0))
-            nLen = sha224AlgPrefix1.length;
-        else if(compareBytes(sha224AlgPrefix2, digest, 0))
-            nLen = sha224AlgPrefix2.length;
-        else if(compareBytes(sha256AlgPrefix1, digest, 0))
-            nLen = sha256AlgPrefix1.length;
-        else if(compareBytes(sha256AlgPrefix2, digest, 0))
-            nLen = sha256AlgPrefix2.length;
-        else if(compareBytes(sha512AlgPrefix1, digest, 0))
-            nLen = sha512AlgPrefix1.length;
-        else if(compareBytes(sha512AlgPrefix2, digest, 0))
-            nLen = sha512AlgPrefix2.length;
         if(nLen > 0) {
             byte[] ndig = new byte[digest.length - nLen];
             System.arraycopy(digest,
@@ -224,33 +125,6 @@ public class ConvertUtils
         }
         return null;
     }
-
-    /*
-     * IB-4056 this method was commented out because it requires caller to know
-     * the prefix used. If this is not the case error will occur.
-     * Use instead byte[] removePrefix(byte[] digest) that determines which prefix
-     * is used before removing it.
-     */
-    /*public static byte[] removePrefixByType(byte[] digest, String digType)
-    {
-    	int nLen = 0;
-    	if(digType.equals(SignedDoc.SHA1_DIGEST_TYPE))
-    		nLen = sha1AlgPrefix1.length;
-    	else if(digType.equals(SignedDoc.SHA224_DIGEST_TYPE))
-    		nLen = sha224AlgPrefix1.length;
-    	else if(digType.equals(SignedDoc.SHA256_DIGEST_TYPE))
-    		nLen = sha256AlgPrefix1.length;
-    	else if(digType.equals(SignedDoc.SHA512_DIGEST_TYPE))
-    		nLen = sha512AlgPrefix1.length;
-    	if(nLen > 0) {
-    		byte[] ndig = new byte[digest.length - nLen];
-    		System.arraycopy(digest,
-                  	digest.length - ndig.length,
-                  	ndig, 0, ndig.length);
-    		return ndig;
-    	}
-    	return null;
-    }*/
 
     /**
      * Helper method to convert a string
@@ -266,10 +140,8 @@ public class ConvertUtils
         Date d = null;
         String sF = null;
         try {
-            sF = (ddoc.getFormat().equals(SignedDoc.FORMAT_BDOC) ||
-                    (ddoc.getVersion().equals(SignedDoc.VERSION_1_3) ||
-                            ddoc.getFormat().equals(SignedDoc.FORMAT_BDOC)) ? m_dateFormatXAdES :
-                    (ddoc.getFormat().equals(SignedDoc.FORMAT_SK_XML) ? m_dateFormatIso8601 : m_dateFormat));
+            sF = ddoc.getVersion().equals(SignedDoc.VERSION_1_3) ? m_dateFormatXAdES :
+                    (ddoc.getFormat().equals(SignedDoc.FORMAT_SK_XML) ? m_dateFormatIso8601 : m_dateFormat);
             SimpleDateFormat f = new SimpleDateFormat(sF);
             if(!ddoc.getFormat().equals(SignedDoc.FORMAT_SK_XML))
                 f.setTimeZone(TimeZone.getTimeZone("GMT+00:00"));
@@ -414,26 +286,6 @@ public class ConvertUtils
     }
 
     /**
-     * Helper method to convert an UTF-8
-     * String to non-utf8 string
-     * @param UTF-8 input data
-     * @return normal string
-     * @throws DigiDocException for errors
-     */
-    public static String utf82str(String data)
-            throws DigiDocException
-    {
-        String str = null;
-        try {
-            byte[] bdata = data.getBytes();
-            str = new String(bdata, "UTF-8");
-        } catch(Exception ex) {
-            DigiDocException.handleException(ex, DigiDocException.ERR_UTF8_CONVERT);
-        }
-        return str;
-    }
-
-    /**
      * Checks if the certificate identified by this CN is
      * a known OCSP responders cert
      * @param cn certificates common name
@@ -454,19 +306,6 @@ public class ConvertUtils
         return false;
     }
 
-    public static void addKnownOCSPCert(String cn)
-    {
-        int nOcsps = ConfigManager.instance().getIntProperty("DIGIDOC_OCSP_COUNT", 0);
-        //if(m_logger.isDebugEnabled())
-        //	m_logger.debug("OCSPs: " + nOcsps);
-        nOcsps++;
-        String key = "DIGIDOC_OCSP" + nOcsps + "_CN";
-        ConfigManager.instance().setStringProperty(key, cn);
-        ConfigManager.instance().setStringProperty("DIGIDOC_OCSP_COUNT", new Integer(nOcsps).toString());
-        //if(m_logger.isDebugEnabled())
-        //	m_logger.debug(key + "=>" + cn + " count: " + nOcsps);
-    }
-
     /**
      * Checks if the certificate identified by this CN is
      * a known TSA cert
@@ -482,19 +321,6 @@ public class ConvertUtils
                 return true;
         }
         return false;
-    }
-
-    public static void addKnownTSACert(String cn)
-    {
-        int nOcsps = ConfigManager.instance().getIntProperty("DIGIDOC_TSA_COUNT", 0);
-        //if(m_logger.isDebugEnabled())
-        //	m_logger.debug("OCSPs: " + nOcsps);
-        nOcsps++;
-        String key = "DIGIDOC_TSA" + nOcsps + "_CN";
-        ConfigManager.instance().setStringProperty(key, cn);
-        ConfigManager.instance().setStringProperty("DIGIDOC_TSA_COUNT", new Integer(nOcsps).toString());
-        //if(m_logger.isDebugEnabled())
-        //	m_logger.debug(key + "=>" + cn + " count: " + nOcsps);
     }
 
     /**
@@ -525,101 +351,6 @@ public class ConvertUtils
         return name;
     }
 
-
-    /**
-     * return CN part of DN
-     * @return CN part of DN or null
-     */
-    /*public static String getDnPart(X509Certificate cert, String attr) {
-        String value = null;
-        if(cert != null) {
-        	Principal pr = cert.getSubjectDN();
-        	pr.ge
-        }
-        return value;
-    }*/
-
-    /**
-     * return CN part of DN
-     * @return CN part of DN or null
-     */
-    public static String getDnPart(String dn, String attr) {
-        String name = null;
-        if(dn != null) {
-            int idx1 = dn.indexOf(attr+ "=");
-            if(idx1 != -1) {
-                idx1 += attr.length() + 1;
-            	/*while(idx1 < dn.length() &&
-            		!Character.isLetter(dn.charAt(idx1)))
-                	idx1++;*/
-                int idx2 = idx1;
-                while(idx2 < dn.length() &&
-                        dn.charAt(idx2) != ',' &&
-                        dn.charAt(idx2) != '/' &&
-                        dn.charAt(idx2) != ' ')
-                    idx2++;
-                name = dn.substring(idx1, idx2);
-            }
-        }
-        return name;
-    }
-
-
-    public static byte[] getBytesFromFile(File file ) throws IOException {
-        InputStream is = new FileInputStream(file);
-
-        // Get the size of the file
-        long length = file.length();
-
-        if (length > Integer.MAX_VALUE) {
-            // File is too large
-        }
-
-        // Create the byte array to hold the data
-        byte[] bytes = new byte[(int)length];
-
-        // Read in the bytes
-        int offset = 0;
-        int numRead = 0;
-        while (offset < bytes.length
-                && (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
-            offset += numRead;
-        }
-
-        // Ensure all the bytes have been read in
-        if (offset < bytes.length) {
-            throw new IOException("Could not completely read file "+file.getName());
-        }
-
-        // Close the input stream and return bytes
-        is.close();
-        return bytes;
-    }
-
-
-
-
-    /**
-     * Converts a hex string to byte array
-     * @param hexString input data
-     * @return byte array
-     */
-    public static byte[] hex2bin(String hexString)
-    {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
-            for(int i = 0; (hexString != null) &&
-                    (i < hexString.length()); i += 2) {
-                String tmp = hexString.substring(i, i+2);
-                Integer x = new Integer(Integer.parseInt(tmp, 16));
-                bos.write(x.byteValue());
-            }
-        } catch(Exception ex) {
-            m_logger.error("Error converting hex string: " + ex);
-        }
-        return bos.toByteArray();
-    }
-
     /**
      * Converts a byte array to hex string
      * @param arr byte array input data
@@ -640,16 +371,6 @@ public class ConvertUtils
                 sb.append(str.substring(str.length()-2));
         }
         return sb.toString();
-    }
-
-    private static final String hexChars = "0123456789ABCDEF";
-
-    public static boolean isHexDigit(char c) {
-        char c2 = Character.toUpperCase(c);
-        for(int i = 0; i < hexChars.length(); i++)
-            if(hexChars.charAt(i) == c2)
-                return true;
-        return false;
     }
 
     public static String uriDecode(String s1)
@@ -681,48 +402,6 @@ public class ConvertUtils
         }
         return sb.toString();
     }
-
-    /*
-     Not converting:
-    (From RFC 2396 "URI Generic Syntax")
-    reserved = ";" | "/" | "?" | ":" | "@" | "&" | "=" | "+" | "$" | ","
-    mark     = "-" | "_" | "." | "!" | "~" | "*" | "'" | "(" | ")"
-     */
-    public static String uriEncode(String s1)
-    {
-        try {
-            String s = s1;
-            //s = replaceStr(s, '[', "%5B");
-            //s = replaceStr(s, ']', "%5D");
-            if(m_logger.isDebugEnabled())
-                m_logger.debug("Before uri-enc: " + s);
-            s = URLEncoder.encode(s, "UTF-8");
-            s = replaceStr(s, '+', "%20");
-            // restore mark chars that got converted
-            s = s.replaceAll("%21", "!");
-            s = s.replaceAll("%40", "@");
-            s = s.replaceAll("%27", "\'");
-            s = s.replaceAll("%24", Matcher.quoteReplacement("$"));
-            s = s.replaceAll("%7E", "~");
-            s = s.replaceAll("%26", Matcher.quoteReplacement("&amp;"));
-            s = s.replaceAll("%28", "(");
-            s = s.replaceAll("%29", ")");
-            s = s.replaceAll("%3D", "=");
-            s = s.replaceAll("%2B", "+");
-            s = s.replaceAll("%2C", ",");
-            s = s.replaceAll("%3B", ";");
-            s = s.replaceAll("%2F", "/");
-            s = s.replaceAll("%3F", "?");
-            s = s.replaceAll("%3A", ":");
-            if(m_logger.isDebugEnabled())
-                m_logger.debug("URI: " + s1 + " encoded: " + s);
-            return s;
-        } catch(Exception ex) {
-            m_logger.error("Error encoding bytes: " + ex);
-        }
-        return null;
-    }
-
 
     /*
     Not converting:
@@ -854,67 +533,6 @@ public class ConvertUtils
     }
 
     /**
-     * Returns a string representation of an long element
-     * with it's value for debug & log purposes
-     * @param name element name
-     * @param value elements value
-     * @return stringified element representation
-     */
-    public static String longElemToString(String name, long value)
-    {
-        StringBuffer sb = new StringBuffer();
-        if(value != 0) {
-            sb.append("(");
-            sb.append(name);
-            sb.append("=");
-            sb.append(value);
-            sb.append(")");
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Returns a string representation of an double element
-     * with it's value for debug & log purposes
-     * @param name element name
-     * @param value elements value
-     * @return stringified element representation
-     */
-    public static String doubleElemToString(String name, double value)
-    {
-        StringBuffer sb = new StringBuffer();
-        if(value != 0) {
-            sb.append("(");
-            sb.append(name);
-            sb.append("=");
-            sb.append(value);
-            sb.append(")");
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Returns a string representation of a boolean element
-     * with it's value for debug & log purposes
-     * @param name element name
-     * @param value elements value
-     * @param bShowFalse show also false values or not
-     * @return stringified element representation
-     */
-    public static String booleanElemToString(String name, boolean value, boolean bShowFalse)
-    {
-        StringBuffer sb = new StringBuffer();
-        if(value || (!value && bShowFalse)) {
-            sb.append("(");
-            sb.append(name);
-            sb.append("=");
-            sb.append(value);
-            sb.append(")");
-        }
-        return sb.toString();
-    }
-
-    /**
      * Returns a string representation of a string element
      * with it's value for debug & log purposes
      * @param name element name
@@ -1036,52 +654,6 @@ public class ConvertUtils
             return (String)l.get(n);
         else
             return null;
-    }
-
-    /**
-     * Checks if cert has certain key-usage bit set
-     * @param cert certificate
-     * @param nKu key-usage flag nr
-     * @return true if set
-     */
-    public static boolean checkCertKeyUsage(X509Certificate cert, int nKu)
-    {
-        if(cert != null) {
-            boolean keyUsages[] = cert.getKeyUsage();
-            if(keyUsages != null && nKu >= 0 && keyUsages.length > nKu && keyUsages[nKu] == true)
-                return true;
-        }
-        return false;
-    }
-
-    /**
-     * Checks if cert has non-repud bit set
-     * @param cert certificate
-     * @return true if set
-     */
-    public static boolean isSignatureCert(X509Certificate cert)
-    {
-        return checkCertKeyUsage(cert, 1);
-    }
-
-    /**
-     * Checks if cert has data-encryption bit set
-     * @param cert certificate
-     * @return true if set
-     */
-    public static boolean isEncryptCert(X509Certificate cert)
-    {
-        return checkCertKeyUsage(cert, 2);
-    }
-
-    /**
-     * Checks if cert has cert-signing (CA) bit set
-     * @param cert certificate
-     * @return true if set
-     */
-    public static boolean isCACert(X509Certificate cert)
-    {
-        return checkCertKeyUsage(cert, 5);
     }
 
 }

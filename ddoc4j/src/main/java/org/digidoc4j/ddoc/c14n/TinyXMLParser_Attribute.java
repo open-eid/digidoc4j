@@ -22,7 +22,7 @@ public class TinyXMLParser_Attribute {
 
         if ((i > -1))
         {
-            return StringImplementation.Substring(this.get_NameString(), (int)0, i);
+            return StringImplementation.Substring(this.get_NameString(), 0, i);
         }
 
         return null;
@@ -60,11 +60,6 @@ public class TinyXMLParser_Attribute {
     public int get_ValueLength()
     {
         return (this.ValueEnd.Offset - this.ValueBegin.get_LastOffset());
-    }
-
-    public String get_DataString()
-    {
-        return FragmentBase.GetDataBetweenFragments(this.ValueBegin, this.ValueEnd);
     }
 
     public boolean get_IsXMLNS()
@@ -139,10 +134,6 @@ public class TinyXMLParser_Attribute {
         }
 
         return this.get_NameString().compareTo(b.get_NameString());
-    }
-
-    public void ToConsole()
-    {
     }
 
     public static TinyXMLParser_Attribute Of(TinyXMLParser_Fragment f)
