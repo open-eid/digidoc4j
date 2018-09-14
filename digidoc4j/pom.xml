@@ -3,10 +3,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>org.digidoc4j</groupId>
     <artifactId>digidoc4j</artifactId>
     <packaging>jar</packaging>
     <version>2.1.0</version>
+
     <name>DigiDoc4j</name>
     <description>DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers
         of signed documents
@@ -19,108 +21,8 @@
         <version>2.1.0</version>
     </parent>
 
-    <licenses>
-        <license>
-            <name>GNU Lesser General Public License, Version 2.1</name>
-            <url>http://www.gnu.org/licenses/lgpl-2.1.html</url>
-        </license>
-    </licenses>
-    <scm>
-        <connection>scm:git:git@github.com:open-eid/digidoc4j.git</connection>
-        <developerConnection>scm:git:git@github.com:open-eid/digidoc4j.git</developerConnection>
-        <url>https://github.com/open-eid/digidoc4j.git</url>
-    </scm>
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
-    <issueManagement>
-        <system>Pivotal</system>
-        <url>https://www.pivotaltracker.com/n/projects/1110130</url>
-    </issueManagement>
-    <developers>
-        <developer>
-            <name>Rainer Villido</name>
-            <email>Rainer.Villido at Nortal.com</email>
-            <organization>Nortal</organization>
-            <organizationUrl>http://www.nortal.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Mihkel Selgal</name>
-            <email>Mihkel.Selgal at Nortal.com</email>
-            <organization>Nortal</organization>
-            <organizationUrl>http://www.nortal.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Risto Alas</name>
-            <email>Risto.Alas at Nortal.com</email>
-            <organization>Nortal</organization>
-            <organizationUrl>http://www.nortal.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Aho Augasmägi</name>
-            <email>aho at codeborne.com</email>
-            <organization>Codeborne</organization>
-            <organizationUrl>http://www.codeborne.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Allan Juhanson</name>
-            <email>Allan.Juhanson at Nortal.com</email>
-            <organization>Nortal</organization>
-            <organizationUrl>http://www.nortal.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Martin Beldman</name>
-            <email>martin at codeborne.com</email>
-            <organization>Codeborne</organization>
-            <organizationUrl>http://www.codeborne.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Andrei Smirnov</name>
-            <email>andrei.smirnov at cgi.com</email>
-            <organization>CGI Eesti</organization>
-            <organizationUrl>https://www.cgi.ee</organizationUrl>
-        </developer>
-        <developer>
-            <name>Indrek Jentson</name>
-            <email>indrek.jentson at cgi.com</email>
-            <organization>CGI Eesti</organization>
-            <organizationUrl>https://www.cgi.ee</organizationUrl>
-        </developer>
-        <developer>
-            <name>Margus Kamlat</name>
-            <email>margus.kamlat at cgi.com</email>
-            <organization>CGI Eesti</organization>
-            <organizationUrl>https://www.cgi.ee</organizationUrl>
-        </developer>
-        <developer>
-            <name>Priit Serk</name>
-            <email>priit.serk at cgi.com</email>
-            <organization>CGI Eesti</organization>
-            <organizationUrl>https://www.cgi.ee</organizationUrl>
-        </developer>
-        <developer>
-            <name>Janar Rahumeel</name>
-            <email>janar.rahumeel at cgi.com</email>
-            <organization>CGI Eesti</organization>
-            <organizationUrl>https://www.cgi.ee</organizationUrl>
-        </developer>
-    </developers>
-
     <properties>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <maven.compiler.compilerVersion>1.7</maven.compiler.compilerVersion>
-        <project.encoding>UTF-8</project.encoding>
-        <slf4j.version>1.7.25</slf4j.version>
         <logback-classic.version>1.2.3</logback-classic.version>
-        <bouncycastle.version>1.58</bouncycastle.version>
         <junit.version>4.11</junit.version>
         <dss.groupId>org.digidoc4j.dss</dss.groupId>
         <dss.version>5.2.d4j.3</dss.version>
@@ -128,7 +30,6 @@
         <dss.util.lib>${project.build.directory}/library/util</dss.util.lib>
         <dss.zip.lib>${project.build.directory}/library/zip</dss.zip.lib>
         <argLine>-Dfile.encoding=UTF-8</argLine>
-        <javadocOpt>-Xdoclint:none</javadocOpt>
     </properties>
 
     <profiles>
@@ -200,7 +101,6 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.7.9</version>
                         <configuration>
                             <destFile>${project.build.directory}/jacoco-unit.exec</destFile>
                             <dataFile>${project.build.directory}/jacoco-unit.exec</dataFile>
@@ -243,24 +143,35 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcmail-jdk15on</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
             <version>1.4</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-compress</artifactId>
-            <version>1.3</version>
-        </dependency>
-        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.5</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.10</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -297,21 +208,6 @@
                     <artifactId>woodstox-core-asl</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcmail-jdk15on</artifactId>
-            <version>${bouncycastle.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-            <version>${bouncycastle.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
-            <version>${bouncycastle.version}</version>
         </dependency>
         <dependency>
             <groupId>xalan</groupId>
@@ -755,7 +651,6 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.9</version>
                 <configuration>
                     <destFile>${project.build.directory}/jacoco-unit.exec</destFile>
                     <dataFile>${project.build.directory}/jacoco-unit.exec</dataFile>
@@ -864,21 +759,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -917,6 +801,11 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                </plugin>
+
+                <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.7.9</version>
@@ -928,21 +817,6 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.6.1</version>
-                    <configuration>
-                        <encoding>${project.encoding}</encoding>
-                        <source>${maven.compiler.source}</source>
-                        <target>${maven.compiler.target}</target>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-source-plugin</artifactId>
-                    <version>3.0.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.20</version>
                 </plugin>
@@ -951,7 +825,7 @@
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>3.0.2</version>
                     <configuration>
-                        <encoding>${project.encoding}</encoding>
+                        <encoding>${project.build.sourceEncoding}</encoding>
                         <nonFilteredFileExtensions><!-- Avoid to modify keystore -->
                             <nonFilteredFileExtension>jks</nonFilteredFileExtension>
                             <nonFilteredFileExtension>p12</nonFilteredFileExtension>
@@ -985,7 +859,6 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.0.0</version>
                     <configuration>
                         <excludePackageNames>prototype,org.digidoc4j.impl,org.digidoc4j.main,org.digidoc4j.utils
                         </excludePackageNames>
@@ -1043,7 +916,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.0.0</version>
                 <configuration>
                     <excludePackageNames>prototype,org.digidoc4j.impl,org.digidoc4j.main,org.digidoc4j.utils
                     </excludePackageNames>

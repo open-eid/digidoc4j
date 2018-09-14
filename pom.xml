@@ -8,6 +8,7 @@
     <artifactId>digidoc4j-parent</artifactId>
     <version>2.1.0</version>
     <packaging>pom</packaging>
+
     <name>DigiDoc4J parent</name>
     <description>DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers
         of signed documents
@@ -18,5 +19,196 @@
         <module>ddoc4j</module>
         <module>digidoc4j</module>
     </modules>
+
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License, Version 2.1</name>
+            <url>http://www.gnu.org/licenses/lgpl-2.1.html</url>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:git@github.com:open-eid/digidoc4j.git</connection>
+        <developerConnection>scm:git:git@github.com:open-eid/digidoc4j.git</developerConnection>
+        <url>https://github.com/open-eid/digidoc4j.git</url>
+    </scm>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <developers>
+        <developer>
+            <name>Rainer Villido</name>
+            <email>Rainer.Villido at Nortal.com</email>
+            <organization>Nortal</organization>
+            <organizationUrl>https://www.nortal.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Mihkel Selgal</name>
+            <email>Mihkel.Selgal at Nortal.com</email>
+            <organization>Nortal</organization>
+            <organizationUrl>https://www.nortal.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Risto Alas</name>
+            <email>Risto.Alas at Nortal.com</email>
+            <organization>Nortal</organization>
+            <organizationUrl>https://www.nortal.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Aho Augasmägi</name>
+            <email>aho at codeborne.com</email>
+            <organization>Codeborne</organization>
+            <organizationUrl>http://www.codeborne.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Allan Juhanson</name>
+            <email>Allan.Juhanson at Nortal.com</email>
+            <organization>Nortal</organization>
+            <organizationUrl>https://www.nortal.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Martin Beldman</name>
+            <email>martin at codeborne.com</email>
+            <organization>Codeborne</organization>
+            <organizationUrl>http://www.codeborne.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Andrei Smirnov</name>
+            <email>andrei.smirnov at cgi.com</email>
+            <organization>CGI Eesti</organization>
+            <organizationUrl>https://www.cgi.ee</organizationUrl>
+        </developer>
+        <developer>
+            <name>Indrek Jentson</name>
+            <email>indrek.jentson at cgi.com</email>
+            <organization>CGI Eesti</organization>
+            <organizationUrl>https://www.cgi.ee</organizationUrl>
+        </developer>
+        <developer>
+            <name>Margus Kamlat</name>
+            <email>margus.kamlat at cgi.com</email>
+            <organization>CGI Eesti</organization>
+            <organizationUrl>https://www.cgi.ee</organizationUrl>
+        </developer>
+        <developer>
+            <name>Priit Serk</name>
+            <email>priit.serk at cgi.com</email>
+            <organization>CGI Eesti</organization>
+            <organizationUrl>https://www.cgi.ee</organizationUrl>
+        </developer>
+        <developer>
+            <name>Janar Rahumeel</name>
+            <email>janar.rahumeel at cgi.com</email>
+            <organization>CGI Eesti</organization>
+            <organizationUrl>https://www.cgi.ee</organizationUrl>
+        </developer>
+        <developer>
+            <name>Andres Voll</name>
+            <email>Andres.Voll at Nortal.com</email>
+            <organization>Nortal</organization>
+            <organizationUrl>https://www.nortal.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.compilerVersion>1.7</maven.compiler.compilerVersion>
+        <slf4j.version>1.7.25</slf4j.version>
+        <bouncycastle.version>1.58</bouncycastle.version>
+        <javadocOpt>-Xdoclint:none</javadocOpt>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcmail-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>1.3</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.10</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.6.1</version>
+                    <configuration>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.0.1</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                            <configuration>
+                                <additionalOptions>
+                                    <additionalOption>${javadocOpt}</additionalOption>
+                                </additionalOptions>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>

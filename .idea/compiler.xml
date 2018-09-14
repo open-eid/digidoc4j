@@ -11,9 +11,9 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="ddoc4j" target="1.5" />
+      <module name="ddoc4j" target="1.7" />
       <module name="digidoc4j" target="1.7" />
-      <module name="digidoc4j-parent" target="1.5" />
+      <module name="digidoc4j-parent" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>
