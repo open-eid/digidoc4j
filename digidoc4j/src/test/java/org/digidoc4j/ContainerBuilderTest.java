@@ -303,7 +303,7 @@ public class ContainerBuilderTest extends AbstractTest {
       Container container = ContainerBuilder.aContainer(Container.DocumentType.DDOC).withConfiguration(this.configuration).
           fromStream(stream).build();
       TestAssert.assertContainerIsOpened(container, Container.DocumentType.DDOC);
-      Assert.assertSame(this.configuration, ((DDocContainer) container).getJDigiDocFacade().getConfiguration());
+      Assert.assertSame(this.configuration, ((DDocContainer) container).getDDoc4JFacade().getConfiguration());
     }
   }
 

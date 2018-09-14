@@ -127,7 +127,7 @@ public class DDocFacade implements Serializable {
     }
     int signatureIndexInArray = 0;
     for (Object signature : dDocSignatures) {
-      DDocSignature finalSignature = mapJDigiDocSignatureToDigiDoc4J((org.digidoc4j.ddoc.Signature) signature);
+      DDocSignature finalSignature = mapDDoc4JSignatureToDigiDoc4J((org.digidoc4j.ddoc.Signature) signature);
       if (finalSignature != null) {
         finalSignature.setIndexInArray(signatureIndexInArray);
         signatures.add(finalSignature);
@@ -151,7 +151,7 @@ public class DDocFacade implements Serializable {
     return (signatures == null) ? 0 : signatures.size();
   }
 
-  private DDocSignature mapJDigiDocSignatureToDigiDoc4J(org.digidoc4j.ddoc.Signature signature) {
+  private DDocSignature mapDDoc4JSignatureToDigiDoc4J(org.digidoc4j.ddoc.Signature signature) {
     DDocSignature finalSignature = new DDocSignature(signature);
     KeyInfo keyInfo = signature.getKeyInfo();
     if (keyInfo == null) {

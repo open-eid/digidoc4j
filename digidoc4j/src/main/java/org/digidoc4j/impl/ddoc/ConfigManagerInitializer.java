@@ -31,7 +31,7 @@ public class ConfigManagerInitializer implements Serializable{
    */
   public void initConfigManager(Configuration configuration) {
     if(!configManagerInitialized) {
-      initializeJDigidocConfigManager(configuration);
+      initializeDDoc4JConfigManager(configuration);
     } else {
       logger.debug("Skipping DDoc configuration manager initialization");
     }
@@ -42,7 +42,7 @@ public class ConfigManagerInitializer implements Serializable{
    */
   public static synchronized void forceInitConfigManager(Configuration configuration) {
     logger.info("Initializing DDoc configuration manager");
-    ConfigManager.init(configuration.getJDigiDocConfiguration());
+    ConfigManager.init(configuration.getDDoc4JConfiguration());
     ConfigManager.addProvider();
     configManagerInitialized = true;
   }
@@ -54,7 +54,7 @@ public class ConfigManagerInitializer implements Serializable{
     return configManagerInitialized;
   }
 
-  protected synchronized void initializeJDigidocConfigManager(Configuration configuration) {
+  protected synchronized void initializeDDoc4JConfigManager(Configuration configuration) {
     //Using double-checked locking to avoid other threads to start initialization
     if(!configManagerInitialized) {
       forceInitConfigManager(configuration);

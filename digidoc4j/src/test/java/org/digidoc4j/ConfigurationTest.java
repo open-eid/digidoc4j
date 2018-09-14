@@ -306,21 +306,21 @@ public class ConfigurationTest extends AbstractTest {
   @Test
   public void defaultOCSPAccessCertificateFile() {
     Assert.assertEquals("", this.configuration.getOCSPAccessCertificateFileName());
-    Assert.assertEquals("", this.getJDigiDocConfigurationValue(OCSP_PKCS12_CONTAINER));
+    Assert.assertEquals("", this.getDDoc4JConfigurationValue(OCSP_PKCS12_CONTAINER));
   }
 
   @Test
   public void getOCSPAccessCertificateFileFromConfigurationFile() {
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
     Assert.assertEquals("conf/OCSP_access_certificate_test_file_name", this.configuration.getOCSPAccessCertificateFileName());
-    Assert.assertEquals("conf/OCSP_access_certificate_test_file_name", this.getJDigiDocConfigurationValue(OCSP_PKCS12_CONTAINER));
+    Assert.assertEquals("conf/OCSP_access_certificate_test_file_name", this.getDDoc4JConfigurationValue(OCSP_PKCS12_CONTAINER));
   }
 
   @Test
   public void getOCSPAccessCertificateFileFromStream() throws FileNotFoundException {
     this.configuration.loadConfiguration(new FileInputStream("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml"));
     Assert.assertEquals("conf/OCSP_access_certificate_test_file_name", this.configuration.getOCSPAccessCertificateFileName());
-    Assert.assertEquals("conf/OCSP_access_certificate_test_file_name", this.getJDigiDocConfigurationValue(OCSP_PKCS12_CONTAINER));
+    Assert.assertEquals("conf/OCSP_access_certificate_test_file_name", this.getDDoc4JConfigurationValue(OCSP_PKCS12_CONTAINER));
   }
 
   @Test
@@ -328,20 +328,20 @@ public class ConfigurationTest extends AbstractTest {
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
     this.configuration.setOCSPAccessCertificateFileName("New File");
     Assert.assertEquals("New File", configuration.getOCSPAccessCertificateFileName());
-    Assert.assertEquals("New File", this.getJDigiDocConfigurationValue(OCSP_PKCS12_CONTAINER));
+    Assert.assertEquals("New File", this.getDDoc4JConfigurationValue(OCSP_PKCS12_CONTAINER));
   }
 
   @Test
   public void defaultOCSPAccessCertificatePassword() {
     Assert.assertEquals(0, this.configuration.getOCSPAccessCertificatePassword().length);
-    Assert.assertNull(this.getJDigiDocConfigurationValue(OCSP_PKCS_12_PASSWD));
+    Assert.assertNull(this.getDDoc4JConfigurationValue(OCSP_PKCS_12_PASSWD));
   }
 
   @Test
   public void getOCSPAccessCertificatePasswordFromConfigurationFile() throws Exception {
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
     Assert.assertArrayEquals("OCSP_test_password".toCharArray(), this.configuration.getOCSPAccessCertificatePassword());
-    Assert.assertEquals("OCSP_test_password", this.getJDigiDocConfigurationValue(OCSP_PKCS_12_PASSWD));
+    Assert.assertEquals("OCSP_test_password", this.getDDoc4JConfigurationValue(OCSP_PKCS_12_PASSWD));
   }
 
   @Test
@@ -350,20 +350,20 @@ public class ConfigurationTest extends AbstractTest {
     char[] newPassword = "New password".toCharArray();
     this.configuration.setOCSPAccessCertificatePassword(newPassword);
     Assert.assertArrayEquals(newPassword, this.configuration.getOCSPAccessCertificatePassword());
-    Assert.assertEquals("New password", this.getJDigiDocConfigurationValue(OCSP_PKCS_12_PASSWD));
+    Assert.assertEquals("New password", this.getDDoc4JConfigurationValue(OCSP_PKCS_12_PASSWD));
   }
 
   @Test
   public void signingOcspRequest_ShouldBeDisabled_InProdByDefault() throws Exception {
     this.configuration = Configuration.of(Configuration.Mode.PROD);
     Assert.assertFalse(this.configuration.hasToBeOCSPRequestSigned());
-    Assert.assertEquals("false", this.getJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS));
+    Assert.assertEquals("false", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
   public void signingOcspRequest_ShouldBeDisabled_InTestByDefault() throws Exception {
     Assert.assertFalse(this.configuration.hasToBeOCSPRequestSigned());
-    Assert.assertEquals("false", this.getJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS));
+    Assert.assertEquals("false", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
@@ -371,14 +371,14 @@ public class ConfigurationTest extends AbstractTest {
     this.configuration = Configuration.of(Configuration.Mode.PROD);
     this.configuration.setSignOCSPRequests(false);
     Assert.assertFalse(this.configuration.hasToBeOCSPRequestSigned());
-    Assert.assertEquals("false", this.getJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS));
+    Assert.assertEquals("false", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
   public void enableSigningOcspRequestsInTest() throws Exception {
     this.configuration.setSignOCSPRequests(true);
     Assert.assertTrue(this.configuration.hasToBeOCSPRequestSigned());
-    Assert.assertEquals("true", this.getJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS));
+    Assert.assertEquals("true", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
@@ -386,21 +386,21 @@ public class ConfigurationTest extends AbstractTest {
     this.configuration = Configuration.of(Configuration.Mode.PROD);
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     Assert.assertFalse(this.configuration.hasToBeOCSPRequestSigned());
-    Assert.assertEquals("false", this.getJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS));
+    Assert.assertEquals("false", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
   public void loadDisableSigningOcspRequestFromConfFile() throws Exception {
     this.configuration.loadConfiguration(this.generateConfigurationByParameter("SIGN_OCSP_REQUESTS: false").getPath());
     Assert.assertFalse(this.configuration.hasToBeOCSPRequestSigned());
-    Assert.assertEquals("false", this.getJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS));
+    Assert.assertEquals("false", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
   public void loadEnableSigningOcspRequestFromConfFile() throws Exception {
     this.configuration.loadConfiguration(this.generateConfigurationByParameter("SIGN_OCSP_REQUESTS: true").getPath());
     Assert.assertTrue(configuration.hasToBeOCSPRequestSigned());
-    Assert.assertEquals("true", this.getJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS));
+    Assert.assertEquals("true", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
@@ -471,46 +471,46 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void generateJDigiDocConfig() throws Exception {
-    Hashtable<String, String> jDigiDocConf = this.configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
-    this.configuration.getJDigiDocConfiguration();
-    Assert.assertEquals("jar://certs/ESTEID-SK.crt", jDigiDocConf.get("DIGIDOC_CA_1_CERT2"));
-    Assert.assertEquals("jar://certs/KLASS3-SK OCSP 2006.crt", jDigiDocConf.get("DIGIDOC_CA_1_OCSP2_CERT_1"));
-    Assert.assertEquals("jar://certs/EID-SK OCSP 2006.crt", jDigiDocConf.get("DIGIDOC_CA_1_OCSP13_CERT_1"));
-    Assert.assertEquals("jar://certs/TEST Juur-SK.crt", jDigiDocConf.get("DIGIDOC_CA_1_CERT19"));
-    Assert.assertEquals(Constant.JDigiDoc.SECURITY_PROVIDER, jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER"));
-    Assert.assertEquals(Constant.JDigiDoc.SECURITY_PROVIDER_NAME, jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER_NAME"));
-    Assert.assertEquals("false", jDigiDocConf.get("DATAFILE_HASHCODE_MODE"));
-    Assert.assertEquals(Constant.JDigiDoc.CANONICALIZATION_FACTORY_IMPLEMENTATION, jDigiDocConf.get("CANONICALIZATION_FACTORY_IMPL"));
-    Assert.assertEquals("-1", jDigiDocConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
-    Assert.assertEquals("false", jDigiDocConf.get(SIGN_OCSP_REQUESTS));
-    Assert.assertEquals("jar://certs/KLASS3-SK OCSP.crt", jDigiDocConf.get("DIGIDOC_CA_1_OCSP2_CERT"));
+  public void generateDDoc4JConfig() throws Exception {
+    Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
+    this.configuration.getDDoc4JConfiguration();
+    Assert.assertEquals("jar://certs/ESTEID-SK.crt", ddoc4jConf.get("DIGIDOC_CA_1_CERT2"));
+    Assert.assertEquals("jar://certs/KLASS3-SK OCSP 2006.crt", ddoc4jConf.get("DIGIDOC_CA_1_OCSP2_CERT_1"));
+    Assert.assertEquals("jar://certs/EID-SK OCSP 2006.crt", ddoc4jConf.get("DIGIDOC_CA_1_OCSP13_CERT_1"));
+    Assert.assertEquals("jar://certs/TEST Juur-SK.crt", ddoc4jConf.get("DIGIDOC_CA_1_CERT19"));
+    Assert.assertEquals(Constant.DDoc4J.SECURITY_PROVIDER, ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER"));
+    Assert.assertEquals(Constant.DDoc4J.SECURITY_PROVIDER_NAME, ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER_NAME"));
+    Assert.assertEquals("false", ddoc4jConf.get("DATAFILE_HASHCODE_MODE"));
+    Assert.assertEquals(Constant.DDoc4J.CANONICALIZATION_FACTORY_IMPLEMENTATION, ddoc4jConf.get("CANONICALIZATION_FACTORY_IMPL"));
+    Assert.assertEquals("-1", ddoc4jConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
+    Assert.assertEquals("false", ddoc4jConf.get(SIGN_OCSP_REQUESTS));
+    Assert.assertEquals("jar://certs/KLASS3-SK OCSP.crt", ddoc4jConf.get("DIGIDOC_CA_1_OCSP2_CERT"));
   }
 
   @Test
-  public void loadsJDigiDocSecurityProviderFromFile() throws Exception {
-    Hashtable<String, String> jDigiDocConf = this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    Assert.assertEquals("org.bouncycastle.jce.provider.BouncyCastleProvider1", jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER"));
+  public void loadsDDoc4JSecurityProviderFromFile() throws Exception {
+    Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
+    Assert.assertEquals("org.bouncycastle.jce.provider.BouncyCastleProvider1", ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER"));
   }
 
   @Test
-  public void loadsJDigiDocCacheDirectoryFromFile() throws Exception {
-    Hashtable<String, String> jDigiDocConf = this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    Assert.assertEquals("/test_cache_dir", jDigiDocConf.get("DIGIDOC_DF_CACHE_DIR"));
+  public void loadsDDoc4JCacheDirectoryFromFile() throws Exception {
+    Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
+    Assert.assertEquals("/test_cache_dir", ddoc4jConf.get("DIGIDOC_DF_CACHE_DIR"));
   }
 
   @Test
-  public void defaultJDigiDocCacheDirectory() throws Exception {
-    Hashtable<String, String> jDigiDocConf =
+  public void defaultDDoc4JCacheDirectory() throws Exception {
+    Hashtable<String, String> ddoc4jConf =
         this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_without_cache_dir.yaml");
-    Assert.assertNull(jDigiDocConf.get("DIGIDOC_DF_CACHE_DIR"));
+    Assert.assertNull(ddoc4jConf.get("DIGIDOC_DF_CACHE_DIR"));
   }
 
   @SuppressWarnings("NumericOverflow")
   @Test
   public void loadsMaxDataFileCachedFromFile() throws Exception {
-    Hashtable<String, String> jDigiDocConf = this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    Assert.assertEquals("8192", jDigiDocConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
+    Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
+    Assert.assertEquals("8192", ddoc4jConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
     Assert.assertEquals(8192, this.configuration.getMaxDataFileCachedInMB());
     Assert.assertEquals(8192 * Constant.ONE_MB_IN_BYTES, this.configuration.getMaxDataFileCachedInBytes());
   }
@@ -524,20 +524,20 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void digiDocSecurityProviderDefaultValue() throws Exception {
-    Hashtable<String, String> jDigiDocConf = this.configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
-    Assert.assertEquals(Constant.JDigiDoc.SECURITY_PROVIDER, jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER"));
+    Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
+    Assert.assertEquals(Constant.DDoc4J.SECURITY_PROVIDER, ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER"));
   }
 
   @Test
   public void digiDocSecurityProviderDefaultName() throws Exception {
-    Hashtable<String, String> jDigiDocConf = this.configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
-    Assert.assertEquals(Constant.JDigiDoc.SECURITY_PROVIDER_NAME, jDigiDocConf.get("DIGIDOC_SECURITY_PROVIDER_NAME"));
+    Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
+    Assert.assertEquals(Constant.DDoc4J.SECURITY_PROVIDER_NAME, ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER_NAME"));
   }
 
   @Test
   public void asksValueOfNonExistingParameter() throws Exception {
-    Hashtable<String, String> jDigiDocConf = this.configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
-    Assert.assertNull(jDigiDocConf.get("DIGIDOC_PROXY_HOST"));
+    Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
+    Assert.assertNull(ddoc4jConf.get("DIGIDOC_PROXY_HOST"));
   }
 
   @Test
@@ -591,7 +591,7 @@ public class ConfigurationTest extends AbstractTest {
     this.expectedException.expect(ConfigurationException.class);
     this.expectedException.expectMessage("No OCSPS entry found or OCSPS entry is empty. Configuration from: " + fileName);
     this.configuration.loadConfiguration(fileName);
-    this.configuration.getJDigiDocConfiguration();
+    this.configuration.getDDoc4JConfiguration();
   }
 
   @Test
@@ -600,7 +600,7 @@ public class ConfigurationTest extends AbstractTest {
     this.expectedException.expect(ConfigurationException.class);
     this.expectedException.expectMessage("No OCSPS entry found or OCSPS entry is empty. Configuration from: " + fileName);
     this.configuration.loadConfiguration(fileName);
-    this.configuration.getJDigiDocConfiguration();
+    this.configuration.getDDoc4JConfiguration();
   }
 
   @Test
@@ -610,7 +610,7 @@ public class ConfigurationTest extends AbstractTest {
     this.expectedException.expectMessage("Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 2 does not have an entry for CA_CN or the entry is empty\n");
     this.configuration.loadConfiguration(fileName);
-    this.configuration.getJDigiDocConfiguration();
+    this.configuration.getDDoc4JConfiguration();
   }
 
   @Test
@@ -624,7 +624,7 @@ public class ConfigurationTest extends AbstractTest {
     this.expectedException.expect(ConfigurationException.class);
     this.expectedException.expectMessage(expectedErrorMessage);
     this.configuration.loadConfiguration(fileName);
-    this.configuration.getJDigiDocConfiguration();
+    this.configuration.getDDoc4JConfiguration();
   }
 
   @Test
@@ -638,7 +638,7 @@ public class ConfigurationTest extends AbstractTest {
     this.expectedException.expect(ConfigurationException.class);
     this.expectedException.expectMessage(expectedErrorMessage);
     this.configuration.loadConfiguration(fileName);
-    this.configuration.getJDigiDocConfiguration();
+    this.configuration.getDDoc4JConfiguration();
   }
 
   @Test
@@ -649,7 +649,7 @@ public class ConfigurationTest extends AbstractTest {
     this.expectedException.expect(ConfigurationException.class);
     this.expectedException.expectMessage(expectedErrorMessage);
     this.configuration.loadConfiguration(fileName);
-    this.configuration.getJDigiDocConfiguration();
+    this.configuration.getDDoc4JConfiguration();
   }
 
   @Test
@@ -660,7 +660,7 @@ public class ConfigurationTest extends AbstractTest {
     this.expectedException.expect(ConfigurationException.class);
     this.expectedException.expectMessage(expectedErrorMessage);
     this.configuration.loadConfiguration(fileName);
-    this.configuration.getJDigiDocConfiguration();
+    this.configuration.getDDoc4JConfiguration();
   }
 
   @Test
@@ -830,13 +830,13 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void loadMultipleCAsFromConfigurationFile() throws Exception {
-    Hashtable<String, String> jDigiDocConf = this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_two_cas.yaml");
-    this.configuration.getJDigiDocConfiguration();
-    Assert.assertEquals("AS Sertifitseerimiskeskus", jDigiDocConf.get("DIGIDOC_CA_1_NAME"));
-    Assert.assertEquals("jar://certs/ESTEID-SK.crt", jDigiDocConf.get("DIGIDOC_CA_1_CERT2"));
-    Assert.assertEquals("Second CA", jDigiDocConf.get("DIGIDOC_CA_2_NAME"));
-    Assert.assertEquals("jar://certs/CA_2_CERT_3.crt", jDigiDocConf.get("DIGIDOC_CA_2_CERT3"));
-    Assert.assertEquals("jar://certs/CA_2_OCSP_1_SECOND_CERT", jDigiDocConf.get("DIGIDOC_CA_2_OCSP1_CERT_1"));
+    Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_two_cas.yaml");
+    this.configuration.getDDoc4JConfiguration();
+    Assert.assertEquals("AS Sertifitseerimiskeskus", ddoc4jConf.get("DIGIDOC_CA_1_NAME"));
+    Assert.assertEquals("jar://certs/ESTEID-SK.crt", ddoc4jConf.get("DIGIDOC_CA_1_CERT2"));
+    Assert.assertEquals("Second CA", ddoc4jConf.get("DIGIDOC_CA_2_NAME"));
+    Assert.assertEquals("jar://certs/CA_2_CERT_3.crt", ddoc4jConf.get("DIGIDOC_CA_2_CERT3"));
+    Assert.assertEquals("jar://certs/CA_2_OCSP_1_SECOND_CERT", ddoc4jConf.get("DIGIDOC_CA_2_OCSP1_CERT_1"));
   }
 
   @Test
@@ -852,7 +852,7 @@ public class ConfigurationTest extends AbstractTest {
     this.expectedException.expect(ConfigurationException.class);
     this.expectedException.expectMessage(expectedErrorMessage);
     this.configuration.loadConfiguration(fileName);
-    this.configuration.getJDigiDocConfiguration();
+    this.configuration.getDDoc4JConfiguration();
   }
 
   @Test
@@ -863,7 +863,7 @@ public class ConfigurationTest extends AbstractTest {
     this.expectedException.expect(ConfigurationException.class);
     this.expectedException.expectMessage(expectedErrorMessage);
     this.configuration.loadConfiguration(fileName);
-    this.configuration.getJDigiDocConfiguration();
+    this.configuration.getDDoc4JConfiguration();
   }
 
   @Test
@@ -886,19 +886,19 @@ public class ConfigurationTest extends AbstractTest {
     this.configuration.setOcspSource("Set OCSP source");
     this.configuration.setValidationPolicy("Set validation policy");
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    Assert.assertEquals("123876", this.getJDigiDocConfigurationValue("DIGIDOC_MAX_DATAFILE_CACHED"));
-    Assert.assertEquals("TEST_DIGIDOC_NOTARY_IMPL", this.getJDigiDocConfigurationValue("DIGIDOC_NOTARY_IMPL"));
-    Assert.assertEquals("TEST_DIGIDOC_OCSP_SIGN_CERT_SERIAL", this.getJDigiDocConfigurationValue("DIGIDOC_OCSP_SIGN_CERT_SERIAL"));
-    Assert.assertEquals("TEST_DIGIDOC_SECURITY_PROVIDER", this.getJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER"));
-    Assert.assertEquals("TEST_DIGIDOC_SECURITY_PROVIDER_NAME", this.getJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER_NAME"));
-    Assert.assertEquals("TEST_DIGIDOC_TSLFAC_IMPL", this.getJDigiDocConfigurationValue("DIGIDOC_TSLFAC_IMPL"));
-    Assert.assertEquals("false", this.getJDigiDocConfigurationValue("DIGIDOC_USE_LOCAL_TSL"));
-    Assert.assertEquals("false", this.getJDigiDocConfigurationValue("KEY_USAGE_CHECK"));
-    Assert.assertEquals("false", this.getJDigiDocConfigurationValue(SIGN_OCSP_REQUESTS));
-    Assert.assertEquals("TEST_DIGIDOC_DF_CACHE_DIR", this.getJDigiDocConfigurationValue("DIGIDOC_DF_CACHE_DIR"));
-    Assert.assertEquals("TEST_DIGIDOC_FACTORY_IMPL", this.getJDigiDocConfigurationValue("DIGIDOC_FACTORY_IMPL"));
-    Assert.assertEquals("TEST_CANONICALIZATION_FACTORY_IMPL", this.getJDigiDocConfigurationValue("CANONICALIZATION_FACTORY_IMPL"));
-    Assert.assertEquals("false", this.getJDigiDocConfigurationValue("DATAFILE_HASHCODE_MODE"));
+    Assert.assertEquals("123876", this.getDDoc4JConfigurationValue("DIGIDOC_MAX_DATAFILE_CACHED"));
+    Assert.assertEquals("TEST_DIGIDOC_NOTARY_IMPL", this.getDDoc4JConfigurationValue("DIGIDOC_NOTARY_IMPL"));
+    Assert.assertEquals("TEST_DIGIDOC_OCSP_SIGN_CERT_SERIAL", this.getDDoc4JConfigurationValue("DIGIDOC_OCSP_SIGN_CERT_SERIAL"));
+    Assert.assertEquals("TEST_DIGIDOC_SECURITY_PROVIDER", this.getDDoc4JConfigurationValue("DIGIDOC_SECURITY_PROVIDER"));
+    Assert.assertEquals("TEST_DIGIDOC_SECURITY_PROVIDER_NAME", this.getDDoc4JConfigurationValue("DIGIDOC_SECURITY_PROVIDER_NAME"));
+    Assert.assertEquals("TEST_DIGIDOC_TSLFAC_IMPL", this.getDDoc4JConfigurationValue("DIGIDOC_TSLFAC_IMPL"));
+    Assert.assertEquals("false", this.getDDoc4JConfigurationValue("DIGIDOC_USE_LOCAL_TSL"));
+    Assert.assertEquals("false", this.getDDoc4JConfigurationValue("KEY_USAGE_CHECK"));
+    Assert.assertEquals("false", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
+    Assert.assertEquals("TEST_DIGIDOC_DF_CACHE_DIR", this.getDDoc4JConfigurationValue("DIGIDOC_DF_CACHE_DIR"));
+    Assert.assertEquals("TEST_DIGIDOC_FACTORY_IMPL", this.getDDoc4JConfigurationValue("DIGIDOC_FACTORY_IMPL"));
+    Assert.assertEquals("TEST_CANONICALIZATION_FACTORY_IMPL", this.getDDoc4JConfigurationValue("CANONICALIZATION_FACTORY_IMPL"));
+    Assert.assertEquals("false", this.getDDoc4JConfigurationValue("DATAFILE_HASHCODE_MODE"));
     Assert.assertEquals("TEST_DIGIDOC_PKCS12_CONTAINER", this.configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificateFile));
     Assert.assertEquals("TEST_DIGIDOC_PKCS12_PASSWD", this.configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificatePassword));
     Assert.assertEquals("TEST_OCSP_SOURCE", this.configuration.getRegistry().get(ConfigurationParameter.OcspSource));

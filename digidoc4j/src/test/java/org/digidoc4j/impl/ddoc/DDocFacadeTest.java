@@ -175,7 +175,7 @@ public class DDocFacadeTest extends AbstractTest {
    */
 
   private DDocFacade openDDocFacade(String path) {
-    return new DDocOpener().open(path).getJDigiDocFacade();
+    return new DDocOpener().open(path).getDDoc4JFacade();
   }
 
 }

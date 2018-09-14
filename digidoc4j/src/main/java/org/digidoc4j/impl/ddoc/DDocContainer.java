@@ -39,15 +39,15 @@ public class DDocContainer implements Container {
 
   private static final Logger logger = LoggerFactory.getLogger(DDocContainer.class);
 
-  private DDocFacade jDigiDocFacade;
+  private DDocFacade ddoc4jFacade;
 
   /**
    * DDocContainer constructor.
    *
-   * @param jDigiDocFacade
+   * @param ddoc4jFacade
    */
-  public DDocContainer(DDocFacade jDigiDocFacade) {
-    this.jDigiDocFacade = jDigiDocFacade;
+  public DDocContainer(DDocFacade ddoc4jFacade) {
+    this.ddoc4jFacade = ddoc4jFacade;
   }
 
   @Override
@@ -77,7 +77,7 @@ public class DDocContainer implements Container {
 
   @Override
   public List<DataFile> getDataFiles() {
-    return jDigiDocFacade.getDataFiles();
+    return ddoc4jFacade.getDataFiles();
   }
 
   /**
@@ -90,7 +90,7 @@ public class DDocContainer implements Container {
 
   @Override
   public List<Signature> getSignatures() {
-    return jDigiDocFacade.getSignatures();
+    return ddoc4jFacade.getSignatures();
   }
 
   @Override
@@ -110,7 +110,7 @@ public class DDocContainer implements Container {
 
   @Override
   public File saveAsFile(String fileName) {
-    jDigiDocFacade.save(fileName);
+    ddoc4jFacade.save(fileName);
     return new File(fileName);
   }
 
@@ -123,7 +123,7 @@ public class DDocContainer implements Container {
 
   @Override
   public ContainerValidationResult validate() {
-    return jDigiDocFacade.validate();
+    return ddoc4jFacade.validate();
   }
 
   @Override
@@ -147,7 +147,7 @@ public class DDocContainer implements Container {
 
   @Override
   public Configuration getConfiguration() {
-    return jDigiDocFacade.getConfiguration();
+    return ddoc4jFacade.getConfiguration();
   }
 
   /**
@@ -158,7 +158,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public String getSignatureProfile() {
-    return jDigiDocFacade.getSignatureProfile();
+    return ddoc4jFacade.getSignatureProfile();
   }
 
   /**
@@ -182,7 +182,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public DigestAlgorithm getDigestAlgorithm() {
-    return jDigiDocFacade.getDigestAlgorithm();
+    return ddoc4jFacade.getDigestAlgorithm();
   }
 
   /**
@@ -220,7 +220,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public DataFile getDataFile(int index) {
-    return jDigiDocFacade.getDataFiles().get(index);
+    return ddoc4jFacade.getDataFiles().get(index);
   }
 
   /**
@@ -232,7 +232,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public int countDataFiles() {
-    return jDigiDocFacade.countDataFiles();
+    return ddoc4jFacade.countDataFiles();
   }
 
   /**
@@ -268,7 +268,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public void save(String path) {
-    jDigiDocFacade.save(path);
+    ddoc4jFacade.save(path);
   }
 
   /**
@@ -279,7 +279,7 @@ public class DDocContainer implements Container {
    */
   @Override
   public void save(OutputStream out) {
-    jDigiDocFacade.save(out);
+    ddoc4jFacade.save(out);
   }
 
   /**
@@ -318,7 +318,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public Signature getSignature(int index) {
-    return jDigiDocFacade.getSignature(index);
+    return ddoc4jFacade.getSignature(index);
   }
 
   /**
@@ -330,7 +330,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public int countSignatures() {
-    return jDigiDocFacade.countSignatures();
+    return ddoc4jFacade.countSignatures();
   }
 
   /**
@@ -342,7 +342,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public DocumentType getDocumentType() {
-    return jDigiDocFacade.getDocumentType();
+    return ddoc4jFacade.getDocumentType();
   }
 
   /**
@@ -354,7 +354,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public String getVersion() {
-    return jDigiDocFacade.getVersion();
+    return ddoc4jFacade.getVersion();
   }
 
   /**
@@ -389,8 +389,8 @@ public class DDocContainer implements Container {
    *
    * @return DDocFacade.
    */
-  public DDocFacade getJDigiDocFacade() {
-    return jDigiDocFacade;
+  public DDocFacade getDDoc4JFacade() {
+    return ddoc4jFacade;
   }
 
   /**
@@ -399,6 +399,6 @@ public class DDocContainer implements Container {
    * @return format as string
    */
   public String getFormat() {
-    return jDigiDocFacade.getFormat();
+    return ddoc4jFacade.getFormat();
   }
 }

@@ -26,8 +26,8 @@ public class MockConfigManagerInitializer extends ConfigManagerInitializer {
   }
 
   @Override
-  protected void initializeJDigidocConfigManager(Configuration configuration) {
-    super.initializeJDigidocConfigManager(configuration);
+  protected void initializeDDoc4JConfigManager(Configuration configuration) {
+    super.initializeDDoc4JConfigManager(configuration);
     configManagerCallCount++;
   }
 

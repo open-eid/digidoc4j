@@ -11,7 +11,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,8 +18,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.asic.AsicFileContainerParser;
@@ -45,9 +42,6 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.digidoc4j.ddoc.DigiDocException;
-import org.digidoc4j.ddoc.SignedDoc;
-import org.digidoc4j.ddoc.utils.ConfigManager;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
@@ -145,8 +139,8 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     System.clearProperty("digidoc4j.mode");
   }
 
-  protected String getJDigiDocConfigurationValue(String key) {
-    return this.configuration.getJDigiDocConfiguration().get(key);
+  protected String getDDoc4JConfigurationValue(String key) {
+    return this.configuration.getDDoc4JConfiguration().get(key);
   }
 
   protected void addCertificateToTSL(Path path, TSLCertificateSource source) {

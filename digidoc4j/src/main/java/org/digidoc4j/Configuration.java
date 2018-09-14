@@ -99,28 +99,28 @@ import eu.europa.esig.dss.client.http.Protocol;
  * <H3>Optional entries of the configuration file:</H3>
  * <ul>
  * <li>CANONICALIZATION_FACTORY_IMPL: Canonicalization factory implementation.<br>
- * Default value: {@value Constant.JDigiDoc#CANONICALIZATION_FACTORY_IMPLEMENTATION}</li>
+ * Default value: {@value Constant.DDoc4J#CANONICALIZATION_FACTORY_IMPLEMENTATION}</li>
  * <li>CONNECTION_TIMEOUT: TSL HTTP Connection timeout (milliseconds).<br>
  * Default value: 1000  </li>
  * <li>DIGIDOC_FACTORY_IMPL: Factory implementation.<br>
- * Default value: {@value Constant.JDigiDoc#FACTORY_IMPLEMENTATION}</li>
+ * Default value: {@value Constant.DDoc4J#FACTORY_IMPLEMENTATION}</li>
  * <li>DIGIDOC_DF_CACHE_DIR: Temporary directory to use. Default: uses system's default temporary directory</li>
  * <li>DIGIDOC_MAX_DATAFILE_CACHED: Maximum datafile size that will be cached in MB.
  * Must be numeric. Set to -1 to cache all files. Set to 0 to prevent caching for all files<br>
- * Default value: {@value Constant.JDigiDoc#MAX_DATAFILE_CACHED}</li>
+ * Default value: {@value Constant.DDoc4J#MAX_DATAFILE_CACHED}</li>
  * <li>DIGIDOC_NOTARY_IMPL: Notary implementation.<br>
- * Default value: {@value Constant.JDigiDoc#NOTARY_IMPLEMENTATION}</li>
+ * Default value: {@value Constant.DDoc4J#NOTARY_IMPLEMENTATION}</li>
  * <li>DIGIDOC_OCSP_SIGN_CERT_SERIAL: OCSP Signing certificate serial number</li>
  * <li>DIGIDOC_SECURITY_PROVIDER: Security provider.<br>
- * Default value: {@value Constant.JDigiDoc#SECURITY_PROVIDER}</li>
+ * Default value: {@value Constant.DDoc4J#SECURITY_PROVIDER}</li>
  * <li>DIGIDOC_SECURITY_PROVIDER_NAME: Name of the security provider.<br>
- * Default value: {@value Constant.JDigiDoc#SECURITY_PROVIDER_NAME}</li>
+ * Default value: {@value Constant.DDoc4J#SECURITY_PROVIDER_NAME}</li>
  * <li>DIGIDOC_TSLFAC_IMPL: TSL Factory implementation.<br>
- * Default value: {@value Constant.JDigiDoc#TSL_FACTORY_IMPLEMENTATION}</li>
+ * Default value: {@value Constant.DDoc4J#TSL_FACTORY_IMPLEMENTATION}</li>
  * <li>DIGIDOC_USE_LOCAL_TSL: Use local TSL? Allowed values: true, false<br>
- * Default value: {@value Constant.JDigiDoc#USE_LOCAL_TSL}</li>
+ * Default value: {@value Constant.DDoc4J#USE_LOCAL_TSL}</li>
  * <li>KEY_USAGE_CHECK: Should key usage be checked? Allowed values: true, false.<br>
- * Default value: {@value Constant.JDigiDoc#KEY_USAGE_CHECK}</li>
+ * Default value: {@value Constant.DDoc4J#KEY_USAGE_CHECK}</li>
  * <li>DIGIDOC_PKCS12_CONTAINER: OCSP access certificate file</li>
  * <li>DIGIDOC_PKCS12_PASSWD: OCSP access certificate password</li>
  * <li>OCSP_SOURCE: Online Certificate Service Protocol source</li>
@@ -158,7 +158,7 @@ public class Configuration implements Serializable {
   private final Mode mode;
   private transient ExecutorService threadExecutor;
   private TslManager tslManager;
-  private Hashtable<String, String> jDigiDocConfiguration = new Hashtable<>();
+  private Hashtable<String, String> ddoc4jConfiguration = new Hashtable<>();
   private ConfigurationRegistry registry = new ConfigurationRegistry();
   // TODO integrate tspMap (multilevel arrays) into configuration registry
   private HashMap<String, Map<ConfigurationParameter, String>> tspMap = new HashMap<>();
@@ -275,7 +275,7 @@ public class Configuration implements Serializable {
    */
   public void setOCSPAccessCertificateFileName(String fileName) {
     this.setConfigurationParameter(ConfigurationParameter.OcspAccessCertificateFile, fileName);
-    this.setJDigiDocParameter(Constant.JDigiDoc.OCSP_PKCS_12_CONTAINER, fileName);
+    this.setDDoc4JParameter(Constant.DDoc4J.OCSP_PKCS_12_CONTAINER, fileName);
   }
 
   /**
@@ -286,7 +286,7 @@ public class Configuration implements Serializable {
   public void setOCSPAccessCertificatePassword(char[] password) {
     String value = String.valueOf(password);
     this.setConfigurationParameter(ConfigurationParameter.OcspAccessCertificatePassword, value);
-    this.setJDigiDocParameter(Constant.JDigiDoc.OCSP_PKCS_12_PASSWORD, value);
+    this.setDDoc4JParameter(Constant.DDoc4J.OCSP_PKCS_12_PASSWORD, value);
   }
 
   /**
@@ -297,7 +297,7 @@ public class Configuration implements Serializable {
   public void setSignOCSPRequests(boolean shouldSignOcspRequests) {
     String value = String.valueOf(shouldSignOcspRequests);
     this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, value);
-    this.setJDigiDocParameter(Constant.JDigiDoc.OCSP_SIGN_REQUESTS, value);
+    this.setDDoc4JParameter(Constant.DDoc4J.OCSP_SIGN_REQUESTS, value);
   }
 
   /**
@@ -331,7 +331,7 @@ public class Configuration implements Serializable {
   public Hashtable<String, String> loadConfiguration(String file, boolean isReloadFromYaml) {
     if (!isReloadFromYaml) {
       LOGGER.debug("Should not reload conf from yaml when open container");
-      return jDigiDocConfiguration;
+      return ddoc4jConfiguration;
     }
     LOGGER.debug("Loading configuration from file <{}>", file);
     configurationInputSourceName = file;
@@ -348,21 +348,21 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Returns configuration needed for JDigiDoc library.
+   * Returns configuration needed for DDoc4J library.
    *
    * @return configuration values.
    */
-  public Hashtable<String, String> getJDigiDocConfiguration() {
+  public Hashtable<String, String> getDDoc4JConfiguration() {
     this.loadCertificateAuthoritiesAndCertificates();
     this.reportFileParseErrors();
-    return jDigiDocConfiguration;
+    return ddoc4jConfiguration;
   }
 
   /**
    * Enables big files support. Sets limit in MB when handling files are creating temporary file for streaming in
    * container creation and adding data files.
    * <p/>
-   * Used by DigiDoc4J and by JDigiDoc.
+   * Used by DigiDoc4J and by DDoc4J.
    *
    * @param maxFileSizeCachedInMB Maximum size in MB.
    * @deprecated obnoxious naming. Use {@link Configuration#setMaxFileSizeCachedInMemoryInMB(long)} instead.
@@ -372,7 +372,7 @@ public class Configuration implements Serializable {
     LOGGER.debug("Set maximum datafile cached to: " + maxFileSizeCachedInMB);
     String value = Long.toString(maxFileSizeCachedInMB);
     if (isValidIntegerParameter("DIGIDOC_MAX_DATAFILE_CACHED", value)) {
-      jDigiDocConfiguration.put("DIGIDOC_MAX_DATAFILE_CACHED", value);
+      ddoc4jConfiguration.put("DIGIDOC_MAX_DATAFILE_CACHED", value);
     }
   }
 
@@ -380,7 +380,7 @@ public class Configuration implements Serializable {
    * Sets limit in MB when handling files are creating temporary file for streaming in
    * container creation and adding data files.
    * <p/>
-   * Used by DigiDoc4J and by JDigiDoc.
+   * Used by DigiDoc4J and by DDoc4J.
    *
    * @param maxFileSizeCachedInMB maximum data file size in MB stored in memory.
    */
@@ -419,19 +419,19 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Get the maximum size of data files to be cached. Used by DigiDoc4J and by JDigiDoc.
+   * Get the maximum size of data files to be cached. Used by DigiDoc4J and by DDoc4J.
    *
    * @return Size in MB. if size < 0 no caching is used
    */
   public long getMaxDataFileCachedInMB() {
-    String maxDataFileCached = jDigiDocConfiguration.get("DIGIDOC_MAX_DATAFILE_CACHED");
+    String maxDataFileCached = ddoc4jConfiguration.get("DIGIDOC_MAX_DATAFILE_CACHED");
     LOGGER.debug("Maximum datafile cached in MB: " + maxDataFileCached);
     if (maxDataFileCached == null) return Constant.CACHE_ALL_DATA_FILES;
     return Long.parseLong(maxDataFileCached);
   }
 
   /**
-   * Get the maximum size of data files to be cached. Used by DigiDoc4J and by JDigiDoc.
+   * Get the maximum size of data files to be cached. Used by DigiDoc4J and by DDoc4J.
    *
    * @return Size in MB. if size < 0 no caching is used
    */
@@ -1153,7 +1153,7 @@ public class Configuration implements Serializable {
       this.setConfigurationParameter(ConfigurationParameter.OcspSource, Constant.Test.OCSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, "false");
       this.setConfigurationParameter(ConfigurationParameter.PrintValidationReport, "true");
-      this.setJDigiDocParameter("SIGN_OCSP_REQUESTS", "false");
+      this.setDDoc4JParameter("SIGN_OCSP_REQUESTS", "false");
     } else {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Production.TSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.TslLocation, Constant.Production.TSL_LOCATION);
@@ -1164,7 +1164,7 @@ public class Configuration implements Serializable {
       this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, "false");
       this.setConfigurationParameter(ConfigurationParameter.PrintValidationReport, "false");
       this.trustedTerritories = Constant.Production.DEFAULT_TRUESTED_TERRITORIES;
-      this.setJDigiDocParameter("SIGN_OCSP_REQUESTS", "false");
+      this.setDDoc4JParameter("SIGN_OCSP_REQUESTS", "false");
     }
     LOGGER.debug("{} configuration: {}", this.mode, this.registry);
     this.loadInitialConfigurationValues();
@@ -1172,20 +1172,20 @@ public class Configuration implements Serializable {
 
   private void loadInitialConfigurationValues() {
     LOGGER.debug("------------------------ LOADING INITIAL CONFIGURATION ------------------------");
-    this.setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER", Constant.JDigiDoc.SECURITY_PROVIDER);
-    this.setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER_NAME", Constant.JDigiDoc.SECURITY_PROVIDER_NAME);
-    this.setJDigiDocConfigurationValue("KEY_USAGE_CHECK", Constant.JDigiDoc.KEY_USAGE_CHECK);
-    this.setJDigiDocConfigurationValue("DIGIDOC_OCSP_SIGN_CERT_SERIAL", "");
-    this.setJDigiDocConfigurationValue("DATAFILE_HASHCODE_MODE", "false");
-    this.setJDigiDocConfigurationValue("CANONICALIZATION_FACTORY_IMPL",
-        Constant.JDigiDoc.CANONICALIZATION_FACTORY_IMPLEMENTATION);
-    this.setJDigiDocConfigurationValue("DIGIDOC_MAX_DATAFILE_CACHED", Constant.JDigiDoc.MAX_DATAFILE_CACHED);
-    this.setJDigiDocConfigurationValue("DIGIDOC_USE_LOCAL_TSL", Constant.JDigiDoc.USE_LOCAL_TSL);
-    this.setJDigiDocConfigurationValue("DIGIDOC_NOTARY_IMPL", Constant.JDigiDoc.NOTARY_IMPLEMENTATION);
-    this.setJDigiDocConfigurationValue("DIGIDOC_TSLFAC_IMPL", Constant.JDigiDoc.TSL_FACTORY_IMPLEMENTATION);
-    this.setJDigiDocConfigurationValue("DIGIDOC_OCSP_RESPONDER_URL", this.getOcspSource());
-    this.setJDigiDocConfigurationValue("DIGIDOC_FACTORY_IMPL", Constant.JDigiDoc.FACTORY_IMPLEMENTATION);
-    this.setJDigiDocConfigurationValue("DIGIDOC_DF_CACHE_DIR", null);
+    this.setDDoc4JDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER", Constant.DDoc4J.SECURITY_PROVIDER);
+    this.setDDoc4JDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER_NAME", Constant.DDoc4J.SECURITY_PROVIDER_NAME);
+    this.setDDoc4JDocConfigurationValue("KEY_USAGE_CHECK", Constant.DDoc4J.KEY_USAGE_CHECK);
+    this.setDDoc4JDocConfigurationValue("DIGIDOC_OCSP_SIGN_CERT_SERIAL", "");
+    this.setDDoc4JDocConfigurationValue("DATAFILE_HASHCODE_MODE", "false");
+    this.setDDoc4JDocConfigurationValue("CANONICALIZATION_FACTORY_IMPL",
+        Constant.DDoc4J.CANONICALIZATION_FACTORY_IMPLEMENTATION);
+    this.setDDoc4JDocConfigurationValue("DIGIDOC_MAX_DATAFILE_CACHED", Constant.DDoc4J.MAX_DATAFILE_CACHED);
+    this.setDDoc4JDocConfigurationValue("DIGIDOC_USE_LOCAL_TSL", Constant.DDoc4J.USE_LOCAL_TSL);
+    this.setDDoc4JDocConfigurationValue("DIGIDOC_NOTARY_IMPL", Constant.DDoc4J.NOTARY_IMPLEMENTATION);
+    this.setDDoc4JDocConfigurationValue("DIGIDOC_TSLFAC_IMPL", Constant.DDoc4J.TSL_FACTORY_IMPLEMENTATION);
+    this.setDDoc4JDocConfigurationValue("DIGIDOC_OCSP_RESPONDER_URL", this.getOcspSource());
+    this.setDDoc4JDocConfigurationValue("DIGIDOC_FACTORY_IMPL", Constant.DDoc4J.FACTORY_IMPLEMENTATION);
+    this.setDDoc4JDocConfigurationValue("DIGIDOC_DF_CACHE_DIR", null);
     this.setConfigurationParameterFromFile("TSL_LOCATION", ConfigurationParameter.TslLocation);
     this.setConfigurationParameterFromFile("TSP_SOURCE", ConfigurationParameter.TspSource);
     this.setConfigurationParameterFromFile("VALIDATION_POLICY", ConfigurationParameter.ValidationPolicy);
@@ -1209,9 +1209,9 @@ public class Configuration implements Serializable {
     this.setConfigurationParameterFromFile("SIGNATURE_DIGEST_ALGORITHM",
         ConfigurationParameter.SignatureDigestAlgorithm);
     this.setConfigurationParameterFromFile("PRINT_VALIDATION_REPORT", ConfigurationParameter.PrintValidationReport);
-    this.setJDigiDocConfigurationValue("SIGN_OCSP_REQUESTS", Boolean.toString(this.hasToBeOCSPRequestSigned()));
-    this.setJDigiDocConfigurationValue("DIGIDOC_PKCS12_CONTAINER", this.getOCSPAccessCertificateFileName());
-    this.initOcspAccessCertPasswordForJDigidoc();
+    this.setDDoc4JDocConfigurationValue("SIGN_OCSP_REQUESTS", Boolean.toString(this.hasToBeOCSPRequestSigned()));
+    this.setDDoc4JDocConfigurationValue("DIGIDOC_PKCS12_CONTAINER", this.getOCSPAccessCertificateFileName());
+    this.initOcspAccessCertPasswordForDDoc4J();
     this.setConfigurationParameter(ConfigurationParameter.HttpProxyHost,
         this.getParameter(Constant.System.HTTP_PROXY_HOST, "HTTP_PROXY_HOST"));
     this.setConfigurationParameter(ConfigurationParameter.HttpProxyPort,
@@ -1260,7 +1260,7 @@ public class Configuration implements Serializable {
       throw exception;
     }
     IOUtils.closeQuietly(stream);
-    return mapToJDigiDocConfiguration();
+    return mapToDDoc4JDocConfiguration();
   }
 
   private InputStream getResourceAsStream(String certFile) {
@@ -1280,7 +1280,7 @@ public class Configuration implements Serializable {
     if (value != null) {
       return valueIsAllowed(configParameter, value.toString()) ? value.toString() : "";
     }
-    String configuredValue = jDigiDocConfiguration.get(configParameter);
+    String configuredValue = ddoc4jConfiguration.get(configParameter);
     return configuredValue != null ? configuredValue : defaultValue;
   }
 
@@ -1338,7 +1338,7 @@ public class Configuration implements Serializable {
       return;
     }
     int numberOfOCSPCertificates = ocsps.size();
-    jDigiDocConfiguration.put(caPrefix + "_OCSPS", String.valueOf(numberOfOCSPCertificates));
+    ddoc4jConfiguration.put(caPrefix + "_OCSPS", String.valueOf(numberOfOCSPCertificates));
     for (int i = 1; i <= numberOfOCSPCertificates; i++) {
       String prefix = caPrefix + "_OCSP" + i;
       LinkedHashMap ocsp = ocsps.get(i - 1);
@@ -1390,17 +1390,17 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Gives back all configuration parameters needed for jDigiDoc
+   * Gives back all configuration parameters needed for DDoc4J
    *
-   * @return Hashtable containing jDigiDoc configuration parameters
+   * @return Hashtable containing DDoc4J configuration parameters
    */
 
-  private Hashtable<String, String> mapToJDigiDocConfiguration() {
-    LOGGER.debug("loading JDigiDoc configuration");
+  private Hashtable<String, String> mapToDDoc4JDocConfiguration() {
+    LOGGER.debug("loading DDoc4J configuration");
     inputSourceParseErrors = new ArrayList<>();
     loadInitialConfigurationValues();
     reportFileParseErrors();
-    return jDigiDocConfiguration;
+    return ddoc4jConfiguration;
   }
 
   private void loadCertificateAuthoritiesAndCertificates() {
@@ -1413,7 +1413,7 @@ public class Configuration implements Serializable {
     }
 
     int numberOfDigiDocCAs = digiDocCAs.size();
-    jDigiDocConfiguration.put("DIGIDOC_CAS", String.valueOf(numberOfDigiDocCAs));
+    ddoc4jConfiguration.put("DIGIDOC_CAS", String.valueOf(numberOfDigiDocCAs));
     for (int i = 0; i < numberOfDigiDocCAs; i++) {
       String caPrefix = "DIGIDOC_CA_" + (i + 1);
       LinkedHashMap digiDocCA = (LinkedHashMap) digiDocCAs.get(i).get("DIGIDOC_CA");
@@ -1485,17 +1485,17 @@ public class Configuration implements Serializable {
     }
   }
 
-  private void setJDigiDocConfigurationValue(String key, String defaultValue) {
+  private void setDDoc4JDocConfigurationValue(String key, String defaultValue) {
     String value = defaultIfNull(key, defaultValue);
     if (value != null) {
-      jDigiDocConfiguration.put(key, value);
+      ddoc4jConfiguration.put(key, value);
     }
   }
 
   private boolean loadOCSPCertificateEntry(String ocspsEntryName, LinkedHashMap ocsp, String prefix) {
     Object ocspEntry = ocsp.get(ocspsEntryName);
     if (ocspEntry == null) return false;
-    jDigiDocConfiguration.put(prefix + "_" + ocspsEntryName, ocspEntry.toString());
+    ddoc4jConfiguration.put(prefix + "_" + ocspsEntryName, ocspEntry.toString());
     return true;
   }
 
@@ -1507,9 +1507,9 @@ public class Configuration implements Serializable {
     }
     for (int j = 0; j < certificates.size(); j++) {
       if (j == 0) {
-        this.setJDigiDocParameter(String.format("%s_CERT", prefix), certificates.get(0));
+        this.setDDoc4JParameter(String.format("%s_CERT", prefix), certificates.get(0));
       } else {
-        this.setJDigiDocParameter(String.format("%s_CERT_%s", prefix, j), certificates.get(j));
+        this.setDDoc4JParameter(String.format("%s_CERT_%s", prefix, j), certificates.get(j));
       }
     }
     return true;
@@ -1518,12 +1518,12 @@ public class Configuration implements Serializable {
   private void loadCertificateAuthorityCerts(LinkedHashMap digiDocCA, String caPrefix) {
     LOGGER.debug("Loading CA certificates");
     ArrayList<String> certificateAuthorityCerts = this.getCACertsAsArray(digiDocCA);
-    this.setJDigiDocParameter(String.format("%s_NAME", caPrefix), digiDocCA.get("NAME").toString());
-    this.setJDigiDocParameter(String.format("%s_TRADENAME", caPrefix), digiDocCA.get("TRADENAME").toString());
+    this.setDDoc4JParameter(String.format("%s_NAME", caPrefix), digiDocCA.get("NAME").toString());
+    this.setDDoc4JParameter(String.format("%s_TRADENAME", caPrefix), digiDocCA.get("TRADENAME").toString());
     int numberOfCACertificates = certificateAuthorityCerts.size();
-    this.setJDigiDocParameter(String.format("%s_CERTS", caPrefix), String.valueOf(numberOfCACertificates));
+    this.setDDoc4JParameter(String.format("%s_CERTS", caPrefix), String.valueOf(numberOfCACertificates));
     for (int i = 0; i < numberOfCACertificates; i++) {
-      this.setJDigiDocParameter(String.format("%s_CERT%s", caPrefix, i + 1), certificateAuthorityCerts.get(i));
+      this.setDDoc4JParameter(String.format("%s_CERT%s", caPrefix, i + 1), certificateAuthorityCerts.get(i));
     }
   }
 
@@ -1566,10 +1566,10 @@ public class Configuration implements Serializable {
     return value;
   }
 
-  private void initOcspAccessCertPasswordForJDigidoc() {
+  private void initOcspAccessCertPasswordForDDoc4J() {
     char[] ocspAccessCertificatePassword = this.getOCSPAccessCertificatePassword();
     if (ocspAccessCertificatePassword != null && ocspAccessCertificatePassword.length > 0) {
-      this.setJDigiDocConfigurationValue(Constant.JDigiDoc.OCSP_PKCS_12_PASSWORD,
+      this.setDDoc4JDocConfigurationValue(Constant.DDoc4J.OCSP_PKCS_12_PASSWORD,
           String.valueOf(ocspAccessCertificatePassword));
     }
   }
@@ -1588,9 +1588,9 @@ public class Configuration implements Serializable {
     return valueFromJvm != null ? valueFromJvm : valueFromFile;
   }
 
-  private void setJDigiDocParameter(String key, String value) {
-    LOGGER.debug("Setting JDigiDoc parameter <{}> to <{}>", key, value);
-    this.jDigiDocConfiguration.put(key, value);
+  private void setDDoc4JParameter(String key, String value) {
+    LOGGER.debug("Setting DDoc4J parameter <{}> to <{}>", key, value);
+    this.ddoc4jConfiguration.put(key, value);
   }
 
   private void log(Object jvmParam, Object fileParam, String sysParamKey, String fileKey) {

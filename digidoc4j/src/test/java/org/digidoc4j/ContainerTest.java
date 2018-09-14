@@ -21,17 +21,14 @@ import java.util.List;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.custommonkey.xmlunit.XMLAssert;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
-import org.digidoc4j.impl.ddoc.DDocFacade;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -360,7 +357,7 @@ public class ContainerTest extends AbstractTest {
             .withConfiguration(Configuration.getInstance())
             .fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc")
             .build();
-    Assert.assertEquals(Configuration.getInstance(), container.getJDigiDocFacade().getConfiguration());
+    Assert.assertEquals(Configuration.getInstance(), container.getDDoc4JFacade().getConfiguration());
   }
 
   @Test
@@ -412,21 +409,6 @@ public class ContainerTest extends AbstractTest {
         "LoeDERfTcjHdNojoK/gEdKtme4z6kvkZzjMjDuJu7krK/3DHBtW3XZleIaWZSWySahUiPNNIuk5ykACUolh+K/UK2aWL3Nh64EWvC8aznLV0" +
         "M21s7GwTv7+iVXhR/6c3O22saWKWsteGT0/AqfcBRoj13H/NyuZOULqU0PFOhbJtV8RyZgC9n2uYBFsnutt5GPvhP+U93gkmFQ0+iC1a9Ktt" +
         "j4QH5si35YmRIe0fp8tGDo6li63/tybb+kQ96AIaRe1NxpkKVDBGNi+VNVNA=="));
-  }
-
-  @Test
-  @Ignore("jDigidoc fails to save a container after a raw signature has been added")
-  public void testRemoveSignature() throws IOException {
-    Container container = this.createEmptyContainerBy(Container.DocumentType.DDOC);
-    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    container.sign(this.pkcs12SignatureToken);
-    FileInputStream fileInputStream = new FileInputStream("src/test/resources/testFiles/xades/test-bdoc-tm.xml");
-    container.addRawSignature(fileInputStream);
-    container.save("testRemoveSignature.ddoc");
-    Container containerToRemoveSignature = ContainerOpener.open("testRemoveSignature.ddoc");
-    containerToRemoveSignature.removeSignature(1);
-    Assert.assertEquals(1, containerToRemoveSignature.getSignatures().size());
-    //todo check is correct signatureXML removed by signing time?
   }
 
   @Test(expected = DigiDoc4JException.class)

@@ -42,7 +42,7 @@ public class DigiDocTrustServiceFactory
     {
     	try {
     		ConfigManager cfg = ConfigManager.instance();
-    		// read in local jdigidoc config file
+    		// read in local config file
     		if(m_logger.isDebugEnabled())
     			m_logger.debug("Reading local config file");
     		TrustServiceStatusList tsl = new TrustServiceStatusList();

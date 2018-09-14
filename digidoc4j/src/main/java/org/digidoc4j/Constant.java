@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Constants holder for system property names, default and environmental values. There is dedicated constant class for
- * JDigiDoc properties and parameters to keep integration as apart as possible
+ * DDoc4J properties and parameters to keep integration as apart as possible
  *
  * @author Janar Rahumeel (CGI Estonia)
  */
@@ -72,7 +72,7 @@ public final class Constant {
 
   }
 
-  public static class JDigiDoc {
+  public static class DDoc4J {
 
     public static final String OCSP_PKCS_12_CONTAINER = "DIGIDOC_PKCS12_CONTAINER";
     public static final String OCSP_PKCS_12_PASSWORD = "DIGIDOC_PKCS12_PASSWD";
