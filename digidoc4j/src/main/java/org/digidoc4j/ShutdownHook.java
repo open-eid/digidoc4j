@@ -10,8 +10,22 @@ import org.digidoc4j.impl.asic.xades.validation.ThreadPoolManager;
 import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 
 /**
- * Shutdown hook for clean shutdown. Please register this hook by Runtime.getRuntime().addShutdownHook(new
- * ShutdownHook()) when necessary. This hook works only for limited cases. NB! Currently in experimental status
+ * Shutdown hook for a clean shutdown
+ * <p/>
+ * There's a good chance that some non-daemon threads handled by some sort of {@link ExecutorService}
+ * are preventing JVM from a clean shutdown.
+ * <p/>
+ * How to use it exactly depends on the situation.
+ * <p/>
+ * For example when dealing a simple Java "main" program, which has only a single context then
+ * registering this hook by {@link Runtime#addShutdownHook(Thread)} should be sufficient.
+ * <p/>
+ * In case of some sort of webapp in a servlet container where there are multiple levels of contexts
+ * the recommended way to use it is to register a {@link javax.servlet.ServletContextListener} and call
+ * {@link ShutdownHook#run()} method inside {@link javax.servlet.ServletContextListener#contextDestroyed(ServletContextEvent)}
+ * <p/>
+ * NB! As the usage method of this hook is dependant on the system/situation and may vary,
+ * so in consequence it's still in experimental status
  *
  * Created by Janar Rahumeel (CGI Estonia)
  */

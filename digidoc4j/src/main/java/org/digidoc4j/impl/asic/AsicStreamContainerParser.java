@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 /**
  * ASIC container parser from input stream
  */
-public class AsicStreamContainerParser extends AsicContainerParser{
+public class AsicStreamContainerParser extends AsicContainerParser {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicStreamContainerParser.class);
   private ZipInputStream zipInputStream;
