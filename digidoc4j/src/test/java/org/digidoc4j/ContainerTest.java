@@ -277,6 +277,33 @@ public class ContainerTest extends AbstractTest {
   }
 
   @Test
+  public void testValidateDDoc10() throws Exception {
+    Container container = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/SK-XML1.0.ddoc");
+    SignatureValidationResult result = container.validate();
+    Assert.assertTrue(container.validate().isValid());
+    Assert.assertFalse(container.validate().hasWarnings());
+    Assert.assertTrue(result.getReport().contains("Old and unsupported format:"));
+  }
+
+  @Test
+  public void testValidateDDoc11() throws Exception {
+    Container container = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/DIGIDOC-XML1.1.ddoc");
+    SignatureValidationResult result = container.validate();
+    Assert.assertTrue(container.validate().isValid());
+    Assert.assertFalse(container.validate().hasWarnings());
+    Assert.assertTrue(result.getReport().contains("Old and unsupported format:"));
+  }
+
+  @Test
+  public void testValidateDDoc12() throws Exception {
+    Container container = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/DIGIDOC-XML1.2.ddoc");
+    SignatureValidationResult result = container.validate();
+    Assert.assertTrue(container.validate().isValid());
+    Assert.assertFalse(container.validate().hasWarnings());
+    Assert.assertTrue(result.getReport().contains("Old and unsupported format:"));
+  }
+
+  @Test
   public void openDDocContainerFromFile() throws Exception {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.DDOC).
         fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_wo_x509IssueName_xmlns.ddoc").build();

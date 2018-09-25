@@ -72,8 +72,7 @@ public class DDocSignatureValidationResult extends AbstractSignatureValidationRe
       exceptions.addAll(0, openContainerExceptions);
     }
     for (DigiDocException exception : exceptions) {
-      if (exception.getMessage().contains("X509IssuerName has none or invalid namespace:")
-          || exception.getMessage().contains("X509SerialNumber has none or invalid namespace:")) {
+      if (isWarning(exception)) {
         this.generateReport(exception, false);
       } else {
         this.generateReport(exception, true);
@@ -89,6 +88,12 @@ public class DDocSignatureValidationResult extends AbstractSignatureValidationRe
   @Override
   protected String getResultName() {
     return "DDoc container";
+  }
+
+  private boolean isWarning(DigiDocException e) {
+    return e.getMessage().contains("X509IssuerName has none or invalid namespace:")
+        || e.getMessage().contains("X509SerialNumber has none or invalid namespace:")
+        || e.getMessage().contains("Old and unsupported format:");
   }
 
   private void generateReport(DigiDocException exception, boolean isError) {
