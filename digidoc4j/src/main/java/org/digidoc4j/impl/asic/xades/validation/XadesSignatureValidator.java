@@ -174,7 +174,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     LOGGER.debug("Extracting signed properties reference validation errors");
     int propertiesReferencesCount = this.findSignedPropertiesReferencesCount();
     if (propertiesReferencesCount == 0) {
-      this.addValidationError(new SignedPropertiesMissingException(String.format("Signed properties missing")));
+      this.addValidationError(new SignedPropertiesMissingException(String.format("SignedProperties Reference element is missing")));
     }
     if (propertiesReferencesCount > 1) {
       this.addValidationError(new MultipleSignedPropertiesException(String.format("Multiple signed properties")));

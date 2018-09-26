@@ -346,7 +346,7 @@ public class ValidationTests extends AbstractTest {
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(2, errors.size());
-    TestAssert.assertContainsError("(Signature ID: S0) - Signed properties missing", errors);
+    TestAssert.assertContainsError("(Signature ID: S0) - SignedProperties Reference element is missing", errors);
     TestAssert.assertContainsError("(Signature ID: S0) - The reference data object(s) is not found!", errors);
     Assert.assertEquals(2, container.getSignatures().get(0).validateSignature().getErrors().size());
   }
@@ -359,7 +359,7 @@ public class ValidationTests extends AbstractTest {
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(2, errors.size());
-    TestAssert.assertContainsError("(Signature ID: S0) - Signed properties missing", errors);
+    TestAssert.assertContainsError("(Signature ID: S0) - SignedProperties Reference element is missing", errors);
     TestAssert.assertContainsError("(Signature ID: S0) - The reference data object(s) is not found!", errors);
   }
 
