@@ -235,13 +235,6 @@ public class ManifestValidator {
     List<String> signatureFileNames = new ArrayList<>();
     for (Signature signature : signatures) {
       String signatureFileName = "META-INF/signature" + signature.getId().toLowerCase() + ".xml";
-
-      if (signatureFileNames.contains(signatureFileName)) {
-        String errorMessage = "Duplicate signature file: " + signatureFileName;
-        logger.error(errorMessage);
-        throw new DigiDoc4JException(errorMessage);
-      }
-
       signatureFileNames.add(signatureFileName);
     }
     return signatureFileNames;

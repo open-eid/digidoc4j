@@ -41,14 +41,12 @@ import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.DuplicateDataFileException;
-import org.digidoc4j.exceptions.InvalidSignatureException;
-import org.digidoc4j.exceptions.OCSPRequestFailedException;
+import org.digidoc4j.exceptions.*;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
+import org.digidoc4j.signers.PKCS11SignatureToken;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.utils.Helper;
@@ -850,6 +848,14 @@ public class BDocContainerTest extends AbstractTest {
     Assert.assertNull(zip.getEntry("META-INF/signatures0.xml"));
     Assert.assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
     Assert.assertNotNull(zip.getEntry("META-INF/signatures2.xml"));
+  }
+
+  @Test(expected = TechnicalException.class)
+  public void addSingatureWithDuplicateId_throwsException() throws Exception {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/test.asice");
+    Signature signature = SignatureBuilder.aSignature(container).
+            withSignatureToken(this.pkcs12SignatureToken).withSignatureId("S0").invokeSigning();
+    container.addSignature(signature);
   }
 
   @Test

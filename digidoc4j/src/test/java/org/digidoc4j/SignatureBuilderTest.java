@@ -415,10 +415,9 @@ public class SignatureBuilderTest extends AbstractTest {
     SignatureBuilder.removeCustomSignatureBuilders();
   }
 
-  private Signature createBDocSignatureWithProfile(SignatureProfile signatureProfile) throws IOException {
+  private Signature createBDocSignatureWithProfile(SignatureProfile signatureProfile) {
     Container container = this.createNonEmptyContainer();
     Signature signature = this.createSignatureBy(container, signatureProfile, this.pkcs12SignatureToken);
-    container.addSignature(signature);
     return signature;
   }
 

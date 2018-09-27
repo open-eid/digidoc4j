@@ -373,6 +373,7 @@ public abstract class AsicContainer implements Container {
   @Override
   public void addSignature(Signature signature) {
     validateIncomingSignature(signature);
+    validateSignatureId(signature);
     newSignatures.add(signature);
     signatures.add(signature);
   }
@@ -384,6 +385,14 @@ public abstract class AsicContainer implements Container {
    */
   public void setTimeStampToken(DataFile timeStampToken) {
     this.timeStampToken = timeStampToken;
+  }
+
+  private void validateSignatureId(Signature signature) {
+    for (Signature sig : signatures) {
+      if (sig.getId() != null && sig.getId().equalsIgnoreCase(signature.getId())) {
+        throw new TechnicalException("Signature with Id \"" + signature.getId() + "\" already exists");
+      }
+    }
   }
 
   private byte[] getDigest() {

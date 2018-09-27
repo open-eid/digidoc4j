@@ -18,17 +18,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
-import org.digidoc4j.AbstractTest;
-import org.digidoc4j.Configuration;
-import org.digidoc4j.Container;
-import org.digidoc4j.ContainerBuilder;
-import org.digidoc4j.ContainerOpener;
-import org.digidoc4j.DataToSign;
-import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureBuilder;
-import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.SignatureValidationResult;
-import org.digidoc4j.TSLCertificateSource;
+import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.InvalidTimestampException;
@@ -252,10 +242,12 @@ public class ValidationTests extends AbstractTest {
         .open("src/test/resources/testFiles/invalid-containers/22902_data_files_with_same_names.bdoc").validate();
   }
 
-  @Test(expected = DigiDoc4JException.class)
-  public void duplicateSignatureFileThrowsException() {
-    ContainerOpener
-        .open("src/test/resources/testFiles/invalid-containers/22913_signatures_xml_double.bdoc").validate();
+  @Test
+  public void signaturesWithDuplicateId() {
+    Container container = ContainerOpener
+        .open("src/test/resources/testFiles/valid-containers/2_signatures_duplicate_id.asice");
+    ValidationResult result = container.validate();
+    Assert.assertTrue(result.isValid());
   }
 
   @Test
