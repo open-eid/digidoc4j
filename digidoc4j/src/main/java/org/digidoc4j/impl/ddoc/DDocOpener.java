@@ -37,9 +37,6 @@ public class DDocOpener implements Serializable {
   }
 
   public DDocContainer open(String fileName, Configuration configuration) {
-    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-    root.setLevel(ch.qos.logback.classic.Level.INFO);
-
     logger.info("Opening DDoc container from file: " + fileName);
     DDocFacade facade = new DDocFacade(configuration);
     ArrayList<DigiDocException> containerOpeningExceptions = new ArrayList<>();
@@ -54,9 +51,6 @@ public class DDocOpener implements Serializable {
   }
 
   public DDocContainer open(InputStream stream, Configuration configuration) {
-    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-    root.setLevel(ch.qos.logback.classic.Level.INFO);
-
     logger.info("Opening DDoc from stream");
     DDocFacade facade = new DDocFacade(configuration);
     ArrayList<DigiDocException> containerOpeningExceptions = new ArrayList<>();
