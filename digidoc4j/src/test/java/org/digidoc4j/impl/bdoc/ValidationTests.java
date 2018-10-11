@@ -44,7 +44,6 @@ public class ValidationTests extends AbstractTest {
 
   @BeforeClass
   public static void setUpOnce() throws Exception {
-    PROD_CONFIGURATION.setAllowASN1UnsafeInteger(true);
     PROD_CONFIGURATION_WITH_TEST_POLICY.setValidationPolicy("conf/test_constraint.xml");
   }
 
@@ -439,23 +438,51 @@ public class ValidationTests extends AbstractTest {
   }
 
   @Test
-  public void validBDocRsa2047() {
+  public void validBDocRsa2047_whenASN1UnsafeIntegerAllowed() {
+    PROD_CONFIGURATION.setAllowASN1UnsafeInteger(true);
     Assert.assertEquals(true, PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047.bdoc", PROD_CONFIGURATION);
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(0, errors.size());
+    PROD_CONFIGURATION.setAllowASN1UnsafeInteger(false);
   }
 
   @Test
-  public void validTSRsa2047() {
+  public void validTSRsa2047_whenASN1UnsafeIntegerAllowed() {
+    PROD_CONFIGURATION.setAllowASN1UnsafeInteger(true);
     Assert.assertEquals(true, PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047_TS.asice", PROD_CONFIGURATION);
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(0, errors.size());
+    PROD_CONFIGURATION.setAllowASN1UnsafeInteger(false);
+  }
+
+  @Test
+  public void invalidBDocRsa2047_whenASN1UnsafeIntegerNotAllowed() {
+    Assert.assertEquals(false, PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
+    Container container = ContainerOpener
+            .open("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047.bdoc", PROD_CONFIGURATION);
+    SignatureValidationResult result = container.validate();
+    List<DigiDoc4JException> errors = result.getErrors();
+    Assert.assertEquals(1, errors.size());
+    Assert.assertEquals("(Signature ID: S0) - The signature is not intact!",
+            errors.get(0).toString());
+  }
+
+  @Test
+  public void invalidTSRsa2047_whenASN1UnsafeIntegerNotAllowed() {
+    Assert.assertEquals(false, PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
+    Container container = ContainerOpener
+            .open("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047_TS.asice", PROD_CONFIGURATION);
+    SignatureValidationResult result = container.validate();
+    List<DigiDoc4JException> errors = result.getErrors();
+    Assert.assertEquals(1, errors.size());
+    Assert.assertEquals("(Signature ID: S0) - The signature is not intact!",
+            errors.get(0).toString());
   }
 
   @Test
