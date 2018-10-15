@@ -1,16 +1,16 @@
 package org.digidoc4j;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.security.MessageDigest;
-import java.util.HashMap;
-
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.security.MessageDigest;
+import java.util.HashMap;
 
 /**
  * Offers registry for configuration parameters.
@@ -74,20 +74,6 @@ public class ConfigurationRegistry extends HashMap<ConfigurationParameter, Strin
           logger.warn("Error: {}", ignore.getMessage());
         }
       }
-    }
-    this.checkCurrentConfiguration();
-  }
-
-  private void checkCurrentConfiguration() {
-    ConfigurationRegistry registry = Configuration.getInstance().getRegistry();
-    String currentSealValue = registry.generateSealValue();
-    if (logger.isDebugEnabled()) {
-      logger.debug("Seal {} {} {}", this.sealValue, this.sealValue.equals(currentSealValue) ? "==" : "!=", currentSealValue);
-    }
-    if (!this.sealValue.equals(currentSealValue)) {
-      logger.info("Overwriting deserialized registry with current one");
-      this.clear();
-      this.putAll(registry);
     }
   }
 

@@ -10,9 +10,10 @@
 
 package org.digidoc4j.impl;
 
-import java.io.Serializable;
-
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Signature;
+
+import java.io.Serializable;
 
 public interface SignatureFinalizer extends Serializable {
 
@@ -23,5 +24,10 @@ public interface SignatureFinalizer extends Serializable {
    * @return signature object
    */
   Signature finalizeSignature(byte[] signatureValue);
-
+  /**
+   * Returns container configuration object
+   *
+   * @return configuration object
+   */
+  Configuration getConfiguration();
 }

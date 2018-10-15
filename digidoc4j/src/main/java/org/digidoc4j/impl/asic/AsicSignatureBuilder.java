@@ -10,33 +10,18 @@
 
 package org.digidoc4j.impl.asic;
 
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LTA;
+import static eu.europa.esig.dss.SignatureLevel.*;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
-
-import java.security.cert.X509Certificate;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.InMemoryDocument;
+import eu.europa.esig.dss.SignerLocation;
+import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
-import org.digidoc4j.Configuration;
-import org.digidoc4j.DataFile;
-import org.digidoc4j.DataToSign;
-import org.digidoc4j.EncryptionAlgorithm;
-import org.digidoc4j.OCSPSourceBuilder;
-import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureBuilder;
-import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.X509Cert;
-import org.digidoc4j.exceptions.ContainerWithoutFilesException;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.InvalidSignatureException;
-import org.digidoc4j.exceptions.OCSPRequestFailedException;
-import org.digidoc4j.exceptions.SignerCertificateRequiredException;
-import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.*;
+import org.digidoc4j.exceptions.*;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
@@ -52,11 +37,10 @@ import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.InMemoryDocument;
-import eu.europa.esig.dss.SignerLocation;
-import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
-import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
+import java.security.cert.X509Certificate;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Signature builder for Asic container.
@@ -187,7 +171,7 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
     }
   }
 
-  protected Configuration getConfiguration() {
+  public Configuration getConfiguration() {
     if (container instanceof AsicSContainer) {
       return ((AsicSContainer) container).getConfiguration();
     }

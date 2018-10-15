@@ -10,6 +10,7 @@
 
 package org.digidoc4j.test;
 
+import org.digidoc4j.Configuration;
 import org.digidoc4j.DataToSign;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
@@ -32,6 +33,11 @@ public class MockSignatureBuilder extends SignatureBuilder {
       public Signature finalizeSignature(byte[] signatureValue) {
         finalizedSignatureValue = signatureValue;
         return new MockSignature();
+      }
+
+      @Override
+      public Configuration getConfiguration() {
+        return Configuration.getInstance();
       }
     };
     return new DataToSign(DIGEST_TO_SIGN, signatureParameters, signatureFinalizer);

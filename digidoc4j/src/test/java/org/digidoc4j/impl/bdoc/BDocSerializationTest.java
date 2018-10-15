@@ -10,26 +10,17 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Date;
-
 import org.apache.commons.io.IOUtils;
-import org.digidoc4j.AbstractTest;
-import org.digidoc4j.Container;
-import org.digidoc4j.ContainerOpener;
-import org.digidoc4j.DataFile;
-import org.digidoc4j.DataToSign;
-import org.digidoc4j.DigestAlgorithm;
-import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureBuilder;
-import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.*;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.Date;
 
 public class BDocSerializationTest extends AbstractTest {
 
@@ -54,6 +45,29 @@ public class BDocSerializationTest extends AbstractTest {
     container = ContainerOpener.open(this.containerLocation);
     SignatureValidationResult validate = container.validate();
     Assert.assertTrue(validate.isValid());
+    Assert.assertEquals(1, container.getSignatures().size());
+  }
+
+  @Test
+  public void changeConfigurationAfterDeserialization_InvalidOcsp(){
+    String serializedDataToSignPath = this.getFileBy("bdoc");
+    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
+    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+    DataToSign dataToSign = SignatureBuilder.aSignature(container).
+            withSigningCertificate(this.pkcs12SignatureToken.getCertificate()).buildDataToSign();
+    this.serialize(container, this.serializedContainerLocation);
+    this.serialize(dataToSign, serializedDataToSignPath);
+    dataToSign = this.deserializer(serializedDataToSignPath);
+    dataToSign.getConfiguration().setOcspSource("invalidOcsp");
+
+    byte[] signatureValue = this.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
+    container = this.deserializer(this.serializedContainerLocation);
+    Signature signature = dataToSign.finalize(signatureValue);
+    container.addSignature(signature);
+    container.saveAsFile(this.containerLocation);
+    container = ContainerOpener.open(this.containerLocation);
+    SignatureValidationResult validate = container.validate();
+    Assert.assertFalse(validate.isValid());
     Assert.assertEquals(1, container.getSignatures().size());
   }
 

@@ -10,11 +10,11 @@
 
 package org.digidoc4j;
 
-import java.io.Serializable;
-
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -74,6 +74,15 @@ public class DataToSign implements Serializable {
   public byte[] getDataToSign() {
     return dataToSign;
   }
+
+  /**
+   * Container configuration
+   *
+   * @return configuration object.
+   */
+   public Configuration getConfiguration() {
+       return signatureFinalizer.getConfiguration();
+   }
 
   /**
    * Finalize the signature by adding externally created signature value in bytes.
