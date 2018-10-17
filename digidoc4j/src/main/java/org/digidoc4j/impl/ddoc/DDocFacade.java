@@ -9,28 +9,20 @@
 */
 
 package org.digidoc4j.impl.ddoc;
+import org.digidoc4j.*;
+import org.digidoc4j.ddoc.DigiDocException;
+import org.digidoc4j.ddoc.KeyInfo;
+import org.digidoc4j.ddoc.SignedDoc;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.digidoc4j.Configuration;
-import org.digidoc4j.Container;
-import org.digidoc4j.ContainerValidationResult;
-import org.digidoc4j.DataFile;
-import org.digidoc4j.DigestAlgorithm;
-import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.X509Cert;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.digidoc4j.ddoc.DigiDocException;
-import org.digidoc4j.ddoc.KeyInfo;
-import org.digidoc4j.ddoc.SignedDoc;
 
 /**
  * Offers validation specific functionality of a DDOC container.
@@ -94,6 +86,17 @@ public class DDocFacade implements Serializable {
     }
     return dataFiles;
   }
+
+  public List<String> getDataFileNames() {
+    List<String> fileNames = new ArrayList<>();
+    ArrayList ddocDataFiles = ddoc.getDataFiles();
+    if (ddocDataFiles == null) return fileNames;
+    for (Object ddocDataFile : ddocDataFiles) {
+        org.digidoc4j.ddoc.DataFile dataFile = (org.digidoc4j.ddoc.DataFile) ddocDataFile;
+        fileNames.add(dataFile.getFileName());
+     }
+     return fileNames;
+    }
 
   public int countDataFiles() {
     logger.debug("Get the number of data files");

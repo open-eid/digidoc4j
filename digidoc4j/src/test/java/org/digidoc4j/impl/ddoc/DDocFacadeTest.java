@@ -10,18 +10,12 @@
 
 package org.digidoc4j.impl.ddoc;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Paths;
-import java.util.List;
-
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.DataFile;
+import org.digidoc4j.ddoc.DigiDocException;
+import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
@@ -31,8 +25,9 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
-import org.digidoc4j.ddoc.DigiDocException;
-import org.digidoc4j.ddoc.SignedDoc;
+import java.io.*;
+import java.nio.file.Paths;
+import java.util.List;
 
 public class DDocFacadeTest extends AbstractTest {
 
@@ -47,6 +42,13 @@ public class DDocFacadeTest extends AbstractTest {
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     DataFile dataFile = facade.getDataFiles().get(0);
     Assert.assertEquals(16, dataFile.getFileSize());
+  }
+
+  @Test
+  public void testGetFileNames(){
+    DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    String fileName = facade.getDataFileNames().get(0);
+    Assert.assertEquals("test.txt", fileName);
   }
 
   @Test
