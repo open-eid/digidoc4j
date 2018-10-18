@@ -10,12 +10,10 @@
 
 package org.digidoc4j.impl.ddoc;
 
-import org.digidoc4j.AbstractTest;
-import org.digidoc4j.Configuration;
-import org.digidoc4j.Container;
-import org.digidoc4j.DataFile;
+import org.digidoc4j.*;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.SignedDoc;
+import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
@@ -45,10 +43,13 @@ public class DDocFacadeTest extends AbstractTest {
   }
 
   @Test
-  public void testGetFileNames(){
-    DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    String fileName = facade.getDataFileNames().get(0);
-    Assert.assertEquals("test.txt", fileName);
+  public void testGetHashCodeDataFile(){
+    ConfigManager.init("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_hashcode_mode.yaml");
+    DDocFacade facade = openDDocFacade("src/test/resources/prodFiles/valid-containers/DIGIDOC-XML1.3_hashcode.ddoc");
+    DigestDataFile dataFile = (DigestDataFile)facade.getDataFiles().get(0);
+    Assert.assertEquals("Glitter-rock-4_gallery.jpg", dataFile.getName());
+    Assert.assertEquals("HASHCODE", dataFile.getContentType());
+    ConfigManager.init(Configuration.getInstance().getDDoc4JConfiguration());
   }
 
   @Test

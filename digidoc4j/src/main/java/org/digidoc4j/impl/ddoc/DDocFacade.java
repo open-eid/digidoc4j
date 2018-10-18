@@ -9,6 +9,7 @@
 */
 
 package org.digidoc4j.impl.ddoc;
+
 import org.digidoc4j.*;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.KeyInfo;
@@ -29,6 +30,8 @@ import java.util.List;
  */
 public class DDocFacade implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(DDocFacade.class);
+
+  private static final String HASHCODE_CONTENT_TYPE = "HASHCODE";
 
   protected SignedDoc ddoc;
   private ArrayList<DigiDocException> openContainerExceptions = new ArrayList<>();
@@ -71,14 +74,19 @@ public class DDocFacade implements Serializable {
     for (Object ddocDataFile : ddocDataFiles) {
       org.digidoc4j.ddoc.DataFile dataFile = (org.digidoc4j.ddoc.DataFile) ddocDataFile;
       try {
-        if (dataFile.getBody() == null) {
-          DataFile dataFile1 = new DataFile(dataFile.getFileName(), dataFile.getMimeType());
-          dataFile1.setId(dataFile.getId());
-          dataFiles.add(dataFile1);
+        if (isHashcodeForm(dataFile)) {
+            DigestDataFile digestDataFile = new DigestDataFile(dataFile.getFileName(), DigestAlgorithm.SHA1, dataFile.getDigestValueOfType("sha1"));
+            dataFiles.add(digestDataFile);
         } else {
-          DataFile dataFile1 = new DataFile(dataFile.getBodyAsData(), dataFile.getFileName(), dataFile.getMimeType());
-          dataFile1.setId(dataFile.getId());
-          dataFiles.add(dataFile1);
+            if (dataFile.getBody() == null) {
+                DataFile dataFile1 = new DataFile(dataFile.getFileName(), dataFile.getMimeType());
+                dataFile1.setId(dataFile.getId());
+                dataFiles.add(dataFile1);
+            } else {
+                DataFile dataFile1 = new DataFile(dataFile.getBodyAsData(), dataFile.getFileName(), dataFile.getMimeType());
+                dataFile1.setId(dataFile.getId());
+                dataFiles.add(dataFile1);
+            }
         }
       } catch (DigiDocException e) {
         throw new DigiDoc4JException(e.getMessage(), e.getNestedException());
@@ -87,16 +95,9 @@ public class DDocFacade implements Serializable {
     return dataFiles;
   }
 
-  public List<String> getDataFileNames() {
-    List<String> fileNames = new ArrayList<>();
-    ArrayList ddocDataFiles = ddoc.getDataFiles();
-    if (ddocDataFiles == null) return fileNames;
-    for (Object ddocDataFile : ddocDataFiles) {
-        org.digidoc4j.ddoc.DataFile dataFile = (org.digidoc4j.ddoc.DataFile) ddocDataFile;
-        fileNames.add(dataFile.getFileName());
-     }
-     return fileNames;
-    }
+  private boolean isHashcodeForm(org.digidoc4j.ddoc.DataFile dataFile) {
+    return HASHCODE_CONTENT_TYPE.equals(dataFile.getContentType());
+  }
 
   public int countDataFiles() {
     logger.debug("Get the number of data files");
