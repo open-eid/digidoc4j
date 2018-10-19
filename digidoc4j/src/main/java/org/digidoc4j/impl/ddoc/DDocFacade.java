@@ -176,7 +176,7 @@ public class DDocFacade implements Serializable {
     List containerExceptions = this.ddoc.validate(true);
     containerExceptions.addAll(this.openContainerExceptions);
     DDocSignatureValidationResult result = new DDocSignatureValidationResult(this.ddoc.verify(true, true),
-        containerExceptions);
+        containerExceptions, this.ddoc.getFormat());
     result.print(this.configuration);
     return result;
   }

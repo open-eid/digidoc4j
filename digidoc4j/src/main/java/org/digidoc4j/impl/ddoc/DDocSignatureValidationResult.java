@@ -10,14 +10,9 @@
 
 package org.digidoc4j.impl.ddoc;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.digidoc4j.ContainerValidationResult;
+import org.digidoc4j.ddoc.DigiDocException;
+import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.AbstractSignatureValidationResult;
 import org.slf4j.Logger;
@@ -28,8 +23,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
-import org.digidoc4j.ddoc.DigiDocException;
-import org.digidoc4j.ddoc.SignedDoc;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Overview of errors and warnings for DDoc
@@ -47,9 +46,10 @@ public class DDocSignatureValidationResult extends AbstractSignatureValidationRe
    * Constructor
    *
    * @param exceptions add description
+   * @param documentFormat add description
    */
-  public DDocSignatureValidationResult(List<DigiDocException> exceptions) {
-    this(exceptions, null);
+  public DDocSignatureValidationResult(List<DigiDocException> exceptions, String documentFormat) {
+    this(exceptions, null, documentFormat);
   }
 
   /**
@@ -57,10 +57,12 @@ public class DDocSignatureValidationResult extends AbstractSignatureValidationRe
    *
    * @param exceptions              add description
    * @param openContainerExceptions list of exceptions encountered when opening the container
+   * @param documentFormat add description
    */
 
   public DDocSignatureValidationResult(List<DigiDocException> exceptions,
-                                       List<DigiDocException> openContainerExceptions) {
+                                       List<DigiDocException> openContainerExceptions,
+                                       String documentFormat) {
     this.initXMLReport();
     if (openContainerExceptions != null) {
       for (DigiDocException exception : openContainerExceptions) {
@@ -69,10 +71,18 @@ public class DDocSignatureValidationResult extends AbstractSignatureValidationRe
           this.hasFatalErrors = true;
         }
       }
+      for (DigiDocException digiDocException: exceptions) {
+        for(Iterator<DigiDocException> iterator = openContainerExceptions.iterator(); iterator.hasNext();) {
+          DigiDocException openContainerException = iterator.next();
+          if(digiDocException.getMessage().equals(openContainerException.getMessage())) {
+              iterator.remove();
+          }
+        }
+      }
       exceptions.addAll(0, openContainerExceptions);
     }
     for (DigiDocException exception : exceptions) {
-      if (isWarning(exception)) {
+      if (isWarning(exception, documentFormat)) {
         this.generateReport(exception, false);
       } else {
         this.generateReport(exception, true);
@@ -90,10 +100,12 @@ public class DDocSignatureValidationResult extends AbstractSignatureValidationRe
     return "DDoc container";
   }
 
-  private boolean isWarning(DigiDocException e) {
-    return e.getMessage().contains("X509IssuerName has none or invalid namespace:")
-        || e.getMessage().contains("X509SerialNumber has none or invalid namespace:")
-        || e.getMessage().contains("Old and unsupported format:");
+  private boolean isWarning(DigiDocException e, String documentFormat) {
+      return (e.getCode() == DigiDocException.ERR_DF_INV_HASH_GOOD_ALT_HASH
+              || e.getCode() == DigiDocException.ERR_OLD_VER
+              || e.getCode() == DigiDocException.ERR_TEST_SIGNATURE
+              || e.getCode() == DigiDocException.WARN_WEAK_DIGEST
+              || (e.getCode() == DigiDocException.ERR_ISSUER_XMLNS && !documentFormat.equals(SignedDoc.FORMAT_SK_XML)));
   }
 
   private void generateReport(DigiDocException exception, boolean isError) {
@@ -103,6 +115,7 @@ public class DDocSignatureValidationResult extends AbstractSignatureValidationRe
     int code = exception.getCode();
     if (!isError) {
       warningOrError = "warning";
+      this.warnings.add(new DigiDoc4JException(code, message));
     } else {
       this.errors.add(new DigiDoc4JException(code, message));
       warningOrError = "error";

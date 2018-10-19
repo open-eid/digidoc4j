@@ -10,14 +10,6 @@
 
 package org.digidoc4j;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.security.cert.CertificateEncodingException;
-import java.util.List;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +26,14 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.security.cert.CertificateEncodingException;
+import java.util.List;
 
 public class ContainerTest extends AbstractTest {
 
@@ -281,7 +281,8 @@ public class ContainerTest extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/SK-XML1.0.ddoc");
     SignatureValidationResult result = container.validate();
     Assert.assertTrue(container.validate().isValid());
-    Assert.assertFalse(container.validate().hasWarnings());
+    Assert.assertTrue(container.validate().hasWarnings());
+    Assert.assertEquals(177, result.getWarnings().get(0).getErrorCode());
     Assert.assertTrue(result.getReport().contains("Old and unsupported format:"));
   }
 
@@ -290,7 +291,8 @@ public class ContainerTest extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/DIGIDOC-XML1.1.ddoc");
     SignatureValidationResult result = container.validate();
     Assert.assertTrue(container.validate().isValid());
-    Assert.assertFalse(container.validate().hasWarnings());
+    Assert.assertTrue(container.validate().hasWarnings());
+    Assert.assertEquals(177, result.getWarnings().get(0).getErrorCode());
     Assert.assertTrue(result.getReport().contains("Old and unsupported format:"));
   }
 
@@ -299,7 +301,8 @@ public class ContainerTest extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/DIGIDOC-XML1.2.ddoc");
     SignatureValidationResult result = container.validate();
     Assert.assertTrue(container.validate().isValid());
-    Assert.assertFalse(container.validate().hasWarnings());
+    Assert.assertTrue(container.validate().hasWarnings());
+    Assert.assertEquals(177, result.getWarnings().get(0).getErrorCode());
     Assert.assertTrue(result.getReport().contains("Old and unsupported format:"));
   }
 

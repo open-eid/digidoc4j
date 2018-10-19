@@ -53,6 +53,13 @@ public class DDocFacadeTest extends AbstractTest {
   }
 
   @Test
+  public void testValidateNoDuplicateExceptions() {
+      DDocFacade facade = openDDocFacade("src/test/resources/prodFiles/invalid-containers/Belgia_kandeavaldus_LIV.ddoc");
+      ContainerValidationResult result = facade.validate();
+      Assert.assertEquals(3, result.getErrors().size());
+  }
+
+  @Test
   public void testCountDataFiles() {
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     Assert.assertEquals(1, facade.countDataFiles());
