@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class DigestDataFile extends DataFile {
 
   private static final Logger logger = LoggerFactory.getLogger(DigestDataFile.class);
-  private static final String HASHCODE_CONTENT_TYPE = "HASHCODE";
+
 
   private String contentType = null;
 
@@ -31,7 +31,6 @@ public class DigestDataFile extends DataFile {
       document.setName(fileName);
       document.addDigest(digestAlgorithm.getDssDigestAlgorithm(), Base64.encodeBase64String(digest));
       setDocument(document);
-      this.contentType = HASHCODE_CONTENT_TYPE;
     } catch (Exception e) {
       logger.error(e.getMessage());
       throw new InvalidDataFileException(e);
@@ -41,5 +40,9 @@ public class DigestDataFile extends DataFile {
 
   public String getContentType() {
     return contentType;
+  }
+
+  public void setContentType(String contentType) {
+    this.contentType = contentType;
   }
 }
