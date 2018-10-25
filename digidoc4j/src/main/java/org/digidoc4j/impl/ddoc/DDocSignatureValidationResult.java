@@ -65,6 +65,8 @@ public class DDocSignatureValidationResult extends AbstractSignatureValidationRe
                                        String documentFormat) {
     this.initXMLReport();
     if (openContainerExceptions != null) {
+      removeDuplicates(exceptions);
+      removeDuplicates(openContainerExceptions);
       for (DigiDocException exception : openContainerExceptions) {
         this.containerExceptions.add(new DigiDoc4JException(exception.getCode(), exception.getMessage()));
         if (SignedDoc.hasFatalErrs((ArrayList) openContainerExceptions)) {
@@ -98,6 +100,19 @@ public class DDocSignatureValidationResult extends AbstractSignatureValidationRe
   @Override
   protected String getResultName() {
     return "DDoc container";
+  }
+
+  private void removeDuplicates(List<DigiDocException> exceptions) {
+      for (int i = 0; i < exceptions.size(); i++) {
+          for (int j = i + 1; j < exceptions.size(); j++) {
+              boolean isErrorCodesEqual = exceptions.get(i).getCode() == exceptions.get(j).getCode();
+              boolean isErrorMessagesEqual = exceptions.get(i).getMessage().equals(exceptions.get(j).getMessage());
+              if (isErrorCodesEqual && isErrorMessagesEqual) {
+                  exceptions.remove(j);
+                  j--;
+              }
+          }
+      }
   }
 
   private boolean isWarning(DigiDocException e, String documentFormat) {
