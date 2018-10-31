@@ -18,6 +18,9 @@
     </option>
     <option name="ivySettingsFile" value="$PROJECT_DIR$/ivy.xml" />
   </component>
+  <component name="IvyProjectSettings">
+    <dependencies />
+  </component>
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" value="$MAVEN_REPOSITORY$/work/sk/mjb_temp" />
     <option name="OPTION_SCOPE" value="protected" />
@@ -53,7 +56,7 @@
       </set>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" default="false" project-jdk-name="1.7" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" default="false" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/target" />
   </component>
   <component name="SuppressionsComponent">

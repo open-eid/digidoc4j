@@ -10,14 +10,6 @@
 
 package org.digidoc4j;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.security.cert.CertificateEncodingException;
-import java.util.List;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,12 +21,19 @@ import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.security.cert.CertificateEncodingException;
+import java.util.List;
 
 public class ContainerTest extends AbstractTest {
 
@@ -69,7 +68,7 @@ public class ContainerTest extends AbstractTest {
     Assert.assertEquals("No errors count match", 2, result.getErrors().size());
     Assert.assertEquals("No warnings count match", 0, result.getWarnings().size());
     Assert.assertTrue(result.getReport().contains("The trusted list is not acceptable"));
-    Assert.assertTrue(result.getReport().contains("The trusted list has not the expected version"));
+    Assert.assertTrue(result.getReport().contains("The trusted list is not well signed!"));
   }
 
   @Test
@@ -112,7 +111,7 @@ public class ContainerTest extends AbstractTest {
     SignatureValidationResult result = container.validate();
     Assert.assertTrue("Container is invalid", result.isValid());
     Assert.assertEquals("No errors count match", 0, result.getErrors().size());
-    Assert.assertEquals("No warnings count match", 2, result.getWarnings().size());
+    Assert.assertEquals("No warnings count match", 5, result.getWarnings().size());
   }
 
   @Test
