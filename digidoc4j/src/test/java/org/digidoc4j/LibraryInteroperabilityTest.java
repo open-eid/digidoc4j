@@ -25,24 +25,12 @@ public class LibraryInteroperabilityTest extends AbstractTest {
   }
 
   @Test
-  public void verifySignatureWithDigiDoc4j_BC_unsafe_integer_from_yaml() {
-    Configuration configuration = new Configuration(Configuration.Mode.PROD);
-    configuration.loadConfiguration
-        ("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_bs_allow_unsafe_integer.yaml");
-    Container container = ContainerBuilder.aContainer().
-        fromExistingFile("src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc").
-        withConfiguration(configuration).
-        build();
-    TestAssert.assertContainerIsValid(container);
-  }
-
-  @Test
   public void verifySignatureWithDigiDoc4j_BC_unsafe_integer_by_default() {
     this.setGlobalMode(Configuration.Mode.PROD);
     Container container = ContainerBuilder.aContainer().
         fromExistingFile("src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc").
         withConfiguration(Configuration.of(Configuration.Mode.PROD)).build();
-    TestAssert.assertContainerIsInvalid(container);
+    TestAssert.assertContainerIsValid(container);
   }
 
   /*

@@ -1,3 +1,4 @@
+ALLOW_UNSAFE_INTEGER: TRUE
 DIGIDOC_CAS:
 - DIGIDOC_CA:
     NAME: AS Sertifitseerimiskeskus

@@ -1246,6 +1246,8 @@ public class Configuration implements Serializable {
     String allowASN1UnsafeInteger = this.getConfigurationParameter(ConfigurationParameter.AllowASN1UnsafeInteger);
     if (!StringUtils.isEmpty(allowASN1UnsafeInteger)) {
         System.setProperty(Constant.System.ORG_BOUNCYCASTLE_ASN1_ALLOW_UNSAFE_INTEGER, allowASN1UnsafeInteger);
+    } else {
+        this.setConfigurationParameter(ConfigurationParameter.AllowASN1UnsafeInteger, "true");
     }
   }
 
