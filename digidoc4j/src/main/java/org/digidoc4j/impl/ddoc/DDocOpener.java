@@ -106,13 +106,14 @@ public class DDocOpener implements Serializable {
   private DigiDocException getFatalError(List<DigiDocException> openContainerExceptions) {
     DigiDocException exception = null;
     for (DigiDocException openContainerException : openContainerExceptions) {
-      if (openContainerException.getCode() == DigiDocException.ERR_PARSE_XML
-          && openContainerException.getMessage() != null
-          && openContainerException.getMessage().contains("Invalid xml file")) {
-        exception = new DigiDocException(DigiDocException.ERR_PARSE_XML,
-            "Invalid input file format.", openContainerException.getNestedException());
-      } else {
-        exception = openContainerException;
+      if(openContainerException.getCode() == DigiDocException.ERR_PARSE_XML) {
+        if (openContainerException.getMessage() != null
+                && openContainerException.getMessage().contains("Invalid xml file")){
+          exception = new DigiDocException(DigiDocException.ERR_PARSE_XML,
+                  "Invalid input file format.", openContainerException.getNestedException());
+        } else{
+          exception = openContainerException;
+        }
       }
     }
     return exception;

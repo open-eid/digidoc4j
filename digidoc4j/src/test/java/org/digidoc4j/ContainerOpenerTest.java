@@ -91,6 +91,16 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
+  public void testErrorText75AndInvalidPath() {
+    try {
+      ContainerBuilder.aContainer().fromExistingFile("src/test/resources/testFiles/invalid-containers/23033_D1_lisatud.ddoc").
+              build();
+    } catch (DigiDoc4JException e) {
+      Assert.assertTrue(e.getMessage().contains("ERROR: 75 - Invalid path"));
+    }
+  }
+
+  @Test
   @Ignore("TODO: solve anomaly where results are different")
   public void testErrorText75NotChangedInvalidXmlElement() {
     try {
