@@ -10,20 +10,17 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import java.io.ByteArrayInputStream;
-import java.nio.file.Paths;
-import java.util.List;
-
 import org.apache.xml.security.signature.Reference;
-import org.digidoc4j.AbstractTest;
-import org.digidoc4j.Configuration;
-import org.digidoc4j.Container;
-import org.digidoc4j.ContainerBuilder;
-import org.digidoc4j.Signature;
+import org.digidoc4j.*;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.nio.file.Paths;
+import java.util.List;
 
 public class UriEncodingTest extends AbstractTest {
 
@@ -45,6 +42,7 @@ public class UriEncodingTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("https://ec.europa.eu/cefdigital/tracker/browse/DSS-1515")
   public void validatePartialEncoding_shouldBeValid() throws Exception {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/et10_0123456789!#$%&'()+,-. ;=@[]_`}- et_EE_utf8.zip-d_ec.bdoc"), this.configuration);
     Assert.assertTrue(container.validate().isValid());
