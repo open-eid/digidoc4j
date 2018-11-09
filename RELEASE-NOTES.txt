@@ -1,5 +1,12 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+Release 2.1.1
+------------------
+Summary of the major changes since 2.1.0
+------------------------------------------
+* Updated dependency libraries to latest versions for security purposes
+* Started to use DSS version 5.2.1 (sd-dss.5.2.d4j.4).
+
 Release 2.1.0
 ------------------
 Summary of the major changes since 2.0.1.RC.1
