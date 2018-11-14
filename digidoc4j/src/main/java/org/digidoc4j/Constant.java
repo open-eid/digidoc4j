@@ -55,6 +55,8 @@ public final class Constant {
     public static final String TSL_KEYSTORE_LOCATION = "keystore/test-keystore.jks";
     public static final String VALIDATION_POLICY = "conf/test_constraint.xml";
     public static final String OCSP_SOURCE = "http://demo.sk.ee/ocsp";
+    public static final String[] DEFAULT_OCSP_RESPONDERS = {"TEST of EID-SK 2016 OCSP RESPONDER 2018", "TEST of SK OCSP RESPONDER 2011",
+            "TEST-SK OCSP RESPONDER 2005", "TEST-SK OCSP RESPONDER"};
 
   }
 
@@ -69,6 +71,9 @@ public final class Constant {
       Arrays.asList("AT", "BE", "BG", "CY", "CZ", /*"DE",*/ "DK", "EE", "ES", "FI", "FR",
         "GR", "HU", /*"HR",*/ "IE", "IS", "IT", "LT", "LU", "LV", "LI", "MT", "NO", "NL",
         "PL", "PT", "RO", "SE", "SI", "SK", "UK");
+    public static final String[] DEFAULT_OCSP_RESPONDERS = {"SK OCSP RESPONDER 2011", "ESTEID-SK 2007 OCSP RESPONDER 2010",
+            "ESTEID-SK 2007 RESPONDER", "ESTEID-SK OCSP RESPONDER 2005", "ESTEID-SK OCSP RESPONDER", "EID-SK 2007 OCSP RESPONDER 2010",
+            "EID-SK 2007 OCSP RESPONDER", "EID-SK OCSP RESPONDER", "KLASS3-SK 2010 OCSP RESPONDER", "KLASS3-SK OCSP RESPONDER 2009", "KLASS3-SK OCSP RESPONDER"};
 
   }
 

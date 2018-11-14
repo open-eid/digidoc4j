@@ -10,7 +10,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.security.MessageDigest;
+
 import java.util.HashMap;
+import java.util.Arrays;
+import java.util.List;
+
 
 /**
  * Offers registry for configuration parameters.
@@ -24,7 +28,7 @@ import java.util.HashMap;
  * @author Janar Rahumeel (CGI Estonia)
  */
 
-public class ConfigurationRegistry extends HashMap<ConfigurationParameter, String> {
+public class ConfigurationRegistry extends HashMap<ConfigurationParameter, List<String>> {
 
   private static final Logger logger = LoggerFactory.getLogger(ConfigurationRegistry.class);
   private static final long serialVersionUID = 7829136421415567565L;
@@ -43,7 +47,15 @@ public class ConfigurationRegistry extends HashMap<ConfigurationParameter, Strin
     for (ConfigurationParameter parameter : ConfigurationParameter.values()) {
       String value;
       if (this.containsKey(parameter)) {
-        value = String.format("%s|%s", parameter, this.get(parameter).replaceAll("[\\\\]*[\\|]", "\\\\|"));
+        StringBuilder stringBuilder = new StringBuilder();
+        List<String> configurationValues = this.get(parameter);
+        for (int i = 0; i < configurationValues.size(); i++) {
+          stringBuilder.append(configurationValues.get(i).replaceAll("[\\\\]*[|]", "\\\\|"));
+          if (i < configurationValues.size() - 1) {
+            stringBuilder.append(",");
+          }
+        }
+        value = String.format("%s|%s", parameter, stringBuilder.toString());
       } else {
         value = String.format("%s", parameter);
       }
@@ -60,10 +72,9 @@ public class ConfigurationRegistry extends HashMap<ConfigurationParameter, Strin
         try {
           String[] s = StringUtils.split(token, "|");
           logger.trace("Reading {}", s[0]);
-          this.put(ConfigurationParameter.valueOf(s[0]), s[1].replaceAll("[\\\\]+[\\|]", "\\|"));
+          String[] values = StringUtils.split(s[1], ",");
+          this.put(ConfigurationParameter.valueOf(s[0]), Arrays.asList(values));
         } catch (IndexOutOfBoundsException ignore) {
-          logger.trace("Ignoring, no value: {}", ignore.getMessage());
-        } catch (IllegalArgumentException e) {
           logger.debug("Seal <{}> found", token);
           this.sealValue = token;
         }

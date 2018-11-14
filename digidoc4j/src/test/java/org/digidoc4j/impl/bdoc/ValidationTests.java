@@ -10,20 +10,10 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Paths;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.List;
 
+import eu.europa.esig.dss.DSSUtils;
 import org.digidoc4j.*;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.DuplicateDataFileException;
-import org.digidoc4j.exceptions.InvalidTimestampException;
-import org.digidoc4j.exceptions.UnsupportedFormatException;
-import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
+import org.digidoc4j.exceptions.*;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.TestAssert;
@@ -35,7 +25,13 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import eu.europa.esig.dss.DSSUtils;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Paths;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.List;
 
 public class ValidationTests extends AbstractTest {
 
@@ -686,6 +682,15 @@ public class ValidationTests extends AbstractTest {
     SignatureValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
     TestAssert.assertContainsError("The URL in signature policy is empty or not available", result.getErrors());
+  }
+
+  @Test
+  public void invalidOcspResponder() {
+    this.configuration.setAllowedOcspRespondersForTM("INVALID OCSP RESPONDER");
+    Container container = ContainerOpener
+            .open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc", this.configuration);
+    SignatureValidationResult result = container.validate();
+    TestAssert.assertContainsError("OCSP Responder does not meet TM requirements", result.getErrors());
   }
 
   /*

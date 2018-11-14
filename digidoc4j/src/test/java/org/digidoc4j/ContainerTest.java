@@ -82,7 +82,7 @@ public class ContainerTest extends AbstractTest {
         Paths.get("src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc"));
     SignatureValidationResult result = container.validate();
     Assert.assertFalse("Container is valid", result.isValid());
-    Assert.assertEquals("No errors count match", 2, result.getErrors().size());
+    Assert.assertEquals("No errors count match", 3, result.getErrors().size());
     Assert.assertEquals("No warnings count match", 1, result.getWarnings().size());
     Assert.assertTrue(result.getReport().contains("The signed attribute: 'signing-certificate' is absent!"));
   }
@@ -97,7 +97,7 @@ public class ContainerTest extends AbstractTest {
         Paths.get("src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc"));
     SignatureValidationResult result = container.validate();
     Assert.assertFalse("Container is valid", result.isValid());
-    Assert.assertEquals("No errors count match", 2, result.getErrors().size());
+    Assert.assertEquals("No errors count match", 3, result.getErrors().size());
     Assert.assertEquals("No warnings count match", 1, result.getWarnings().size());
   }
 

@@ -21,16 +21,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ValidationResult;
-import org.digidoc4j.exceptions.CertificateRevokedException;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.InvalidOcspNonceException;
-import org.digidoc4j.exceptions.InvalidTimestampException;
-import org.digidoc4j.exceptions.MultipleSignedPropertiesException;
-import org.digidoc4j.exceptions.SignedPropertiesMissingException;
-import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
-import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
+import org.digidoc4j.exceptions.*;
 import org.digidoc4j.impl.SimpleValidationResult;
 import org.digidoc4j.impl.asic.OcspNonceValidator;
+import org.digidoc4j.impl.asic.OcspResponderValidator;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
@@ -260,6 +254,10 @@ public class XadesSignatureValidator implements SignatureValidator {
     OcspNonceValidator ocspValidator = new OcspNonceValidator(getDssSignature());
     if (!ocspValidator.isValid()) {
       this.addValidationError(new InvalidOcspNonceException());
+    }
+    OcspResponderValidator ocspResponderOidValidator = new OcspResponderValidator(this.signature, this.configuration);
+    if (!ocspResponderOidValidator.isValid()) {
+      this.addValidationError(new InvalidOcspResponderException());
     }
   }
 

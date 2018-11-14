@@ -43,10 +43,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
@@ -898,12 +895,13 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertEquals("TEST_DIGIDOC_FACTORY_IMPL", this.getDDoc4JConfigurationValue("DIGIDOC_FACTORY_IMPL"));
     Assert.assertEquals("TEST_CANONICALIZATION_FACTORY_IMPL", this.getDDoc4JConfigurationValue("CANONICALIZATION_FACTORY_IMPL"));
     Assert.assertEquals("false", this.getDDoc4JConfigurationValue("DATAFILE_HASHCODE_MODE"));
-    Assert.assertEquals("TEST_DIGIDOC_PKCS12_CONTAINER", this.configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificateFile));
-    Assert.assertEquals("TEST_DIGIDOC_PKCS12_PASSWD", this.configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificatePassword));
-    Assert.assertEquals("TEST_OCSP_SOURCE", this.configuration.getRegistry().get(ConfigurationParameter.OcspSource));
-    Assert.assertEquals("TEST_TSP_SOURCE", this.configuration.getRegistry().get(ConfigurationParameter.TspSource));
-    Assert.assertEquals("TEST_VALIDATION_POLICY", this.configuration.getRegistry().get(ConfigurationParameter.ValidationPolicy));
-    Assert.assertEquals("TEST_TSL_LOCATION", this.configuration.getRegistry().get(ConfigurationParameter.TslLocation));
+    Assert.assertEquals("TEST_DIGIDOC_PKCS12_CONTAINER", this.configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificateFile).get(0));
+    Assert.assertEquals("TEST_DIGIDOC_PKCS12_PASSWD", this.configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificatePassword).get(0));
+    Assert.assertEquals("TEST_OCSP_SOURCE", this.configuration.getRegistry().get(ConfigurationParameter.OcspSource).get(0));
+    Assert.assertEquals("TEST_TSP_SOURCE", this.configuration.getRegistry().get(ConfigurationParameter.TspSource).get(0));
+    Assert.assertEquals("TEST_VALIDATION_POLICY", this.configuration.getRegistry().get(ConfigurationParameter.ValidationPolicy).get(0));
+    Assert.assertEquals("TEST_TSL_LOCATION", this.configuration.getRegistry().get(ConfigurationParameter.TslLocation).get(0));
+
     this.configuration.setTslLocation("Set TSL location");
     this.configuration.setTspSource("Set TSP source");
     this.configuration.setOCSPAccessCertificateFileName("Set OCSP access certificate file name");
@@ -913,7 +911,7 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertEquals("Set TSL location", this.configuration.getTslLocation());
     Assert.assertEquals("Set TSP source", this.configuration.getTspSource());
     Assert.assertEquals("Set OCSP access certificate file name", this.configuration.getOCSPAccessCertificateFileName());
-    Assert.assertEquals("Set password", this.configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificatePassword));
+    Assert.assertEquals("Set password", this.configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificatePassword).get(0));
     Assert.assertEquals("Set OCSP source", this.configuration.getOcspSource());
     Assert.assertEquals("Set validation policy", this.configuration.getValidationPolicy());
   }
@@ -960,7 +958,28 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getTruestedTerritories_defaultTesting_shouldBeNull() throws Exception {
+  public void getDefaultAllowedOcspProviders() {
+    Assert.assertEquals(Arrays.asList(Constant.Test.DEFAULT_OCSP_RESPONDERS), this.configuration.getAllowedOcspRespondersForTM());
+  }
+
+  @Test
+  public void loadAllowedOcspProvidersFromConf() {
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    List<String> allowedOcspRespondersForTM = this.configuration.getAllowedOcspRespondersForTM();
+    Assert.assertEquals(3,allowedOcspRespondersForTM.size());
+  }
+
+  @Test
+  public void setAllowedOcspProviders() {
+    this.configuration.setAllowedOcspRespondersForTM("ESTEID-SK OCSP RESPONDER 2005", "ESTEID-SK OCSP RESPONDER");
+    List<String> allowedOcspResponders = this.configuration.getAllowedOcspRespondersForTM();
+    Assert.assertEquals(2, allowedOcspResponders.size());
+    Assert.assertEquals("ESTEID-SK OCSP RESPONDER 2005", allowedOcspResponders.get(0));
+    Assert.assertEquals("ESTEID-SK OCSP RESPONDER", allowedOcspResponders.get(1));
+  }
+
+  @Test
+  public void getTrustedTerritories_defaultTesting_shouldBeNull() throws Exception {
     Assert.assertEquals(new ArrayList<>(), this.configuration.getTrustedTerritories());
   }
 

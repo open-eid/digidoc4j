@@ -20,6 +20,7 @@ public enum ConfigurationParameter {
   OcspSource,
   OcspAccessCertificateFile,
   OcspAccessCertificatePassword,
+  AllowedOcspRespondersForTM,
   HttpProxyHost,
   HttpProxyPort,
   HttpsProxyHost,
