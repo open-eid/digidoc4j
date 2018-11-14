@@ -79,6 +79,6 @@ The list of user stories and issues are tracked in [Pivotal Tracker](https://www
 * © Estonian Information System Authority
 
 ## Support
-Official builds are provided through official distribution point [installer.id.ee](https://installer.id.ee). If you want support, you need to be using official builds. Contact for assistance by email [abi@id.ee](mailto:abi@id.ee) or [www.id.ee](http://www.id.ee).
+Official builds are provided through [releases](https://github.com/open-eid/digidoc4j/releases). If you want support, you need to be using official builds. Contact for assistance by email [help@ria.ee](mailto:help@ria.ee).
 
 Source code is provided on "as is" terms with no warranty (see license for more information). Do not file Github issues with generic support requests.
