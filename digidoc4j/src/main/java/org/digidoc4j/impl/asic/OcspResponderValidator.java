@@ -11,8 +11,6 @@ import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.CertificateNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.security.cert.CertificateEncodingException;
 
@@ -20,7 +18,6 @@ import java.security.cert.CertificateEncodingException;
  * Validator of OCSP responder for TM
  */
 public class OcspResponderValidator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OcspResponderValidator.class);
 
     private XadesSignature signature;
     private Configuration configuration;
@@ -45,10 +42,6 @@ public class OcspResponderValidator {
             return true;
         }
         try {
-            if (signature.getOCSPCertificate() == null) {
-                LOGGER.debug("OCSP certificate was not found in signature: " + signature.getId());
-                return true;
-            }
             return isOcspResponserCommonNameValid(signature.getOCSPCertificate());
         } catch (CertificateNotFoundException e) {
             return false;
