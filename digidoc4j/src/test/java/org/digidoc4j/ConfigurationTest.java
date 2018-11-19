@@ -967,6 +967,9 @@ public class ConfigurationTest extends AbstractTest {
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     List<String> allowedOcspRespondersForTM = this.configuration.getAllowedOcspRespondersForTM();
     Assert.assertEquals(3,allowedOcspRespondersForTM.size());
+    Assert.assertEquals("SK OCSP RESPONDER 2011", allowedOcspRespondersForTM.get(0));
+    Assert.assertEquals("ESTEID-SK 2007 RESPONDER", allowedOcspRespondersForTM.get(1));
+    Assert.assertEquals("EID-SK 2007 OCSP RESPONDER", allowedOcspRespondersForTM.get(2));
   }
 
   @Test

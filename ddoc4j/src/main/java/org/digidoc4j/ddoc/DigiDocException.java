@@ -151,6 +151,7 @@ public class DigiDocException extends Exception {
     public static final int ERR_MANIFEST_ENTRY = 180;
     public static final int ERR_MANIFEST_MIME_TYPE = 181;
     public static final int ERR_MULTIPLE_MANIFEST_FILES = 182;
+    public static final int ERR_OCSP_RESPONDER_TM = 183;
 
     /**
      * DigiDocException constructor

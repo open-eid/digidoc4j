@@ -18,6 +18,7 @@ import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
+import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
@@ -37,25 +38,6 @@ import java.util.List;
 
 public class ContainerTest extends AbstractTest {
 
-  private static final String CERTIFICATE =
-      "MIIFEzCCA/ugAwIBAgIQSXxaK/qTYahTT77Z9I56EjANBgkqhkiG9w0BAQUFADBsMQswCQYDVQQGEwJFRTEiMCAGA1UECgwZQVMgU2VydGlmaX" +
-          "RzZWVyaW1pc2tlc2t1czEfMB0GA1UEAwwWVEVTVCBvZiBFU1RFSUQtU0sgMjAxMTEYMBYGCSqGSIb3DQEJARYJcGtpQHNrLmVlMB4XDTE0" +
-          "MDQxNzExNDUyOVoXDTE2MDQxMjIwNTk1OVowgbQxCzAJBgNVBAYTAkVFMQ8wDQYDVQQKDAZFU1RFSUQxGjAYBgNVBAsMEWRpZ2l0YWwgc2" +
-          "lnbmF0dXJlMTEwLwYDVQQDDCjFvcOVUklOw5xXxaBLWSxNw4RSw5wtTMOWw5ZaLDExNDA0MTc2ODY1MRcwFQYDVQQEDA7FvcOVUklOw5xX" +
-          "xaBLWTEWMBQGA1UEKgwNTcOEUsOcLUzDlsOWWjEUMBIGA1UEBRMLMTE0MDQxNzY4NjUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAo" +
-          "IBAQChn9qVaA+x3RkDBrD5ujwfnreK5/Nb+Nvo9Vg5OLMn3JKUoUhFX6A/q5lBUylK/CU/lNRTv/kicqnu1aCyAiW0XVYk8jrOI1wRbHey" +
-          "BMq/5gVm/vbbRtMi/XGLkgMZ5UDxY0QZfmu8wlRJ8164zRNocuUJLLXWOB6vda2RRXC3Cix4TDvQwGmPrQQJ8dzDIJEkLS7NCLBTcndm7b" +
-          "uQegRc043gKMjUmRhGZEzF4oJa4pMfXqeSa+PUtrNyNNNQaOwTH29R8aFfGU2xorVvxoUieNipyWMEz8BTUGwwIceapWi77loBV/VQfStX" +
-          "nQNu/s6BC04ss43O6sK70MB1qlRZAgMBAAGjggFmMIIBYjAJBgNVHRMEAjAAMA4GA1UdDwEB/wQEAwIGQDCBmQYDVR0gBIGRMIGOMIGLBg" +
-          "orBgEEAc4fAwEBMH0wWAYIKwYBBQUHAgIwTB5KAEEAaQBuAHUAbAB0ACAAdABlAHMAdABpAG0AaQBzAGUAawBzAC4AIABPAG4AbAB5ACAA" +
-          "ZgBvAHIAIAB0AGUAcwB0AGkAbgBnAC4wIQYIKwYBBQUHAgEWFWh0dHA6Ly93d3cuc2suZWUvY3BzLzAdBgNVHQ4EFgQUEjVsOkaNOGG0Gl" +
-          "cF4icqxL0u4YcwIgYIKwYBBQUHAQMEFjAUMAgGBgQAjkYBATAIBgYEAI5GAQQwHwYDVR0jBBgwFoAUQbb+xbGxtFMTjPr6YtA0bW0iNAow" +
-          "RQYDVR0fBD4wPDA6oDigNoY0aHR0cDovL3d3dy5zay5lZS9yZXBvc2l0b3J5L2NybHMvdGVzdF9lc3RlaWQyMDExLmNybDANBgkqhkiG9w" +
-          "0BAQUFAAOCAQEAYTJLbScA3+Xh/s29Qoc0cLjXW3SVkFP/U71/CCIBQ0ygmCAXiQIp/7X7JonY4aDz5uTmq742zZgq5FA3c3b4NtRzoiJX" +
-          "FUWQWZOPE6Ep4Y07Lpbn04sypRKbVEN9TZwDy3elVq84BcX/7oQYliTgj5EaUvpe7MIvkK4DWwrk2ffx9GRW+qQzzjn+OLhFJbT/QWi81Q" +
-          "2CrX34GmYGrDTC/thqr5WoPELKRg6a0v3mvOCVtfIxJx7NKK4B6PGhuTl83hGzTc+Wwbaxwjqzl/SUwCNd2R8GV8EkhYH8Kay3Ac7Qx3ag" +
-          "rJJ6H8j+h+nCKLjIdYImvnznKyR0N2CRc/zQ+g==";
-
   @Test
   public void eIDASAllErrorsPolicyConfigurationTest() {
     this.configuration = Configuration.of(Configuration.Mode.TEST);
@@ -73,7 +55,6 @@ public class ContainerTest extends AbstractTest {
 
   @Test
   public void eIDASWellSignedFailPolicyConfigurationTest() {
-    this.setGlobalMode(Configuration.Mode.PROD);
     this.configuration = Configuration.of(Configuration.Mode.PROD);
     this.configuration.setTslKeyStoreLocation("src/test/resources/prodFiles/keystore/keystore_old_signer.jks");
     this.configuration.setValidationPolicy
@@ -89,7 +70,6 @@ public class ContainerTest extends AbstractTest {
 
   @Test
   public void eIDASVersionFailPolicyConfigurationTest() {
-    this.setGlobalMode(Configuration.Mode.PROD);
     this.configuration = Configuration.of(Configuration.Mode.PROD);
     this.configuration.setValidationPolicy
         ("src/test/resources/testFiles/constraints/eIDAS_test_constraint_version_fail.xml");
@@ -270,6 +250,8 @@ public class ContainerTest extends AbstractTest {
 
   @Test
   public void testValidateDDoc() throws Exception {
+    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     Assert.assertTrue(container.validate().isValid());
@@ -278,6 +260,8 @@ public class ContainerTest extends AbstractTest {
 
   @Test
   public void testValidateDDoc10() throws Exception {
+    this.configuration = Configuration.of(Configuration.Mode.PROD);
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/SK-XML1.0.ddoc");
     SignatureValidationResult result = container.validate();
     Assert.assertTrue(container.validate().isValid());
@@ -287,7 +271,9 @@ public class ContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testValidateDDoc11() throws Exception {
+  public void testValidateDDoc11() {
+    this.configuration = Configuration.of(Configuration.Mode.PROD);
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/DIGIDOC-XML1.1.ddoc");
     SignatureValidationResult result = container.validate();
     Assert.assertTrue(container.validate().isValid());
@@ -297,7 +283,9 @@ public class ContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testValidateDDoc12() throws Exception {
+  public void testValidateDDoc12() {
+    this.configuration = Configuration.of(Configuration.Mode.PROD);
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/DIGIDOC-XML1.2.ddoc");
     SignatureValidationResult result = container.validate();
     Assert.assertTrue(container.validate().isValid());
@@ -307,7 +295,9 @@ public class ContainerTest extends AbstractTest {
   }
 
   @Test
-  public void openDDocContainerFromFile() throws Exception {
+  public void openDDocContainerFromFile() {
+    this.configuration = Configuration.of(Configuration.Mode.PROD);
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerBuilder.aContainer(Container.DocumentType.DDOC).
         fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_wo_x509IssueName_xmlns.ddoc").build();
     SignatureValidationResult validate = container.validate();
@@ -537,10 +527,6 @@ public class ContainerTest extends AbstractTest {
    * RESTRICTED METHODS
    */
 
-  private byte[] getSigningCertificateAsBytes(Container container, int index) throws CertificateEncodingException {
-    Signature signature = container.getSignatures().get(index);
-    return signature.getSigningCertificate().getX509Certificate().getEncoded();
-  }
 
   private void assertContainsDataFile(String fileName, Container container) {
     for (DataFile file : container.getDataFiles()) {

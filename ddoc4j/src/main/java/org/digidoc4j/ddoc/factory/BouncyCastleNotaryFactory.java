@@ -25,6 +25,8 @@ import java.io.OutputStream;
 import java.security.*;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class BouncyCastleNotaryFactory implements NotaryFactory
@@ -261,6 +263,17 @@ public class BouncyCastleNotaryFactory implements NotaryFactory
                 ex.printStackTrace();
                 DigiDocException.handleException(ex, DigiDocException.ERR_OCSP_VERIFY);
             }
+            try{
+                String ocspResponderCommonName = ConvertUtils.getCommonName(responderIDtoString(basResp));
+                List<String> allowedOcspProviders = ConfigManager.instance().getAllowedOcspProviders();
+                if(!allowedOcspProviders.contains(ocspResponderCommonName)) {
+                    throw new DigiDocException(DigiDocException.ERR_OCSP_RESPONDER_TM, "OCSP Responder does not meet TM requirements", null);
+                }
+
+            }catch (Exception ex) {
+                DigiDocException.handleException(ex, DigiDocException.ERR_OCSP_RESPONDER_TM);
+            }
+
             // done't care about SingleResponses because we have
             // only one response and the whole response was successfull
             // but we should verify that the nonce hasn't changed

@@ -12,8 +12,7 @@ import java.net.URL;
 import java.security.Provider;
 import java.security.Security;
 import java.security.cert.X509Certificate;
-import java.util.Hashtable;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Configuration reader for JDigiDoc
@@ -278,6 +277,11 @@ public class ConfigManager {
             m_logger.error("Error parsing number: " + key, ex);
         }
         return rc;
+    }
+
+    public List<String> getAllowedOcspProviders(){
+        String ocspResponders = getProperty("ALLOWED_OCSP_RESPONDERS_FOR_TM");
+        return new ArrayList<>(Arrays.asList(ocspResponders.split(",")));
     }
 
     /**

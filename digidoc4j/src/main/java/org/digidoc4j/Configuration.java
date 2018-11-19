@@ -10,22 +10,8 @@
 
 package org.digidoc4j;
 
-import static java.util.Arrays.asList;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-
+import com.sun.javafx.binding.StringConstant;
+import eu.europa.esig.dss.client.http.Protocol;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -37,7 +23,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import eu.europa.esig.dss.client.http.Protocol;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+
+import static java.util.Arrays.asList;
 
 /**
  * Possibility to create custom configurations for {@link Container} implementations.
@@ -1169,6 +1161,7 @@ public class Configuration implements Serializable {
       this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, "false");
       this.setConfigurationParameter(ConfigurationParameter.PrintValidationReport, "true");
       this.setDDoc4JParameter("SIGN_OCSP_REQUESTS", "false");
+      setDDoc4JParameter("ALLOWED_OCSP_RESPONDERS_FOR_TM", StringUtils.join(Constant.Test.DEFAULT_OCSP_RESPONDERS, ","));
       this.setConfigurationParameter(ConfigurationParameter.AllowedOcspRespondersForTM, Constant.Test.DEFAULT_OCSP_RESPONDERS);
     } else {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Production.TSP_SOURCE);
@@ -1181,6 +1174,7 @@ public class Configuration implements Serializable {
       this.setConfigurationParameter(ConfigurationParameter.PrintValidationReport, "false");
       this.trustedTerritories = Constant.Production.DEFAULT_TRUESTED_TERRITORIES;
       this.setDDoc4JParameter("SIGN_OCSP_REQUESTS", "false");
+      setDDoc4JParameter("ALLOWED_OCSP_RESPONDERS_FOR_TM", StringUtils.join(Constant.Production.DEFAULT_OCSP_RESPONDERS, ","));
       this.setConfigurationParameter(ConfigurationParameter.AllowedOcspRespondersForTM, Constant.Production.DEFAULT_OCSP_RESPONDERS);
 
     }
@@ -1470,7 +1464,9 @@ public class Configuration implements Serializable {
   private void loadYamlOcspResponders(){
     List<String> responders = getStringListParameterFromFile("ALLOWED_OCSP_RESPONDERS_FOR_TM");
     if (responders != null) {
-      this.setConfigurationParameter(ConfigurationParameter.AllowedOcspRespondersForTM, responders.toArray(new String[responders.size()]));
+      String[] respondersValue = responders.toArray(new String[0]);
+      this.setConfigurationParameter(ConfigurationParameter.AllowedOcspRespondersForTM, respondersValue);
+      this.setDDoc4JDocConfigurationValue("ALLOWED_OCSP_RESPONDERS_FOR_TM", StringUtils.join(respondersValue, ","));
     }
   }
 
