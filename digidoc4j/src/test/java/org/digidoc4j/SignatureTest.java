@@ -10,34 +10,6 @@
 
 package org.digidoc4j;
 
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Paths;
-import java.security.cert.CertificateEncodingException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
-import org.apache.commons.codec.binary.Base64;
-import org.custommonkey.xmlunit.XMLAssert;
-import org.digidoc4j.exceptions.CertificateNotFoundException;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
-import org.digidoc4j.impl.Certificates;
-import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
-import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
-import org.digidoc4j.impl.asic.tsl.TslManager;
-import org.digidoc4j.impl.ddoc.DDocOpener;
-import org.digidoc4j.test.TestAssert;
-import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.digidoc4j.test.util.TestTSLUtil;
-import org.digidoc4j.utils.DateUtils;
-import org.digidoc4j.utils.Helper;
-import org.junit.Assert;
-import org.junit.Test;
-
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
@@ -48,6 +20,34 @@ import eu.europa.esig.dss.validation.policy.rules.SubIndication;
 import eu.europa.esig.dss.validation.reports.Reports;
 import eu.europa.esig.dss.validation.reports.SimpleReport;
 import eu.europa.esig.dss.x509.ocsp.OCSPSource;
+import org.apache.commons.codec.binary.Base64;
+import org.custommonkey.xmlunit.XMLAssert;
+import org.digidoc4j.exceptions.CertificateNotFoundException;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.impl.Certificates;
+import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
+import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
+import org.digidoc4j.impl.asic.tsl.TslManager;
+import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
+import org.digidoc4j.impl.ddoc.DDocOpener;
+import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.test.util.TestDataBuilderUtil;
+import org.digidoc4j.test.util.TestTSLUtil;
+import org.digidoc4j.utils.DateUtils;
+import org.digidoc4j.utils.Helper;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Paths;
+import java.security.cert.CertificateEncodingException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class SignatureTest extends AbstractTest {
 
@@ -171,6 +171,8 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testGetProducedAtForDDoc() {
+    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     Signature signature = container.getSignatures().get(0);
     Assert.assertNotNull(signature.getProducedAt());
@@ -185,6 +187,8 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testValidationForDDoc() {
+    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     Assert.assertEquals(0, container.validate().getErrors().size());
   }
@@ -334,6 +338,8 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void dDocTimeMarkSignature_TrustedSigningTime_shouldReturnOCSPResponseCreationTime() throws Exception {
+    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     Signature signature = container.getSignatures().get(0);
     Assert.assertNotNull(signature.getTrustedSigningTime());

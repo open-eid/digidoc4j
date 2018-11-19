@@ -10,21 +10,12 @@
 
 package org.digidoc4j.main;
 
-import static com.jcabi.matchers.RegexMatchers.containsPattern;
-import static org.digidoc4j.main.DigiDoc4J.isWarning;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
-
 import org.apache.commons.io.FileUtils;
-import org.digidoc4j.AbstractTest;
-import org.digidoc4j.Configuration;
-import org.digidoc4j.Constant;
-import org.digidoc4j.Container;
-import org.digidoc4j.ContainerOpener;
-import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.*;
+import org.digidoc4j.ddoc.DigiDocException;
+import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestCommonUtil;
 import org.digidoc4j.test.util.TestDigiDoc4JUtil;
@@ -37,8 +28,12 @@ import org.junit.contrib.java.lang.system.Assertion;
 import org.junit.contrib.java.lang.system.ExpectedSystemExit;
 import org.junit.contrib.java.lang.system.SystemOutRule;
 
-import org.digidoc4j.ddoc.DigiDocException;
-import org.digidoc4j.ddoc.SignedDoc;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+
+import static com.jcabi.matchers.RegexMatchers.containsPattern;
+import static org.digidoc4j.main.DigiDoc4J.isWarning;
 
 public class DigiDoc4JTest extends AbstractTest {
 
@@ -391,6 +386,8 @@ public class DigiDoc4JTest extends AbstractTest {
 
   @Test
   public void verifyValidDDoc() throws Exception {
+    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     this.systemExit.expectSystemExitWithStatus(0);
     this.systemExit.checkAssertionAfterwards(new Assertion() {
 
@@ -422,6 +419,8 @@ public class DigiDoc4JTest extends AbstractTest {
 
   @Test
   public void verboseMode() throws Exception {
+    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     this.systemExit.expectSystemExitWithStatus(0);
     this.systemExit.checkAssertionAfterwards(new Assertion() {
 
@@ -438,6 +437,8 @@ public class DigiDoc4JTest extends AbstractTest {
 
   @Test
   public void verifyInValidDDoc() throws Exception {
+    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     this.systemExit.expectSystemExitWithStatus(1);
     this.systemExit.checkAssertionAfterwards(new Assertion() {
 
@@ -453,6 +454,8 @@ public class DigiDoc4JTest extends AbstractTest {
 
   @Test
   public void verifyDDocWithFatalError() throws Exception {
+    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     this.systemExit.expectSystemExitWithStatus(1);
     this.systemExit.checkAssertionAfterwards(new Assertion() {
 
@@ -532,6 +535,8 @@ public class DigiDoc4JTest extends AbstractTest {
 
   @Test
   public void verifyDDocWithWarning() {
+    this.configuration = Configuration.of(Configuration.Mode.PROD);
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     this.systemExit.expectSystemExitWithStatus(1);
     this.systemExit.checkAssertionAfterwards(new Assertion() {
 

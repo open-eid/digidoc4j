@@ -10,21 +10,19 @@
 
 package org.digidoc4j.impl.bdoc.tsl;
 
-import java.util.Map;
-
+import eu.europa.esig.dss.tsl.TSLValidationModel;
+import eu.europa.esig.dss.tsl.service.TSLRepository;
+import eu.europa.esig.dss.tsl.service.TSLValidationJob;
+import eu.europa.esig.dss.validation.policy.rules.Indication;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.asic.tsl.TslLoader;
 import org.digidoc4j.test.util.TestCommonUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import eu.europa.esig.dss.tsl.TSLValidationModel;
-import eu.europa.esig.dss.tsl.service.TSLRepository;
-import eu.europa.esig.dss.tsl.service.TSLValidationJob;
-import eu.europa.esig.dss.validation.policy.rules.Indication;
+import java.util.Map;
 
 public class TslLoaderTest extends AbstractTest {
 
@@ -70,7 +68,7 @@ public class TslLoaderTest extends AbstractTest {
     this.configuration = new Configuration(Configuration.Mode.PROD);
     TSLRepository tslRepository = this.initTSLAndGetRepository();
     this.assertCountryLoaded(tslRepository, "EE");
-    this.assertCountryLoaded(tslRepository, "FR");
+    this.assertCountryLoaded(tslRepository, "DK");
     this.assertCountryLoaded(tslRepository, "ES");
   }
 
@@ -110,7 +108,7 @@ public class TslLoaderTest extends AbstractTest {
     this.configuration = new Configuration(Configuration.Mode.PROD);
     TSLRepository tslRepository = this.initTSLAndGetRepository();
     this.assertCountryLoaded(tslRepository, "EE");
-    this.assertCountryLoaded(tslRepository, "FR");
+    this.assertCountryLoaded(tslRepository, "DK");
     this.assertCountryLoaded(tslRepository, "NO");
     this.assertCountryNotLoaded(tslRepository, "DE");
     this.assertCountryNotLoaded(tslRepository, "HR");

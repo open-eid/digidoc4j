@@ -91,7 +91,7 @@ public class ContainerTest extends AbstractTest {
     SignatureValidationResult result = container.validate();
     Assert.assertTrue("Container is invalid", result.isValid());
     Assert.assertEquals("No errors count match", 0, result.getErrors().size());
-    Assert.assertEquals("No warnings count match", 5, result.getWarnings().size());
+    Assert.assertEquals("No warnings count match", 1, result.getWarnings().size());
   }
 
   @Test
