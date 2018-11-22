@@ -136,7 +136,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("NO_CERTIFICATE_CHAIN_FOUND", "/SimpleReport/Signature/SubIndication", report);
     TestAssert.assertXPathHasValue("META-INF/signatures0.xml", "/SimpleReport/Signature/DocumentName", report);
     TestAssert.assertXPathHasValue("RELEASE-NOTES.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
-    TestAssert.assertXPathHasValue("The certificate chain for signature is not trusted, there is no trusted anchor.", "/SimpleReport/Signature/Errors", report);
+    TestAssert.assertXPathHasValue("The certificate path is not trusted!", "/SimpleReport/Signature/Errors", report);
     TestAssert.assertXPathHasValue("Manifest file has an entry for file <incorrect.txt> with mimetype <text/plain> " +
         "but the signature file for signature S0 does not have an entry for this file", "/SimpleReport/ContainerError[1]", report);
     TestAssert.assertXPathHasValue("The signature file for signature S0 has an entry for file <RELEASE-NOTES.txt> " +

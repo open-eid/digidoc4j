@@ -10,12 +10,12 @@
 
 package org.digidoc4j.impl.asic.tsl;
 
-import java.io.Serializable;
-
 import org.digidoc4j.Configuration;
 import org.digidoc4j.TSLCertificateSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
 
 public class TslManager implements Serializable {
 
@@ -48,7 +48,7 @@ public class TslManager implements Serializable {
     if (this.tslCertificateSource == null) {
       logger.debug("Loading TSL in a synchronized block");
       TslLoader tslLoader = new TslLoader(this.configuration);
-      tslLoader.setCheckSignature(this.configuration.shouldValidateTslSignature());
+      tslLoader.setCheckSignature(true);
       LazyTslCertificateSource lazyTsl = new LazyTslCertificateSource(tslLoader);
       lazyTsl.setCacheExpirationTime(this.configuration.getTslCacheExpirationTime());
       this.tslCertificateSource = lazyTsl;

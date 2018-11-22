@@ -218,9 +218,9 @@ public class SignatureTest extends AbstractTest {
     Signature signature = container.getSignatures().get(0);
     Assert.assertEquals(0, signature.validateSignature().getErrors().size());
     signature = container.getSignatures().get(1);
-    Assert.assertEquals(1, signature.validateSignature().getErrors().size());
+    Assert.assertEquals(2, signature.validateSignature().getErrors().size());
     SignatureValidationResult validate = container.validate();
-    Assert.assertEquals(1, validate.getErrors().size());
+    Assert.assertEquals(2, validate.getErrors().size());
     String report = validate.getReport();
     Assert.assertTrue(report.contains("Id=\"S0\" SignatureFormat=\"XAdES-BASELINE-LT\""));
     Assert.assertTrue(report.contains("Id=\"S1\" SignatureFormat=\"XAdES-BASELINE-LT\""));
@@ -429,12 +429,12 @@ public class SignatureTest extends AbstractTest {
         //"id-6a5d6671af7a9e0ab9a5e4d49d69800d"
         Assert.assertEquals(Indication.TOTAL_PASSED, result.getIndication(id));
         Assert.assertEquals(null, result.getSubIndication(id));
-        Assert.assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification(id).getLabel());
+        Assert.assertEquals(SignatureQualification.QESIG.getLabel(), result.getSignatureQualification(id).getLabel());
       }
     }
     Assert.assertEquals(Indication.TOTAL_PASSED, result.getIndication(null));
     Assert.assertEquals(null, result.getSubIndication(null));
-    Assert.assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification(null).getLabel());
+    Assert.assertEquals(SignatureQualification.QESIG.getLabel(), result.getSignatureQualification(null).getLabel());
   }
 
   @Test
@@ -462,7 +462,7 @@ public class SignatureTest extends AbstractTest {
     //Signature with id "S0" is valid
     Assert.assertEquals(Indication.TOTAL_PASSED, result.getIndication(null));
     Assert.assertEquals(null, result.getSubIndication(null));
-    Assert.assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification(null).getLabel());
+    Assert.assertEquals(SignatureQualification.QESIG.getLabel(), result.getSignatureQualification(null).getLabel());
   }
 
   /*

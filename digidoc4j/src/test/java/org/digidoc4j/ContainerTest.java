@@ -39,18 +39,14 @@ import java.util.List;
 public class ContainerTest extends AbstractTest {
 
   @Test
-  public void eIDASAllErrorsPolicyConfigurationTest() {
+  public void eIDASAllFailsPolicyConfigurationSuccessfulTest() {
     this.configuration = Configuration.of(Configuration.Mode.TEST);
     this.configuration.setValidationPolicy
         ("src/test/resources/testFiles/constraints/eIDAS_test_constraint_all_fail_level.xml");
     Container container = this.openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc"));
     SignatureValidationResult result = container.validate();
-    Assert.assertFalse("Container is valid", result.isValid());
-    Assert.assertEquals("No errors count match", 2, result.getErrors().size());
-    Assert.assertEquals("No warnings count match", 0, result.getWarnings().size());
-    Assert.assertTrue(result.getReport().contains("The trusted list is not acceptable"));
-    Assert.assertTrue(result.getReport().contains("The trusted list is not well signed!"));
+    Assert.assertTrue("Container is invalid", result.isValid());
   }
 
   @Test
@@ -82,7 +78,7 @@ public class ContainerTest extends AbstractTest {
   }
 
   @Test
-  public void eIDASAllWarningsPolicyConfigurationTest() {
+  public void eIDASAllWarningsPolicyConfigurationSuccessfulTest() {
     this.configuration = Configuration.of(Configuration.Mode.TEST);
     this.configuration.setValidationPolicy
         ("src/test/resources/testFiles/constraints/eIDAS_test_constraint_all_warn_level.xml");
@@ -90,8 +86,6 @@ public class ContainerTest extends AbstractTest {
         Paths.get("src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc"));
     SignatureValidationResult result = container.validate();
     Assert.assertTrue("Container is invalid", result.isValid());
-    Assert.assertEquals("No errors count match", 0, result.getErrors().size());
-    Assert.assertEquals("No warnings count match", 1, result.getWarnings().size());
   }
 
   @Test

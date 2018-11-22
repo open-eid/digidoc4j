@@ -238,4 +238,13 @@
             </Cryptographic>
         </CACertificate>
     </Revocation>
+
+    <!-- eIDAS REGL 910/EU/2014 -->
+    <eIDAS>
+        <TLFreshness Level="WARN" Unit="HOURS" Value="6" />
+        <TLNotExpired Level="FAIL" />
+        <TLWellSigned Level="WARN" />
+        <TLVersion Level="FAIL" value="5" />
+        <TLConsistency Level="FAIL" />
+    </eIDAS>
 </ConstraintsParameters>

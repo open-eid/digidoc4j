@@ -476,15 +476,6 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Flags that TSL signature should be validated.
-   *
-   * @return True if TSL signature should be validated, False otherwise.
-   */
-  public boolean shouldValidateTslSignature() {
-    return mode != Mode.TEST;
-  }
-
-  /**
    * Set the TSL location.
    * TSL can be loaded from file (file://) or from web (http://). If file protocol is used then
    * first try is to locate file from this location if file does not exist then it tries to load
