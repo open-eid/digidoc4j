@@ -10,7 +10,6 @@
 
 package org.digidoc4j;
 
-import com.sun.javafx.binding.StringConstant;
 import eu.europa.esig.dss.client.http.Protocol;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
