@@ -30,7 +30,7 @@ public class PerformanceTest extends AbstractTest {
 
   private static final ConfigManagerInitializer configManagerInitializer = new ConfigManagerInitializer();
   private static final int INVOCATIONS = 1000;
-
+  private static final int MULTIPLE_THREADS = 20;
   @Rule
   public ContiPerfRule performanceTestRule = new ContiPerfRule();
 
@@ -50,91 +50,103 @@ public class PerformanceTest extends AbstractTest {
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 1)
+  @PerfTest(invocations = INVOCATIONS)
   public void validateTestBDocTmSignatures() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc")));
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 1)
+  @PerfTest(invocations = INVOCATIONS)
   public void validateTestAsiceSignatures() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice.asice")));
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 1)
+  @PerfTest(invocations = INVOCATIONS)
   public void validateTestAsicsSignature() {
-    TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/timestamptoken-ddoc.asics")));
+    TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-valid.asics")));
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 1)
+  @PerfTest(invocations = INVOCATIONS)
   public void validateTestDDocSignature() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-valid.ddoc")));
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 20)
+  @PerfTest(invocations = INVOCATIONS, threads = MULTIPLE_THREADS)
   public void validateTestBDocTmSignaturesInThreads() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc")));
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 20)
+  @PerfTest(invocations = INVOCATIONS, threads = MULTIPLE_THREADS)
   public void validateTestAsiceSignaturesInThreads() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice.asice")));
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 20)
+  @PerfTest(invocations = INVOCATIONS, threads = MULTIPLE_THREADS)
   public void validateTestAsicsSignaturesInThreads() {
-    TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/timestamptoken-ddoc.asics")));
+    TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-valid.asics")));
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 20)
+  @PerfTest(invocations = INVOCATIONS, threads = MULTIPLE_THREADS)
   public void validateTestDDocSignaturesInThreads() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-valid.ddoc")));
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 1)
+  @PerfTest(invocations = INVOCATIONS)
   public void validateTestBdocLargeContainer() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc")));
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 1)
+  @PerfTest(invocations = INVOCATIONS)
   public void validateTestAsiceLargeContainer() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/asice-with-large-data-file.asice")));
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 1)
+  @PerfTest(invocations = INVOCATIONS)
   public void validateTestDdocLargeContainer() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-with-large-data-file.ddoc")));
   }
 
   @Test
-  @PerfTest(invocations = 1, threads = 1)
+  @PerfTest(invocations = INVOCATIONS)
+  public void validateTestAsicsLargeContainer() {
+    TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-with-large-data-file.asics")));
+  }
+
+  @Test
+  @PerfTest
   public void validateBDocWith1000Signatures() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/bdoc-tm-1000-signatures.bdoc")));
   }
 
   @Test
-  @PerfTest(invocations = 1, threads = 1)
+  @PerfTest
   public void validateAsiceWith1000Signatures() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/asice-1000-signatures.asice")));
   }
 
   @Test
-  @PerfTest(invocations = 1, threads = 1)
+  @PerfTest
   public void validateDddocWith1000Signatures() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-1000-signatures.ddoc")));
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 1)
+  @PerfTest
+  public void validateAsicsWith1000Signatures() {
+    TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-1000-signatures.asics")));
+  }
+
+  @Test
+  @PerfTest(invocations = INVOCATIONS)
   public void openBDocTmContainerDetails() {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
     Assert.assertEquals("test.txt", container.getDataFiles().get(0).getName());
@@ -145,7 +157,7 @@ public class PerformanceTest extends AbstractTest {
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 1)
+  @PerfTest(invocations = INVOCATIONS)
   public void openAsiceContainerDetails() {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice.asice"));
     Assert.assertEquals("test.txt", container.getDataFiles().get(0).getName());
@@ -156,7 +168,7 @@ public class PerformanceTest extends AbstractTest {
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 1)
+  @PerfTest(invocations = INVOCATIONS)
   public void openDdocContainerDetails() {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-valid.ddoc"));
     Assert.assertEquals("test.txt", container.getDataFiles().get(0).getName());
@@ -167,7 +179,15 @@ public class PerformanceTest extends AbstractTest {
   }
 
   @Test
-  @PerfTest(invocations = INVOCATIONS, threads = 20)
+  @PerfTest(invocations = INVOCATIONS)
+  public void openAsicsContainerDetails() {
+    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-valid.asics"));
+    Assert.assertEquals("ddoc-valid.ddoc", container.getDataFiles().get(0).getName());
+    Assert.assertEquals("ASICS", container.getType());
+  }
+
+  @Test
+  @PerfTest(invocations = INVOCATIONS, threads = MULTIPLE_THREADS)
   public void saveExistingContainerOnDisk() {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
     File file = container.saveAsFile(this.getFileBy("bdoc"));
@@ -176,7 +196,7 @@ public class PerformanceTest extends AbstractTest {
   }
 
   @Test
-  @PerfTest(invocations = 10, threads = 1)
+  @PerfTest(invocations = 10)
   public void loadingTSL() throws Exception {
     TSLCertificateSource tsl = new Configuration(Configuration.Mode.PROD).getTSL();
     tsl.invalidateCache();
@@ -184,14 +204,14 @@ public class PerformanceTest extends AbstractTest {
   }
 
   @Test
-  @PerfTest(invocations = 50, threads = 1)
+  @PerfTest(invocations = 50)
   public void createBDocTmSignature() {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
     this.createSignatureBy(container, SignatureProfile.LT_TM, DigestAlgorithm.SHA256, this.pkcs12SignatureToken);
   }
 
   @Test
-  @PerfTest(invocations = 50, threads = 1)
+  @PerfTest(invocations = 50)
   public void createAsicSignature() {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
     this.createSignatureBy(container, SignatureProfile.LT, DigestAlgorithm.SHA256, this.pkcs12SignatureToken);
