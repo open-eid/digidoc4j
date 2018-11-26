@@ -1067,6 +1067,7 @@ public class Configuration implements Serializable {
    */
   public void setAllowedOcspRespondersForTM(String... allowedOcspRespondersForTM) {
     this.setConfigurationParameter(ConfigurationParameter.AllowedOcspRespondersForTM, allowedOcspRespondersForTM);
+    setDDoc4JParameter("ALLOWED_OCSP_RESPONDERS_FOR_TM", StringUtils.join(allowedOcspRespondersForTM, ","));
   }
 
   /**
