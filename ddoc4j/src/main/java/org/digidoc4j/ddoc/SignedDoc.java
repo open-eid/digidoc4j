@@ -1,8 +1,7 @@
 package org.digidoc4j.ddoc;
 
+import org.apache.log4j.Logger;
 import org.digidoc4j.ddoc.factory.DigiDocXmlGenFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.security.MessageDigest;
@@ -51,7 +50,7 @@ public class SignedDoc implements Serializable
     /** original container filename without path */
     private String m_file;
 
-    private static Logger m_logger = LoggerFactory.getLogger(SignedDoc.class);
+    private static Logger m_logger = Logger.getLogger(SignedDoc.class);
     /** the only supported formats are SK-XML and DIGIDOC-XML */
     public static final String FORMAT_SK_XML = "SK-XML";
     public static final String FORMAT_DIGIDOC_XML = "DIGIDOC-XML";

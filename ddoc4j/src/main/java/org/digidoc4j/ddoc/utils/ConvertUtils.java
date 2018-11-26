@@ -1,13 +1,13 @@
 package org.digidoc4j.ddoc.utils;
 
+import org.apache.log4j.Logger;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.ddoc.tsl.MultiLangString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.security.auth.x500.X500Principal;
-import java.io.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -21,7 +21,7 @@ public class ConvertUtils
     private static final String m_dateFormatIso8601 = "yyyy.MM.dd'T'HH:mm:ss";
     private static final String m_dateFormatSSS = "yyyy.MM.dd'T'HH:mm:ss.SSS'Z'";
     private static final String m_dateFormatXAdESSSS = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-    private static Logger m_logger = LoggerFactory.getLogger(ConvertUtils.class);
+    private static Logger m_logger = Logger.getLogger(ConvertUtils.class);
     public static final String X509_NAME_RFC = "RFC2253"; //"RFC4514";
     /** Invalid SHA1 13+0x00 algortihm prefix - 00 30 21 30 09 06 05 2b 0e 03 02 1a 04 14 0x00 */
     private static final byte[] sha1AlgPrefix13Bad = {

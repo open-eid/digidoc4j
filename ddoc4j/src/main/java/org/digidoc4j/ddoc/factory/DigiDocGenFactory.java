@@ -1,13 +1,12 @@
 package org.digidoc4j.ddoc.factory;
 
-import org.digidoc4j.ddoc.utils.ConvertUtils;
+import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.x509.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.digidoc4j.ddoc.utils.ConvertUtils;
 
 import java.io.ByteArrayInputStream;
 import java.security.cert.X509Certificate;
@@ -21,7 +20,7 @@ import java.util.Enumeration;
  */
 public class DigiDocGenFactory {
     //private SignedDoc m_sdoc;
-    private static Logger m_logger = LoggerFactory.getLogger(DigiDocGenFactory.class);
+    private static Logger m_logger = Logger.getLogger(DigiDocGenFactory.class);
     private static final String DIGI_OID_LIVE_TEST = "1.3.6.1.4.1.10015.1.2";
     private static final String DIGI_OID_TEST_TEST = "1.3.6.1.4.1.10015.3.2";
 

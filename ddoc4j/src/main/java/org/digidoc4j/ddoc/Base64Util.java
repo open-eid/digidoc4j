@@ -1,7 +1,6 @@
 package org.digidoc4j.ddoc;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,7 +14,7 @@ import java.util.StringTokenizer;
  */
 public class Base64Util  {
     /** log4j logger */
-    private static Logger m_logger = LoggerFactory.getLogger(Base64Util.class);;
+    private static Logger m_logger = Logger.getLogger(Base64Util.class);;
     public static final int BASE64DEFAULTLENGTH = 64;
     public static final String LINE_SEPARATOR = "\n";
     static String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";

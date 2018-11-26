@@ -1,10 +1,9 @@
 package org.digidoc4j.ddoc.factory;
 
+import org.apache.log4j.Logger;
 import org.digidoc4j.ddoc.*;
 import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.digidoc4j.ddoc.utils.ConvertUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.crypto.Cipher;
 import java.io.File;
@@ -21,7 +20,7 @@ import java.util.List;
  * @author Veiko Sinivee
  */
 public class DigiDocVerifyFactory {
-    private static final Logger m_logger = LoggerFactory.getLogger(DigiDocVerifyFactory.class);
+    private static final Logger m_logger = Logger.getLogger(DigiDocVerifyFactory.class);
     private static boolean m_prvInited = false;
 
     private static final String DIGIDOC_VERIFY_ALGORITHM = "RSA/NONE/PKCS1Padding";

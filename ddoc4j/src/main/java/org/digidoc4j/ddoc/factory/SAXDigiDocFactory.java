@@ -1,10 +1,9 @@
 package org.digidoc4j.ddoc.factory;
 
+import org.apache.log4j.Logger;
 import org.digidoc4j.ddoc.*;
 import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.digidoc4j.ddoc.utils.ConvertUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -46,7 +45,7 @@ public class SAXDigiDocFactory
     private int m_nCollectMode;
     private long nMaxBdocFilCached;
     /** log4j logger */
-    private Logger m_logger = LoggerFactory.getLogger(SAXDigiDocFactory.class);
+    private Logger m_logger = Logger.getLogger(SAXDigiDocFactory.class);
     /** calculation of digest */
     private MessageDigest m_digest, m_altDigest;
     /** temp output stream used to cache DataFile content */

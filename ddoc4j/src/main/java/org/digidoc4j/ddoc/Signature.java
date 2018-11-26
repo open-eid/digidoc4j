@@ -1,9 +1,8 @@
 package org.digidoc4j.ddoc;
 
+import org.apache.log4j.Logger;
 import org.digidoc4j.ddoc.factory.DigiDocVerifyFactory;
 import org.digidoc4j.ddoc.factory.DigiDocXmlGenFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -54,7 +53,7 @@ public class Signature implements Serializable
     private boolean m_bAltDigMatch;
     /** signature profile - used in bdoc */
     private String m_profile, m_httpFrom;
-    private static Logger m_logger = LoggerFactory.getLogger(Signature.class);
+    private static Logger m_logger = Logger.getLogger(Signature.class);
 
     /**
      * Creates new Signature

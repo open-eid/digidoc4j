@@ -1,9 +1,10 @@
 package org.digidoc4j.ddoc.factory;
 
-import org.digidoc4j.ddoc.*;
-import org.digidoc4j.ddoc.utils.ConfigManager;
-import org.digidoc4j.ddoc.utils.ConvertUtils;
-import org.bouncycastle.asn1.*;
+import org.apache.log4j.Logger;
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1Primitive;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DERTaggedObject;
 import org.bouncycastle.asn1.ocsp.BasicOCSPResponse;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.ocsp.ResponderID;
@@ -16,22 +17,24 @@ import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.DigestCalculatorProvider;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
-import org.digidoc4j.ddoc.Signature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.digidoc4j.ddoc.*;
+import org.digidoc4j.ddoc.utils.ConfigManager;
+import org.digidoc4j.ddoc.utils.ConvertUtils;
 
 import java.io.FileInputStream;
 import java.io.OutputStream;
-import java.security.*;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Provider;
+import java.security.Security;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 public class BouncyCastleNotaryFactory implements NotaryFactory
 {
-    private static final Logger m_logger = LoggerFactory.getLogger(BouncyCastleNotaryFactory.class);
+    private static final Logger m_logger = Logger.getLogger(BouncyCastleNotaryFactory.class);
 
     /**
      * Returns the OCSP responders certificate

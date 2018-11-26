@@ -1,11 +1,10 @@
 package org.digidoc4j.ddoc;
 
+import org.apache.commons.codec.binary.Base64InputStream;
+import org.apache.log4j.Logger;
 import org.digidoc4j.ddoc.factory.CanonicalizationFactory;
 import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.digidoc4j.ddoc.utils.ConvertUtils;
-import org.apache.commons.codec.binary.Base64InputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import javax.xml.transform.OutputKeys;
@@ -68,7 +67,7 @@ public class DataFile implements Serializable
     public static final String DIGEST_TYPE_SHA1 = "sha1";
     private static int block_size = 2048;
     /** log4j logger */
-    private static Logger m_logger = LoggerFactory.getLogger(DataFile.class);
+    private static Logger m_logger = Logger.getLogger(DataFile.class);
     /** temp file used to cache DataFile data if caching is enabled */
     private transient File m_fDfCache = null;
     private boolean m_bodyIsBase64;
