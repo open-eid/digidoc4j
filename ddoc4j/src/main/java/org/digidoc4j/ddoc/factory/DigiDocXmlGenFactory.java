@@ -1,8 +1,9 @@
 package org.digidoc4j.ddoc.factory;
 
-import org.apache.log4j.Logger;
-import org.digidoc4j.ddoc.*;
 import org.digidoc4j.ddoc.utils.ConvertUtils;
+import org.digidoc4j.ddoc.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Factory class to handle all digidoc format xml generation issues
@@ -14,7 +15,7 @@ public class DigiDocXmlGenFactory {
     private static final int NS_XMLDSIG = 1;
     private static final int NS_XADES = 2;
     private static final int NS_ASIC = 3;
-    private Logger m_logger = Logger.getLogger(DigiDocXmlGenFactory.class);
+    private Logger m_logger = LoggerFactory.getLogger(DigiDocXmlGenFactory.class);
 
 
 

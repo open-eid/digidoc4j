@@ -1,10 +1,11 @@
 package org.digidoc4j.ddoc.tsl;
 
-import org.apache.log4j.Logger;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.factory.TrustServiceFactory;
 import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.digidoc4j.ddoc.utils.ConvertUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,7 +29,7 @@ public class DigiDocTrustServiceFactory
 	implements TrustServiceFactory
 {
 	/** log4j logger */
-	private static Logger m_logger = Logger.getLogger(DigiDocTrustServiceFactory.class);
+	private static Logger m_logger = LoggerFactory.getLogger(DigiDocTrustServiceFactory.class);
 	/** TSL list */
 	private List m_tsls;
 	

@@ -1,7 +1,8 @@
 package org.digidoc4j.ddoc;
 
-import org.apache.log4j.Logger;
 import org.digidoc4j.ddoc.utils.ConfigManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class Reference implements Serializable
     private String m_transformAlgorithm;
     /** type uri */
     private String m_type;
-    private static Logger m_logger = Logger.getLogger(Reference.class);
+    private static Logger m_logger = LoggerFactory.getLogger(Reference.class);
 
     /**
      * Creates new Reference. Initializes

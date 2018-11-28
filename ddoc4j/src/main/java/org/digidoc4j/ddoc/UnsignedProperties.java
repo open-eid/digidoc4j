@@ -1,8 +1,9 @@
 package org.digidoc4j.ddoc;
 
-import org.apache.log4j.Logger;
 import org.digidoc4j.ddoc.factory.NotaryFactory;
 import org.digidoc4j.ddoc.utils.ConfigManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.security.cert.X509Certificate;
@@ -26,7 +27,7 @@ public class UnsignedProperties implements Serializable
     private CompleteRevocationRefs m_revRefs;
     /** Notary object */
     private Vector m_notaries;
-    private static Logger m_logger = Logger.getLogger(UnsignedProperties.class);
+    private static Logger m_logger = LoggerFactory.getLogger(UnsignedProperties.class);
     /**
      * Creates new UsignedProperties
      * Initializes everything to null

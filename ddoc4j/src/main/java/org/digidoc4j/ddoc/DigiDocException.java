@@ -1,10 +1,12 @@
 package org.digidoc4j.ddoc;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DigiDocException extends Exception {
 
-    private static Logger LOGGER = Logger.getLogger(DigiDocException.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DigiDocException.class);
+
     /** numeric exception code */
     private int m_code;
     /** nested exception */

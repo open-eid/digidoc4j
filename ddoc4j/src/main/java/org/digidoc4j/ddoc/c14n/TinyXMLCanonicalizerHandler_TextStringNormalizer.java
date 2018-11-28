@@ -1,13 +1,14 @@
 package org.digidoc4j.ddoc.c14n;
 
-import org.apache.log4j.Logger;
 import org.digidoc4j.ddoc.c14n.common.Convert;
 import org.digidoc4j.ddoc.c14n.common.Helper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class TinyXMLCanonicalizerHandler_TextStringNormalizer implements EntityParser_Handler
 {
     public boolean IsAttribute;
-    private static Logger m_logger = Logger.getLogger(TinyXMLCanonicalizerHandler_TextStringNormalizer.class);
+    private static Logger m_logger = LoggerFactory.getLogger(TinyXMLCanonicalizerHandler_TextStringNormalizer.class);
 
     public TinyXMLCanonicalizerHandler_TextStringNormalizer()
     {

@@ -1,9 +1,10 @@
 package org.digidoc4j.ddoc.factory;
 
-import org.apache.log4j.Logger;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.XmlElemDef;
 import org.digidoc4j.ddoc.XmlElemInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Vector;
 
@@ -132,7 +133,7 @@ public class DigiDocStructureValidator {
     private static XmlElemDef eXAdESSignatures = new XmlElemDef("XAdESSignatures", false, eXAdESSignaturesCh );
 
 
-    private static Logger m_logger = Logger.getLogger(DigiDocStructureValidator.class);
+    private static Logger m_logger = LoggerFactory.getLogger(DigiDocStructureValidator.class);
 
     public static DigiDocException validateElementPath(XmlElemInfo ePath)
     {

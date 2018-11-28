@@ -1,9 +1,10 @@
 package org.digidoc4j.ddoc.utils;
 
-import org.apache.log4j.Logger;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.ddoc.factory.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -27,7 +28,7 @@ public class ConfigManager {
     private static CanonicalizationFactory m_canFac = null;
 
     /** log4j logger */
-    private static Logger m_logger = Logger.getLogger(ConfigManager.class);
+    private static Logger m_logger = LoggerFactory.getLogger(ConfigManager.class);
     private static SignatureFactory m_sigFac = null;
     private static TrustServiceFactory m_tslFac = null;
 

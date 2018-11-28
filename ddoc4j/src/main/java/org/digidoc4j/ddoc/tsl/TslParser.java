@@ -18,12 +18,13 @@
  */
 package org.digidoc4j.ddoc.tsl;
 
-import org.apache.log4j.Logger;
 import org.digidoc4j.ddoc.Base64Util;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.ddoc.factory.SAXDigiDocException;
 import org.digidoc4j.ddoc.utils.ConvertUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -43,7 +44,7 @@ import java.util.Stack;
 public class TslParser extends DefaultHandler
 {
 	/** log4j logger */
-    private static Logger m_logger = Logger.getLogger(TslParser.class);
+    private static Logger m_logger = LoggerFactory.getLogger(TslParser.class);
     private Stack m_tags;
     private TrustServiceStatusList m_tsl;
     private StringBuffer m_sbCollectItem;
