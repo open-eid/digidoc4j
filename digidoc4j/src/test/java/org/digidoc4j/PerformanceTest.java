@@ -63,13 +63,13 @@ public class PerformanceTest extends AbstractTest {
 
   @Test
   @PerfTest(invocations = INVOCATIONS)
-  public void validateTestAsicsSignature() {
+  public void validateTestAsicsSignatures() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-valid.asics")));
   }
 
   @Test
   @PerfTest(invocations = INVOCATIONS)
-  public void validateTestDDocSignature() {
+  public void validateTestDDocSignatures() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-valid.ddoc")));
   }
 
@@ -213,7 +213,7 @@ public class PerformanceTest extends AbstractTest {
   @Test
   @PerfTest(invocations = 50)
   public void createAsicSignature() {
-    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
+    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice.asice"));
     this.createSignatureBy(container, SignatureProfile.LT, DigestAlgorithm.SHA256, this.pkcs12SignatureToken);
   }
 
