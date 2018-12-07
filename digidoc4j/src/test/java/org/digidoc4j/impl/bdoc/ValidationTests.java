@@ -552,6 +552,16 @@ public class ValidationTests extends AbstractTest {
   }
 
   @Test
+  public void bDoc_invalidOcspResponse() {
+    Container container = this.openContainerByConfiguration(
+            Paths.get("src/test/resources/prodFiles/invalid-containers/bdoc21-vigane-ocsp.bdoc"), PROD_CONFIGURATION);
+    ContainerValidationResult response = container.validate();
+    Assert.assertEquals(2, response.getErrors().size());
+    Assert.assertEquals("No revocation data for the certificate", response.getErrors().get(0).getMessage());
+    Assert.assertEquals("OCSP Responder does not meet TM requirements", response.getErrors().get(1).getMessage());
+  }
+
+  @Test
   public void ocspResponseShouldNotBeTakenFromPreviouslyValidatedSignatures_whenOcspResponseIsMissing() throws Exception {
     Assert.assertFalse(this.openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc"), this.configuration)

@@ -42,14 +42,17 @@ public class OcspResponderValidator {
             return true;
         }
         try {
-            return isOcspResponserCommonNameValid(signature.getOCSPCertificate());
+            return isOcspResponderCommonNameValid(signature.getOCSPCertificate());
         } catch (CertificateNotFoundException e) {
             return false;
         }
 
     }
 
-    private boolean isOcspResponserCommonNameValid(X509Cert ocspCertificate) {
+    private boolean isOcspResponderCommonNameValid(X509Cert ocspCertificate) {
+        if(ocspCertificate==null) {
+            return false;
+        }
         try {
             X500Name x500name = new JcaX509CertificateHolder(ocspCertificate.getX509Certificate()).getSubject();
             RDN dn = x500name.getRDNs(BCStyle.CN)[0];
