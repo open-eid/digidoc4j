@@ -135,7 +135,7 @@ public class PadesContainer implements Container {
       throw new DigiDoc4JException(message);
     }
     validator.setCertificateVerifier(createCertificateVerifier());
-    Reports reports = validator.validateDocument(this.configuration.getValidationPolicy());
+    Reports reports = validator.validateDocument(this.getClass().getClassLoader().getResourceAsStream(this.configuration.getValidationPolicy()));
     PadesContainerValidationResult result = new PadesContainerValidationResult(reports.getSimpleReport());
     result.setReport(reports.getXmlSimpleReport());
     for (String id : reports.getSimpleReport().getSignatureIdList()) {

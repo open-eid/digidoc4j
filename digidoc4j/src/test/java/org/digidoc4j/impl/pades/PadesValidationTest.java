@@ -50,7 +50,7 @@ public class PadesValidationTest extends AbstractTest {
             fromExistingFile("src/test/resources/prodFiles/invalid-containers/PadesProfileT.pdf").build();
     SignatureValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
-    TestAssert.assertContainsError("The past signature validation is not conclusive!", result.getErrors());
+    TestAssert.assertContainsError("No revocation data for the certificate", result.getErrors());
   }
 
   @Test
