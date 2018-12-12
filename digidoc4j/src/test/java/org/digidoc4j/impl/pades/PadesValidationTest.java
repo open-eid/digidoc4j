@@ -5,9 +5,11 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.main.DigiDoc4J;
 import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.ExpectedSystemExit;
@@ -28,34 +30,51 @@ public class PadesValidationTest extends AbstractTest {
   @Rule
   public final SystemOutRule stdOut = new SystemOutRule().enableLog();
 
-  @Test
-  public void padesValidationTestTwoSignature() {
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.PADES).withConfiguration(this.configuration).
-        fromExistingFile("src/test/resources/testFiles/invalid-containers/hello_signed_INCSAVE_signed_EDITED.pdf").build();
+  @Test(expected = DigiDoc4JException.class)
+  public void invalidPDFProvided_shouldThrowException() {
+    Container container = new PadesContainer(this.configuration, "src/test/resources/prodFiles/valid-containers/valid_prod_bdoc_eid.bdoc");
     SignatureValidationResult result = container.validate();
-    Assert.assertFalse(result.isValid());
-    Assert.assertEquals(4, result.getErrors().size());
-    TestAssert.assertContainsError("The certificate chain for signature is not trusted, there is no trusted anchor.", result.getErrors());
-    TestAssert.assertContainsError("The certificate path is not trusted!", result.getErrors());
-    TestAssert.assertContainsError("The reference data object(s) is not intact!", result.getErrors());
   }
 
   @Test
-  public void padesValidationTestOneSignature() {
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.PADES).
-        withConfiguration(this.configuration).fromExistingFile("src/test/resources/testFiles/invalid-containers/EE_AS-P-BpLT-V-009.pdf").
-        build();
+  public void validPadesLT_shouldSucceed() {
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.PADES).withConfiguration(Configuration.of(Configuration.Mode.PROD)).
+            fromExistingFile("src/test/resources/prodFiles/valid-containers/hellopades-pades-lt-sha256-sign.pdf").build();
+    SignatureValidationResult result = container.validate();
+    Assert.assertTrue(result.isValid());
+  }
+
+  @Test
+  public void PadesT_shouldFail() {
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.PADES).withConfiguration(Configuration.of(Configuration.Mode.PROD)).
+            fromExistingFile("src/test/resources/prodFiles/invalid-containers/PadesProfileT.pdf").build();
     SignatureValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
-    Assert.assertEquals(3, result.getErrors().size());
-    Assert.assertEquals(3, result.getWarnings().size());
-    TestAssert.assertContainsError("The certificate chain for signature is not trusted, there is no trusted anchor.", result.getErrors());
-    TestAssert.assertContainsError("The certificate path is not trusted!", result.getErrors());
-    TestAssert.assertContainsError("The certificate chain for timestamp is not trusted, there is no trusted anchor.", result.getWarnings());
-    TestAssert.assertContainsError("The signature/seal is an INDETERMINATE AdES!", result.getWarnings());
-    TestAssert.assertContainsError("Authority info access is not present!", result.getWarnings());
-    Assert.assertEquals(Indication.INDETERMINATE, result.getIndication("id-6bff661b4349d8cf539d00127c163bdb780e552845d04b66868301a5cf0ed8ba"));
-    Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, result.getSubIndication("id-6bff661b4349d8cf539d00127c163bdb780e552845d04b66868301a5cf0ed8ba"));
+    TestAssert.assertContainsError("The past signature validation is not conclusive!", result.getErrors());
+  }
+
+  @Test
+  public void testValidPadesContainerWithTwoSignatures() {
+    /*
+    Given PDF contains two signatures from the same certificate : B and LT
+    Only LT signature contains revocation aand somehow it gets included while validating B level signature
+    */
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.PADES).withConfiguration(Configuration.of(Configuration.Mode.PROD)).
+            fromExistingFile("src/test/resources/prodFiles/valid-containers/hellopades-lt-b.pdf").build();
+    SignatureValidationResult result = container.validate();
+    Assert.assertTrue(result.isValid());
+  }
+
+  @Test
+  public void padesLTWithCRL_shouldFail() {
+    /**
+     * @see org.digidoc4j.impl.asic.xades.validation.TimestampSignatureValidator#addRevocationErrors() for Xades
+     */
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.PADES).withConfiguration(Configuration.of(Configuration.Mode.PROD)).
+            fromExistingFile("src/test/resources/prodFiles/invalid-containers/PadesProfileLtWithCrl.pdf").build();
+    SignatureValidationResult result = container.validate();
+    Assert.assertFalse(result.isValid());
+    TestAssert.assertContainsError("Signing certificate revocation source is not trusted", result.getErrors());
   }
 
   @Test
