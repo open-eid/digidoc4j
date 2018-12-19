@@ -1,5 +1,32 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+Release 3.0.0
+------------------
+Summary of the major changes since 2.1.1
+------------------------------------------
+* Refactor of jDigidoc into DDOC4J module. Only DDOC validation is now supported, all other functionality removed!
+* PKCS11 slot selection with label
+* Possibility to sign and validate detached XAdES signatures
+* OCSP check for TM suitability
+* Enabling LOTL validation constraints
+* Bug fixes (incoclusive list):
+- Fix for loosing configuration during serialization/deserialization
+- Changes in DDOC error handling
+- Support for old DDOC formats (1.0, 1.1)
+- Fixes in digidoc4j utility
+
+Known issues
+------------
+* PDF validation always returns invalid status
+* Creating ASIC-S containers produces non standard containers
+* AIA OCSP usage not supported
+
+While upgrading, be sure that your integration :
+* doesn't use Xalan or XercesImpl dependencies
+* uses a patched Java version (JDK7u40+, JDK8 or higher)
+Xalan and XercesImpl were used to patch XML vulnerabilities in older java versions. They should be discarded with higher versions because they override default Java XML security.
+If it is not possible to remove Xalan, then you can set your system property to override TransformerFactory : System.setProperty("javax.xml.transform.TransformerFactory","com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
+
 Release 2.1.1
 ------------------
 Summary of the major changes since 2.1.0
