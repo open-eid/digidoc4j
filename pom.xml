@@ -190,6 +190,7 @@
                                 <goal>jar</goal>
                             </goals>
                             <configuration>
+                                <additionalJOption>--no-module-directories</additionalJOption>
                                 <additionalOptions>
                                     <additionalOption>${javadocOpt}</additionalOption>
                                 </additionalOptions>
