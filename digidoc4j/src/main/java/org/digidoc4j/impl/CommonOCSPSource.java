@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CommonOCSPSource extends SKOnlineOCSPSource {
 
-  private final Logger log = LoggerFactory.getLogger(CommonOCSPSource.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CommonOCSPSource.class);
 
   /**
    * @param configuration configuration
@@ -24,7 +24,7 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
 
   @Override
   public Extension createNonce() {
-    this.log.debug("Creating default OCSP nonce ...");
+    LOGGER.debug("Creating default OCSP nonce ...");
     return new Extension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, false, new DEROctetString(Helper
         .generateRandomBytes(32)));
   }

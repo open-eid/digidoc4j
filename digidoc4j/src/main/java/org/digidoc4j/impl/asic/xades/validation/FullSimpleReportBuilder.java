@@ -18,7 +18,7 @@ import eu.europa.esig.dss.validation.reports.DetailedReport;
  */
 public class FullSimpleReportBuilder {
 
-  private final Logger log = LoggerFactory.getLogger(FullSimpleReportBuilder.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(FullSimpleReportBuilder.class);
 
   private static final int BUILDING_BLOCK_ID_LIMIT = 15;
 
@@ -43,7 +43,7 @@ public class FullSimpleReportBuilder {
   }
 
   private void errorsAndWarningsBuilder(){
-    log.debug("Errors and warnings parsing from DetailedReport");
+    LOGGER.debug("Errors and warnings parsing from DetailedReport");
 
     List<XmlBasicBuildingBlocks> basicBuildingBlocks = this.detailedReport.getJAXBModel().getBasicBuildingBlocks();
     List<XmlName> errors = new ArrayList<>();
@@ -131,7 +131,7 @@ public class FullSimpleReportBuilder {
 
   private String transformTypeId(String id) {
     if (id.length() > BUILDING_BLOCK_ID_LIMIT){
-      log.debug("BasicBuildingBlock Id is too big for report: {}", id);
+      LOGGER.debug("BasicBuildingBlock Id is too big for report: {}", id);
       return id.substring(0, BUILDING_BLOCK_ID_LIMIT).concat("..");
     }
     return id;

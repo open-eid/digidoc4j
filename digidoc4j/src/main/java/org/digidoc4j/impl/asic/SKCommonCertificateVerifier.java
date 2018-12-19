@@ -35,7 +35,7 @@ import eu.europa.esig.dss.x509.ocsp.OCSPSource;
  */
 public class SKCommonCertificateVerifier implements Serializable, CertificateVerifier {
 
-  private final Logger log = LoggerFactory.getLogger(SKCommonCertificateVerifier.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SKCommonCertificateVerifier.class);
   private transient CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
   private transient CertificateSource trustedCertSource;
 
@@ -43,7 +43,7 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   public CertificateSource getTrustedCertSource() {
     if (this.trustedCertSource instanceof ClonedTslCertificateSource) {
       if (((ClonedTslCertificateSource) this.trustedCertSource).getTrustedListsCertificateSource() != null) {
-        this.log.debug("get TrustedListCertificateSource from ClonedTslCertificateSource");
+        LOGGER.debug("get TrustedListCertificateSource from ClonedTslCertificateSource");
         return ((ClonedTslCertificateSource) this.trustedCertSource).getTrustedListsCertificateSource();
       }
     }
@@ -55,7 +55,7 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
     ClonedTslCertificateSource clonedTslCertificateSource = new ClonedTslCertificateSource(trustedCertSource);
     this.trustedCertSource = clonedTslCertificateSource;
     if (trustedCertSource instanceof LazyTslCertificateSource) {
-      this.log.debug("get TrustedCertSource from LazyTslCertificateSource");
+      LOGGER.debug("get TrustedCertSource from LazyTslCertificateSource");
       this.commonCertificateVerifier.setTrustedCertSource(
           ((LazyTslCertificateSource) trustedCertSource).getTslLoader().getTslCertificateSource());
     } else {

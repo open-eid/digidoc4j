@@ -66,7 +66,6 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   @Rule
   public TestWatcher watcher = new TestWatcher() {
 
-    private final Logger log = LoggerFactory.getLogger(AbstractTest.class);
     private long startTimestamp;
 
     @Override

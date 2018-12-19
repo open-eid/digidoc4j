@@ -51,7 +51,7 @@ import static org.junit.Assert.assertFalse;
 
 public class ConfigurationTest extends AbstractTest {
 
-  private final Logger log = LoggerFactory.getLogger(ConfigurationTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationTest.class);
   private static final String SIGN_OCSP_REQUESTS = "SIGN_OCSP_REQUESTS";
   private static final String OCSP_PKCS12_CONTAINER = "DIGIDOC_PKCS12_CONTAINER";
   private static final String OCSP_PKCS_12_PASSWD = "DIGIDOC_PKCS12_PASSWD";
@@ -210,7 +210,7 @@ public class ConfigurationTest extends AbstractTest {
             withConfiguration(this.configuration).build();
         Assert.assertNotEquals(5, container.getConfiguration().getTSL().getCertificates().size());
       } else {
-        this.log.error("Host <{}> is unreachable", tslHost);
+        LOGGER.error("Host <{}> is unreachable", tslHost);
       }
     } catch (Exception e) {
     }

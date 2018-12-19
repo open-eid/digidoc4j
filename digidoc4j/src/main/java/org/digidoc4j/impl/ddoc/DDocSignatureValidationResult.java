@@ -36,7 +36,7 @@ import java.util.List;
 public class DDocSignatureValidationResult extends AbstractSignatureValidationResult implements
     ContainerValidationResult {
 
-  private final Logger log = LoggerFactory.getLogger(DDocSignatureValidationResult.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DDocSignatureValidationResult.class);
   private List<DigiDoc4JException> containerExceptions = new ArrayList<>();
   private Document document;
   private Element rootElement;
@@ -135,7 +135,7 @@ public class DDocSignatureValidationResult extends AbstractSignatureValidationRe
       this.errors.add(new DigiDoc4JException(code, message));
       warningOrError = "error";
     }
-    this.log.debug("Validation " + warningOrError + "." + " Code: " + code + ", message: " + message);
+    LOGGER.debug("Validation " + warningOrError + "." + " Code: " + code + ", message: " + message);
     childElement = this.document.createElement(warningOrError);
     childElement.setAttribute("Code", Integer.toString(code));
     childElement.setAttribute("Message", message);
