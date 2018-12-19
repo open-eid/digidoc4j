@@ -20,7 +20,7 @@ import eu.europa.esig.dss.validation.reports.SimpleReport;
 public abstract class AbstractSignatureValidationResult extends AbstractValidationResult implements
     SignatureValidationResult {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSignatureValidationResult.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractSignatureValidationResult.class);
   protected List<SignatureValidationReport> reports = new ArrayList<>();
   protected List<SimpleReport> simpleReports = new ArrayList<>();
   protected String report;
@@ -36,25 +36,25 @@ public abstract class AbstractSignatureValidationResult extends AbstractValidati
 
   @Override
   public Indication getIndication(String signatureId) {
-    LOGGER.info(this.getNotSupportedMessage());
+    logger.info(this.getNotSupportedMessage());
     return null;
   }
 
   @Override
   public SubIndication getSubIndication(String signatureId) {
-    LOGGER.info(this.getNotSupportedMessage());
+    logger.info(this.getNotSupportedMessage());
     return null;
   }
 
   @Override
   public SignatureQualification getSignatureQualification(String signatureId) {
-    LOGGER.info(this.getNotSupportedMessage());
+    logger.info(this.getNotSupportedMessage());
     return null;
   }
 
   @Override
   public void saveXmlReports(Path directory) {
-    LOGGER.info(this.getNotSupportedMessage());
+    logger.info(this.getNotSupportedMessage());
   }
 
   /*

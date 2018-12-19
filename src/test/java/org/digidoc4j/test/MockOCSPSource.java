@@ -56,7 +56,7 @@ import eu.europa.esig.dss.x509.ocsp.OCSPToken;
 
 public class MockOCSPSource implements OCSPSource {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(MockOCSPSource.class);
+  private static final Logger logger = LoggerFactory.getLogger(MockOCSPSource.class);
   private final PrivateKey key;
   private final X509Certificate certificate;
   private CertificateStatus expectedResponse = CertificateStatus.GOOD;
@@ -91,9 +91,9 @@ public class MockOCSPSource implements OCSPSource {
       String alias = keyStore.aliases().nextElement();
       this.certificate = (X509Certificate) keyStore.getCertificate(alias);
       this.key = (PrivateKey) keyStore.getKey(alias, password.toCharArray());
-      if (LOGGER.isTraceEnabled()) {
+      if (logger.isTraceEnabled()) {
         CertificateToken certificateToken = new CommonCertificateSource().addCertificate(new CertificateToken(this.certificate));
-        LOGGER.trace("Mock OCSP source with signing certificate: {}", certificateToken);
+        logger.trace("Mock OCSP source with signing certificate: {}", certificateToken);
       }
     } catch (Exception e) {
       throw new DSSException(e);

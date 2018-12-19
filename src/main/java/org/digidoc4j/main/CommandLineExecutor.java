@@ -54,7 +54,7 @@ import eu.europa.esig.dss.DigestAlgorithm;
  */
 public class CommandLineExecutor {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CommandLineExecutor.class);
+  private static final Logger logger = LoggerFactory.getLogger(CommandLineExecutor.class);
   private final ExecutionContext context;
   private boolean fileHasChanged;
 
@@ -69,7 +69,7 @@ public class CommandLineExecutor {
    * @param container container
    */
   public void processContainer(Container container) {
-    LOGGER.debug("Processing container");
+    logger.debug("Processing container");
     if (container instanceof PadesContainer) {
       this.verifyPadesContainer(container);
     } else {
@@ -144,7 +144,7 @@ public class CommandLineExecutor {
             }
             break;
           default:
-            LOGGER.warn("No option <{}> implemented", option);
+            logger.warn("No option <{}> implemented", option);
         }
       }
       this.postExecutionProcess();
@@ -198,10 +198,10 @@ public class CommandLineExecutor {
   public Container openContainer(String containerPath) {
     Container.DocumentType type = this.getContainerType();
     if (new File(containerPath).exists() || this.context.getCommandLine().hasOption("verify") || this.context.getCommandLine().hasOption("remove")) {
-      LOGGER.debug("Opening container " + containerPath);
+      logger.debug("Opening container " + containerPath);
       return ContainerOpener.open(containerPath);
     } else {
-      LOGGER.debug("Creating new " + type + "container " + containerPath);
+      logger.debug("Creating new " + type + "container " + containerPath);
       return ContainerBuilder.aContainer(type.name()).build();
     }
   }
@@ -216,9 +216,9 @@ public class CommandLineExecutor {
     if (this.fileHasChanged) {
       container.saveAsFile(containerPath);
       if (new File(containerPath).exists()) {
-        LOGGER.debug("Container has been successfully saved to " + containerPath);
+        logger.debug("Container has been successfully saved to " + containerPath);
       } else {
-        LOGGER.warn("Container was NOT saved to " + containerPath);
+        logger.warn("Container was NOT saved to " + containerPath);
       }
     }
   }
@@ -257,7 +257,7 @@ public class CommandLineExecutor {
       this.fileHasChanged = true;
     }
     if (this.context.getCommandLine().hasOption(ExecutionOption.EXTRACT.getName())) {
-      LOGGER.debug("Extracting data file");
+      logger.debug("Extracting data file");
       this.extractDataFile(container);
     }
   }
@@ -267,25 +267,25 @@ public class CommandLineExecutor {
   }
 
   private void addData(Container container) {
-    LOGGER.debug("Adding data to container ...");
+    logger.debug("Adding data to container ...");
     String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.ADD.getName());
     container.addDataFile(values[0], values[1]);
     this.fileHasChanged = true;
   }
 
   private DataToSign createSigningData() {
-    LOGGER.debug("Creating signing data ...");
+    logger.debug("Creating signing data ...");
     return SignatureBuilder.aSignature(this.context.getContainer()).withSigningCertificate(this.context.getCertificate())
         .withSignatureDigestAlgorithm(this.context.getDigestAlgorithm()).buildDataToSign();
   }
 
   private byte[] createSignature() {
-    LOGGER.debug("Creating signature ...");
+    logger.debug("Creating signature ...");
     return this.context.getSignatureToken().sign(this.context.getDigestAlgorithm(), this.context.getDataToSign().getDataToSign());
   }
 
   private X509Certificate loadCertificate() {
-    LOGGER.debug("Loading certificate ...");
+    logger.debug("Loading certificate ...");
     String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.CERTIFICATE.getName());
     try (InputStream stream = new FileInputStream(values[0])) {
       return DSSUtils.loadCertificate(stream).getCertificate();
@@ -295,7 +295,7 @@ public class CommandLineExecutor {
   }
 
   private DataToSign loadSigningData() {
-    LOGGER.debug("Loading signing data ...");
+    logger.debug("Loading signing data ...");
     String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.DTS.getName());
     try {
       return Helper.deserializer(values[0]);
@@ -305,7 +305,7 @@ public class CommandLineExecutor {
   }
 
   private byte[] loadSignature() {
-    LOGGER.debug("Loading signature ...");
+    logger.debug("Loading signature ...");
     String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.SIGNAURE.getName());
     try {
       return Files.readAllBytes(Paths.get(values[0]));
@@ -315,7 +315,7 @@ public class CommandLineExecutor {
   }
 
   private SignatureToken loadPKCS11Token() {
-    LOGGER.debug("Loading PKCS11 token ...");
+    logger.debug("Loading PKCS11 token ...");
     String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.PKCS11.getName());
     try {
       return new PKCS11SignatureToken(values[0], values[1].toCharArray(), Integer.parseInt(values[2]));
@@ -325,7 +325,7 @@ public class CommandLineExecutor {
   }
 
   private SignatureToken loadPKCS12Token() {
-    LOGGER.debug("Loading PKCS12 token ...");
+    logger.debug("Loading PKCS12 token ...");
     String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.PKCS12.getName());
     try {
       return new PKCS12SignatureToken(values[0], values[1].toCharArray());
@@ -335,7 +335,7 @@ public class CommandLineExecutor {
   }
 
   private void storeSignature() {
-    LOGGER.debug("Storing signature ...");
+    logger.debug("Storing signature ...");
     String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.SIGNAURE.getName());
     try (OutputStream stream = new FileOutputStream(values[0])) {
       IOUtils.write(this.context.getSignature(), stream);
@@ -345,7 +345,7 @@ public class CommandLineExecutor {
   }
 
   private void storeSigningData() {
-    LOGGER.debug("Storing signing data ...");
+    logger.debug("Storing signing data ...");
     String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.DTS.getName());
     try {
       Helper.serialize(this.context.getDataToSign(), values[0]);
@@ -355,7 +355,7 @@ public class CommandLineExecutor {
   }
 
   private void storeContainer() {
-    LOGGER.debug("Storing container ...");
+    logger.debug("Storing container ...");
     String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.IN.getName());
     try {
       this.context.getContainer().saveAsFile(values[0]);
@@ -365,7 +365,7 @@ public class CommandLineExecutor {
   }
 
   private void storeContainerWithSignature() {
-    LOGGER.debug("Adding signature to container ...");
+    logger.debug("Adding signature to container ...");
     Container container = this.context.getContainer();
     container.addSignature(this.context.getDataToSign().finalize(this.context.getSignature()));
     this.fileHasChanged = true;
@@ -395,7 +395,7 @@ public class CommandLineExecutor {
     boolean fileFound = false;
     for (DataFile dataFile : container.getDataFiles()) {
       if (StringUtils.equalsIgnoreCase(fileNameToExtract, dataFile.getName())) {
-        LOGGER.info("Extracting " + dataFile.getName() + " to " + extractPath);
+        logger.info("Extracting " + dataFile.getName() + " to " + extractPath);
         dataFile.saveAs(extractPath);
         fileFound = true;
       }
@@ -452,7 +452,7 @@ public class CommandLineExecutor {
           digestAlgorithm = DigestAlgorithm.forName(digestAlgorithmStr);
         }
       }
-      LOGGER.info("Digest algorithm to calculate data file hash: " + digestAlgorithm.getName());
+      logger.info("Digest algorithm to calculate data file hash: " + digestAlgorithm.getName());
       if (this.context.getCommandLine().hasOption("add")) {
         if (asicContainer.getDataFiles().size() > 1) {
           throw new DigiDoc4JException("Data file in container already exists. Should be only one data file in case of ASiCS container.");
@@ -506,7 +506,7 @@ public class CommandLineExecutor {
       String report = validate.getReport();
       throw new DigiDoc4JException("Pades container has errors" + report);
     } else {
-      LOGGER.info("Container is valid:" + validate.isValid());
+      logger.info("Container is valid:" + validate.isValid());
     }
   }
 

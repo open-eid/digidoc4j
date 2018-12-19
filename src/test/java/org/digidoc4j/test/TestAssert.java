@@ -55,7 +55,7 @@ import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
 
 public final class TestAssert {
 
-  private static final Logger log = LoggerFactory.getLogger(TestAssert.class);
+  private static final Logger logger = LoggerFactory.getLogger(TestAssert.class);
 
   public static void assertOCSPSource(Configuration configuration, SKOnlineOCSPSource source, String userAgentPart) {
     Assert.assertSame(configuration, source.getConfiguration());
@@ -83,7 +83,7 @@ public final class TestAssert {
 
   public static void assertContainsError(String error, List<DigiDoc4JException> errors) {
     for (DigiDoc4JException e : errors) {
-      TestAssert.log.info("Exception error message: <{}>", e.toString());
+      TestAssert.logger.info("Exception error message: <{}>", e.toString());
       if (e.toString().contains(error)) {
         return;
       }

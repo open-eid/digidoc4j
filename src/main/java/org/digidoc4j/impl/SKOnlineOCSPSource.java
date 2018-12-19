@@ -55,7 +55,7 @@ import eu.europa.esig.dss.x509.ocsp.OCSPToken;
  */
 public abstract class SKOnlineOCSPSource implements OCSPSource {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(SKOnlineOCSPSource.class);
+  private static final Logger logger = LoggerFactory.getLogger(SKOnlineOCSPSource.class);
   private SkDataLoader dataLoader;
   private Configuration configuration;
 
@@ -82,20 +82,20 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
 
   @Override
   public OCSPToken getOCSPToken(CertificateToken certificateToken, CertificateToken issuerCertificateToken) {
-    LOGGER.debug("Getting OCSP token ...");
+    logger.debug("Getting OCSP token ...");
     try {
       if (this.dataLoader == null) {
         throw new TechnicalException("Data loader is null");
       }
-      if (LOGGER.isTraceEnabled()) {
-        LOGGER.trace("Querying by DSS ID <{}>", certificateToken.getDSSIdAsString());
+      if (logger.isTraceEnabled()) {
+        logger.trace("Querying by DSS ID <{}>", certificateToken.getDSSIdAsString());
       }
       CertificateID certificateID = DSSRevocationUtils.getOCSPCertificateID(certificateToken, issuerCertificateToken);
       Extension nonceExtension = this.createNonce();
       BasicOCSPResp response = (BasicOCSPResp) new OCSPResp(this.dataLoader.post(this.getAccessLocation(),
           this.buildRequest(certificateID, nonceExtension))).getResponseObject();
       if (response == null) {
-        LOGGER.warn("Basic OCSP response is empty");
+        logger.warn("Basic OCSP response is empty");
         return null;
       }
       this.verifyResponse(response);
@@ -106,7 +106,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
       token.setSourceURL(this.getAccessLocation());
       token.extractInfo();
       if (token.getThisUpdate() == null) {
-        LOGGER.warn("No best single match of OCSP response found");
+        logger.warn("No best single match of OCSP response found");
         return null;
       }
       certificateToken.addRevocationToken(token);
@@ -137,12 +137,12 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
 
   private byte[] buildRequest(final CertificateID certificateID, Extension nonceExtension) throws DSSException {
     try {
-      LOGGER.debug("Building OCSP request ...");
+      logger.debug("Building OCSP request ...");
       OCSPReqBuilder builder = new OCSPReqBuilder();
       builder.addRequest(certificateID);
       builder.setRequestExtensions(new Extensions(nonceExtension));
       if (this.configuration.hasToBeOCSPRequestSigned()) {
-        LOGGER.info("Using signed OCSP request ...");
+        logger.info("Using signed OCSP request ...");
         JcaContentSignerBuilder signerBuilder = new JcaContentSignerBuilder("SHA1withRSA");
         if (!this.configuration.isOCSPSigningConfigurationAvailable()) {
           throw new ConfigurationException("Configuration needed for OCSP request signing is not complete");
@@ -185,7 +185,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
       }
     } else {
       if (!this.configuration.isTest()) {
-        LOGGER.warn("OCSP response signature will not be verified. No response certificates has been found");
+        logger.warn("OCSP response signature will not be verified. No response certificates has been found");
       }
     }
   }

@@ -29,7 +29,7 @@ import eu.europa.esig.dss.x509.ocsp.OCSPToken;
  */
 public class OCSPCertificateValidator implements CertificateValidator {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(OCSPCertificateValidator.class);
+  private static final Logger logger = LoggerFactory.getLogger(OCSPCertificateValidator.class);
   private final Configuration configuration;
   private final CertificateSource certificateSource;
   private final OCSPSource ocspSource;
@@ -75,7 +75,7 @@ public class OCSPCertificateValidator implements CertificateValidator {
         return this.getFromCertificateSource(certificateToken.getIssuerX500Principal());
       }
     } catch (IllegalStateException e) {
-      LOGGER.warn("Certificate with DSS ID <{}> is untrusted. Not all the intermediate certificates added into OCSP" +
+      logger.warn("Certificate with DSS ID <{}> is untrusted. Not all the intermediate certificates added into OCSP" +
               " certificate source?",
           (certificateToken == null) ? certificate.getSubjectX500Principal().getName() : certificateToken
               .getDSSIdAsString(), e);
@@ -107,7 +107,7 @@ public class OCSPCertificateValidator implements CertificateValidator {
     try {
       if (token.getStatus() != null) {
         if (!token.getStatus()) {
-          LOGGER.debug("Certificate with DSS ID <{}> - status <{}>", token.getDSSIdAsString(), CRLReasonEnum.valueOf(token.getReason())
+          logger.debug("Certificate with DSS ID <{}> - status <{}>", token.getDSSIdAsString(), CRLReasonEnum.valueOf(token.getReason())
               .name());
           throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.REVOKED);
         }
@@ -115,7 +115,7 @@ public class OCSPCertificateValidator implements CertificateValidator {
         return;
       }
       if (StringUtils.isNotBlank(token.getReason())) {
-        LOGGER.debug("Certificate with DSS ID <{}> - status <{}>", token.getDSSIdAsString(), CRLReasonEnum.valueOf(token.getReason())
+        logger.debug("Certificate with DSS ID <{}> - status <{}>", token.getDSSIdAsString(), CRLReasonEnum.valueOf(token.getReason())
             .name());
         throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNKNOWN);
 

@@ -154,7 +154,7 @@ import eu.europa.esig.dss.client.http.Protocol;
  */
 public class Configuration implements Serializable {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
+  private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
   private final Mode mode;
   private transient ExecutorService threadExecutor;
   private TslManager tslManager;
@@ -210,16 +210,16 @@ public class Configuration implements Serializable {
    * @param mode Application mode
    */
   public Configuration(Mode mode) {
-    if (LOGGER.isInfoEnabled() && !LOGGER.isDebugEnabled()) {
-      LOGGER.info("DigiDoc4J will be executed in <{}> mode", mode);
+    if (logger.isInfoEnabled() && !logger.isDebugEnabled()) {
+      logger.info("DigiDoc4J will be executed in <{}> mode", mode);
     }
-    LOGGER.debug("------------------------ <MODE: {}> ------------------------", mode);
+    logger.debug("------------------------ <MODE: {}> ------------------------", mode);
     this.mode = mode;
     this.loadConfiguration("digidoc4j.yaml");
     this.initDefaultValues();
-    LOGGER.debug("------------------------ </MODE: {}> ------------------------", mode);
-    if (!LOGGER.isDebugEnabled()) {
-      LOGGER.info("Configuration loaded ...");
+    logger.debug("------------------------ </MODE: {}> ------------------------", mode);
+    if (!logger.isDebugEnabled()) {
+      logger.info("Configuration loaded ...");
     }
   }
 
@@ -231,7 +231,7 @@ public class Configuration implements Serializable {
   public boolean isOCSPSigningConfigurationAvailable() {
     boolean available = StringUtils.isNotBlank(this.getOCSPAccessCertificateFileName())
         && this.getOCSPAccessCertificatePassword().length != 0;
-    LOGGER.debug("Is OCSP signing configuration available? {}", available);
+    logger.debug("Is OCSP signing configuration available? {}", available);
     return available;
   }
 
@@ -330,16 +330,16 @@ public class Configuration implements Serializable {
    */
   public Hashtable<String, String> loadConfiguration(String file, boolean isReloadFromYaml) {
     if (!isReloadFromYaml) {
-      LOGGER.debug("Should not reload conf from yaml when open container");
+      logger.debug("Should not reload conf from yaml when open container");
       return jDigiDocConfiguration;
     }
-    LOGGER.debug("Loading configuration from file <{}>", file);
+    logger.debug("Loading configuration from file <{}>", file);
     configurationInputSourceName = file;
     InputStream resourceAsStream = null;
     try {
       resourceAsStream = new FileInputStream(file);
     } catch (FileNotFoundException e) {
-      LOGGER.debug("Configuration file <{}> not found. Trying to search from jar file", file);
+      logger.debug("Configuration file <{}> not found. Trying to search from jar file", file);
     }
     if (resourceAsStream == null) {
       resourceAsStream = getResourceAsStream(file);
@@ -369,7 +369,7 @@ public class Configuration implements Serializable {
    */
   @Deprecated
   public void enableBigFilesSupport(long maxFileSizeCachedInMB) {
-    LOGGER.debug("Set maximum datafile cached to: " + maxFileSizeCachedInMB);
+    logger.debug("Set maximum datafile cached to: " + maxFileSizeCachedInMB);
     String value = Long.toString(maxFileSizeCachedInMB);
     if (isValidIntegerParameter("DIGIDOC_MAX_DATAFILE_CACHED", value)) {
       jDigiDocConfiguration.put("DIGIDOC_MAX_DATAFILE_CACHED", value);
@@ -425,7 +425,7 @@ public class Configuration implements Serializable {
    */
   public long getMaxDataFileCachedInMB() {
     String maxDataFileCached = jDigiDocConfiguration.get("DIGIDOC_MAX_DATAFILE_CACHED");
-    LOGGER.debug("Maximum datafile cached in MB: " + maxDataFileCached);
+    logger.debug("Maximum datafile cached in MB: " + maxDataFileCached);
     if (maxDataFileCached == null) return Constant.CACHE_ALL_DATA_FILES;
     return Long.parseLong(maxDataFileCached);
   }
@@ -460,7 +460,7 @@ public class Configuration implements Serializable {
           urlString = resource.toString();
       }
     } catch (MalformedURLException e) {
-      LOGGER.warn(e.getMessage());
+      logger.warn(e.getMessage());
     }
     return urlString == null ? "" : urlString;
   }
@@ -535,7 +535,7 @@ public class Configuration implements Serializable {
         return source;
       }
     }
-    LOGGER.info("Source by country <{}> not found, using default TSP source", country);
+    logger.info("Source by country <{}> not found, using default TSP source", country);
     return this.getTspSource();
   }
 
@@ -1086,7 +1086,7 @@ public class Configuration implements Serializable {
    */
   public boolean isTest() {
     boolean isTest = Mode.TEST.equals(this.mode);
-    LOGGER.debug("Is test: " + isTest);
+    logger.debug("Is test: " + isTest);
     return isTest;
   }
 
@@ -1128,7 +1128,7 @@ public class Configuration implements Serializable {
   }
 
   private void initDefaultValues() {
-    LOGGER.debug("------------------------ DEFAULTS ------------------------");
+    logger.debug("------------------------ DEFAULTS ------------------------");
     this.tslManager = new TslManager(this);
     this.setConfigurationParameter(ConfigurationParameter.ConnectionTimeoutInMillis,
         String.valueOf(Constant.ONE_SECOND_IN_MILLISECONDS));
@@ -1166,12 +1166,12 @@ public class Configuration implements Serializable {
       this.trustedTerritories = Constant.Production.DEFAULT_TRUESTED_TERRITORIES;
       this.setJDigiDocParameter("SIGN_OCSP_REQUESTS", "false");
     }
-    LOGGER.debug("{} configuration: {}", this.mode, this.registry);
+    logger.debug("{} configuration: {}", this.mode, this.registry);
     this.loadInitialConfigurationValues();
   }
 
   private void loadInitialConfigurationValues() {
-    LOGGER.debug("------------------------ LOADING INITIAL CONFIGURATION ------------------------");
+    logger.debug("------------------------ LOADING INITIAL CONFIGURATION ------------------------");
     this.setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER", Constant.JDigiDoc.SECURITY_PROVIDER);
     this.setJDigiDocConfigurationValue("DIGIDOC_SECURITY_PROVIDER_NAME", Constant.JDigiDoc.SECURITY_PROVIDER_NAME);
     this.setJDigiDocConfigurationValue("KEY_USAGE_CHECK", Constant.JDigiDoc.KEY_USAGE_CHECK);
@@ -1256,7 +1256,7 @@ public class Configuration implements Serializable {
     } catch (Exception e) {
       ConfigurationException exception = new ConfigurationException("Configuration from "
           + configurationInputSourceName + " is not correctly formatted");
-      LOGGER.error(exception.getMessage());
+      logger.error(exception.getMessage());
       throw exception;
     }
     IOUtils.closeQuietly(stream);
@@ -1267,14 +1267,14 @@ public class Configuration implements Serializable {
     InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(certFile);
     if (resourceAsStream == null) {
       String message = "File " + certFile + " not found in classpath.";
-      LOGGER.error(message);
+      logger.error(message);
       throw new ConfigurationException(message);
     }
     return resourceAsStream;
   }
 
   private String defaultIfNull(String configParameter, String defaultValue) {
-    LOGGER.debug("Parameter: " + configParameter);
+    logger.debug("Parameter: " + configParameter);
     if (configurationFromFile == null) return defaultValue;
     Object value = configurationFromFile.get(configParameter);
     if (value != null) {
@@ -1396,7 +1396,7 @@ public class Configuration implements Serializable {
    */
 
   private Hashtable<String, String> mapToJDigiDocConfiguration() {
-    LOGGER.debug("loading JDigiDoc configuration");
+    logger.debug("loading JDigiDoc configuration");
     inputSourceParseErrors = new ArrayList<>();
     loadInitialConfigurationValues();
     reportFileParseErrors();
@@ -1428,7 +1428,7 @@ public class Configuration implements Serializable {
   }
 
   private void logError(String errorMessage) {
-    LOGGER.error(errorMessage);
+    logger.error(errorMessage);
     inputSourceParseErrors.add(errorMessage);
   }
 
@@ -1516,7 +1516,7 @@ public class Configuration implements Serializable {
   }
 
   private void loadCertificateAuthorityCerts(LinkedHashMap digiDocCA, String caPrefix) {
-    LOGGER.debug("Loading CA certificates");
+    logger.debug("Loading CA certificates");
     ArrayList<String> certificateAuthorityCerts = this.getCACertsAsArray(digiDocCA);
     this.setJDigiDocParameter(String.format("%s_NAME", caPrefix), digiDocCA.get("NAME").toString());
     this.setJDigiDocParameter(String.format("%s_TRADENAME", caPrefix), digiDocCA.get("TRADENAME").toString());
@@ -1534,10 +1534,10 @@ public class Configuration implements Serializable {
 
   private void setConfigurationParameter(ConfigurationParameter parameter, String value) {
     if (StringUtils.isBlank(value)) {
-      LOGGER.debug("Parameter <{}> has blank value, hence will not be registered", parameter);
+      logger.debug("Parameter <{}> has blank value, hence will not be registered", parameter);
       return;
     }
-    LOGGER.debug("Setting parameter <{}> to <{}>", parameter, value);
+    logger.debug("Setting parameter <{}> to <{}>", parameter, value);
     this.registry.put(parameter, value);
   }
 
@@ -1558,11 +1558,11 @@ public class Configuration implements Serializable {
 
   private String getConfigurationParameter(ConfigurationParameter parameter) {
     if (!this.registry.containsKey(parameter)) {
-      LOGGER.debug("Requested parameter <{}> not found", parameter);
+      logger.debug("Requested parameter <{}> not found", parameter);
       return null;
     }
     String value = this.registry.get(parameter);
-    LOGGER.debug("Requesting parameter <{}>. Returned value is <{}>", parameter, value);
+    logger.debug("Requesting parameter <{}>. Returned value is <{}>", parameter, value);
     return value;
   }
 
@@ -1589,16 +1589,16 @@ public class Configuration implements Serializable {
   }
 
   private void setJDigiDocParameter(String key, String value) {
-    LOGGER.debug("Setting JDigiDoc parameter <{}> to <{}>", key, value);
+    logger.debug("Setting JDigiDoc parameter <{}> to <{}>", key, value);
     this.jDigiDocConfiguration.put(key, value);
   }
 
   private void log(Object jvmParam, Object fileParam, String sysParamKey, String fileKey) {
     if (jvmParam != null) {
-      LOGGER.debug(String.format("JVM parameter <%s> detected and applied with value <%s>", sysParamKey, jvmParam));
+      logger.debug(String.format("JVM parameter <%s> detected and applied with value <%s>", sysParamKey, jvmParam));
     }
     if (jvmParam == null && fileParam != null) {
-      LOGGER.debug(
+      logger.debug(
           String.format("YAML file parameter <%s> detected and applied with value <%s>", fileKey, fileParam));
     }
   }

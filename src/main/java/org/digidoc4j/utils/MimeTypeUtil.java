@@ -11,7 +11,7 @@ import eu.europa.esig.dss.MimeType;
 
 public final class MimeTypeUtil {
 
-  private static final Logger log = LoggerFactory.getLogger(MimeTypeUtil.class);
+  private static final Logger logger = LoggerFactory.getLogger(MimeTypeUtil.class);
 
   private MimeTypeUtil() {
   }
@@ -25,16 +25,16 @@ public final class MimeTypeUtil {
   public static MimeType mimeTypeOf(String mimeType) {
     switch (mimeType) {
       case "txt.html":
-        log.warn("Incorrect Mime-Type <{}> detected, fixing ...", mimeType);
+        logger.warn("Incorrect Mime-Type <{}> detected, fixing ...", mimeType);
         mimeType = "text/html";
         break;
       case "file":
-        log.warn("Incorrect Mime-Type <{}> detected, fixing ...", mimeType);
+        logger.warn("Incorrect Mime-Type <{}> detected, fixing ...", mimeType);
         mimeType = "application/octet-stream";
         break;
     }
     if (mimeType.indexOf('\\') > 0) {
-      log.warn("Incorrect Mime-Type <{}> detected, fixing ...", mimeType);
+      logger.warn("Incorrect Mime-Type <{}> detected, fixing ...", mimeType);
       mimeType = mimeType.replace("\\", "/");
     }
     return MimeType.fromMimeTypeString(mimeType);

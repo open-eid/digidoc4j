@@ -58,7 +58,7 @@ import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 
 public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractTest.class);
   protected final PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
   protected final PKCS12SignatureToken pkcs12EccSignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray());
   protected Configuration configuration;
@@ -72,47 +72,46 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   @Rule
   public TestWatcher watcher = new TestWatcher() {
 
-    private final Logger log = LoggerFactory.getLogger(AbstractTest.class);
     private long startTimestamp;
 
     @Override
     protected void starting(Description description) {
       String starting = String.format("Starting <%s.%s>", description.getClassName(), description.getMethodName());
-      LOGGER.info(StringUtils.rightPad("-", starting.length(), '-'));
-      LOGGER.info(starting);
-      LOGGER.info(StringUtils.rightPad("-", starting.length(), '-'));
+      logger.info(StringUtils.rightPad("-", starting.length(), '-'));
+      logger.info(starting);
+      logger.info(StringUtils.rightPad("-", starting.length(), '-'));
       this.startTimestamp = System.currentTimeMillis();
     }
 
     @Override
     protected void succeeded(Description description) {
       long endTimestamp = System.currentTimeMillis();
-      LOGGER.info("Finished <{}.{}> - took <{}> ms", description.getClassName(), description.getMethodName(),
+      logger.info("Finished <{}.{}> - took <{}> ms", description.getClassName(), description.getMethodName(),
           endTimestamp - this.startTimestamp);
     }
 
     @Override
     protected void failed(Throwable e, Description description) {
-      LOGGER.error(String.format("Finished <%s.%s> - failed", description.getClassName(), description.getMethodName()), e);
+      logger.error(String.format("Finished <%s.%s> - failed", description.getClassName(), description.getMethodName()), e);
     }
 
     @Override
     protected void skipped(AssumptionViolatedException e, Description description) {
       String skipped = String.format("Skipped <%s.%s>", description.getClassName(), description.getMethodName());
-      LOGGER.debug(StringUtils.rightPad("-", skipped.length(), '-'));
-      LOGGER.debug(skipped);
-      LOGGER.debug(StringUtils.rightPad("-", skipped.length(), '-'));
+      logger.debug(StringUtils.rightPad("-", skipped.length(), '-'));
+      logger.debug(skipped);
+      logger.debug(StringUtils.rightPad("-", skipped.length(), '-'));
     }
 
   };
 
   @Before
   public void beforeMethod() {
-    LOGGER.info("NB! Before method --> START");
+    logger.info("NB! Before method --> START");
     ConfigurationSingeltonHolder.reset();
     this.setGlobalMode(Configuration.Mode.TEST);
     this.before();
-    LOGGER.info("NB! Before method --> END");
+    logger.info("NB! Before method --> END");
   }
 
   @After
@@ -120,7 +119,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     try {
       FileUtils.deleteDirectory(this.testFolder.getRoot());
     } catch (IOException e) {
-      LOGGER.warn("Unable to clean folder <{}>", this.testFolder.getRoot());
+      logger.warn("Unable to clean folder <{}>", this.testFolder.getRoot());
     }
     this.after();
   }

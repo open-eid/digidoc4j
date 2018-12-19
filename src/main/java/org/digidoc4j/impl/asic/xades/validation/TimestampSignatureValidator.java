@@ -32,7 +32,7 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class TimestampSignatureValidator extends XadesSignatureValidator {
 
-  private static final Logger log = LoggerFactory.getLogger(TimestampSignatureValidator.class);
+  private static final Logger logger = LoggerFactory.getLogger(TimestampSignatureValidator.class);
 
   public TimestampSignatureValidator(XadesSignature signature, Configuration configuration) {
     super(signature, configuration);
@@ -70,12 +70,12 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
     }
     int deltaLimit = this.configuration.getRevocationAndTimestampDeltaInMinutes();
     long differenceInMinutes = DateUtils.differenceInMinutes(timestamp, ocspTime);
-    this.log.debug("Difference in minutes: <{}>", differenceInMinutes);
+    logger.debug("Difference in minutes: <{}>", differenceInMinutes);
     if (!DateUtils.isInRangeMinutes(timestamp, ocspTime, deltaLimit)) {
-      this.log.error("The difference between the OCSP response production time and the signature timestamp is too large <{} minutes>", differenceInMinutes);
+      logger.error("The difference between the OCSP response production time and the signature timestamp is too large <{} minutes>", differenceInMinutes);
       this.addValidationError(new TimestampAndOcspResponseTimeDeltaTooLargeException());
     } else if (this.configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes() < differenceInMinutes && differenceInMinutes < deltaLimit) {
-      this.log.warn("The difference (in minutes) between the OCSP response production time and the signature timestamp is in allowable range (<{}>, allowed maximum <{}>)", differenceInMinutes, deltaLimit);
+      logger.warn("The difference (in minutes) between the OCSP response production time and the signature timestamp is in allowable range (<{}>, allowed maximum <{}>)", differenceInMinutes, deltaLimit);
       this.addValidationWarning(new DigiDoc4JException("The difference between the OCSP response time and the signature timestamp is in allowable range"));
     }
   }
@@ -89,7 +89,7 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
     boolean isCertValid = signingTime.compareTo(signerCert.getNotBefore()) >= 0
         && signingTime.compareTo(signerCert.getNotAfter()) <= 0;
     if (!isCertValid) {
-      this.log.error("Signature has been created with expired certificate");
+      logger.error("Signature has been created with expired certificate");
       this.addValidationError(new SignedWithExpiredCertificateException());
     }
   }
@@ -101,9 +101,9 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
     }
     String certificateRevocationSource = diagnosticData
         .getCertificateRevocationSource(diagnosticData.getSigningCertificateId());
-    this.log.debug("Revocation source is <{}>", certificateRevocationSource);
+    logger.debug("Revocation source is <{}>", certificateRevocationSource);
     if (StringUtils.equalsIgnoreCase("CRLToken", certificateRevocationSource)) {
-      this.log.error("Signing certificate revocation source is CRL instead of OCSP");
+      logger.error("Signing certificate revocation source is CRL instead of OCSP");
       this.addValidationError(new UntrustedRevocationSourceException());
     }
   }
