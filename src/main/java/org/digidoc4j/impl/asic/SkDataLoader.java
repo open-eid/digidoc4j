@@ -38,7 +38,7 @@ import eu.europa.esig.dss.client.http.commons.OCSPDataLoader;
 public class SkDataLoader extends CommonsDataLoader {
 
   private static final String TIMESTAMP_CONTENT_TYPE = "application/timestamp-query";
-  private final Logger log = LoggerFactory.getLogger(SkDataLoader.class);
+  private static final Logger logger = LoggerFactory.getLogger(SkDataLoader.class);
   private String userAgent;
 
   protected SkDataLoader(Configuration configuration) {
@@ -75,7 +75,7 @@ public class SkDataLoader extends CommonsDataLoader {
     if (StringUtils.isBlank(url)) {
       throw new TechnicalException("SK endpoint url is unset");
     }
-    this.log.debug("Getting OCSP response from <{}>", url);
+    logger.debug("Getting OCSP response from <{}>", url);
     if (StringUtils.isBlank(this.userAgent)) {
       throw new TechnicalException("Header <User-Agent> is unset");
     }

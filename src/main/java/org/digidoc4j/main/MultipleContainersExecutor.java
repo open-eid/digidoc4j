@@ -29,7 +29,7 @@ import eu.europa.esig.dss.MimeType;
  */
 public class MultipleContainersExecutor {
 
-  private final Logger log = LoggerFactory.getLogger(MultipleContainersExecutor.class);
+  private static final Logger logger = LoggerFactory.getLogger(MultipleContainersExecutor.class);
   private final CommandLineExecutor commandLineExecutor;
   private Container.DocumentType containerType;
   private File inputDir;
@@ -54,7 +54,7 @@ public class MultipleContainersExecutor {
       if (!document.isDirectory()) {
         this.signDocument(document);
       } else {
-        this.log.debug("Skipping directory " + document.getName());
+        logger.debug("Skipping directory " + document.getName());
       }
     }
   }

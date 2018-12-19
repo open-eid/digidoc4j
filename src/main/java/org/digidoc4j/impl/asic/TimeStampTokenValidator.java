@@ -33,7 +33,7 @@ import eu.europa.esig.dss.DigestAlgorithm;
  */
 public class TimeStampTokenValidator {
 
-  private final Logger log = LoggerFactory.getLogger(TimeStampTokenValidator.class);
+  private static final Logger logger = LoggerFactory.getLogger(TimeStampTokenValidator.class);
   private AsicParseResult containerParseResult;
 
   /**
@@ -51,7 +51,7 @@ public class TimeStampTokenValidator {
    * @return ContainerValidationResult
    */
   public ContainerValidationResult validate() {
-    this.log.debug("Validating container ...");
+    logger.debug("Validating container ...");
     this.validateContainer(this.containerParseResult);
     TimeStampToken token = this.getTimeStamp(this.containerParseResult);
     TimeStampContainerValidationResult result = generateTimeStampValidationResult(
