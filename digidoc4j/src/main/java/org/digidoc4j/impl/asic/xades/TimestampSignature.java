@@ -83,6 +83,8 @@ public class TimestampSignature extends TimemarkSignature {
     return timeStampToken.getTimeStampInfo().getGenTime();
   }
 
+
+
   @Override
   public Date getTrustedSigningTime() {
     return getTimeStampCreationTime();

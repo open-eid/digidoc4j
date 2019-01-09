@@ -162,6 +162,13 @@ public interface Container extends Serializable {
    */
   void setTimeStampToken(DataFile timeStampToken);
 
+  /**
+   * Returns timestamp token
+   *
+   * @return TimestampToken
+   */
+  DataFile getTimeStampToken();
+
   //Deprecated methods below
 
   /**

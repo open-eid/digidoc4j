@@ -71,6 +71,11 @@ public class AsicSContainer extends AsicContainer {
   }
 
   @Override
+  public DataFile getTimeStampToken() {
+    return timeStampToken;
+  }
+
+  @Override
   public void save(OutputStream out) {
     writeAsicContainer(new AsicContainerCreator(out));
   }

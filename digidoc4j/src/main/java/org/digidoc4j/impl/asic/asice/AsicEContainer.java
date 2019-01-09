@@ -5,10 +5,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.digidoc4j.Configuration;
-import org.digidoc4j.Constant;
-import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.*;
+import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.asic.AsicContainer;
 import org.digidoc4j.impl.asic.AsicContainerCreator;
 import org.digidoc4j.utils.Helper;
@@ -146,5 +144,10 @@ public class AsicEContainer extends AsicContainer {
       return Helper.createBDocUserAgent(profile);
     }
     return Helper.createBDocUserAgent();
+  }
+
+  @Override
+  public DataFile getTimeStampToken() {
+    throw new NotSupportedException("Not for ASiC-E container");
   }
 }

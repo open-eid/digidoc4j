@@ -29,7 +29,6 @@ import eu.europa.esig.dss.MimeType;
 public class AsicSContainerTest extends AbstractTest {
 
   @Test
-  @Ignore //FIXME
   public void testAsicSContainer() throws IOException {
     Container container = this.createNonEmptyContainer(Container.DocumentType.ASICS, 1);
     this.createSignatureBy(container, this.pkcs12SignatureToken);

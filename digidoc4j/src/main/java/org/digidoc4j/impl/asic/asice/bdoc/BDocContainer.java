@@ -17,7 +17,9 @@ import java.util.List;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
+import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
+import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.asic.AsicContainerCreator;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.slf4j.Logger;
@@ -102,5 +104,10 @@ public class BDocContainer extends AsicEContainer {
       signatures.addAll(bDocSignatures);
     }
     return signatures;
+  }
+
+  @Override
+  public DataFile getTimeStampToken() {
+    throw new NotSupportedException("Not for BDOC container");
   }
 }

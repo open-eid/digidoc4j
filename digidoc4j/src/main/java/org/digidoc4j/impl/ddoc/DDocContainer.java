@@ -131,6 +131,11 @@ public class DDocContainer implements Container {
     throw new NotSupportedException("Not for DDOC container");
   }
 
+  @Override
+  public DataFile getTimeStampToken() {
+    throw new NotSupportedException("Not for DDOC container");
+  }
+
   /**
    * Prepare signature.
    * After preparing the signature the container will have to be signed as well

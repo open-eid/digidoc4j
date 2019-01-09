@@ -52,7 +52,9 @@ import eu.europa.esig.dss.DSSDocument;
 public abstract class AsicContainer implements Container {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AsicContainer.class);
+
   protected Configuration configuration;
+  protected DataFile timeStampToken;
   private List<DataFile> dataFiles = new ArrayList<>();
   private List<Signature> newSignatures = new ArrayList<>();
   private List<Signature> signatures = new ArrayList<>();
@@ -61,7 +63,6 @@ public abstract class AsicContainer implements Container {
   private ContainerValidationResult validationResult;
   private boolean dataFilesHaveChanged;
   private String containerType = "";
-  private DataFile timeStampToken;
 
   protected abstract String createUserAgent();
 

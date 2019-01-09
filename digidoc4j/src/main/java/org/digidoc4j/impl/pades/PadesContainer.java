@@ -139,6 +139,11 @@ public class PadesContainer implements Container {
     throw new NotSupportedException("Not for Pades container");
   }
 
+  @Override
+  public DataFile getTimeStampToken() {
+    throw new NotSupportedException("Not for Pades container");
+  }
+
   private List<DigiDoc4JException> getExceptions(List<String> exceptionString) {
     List<DigiDoc4JException> exc = new ArrayList<>();
     for (String s : exceptionString) {
