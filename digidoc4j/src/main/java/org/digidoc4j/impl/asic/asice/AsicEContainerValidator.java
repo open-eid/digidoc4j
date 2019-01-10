@@ -44,8 +44,10 @@ import eu.europa.esig.dss.DSSDocument;
 public class AsicEContainerValidator implements Serializable {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicEContainerValidator.class);
-  private List<DigiDoc4JException> errors = new ArrayList<>();
-  private List<DigiDoc4JException> warnings = new ArrayList<>();
+
+  protected List<DigiDoc4JException> errors = new ArrayList<>();
+  protected List<DigiDoc4JException> warnings = new ArrayList<>();
+
   private AsicParseResult containerParseResult;
   private boolean validateManifest;
   private List<SignatureValidationData> signatureValidationData = new ArrayList<>();
@@ -98,7 +100,7 @@ public class AsicEContainerValidator implements Serializable {
     extractValidatedSignatureErrors(validationData);
   }
 
-  private List<Future<SignatureValidationData>> startSignatureValidationInParallel(List<Signature> signatures) {
+  protected List<Future<SignatureValidationData>> startSignatureValidationInParallel(List<Signature> signatures) {
     List<Future<SignatureValidationData>> futures = new ArrayList<>();
     for (Signature signature : signatures) {
       SignatureValidationTask validationExecutor = new SignatureValidationTask(signature);
@@ -108,7 +110,7 @@ public class AsicEContainerValidator implements Serializable {
     return futures;
   }
 
-  private void extractValidatedSignatureErrors(List<Future<SignatureValidationData>> validationFutures) {
+  protected void extractValidatedSignatureErrors(List<Future<SignatureValidationData>> validationFutures) {
     logger.debug("Extracting errors from the signatures");
     for (Future<SignatureValidationData> validationFuture : validationFutures) {
       try {

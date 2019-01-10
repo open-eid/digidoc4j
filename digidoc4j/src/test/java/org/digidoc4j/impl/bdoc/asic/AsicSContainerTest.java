@@ -8,11 +8,7 @@ import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.digidoc4j.AbstractTest;
-import org.digidoc4j.Container;
-import org.digidoc4j.ContainerBuilder;
-import org.digidoc4j.ContainerOpener;
-import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.manifest.ManifestValidator;
 import org.digidoc4j.test.util.TestDigiDoc4JUtil;
@@ -21,6 +17,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import eu.europa.esig.dss.MimeType;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Andrei on 15.11.2017.
@@ -61,6 +61,31 @@ public class AsicSContainerTest extends AbstractTest {
       //cannot add second file to existing container
       container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     }
+  }
+
+  @Test
+  public void testExistingAsicSContainerWithSingleSingature() {
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS)
+            .fromExistingFile("src/test/resources/testFiles/valid-containers/asics-1-signature.asics").build();
+    assertTrue(container.validate().isValid());
+  }
+
+  @Test
+  public void testExistingAsicSContainerWithTwoSingaturesInDifferentFiles() {
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS)
+            .fromExistingFile("src/test/resources/testFiles/invalid-containers/asics-2-signatures-in-different-files.asics").build();
+    ValidationResult result = container.validate();
+    assertFalse(result.isValid());
+    assertEquals("ASICS container can only contain single signature file", result.getErrors().get(0).getMessage());
+  }
+
+  @Test
+  public void testExistingAsicSContainerWithTwoSingaturesInDifferentFiles2_withoutGivingContainerType() {
+    Container container = ContainerBuilder.aContainer()
+            .fromExistingFile("src/test/resources/testFiles/invalid-containers/asics-2-signatures-in-different-files.asics").build();
+    ValidationResult result = container.validate();
+    assertFalse(result.isValid());
+    assertEquals("ASICS container can only contain single signature file", result.getErrors().get(0).getMessage());
   }
 
 }
