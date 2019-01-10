@@ -172,15 +172,12 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void tstASICSAddPKCS12SignatureFirst() throws Exception {
+  public void asicsAddPKCS12Signature() throws Exception {
     String fileName = this.getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
     TestDigiDoc4JUtil.call(parameters);
-    parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
-        "text/plain", "-datst", "SHA256", "-tst"};
-    TestDigiDoc4JUtil.call(parameters);
-    Assert.assertThat(this.stdOut.getLog(), StringContains.containsString("Datafiles cannot be added to an already signed container"));
+    Assert.assertThat(this.stdOut.getLog(), StringContains.containsString("Not supported: Not for ASiC-S container"));
 
   }
   

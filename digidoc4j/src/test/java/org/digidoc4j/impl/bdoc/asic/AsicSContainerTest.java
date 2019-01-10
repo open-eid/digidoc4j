@@ -28,28 +28,14 @@ import eu.europa.esig.dss.MimeType;
 
 public class AsicSContainerTest extends AbstractTest {
 
-  @Test
-  public void testAsicSContainer() throws IOException {
-    Container container = this.createNonEmptyContainer(Container.DocumentType.ASICS, 1);
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
-    String file = Paths.get(this.testFolder.getRoot().getPath(), "testasics.asics").toString();
-    container.saveAsFile(file);
-    SignatureValidationResult result = container.validate();
-    Assert.assertTrue(result.isValid());
-    ZipFile zipFile = new ZipFile(file);
-    ZipEntry mimeTypeEntry = zipFile.getEntry(ManifestValidator.MIMETYPE_PATH);
-    ZipEntry manifestEntry = zipFile.getEntry(ManifestValidator.MANIFEST_PATH);
-    Assert.assertNotNull(mimeTypeEntry);
-    Assert.assertNotNull(manifestEntry);
-    String mimeTypeContent = this.getFileContent(zipFile.getInputStream(mimeTypeEntry));
-    Assert.assertTrue(mimeTypeContent.contains(MimeType.ASICS.getMimeTypeString()));
-    String manifestContent = this.getFileContent(zipFile.getInputStream(manifestEntry));
-    Assert.assertTrue(manifestContent.contains(MimeType.ASICS.getMimeTypeString()));
+  @Test(expected = DigiDoc4JException.class)
+  public void testAddSignatureToAsicSContainer() throws IOException {
+    this.createSignatureBy(this.createNonEmptyContainer(Container.DocumentType.ASICS, 1), this.pkcs12SignatureToken);
   }
 
   @Test(expected = DigiDoc4JException.class)
-  public void testAsicSContainerTwoFiles() throws IOException {
-    this.createSignatureBy(this.createNonEmptyContainer(Container.DocumentType.ASICS, 2), this.pkcs12SignatureToken);
+  public void testAsicSContainerWithTwoDataFiles() throws IOException {
+    this.createNonEmptyContainer(Container.DocumentType.ASICS, 2);
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -75,44 +61,6 @@ public class AsicSContainerTest extends AbstractTest {
       //cannot add second file to existing container
       container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     }
-  }
-
-  @Test
-  public void createsContainerWithTypeSettingASICS() throws Exception {
-    String fileName = this.getFileBy("asics");
-    String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
-        "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
-    TestDigiDoc4JUtil.call(parameters);
-    ZipFile zipFile = new ZipFile(fileName);
-    ZipEntry mimeTypeEntry = zipFile.getEntry(ManifestValidator.MIMETYPE_PATH);
-    ZipEntry manifestEntry = zipFile.getEntry(ManifestValidator.MANIFEST_PATH);
-    Assert.assertNotNull(mimeTypeEntry);
-    Assert.assertNotNull(manifestEntry);
-    String mimeTypeContent = this.getFileContent(zipFile.getInputStream(mimeTypeEntry));
-    Assert.assertTrue(mimeTypeContent.contains(MimeType.ASICS.getMimeTypeString()));
-    String manifestContent = this.getFileContent(zipFile.getInputStream(manifestEntry));
-    Assert.assertTrue(manifestContent.contains(MimeType.ASICS.getMimeTypeString()));
-    Container container = ContainerOpener.open(fileName);
-    Assert.assertEquals("ASICS", container.getType());
-  }
-
-  @Test
-  public void createsContainerWithExtensionASICS() throws Exception {
-    String fileName = this.getFileBy("asics");
-    String[] parameters = new String[]{"-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt",
-        "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
-    TestDigiDoc4JUtil.call(parameters);
-    ZipFile zipFile = new ZipFile(fileName);
-    ZipEntry mimeTypeEntry = zipFile.getEntry(ManifestValidator.MIMETYPE_PATH);
-    ZipEntry manifestEntry = zipFile.getEntry(ManifestValidator.MANIFEST_PATH);
-    Assert.assertNotNull(mimeTypeEntry);
-    Assert.assertNotNull(manifestEntry);
-    String mimeTypeContent = getFileContent(zipFile.getInputStream(mimeTypeEntry));
-    Assert.assertTrue(mimeTypeContent.contains(MimeType.ASICS.getMimeTypeString()));
-    String manifestContent = getFileContent(zipFile.getInputStream(manifestEntry));
-    Assert.assertTrue(manifestContent.contains(MimeType.ASICS.getMimeTypeString()));
-    Container container = ContainerOpener.open(fileName);
-    Assert.assertEquals("ASICS", container.getType());
   }
 
 }
