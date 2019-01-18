@@ -2,6 +2,7 @@ package org.digidoc4j.impl.asic.ocsp;
 
 
 import java.io.IOException;
+import java.security.cert.X509Certificate;
 
 import org.bouncycastle.asn1.ASN1Object;
 import org.bouncycastle.asn1.DEROctetString;
@@ -17,14 +18,13 @@ import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.DigestAlgorithm;
-import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
 
 /**
  * BDocTMOcspSource is class for creating BDoc TM specific NONCE.
  */
 public class BDocTMOcspSource extends SKOnlineOCSPSource {
 
-  private final Logger log = LoggerFactory.getLogger(BDocTMOcspSource.class);
+  private final Logger LOGGER = LoggerFactory.getLogger(BDocTMOcspSource.class);
   private final byte[] signature;
 
   /**
@@ -37,8 +37,8 @@ public class BDocTMOcspSource extends SKOnlineOCSPSource {
   }
 
   @Override
-  protected Extension createNonce() {
-    this.log.debug("Creating TM OCSP nonce ...");
+  protected Extension createNonce(X509Certificate certificate) {
+    this.LOGGER.debug("Creating TM OCSP nonce ...");
     try {
       return new Extension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, false, this.createSequence().getEncoded());
     } catch (IOException e) {

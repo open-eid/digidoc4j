@@ -1,16 +1,17 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl;
 
 import java.io.IOException;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
@@ -55,7 +56,9 @@ import eu.europa.esig.dss.x509.ocsp.OCSPToken;
  */
 public abstract class SKOnlineOCSPSource implements OCSPSource {
 
+  public static String OID_OCSP_SIGNING = "1.3.6.1.5.5.7.3.9";
   private static final Logger LOGGER = LoggerFactory.getLogger(SKOnlineOCSPSource.class);
+
   private SkDataLoader dataLoader;
   private Configuration configuration;
 
@@ -66,18 +69,6 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
    */
   public SKOnlineOCSPSource(Configuration configuration) {
     this.configuration = configuration;
-  }
-
-  /**
-   * Returns SK OCSP source location.
-   *
-   * @return OCSP source location
-   */
-  public String getAccessLocation() {
-    if (this.configuration != null) {
-      return this.configuration.getOcspSource();
-    }
-    return Constant.Test.OCSP_SOURCE;
   }
 
   @Override
@@ -91,9 +82,9 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
         LOGGER.trace("Querying by DSS ID <{}>", certificateToken.getDSSIdAsString());
       }
       CertificateID certificateID = DSSRevocationUtils.getOCSPCertificateID(certificateToken, issuerCertificateToken);
-      Extension nonceExtension = this.createNonce();
-      BasicOCSPResp response = (BasicOCSPResp) new OCSPResp(this.dataLoader.post(this.getAccessLocation(),
-          this.buildRequest(certificateID, nonceExtension))).getResponseObject();
+      String accessLocation = this.getAccessLocation(certificateToken.getCertificate());
+      Extension nonceExtension = this.createNonce(certificateToken.getCertificate());
+      BasicOCSPResp response = (BasicOCSPResp) new OCSPResp(this.dataLoader.post(accessLocation,this.buildRequest(certificateID, nonceExtension))).getResponseObject();
       if (response == null) {
         LOGGER.warn("Basic OCSP response is empty");
         return null;
@@ -103,7 +94,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
       OCSPToken token = new OCSPToken();
       token.setBasicOCSPResp(response);
       token.setCertId(certificateID);
-      token.setSourceURL(this.getAccessLocation());
+      token.setSourceURL(accessLocation);
       token.extractInfo();
       if (token.getThisUpdate() == null) {
         LOGGER.warn("No best single match of OCSP response found");
@@ -118,11 +109,24 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     }
   }
 
+  /**
+   * Returns SK OCSP source location.
+   *
+   * @param certificate
+   * @return OCSP source location
+   */
+  public String getAccessLocation(X509Certificate certificate) {
+    if (getConfiguration() != null) {
+      return getConfiguration().getOcspSource();
+    }
+    return Constant.Test.OCSP_SOURCE;
+  }
+
   /*
    * RESTRICTED METHODS
    */
 
-  protected abstract Extension createNonce();
+  protected abstract Extension createNonce(X509Certificate certificate);
 
   protected void checkNonce(BasicOCSPResp response, Extension expectedNonceExtension) {
     Extension extension = response.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
@@ -130,17 +134,19 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     DEROctetString receivedNonce = (DEROctetString) extension.getExtnValue();
     if (!receivedNonce.equals(expectedNonce)) {
       throw new DigiDoc4JException(
-          String.format("The OCSP request was the victim of replay attack (nonce sent <%s>, nonce received <%s>)",
-              expectedNonce, receivedNonce));
+              String.format("The OCSP request was the victim of replay attack (nonce sent <%s>, nonce received <%s>)",
+                      expectedNonce, receivedNonce));
     }
   }
 
-  private byte[] buildRequest(final CertificateID certificateID, Extension nonceExtension) throws DSSException {
+  protected byte[] buildRequest(final CertificateID certificateID, Extension nonceExtension) throws DSSException {
     try {
       LOGGER.debug("Building OCSP request ...");
       OCSPReqBuilder builder = new OCSPReqBuilder();
       builder.addRequest(certificateID);
-      builder.setRequestExtensions(new Extensions(nonceExtension));
+      if (nonceExtension != null) {
+        builder.setRequestExtensions(new Extensions(nonceExtension));
+      }
       if (this.configuration.hasToBeOCSPRequestSigned()) {
         LOGGER.info("Using signed OCSP request ...");
         JcaContentSignerBuilder signerBuilder = new JcaContentSignerBuilder("SHA1withRSA");
@@ -151,7 +157,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
         X509Certificate signingCertificate = privateKeyEntry.getCertificate().getCertificate();
         builder.setRequestorName(new GeneralName(new JcaX509CertificateHolder(signingCertificate).getSubject()));
         return builder.build(signerBuilder.build(((KSPrivateKeyEntry) privateKeyEntry).getPrivateKey()),
-            new X509CertificateHolder[]{new X509CertificateHolder(signingCertificate.getEncoded())}).getEncoded();
+                new X509CertificateHolder[]{new X509CertificateHolder(signingCertificate.getEncoded())}).getEncoded();
       }
       return builder.build().getEncoded();
     } catch (Exception e) {
@@ -159,28 +165,23 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     }
   }
 
-  private void verifyResponse(BasicOCSPResp response) throws IOException {
+
+
+  protected void verifyResponse(BasicOCSPResp response) throws IOException {
     List<X509CertificateHolder> holders = Arrays.asList(response.getCerts());
     if (CollectionUtils.isNotEmpty(holders)) {
       for (X509CertificateHolder holder : holders) {
         CertificateToken token = DSSUtils.loadCertificate(holder.getEncoded());
-        List<CertificateToken> tokens = this.configuration.getTSL().get(
-            token.getCertificate().getSubjectX500Principal());
-        if (CollectionUtils.isEmpty(tokens) || tokens.size() != 1) {
-          throw new SignatureVerificationException(String.format("OCSP response certificate <%s> match is not found " +
-              "in TSL (<%s> results in total)", token.getDSSIdAsString(), tokens.size()));
-        } else {
-          try {
-            ContentVerifierProvider provider = new JcaContentVerifierProviderBuilder().setProvider("BC").build(new
-                X509CertificateHolder(tokens.get(0).getEncoded()));
-            if (!response.isSignatureValid(provider)) {
-              throw new SignatureVerificationException("OCSP response signature is invalid");
-            }
-          } catch (SignatureVerificationException e) {
-            throw e;
-          } catch (Exception e) {
-            throw new SignatureVerificationException("Unable to verify response signature", e);
+        verifyOcspResponderCertificate(token);
+        try {
+          ContentVerifierProvider provider = new JcaContentVerifierProviderBuilder().setProvider("BC").build(new X509CertificateHolder(token.getEncoded()));
+          if (!response.isSignatureValid(provider)) {
+            throw new SignatureVerificationException("OCSP response signature is invalid");
           }
+        } catch (SignatureVerificationException e) {
+          throw e;
+        } catch (Exception e) {
+          throw new SignatureVerificationException("Unable to verify response signature", e);
         }
       }
     } else {
@@ -190,10 +191,24 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     }
   }
 
-  private DSSPrivateKeyEntry getOCSPAccessCertificatePrivateKey() throws IOException {
+  protected void verifyOcspResponderCertificate(CertificateToken token) {
+    List<CertificateToken> tokens = configuration.getTSL().get(token.getCertificate().getSubjectX500Principal());
+    if (CollectionUtils.isEmpty(tokens)) {
+      throw new SignatureVerificationException(String.format("OCSP response certificate <%s> match is not found in TSL", token.getDSSIdAsString()));
+    }
+    try {
+      if (!token.getCertificate().getExtendedKeyUsage().contains(OID_OCSP_SIGNING)) {
+        throw new SignatureVerificationException(String.format("OCSP response certificate <%s> does not have 'OCSPSigning' extended key usage", token.getDSSIdAsString()));
+      }
+    } catch (CertificateParsingException e) {
+        throw new SignatureVerificationException(String.format("Error on verifying 'OCSPSigning' extended key usage for OCSP response certificate <%s>", token.getDSSIdAsString()), e);
+    }
+  }
+
+  protected DSSPrivateKeyEntry getOCSPAccessCertificatePrivateKey() throws IOException {
     Pkcs12SignatureToken signatureTokenConnection = new Pkcs12SignatureToken(
-        this.configuration.getOCSPAccessCertificateFileName(), this.configuration
-        .getOCSPAccessCertificatePasswordAsString());
+            this.configuration.getOCSPAccessCertificateFileName(), this.configuration
+            .getOCSPAccessCertificatePasswordAsString());
     return signatureTokenConnection.getKeys().get(0);
   }
 

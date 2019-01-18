@@ -136,7 +136,7 @@ import static java.util.Arrays.asList;
  * {@link https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf. }
  * NB! Strict Validation applied by default.</li>
  * <li>ALLOWED_OCSP_RESPONDERS_FOR_TM: whitelist of OCSP responders for timemark validation
- * (for example, SK OCSP RESPONDER 2011, ESTEID-SK OCSP RESPONDER, KLASS3-SK OCSP RESPONDER)</li>
+ * (for example: SK OCSP RESPONDER 2011, ESTEID-SK OCSP RESPONDER, KLASS3-SK OCSP RESPONDER)</li>
  * </ul>
  */
 public class Configuration implements Serializable {
@@ -147,8 +147,11 @@ public class Configuration implements Serializable {
   private TslManager tslManager;
   private Hashtable<String, String> ddoc4jConfiguration = new Hashtable<>();
   private ConfigurationRegistry registry = new ConfigurationRegistry();
-  // TODO integrate tspMap (multilevel arrays) into configuration registry
+
+  // TODO integrate tspMap and aiaOcspMap (multilevel arrays) into configuration registry
   private HashMap<String, Map<ConfigurationParameter, String>> tspMap = new HashMap<>();
+  private HashMap<String, Map<ConfigurationParameter, String>> aiaOcspMap = new HashMap<>();
+
   private List<String> trustedTerritories = new ArrayList<>();
   private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
   private LinkedHashMap configurationFromFile;
@@ -515,6 +518,52 @@ public class Configuration implements Serializable {
     }
     LOGGER.info("Source by country <{}> not found, using default TSP source", country);
     return this.getTspSource();
+  }
+
+  /**
+   * Set flag if AIA OCSP is preferred.
+   *
+   * @param preferAiaOcsp - True when AIA OCSP is preferred
+   */
+  public void setPreferAiaOcsp(boolean preferAiaOcsp) {
+    this.setConfigurationParameter(ConfigurationParameter.preferAiaOcsp, String.valueOf(preferAiaOcsp));
+  }
+
+  /**
+   * Get flag if AIA OCSP is preferred.
+   *
+   * @return isAiaOcspPreferred boolean value.
+   */
+  public boolean isAiaOcspPreferred() {
+    return this.getConfigurationParameter(ConfigurationParameter.preferAiaOcsp, Boolean.class);
+  }
+
+  /**
+   * Get the AIA OCSP source by issuer's CN
+   *
+   * @param cn to use AIA OCSP source
+   * @return ocspSource
+   */
+  public String getAiaOcspSourceByCN(String cn) {
+    if (this.aiaOcspMap.containsKey(cn)) {
+      String source = this.aiaOcspMap.get(cn).get(ConfigurationParameter.aiaOcspSource);
+      return source;
+    }
+    return null;
+  }
+
+  /**
+   * Get the AIA OCSP source by issuer's CN
+   *
+   * @param cn to use AIA OCSP source
+   * @return ocspSource
+   */
+  public boolean getUseNonceForAiaOcspByCN(String cn) {
+    if (this.aiaOcspMap.containsKey(cn)) {
+      String useNonce = this.aiaOcspMap.get(cn).get(ConfigurationParameter.useNonce);
+      return Boolean.valueOf(useNonce);
+    }
+    return true;
   }
 
   /**
@@ -1154,6 +1203,7 @@ public class Configuration implements Serializable {
       this.setDDoc4JParameter("SIGN_OCSP_REQUESTS", "false");
       setDDoc4JParameter("ALLOWED_OCSP_RESPONDERS_FOR_TM", StringUtils.join(Constant.Test.DEFAULT_OCSP_RESPONDERS, ","));
       this.setConfigurationParameter(ConfigurationParameter.AllowedOcspRespondersForTM, Constant.Test.DEFAULT_OCSP_RESPONDERS);
+      this.setConfigurationParameter(ConfigurationParameter.preferAiaOcsp, "false");
     } else {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Production.TSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.TslLocation, Constant.Production.TSL_LOCATION);
@@ -1167,7 +1217,7 @@ public class Configuration implements Serializable {
       this.setDDoc4JParameter("SIGN_OCSP_REQUESTS", "false");
       setDDoc4JParameter("ALLOWED_OCSP_RESPONDERS_FOR_TM", StringUtils.join(Constant.Production.DEFAULT_OCSP_RESPONDERS, ","));
       this.setConfigurationParameter(ConfigurationParameter.AllowedOcspRespondersForTM, Constant.Production.DEFAULT_OCSP_RESPONDERS);
-
+      this.setConfigurationParameter(ConfigurationParameter.preferAiaOcsp, "false");
     }
     LOGGER.debug("{} configuration: {}", this.mode, this.registry);
     this.loadInitialConfigurationValues();
@@ -1243,6 +1293,7 @@ public class Configuration implements Serializable {
     this.loadYamlOcspResponders();
     this.loadYamlTrustedTerritories();
     this.loadYamlTSPs();
+    this.loadYamlAiaOCSPs();
     this.postLoad();
   }
 
@@ -1392,6 +1443,37 @@ public class Configuration implements Serializable {
         }
       } else {
         this.logError(String.format("No value found for an entry <TSP_C(%s)>", i + 1));
+      }
+    }
+  }
+
+  private void loadYamlAiaOCSPs() {
+    List<Map<String, Object>> aiaOcsps = (List<Map<String, Object>>) this.configurationFromFile.get("AIA_OCSPS");
+    if (aiaOcsps == null) {
+      this.setConfigurationParameter(ConfigurationParameter.aiaOcspsCount, "0");
+      return;
+    }
+    this.setConfigurationParameter(ConfigurationParameter.aiaOcspsCount, String.valueOf(aiaOcsps.size()));
+    List<Pair<String, ConfigurationParameter>> entryPairs = Arrays.asList(
+            Pair.of("ISSUER_CN", ConfigurationParameter.issuerCn),
+            Pair.of("OCSP_SOURCE", ConfigurationParameter.aiaOcspSource),
+            Pair.of("USE_NONCE", ConfigurationParameter.useNonce)
+    );
+    for (int i = 0; i < aiaOcsps.size(); i++) {
+      Map<String, Object> tsp = aiaOcsps.get(i);
+      Object issuerCn = tsp.get("ISSUER_CN").toString();
+      if (issuerCn != null) {
+        this.aiaOcspMap.put(issuerCn.toString(), new HashMap<ConfigurationParameter, String>());
+        for (Pair<String, ConfigurationParameter> pair : entryPairs) {
+          Object entryValue = tsp.get(pair.getKey());
+          if (entryValue != null) {
+            this.aiaOcspMap.get(issuerCn.toString()).put(pair.getValue(), entryValue.toString());
+          } else {
+            this.logError(String.format("No value found for an entry <%s(%s)>", pair.getKey(), i + 1));
+          }
+        }
+      } else {
+        this.logError(String.format("No value found for an entry <ISSUER_CN(%s)>", i + 1));
       }
     }
   }
