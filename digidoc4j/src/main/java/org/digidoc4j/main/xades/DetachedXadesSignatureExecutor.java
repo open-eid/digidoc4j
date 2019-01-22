@@ -10,14 +10,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.digidoc4j.Configuration;
-import org.digidoc4j.DetachedXadesSignatureBuilder;
-import org.digidoc4j.DigestAlgorithm;
-import org.digidoc4j.DigestDataFile;
-import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.SignatureToken;
-import org.digidoc4j.ValidationResult;
+import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.main.ExecutionCommand;
 import org.digidoc4j.main.ExecutionOption;
@@ -113,8 +106,9 @@ public class DetachedXadesSignatureExecutor {
   private Signature sign() {
     setDigestAlgorithm();
     setSignatureProfile();
-    DetachedXadesSignatureBuilder signatureBuilder = DetachedXadesSignatureBuilder.withConfiguration(new
-        Configuration());
+    Configuration conf = new Configuration();
+    useAiaOcsp(conf);
+    DetachedXadesSignatureBuilder signatureBuilder = DetachedXadesSignatureBuilder.withConfiguration(conf);
     for (DigestDataFile digestDataFile : context.getDigestDataFiles()) {
       signatureBuilder.withDataFile(digestDataFile);
     }
@@ -143,6 +137,12 @@ public class DetachedXadesSignatureExecutor {
     DigestDataFile digestDataFile = new DigestDataFile(name, DigestAlgorithm.SHA256,
         Base64.decodeBase64(base64EncodedDigest));
     context.addDigestDataFile(digestDataFile);
+  }
+
+  private void useAiaOcsp(Configuration configuration) {
+    if (this.context.getCommandLine().hasOption("aiaocsp")) {
+      configuration.setPreferAiaOcsp(true);
+    }
   }
 
   private SignatureToken loadPKCS11Token() {

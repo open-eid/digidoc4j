@@ -419,6 +419,7 @@ public class CommandLineExecutor {
     SignatureBuilder signatureBuilder = SignatureBuilder.aSignature(container);
     this.updateProfile(signatureBuilder);
     this.updateEncryptionAlgorithm(signatureBuilder);
+    this.useAiaOcsp(container);
     this.signWithPkcs12(container, signatureBuilder);
     this.signWithPkcs11(container, signatureBuilder);
   }
@@ -440,6 +441,13 @@ public class CommandLineExecutor {
       String encryption = this.context.getCommandLine().getOptionValue("encryption");
       EncryptionAlgorithm encryptionAlgorithm = EncryptionAlgorithm.valueOf(encryption);
       signatureBuilder.withEncryptionAlgorithm(encryptionAlgorithm);
+    }
+  }
+
+  private void useAiaOcsp(Container container) {
+    if (this.context.getCommandLine().hasOption("aiaocsp")) {
+      Configuration configuration = container.getConfiguration();
+      configuration.setPreferAiaOcsp(true);
     }
   }
 
