@@ -4,4 +4,4 @@ jdk:
 branches:
   only:
   - develop
-script: mvn clean package
+script: mvn clean verify
