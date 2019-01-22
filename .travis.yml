@@ -4,4 +4,4 @@ jdk:
 branches:
   only:
   - develop
-script: mvn clean verify
+script: mvn clean verify -Dgpg.skip
