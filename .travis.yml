@@ -5,5 +5,7 @@ jdk:
 branches:
   only:
   - develop
+before_install:
+- export TZ=Estonia/Tallinn
 install: true
 script: mvn clean verify -q -Dgpg.skip
