@@ -5,4 +5,4 @@ branches:
   only:
   - develop
 install: true
-script: mvn clean verify -Dgpg.skip
+script: mvn clean verify -q -Dgpg.skip
