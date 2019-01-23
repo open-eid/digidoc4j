@@ -6,6 +6,6 @@ branches:
   only:
   - develop
 before_install:
-- export TZ=Estonia/Tallinn
+- export TZ=Europe/Helsinki
 install: true
 script: mvn clean verify -q -Dgpg.skip
