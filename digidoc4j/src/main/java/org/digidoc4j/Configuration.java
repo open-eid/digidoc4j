@@ -622,6 +622,24 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Set if ocsp nonce is used by default
+   *
+   * @param useOcspNonce
+   */
+  public void setUseOcspNonce(Boolean useOcspNonce) {
+    this.setConfigurationParameter(ConfigurationParameter.useNonce, useOcspNonce.toString());
+  }
+
+  /**
+   * Get the OCSP Source
+   *
+   * @return OCSP Source
+   */
+  public boolean isOcspNonceUsed() {
+    return this.getConfigurationParameter(ConfigurationParameter.useNonce, Boolean.class);
+  }
+
+  /**
    * Set the KeyStore Location that holds potential TSL Signing certificates
    *
    * @param tslKeyStoreLocation KeyStore location to use
@@ -1192,6 +1210,7 @@ public class Configuration implements Serializable {
         Constant.Default.SIGNATURE_DIGEST_ALGORITHM);
     this.setConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded,
         Constant.Default.FULL_SIMPLE_REPORT);
+    this.setConfigurationParameter(ConfigurationParameter.useNonce, "true");
     if (Mode.TEST.equals(this.mode)) {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Test.TSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.TslLocation, Constant.Test.TSL_LOCATION);

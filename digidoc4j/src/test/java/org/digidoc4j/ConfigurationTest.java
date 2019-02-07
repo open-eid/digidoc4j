@@ -300,6 +300,13 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
+  public void setUseOcspNonce() throws Exception {
+    Assert.assertEquals(true, this.configuration.isOcspNonceUsed());
+    this.configuration.setUseOcspNonce(false);
+    Assert.assertEquals(false, this.configuration.isOcspNonceUsed());
+  }
+
+  @Test
   public void defaultOCSPAccessCertificateFile() {
     Assert.assertEquals("", this.configuration.getOCSPAccessCertificateFileName());
     Assert.assertEquals("", this.getDDoc4JConfigurationValue(OCSP_PKCS12_CONTAINER));

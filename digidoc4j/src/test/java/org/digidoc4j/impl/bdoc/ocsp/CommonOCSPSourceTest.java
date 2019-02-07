@@ -41,6 +41,15 @@ public class CommonOCSPSourceTest extends AbstractTest {
     Assert.assertNull(nonce);
   }
 
+  @Test
+  public void gettingOCSPNonceShouldReturnNull_whenNonceUsageIsTurnedOffInConfiguration() throws Exception {
+    this.configuration.setUseOcspNonce(false);
+    CommonOCSPSource source = new CommonOCSPSource(this.configuration);
+    Extension nonce = source.createNonce(null);
+    Assert.assertNull(nonce);
+    this.configuration.setUseOcspNonce(true);
+  }
+
   /*
    * RESTRICTED METHODS
    */

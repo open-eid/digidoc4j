@@ -55,6 +55,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTest.class);
   protected final PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
   protected final PKCS12SignatureToken pkcs12EccSignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray());
+  protected final PKCS12SignatureToken pkcs12Esteid2018SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/sign_ESTEID2018.p12", "1234".toCharArray());
   protected Configuration configuration;
 
   @Rule

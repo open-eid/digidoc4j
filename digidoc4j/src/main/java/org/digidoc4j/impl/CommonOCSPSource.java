@@ -15,6 +15,7 @@ import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.exceptions.SignatureVerificationException;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
@@ -34,13 +35,14 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
   private final Logger LOGGER = LoggerFactory.getLogger(CommonOCSPSource.class);
 
   private boolean useAiaOcsp;
-  private boolean useNonce = true;
+  private boolean useNonce;
 
   /**
    * @param configuration configuration
    */
   public CommonOCSPSource(Configuration configuration) {
     super(configuration);
+    useNonce = configuration.isOcspNonceUsed();
   }
 
   @Override
@@ -74,7 +76,7 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
   @Override
   public Extension createNonce(X509Certificate certificate) {
     if (!useNonce) {
-      LOGGER.info("Given AIA OCSP should use no nonce, skipping creating nonce..");
+      LOGGER.info("Skipping creating nonce..");
       return null;
     }
     LOGGER.debug("Creating default OCSP nonce ...");
@@ -83,9 +85,9 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
 
   @Override
   protected void verifyOcspResponderCertificate(CertificateToken token) {
-    List<CertificateToken> tokens = getConfiguration().getTSL().get(token.getCertificate().getSubjectX500Principal());
-    List<CertificateToken> tokensByIssuer = getConfiguration().getTSL().get(token.getCertificate().getIssuerX500Principal());
-    if (CollectionUtils.isEmpty(tokens) && (!useAiaOcsp || CollectionUtils.isEmpty(tokensByIssuer))) {
+    TSLCertificateSource certificateSource = getConfiguration().getTSL();
+    if (CollectionUtils.isEmpty(certificateSource.get(token.getCertificate().getSubjectX500Principal()))
+            && CollectionUtils.isEmpty(certificateSource.get(token.getCertificate().getIssuerX500Principal()))) {
       throw new SignatureVerificationException(String.format("OCSP response certificate <%s> match is not found in TSL", token.getDSSIdAsString()));
     }
     try {
