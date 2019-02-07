@@ -208,7 +208,7 @@ public class SignatureTest extends AbstractTest {
   public void testValidationForBDocDefaultValidationWithFailure() throws Exception {
     Signature signature = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
     List<DigiDoc4JException> errors = signature.validateSignature().getErrors();
-    TestAssert.assertContainsError("The reference data object(s) is not intact!", errors);
+    TestAssert.assertContainsError("The reference data object is not intact!", errors);
     TestAssert.assertContainsError("Signature has an invalid timestamp", errors);
   }
 
@@ -218,9 +218,9 @@ public class SignatureTest extends AbstractTest {
     Signature signature = container.getSignatures().get(0);
     Assert.assertEquals(0, signature.validateSignature().getErrors().size());
     signature = container.getSignatures().get(1);
-    Assert.assertEquals(2, signature.validateSignature().getErrors().size());
+    Assert.assertEquals(1, signature.validateSignature().getErrors().size());
     SignatureValidationResult validate = container.validate();
-    Assert.assertEquals(2, validate.getErrors().size());
+    Assert.assertEquals(1, validate.getErrors().size());
     String report = validate.getReport();
     Assert.assertTrue(report.contains("Id=\"S0\" SignatureFormat=\"XAdES-BASELINE-LT\""));
     Assert.assertTrue(report.contains("Id=\"S1\" SignatureFormat=\"XAdES-BASELINE-LT\""));

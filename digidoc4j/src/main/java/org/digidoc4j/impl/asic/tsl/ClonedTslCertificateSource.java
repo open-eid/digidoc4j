@@ -14,6 +14,7 @@ import java.util.List;
 
 import javax.security.auth.x500.X500Principal;
 
+import eu.europa.esig.dss.x509.CertificateSourceType;
 import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,5 +84,15 @@ public class ClonedTslCertificateSource implements CertificateSource {
   @Override
   public List<CertificateToken> get(X500Principal x500Principal) {
     return getCertificateSource().get(x500Principal);
+  }
+
+  @Override
+  public CertificateSourceType getCertificateSourceType() {
+    return CertificateSourceType.TRUSTED_LIST;
+  }
+
+  @Override
+  public List<CertificateToken> getCertificates() {
+    return getCertificateSource().getCertificates();
   }
 }

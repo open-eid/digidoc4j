@@ -11,10 +11,7 @@
 package org.digidoc4j.signers;
 
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
+import java.security.*;
 import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -94,13 +91,13 @@ public class PKCS12SignatureToken implements SignatureToken {
   private void init(String fileName, String password, X509Cert.KeyUsage keyUsage, String alias) {
     logger.info("Using PKCS#12 signature token from file: " + fileName);
     try {
-      signatureTokenConnection = new Pkcs12SignatureToken(fileName, password);
+      signatureTokenConnection = new Pkcs12SignatureToken(fileName, new KeyStore.PasswordProtection(password.toCharArray()));
     } catch (IOException e) {
       throw new DigiDoc4JException(e.getMessage());
     }
     if (alias != null) {
       logger.debug("Searching key with alias: " + alias);
-      keyEntry = signatureTokenConnection.getKey(alias, password);
+      keyEntry = (KSPrivateKeyEntry) signatureTokenConnection.getKey(alias, new KeyStore.PasswordProtection(password.toCharArray()));
     } else {
       logger.debug("Searching key by usage: " + keyUsage.name());
       List<DSSPrivateKeyEntry> keys = signatureTokenConnection.getKeys();

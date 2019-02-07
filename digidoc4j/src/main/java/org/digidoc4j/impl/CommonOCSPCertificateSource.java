@@ -25,7 +25,6 @@ public class CommonOCSPCertificateSource extends CommonCertificateSource impleme
    * Loads all certificates found from classpath
    */
   public CommonOCSPCertificateSource() {
-    this.certificateTokens = new ArrayList<>();
     this.initialize();
   }
 
@@ -45,7 +44,7 @@ public class CommonOCSPCertificateSource extends CommonCertificateSource impleme
    */
 
   private void initialize() {
-    if (this.getCertificatePool().getNumberOfCertificates() == 0) {
+    if (this.getCertificates().size() == 0) {
       LOGGER.info("Initializing OCSP certificate source ...");
       this.loadFiles(Helper.getFilesFromResourcePath(Paths.get("ocsp"), new Helper.FileExtensionFilter("crt")));
     }
@@ -63,7 +62,7 @@ public class CommonOCSPCertificateSource extends CommonCertificateSource impleme
       }
     }
     LOGGER.info("OCSP certificate source contains <{}> additional certificate(s)",
-        this.getCertificatePool().getNumberOfCertificates());
+        this.getCertificates().size());
   }
 
 }

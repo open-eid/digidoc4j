@@ -11,11 +11,13 @@
 package org.digidoc4j.impl.asic.tsl;
 
 import java.security.cert.X509Certificate;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import javax.security.auth.x500.X500Principal;
 
+import eu.europa.esig.dss.tsl.TLInfo;
+import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
+import eu.europa.esig.dss.x509.CertificateSourceType;
 import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.slf4j.Logger;
@@ -38,7 +40,7 @@ import eu.europa.esig.dss.x509.CertificateToken;
  *
  * To achieve that, a lazily initialized certificate source is used.
  */
-public class LazyTslCertificateSource implements TSLCertificateSource {
+public class LazyTslCertificateSource extends TrustedListsCertificateSource implements TSLCertificateSource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LazyTslCertificateSource.class);
   private transient TSLValidationJob tslValidationJob;
@@ -56,8 +58,28 @@ public class LazyTslCertificateSource implements TSLCertificateSource {
   }
 
   @Override
+  public TLInfo getTlInfo(String countryCode) {
+    return this.getCertificateSource().getTlInfo(countryCode);
+  }
+
+  @Override
+  public TLInfo getLotlInfo() {
+    return this.getCertificateSource().getLotlInfo();
+  }
+
+  @Override
+  public Map<String, TLInfo> getSummary() {
+    return this.getSummary();
+  }
+
+  @Override
   public CertificatePool getCertificatePool() {
     return this.getCertificateSource().getCertificatePool();
+  }
+
+  @Override
+  public int getNumberOfCertificates() {
+    return this.getCertificateSource().getNumberOfCertificates();
   }
 
   @Override
@@ -71,13 +93,23 @@ public class LazyTslCertificateSource implements TSLCertificateSource {
   }
 
   @Override
+  public Set<ServiceInfo> getTrustServices(CertificateToken token) {
+    return this.getCertificateSource().getTrustServices(token);
+  }
+
+  @Override
+  public CertificateSourceType getCertificateSourceType() {
+    return CertificateSourceType.TRUSTED_LIST;
+  }
+
+  @Override
   public void addTSLCertificate(X509Certificate certificate) {
     this.getCertificateSource().addTSLCertificate(certificate);
   }
 
   @Override
-  public CertificateToken addCertificate(CertificateToken certificate, ServiceInfo serviceInfo) {
-    return this.getCertificateSource().addCertificate(certificate, serviceInfo);
+  public void addCertificate(CertificateToken certificate, List<ServiceInfo> serviceInfos) {
+    this.getCertificateSource().addCertificate(certificate, serviceInfos);
   }
 
   @Override

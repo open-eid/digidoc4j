@@ -32,6 +32,7 @@ import eu.europa.esig.dss.x509.TimestampType;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * Created by Andrei on 22.11.2017.
@@ -94,13 +95,13 @@ public class TimeStampTokenTest extends AbstractTest {
       assertNotNull(token);
       assertNotNull(token.getGenerationTime());
       Assert.assertTrue(Utils.isCollectionNotEmpty(token.getCertificates()));
+      assertNull(token.getSignatureAlgorithm());
+      Assert.assertTrue(token.isSignedBy(token.getCertificates().get(0)));
       assertNotNull(token.getSignatureAlgorithm());
       Assert.assertEquals(TimestampType.ARCHIVE_TIMESTAMP, token.getTimeStampType());
       Assert.assertEquals(DigestAlgorithm.SHA256, token.getSignedDataDigestAlgo());
       Assert.assertEquals(SignatureAlgorithm.RSA_SHA256, token.getSignatureAlgorithm());
       Assert.assertTrue(Utils.isStringNotBlank(token.getEncodedSignedDataDigestValue()));
-      assertNotNull(token.getIssuerToken());
-      Assert.assertTrue(token.isSignedBy(token.getIssuerToken()));
       Assert.assertFalse(token.isSelfSigned());
       Assert.assertFalse(token.matchData(new byte[]{1, 2, 3}));
       Assert.assertTrue(token.isMessageImprintDataFound());

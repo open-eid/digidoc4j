@@ -14,9 +14,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
-import org.digidoc4j.impl.asic.tsl.ClonedTslCertificateSource;
+import org.apache.commons.lang3.SerializationUtils;
 import org.digidoc4j.impl.asic.tsl.LazyCertificatePool;
-import org.digidoc4j.impl.asic.tsl.LazyTslCertificateSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,28 +38,19 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   private transient CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
   private transient CertificateSource trustedCertSource;
 
+  public SKCommonCertificateVerifier() {
+    commonCertificateVerifier.setExceptionOnMissingRevocationData(false);
+  }
+
   @Override
   public CertificateSource getTrustedCertSource() {
-    if (this.trustedCertSource instanceof ClonedTslCertificateSource) {
-      if (((ClonedTslCertificateSource) this.trustedCertSource).getTrustedListsCertificateSource() != null) {
-        this.log.debug("get TrustedListCertificateSource from ClonedTslCertificateSource");
-        return ((ClonedTslCertificateSource) this.trustedCertSource).getTrustedListsCertificateSource();
-      }
-    }
-    return this.commonCertificateVerifier.getTrustedCertSource();
+    return SerializationUtils.clone(trustedCertSource);
   }
 
   @Override
   public void setTrustedCertSource(final CertificateSource trustedCertSource) {
-    ClonedTslCertificateSource clonedTslCertificateSource = new ClonedTslCertificateSource(trustedCertSource);
-    this.trustedCertSource = clonedTslCertificateSource;
-    if (trustedCertSource instanceof LazyTslCertificateSource) {
-      this.log.debug("get TrustedCertSource from LazyTslCertificateSource");
-      this.commonCertificateVerifier.setTrustedCertSource(
-          ((LazyTslCertificateSource) trustedCertSource).getTslLoader().getTslCertificateSource());
-    } else {
-      this.commonCertificateVerifier.setTrustedCertSource(clonedTslCertificateSource);
-    }
+    this.trustedCertSource = trustedCertSource;
+    this.commonCertificateVerifier.setTrustedCertSource(trustedCertSource);
   }
 
   @Override
@@ -129,6 +119,85 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
       return this.commonCertificateVerifier.createValidationPool();
     }
     return new LazyCertificatePool(this.trustedCertSource);
+  }
+
+  @Override
+  public void setExceptionOnMissingRevocationData(boolean throwExceptionOnMissingRevocationData) {
+    commonCertificateVerifier.setExceptionOnMissingRevocationData(throwExceptionOnMissingRevocationData);
+  }
+
+  @Override
+  public boolean isExceptionOnMissingRevocationData() {
+    return commonCertificateVerifier.isExceptionOnMissingRevocationData();
+  }
+
+  @Override
+  public boolean isExceptionOnUncoveredPOE() {
+    return commonCertificateVerifier.isExceptionOnUncoveredPOE();
+  }
+
+  public void setExceptionOnUncoveredPOE(boolean exceptionOnUncoveredPOE) {
+    commonCertificateVerifier.setExceptionOnUncoveredPOE(exceptionOnUncoveredPOE);
+  }
+
+  @Override
+  public boolean isExceptionOnRevokedCertificate() {
+    return commonCertificateVerifier.isExceptionOnRevokedCertificate();
+  }
+
+  @Override
+  public void setExceptionOnRevokedCertificate(boolean exceptionOnRevokedCertificate) {
+    commonCertificateVerifier.setExceptionOnRevokedCertificate(exceptionOnRevokedCertificate);
+  }
+
+  @Override
+  public void setExceptionOnInvalidTimestamp(boolean throwExceptionOnInvalidTimestamp) {
+    commonCertificateVerifier.setExceptionOnInvalidTimestamp(throwExceptionOnInvalidTimestamp);
+  }
+
+  @Override
+  public boolean isExceptionOnInvalidTimestamp() {
+    return commonCertificateVerifier.isExceptionOnInvalidTimestamp();
+  }
+
+  @Override
+  public boolean isCheckRevocationForUntrustedChains() {
+    return commonCertificateVerifier.isCheckRevocationForUntrustedChains();
+  }
+
+  @Override
+  public void setCheckRevocationForUntrustedChains(boolean checkRevocationForUntrustedChains) {
+    commonCertificateVerifier.setCheckRevocationForUntrustedChains(checkRevocationForUntrustedChains);
+  }
+
+  @Override
+  public void setIncludeCertificateTokenValues(boolean includeCertificateTokens) {
+    commonCertificateVerifier.setIncludeCertificateTokenValues(includeCertificateTokens);
+  }
+
+  @Override
+  public boolean isIncludeCertificateTokenValues() {
+    return commonCertificateVerifier.isIncludeCertificateTokenValues();
+  }
+
+  @Override
+  public void setIncludeCertificateRevocationValues(boolean include) {
+    commonCertificateVerifier.setIncludeCertificateRevocationValues(include);
+  }
+
+  @Override
+  public boolean isIncludeCertificateRevocationValues() {
+    return commonCertificateVerifier.isIncludeCertificateRevocationValues();
+  }
+
+  @Override
+  public void setIncludeTimestampTokenValues(boolean include) {
+    commonCertificateVerifier.setIncludeTimestampTokenValues(include);
+  }
+
+  @Override
+  public boolean isIncludeTimestampTokenValues() {
+    return commonCertificateVerifier.isIncludeTimestampTokenValues();
   }
   
   /*

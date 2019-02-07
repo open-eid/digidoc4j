@@ -11,6 +11,7 @@
 package org.digidoc4j.impl;
 
 import java.io.IOException;
+import java.security.KeyStore;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -72,7 +73,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   }
 
   @Override
-  public OCSPToken getOCSPToken(CertificateToken certificateToken, CertificateToken issuerCertificateToken) {
+  public OCSPToken getRevocationToken(CertificateToken certificateToken, CertificateToken issuerCertificateToken) {
     LOGGER.debug("Getting OCSP token ...");
     try {
       if (this.dataLoader == null) {
@@ -100,7 +101,6 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
         LOGGER.warn("No best single match of OCSP response found");
         return null;
       }
-      certificateToken.addRevocationToken(token);
       return token;
     } catch (DSSException e) {
       throw e;
@@ -207,8 +207,8 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
 
   protected DSSPrivateKeyEntry getOCSPAccessCertificatePrivateKey() throws IOException {
     Pkcs12SignatureToken signatureTokenConnection = new Pkcs12SignatureToken(
-            this.configuration.getOCSPAccessCertificateFileName(), this.configuration
-            .getOCSPAccessCertificatePasswordAsString());
+            this.configuration.getOCSPAccessCertificateFileName(), new KeyStore.PasswordProtection(this.configuration
+            .getOCSPAccessCertificatePassword()));
     return signatureTokenConnection.getKeys().get(0);
   }
 

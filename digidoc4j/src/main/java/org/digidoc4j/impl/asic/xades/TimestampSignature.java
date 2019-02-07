@@ -62,7 +62,8 @@ public class TimestampSignature extends TimemarkSignature {
       throwTimestampNotFoundException(origin.getId());
     }
     TimestampToken timestampToken = origin.getSignatureTimestamps().get(0);
-    CertificateToken issuerToken = timestampToken.getIssuerToken();
+
+    CertificateToken issuerToken = getIssuerToken(timestampToken);
     if (issuerToken == null) {
       return throwTimestampNotFoundException(origin.getId());
     }
@@ -125,5 +126,14 @@ public class TimestampSignature extends TimemarkSignature {
   private X509Cert throwTimestampNotFoundException(String sigId) {
     logger.error("TimeStamp certificate not found, Signature id: " + sigId);
     throw new CertificateNotFoundException("TimeStamp certificate not found", sigId);
+  }
+
+  private CertificateToken getIssuerToken(TimestampToken timestampToken) {
+    for (CertificateToken certificateToken : timestampToken.getCertificates()) {
+      if (timestampToken.isSignedBy(certificateToken)) {
+        return certificateToken;
+      }
+    }
+    return null;
   }
 }

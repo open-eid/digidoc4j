@@ -11,10 +11,7 @@
 package org.digidoc4j.signers;
 
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.SignatureException;
+import java.security.*;
 import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -66,7 +63,7 @@ public class PKCS11SignatureToken implements SignatureToken {
    */
   public PKCS11SignatureToken(String pkcs11ModulePath, char[] password, int slotIndex) {
     logger.debug("Initializing PKCS#11 signature token from " + pkcs11ModulePath + " and slot " + slotIndex);
-    signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, password, slotIndex);
+    signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, new KeyStore.PasswordProtection(password), slotIndex);
     privateKeyEntry = findPrivateKey(X509Cert.KeyUsage.NON_REPUDIATION);
   }
 
@@ -97,7 +94,7 @@ public class PKCS11SignatureToken implements SignatureToken {
      this.label = label;
      logger.debug("Initializing PKCS#11 signature token from " + pkcs11ModulePath + " and slot " + slotIndex+ " and " +
          "label " + label);
-     signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, password, slotIndex);
+     signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, new KeyStore.PasswordProtection(password), slotIndex);
      privateKeyEntry = findPrivateKey(X509Cert.KeyUsage.NON_REPUDIATION);
    }
 

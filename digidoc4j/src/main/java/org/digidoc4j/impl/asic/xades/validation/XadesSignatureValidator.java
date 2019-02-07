@@ -190,10 +190,10 @@ public class XadesSignatureValidator implements SignatureValidator {
     LOGGER.debug("Extracting reported errors");
     if (this.simpleReport != null) {
       for (String errorMessage : this.simpleReport.getErrors(this.signatureId)) {
-        if (this.isRedundantErrorMessage(errorMessage)) {
+        /*if (this.isRedundantErrorMessage(errorMessage)) {
           LOGGER.debug("Ignoring redundant error message: " + errorMessage);
           continue;
-        }
+        }*/
         if (errorMessage.contains(MessageTag.BBB_XCV_ISCR_ANS.getMessage())) {
           this.addValidationError(new CertificateRevokedException(errorMessage));
         } else if (errorMessage.contains(MessageTag.PSV_IPSVC_ANS.getMessage())) {

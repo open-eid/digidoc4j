@@ -52,7 +52,7 @@ public class OCSPCertificateValidator implements CertificateValidator {
       if (subjectCertificate == null) {
         throw new IllegalArgumentException("Subject certificate is not provided");
       }
-      this.verifyOCSPToken(this.ocspSource.getOCSPToken(new CertificateToken(subjectCertificate),
+      this.verifyOCSPToken(this.ocspSource.getRevocationToken(new CertificateToken(subjectCertificate),
           this.getIssuerCertificateToken(subjectCertificate)));
     } catch (SignatureVerificationException e) {
       throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNTRUSTED, e);
@@ -107,16 +107,14 @@ public class OCSPCertificateValidator implements CertificateValidator {
     try {
       if (token.getStatus() != null) {
         if (!token.getStatus()) {
-          LOGGER.debug("Certificate with DSS ID <{}> - status <{}>", token.getDSSIdAsString(), CRLReasonEnum.valueOf(token.getReason())
-              .name());
+          LOGGER.debug("Certificate with DSS ID <{}> - status <{}>", token.getDSSIdAsString(), token.getReason().name());
           throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.REVOKED);
         }
         // Otherwise status is GOOD
         return;
       }
-      if (StringUtils.isNotBlank(token.getReason())) {
-        LOGGER.debug("Certificate with DSS ID <{}> - status <{}>", token.getDSSIdAsString(), CRLReasonEnum.valueOf(token.getReason())
-            .name());
+      if (token.getReason() != null) {
+        LOGGER.debug("Certificate with DSS ID <{}> - status <{}>", token.getDSSIdAsString(), token.getReason().name());
         throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNKNOWN);
 
       }

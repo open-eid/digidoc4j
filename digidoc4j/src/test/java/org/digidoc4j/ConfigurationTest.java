@@ -84,7 +84,8 @@ public class ConfigurationTest extends AbstractTest {
     CertificateToken certificateToken = source.getCertificates().get(0);
     Assert.assertThat(certificateToken.getKeyUsageBits(), hasItem(KeyUsageBit.nonRepudiation));
     Assert.assertTrue(certificateToken.checkKeyUsage(KeyUsageBit.nonRepudiation));
-    ServiceInfo serviceInfo = certificateToken.getAssociatedTSPS().iterator().next();
+    Set<ServiceInfo> associatedTSPS = source.getTrustServices(certificateToken);
+    ServiceInfo serviceInfo = associatedTSPS.iterator().next();
     //TODO test ServiceInfoStatus new methods
     ServiceInfoStatus serviceInfostatus = serviceInfo.getStatus().getLatest();
     Assert.assertEquals("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", serviceInfostatus.getStatus());

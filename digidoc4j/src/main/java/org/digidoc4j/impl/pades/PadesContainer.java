@@ -8,6 +8,8 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.europa.esig.dss.pdf.PdfObjFactory;
+import eu.europa.esig.dss.pdf.pdfbox.PdfBoxObjectFactory;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerValidationResult;
@@ -32,6 +34,10 @@ import eu.europa.esig.dss.validation.reports.Reports;
  * Created by Andrei on 17.11.2017.
  */
 public class PadesContainer implements Container {
+
+  static {
+    PdfObjFactory.setInstance(new PdfBoxObjectFactory());
+  }
 
   public static final String PADES = "PADES";
   private final Configuration configuration;

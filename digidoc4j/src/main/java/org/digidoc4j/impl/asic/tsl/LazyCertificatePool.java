@@ -10,19 +10,16 @@
 
 package org.digidoc4j.impl.asic.tsl;
 
+import java.security.PublicKey;
 import java.util.List;
 import java.util.Set;
 
 import javax.security.auth.x500.X500Principal;
 
+import eu.europa.esig.dss.x509.*;
+import org.bouncycastle.cms.SignerId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import eu.europa.esig.dss.tsl.ServiceInfo;
-import eu.europa.esig.dss.x509.CertificatePool;
-import eu.europa.esig.dss.x509.CertificateSource;
-import eu.europa.esig.dss.x509.CertificateSourceType;
-import eu.europa.esig.dss.x509.CertificateToken;
 
 /**
  * Lazily initialized certificate pool. It allows to initialize objects and populate parameters
@@ -47,11 +44,6 @@ public class LazyCertificatePool extends CertificatePool {
   }
 
   @Override
-  public List<CertificateToken> get(X500Principal x500Principal) {
-    return getCertificatePool().get(x500Principal);
-  }
-
-  @Override
   public List<CertificateToken> getCertificateTokens() {
     return getCertificatePool().getCertificateTokens();
   }
@@ -62,23 +54,58 @@ public class LazyCertificatePool extends CertificatePool {
   }
 
   @Override
-  public CertificateToken getInstance(CertificateToken cert, CertificateSourceType certSource, ServiceInfo serviceInfo) {
-    return getCertificatePool().getInstance(cert, certSource, serviceInfo);
-  }
-
-  @Override
-  public CertificateToken getInstance(CertificateToken certificateToAdd, Set<CertificateSourceType> sources, Set<ServiceInfo> services) {
-    return getCertificatePool().getInstance(certificateToAdd, sources, services);
-  }
-
-  @Override
   public int getNumberOfCertificates() {
     return getCertificatePool().getNumberOfCertificates();
   }
 
   @Override
-  public void merge(CertificatePool certPool) {
-    getCertificatePool().merge(certPool);
+  public void importCerts(final CertificateSource certificateSource) {
+    getCertificatePool().importCerts(certificateSource);
+  }
+
+  @Override
+  public boolean isTrusted(CertificateToken cert) {
+    return getCertificatePool().isTrusted(cert);
+  }
+
+  @Override
+  public Set<CertificateSourceType> getSources(CertificateToken certificateToken) {
+    return getCertificatePool().getSources(certificateToken);
+  }
+
+  @Override
+  public List<CertificateToken> getIssuers(final Token token) {
+    return getCertificatePool().getIssuers(token);
+  }
+
+  @Override
+  public CertificateToken getIssuer(final Token token) {
+    return getCertificatePool().getIssuer(token);
+  }
+
+  @Override
+  public CertificateToken getTrustAnchor(CertificateToken cert) {
+    return getCertificatePool().getTrustAnchor(cert);
+  }
+
+  @Override
+  public List<CertificateToken> get(X500Principal x500Principal) {
+    return getCertificatePool().get(x500Principal);
+  }
+
+  @Override
+  public List<CertificateToken> get(PublicKey publicKey) {
+    return getCertificatePool().get(publicKey);
+  }
+
+  @Override
+  public List<CertificateToken> getBySki(final byte[] expectedSki) {
+    return getCertificatePool().getBySki(expectedSki);
+  }
+
+  @Override
+  public List<CertificateToken> getBySignerId(SignerId signerId) {
+    return getCertificatePool().getBySignerId(signerId);
   }
 
   private CertificatePool getCertificatePool() {

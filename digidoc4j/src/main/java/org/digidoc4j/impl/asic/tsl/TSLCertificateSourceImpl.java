@@ -11,11 +11,13 @@
 package org.digidoc4j.impl.asic.tsl;
 
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import eu.europa.esig.dss.validation.process.qualification.EIDASUtils;
+import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.digidoc4j.TSLCertificateSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,9 +43,13 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
   /**
    * Add a certificate to the TSL
    * <p/>
+   * ServiceName is the certificate's CN field value<br/>
    * ServiceTypeIdentifier is http://uri.etsi.org/TrstSvc/Svctype/CA/QC <br/>
-   * ServiceStatus is http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision <br/>
    * Qualifier is http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD with nonRepudiation <br/>
+   * ServiceStatus is: <br/>
+   *    Certificate's NotBefore pre Eidas -> http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision <br/>
+   *    Certificate's NotBefore post Eidas -> http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted <br/>
+   * CountryCode is EU <br/>
    *
    * @param certificate X509 certificate to be added to the list
    */
@@ -54,17 +60,18 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
     Condition condition = new KeyUsageCondition(KeyUsageBit.nonRepudiation, true);
     Map<String, List<Condition>> qualifiersAndConditions = new HashMap<String, List<Condition>>();
     qualifiersAndConditions.put("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD", Arrays.asList(condition));
-    ServiceInfoStatus status = new ServiceInfoStatus("http://uri.etsi.org/TrstSvc/Svctype/CA/QC",
-        "http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision",
+    ServiceInfoStatus status = new ServiceInfoStatus(getCN(certificate),"http://uri.etsi.org/TrstSvc/Svctype/CA/QC",
+        getStatus(certificate.getNotBefore()),
         qualifiersAndConditions,
-        null,
+            Arrays.asList("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/ForeSignatures"),
         null,
         null,
         certificate.getNotBefore(),
         null);
     TimeDependentValues timeDependentValues = new TimeDependentValues(Arrays.asList(status));
     serviceInfo.setStatus(timeDependentValues);
-    addCertificate(new CertificateToken(certificate), serviceInfo);
+    serviceInfo.setTlCountryCode("EU");
+    addCertificate(new CertificateToken(certificate), Collections.singletonList(serviceInfo));
   }
 
   /**
@@ -82,6 +89,20 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
   @Override
   public void refresh() {
     logger.warn("Not possible to refresh this certificate source");
+  }
+
+  private String getCN(X509Certificate certificate) {
+    X500Name x500name = new X500Name(certificate.getSubjectX500Principal().getName() );
+    RDN cn = x500name.getRDNs(BCStyle.CN)[0];
+    return IETFUtils.valueToString(cn.getFirst().getValue());
+  }
+
+  private String getStatus(Date startDate) {
+    if (EIDASUtils.isPostEIDAS(startDate)) {
+      return "http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted";
+    } else {
+      return "http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision";
+    }
   }
 
 }

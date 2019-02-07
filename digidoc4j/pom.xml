@@ -25,7 +25,7 @@
         <logback-classic.version>1.2.3</logback-classic.version>
         <junit.version>4.11</junit.version>
         <dss.groupId>org.digidoc4j.dss</dss.groupId>
-        <dss.version>5.2.d4j.4</dss.version>
+        <dss.version>5.4.d4j.1</dss.version>
         <dss.util.build>${project.build.directory}/build/util</dss.util.build>
         <dss.util.lib>${project.build.directory}/library/util</dss.util.lib>
         <dss.zip.lib>${project.build.directory}/library/zip</dss.zip.lib>
@@ -314,6 +314,11 @@
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-pades</artifactId>
+            <version>${dss.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${dss.groupId}</groupId>
+            <artifactId>dss-pades-pdfbox</artifactId>
             <version>${dss.version}</version>
         </dependency>
         <dependency>

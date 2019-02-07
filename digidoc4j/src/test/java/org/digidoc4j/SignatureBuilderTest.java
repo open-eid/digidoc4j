@@ -251,7 +251,7 @@ public class SignatureBuilderTest extends AbstractTest {
     Signature signature = this.openAdESSignature(container);
     ValidationResult result = signature.validateSignature();
     Assert.assertFalse(result.isValid());
-    Assert.assertEquals("The reference data object(s) is not found!", result.getErrors().get(0).getMessage());
+    Assert.assertEquals("The result of the LTV validation process is not acceptable to continue the process!", result.getErrors().get(0).getMessage());
   }
 
   @Test
