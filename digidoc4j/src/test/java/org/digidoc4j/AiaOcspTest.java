@@ -1,5 +1,6 @@
 package org.digidoc4j;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import java.io.File;
 
@@ -67,6 +68,7 @@ public class AiaOcspTest extends AbstractTest {
     }
 
     @Test
+    @Ignore("Fix by adding AdditionalServiceInformation to TEST of ESTEID2018 in test TSL")
     public void signAsiceContainerWithEsteid2018UsingAiaOcsp() {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         configuration.setPreferAiaOcsp(true);
@@ -98,6 +100,7 @@ public class AiaOcspTest extends AbstractTest {
     }
 
     @Test
+    @Ignore("Fix by adding AdditionalServiceInformation to TEST of ESTEID-SK 2015 in test TSL")
     public void signAsiceContainerWithManuallyConfiguredOlderAiaOcsp_whileUsingOcspNonce_thenOcspRetrievalShouldFail() {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         assertFalse(configuration.isAiaOcspPreferred());
