@@ -12,7 +12,6 @@ package org.digidoc4j.signers;
 
 import java.io.IOException;
 import java.security.*;
-import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
@@ -146,10 +145,8 @@ public class PKCS11SignatureToken implements SignatureToken {
   private KSPrivateKeyEntry findPrivateKey(X509Cert.KeyUsage keyUsage) {
     logger.debug("Searching key by usage: " + keyUsage.name());
     List<DSSPrivateKeyEntry> keys = getPrivateKeyEntries();
-    X509CertSelector selector = new X509CertSelector();
-    selector.setKeyUsage(getUsageBitArray(keyUsage)); // TODO: Test this!
     for (DSSPrivateKeyEntry key : keys) {
-      if (selector.match(key.getCertificate().getCertificate())) {
+      if (key.getCertificate().getCertificate().getKeyUsage()[keyUsage.ordinal()]) {
         if (label == null || ((KSPrivateKeyEntry) key).getAlias().contains(label)) {
           logger.debug("... Found key by keyUsage. Key encryption algorithm:" + key.getEncryptionAlgorithm().getName());
           return (KSPrivateKeyEntry) key;
@@ -157,16 +154,6 @@ public class PKCS11SignatureToken implements SignatureToken {
       }
     }
     throw new TechnicalException("Error getting private key entry!");
-  }
-
-  private boolean[] getUsageBitArray(X509Cert.KeyUsage keyUsage) {
-    sun.security.x509.KeyUsageExtension usage = new sun.security.x509.KeyUsageExtension();
-    try {
-      usage.set(keyUsage.name(), Boolean.TRUE);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return usage.getBits();
   }
 
   @Override

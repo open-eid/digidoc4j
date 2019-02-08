@@ -101,10 +101,8 @@ public class PKCS12SignatureToken implements SignatureToken {
     } else {
       logger.debug("Searching key by usage: " + keyUsage.name());
       List<DSSPrivateKeyEntry> keys = signatureTokenConnection.getKeys();
-      X509CertSelector selector = new X509CertSelector();
-      selector.setKeyUsage(getUsageBitArray(keyUsage)); // TODO: Test this!
       for (DSSPrivateKeyEntry key : keys) {
-        if (selector.match(key.getCertificate().getCertificate())) {
+        if (key.getCertificate().getCertificate().getKeyUsage()[keyUsage.ordinal()]) {
           keyEntry = (KSPrivateKeyEntry) key;
           break;
         }
@@ -112,16 +110,6 @@ public class PKCS12SignatureToken implements SignatureToken {
     }
     if (keyEntry == null && signatureTokenConnection.getKeys().size() > 0)
       keyEntry = (KSPrivateKeyEntry)signatureTokenConnection.getKeys().get(0);
-  }
-
-  private boolean[] getUsageBitArray(X509Cert.KeyUsage keyUsage) {
-    sun.security.x509.KeyUsageExtension usage = new sun.security.x509.KeyUsageExtension();
-    try {
-      usage.set(keyUsage.name(), Boolean.TRUE);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return usage.getBits();
   }
 
   /**

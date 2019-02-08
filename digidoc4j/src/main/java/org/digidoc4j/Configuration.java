@@ -622,7 +622,9 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Set if ocsp nonce is used by default
+   * Set if nonce should be used in case of OCSP request
+   * <p/>
+   * PS! Does not affect TM signature profiles in which occasion nonce is always used.
    *
    * @param useOcspNonce
    */
@@ -631,9 +633,9 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Get the OCSP Source
+   * Get if OCSP nonce should be used
    *
-   * @return OCSP Source
+   * @return use OCSP nonce
    */
   public boolean isOcspNonceUsed() {
     return this.getConfigurationParameter(ConfigurationParameter.useNonce, Boolean.class);
