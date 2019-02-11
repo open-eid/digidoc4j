@@ -10,6 +10,10 @@ import java.util.List;
 
 import eu.europa.esig.dss.pdf.PdfObjFactory;
 import eu.europa.esig.dss.pdf.pdfbox.PdfBoxObjectFactory;
+import eu.europa.esig.dss.pades.validation.PDFDocumentValidator;
+import eu.europa.esig.dss.validation.CertificateVerifier;
+import eu.europa.esig.dss.validation.reports.wrapper.DiagnosticData;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerValidationResult;
@@ -23,12 +27,16 @@ import org.digidoc4j.SignedInfo;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
 
 import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.policy.rules.Indication;
 import eu.europa.esig.dss.validation.reports.Reports;
+import org.digidoc4j.impl.asic.xades.validation.TimestampSignatureValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by Andrei on 17.11.2017.
@@ -38,6 +46,8 @@ public class PadesContainer implements Container {
   static {
     PdfObjFactory.setInstance(new PdfBoxObjectFactory());
   }
+
+  private static final Logger logger = LoggerFactory.getLogger(PadesContainer.class);
 
   public static final String PADES = "PADES";
   private final Configuration configuration;
@@ -123,10 +133,15 @@ public class PadesContainer implements Container {
    * @return ValidationResult
    */
   public ContainerValidationResult validate() {
-    SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(new FileDocument(new File
-        (this.containerPath)));
-    validator.setCertificateVerifier(new SKCommonCertificateVerifier());
-    Reports reports = validator.validateDocument();
+    FileDocument document = new FileDocument(new File(this.containerPath));
+    SignedDocumentValidator validator = new PDFDocumentValidator(new FileDocument(new File(this.containerPath)));
+    if (!validator.isSupported(document)) {
+      String message = "Invalid PDF document provided!";
+      logger.error(message);
+      throw new DigiDoc4JException(message);
+    }
+    validator.setCertificateVerifier(createCertificateVerifier());
+    Reports reports = validator.validateDocument(this.getClass().getClassLoader().getResourceAsStream(this.configuration.getValidationPolicy()));
     PadesContainerValidationResult result = new PadesContainerValidationResult(reports.getSimpleReport());
     result.setReport(reports.getXmlSimpleReport());
     for (String id : reports.getSimpleReport().getSignatureIdList()) {
@@ -136,8 +151,28 @@ public class PadesContainer implements Container {
         result.getWarnings().addAll(this.getExceptions(reports.getSimpleReport().getWarnings(id)));
       }
     }
+    addRevocationErrors(result, reports);
     result.print(this.configuration);
     return result;
+  }
+
+
+  /**
+   * Copied from {@link TimestampSignatureValidator#addRevocationErrors()}
+   * TODO: Refactor to avoid code duplications & add further error checking
+   */
+  private void addRevocationErrors(PadesContainerValidationResult result, Reports reports) {
+    DiagnosticData diagnosticData = reports.getDiagnosticData();
+    if (diagnosticData == null) {
+      return;
+    }
+    String certificateRevocationSource = diagnosticData
+            .getCertificateRevocationSource(diagnosticData.getFirstSigningCertificateId());
+    logger.debug("Revocation source is <{}>", certificateRevocationSource);
+    if (StringUtils.equalsIgnoreCase("CRLToken", certificateRevocationSource)) {
+      logger.error("Signing certificate revocation source is CRL instead of OCSP");
+      result.getErrors().add(new UntrustedRevocationSourceException());
+    }
   }
 
   @Override
@@ -261,5 +296,16 @@ public class PadesContainer implements Container {
   @Override
   public void setSignatureProfile(SignatureProfile profile) {
     throw new NotYetImplementedException();
+  }
+
+  private CertificateVerifier createCertificateVerifier() {
+    logger.debug("Creating new certificate verifier");
+    CertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
+    certificateVerifier.setCrlSource(null); //Disable CRL checks
+    certificateVerifier.setSignatureCRLSource(null); //Disable CRL checks
+    logger.debug("Setting trusted cert source to the certificate verifier");
+    certificateVerifier.setTrustedCertSource(configuration.getTSL());
+    logger.debug("Finished creating certificate verifier");
+    return certificateVerifier;
   }
 }
