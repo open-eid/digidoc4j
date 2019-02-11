@@ -83,7 +83,7 @@ public class SkDataLoader extends CommonsDataLoader {
       throw new TechnicalException("Header <User-Agent> is unset");
     }
     HttpPost httpRequest = null;
-    HttpResponse httpResponse = null;
+    CloseableHttpResponse httpResponse = null;
     CloseableHttpClient client = null;
     try {
       final URI uri = URI.create(url.trim());
@@ -97,8 +97,8 @@ public class SkDataLoader extends CommonsDataLoader {
         httpRequest.setHeader(CONTENT_TYPE, this.contentType);
       }
       client = getHttpClient(url);
-      httpResponse = this.getHttpResponse(client, httpRequest, url);
-      return readHttpResponse(url, httpResponse);
+      httpResponse = this.getHttpResponse(client, httpRequest);
+      return readHttpResponse(httpResponse);
     } catch (IOException e) {
       throw new DSSException("Unable to process GET call for url '" + url + "'", e);
     } finally {
