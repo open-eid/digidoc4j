@@ -32,102 +32,6 @@
         <argLine>-Dfile.encoding=UTF-8</argLine>
     </properties>
 
-    <profiles>
-        <profile>
-            <id>notJava8</id>
-            <activation>
-                <jdk>[1.7,1.8)</jdk>
-                <file>
-                    <exists>${java.home}/lib/jfxrt.jar</exists>
-                </file>
-            </activation>
-            <properties>
-                <project.source.version>1.7</project.source.version>
-                <javadocOpt></javadocOpt>
-                <jfxrt.jar>${java.home}/lib/jfxrt.jar</jfxrt.jar>
-            </properties>
-        </profile>
-        <profile>
-            <id>java8</id>
-            <activation>
-                <jdk>[1.8,)</jdk>
-                <file>
-                    <exists>${java.home}/jre/lib/ext/jfxrt.jar</exists>
-                </file>
-            </activation>
-            <properties>
-                <project.source.version>1.7</project.source.version>
-                <jfxrt.jar>${java.home}/jre/lib/ext/jfxrt.jar</jfxrt.jar>
-            </properties>
-        </profile>
-        <profile>
-            <id>delivery</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>default-testCompile</id>
-                                <phase>test-compile</phase>
-                                <goals>
-                                    <goal>testCompile</goal>
-                                </goals>
-                                <configuration>
-                                    <skip>true</skip>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>test-coverage</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <testFailureIgnore>true</testFailureIgnore>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <configuration>
-                            <destFile>${project.build.directory}/jacoco-unit.exec</destFile>
-                            <dataFile>${project.build.directory}/jacoco-unit.exec</dataFile>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>prepare-unit-test-agent</id>
-                                <phase>process-test-classes</phase>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>generate-unit-test-report</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>merge</goal>
-                                    <goal>report</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
     <repositories>
         <repository>
             <id>lib</id>
@@ -193,7 +97,7 @@
         <dependency>
             <groupId>org.apache.santuario</groupId>
             <artifactId>xmlsec</artifactId>
-            <version>2.1.2</version>
+            <version>2.0.10</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.codehaus.woodstox</groupId>
@@ -480,7 +384,7 @@
         <dependency>
             <groupId>com.googlecode.junit-toolbox</groupId>
             <artifactId>junit-toolbox</artifactId>
-            <version>2.4</version>
+            <version>1.11</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -637,7 +541,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.1</version>
                 <configuration>
                     <argLine>-Dhttps.protocols=TLSv1.2</argLine>
                     <additionalClasspathElements>
@@ -767,21 +670,10 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                 </plugin>
-
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.7.9</version>
-                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
                     <version>2.5.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.20</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
