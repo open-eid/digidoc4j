@@ -78,7 +78,11 @@ public class SkDataLoader extends CommonsDataLoader {
     if (StringUtils.isBlank(url)) {
       throw new TechnicalException("SK endpoint url is unset");
     }
-    this.log.debug("Getting OCSP response from <{}>", url);
+    if (SkDataLoader.TIMESTAMP_CONTENT_TYPE.equals(contentType)) {
+      log.debug("Getting Timestamp response from <{}>", url);
+    } else if (OCSPDataLoader.OCSP_CONTENT_TYPE.equals(contentType)) {
+      log.debug("Getting OCSP response from <{}>", url);
+    }
     if (StringUtils.isBlank(this.userAgent)) {
       throw new TechnicalException("Header <User-Agent> is unset");
     }
