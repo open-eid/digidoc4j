@@ -10,10 +10,7 @@
 
 package org.digidoc4j.impl.bdoc;
 
-
-import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.tsl.TLInfo;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.*;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
@@ -43,6 +40,15 @@ public class ValidationTests extends AbstractTest {
   @BeforeClass
   public static void setUpOnce() throws Exception {
     PROD_CONFIGURATION_WITH_TEST_POLICY.setValidationPolicy("conf/test_constraint.xml");
+  }
+
+  @Test
+  public void validateProdBDocContainer_isValid() {
+    this.setGlobalMode(Configuration.Mode.PROD);
+    Container container = ContainerBuilder.aContainer().
+        fromExistingFile("src/test/resources/prodFiles/valid-containers/Baltic MoU digital signing_EST_LT_LV.bdoc").
+        withConfiguration(Configuration.of(Configuration.Mode.PROD)).build();
+    TestAssert.assertContainerIsValid(container);
   }
 
   @Test
