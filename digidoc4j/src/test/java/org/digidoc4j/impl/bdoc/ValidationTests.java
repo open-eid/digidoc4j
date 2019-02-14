@@ -13,6 +13,7 @@ package org.digidoc4j.impl.bdoc;
 
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.tsl.TLInfo;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.*;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
@@ -575,6 +576,27 @@ public class ValidationTests extends AbstractTest {
         Paths.get("src/test/resources/prodFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM_PROD.bdoc"),
         PROD_CONFIGURATION)
         .validate().isValid());
+  }
+
+  @Test
+  public void containerValidation_withManuallyAddedTrustedCertificates_shouldSucceed() throws Exception {
+    TSLCertificateSourceImpl tsl = new TSLCertificateSourceImpl();
+    Configuration conf = Configuration.of(Configuration.Mode.PROD);
+    conf.setTSL(tsl);
+    try (InputStream inputStream = new FileInputStream("src/test/resources/prodFiles/certs/ESTEID-SK_2011.pem.crt")) {
+      tsl.addTSLCertificate(DSSUtils.loadCertificate(inputStream).getCertificate());
+    }
+    try (InputStream inputStream = new FileInputStream("src/test/resources/prodFiles/certs/SK_OCSP_RESPONDER_2011.pem.cer")) {
+      tsl.addTSLCertificate(DSSUtils.loadCertificate(inputStream).getCertificate());
+    }
+    try (InputStream inputStream = new FileInputStream("src/test/resources/prodFiles/certs/SK_TSA.pem.crt")) {
+      tsl.addTSLCertificate(DSSUtils.loadCertificate(inputStream).getCertificate());
+    }
+    SignatureValidationResult result = this.openContainerByConfiguration(
+            Paths.get("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047_TS.asice"), conf)
+            .validate();
+    Assert.assertTrue(result.isValid());
+    Assert.assertEquals(0, result.getErrors().size());
   }
 
   @Test

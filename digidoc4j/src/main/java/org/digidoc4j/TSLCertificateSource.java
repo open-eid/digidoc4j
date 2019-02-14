@@ -23,13 +23,17 @@ public interface TSLCertificateSource extends CertificateSource {
    * This method uses a set of default settings to add a CA service issuing Qualified Certificates
    * to the library's trust store.
    * <p/>
-   * ServiceName is the certificate's CN field value<br/>
-   * ServiceTypeIdentifier is http://uri.etsi.org/TrstSvc/Svctype/CA/QC <br/>
-   * Qualifier is http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD with nonRepudiation <br/>
-   * ServiceStatus is: <br/>
-   *    Certificate's NotBefore pre Eidas date -> http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision <br/>
-   *    Certificate's NotBefore post Eidas date -> http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted <br/>
-   * CountryCode is EU <br/>
+   * ServiceName will be the certificate's CN field value <br/>
+   * ServiceTypeIdentifier will be: <br/>
+   *    http://uri.etsi.org/TrstSvc/Svctype/Certstatus/OCSP/QC - if certificate contains "OCSPSigning" extended key usage <br/>
+   *    http://uri.etsi.org/TrstSvc/Svctype/TSA/QTST - if certificate contains "timeStamping" extended key usage
+   *    http://uri.etsi.org/TrstSvc/Svctype/CA/QC - otherwise <br/>
+   * Qualifier will be http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD with nonRepudiation <br/>
+   * ServiceStatus will be: <br/>
+   *    Certificate's NotBefore pre Eidas -> http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision <br/>
+   *    Certificate's NotBefore post Eidas -> http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted <br/>
+   * CountryCode will be EU <br/>
+   * TLInfo for EU will be added automatically when it does not exist
    *
    * @param certificate X509 certificate to be added to the list, a certificate you have to trust.
    */
