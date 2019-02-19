@@ -637,7 +637,6 @@
                         </goals>
                         <configuration>
                             <additionalOptions>
-                                <!-- <additionalOption>-Xdoclint:none</additionalOption> -->
                                 <additionalOption>${javadocOpt}</additionalOption>
                             </additionalOptions>
                         </configuration>
