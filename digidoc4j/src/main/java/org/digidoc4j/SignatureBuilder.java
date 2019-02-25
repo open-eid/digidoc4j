@@ -326,8 +326,12 @@ public abstract class SignatureBuilder implements Serializable {
     return this;
   }
 
-  protected void setContainer(Container container) {
+  public void setContainer(Container container) {
     this.container = container;
+  }
+
+  public void setSignatureParameters(SignatureParameters parameters) {
+    this.signatureParameters = parameters;
   }
 
   /**

@@ -13,11 +13,14 @@ package org.digidoc4j.impl.bdoc;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureBuilder;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
@@ -26,6 +29,31 @@ public class BDocSerializationTest extends AbstractTest {
 
   private String containerLocation;
   private String serializedContainerLocation;
+
+  @Test
+  public void twoStepSigningWithoutSerialization() {
+    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
+    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+    DataToSign dataToSign = SignatureBuilder.aSignature(container).
+            withSigningCertificate(this.pkcs12SignatureToken.getCertificate()).buildDataToSign();
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    container.save(out);
+
+    SignatureParameters signatureParameters = dataToSign.getSignatureParameters();
+    byte[] signatureValue = this.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
+    container = ContainerOpener.open(new ByteArrayInputStream(out.toByteArray()), Configuration.getInstance());
+
+    BDocSignatureBuilder builder = new BDocSignatureBuilder();
+    builder.setSignatureParameters(signatureParameters);
+    builder.setContainer(container);
+    Signature signature = builder.finalizeSignature(signatureValue);
+
+    container.addSignature(signature);
+    SignatureValidationResult validate = container.validate();
+    Assert.assertTrue(validate.isValid());
+    Assert.assertEquals(1, container.getSignatures().size());
+  }
 
   @Test
   public void twoStepSigningWithSerialization() throws IOException, ClassNotFoundException {
