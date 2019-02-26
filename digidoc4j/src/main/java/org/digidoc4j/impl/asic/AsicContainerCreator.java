@@ -52,11 +52,6 @@ public class AsicContainerCreator {
   private final OutputStream outputStream;
   private String zipComment;
 
-  @Deprecated
-  public AsicContainerCreator(File containerPathToSave) {
-    this(Helper.bufferedOutputStream(containerPathToSave));
-  }
-
   /**
    * @param outputStream stream
    */
@@ -65,16 +60,10 @@ public class AsicContainerCreator {
     this.zipOutputStream = new ZipOutputStream(outputStream, CHARSET);
   }
 
-  @Deprecated
-  public AsicContainerCreator() {
-    this(new ByteArrayOutputStream());
-  }
-
   public void finalizeZipFile() {
     logger.debug("Finalizing asic zip file");
     try {
       zipOutputStream.finish();
-      zipOutputStream.close();
     } catch (IOException e) {
       handleIOException("Unable to finish creating asic ZIP container", e);
     } finally {
