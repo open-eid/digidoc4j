@@ -439,7 +439,6 @@
                             <includeScope>compile</includeScope>
                             <outputDirectory>${dss.util.lib}</outputDirectory>
                             <overWriteIfNewer>true</overWriteIfNewer>
-                            <excludeTransitive>true</excludeTransitive>
                             <excludeArtifactIds>
                                 contiperf, log4j
                             </excludeArtifactIds>
@@ -455,7 +454,6 @@
                             <includeScope>compile</includeScope>
                             <outputDirectory>${dss.zip.lib}</outputDirectory>
                             <overWriteIfNewer>true</overWriteIfNewer>
-                            <excludeTransitive>true</excludeTransitive>
                             <excludeArtifactIds>
                                 contiperf
                             </excludeArtifactIds>
