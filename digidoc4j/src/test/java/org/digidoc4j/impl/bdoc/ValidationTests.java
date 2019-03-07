@@ -720,6 +720,20 @@ public class ValidationTests extends AbstractTest {
     TestAssert.assertContainsError("OCSP Responder does not meet TM requirements", result.getErrors());
   }
 
+  @Test
+  public void sameCertAddedTwiceToTSL_containerValidationShouldSucceed() {
+    Configuration conf = Configuration.of(Configuration.Mode.PROD);
+    conf.setTSL(new TSLCertificateSourceImpl());
+    TestTSLUtil.addCertificateFromFileToTsl(conf, "src/test/resources/prodFiles/certs/ESTEID-SK_2011.pem.crt");
+    TestTSLUtil.addCertificateFromFileToTsl(conf, "src/test/resources/prodFiles/certs/ESTEID-SK_2011.pem.crt");
+    TestTSLUtil.addCertificateFromFileToTsl(conf, "src/test/resources/prodFiles/certs/SK_OCSP_RESPONDER_2011.pem.cer");
+    TestTSLUtil.addCertificateFromFileToTsl(conf, "src/test/resources/prodFiles/certs/SK_TSA.pem.crt");
+    SignatureValidationResult result = this.openContainerByConfiguration(
+            Paths.get("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047_TS.asice"), conf).validate();
+    Assert.assertTrue(result.isValid());
+    Assert.assertEquals(0, result.getErrors().size());
+  }
+
   /*
    * RESTRICTED METHODS
    */
