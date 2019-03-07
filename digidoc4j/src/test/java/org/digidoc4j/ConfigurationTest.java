@@ -40,10 +40,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.security.cert.CertificateException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
@@ -93,6 +99,27 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertNotNull(serviceInfostatus.getStartDate());
     Map<String, List<Condition>> qualifiersAndConditions = serviceInfostatus.getQualifiersAndConditions();
     Assert.assertTrue(qualifiersAndConditions.containsKey("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD"));
+  }
+
+  @Test
+  public void addingSameCertificateToTSLMultipleTimes_certNumberRemainsSameButServiceInfoIsDuplicated() {
+    Path certificatePath = Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt");
+    TSLCertificateSource source = new TSLCertificateSourceImpl();
+
+    this.addCertificateToTSL(certificatePath, source);
+    Assert.assertSame(source.getCertificates().size(), 1);
+    CertificateToken certificateToken = source.getCertificates().get(0);
+    Assert.assertSame(source.getTrustServices(certificateToken).size(), 1);
+
+    this.addCertificateToTSL(certificatePath, source);
+    Assert.assertSame(source.getCertificates().size(), 1);
+    certificateToken = source.getCertificates().get(0);
+    Assert.assertSame(source.getTrustServices(certificateToken).size(), 2);
+
+    this.addCertificateToTSL(certificatePath, source);
+    Assert.assertSame(source.getCertificates().size(), 1);
+    certificateToken = source.getCertificates().get(0);
+    Assert.assertSame(source.getTrustServices(certificateToken).size(), 3);
   }
 
   @Test

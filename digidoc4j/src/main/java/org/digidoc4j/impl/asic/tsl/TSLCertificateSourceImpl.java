@@ -87,7 +87,7 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
       tlInfo.setVersion(5);
       updateTlInfo(countryCode, tlInfo);
     }
-    addCertificate(new CertificateToken(certificate), Collections.singletonList(serviceInfo));
+    addCertificate(new CertificateToken(certificate), new ArrayList<>(Arrays.asList(serviceInfo)));
   }
 
   /**
