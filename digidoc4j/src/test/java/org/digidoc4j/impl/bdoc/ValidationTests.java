@@ -11,6 +11,7 @@
 package org.digidoc4j.impl.bdoc;
 
 import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.validation.process.MessageTag;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.*;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
@@ -732,6 +733,31 @@ public class ValidationTests extends AbstractTest {
             Paths.get("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047_TS.asice"), conf).validate();
     Assert.assertTrue(result.isValid());
     Assert.assertEquals(0, result.getErrors().size());
+  }
+
+  @Test
+  public void prodContainerWithSignatureWarningOfTrustedCertificateNotMatchingWithTrustService_warningIsRemoved() {
+    Container container = ContainerBuilder.aContainer().
+            fromExistingFile("src/test/resources/prodFiles/valid-containers/Baltic MoU digital signing_EST_LT_LV.bdoc").
+            withConfiguration(PROD_CONFIGURATION).build();
+    ContainerValidationResult validationResult = container.validate();
+    Assert.assertTrue(validationResult.isValid());
+    Assert.assertTrue(validationResult.getErrors().isEmpty());
+    Assert.assertFalse(validationResult.getWarnings().contains(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS2.getMessage()));
+  }
+
+  @Test
+  public void testContainerWithSignatureWarningOfTrustedCertificateNotMatchingWithTrustService_warningIsRemoved() {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    Container container = ContainerBuilder.aContainer().
+            fromExistingFile("src/test/resources/testFiles/valid-containers/valid_bdoc_tm_signed_with_valid_cert_expired_by_now.bdoc").
+            withConfiguration(configuration)
+            .build();
+    TestTSLUtil.addCertificateFromFileToTsl(configuration, "src/test/resources/testFiles/certs/ESTEID-SK_2007_prod.pem.crt");
+    ContainerValidationResult validationResult = container.validate();
+    Assert.assertTrue(validationResult.isValid());
+    Assert.assertTrue(validationResult.getErrors().isEmpty());
+    Assert.assertFalse(validationResult.getWarnings().contains(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS2.getMessage()));
   }
 
   /*
