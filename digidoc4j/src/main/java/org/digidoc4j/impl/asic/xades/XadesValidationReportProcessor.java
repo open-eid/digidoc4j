@@ -31,17 +31,17 @@ public class XadesValidationReportProcessor {
      * @param validationReports
      */
     private static void removeFalsePositiveWarningsFromValidationReports(Reports validationReports) {
-        validationReports.getSimpleReportJaxb().getSignature().forEach(
-                XadesValidationReportProcessor::removeFalsePositiveWarningsFromSignatureResult
-        );
+        for (XmlSignature xmlSignature : validationReports.getSimpleReportJaxb().getSignature()) {
+            removeFalsePositiveWarningsFromSignatureResult(xmlSignature);
+        }
     }
 
     private static void removeFalsePositiveWarningsFromSignatureResult(XmlSignature signatureResult) {
-        new ArrayList<>(signatureResult.getWarnings()).stream()
-              .filter(WARNING_MESSAGES_TO_IGNORE::contains)
-              .forEach(warning -> {
-                  signatureResult.getWarnings().remove(warning);
-                  LOGGER.debug("Removed false-positive warning message: {}", warning);
-              });
+        for (String warning : new ArrayList<>(signatureResult.getWarnings())) {
+            if (WARNING_MESSAGES_TO_IGNORE.contains(warning)) {
+                signatureResult.getWarnings().remove(warning);
+                LOGGER.debug("Removed false-positive warning message: {}", warning);
+            }
+        }
     }
 }
