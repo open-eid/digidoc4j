@@ -10,14 +10,12 @@
 
 package org.digidoc4j.impl.asic.xades;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.validation.AdvancedSignature;
+import eu.europa.esig.dss.validation.SignedDocumentValidator;
+import eu.europa.esig.dss.validation.reports.Reports;
+import eu.europa.esig.dss.xades.validation.XAdESSignature;
 import org.apache.commons.collections4.CollectionUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -25,12 +23,13 @@ import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.DSSException;
-import eu.europa.esig.dss.validation.AdvancedSignature;
-import eu.europa.esig.dss.validation.SignedDocumentValidator;
-import eu.europa.esig.dss.validation.reports.Reports;
-import eu.europa.esig.dss.xades.validation.XAdESSignature;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 
 public class XadesValidationReportGenerator implements Serializable {
 
@@ -75,7 +74,9 @@ public class XadesValidationReportGenerator implements Serializable {
   private Reports generateReports() {
     try {
       this.log.debug("Creating a new validation report");
-      return this.getSignedDocumentValidator().validateDocument(this.getValidationPolicyAsStream());
+      Reports validationReports = this.getSignedDocumentValidator().validateDocument(this.getValidationPolicyAsStream());
+      XadesValidationReportProcessor.process(validationReports);
+      return validationReports;
     } catch (DSSException e) {
       throw new DigiDoc4JException(e);
     } finally {
