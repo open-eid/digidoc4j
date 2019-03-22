@@ -29,6 +29,7 @@ public class TslLoaderTest extends AbstractTest {
 
   private TslLoader tslLoader;
 
+  @Ignore // TODO: DD4J-410
   @Test
   public void loadAndValidateProdTsl() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
@@ -63,6 +64,7 @@ public class TslLoaderTest extends AbstractTest {
     Assert.assertTrue(lastModified < newModificationTime);
   }
 
+  @Ignore // TODO: DD4J-410
   @Test
   public void loadTsl_forAllCountries_byDefault() throws Exception {
     this.setGlobalMode(Configuration.Mode.PROD);
@@ -105,6 +107,7 @@ public class TslLoaderTest extends AbstractTest {
    * Ignore countries with invalid TSL: DE (Germany) and HR (Croatia)
    */
 
+  @Ignore // TODO: DD4J-410
   @Test
   public void loadTsl_withoutCountryHr_byDefault() throws Exception {
     this.setGlobalMode(Configuration.Mode.PROD);
