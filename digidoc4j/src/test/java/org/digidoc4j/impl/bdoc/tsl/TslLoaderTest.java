@@ -20,6 +20,7 @@ import org.digidoc4j.impl.asic.tsl.TslLoader;
 import org.digidoc4j.test.util.TestCommonUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Map;
@@ -72,6 +73,7 @@ public class TslLoaderTest extends AbstractTest {
     this.assertCountryLoaded(tslRepository, "ES");
   }
 
+  @Ignore // TODO: DD4J-410
   @Test
   public void loadTsl_forOneContry() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
@@ -81,6 +83,7 @@ public class TslLoaderTest extends AbstractTest {
     this.assertCountryNotLoaded(tslRepository, "FR");
   }
 
+  @Ignore // TODO: DD4J-410
   @Test
   public void loadTsl_forTwoCountries() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
