@@ -1,15 +1,15 @@
 package org.digidoc4j.impl.asic.asics;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.digidoc4j.Configuration;
-import org.digidoc4j.Constant;
-import org.digidoc4j.DataFile;
-import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureProfile;
+import org.apache.commons.io.IOUtils;
+import org.digidoc4j.*;
+import org.digidoc4j.exceptions.InvalidSignatureException;
+import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.asic.AsicContainer;
 import org.digidoc4j.impl.asic.AsicContainerCreator;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
@@ -71,6 +71,11 @@ public class AsicSContainer extends AsicContainer {
   }
 
   @Override
+  public DataFile getTimeStampToken() {
+    return timeStampToken;
+  }
+
+  @Override
   public void save(OutputStream out) {
     writeAsicContainer(new AsicContainerCreator(out));
   }
@@ -105,5 +110,22 @@ public class AsicSContainer extends AsicContainer {
       return Helper.createBDocAsicSUserAgent(profile);
     }
     return Helper.createBDocAsicSUserAgent();
+  }
+
+  @Override
+  public void addSignature(Signature signature) {
+    throw new NotSupportedException("Not for ASiC-S container");
+  }
+
+  @Override
+  @Deprecated
+  public void addRawSignature(byte[] signatureDocument) {
+    throw new NotSupportedException("Not for ASiC-S container");
+  }
+
+  @Override
+  @Deprecated
+  public void addRawSignature(InputStream signatureStream) {
+    throw new NotSupportedException("Not for ASiC-S container");
   }
 }

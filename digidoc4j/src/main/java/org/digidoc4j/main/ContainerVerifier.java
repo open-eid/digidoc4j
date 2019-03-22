@@ -172,10 +172,9 @@ public class ContainerVerifier {
     validator.setCertificateVerifier(verifier);
     Reports reports = validator.validateDocument();
     if (reportsDir != null) {
-      InputStream is;
       try {
-        is = new ByteArrayInputStream(reports.getXmlDiagnosticData().getBytes("UTF-8"));
-        DSSUtils.saveToFile(is, reportsDir + File.separator + "validationDiagnosticData.xml");
+        byte[] bytes = reports.getXmlDiagnosticData().getBytes("UTF-8");
+        DSSUtils.saveToFile(bytes, new File(reportsDir + File.separator + "validationDiagnosticData.xml"));
         logger.info("Validation diagnostic data report is generated");
       } catch (UnsupportedEncodingException e) {
         logger.info(e.getMessage());
@@ -183,8 +182,8 @@ public class ContainerVerifier {
         logger.info(e.getMessage());
       }
       try {
-        is = new ByteArrayInputStream(reports.getXmlSimpleReport().getBytes("UTF-8"));
-        DSSUtils.saveToFile(is, reportsDir + File.separator + "validationSimpleReport.xml");
+        byte[] bytes = reports.getXmlSimpleReport().getBytes("UTF-8");
+        DSSUtils.saveToFile(bytes, new File(reportsDir + File.separator + "validationSimpleReport.xml"));
         logger.info("Validation simple report is generated");
       } catch (UnsupportedEncodingException e) {
         logger.info(e.getMessage());
@@ -192,8 +191,8 @@ public class ContainerVerifier {
         logger.info(e.getMessage());
       }
       try {
-        is = new ByteArrayInputStream(reports.getXmlDetailedReport().getBytes("UTF-8"));
-        DSSUtils.saveToFile(is, reportsDir + File.separator + "validationDetailReport.xml");
+        byte[] bytes = reports.getXmlDetailedReport().getBytes("UTF-8");
+        DSSUtils.saveToFile(bytes, new File(reportsDir + File.separator + "validationDetailReport.xml"));
         logger.info("Validation detailed report is generated");
       } catch (UnsupportedEncodingException e) {
         logger.info(e.getMessage());

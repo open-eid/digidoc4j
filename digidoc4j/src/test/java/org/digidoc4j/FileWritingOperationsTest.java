@@ -30,7 +30,10 @@ import eu.europa.esig.dss.MimeType;
 public class FileWritingOperationsTest extends AbstractTest {
 
   @Rule
-  public RestrictedExternalResourceRule rule = new RestrictedExternalResourceRule(new File(System.getProperty("java.io.tmpdir") + File.separator + "dss-cache-tsl" + File.separator).getPath());
+  public RestrictedExternalResourceRule rule = new RestrictedExternalResourceRule(
+          new File(System.getProperty("java.io.tmpdir") + File.separator + "dss-cache-tsl" + File.separator).getPath(),
+          new File(System.getProperty("java.io.tmpdir") + File.separator + "temp-tsl-keystore" + File.separator).getPath()
+  );
 
   @Test(expected = FileWritingRestrictedException.class)
   public void writingToFileIsNotAllowed() throws IOException {

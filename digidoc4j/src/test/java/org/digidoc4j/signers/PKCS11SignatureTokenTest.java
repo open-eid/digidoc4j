@@ -10,6 +10,7 @@
 
 package org.digidoc4j.signers;
 
+import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
@@ -90,7 +91,7 @@ public class PKCS11SignatureTokenTest extends AbstractTest {
 
   @Test
   public void selectCertificateWithPasswordCallback() throws Exception {
-    PasswordInputCallback passwordCallback = new PrefilledPasswordCallback("22975".toCharArray());
+    PasswordInputCallback passwordCallback = new PrefilledPasswordCallback(new KeyStore.PasswordProtection("22975".toCharArray()));
     PKCS11SignatureToken signatureToken = new PKCS11SignatureToken(PKCS11SignatureTokenTest.PKCS_11_MODULE_PATH, passwordCallback, 2);
     List<DSSPrivateKeyEntry> privateKeyEntries = signatureToken.getPrivateKeyEntries();
     Assert.assertNotNull(privateKeyEntries);

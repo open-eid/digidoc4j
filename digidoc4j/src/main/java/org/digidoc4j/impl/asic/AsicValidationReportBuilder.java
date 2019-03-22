@@ -96,10 +96,9 @@ public class AsicValidationReportBuilder {
    * @param directory Directory where to save XML files.
    */
   public void saveXmlReports(Path directory) {
-    InputStream is;
     try {
-      is = new ByteArrayInputStream(this.buildXmlReport().getBytes("UTF-8"));
-      DSSUtils.saveToFile(is, directory + File.separator + "validationReport.xml");
+      byte[] bytes = this.buildXmlReport().getBytes("UTF-8");
+      DSSUtils.saveToFile(bytes, new File(directory + File.separator + "validationReport.xml"));
       logger.info("Validation report is generated");
     } catch (UnsupportedEncodingException e) {
       logger.error(e.getMessage());
@@ -112,33 +111,27 @@ public class AsicValidationReportBuilder {
         SignatureValidationData validationData = signatureValidationData.get(i);
         Reports reports = validationData.getReport().getReports();
         try {
-          is = new ByteArrayInputStream(reports.getXmlDiagnosticData().getBytes("UTF-8"));
-          DSSUtils.saveToFile(is,
-              directory + File.separator + "validationDiagnosticData" + Integer.toString(i) + ".xml");
+          byte[] bytes = reports.getXmlDiagnosticData().getBytes("UTF-8");
+          DSSUtils.saveToFile(bytes,
+                  new File(directory + File.separator + "validationDiagnosticData" + Integer.toString(i) + ".xml"));
           logger.info("Validation diagnostic data report is generated");
         } catch (UnsupportedEncodingException e) {
           logger.error(e.getMessage());
-        } catch (IOException e) {
-          logger.error(e.getMessage());
         }
 
         try {
-          is = new ByteArrayInputStream(reports.getXmlSimpleReport().getBytes("UTF-8"));
-          DSSUtils.saveToFile(is, directory + File.separator + "validationSimpleReport" + Integer.toString(i) + ".xml");
+          byte[] bytes = reports.getXmlSimpleReport().getBytes("UTF-8");
+          DSSUtils.saveToFile(bytes, new File(directory + File.separator + "validationSimpleReport" + Integer.toString(i) + ".xml"));
           logger.info("Validation simple report is generated");
         } catch (UnsupportedEncodingException e) {
           logger.error(e.getMessage());
-        } catch (IOException e) {
-          logger.error(e.getMessage());
         }
 
         try {
-          is = new ByteArrayInputStream(reports.getXmlDetailedReport().getBytes("UTF-8"));
-          DSSUtils.saveToFile(is, directory + File.separator + "validationDetailReport" + Integer.toString(i) + ".xml");
+          byte[] bytes = reports.getXmlDetailedReport().getBytes("UTF-8");
+          DSSUtils.saveToFile(bytes, new File(directory + File.separator + "validationDetailReport" + Integer.toString(i) + ".xml"));
           logger.info("Validation detailed report is generated");
         } catch (UnsupportedEncodingException e) {
-          logger.error(e.getMessage());
-        } catch (IOException e) {
           logger.error(e.getMessage());
         }
       }

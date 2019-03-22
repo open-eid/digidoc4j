@@ -1,9 +1,10 @@
 package org.digidoc4j;
 
 import java.security.cert.X509Certificate;
-import java.util.List;
+import java.util.*;
 
 import eu.europa.esig.dss.tsl.ServiceInfo;
+import eu.europa.esig.dss.tsl.TLInfo;
 import eu.europa.esig.dss.x509.CertificateSource;
 import eu.europa.esig.dss.x509.CertificateToken;
 
@@ -22,9 +23,17 @@ public interface TSLCertificateSource extends CertificateSource {
    * This method uses a set of default settings to add a CA service issuing Qualified Certificates
    * to the library's trust store.
    * <p/>
-   * ServiceTypeIdentifier is http://uri.etsi.org/TrstSvc/Svctype/CA/QC <br/>
-   * ServiceStatus is http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision <br/>
-   * Qualifier is http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD with nonRepudiation <br/>
+   * ServiceName will be the certificate's CN field value <br/>
+   * ServiceTypeIdentifier will be: <br/>
+   *    http://uri.etsi.org/TrstSvc/Svctype/Certstatus/OCSP/QC - if certificate contains "OCSPSigning" extended key usage <br/>
+   *    http://uri.etsi.org/TrstSvc/Svctype/TSA/QTST - if certificate contains "timeStamping" extended key usage
+   *    http://uri.etsi.org/TrstSvc/Svctype/CA/QC - otherwise <br/>
+   * Qualifier will be http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD with nonRepudiation <br/>
+   * ServiceStatus will be: <br/>
+   *    Certificate's NotBefore pre Eidas -> http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision <br/>
+   *    Certificate's NotBefore post Eidas -> http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted <br/>
+   * CountryCode will be EU <br/>
+   * TLInfo for EU will be added automatically when it does not exist
    *
    * @param certificate X509 certificate to be added to the list, a certificate you have to trust.
    */
@@ -36,11 +45,11 @@ public interface TSLCertificateSource extends CertificateSource {
    *
    * @param certificate
    *            the certificate you have to trust
-   * @param serviceInfo
-   *            the service information associated to the service
+   * @param serviceInfos
+   *            list of the service information associated to the service
    * @return the corresponding certificate token
    */
-  CertificateToken addCertificate(final CertificateToken certificate, final ServiceInfo serviceInfo);
+  void addCertificate(final CertificateToken certificate, final List<ServiceInfo> serviceInfos);
 
   /**
    * Retrieves the list of all certificate tokens from this source.
@@ -48,6 +57,29 @@ public interface TSLCertificateSource extends CertificateSource {
    * @return all the TSL certificates.
    */
   List<CertificateToken> getCertificates();
+
+  /**
+   * Retrieves the list of service infos for the gifen certificate token.
+   *
+   * @param token
+   * @return all the Service Infos associated with the certificate token.
+   */
+  Set<ServiceInfo> getTrustServices(CertificateToken token);
+
+  /**
+   * This method returns the number of stored certificates in this source
+   *
+   * @return number of certificates in this instance
+   */
+  int getNumberOfCertificates();
+
+  TLInfo getLotlInfo();
+
+  TLInfo getTlInfo(String countryCode);
+
+  Map<String, TLInfo> getSummary();
+
+  int getNumberOfTrustedPublicKeys();
 
   /**
    * Invalidates cache

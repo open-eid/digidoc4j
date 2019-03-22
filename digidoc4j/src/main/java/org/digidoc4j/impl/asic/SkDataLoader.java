@@ -13,11 +13,14 @@ package org.digidoc4j.impl.asic;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
+import eu.europa.esig.dss.utils.Utils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.InputStreamEntity;
@@ -75,12 +78,16 @@ public class SkDataLoader extends CommonsDataLoader {
     if (StringUtils.isBlank(url)) {
       throw new TechnicalException("SK endpoint url is unset");
     }
-    this.log.debug("Getting OCSP response from <{}>", url);
+    if (SkDataLoader.TIMESTAMP_CONTENT_TYPE.equals(contentType)) {
+      log.debug("Getting Timestamp response from <{}>", url);
+    } else if (OCSPDataLoader.OCSP_CONTENT_TYPE.equals(contentType)) {
+      log.debug("Getting OCSP response from <{}>", url);
+    }
     if (StringUtils.isBlank(this.userAgent)) {
       throw new TechnicalException("Header <User-Agent> is unset");
     }
     HttpPost httpRequest = null;
-    HttpResponse httpResponse = null;
+    CloseableHttpResponse httpResponse = null;
     CloseableHttpClient client = null;
     try {
       final URI uri = URI.create(url.trim());
@@ -93,11 +100,11 @@ public class SkDataLoader extends CommonsDataLoader {
       if (StringUtils.isNotBlank(this.contentType)) {
         httpRequest.setHeader(CONTENT_TYPE, this.contentType);
       }
-      client = this.getHttpClient(url);
-      httpResponse = this.getHttpResponse(client, httpRequest, url);
-      return readHttpResponse(url, httpResponse);
+      client = getHttpClient(url);
+      httpResponse = this.getHttpResponse(client, httpRequest);
+      return readHttpResponse(httpResponse);
     } catch (IOException e) {
-      throw new DSSException(e);
+      throw new DSSException("Unable to process GET call for url '" + url + "'", e);
     } finally {
       try {
         if (httpRequest != null) {
@@ -107,7 +114,7 @@ public class SkDataLoader extends CommonsDataLoader {
           EntityUtils.consumeQuietly(httpResponse.getEntity());
         }
       } finally {
-        IOUtils.closeQuietly(client);
+        Utils.closeQuietly(client);
       }
     }
   }

@@ -37,7 +37,7 @@ public class UriEncodingTest extends AbstractTest {
   // DetachedSignatureBuilder.createReference(...) uses UTF-8 from dss5.0
   public void encodeDataFileWithSpecialCharacters() throws Exception {
     String fileName = "et10i_0123456789!#$%&'()+,-. ;=@[]_`}~ et_EE";
-    String expectedEncoding = "et10i_0123456789%21%23%24%25%26%27%28%29%2B%2C-.%20%3B%3D%40%5B%5D_%60%7D~%20et_EE";
+    String expectedEncoding = "et10i_0123456789%21%23%24%25%26%27%28%29%2B%2C-.%20%3B%3D%40%5B%5D_%60%7D%7E%20et_EE";
     this.signAndAssert(fileName, expectedEncoding);
   }
 

@@ -10,8 +10,8 @@
 
 package org.digidoc4j.impl.bdoc;
 
-
 import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.validation.process.MessageTag;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.*;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
@@ -41,6 +41,15 @@ public class ValidationTests extends AbstractTest {
   @BeforeClass
   public static void setUpOnce() throws Exception {
     PROD_CONFIGURATION_WITH_TEST_POLICY.setValidationPolicy("conf/test_constraint.xml");
+  }
+
+  @Test
+  public void validateProdBDocContainer_isValid() {
+    this.setGlobalMode(Configuration.Mode.PROD);
+    Container container = ContainerBuilder.aContainer().
+        fromExistingFile("src/test/resources/prodFiles/valid-containers/Baltic MoU digital signing_EST_LT_LV.bdoc").
+        withConfiguration(Configuration.of(Configuration.Mode.PROD)).build();
+    TestAssert.assertContainerIsValid(container);
   }
 
   @Test
@@ -107,8 +116,8 @@ public class ValidationTests extends AbstractTest {
             PROD_CONFIGURATION);
     SignatureValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
-    Assert.assertEquals(1, errors.size());
-    TestAssert.assertContainsError("(Signature ID: S0) - The reference data object(s) is not found!", errors);
+    Assert.assertEquals(4, errors.size());
+    TestAssert.assertContainsError("(Signature ID: S0) - The signature file for signature S0 has an entry for file <0123456789~#%&()=`@{[]}'.txt> with mimetype <application/pdf> but the manifest file does not have an entry for this file", errors);
   }
 
   @Test
@@ -146,7 +155,7 @@ public class ValidationTests extends AbstractTest {
         .open("src/test/resources/testFiles/invalid-containers/invalid-data-file.bdoc");
     SignatureValidationResult validate = container.validate();
     Assert.assertEquals(1, validate.getErrors().size());
-    Assert.assertEquals("(Signature ID: S0) - The reference data object(s) is not intact!",
+    Assert.assertEquals("(Signature ID: S0) - The result of the LTV validation process is not acceptable to continue the process!",
         validate.getErrors().get(0).toString());
   }
 
@@ -159,7 +168,7 @@ public class ValidationTests extends AbstractTest {
     SignatureValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
     Assert.assertEquals(3, errors.size());
-    Assert.assertEquals("(Signature ID: S1) - The reference data object(s) is not intact!",
+    Assert.assertEquals("(Signature ID: S1) - The result of the LTV validation process is not acceptable to continue the process!",
         errors.get(0).toString());
     Assert.assertEquals(
         "(Signature ID: S1) - Manifest file has an entry for file <test.txt> with mimetype <text/plain> but "
@@ -190,7 +199,9 @@ public class ValidationTests extends AbstractTest {
   public void container_withChangedDataFileName_shouldBeInvalid() throws Exception {
     Container container = ContainerOpener
         .open("src/test/resources/testFiles/invalid-containers/bdoc-tm-with-changed-data-file-name.bdoc");
-    Assert.assertEquals(1, container.validate().getErrors().size());
+    SignatureValidationResult result = container.validate();
+    Assert.assertEquals(2, result.getErrors().size());
+    Assert.assertEquals("Container contains a file named <test1.txt> which is not found in the signature file", result.getErrors().get(1).getMessage());
   }
 
   @Test
@@ -215,7 +226,7 @@ public class ValidationTests extends AbstractTest {
         .open("src/test/resources/prodFiles/invalid-containers/revocation_timestamp_delta_26h.asice", configuration)
         .validate();
     Assert.assertEquals(0, result.getErrors().size());
-    Assert.assertEquals(2, result.getWarnings().size());
+    Assert.assertEquals(3, result.getWarnings().size());
   }
 
   @Test
@@ -237,7 +248,7 @@ public class ValidationTests extends AbstractTest {
         .open("src/test/resources/testFiles/invalid-containers/22902_data_files_with_same_names.bdoc").validate();
   }
 
-  @Test
+  @Ignore("Fix by adding AdditionalServiceInformation to TEST of ESTEID-SK 2015 in test TSL")
   public void signaturesWithDuplicateId() {
     Container container = ContainerOpener
         .open("src/test/resources/testFiles/valid-containers/2_signatures_duplicate_id.asice");
@@ -280,7 +291,7 @@ public class ValidationTests extends AbstractTest {
         .open("src/test/resources/testFiles/invalid-containers/zip_misses_file_which_is_in_manifest.asice");
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    TestAssert.assertContainsError("(Signature ID: S0) - The reference data object(s) is not found!", errors);
+    TestAssert.assertContainsError("(Signature ID: S0) - The certificate chain for timestamp is not trusted, there is no trusted anchor.", errors); // Timestamp issuer originates from PROD chain
   }
 
   @Test
@@ -290,7 +301,7 @@ public class ValidationTests extends AbstractTest {
     SignatureValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
     Assert.assertEquals(SignatureProfile.LT, container.getSignatures().get(0).getProfile());
-    TestAssert.assertContainsError("(Signature ID: S0) - No revocation data for the certificate", errors);
+    TestAssert.assertContainsError("(Signature ID: S0) - Signature has an invalid timestamp", errors); // Timestamp issuer originates from PROD chain
     TestAssert.assertContainsError(
         "(Signature ID: S0) - Manifest file has an entry for file <test.txt> with mimetype <text/plain> but "
             + "the signature file for signature S0 indicates the mimetype is <application/octet-stream>", errors);
@@ -334,7 +345,7 @@ public class ValidationTests extends AbstractTest {
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(2, errors.size());
     TestAssert.assertContainsError("(Signature ID: S0) - SignedProperties Reference element is missing", errors);
-    TestAssert.assertContainsError("(Signature ID: S0) - The reference data object(s) is not found!", errors);
+    TestAssert.assertContainsError("(Signature ID: S0) - The result of the LTV validation process is not acceptable to continue the process!", errors);
     Assert.assertEquals(2, container.getSignatures().get(0).validateSignature().getErrors().size());
   }
 
@@ -347,7 +358,7 @@ public class ValidationTests extends AbstractTest {
     List<DigiDoc4JException> errors = result.getErrors();
     Assert.assertEquals(2, errors.size());
     TestAssert.assertContainsError("(Signature ID: S0) - SignedProperties Reference element is missing", errors);
-    TestAssert.assertContainsError("(Signature ID: S0) - The reference data object(s) is not found!", errors);
+    TestAssert.assertContainsError("(Signature ID: S0) - The result of the LTV validation process is not acceptable to continue the process!", errors);
   }
 
   @Test
@@ -357,7 +368,7 @@ public class ValidationTests extends AbstractTest {
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
     TestAssert.assertContainsError("Multiple signed properties", errors);
-    TestAssert.assertContainsError("The signature is not intact!", errors);
+    TestAssert.assertContainsError("ignature has an invalid timestamp", errors);
   }
 
   @Test
@@ -367,9 +378,7 @@ public class ValidationTests extends AbstractTest {
             PROD_CONFIGURATION_WITH_TEST_POLICY);
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(1, errors.size());
-    Assert.assertEquals("(Signature ID: S0) - The reference data object(s) is not found!",
-        errors.get(0).toString());
+    Assert.assertEquals(2, errors.size());
   }
 
   @Test
@@ -379,10 +388,9 @@ public class ValidationTests extends AbstractTest {
             PROD_CONFIGURATION_WITH_TEST_POLICY);
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(3, errors.size());
+    Assert.assertEquals(4, errors.size());
     Assert.assertEquals("(Signature ID: S0) - Wrong policy identifier: 1.3.6.1.4.1.10015.1000.2.10.10",
         errors.get(0).toString());
-    Assert.assertEquals("(Signature ID: S0) - The signature policy is not available!", errors.get(1).toString());
     Assert.assertEquals("(Signature ID: S0) - OCSP nonce is invalid", errors.get(2).toString());
   }
 
@@ -415,9 +423,9 @@ public class ValidationTests extends AbstractTest {
         .open("src/test/resources/testFiles/invalid-containers/23200_weakdigest-unknown-ca.asice");
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(1, errors.size());
+    Assert.assertEquals(2, errors.size());
     Assert.assertEquals(
-        "(Signature ID: S0) - The certificate chain for signature is not trusted, there is no trusted anchor.",
+        "(Signature ID: S0) - The certificate path is not trusted!",
         errors.get(0).toString());
   }
 
@@ -427,9 +435,9 @@ public class ValidationTests extends AbstractTest {
         .open("src/test/resources/testFiles/invalid-containers/SS-4_teadmataCA.4.asice");
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(1, errors.size());
+    Assert.assertEquals(2, errors.size());
     Assert.assertEquals(
-        "(Signature ID: S0) - The certificate chain for signature is not trusted, there is no trusted anchor.",
+        "(Signature ID: S0) - The certificate path is not trusted!",
         errors.get(0).toString());
   }
 
@@ -457,28 +465,22 @@ public class ValidationTests extends AbstractTest {
     PROD_CONFIGURATION.setAllowASN1UnsafeInteger(false);
   }
 
-  @Test
+  @Test(expected = TechnicalException.class)
   public void invalidBDocRsa2047_whenASN1UnsafeIntegerNotAllowed() {
+    PROD_CONFIGURATION.setAllowASN1UnsafeInteger(false);
     Assert.assertEquals(false, PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
     Container container = ContainerOpener
             .open("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047.bdoc", PROD_CONFIGURATION);
-    SignatureValidationResult result = container.validate();
-    List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(1, errors.size());
-    Assert.assertEquals("(Signature ID: S0) - The signature is not intact!",
-            errors.get(0).toString());
+    container.validate();
   }
 
-  @Test
+  @Test(expected = TechnicalException.class)
   public void invalidTSRsa2047_whenASN1UnsafeIntegerNotAllowed() {
+    PROD_CONFIGURATION.setAllowASN1UnsafeInteger(false);
     Assert.assertEquals(false, PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
     Container container = ContainerOpener
             .open("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047_TS.asice", PROD_CONFIGURATION);
-    SignatureValidationResult result = container.validate();
-    List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(1, errors.size());
-    Assert.assertEquals("(Signature ID: S0) - The signature is not intact!",
-            errors.get(0).toString());
+    container.validate();
   }
 
   @Test
@@ -487,10 +489,10 @@ public class ValidationTests extends AbstractTest {
         .open("src/test/resources/testFiles/invalid-containers/TS_broken_TS.asice");
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(2, errors.size());
+    Assert.assertEquals(5, errors.size());
     Assert.assertEquals("(Signature ID: S0) - The result of the timestamps validation process is not conclusive!",
         errors.get(0).toString());
-    Assert.assertEquals("(Signature ID: S0) - " + InvalidTimestampException.MESSAGE, errors.get(1).toString());
+    Assert.assertEquals("(Signature ID: S0) - " + InvalidTimestampException.MESSAGE, errors.get(4).toString());
   }
 
   @Test
@@ -557,7 +559,7 @@ public class ValidationTests extends AbstractTest {
             Paths.get("src/test/resources/prodFiles/invalid-containers/bdoc21-vigane-ocsp.bdoc"), PROD_CONFIGURATION);
     ContainerValidationResult response = container.validate();
     Assert.assertEquals(2, response.getErrors().size());
-    Assert.assertEquals("No revocation data for the certificate", response.getErrors().get(0).getMessage());
+    Assert.assertEquals("The result of the LTV validation process is not acceptable to continue the process!", response.getErrors().get(0).getMessage());
     Assert.assertEquals("OCSP Responder does not meet TM requirements", response.getErrors().get(1).getMessage());
   }
 
@@ -584,6 +586,27 @@ public class ValidationTests extends AbstractTest {
   }
 
   @Test
+  public void containerValidation_withManuallyAddedTrustedCertificates_shouldSucceed() throws Exception {
+    TSLCertificateSourceImpl tsl = new TSLCertificateSourceImpl();
+    Configuration conf = Configuration.of(Configuration.Mode.PROD);
+    conf.setTSL(tsl);
+    try (InputStream inputStream = new FileInputStream("src/test/resources/prodFiles/certs/ESTEID-SK_2011.pem.crt")) {
+      tsl.addTSLCertificate(DSSUtils.loadCertificate(inputStream).getCertificate());
+    }
+    try (InputStream inputStream = new FileInputStream("src/test/resources/prodFiles/certs/SK_OCSP_RESPONDER_2011.pem.cer")) {
+      tsl.addTSLCertificate(DSSUtils.loadCertificate(inputStream).getCertificate());
+    }
+    try (InputStream inputStream = new FileInputStream("src/test/resources/prodFiles/certs/SK_TSA.pem.crt")) {
+      tsl.addTSLCertificate(DSSUtils.loadCertificate(inputStream).getCertificate());
+    }
+    SignatureValidationResult result = this.openContainerByConfiguration(
+            Paths.get("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047_TS.asice"), conf)
+            .validate();
+    Assert.assertTrue(result.isValid());
+    Assert.assertEquals(0, result.getErrors().size());
+  }
+
+  @Test
   public void havingOnlyCaCertificateInTSL_shouldNotValidateOCSPResponse() throws Exception {
     TSLCertificateSourceImpl tsl = new TSLCertificateSourceImpl();
     this.configuration.setTSL(tsl);
@@ -594,9 +617,6 @@ public class ValidationTests extends AbstractTest {
         Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"), this.configuration)
         .validate();
     Assert.assertFalse(result.isValid());
-    TestAssert.assertContainsError(
-        "The certificate chain for revocation data is not trusted, there is no trusted anchor.",
-        result.getErrors());
   }
 
   @Test
@@ -635,12 +655,12 @@ public class ValidationTests extends AbstractTest {
     Signature signature = signatureList.get(0);
     String signatureId = signature.getId();
     Assert.assertFalse(result.isValid());
-    Assert.assertEquals(2, errors.size());
+    Assert.assertEquals(4, errors.size());
     Assert.assertEquals("(Signature ID: " + signatureId +
         ") - The result of the timestamps validation process is not conclusive!",
-        errors.get(0).toString());
-    Assert.assertEquals("(Signature ID: " + signatureId + ") - Signature has an invalid timestamp",
         errors.get(1).toString());
+    Assert.assertEquals("(Signature ID: " + signatureId + ") - Signature has an invalid timestamp",
+        errors.get(3).toString());
   }
 
   @Test
@@ -663,9 +683,7 @@ public class ValidationTests extends AbstractTest {
         .open("src/test/resources/prodFiles/invalid-containers/bdoc21-ts-ok.bdoc", PROD_CONFIGURATION);
     SignatureValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
-    Assert.assertEquals(4, result.getErrors().size());
-    TestAssert.assertContainsError(
-        "(Signature ID: S0) - No revocation data for the certificate", result.getErrors());
+    Assert.assertEquals(6, result.getErrors().size());
     TestAssert.assertContainsError(
         "(Signature ID: S0) - The result of the timestamps validation process is not conclusive!",
         result.getErrors());
@@ -701,6 +719,45 @@ public class ValidationTests extends AbstractTest {
             .open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc", this.configuration);
     SignatureValidationResult result = container.validate();
     TestAssert.assertContainsError("OCSP Responder does not meet TM requirements", result.getErrors());
+  }
+
+  @Test
+  public void sameCertAddedTwiceToTSL_containerValidationShouldSucceed() {
+    Configuration conf = Configuration.of(Configuration.Mode.PROD);
+    conf.setTSL(new TSLCertificateSourceImpl());
+    TestTSLUtil.addCertificateFromFileToTsl(conf, "src/test/resources/prodFiles/certs/ESTEID-SK_2011.pem.crt");
+    TestTSLUtil.addCertificateFromFileToTsl(conf, "src/test/resources/prodFiles/certs/ESTEID-SK_2011.pem.crt");
+    TestTSLUtil.addCertificateFromFileToTsl(conf, "src/test/resources/prodFiles/certs/SK_OCSP_RESPONDER_2011.pem.cer");
+    TestTSLUtil.addCertificateFromFileToTsl(conf, "src/test/resources/prodFiles/certs/SK_TSA.pem.crt");
+    SignatureValidationResult result = this.openContainerByConfiguration(
+            Paths.get("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047_TS.asice"), conf).validate();
+    Assert.assertTrue(result.isValid());
+    Assert.assertEquals(0, result.getErrors().size());
+  }
+
+  @Test
+  public void prodContainerWithSignatureWarningOfTrustedCertificateNotMatchingWithTrustService_warningIsRemoved() {
+    Container container = ContainerBuilder.aContainer().
+            fromExistingFile("src/test/resources/prodFiles/valid-containers/Baltic MoU digital signing_EST_LT_LV.bdoc").
+            withConfiguration(PROD_CONFIGURATION).build();
+    ContainerValidationResult validationResult = container.validate();
+    Assert.assertTrue(validationResult.isValid());
+    Assert.assertTrue(validationResult.getErrors().isEmpty());
+    Assert.assertFalse(validationResult.getWarnings().contains(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS2.getMessage()));
+  }
+
+  @Test
+  public void testContainerWithSignatureWarningOfTrustedCertificateNotMatchingWithTrustService_warningIsRemoved() {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    Container container = ContainerBuilder.aContainer().
+            fromExistingFile("src/test/resources/testFiles/valid-containers/valid_bdoc_tm_signed_with_valid_cert_expired_by_now.bdoc").
+            withConfiguration(configuration)
+            .build();
+    TestTSLUtil.addCertificateFromFileToTsl(configuration, "src/test/resources/testFiles/certs/ESTEID-SK_2007_prod.pem.crt");
+    ContainerValidationResult validationResult = container.validate();
+    Assert.assertTrue(validationResult.isValid());
+    Assert.assertTrue(validationResult.getErrors().isEmpty());
+    Assert.assertFalse(validationResult.getWarnings().contains(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS2.getMessage()));
   }
 
   /*

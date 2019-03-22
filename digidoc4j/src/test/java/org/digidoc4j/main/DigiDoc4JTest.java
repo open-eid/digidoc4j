@@ -805,14 +805,7 @@ public class DigiDoc4JTest extends AbstractTest {
   @Ignore // unstable result
   public void verifyValidBDocUnsafeInteger() throws Exception {
     this.setGlobalMode(Configuration.Mode.PROD);
-    this.systemExit.expectSystemExitWithStatus(1);
-    this.systemExit.checkAssertionAfterwards(new Assertion() {
-      @Override
-      public void checkAssertion() throws Exception {
-        Assert.assertThat(stdOut.getLog(),
-            StringContains.containsString("invalid info structure in RSA public key"));
-      }
-    });
+    this.systemExit.expectSystemExitWithStatus(0);
     DigiDoc4J.main(new String[]{"-in", "src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc", "-verify"});
   }
 
@@ -833,9 +826,6 @@ public class DigiDoc4JTest extends AbstractTest {
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("Type = REVOCATION. BBB_XCV_CCCBB_REV_ANS: " +
             "The certificate chain for revocation data is not trusted, there is no trusted anchor" +
             ""));
-        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Block Id: 3a106470aba0437..." +
-            " Type = REVOCATION. BBB_XCV_ICSI_ANS: The signature of the certificate is spoiled or it is not possible" +
-            " to validate it!"));
       }
     });
     String outputFolder = this.testFolder.newFolder("outputFolder").getPath();
@@ -878,7 +868,7 @@ public class DigiDoc4JTest extends AbstractTest {
         "src/test/resources/testFiles/xades/test-bdoc-ts.xml"};
     TestDigiDoc4JUtil.call(parameters);
 
-    Assert.assertThat(stdOut.getLog(), StringContains.containsString("The reference data object(s) is not intact!"));
+    Assert.assertThat(stdOut.getLog(), StringContains.containsString("The result of the LTV validation process is not acceptable to continue the process!"));
   }
 
 }

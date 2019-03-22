@@ -9,8 +9,13 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 
+import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
@@ -15892,27 +15897,34 @@ public class CertificatesForTests {
   private void addOcspCertificate(TSLCertificateSource tslCertificateSource, X509Certificate certificate) {
     ServiceInfo serviceInfo = new ServiceInfo();
     // TODO: check following logic, find correct implementation
-    ServiceInfoStatus status = createServiceInfoStatus("http://uri.etsi.org/TrstSvc/Svctype/Certstatus/OCSP/QC", "http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", certificate.getNotBefore());
+    ServiceInfoStatus status = createServiceInfoStatus(certificate, "http://uri.etsi.org/TrstSvc/Svctype/Certstatus/OCSP/QC", "http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision");
     TimeDependentValues<ServiceInfoStatus> tdvStatus = new TimeDependentValues(Arrays.asList(status));
     serviceInfo.setStatus(tdvStatus);
 
-    tslCertificateSource.addCertificate(new CertificateToken(certificate), serviceInfo);
+    tslCertificateSource.addCertificate(new CertificateToken(certificate), Collections.singletonList(serviceInfo));
   }
 
-  private ServiceInfoStatus createServiceInfoStatus(String typeString, String statusString, Date notBefore) {
+  private ServiceInfoStatus createServiceInfoStatus(X509Certificate certificate, String typeString, String statusString) {
     // TODO: check following logic, find correct implementation
-    return new ServiceInfoStatus(typeString, statusString, null, null, null, null, notBefore, null);
+    return new ServiceInfoStatus(getCN(certificate), typeString, statusString, null, null, null, null, certificate.getNotBefore(), null);
   }
 
   private void addTsaCertificate(TSLCertificateSource tslCertificateSource, X509Certificate certificate) {
     ServiceInfo serviceInfo = new ServiceInfo();
     // TODO: check following logic, find correct implementation
-    ServiceInfoStatus status = createServiceInfoStatus("http://uri.etsi.org/TrstSvc/Svctype/TSA", "http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", certificate.getNotBefore());
+    ServiceInfoStatus status = createServiceInfoStatus(certificate, "http://uri.etsi.org/TrstSvc/Svctype/TSA", "http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision");
     TimeDependentValues<ServiceInfoStatus> tdvStatus = new TimeDependentValues(Arrays.asList(status));
     serviceInfo.setStatus(tdvStatus);
 
-    tslCertificateSource.addCertificate(new CertificateToken(certificate), serviceInfo);
+    Object object;
+    tslCertificateSource.addCertificate(new CertificateToken(certificate), Collections.singletonList(serviceInfo));
   }
+
+    private String getCN(X509Certificate certificate) {
+        X500Name x500name = new X500Name(certificate.getSubjectX500Principal().getName() );
+        RDN cn = x500name.getRDNs(BCStyle.CN)[0];
+        return IETFUtils.valueToString(cn.getFirst().getValue());
+    }
 
   public TSLCertificateSource getTslCertificateSource() {
     return tslCertificateSource;

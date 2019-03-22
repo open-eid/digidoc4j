@@ -37,6 +37,7 @@ import org.digidoc4j.impl.asic.asice.AsicEContainerValidator;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainerValidator;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
+import org.digidoc4j.impl.asic.asics.AsicSContainerValidator;
 import org.digidoc4j.impl.asic.asics.AsicSSignature;
 import org.digidoc4j.impl.asic.manifest.AsicManifest;
 import org.digidoc4j.impl.asic.xades.SignatureExtender;
@@ -52,7 +53,9 @@ import eu.europa.esig.dss.DSSDocument;
 public abstract class AsicContainer implements Container {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AsicContainer.class);
+
   protected Configuration configuration;
+  protected DataFile timeStampToken;
   private List<DataFile> dataFiles = new ArrayList<>();
   private List<Signature> newSignatures = new ArrayList<>();
   private List<Signature> signatures = new ArrayList<>();
@@ -61,7 +64,6 @@ public abstract class AsicContainer implements Container {
   private ContainerValidationResult validationResult;
   private boolean dataFilesHaveChanged;
   private String containerType = "";
-  private DataFile timeStampToken;
 
   protected abstract String createUserAgent();
 
@@ -147,16 +149,21 @@ public abstract class AsicContainer implements Container {
       return this.validateTimestampToken();
     } else {
       if (!this.isNewContainer()) {
-        if (DocumentType.BDOC.toString().equals(this.containerType)) {
+        if (DocumentType.BDOC.name().equalsIgnoreCase(this.containerType)) {
           return new BDocContainerValidator(this.containerParseResult, this.getConfiguration(),
-              !this.dataFilesHaveChanged).validate(this.getSignatures());
+                  !this.dataFilesHaveChanged).validate(this.getSignatures());
+        } else if (DocumentType.ASICS.name().equalsIgnoreCase(this.containerType)) {
+          return new AsicSContainerValidator(this.containerParseResult, this.getConfiguration(),
+                  !this.dataFilesHaveChanged).validate(this.getSignatures());
         } else {
           return new AsicEContainerValidator(this.containerParseResult, this.getConfiguration(),
               !this.dataFilesHaveChanged).validate(this.getSignatures());
         }
       } else {
-        if (DocumentType.BDOC.toString().equals(this.containerType)) {
+        if (DocumentType.BDOC.name().equalsIgnoreCase(this.containerType)) {
           return new BDocContainerValidator(this.getConfiguration()).validate(this.getSignatures());
+        } else if (DocumentType.ASICS.name().equalsIgnoreCase(this.containerType)) {
+          return new AsicSContainerValidator(this.getConfiguration()).validate(this.getSignatures());
         } else {
           return new AsicEContainerValidator(this.getConfiguration()).validate(this.getSignatures());
         }

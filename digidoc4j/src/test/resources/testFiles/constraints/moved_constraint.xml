@@ -112,11 +112,7 @@
     </MainSignature>
     <Timestamp>
         <TimestampDelay Unit="DAYS">0</TimestampDelay>
-        <MessageImprintDataFound Level="FAIL"/>
-        <MessageImprintDataIntact Level="FAIL"/>
         <RevocationTimeAgainstBestSignatureTime Level="FAIL"/>
-        <BestSignatureTimeBeforeIssuanceDateOfSigningCertificate Level="FAIL"/>
-        <SigningCertificateValidityAtBestSignatureTime Level="FAIL"/>
         <AlgorithmReliableAtBestSignatureTime Level="FAIL"/>
         <Coherence Level="FAIL"/>
         <RightOrder Level="FAIL" />

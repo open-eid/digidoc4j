@@ -36,7 +36,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource().withConfiguration(
         this.configuration).build();
     source.setDataLoader(this.dataLoader);
-    Assert.assertNull(source.getOCSPToken(new CertificateToken(TestSigningUtil.SIGN_CERT),
+    Assert.assertNull(source.getRevocationToken(new CertificateToken(TestSigningUtil.SIGN_CERT),
         new CertificateToken(this.issuerCert)));
   }
 

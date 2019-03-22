@@ -20,6 +20,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x509.CRLReason;
@@ -101,7 +102,7 @@ public class MockOCSPSource implements OCSPSource {
   }
 
   @Override
-  public OCSPToken getOCSPToken(CertificateToken certificateToken, CertificateToken issuerCertificateToken) {
+  public OCSPToken getRevocationToken(CertificateToken certificateToken, CertificateToken issuerCertificateToken) {
     try {
       BigInteger serialNumber = certificateToken.getCertificate().getSerialNumber();
       X509Certificate issuerCertificate = issuerCertificateToken.getCertificate();
@@ -117,7 +118,7 @@ public class MockOCSPSource implements OCSPSource {
         if (isOK) {
           builder.addResponse(certificateID, CertificateStatus.GOOD, this.ocspDate, null, null);
         } else {
-          builder.addResponse(certificateID, new RevokedStatus(DSSUtils.getDate(this.ocspDate, -1), CRLReason.privilegeWithdrawn));
+          builder.addResponse(certificateID, new RevokedStatus(DateUtils.addDays(this.ocspDate, -1), CRLReason.privilegeWithdrawn));
         }
       }
       X509CertificateHolder[] chain = {new X509CertificateHolder(issuerCertificate.getEncoded()), new X509CertificateHolder(this.certificate.getEncoded())};
@@ -125,7 +126,6 @@ public class MockOCSPSource implements OCSPSource {
       token.setBasicOCSPResp(builder.build(new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(this.key), chain, this.ocspDate));
       token.setCertId(DSSRevocationUtils.getOCSPCertificateID(certificateToken, issuerCertificateToken));
       token.extractInfo();
-      certificateToken.addRevocationToken(token);
       return token;
     } catch (OCSPException e) {
       throw new DSSException(e);

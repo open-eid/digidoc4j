@@ -100,7 +100,7 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
       return;
     }
     String certificateRevocationSource = diagnosticData
-        .getCertificateRevocationSource(diagnosticData.getSigningCertificateId());
+        .getCertificateRevocationSource(diagnosticData.getFirstSigningCertificateId());
     this.log.debug("Revocation source is <{}>", certificateRevocationSource);
     if (StringUtils.equalsIgnoreCase("CRLToken", certificateRevocationSource)) {
       this.log.error("Signing certificate revocation source is CRL instead of OCSP");

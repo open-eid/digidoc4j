@@ -39,6 +39,11 @@ public enum ConfigurationParameter {
   TspCountryKeystorePath,
   TspCountryKeystoreType,
   TspCountryKeystorePassword,
+  preferAiaOcsp,
+  aiaOcspsCount,
+  issuerCn,
+  aiaOcspSource,
+  useNonce,
   AllowASN1UnsafeInteger,
   PrintValidationReport,
   IsFullSimpleReportNeeded

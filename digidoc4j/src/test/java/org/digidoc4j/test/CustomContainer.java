@@ -155,6 +155,11 @@ public class CustomContainer implements Container {
   }
 
   @Override
+  public DataFile getTimeStampToken() {
+    throw new NotYetImplementedException();
+  }
+
+  @Override
   public SignedInfo prepareSigning(X509Certificate signerCert) {
     return null;
   }

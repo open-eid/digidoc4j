@@ -56,6 +56,10 @@
             <Algo>SHA256</Algo>
             <Algo>SHA384</Algo>
             <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
             <Algo>RIPEMD160</Algo>
           </AcceptableDigestAlgo>
         </Cryptographic>
@@ -85,6 +89,10 @@
             <Algo>SHA256</Algo>
             <Algo>SHA384</Algo>
             <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
             <Algo>RIPEMD160</Algo>
           </AcceptableDigestAlgo>
         </Cryptographic>
@@ -106,13 +114,16 @@
           <Algo>SHA256</Algo>
           <Algo>SHA384</Algo>
           <Algo>SHA512</Algo>
+          <Algo>SHA3-224</Algo>
+          <Algo>SHA3-256</Algo>
+          <Algo>SHA3-384</Algo>
+          <Algo>SHA3-512</Algo>
           <Algo>RIPEMD160</Algo>
         </AcceptableDigestAlgo>
       </Cryptographic>
     </BasicSignatureConstraints>
     <SignedAttributes>
       <SigningCertificatePresent Level="FAIL"/>
-      <SigningCertificateSigned Level="FAIL"/>
       <CertDigestPresent Level="FAIL"/>
       <CertDigestMatch Level="FAIL"/>
       <IssuerSerialMatch Level="WARN"/>
@@ -134,12 +145,8 @@
   </SignatureConstraints>
   <Timestamp>
     <TimestampDelay Level="FAIL" Unit="DAYS" Value="0"/>
-    <MessageImprintDataFound Level="FAIL"/>
-    <MessageImprintDataIntact Level="FAIL"/>
     <RevocationTimeAgainstBestSignatureTime Level="FAIL"/>
     <BestSignatureTimeBeforeIssuanceDateOfSigningCertificate Level="FAIL"/>
-    <SigningCertificateValidityAtBestSignatureTime Level="FAIL"/>
-    <AlgorithmReliableAtBestSignatureTime Level="FAIL"/>
     <Coherence Level="FAIL"/>
     <BasicSignatureConstraints>
       <ReferenceDataExistence Level="FAIL"/>
@@ -168,6 +175,7 @@
         <RevocationDataFreshness Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
+        <NotSelfSigned Level="WARN"/>
         <Cryptographic Level="FAIL">
           <AcceptableEncryptionAlgo>
             <Algo>RSA</Algo>
@@ -185,6 +193,10 @@
             <Algo>SHA256</Algo>
             <Algo>SHA384</Algo>
             <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
             <Algo>RIPEMD160</Algo>
           </AcceptableDigestAlgo>
         </Cryptographic>
@@ -214,6 +226,10 @@
             <Algo>SHA256</Algo>
             <Algo>SHA384</Algo>
             <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
             <Algo>RIPEMD160</Algo>
           </AcceptableDigestAlgo>
         </Cryptographic>
@@ -235,6 +251,10 @@
           <Algo>SHA256</Algo>
           <Algo>SHA384</Algo>
           <Algo>SHA512</Algo>
+          <Algo>SHA3-224</Algo>
+          <Algo>SHA3-256</Algo>
+          <Algo>SHA3-384</Algo>
+          <Algo>SHA3-512</Algo>
           <Algo>RIPEMD160</Algo>
         </AcceptableDigestAlgo>
       </Cryptographic>
@@ -284,6 +304,10 @@
             <Algo>SHA256</Algo>
             <Algo>SHA384</Algo>
             <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
             <Algo>RIPEMD160</Algo>
           </AcceptableDigestAlgo>
         </Cryptographic>
@@ -313,6 +337,10 @@
             <Algo>SHA256</Algo>
             <Algo>SHA384</Algo>
             <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
             <Algo>RIPEMD160</Algo>
           </AcceptableDigestAlgo>
         </Cryptographic>
@@ -334,6 +362,10 @@
           <Algo>SHA256</Algo>
           <Algo>SHA384</Algo>
           <Algo>SHA512</Algo>
+          <Algo>SHA3-224</Algo>
+          <Algo>SHA3-256</Algo>
+          <Algo>SHA3-384</Algo>
+          <Algo>SHA3-512</Algo>
           <Algo>RIPEMD160</Algo>
         </AcceptableDigestAlgo>
       </Cryptographic>

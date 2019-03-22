@@ -6,7 +6,7 @@
     <groupId>org.digidoc4j</groupId>
     <artifactId>ddoc4j</artifactId>
     <packaging>jar</packaging>
-    <version>3.0.0</version>
+    <version>3.1.0</version>
 
     <name>DDoc4J</name>
     <description>DDoc4J is Java Library for validating DDOC documents. It's not recommended to use it directly but rather through DigiDoc4J's API.</description>
@@ -15,7 +15,7 @@
     <parent>
         <artifactId>digidoc4j-parent</artifactId>
         <groupId>org.digidoc4j</groupId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
     </parent>
 
     <dependencies>
@@ -54,7 +54,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.1</version>
                 <configuration>
                     <failIfNoTests>false</failIfNoTests>
                 </configuration>

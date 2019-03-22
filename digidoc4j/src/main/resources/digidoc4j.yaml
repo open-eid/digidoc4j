@@ -159,3 +159,55 @@ DIGIDOC_CAS:
         CA_CERT: jar://certs/KLASS3-SK.crt
         CN: SK Proxy OCSP Responder 2009
         URL: http://ocsp.sk.ee
+
+
+AIA_OCSPS:
+- ISSUER_CN: ESTEID2018
+  OCSP_SOURCE: http://aia.sk.ee/esteid2018
+  USE_NONCE: true
+- ISSUER_CN: ESTEID-SK 2011
+  OCSP_SOURCE: http://aia.sk.ee/esteid2011
+  USE_NONCE: false
+- ISSUER_CN: EID-SK 2011
+  OCSP_SOURCE: http://aia.sk.ee/eid2011
+  USE_NONCE: false
+- ISSUER_CN: KLASS3-SK 2010
+  OCSP_SOURCE: http://aia.sk.ee/klass3-2010
+  USE_NONCE: false
+- ISSUER_CN: ESTEID-SK 2015
+  OCSP_SOURCE: http://aia.sk.ee/esteid2015
+  USE_NONCE: false
+- ISSUER_CN: EID-SK 2016
+  OCSP_SOURCE: http://aia.sk.ee/eid2016
+  USE_NONCE: false
+- ISSUER_CN: NQ-SK 2016
+  OCSP_SOURCE: http://aia.sk.ee/nq2016
+  USE_NONCE: false
+- ISSUER_CN: KLASS3-SK 2016
+  OCSP_SOURCE: http://aia.sk.ee/klass3-2016
+  USE_NONCE: false
+
+- ISSUER_CN: TEST of ESTEID2018
+  OCSP_SOURCE: http://aia.demo.sk.ee/esteid2018
+  USE_NONCE: true
+- ISSUER_CN: TEST of ESTEID-SK 2011
+  OCSP_SOURCE: http://aia.demo.sk.ee/esteid2011
+  USE_NONCE: false
+- ISSUER_CN: TEST of EID-SK 2011
+  OCSP_SOURCE: http://aia.demo.sk.ee/eid2011
+  USE_NONCE: false
+- ISSUER_CN: TEST of KLASS3-SK 2010
+  OCSP_SOURCE: http://aia.demo.sk.ee/klass3-2010
+  USE_NONCE: false
+- ISSUER_CN: TEST of ESTEID-SK 2015
+  OCSP_SOURCE: http://aia.demo.sk.ee/esteid2015
+  USE_NONCE: false
+- ISSUER_CN: TEST of EID-SK 2016
+  OCSP_SOURCE: http://aia.demo.sk.ee/eid2016
+  USE_NONCE: false
+- ISSUER_CN: TEST of NQ-SK 2016
+  OCSP_SOURCE: http://aia.demo.sk.ee/nq2016
+  USE_NONCE: false
+- ISSUER_CN: TEST of KLASS3-SK 2016
+  OCSP_SOURCE: http://aia.demo.sk.ee/klass3-2016
+  USE_NONCE: false

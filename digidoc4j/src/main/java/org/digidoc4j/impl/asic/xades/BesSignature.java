@@ -242,8 +242,6 @@ public class BesSignature extends DssXadesSignature {
       Element certificateElement = (Element) nodeList.item(i);
       CertificateToken certToken = createCertificateToken(certificateElement);
       if (!certificates.contains(certToken)) {
-        String idIdentifier = DSSXMLUtils.getIDIdentifier(certificateElement);
-        certToken.setXmlId(idIdentifier);
         certificates.add(certToken);
       }
     }
