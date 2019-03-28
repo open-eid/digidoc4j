@@ -20,6 +20,7 @@ import org.digidoc4j.impl.asic.tsl.TslLoader;
 import org.digidoc4j.test.util.TestCommonUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Map;
@@ -28,6 +29,7 @@ public class TslLoaderTest extends AbstractTest {
 
   private TslLoader tslLoader;
 
+  @Ignore
   @Test
   public void loadAndValidateProdTsl() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
@@ -63,6 +65,7 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
+  @Ignore
   public void loadTsl_forAllCountries_byDefault() throws Exception {
     this.setGlobalMode(Configuration.Mode.PROD);
     this.configuration = new Configuration(Configuration.Mode.PROD);
@@ -73,6 +76,7 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
+  @Ignore
   public void loadTsl_forOneContry() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
     this.configuration.setTrustedTerritories("EE");
@@ -82,6 +86,7 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
+  @Ignore
   public void loadTsl_forTwoCountries() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
     this.configuration.setTrustedTerritories("EE", "ES");
@@ -103,6 +108,7 @@ public class TslLoaderTest extends AbstractTest {
    */
 
   @Test
+  @Ignore
   public void loadTsl_withoutCountryHr_byDefault() throws Exception {
     this.setGlobalMode(Configuration.Mode.PROD);
     this.configuration = new Configuration(Configuration.Mode.PROD);
