@@ -1,20 +1,30 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl.asic.asice;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.digidoc4j.*;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.asic.AsicContainer;
 import org.digidoc4j.impl.asic.AsicContainerCreator;
+import org.digidoc4j.impl.asic.AsicParseResult;
+import org.digidoc4j.impl.asic.AsicSignatureOpener;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSDocument;
-
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Created by Andrei on 7.11.2017.
@@ -127,15 +137,8 @@ public class AsicEContainer extends AsicContainer {
   }
 
   @Override
-  protected List<Signature> parseSignatureFiles(List<DSSDocument> signatureFiles, List<DSSDocument> detachedContents) {
-    Configuration configuration = getConfiguration();
-    AsicESignatureOpener signatureOpener = new AsicESignatureOpener(detachedContents, configuration);
-    List<Signature> signatures = new ArrayList<>(signatureFiles.size());
-    for (DSSDocument signatureFile : signatureFiles) {
-      List<AsicESignature> asicSignatures = signatureOpener.parse(signatureFile);
-      signatures.addAll(asicSignatures);
-    }
-    return signatures;
+  protected AsicSignatureOpener getSignatureOpener() {
+    return new AsicESignatureOpener(getConfiguration());
   }
 
   protected String createUserAgent() {

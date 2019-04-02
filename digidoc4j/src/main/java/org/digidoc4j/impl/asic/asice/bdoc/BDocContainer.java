@@ -10,22 +10,19 @@
 
 package org.digidoc4j.impl.asic.asice.bdoc;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
-import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.asic.AsicContainerCreator;
+import org.digidoc4j.impl.asic.AsicParseResult;
+import org.digidoc4j.impl.asic.AsicSignatureOpener;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSDocument;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Offers functionality for handling data files and signatures in a container.
@@ -95,15 +92,9 @@ public class BDocContainer extends AsicEContainer {
     writeAsicContainer(new AsicContainerCreator(out));
   }
 
-  protected List<Signature> parseSignatureFiles(List<DSSDocument> signatureFiles, List<DSSDocument> detachedContents) {
-    Configuration configuration = getConfiguration();
-    BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
-    List<Signature> signatures = new ArrayList<>(signatureFiles.size());
-    for (DSSDocument signatureFile : signatureFiles) {
-      List<BDocSignature> bDocSignatures = signatureOpener.parse(signatureFile);
-      signatures.addAll(bDocSignatures);
-    }
-    return signatures;
+  @Override
+  protected AsicSignatureOpener getSignatureOpener() {
+    return new BDocSignatureOpener(getConfiguration());
   }
 
   @Override

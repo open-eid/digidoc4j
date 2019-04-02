@@ -10,20 +10,20 @@
 
 package org.digidoc4j.impl.asic;
 
-import java.io.Serializable;
-import java.util.List;
-
+import eu.europa.esig.dss.DSSDocument;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.impl.asic.manifest.ManifestParser;
+import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 
-import eu.europa.esig.dss.DSSDocument;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * ASIC parse result
  */
 public class AsicParseResult implements Serializable {
 
-  private List<DSSDocument> signatures;
+  private List<XadesSignatureWrapper> signatures;
   private List<DataFile> dataFiles;
   private List<DSSDocument> detachedContents;
   private Integer currentUsedSignatureFileIndex;
@@ -50,14 +50,14 @@ public class AsicParseResult implements Serializable {
   /**
    * @return list of signatures
    */
-  public List<DSSDocument> getSignatures() {
+  public List<XadesSignatureWrapper> getSignatures() {
     return signatures;
   }
 
   /**
    * @param signatures list of signatures
    */
-  public void setSignatures(List<DSSDocument> signatures) {
+  public void setSignatures(List<XadesSignatureWrapper> signatures) {
     this.signatures = signatures;
   }
 

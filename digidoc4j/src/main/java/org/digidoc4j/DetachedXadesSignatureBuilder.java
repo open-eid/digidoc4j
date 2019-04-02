@@ -1,17 +1,21 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j;
 
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LTA;
-import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.InMemoryDocument;
+import eu.europa.esig.dss.Policy;
+import eu.europa.esig.dss.SignerLocation;
+import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.exceptions.DataFileMissingException;
@@ -24,24 +28,30 @@ import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.SignatureFinalizer;
+import org.digidoc4j.impl.asic.AsicSignatureParser;
 import org.digidoc4j.impl.asic.DetachedContentCreator;
 import org.digidoc4j.impl.asic.SkDataLoader;
-import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.AsicESignatureOpener;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
+import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.InMemoryDocument;
-import eu.europa.esig.dss.Policy;
-import eu.europa.esig.dss.SignerLocation;
-import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
-import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+
+import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
+import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
+import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LTA;
+import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class DetachedXadesSignatureBuilder implements SignatureFinalizer {
 
@@ -378,20 +388,26 @@ public class DetachedXadesSignatureBuilder implements SignatureFinalizer {
       throw new DigiDoc4JException(e);
     }
     List<DSSDocument> detachedContents = detachedContentCreator.getDetachedContentList();
-    Signature signature = null;
+    XadesSignatureWrapper signatureWrapper = parseSignatureWrapper(signedDocument, detachedContents);
+
+    Signature signature;
     if (SignatureProfile.LT_TM.equals(this.signatureParameters.getSignatureProfile())) {
-      BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
-      List<BDocSignature> signatureList = signatureOpener.parse(signedDocument);
-      signature = signatureList.get(0); //Only one signature was created
+      BDocSignatureOpener signatureOpener = new BDocSignatureOpener(configuration);
+      signature = signatureOpener.open(signatureWrapper);
       validateOcspResponse(((BDocSignature) signature).getOrigin());
     } else {
-      AsicESignatureOpener signatureOpener = new AsicESignatureOpener(detachedContents, configuration);
-      List<AsicESignature> signatureList = signatureOpener.parse(signedDocument);
-      signature = signatureList.get(0); //Only one signature was created
+      AsicESignatureOpener signatureOpener = new AsicESignatureOpener(configuration);
+      signature = signatureOpener.open(signatureWrapper);
     }
     policyDefinedByUser = null;
     logger.info("Signing detached XadES successfully completed");
     return signature;
+  }
+
+  private XadesSignatureWrapper parseSignatureWrapper(DSSDocument signedDocument, List<DSSDocument> detachedContents) {
+    AsicSignatureParser signatureParser = new AsicSignatureParser(detachedContents, configuration);
+    XadesSignature xadesSignature = signatureParser.parse(signedDocument);
+    return new XadesSignatureWrapper(xadesSignature, signedDocument);
   }
 
   protected void validateOcspResponse(XadesSignature xadesSignature) {

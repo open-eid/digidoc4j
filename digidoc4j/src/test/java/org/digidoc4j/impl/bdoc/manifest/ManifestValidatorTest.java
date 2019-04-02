@@ -10,6 +10,26 @@
 
 package org.digidoc4j.impl.bdoc.manifest;
 
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.FileDocument;
+import eu.europa.esig.dss.InMemoryDocument;
+import eu.europa.esig.dss.MimeType;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.Signature;
+import org.digidoc4j.impl.asic.AsicSignature;
+import org.digidoc4j.impl.asic.AsicSignatureParser;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
+import org.digidoc4j.impl.asic.manifest.AsicManifest;
+import org.digidoc4j.impl.asic.manifest.ManifestEntry;
+import org.digidoc4j.impl.asic.manifest.ManifestErrorMessage;
+import org.digidoc4j.impl.asic.manifest.ManifestParser;
+import org.digidoc4j.impl.asic.manifest.ManifestValidator;
+import org.digidoc4j.impl.asic.xades.XadesSignature;
+import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,25 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.digidoc4j.Configuration;
-import org.digidoc4j.DataFile;
-import org.digidoc4j.Signature;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
-import org.digidoc4j.impl.asic.manifest.AsicManifest;
-import org.digidoc4j.impl.asic.manifest.ManifestEntry;
-import org.digidoc4j.impl.asic.manifest.ManifestErrorMessage;
-import org.digidoc4j.impl.asic.manifest.ManifestParser;
-import org.digidoc4j.impl.asic.manifest.ManifestValidator;
-import org.junit.Assert;
-import org.junit.Test;
-
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.FileDocument;
-import eu.europa.esig.dss.InMemoryDocument;
-import eu.europa.esig.dss.MimeType;
-
 public class ManifestValidatorTest {
+
+  private final Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
   @Test
   public void validateEntries() throws Exception {
@@ -184,8 +188,13 @@ public class ManifestValidatorTest {
    */
 
   private List<Signature> openSignature(String signaturePath, List<DSSDocument> detachedContents) {
-    BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, new Configuration(Configuration.Mode.TEST));
-    BDocSignature signature = signatureOpener.parse(new FileDocument(signaturePath)).get(0);
+    AsicSignatureParser signatureParser = new AsicSignatureParser(detachedContents, configuration);
+    FileDocument signatureDocument = new FileDocument(signaturePath);
+    XadesSignature xadesSignature = signatureParser.parse(signatureDocument);
+    XadesSignatureWrapper signatureWrapper = new XadesSignatureWrapper(xadesSignature, signatureDocument);
+
+    BDocSignatureOpener signatureOpener = new BDocSignatureOpener(configuration);
+    AsicSignature signature = signatureOpener.open(signatureWrapper);
     signature.getOrigin().getDssSignature().checkSignatureIntegrity();
     List<Signature> signatureList = new ArrayList<>(1);
     signatureList.add(signature);

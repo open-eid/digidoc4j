@@ -10,36 +10,39 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.digidoc4j.AbstractTest;
-import org.digidoc4j.Configuration;
-import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
-import org.digidoc4j.utils.Helper;
-import org.junit.Assert;
-import org.junit.Test;
-
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.AbstractTest;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.impl.asic.AsicSignatureParser;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
+import org.digidoc4j.impl.asic.xades.XadesSignature;
+import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
+import org.digidoc4j.utils.Helper;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.Date;
 
 public class BDocSignatureOpenerTest extends AbstractTest {
 
+  private AsicSignatureParser signatureParser;
   private BDocSignatureOpener signatureOpener;
 
   @Test
   public void openBesSignature() throws Exception {
-    List<BDocSignature> signatures = this.signatureOpener.parse(new FileDocument("src/test/resources/testFiles/xades/test-bes-signature.xml"));
-    Assert.assertEquals("Assert 1", 1, signatures.size());
-    BDocSignature signature = signatures.get(0);
+    Signature signature = this.signatureOpener.open(
+            constructXadesSignatureWrapper(new FileDocument("src/test/resources/testFiles/xades/test-bes-signature.xml")));
+    Assert.assertTrue(signature instanceof BDocSignature);
     Assert.assertEquals("Assert 2", "id-693869a500c60f0dc262f7287f033d5d", signature.getId());
     Assert.assertEquals(SignatureProfile.B_BES, signature.getProfile());
     Assert.assertEquals("Assert 3", "id-693869a500c60f0dc262f7287f033d5d", signature.getId());
@@ -67,8 +70,8 @@ public class BDocSignatureOpenerTest extends AbstractTest {
   public void openXadesSignature() throws Exception {
     Date date_2016_29_1_time_19_58_36 = new Date(1454090316000L);
     Date date_2016_29_1_time_19_58_37 = new Date(1454090317000L);
-    List<BDocSignature> signatures = this.signatureOpener.parse(new FileDocument("src/test/resources/testFiles/xades/test-bdoc-ts.xml"));
-    BDocSignature signature = signatures.get(0);
+    Signature signature = this.signatureOpener.open(
+            constructXadesSignatureWrapper(new FileDocument("src/test/resources/testFiles/xades/test-bdoc-ts.xml")));
     Assert.assertNotNull("Assert 1", signature);
     Assert.assertEquals("Assert 2", "S0", signature.getId());
     Assert.assertEquals("Assert 3", SignatureProfile.LT, signature.getProfile());
@@ -86,8 +89,8 @@ public class BDocSignatureOpenerTest extends AbstractTest {
 
   @Test
   public void serializeBDocSignature() throws Exception {
-    List<BDocSignature> signatures = this.signatureOpener.parse(new FileDocument("src/test/resources/testFiles/xades/test-bdoc-ts.xml"));
-    BDocSignature signature = signatures.get(0);
+    Signature signature = this.signatureOpener.open(
+            constructXadesSignatureWrapper(new FileDocument("src/test/resources/testFiles/xades/test-bdoc-ts.xml")));
     String serializedPath = this.getFileBy("ser");
     Helper.serialize(signature, serializedPath);
     signature = Helper.deserializer(serializedPath);
@@ -97,8 +100,9 @@ public class BDocSignatureOpenerTest extends AbstractTest {
   @Test
   public void openXadesSignature_withoutXmlPreamble_shouldBeValid() throws Exception {
     byte[] signatureBytes = FileUtils.readFileToByteArray(new File("src/test/resources/testFiles/xades/bdoc-tm-jdigidoc-mobile-id.xml"));
-    List<BDocSignature> signatures = this.signatureOpener.parse(new InMemoryDocument(signatureBytes));
-    Assert.assertEquals("S935237", signatures.get(0).getId());
+    Signature signature = this.signatureOpener.open(
+            constructXadesSignatureWrapper(new InMemoryDocument(signatureBytes)));
+    Assert.assertEquals("S935237", signature.getId());
   }
 
   /*
@@ -108,8 +112,14 @@ public class BDocSignatureOpenerTest extends AbstractTest {
   @Override
   protected void before() {
     this.configuration = Configuration.of(Configuration.Mode.TEST);
-    this.signatureOpener = new BDocSignatureOpener(Collections.<DSSDocument>singletonList(
-        new FileDocument("src/test/resources/testFiles/helper-files/test.txt")), this.configuration);
+    this.signatureOpener = new BDocSignatureOpener(this.configuration);
+    this.signatureParser = new AsicSignatureParser(Collections.<DSSDocument>singletonList(
+            new FileDocument("src/test/resources/testFiles/helper-files/test.txt")), this.configuration);
+  }
+
+  private XadesSignatureWrapper constructXadesSignatureWrapper(DSSDocument document) {
+    XadesSignature signature = signatureParser.parse(document);
+    return new XadesSignatureWrapper(signature, document);
   }
 
 }
