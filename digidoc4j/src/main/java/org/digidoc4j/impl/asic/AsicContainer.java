@@ -338,7 +338,7 @@ public abstract class AsicContainer implements Container {
     this.signatures.addAll(this.openSignatures(parseResult.getSignatures()));
   }
 
-  private void removeExistingSignature(BDocSignature signature) {
+  private void removeExistingSignature(AsicSignature signature) {
     DSSDocument signatureDocument = signature.getSignatureDocument();
     if (signatureDocument == null) {
       return;
@@ -365,7 +365,7 @@ public abstract class AsicContainer implements Container {
   private void removeAllExistingSignaturesFromContainer() {
     LOGGER.debug("Removing all existing signatures");
     for (Signature signature : signatures) {
-      removeExistingSignature((BDocSignature) signature);
+      removeExistingSignature((AsicSignature) signature);
     }
   }
 
@@ -488,7 +488,7 @@ public abstract class AsicContainer implements Container {
       boolean wasIncludedInContainer = signatures.remove(signature);
       if (wasIncludedInContainer && !wasNewlyAddedSignature) {
         LOGGER.debug("This signature was included in the container before the container was opened");
-        removeExistingSignature((BDocSignature) signature);
+        removeExistingSignature((AsicSignature) signature);
       }
     } else {
       signatures.remove(signature);

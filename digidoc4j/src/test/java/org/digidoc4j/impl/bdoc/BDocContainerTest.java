@@ -42,6 +42,7 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.*;
+import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
@@ -331,7 +332,7 @@ public class BDocContainerTest extends AbstractTest {
   }
 
   @Test
-  public void removeSignatureFromExistingContainer() throws Exception {
+  public void removeSignatureFromExistingAsicEContainer() throws Exception {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/asics_testing_two_signatures.bdoc");
     Assert.assertEquals(2, container.getSignatures().size());
     container.removeSignature(container.getSignatures().get(0));
@@ -340,6 +341,18 @@ public class BDocContainerTest extends AbstractTest {
     container.saveAsFile(file);
     container = ContainerOpener.open(file);
     Assert.assertEquals(1, container.getSignatures().size());
+  }
+
+  @Test
+  public void removeSignatureFromExistingBDocTMContainer() {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
+    Assert.assertEquals(1, container.getSignatures().size());
+    container.removeSignature(container.getSignatures().get(0));
+    Assert.assertEquals(0, container.getSignatures().size());
+    String file = this.getFileBy("bdoc");
+    container.saveAsFile(file);
+    container = ContainerOpener.open(file);
+    Assert.assertEquals(0, container.getSignatures().size());
   }
 
   @Test
@@ -999,8 +1012,8 @@ public class BDocContainerTest extends AbstractTest {
     String file = this.getFileBy("bdoc");
     container.saveAsFile(file);
     container = ContainerOpener.open(file);
-    BDocSignature bdocSignature = (BDocSignature) container.getSignatures().get(0);
-    SignaturePolicy policyId = bdocSignature.getOrigin().getDssSignature().getPolicyId();
+    AsicSignature asicSignature = (AsicSignature) container.getSignatures().get(0);
+    SignaturePolicy policyId = asicSignature.getOrigin().getDssSignature().getPolicyId();
     Assert.assertEquals(spuri, policyId.getUrl());
     Assert.assertEquals(signatureId, policyId.getIdentifier());
     Assert.assertEquals(digestAlgorithm, policyId.getDigestAlgorithm());
