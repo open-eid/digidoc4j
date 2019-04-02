@@ -10,6 +10,7 @@
 
 package org.digidoc4j;
 
+import eu.europa.esig.dss.MimeType;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.AsicFileContainerParser;
 import org.digidoc4j.impl.asic.AsicParseResult;
@@ -56,7 +57,7 @@ public class ContainerOpener {
       if (Helper.isPdfFile(path)){
         return openPadesContainer(path, configuration);
       } else if (Helper.isZipFile(new File(path))) {
-        return openBDocContainer(path, configuration);
+        return openAsicContainer(path, configuration);
       } else {
         return new DDocOpener().open(path, configuration);
       }
@@ -105,7 +106,7 @@ public class ContainerOpener {
     try (BufferedInputStream bufferedInputStream = new BufferedInputStream(stream)) {
       if (Helper.isZipFile(bufferedInputStream)) {
         AsicParseResult parseResult = new AsicStreamContainerParser(bufferedInputStream, configuration).read();
-        if (Helper.isAsicSContainer(bufferedInputStream)){
+        if (isAsicSContainer(parseResult)){
           return new AsicSContainer(parseResult, configuration);
         }
         if (isBDocContainer(parseResult)) {
@@ -121,10 +122,10 @@ public class ContainerOpener {
     }
   }
 
-  private static Container openBDocContainer(String path, Configuration configuration) {
+  private static Container openAsicContainer(String path, Configuration configuration) {
     configuration.loadConfiguration("digidoc4j.yaml", false);
     AsicParseResult parseResult = new AsicFileContainerParser(path, configuration).read();
-    if (Helper.isAsicSContainer(path)){
+    if (isAsicSContainer(parseResult)){
       return new AsicSContainer(parseResult, configuration);
     }
     if (isBDocContainer(parseResult)) {
@@ -137,6 +138,10 @@ public class ContainerOpener {
   private static Container openPadesContainer(String path, Configuration configuration) {
     configuration.loadConfiguration("digidoc4j.yaml", false);
     return new PadesContainer(configuration, path);
+  }
+
+  private static boolean isAsicSContainer(AsicParseResult parseResult) {
+    return parseResult.getMimeType().equals(MimeType.ASICS.getMimeTypeString());
   }
 
   private static boolean isBDocContainer(AsicParseResult parseResult) {

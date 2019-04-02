@@ -12,7 +12,6 @@ package org.digidoc4j.utils;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.MimeType;
 import eu.europa.esig.dss.SignatureLevel;
 import eu.europa.esig.dss.validation.SignaturePolicyProvider;
@@ -20,7 +19,6 @@ import eu.europa.esig.dss.xades.DSSXMLUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.CanReadFileFilter;
-import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Container;
@@ -29,7 +27,6 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.Version;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +35,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -69,7 +65,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 import static java.lang.Math.min;
 import static java.nio.file.Files.deleteIfExists;
@@ -543,69 +538,6 @@ public final class Helper {
         System.gc();
       }
     }
-  }
-
-  /**
-   * Checks that it's AsicS container
-   *
-   * @param path
-   * @return true if AsicS container
-   */
-  public static boolean isAsicSContainer(String path) {
-    String extension = FilenameUtils.getExtension(path);
-    if ("scs".equals(extension) || "asics".equals(extension)) {
-      return true;
-    } else if ("zip".equals(extension)) {
-      try {
-        return parseAsicContainer(new BufferedInputStream(new FileInputStream(path)), MimeType.ASICS);
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Checks that it's AsicS container
-   *
-   * @param stream
-   * @return true if AsicS container
-   */
-  public static boolean isAsicSContainer(BufferedInputStream stream) {
-    boolean isAsic = false;
-    try {
-      isAsic = parseAsicContainer(stream, MimeType.ASICS);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return isAsic;
-  }
-
-  private static boolean parseAsicContainer(BufferedInputStream stream, MimeType mtype) throws IOException {
-    stream.mark(stream.available() + 1);
-    ZipInputStream zipInputStream = new ZipInputStream(stream);
-    try {
-      ZipEntry entry;
-      while ((entry = zipInputStream.getNextEntry()) != null) {
-        if (StringUtils.equalsIgnoreCase("mimetype", entry.getName())) {
-          InputStream zipFileInputStream = zipInputStream;
-          BOMInputStream bomInputStream = new BOMInputStream(zipFileInputStream);
-          DSSDocument document = new InMemoryDocument(bomInputStream);
-          String mimeType = StringUtils.trim(IOUtils.toString(IOUtils.toByteArray(document.openStream()), "UTF-8"));
-          if (StringUtils.equalsIgnoreCase(mimeType, mtype.getMimeTypeString())) {
-            return true;
-          }
-        }
-      }
-    } catch (IOException e) {
-      logger.error("Error reading asic container stream: " + e.getMessage());
-      throw new TechnicalException("Error reading asic container stream: ", e);
-    } finally {
-      stream.reset();
-    }
-    return false;
   }
 
   /**

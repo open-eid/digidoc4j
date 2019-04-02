@@ -215,20 +215,6 @@ public class HelperTest extends AbstractTest {
   }
 
   @Test
-  public void testIsAsicSContainer() {
-    String asics = "test.asics";
-    String scs = "test.scs";
-    String sce = "test.sce";
-    String asice = "tets.asice";
-    Assert.assertTrue(Helper.isAsicSContainer(asics));
-    Assert.assertTrue(Helper.isAsicSContainer(scs));
-    Assert.assertTrue(Helper.isAsicSContainer("src/test/resources/testFiles/valid-containers/testasics.zip"));
-    Assert.assertFalse(Helper.isAsicSContainer(sce));
-    Assert.assertFalse(Helper.isAsicSContainer(asice));
-    Assert.assertFalse(Helper.isAsicSContainer("src/test/resources/testFiles/valid-containers/one_signature.bdoc"));
-  }
-
-  @Test
   public void testPDFContainer() {
     Assert.assertTrue(Helper.isPdfFile("src/test/resources/testFiles/invalid-containers/EE_AS-P-BpLT-V-009.pdf"));
     Assert.assertFalse(Helper.isPdfFile("src/test/resources/testFiles/valid-containers/one_signature.bdoc"));
