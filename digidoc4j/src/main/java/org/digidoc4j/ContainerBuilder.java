@@ -10,19 +10,17 @@
 
 package org.digidoc4j;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import eu.europa.esig.dss.DigestAlgorithm;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.CustomContainerBuilder;
+import org.digidoc4j.impl.asic.AsicContainer;
+import org.digidoc4j.impl.asic.AsicParseResult;
+import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.AsicEContainerBuilder;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainerBuilder;
 import org.digidoc4j.impl.asic.asics.AsicSContainerBuilder;
 import org.digidoc4j.impl.ddoc.DDocContainerBuilder;
@@ -32,7 +30,12 @@ import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DigestAlgorithm;
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Class for creating and opening containers.
@@ -130,9 +133,9 @@ public abstract class ContainerBuilder {
    */
   public Container build() {
     if (shouldOpenContainerFromFile()) {
-      return openContainerFromFile();
+      return overrideContainerIfNeeded(openContainerFromFile());
     } else if (shouldOpenContainerFromStream()) {
-      return openContainerFromStream();
+      return overrideContainerIfNeeded(openContainerFromStream());
     }
     Container container = createNewContainer();
     addDataFilesToContainer(container);
@@ -370,6 +373,40 @@ public abstract class ContainerBuilder {
         throw new InvalidDataFileException("File name " + filePath
             + " must not contain special characters like: "
             + Helper.SPECIAL_CHARACTERS);
+      }
+    }
+  }
+
+  /**
+   * DD4J-414 - hackish solution for building BDoc container from existing container with no signatures.
+   * ContainerOpener considers any Asic container without signatures that is not ASiCS, a ASiCE by default.
+   * In the future ContainerOpener should take container type as an input to force BDoc when needed.
+   * At the moment did not want to change ContainerOpener API, that will be done with major release with
+   * more API changes.
+   *
+   * TODO: Should be refactored away in task -
+   */
+  private Container overrideContainerIfNeeded(Container container) {
+    if (container instanceof AsicContainer && container.getSignatures().isEmpty()) {
+      return overrideContainerIfDifferentType((AsicContainer) container);
+    } else {
+      return container;
+    }
+  }
+
+  private Container overrideContainerIfDifferentType(AsicContainer container) {
+    if (containerType.equalsIgnoreCase(container.getType())) {
+      return container;
+    } else {
+      AsicParseResult containerParseResult = container.getContainerParseResult();
+      Configuration configuration = container.getConfiguration();
+
+      if (containerType.equals(Container.DocumentType.BDOC.name())) {
+        return new BDocContainer(containerParseResult, configuration);
+      } else if (containerType.equals(Container.DocumentType.ASICE.name())) {
+        return new AsicEContainer(containerParseResult, configuration);
+      } else {
+        return container;
       }
     }
   }

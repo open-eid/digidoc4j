@@ -338,6 +338,32 @@ public class ContainerBuilderTest extends AbstractTest {
     }
   }
 
+  @Test
+  public void openAsicContainerWithNoSignaturesFromStream_requiringBDoc_returnedBDoc() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(ASIC_WITH_NO_SIG))) {
+      Container container = ContainerBuilder.aContainer(BDOC).fromStream(stream).build();
+      assertBDocContainer(container);
+      Assert.assertSame(0, container.getSignatures().size());
+    }
+  }
+
+  @Test
+  public void openAsicContainerWithNoSignaturesFromStream_requiringAsicE_returnedAsicE() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(ASIC_WITH_NO_SIG))) {
+      Container container = ContainerBuilder.aContainer(ASICE).fromStream(stream).build();
+      assertAsicEContainer(container);
+      Assert.assertSame(0, container.getSignatures().size());
+    }
+  }
+
+  @Test
+  public void openAsicContainerWithNoSignaturesFromStream_requiringAsicS_returnedAsicE() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(ASIC_WITH_NO_SIG))) {
+      Container container = ContainerBuilder.aContainer(ASICS).fromStream(stream).build();
+      assertAsicEContainer(container);
+      Assert.assertSame(0, container.getSignatures().size());
+    }
+  }
 
   @Test
   public void openAsiceContainerWithSignaturesEvenWhenBuilderInputRequestsBDoc() throws Exception {

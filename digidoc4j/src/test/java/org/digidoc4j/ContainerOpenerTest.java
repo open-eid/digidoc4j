@@ -50,6 +50,13 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
+  public void openAsicContainerWithNoSignatures_alwaysReturnsAsicEContainer() {
+    Container container = ContainerOpener.open(ASIC_WITH_NO_SIG, this.configuration);
+    assertAsicEContainer(container);
+    Assert.assertTrue(container.getSignatures().isEmpty());
+  }
+
+  @Test
   public void openBDocContainerAsStream() throws Exception {
     FileInputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_TM_SIG));
     Container container = ContainerOpener.open(stream, this.configuration);
@@ -75,6 +82,14 @@ public class ContainerOpenerTest extends AbstractTest {
     Container container = ContainerOpener.open(stream, this.configuration);
     assertDDocContainer(container);
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.DDOC);
+  }
+
+  @Test
+  public void openAsicContainerWithNoSignaturesAsStream_alwaysReturnsAsicEContainer() throws IOException {
+    FileInputStream stream = FileUtils.openInputStream(new File(ASIC_WITH_NO_SIG));
+    Container container = ContainerOpener.open(stream, this.configuration);
+    assertAsicEContainer(container);
+    Assert.assertTrue(container.getSignatures().isEmpty());
   }
 
   @Test

@@ -489,6 +489,70 @@ public class SignatureBuilderTest extends AbstractTest {
     assertTimemarkSignature(container.getSignatures().get(2));
   }
 
+  @Test
+  public void bDocContainerWithoutSignatures_signWithTimestampSignature_shouldSucceed() {
+    Container container = buildContainer(BDOC, "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc");
+    assertBDocContainer(container);
+    Assert.assertTrue(container.getSignatures().isEmpty());
+
+    Signature signature = signContainerWithSignature(container, SignatureProfile.LT);
+    assertTimestampSignature(signature);
+    Assert.assertTrue(signature.validateSignature().isValid());
+
+    container.addSignature(signature);
+    assertBDocContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertTimestampSignature(container.getSignatures().get(0));
+  }
+
+  @Test
+  public void bDocContainerWithoutSignatures_signWithTimemarkSignature_shouldSucceed() {
+    Container container = buildContainer(BDOC, "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc");
+    assertBDocContainer(container);
+    Assert.assertTrue(container.getSignatures().isEmpty());
+
+    Signature signature = signContainerWithSignature(container, SignatureProfile.LT_TM);
+    assertTimemarkSignature(signature);
+    Assert.assertTrue(signature.validateSignature().isValid());
+
+    container.addSignature(signature);
+    assertBDocContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+  }
+
+  @Test
+  public void asiceContainerWithoutSignatures_signWithTimestampSignature_shouldSucceed() {
+    Container container = buildContainer(ASICE, "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc");
+    assertAsicEContainer(container);
+    Assert.assertTrue(container.getSignatures().isEmpty());
+
+    Signature signature = signContainerWithSignature(container, SignatureProfile.LT);
+    assertTimestampSignature(signature);
+    Assert.assertTrue(signature.validateSignature().isValid());
+
+    container.addSignature(signature);
+    assertAsicEContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertTimestampSignature(container.getSignatures().get(0));
+  }
+
+  // TODO: at the moment wrong, should throw exception in later development
+  @Test
+  public void asiceContainerWithoutSignatures_signWithTimemarkSignature_shouldSucceed() {
+    Container container = buildContainer(ASICE, "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc");
+    assertAsicEContainer(container);
+    Assert.assertTrue(container.getSignatures().isEmpty());
+
+    Signature signature = signContainerWithSignature(container, SignatureProfile.LT);
+    assertTimestampSignature(signature);
+    Assert.assertTrue(signature.validateSignature().isValid());
+
+    container.addSignature(signature);
+    assertAsicEContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertTimestampSignature(container.getSignatures().get(0));
+  }
 
   @Test
   public void asicEContainerWithTSSignature_signWithTimestampSignature_shouldSucceed() {
@@ -508,7 +572,7 @@ public class SignatureBuilderTest extends AbstractTest {
     assertTimestampSignature(container.getSignatures().get(1));
   }
 
-  // TODO: at the moment wrong, should throw exception
+  // TODO: at the moment wrong, should throw exception in later development
   @Test
   public void asicEContainerWithTSSignature_signWithTimemarkSignature_shouldFail() {
     Container container = buildContainer("src/test/resources/testFiles/valid-containers/valid-asice.asice");
