@@ -131,6 +131,27 @@ public class AsicEContainer extends AsicContainer {
     super(stream, configuration, containerType);
   }
 
+  /**
+   * AsicEContainer constructor
+   *
+   * @param containerParseResult container parsed result
+   * @param configuration configuration
+   */
+  public AsicEContainer(AsicParseResult containerParseResult, Configuration configuration) {
+    this(containerParseResult, configuration, Constant.ASICE_CONTAINER_TYPE);
+  }
+
+  /**
+   * AsicEContainer constructor
+   *
+   * @param containerParseResult container parsed result
+   * @param configuration configuration
+   * @param containerType container type
+   */
+  protected AsicEContainer(AsicParseResult containerParseResult, Configuration configuration, String containerType) {
+    super(containerParseResult, configuration, containerType);
+  }
+
   @Override
   public void save(OutputStream out) {
     writeAsicContainer(new AsicContainerCreator(out));

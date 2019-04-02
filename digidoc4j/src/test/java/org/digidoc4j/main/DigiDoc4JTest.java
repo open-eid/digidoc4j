@@ -11,7 +11,12 @@
 package org.digidoc4j.main;
 
 import org.apache.commons.io.FileUtils;
-import org.digidoc4j.*;
+import org.digidoc4j.AbstractTest;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerOpener;
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -187,7 +192,8 @@ public class DigiDoc4JTest extends AbstractTest {
         "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
     TestDigiDoc4JUtil.call(parameters);
-    Assert.assertEquals("BDOC", ContainerOpener.open(file).getType());
+    Container container = ContainerOpener.open(file);
+    assertAsicEContainer(container);
   }
 
   @Test
@@ -214,7 +220,7 @@ public class DigiDoc4JTest extends AbstractTest {
         "src/test/resources/testFiles/p12/signout.p12", "test"};
     TestDigiDoc4JUtil.call(parameters);
     Container container = ContainerOpener.open(file);
-    Assert.assertEquals("BDOC", container.getType());
+    assertAsicEContainer(container);
   }
 
   @Test
@@ -224,7 +230,8 @@ public class DigiDoc4JTest extends AbstractTest {
         "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-pkcs12",
         "src/test/resources/testFiles/p12/signout.p12", "test"};
     TestDigiDoc4JUtil.call(parameters);
-    Assert.assertEquals("BDOC", ContainerOpener.open(file).getType());
+    Container container = ContainerOpener.open(file);
+    assertAsicEContainer(container);
   }
 
   @Test

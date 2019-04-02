@@ -10,9 +10,34 @@
 
 package org.digidoc4j.utils;
 
-import static java.lang.Math.min;
-import static java.nio.file.Files.deleteIfExists;
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.InMemoryDocument;
+import eu.europa.esig.dss.MimeType;
+import eu.europa.esig.dss.SignatureLevel;
+import eu.europa.esig.dss.validation.SignaturePolicyProvider;
+import eu.europa.esig.dss.xades.DSSXMLUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.CanReadFileFilter;
+import org.apache.commons.io.input.BOMInputStream;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.Version;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -46,35 +71,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.filefilter.CanReadFileFilter;
-import org.apache.commons.io.input.BOMInputStream;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.digidoc4j.Container;
-import org.digidoc4j.ContainerBuilder;
-import org.digidoc4j.DataFile;
-import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.Version;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.InMemoryDocument;
-import eu.europa.esig.dss.MimeType;
-import eu.europa.esig.dss.SignatureLevel;
-import eu.europa.esig.dss.validation.SignaturePolicyProvider;
-import eu.europa.esig.dss.xades.DSSXMLUtils;
+import static java.lang.Math.min;
+import static java.nio.file.Files.deleteIfExists;
 
 /**
  * Class of helper methods.
@@ -545,44 +543,6 @@ public final class Helper {
         System.gc();
       }
     }
-  }
-
-  /**
-   * Checks that it's AsicE container
-   *
-   * @param path
-   * @return true if AsicE container
-   */
-  public static boolean isAsicEContainer(String path) {
-    String extension = FilenameUtils.getExtension(path);
-    if ("sce".equals(extension) || "asice".equals(extension)) {
-      return true;
-    } else if ("zip".equals(extension)) {
-      try {
-        return parseAsicContainer(new BufferedInputStream(new FileInputStream(path)), MimeType.ASICE);
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Checks that it's AsicS container
-   *
-   * @param stream
-   * @return true if AsicS container
-   */
-  public static boolean isAsicEContainer(BufferedInputStream stream) {
-    boolean isAsic = false;
-    try {
-      isAsic = parseAsicContainer(stream, MimeType.ASICE);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return isAsic;
   }
 
   /**

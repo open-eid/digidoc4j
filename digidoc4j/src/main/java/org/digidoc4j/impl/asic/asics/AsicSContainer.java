@@ -78,6 +78,16 @@ public class AsicSContainer extends AsicContainer {
     super(stream, configuration, Constant.ASICS_CONTAINER_TYPE);
   }
 
+  /**
+   * AsicSContainer constructor
+   *
+   * @param containerParseResult container parsed result
+   * @param configuration configuration
+   */
+  public AsicSContainer(AsicParseResult containerParseResult, Configuration configuration) {
+    super(containerParseResult, configuration, Constant.ASICS_CONTAINER_TYPE);
+  }
+
   @Override
   public DataFile getTimeStampToken() {
     return timeStampToken;

@@ -144,6 +144,19 @@ public abstract class AsicContainer implements Container {
     this.openContainer(stream);
   }
 
+  /**
+   * ASicContainer constructor
+   *
+   * @param containerParseResult container parsed result
+   * @param configuration configuration
+   * @param containerType container type
+   */
+  public AsicContainer(AsicParseResult containerParseResult, Configuration configuration, String containerType) {
+    this.configuration = configuration;
+    this.containerType = containerType;
+    this.populateContainerWithParseResult(containerParseResult);
+  }
+
   @Override
   public ContainerValidationResult validate() {
     if (this.validationResult == null) {
@@ -723,5 +736,9 @@ public abstract class AsicContainer implements Container {
   @Deprecated
   public void setSignatureProfile(SignatureProfile profile) {
     throw new NotSupportedException("Setting signature profile method is not supported by Asic container");
+  }
+
+  public AsicParseResult getContainerParseResult() {
+    return containerParseResult;
   }
 }

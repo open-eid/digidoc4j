@@ -87,6 +87,16 @@ public class BDocContainer extends AsicEContainer {
     super(stream, configuration, Constant.BDOC_CONTAINER_TYPE);
   }
 
+  /**
+   * BDocContainer constructor
+   *
+   * @param containerParseResult container parsed result
+   * @param configuration configuration
+   */
+  public BDocContainer(AsicParseResult containerParseResult, Configuration configuration) {
+    super(containerParseResult, configuration, Constant.BDOC_CONTAINER_TYPE);
+  }
+
   @Override
   public void save(OutputStream out) {
     writeAsicContainer(new AsicContainerCreator(out));

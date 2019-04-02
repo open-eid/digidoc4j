@@ -24,7 +24,13 @@ import org.digidoc4j.impl.asic.AsicFileContainerParser;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicStreamContainerParser;
 import org.digidoc4j.impl.asic.SkDataLoader;
+import org.digidoc4j.impl.asic.asice.AsicEContainer;
+import org.digidoc4j.impl.asic.asice.AsicESignature;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
+import org.digidoc4j.impl.asic.asics.AsicSContainer;
 import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
+import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.TargetTemporaryFolderRule;
 import org.digidoc4j.test.util.TestTSLUtil;
@@ -32,6 +38,7 @@ import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.digidoc4j.utils.Helper;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.internal.AssumptionViolatedException;
@@ -45,6 +52,11 @@ import org.slf4j.LoggerFactory;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
+
+import static org.digidoc4j.Container.DocumentType.ASICE;
+import static org.digidoc4j.Container.DocumentType.ASICS;
+import static org.digidoc4j.Container.DocumentType.BDOC;
+import static org.digidoc4j.Container.DocumentType.DDOC;
 
 /**
  * @author Janar Rahumeel (CGI Estonia)
@@ -427,6 +439,42 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
     source.setDataLoader(loader);
     return source;
+  }
+
+  protected void assertBDocContainer(Container container) {
+    Assert.assertNotNull(container);
+    Assert.assertTrue(container instanceof BDocContainer);
+    Assert.assertEquals(BDOC.name(), container.getType());
+  }
+
+  protected void assertAsicEContainer(Container container) {
+    Assert.assertNotNull(container);
+    Assert.assertTrue(container instanceof AsicEContainer);
+    Assert.assertEquals(ASICE.name(), container.getType());
+  }
+
+  protected void assertAsicSContainer(Container container) {
+    Assert.assertNotNull(container);
+    Assert.assertTrue(container instanceof AsicSContainer);
+    Assert.assertEquals(ASICS.name(), container.getType());
+  }
+
+  protected void assertDDocContainer(Container container) {
+    Assert.assertNotNull(container);
+    Assert.assertTrue(container instanceof DDocContainer);
+    Assert.assertEquals(DDOC.name(), container.getType());
+  }
+
+  protected void assertTimemarkSignature(Signature signature) {
+    Assert.assertNotNull(signature);
+    Assert.assertTrue(signature instanceof BDocSignature);
+    Assert.assertEquals(SignatureProfile.LT_TM, signature.getProfile());
+  }
+
+  protected void assertTimestampSignature(Signature signature) {
+    Assert.assertNotNull(signature);
+    Assert.assertTrue(signature instanceof AsicESignature);
+    Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
   }
 
 }
