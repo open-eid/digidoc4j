@@ -42,7 +42,6 @@ import java.util.List;
 public class ContainerOpener {
 
   private static final Logger logger = LoggerFactory.getLogger(ContainerOpener.class);
-  private static final List<SignatureProfile> BDOC_ONLY_SIGNATURE_PROFILES = Arrays.asList(SignatureProfile.LT_TM, SignatureProfile.B_EPES);
 
   /**
    * Open container from a file. Use {@link ContainerBuilder#fromExistingFile(String)} instead.
@@ -152,7 +151,7 @@ public class ContainerOpener {
 
   private static boolean hasBDocOnlySignature(List<XadesSignatureWrapper> signatureWrappers) {
     for (XadesSignatureWrapper signatureWrapper : signatureWrappers) {
-      if (BDOC_ONLY_SIGNATURE_PROFILES.contains(signatureWrapper.getSignature().getProfile())) {
+      if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureWrapper.getSignature().getProfile())) {
         return true;
       }
     }

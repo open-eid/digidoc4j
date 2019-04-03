@@ -24,6 +24,7 @@ import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
+import org.digidoc4j.SignatureContainerMatcherValidator;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
@@ -129,7 +130,7 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
     XadesSignatureWrapper signatureWrapper = parseSignatureWrapper(signedDocument, detachedContents);
     
     AsicSignature signature;
-    if (SignatureProfile.LT_TM.equals(this.signatureParameters.getSignatureProfile())) {
+    if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile())) {
       BDocSignatureOpener signatureOpener = new BDocSignatureOpener(configuration);
       signature = signatureOpener.open(signatureWrapper);
       validateOcspResponse(signature.getOrigin());

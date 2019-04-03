@@ -64,6 +64,15 @@ import static org.digidoc4j.Container.DocumentType.DDOC;
 public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTest.class);
+
+  protected static final String BDOC_WITH_TM_SIG = "src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc";
+  protected static final String BDOC_WITH_TM_AND_TS_SIG = "src/test/resources/testFiles/valid-containers/bdoc-with-tm-and-ts-signature.bdoc";
+  protected static final String BDOC_WITH_B_EPES_SIG = "src/test/resources/testFiles/valid-containers/bdoc-with-b-epes-signature.bdoc";
+  protected static final String ASIC_WITH_NO_SIG = "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc";
+  protected static final String ASICE_WITH_TS_SIG_BUT_BDOC_EXTENSION = "src/test/resources/testFiles/valid-containers/one_signature.bdoc";
+  protected static final String ASICE_WITH_TS_SIG = "src/test/resources/testFiles/valid-containers/valid-asice.asice";
+  protected static final String DDOC_TEST_FILE = "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc";
+
   protected final PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
   protected final PKCS12SignatureToken pkcs12EccSignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray());
   protected final PKCS12SignatureToken pkcs12Esteid2018SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/sign_ESTEID2018.p12", "1234".toCharArray());
@@ -482,9 +491,9 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     Assert.assertEquals(SignatureProfile.LTA, signature.getProfile());
   }
 
-  protected void assertGlobalBEpesSignature(Signature signature) {
+  protected void assertBEpesSignature(Signature signature) {
     Assert.assertNotNull(signature);
-    Assert.assertTrue(signature instanceof AsicESignature);
+    Assert.assertTrue(signature instanceof BDocSignature);
     Assert.assertEquals(SignatureProfile.B_EPES, signature.getProfile());
   }
 

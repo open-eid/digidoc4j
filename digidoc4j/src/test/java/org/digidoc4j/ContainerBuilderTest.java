@@ -37,15 +37,6 @@ import static org.digidoc4j.Container.DocumentType.DDOC;
 
 public class ContainerBuilderTest extends AbstractTest {
 
-  private static final String BDOC_WITH_TM_SIG = "src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc";
-  private static final String BDOC_WITH_TM_AND_TS_SIG = "src/test/resources/testFiles/valid-containers/bdoc-with-tm-and-ts-signature.bdoc";
-  private static final String BDOC_WITH_B_EPES_SIG = "src/test/resources/testFiles/valid-containers/bdoc-with-b-epes-signature.bdoc";
-  private static final String ASIC_WITH_NO_SIG = "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc";
-  private static final String ASICE_WITH_TS_SIG_BUT_BDOC_EXTENSION = "src/test/resources/testFiles/valid-containers/one_signature.bdoc";
-  private static final String ASICE_WITH_TS_SIG = "src/test/resources/testFiles/valid-containers/valid-asice.asice";
-
-  private static final String DDOC_TEST_FILE = "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc";
-
   @Test
   public void buildEmptyContainer() throws Exception {
     ContainerBuilder builder = ContainerBuilder.aContainer();
@@ -323,7 +314,7 @@ public class ContainerBuilderTest extends AbstractTest {
               .build();
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
     assertBDocContainer(container);
-    assertGlobalBEpesSignature(container.getSignatures().get(0));
+    assertBEpesSignature(container.getSignatures().get(0));
   }
 
   @Test

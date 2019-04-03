@@ -10,10 +10,6 @@
 
 package org.digidoc4j;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.test.TestAssert;
@@ -21,14 +17,11 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class ContainerOpenerTest extends AbstractTest {
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
-  private static final String BDOC_WITH_TM_SIG = "src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc";
-  private static final String BDOC_WITH_B_EPES_SIG = "src/test/resources/testFiles/valid-containers/bdoc-with-b-epes-signature.bdoc";
-  private static final String BDOC_WITH_TM_AND_TS_SIG = "src/test/resources/testFiles/valid-containers/bdoc-with-tm-and-ts-signature.bdoc";
-  private static final String ASICE_WITH_TS_SIG = "src/test/resources/testFiles/valid-containers/valid-asice.asice";
-  private static final String ASIC_WITH_NO_SIG = "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc";
-  private static final String DDOC_TEST_FILE = "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc";
+public class ContainerOpenerTest extends AbstractTest {
 
   @Test
   public void openBDocContainer() throws Exception {
@@ -85,7 +78,7 @@ public class ContainerOpenerTest extends AbstractTest {
     Container container = ContainerOpener.open(stream, this.configuration);
     assertBDocContainer(container);
     Assert.assertSame(1, container.getSignatures().size());
-    assertGlobalBEpesSignature(container.getSignatures().get(0));
+    assertBEpesSignature(container.getSignatures().get(0));
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
   }
 
