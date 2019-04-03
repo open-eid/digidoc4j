@@ -497,4 +497,10 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     Assert.assertEquals(SignatureProfile.B_EPES, signature.getProfile());
   }
 
+  protected void assertBBesSignature(Signature signature) {
+    Assert.assertNotNull(signature);
+    Assert.assertTrue(signature instanceof AsicESignature);
+    Assert.assertEquals(SignatureProfile.B_BES, signature.getProfile());
+  }
+
 }

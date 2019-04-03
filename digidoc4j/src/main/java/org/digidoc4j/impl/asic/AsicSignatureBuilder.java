@@ -85,6 +85,7 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
   @Override
   public DataToSign buildDataToSign() throws SignerCertificateRequiredException, ContainerWithoutFilesException {
     byte[] dataToSign = getDataToBeSigned();
+    validateSignatureCompatibilityWithContainer();
     return new DataToSign(dataToSign, signatureParameters, this);
   }
 
@@ -110,10 +111,15 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
     logger.debug("Finalizing signature XmlDSig: " + Helper.bytesToHex(signatureValue, hexMaxlen) + " ["
         + String.valueOf(signatureValue.length) + "]");
     populateParametersForFinalizingSignature(signatureValue);
+    validateSignatureCompatibilityWithContainer();
     Collection<DataFile> dataFilesToSign = getDataFiles();
     validateDataFilesToSign(dataFilesToSign);
     DSSDocument signedDocument = facade.signDocument(signatureValue, dataFilesToSign);
     return createSignature(signedDocument);
+  }
+
+  protected void validateSignatureCompatibilityWithContainer() {
+    // Do nothing
   }
 
   protected Signature createSignature(DSSDocument signedDocument) {
