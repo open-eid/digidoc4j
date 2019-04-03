@@ -16,11 +16,8 @@ import org.apache.commons.io.FileUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
-import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainerBuilder;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
@@ -45,6 +42,12 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.junit.Assert.fail;
 
 public class SignatureBuilderTest extends AbstractTest {
+
+  private static final String BDOC_WITH_TM_SIG = "src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc";
+  private static final String BDOC_WITH_B_EPES_SIG = "src/test/resources/testFiles/valid-containers/bdoc-with-b-epes-signature.bdoc";
+  private static final String BDOC_WITH_TM_AND_TS_SIG = "src/test/resources/testFiles/valid-containers/bdoc-with-tm-and-ts-signature.bdoc";
+  private static final String ASICE_WITH_TS_SIG = "src/test/resources/testFiles/valid-containers/valid-asice.asice";
+  private static final String ASIC_WITH_NO_SIG = "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc";
 
   @Test
   public void buildingDataToSign_shouldReturnDataToSign() throws Exception {
@@ -415,7 +418,7 @@ public class SignatureBuilderTest extends AbstractTest {
 
   @Test
   public void bDocContainerWithTMSignature_signWithTimemarkSignature_shouldSucceed() {
-    Container container = buildContainer("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
+    Container container = buildContainer(BDOC_WITH_TM_SIG);
     assertBDocContainer(container);
     Assert.assertSame(1, container.getSignatures().size());
     assertTimemarkSignature(container.getSignatures().get(0));
@@ -433,7 +436,7 @@ public class SignatureBuilderTest extends AbstractTest {
 
   @Test
   public void bDocContainerWithTMSignature_signWithTimestampSignature_shouldSucceed() {
-    Container container = buildContainer("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
+    Container container = buildContainer(BDOC_WITH_TM_SIG);
     assertBDocContainer(container);
     Assert.assertSame(1, container.getSignatures().size());
     assertTimemarkSignature(container.getSignatures().get(0));
@@ -450,8 +453,26 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
+  public void bDocContainerWithTMSignature_signWithBEpesSignature_shouldSucceed() {
+    Container container = buildContainer(BDOC_WITH_TM_SIG);
+    assertBDocContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+
+    Signature signature = signContainerWithSignature(container, SignatureProfile.B_EPES);
+    assertGlobalBEpesSignature(signature);
+    Assert.assertTrue(signature.validateSignature().isValid());
+
+    container.addSignature(signature);
+    assertBDocContainer(container);
+    Assert.assertSame(2, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+    assertGlobalBEpesSignature(container.getSignatures().get(1));
+  }
+
+  @Test
   public void bDocContainerWithTMAndTSSignature_signWithTimestampSignature_shouldSucceed() {
-    Container container = buildContainer("src/test/resources/testFiles/valid-containers/bdoc-with-tm-and-ts-signature.bdoc");
+    Container container = buildContainer(BDOC_WITH_TM_AND_TS_SIG);
     assertBDocContainer(container);
     Assert.assertSame(2, container.getSignatures().size());
     assertTimemarkSignature(container.getSignatures().get(0));
@@ -471,7 +492,7 @@ public class SignatureBuilderTest extends AbstractTest {
 
   @Test
   public void bDocContainerWithTMAndTSSignature_signWithTimemarkSignature_shouldSucceed() {
-    Container container = buildContainer("src/test/resources/testFiles/valid-containers/bdoc-with-tm-and-ts-signature.bdoc");
+    Container container = buildContainer(BDOC_WITH_TM_AND_TS_SIG);
     assertBDocContainer(container);
     Assert.assertSame(2, container.getSignatures().size());
     assertTimemarkSignature(container.getSignatures().get(0));
@@ -491,7 +512,7 @@ public class SignatureBuilderTest extends AbstractTest {
 
   @Test
   public void bDocContainerWithoutSignatures_signWithTimestampSignature_shouldSucceed() {
-    Container container = buildContainer(BDOC, "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc");
+    Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
     assertBDocContainer(container);
     Assert.assertTrue(container.getSignatures().isEmpty());
 
@@ -507,7 +528,7 @@ public class SignatureBuilderTest extends AbstractTest {
 
   @Test
   public void bDocContainerWithoutSignatures_signWithTimemarkSignature_shouldSucceed() {
-    Container container = buildContainer(BDOC, "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc");
+    Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
     assertBDocContainer(container);
     Assert.assertTrue(container.getSignatures().isEmpty());
 
@@ -523,7 +544,7 @@ public class SignatureBuilderTest extends AbstractTest {
 
   @Test
   public void asiceContainerWithoutSignatures_signWithTimestampSignature_shouldSucceed() {
-    Container container = buildContainer(ASICE, "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc");
+    Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
     assertAsicEContainer(container);
     Assert.assertTrue(container.getSignatures().isEmpty());
 
@@ -540,7 +561,7 @@ public class SignatureBuilderTest extends AbstractTest {
   // TODO: at the moment wrong, should throw exception in later development
   @Test
   public void asiceContainerWithoutSignatures_signWithTimemarkSignature_shouldSucceed() {
-    Container container = buildContainer(ASICE, "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc");
+    Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
     assertAsicEContainer(container);
     Assert.assertTrue(container.getSignatures().isEmpty());
 
@@ -556,7 +577,7 @@ public class SignatureBuilderTest extends AbstractTest {
 
   @Test
   public void asicEContainerWithTSSignature_signWithTimestampSignature_shouldSucceed() {
-    Container container = buildContainer("src/test/resources/testFiles/valid-containers/valid-asice.asice");
+    Container container = buildContainer(ASICE_WITH_TS_SIG);
     assertAsicEContainer(container);
     Assert.assertSame(1, container.getSignatures().size());
     assertTimestampSignature(container.getSignatures().get(0));
@@ -575,7 +596,7 @@ public class SignatureBuilderTest extends AbstractTest {
   // TODO: at the moment wrong, should throw exception in later development
   @Test
   public void asicEContainerWithTSSignature_signWithTimemarkSignature_shouldFail() {
-    Container container = buildContainer("src/test/resources/testFiles/valid-containers/valid-asice.asice");
+    Container container = buildContainer(ASICE_WITH_TS_SIG);
     assertAsicEContainer(container);
     Assert.assertSame(1, container.getSignatures().size());
     assertTimestampSignature(container.getSignatures().get(0));

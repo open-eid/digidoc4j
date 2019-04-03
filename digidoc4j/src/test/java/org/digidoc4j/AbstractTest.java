@@ -1,25 +1,14 @@
 package org.digidoc4j;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.Collections;
-import java.util.List;
-
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.impl.CommonOCSPSource;
+import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.impl.asic.AsicFileContainerParser;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicStreamContainerParser;
@@ -33,9 +22,9 @@ import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.TargetTemporaryFolderRule;
-import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.digidoc4j.test.util.TestSigningUtil;
+import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.Helper;
 import org.junit.After;
 import org.junit.Assert;
@@ -49,9 +38,19 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Collections;
+import java.util.List;
 
 import static org.digidoc4j.Container.DocumentType.ASICE;
 import static org.digidoc4j.Container.DocumentType.ASICS;
@@ -475,6 +474,18 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     Assert.assertNotNull(signature);
     Assert.assertTrue(signature instanceof AsicESignature);
     Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
+  }
+
+  protected void assertArchiveTimestampSignature(Signature signature) {
+    Assert.assertNotNull(signature);
+    Assert.assertTrue(signature instanceof AsicESignature);
+    Assert.assertEquals(SignatureProfile.LTA, signature.getProfile());
+  }
+
+  protected void assertGlobalBEpesSignature(Signature signature) {
+    Assert.assertNotNull(signature);
+    Assert.assertTrue(signature instanceof AsicESignature);
+    Assert.assertEquals(SignatureProfile.B_EPES, signature.getProfile());
   }
 
 }

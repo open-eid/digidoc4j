@@ -30,6 +30,7 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -41,6 +42,7 @@ import java.util.List;
 public class ContainerOpener {
 
   private static final Logger logger = LoggerFactory.getLogger(ContainerOpener.class);
+  private static final List<SignatureProfile> BDOC_ONLY_SIGNATURE_PROFILES = Arrays.asList(SignatureProfile.LT_TM, SignatureProfile.B_EPES);
 
   /**
    * Open container from a file. Use {@link ContainerBuilder#fromExistingFile(String)} instead.
@@ -145,12 +147,12 @@ public class ContainerOpener {
   }
 
   private static boolean isBDocContainer(AsicParseResult parseResult) {
-    return hasTimemarkSignature(parseResult.getSignatures());
+    return hasBDocOnlySignature(parseResult.getSignatures());
   }
 
-  private static boolean hasTimemarkSignature(List<XadesSignatureWrapper> signatureWrappers) {
+  private static boolean hasBDocOnlySignature(List<XadesSignatureWrapper> signatureWrappers) {
     for (XadesSignatureWrapper signatureWrapper : signatureWrappers) {
-      if (signatureWrapper.getSignature().getProfile() == SignatureProfile.LT_TM) {
+      if (BDOC_ONLY_SIGNATURE_PROFILES.contains(signatureWrapper.getSignature().getProfile())) {
         return true;
       }
     }

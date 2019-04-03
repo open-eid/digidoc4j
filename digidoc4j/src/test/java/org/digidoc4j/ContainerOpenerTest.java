@@ -24,6 +24,8 @@ import org.junit.Test;
 public class ContainerOpenerTest extends AbstractTest {
 
   private static final String BDOC_WITH_TM_SIG = "src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc";
+  private static final String BDOC_WITH_B_EPES_SIG = "src/test/resources/testFiles/valid-containers/bdoc-with-b-epes-signature.bdoc";
+  private static final String BDOC_WITH_TM_AND_TS_SIG = "src/test/resources/testFiles/valid-containers/bdoc-with-tm-and-ts-signature.bdoc";
   private static final String ASICE_WITH_TS_SIG = "src/test/resources/testFiles/valid-containers/valid-asice.asice";
   private static final String ASIC_WITH_NO_SIG = "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc";
   private static final String DDOC_TEST_FILE = "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc";
@@ -63,6 +65,27 @@ public class ContainerOpenerTest extends AbstractTest {
     assertBDocContainer(container);
     Assert.assertSame(1, container.getSignatures().size());
     assertTimemarkSignature(container.getSignatures().get(0));
+    TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
+  }
+
+  @Test
+  public void openBDocContainerWithTMAndTSSignaturesAsStream() throws Exception {
+    FileInputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_TM_AND_TS_SIG));
+    Container container = ContainerOpener.open(stream, this.configuration);
+    assertBDocContainer(container);
+    Assert.assertSame(2, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+    assertTimestampSignature(container.getSignatures().get(1));
+    TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
+  }
+
+  @Test
+  public void openBDocContainerWithBEpesSignaturesAsStream() throws Exception {
+    FileInputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_B_EPES_SIG));
+    Container container = ContainerOpener.open(stream, this.configuration);
+    assertBDocContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertGlobalBEpesSignature(container.getSignatures().get(0));
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
   }
 

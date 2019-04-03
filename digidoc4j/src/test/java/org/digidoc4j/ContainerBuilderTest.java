@@ -15,10 +15,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.impl.asic.asice.AsicEContainer;
-import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.test.CustomConfiguration;
 import org.digidoc4j.test.CustomContainer;
@@ -37,12 +34,12 @@ import static org.digidoc4j.Container.DocumentType.ASICE;
 import static org.digidoc4j.Container.DocumentType.ASICS;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
-import static org.digidoc4j.Container.DocumentType.PADES;
 
 public class ContainerBuilderTest extends AbstractTest {
 
   private static final String BDOC_WITH_TM_SIG = "src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc";
   private static final String BDOC_WITH_TM_AND_TS_SIG = "src/test/resources/testFiles/valid-containers/bdoc-with-tm-and-ts-signature.bdoc";
+  private static final String BDOC_WITH_B_EPES_SIG = "src/test/resources/testFiles/valid-containers/bdoc-with-b-epes-signature.bdoc";
   private static final String ASIC_WITH_NO_SIG = "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc";
   private static final String ASICE_WITH_TS_SIG_BUT_BDOC_EXTENSION = "src/test/resources/testFiles/valid-containers/one_signature.bdoc";
   private static final String ASICE_WITH_TS_SIG = "src/test/resources/testFiles/valid-containers/valid-asice.asice";
@@ -315,6 +312,18 @@ public class ContainerBuilderTest extends AbstractTest {
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
     assertBDocContainer(container);
     Assert.assertEquals("test-value", container.getConfiguration().getTspSource());
+  }
+
+  @Test
+  public void openBDocContainerWithBEpesSignatureFromStream_withConfiguration() throws Exception {
+    InputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_B_EPES_SIG));
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC)
+              .withConfiguration(this.configuration)
+              .fromStream(stream)
+              .build();
+    TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
+    assertBDocContainer(container);
+    assertGlobalBEpesSignature(container.getSignatures().get(0));
   }
 
   @Test
