@@ -10,10 +10,15 @@
 
 package org.digidoc4j.impl.asic.asice;
 
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
+import org.digidoc4j.Container;
 import org.digidoc4j.DataFile;
+import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureContainerMatcherValidator;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.exceptions.IllegalSignatureProfileException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.asic.AsicContainer;
 import org.digidoc4j.impl.asic.AsicContainerCreator;
@@ -173,5 +178,18 @@ public class AsicEContainer extends AsicContainer {
   @Override
   public DataFile getTimeStampToken() {
     throw new NotSupportedException("Not for ASiC-E container");
+  }
+
+  @Override
+  protected void validateIncomingSignature(Signature signature) {
+    super.validateIncomingSignature(signature);
+    if (SignatureContainerMatcherValidator.isBDocOnlySignature(signature.getProfile()) && isAsicEContainer()) {
+      throw new IllegalSignatureProfileException(
+              "Cannot add BDoc specific (" + signature.getProfile() + ") signature to ASiCE container");
+    }
+  }
+
+  private boolean isAsicEContainer() {
+    return StringUtils.equals(Container.DocumentType.ASICE.name(), getType());
   }
 }

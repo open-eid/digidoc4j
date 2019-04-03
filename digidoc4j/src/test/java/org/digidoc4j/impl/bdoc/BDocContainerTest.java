@@ -10,6 +10,50 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import eu.europa.esig.dss.DomUtils;
+import eu.europa.esig.dss.Policy;
+import eu.europa.esig.dss.x509.SignaturePolicy;
+import eu.europa.esig.dss.xades.validation.XAdESSignature;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.AbstractTest;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.ContainerOpener;
+import org.digidoc4j.ContainerValidationResult;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.DataToSign;
+import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.EncryptionAlgorithm;
+import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureBuilder;
+import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.DuplicateDataFileException;
+import org.digidoc4j.exceptions.IllegalSignatureProfileException;
+import org.digidoc4j.exceptions.InvalidSignatureException;
+import org.digidoc4j.exceptions.OCSPRequestFailedException;
+import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.asic.AsicSignature;
+import org.digidoc4j.impl.asic.asice.AsicESignature;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
+import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
+import org.digidoc4j.signers.PKCS12SignatureToken;
+import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.utils.Helper;
+import org.hamcrest.Matchers;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -22,47 +66,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.zip.ZipFile;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.digidoc4j.AbstractTest;
-import org.digidoc4j.Configuration;
-import org.digidoc4j.Container;
-import org.digidoc4j.ContainerBuilder;
-import org.digidoc4j.ContainerOpener;
-import org.digidoc4j.ContainerValidationResult;
-import org.digidoc4j.SignatureValidationResult;
-import org.digidoc4j.DataFile;
-import org.digidoc4j.DataToSign;
-import org.digidoc4j.DigestAlgorithm;
-import org.digidoc4j.EncryptionAlgorithm;
-import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureBuilder;
-import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.exceptions.*;
-import org.digidoc4j.impl.asic.AsicSignature;
-import org.digidoc4j.impl.asic.asice.AsicESignature;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
-import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
-import org.digidoc4j.signers.PKCS11SignatureToken;
-import org.digidoc4j.signers.PKCS12SignatureToken;
-import org.digidoc4j.test.TestAssert;
-import org.digidoc4j.utils.Helper;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import eu.europa.esig.dss.DomUtils;
-import eu.europa.esig.dss.Policy;
-import eu.europa.esig.dss.x509.SignaturePolicy;
-import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class BDocContainerTest extends AbstractTest {
 
@@ -870,6 +873,28 @@ public class BDocContainerTest extends AbstractTest {
     Signature signature = SignatureBuilder.aSignature(container).
             withSignatureToken(this.pkcs12SignatureToken).withSignatureId("S0").invokeSigning();
     container.addSignature(signature);
+  }
+
+  @Test(expected = IllegalSignatureProfileException.class)
+  public void addTimemarkSignatureToAsicEContainer_throwsException() {
+    Container bdocContainer = ContainerOpener.open(BDOC_WITH_TM_SIG);
+    Signature timemarkSignature = bdocContainer.getSignature(0);
+    assertTimemarkSignature(timemarkSignature);
+
+    Container asicEContainer = ContainerOpener.open(ASICE_WITH_TS_SIG);
+    assertAsicEContainer(asicEContainer);
+    asicEContainer.addSignature(timemarkSignature);
+  }
+
+  @Test(expected = IllegalSignatureProfileException.class)
+  public void addBEpesSignatureToAsicEContainer_throwsException() {
+    Container bdocContainer = ContainerOpener.open(BDOC_WITH_B_EPES_SIG);
+    Signature bEpesSignature = bdocContainer.getSignature(0);
+    assertBEpesSignature(bEpesSignature);
+
+    Container asicEContainer = ContainerOpener.open(ASICE_WITH_TS_SIG);
+    assertAsicEContainer(asicEContainer);
+    asicEContainer.addSignature(bEpesSignature);
   }
 
   @Test
