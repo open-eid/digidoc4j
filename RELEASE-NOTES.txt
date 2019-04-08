@@ -1,5 +1,28 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+Release 3.1.0
+------------------
+Summary of the major changes since 3.0.0
+------------------------------------------
+* Started to use DSS version 5.4 (sd-dss.5.4.d4j.1)
+* AIA OCSP usage for ASIC-E containers
+* Upgrade of dependencies
+* Bug fixes (inconclusive list):
+  - PDF validation fix
+  - ASIC-S container creation fix
+  - JAVA 7 support for truststore
+  - TimeStamp url logging fix
+  - Fixes in DD4J utility for PDF validation
+
+Known issues
+------------
+* We have noticed a decrease in performance with new DSS 5.4 version. Performance test results can be found here.
+* While upgrading from version older than 2.1.1 be sure that your integration :
+  - doesn't use Xalan or XercesImpl dependencies
+  - uses a patched Java version (JDK7u40+, JDK8 or higher)
+    Xalan and XercesImpl were used to patch XML vulnerabilities in older java versions. They should be discarded with higher versions because they override default Java XML security.
+    If it is not possible to remove Xalan, then you can set your system property to override TransformerFactory : System.setProperty("javax.xml.transform.TransformerFactory","com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
+
 Release 3.0.0
 ------------------
 Summary of the major changes since 2.1.1
