@@ -38,6 +38,13 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
+  public void openAsicSContainer() {
+    Container container = ContainerOpener.open(ASICS_WITH_TS, this.configuration);
+    assertAsicSContainer(container);
+    Assert.assertTrue(container.getSignatures().isEmpty());
+  }
+
+  @Test
   public void openDDocContainer() throws Exception {
     Container container = ContainerOpener.open(DDOC_TEST_FILE, this.configuration);
     assertDDocContainer(container);

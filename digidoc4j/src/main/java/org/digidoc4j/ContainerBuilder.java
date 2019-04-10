@@ -22,6 +22,7 @@ import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.AsicEContainerBuilder;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainerBuilder;
+import org.digidoc4j.impl.asic.asics.AsicSContainer;
 import org.digidoc4j.impl.asic.asics.AsicSContainerBuilder;
 import org.digidoc4j.impl.ddoc.DDocContainerBuilder;
 import org.digidoc4j.impl.pades.PadesContainerBuilder;
@@ -395,7 +396,7 @@ public abstract class ContainerBuilder {
   }
 
   private Container overrideContainerIfDifferentType(AsicContainer container) {
-    if (containerType.equalsIgnoreCase(container.getType())) {
+    if (container instanceof AsicSContainer || containerType.equalsIgnoreCase(container.getType())) {
       return container;
     } else {
       AsicParseResult containerParseResult = container.getContainerParseResult();
