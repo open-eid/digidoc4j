@@ -37,6 +37,7 @@ import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
+import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,10 +48,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import static eu.europa.esig.dss.DigestAlgorithm.SHA256;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LTA;
 import static java.util.Arrays.asList;
+import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class DetachedXadesSignatureBuilder implements SignatureFinalizer {
@@ -391,7 +394,7 @@ public class DetachedXadesSignatureBuilder implements SignatureFinalizer {
     XadesSignatureWrapper signatureWrapper = parseSignatureWrapper(signedDocument, detachedContents);
 
     Signature signature;
-    if (SignatureProfile.LT_TM.equals(this.signatureParameters.getSignatureProfile())) {
+    if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile())) {
       BDocSignatureOpener signatureOpener = new BDocSignatureOpener(configuration);
       signature = signatureOpener.open(signatureWrapper);
       validateOcspResponse(((BDocSignature) signature).getOrigin());
@@ -550,6 +553,20 @@ public class DetachedXadesSignatureBuilder implements SignatureFinalizer {
     if (policyDefinedByUser != null && isDefinedAllPolicyValues()) {
       facade.setSignaturePolicy(policyDefinedByUser);
     }
+
+    if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile())) {
+      facade.setSignaturePolicy(constructTMPolicy());
+    }
+  }
+
+  private Policy constructTMPolicy() {
+    Policy signaturePolicy = new Policy();
+    signaturePolicy.setId("urn:oid:" + XadesSignatureValidator.TM_POLICY);
+    signaturePolicy.setDigestValue(decodeBase64("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A="));
+    signaturePolicy.setQualifier("OIDAsURN");
+    signaturePolicy.setDigestAlgorithm(SHA256);
+    signaturePolicy.setSpuri("https://www.sk.ee/repository/bdoc-spec21.pdf");
+    return signaturePolicy;
   }
 
   protected void setSigningDate() {
