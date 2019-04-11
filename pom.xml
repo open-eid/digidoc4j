@@ -124,7 +124,7 @@
         <maven.compiler.compilerVersion>1.7</maven.compiler.compilerVersion>
         <slf4j.version>1.7.25</slf4j.version>
         <bouncycastle.version>1.60</bouncycastle.version>
-        <javadocOpt>-Xdoclint:none</javadocOpt>
+        <javadocOpt>none</javadocOpt>
     </properties>
 
     <dependencyManagement>
@@ -190,9 +190,7 @@
                                 <goal>jar</goal>
                             </goals>
                             <configuration>
-                                <additionalOptions>
-                                    <additionalOption>${javadocOpt}</additionalOption>
-                                </additionalOptions>
+                                <doclint>${javadocOpt}</doclint>
                             </configuration>
                         </execution>
                     </executions>
