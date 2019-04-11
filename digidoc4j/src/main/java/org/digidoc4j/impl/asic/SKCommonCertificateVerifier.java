@@ -14,10 +14,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
-import org.apache.commons.lang3.SerializationUtils;
 import org.digidoc4j.impl.asic.tsl.LazyCertificatePool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.client.http.DataLoader;
 import eu.europa.esig.dss.validation.CertificateVerifier;
@@ -34,7 +31,6 @@ import eu.europa.esig.dss.x509.ocsp.OCSPSource;
  */
 public class SKCommonCertificateVerifier implements Serializable, CertificateVerifier {
 
-  private final Logger log = LoggerFactory.getLogger(SKCommonCertificateVerifier.class);
   private transient CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
   private transient CertificateSource trustedCertSource;
 
@@ -44,7 +40,7 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
 
   @Override
   public CertificateSource getTrustedCertSource() {
-    return SerializationUtils.clone(trustedCertSource);
+    return commonCertificateVerifier.getTrustedCertSource();
   }
 
   @Override
