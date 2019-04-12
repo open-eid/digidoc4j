@@ -1,5 +1,23 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+
+Release 3.1.1
+------------------
+Summary of the major changes since 3.1.0
+------------------------------------------
+* Fix for BDOC/ASIC-E container detection
+* Fix for not able to remove signatures from ASIC-E container
+* Performance improvement
+* New LOTL signer certs added to truststore
+
+Known issues
+------------
+* While upgrading from version older than 2.1.1 be sure that your integration :
+  - doesn't use Xalan or XercesImpl dependencies
+  - uses a patched Java version (JDK7u40+, JDK8 or higher)
+    Xalan and XercesImpl were used to patch XML vulnerabilities in older java versions. They should be discarded with higher versions because they override default Java XML security.
+    If it is not possible to remove Xalan, then you can set your system property to override TransformerFactory : System.setProperty("javax.xml.transform.TransformerFactory","com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
+
 Release 3.1.0
 ------------------
 Summary of the major changes since 3.0.0

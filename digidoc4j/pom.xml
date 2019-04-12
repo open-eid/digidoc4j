@@ -7,7 +7,7 @@
     <groupId>org.digidoc4j</groupId>
     <artifactId>digidoc4j</artifactId>
     <packaging>jar</packaging>
-    <version>3.1.0</version>
+    <version>3.1.1</version>
 
     <name>DigiDoc4j</name>
     <description>DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers
@@ -18,7 +18,7 @@
     <parent>
         <artifactId>digidoc4j-parent</artifactId>
         <groupId>org.digidoc4j</groupId>
-        <version>3.1.0</version>
+        <version>3.1.1</version>
     </parent>
 
     <properties>
@@ -43,7 +43,7 @@
         <dependency>
             <artifactId>ddoc4j</artifactId>
             <groupId>org.digidoc4j</groupId>
-            <version>3.1.0</version>
+            <version>3.1.1</version>
         </dependency>
 
         <dependency>
