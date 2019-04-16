@@ -10,10 +10,6 @@
 
 package org.digidoc4j.impl.bdoc.asic;
 
-import java.io.FileInputStream;
-import java.nio.file.Paths;
-import java.util.List;
-
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
@@ -22,6 +18,10 @@ import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicStreamContainerParser;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.FileInputStream;
+import java.nio.file.Paths;
+import java.util.List;
 
 public class AsicContainerParserTest extends AbstractTest {
 
@@ -59,7 +59,7 @@ public class AsicContainerParserTest extends AbstractTest {
   public void parseBDoc_containingSignaturesFile_withNonNumericCharacters() throws Exception {
     AsicParseResult result = this.getParseResultFromFile(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-ts-signature-file-name-with-non-numeric-characters.asice"));
     this.assertIsAsiceContainer(result);
-    Assert.assertEquals("META-INF/l77Tsignaturesn00B.xml", result.getSignatures().get(0).getName());
+    Assert.assertEquals("META-INF/l77Tsignaturesn00B.xml", result.getSignatures().get(0).getSignatureDocument().getName());
     Assert.assertNull(result.getCurrentUsedSignatureFileIndex());
   }
 
@@ -89,8 +89,8 @@ public class AsicContainerParserTest extends AbstractTest {
 
   private void assertParseResultValid(AsicParseResult result) {
     Assert.assertEquals("test.txt", result.getDataFiles().get(0).getName());
-    Assert.assertEquals("META-INF/signatures0.xml", result.getSignatures().get(0).getName());
-    Assert.assertEquals("META-INF/signatures1.xml", result.getSignatures().get(1).getName());
+    Assert.assertEquals("META-INF/signatures0.xml", result.getSignatures().get(0).getSignatureDocument().getName());
+    Assert.assertEquals("META-INF/signatures1.xml", result.getSignatures().get(1).getSignatureDocument().getName());
     Assert.assertEquals(Integer.valueOf(1), result.getCurrentUsedSignatureFileIndex());
     this.assertIsAsiceContainer(result);
   }

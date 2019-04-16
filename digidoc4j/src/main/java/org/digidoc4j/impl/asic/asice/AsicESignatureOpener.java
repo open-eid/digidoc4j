@@ -10,61 +10,49 @@
 
 package org.digidoc4j.impl.asic.asice;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.digidoc4j.Configuration;
+import org.digidoc4j.impl.asic.AsicSignature;
+import org.digidoc4j.impl.asic.AsicSignatureOpener;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
-import org.digidoc4j.impl.asic.xades.XadesSignatureParser;
-import org.digidoc4j.impl.asic.xades.XadesValidationReportGenerator;
+import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSDocument;
-
 /**
   Class for converting Xades signature to ASiCE signature.
  */
-public class AsicESignatureOpener {
+public class AsicESignatureOpener implements AsicSignatureOpener {
 
   private final static Logger logger = LoggerFactory.getLogger(AsicESignatureOpener.class);
-  private final List<DSSDocument> detachedContents;
   private Configuration configuration;
-  private XadesSignatureParser xadesSignatureParser = new XadesSignatureParser();
 
   /**
    * Constructor
    *
-   * @param detachedContents list of detached content
    * @param configuration configuration
    */
-  public AsicESignatureOpener(List<DSSDocument> detachedContents, Configuration configuration) {
+  public AsicESignatureOpener(Configuration configuration) {
     this.configuration = configuration;
-    this.detachedContents = detachedContents;
   }
 
   /**
-   * Xades document parsing method.
-   * @param xadesDocument Given Xades document
-   * @return List of ASiCE signatures
+   * Xades signature wrapper opening method.
+   * @param signatureWrapper wrapper containing signature document and it's xades signature
+   * @return ASiCE signature
    */
-  public List<AsicESignature> parse(DSSDocument xadesDocument) {
-    logger.debug("Parsing xades document");
-    List<AsicESignature> signatures = new ArrayList<>(1);
-    AsicESignature asicSignature = createAsicESignature(xadesDocument);
-    signatures.add(asicSignature);
-    return signatures;
+  @Override
+  public AsicSignature open(XadesSignatureWrapper signatureWrapper) {
+    logger.debug("Opening xades signature");
+    return createAsicESignature(signatureWrapper);
   }
 
-  private AsicESignature createAsicESignature(DSSDocument xadesDocument) {
-    XadesValidationReportGenerator xadesReportGenerator = new XadesValidationReportGenerator(xadesDocument, detachedContents, configuration);
-    XadesSignature signature = xadesSignatureParser.parse(xadesReportGenerator);
-    XadesSignatureValidator xadesValidator = createSignatureValidator(signature);
-    AsicESignature asicSignature = new AsicESignature(signature, xadesValidator);
-    asicSignature.setSignatureDocument(xadesDocument);
-    return asicSignature;
+  private AsicESignature createAsicESignature(XadesSignatureWrapper signatureWrapper) {
+    XadesSignatureValidator xadesValidator = createSignatureValidator(signatureWrapper.getSignature());
+    AsicESignature asicESignature = new AsicESignature(signatureWrapper.getSignature(), xadesValidator);
+    asicESignature.setSignatureDocument(signatureWrapper.getSignatureDocument());
+    return asicESignature;
   }
 
   private XadesSignatureValidator createSignatureValidator(XadesSignature signature) {

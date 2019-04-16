@@ -10,18 +10,16 @@
 
 package org.digidoc4j;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.security.Security;
-import java.util.List;
-
+import eu.europa.esig.dss.validation.TimestampToken;
+import eu.europa.esig.dss.x509.SignaturePolicy;
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.digidoc4j.exceptions.IllegalSignatureProfileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocContainerBuilder;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.signers.PKCS12SignatureToken;
@@ -33,8 +31,16 @@ import org.digidoc4j.utils.TokenAlgorithmSupport;
 import org.junit.Assert;
 import org.junit.Test;
 
-import eu.europa.esig.dss.validation.TimestampToken;
-import eu.europa.esig.dss.x509.SignaturePolicy;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Paths;
+import java.security.Security;
+import java.util.List;
+
+import static org.digidoc4j.Container.DocumentType.ASICE;
+import static org.digidoc4j.Container.DocumentType.BDOC;
+import static org.junit.Assert.fail;
 
 public class SignatureBuilderTest extends AbstractTest {
 
@@ -395,6 +401,43 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
+  public void invokingSigningBBesSignatureForAsicEContainer() {
+    Container container = buildContainer(ASICE, ASICE_WITH_TS_SIG);
+    assertAsicEContainer(container);
+
+    Signature signature = SignatureBuilder.aSignature(container)
+            .withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
+            .withSignatureProfile(SignatureProfile.B_BES)
+            .withSignatureToken(this.pkcs12SignatureToken)
+            .invokeSigning();
+    assertBBesSignature(signature);
+  }
+
+  @Test(expected = IllegalSignatureProfileException.class)
+  public void invokingSigningTMSignatureForAsicEContainer_throwsException() {
+    Container container = buildContainer(ASICE, ASICE_WITH_TS_SIG);
+    assertAsicEContainer(container);
+
+    SignatureBuilder.aSignature(container)
+            .withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
+            .withSignatureProfile(SignatureProfile.LT_TM)
+            .withSignatureToken(this.pkcs12SignatureToken)
+            .invokeSigning();
+  }
+
+  @Test(expected = IllegalSignatureProfileException.class)
+  public void invokingSigningBEpesSignatureForAsicEContainer_throwsException() {
+    Container container = buildContainer(ASICE, ASICE_WITH_TS_SIG);
+    assertAsicEContainer(container);
+
+    SignatureBuilder.aSignature(container)
+            .withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
+            .withSignatureProfile(SignatureProfile.B_EPES)
+            .withSignatureToken(this.pkcs12SignatureToken)
+            .invokeSigning();
+  }
+
+  @Test
   public void invokeSigning_whenOverridingBDocContainerFormat() {
     CustomContainer.type = "BDOC";
     ContainerBuilder.setContainerImplementation("BDOC", CustomContainer.class);
@@ -403,6 +446,276 @@ public class SignatureBuilderTest extends AbstractTest {
     Signature signature = this.createSignatureBy(container, this.pkcs12SignatureToken);
     Assert.assertNotNull(signature);
     CustomContainer.resetType();
+  }
+
+  @Test
+  public void buildingBEpesSignatureResultsWithBDocSignature() {
+    Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
+    DataToSign dataToSign = SignatureBuilder.aSignature(container)
+              .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+              .withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
+              .withSignatureProfile(SignatureProfile.B_EPES)
+              .buildDataToSign();
+
+    Signature signature = dataToSign.finalize(this.pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    assertBEpesSignature(signature);
+  }
+
+  @Test
+  public void bDocContainerWithTMSignature_signWithTimemarkSignature_shouldSucceed() {
+    Container container = buildContainer(BDOC_WITH_TM_SIG);
+    assertBDocContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+
+    Signature signature = signContainerWithSignature(container, SignatureProfile.LT_TM);
+    assertTimemarkSignature(signature);
+    Assert.assertTrue(signature.validateSignature().isValid());
+
+    container.addSignature(signature);
+    assertBDocContainer(container);
+    Assert.assertSame(2, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+    assertTimemarkSignature(container.getSignatures().get(1));
+  }
+
+  @Test
+  public void bDocContainerWithTMSignature_signWithTimestampSignature_shouldSucceed() {
+    Container container = buildContainer(BDOC_WITH_TM_SIG);
+    assertBDocContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+
+    Signature signature = signContainerWithSignature(container, SignatureProfile.LT);
+    assertTimestampSignature(signature);
+    Assert.assertTrue(signature.validateSignature().isValid());
+
+    container.addSignature(signature);
+    assertBDocContainer(container);
+    Assert.assertSame(2, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+    assertTimestampSignature(container.getSignatures().get(1));
+  }
+
+  @Test
+  public void bDocContainerWithTMSignature_signWithBEpesSignature_shouldSucceed() {
+    Container container = buildContainer(BDOC_WITH_TM_SIG);
+    assertBDocContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+
+    Signature signature = signContainerWithSignature(container, SignatureProfile.B_EPES);
+    assertBEpesSignature(signature);
+
+    container.addSignature(signature);
+    assertBDocContainer(container);
+    Assert.assertSame(2, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+    assertBEpesSignature(container.getSignatures().get(1));
+  }
+
+  @Test
+  public void bDocContainerWithTMAndTSSignature_signWithTimestampSignature_shouldSucceed() {
+    Container container = buildContainer(BDOC_WITH_TM_AND_TS_SIG);
+    assertBDocContainer(container);
+    Assert.assertSame(2, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+    assertTimestampSignature(container.getSignatures().get(1));
+
+    Signature signature = signContainerWithSignature(container, SignatureProfile.LT);
+    assertTimestampSignature(signature);
+    Assert.assertTrue(signature.validateSignature().isValid());
+
+    container.addSignature(signature);
+    assertBDocContainer(container);
+    Assert.assertSame(3, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+    assertTimestampSignature(container.getSignatures().get(1));
+    assertTimestampSignature(container.getSignatures().get(2));
+  }
+
+  @Test
+  public void bDocContainerWithTMAndTSSignature_signWithTimemarkSignature_shouldSucceed() {
+    Container container = buildContainer(BDOC_WITH_TM_AND_TS_SIG);
+    assertBDocContainer(container);
+    Assert.assertSame(2, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+    assertTimestampSignature(container.getSignatures().get(1));
+
+    Signature signature = signContainerWithSignature(container, SignatureProfile.LT_TM);
+    assertTimemarkSignature(signature);
+    Assert.assertTrue(signature.validateSignature().isValid());
+
+    container.addSignature(signature);
+    assertBDocContainer(container);
+    Assert.assertSame(3, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+    assertTimestampSignature(container.getSignatures().get(1));
+    assertTimemarkSignature(container.getSignatures().get(2));
+  }
+
+  @Test
+  public void bDocContainerWithTMAndTSSignature_signWithArchiveTimestampSignature_shouldSucceed() {
+    Container container = buildContainer(BDOC_WITH_TM_AND_TS_SIG);
+    assertBDocContainer(container);
+    Assert.assertSame(2, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+    assertTimestampSignature(container.getSignatures().get(1));
+
+    Signature signature = signContainerWithSignature(container, SignatureProfile.LTA);
+    assertArchiveTimestampSignature(signature);
+    Assert.assertTrue(signature.validateSignature().isValid());
+
+    container.addSignature(signature);
+    assertBDocContainer(container);
+    Assert.assertSame(3, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+    assertTimestampSignature(container.getSignatures().get(1));
+    assertArchiveTimestampSignature(container.getSignatures().get(2));
+  }
+
+  @Test
+  public void bDocContainerWithoutSignatures_signWithTimestampSignature_shouldSucceed() {
+    Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
+    assertBDocContainer(container);
+    Assert.assertTrue(container.getSignatures().isEmpty());
+
+    Signature signature = signContainerWithSignature(container, SignatureProfile.LT);
+    assertTimestampSignature(signature);
+    Assert.assertTrue(signature.validateSignature().isValid());
+
+    container.addSignature(signature);
+    assertBDocContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertTimestampSignature(container.getSignatures().get(0));
+  }
+
+  @Test
+  public void bDocContainerWithoutSignatures_signWithTimemarkSignature_shouldSucceed() {
+    Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
+    assertBDocContainer(container);
+    Assert.assertTrue(container.getSignatures().isEmpty());
+
+    Signature signature = signContainerWithSignature(container, SignatureProfile.LT_TM);
+    assertTimemarkSignature(signature);
+    Assert.assertTrue(signature.validateSignature().isValid());
+
+    container.addSignature(signature);
+    assertBDocContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertTimemarkSignature(container.getSignatures().get(0));
+  }
+
+  @Test
+  public void asiceContainerWithoutSignatures_signWithTimestampSignature_shouldSucceed() {
+    Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
+    assertAsicEContainer(container);
+    Assert.assertTrue(container.getSignatures().isEmpty());
+
+    Signature signature = signContainerWithSignature(container, SignatureProfile.LT);
+    assertTimestampSignature(signature);
+    Assert.assertTrue(signature.validateSignature().isValid());
+
+    container.addSignature(signature);
+    assertAsicEContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertTimestampSignature(container.getSignatures().get(0));
+  }
+
+  @Test(expected = IllegalSignatureProfileException.class)
+  public void asiceContainerWithoutSignatures_signWithTimemarkSignature_shouldFail() {
+    Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
+    assertAsicEContainer(container);
+
+    Assert.assertTrue(container.getSignatures().isEmpty());
+
+    buildDataToSign(container, SignatureProfile.LT_TM);
+  }
+
+  @Test
+  public void asicEContainerWithTSSignature_signWithTimestampSignature_shouldSucceed() {
+    Container container = buildContainer(ASICE_WITH_TS_SIG);
+    assertAsicEContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertTimestampSignature(container.getSignatures().get(0));
+
+    Signature signature = signContainerWithSignature(container, SignatureProfile.LT);
+    assertTimestampSignature(signature);
+    Assert.assertTrue(signature.validateSignature().isValid());
+
+    container.addSignature(signature);
+    assertAsicEContainer(container);
+    Assert.assertSame(2, container.getSignatures().size());
+    assertTimestampSignature(container.getSignatures().get(0));
+    assertTimestampSignature(container.getSignatures().get(1));
+  }
+
+  @Test
+  public void asicEContainerWithTSSignature_signWithArchiveTimestampSignature_shouldSucceed() {
+    Container container = buildContainer(ASICE_WITH_TS_SIG);
+    assertAsicEContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertTimestampSignature(container.getSignatures().get(0));
+
+    Signature signature = signContainerWithSignature(container, SignatureProfile.LTA);
+    assertArchiveTimestampSignature(signature);
+    Assert.assertTrue(signature.validateSignature().isValid());
+
+    container.addSignature(signature);
+    assertAsicEContainer(container);
+    Assert.assertSame(2, container.getSignatures().size());
+    assertTimestampSignature(container.getSignatures().get(0));
+    assertArchiveTimestampSignature(container.getSignatures().get(1));
+  }
+
+  @Test(expected = IllegalSignatureProfileException.class)
+  public void asicEContainerWithTSSignature_signWithTimemarkSignature_shouldFail() {
+    Container container = buildContainer(ASICE_WITH_TS_SIG);
+    assertAsicEContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertTimestampSignature(container.getSignatures().get(0));
+
+    buildDataToSign(container, SignatureProfile.LT_TM);
+  }
+
+  private Signature signContainerWithSignature(Container container, SignatureProfile signatureProfile) {
+    DataToSign dataToSign = buildDataToSign(container, signatureProfile);
+    Assert.assertNotNull(dataToSign);
+    Assert.assertEquals(signatureProfile, dataToSign.getSignatureParameters().getSignatureProfile());
+
+    return dataToSign.finalize(this.pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+  }
+
+  private DataToSign buildDataToSign(Container container, SignatureProfile signatureProfile) {
+    return SignatureBuilder.aSignature(container)
+              .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+              .withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
+              .withSignatureProfile(signatureProfile)
+              .buildDataToSign();
+  }
+
+  private Container buildContainer(Container.DocumentType documentType, String path) {
+    try (InputStream stream = FileUtils.openInputStream(new File(path))) {
+      return BDocContainerBuilder
+              .aContainer(documentType)
+              .fromStream(stream)
+              .build();
+    } catch (IOException e) {
+      fail("Failed to read container from stream");
+      throw new IllegalStateException(e);
+    }
+  }
+
+  private Container buildContainer(String path) {
+    try (InputStream stream = FileUtils.openInputStream(new File(path))) {
+      return BDocContainerBuilder
+              .aContainer(Container.DocumentType.BDOC)
+              .fromStream(stream)
+              .build();
+    } catch (IOException e) {
+      fail("Failed to read container from stream");
+      throw new IllegalStateException(e);
+    }
   }
 
   /*

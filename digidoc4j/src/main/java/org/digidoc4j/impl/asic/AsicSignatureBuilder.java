@@ -10,28 +10,35 @@
 
 package org.digidoc4j.impl.asic;
 
-import static eu.europa.esig.dss.SignatureLevel.*;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.SignerLocation;
 import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
-
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
-import org.digidoc4j.*;
-import org.digidoc4j.exceptions.*;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.DataToSign;
+import org.digidoc4j.EncryptionAlgorithm;
+import org.digidoc4j.OCSPSourceBuilder;
+import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureBuilder;
+import org.digidoc4j.SignatureContainerMatcherValidator;
+import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.X509Cert;
+import org.digidoc4j.exceptions.ContainerWithoutFilesException;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.InvalidSignatureException;
+import org.digidoc4j.exceptions.OCSPRequestFailedException;
+import org.digidoc4j.exceptions.SignerCertificateRequiredException;
+import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.SignatureFinalizer;
-import org.digidoc4j.impl.asic.asice.AsicEContainer;
-import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.AsicESignatureOpener;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
-import org.digidoc4j.impl.asic.asics.AsicSContainer;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
+import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
@@ -41,6 +48,11 @@ import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+
+import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
+import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
+import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LTA;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * Signature builder for Asic container.
@@ -73,6 +85,7 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
   @Override
   public DataToSign buildDataToSign() throws SignerCertificateRequiredException, ContainerWithoutFilesException {
     byte[] dataToSign = getDataToBeSigned();
+    validateSignatureCompatibilityWithContainer();
     return new DataToSign(dataToSign, signatureParameters, this);
   }
 
@@ -98,10 +111,15 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
     logger.debug("Finalizing signature XmlDSig: " + Helper.bytesToHex(signatureValue, hexMaxlen) + " ["
         + String.valueOf(signatureValue.length) + "]");
     populateParametersForFinalizingSignature(signatureValue);
+    validateSignatureCompatibilityWithContainer();
     Collection<DataFile> dataFilesToSign = getDataFiles();
     validateDataFilesToSign(dataFilesToSign);
     DSSDocument signedDocument = facade.signDocument(signatureValue, dataFilesToSign);
     return createSignature(signedDocument);
+  }
+
+  protected void validateSignatureCompatibilityWithContainer() {
+    // Do nothing
   }
 
   protected Signature createSignature(DSSDocument signedDocument) {
@@ -115,20 +133,26 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
       throw new DigiDoc4JException(e);
     }
     List<DSSDocument> detachedContents = detachedContentCreator.getDetachedContentList();
-    Signature signature = null;
-    if (SignatureProfile.LT_TM.equals(this.signatureParameters.getSignatureProfile())) {
-      BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
-      List<BDocSignature> signatureList = signatureOpener.parse(signedDocument);
-      signature = signatureList.get(0); //Only one signature was created
-      validateOcspResponse(((BDocSignature) signature).getOrigin());
+    XadesSignatureWrapper signatureWrapper = parseSignatureWrapper(signedDocument, detachedContents);
+    
+    AsicSignature signature;
+    if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile())) {
+      BDocSignatureOpener signatureOpener = new BDocSignatureOpener(configuration);
+      signature = signatureOpener.open(signatureWrapper);
+      validateOcspResponse(signature.getOrigin());
     } else {
-      AsicESignatureOpener signatureOpener = new AsicESignatureOpener(detachedContents, configuration);
-      List<AsicESignature> signatureList = signatureOpener.parse(signedDocument);
-      signature = signatureList.get(0); //Only one signature was created
+      AsicESignatureOpener signatureOpener = new AsicESignatureOpener(configuration);
+      signature = signatureOpener.open(signatureWrapper);
     }
     policyDefinedByUser = null;
     logger.info("Signing asic successfully completed");
     return signature;
+  }
+
+  private XadesSignatureWrapper parseSignatureWrapper(DSSDocument signatureDocument, List<DSSDocument> detachedContents) {
+    AsicSignatureParser signatureParser = new AsicSignatureParser(detachedContents, getConfiguration());
+    XadesSignature xadesSignature = signatureParser.parse(signatureDocument);
+    return new XadesSignatureWrapper(xadesSignature, signatureDocument);
   }
 
   protected byte[] getDataToBeSigned() {
@@ -172,13 +196,7 @@ public class AsicSignatureBuilder extends SignatureBuilder implements SignatureF
   }
 
   public Configuration getConfiguration() {
-    if (container instanceof AsicSContainer) {
-      return ((AsicSContainer) container).getConfiguration();
-    }
-    if (container instanceof AsicEContainer) {
-      return ((AsicEContainer) container).getConfiguration();
-    }
-    return ((BDocContainer) container).getConfiguration();
+    return container.getConfiguration();
   }
 
   protected List<DataFile> getDataFiles() {

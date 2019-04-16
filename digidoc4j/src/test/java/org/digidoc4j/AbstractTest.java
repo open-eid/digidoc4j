@@ -1,5 +1,43 @@
 package org.digidoc4j;
 
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.impl.CommonOCSPSource;
+import org.digidoc4j.impl.ConfigurationSingeltonHolder;
+import org.digidoc4j.impl.asic.AsicFileContainerParser;
+import org.digidoc4j.impl.asic.AsicParseResult;
+import org.digidoc4j.impl.asic.AsicStreamContainerParser;
+import org.digidoc4j.impl.asic.SkDataLoader;
+import org.digidoc4j.impl.asic.asice.AsicEContainer;
+import org.digidoc4j.impl.asic.asice.AsicESignature;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
+import org.digidoc4j.impl.asic.asics.AsicSContainer;
+import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
+import org.digidoc4j.impl.ddoc.DDocContainer;
+import org.digidoc4j.signers.PKCS12SignatureToken;
+import org.digidoc4j.test.TargetTemporaryFolderRule;
+import org.digidoc4j.test.util.TestDataBuilderUtil;
+import org.digidoc4j.test.util.TestSigningUtil;
+import org.digidoc4j.test.util.TestTSLUtil;
+import org.digidoc4j.utils.Helper;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.internal.AssumptionViolatedException;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -14,37 +52,10 @@ import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.RandomUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.digidoc4j.impl.ConfigurationSingeltonHolder;
-import org.digidoc4j.impl.CommonOCSPSource;
-import org.digidoc4j.impl.asic.AsicFileContainerParser;
-import org.digidoc4j.impl.asic.AsicParseResult;
-import org.digidoc4j.impl.asic.AsicStreamContainerParser;
-import org.digidoc4j.impl.asic.SkDataLoader;
-import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
-import org.digidoc4j.signers.PKCS12SignatureToken;
-import org.digidoc4j.test.TargetTemporaryFolderRule;
-import org.digidoc4j.test.util.TestTSLUtil;
-import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.digidoc4j.test.util.TestSigningUtil;
-import org.digidoc4j.utils.Helper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.internal.AssumptionViolatedException;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
+import static org.digidoc4j.Container.DocumentType.ASICE;
+import static org.digidoc4j.Container.DocumentType.ASICS;
+import static org.digidoc4j.Container.DocumentType.BDOC;
+import static org.digidoc4j.Container.DocumentType.DDOC;
 
 /**
  * @author Janar Rahumeel (CGI Estonia)
@@ -53,6 +64,16 @@ import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTest.class);
+
+  protected static final String BDOC_WITH_TM_SIG = "src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc";
+  protected static final String BDOC_WITH_TM_AND_TS_SIG = "src/test/resources/testFiles/valid-containers/bdoc-with-tm-and-ts-signature.bdoc";
+  protected static final String BDOC_WITH_B_EPES_SIG = "src/test/resources/testFiles/valid-containers/bdoc-with-b-epes-signature.bdoc";
+  protected static final String ASIC_WITH_NO_SIG = "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc";
+  protected static final String ASICE_WITH_TS_SIG_BUT_BDOC_EXTENSION = "src/test/resources/testFiles/valid-containers/one_signature.bdoc";
+  protected static final String ASICE_WITH_TS_SIG = "src/test/resources/testFiles/valid-containers/valid-asice.asice";
+  protected static final String ASICS_WITH_TS = "src/test/resources/testFiles/valid-containers/ddoc-valid.asics";
+  protected static final String DDOC_TEST_FILE = "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc";
+
   protected final PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
   protected final PKCS12SignatureToken pkcs12EccSignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray());
   protected final PKCS12SignatureToken pkcs12Esteid2018SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/sign_ESTEID2018.p12", "1234".toCharArray());
@@ -427,6 +448,60 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
     source.setDataLoader(loader);
     return source;
+  }
+
+  protected void assertBDocContainer(Container container) {
+    Assert.assertNotNull(container);
+    Assert.assertTrue(container instanceof BDocContainer);
+    Assert.assertEquals(BDOC.name(), container.getType());
+  }
+
+  protected void assertAsicEContainer(Container container) {
+    Assert.assertNotNull(container);
+    Assert.assertTrue(container instanceof AsicEContainer);
+    Assert.assertEquals(ASICE.name(), container.getType());
+  }
+
+  protected void assertAsicSContainer(Container container) {
+    Assert.assertNotNull(container);
+    Assert.assertTrue(container instanceof AsicSContainer);
+    Assert.assertEquals(ASICS.name(), container.getType());
+  }
+
+  protected void assertDDocContainer(Container container) {
+    Assert.assertNotNull(container);
+    Assert.assertTrue(container instanceof DDocContainer);
+    Assert.assertEquals(DDOC.name(), container.getType());
+  }
+
+  protected void assertTimemarkSignature(Signature signature) {
+    Assert.assertNotNull(signature);
+    Assert.assertTrue(signature instanceof BDocSignature);
+    Assert.assertEquals(SignatureProfile.LT_TM, signature.getProfile());
+  }
+
+  protected void assertTimestampSignature(Signature signature) {
+    Assert.assertNotNull(signature);
+    Assert.assertTrue(signature instanceof AsicESignature);
+    Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
+  }
+
+  protected void assertArchiveTimestampSignature(Signature signature) {
+    Assert.assertNotNull(signature);
+    Assert.assertTrue(signature instanceof AsicESignature);
+    Assert.assertEquals(SignatureProfile.LTA, signature.getProfile());
+  }
+
+  protected void assertBEpesSignature(Signature signature) {
+    Assert.assertNotNull(signature);
+    Assert.assertTrue(signature instanceof BDocSignature);
+    Assert.assertEquals(SignatureProfile.B_EPES, signature.getProfile());
+  }
+
+  protected void assertBBesSignature(Signature signature) {
+    Assert.assertNotNull(signature);
+    Assert.assertTrue(signature instanceof AsicESignature);
+    Assert.assertEquals(SignatureProfile.B_BES, signature.getProfile());
   }
 
 }

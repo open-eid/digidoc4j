@@ -1,9 +1,21 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j;
 
+import static eu.europa.esig.dss.DigestAlgorithm.SHA256;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LTA;
 import static java.util.Arrays.asList;
+import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.security.cert.X509Certificate;
@@ -24,14 +36,16 @@ import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.SignatureFinalizer;
+import org.digidoc4j.impl.asic.AsicSignatureParser;
 import org.digidoc4j.impl.asic.DetachedContentCreator;
 import org.digidoc4j.impl.asic.SkDataLoader;
-import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.AsicESignatureOpener;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
+import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
+import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -378,20 +392,26 @@ public class DetachedXadesSignatureBuilder implements SignatureFinalizer {
       throw new DigiDoc4JException(e);
     }
     List<DSSDocument> detachedContents = detachedContentCreator.getDetachedContentList();
-    Signature signature = null;
-    if (SignatureProfile.LT_TM.equals(this.signatureParameters.getSignatureProfile())) {
-      BDocSignatureOpener signatureOpener = new BDocSignatureOpener(detachedContents, configuration);
-      List<BDocSignature> signatureList = signatureOpener.parse(signedDocument);
-      signature = signatureList.get(0); //Only one signature was created
+    XadesSignatureWrapper signatureWrapper = parseSignatureWrapper(signedDocument, detachedContents);
+
+    Signature signature;
+    if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile())) {
+      BDocSignatureOpener signatureOpener = new BDocSignatureOpener(configuration);
+      signature = signatureOpener.open(signatureWrapper);
       validateOcspResponse(((BDocSignature) signature).getOrigin());
     } else {
-      AsicESignatureOpener signatureOpener = new AsicESignatureOpener(detachedContents, configuration);
-      List<AsicESignature> signatureList = signatureOpener.parse(signedDocument);
-      signature = signatureList.get(0); //Only one signature was created
+      AsicESignatureOpener signatureOpener = new AsicESignatureOpener(configuration);
+      signature = signatureOpener.open(signatureWrapper);
     }
     policyDefinedByUser = null;
     logger.info("Signing detached XadES successfully completed");
     return signature;
+  }
+
+  private XadesSignatureWrapper parseSignatureWrapper(DSSDocument signedDocument, List<DSSDocument> detachedContents) {
+    AsicSignatureParser signatureParser = new AsicSignatureParser(detachedContents, configuration);
+    XadesSignature xadesSignature = signatureParser.parse(signedDocument);
+    return new XadesSignatureWrapper(xadesSignature, signedDocument);
   }
 
   protected void validateOcspResponse(XadesSignature xadesSignature) {
@@ -534,6 +554,20 @@ public class DetachedXadesSignatureBuilder implements SignatureFinalizer {
     if (policyDefinedByUser != null && isDefinedAllPolicyValues()) {
       facade.setSignaturePolicy(policyDefinedByUser);
     }
+
+    if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile())) {
+      facade.setSignaturePolicy(constructTMPolicy());
+    }
+  }
+
+  private Policy constructTMPolicy() {
+    Policy signaturePolicy = new Policy();
+    signaturePolicy.setId("urn:oid:" + XadesSignatureValidator.TM_POLICY);
+    signaturePolicy.setDigestValue(decodeBase64("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A="));
+    signaturePolicy.setQualifier("OIDAsURN");
+    signaturePolicy.setDigestAlgorithm(SHA256);
+    signaturePolicy.setSpuri("https://www.sk.ee/repository/bdoc-spec21.pdf");
+    return signaturePolicy;
   }
 
   protected void setSigningDate() {

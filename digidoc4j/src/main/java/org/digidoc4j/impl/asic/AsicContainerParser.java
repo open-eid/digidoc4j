@@ -10,18 +10,9 @@
 
 package org.digidoc4j.impl.asic;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.InMemoryDocument;
+import eu.europa.esig.dss.MimeType;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.StringUtils;
@@ -35,13 +26,23 @@ import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.StreamDocument;
 import org.digidoc4j.impl.asic.manifest.ManifestEntry;
 import org.digidoc4j.impl.asic.manifest.ManifestParser;
+import org.digidoc4j.impl.asic.xades.XadesSignature;
+import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import org.digidoc4j.utils.MimeTypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.InMemoryDocument;
-import eu.europa.esig.dss.MimeType;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
 
 /**
  * Abstract class for parsing ASiC containers.
@@ -54,6 +55,7 @@ public abstract class AsicContainerParser {
   //Matches META-INF/*signatures*.xml where the last * is a number
   private static final String SIGNATURES_FILE_REGEX = "META-INF/(.*)signatures(.*).xml";
   private static final Pattern SIGNATURE_FILE_ENDING_PATTERN = Pattern.compile("(\\d+).xml");
+  private final Configuration configuration;
   private AsicParseResult parseResult = new AsicParseResult();
   private List<DSSDocument> signatures = new ArrayList<>();
   private LinkedHashMap<String, DataFile> dataFiles = new LinkedHashMap<>();
@@ -70,6 +72,7 @@ public abstract class AsicContainerParser {
   private DataFile timestampToken;
 
   protected AsicContainerParser(Configuration configuration) {
+    this.configuration = configuration;
     storeDataFilesOnlyInMemory = configuration.storeDataFilesOnlyInMemory();
     maxDataFileCachedInBytes = configuration.getMaxDataFileCachedInBytes();
   }
@@ -220,14 +223,24 @@ public abstract class AsicContainerParser {
   private void populateParseResult() {
     Collection<DataFile> files = dataFiles.values();
     parseResult.setDataFiles(new ArrayList<>(files));
-    parseResult.setSignatures(signatures);
     parseResult.setCurrentUsedSignatureFileIndex(currentSignatureFileIndex);
     parseResult.setDetachedContents(detachedContents);
+    parseResult.setSignatures(parseSignatures());
     parseResult.setManifestParser(manifestParser);
     parseResult.setZipFileComment(zipFileComment);
     parseResult.setAsicEntries(asicEntries);
     parseResult.setTimeStampToken(timestampToken);
     parseResult.setMimeType(mimeType);
+  }
+
+  private List<XadesSignatureWrapper> parseSignatures() {
+    AsicSignatureParser signatureParser = new AsicSignatureParser(parseResult.getDetachedContents(), configuration);
+    List<XadesSignatureWrapper> parsedSignatures = new ArrayList<>();
+    for (DSSDocument signatureDocument : signatures) {
+      XadesSignature signature = signatureParser.parse(signatureDocument);
+      parsedSignatures.add(new XadesSignatureWrapper(signature, signatureDocument));
+    }
+    return parsedSignatures;
   }
 
   private boolean isMimeType(String entryName) {

@@ -10,57 +10,46 @@
 
 package org.digidoc4j.impl.asic.asice.bdoc;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.digidoc4j.Configuration;
+import org.digidoc4j.impl.asic.AsicSignature;
+import org.digidoc4j.impl.asic.AsicSignatureOpener;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
-import org.digidoc4j.impl.asic.xades.XadesSignatureParser;
-import org.digidoc4j.impl.asic.xades.XadesValidationReportGenerator;
+import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSDocument;
-
 /**
  * BDOC signature opener
  */
-public class BDocSignatureOpener {
+public class BDocSignatureOpener implements AsicSignatureOpener {
 
   private final static Logger logger = LoggerFactory.getLogger(BDocSignatureOpener.class);
-  private final List<DSSDocument> detachedContents;
   private Configuration configuration;
-  private XadesSignatureParser xadesSignatureParser = new XadesSignatureParser();
 
   /**
-   * @param detachedContents list of detached content
    * @param configuration configuration
    */
-  public BDocSignatureOpener(List<DSSDocument> detachedContents, Configuration configuration) {
+  public BDocSignatureOpener(Configuration configuration) {
     this.configuration = configuration;
-    this.detachedContents = detachedContents;
   }
 
   /**
-   * @param xadesDocument XADES document
-   * @return list of BDOC signatures
+   * Xades signature wrapper opening method.
+   * @param signatureWrapper wrapper containing signature document and it's xades signature
+   * @return BDoc signature
    */
-  public List<BDocSignature> parse(DSSDocument xadesDocument) {
-    logger.debug("Parsing xades document");
-    List<BDocSignature> signatures = new ArrayList<>(1);
-    BDocSignature bDocSignature = createBDocSignature(xadesDocument);
-    signatures.add(bDocSignature);
-    return signatures;
+  @Override
+  public AsicSignature open(XadesSignatureWrapper signatureWrapper) {
+    logger.debug("Opening xades signature");
+    return createBDocSignature(signatureWrapper);
   }
 
-  private BDocSignature createBDocSignature(DSSDocument xadesDocument) {
-    XadesValidationReportGenerator xadesReportGenerator = new XadesValidationReportGenerator(xadesDocument, detachedContents, configuration);
-    XadesSignature signature = xadesSignatureParser.parse(xadesReportGenerator);
-    XadesSignatureValidator xadesValidator = createSignatureValidator(signature);
-    BDocSignature bDocSignature = new BDocSignature(signature, xadesValidator);
-    bDocSignature.setSignatureDocument(xadesDocument);
+  private BDocSignature createBDocSignature(XadesSignatureWrapper signatureWrapper) {
+    XadesSignatureValidator xadesValidator = createSignatureValidator(signatureWrapper.getSignature());
+    BDocSignature bDocSignature = new BDocSignature(signatureWrapper.getSignature(), xadesValidator);
+    bDocSignature.setSignatureDocument(signatureWrapper.getSignatureDocument());
     return bDocSignature;
   }
 

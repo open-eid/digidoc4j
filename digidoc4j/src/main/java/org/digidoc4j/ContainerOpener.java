@@ -10,22 +10,28 @@
 
 package org.digidoc4j;
 
-import java.io.BufferedInputStream;
-import java.io.EOFException;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.apache.commons.io.IOUtils;
+import eu.europa.esig.dss.MimeType;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.asic.AsicFileContainerParser;
+import org.digidoc4j.impl.asic.AsicParseResult;
+import org.digidoc4j.impl.asic.AsicStreamContainerParser;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asics.AsicSContainer;
+import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import org.digidoc4j.impl.ddoc.DDocOpener;
 import org.digidoc4j.impl.pades.PadesContainer;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedInputStream;
+import java.io.EOFException;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Helper class for opening containers. The proper way of opening containers would be using {@link ContainerBuilder},
@@ -52,7 +58,7 @@ public class ContainerOpener {
       if (Helper.isPdfFile(path)){
         return openPadesContainer(path, configuration);
       } else if (Helper.isZipFile(new File(path))) {
-        return openBDocContainer(path, configuration);
+        return openAsicContainer(path, configuration);
       } else {
         return new DDocOpener().open(path, configuration);
       }
@@ -85,24 +91,7 @@ public class ContainerOpener {
    * @see ContainerBuilder
    */
   public static Container open(InputStream stream, boolean actAsBigFilesSupportEnabled) {
-    logger.debug("Opening container from stream");
-    BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);
-    try {
-      if (Helper.isZipFile(bufferedInputStream)) {
-        if (Helper.isAsicSContainer(bufferedInputStream)){
-          return new  AsicSContainer(bufferedInputStream);
-        } else if (Helper.isAsicEContainer(bufferedInputStream)) {
-          return new AsicEContainer(bufferedInputStream);
-        }
-        return new BDocContainer(bufferedInputStream);
-      } else {
-        return new DDocOpener().open(bufferedInputStream);
-      }
-    } catch (IOException e) {
-      throw new DigiDoc4JException(e);
-    } finally {
-      IOUtils.closeQuietly(bufferedInputStream);
-    }
+    return open(stream, Configuration.getInstance());
   }
 
   /**
@@ -115,38 +104,59 @@ public class ContainerOpener {
    */
   public static Container open(InputStream stream, Configuration configuration) {
     logger.debug("Opening container from stream");
-    BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);
-    try {
+    try (BufferedInputStream bufferedInputStream = new BufferedInputStream(stream)) {
       if (Helper.isZipFile(bufferedInputStream)) {
-        if (Helper.isAsicSContainer(bufferedInputStream)){
-          return new  AsicSContainer(bufferedInputStream, configuration);
-        } else if (Helper.isAsicEContainer(bufferedInputStream)) {
-          return new AsicEContainer(bufferedInputStream, configuration);
+        AsicParseResult parseResult = new AsicStreamContainerParser(bufferedInputStream, configuration).read();
+        if (isAsicSContainer(parseResult)){
+          return new AsicSContainer(parseResult, configuration);
         }
-        return new BDocContainer(bufferedInputStream, configuration);
+        if (isBDocContainer(parseResult)) {
+          return new BDocContainer(parseResult, configuration);
+        }
+
+        return new AsicEContainer(parseResult, configuration);
       } else {
         return new DDocOpener().open(bufferedInputStream, configuration);
       }
     } catch (IOException e) {
       throw new DigiDoc4JException(e);
-    } finally {
-      IOUtils.closeQuietly(bufferedInputStream);
     }
   }
 
-  private static Container openBDocContainer(String path, Configuration configuration) {
+  private static Container openAsicContainer(String path, Configuration configuration) {
     configuration.loadConfiguration("digidoc4j.yaml", false);
-    if (Helper.isAsicSContainer(path)){
-      return new AsicSContainer(path, configuration);
-    } else if (Helper.isAsicEContainer(path)) {
-      return new AsicEContainer(path, configuration);
+    AsicParseResult parseResult = new AsicFileContainerParser(path, configuration).read();
+    if (isAsicSContainer(parseResult)){
+      return new AsicSContainer(parseResult, configuration);
     }
-    return new BDocContainer(path, configuration);
+    if (isBDocContainer(parseResult)) {
+      return new BDocContainer(parseResult, configuration);
+    }
+
+    return new AsicEContainer(parseResult, configuration);
   }
 
   private static Container openPadesContainer(String path, Configuration configuration) {
     configuration.loadConfiguration("digidoc4j.yaml", false);
     return new PadesContainer(configuration, path);
+  }
+
+  private static boolean isAsicSContainer(AsicParseResult parseResult) {
+    return parseResult.getMimeType().equals(MimeType.ASICS.getMimeTypeString());
+  }
+
+  private static boolean isBDocContainer(AsicParseResult parseResult) {
+    return hasBDocOnlySignature(parseResult.getSignatures());
+  }
+
+  private static boolean hasBDocOnlySignature(List<XadesSignatureWrapper> signatureWrappers) {
+    for (XadesSignatureWrapper signatureWrapper : signatureWrappers) {
+      if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureWrapper.getSignature().getProfile())) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
 }

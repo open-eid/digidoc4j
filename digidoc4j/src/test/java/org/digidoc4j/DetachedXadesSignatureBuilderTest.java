@@ -81,11 +81,51 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
 
     Signature signature = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+         .withDataFile(digestDataFile)
+         .withSignatureToken(pkcs12EccSignatureToken)
+         .withSignatureProfile(SignatureProfile.LT_TM)
+         .invokeSigningProcess();
+    Assert.assertTrue(signature.validateSignature().isValid());
+    assertTimemarkSignature(signature);
+  }
+
+  @Test
+  public void signWithB_EPESProfile() throws Exception {
+    byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
+    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
+
+    Signature signature = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
         .withDataFile(digestDataFile)
         .withSignatureToken(pkcs12EccSignatureToken)
-        .withSignatureProfile(SignatureProfile.LT_TM)
+        .withSignatureProfile(SignatureProfile.B_EPES)
         .invokeSigningProcess();
-    Assert.assertTrue(signature.validateSignature().isValid());
+    assertBEpesSignature(signature);
+  }
+
+  @Test
+  public void signWithLTProfile() throws Exception {
+    byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
+    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
+
+    Signature signature = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+         .withDataFile(digestDataFile)
+         .withSignatureToken(pkcs12EccSignatureToken)
+         .withSignatureProfile(SignatureProfile.LT)
+         .invokeSigningProcess();
+    assertTimestampSignature(signature);
+  }
+
+  @Test
+  public void signWithLTAProfile() throws Exception {
+    byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
+    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
+
+    Signature signature = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+         .withDataFile(digestDataFile)
+         .withSignatureToken(pkcs12EccSignatureToken)
+         .withSignatureProfile(SignatureProfile.LTA)
+         .invokeSigningProcess();
+    assertArchiveTimestampSignature(signature);
   }
 
   @Test

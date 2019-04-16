@@ -10,10 +10,8 @@
 
 package org.digidoc4j.impl.bdoc.tsl;
 
-import eu.europa.esig.dss.tsl.TSLValidationModel;
-import eu.europa.esig.dss.tsl.service.TSLRepository;
-import eu.europa.esig.dss.tsl.service.TSLValidationJob;
-import eu.europa.esig.dss.validation.policy.rules.Indication;
+import java.util.Map;
+
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.asic.tsl.TslLoader;
@@ -23,7 +21,10 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Map;
+import eu.europa.esig.dss.tsl.TSLValidationModel;
+import eu.europa.esig.dss.tsl.service.TSLRepository;
+import eu.europa.esig.dss.tsl.service.TSLValidationJob;
+import eu.europa.esig.dss.validation.policy.rules.Indication;
 
 public class TslLoaderTest extends AbstractTest {
 

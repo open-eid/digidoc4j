@@ -23,7 +23,7 @@
     </appender>
 
     <logger name="org.digidoc4j" level="INFO"/>
-    <logger name="eu.europa" level="INFO"/>
+    <logger name="eu.europa" level="ERROR"/>
     <logger name="org.digidoc4j.Configuration" level="INFO"/>
     <logger name="eu.europa.esig.dss.client.http.commons" level="INFO"/>
     <logger name="ee.sk" level="INFO"/>

@@ -10,17 +10,11 @@
 
 package org.digidoc4j;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.util.zip.ZipFile;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.test.CustomConfiguration;
@@ -31,10 +25,17 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class ContainerBuilderTest extends AbstractTest {
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.util.zip.ZipFile;
 
-  private static final String BDOC_TEST_FILE = "src/test/resources/testFiles/valid-containers/one_signature.bdoc";
-  private static final String DDOC_TEST_FILE = "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc";
+import static org.digidoc4j.Container.DocumentType.ASICE;
+import static org.digidoc4j.Container.DocumentType.ASICS;
+import static org.digidoc4j.Container.DocumentType.BDOC;
+import static org.digidoc4j.Container.DocumentType.DDOC;
+
+public class ContainerBuilderTest extends AbstractTest {
 
   @Test
   public void buildEmptyContainer() throws Exception {
@@ -47,7 +48,7 @@ public class ContainerBuilderTest extends AbstractTest {
 
   @Test(expected = NotSupportedException.class)
   public void buildEmptyDDocContainer() throws Exception {
-    ContainerBuilder.aContainer(Container.DocumentType.DDOC).build();
+    ContainerBuilder.aContainer(DDOC).build();
   }
 
   @Test
@@ -209,7 +210,7 @@ public class ContainerBuilderTest extends AbstractTest {
 
   @Test
   public void openDefaultContainerFromFile() throws Exception {
-    Container container = ContainerBuilder.aContainer().fromExistingFile(BDOC_TEST_FILE).build();
+    Container container = ContainerBuilder.aContainer().fromExistingFile(BDOC_WITH_TM_SIG).build();
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
   }
 
@@ -218,7 +219,7 @@ public class ContainerBuilderTest extends AbstractTest {
     this.configuration = new Configuration(Configuration.Mode.TEST);
     this.configuration.setTspSource("test-value");
     Container container = ContainerBuilder.aContainer().withConfiguration(this.configuration).
-        fromExistingFile(BDOC_TEST_FILE).build();
+        fromExistingFile(BDOC_WITH_TM_SIG).build();
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
     Assert.assertEquals("test-value", ((BDocContainer) container).getConfiguration().getTspSource());
   }
@@ -226,13 +227,13 @@ public class ContainerBuilderTest extends AbstractTest {
   @Test
   public void openDDocContainerFromFile_whenUsingDefaultContainer() throws Exception {
     Container container = ContainerBuilder.aContainer().fromExistingFile(DDOC_TEST_FILE).build();
-    TestAssert.assertContainerIsOpened(container, Container.DocumentType.DDOC);
+    TestAssert.assertContainerIsOpened(container, DDOC);
   }
 
   @Test
   public void openDDocContainerFromFile() throws Exception {
     Container container = ContainerBuilder.aContainer("DDOC").fromExistingFile(DDOC_TEST_FILE).build();
-    TestAssert.assertContainerIsOpened(container, Container.DocumentType.DDOC);
+    TestAssert.assertContainerIsOpened(container, DDOC);
   }
 
   @Test
@@ -270,49 +271,136 @@ public class ContainerBuilderTest extends AbstractTest {
 
   @Test
   public void openBDocContainerFromStream() throws Exception {
-    try (InputStream stream = FileUtils.openInputStream(new File(BDOC_TEST_FILE))) {
+    try (InputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_TM_SIG))) {
       Container container = ContainerBuilder.aContainer().fromStream(stream).build();
-      TestAssert.assertContainerIsOpened(container, Container.DocumentType.ASICE);
+      assertBDocContainer(container);
+      Assert.assertSame(1, container.getSignatures().size());
+      assertTimemarkSignature(container.getSignatures().get(0));
+      TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
     }
   }
 
-  // When reading from stream there are no major difference between BDOC and ASICE
+  @Test
+  public void openBDocContainerWithTMAndTSSignaturesFromStream() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_TM_AND_TS_SIG))) {
+      Container container = ContainerBuilder.aContainer().fromStream(stream).build();
+      assertBDocContainer(container);
+      Assert.assertSame(2, container.getSignatures().size());
+      assertTimemarkSignature(container.getSignatures().get(0));
+      assertTimestampSignature(container.getSignatures().get(1));
+      TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
+    }
+  }
+
   @Test
   public void openBDocContainerFromStream_withConfiguration() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.TEST);
     this.configuration.setTspSource("test-value");
-    InputStream stream = FileUtils.openInputStream(new File(BDOC_TEST_FILE));
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICE).
+    InputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_TM_SIG));
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).
         withConfiguration(this.configuration).
         fromStream(stream).build();
-    TestAssert.assertContainerIsOpened(container, Container.DocumentType.ASICE);
-    Assert.assertEquals("test-value", ((AsicEContainer) container).getConfiguration().getTspSource());
+    TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
+    assertBDocContainer(container);
+    Assert.assertEquals("test-value", container.getConfiguration().getTspSource());
+  }
+
+  @Test
+  public void openBDocContainerWithBEpesSignatureFromStream_withConfiguration() throws Exception {
+    InputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_B_EPES_SIG));
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC)
+              .withConfiguration(this.configuration)
+              .fromStream(stream)
+              .build();
+    TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
+    assertBDocContainer(container);
+    assertBEpesSignature(container.getSignatures().get(0));
+  }
+
+  @Test
+  public void openBDocContainerWithSignaturesEvenWhenBuilderInputRequestsAsice() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(ASICE_WITH_TS_SIG))) {
+      Container container = ContainerBuilder.aContainer(ASICE).fromStream(stream).build();
+      assertAsicEContainer(container);
+      Assert.assertSame(1, container.getSignatures().size());
+      assertTimestampSignature(container.getSignatures().get(0));
+    }
+  }
+
+  @Test
+  public void openAsicEContainerFromStream() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(ASICE_WITH_TS_SIG))) {
+      Container container = ContainerBuilder.aContainer().fromStream(stream).build();
+      assertAsicEContainer(container);
+      Assert.assertSame(1, container.getSignatures().size());
+      assertTimestampSignature(container.getSignatures().get(0));
+      TestAssert.assertContainerIsOpened(container, ASICE);
+    }
+  }
+
+  @Test
+  public void openAsicContainerWithNoSignaturesFromStream_requiringBDoc_returnedBDoc() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(ASIC_WITH_NO_SIG))) {
+      Container container = ContainerBuilder.aContainer(BDOC).fromStream(stream).build();
+      assertBDocContainer(container);
+      Assert.assertSame(0, container.getSignatures().size());
+    }
+  }
+
+  @Test
+  public void openAsicContainerWithNoSignaturesFromStream_requiringAsicE_returnedAsicE() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(ASIC_WITH_NO_SIG))) {
+      Container container = ContainerBuilder.aContainer(ASICE).fromStream(stream).build();
+      assertAsicEContainer(container);
+      Assert.assertSame(0, container.getSignatures().size());
+    }
+  }
+
+  @Test
+  public void openAsicContainerWithNoSignaturesFromStream_requiringAsicS_returnedAsicE() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(ASIC_WITH_NO_SIG))) {
+      Container container = ContainerBuilder.aContainer(ASICS).fromStream(stream).build();
+      assertAsicEContainer(container);
+      Assert.assertSame(0, container.getSignatures().size());
+    }
+  }
+
+  @Test
+  public void openAsiceContainerWithSignaturesEvenWhenBuilderInputRequestsBDoc() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(ASICE_WITH_TS_SIG))) {
+      Container container = ContainerBuilder.aContainer(BDOC).fromStream(stream).build();
+      assertAsicEContainer(container);
+      Assert.assertSame(1, container.getSignatures().size());
+      assertTimestampSignature(container.getSignatures().get(0));
+    }
+  }
+
+  @Test
+  public void openAsiceContainerWithBDocFileExtension() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(ASICE_WITH_TS_SIG_BUT_BDOC_EXTENSION))) {
+      Container container = ContainerBuilder.aContainer().fromStream(stream).build();
+      assertAsicEContainer(container);
+      Assert.assertSame(1, container.getSignatures().size());
+      assertTimestampSignature(container.getSignatures().get(0));
+    }
   }
 
   @Test
   public void openDDocContainerFromStream() throws Exception {
     InputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE));
     Container container = ContainerBuilder.aContainer().fromStream(stream).build();
-    TestAssert.assertContainerIsOpened(container, Container.DocumentType.DDOC);
+    TestAssert.assertContainerIsOpened(container, DDOC);
   }
 
   @Test
   public void openDDocContainerFromStream_withConfiguration() throws Exception {
     this.configuration = Configuration.of(Configuration.Mode.TEST);
     try (InputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE))) {
-      Container container = ContainerBuilder.aContainer(Container.DocumentType.DDOC).withConfiguration(this.configuration).
+      Container container = ContainerBuilder.aContainer(DDOC).withConfiguration(this.configuration).
           fromStream(stream).build();
-      TestAssert.assertContainerIsOpened(container, Container.DocumentType.DDOC);
+      TestAssert.assertContainerIsOpened(container, DDOC);
       Assert.assertSame(this.configuration, ((DDocContainer) container).getDDoc4JFacade().getConfiguration());
     }
-  }
-
-  @Test
-  public void openDefaultContainerFromStream_withBDOC() throws Exception {
-    InputStream stream = FileUtils.openInputStream(new File(BDOC_TEST_FILE));
-    Container container = ContainerBuilder.aContainer().withConfiguration(Configuration.of(Configuration.Mode.TEST)).
-        fromStream(stream).build();
-    TestAssert.assertContainerIsOpened(container, Container.DocumentType.ASICE);
   }
 
   @Test
@@ -320,7 +408,7 @@ public class ContainerBuilderTest extends AbstractTest {
     InputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE));
     Container container = ContainerBuilder.aContainer().withConfiguration(Configuration.of(Configuration.Mode.TEST)).
         fromStream(stream).build();
-    TestAssert.assertContainerIsOpened(container, Container.DocumentType.DDOC);
+    TestAssert.assertContainerIsOpened(container, DDOC);
   }
 
   @Test
@@ -360,7 +448,7 @@ public class ContainerBuilderTest extends AbstractTest {
   public void openDDocContainerWithTempDirectory() throws Exception {
     File folder = this.testFolder.newFolder();
     Assert.assertTrue(folder.list().length == 0);
-    ContainerBuilder.aContainer(Container.DocumentType.DDOC).
+    ContainerBuilder.aContainer(DDOC).
         fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc").
         usingTempDirectory(folder.getPath()).build();
     Assert.assertTrue(folder.list().length > 0);
@@ -370,7 +458,7 @@ public class ContainerBuilderTest extends AbstractTest {
   public void openDDocContainerWithTempDirectoryAndConfiguration() throws Exception {
     File folder = this.testFolder.newFolder();
     Assert.assertTrue(folder.list().length == 0);
-    ContainerBuilder.aContainer(Container.DocumentType.DDOC).
+    ContainerBuilder.aContainer(DDOC).
         fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc").
         withConfiguration(Configuration.of(Configuration.Mode.TEST)).usingTempDirectory(folder.getPath()).build();
     Assert.assertTrue(folder.list().length > 0);
@@ -381,7 +469,7 @@ public class ContainerBuilderTest extends AbstractTest {
     File folder = this.testFolder.newFolder();
     Assert.assertTrue(folder.list().length == 0);
     InputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE));
-    ContainerBuilder.aContainer(Container.DocumentType.DDOC).fromStream(stream).
+    ContainerBuilder.aContainer(DDOC).fromStream(stream).
         usingTempDirectory(folder.getPath()).build();
     Assert.assertTrue(folder.list().length > 0);
   }
@@ -391,8 +479,8 @@ public class ContainerBuilderTest extends AbstractTest {
     File folder = this.testFolder.newFolder();
     Assert.assertTrue(folder.list().length == 0);
     InputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE));
-    ContainerBuilder.aContainer(Container.DocumentType.DDOC).withConfiguration(Configuration.of(Configuration.Mode.TEST))
-        .fromStream(stream).usingTempDirectory(folder.getPath()).build();
+    ContainerBuilder.aContainer(DDOC).withConfiguration(Configuration.of(Configuration.Mode.TEST))
+                    .fromStream(stream).usingTempDirectory(folder.getPath()).build();
     Assert.assertTrue(folder.list().length > 0);
   }
 
@@ -404,5 +492,4 @@ public class ContainerBuilderTest extends AbstractTest {
   protected void after() {
     ContainerBuilder.removeCustomContainerImplementations();
   }
-
 }
