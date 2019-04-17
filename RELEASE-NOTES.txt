@@ -5,7 +5,7 @@ Release 3.1.1
 ------------------
 Summary of the major changes since 3.1.0
 ------------------------------------------
-* Fix for BDOC/ASIC-E container detection
+* Fix for BDOC/ASIC-E container detection - NB! it is not possible to add LT_TM (TimeMark) signatures to ASIC-E container (container that contains only Time Stamp based signatures).
 * Fix for not able to remove signatures from ASIC-E container
 * Performance improvement
 * New LOTL signer certs added to truststore
