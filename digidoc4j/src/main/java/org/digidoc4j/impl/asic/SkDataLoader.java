@@ -104,7 +104,7 @@ public class SkDataLoader extends CommonsDataLoader {
       httpResponse = this.getHttpResponse(client, httpRequest);
       return readHttpResponse(httpResponse);
     } catch (IOException e) {
-      throw new DSSException("Unable to process GET call for url '" + url + "'", e);
+      throw new DSSException("Unable to process POST call for url '" + url + "'", e);
     } finally {
       try {
         if (httpRequest != null) {
