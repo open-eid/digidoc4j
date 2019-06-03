@@ -10,6 +10,12 @@
 
 package org.digidoc4j;
 
+import eu.europa.esig.dss.Policy;
+import org.apache.commons.io.IOUtils;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -19,11 +25,6 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Signature parameters. Parameter information is used when signing a document. Following items can be specified:
  * <ul>
@@ -31,6 +32,10 @@ import org.slf4j.LoggerFactory;
  *   <li>Roles of the signer</li>
  *   <li>Signature id</li>
  *   <li>Digest algorithm</li>
+ *   <li>Encryption algorithm</li>
+ *   <li>Signature profile</li>
+ *   <li>Signing certificate</li>
+ *   <li>Policy</li>
  * </ul>
  */
 public class SignatureParameters implements Serializable {
@@ -42,6 +47,7 @@ public class SignatureParameters implements Serializable {
   private EncryptionAlgorithm encryptionAlgorithm;
   private SignatureProfile signatureProfile;
   private X509Certificate signingCertificate;
+  private Policy policy;
 
   /**
    * Get production place values.
@@ -182,6 +188,14 @@ public class SignatureParameters implements Serializable {
 
   public X509Certificate getSigningCertificate() {
     return signingCertificate;
+  }
+
+  public Policy getPolicy() {
+    return policy;
+  }
+
+  public void setPolicy(Policy policy) {
+    this.policy = policy;
   }
 
   /**

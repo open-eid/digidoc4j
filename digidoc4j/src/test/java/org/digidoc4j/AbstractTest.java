@@ -504,4 +504,10 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     Assert.assertEquals(SignatureProfile.B_BES, signature.getProfile());
   }
 
+  protected void assertValidSignature(Signature signature) {
+    ValidationResult validationResult = signature.validateSignature();
+    Assert.assertTrue(validationResult.isValid());
+    Assert.assertFalse(validationResult.hasWarnings());
+    Assert.assertTrue(validationResult.getErrors().isEmpty());
+  }
 }

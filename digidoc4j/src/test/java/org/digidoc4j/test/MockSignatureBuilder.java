@@ -10,10 +10,13 @@
 
 package org.digidoc4j.test;
 
+import eu.europa.esig.dss.DSSDocument;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataToSign;
+import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
+import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.impl.SignatureFinalizer;
@@ -28,7 +31,7 @@ public class MockSignatureBuilder extends SignatureBuilder {
 
   @Override
   public DataToSign buildDataToSign() throws SignerCertificateRequiredException, ContainerWithoutFilesException {
-    SignatureFinalizer signatureFinalizer = new SignatureFinalizer() {
+    SignatureFinalizer signatureFinalizer = new SignatureFinalizer(null, null, null) {
       @Override
       public Signature finalizeSignature(byte[] signatureValue) {
         finalizedSignatureValue = signatureValue;
@@ -36,11 +39,28 @@ public class MockSignatureBuilder extends SignatureBuilder {
       }
 
       @Override
+      public Signature createSignature(DSSDocument signedDocument) {
+        return new MockSignature();
+      }
+
+      @Override
+      public byte[] getDataToBeSigned() {
+        return DIGEST_TO_SIGN;
+      }
+
+      @Override
       public Configuration getConfiguration() {
         return Configuration.getInstance();
       }
+
+      @Override
+      public SignatureParameters getSignatureParameters() {
+        SignatureParameters signatureParameters = new SignatureParameters();
+        signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA512);
+        return signatureParameters;
+      }
     };
-    return new DataToSign(DIGEST_TO_SIGN, signatureParameters, signatureFinalizer);
+    return new DataToSign(DIGEST_TO_SIGN, signatureFinalizer);
   }
 
   @Override
@@ -52,5 +72,4 @@ public class MockSignatureBuilder extends SignatureBuilder {
   protected Signature invokeSigningProcess() {
     return new MockSignature();
   }
-
 }

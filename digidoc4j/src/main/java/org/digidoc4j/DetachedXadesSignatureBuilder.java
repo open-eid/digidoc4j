@@ -10,65 +10,37 @@
 
 package org.digidoc4j;
 
-import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.Policy;
-import eu.europa.esig.dss.SignerLocation;
-import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
-import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.exceptions.DataFileMissingException;
-import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.SignatureFinalizer;
-import org.digidoc4j.impl.asic.AsicSignatureParser;
-import org.digidoc4j.impl.asic.DetachedContentCreator;
-import org.digidoc4j.impl.asic.SkDataLoader;
-import org.digidoc4j.impl.asic.asice.AsicESignatureOpener;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
-import org.digidoc4j.impl.asic.xades.XadesSignature;
-import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
-import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
-import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
+import org.digidoc4j.impl.asic.AsicSignatureFinalizer;
+import org.digidoc4j.utils.CertificateUtils;
 import org.digidoc4j.utils.Helper;
+import org.digidoc4j.utils.PolicyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
-import static eu.europa.esig.dss.DigestAlgorithm.SHA256;
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LTA;
 import static java.util.Arrays.asList;
-import static org.apache.commons.codec.binary.Base64.decodeBase64;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-public class DetachedXadesSignatureBuilder implements SignatureFinalizer {
+public class DetachedXadesSignatureBuilder {
 
   private static final Logger logger = LoggerFactory.getLogger(DetachedXadesSignatureBuilder.class);
-  private static final int hexMaxlen = 10;
 
-  private transient XadesSigningDssFacade facade;
   private List<DataFile> dataFiles = new ArrayList<>();
   private SignatureParameters signatureParameters = new SignatureParameters();
   private Configuration configuration;
   private SignatureToken signatureToken;
-  protected static Policy policyDefinedByUser;
-  private Date signingDate;
-  private boolean isLTorLTAprofile = false;
+  private SignatureFinalizer signatureFinalizer;
 
   /**
    * Specify configuration for the builder.
@@ -203,7 +175,8 @@ public class DetachedXadesSignatureBuilder implements SignatureFinalizer {
    * @return builder for creating a signature.
    */
   public DetachedXadesSignatureBuilder withSignatureProfile(SignatureProfile signatureProfile) {
-    if (policyDefinedByUser != null && isDefinedAllPolicyValues()
+    Policy policyDefinedByUser = signatureParameters.getPolicy();
+    if (policyDefinedByUser != null && PolicyUtils.areAllPolicyValuesDefined(policyDefinedByUser)
         && signatureProfile != SignatureProfile.LT_TM) {
       logger.debug("policyDefinedByUser:" + policyDefinedByUser.toString());
       logger.debug("signatureProfile:" + signatureProfile.toString());
@@ -224,7 +197,7 @@ public class DetachedXadesSignatureBuilder implements SignatureFinalizer {
         && signatureParameters.getSignatureProfile() != SignatureProfile.LT_TM) {
       throw new NotSupportedException("Can't define signature policy if it's not LT_TM signature profile. Define it first. ");
     }
-    policyDefinedByUser = signaturePolicy;
+    signatureParameters.setPolicy(signaturePolicy);
     return this;
   }
 
@@ -257,27 +230,13 @@ public class DetachedXadesSignatureBuilder implements SignatureFinalizer {
           " 'withSignatureToken() instead.'");
       throw new SignerCertificateRequiredException();
     }
-    byte[] dataToSign = getDataToBeSigned();
-    return new DataToSign(dataToSign, signatureParameters, this);
+    SignatureFinalizer signatureFinalizer = getSignatureFinalizer();
+    byte[] dataToBeSigned = signatureFinalizer.getDataToBeSigned();
+    return new DataToSign(dataToBeSigned, signatureFinalizer);
   }
 
-
-  @Override
   public Signature finalizeSignature(byte[] signatureValue) {
-    if ((signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA || isEcdsaCertificate())
-        && DSSSignatureUtils.isAsn1Encoded(signatureValue)) {
-      logger.debug("Finalizing signature ASN1: " + Helper.bytesToHex(signatureValue, hexMaxlen) + " ["
-          + String.valueOf(signatureValue.length) + "]");
-      signatureValue = DSSSignatureUtils.convertToXmlDSig(eu.europa.esig.dss.EncryptionAlgorithm.ECDSA,
-          signatureValue);
-    }
-    logger.debug("Finalizing signature XmlDSig: " + Helper.bytesToHex(signatureValue, hexMaxlen) + " ["
-        + String.valueOf(signatureValue.length) + "]");
-    populateParametersForFinalizingSignature(signatureValue);
-    Collection<DataFile> dataFilesToSign = getDataFiles();
-    validateDataFilesToSign(dataFilesToSign);
-    DSSDocument signedDocument = facade.signDocument(signatureValue, dataFilesToSign);
-    return createSignature(signedDocument);
+    return getSignatureFinalizer().finalizeSignature(signatureValue);
   }
 
   /**
@@ -309,272 +268,24 @@ public class DetachedXadesSignatureBuilder implements SignatureFinalizer {
       throw new InvalidSignatureException();
     }
     InMemoryDocument document = new InMemoryDocument(signatureDocument);
-    return createSignature(document);
+    return getSignatureFinalizer().createSignature(document);
   }
 
   protected Signature invokeSigningProcess() {
     logger.info("Creating Xades Signature");
     signatureParameters.setSigningCertificate(signatureToken.getCertificate());
-    byte[] dataToSign = getDataToBeSigned();
+    byte[] dataToSign = getSignatureFinalizer().getDataToBeSigned();
     Signature result = null;
     byte[] signatureValue = null;
     try {
       signatureValue = signatureToken.sign(signatureParameters.getDigestAlgorithm(), dataToSign);
       result = finalizeSignature(signatureValue);
     } catch (TechnicalException e) {
-      logger.warn("PROBLEM with signing: "
-          + Helper.bytesToHex(dataToSign, hexMaxlen) + " -> " + Helper.bytesToHex(signatureValue, hexMaxlen));
+      String dataToSignHex = Helper.bytesToHex(dataToSign, AsicSignatureFinalizer.HEX_MAX_LENGTH);
+      String signatureValueHex = signatureValue == null ? null : Helper.bytesToHex(signatureValue, AsicSignatureFinalizer.HEX_MAX_LENGTH);
+      logger.warn("PROBLEM with signing: {} -> {}", dataToSignHex, signatureValueHex);
     }
     return result;
-  }
-
-  protected byte[] getDataToBeSigned() {
-    logger.info("Getting data to sign");
-    initSigningFacade();
-    populateSignatureParameters();
-    Collection<DataFile> dataFilesToSign = getDataFiles();
-    validateDataFilesToSign(dataFilesToSign);
-    byte[] dataToSign = facade.getDataToSign(dataFilesToSign);
-    String signatureId = facade.getSignatureId();
-    signatureParameters.setSignatureId(signatureId);
-    return dataToSign;
-  }
-
-  protected boolean isEcdsaCertificate() {
-    X509Certificate certificate = signatureParameters.getSigningCertificate();
-    String algorithm = certificate.getPublicKey().getAlgorithm();
-    return algorithm.equals("EC") || algorithm.equals("ECC");
-  }
-
-  protected void initSigningFacade() {
-    if (facade == null) {
-      facade = new XadesSigningDssFacade();
-    }
-  }
-
-  protected List<DataFile> getDataFiles() {
-    return dataFiles;
-  }
-
-  protected void validateDataFilesToSign(Collection<DataFile> dataFilesToSign) {
-    if (dataFilesToSign.isEmpty()) {
-      logger.error("Container does not contain any data files");
-      throw new DataFileMissingException();
-    }
-  }
-
-  protected void populateParametersForFinalizingSignature(byte[] signatureValueBytes) {
-    if (facade == null) {
-      initSigningFacade();
-      populateSignatureParameters();
-    }
-    facade.setCertificateSource(configuration.getTSL());
-    setOcspSource(signatureValueBytes);
-  }
-
-  protected void setOcspSource(byte[] signatureValueBytes) {
-    SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().
-        withSignatureProfile(this.signatureParameters.getSignatureProfile()).
-        withSignatureValue(signatureValueBytes).
-        withConfiguration(configuration).
-        build();
-    this.facade.setOcspSource(ocspSource);
-  }
-
-  protected Signature createSignature(DSSDocument signedDocument) {
-    logger.debug("Opening signed document validator");
-    DetachedContentCreator detachedContentCreator = null;
-    try {
-      detachedContentCreator = new DetachedContentCreator().populate(getDataFiles());
-    } catch (Exception e) {
-      logger.error("Error in datafile processing: " + e.getMessage());
-      throw new DigiDoc4JException(e);
-    }
-    List<DSSDocument> detachedContents = detachedContentCreator.getDetachedContentList();
-    XadesSignatureWrapper signatureWrapper = parseSignatureWrapper(signedDocument, detachedContents);
-
-    Signature signature;
-    if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile())) {
-      BDocSignatureOpener signatureOpener = new BDocSignatureOpener(configuration);
-      signature = signatureOpener.open(signatureWrapper);
-      validateOcspResponse(((BDocSignature) signature).getOrigin());
-    } else {
-      AsicESignatureOpener signatureOpener = new AsicESignatureOpener(configuration);
-      signature = signatureOpener.open(signatureWrapper);
-    }
-    policyDefinedByUser = null;
-    logger.info("Signing detached XadES successfully completed");
-    return signature;
-  }
-
-  private XadesSignatureWrapper parseSignatureWrapper(DSSDocument signedDocument, List<DSSDocument> detachedContents) {
-    AsicSignatureParser signatureParser = new AsicSignatureParser(detachedContents, configuration);
-    XadesSignature xadesSignature = signatureParser.parse(signedDocument);
-    return new XadesSignatureWrapper(xadesSignature, signedDocument);
-  }
-
-  protected void validateOcspResponse(XadesSignature xadesSignature) {
-    if (isBaselineSignatureProfile()) {
-      return;
-    }
-    List<BasicOCSPResp> ocspResponses = xadesSignature.getOcspResponses();
-    if (ocspResponses == null || ocspResponses.isEmpty()) {
-      logger.error("Signature does not contain OCSP response");
-      throw new OCSPRequestFailedException(xadesSignature.getId());
-    }
-  }
-
-  protected boolean isBaselineSignatureProfile() {
-    return signatureParameters.getSignatureProfile() != null
-        && (SignatureProfile.B_BES == signatureParameters.getSignatureProfile()
-        || SignatureProfile.B_EPES == signatureParameters.getSignatureProfile());
-  }
-
-  protected void populateSignatureParameters() {
-    setDigestAlgorithm();
-    setSigningCertificate();
-    setEncryptionAlgorithm();
-    setSignatureProfile();
-    setSignerInformation();
-    setSignatureId();
-    setSignaturePolicy();
-    setSigningDate();
-    setTimeStampProviderSource();
-  }
-
-  protected void setSigningCertificate() {
-    X509Certificate signingCert = signatureParameters.getSigningCertificate();
-    facade.setSigningCertificate(signingCert);
-  }
-
-  protected void setDigestAlgorithm() {
-    if (signatureParameters.getDigestAlgorithm() == null) {
-      signatureParameters.setDigestAlgorithm(configuration.getSignatureDigestAlgorithm());
-    }
-    facade.setSignatureDigestAlgorithm(signatureParameters.getDigestAlgorithm());
-  }
-
-  protected void setTimeStampProviderSource() {
-    OnlineTSPSource tspSource = new OnlineTSPSource(this.getTspSource(configuration));
-    SkDataLoader dataLoader = SkDataLoader.timestamp(configuration);
-    dataLoader.setUserAgent(Helper.createBDocUserAgent(this.signatureParameters.getSignatureProfile()));
-    tspSource.setDataLoader(dataLoader);
-    this.facade.setTspSource(tspSource);
-  }
-
-  private String getTspSource(Configuration configuration) {
-    if (isLTorLTAprofile) {
-      X509Cert x509Cert = new X509Cert(signatureParameters.getSigningCertificate());
-      String certCountry = x509Cert.getSubjectName(X509Cert.SubjectName.C);
-      String tspSourceByCountry = configuration.getTspSourceByCountry(certCountry);
-      if (StringUtils.isNotBlank(tspSourceByCountry)) {
-        return tspSourceByCountry;
-      }
-    }
-    return configuration.getTspSource();
-  }
-
-  protected void setSignatureProfile() {
-    if (signatureParameters.getSignatureProfile() != null) {
-      setSignatureProfile(signatureParameters.getSignatureProfile());
-    } else {
-      SignatureProfile signatureProfile = configuration.getSignatureProfile();
-      setSignatureProfile(signatureProfile);
-      signatureParameters.setSignatureProfile(signatureProfile);
-    }
-  }
-
-  protected void setSignatureProfile(SignatureProfile profile) {
-    switch (profile) {
-      case B_BES:
-        facade.setSignatureLevel(XAdES_BASELINE_B);
-        break;
-      case B_EPES:
-        facade.setSignatureLevel(XAdES_BASELINE_B);
-        break;
-      case LTA:
-        isLTorLTAprofile = true;
-        facade.setSignatureLevel(XAdES_BASELINE_LTA);
-        break;
-      default:
-        isLTorLTAprofile = true;
-        facade.setSignatureLevel(XAdES_BASELINE_LT);
-    }
-  }
-
-  protected void setEncryptionAlgorithm() {
-    if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA || isEcdsaCertificate()) {
-      logger.debug("Using ECDSA encryption algorithm");
-      signatureParameters.setEncryptionAlgorithm(EncryptionAlgorithm.ECDSA);
-      facade.setEncryptionAlgorithm(eu.europa.esig.dss.EncryptionAlgorithm.ECDSA);
-    } else {
-      signatureParameters.setEncryptionAlgorithm(EncryptionAlgorithm.RSA);
-      facade.setEncryptionAlgorithm(eu.europa.esig.dss.EncryptionAlgorithm.RSA);
-    }
-  }
-
-  protected void setSignerInformation() {
-    logger.debug("Adding signer information");
-    List<String> signerRoles = signatureParameters.getRoles();
-    if (!(isEmpty(signatureParameters.getCity()) && isEmpty(signatureParameters.getStateOrProvince())
-        && isEmpty(signatureParameters.getPostalCode())
-        && isEmpty(signatureParameters.getCountry()))) {
-
-      SignerLocation signerLocation = new SignerLocation();
-
-      if (!isEmpty(signatureParameters.getCity()))
-        signerLocation.setLocality(signatureParameters.getCity());
-      if (!isEmpty(signatureParameters.getStateOrProvince()))
-        signerLocation.setStateOrProvince(signatureParameters.getStateOrProvince());
-      if (!isEmpty(signatureParameters.getPostalCode()))
-        signerLocation.setPostalCode(signatureParameters.getPostalCode());
-      if (!isEmpty(signatureParameters.getCountry()))
-        signerLocation.setCountry(signatureParameters.getCountry());
-      facade.setSignerLocation(signerLocation);
-    }
-    facade.setSignerRoles(signerRoles);
-  }
-
-  protected static boolean isDefinedAllPolicyValues() {
-    return StringUtils.isNotBlank(policyDefinedByUser.getId())
-        && policyDefinedByUser.getDigestValue() != null
-        && StringUtils.isNotBlank(policyDefinedByUser.getQualifier())
-        && policyDefinedByUser.getDigestAlgorithm() != null
-        && StringUtils.isNotBlank(policyDefinedByUser.getSpuri());
-  }
-
-  protected void setSignatureId() {
-    if (StringUtils.isNotBlank(signatureParameters.getSignatureId())) {
-      facade.setSignatureId(signatureParameters.getSignatureId());
-    }
-  }
-
-  protected void setSignaturePolicy() {
-    if (policyDefinedByUser != null && isDefinedAllPolicyValues()) {
-      facade.setSignaturePolicy(policyDefinedByUser);
-    }
-
-    if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile())) {
-      facade.setSignaturePolicy(constructTMPolicy());
-    }
-  }
-
-  private Policy constructTMPolicy() {
-    Policy signaturePolicy = new Policy();
-    signaturePolicy.setId("urn:oid:" + XadesSignatureValidator.TM_POLICY);
-    signaturePolicy.setDigestValue(decodeBase64("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A="));
-    signaturePolicy.setQualifier("OIDAsURN");
-    signaturePolicy.setDigestAlgorithm(SHA256);
-    signaturePolicy.setSpuri("https://www.sk.ee/repository/bdoc-spec21.pdf");
-    return signaturePolicy;
-  }
-
-  protected void setSigningDate() {
-    if (signingDate == null) {
-      signingDate = new Date();
-    }
-    facade.setSigningDate(signingDate);
-    logger.debug("Signing date is going to be " + signingDate);
   }
 
   protected void setConfiguration(Configuration configuration) {
@@ -585,4 +296,42 @@ public class DetachedXadesSignatureBuilder implements SignatureFinalizer {
     return configuration;
   }
 
+  private SignatureFinalizer getSignatureFinalizer() {
+    if (signatureFinalizer == null) {
+      populateSignatureParameters();
+      if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile())) {
+        signatureFinalizer = SignatureFinalizerBuilder.aFinalizer(dataFiles, signatureParameters, configuration, Container.DocumentType.BDOC);
+      } else {
+        signatureFinalizer = SignatureFinalizerBuilder.aFinalizer(dataFiles, signatureParameters, configuration, Container.DocumentType.ASICE);
+      }
+    }
+    return signatureFinalizer;
+  }
+
+  private void populateSignatureParameters() {
+    populateDigestAlgorithm();
+    populateEncryptionAlgorithm();
+    populateSignatureProfile();
+  }
+
+  private void populateDigestAlgorithm() {
+    if (signatureParameters.getDigestAlgorithm() == null) {
+      signatureParameters.setDigestAlgorithm(configuration.getSignatureDigestAlgorithm());
+    }
+  }
+
+  private void populateEncryptionAlgorithm() {
+    if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA || CertificateUtils.isEcdsaCertificate(signatureParameters.getSigningCertificate())) {
+      logger.debug("Using ECDSA encryption algorithm");
+      signatureParameters.setEncryptionAlgorithm(EncryptionAlgorithm.ECDSA);
+    } else {
+      signatureParameters.setEncryptionAlgorithm(EncryptionAlgorithm.RSA);
+    }
+  }
+
+  private void populateSignatureProfile() {
+    if (signatureParameters.getSignatureProfile() == null) {
+      signatureParameters.setSignatureProfile(configuration.getSignatureProfile());
+    }
+  }
 }

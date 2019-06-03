@@ -10,9 +10,11 @@
 
 package org.digidoc4j;
 
+import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.validation.TimestampToken;
 import eu.europa.esig.dss.x509.SignaturePolicy;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.exceptions.IllegalSignatureProfileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
@@ -31,9 +33,12 @@ import org.digidoc4j.utils.TokenAlgorithmSupport;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.StandardSocketOptions;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.security.Security;
 import java.util.List;
@@ -678,6 +683,39 @@ public class SignatureBuilderTest extends AbstractTest {
     buildDataToSign(container, SignatureProfile.LT_TM);
   }
 
+  @Test
+  public void customSignaturePolicyAllowedForLT_TM() {
+    Policy customPolicy = new Policy();
+    customPolicy.setId("id");
+    customPolicy.setSpuri("spuri");
+    customPolicy.setQualifier("qualifier");
+    customPolicy.setDigestValue("some".getBytes(StandardCharsets.UTF_8));
+    customPolicy.setDigestAlgorithm(eu.europa.esig.dss.DigestAlgorithm.SHA512);
+
+    Container container = ContainerBuilder.aContainer(BDOC).build();
+    container.addDataFile(new ByteArrayInputStream("soem".getBytes()), "name", "text/plain");
+    SignatureBuilder.aSignature(container)
+          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSignatureProfile(SignatureProfile.LT_TM)
+          .withOwnSignaturePolicy(customPolicy)
+          .buildDataToSign();
+  }
+
+  @Test(expected = NotSupportedException.class)
+  public void customSignaturePolicyNotAllowedForLT() {
+    Policy customPolicy = new Policy();
+    customPolicy.setId("id");
+    customPolicy.setSpuri("spuri");
+    customPolicy.setQualifier("qualifier");
+    customPolicy.setDigestValue("some".getBytes(StandardCharsets.UTF_8));
+    customPolicy.setDigestAlgorithm(eu.europa.esig.dss.DigestAlgorithm.SHA512);
+
+    Container container = ContainerBuilder.aContainer(ASICE).build();
+    SignatureBuilder.aSignature(container)
+          .withSignatureProfile(SignatureProfile.LT)
+          .withOwnSignaturePolicy(customPolicy)
+          .buildDataToSign();
+  }
   private Signature signContainerWithSignature(Container container, SignatureProfile signatureProfile) {
     DataToSign dataToSign = buildDataToSign(container, signatureProfile);
     Assert.assertNotNull(dataToSign);
