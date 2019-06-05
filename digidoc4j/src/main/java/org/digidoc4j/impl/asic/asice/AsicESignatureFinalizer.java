@@ -19,6 +19,9 @@ import org.digidoc4j.impl.asic.AsicSignatureFinalizer;
 
 import java.util.List;
 
+/**
+ * ASiCE signature finalizer for datafiles signing process.
+ */
 public class AsicESignatureFinalizer extends AsicSignatureFinalizer {
 
   public AsicESignatureFinalizer(List<DataFile> dataFilesToSign, SignatureParameters signatureParameters, Configuration configuration) {

@@ -20,6 +20,9 @@ import org.digidoc4j.utils.PolicyUtils;
 
 import java.util.List;
 
+/**
+ * BDoc signature finalizer for datafiles signing process.
+ */
 public class BDocSignatureFinalizer extends AsicESignatureFinalizer {
 
   public BDocSignatureFinalizer(List<DataFile> dataFilesToSign, SignatureParameters signatureParameters, Configuration configuration) {

@@ -50,6 +50,9 @@ import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
 import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LTA;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
+/**
+ * Asic signature finalizer for datafiles signing process.
+ */
 public class AsicSignatureFinalizer extends SignatureFinalizer {
 
   public static final int HEX_MAX_LENGTH = 10;

@@ -25,10 +25,21 @@ import static org.digidoc4j.Container.DocumentType.ASICE;
 import static org.digidoc4j.Container.DocumentType.ASICS;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 
+/**
+ * Builder for creating a signature finalizer for finalizing signing process.
+ */
 public final class SignatureFinalizerBuilder {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SignatureFinalizerBuilder.class);
 
+  /**
+   * Create a new signature finalizer based on a container and signature parameters.
+   * Container type is used to determine which type of signature finalizer should be created.
+   *
+   * @param container container to be signed.
+   * @param signatureParameters signature parameters. These are related to the signing location and signer roles
+   * @return finalizer for creating a signature.
+   */
   public static SignatureFinalizer aFinalizer(Container container, SignatureParameters signatureParameters) {
     return determineFinalizer(
             container.getDataFiles(),
@@ -37,6 +48,16 @@ public final class SignatureFinalizerBuilder {
             container.getType());
   }
 
+  /**
+   * Create a new signature finalizer based on datafiles, signature parameters, configuration and document type.
+   * Document type is used to determine which type of signature finalizer should be created.
+   *
+   * @param dataFilesToSign datafiles to be signed
+   * @param signatureParameters signature parameters. These are related to the signing location and signer roles
+   * @param configuration configuration context
+   * @param documentType type of a document
+   * @return finalizer for creating a signature
+   */
   public static SignatureFinalizer aFinalizer(List<DataFile> dataFilesToSign, SignatureParameters signatureParameters, Configuration configuration, Container.DocumentType documentType) {
     return determineFinalizer(
             dataFilesToSign,

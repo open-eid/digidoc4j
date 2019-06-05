@@ -34,6 +34,11 @@ public final class PolicyUtils {
     return signaturePolicy;
   }
 
+  /**
+   * Determines if all required fields are defined for given policy.
+   * @param policy policy to be validated
+   * @return whether all policy required fields are defined
+   */
   public static boolean areAllPolicyValuesDefined(Policy policy) {
     return StringUtils.isNotBlank(policy.getId())
             && policy.getDigestValue() != null
