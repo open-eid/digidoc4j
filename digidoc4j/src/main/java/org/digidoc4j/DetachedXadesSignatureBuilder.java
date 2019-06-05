@@ -292,10 +292,6 @@ public class DetachedXadesSignatureBuilder {
     this.configuration = configuration;
   }
 
-  public Configuration getConfiguration() {
-    return configuration;
-  }
-
   private SignatureFinalizer getSignatureFinalizer() {
     if (signatureFinalizer == null) {
       populateSignatureParameters();

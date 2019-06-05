@@ -41,10 +41,6 @@ public abstract class SignatureFinalizer implements Serializable {
     return configuration;
   }
 
-  public List<DataFile> getDataFiles() {
-    return dataFiles;
-  }
-
   public SignatureParameters getSignatureParameters() {
     return signatureParameters;
   }
