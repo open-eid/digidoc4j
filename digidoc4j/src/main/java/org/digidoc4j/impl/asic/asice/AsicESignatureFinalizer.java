@@ -31,8 +31,8 @@ public class AsicESignatureFinalizer extends AsicSignatureFinalizer {
   }
 
   @Override
-  protected void validateSignatureCompatibilityWithContainer() {
-    super.validateSignatureCompatibilityWithContainer();
+  protected void validateSignatureCompatibility() {
+    super.validateSignatureCompatibility();
     if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile())) {
       throw new IllegalSignatureProfileException(
               "Cannot add BDoc specific (" + signatureParameters.getSignatureProfile() + ") signature to ASiCE container");

@@ -35,7 +35,7 @@ public class BDocSignatureFinalizer extends AsicESignatureFinalizer {
   }
 
   @Override
-  protected void validateSignatureCompatibilityWithContainer() {
+  protected void validateSignatureCompatibility() {
     // Do nothing
   }
 

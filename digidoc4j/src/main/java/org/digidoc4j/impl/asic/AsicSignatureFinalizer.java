@@ -74,7 +74,7 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
     }
     LOGGER.debug("Finalizing signature XmlDSig: {} [{}]", Helper.bytesToHex(signatureValue, HEX_MAX_LENGTH), signatureValue.length);
     populateParametersForFinalizingSignature(signatureValue);
-    validateSignatureCompatibilityWithContainer();
+    validateSignatureCompatibility();
     validateDataFilesToSign(dataFiles);
     DSSDocument signedDocument = facade.signDocument(signatureValue, dataFiles);
     return createSignature(signedDocument);
@@ -118,7 +118,7 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
     return dataToSign;
   }
 
-  protected void validateSignatureCompatibilityWithContainer() {
+  protected void validateSignatureCompatibility() {
     // Do nothing
   }
 
