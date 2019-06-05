@@ -10,11 +10,9 @@
 
 package org.digidoc4j;
 
-import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.validation.TimestampToken;
 import eu.europa.esig.dss.x509.SignaturePolicy;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.exceptions.IllegalSignatureProfileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
@@ -37,8 +35,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.StandardSocketOptions;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.security.Security;
 import java.util.List;
@@ -580,6 +576,29 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
+  public void bDocContainerWithoutSignatures_signWithoutAssignedProfile_profileTakenFromConf_shouldSucceedWithTimestampSignature() {
+    Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
+    assertBDocContainer(container);
+    Assert.assertTrue(container.getSignatures().isEmpty());
+
+    Assert.assertSame(SignatureProfile.LT, container.getConfiguration().getSignatureProfile());
+
+    DataToSign dataToSign = SignatureBuilder.aSignature(container)
+          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
+          .buildDataToSign();
+
+    Signature signature = dataToSign.finalize(this.pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    assertTimestampSignature(signature);
+    assertValidSignature(signature);
+
+    container.addSignature(signature);
+    assertBDocContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertTimestampSignature(container.getSignatures().get(0));
+  }
+
+  @Test
   public void bDocContainerWithoutSignatures_signWithTimestampSignature_shouldSucceed() {
     Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
     assertBDocContainer(container);
@@ -609,6 +628,29 @@ public class SignatureBuilderTest extends AbstractTest {
     assertBDocContainer(container);
     Assert.assertSame(1, container.getSignatures().size());
     assertTimemarkSignature(container.getSignatures().get(0));
+  }
+
+  @Test
+  public void asiceContainerWithoutSignatures_signWithoutAssignedProfile_profileTakenFromConf_shouldSucceedWithTimestampSignature() {
+    Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
+    assertAsicEContainer(container);
+    Assert.assertTrue(container.getSignatures().isEmpty());
+
+    Assert.assertSame(SignatureProfile.LT, container.getConfiguration().getSignatureProfile());
+
+    DataToSign dataToSign = SignatureBuilder.aSignature(container)
+          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
+          .buildDataToSign();
+
+    Signature signature = dataToSign.finalize(this.pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    assertTimestampSignature(signature);
+    assertValidSignature(signature);
+
+    container.addSignature(signature);
+    assertAsicEContainer(container);
+    Assert.assertSame(1, container.getSignatures().size());
+    assertTimestampSignature(container.getSignatures().get(0));
   }
 
   @Test
@@ -684,38 +726,58 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void customSignaturePolicyAllowedForLT_TM() {
-    Policy customPolicy = new Policy();
-    customPolicy.setId("id");
-    customPolicy.setSpuri("spuri");
-    customPolicy.setQualifier("qualifier");
-    customPolicy.setDigestValue("some".getBytes(StandardCharsets.UTF_8));
-    customPolicy.setDigestAlgorithm(eu.europa.esig.dss.DigestAlgorithm.SHA512);
-
+  public void customSignaturePolicyAllowedForLT_TMSignatureProfile_resultsWithLTProfileBDocSignature() {
     Container container = ContainerBuilder.aContainer(BDOC).build();
-    container.addDataFile(new ByteArrayInputStream("soem".getBytes()), "name", "text/plain");
-    SignatureBuilder.aSignature(container)
+    container.addDataFile(new ByteArrayInputStream("something".getBytes()), "name", "text/plain");
+    DataToSign dataToSign = SignatureBuilder.aSignature(container)
           .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
           .withSignatureProfile(SignatureProfile.LT_TM)
-          .withOwnSignaturePolicy(customPolicy)
+          .withOwnSignaturePolicy(validCustomPolicy())
+          .buildDataToSign();
+
+    byte[] signatureValue = pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign());
+    Signature signature = dataToSign.finalize(signatureValue);
+
+    Assert.assertNotNull(signature);
+    Assert.assertTrue(signature instanceof BDocSignature);
+    Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
+  }
+
+  @Test
+  public void customSignaturePolicyWhenSignatureProfileNotSet_resultsWithTimestampSignature() {
+    Container container = ContainerBuilder.aContainer(BDOC).build();
+    container.addDataFile(new ByteArrayInputStream("something".getBytes()), "name", "text/plain");
+    DataToSign dataToSign = SignatureBuilder.aSignature(container)
+          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withOwnSignaturePolicy(validCustomPolicy())
+          .buildDataToSign();
+
+    byte[] signatureValue = pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign());
+    Signature signature = dataToSign.finalize(signatureValue);
+    assertTimestampSignature(signature);
+  }
+
+  @Test(expected = NotSupportedException.class)
+  public void signatureProfileLTNotAllowedForCustomSignaturePolicy() {
+    Container container = ContainerBuilder.aContainer(BDOC).build();
+    container.addDataFile(new ByteArrayInputStream("something".getBytes()), "name", "text/plain");
+    SignatureBuilder.aSignature(container)
+          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withOwnSignaturePolicy(validCustomPolicy())
+          .withSignatureProfile(SignatureProfile.LT)
           .buildDataToSign();
   }
 
   @Test(expected = NotSupportedException.class)
-  public void customSignaturePolicyNotAllowedForLT() {
-    Policy customPolicy = new Policy();
-    customPolicy.setId("id");
-    customPolicy.setSpuri("spuri");
-    customPolicy.setQualifier("qualifier");
-    customPolicy.setDigestValue("some".getBytes(StandardCharsets.UTF_8));
-    customPolicy.setDigestAlgorithm(eu.europa.esig.dss.DigestAlgorithm.SHA512);
-
+  public void customSignaturePolicyNotAllowedForLTSignatureProfile() {
     Container container = ContainerBuilder.aContainer(ASICE).build();
+    container.addDataFile(new ByteArrayInputStream("something".getBytes()), "name", "text/plain");
     SignatureBuilder.aSignature(container)
           .withSignatureProfile(SignatureProfile.LT)
-          .withOwnSignaturePolicy(customPolicy)
+          .withOwnSignaturePolicy(validCustomPolicy())
           .buildDataToSign();
   }
+
   private Signature signContainerWithSignature(Container container, SignatureProfile signatureProfile) {
     DataToSign dataToSign = buildDataToSign(container, signatureProfile);
     Assert.assertNotNull(dataToSign);
@@ -791,5 +853,4 @@ public class SignatureBuilderTest extends AbstractTest {
     Assert.assertTrue(signature.getAdESSignature().length > 1);
     Assert.assertTrue(signature.validateSignature().isValid());
   }
-
 }

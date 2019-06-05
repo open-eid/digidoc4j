@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl;
 
 import eu.europa.esig.dss.DigestAlgorithm;
@@ -183,6 +193,11 @@ public class SignatureFinalizerTest extends AbstractTest {
     assertEquals("The result of the LTV validation process is not acceptable to continue the process!", validationResult.getErrors().get(0).getMessage());
   }
 
+  /*
+    Data is serialized and the outcome size is asserted against APPROXIMATE highest value.
+    This test monitors possible DataToSign object size increases that would result in less effective serialization process.
+    If these assertions start to fail one must consider if the object increase is deliberate and increase expected max size values.
+   */
   private Signature finalizeAndValidateSignature(Container container, int dataToSignAdditionalWeightInBytes) {
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
         .withSigningCertificate(pkcs12SignatureToken.getCertificate())

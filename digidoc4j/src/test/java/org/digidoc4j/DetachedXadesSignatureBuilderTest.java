@@ -1,12 +1,18 @@
 package org.digidoc4j;
 
-import java.io.File;
-import java.security.MessageDigest;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
+import org.digidoc4j.exceptions.InvalidSignatureException;
+import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.exceptions.SignatureTokenMissingException;
+import org.digidoc4j.exceptions.SignerCertificateRequiredException;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 
 public class DetachedXadesSignatureBuilderTest extends AbstractTest {
 
@@ -86,6 +92,30 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
 
     assertTimestampSignature(signature);
     assertValidSignature(signature);
+  }
+
+  @Test(expected = SignatureTokenMissingException.class)
+  public void invokeSigningWithoutSignatureTokenThrowsException() {
+    DataFile dataFile = new DataFile("hello".getBytes(), "hello.txt", "text/plain");
+    DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+         .withDataFile(dataFile)
+         .invokeSigning();
+  }
+
+  @Test(expected = SignerCertificateRequiredException.class)
+  public void buildDataToSignWithoutSignatureTokenThrowsException() {
+    DataFile dataFile = new DataFile("hello".getBytes(), "hello.txt", "text/plain");
+    DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+         .withDataFile(dataFile)
+         .buildDataToSign();
+  }
+
+  @Test(expected = InvalidSignatureException.class)
+  public void openAdESSignatureWithoutSignatureDocumentThrowsException() {
+    DataFile dataFile = new DataFile("hello".getBytes(), "hello.txt", "text/plain");
+    DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+         .withDataFile(dataFile)
+         .openAdESSignature(null);
   }
 
   @Test
@@ -195,4 +225,73 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     assertValidSignature(signature);
   }
 
+  @Test
+  public void customSignaturePolicyAllowedForLT_TMSignatureProfile_resultsWithLTProfileBDocSignature() {
+    DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
+    DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+          .withDataFile(dataFile)
+          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSignatureProfile(SignatureProfile.LT_TM)
+          .withOwnSignaturePolicy(validCustomPolicy())
+          .buildDataToSign();
+
+    byte[] signatureValue = pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign());
+    Signature signature = dataToSign.finalize(signatureValue);
+
+    Assert.assertNotNull(signature);
+    Assert.assertTrue(signature instanceof BDocSignature);
+    Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
+  }
+
+  @Test
+  public void customSignaturePolicyWhenSignatureProfileNotSet_resultsWithTimestampSignature() {
+    DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
+    DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+         .withDataFile(dataFile)
+         .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+         .withOwnSignaturePolicy(validCustomPolicy())
+         .buildDataToSign();
+
+    byte[] signatureValue = pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign());
+    Signature signature = dataToSign.finalize(signatureValue);
+    assertTimestampSignature(signature);
+  }
+
+  @Test(expected = NotSupportedException.class)
+  public void signatureProfileLTNotAllowedForCustomSignaturePolicy() {
+    DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
+    DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+          .withDataFile(dataFile)
+          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withOwnSignaturePolicy(validCustomPolicy())
+          .withSignatureProfile(SignatureProfile.LT)
+          .buildDataToSign();
+  }
+
+  @Test(expected = NotSupportedException.class)
+  public void customSignaturePolicyNotAllowedForLTSignatureProfile() {
+    DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
+    DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+          .withDataFile(dataFile)
+          .withSignatureProfile(SignatureProfile.LT)
+          .withOwnSignaturePolicy(validCustomPolicy())
+          .buildDataToSign();
+  }
+
+  @Test
+  public void signWithoutAssigningProfile_profileTakenFromConfiguration_shouldSucceedWithTimestampSignature() {
+    DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
+    Configuration configuration = new Configuration();
+    Assert.assertSame(SignatureProfile.LT, configuration.getSignatureProfile());
+
+    DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(configuration)
+         .withDataFile(dataFile)
+         .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+         .withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
+         .buildDataToSign();
+
+    Signature signature = dataToSign.finalize(this.pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    assertTimestampSignature(signature);
+    assertValidSignature(signature);
+  }
 }

@@ -2,6 +2,7 @@ package org.digidoc4j;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -44,6 +45,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -509,5 +511,15 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     Assert.assertTrue(validationResult.isValid());
     Assert.assertFalse(validationResult.hasWarnings());
     Assert.assertTrue(validationResult.getErrors().isEmpty());
+  }
+
+  protected Policy validCustomPolicy() {
+    Policy customPolicy = new Policy();
+    customPolicy.setId("id");
+    customPolicy.setSpuri("spuri");
+    customPolicy.setQualifier("qualifier");
+    customPolicy.setDigestValue("some".getBytes(StandardCharsets.UTF_8));
+    customPolicy.setDigestAlgorithm(eu.europa.esig.dss.DigestAlgorithm.SHA512);
+    return customPolicy;
   }
 }

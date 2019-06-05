@@ -11,7 +11,17 @@
 package org.digidoc4j.impl.bdoc;
 
 import org.apache.commons.io.IOUtils;
-import org.digidoc4j.*;
+import org.apache.commons.lang3.SerializationUtils;
+import org.digidoc4j.AbstractTest;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerOpener;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.DataToSign;
+import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureBuilder;
+import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.hamcrest.Matchers;
@@ -276,6 +286,36 @@ public class BDocSerializationTest extends AbstractTest {
     Assert.assertArrayEquals(bytesBeforeSerialization, bytesAfterSerialization);
     Assert.assertArrayEquals(dataFileAfterSerialization.calculateDigest(), dataFileBeforeSerialization.calculateDigest());
   }
+
+  @Test
+  public void twoStepSigningWithSerialization2() {
+    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
+    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+
+    byte[] serializedContainer = SerializationUtils.serialize(container);
+    container = SerializationUtils.deserialize(serializedContainer);
+
+    DataToSign dataToSign = SignatureBuilder.aSignature(container)
+            .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+            .withSignatureProfile(SignatureProfile.LT_TM)
+            .buildDataToSign();
+
+    byte[] serializedDataToSign = SerializationUtils.serialize(dataToSign);
+    dataToSign = SerializationUtils.deserialize(serializedDataToSign);
+
+    byte[] signatureValue = this.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
+    Signature signature = dataToSign.finalize(signatureValue);
+    assertTimemarkSignature(signature);
+    assertValidSignature(signature);
+
+    container.addSignature(signature);
+    container.saveAsFile(this.containerLocation);
+    container = ContainerOpener.open(this.containerLocation);
+    SignatureValidationResult validationResult = container.validate();
+    Assert.assertTrue(validationResult.isValid());
+    Assert.assertEquals(1, container.getSignatures().size());
+  }
+
 
   /*
    * RESTRICTED METHODS
