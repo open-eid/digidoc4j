@@ -115,6 +115,12 @@
             <organization>Nortal</organization>
             <organizationUrl>https://www.nortal.com</organizationUrl>
         </developer>
+        <developer>
+            <name>Jorgen Heinsoo</name>
+            <email>Jorgen.Heinsoo at Nortal.com</email>
+            <organization>Nortal</organization>
+            <organizationUrl>https://www.nortal.com</organizationUrl>
+        </developer>
     </developers>
 
     <properties>
