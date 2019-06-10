@@ -21,7 +21,7 @@ import org.digidoc4j.test.MockConfigManagerInitializer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.io.*;
@@ -117,7 +117,7 @@ public class DDocFacadeTest extends AbstractTest {
   public void savesToStreamThrowsException() throws Exception {
     SignedDoc ddoc = Mockito.mock(SignedDoc.class);
     DigiDocException testException = new DigiDocException(100, "testException", new Throwable("test Exception"));
-    Mockito.doThrow(testException).when(ddoc).writeToStream(Matchers.any(OutputStream.class));
+    Mockito.doThrow(testException).when(ddoc).writeToStream(ArgumentMatchers.any(OutputStream.class));
     DDocFacade facade = new DDocFacade(ddoc);
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       facade.save(out);

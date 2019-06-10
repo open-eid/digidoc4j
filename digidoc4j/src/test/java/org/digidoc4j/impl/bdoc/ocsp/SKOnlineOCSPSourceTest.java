@@ -1,9 +1,6 @@
 package org.digidoc4j.impl.bdoc.ocsp;
 
-import java.nio.file.Paths;
-import java.security.Security;
-import java.security.cert.X509Certificate;
-
+import eu.europa.esig.dss.x509.CertificateToken;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
@@ -14,12 +11,14 @@ import org.digidoc4j.test.util.TestSigningUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import eu.europa.esig.dss.x509.CertificateToken;
+import java.nio.file.Paths;
+import java.security.Security;
+import java.security.cert.X509Certificate;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SKOnlineOCSPSourceTest extends AbstractTest {
@@ -31,7 +30,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
 
   @Test
   public void gettingOCSPToken_shouldReturnNull_whenOCSPResponseIsEmpty() throws Exception {
-    Mockito.when(this.dataLoader.post(Matchers.anyString(), Matchers.any(byte[].class))).thenReturn(
+    Mockito.when(this.dataLoader.post(ArgumentMatchers.anyString(), ArgumentMatchers.any(byte[].class))).thenReturn(
         new byte[]{48, 3, 10, 1, 6});
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource().withConfiguration(
         this.configuration).build();
