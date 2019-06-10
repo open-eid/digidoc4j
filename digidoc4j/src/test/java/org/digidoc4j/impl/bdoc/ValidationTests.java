@@ -12,8 +12,25 @@ package org.digidoc4j.impl.bdoc;
 
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.validation.process.MessageTag;
-import org.digidoc4j.*;
-import org.digidoc4j.exceptions.*;
+import org.digidoc4j.AbstractTest;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.ContainerOpener;
+import org.digidoc4j.ContainerValidationResult;
+import org.digidoc4j.DataToSign;
+import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureBuilder;
+import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.TSLCertificateSource;
+import org.digidoc4j.ValidationResult;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.DuplicateDataFileException;
+import org.digidoc4j.exceptions.InvalidTimestampException;
+import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.exceptions.UnsupportedFormatException;
+import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.TestAssert;
@@ -246,7 +263,7 @@ public class ValidationTests extends AbstractTest {
         .open("src/test/resources/testFiles/invalid-containers/22902_data_files_with_same_names.bdoc").validate();
   }
 
-  @Ignore("Fix by adding AdditionalServiceInformation to TEST of ESTEID-SK 2015 in test TSL")
+  @Test
   public void signaturesWithDuplicateId() {
     Container container = ContainerOpener
         .open("src/test/resources/testFiles/valid-containers/2_signatures_duplicate_id.asice");
