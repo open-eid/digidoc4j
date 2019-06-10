@@ -958,7 +958,6 @@ public class BDocContainerTest extends AbstractTest {
   @Test
   @Ignore("Fix by adding AdditionalServiceInformation to TEST of ESTEID-SK 2015 in test TSL")
   public void containerWithImplicitPolicy(){
-    setGlobalMode(Configuration.Mode.TEST);
     Container container = ContainerOpener.open
         ("src/test/resources/testFiles/valid-containers/validTSwImplicitPolicy.asice");
     ContainerValidationResult validate = container.validate();

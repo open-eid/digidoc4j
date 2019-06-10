@@ -67,7 +67,6 @@ public class TslLoaderTest extends AbstractTest {
   @Test
   @Ignore
   public void loadTsl_forAllCountries_byDefault() throws Exception {
-    this.setGlobalMode(Configuration.Mode.PROD);
     this.configuration = new Configuration(Configuration.Mode.PROD);
     TSLRepository tslRepository = this.initTSLAndGetRepository();
     this.assertCountryLoaded(tslRepository, "EE");
@@ -110,7 +109,6 @@ public class TslLoaderTest extends AbstractTest {
   @Test
   @Ignore
   public void loadTsl_withoutCountryHr_byDefault() throws Exception {
-    this.setGlobalMode(Configuration.Mode.PROD);
     this.configuration = new Configuration(Configuration.Mode.PROD);
     TSLRepository tslRepository = this.initTSLAndGetRepository();
     this.assertCountryLoaded(tslRepository, "EE");

@@ -1,13 +1,12 @@
 package org.digidoc4j;
 
-import java.nio.file.Paths;
-
+import eu.europa.esig.dss.x509.CertificateToken;
 import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
-import eu.europa.esig.dss.x509.CertificateToken;
+import java.nio.file.Paths;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
@@ -67,7 +66,6 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
 
   @Test
   public void testProductionCertificateStatusUnknownWithOCSPResponseVerificationCertificate() {
-    this.setGlobalMode(Configuration.Mode.PROD);
     this.configuration = Configuration.of(Configuration.Mode.PROD);
     CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(this.configuration).build();
     try {

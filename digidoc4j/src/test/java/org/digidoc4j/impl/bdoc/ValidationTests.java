@@ -45,7 +45,6 @@ public class ValidationTests extends AbstractTest {
 
   @Test
   public void validateProdBDocContainer_isValid() {
-    this.setGlobalMode(Configuration.Mode.PROD);
     Container container = ContainerBuilder.aContainer().
         fromExistingFile("src/test/resources/prodFiles/valid-containers/Baltic MoU digital signing_EST_LT_LV.bdoc").
         withConfiguration(Configuration.of(Configuration.Mode.PROD)).build();
@@ -150,7 +149,6 @@ public class ValidationTests extends AbstractTest {
 
   @Test
   public void validateContainer_withChangedDataFileContent_isInvalid() throws Exception {
-    this.setGlobalMode(Configuration.Mode.TEST);
     Container container = ContainerOpener
         .open("src/test/resources/testFiles/invalid-containers/invalid-data-file.bdoc");
     SignatureValidationResult validate = container.validate();
@@ -497,7 +495,6 @@ public class ValidationTests extends AbstractTest {
 
   @Test
   public void asicValidationShouldFail_ifTimeStampHashDoesntMatchSignature() throws Exception {
-    this.setGlobalMode(Configuration.Mode.TEST);
     SignatureValidationResult result = this.openContainerBy(
         Paths.get("src/test/resources/testFiles/invalid-containers/TS-02_23634_TS_wrong_SignatureValue.asice"))
         .validate();
@@ -536,7 +533,6 @@ public class ValidationTests extends AbstractTest {
 
   @Test
   public void signaturesWithCrlShouldBeInvalid() throws Exception {
-    this.setGlobalMode(Configuration.Mode.PROD);
     SignatureValidationResult result = this.openContainerByConfiguration(
         Paths.get("src/test/resources/prodFiles/invalid-containers/asic-with-crl-and-without-ocsp.asice"),
         PROD_CONFIGURATION)

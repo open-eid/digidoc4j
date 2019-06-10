@@ -846,7 +846,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   private void assertSignatureIsValid(Signature signature) {
-    Assert.assertNotNull(signature.getProducedAt());
+    Assert.assertNotNull(signature.getOCSPResponseCreationTime());
     Assert.assertEquals(SignatureProfile.LT_TM, signature.getProfile());
     Assert.assertNotNull(signature.getClaimedSigningTime());
     Assert.assertNotNull(signature.getAdESSignature());
