@@ -37,10 +37,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.security.Security;
+import java.util.Date;
 import java.util.List;
 
 import static org.digidoc4j.Container.DocumentType.ASICE;
 import static org.digidoc4j.Container.DocumentType.BDOC;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class SignatureBuilderTest extends AbstractTest {
@@ -776,6 +778,20 @@ public class SignatureBuilderTest extends AbstractTest {
           .withSignatureProfile(SignatureProfile.LT)
           .withOwnSignaturePolicy(validCustomPolicy())
           .buildDataToSign();
+  }
+
+  @Test
+  public void claimedSigningTimeInitializedDuringDataToSignBuilding() {
+    Container container = ContainerBuilder.aContainer(BDOC).build();
+    container.addDataFile(new ByteArrayInputStream("something".getBytes()), "name", "text/plain");
+
+    long claimedSigningTimeLowerBound = new Date().getTime() / 1000 * 1000;
+    DataToSign dataToSign = buildDataToSign(container, SignatureProfile.LT_TM);
+    long claimedSigningTimeUpperBound = new Date().getTime() + 1000;
+
+    long claimedSigningTime = dataToSign.getSignatureParameters().getClaimedSigningDate().getTime();
+    assertTrue(claimedSigningTime >= claimedSigningTimeLowerBound);
+    assertTrue(claimedSigningTime <= claimedSigningTimeUpperBound);
   }
 
   private Signature signContainerWithSignature(Container container, SignatureProfile signatureProfile) {

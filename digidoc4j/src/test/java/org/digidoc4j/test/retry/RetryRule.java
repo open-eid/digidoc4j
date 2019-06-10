@@ -35,7 +35,7 @@ public class RetryRule implements TestRule {
               caughtThrowable = cause;
               System.err.println(description.getDisplayName() + ": Flaky test failed, " + retryCount.toString() + " retries remain");
             } else {
-              System.err.println("Flaky test failed for maximum allowed times (" + retryCount.toString() + ")");
+              System.err.println("Flaky test failed for maximum allowed times (" + retryCount.get() + ")");
               throw caughtThrowable;
             }
           }

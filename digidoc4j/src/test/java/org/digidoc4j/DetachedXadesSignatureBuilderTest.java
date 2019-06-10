@@ -257,6 +257,22 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     assertTimestampSignature(signature);
   }
 
+  @Test
+  public void encryptionMethodECDSA() {
+    DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
+    DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+         .withDataFile(dataFile)
+         .withSigningCertificate(this.pkcs12EccSignatureToken.getCertificate())
+         .withOwnSignaturePolicy(validCustomPolicy())
+         .withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA)
+         .buildDataToSign();
+
+    Assert.assertEquals(EncryptionAlgorithm.ECDSA, dataToSign.getSignatureParameters().getEncryptionAlgorithm());
+    byte[] signatureValue = pkcs12EccSignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign());
+    Signature signature = dataToSign.finalize(signatureValue);
+    assertTimestampSignature(signature);
+  }
+
   @Test(expected = NotSupportedException.class)
   public void signatureProfileLTNotAllowedForCustomSignaturePolicy() {
     DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");

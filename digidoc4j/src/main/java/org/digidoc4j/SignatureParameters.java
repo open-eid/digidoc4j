@@ -23,6 +23,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,6 +37,7 @@ import java.util.List;
  *   <li>Signature profile</li>
  *   <li>Signing certificate</li>
  *   <li>Policy</li>
+ *   <li>Claimed signing date</li>
  * </ul>
  */
 public class SignatureParameters implements Serializable {
@@ -48,6 +50,7 @@ public class SignatureParameters implements Serializable {
   private SignatureProfile signatureProfile;
   private X509Certificate signingCertificate;
   private Policy policy;
+  private Date claimedSigningDate;
 
   /**
    * Get production place values.
@@ -196,6 +199,14 @@ public class SignatureParameters implements Serializable {
 
   public void setPolicy(Policy policy) {
     this.policy = policy;
+  }
+
+  public Date getClaimedSigningDate() {
+    return claimedSigningDate;
+  }
+
+  public void setClaimedSigningDate(Date claimedSigningDate) {
+    this.claimedSigningDate = claimedSigningDate;
   }
 
   /**

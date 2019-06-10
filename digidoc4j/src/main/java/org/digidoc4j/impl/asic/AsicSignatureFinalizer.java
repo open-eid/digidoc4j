@@ -60,7 +60,6 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AsicSignatureFinalizer.class);
 
-  private Date signingDate;
   private boolean isLTorLTAProfile = false;
 
   public AsicSignatureFinalizer(List<DataFile> dataFilesToSign, SignatureParameters signatureParameters, Configuration configuration) {
@@ -185,7 +184,7 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
     setSignerInformation();
     setSignatureId();
     setSignaturePolicy();
-    setSigningDate();
+    setClaimedSigningDate();
     setTimeStampProviderSource();
   }
 
@@ -260,12 +259,14 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
     // Do nothing
   }
 
-  private void setSigningDate() {
-    if (signingDate == null) {
-      signingDate = new Date();
+  private void setClaimedSigningDate() {
+    Date claimedSigningDate = signatureParameters.getClaimedSigningDate();
+    if (claimedSigningDate == null) {
+      claimedSigningDate = new Date();
+      signatureParameters.setClaimedSigningDate(claimedSigningDate);
     }
-    facade.setSigningDate(signingDate);
-    LOGGER.debug("Signing date is going to be {}", signingDate);
+    facade.setSigningDate(claimedSigningDate);
+    LOGGER.debug("Claimed signing date is going to be {}", claimedSigningDate);
   }
 
   private void setTimeStampProviderSource() {
