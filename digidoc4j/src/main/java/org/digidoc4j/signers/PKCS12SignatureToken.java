@@ -10,33 +10,22 @@
 
 package org.digidoc4j.signers;
 
-import java.io.IOException;
-import java.security.*;
-import java.security.cert.X509CertSelector;
-import java.security.cert.X509Certificate;
-import java.util.List;
-
-import javax.crypto.Cipher;
-
-import org.bouncycastle.asn1.ASN1Encoding;
-import org.bouncycastle.asn1.DERObjectIdentifier;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
-import org.bouncycastle.asn1.x509.DigestInfo;
-import org.digidoc4j.DigestAlgorithm;
-import org.digidoc4j.SignatureToken;
-import org.digidoc4j.X509Cert;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import eu.europa.esig.dss.EncryptionAlgorithm;
-import eu.europa.esig.dss.SignatureAlgorithm;
 import eu.europa.esig.dss.SignatureValue;
 import eu.europa.esig.dss.ToBeSigned;
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
 import eu.europa.esig.dss.token.KSPrivateKeyEntry;
 import eu.europa.esig.dss.token.KeyStoreSignatureTokenConnection;
 import eu.europa.esig.dss.token.Pkcs12SignatureToken;
+import org.digidoc4j.SignatureToken;
+import org.digidoc4j.X509Cert;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.cert.X509Certificate;
+import java.util.List;
 
 /**
  * Implements PKCS12 signer.

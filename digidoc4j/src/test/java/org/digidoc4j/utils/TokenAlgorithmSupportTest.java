@@ -10,15 +10,15 @@
 
 package org.digidoc4j.utils;
 
-import java.io.File;
-
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.util.TestSigningUtil;
-import org.digidoc4j.utils.TokenAlgorithmSupport;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 public class TokenAlgorithmSupportTest {
 
@@ -31,7 +31,7 @@ public class TokenAlgorithmSupportTest {
 
   @Test
   public void oldEstonianIdCardCert_shouldReturnSha224() throws Exception {
-    String certString = FileUtils.readFileToString(new File("src/test/resources/testFiles/certs/esteid-pre2011-test-signing-certificate-37101010021.cer"));
+    String certString = FileUtils.readFileToString(new File("src/test/resources/testFiles/certs/esteid-pre2011-test-signing-certificate-37101010021.cer"), StandardCharsets.UTF_8);
     DigestAlgorithm digestAlgorithm = TokenAlgorithmSupport.determineSignatureDigestAlgorithm(TestSigningUtil.toX509Certificate(certString));
     Assert.assertEquals(DigestAlgorithm.SHA224, digestAlgorithm);
   }

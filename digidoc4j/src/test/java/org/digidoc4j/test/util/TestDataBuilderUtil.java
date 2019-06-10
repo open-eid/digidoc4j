@@ -10,9 +10,6 @@
 
 package org.digidoc4j.test.util;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
@@ -24,6 +21,10 @@ import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.junit.Assert;
 import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class TestDataBuilderUtil {
 
@@ -100,7 +101,7 @@ public class TestDataBuilderUtil {
 
   public static File createTestFile(TemporaryFolder testFolder) throws IOException {
     File testFile = testFolder.newFile();
-    FileUtils.writeStringToFile(testFile, "Banana Pancakes");
+    FileUtils.writeStringToFile(testFile, "Banana Pancakes", StandardCharsets.UTF_8);
     return testFile;
   }
 

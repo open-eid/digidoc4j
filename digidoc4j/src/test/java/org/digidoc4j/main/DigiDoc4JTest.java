@@ -79,7 +79,7 @@ public class DigiDoc4JTest extends AbstractTest {
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "LTA"};
     TestDigiDoc4JUtil.call(parameters);
     Container container = ContainerOpener.open(file);
-    Assert.assertEquals(SignatureProfile.LTA, container.getSignature(0).getProfile());
+    Assert.assertEquals(SignatureProfile.LTA, container.getSignatures().get(0).getProfile());
   }
 
   @Test
@@ -89,7 +89,7 @@ public class DigiDoc4JTest extends AbstractTest {
         "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "LT"};
     TestDigiDoc4JUtil.call(parameters);
-    Assert.assertEquals(SignatureProfile.LT, ContainerOpener.open(file).getSignature(0).getProfile());
+    Assert.assertEquals(SignatureProfile.LT, ContainerOpener.open(file).getSignatures().get(0).getProfile());
   }
 
   @Test
@@ -100,7 +100,7 @@ public class DigiDoc4JTest extends AbstractTest {
     System.setProperty("digidoc4j.mode", "TEST");
     TestDigiDoc4JUtil.call(params);
     Container container = ContainerOpener.open(fileName);
-    Assert.assertEquals(SignatureProfile.LT, container.getSignature(0).getProfile());
+    Assert.assertEquals(SignatureProfile.LT, container.getSignatures().get(0).getProfile());
     this.clearGlobalMode();
     TestAssert.assertContainerIsValid(container);
   }
@@ -112,7 +112,7 @@ public class DigiDoc4JTest extends AbstractTest {
         "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "B_BES"};
     TestDigiDoc4JUtil.call(parameters);
-    Assert.assertEquals(SignatureProfile.B_BES, ContainerOpener.open(file).getSignature(0).getProfile());
+    Assert.assertEquals(SignatureProfile.B_BES, ContainerOpener.open(file).getSignatures().get(0).getProfile());
   }
 
   @Test
@@ -142,7 +142,7 @@ public class DigiDoc4JTest extends AbstractTest {
         "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "Unknown"};
     TestDigiDoc4JUtil.call(parameters);
-    Assert.assertEquals(SignatureProfile.LT, ContainerOpener.open(file).getSignature(0).getProfile());
+    Assert.assertEquals(SignatureProfile.LT, ContainerOpener.open(file).getSignatures().get(0).getProfile());
   }
 
   @Test

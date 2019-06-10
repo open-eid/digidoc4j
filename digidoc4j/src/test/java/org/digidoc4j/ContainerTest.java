@@ -378,7 +378,7 @@ public class ContainerTest extends AbstractTest {
         withSignatureToken(this.pkcs12SignatureToken).invokeSigning();
     container.addSignature(signature);
     container.extendTo(SignatureProfile.LT);
-    Assert.assertNotNull(container.getSignature(0).getOCSPCertificate());
+    Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
   }
 
   @Test
@@ -466,7 +466,7 @@ public class ContainerTest extends AbstractTest {
     container.saveAsFile(file);
     container = ContainerOpener.open(file);
     Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#sha224",
-        container.getSignature(0).getSignatureMethod());
+        container.getSignatures().get(0).getSignatureMethod());
   }
 
   @Test

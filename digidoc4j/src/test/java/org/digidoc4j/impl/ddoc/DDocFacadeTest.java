@@ -10,7 +10,12 @@
 
 package org.digidoc4j.impl.ddoc;
 
-import org.digidoc4j.*;
+import org.digidoc4j.AbstractTest;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerValidationResult;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.DigestDataFile;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.ddoc.utils.ConfigManager;
@@ -24,7 +29,11 @@ import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -143,7 +152,7 @@ public class DDocFacadeTest extends AbstractTest {
   @Test
   public void getSignatureByIndex() {
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    Assert.assertEquals("497c5a2bfa9361a8534fbed9f48e7a12", facade.getSignature(0).getSigningCertificate().getSerial());
+    Assert.assertEquals("497c5a2bfa9361a8534fbed9f48e7a12", facade.getSignatures().get(0).getSigningCertificate().getSerial());
   }
 
   @Test

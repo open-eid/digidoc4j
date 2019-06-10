@@ -10,43 +10,39 @@
 
 package org.digidoc4j.main;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.file.Path;
-import java.util.List;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.lang3.StringUtils;
-import org.digidoc4j.Configuration;
-import org.digidoc4j.Container;
-import org.digidoc4j.ContainerValidationResult;
-import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureValidationResult;
-import org.digidoc4j.TSLCertificateSource;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.SignatureNotFoundException;
-import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
-import org.digidoc4j.impl.asic.SkDataLoader;
-import org.digidoc4j.OCSPSourceBuilder;
-import org.digidoc4j.impl.asic.tsl.TslManager;
-import org.digidoc4j.impl.ddoc.DDocSignatureValidationResult;
-import org.digidoc4j.impl.ddoc.DDocContainer;
-import org.digidoc4j.impl.ddoc.DDocSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.digidoc4j.ddoc.CertValue;
-import org.digidoc4j.ddoc.DigiDocException;
-import org.digidoc4j.ddoc.SignedDoc;
-import org.digidoc4j.ddoc.factory.DigiDocGenFactory;
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.reports.Reports;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerValidationResult;
+import org.digidoc4j.OCSPSourceBuilder;
+import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.TSLCertificateSource;
+import org.digidoc4j.ddoc.CertValue;
+import org.digidoc4j.ddoc.DigiDocException;
+import org.digidoc4j.ddoc.SignedDoc;
+import org.digidoc4j.ddoc.factory.DigiDocGenFactory;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.SignatureNotFoundException;
+import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
+import org.digidoc4j.impl.asic.SkDataLoader;
+import org.digidoc4j.impl.asic.tsl.TslManager;
+import org.digidoc4j.impl.ddoc.DDocContainer;
+import org.digidoc4j.impl.ddoc.DDocSignature;
+import org.digidoc4j.impl.ddoc.DDocSignatureValidationResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Container verifying functionality for digidoc4j-util.
@@ -178,8 +174,6 @@ public class ContainerVerifier {
         logger.info("Validation diagnostic data report is generated");
       } catch (UnsupportedEncodingException e) {
         logger.info(e.getMessage());
-      } catch (IOException e) {
-        logger.info(e.getMessage());
       }
       try {
         byte[] bytes = reports.getXmlSimpleReport().getBytes("UTF-8");
@@ -187,16 +181,12 @@ public class ContainerVerifier {
         logger.info("Validation simple report is generated");
       } catch (UnsupportedEncodingException e) {
         logger.info(e.getMessage());
-      } catch (IOException e) {
-        logger.info(e.getMessage());
       }
       try {
         byte[] bytes = reports.getXmlDetailedReport().getBytes("UTF-8");
         DSSUtils.saveToFile(bytes, new File(reportsDir + File.separator + "validationDetailReport.xml"));
         logger.info("Validation detailed report is generated");
       } catch (UnsupportedEncodingException e) {
-        logger.info(e.getMessage());
-      } catch (IOException e) {
         logger.info(e.getMessage());
       }
     }

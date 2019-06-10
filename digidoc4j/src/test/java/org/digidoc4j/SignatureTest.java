@@ -69,7 +69,7 @@ public class SignatureTest extends AbstractTest {
   @Test
   public void testTimeStampCreationTimeForBDoc() throws ParseException {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/test.asice");
-    Date timeStampCreationTime = container.getSignature(0).getTimeStampCreationTime();
+    Date timeStampCreationTime = container.getSignatures().get(0).getTimeStampCreationTime();
     SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d yyyy H:m:s", Locale.ENGLISH);
     Assert.assertEquals(dateFormat.parse("Nov 17 2014 16:11:46"), timeStampCreationTime);
   }
@@ -79,8 +79,8 @@ public class SignatureTest extends AbstractTest {
     Container container = this.createEmptyContainerBy(Container.DocumentType.DDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     container.sign(this.pkcs12SignatureToken);
-    container.getSignature(0).getTimeStampCreationTime();
-    container.getSignature(0).getTimeStampCreationTime();
+    container.getSignatures().get(0).getTimeStampCreationTime();
+    container.getSignatures().get(0).getTimeStampCreationTime();
   }
 
   @Test
