@@ -71,6 +71,10 @@ public class AsicSignatureBuilder extends SignatureBuilder {
     return getSignatureFinalizer().createSignature(document);
   }
 
+  /**
+   * @deprecated use {@link SignatureBuilder#invokeSigningProcess()} or {@link SignatureFinalizer#finalizeSignature(byte[] signatureValue)} instead.
+   */
+  @Deprecated
   public Signature finalizeSignature(byte[] signatureValue) {
     return getSignatureFinalizer().finalizeSignature(signatureValue);
   }
