@@ -34,6 +34,7 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
+import org.digidoc4j.exceptions.DuplicateSignatureFilesException;
 import org.digidoc4j.exceptions.IllegalSignatureProfileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
@@ -1058,6 +1059,33 @@ public class BDocContainerTest extends AbstractTest {
     Assert.assertEquals("" + XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
     Assert.assertEquals(eu.europa.esig.dss.DigestAlgorithm.SHA256, policyId.getDigestAlgorithm());
     Assert.assertEquals("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A=", policyId.getDigestValue());
+  }
+
+  @Test
+  public void containerWithMultipleIdenticallyNamedSignaturesShouldFail() {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/KS-15_signatures_xml_topelt.bdoc");
+    Assert.assertSame(2, container.getSignatures().size());
+
+    ContainerValidationResult validationResult = container.validate();
+    Assert.assertFalse(validationResult.isValid());
+
+    Assert.assertSame(1, validationResult.getContainerErrors().size());
+    Assert.assertEquals(validationResult.getContainerErrors().get(0).getMessage(), "Duplicate signature files: META-INF/signatures1.xml");
+
+    Assert.assertSame(4, validationResult.getWarnings().size());
+
+    Assert.assertSame(7, validationResult.getErrors().size());
+    List<DigiDoc4JException> errors = validationResult.getErrors();
+    Assert.assertEquals(errors.get(0).getMessage(), "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.1.1");
+    Assert.assertEquals(errors.get(1).getMessage(), "The result of the LTV validation process is not acceptable to continue the process!");
+    Assert.assertEquals(errors.get(2).getMessage(), "OCSP nonce is invalid");
+    Assert.assertEquals(errors.get(3).getMessage(), "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.1.1");
+    Assert.assertEquals(errors.get(4).getMessage(), "The result of the LTV validation process is not acceptable to continue the process!");
+    Assert.assertEquals(errors.get(5).getMessage(), "OCSP nonce is invalid");
+
+    DigiDoc4JException duplicateSigFileEx = errors.get(6);
+    Assert.assertTrue(duplicateSigFileEx instanceof DuplicateSignatureFilesException);
+    Assert.assertEquals(duplicateSigFileEx.getMessage(), "Duplicate signature files: META-INF/signatures1.xml");
   }
 
   /*
