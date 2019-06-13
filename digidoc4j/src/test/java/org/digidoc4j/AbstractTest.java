@@ -10,10 +10,12 @@ import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
+import org.digidoc4j.impl.SkDataLoader;
+import org.digidoc4j.impl.SkOCSPDataLoader;
+import org.digidoc4j.impl.SkTimestampDataLoader;
 import org.digidoc4j.impl.asic.AsicFileContainerParser;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicStreamContainerParser;
-import org.digidoc4j.impl.asic.SkDataLoader;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
@@ -438,14 +440,14 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected CommonOCSPSource createOCSPSource() {
     CommonOCSPSource source = new CommonOCSPSource(this.configuration);
-    SkDataLoader loader = SkDataLoader.ocsp(this.configuration);
+    SkDataLoader loader = new SkOCSPDataLoader(this.configuration);
     loader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
     source.setDataLoader(loader);
     return source;
   }
 
   private OnlineTSPSource createTSPSource() {
-    SkDataLoader loader = SkDataLoader.timestamp(this.configuration);
+    SkDataLoader loader = new SkTimestampDataLoader(this.configuration);
     loader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
     OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
     source.setDataLoader(loader);

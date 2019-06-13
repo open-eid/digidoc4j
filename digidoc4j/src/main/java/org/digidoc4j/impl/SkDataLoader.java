@@ -8,18 +8,13 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl.asic;
+package org.digidoc4j.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-
+import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.utils.Utils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BufferedHttpEntity;
@@ -28,17 +23,19 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.asic.DataLoaderDecorator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSException;
-import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
-import eu.europa.esig.dss.client.http.commons.OCSPDataLoader;
+import java.io.ByteArrayInputStream;
+import java.io.InterruptedIOException;
+import java.net.URI;
+import java.net.UnknownHostException;
 
 /**
  * Data loader implementation for SK ID Solutions AS
  */
-public class SkDataLoader extends CommonsDataLoader {
+public abstract class SkDataLoader extends CommonsDataLoader {
 
   private static final String TIMESTAMP_CONTENT_TYPE = "application/timestamp-query";
   private final Logger log = LoggerFactory.getLogger(SkDataLoader.class);
@@ -49,40 +46,12 @@ public class SkDataLoader extends CommonsDataLoader {
     DataLoaderDecorator.decorateWithSslSettings(this, configuration);
   }
 
-  /**
-   * Content type "application/ocsp-request"
-   *
-   * @param configuration configuration context
-   * @return DataLoader
-   */
-  public static SkDataLoader ocsp(Configuration configuration) {
-    SkDataLoader dataLoader = new SkDataLoader(configuration);
-    dataLoader.setContentType(OCSPDataLoader.OCSP_CONTENT_TYPE);
-    return dataLoader;
-  }
-
-  /**
-   * Content type "application/timestamp-query"
-   *
-   * @param configuration configuration context
-   * @return
-   */
-  public static SkDataLoader timestamp(Configuration configuration) {
-    SkDataLoader dataLoader = new SkDataLoader(configuration);
-    dataLoader.setContentType(SkDataLoader.TIMESTAMP_CONTENT_TYPE);
-    return dataLoader;
-  }
-
   @Override
   public byte[] post(final String url, final byte[] content) throws DSSException {
     if (StringUtils.isBlank(url)) {
       throw new TechnicalException("SK endpoint url is unset");
     }
-    if (SkDataLoader.TIMESTAMP_CONTENT_TYPE.equals(contentType)) {
-      log.debug("Getting Timestamp response from <{}>", url);
-    } else if (OCSPDataLoader.OCSP_CONTENT_TYPE.equals(contentType)) {
-      log.debug("Getting OCSP response from <{}>", url);
-    }
+    logAction(url);
     if (StringUtils.isBlank(this.userAgent)) {
       throw new TechnicalException("Header <User-Agent> is unset");
     }
@@ -118,6 +87,10 @@ public class SkDataLoader extends CommonsDataLoader {
       }
     }
   }
+
+  protected abstract void logAction(String url);
+
+  protected abstract String getServiceType();
 
   /*
    * ACCESSORS

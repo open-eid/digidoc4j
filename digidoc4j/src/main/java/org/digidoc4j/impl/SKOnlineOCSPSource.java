@@ -38,7 +38,6 @@ import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureVerificationException;
 import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.impl.asic.SkDataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

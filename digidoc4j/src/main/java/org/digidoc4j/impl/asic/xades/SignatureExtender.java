@@ -20,8 +20,9 @@ import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.impl.SkDataLoader;
+import org.digidoc4j.impl.SkTimestampDataLoader;
 import org.digidoc4j.impl.asic.AsicSignature;
-import org.digidoc4j.impl.asic.SkDataLoader;
 import org.digidoc4j.utils.Helper;
 import org.digidoc4j.utils.PolicyUtils;
 import org.slf4j.Logger;
@@ -108,7 +109,7 @@ public class SignatureExtender {
 
   private OnlineTSPSource createTimeStampProviderSource(SignatureProfile profile) {
     OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
-    SkDataLoader loader = SkDataLoader.timestamp(this.configuration);
+    SkDataLoader loader = new SkTimestampDataLoader(this.configuration);
     loader.setUserAgent(Helper.createBDocUserAgent(profile));
     source.setDataLoader(loader);
     return source;

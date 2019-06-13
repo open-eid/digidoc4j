@@ -6,7 +6,7 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
-import org.digidoc4j.impl.asic.SkDataLoader;
+import org.digidoc4j.impl.SkOCSPDataLoader;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   private X509Certificate issuerCert;
 
   @Mock
-  private SkDataLoader dataLoader;
+  private SkOCSPDataLoader dataLoader;
 
   @Test
   public void gettingOCSPToken_shouldReturnNull_whenOCSPResponseIsEmpty() throws Exception {

@@ -30,6 +30,8 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.SignatureFinalizer;
+import org.digidoc4j.impl.SkDataLoader;
+import org.digidoc4j.impl.SkTimestampDataLoader;
 import org.digidoc4j.impl.asic.asice.AsicESignatureOpener;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
@@ -271,7 +273,7 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
 
   private void setTimeStampProviderSource() {
     OnlineTSPSource tspSource = new OnlineTSPSource(this.getTspSource(configuration));
-    SkDataLoader dataLoader = SkDataLoader.timestamp(configuration);
+    SkDataLoader dataLoader = new SkTimestampDataLoader(configuration);
     dataLoader.setUserAgent(Helper.createBDocUserAgent(this.signatureParameters.getSignatureProfile()));
     tspSource.setDataLoader(dataLoader);
     this.facade.setTspSource(tspSource);
