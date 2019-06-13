@@ -153,7 +153,6 @@ public class DataFile implements Serializable {
    * @return digest algorithm uri
    */
   public byte[] calculateDigest(org.digidoc4j.DigestAlgorithm digestType) {
-    logger.debug("");
     return calculateDigest(digestType.uri());
   }
 
@@ -181,7 +180,6 @@ public class DataFile implements Serializable {
    * @return id or name
    */
   public String getId() {
-    logger.debug("");
     return (id == null ? getName() : id);
   }
 
@@ -191,7 +189,6 @@ public class DataFile implements Serializable {
    * @return file size in bytes
    */
   public long getFileSize() {
-    logger.debug("");
     long fileSize;
     if (document instanceof StreamDocument || document instanceof FileDocument) {
       try {
@@ -214,7 +211,6 @@ public class DataFile implements Serializable {
    * @return media type
    */
   public String getMediaType() {
-    logger.debug("");
     String mediaType = document.getMimeType().getMimeTypeString();
     logger.debug("Media type is: " + mediaType);
     return mediaType;
@@ -232,7 +228,6 @@ public class DataFile implements Serializable {
    * @throws java.io.IOException on file write error
    */
   public void saveAs(OutputStream out) throws IOException {
-    logger.debug("");
     out.write(getBytes());
     out.close();
   }
@@ -259,7 +254,6 @@ public class DataFile implements Serializable {
    * @return data as bytes
    */
   public byte[] getBytes() {
-    logger.debug("");
     try {
       return IOUtils.toByteArray(document.openStream());
     } catch (IOException e) {
@@ -273,7 +267,6 @@ public class DataFile implements Serializable {
    * @return data file stream
    */
   public InputStream getStream() {
-    logger.debug("");
     return document.openStream();
   }
 
@@ -283,7 +276,6 @@ public class DataFile implements Serializable {
    * @param dataFileId id for the dataFile
    */
   public void setId(String dataFileId) {
-    logger.debug("");
     this.id = dataFileId;
   }
 

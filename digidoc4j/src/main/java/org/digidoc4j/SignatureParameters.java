@@ -215,7 +215,6 @@ public class SignatureParameters implements Serializable {
    * @return new signature parameters object
    */
   public SignatureParameters copy() {
-    logger.debug("");
     ObjectOutputStream oos = null;
     ObjectInputStream ois = null;
     SignatureParameters copySignatureParameters = null;

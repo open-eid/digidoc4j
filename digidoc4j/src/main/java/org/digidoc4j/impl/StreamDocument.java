@@ -11,23 +11,22 @@
 package org.digidoc4j.impl;
 
 
+import eu.europa.esig.dss.CommonDocument;
+import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.MimeType;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import eu.europa.esig.dss.CommonDocument;
-import eu.europa.esig.dss.DSSException;
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.DigestAlgorithm;
-import eu.europa.esig.dss.MimeType;
 
 /**
  * @see eu.europa.esig.dss.DSSDocument implementation to handle big files. It writes data to temporary
@@ -58,7 +57,6 @@ public class StreamDocument extends CommonDocument {
   }
 
   private void createTemporaryFileOfStream(InputStream stream) {
-    logger.debug("");
     byte[] bytes = new byte[MAX_SIZE_IN_MEMORY];
 
     FileOutputStream out = null;
@@ -83,7 +81,6 @@ public class StreamDocument extends CommonDocument {
 
   @Override
   public InputStream openStream() throws DSSException {
-    logger.debug("");
     try {
       return getTemporaryFileAsStream();
     } catch (FileNotFoundException e) {
@@ -94,7 +91,6 @@ public class StreamDocument extends CommonDocument {
 
   @Override
   public String getName() {
-    logger.debug("");
     return documentName;
   }
 
@@ -105,7 +101,6 @@ public class StreamDocument extends CommonDocument {
 
   @Override
   public String getAbsolutePath() {
-    logger.debug("");
     return temporaryFile.getAbsolutePath();
   }
 

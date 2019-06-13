@@ -63,7 +63,6 @@ public class AsicSignature implements Signature {
 
   @Override
   public byte[] getOCSPNonce() {
-    logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
@@ -75,7 +74,6 @@ public class AsicSignature implements Signature {
   @Override
   @Deprecated
   public String getPolicy() {
-    logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
@@ -175,7 +173,6 @@ public class AsicSignature implements Signature {
   @Override
   @Deprecated
   public URI getSignaturePolicyURI() {
-    logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
