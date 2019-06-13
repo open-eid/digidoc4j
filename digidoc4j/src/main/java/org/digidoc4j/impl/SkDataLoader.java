@@ -22,6 +22,10 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.exceptions.ConnectionTimedOutException;
+import org.digidoc4j.exceptions.InvalidServiceUrlException;
+import org.digidoc4j.exceptions.NetworkException;
+import org.digidoc4j.exceptions.ServiceAccessDeniedException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.asic.DataLoaderDecorator;
 import org.slf4j.Logger;
@@ -37,8 +41,7 @@ import java.net.UnknownHostException;
  */
 public abstract class SkDataLoader extends CommonsDataLoader {
 
-  private static final String TIMESTAMP_CONTENT_TYPE = "application/timestamp-query";
-  private final Logger log = LoggerFactory.getLogger(SkDataLoader.class);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(SkDataLoader.class);
   private String userAgent;
 
   protected SkDataLoader(Configuration configuration) {
@@ -47,7 +50,7 @@ public abstract class SkDataLoader extends CommonsDataLoader {
   }
 
   @Override
-  public byte[] post(final String url, final byte[] content) throws DSSException {
+  public byte[] post(final String url, final byte[] content) {
     if (StringUtils.isBlank(url)) {
       throw new TechnicalException("SK endpoint url is unset");
     }
@@ -71,9 +74,17 @@ public abstract class SkDataLoader extends CommonsDataLoader {
       }
       client = getHttpClient(url);
       httpResponse = this.getHttpResponse(client, httpRequest);
+      validateHttpResponse(httpResponse, url);
       return readHttpResponse(httpResponse);
-    } catch (IOException e) {
-      throw new DSSException("Unable to process POST call for url '" + url + "'", e);
+
+    } catch (UnknownHostException e) {
+      throw new InvalidServiceUrlException(url, getServiceType());
+    } catch (InterruptedIOException e) {
+      throw new ConnectionTimedOutException(url, getServiceType());
+    } catch (NetworkException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new NetworkException("Unable to process <" + getServiceType() + "> POST call for service <" + url + ">", url, getServiceType(), e);
     } finally {
       try {
         if (httpRequest != null) {
@@ -85,6 +96,12 @@ public abstract class SkDataLoader extends CommonsDataLoader {
       } finally {
         Utils.closeQuietly(client);
       }
+    }
+  }
+
+  private void validateHttpResponse(CloseableHttpResponse httpResponse, String url) {
+    if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN) {
+      throw new ServiceAccessDeniedException(url, getServiceType());
     }
   }
 
