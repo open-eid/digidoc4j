@@ -359,6 +359,14 @@ public class BDocContainerTest extends AbstractTest {
   }
 
   @Test
+  public void removingNullSignatureDoesNothing() {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
+    Assert.assertEquals(1, container.getSignatures().size());
+    container.removeSignature(null);
+    Assert.assertEquals(1, container.getSignatures().size());
+  }
+
+  @Test
   public void testSaveDocumentWithOneSignature() throws Exception {
     Assert.assertTrue(Files.exists(Paths.get(this.createSignedContainerBy("bdoc"))));
   }

@@ -1,22 +1,28 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl.bdoc.asic;
+
+import org.digidoc4j.AbstractTest;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.ContainerOpener;
+import org.digidoc4j.ValidationResult;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
-import org.digidoc4j.*;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.asic.manifest.ManifestValidator;
-import org.digidoc4j.test.util.TestDigiDoc4JUtil;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import eu.europa.esig.dss.MimeType;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -86,6 +92,14 @@ public class AsicSContainerTest extends AbstractTest {
     ValidationResult result = container.validate();
     assertFalse(result.isValid());
     assertEquals("ASICS container can only contain single signature file", result.getErrors().get(0).getMessage());
+  }
+
+  @Test
+  public void removingNullSignatureDoesNothing() {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/asics-1-signature.asics");
+    Assert.assertEquals(1, container.getSignatures().size());
+    container.removeSignature(null);
+    Assert.assertEquals(1, container.getSignatures().size());
   }
 
 }

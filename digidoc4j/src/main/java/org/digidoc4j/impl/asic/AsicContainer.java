@@ -481,6 +481,11 @@ public abstract class AsicContainer implements Container {
 
   @Override
   public void removeSignature(Signature signature) {
+    if (signature == null) {
+      LOGGER.warn("Cannot remove null signature");
+      return;
+    }
+
     LOGGER.info("Removing signature " + signature.getId());
     if (!isNewContainer()) {
       validateIncomingSignature(signature);
