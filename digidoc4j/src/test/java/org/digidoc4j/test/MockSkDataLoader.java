@@ -36,9 +36,6 @@ public class MockSkDataLoader extends SkDataLoader {
   }
 
   @Override
-  protected void logAction(String url) {}
-
-  @Override
   protected ServiceType getServiceType() {
     return ServiceType.OCSP;
   }

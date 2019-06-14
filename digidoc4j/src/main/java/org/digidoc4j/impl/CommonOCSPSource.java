@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl;
 
 import eu.europa.esig.dss.x509.CertificateToken;
@@ -15,6 +25,7 @@ import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.ServiceType;
 import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.utils.Helper;
@@ -31,9 +42,10 @@ import java.security.cert.X509Certificate;
  */
 public class CommonOCSPSource extends SKOnlineOCSPSource {
 
-  private final Logger LOGGER = LoggerFactory.getLogger(CommonOCSPSource.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CommonOCSPSource.class);
 
   private boolean useNonce;
+  private boolean useAiaOCSP = false;
 
   /**
    * @param configuration configuration
@@ -54,21 +66,24 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
         return aiaOcspFromCertificate;
       } else {
         LOGGER.info("Could not find OCSP url from certificate. Trying to Retrieve it from configuration");
-        if (getConfiguration() != null) {
-          String issuerCommonName = getCN(certificate.getIssuerX500Principal());
-          String aiaOcspFromConfiguration = getConfiguration().getAiaOcspSourceByCN(issuerCommonName);
-          if (!StringUtils.isEmpty(aiaOcspFromConfiguration)) {
-            LOGGER.info("Found AIA OCSP url from configuration");
-            setAiaOCspParams(certificate);
-            return aiaOcspFromConfiguration;
-          }
+        String issuerCommonName = getCN(certificate.getIssuerX500Principal());
+        String aiaOcspFromConfiguration = getConfiguration().getAiaOcspSourceByCN(issuerCommonName);
+        if (!StringUtils.isEmpty(aiaOcspFromConfiguration)) {
+          LOGGER.info("Found AIA OCSP url from configuration");
+          setAiaOCspParams(certificate);
+          return aiaOcspFromConfiguration;
         }
         LOGGER.info("Could not find OCSP url configuration. Using default OCSP source");
-        return super.getAccessLocation(certificate);
       }
-    } else {
-      return super.getAccessLocation(certificate);
     }
+
+    setAndUsePayedOcspParams();
+    return super.getAccessLocation(certificate);
+  }
+
+  @Override
+  protected ServiceType getOCSPType() {
+    return useAiaOCSP ? ServiceType.AIA_OCSP : ServiceType.OCSP;
   }
 
   @Override
@@ -134,6 +149,14 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
   }
 
   private void setAiaOCspParams(X509Certificate certificate) {
+    useAiaOCSP = true;
     useNonce = getConfiguration().getUseNonceForAiaOcspByCN(getCN(certificate.getIssuerX500Principal()));
+    ((SkOCSPDataLoader) getDataLoader()).setAsAiaOcsp(true);
+  }
+
+  private void setAndUsePayedOcspParams() {
+    useAiaOCSP = false;
+    useNonce = getConfiguration().isOcspNonceUsed();
+    ((SkOCSPDataLoader) getDataLoader()).setAsAiaOcsp(false);
   }
 }

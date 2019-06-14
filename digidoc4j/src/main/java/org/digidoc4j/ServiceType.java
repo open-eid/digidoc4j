@@ -12,6 +12,7 @@ package org.digidoc4j;
 
 public enum ServiceType {
     OCSP,
+    AIA_OCSP,
     TSP,
     ;
   }

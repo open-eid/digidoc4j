@@ -55,7 +55,7 @@ public abstract class SkDataLoader extends CommonsDataLoader {
     if (StringUtils.isBlank(url)) {
       throw new TechnicalException("SK endpoint url is unset");
     }
-    logAction(url);
+    LOGGER.debug("Getting {} response from <{}>", getServiceType().name(), url);
     if (StringUtils.isBlank(this.userAgent)) {
       throw new TechnicalException("Header <User-Agent> is unset");
     }
@@ -105,8 +105,6 @@ public abstract class SkDataLoader extends CommonsDataLoader {
       throw new ServiceAccessDeniedException(url, getServiceType());
     }
   }
-
-  protected abstract void logAction(String url);
 
   protected abstract ServiceType getServiceType();
 

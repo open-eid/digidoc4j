@@ -22,11 +22,6 @@ public class SkTimestampDataLoader extends SkDataLoader {
   }
 
   @Override
-  protected void logAction(String url) {
-    LOGGER.debug("Getting Timestamp response from <{}>", url);
-  }
-
-  @Override
   protected ServiceType getServiceType() {
     return ServiceType.TSP;
   }

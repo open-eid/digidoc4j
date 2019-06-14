@@ -16,19 +16,19 @@ import org.digidoc4j.ServiceType;
 
 public class SkOCSPDataLoader extends SkDataLoader {
 
+  private boolean isAiaOcsp = false;
+
   public SkOCSPDataLoader(Configuration configuration) {
     super(configuration);
     contentType = OCSPDataLoader.OCSP_CONTENT_TYPE;
   }
 
-  @Override
-  protected void logAction(String url) {
-    LOGGER.debug("Getting OCSP response from <{}>", url);
+  public void setAsAiaOcsp(boolean isAiaOcsp) {
+    this.isAiaOcsp = isAiaOcsp;
   }
 
   @Override
   protected ServiceType getServiceType() {
-    return ServiceType.OCSP;
+    return isAiaOcsp ? ServiceType.AIA_OCSP : ServiceType.OCSP;
   }
-
 }
