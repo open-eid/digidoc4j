@@ -324,9 +324,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.databene</groupId>
+            <groupId>com.github.javatlacati</groupId>
             <artifactId>contiperf</artifactId>
-            <version>2.3.4</version>
+            <version>2.4.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
