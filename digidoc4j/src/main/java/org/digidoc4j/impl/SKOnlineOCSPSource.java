@@ -86,23 +86,12 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
 
     String accessLocation = getAccessLocation(certificateToken.getCertificate());
     try {
-      CertificateID certificateID = DSSRevocationUtils.getOCSPCertificateID(certificateToken, issuerCertificateToken);
-      String accessLocation = this.getAccessLocation(certificateToken.getCertificate());
-      Extension nonceExtension = this.createNonce(certificateToken.getCertificate());
-
-      byte[] response = dataLoader.post(accessLocation, buildRequest(certificateID, nonceExtension));
-      BasicOCSPResp ocspResponse = parseAndVerifyOCSPResponse(response, accessLocation);
-      checkNonce(ocspResponse, nonceExtension);
-
-      OCSPToken ocspToken = constructOCSPToken(ocspResponse, certificateID, accessLocation);
-      verifyOCSPToken(ocspToken);
-      return ocspToken;
+      return queryOCSPToken(accessLocation, certificateToken, issuerCertificateToken);
 
     // DSS ignores and silently consumes DSSException resulting with invalid signature without OCSP.
     // Must rethrow as other exception to stop the signing process - no OCSP, no signature.
     // Any OCSP query exception should stop the signing process.
     } catch (DSSException e) {
-      // TODO: kas peaks olema CertificateValidationException TECHNICAL
       throw new TechnicalException("OCSP request failed", e);
 
     // Attach common data to CertificateValidationException and rethrow
@@ -134,14 +123,17 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
 
   protected abstract Extension createNonce(X509Certificate certificate);
 
-  protected void checkNonce(BasicOCSPResp response, Extension expectedNonceExtension) {
-    Extension extension = response.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
-    DEROctetString expectedNonce = (DEROctetString) expectedNonceExtension.getExtnValue();
-    DEROctetString receivedNonce = (DEROctetString) extension.getExtnValue();
-    if (!receivedNonce.equals(expectedNonce)) {
-      String errorMessage = String.format("The OCSP request was victim of the replay attack (nonce sent <%s>, nonce received <%s>)", expectedNonce, receivedNonce);
-      throw CertificateValidationException.of(CertificateValidationStatus.UNTRUSTED, errorMessage);
-    }
+  private OCSPToken queryOCSPToken(String accessLocation, CertificateToken certificateToken, CertificateToken issuerCertificateToken) {
+    CertificateID certificateID = DSSRevocationUtils.getOCSPCertificateID(certificateToken, issuerCertificateToken);
+    Extension nonceExtension = createNonce(certificateToken.getCertificate());
+
+    byte[] response = dataLoader.post(accessLocation, buildRequest(certificateID, nonceExtension));
+    BasicOCSPResp ocspResponse = parseAndVerifyOCSPResponse(response, accessLocation);
+    checkNonce(ocspResponse, nonceExtension);
+
+    OCSPToken ocspToken = constructOCSPToken(ocspResponse, certificateID, accessLocation);
+    verifyOCSPToken(ocspToken);
+    return ocspToken;
   }
 
   private byte[] buildRequest(final CertificateID certificateID, Extension nonceExtension) {
@@ -257,6 +249,16 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
             this.configuration.getOCSPAccessCertificateFileName(), new KeyStore.PasswordProtection(this.configuration
             .getOCSPAccessCertificatePassword()));
     return signatureTokenConnection.getKeys().get(0);
+  }
+
+  protected void checkNonce(BasicOCSPResp response, Extension expectedNonceExtension) {
+    Extension extension = response.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
+    DEROctetString expectedNonce = (DEROctetString) expectedNonceExtension.getExtnValue();
+    DEROctetString receivedNonce = (DEROctetString) extension.getExtnValue();
+    if (!receivedNonce.equals(expectedNonce)) {
+      String errorMessage = String.format("The OCSP request was victim of the replay attack (nonce sent <%s>, nonce received <%s>)", expectedNonce, receivedNonce);
+      throw CertificateValidationException.of(CertificateValidationStatus.UNTRUSTED, errorMessage);
+    }
   }
 
   private OCSPToken constructOCSPToken(BasicOCSPResp ocspResponse, CertificateID certificateID, String accessLocation) {
