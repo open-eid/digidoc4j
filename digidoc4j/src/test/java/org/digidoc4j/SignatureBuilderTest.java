@@ -15,6 +15,7 @@ import eu.europa.esig.dss.x509.SignaturePolicy;
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.exceptions.IllegalSignatureProfileException;
+import org.digidoc4j.exceptions.InvalidServiceUrlException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
@@ -35,11 +36,13 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.security.Security;
 import java.util.Date;
 import java.util.List;
 
+import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.digidoc4j.Container.DocumentType.ASICE;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.junit.Assert.assertTrue;
@@ -792,6 +795,39 @@ public class SignatureBuilderTest extends AbstractTest {
     long claimedSigningTime = dataToSign.getSignatureParameters().getClaimedSigningDate().getTime();
     assertTrue(claimedSigningTime >= claimedSigningTimeLowerBound);
     assertTrue(claimedSigningTime <= claimedSigningTimeUpperBound);
+  }
+
+  @Test
+  public void invokeSigning_networkExceptionIsNotCaught() {
+    Configuration configuration = Configuration.of(TEST);
+    configuration.setOcspSource("http://invalid.ocsp.url");
+
+    expectedException.expect(InvalidServiceUrlException.class);
+    expectedException.expectMessage("Failed to connect to OCSP service <" + configuration.getOcspSource() + ">");
+
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).withConfiguration(configuration).build();
+    container.addDataFile(new ByteArrayInputStream("something".getBytes(StandardCharsets.UTF_8)), "file name", "text/plain");
+
+    SignatureBuilder.aSignature(container)
+          .withSignatureToken(this.pkcs12SignatureToken)
+          .invokeSigning();
+  }
+
+  @Test
+  public void dataToSignFinalize_networkExceptionIsNotCaught() {
+    Configuration configuration = Configuration.of(TEST);
+    configuration.setOcspSource("http://invalid.ocsp.url");
+
+    expectedException.expect(InvalidServiceUrlException.class);
+    expectedException.expectMessage("Failed to connect to OCSP service <" + configuration.getOcspSource() + ">");
+
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).withConfiguration(configuration).build();
+    container.addDataFile(new ByteArrayInputStream("something".getBytes(StandardCharsets.UTF_8)), "file name", "text/plain");
+
+    DataToSign dataToSign = SignatureBuilder.aSignature(container)
+          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .buildDataToSign();
+    dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
   }
 
   private Signature signContainerWithSignature(Container container, SignatureProfile signatureProfile) {

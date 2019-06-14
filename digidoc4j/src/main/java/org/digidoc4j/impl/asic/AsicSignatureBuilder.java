@@ -40,17 +40,16 @@ public class AsicSignatureBuilder extends SignatureBuilder {
     logger.info("Signing asic container");
     signatureParameters.setSigningCertificate(signatureToken.getCertificate());
     byte[] dataToSign = getSignatureFinalizer().getDataToBeSigned();
-    Signature result = null;
     byte[] signatureValue = null;
     try {
       signatureValue = signatureToken.sign(signatureParameters.getDigestAlgorithm(), dataToSign);
-      result = finalizeSignature(signatureValue);
+      return finalizeSignature(signatureValue);
     } catch (TechnicalException e) {
       String dataToSignHex = Helper.bytesToHex(dataToSign, AsicSignatureFinalizer.HEX_MAX_LENGTH);
       String signatureValueHex = signatureValue == null ? null : Helper.bytesToHex(signatureValue, AsicSignatureFinalizer.HEX_MAX_LENGTH);
       logger.warn("PROBLEM with signing: {} -> {}", dataToSignHex, signatureValueHex);
+      throw e;
     }
-    return result;
   }
 
   @Override
