@@ -18,6 +18,7 @@ import org.bouncycastle.tsp.TimeStampRequest;
 import org.bouncycastle.tsp.TimeStampResponse;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.ServiceType;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.ConnectionTimedOutException;
 import org.digidoc4j.exceptions.ServiceAccessDeniedException;
@@ -32,6 +33,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 public class SkTimestampDataLoaderTest extends AbstractTest {
@@ -44,7 +46,7 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
   @Test
   public void getServiceType() {
     SkTimestampDataLoader dataLoader = new SkTimestampDataLoader(Configuration.of(TEST));
-    assertEquals(SkTimestampDataLoader.SERVICE_TYPE, dataLoader.getServiceType());
+    assertSame(ServiceType.TSP, dataLoader.getServiceType());
   }
 
   @Test
@@ -65,7 +67,7 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
       dataLoader.post(serviceUrl, new byte[] {1});
       fail("Expected to throw ServiceAccessDeniedException");
     } catch (ServiceAccessDeniedException e) {
-      assertEquals(SkTimestampDataLoader.SERVICE_TYPE, e.getServiceType());
+      assertSame(ServiceType.TSP, e.getServiceType());
       assertEquals("Access denied to TSP service <" + serviceUrl + ">", e.getMessage());
     }
   }
@@ -83,7 +85,7 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
       dataLoader.post(serviceUrl, new byte[] {1});
       fail("Expected to throw ConnectionTimedOutException");
     } catch (ConnectionTimedOutException e) {
-      assertEquals(SkTimestampDataLoader.SERVICE_TYPE, e.getServiceType());
+      assertSame(ServiceType.TSP, e.getServiceType());
       assertEquals("Connection to TSP service <" + serviceUrl + "> timed out", e.getMessage());
     }
   }

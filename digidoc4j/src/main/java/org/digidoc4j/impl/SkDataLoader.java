@@ -22,6 +22,7 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.ServiceType;
 import org.digidoc4j.exceptions.ConnectionTimedOutException;
 import org.digidoc4j.exceptions.InvalidServiceUrlException;
 import org.digidoc4j.exceptions.NetworkException;
@@ -107,7 +108,7 @@ public abstract class SkDataLoader extends CommonsDataLoader {
 
   protected abstract void logAction(String url);
 
-  protected abstract String getServiceType();
+  protected abstract ServiceType getServiceType();
 
   /*
    * ACCESSORS
@@ -120,5 +121,4 @@ public abstract class SkDataLoader extends CommonsDataLoader {
   public String getUserAgent() {
     return userAgent;
   }
-
 }

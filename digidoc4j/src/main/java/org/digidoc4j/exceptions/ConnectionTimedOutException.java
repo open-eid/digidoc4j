@@ -10,9 +10,11 @@
 
 package org.digidoc4j.exceptions;
 
+import org.digidoc4j.ServiceType;
+
 public class ConnectionTimedOutException extends NetworkException {
 
-  public ConnectionTimedOutException(String serviceUrl, String serviceType) {
+  public ConnectionTimedOutException(String serviceUrl, ServiceType serviceType) {
     super(String.format("Connection to %s service <%s> timed out", serviceType, serviceUrl), serviceUrl, serviceType);
   }
 }

@@ -10,9 +10,11 @@
 
 package org.digidoc4j.exceptions;
 
+import org.digidoc4j.ServiceType;
+
 public class InvalidServiceUrlException extends NetworkException {
 
-  public InvalidServiceUrlException(String serviceUrl, String serviceType) {
+  public InvalidServiceUrlException(String serviceUrl, ServiceType serviceType) {
     super(String.format("Failed to connect to %s service <%s>", serviceType, serviceUrl), serviceUrl, serviceType);
   }
 }

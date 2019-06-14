@@ -11,6 +11,7 @@
 package org.digidoc4j.test;
 
 import org.digidoc4j.Configuration;
+import org.digidoc4j.ServiceType;
 import org.digidoc4j.impl.SkDataLoader;
 
 /**
@@ -38,8 +39,8 @@ public class MockSkDataLoader extends SkDataLoader {
   protected void logAction(String url) {}
 
   @Override
-  protected String getServiceType() {
-    return "mock service";
+  protected ServiceType getServiceType() {
+    return ServiceType.OCSP;
   }
 
   public String getSslKeystorePath() {

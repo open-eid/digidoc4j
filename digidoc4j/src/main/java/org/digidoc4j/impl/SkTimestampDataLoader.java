@@ -12,10 +12,9 @@ package org.digidoc4j.impl;
 
 import eu.europa.esig.dss.client.http.commons.TimestampDataLoader;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.ServiceType;
 
 public class SkTimestampDataLoader extends SkDataLoader {
-
-  public static final String SERVICE_TYPE = "TSP";
 
   public SkTimestampDataLoader(Configuration configuration) {
     super(configuration);
@@ -28,7 +27,7 @@ public class SkTimestampDataLoader extends SkDataLoader {
   }
 
   @Override
-  protected String getServiceType() {
-    return SERVICE_TYPE;
+  protected ServiceType getServiceType() {
+    return ServiceType.TSP;
   }
 }

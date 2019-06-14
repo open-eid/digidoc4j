@@ -12,10 +12,9 @@ package org.digidoc4j.impl;
 
 import eu.europa.esig.dss.client.http.commons.OCSPDataLoader;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.ServiceType;
 
 public class SkOCSPDataLoader extends SkDataLoader {
-
-  public static final String SERVICE_TYPE = "OCSP";
 
   public SkOCSPDataLoader(Configuration configuration) {
     super(configuration);
@@ -28,8 +27,8 @@ public class SkOCSPDataLoader extends SkDataLoader {
   }
 
   @Override
-  protected String getServiceType() {
-    return SERVICE_TYPE;
+  protected ServiceType getServiceType() {
+    return ServiceType.OCSP;
   }
 
 }

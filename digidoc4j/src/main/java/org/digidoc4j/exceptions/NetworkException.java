@@ -10,18 +10,20 @@
 
 package org.digidoc4j.exceptions;
 
+import org.digidoc4j.ServiceType;
+
 public class NetworkException extends TechnicalException {
 
   private final String serviceUrl;
-  private final String serviceType;
+  private final ServiceType serviceType;
 
-  public NetworkException(String message, String serviceUrl, String serviceType) {
+  public NetworkException(String message, String serviceUrl, ServiceType serviceType) {
     super(message);
     this.serviceUrl = serviceUrl;
     this.serviceType = serviceType;
   }
 
-  public NetworkException(String message, String serviceUrl, String serviceType, Throwable cause) {
+  public NetworkException(String message, String serviceUrl, ServiceType serviceType, Throwable cause) {
     super(message, cause);
     this.serviceUrl = serviceUrl;
     this.serviceType = serviceType;
@@ -31,7 +33,7 @@ public class NetworkException extends TechnicalException {
     return serviceUrl;
   }
 
-  public String getServiceType() {
+  public ServiceType getServiceType() {
     return serviceType;
   }
 }

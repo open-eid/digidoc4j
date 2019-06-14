@@ -10,9 +10,11 @@
 
 package org.digidoc4j.exceptions;
 
+import org.digidoc4j.ServiceType;
+
 public class ServiceAccessDeniedException extends NetworkException {
 
-  public ServiceAccessDeniedException(String serviceUrl, String serviceType) {
+  public ServiceAccessDeniedException(String serviceUrl, ServiceType serviceType) {
     super(String.format("Access denied to %s service <%s>", serviceType, serviceUrl), serviceUrl, serviceType);
   }
 }
