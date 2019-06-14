@@ -23,6 +23,7 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.ConnectionTimedOutException;
 import org.digidoc4j.exceptions.ServiceAccessDeniedException;
 import org.digidoc4j.utils.Helper;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,6 +43,11 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
 
   @Rule
   public WireMockRule instanceRule = new WireMockRule(Options.DYNAMIC_PORT);
+
+  @After
+  public void tearDown() {
+    WireMock.reset();
+  }
 
   @Test
   public void getServiceType() {
@@ -92,11 +98,13 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
 
   @Test
   public void getTimestampViaSpy() throws Exception {
-    instanceRule.stubFor(post("/").willReturn(WireMock.aResponse().proxiedFrom(this.configuration.getTspSource())));
+    Configuration configuration = Configuration.of(TEST);
+    instanceRule.stubFor(post("/").willReturn(WireMock.aResponse().proxiedFrom(configuration.getTspSource())));
     byte[] tsRequest = new byte[]{48, 57, 2, 1, 1, 48, 49, 48, 13, 6, 9, 96, -122, 72, 1, 101, 3, 4, 2, 1, 5, 0, 4, 32, 2, 91, 64, 111, 35, -23, -19, -46, 57, -80, -63, -80, -74, 100, 72, 97, -47, -17, -35, -62, 102, 52, 116, 73, -10, -120, 115, 62, 2, 87, -29, -21, 1, 1, -1};
-    SkDataLoader dataLoader = new SkTimestampDataLoader(this.configuration);
+    SkDataLoader dataLoader = new SkTimestampDataLoader(configuration);
     dataLoader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
-    byte[] response = dataLoader.post(MOCK_PROXY_URL, tsRequest);
+    String serviceUrl = MOCK_PROXY_URL + instanceRule.port() + "/";
+    byte[] response = dataLoader.post(serviceUrl, tsRequest);
     Assert.assertNotNull(response);
     TimeStampResponse timeStampResponse = new TimeStampResponse(response);
     Assert.assertEquals(0, timeStampResponse.getStatus());

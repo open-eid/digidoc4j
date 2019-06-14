@@ -1,13 +1,20 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl;
 
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.util.List;
-
-import javax.security.auth.x500.X500Principal;
-
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.x509.CertificateSource;
+import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.CertificateValidator;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.CertificateValidationException;
@@ -15,12 +22,10 @@ import org.digidoc4j.exceptions.SignatureVerificationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.x509.CertificateSource;
-import eu.europa.esig.dss.x509.CertificateToken;
-import eu.europa.esig.dss.x509.crl.CRLReasonEnum;
-import eu.europa.esig.dss.x509.ocsp.OCSPSource;
-import eu.europa.esig.dss.x509.ocsp.OCSPToken;
+import javax.security.auth.x500.X500Principal;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.util.List;
 
 /**
  * Implementation class for validating certificates by using OCSP requests
@@ -52,8 +57,8 @@ public class OCSPCertificateValidator implements CertificateValidator {
       if (subjectCertificate == null) {
         throw new IllegalArgumentException("Subject certificate is not provided");
       }
-      this.verifyOCSPToken(this.ocspSource.getRevocationToken(new CertificateToken(subjectCertificate),
-          this.getIssuerCertificateToken(subjectCertificate)));
+      CertificateToken issuerCertificateToken = this.getIssuerCertificateToken(subjectCertificate);
+      this.ocspSource.getRevocationToken(new CertificateToken(subjectCertificate), issuerCertificateToken);
     } catch (SignatureVerificationException e) {
       throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNTRUSTED, e);
     } catch (CertificateValidationException e) {
@@ -98,31 +103,6 @@ public class OCSPCertificateValidator implements CertificateValidator {
       tokens = this.certificateSource.get(principal);
     }
     return tokens;
-  }
-
-  private void verifyOCSPToken(OCSPToken token) {
-    if (token == null) {
-      throw CertificateValidationException.of("No token response is present");
-    }
-    try {
-      if (token.getStatus() != null) {
-        if (!token.getStatus()) {
-          LOGGER.debug("Certificate with DSS ID <{}> - status <{}>", token.getDSSIdAsString(), token.getReason().name());
-          throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.REVOKED);
-        }
-        // Otherwise status is GOOD
-        return;
-      }
-      if (token.getReason() != null) {
-        LOGGER.debug("Certificate with DSS ID <{}> - status <{}>", token.getDSSIdAsString(), token.getReason().name());
-        throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNKNOWN);
-
-      }
-    } catch (CertificateValidationException e) {
-      throw e;
-    } catch (Exception e) {
-      throw CertificateValidationException.of(e);
-    }
   }
 
   /*

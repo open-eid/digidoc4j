@@ -12,11 +12,11 @@ import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.asn1.x509.AccessDescription;
 import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
 import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
-import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.TSLCertificateSource;
-import org.digidoc4j.exceptions.SignatureVerificationException;
+import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,6 @@ import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
-import java.util.List;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
@@ -34,7 +33,6 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
 
   private final Logger LOGGER = LoggerFactory.getLogger(CommonOCSPSource.class);
 
-  private boolean useAiaOcsp;
   private boolean useNonce;
 
   /**
@@ -88,14 +86,17 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
     TSLCertificateSource certificateSource = getConfiguration().getTSL();
     if (CollectionUtils.isEmpty(certificateSource.get(token.getCertificate().getSubjectX500Principal()))
             && CollectionUtils.isEmpty(certificateSource.get(token.getCertificate().getIssuerX500Principal()))) {
-      throw new SignatureVerificationException(String.format("OCSP response certificate <%s> match is not found in TSL", token.getDSSIdAsString()));
+      throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNTRUSTED,
+              String.format("OCSP response certificate <%s> match is not found in TSL", token.getDSSIdAsString()));
     }
     try {
       if (!token.getCertificate().getExtendedKeyUsage().contains(OID_OCSP_SIGNING)) {
-        throw new SignatureVerificationException(String.format("OCSP response certificate <%s> does not have 'OCSPSigning' extended key usage", token.getDSSIdAsString()));
+        throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.TECHNICAL,
+                String.format("OCSP response certificate <%s> does not have 'OCSPSigning' extended key usage", token.getDSSIdAsString()));
       }
     } catch (CertificateParsingException e) {
-      throw new SignatureVerificationException(String.format("Error on verifying 'OCSPSigning' extended key usage for OCSP response certificate <%s>", token.getDSSIdAsString()), e);
+      throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.TECHNICAL,
+              String.format("Error on verifying 'OCSPSigning' extended key usage for OCSP response certificate <%s>", token.getDSSIdAsString()), e);
     }
   }
 
@@ -112,7 +113,7 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
     try {
       byte[] encodedAiaBytes = certificate.getExtensionValue(Extension.authorityInfoAccess.getId());
       if (encodedAiaBytes != null) {
-        AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(encodedAiaBytes));
+        AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(encodedAiaBytes));
         AccessDescription[] descriptions = aia.getAccessDescriptions();
         for (AccessDescription description : descriptions) {
           if (OCSPObjectIdentifiers.id_pkix_ocsp.getId().equals(description.getAccessMethod().getId())) {
@@ -133,8 +134,6 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
   }
 
   private void setAiaOCspParams(X509Certificate certificate) {
-    useAiaOcsp = true;
     useNonce = getConfiguration().getUseNonceForAiaOcspByCN(getCN(certificate.getIssuerX500Principal()));
   }
-
 }

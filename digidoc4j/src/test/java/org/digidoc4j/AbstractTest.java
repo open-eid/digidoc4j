@@ -205,6 +205,10 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     return (T) ContainerBuilder.aContainer().build();
   }
 
+  protected <T> T createEmptyContainer(Configuration configuration) {
+    return (T) ContainerBuilder.aContainer().withConfiguration(configuration).build();
+  }
+
   protected <T> T createEmptyContainer(Class<T> clazz) {
     return (T) ContainerBuilder.aContainer().build();
   }

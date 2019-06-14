@@ -22,6 +22,7 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.exceptions.InvalidServiceUrlException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.hamcrest.Matchers;
@@ -58,8 +59,8 @@ public class BDocSerializationTest extends AbstractTest {
     Assert.assertEquals(1, container.getSignatures().size());
   }
 
-  @Test
-  public void changeConfigurationAfterDeserialization_InvalidOcsp(){
+  @Test(expected = InvalidServiceUrlException.class)
+  public void changeConfigurationAfterDeserializationToInvalidOcspAndThrowConnectionFailureException(){
     String serializedDataToSignPath = this.getFileBy("bdoc");
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
@@ -68,17 +69,10 @@ public class BDocSerializationTest extends AbstractTest {
     this.serialize(container, this.serializedContainerLocation);
     this.serialize(dataToSign, serializedDataToSignPath);
     dataToSign = this.deserializer(serializedDataToSignPath);
-    dataToSign.getConfiguration().setOcspSource("invalidOcsp");
+    dataToSign.getConfiguration().setOcspSource("http://invalid.ocsp.url");
 
     byte[] signatureValue = this.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
-    container = this.deserializer(this.serializedContainerLocation);
-    Signature signature = dataToSign.finalize(signatureValue);
-    container.addSignature(signature);
-    container.saveAsFile(this.containerLocation);
-    container = ContainerOpener.open(this.containerLocation);
-    SignatureValidationResult validate = container.validate();
-    Assert.assertFalse(validate.isValid());
-    Assert.assertEquals(1, container.getSignatures().size());
+    dataToSign.finalize(signatureValue);
   }
 
   @Test

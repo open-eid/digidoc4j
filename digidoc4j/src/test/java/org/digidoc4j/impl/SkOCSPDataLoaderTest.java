@@ -22,6 +22,7 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.ConnectionTimedOutException;
 import org.digidoc4j.exceptions.ServiceAccessDeniedException;
 import org.digidoc4j.utils.Helper;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,6 +42,11 @@ public class SkOCSPDataLoaderTest extends AbstractTest {
 
   @Rule
   public WireMockRule instanceRule = new WireMockRule(Options.DYNAMIC_PORT);
+
+  @After
+  public void tearDown() {
+    WireMock.reset();
+  }
 
   @Test
   public void getServiceType() {
@@ -91,11 +97,13 @@ public class SkOCSPDataLoaderTest extends AbstractTest {
 
   @Test
   public void getOcspViaSpy() throws Exception {
-    instanceRule.stubFor(post("/").willReturn(WireMock.aResponse().proxiedFrom(this.configuration.getOcspSource())));
+    Configuration configuration = Configuration.of(TEST);
+    instanceRule.stubFor(post("/").willReturn(WireMock.aResponse().proxiedFrom(configuration.getOcspSource())));
     byte[] ocspRequest = new byte[]{48, 120, 48, 118, 48, 77, 48, 75, 48, 73, 48, 9, 6, 5, 43, 14, 3, 2, 26, 5, 0, 4, 20, -20, -37, 96, 16, 51, -48, 76, 118, -7, -123, -78, 28, -40, 58, -45, -98, 2, -101, -109, 49, 4, 20, 73, -64, -14, 68, 57, 101, -43, -101, 70, 59, 13, 56, 96, -125, -79, -42, 45, 40, -122, -90, 2, 16, 83, 11, -28, 27, -68, 89, 124, 68, 87, 14, 43, 124, 19, -68, -6, 12, -94, 37, 48, 35, 48, 33, 6, 9, 43, 6, 1, 5, 5, 7, 48, 1, 2, 4, 20, -55, 25, 66, -2, -90, 61, 30, -49, 20, -82, 91, 49, -4, -52, -64, 23, 106, 12, -114, 67};
-    SkDataLoader dataLoader = new SkOCSPDataLoader(this.configuration);
+    SkDataLoader dataLoader = new SkOCSPDataLoader(configuration);
     dataLoader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
-    byte[] response = dataLoader.post(MOCK_PROXY_URL, ocspRequest);
+    String serviceUrl = MOCK_PROXY_URL + instanceRule.port() + "/";
+    byte[] response = dataLoader.post(serviceUrl, ocspRequest);
     OCSPResp ocspResp = new OCSPResp(response);
     Assert.assertNotNull(ocspResp.getResponseObject());
     WireMock.verify(postRequestedFor(urlMatching("/"))

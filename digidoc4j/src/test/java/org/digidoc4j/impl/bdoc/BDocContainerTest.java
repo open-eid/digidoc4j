@@ -37,7 +37,6 @@ import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.DuplicateSignatureFilesException;
 import org.digidoc4j.exceptions.IllegalSignatureProfileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
-import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
@@ -969,17 +968,6 @@ public class BDocContainerTest extends AbstractTest {
         ("src/test/resources/testFiles/valid-containers/validTSwImplicitPolicy.asice");
     ContainerValidationResult validate = container.validate();
     Assert.assertTrue(validate.isValid());
-  }
-
-  @Test(expected = OCSPRequestFailedException.class)
-  public void signingContainer_withFailedOcspResponse_shouldThrowException() throws Exception {
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    configuration.setSignOCSPRequests(true);
-    configuration.setOCSPAccessCertificateFileName("src/test/resources/testFiles/p12/signout.p12");
-    configuration.setOCSPAccessCertificatePassword("test".toCharArray());
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).withConfiguration(configuration).
-        withDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain").build();
-    this.createSignatureBy(container, SignatureProfile.LT_TM, this.pkcs12SignatureToken);
   }
 
   @Test
