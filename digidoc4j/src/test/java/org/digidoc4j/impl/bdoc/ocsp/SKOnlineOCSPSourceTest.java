@@ -14,15 +14,7 @@ import eu.europa.esig.dss.DSSUtils;
 import eu.europa.esig.dss.x509.CertificateSource;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.x509.ocsp.OCSPToken;
-import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.X509v3CertificateBuilder;
-import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.operator.ContentSigner;
-import org.bouncycastle.operator.OperatorCreationException;
-import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.OCSPSourceBuilder;
@@ -40,16 +32,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.security.auth.x500.X500Principal;
-import java.math.BigInteger;
 import java.nio.file.Paths;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Date;
 
 import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.junit.Assert.assertEquals;
@@ -112,6 +99,8 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
     } catch (CertificateValidationException e) {
       assertEquals("Certificate status is revoked", e.getMessage());
       assertSame(CertificateValidationStatus.REVOKED, e.getCertificateStatus());
+      assertSame(ServiceType.OCSP, e.getServiceType());
+      assertEquals(this.configuration.getOcspSource(), e.getServiceUrl());
     }
   }
 
@@ -123,8 +112,9 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
     X509Certificate subjectCertificate = openX509Certificate(Paths.get("src/test/resources/testFiles/certs/TESTofStatusRevoked.cer"));
     CertificateToken issuerCertificateToken = getIssuerCertificateToken(subjectCertificate, certificateSource);
 
+    Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource()
-          .withConfiguration(Configuration.of(Configuration.Mode.PROD))
+          .withConfiguration(configuration)
           .build();
     try {
       ocspSource.getRevocationToken(new CertificateToken(subjectCertificate), issuerCertificateToken);
@@ -132,6 +122,8 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
     } catch (CertificateValidationException e) {
       assertEquals("Certificate is unknown", e.getMessage());
       assertSame(CertificateValidationStatus.UNKNOWN, e.getCertificateStatus());
+      assertSame(ServiceType.OCSP, e.getServiceType());
+      assertEquals(configuration.getOcspSource(), e.getServiceUrl());
     }
   }
 
@@ -180,6 +172,8 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
     } catch (CertificateValidationException e) {
       assertEquals("Failed to parse OCSP response", e.getMessage());
       assertSame(CertificateValidationStatus.TECHNICAL, e.getCertificateStatus());
+      assertSame(ServiceType.OCSP, e.getServiceType());
+      assertEquals(this.configuration.getOcspSource(), e.getServiceUrl());
     }
   }
 
@@ -205,24 +199,5 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
     CertificateToken subjectCertificateToken = DSSUtils.loadCertificate(subjectCertificate.getEncoded());
     X500Principal subjectPrincipal = subjectCertificateToken.getIssuerX500Principal();
     return certificateSource.get(subjectPrincipal).get(0);
-  }
-
-  private X509Certificate createRandomCertificate() throws NoSuchAlgorithmException, OperatorCreationException, CertificateException {
-    Security.addProvider(new BouncyCastleProvider());
-    X500Name name = new X500Name("cn=Me");
-    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-    keyPairGenerator.initialize(2048);
-    KeyPair keyPair = keyPairGenerator.generateKeyPair();
-    ContentSigner signer = new JcaContentSignerBuilder("SHA1WithRSA").setProvider(new BouncyCastleProvider()).build(keyPair.getPrivate());
-
-    X509CertificateHolder certificateHolder = new X509v3CertificateBuilder(
-            name,
-            BigInteger.ONE,
-            new Date(),
-            new Date(new Date().getTime() + (1000 * 60 * 60 * 24)),
-            name,
-            SubjectPublicKeyInfo.getInstance(keyPair.getPublic())).build(signer);
-
-    return new JcaX509CertificateConverter().getCertificate(certificateHolder);
   }
 }

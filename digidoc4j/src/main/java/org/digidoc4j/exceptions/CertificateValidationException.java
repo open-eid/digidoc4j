@@ -11,6 +11,7 @@
 package org.digidoc4j.exceptions;
 
 import org.digidoc4j.CertificateStatus;
+import org.digidoc4j.ServiceType;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
@@ -33,43 +34,12 @@ public class CertificateValidationException extends RuntimeException {
   }
 
   private final CertificateStatus certificateStatus;
+  private ServiceType serviceType;
+  private String serviceUrl;
 
-  protected CertificateValidationException(CertificateStatus certificateStatus) {
-    super();
-    this.certificateStatus = certificateStatus;
-  }
-
-  protected CertificateValidationException(CertificateStatus certificateStatus, String message) {
-    super(message);
-    this.certificateStatus = certificateStatus;
-  }
-
-  protected CertificateValidationException(CertificateStatus certificateStatus, String message, Throwable cause) {
+  private CertificateValidationException(CertificateStatus certificateStatus, String message, Throwable cause) {
     super(message, cause);
     this.certificateStatus = certificateStatus;
-  }
-
-  protected CertificateValidationException(CertificateStatus certificateStatus, Exception cause) {
-    super(cause);
-    this.certificateStatus = certificateStatus;
-  }
-
-  protected CertificateValidationException(String message) {
-    super(message);
-    this.certificateStatus = CertificateValidationStatus.TECHNICAL;
-  }
-
-  protected CertificateValidationException(Exception cause) {
-    super("Unexpected error", cause);
-    this.certificateStatus = CertificateValidationStatus.TECHNICAL;
-  }
-
-  /**
-   * @param status status of certificate
-   * @return CertificateValidationException
-   */
-  public static CertificateValidationException of(CertificateStatus status) {
-    return new CertificateValidationException(status);
   }
 
   /**
@@ -78,7 +48,7 @@ public class CertificateValidationException extends RuntimeException {
    * @return CertificateValidationException
    */
   public static CertificateValidationException of(CertificateStatus status, String message) {
-    return new CertificateValidationException(status, message);
+    return new CertificateValidationException(status, message, null);
   }
 
   /**
@@ -91,37 +61,27 @@ public class CertificateValidationException extends RuntimeException {
     return new CertificateValidationException(status, message, cause);
   }
 
-  /**
-   * @param status status of certificate
-   * @param  cause cause of error
-   * @return CertificateValidationException
-   */
-  public static CertificateValidationException of(CertificateStatus status, Exception cause) {
-    return new CertificateValidationException(status, cause);
-  }
-
-  /**
-   * @param message error message
-   * @return CertificateValidationException
-   */
-  public static CertificateValidationException of(String message) {
-    return new CertificateValidationException(message);
-  }
-
-  /**
-   * @param cause cause of exception
-   * @return CertificateValidationException
-   */
-  public static CertificateValidationException of(Exception cause) {
-    return new CertificateValidationException(cause);
-  }
-
   /*
    * ACCESSORS
    */
+
+  public void setServiceType(ServiceType serviceType) {
+    this.serviceType = serviceType;
+  }
+
+  public void setServiceUrl(String serviceUrl) {
+    this.serviceUrl = serviceUrl;
+  }
 
   public CertificateStatus getCertificateStatus() {
     return certificateStatus;
   }
 
+  public ServiceType getServiceType() {
+    return serviceType;
+  }
+
+  public String getServiceUrl() {
+    return serviceUrl;
+  }
 }

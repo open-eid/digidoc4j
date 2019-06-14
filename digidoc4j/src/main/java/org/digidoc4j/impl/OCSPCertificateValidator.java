@@ -18,7 +18,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.digidoc4j.CertificateValidator;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.CertificateValidationException;
-import org.digidoc4j.exceptions.SignatureVerificationException;
+import org.digidoc4j.exceptions.CertificateValidationException.CertificateValidationStatus;
+import org.digidoc4j.exceptions.NetworkException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,12 +60,10 @@ public class OCSPCertificateValidator implements CertificateValidator {
       }
       CertificateToken issuerCertificateToken = this.getIssuerCertificateToken(subjectCertificate);
       this.ocspSource.getRevocationToken(new CertificateToken(subjectCertificate), issuerCertificateToken);
-    } catch (SignatureVerificationException e) {
-      throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNTRUSTED, e);
-    } catch (CertificateValidationException e) {
+    } catch (CertificateValidationException | NetworkException e) {
       throw e;
     } catch (Exception e) {
-      throw CertificateValidationException.of(e);
+      throw CertificateValidationException.of(CertificateValidationStatus.TECHNICAL, "OCSP validation failed", e);
     }
   }
 
@@ -85,7 +84,8 @@ public class OCSPCertificateValidator implements CertificateValidator {
           (certificateToken == null) ? certificate.getSubjectX500Principal().getName() : certificateToken
               .getDSSIdAsString(), e);
     }
-    throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNTRUSTED);
+    throw CertificateValidationException.of(CertificateValidationStatus.UNTRUSTED,
+            "Failed to parse issuer certificate token. Not all intermediate certificates added into OCSP.");
   }
 
   private CertificateToken getFromCertificateSource(X500Principal principal) {

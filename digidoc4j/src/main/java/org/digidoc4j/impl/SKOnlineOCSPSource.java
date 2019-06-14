@@ -84,6 +84,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
       LOGGER.trace("Querying by DSS ID <{}>", certificateToken.getDSSIdAsString());
     }
 
+    String accessLocation = getAccessLocation(certificateToken.getCertificate());
     try {
       CertificateID certificateID = DSSRevocationUtils.getOCSPCertificateID(certificateToken, issuerCertificateToken);
       String accessLocation = this.getAccessLocation(certificateToken.getCertificate());
@@ -103,6 +104,12 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     } catch (DSSException e) {
       // TODO: kas peaks olema CertificateValidationException TECHNICAL
       throw new TechnicalException("OCSP request failed", e);
+
+    // Attach common data to CertificateValidationException and rethrow
+    } catch (CertificateValidationException e) {
+      e.setServiceType(getOCSPType());
+      e.setServiceUrl(accessLocation);
+      throw e;
     }
   }
 
@@ -122,6 +129,9 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   /*
    * RESTRICTED METHODS
    */
+
+  protected abstract ServiceType getOCSPType();
+
   protected abstract Extension createNonce(X509Certificate certificate);
 
   protected void checkNonce(BasicOCSPResp response, Extension expectedNonceExtension) {
@@ -186,9 +196,9 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
       case OCSPResp.SIG_REQUIRED:
         throw CertificateValidationException.of(CertificateValidationStatus.TECHNICAL, "OCSP request not signed");
       case OCSPResp.TRY_LATER:
-        throw new ServiceUnavailableException(serviceUrl, ServiceType.OCSP);
+        throw new ServiceUnavailableException(serviceUrl, getOCSPType());
       case OCSPResp.UNAUTHORIZED:
-        throw new ServiceAccessDeniedException(serviceUrl, ServiceType.OCSP);
+        throw new ServiceAccessDeniedException(serviceUrl, getOCSPType());
       default:
         throw CertificateValidationException.of(CertificateValidationStatus.TECHNICAL, "OCSP service responded with unknown status <" + ocspResponseStatus + ">");
     }
