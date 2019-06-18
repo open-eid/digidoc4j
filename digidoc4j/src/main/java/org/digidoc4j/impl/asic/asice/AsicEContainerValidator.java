@@ -55,6 +55,7 @@ public class AsicEContainerValidator implements Serializable {
   private boolean validateManifest;
   private List<SignatureValidationData> signatureValidationData = new ArrayList<>();
   private List<DigiDoc4JException> manifestErrors;
+  private List<DigiDoc4JException> containerErrors = new ArrayList<>();
   private ThreadPoolManager threadPoolManager;
 
   /**
@@ -93,6 +94,7 @@ public class AsicEContainerValidator implements Serializable {
     logger.debug("Validating container");
     validateSignatures(signatures);
     extractManifestErrors(signatures);
+    extractContainerErrors(signatures);
     AsicContainerValidationResult result = createValidationResult();
     logger.info("Is container valid: " + result.isValid());
     return result;
@@ -145,6 +147,7 @@ public class AsicEContainerValidator implements Serializable {
     logger.debug("Extracting manifest errors");
     manifestErrors = findManifestErrors(signatures);
     errors.addAll(manifestErrors);
+    containerErrors.addAll(manifestErrors);
   }
 
   protected AsicContainerValidationResult createValidationResult() {
@@ -153,7 +156,7 @@ public class AsicEContainerValidator implements Serializable {
     AsicContainerValidationResult result = new AsicContainerValidationResult();
     result.setErrors(errors);
     result.setWarnings(warnings);
-    result.setContainerErrors(manifestErrors);
+    result.setContainerErrors(containerErrors);
     result.generate(reportBuilder);
     return result;
   }
@@ -178,15 +181,22 @@ public class AsicEContainerValidator implements Serializable {
       manifestExceptions.add(
           new DigiDoc4JException(manifestErrorMessage.getErrorMessage(), manifestErrorMessage.getSignatureId()));
     }
-    manifestExceptions.addAll(assertNoDuplicateSignatures(signatures));
     return manifestExceptions;
   }
 
-  private List<DigiDoc4JException> assertNoDuplicateSignatures(List<Signature> signatures) {
+  private void extractContainerErrors(List<Signature> signatures) {
+    List<DigiDoc4JException> signatureNameErrors = findDuplicateSignatureNameErrors(signatures);
+    containerErrors.addAll(signatureNameErrors);
+    errors.addAll(signatureNameErrors);
+  }
+
+  private List<DigiDoc4JException> findDuplicateSignatureNameErrors(List<Signature> signatures) {
     MultiValuedMap<String, DSSDocument> signatureDocumentNames = new ArrayListValuedHashMap<>();
     for (Signature signature : signatures) {
       DSSDocument signatureDocument = ((AsicSignature) signature).getSignatureDocument();
-      signatureDocumentNames.put(signatureDocument.getName(), signatureDocument);
+      if (signatureDocument.getName() != null) {
+        signatureDocumentNames.put(signatureDocument.getName(), signatureDocument);
+      }
     }
 
     List<DigiDoc4JException> fileNameErrors = new ArrayList<>();
