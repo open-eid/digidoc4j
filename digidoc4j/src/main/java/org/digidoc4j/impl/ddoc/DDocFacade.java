@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.ddoc;
 
+import org.apache.commons.io.FilenameUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerValidationResult;
@@ -81,7 +82,7 @@ public class DDocFacade implements Serializable {
     if (ddocDataFiles == null) return dataFiles;
     for (Object ddocDataFile : ddocDataFiles) {
       org.digidoc4j.ddoc.DataFile dataFile = (org.digidoc4j.ddoc.DataFile) ddocDataFile;
-      String dataFileName = new File(dataFile.getFileName()).getName();
+      String dataFileName = FilenameUtils.getName(dataFile.getFileName());
       try {
         if (isHashcodeForm(dataFile)) {
             DigestDataFile digestDataFile = new DigestDataFile(dataFileName, DigestAlgorithm.SHA1, dataFile.getDigestValueOfType("sha1"));
