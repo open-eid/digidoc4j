@@ -23,7 +23,7 @@ import java.util.List;
 
 /**
  * Signature finalizer for datafiles signing process.
- * Used in {@link SignatureBuilder}, it's generated {@link DataToSign} and for two step signing (with serialization or local storing).
+ * Used by {@link SignatureBuilder}, by {@link SignatureBuilder} generated {@link DataToSign} and for two step signing (with serialization or local storage).
  */
 public abstract class SignatureFinalizer implements Serializable {
 

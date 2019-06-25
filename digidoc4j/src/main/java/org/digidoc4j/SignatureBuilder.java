@@ -41,11 +41,17 @@ import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
  * {@link Signature} signature = {@link SignatureBuilder}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#aSignature(Container) aSignature(container)}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withCity(String) withCity("San Pedro")}. <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withStateOrProvince(String) withStateOrProvince("California")}. <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withPostalCode(String) withPostalCode("11111")}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withCountry(String) withCountry("Val Verde")}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withRoles(String...) withRoles("Manager", "Suspicious Fisherman")}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureDigestAlgorithm(DigestAlgorithm) withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)}. // Digest algorithm is SHA-256 <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureProfile(SignatureProfile) withSignatureProfile(SignatureProfile.LT_TM)}. // Signature profile is Time-Mark <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withSigningCertificate(X509Certificate) withSigningCertificate(x509Certificate)}. <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureId(String) withSignatureId("1")}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureToken(SignatureToken) withSignatureToken(signatureToken)}. // Use signature token <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withEncryptionAlgorithm(EncryptionAlgorithm) withEncryptionAlgorithm(EncryptionAlgorithm.RSA)}. // Encryption algorithm is RSA <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withOwnSignaturePolicy(Policy) withOwnSignaturePolicy(policy)}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#invokeSigning() invokeSigning()}; // Creates a signature using signature token
  * </code></p>
  * <p>
