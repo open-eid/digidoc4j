@@ -204,6 +204,30 @@ public class DDocFacadeTest extends AbstractTest {
     this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc"));
   }
 
+  @Test
+  public void dataFileNamesArePathEscaped() {
+    DDocContainer ddocContainer = new DDocOpener().open("src/test/resources/testFiles/invalid-containers/allakirjutatud.fail.ddoc");
+    SignedDoc signedDoc = ddocContainer.getDDoc4JFacade().ddoc;
+    List<org.digidoc4j.ddoc.DataFile> dataFilesFromSignedDoc = signedDoc.getDataFiles();
+    List<DataFile> dataFilesFromFacade = ddocContainer.getDDoc4JFacade().getDataFiles();
+
+    Assert.assertSame(dataFilesFromSignedDoc.size(), dataFilesFromFacade.size());
+
+    Assert.assertEquals(dataFilesFromSignedDoc.get(0).getFileName(), dataFilesFromFacade.get(0).getName());
+
+    Assert.assertEquals("..\\ryndefail1.txt", dataFilesFromSignedDoc.get(1).getFileName());
+    Assert.assertEquals("ryndefail1.txt", dataFilesFromFacade.get(1).getName());
+
+    Assert.assertEquals("..\\..\\ryndefail2.txt", dataFilesFromSignedDoc.get(2).getFileName());
+    Assert.assertEquals("ryndefail2.txt", dataFilesFromFacade.get(2).getName());
+
+    Assert.assertEquals("..\\..\\..\\ryndefail3.txt", dataFilesFromSignedDoc.get(3).getFileName());
+    Assert.assertEquals("ryndefail3.txt", dataFilesFromFacade.get(3).getName());
+
+    Assert.assertEquals("..\\..\\..\\..\\Videos\\ryndefail4.txt", dataFilesFromSignedDoc.get(4).getFileName());
+    Assert.assertEquals("ryndefail4.txt", dataFilesFromFacade.get(4).getName());
+  }
+
   /*
    * RESTRICTED METHODS
    */

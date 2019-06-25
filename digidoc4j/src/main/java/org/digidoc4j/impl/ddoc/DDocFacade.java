@@ -10,7 +10,15 @@
 
 package org.digidoc4j.impl.ddoc;
 
-import org.digidoc4j.*;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerValidationResult;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.DigestDataFile;
+import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.X509Cert;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.KeyInfo;
 import org.digidoc4j.ddoc.SignedDoc;
@@ -73,9 +81,10 @@ public class DDocFacade implements Serializable {
     if (ddocDataFiles == null) return dataFiles;
     for (Object ddocDataFile : ddocDataFiles) {
       org.digidoc4j.ddoc.DataFile dataFile = (org.digidoc4j.ddoc.DataFile) ddocDataFile;
+      String dataFileName = new File(dataFile.getFileName()).getName();
       try {
         if (isHashcodeForm(dataFile)) {
-            DigestDataFile digestDataFile = new DigestDataFile(dataFile.getFileName(), DigestAlgorithm.SHA1, dataFile.getDigestValueOfType("sha1"));
+            DigestDataFile digestDataFile = new DigestDataFile(dataFileName, DigestAlgorithm.SHA1, dataFile.getDigestValueOfType("sha1"));
             digestDataFile.setContentType(HASHCODE_CONTENT_TYPE);
             dataFiles.add(digestDataFile);
         } else {
@@ -84,7 +93,7 @@ public class DDocFacade implements Serializable {
                 dataFile1.setId(dataFile.getId());
                 dataFiles.add(dataFile1);
             } else {
-                DataFile dataFile1 = new DataFile(dataFile.getBodyAsData(), dataFile.getFileName(), dataFile.getMimeType());
+                DataFile dataFile1 = new DataFile(dataFile.getBodyAsData(), dataFileName, dataFile.getMimeType());
                 dataFile1.setId(dataFile.getId());
                 dataFiles.add(dataFile1);
             }
