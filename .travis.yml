@@ -16,5 +16,6 @@ notifications:
     - andres.voll@nortal.com
     - aare.nurm@nortal.com
     - siim.suu@nortal.com
+    - jorgen.heinsoo@nortal.com
     on_success: change
     on_failure: always
