@@ -282,19 +282,23 @@ public abstract class AsicContainer implements Container {
   }
 
   protected void validateDataFilesRemoval() {
-    if (!getSignatures().isEmpty()) {
+    if (isContainerSigned()) {
       LOGGER.error("Datafiles cannot be removed from an already signed container");
       throw new RemovingDataFileException();
     }
   }
 
   protected void verifyIfAllowedToAddDataFile(String fileName) {
-    if (getSignatures().size() > 0) {
+    if (isContainerSigned()) {
       String errorMessage = "Datafiles cannot be added to an already signed container";
       LOGGER.error(errorMessage);
       throw new DigiDoc4JException(errorMessage);
     }
     checkForDuplicateDataFile(fileName);
+  }
+
+  private boolean isContainerSigned() {
+    return !getSignatures().isEmpty();
   }
 
   private void checkForDuplicateDataFile(String fileName) {
@@ -517,38 +521,28 @@ public abstract class AsicContainer implements Container {
 
   @Override
   public void removeDataFile(String fileName) {
-    if (!isNewContainer()) {
-      LOGGER.error("Datafiles cannot be removed from an already signed container");
-      throw new RemovingDataFileException();
-    } else {
-      LOGGER.info("Removing data file: " + fileName);
-      validateDataFilesRemoval();
+    validateDataFilesRemoval();
+    LOGGER.info("Attempting to remove data file: {}", fileName);
 
-      for (DataFile dataFile : dataFiles) {
-        String name = dataFile.getName();
-        if (StringUtils.equals(fileName, name)) {
-          dataFiles.remove(dataFile);
-          LOGGER.debug("Data file has been removed");
-          return;
-        }
+    for (DataFile dataFile : dataFiles) {
+      String name = dataFile.getName();
+      if (StringUtils.equals(fileName, name)) {
+        dataFiles.remove(dataFile);
+        LOGGER.debug("Data file has been removed");
+        return;
       }
-      throw new DataFileNotFoundException(fileName);
     }
+    throw new DataFileNotFoundException(fileName);
   }
 
   @Override
   public void removeDataFile(DataFile file) {
-    if (!isNewContainer()) {
-      LOGGER.error("Datafiles cannot be removed from an already signed container");
-      throw new RemovingDataFileException();
-    } else {
-      LOGGER.info("Removing data file: " + file.getName());
-      validateDataFilesRemoval();
-      boolean wasRemovalSuccessful = dataFiles.remove(file);
+    validateDataFilesRemoval();
+    LOGGER.info("Attempting to remove data file: {}", file.getName());
 
-      if (!wasRemovalSuccessful) {
-        throw new DataFileNotFoundException(file.getName());
-      }
+    boolean wasRemovalSuccessful = dataFiles.remove(file);
+    if (!wasRemovalSuccessful) {
+      throw new DataFileNotFoundException(file.getName());
     }
   }
 

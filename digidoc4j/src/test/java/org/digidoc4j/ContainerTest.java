@@ -13,9 +13,11 @@ package org.digidoc4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.exceptions.DataFileNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.exceptions.RemovingDataFileException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
@@ -32,6 +34,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.security.cert.CertificateEncodingException;
 import java.util.List;
@@ -131,12 +134,84 @@ public class ContainerTest extends AbstractTest {
     Assert.assertEquals("text/plain", dataFiles.get(0).getMediaType());
   }
 
-  @Test
-  public void testRemovesOneFileFromContainerWhenFileExistsForBDoc() throws Exception {
-    Container container = this.createEmptyContainer();
-    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+  @Test(expected = DataFileNotFoundException.class)
+  public void nameBasedDataFileRemovalFromEmptyContainer_shouldThrowDataFileNotFoundException() {
+    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
+    Assert.assertSame(0, container.getDataFiles().size());
     container.removeDataFile("test.txt");
-    Assert.assertEquals(0, container.getDataFiles().size());
+  }
+
+  @Test(expected = DataFileNotFoundException.class)
+  public void wrongNameBasedDataFileRemovalFromNonEmptyContainer_shouldThrowDataFileNotFoundException() {
+    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
+    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+    Assert.assertSame(1, container.getDataFiles().size());
+    container.removeDataFile("some_different_file_name.txt");
+  }
+
+  @Test
+  public void nameBasedDataFileRemovalFromCreatedNotSignedContainer_shouldSucceed() {
+    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
+    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+    Assert.assertSame(1, container.getDataFiles().size());
+    container.removeDataFile("test.txt");
+    Assert.assertSame(0, container.getDataFiles().size());
+  }
+
+  @Test
+  public void nameBasedDataFileRemovalFromOpenedNotSignedContainer_shouldSucceed() {
+    Container container = this.openContainerBy(Paths.get(ASIC_WITH_NO_SIG));
+    Assert.assertSame(1, container.getDataFiles().size());
+    container.removeDataFile("test.txt");
+    Assert.assertSame(0, container.getDataFiles().size());
+  }
+
+  @Test(expected = RemovingDataFileException.class)
+  public void nameBasedDataFileRemovalFromSignedContainer_shouldThrowRemovingDataFileException() {
+    Container container = this.openContainerBy(Paths.get(ASICE_WITH_TS_SIG));
+    Assert.assertSame(1, container.getDataFiles().size());
+    container.removeDataFile(container.getDataFiles().get(0).getName());
+  }
+
+  @Test(expected = DataFileNotFoundException.class)
+  public void wrongObjectBasedDataFileRemovalFromNonEmptyContainer_shouldThrowDataFileNotFoundException() {
+    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
+    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+    Assert.assertSame(1, container.getDataFiles().size());
+    DataFile differentDataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "some_different_file_name.txt", "text/plain");
+    container.removeDataFile(differentDataFile);
+  }
+
+  @Test(expected = DataFileNotFoundException.class)
+  public void objectBasedDataFileRemovalFromEmptyContainer_shouldThrowDataFileNotFoundException() {
+    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
+    Assert.assertSame(0, container.getDataFiles().size());
+    DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "some_different_file_name.txt", "text/plain");
+    container.removeDataFile(dataFile);
+  }
+
+  @Test
+  public void objectBasedDataFileRemovalFromCreatedNotSignedContainer_shouldSucceed() {
+    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
+    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+    Assert.assertSame(1, container.getDataFiles().size());
+    container.removeDataFile(container.getDataFiles().get(0));
+    Assert.assertSame(0, container.getDataFiles().size());
+  }
+
+  @Test
+  public void objectBasedDataFileRemovalFromOpenedNotSignedContainer_shouldSucceed() {
+    Container container = this.openContainerBy(Paths.get(ASIC_WITH_NO_SIG));
+    Assert.assertSame(1, container.getDataFiles().size());
+    container.removeDataFile(container.getDataFiles().get(0));
+    Assert.assertSame(0, container.getDataFiles().size());
+  }
+
+  @Test(expected = RemovingDataFileException.class)
+  public void objectBasedDataFileRemovalFromSignedContainer_shouldThrowRemovingDataFileException() {
+    Container container = this.openContainerBy(Paths.get(ASICE_WITH_TS_SIG));
+    Assert.assertSame(1, container.getDataFiles().size());
+    container.removeDataFile(container.getDataFiles().get(0));
   }
 
   @Test
@@ -220,6 +295,17 @@ public class ContainerTest extends AbstractTest {
     container = this.openContainerBy(Paths.get(file));
     Assert.assertEquals(1, container.getDataFiles().size());
     Assert.assertEquals("large-doc.txt", container.getDataFiles().get(0).getName());
+  }
+
+  @Test
+  public void addingDataFileToAlreadySignedContainer_shouldThrowDigiDoc4JException() {
+    expectedException.expect(DigiDoc4JException.class);
+    expectedException.expectMessage("Datafiles cannot be added to an already signed container");
+
+    Container container = this.openContainerBy(Paths.get(ASICE_WITH_TS_SIG));
+    Assert.assertSame(1, container.getDataFiles().size());
+    DataFile newDataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "new_data_file.txt", "text/plain");
+    container.addDataFile(newDataFile);
   }
 
   @Test
