@@ -522,13 +522,12 @@ public abstract class AsicContainer implements Container {
   @Override
   public void removeDataFile(String fileName) {
     validateDataFilesRemoval();
-    LOGGER.info("Attempting to remove data file: {}", fileName);
 
     for (DataFile dataFile : dataFiles) {
       String name = dataFile.getName();
       if (StringUtils.equals(fileName, name)) {
         dataFiles.remove(dataFile);
-        LOGGER.debug("Data file has been removed");
+        LOGGER.info("Data file named '{}' has been removed", fileName);
         return;
       }
     }
@@ -538,12 +537,12 @@ public abstract class AsicContainer implements Container {
   @Override
   public void removeDataFile(DataFile file) {
     validateDataFilesRemoval();
-    LOGGER.info("Attempting to remove data file: {}", file.getName());
 
     boolean wasRemovalSuccessful = dataFiles.remove(file);
     if (!wasRemovalSuccessful) {
       throw new DataFileNotFoundException(file.getName());
     }
+    LOGGER.info("Data file named '{}' has been removed", file.getName());
   }
 
   private boolean isNewContainer() {
