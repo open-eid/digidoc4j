@@ -197,7 +197,8 @@
                             </goals>
                             <configuration>
                                 <doclint>${javadocOpt}</doclint>
-                                <additionalJOption>--no-module-directories</additionalJOption>
+                                <!-- Should be uncommented when building in Java 9+, otherwise JavaDoc search will point to undefined packages -->
+                                <!-- <additionalJOption>&#45;&#45;no-module-directories</additionalJOption> -->
                             </configuration>
                         </execution>
                     </executions>
