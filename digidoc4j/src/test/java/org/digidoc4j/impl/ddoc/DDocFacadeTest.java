@@ -10,7 +10,12 @@
 
 package org.digidoc4j.impl.ddoc;
 
-import org.digidoc4j.*;
+import org.digidoc4j.AbstractTest;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerValidationResult;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.DigestDataFile;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.ddoc.utils.ConfigManager;
@@ -21,10 +26,14 @@ import org.digidoc4j.test.MockConfigManagerInitializer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -117,7 +126,7 @@ public class DDocFacadeTest extends AbstractTest {
   public void savesToStreamThrowsException() throws Exception {
     SignedDoc ddoc = Mockito.mock(SignedDoc.class);
     DigiDocException testException = new DigiDocException(100, "testException", new Throwable("test Exception"));
-    Mockito.doThrow(testException).when(ddoc).writeToStream(Matchers.any(OutputStream.class));
+    Mockito.doThrow(testException).when(ddoc).writeToStream(ArgumentMatchers.any(OutputStream.class));
     DDocFacade facade = new DDocFacade(ddoc);
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       facade.save(out);
@@ -143,7 +152,7 @@ public class DDocFacadeTest extends AbstractTest {
   @Test
   public void getSignatureByIndex() {
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    Assert.assertEquals("497c5a2bfa9361a8534fbed9f48e7a12", facade.getSignature(0).getSigningCertificate().getSerial());
+    Assert.assertEquals("497c5a2bfa9361a8534fbed9f48e7a12", facade.getSignatures().get(0).getSigningCertificate().getSerial());
   }
 
   @Test
@@ -193,6 +202,30 @@ public class DDocFacadeTest extends AbstractTest {
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml");
     ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc"));
+  }
+
+  @Test
+  public void dataFileNamesArePathEscaped() {
+    DDocContainer ddocContainer = new DDocOpener().open("src/test/resources/testFiles/invalid-containers/allakirjutatud.fail.ddoc");
+    SignedDoc signedDoc = ddocContainer.getDDoc4JFacade().ddoc;
+    List<org.digidoc4j.ddoc.DataFile> dataFilesFromSignedDoc = signedDoc.getDataFiles();
+    List<DataFile> dataFilesFromFacade = ddocContainer.getDDoc4JFacade().getDataFiles();
+
+    Assert.assertSame(dataFilesFromSignedDoc.size(), dataFilesFromFacade.size());
+
+    Assert.assertEquals(dataFilesFromSignedDoc.get(0).getFileName(), dataFilesFromFacade.get(0).getName());
+
+    Assert.assertEquals("..\\ryndefail1.txt", dataFilesFromSignedDoc.get(1).getFileName());
+    Assert.assertEquals("ryndefail1.txt", dataFilesFromFacade.get(1).getName());
+
+    Assert.assertEquals("..\\..\\ryndefail2.txt", dataFilesFromSignedDoc.get(2).getFileName());
+    Assert.assertEquals("ryndefail2.txt", dataFilesFromFacade.get(2).getName());
+
+    Assert.assertEquals("..\\..\\..\\ryndefail3.txt", dataFilesFromSignedDoc.get(3).getFileName());
+    Assert.assertEquals("ryndefail3.txt", dataFilesFromFacade.get(3).getName());
+
+    Assert.assertEquals("..\\..\\..\\..\\Videos\\ryndefail4.txt", dataFilesFromSignedDoc.get(4).getFileName());
+    Assert.assertEquals("ryndefail4.txt", dataFilesFromFacade.get(4).getName());
   }
 
   /*

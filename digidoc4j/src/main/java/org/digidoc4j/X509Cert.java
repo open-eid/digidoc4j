@@ -10,11 +10,18 @@
 
 package org.digidoc4j;
 
+import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.DLSequence;
+import org.bouncycastle.util.encoders.Hex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateNotYetValidException;
@@ -25,14 +32,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.DLSequence;
-import org.bouncycastle.util.encoders.Hex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Wrapper for java.security.cert.X509Certificate object.
@@ -91,7 +90,6 @@ public class X509Cert implements Serializable {
    * @param cert X509 certificate to be wrapped
    */
   public X509Cert(X509Certificate cert) {
-    logger.debug("");
     originalCert = cert;
   }
 
@@ -119,7 +117,6 @@ public class X509Cert implements Serializable {
    * @throws IOException when policy parsing fails
    */
   public List<String> getCertificatePolicies() throws IOException {
-    logger.debug("");
     byte[] extensionValue = originalCert.getExtensionValue("2.5.29.32");
     List<String> policies = new ArrayList<>();
 
@@ -144,7 +141,6 @@ public class X509Cert implements Serializable {
    * @return X509Certificate
    */
   public X509Certificate getX509Certificate() {
-    logger.debug("");
     return originalCert;
   }
 
@@ -166,7 +162,6 @@ public class X509Cert implements Serializable {
   }
 
   private void loadIssuerParts() {
-    logger.debug("");
     String[] parts = StringUtils.split(issuerName(), ',');
     issuerPartMap = new HashMap<>();
     for (String part : parts) {
@@ -184,7 +179,6 @@ public class X509Cert implements Serializable {
    * @return issuer name
    */
   public String issuerName() {
-    logger.debug("");
     String name = originalCert.getIssuerDN().getName();
     logger.debug("Issuer name: " + name);
     return name;
@@ -217,7 +211,6 @@ public class X509Cert implements Serializable {
    * @return boolean indicating if the current time is between the certificate's validity start and expiration date
    */
   public boolean isValid() {
-    logger.debug("");
     return (isValid(new Date()));
   }
 
@@ -227,7 +220,6 @@ public class X509Cert implements Serializable {
    * @return list of key usages
    */
   public List<KeyUsage> getKeyUsages() {
-    logger.debug("");
     List<KeyUsage> keyUsages = new ArrayList<>();
     boolean[] keyUsagesBits = originalCert.getKeyUsage();
     for (int i = 0; i < keyUsagesBits.length; i++) {
@@ -250,7 +242,6 @@ public class X509Cert implements Serializable {
    * @return serial number of the X.509 certificate
    */
   public String getSerial() {
-    logger.debug("");
     String serial = Hex.toHexString(originalCert.getSerialNumber().toByteArray());
     logger.debug("Serial number: " + serial);
     return serial;
@@ -273,7 +264,6 @@ public class X509Cert implements Serializable {
   }
 
   private void loadSubjectNameParts() {
-    logger.debug("");
     String[] parts = getSubjectName().split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
     subjectNamePartMap = new HashMap<>();
     for (String part : parts) {
@@ -291,7 +281,6 @@ public class X509Cert implements Serializable {
    * @return subject name
    */
   public String getSubjectName() {
-    logger.debug("");
     String subjectName = originalCert.getSubjectX500Principal().toString();
     logger.debug("Subject name: " + subjectName);
     return subjectName;

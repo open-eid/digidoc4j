@@ -2,6 +2,7 @@ package org.digidoc4j;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -9,10 +10,12 @@ import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
+import org.digidoc4j.impl.SkDataLoader;
+import org.digidoc4j.impl.SkOCSPDataLoader;
+import org.digidoc4j.impl.SkTimestampDataLoader;
 import org.digidoc4j.impl.asic.AsicFileContainerParser;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicStreamContainerParser;
-import org.digidoc4j.impl.asic.SkDataLoader;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
@@ -44,6 +47,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -74,9 +78,9 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   protected static final String ASICS_WITH_TS = "src/test/resources/testFiles/valid-containers/ddoc-valid.asics";
   protected static final String DDOC_TEST_FILE = "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc";
 
-  protected final PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
-  protected final PKCS12SignatureToken pkcs12EccSignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray());
-  protected final PKCS12SignatureToken pkcs12Esteid2018SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/sign_ESTEID2018.p12", "1234".toCharArray());
+  protected static final PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
+  protected static final PKCS12SignatureToken pkcs12EccSignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray());
+  protected static final PKCS12SignatureToken pkcs12Esteid2018SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/sign_ESTEID2018.p12", "1234".toCharArray());
   protected Configuration configuration;
 
   @Rule
@@ -199,6 +203,10 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected <T> T createEmptyContainer() {
     return (T) ContainerBuilder.aContainer().build();
+  }
+
+  protected <T> T createEmptyContainer(Configuration configuration) {
+    return (T) ContainerBuilder.aContainer().withConfiguration(configuration).build();
   }
 
   protected <T> T createEmptyContainer(Class<T> clazz) {
@@ -436,14 +444,14 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected CommonOCSPSource createOCSPSource() {
     CommonOCSPSource source = new CommonOCSPSource(this.configuration);
-    SkDataLoader loader = SkDataLoader.ocsp(this.configuration);
+    SkDataLoader loader = new SkOCSPDataLoader(this.configuration);
     loader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
     source.setDataLoader(loader);
     return source;
   }
 
   private OnlineTSPSource createTSPSource() {
-    SkDataLoader loader = SkDataLoader.timestamp(this.configuration);
+    SkDataLoader loader = new SkTimestampDataLoader(this.configuration);
     loader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
     OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
     source.setDataLoader(loader);
@@ -504,4 +512,20 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     Assert.assertEquals(SignatureProfile.B_BES, signature.getProfile());
   }
 
+  protected void assertValidSignature(Signature signature) {
+    ValidationResult validationResult = signature.validateSignature();
+    Assert.assertTrue(validationResult.isValid());
+    Assert.assertFalse(validationResult.hasWarnings());
+    Assert.assertTrue(validationResult.getErrors().isEmpty());
+  }
+
+  protected Policy validCustomPolicy() {
+    Policy customPolicy = new Policy();
+    customPolicy.setId("id");
+    customPolicy.setSpuri("spuri");
+    customPolicy.setQualifier("qualifier");
+    customPolicy.setDigestValue("some".getBytes(StandardCharsets.UTF_8));
+    customPolicy.setDigestAlgorithm(eu.europa.esig.dss.DigestAlgorithm.SHA512);
+    return customPolicy;
+  }
 }

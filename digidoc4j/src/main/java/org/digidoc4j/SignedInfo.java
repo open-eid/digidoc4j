@@ -10,14 +10,13 @@
 
 package org.digidoc4j;
 
-import static eu.europa.esig.dss.DigestAlgorithm.forXML;
-
-import java.io.Serializable;
-
+import eu.europa.esig.dss.DSSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSUtils;
+import java.io.Serializable;
+
+import static eu.europa.esig.dss.DigestAlgorithm.forXML;
 
 public class SignedInfo implements Serializable {
 
@@ -36,7 +35,6 @@ public class SignedInfo implements Serializable {
   }
 
   public byte[] getDigest() {
-    logger.debug("");
     return getDigestToSign();
   }
 
@@ -45,7 +43,6 @@ public class SignedInfo implements Serializable {
   }
 
   public DigestAlgorithm getDigestAlgorithm() {
-    logger.debug("");
     return signatureParameters.getDigestAlgorithm();
   }
 

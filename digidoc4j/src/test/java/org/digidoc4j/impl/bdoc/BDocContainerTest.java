@@ -34,9 +34,9 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
+import org.digidoc4j.exceptions.DuplicateSignatureFilesException;
 import org.digidoc4j.exceptions.IllegalSignatureProfileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
-import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
@@ -48,7 +48,6 @@ import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.utils.Helper;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -225,7 +224,7 @@ public class BDocContainerTest extends AbstractTest {
     String file = this.getFileBy("bdoc");
     container.save(file);
     container = ContainerOpener.open(file);
-    Signature signature = container.getSignature(0);
+    Signature signature = container.getSignatures().get(0);
     Assert.assertEquals("", signature.getPostalCode());
     Assert.assertEquals("", signature.getCity());
     Assert.assertEquals("", signature.getStateOrProvince());
@@ -238,7 +237,7 @@ public class BDocContainerTest extends AbstractTest {
     Container container = this.createNonEmptyContainerBy(Container.DocumentType.BDOC);
     this.createSignatureBy(container, this.pkcs12SignatureToken);
     this.createSignatureBy(container, this.pkcs12SignatureToken);
-    Assert.assertEquals("530be41bbc597c44570e2b7c13bcfa0c", container.getSignature(1).getSigningCertificate().getSerial());
+    Assert.assertEquals("530be41bbc597c44570e2b7c13bcfa0c", container.getSignatures().get(1).getSigningCertificate().getSerial());
   }
 
   @Test
@@ -359,6 +358,14 @@ public class BDocContainerTest extends AbstractTest {
   }
 
   @Test
+  public void removingNullSignatureDoesNothing() {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
+    Assert.assertEquals(1, container.getSignatures().size());
+    container.removeSignature(null);
+    Assert.assertEquals(1, container.getSignatures().size());
+  }
+
+  @Test
   public void testSaveDocumentWithOneSignature() throws Exception {
     Assert.assertTrue(Files.exists(Paths.get(this.createSignedContainerBy("bdoc"))));
   }
@@ -467,8 +474,8 @@ public class BDocContainerTest extends AbstractTest {
     String file = this.getFileBy("bdoc");
     container.saveAsFile(file);
     container = ContainerOpener.open(file);
-    Assert.assertEquals("SIGNATURE-1", container.getSignature(0).getId());
-    Assert.assertEquals("SIGNATURE-2", container.getSignature(1).getId());
+    Assert.assertEquals("SIGNATURE-1", container.getSignatures().get(0).getId());
+    Assert.assertEquals("SIGNATURE-2", container.getSignatures().get(1).getId());
     ZipFile zip = new ZipFile(file);
     Assert.assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
     Assert.assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
@@ -664,7 +671,7 @@ public class BDocContainerTest extends AbstractTest {
     container.saveAsFile(file);
     container = ContainerOpener.open(file);
     Assert.assertEquals(1, container.getSignatures().size());
-    Assert.assertNotNull(container.getSignature(0).getOCSPCertificate());
+    Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -704,7 +711,7 @@ public class BDocContainerTest extends AbstractTest {
     container = ContainerOpener.open(file);
     Assert.assertTrue(container.validate().isValid());
     Assert.assertEquals(1, container.getSignatures().size());
-    Signature resultSignature = container.getSignature(0);
+    Signature resultSignature = container.getSignatures().get(0);
     Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", resultSignature.getSignatureMethod());
     Assert.assertThat(resultSignature.getSignerRoles(), Matchers.is(Matchers.empty()));
     Assert.assertEquals("", resultSignature.getCity());
@@ -740,7 +747,7 @@ public class BDocContainerTest extends AbstractTest {
     container.saveAsFile(file);
     container = ContainerOpener.open(file);
     Assert.assertEquals(1, container.getSignatures().size());
-    Signature resultSignature = container.getSignature(0);
+    Signature resultSignature = container.getSignatures().get(0);
     Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha512", resultSignature.getSignatureMethod());
     Assert.assertEquals("employee", resultSignature.getSignerRoles().get(1));
     Assert.assertEquals("city", resultSignature.getCity());
@@ -752,7 +759,7 @@ public class BDocContainerTest extends AbstractTest {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     this.createSignatureBy(container, SignatureProfile.LTA, this.pkcs12SignatureToken);
-    Assert.assertNotNull(container.getSignature(0).getOCSPCertificate());
+    Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
   }
 
   @Test
@@ -777,7 +784,7 @@ public class BDocContainerTest extends AbstractTest {
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     this.createSignatureBy(container, SignatureProfile.B_BES, this.pkcs12SignatureToken);
     Assert.assertEquals(SignatureProfile.B_BES, container.getSignatures().get(0).getProfile());
-    Assert.assertNull(container.getSignature(0).getOCSPCertificate());
+    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
     Assert.assertFalse(container.validate().isValid());
   }
 
@@ -816,7 +823,7 @@ public class BDocContainerTest extends AbstractTest {
     container.addDataFile("src/test/resources/testFiles/special-char-files/dds_SK.jpg", "text/plain");
     container.addDataFile("src/test/resources/testFiles/special-char-files/dds_acrobat.pdf", "text/plain");
     this.createSignatureBy(container, this.pkcs12SignatureToken);
-    Signature signature = container.getSignature(0);
+    Signature signature = container.getSignatures().get(0);
     TestAssert.assertSignatureMetadataContainsFileName(signature, "dds_dds_JÜRIÖÖ € žŠ päev.txt");
     TestAssert.assertSignatureMetadataContainsFileName(signature, "dds_pakitud.zip");
     TestAssert.assertSignatureMetadataContainsFileName(signature, "dds_SK.jpg");
@@ -878,7 +885,7 @@ public class BDocContainerTest extends AbstractTest {
   @Test(expected = IllegalSignatureProfileException.class)
   public void addTimemarkSignatureToAsicEContainer_throwsException() {
     Container bdocContainer = ContainerOpener.open(BDOC_WITH_TM_SIG);
-    Signature timemarkSignature = bdocContainer.getSignature(0);
+    Signature timemarkSignature = bdocContainer.getSignatures().get(0);
     assertTimemarkSignature(timemarkSignature);
 
     Container asicEContainer = ContainerOpener.open(ASICE_WITH_TS_SIG);
@@ -889,7 +896,7 @@ public class BDocContainerTest extends AbstractTest {
   @Test(expected = IllegalSignatureProfileException.class)
   public void addBEpesSignatureToAsicEContainer_throwsException() {
     Container bdocContainer = ContainerOpener.open(BDOC_WITH_B_EPES_SIG);
-    Signature bEpesSignature = bdocContainer.getSignature(0);
+    Signature bEpesSignature = bdocContainer.getSignatures().get(0);
     assertBEpesSignature(bEpesSignature);
 
     Container asicEContainer = ContainerOpener.open(ASICE_WITH_TS_SIG);
@@ -956,24 +963,11 @@ public class BDocContainerTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("Fix by adding AdditionalServiceInformation to TEST of ESTEID-SK 2015 in test TSL")
   public void containerWithImplicitPolicy(){
-    setGlobalMode(Configuration.Mode.TEST);
     Container container = ContainerOpener.open
         ("src/test/resources/testFiles/valid-containers/validTSwImplicitPolicy.asice");
     ContainerValidationResult validate = container.validate();
     Assert.assertTrue(validate.isValid());
-  }
-
-  @Test(expected = OCSPRequestFailedException.class)
-  public void signingContainer_withFailedOcspResponse_shouldThrowException() throws Exception {
-    Configuration configuration = new Configuration(Configuration.Mode.TEST);
-    configuration.setSignOCSPRequests(true);
-    configuration.setOCSPAccessCertificateFileName("src/test/resources/testFiles/p12/signout.p12");
-    configuration.setOCSPAccessCertificatePassword("test".toCharArray());
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).withConfiguration(configuration).
-        withDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain").build();
-    this.createSignatureBy(container, SignatureProfile.LT_TM, this.pkcs12SignatureToken);
   }
 
   @Test
@@ -1061,6 +1055,33 @@ public class BDocContainerTest extends AbstractTest {
     Assert.assertEquals("" + XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
     Assert.assertEquals(eu.europa.esig.dss.DigestAlgorithm.SHA256, policyId.getDigestAlgorithm());
     Assert.assertEquals("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A=", policyId.getDigestValue());
+  }
+
+  @Test
+  public void containerWithMultipleIdenticallyNamedSignaturesShouldFail() {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/KS-15_signatures_xml_topelt.bdoc");
+    Assert.assertSame(2, container.getSignatures().size());
+
+    ContainerValidationResult validationResult = container.validate();
+    Assert.assertFalse(validationResult.isValid());
+
+    Assert.assertSame(1, validationResult.getContainerErrors().size());
+    Assert.assertEquals(validationResult.getContainerErrors().get(0).getMessage(), "Duplicate signature files: META-INF/signatures1.xml");
+
+    Assert.assertSame(4, validationResult.getWarnings().size());
+
+    Assert.assertSame(7, validationResult.getErrors().size());
+    List<DigiDoc4JException> errors = validationResult.getErrors();
+    Assert.assertEquals(errors.get(0).getMessage(), "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.1.1");
+    Assert.assertEquals(errors.get(1).getMessage(), "The result of the LTV validation process is not acceptable to continue the process!");
+    Assert.assertEquals(errors.get(2).getMessage(), "OCSP nonce is invalid");
+    Assert.assertEquals(errors.get(3).getMessage(), "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.1.1");
+    Assert.assertEquals(errors.get(4).getMessage(), "The result of the LTV validation process is not acceptable to continue the process!");
+    Assert.assertEquals(errors.get(5).getMessage(), "OCSP nonce is invalid");
+
+    DigiDoc4JException duplicateSigFileEx = errors.get(6);
+    Assert.assertTrue(duplicateSigFileEx instanceof DuplicateSignatureFilesException);
+    Assert.assertEquals(duplicateSigFileEx.getMessage(), "Duplicate signature files: META-INF/signatures1.xml");
   }
 
   /*

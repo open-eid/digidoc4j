@@ -10,22 +10,20 @@
 
 package org.digidoc4j.impl.asic.asice;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
+import eu.europa.esig.dss.DSSDocument;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.Signature;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.DuplicateSignatureFilesException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.asic.AsicContainerValidationResult;
 import org.digidoc4j.impl.asic.AsicParseResult;
+import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.impl.asic.AsicValidationReportBuilder;
 import org.digidoc4j.impl.asic.manifest.ManifestErrorMessage;
 import org.digidoc4j.impl.asic.manifest.ManifestParser;
@@ -36,7 +34,12 @@ import org.digidoc4j.impl.asic.xades.validation.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSDocument;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * ASIC-E container validator
@@ -52,6 +55,7 @@ public class AsicEContainerValidator implements Serializable {
   private boolean validateManifest;
   private List<SignatureValidationData> signatureValidationData = new ArrayList<>();
   private List<DigiDoc4JException> manifestErrors;
+  private List<DigiDoc4JException> containerErrors = new ArrayList<>();
   private ThreadPoolManager threadPoolManager;
 
   /**
@@ -90,6 +94,7 @@ public class AsicEContainerValidator implements Serializable {
     logger.debug("Validating container");
     validateSignatures(signatures);
     extractManifestErrors(signatures);
+    extractContainerErrors(signatures);
     AsicContainerValidationResult result = createValidationResult();
     logger.info("Is container valid: " + result.isValid());
     return result;
@@ -142,6 +147,7 @@ public class AsicEContainerValidator implements Serializable {
     logger.debug("Extracting manifest errors");
     manifestErrors = findManifestErrors(signatures);
     errors.addAll(manifestErrors);
+    containerErrors.addAll(manifestErrors);
   }
 
   protected AsicContainerValidationResult createValidationResult() {
@@ -150,7 +156,7 @@ public class AsicEContainerValidator implements Serializable {
     AsicContainerValidationResult result = new AsicContainerValidationResult();
     result.setErrors(errors);
     result.setWarnings(warnings);
-    result.setContainerErrors(manifestErrors);
+    result.setContainerErrors(containerErrors);
     result.generate(reportBuilder);
     return result;
   }
@@ -159,14 +165,15 @@ public class AsicEContainerValidator implements Serializable {
     if (!validateManifest || containerParseResult == null) {
       return Collections.emptyList();
     }
+
+    List<DigiDoc4JException> manifestExceptions = new ArrayList<>();
     ManifestParser manifestParser = containerParseResult.getManifestParser();
     if (manifestParser == null || !manifestParser.containsManifestFile()) {
       logger.error("Container is missing manifest.xml");
-      List<DigiDoc4JException> manifestExceptions = new ArrayList<>();
       manifestExceptions.add(new UnsupportedFormatException("Container does not contain a manifest file"));
       return manifestExceptions;
     }
-    List<DigiDoc4JException> manifestExceptions = new ArrayList<>();
+
     List<DSSDocument> detachedContents = containerParseResult.getDetachedContents();
     List<ManifestErrorMessage> manifestErrorMessageList = new ManifestValidator(manifestParser, detachedContents,
         signatures).validateDocument();
@@ -177,4 +184,28 @@ public class AsicEContainerValidator implements Serializable {
     return manifestExceptions;
   }
 
+  private void extractContainerErrors(List<Signature> signatures) {
+    List<DigiDoc4JException> signatureNameErrors = findDuplicateSignatureNameErrors(signatures);
+    containerErrors.addAll(signatureNameErrors);
+    errors.addAll(signatureNameErrors);
+  }
+
+  private List<DigiDoc4JException> findDuplicateSignatureNameErrors(List<Signature> signatures) {
+    MultiValuedMap<String, DSSDocument> signatureDocumentNames = new ArrayListValuedHashMap<>();
+    for (Signature signature : signatures) {
+      DSSDocument signatureDocument = ((AsicSignature) signature).getSignatureDocument();
+      if (signatureDocument.getName() != null) {
+        signatureDocumentNames.put(signatureDocument.getName(), signatureDocument);
+      }
+    }
+
+    List<DigiDoc4JException> fileNameErrors = new ArrayList<>();
+    for (String signatureDocumentName : signatureDocumentNames.keySet()) {
+      if (signatureDocumentNames.get(signatureDocumentName).size() > 1) {
+        DuplicateSignatureFilesException error = new DuplicateSignatureFilesException("Duplicate signature files: " + signatureDocumentName);
+        fileNameErrors.add(error);
+      }
+    }
+    return fileNameErrors;
+  }
 }

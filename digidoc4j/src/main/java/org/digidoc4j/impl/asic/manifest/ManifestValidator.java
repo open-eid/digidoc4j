@@ -10,15 +10,8 @@
 
 package org.digidoc4j.impl.asic.manifest;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.DomUtils;
 import org.apache.xml.security.signature.Reference;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -29,8 +22,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.DomUtils;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * For validating meta data within the manifest file and signature files.
@@ -53,7 +52,6 @@ public class ManifestValidator {
   public static List<ManifestErrorMessage> validateEntries(Map<String, ManifestEntry> manifestEntries,
                                                            Set<ManifestEntry> signatureEntries,
                                                            String signatureId) {
-    logger.debug("");
     ArrayList<ManifestErrorMessage> errorMessages = new ArrayList<>();
 
     if (signatureEntries.size() == 0)
@@ -122,7 +120,6 @@ public class ManifestValidator {
    * @return list of error messages
    */
   public List<ManifestErrorMessage> validateDocument() {
-    logger.debug("");
     if (!manifestParser.containsManifestFile()) {
       String errorMessage = "Container does not contain manifest file.";
       logger.error(errorMessage);

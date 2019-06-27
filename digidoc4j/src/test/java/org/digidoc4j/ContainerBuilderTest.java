@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipFile;
 
@@ -482,6 +483,22 @@ public class ContainerBuilderTest extends AbstractTest {
     ContainerBuilder.aContainer(DDOC).withConfiguration(Configuration.of(Configuration.Mode.TEST))
                     .fromStream(stream).usingTempDirectory(folder.getPath()).build();
     Assert.assertTrue(folder.list().length > 0);
+  }
+
+  @Test
+  public void openBOMBeginningDDocContainerFromPath() {
+    Container container = ContainerBuilder.aContainer()
+              .fromExistingFile("src/test/resources/testFiles/valid-containers/BOM_algusega.ddoc")
+              .build();
+    Assert.assertTrue(container.validate().isValid());
+  }
+
+  @Test
+  public void openBOMBeginningDDocContainerFromStream() throws IOException {
+    Container container = ContainerBuilder.aContainer()
+              .fromStream(FileUtils.openInputStream(new File("src/test/resources/testFiles/valid-containers/BOM_algusega.ddoc")))
+              .build();
+    Assert.assertTrue(container.validate().isValid());
   }
 
   /*

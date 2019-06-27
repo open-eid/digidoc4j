@@ -1,11 +1,11 @@
 package org.digidoc4j.impl.edoc;
 
-import java.nio.file.Paths;
-
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.nio.file.Paths;
 
 /**
  * Created by kamlatm on 4.05.2017.
@@ -32,7 +32,6 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
 
   @Override
   protected void before() {
-    this.setGlobalMode(Configuration.Mode.PROD);
     this.configuration = new Configuration(Configuration.Mode.PROD);
   }
 

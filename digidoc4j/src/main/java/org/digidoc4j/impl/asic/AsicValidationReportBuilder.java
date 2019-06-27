@@ -10,21 +10,10 @@
 
 package org.digidoc4j.impl.asic;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-
+import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.jaxb.simplereport.SimpleReport;
+import eu.europa.esig.dss.jaxb.simplereport.XmlPolicy;
+import eu.europa.esig.dss.validation.reports.Reports;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TechnicalException;
@@ -35,10 +24,16 @@ import org.digidoc4j.impl.asic.xades.validation.SignatureValidationData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.jaxb.simplereport.SimpleReport;
-import eu.europa.esig.dss.jaxb.simplereport.XmlPolicy;
-import eu.europa.esig.dss.validation.reports.Reports;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import java.io.File;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * ASIC validation report builder
@@ -101,8 +96,6 @@ public class AsicValidationReportBuilder {
       DSSUtils.saveToFile(bytes, new File(directory + File.separator + "validationReport.xml"));
       logger.info("Validation report is generated");
     } catch (UnsupportedEncodingException e) {
-      logger.error(e.getMessage());
-    } catch (IOException e) {
       logger.error(e.getMessage());
     }
     if (!signatureValidationData.isEmpty()) {

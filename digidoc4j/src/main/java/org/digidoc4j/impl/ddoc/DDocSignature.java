@@ -142,7 +142,6 @@ public class DDocSignature implements Signature {
 
   @Override
   public Date getTimeStampCreationTime() {
-    logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
 
@@ -219,7 +218,6 @@ public class DDocSignature implements Signature {
 
   @Override
   public X509Cert getTimeStampTokenCertificate() {
-    logger.warn("Not yet implemented");
     throw new NotYetImplementedException();
   }
 

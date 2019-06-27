@@ -10,24 +10,6 @@
 
 package org.digidoc4j;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import org.apache.commons.io.IOUtils;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.InvalidDataFileException;
-import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.impl.StreamDocument;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.DSSUtils;
@@ -36,6 +18,24 @@ import eu.europa.esig.dss.DigestAlgorithm;
 import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.MimeType;
+import org.apache.commons.io.IOUtils;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.InvalidDataFileException;
+import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.StreamDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Data file wrapper providing methods for handling signed files or files to be signed in Container.
@@ -119,11 +119,9 @@ public class DataFile implements Serializable {
    * <p/>
    *
    * @return calculated digest
-   * @throws Exception thrown if the file does not exist or the digest calculation fails.
    */
-  public byte[] calculateDigest() throws Exception {
-    logger.debug("");
-    return calculateDigest(new URL("http://www.w3.org/2001/04/xmlenc#sha256"));
+  public byte[] calculateDigest() {
+    return calculateDigest(getSha256DigestMethodUrl());
   }
 
   /**
@@ -139,7 +137,7 @@ public class DataFile implements Serializable {
    * @param method method uri for calculating the digest
    * @return calculated digest
    */
-  public byte[] calculateDigest(URL method) {        // TODO exceptions to throw
+  public byte[] calculateDigest(URL method) {
     logger.debug("URL method: " + method);
     if (digest == null) {
       DigestAlgorithm digestAlgorithm = DigestAlgorithm.forXML(method.toString());
@@ -155,7 +153,6 @@ public class DataFile implements Serializable {
    * @return digest algorithm uri
    */
   public byte[] calculateDigest(org.digidoc4j.DigestAlgorithm digestType) {
-    logger.debug("");
     return calculateDigest(digestType.uri());
   }
 
@@ -183,7 +180,6 @@ public class DataFile implements Serializable {
    * @return id or name
    */
   public String getId() {
-    logger.debug("");
     return (id == null ? getName() : id);
   }
 
@@ -193,7 +189,6 @@ public class DataFile implements Serializable {
    * @return file size in bytes
    */
   public long getFileSize() {
-    logger.debug("");
     long fileSize;
     if (document instanceof StreamDocument || document instanceof FileDocument) {
       try {
@@ -216,7 +211,6 @@ public class DataFile implements Serializable {
    * @return media type
    */
   public String getMediaType() {
-    logger.debug("");
     String mediaType = document.getMimeType().getMimeTypeString();
     logger.debug("Media type is: " + mediaType);
     return mediaType;
@@ -234,7 +228,6 @@ public class DataFile implements Serializable {
    * @throws java.io.IOException on file write error
    */
   public void saveAs(OutputStream out) throws IOException {
-    logger.debug("");
     out.write(getBytes());
     out.close();
   }
@@ -261,7 +254,6 @@ public class DataFile implements Serializable {
    * @return data as bytes
    */
   public byte[] getBytes() {
-    logger.debug("");
     try {
       return IOUtils.toByteArray(document.openStream());
     } catch (IOException e) {
@@ -275,7 +267,6 @@ public class DataFile implements Serializable {
    * @return data file stream
    */
   public InputStream getStream() {
-    logger.debug("");
     return document.openStream();
   }
 
@@ -285,7 +276,6 @@ public class DataFile implements Serializable {
    * @param dataFileId id for the dataFile
    */
   public void setId(String dataFileId) {
-    logger.debug("");
     this.id = dataFileId;
   }
 
@@ -295,5 +285,13 @@ public class DataFile implements Serializable {
 
   public void setDocument(DSSDocument document) {
     this.document = document;
+  }
+
+  private URL getSha256DigestMethodUrl() {
+    try {
+      return new URL("http://www.w3.org/2001/04/xmlenc#sha256");
+    } catch (MalformedURLException e) {
+      throw new DigiDoc4JException(e);
+    }
   }
 }

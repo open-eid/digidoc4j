@@ -11,7 +11,8 @@
 package org.digidoc4j.test;
 
 import org.digidoc4j.Configuration;
-import org.digidoc4j.impl.asic.SkDataLoader;
+import org.digidoc4j.ServiceType;
+import org.digidoc4j.impl.SkDataLoader;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
@@ -32,6 +33,11 @@ public class MockSkDataLoader extends SkDataLoader {
 
   public MockSkDataLoader(Configuration configuration) {
     super(configuration);
+  }
+
+  @Override
+  protected ServiceType getServiceType() {
+    return ServiceType.OCSP;
   }
 
   public String getSslKeystorePath() {

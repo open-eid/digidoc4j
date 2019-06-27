@@ -10,12 +10,7 @@
 
 package org.digidoc4j;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Paths;
-
+import eu.europa.esig.dss.MimeType;
 import org.digidoc4j.test.RestrictedExternalResourceRule;
 import org.digidoc4j.test.RestrictedExternalResourceRule.FileWritingRestrictedException;
 import org.digidoc4j.test.TestAssert;
@@ -25,7 +20,11 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
-import eu.europa.esig.dss.MimeType;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Paths;
 
 public class FileWritingOperationsTest extends AbstractTest {
 
@@ -54,7 +53,7 @@ public class FileWritingOperationsTest extends AbstractTest {
     TestAssert.assertSaveAsStream(container);
   }
 
-  @Ignore
+  @Ignore("Fail in travis")
   @Test
   public void creatingNewContainer_shouldNotStoreDataFilesOnDisk_byDefault() throws Throwable {
     Container container = this.createNonEmptyContainerIncludingPDFFileBy(Container.DocumentType.BDOC);
@@ -62,7 +61,7 @@ public class FileWritingOperationsTest extends AbstractTest {
     TestAssert.assertSaveAsStream(container);
   }
 
-  @Ignore
+  @Ignore("Fail in travis")
   @Test
   public void creatingDataFiles_shouldNotStoreDataFilesOnDisk_byDefault() throws Exception {
     Container container = this.createNonEmptyContainerBy(Container.DocumentType.BDOC);

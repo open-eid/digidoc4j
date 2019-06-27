@@ -10,24 +10,16 @@
 
 package org.digidoc4j.impl.asic.asice.bdoc;
 
-import java.io.Serializable;
-import java.util.List;
-
 import org.digidoc4j.Configuration;
-import org.digidoc4j.ContainerValidationResult;
-import org.digidoc4j.Signature;
-import org.digidoc4j.impl.asic.AsicContainerValidationResult;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.asice.AsicEContainerValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
 
 /**
  * BDOC container validator
  */
 public class BDocContainerValidator extends AsicEContainerValidator implements Serializable {
-
-  private static final Logger logger = LoggerFactory.getLogger(BDocContainerValidator.class);
 
   /**
    * @param configuration configuration
@@ -52,18 +44,5 @@ public class BDocContainerValidator extends AsicEContainerValidator implements S
   public BDocContainerValidator(AsicParseResult containerParseResult, Configuration configuration,
                                 boolean validateManifest) {
     super(containerParseResult, configuration, validateManifest);
-  }
-
-  /**
-   * @param signatures list of signatures
-   * @return validation result
-   */
-  public ContainerValidationResult validate(List<Signature> signatures) {
-    logger.debug("Validating BDOC container");
-    validateSignatures(signatures);
-    extractManifestErrors(signatures);
-    AsicContainerValidationResult result = createValidationResult();
-    logger.info("Is container valid: " + result.isValid());
-    return result;
   }
 }

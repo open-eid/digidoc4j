@@ -10,13 +10,23 @@
 
 package org.digidoc4j.impl.asic.xades;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static org.digidoc4j.SignatureProfile.B_BES;
-import static org.digidoc4j.SignatureProfile.B_EPES;
-import static org.digidoc4j.SignatureProfile.LT;
-import static org.digidoc4j.SignatureProfile.LTA;
-import static org.digidoc4j.SignatureProfile.LT_TM;
+import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.Policy;
+import eu.europa.esig.dss.SignatureLevel;
+import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.x509.ocsp.OCSPSource;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.OCSPSourceBuilder;
+import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.impl.SkDataLoader;
+import org.digidoc4j.impl.SkTimestampDataLoader;
+import org.digidoc4j.impl.asic.AsicSignature;
+import org.digidoc4j.utils.Helper;
+import org.digidoc4j.utils.PolicyUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,23 +36,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.digidoc4j.Configuration;
-import org.digidoc4j.OCSPSourceBuilder;
-import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.impl.asic.AsicSignature;
-import org.digidoc4j.impl.asic.SkDataLoader;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureBuilder;
-import org.digidoc4j.utils.Helper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.Policy;
-import eu.europa.esig.dss.SignatureLevel;
-import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
-import eu.europa.esig.dss.x509.ocsp.OCSPSource;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.digidoc4j.SignatureProfile.B_BES;
+import static org.digidoc4j.SignatureProfile.B_EPES;
+import static org.digidoc4j.SignatureProfile.LT;
+import static org.digidoc4j.SignatureProfile.LTA;
+import static org.digidoc4j.SignatureProfile.LT_TM;
 
 public class SignatureExtender {
 
@@ -109,7 +109,7 @@ public class SignatureExtender {
 
   private OnlineTSPSource createTimeStampProviderSource(SignatureProfile profile) {
     OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
-    SkDataLoader loader = SkDataLoader.timestamp(this.configuration);
+    SkDataLoader loader = new SkTimestampDataLoader(this.configuration);
     loader.setUserAgent(Helper.createBDocUserAgent(profile));
     source.setDataLoader(loader);
     return source;
@@ -128,7 +128,7 @@ public class SignatureExtender {
 
   private void setSignaturePolicy(SignatureProfile profile) {
     if (profile == LT_TM) {
-      Policy signaturePolicy = BDocSignatureBuilder.createBDocSignaturePolicy();
+      Policy signaturePolicy = PolicyUtils.createBDocSignaturePolicy();
       extendingFacade.setSignaturePolicy(signaturePolicy);
     }
   }

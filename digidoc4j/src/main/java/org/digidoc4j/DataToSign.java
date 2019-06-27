@@ -34,20 +34,17 @@ import java.io.Serializable;
 public class DataToSign implements Serializable {
 
   private static final Logger logger = LoggerFactory.getLogger(DataToSign.class);
-  private byte[] dataToSign;
 
-  private SignatureParameters signatureParameters;
-  private SignatureFinalizer signatureFinalizer;
+  private final SignatureFinalizer signatureFinalizer;
+  private final byte[] dataToBeSigned;
 
   /**
    * Constructor
-   * @param data Digest value of the data
-   * @param signatureParameters Signature parameters
+   * @param dataToBeSigned digest value of the data
    * @param signatureFinalizer Signature finalizer
    */
-  public DataToSign(byte[] data, SignatureParameters signatureParameters, SignatureFinalizer signatureFinalizer) {
-    this.dataToSign = data;
-    this.signatureParameters = signatureParameters;
+  public DataToSign(byte[] dataToBeSigned, SignatureFinalizer signatureFinalizer) {
+    this.dataToBeSigned = dataToBeSigned;
     this.signatureFinalizer = signatureFinalizer;
   }
 
@@ -56,7 +53,7 @@ public class DataToSign implements Serializable {
    * @return signature parameters.
    */
   public SignatureParameters getSignatureParameters() {
-    return signatureParameters;
+    return signatureFinalizer.getSignatureParameters();
   }
 
   /**
@@ -64,7 +61,7 @@ public class DataToSign implements Serializable {
    * @return signature digest algorithm.
    */
   public DigestAlgorithm getDigestAlgorithm() {
-    return signatureParameters.getDigestAlgorithm();
+    return signatureFinalizer.getSignatureParameters().getDigestAlgorithm();
   }
 
   /**
@@ -72,7 +69,7 @@ public class DataToSign implements Serializable {
    * @return data bytes to be signed.
    */
   public byte[] getDataToSign() {
-    return dataToSign;
+    return dataToBeSigned;
   }
 
   /**

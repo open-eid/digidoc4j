@@ -260,7 +260,7 @@ public class SAXDigiDocFactory
             if(fname != null)
                 saxParser.parse(new SignatureInputStream(new FileInputStream(fname)), this);
             else if(isSdoc != null)
-                saxParser.parse(isSdoc, this);
+                saxParser.parse(new SignatureInputStream(isSdoc), this);
         } catch(org.xml.sax.SAXParseException ex) {
             m_logger.error("SAX Error: " + ex);
             handleError(ex);

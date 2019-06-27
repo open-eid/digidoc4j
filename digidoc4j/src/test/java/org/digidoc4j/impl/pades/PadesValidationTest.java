@@ -9,14 +9,10 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.main.DigiDoc4J;
 import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.ExpectedSystemExit;
 import org.junit.contrib.java.lang.system.SystemOutRule;
-
-import eu.europa.esig.dss.validation.policy.rules.Indication;
-import eu.europa.esig.dss.validation.policy.rules.SubIndication;
 
 /**
  * Created by Andrei on 20.11.2017.
@@ -78,7 +74,6 @@ public class PadesValidationTest extends AbstractTest {
 
   @Test
   public void verboseMode() throws Exception {
-    this.setGlobalMode(Configuration.Mode.TEST);
     this.systemExit.expectSystemExitWithStatus(1);
     DigiDoc4J.main(new String[]{"-in", "src/test/resources/testFiles/invalid-containers/hello_signed_INCSAVE_signed_EDITED.pdf", "-verify"});
   }

@@ -56,6 +56,7 @@ public class XadesValidationReportGenerator implements Serializable {
   public Reports openValidationReport() {
     if (this.reports == null) {
       this.reports = this.generateReports();
+      print();
     }
     return this.reports;
   }
@@ -79,8 +80,6 @@ public class XadesValidationReportGenerator implements Serializable {
       return validationReports;
     } catch (DSSException e) {
       throw new DigiDoc4JException(e);
-    } finally {
-      this.print();
     }
   }
 
@@ -129,13 +128,4 @@ public class XadesValidationReportGenerator implements Serializable {
       this.log.trace(this.reports.getXmlSimpleReport());
     }
   }
-
-  /*
-   * ACCESSORS
-   */
-
-  public void setSignedDocumentValidator(SignedDocumentValidator signedDocumentValidator) {
-    this.signedDocumentValidator = signedDocumentValidator;
-  }
-
 }

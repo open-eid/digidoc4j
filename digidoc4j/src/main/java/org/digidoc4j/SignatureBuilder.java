@@ -10,16 +10,7 @@
 
 package org.digidoc4j;
 
-import static java.util.Arrays.asList;
-import static org.digidoc4j.Constant.ASICE_CONTAINER_TYPE;
-import static org.digidoc4j.Constant.ASICS_CONTAINER_TYPE;
-import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
-
-import java.io.Serializable;
-import java.security.cert.X509Certificate;
-import java.util.HashMap;
-import java.util.Map;
-
+import eu.europa.esig.dss.Policy;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.NotSupportedException;
@@ -29,10 +20,19 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.asic.AsicSignatureBuilder;
 import org.digidoc4j.impl.asic.asice.AsicESignatureBuilder;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureBuilder;
+import org.digidoc4j.utils.PolicyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.Policy;
+import java.io.Serializable;
+import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.util.Arrays.asList;
+import static org.digidoc4j.Constant.ASICE_CONTAINER_TYPE;
+import static org.digidoc4j.Constant.ASICS_CONTAINER_TYPE;
+import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
 
 /**
  * <p>Creating signatures on a container.</p>
@@ -41,11 +41,17 @@ import eu.europa.esig.dss.Policy;
  * {@link Signature} signature = {@link SignatureBuilder}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#aSignature(Container) aSignature(container)}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withCity(String) withCity("San Pedro")}. <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withStateOrProvince(String) withStateOrProvince("California")}. <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withPostalCode(String) withPostalCode("11111")}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withCountry(String) withCountry("Val Verde")}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withRoles(String...) withRoles("Manager", "Suspicious Fisherman")}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureDigestAlgorithm(DigestAlgorithm) withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)}. // Digest algorithm is SHA-256 <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureProfile(SignatureProfile) withSignatureProfile(SignatureProfile.LT_TM)}. // Signature profile is Time-Mark <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withSigningCertificate(X509Certificate) withSigningCertificate(x509Certificate)}. <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureId(String) withSignatureId("1")}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureToken(SignatureToken) withSignatureToken(signatureToken)}. // Use signature token <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withEncryptionAlgorithm(EncryptionAlgorithm) withEncryptionAlgorithm(EncryptionAlgorithm.RSA)}. // Encryption algorithm is RSA <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withOwnSignaturePolicy(Policy) withOwnSignaturePolicy(policy)}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#invokeSigning() invokeSigning()}; // Creates a signature using signature token
  * </code></p>
  * <p>
@@ -63,7 +69,6 @@ public abstract class SignatureBuilder implements Serializable {
 
   private static final Logger logger = LoggerFactory.getLogger(SignatureBuilder.class);
   protected static Map<String, Class<? extends SignatureBuilder>> customSignatureBuilders = new HashMap<>();
-  protected static Policy policyDefinedByUser;
   protected SignatureParameters signatureParameters = new SignatureParameters();
   protected SignatureToken signatureToken;
   protected Container container;
@@ -76,13 +81,12 @@ public abstract class SignatureBuilder implements Serializable {
    * @return builder for creating a signature.
    */
   public static SignatureBuilder aSignature(Container container) {
-    SignatureBuilder builder = createBuilder(container);
+    SignatureBuilder builder = createBuilder(container.getType());
     builder.setContainer(container);
     return builder;
   }
 
-  private static SignatureBuilder createBuilder(Container container) {
-    String containerType = container.getType();
+  private static SignatureBuilder createBuilder(String containerType) {
     if (isCustomContainerType(containerType)) {
       return createCustomSignatureBuilder(containerType);
     } else if (isContainerType(containerType, BDOC_CONTAINER_TYPE)) {
@@ -92,8 +96,8 @@ public abstract class SignatureBuilder implements Serializable {
     } else if (isContainerType(containerType, ASICS_CONTAINER_TYPE)) {
       return new AsicSignatureBuilder();
     } else {
-      logger.error("Unknown container type: " + container.getType());
-      throw new NotSupportedException("Unknown container type: " + container.getType());
+      logger.error("Unknown container type: {}", containerType);
+      throw new NotSupportedException("Unknown container type: " + containerType);
     }
   }
 
@@ -137,14 +141,6 @@ public abstract class SignatureBuilder implements Serializable {
       throw new TechnicalException("Unable to instantiate custom signature builder class " +
           builderClass.getName() + " for type " + containerType, e);
     }
-  }
-
-  protected static boolean isDefinedAllPolicyValues() {
-    return StringUtils.isNotBlank(policyDefinedByUser.getId())
-        && policyDefinedByUser.getDigestValue() != null
-        && StringUtils.isNotBlank(policyDefinedByUser.getQualifier())
-        && policyDefinedByUser.getDigestAlgorithm() != null
-        && StringUtils.isNotBlank(policyDefinedByUser.getSpuri());
   }
 
   /**
@@ -272,7 +268,8 @@ public abstract class SignatureBuilder implements Serializable {
    * @return builder for creating a signature.
    */
   public SignatureBuilder withSignatureProfile(SignatureProfile signatureProfile) {
-    if (policyDefinedByUser != null && isDefinedAllPolicyValues()
+    Policy policyDefinedByUser = signatureParameters.getPolicy();
+    if (policyDefinedByUser != null && PolicyUtils.areAllPolicyValuesDefined(policyDefinedByUser)
         && signatureProfile != SignatureProfile.LT_TM) {
       logger.debug("policyDefinedByUser:" + policyDefinedByUser.toString());
       logger.debug("signatureProfile:" + signatureProfile.toString());
@@ -341,7 +338,7 @@ public abstract class SignatureBuilder implements Serializable {
         && signatureParameters.getSignatureProfile() != SignatureProfile.LT_TM) {
       throw new NotSupportedException("Can't define signature policy if it's not LT_TM signature profile. Define it first. ");
     }
-    policyDefinedByUser = signaturePolicy;
+    signatureParameters.setPolicy(signaturePolicy);
     return this;
   }
 }

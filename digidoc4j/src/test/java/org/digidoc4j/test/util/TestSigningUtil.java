@@ -10,6 +10,12 @@
 
 package org.digidoc4j.test.util;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.X509Cert;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.signers.PKCS12SignatureToken;
+
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.security.GeneralSecurityException;
@@ -19,12 +25,6 @@ import java.security.Signature;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.digidoc4j.DigestAlgorithm;
-import org.digidoc4j.X509Cert;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.signers.PKCS12SignatureToken;
 
 public class TestSigningUtil {
 
@@ -122,7 +122,6 @@ public class TestSigningUtil {
    * @param bytes                  the data to digest
    * @return digested and encrypted array of bytes
    */
-  @Deprecated
   public static byte[] encrypt(String signatureAlgorithm, PrivateKey privateKey, byte[] bytes) {
     try {
       Signature signature = Signature.getInstance(signatureAlgorithm);

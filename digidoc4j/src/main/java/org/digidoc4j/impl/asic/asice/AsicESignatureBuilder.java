@@ -12,9 +12,6 @@ import org.digidoc4j.impl.asic.AsicSignatureBuilder;
 public class AsicESignatureBuilder extends AsicSignatureBuilder {
 
   @Override
-  protected void setSignaturePolicy() {}
-
-  @Override
   protected void validateSignatureCompatibilityWithContainer() {
     super.validateSignatureCompatibilityWithContainer();
     if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile()) && isAsicEContainer()) {

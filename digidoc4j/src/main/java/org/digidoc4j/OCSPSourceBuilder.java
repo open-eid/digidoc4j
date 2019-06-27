@@ -10,14 +10,14 @@
 
 package org.digidoc4j;
 
-import org.digidoc4j.impl.ConfigurationSingeltonHolder;
+import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 import org.digidoc4j.impl.CommonOCSPSource;
+import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
-import org.digidoc4j.impl.asic.SkDataLoader;
+import org.digidoc4j.impl.SkDataLoader;
+import org.digidoc4j.impl.SkOCSPDataLoader;
 import org.digidoc4j.impl.asic.ocsp.BDocTMOcspSource;
 import org.digidoc4j.utils.Helper;
-
-import eu.europa.esig.dss.x509.ocsp.OCSPSource;
 
 /**
  * OCSP source builder
@@ -59,7 +59,7 @@ public class OCSPSourceBuilder {
     if (this.configuration == null) {
       this.configuration = ConfigurationSingeltonHolder.getInstance();
     }
-    SkDataLoader loader = SkDataLoader.ocsp(this.configuration);
+    SkDataLoader loader = new SkOCSPDataLoader(this.configuration);
     SKOnlineOCSPSource source;
     if (this.defaultOCSPSource) {
       source = new CommonOCSPSource(this.configuration);

@@ -1,19 +1,14 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.signers;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-
-import org.apache.commons.io.IOUtils;
-import org.bouncycastle.tsp.TimeStampToken;
-import org.digidoc4j.Configuration;
-import org.digidoc4j.ContainerBuilder;
-import org.digidoc4j.DataFile;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.asic.SkDataLoader;
-import org.digidoc4j.utils.Helper;
 
 import eu.europa.esig.dss.DSSASN1Utils;
 import eu.europa.esig.dss.DSSUtils;
@@ -21,6 +16,21 @@ import eu.europa.esig.dss.DigestAlgorithm;
 import eu.europa.esig.dss.InMemoryDocument;
 import eu.europa.esig.dss.MimeType;
 import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
+import org.apache.commons.io.IOUtils;
+import org.bouncycastle.tsp.TimeStampToken;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.SkDataLoader;
+import org.digidoc4j.impl.SkTimestampDataLoader;
+import org.digidoc4j.utils.Helper;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * Timestamp token for AsicS container
@@ -78,7 +88,7 @@ public final class TimestampToken {
       configuration = Configuration.getInstance();
     }
     source.setTspServer(configuration.getTspSource());
-    SkDataLoader loader = SkDataLoader.timestamp(configuration);
+    SkDataLoader loader = new SkTimestampDataLoader(configuration);
     loader.setUserAgent(Helper.createBDocAsicSUserAgent());
     source.setDataLoader(loader);
     return source;
