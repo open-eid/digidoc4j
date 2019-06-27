@@ -197,6 +197,7 @@
                             </goals>
                             <configuration>
                                 <doclint>${javadocOpt}</doclint>
+                                <additionalJOption>--no-module-directories</additionalJOption>
                             </configuration>
                         </execution>
                     </executions>
