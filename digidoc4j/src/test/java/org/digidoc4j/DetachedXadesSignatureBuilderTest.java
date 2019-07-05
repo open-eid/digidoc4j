@@ -10,6 +10,7 @@ import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -19,7 +20,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
   @Test
   public void signExternally() throws Exception {
     byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
-    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
+    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest, "text/plain");
 
     DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
         .withDataFile(digestDataFile)
@@ -38,7 +39,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
   @Test
   public void signWithSignatureToken() throws Exception {
     byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
-    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
+    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest, "text/plain");
 
     Signature signature = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
         .withDataFile(digestDataFile)
@@ -52,7 +53,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
   @Test
   public void signWithRSASignatureToken() throws Exception {
     byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
-    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
+    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest, "text/plain");
 
     Signature signature = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
         .withDataFile(digestDataFile)
@@ -66,10 +67,10 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
   @Test
   public void signWithMultipleDataFiles() throws Exception {
     byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
-    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
+    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest, "text/plain");
 
     byte[] digest2 = MessageDigest.getInstance("SHA-256").digest("hello2".getBytes());
-    DigestDataFile digestDataFile2 = new DigestDataFile("hello2.txt", DigestAlgorithm.SHA256, digest2);
+    DigestDataFile digestDataFile2 = new DigestDataFile("hello2.txt", DigestAlgorithm.SHA256, digest2, "text/plain");
 
     Signature signature = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
         .withDataFile(digestDataFile)
@@ -121,7 +122,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
   @Test
   public void signWithLT_TMProfile() throws Exception {
     byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
-    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
+    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest, "text/plain");
 
     Signature signature = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
          .withDataFile(digestDataFile)
@@ -136,7 +137,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
   @Test
   public void signWithB_EPESProfile() throws Exception {
     byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
-    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
+    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest, "text/plain");
 
     Signature signature = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
         .withDataFile(digestDataFile)
@@ -155,7 +156,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
   @Test
   public void signWithLTProfile() throws Exception {
     byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
-    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
+    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest, "text/plain");
 
     Signature signature = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
          .withDataFile(digestDataFile)
@@ -169,7 +170,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
   @Test
   public void signWithLTAProfile() throws Exception {
     byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
-    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
+    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest, "text/plain");
 
     Signature signature = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
          .withDataFile(digestDataFile)
@@ -183,7 +184,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
   @Test
   public void signWithSignerInfo() throws Exception {
     byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
-    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
+    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest, "text/plain");
 
     Signature signature = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
         .withDataFile(digestDataFile)
@@ -214,7 +215,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
         ("src/test/resources/testFiles/xades/test-signature-with-timestamp.xml"));
 
     byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
-    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
+    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest, "text/plain");
 
     Signature signature = DetachedXadesSignatureBuilder
         .withConfiguration(new Configuration())
@@ -309,5 +310,69 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     Signature signature = dataToSign.finalize(this.pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
     assertTimestampSignature(signature);
     assertValidSignature(signature);
+  }
+
+  @Test
+  public void mimeTypeValueNotValidated() throws Exception {
+    byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
+    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest, "randomMimeType/in-valid-format");
+
+    Signature signature = DetachedXadesSignatureBuilder
+            .withConfiguration(new Configuration())
+            .withDataFile(digestDataFile)
+            .withSignatureToken(pkcs12EccSignatureToken)
+            .invokeSigningProcess();
+
+    assertTimestampSignature(signature);
+    assertValidSignature(signature);
+  }
+
+  @Test
+  public void addDetachedSignatureToContainer() throws Exception {
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    String mimeType = "text/plain";
+    byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
+    DigestDataFile digestDataFile = new DigestDataFile("test.txt", DigestAlgorithm.SHA256, digest, mimeType);
+
+    Signature signature = DetachedXadesSignatureBuilder
+            .withConfiguration(configuration)
+            .withDataFile(digestDataFile)
+            .withSignatureToken(pkcs12EccSignatureToken)
+            .withSignatureProfile(SignatureProfile.LT)
+            .invokeSigningProcess();
+
+    assertTimestampSignature(signature);
+    assertValidSignature(signature);
+
+    Container container = ContainerOpener.open(BDOC_WITH_TM_SIG, configuration);
+    container.addSignature(signature);
+    Assert.assertEquals(mimeType, container.getDataFiles().get(0).getMediaType());
+    Assert.assertTrue(container.validate().isValid());
+  }
+
+  @Test
+  public void addDetachedSignatureToContainerWithNotMatchingMimeType_validationShouldFail() throws Exception {
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    String mimeType = "text/something-else";
+    byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
+    DigestDataFile digestDataFile = new DigestDataFile("test.txt", DigestAlgorithm.SHA256, digest, mimeType);
+
+    Signature signature = DetachedXadesSignatureBuilder
+            .withConfiguration(configuration)
+            .withDataFile(digestDataFile)
+            .withSignatureToken(pkcs12EccSignatureToken)
+            .withSignatureProfile(SignatureProfile.LT)
+            .invokeSigningProcess();
+
+    assertTimestampSignature(signature);
+    assertValidSignature(signature);
+
+    Container container = ContainerOpener.open(BDOC_WITH_TM_SIG, configuration);
+    container.addSignature(signature);
+    Assert.assertNotEquals(mimeType, container.getDataFiles().get(0).getMediaType());
+    ContainerValidationResult validationResult = container.validate();
+    Assert.assertFalse(validationResult.isValid());
+    Assert.assertSame(1, validationResult.getContainerErrors().size());
+    Assert.assertTrue(validationResult.getContainerErrors().get(0).getMessage().startsWith("Manifest file has an entry for file <test.txt> with mimetype <text/plain> but the signature file for signature "));
   }
 }

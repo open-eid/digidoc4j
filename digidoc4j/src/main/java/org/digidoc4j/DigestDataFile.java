@@ -22,14 +22,16 @@ public class DigestDataFile extends DataFile {
    * @param fileName name of the file
    * @param digestAlgorithm algorithm of the digest
    * @param digest digest of the file contents
+   * @param mimeType mime-type of the data file, for example 'text/plain' or 'application/msword'
    */
-  public DigestDataFile(String fileName, DigestAlgorithm digestAlgorithm, byte[] digest) {
+  public DigestDataFile(String fileName, DigestAlgorithm digestAlgorithm, byte[] digest, String mimeType) {
     logger.debug("File name: " + fileName +
         ", digest algorithm: " + digestAlgorithm + ", digest: " + Arrays.toString(digest));
     try {
       DigestDocument document = new DigestDocument();
       document.setName(fileName);
       document.addDigest(digestAlgorithm.getDssDigestAlgorithm(), Base64.encodeBase64String(digest));
+      document.setMimeType(getMimeType(mimeType));
       setDocument(document);
     } catch (Exception e) {
       logger.error(e.getMessage());

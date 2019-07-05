@@ -122,20 +122,22 @@ public class DetachedXadesSignatureExecutor {
   private void addDigestFiles() {
     LOGGER.debug("Adding digest data file(s) ...");
     String[] values = context.getCommandLine().getOptionValues(ExecutionOption.DIGEST_FILE.getName());
-    if (values.length % 2 != 0) {
+    int digestFileArgumentsCount = ExecutionOption.DIGEST_FILE.getCount();
+    if (values.length % digestFileArgumentsCount != 0) {
       throw new DigiDoc4JException("Invalid count of digest file(s) parameters!");
     }
-    for (int i = 0; i < values.length; i+=2) {
+    for (int i = 0; i < values.length; i += digestFileArgumentsCount) {
       String name = values[i];
       String base64EncodedDigest = values[i+1];
-      LOGGER.debug("Adding digest data file with name: " + name + " ; and base64 encoded digest: " + base64EncodedDigest);
-      addDigestFile(name, base64EncodedDigest);
+      String mimeType = values[i+2];
+      LOGGER.debug("Adding digest data file with name: {}; and base64 encoded digest: {}; and mime-type: {}", name, base64EncodedDigest, mimeType);
+      addDigestFile(name, base64EncodedDigest, mimeType);
     }
   }
 
-  private void addDigestFile(String name, String base64EncodedDigest) {
+  private void addDigestFile(String name, String base64EncodedDigest, String mimeType) {
     DigestDataFile digestDataFile = new DigestDataFile(name, DigestAlgorithm.SHA256,
-        Base64.decodeBase64(base64EncodedDigest));
+        Base64.decodeBase64(base64EncodedDigest), mimeType);
     context.addDigestDataFile(digestDataFile);
   }
 

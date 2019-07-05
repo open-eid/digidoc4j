@@ -861,7 +861,7 @@ public class DigiDoc4JTest extends AbstractTest {
     TestDigiDoc4JUtil.call(parameters);
 
     parameters = new String[]{"-xades", "-digFile", "test.txt",
-        "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg", "-sigInputPath", xadesSignaturePath};
+        "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg", "text/plain","-sigInputPath", xadesSignaturePath};
     TestDigiDoc4JUtil.call(parameters);
 
     Assert.assertThat(stdOut.getLog(), containsPattern("Signature id-[a-z0-9]+ is valid"));
@@ -871,11 +871,20 @@ public class DigiDoc4JTest extends AbstractTest {
   @Test
   public void validateDetachedXades_withWrongDigestFile_shouldFail() throws Exception {
     String[] parameters = new String[]{"-xades", "-digFile", "test.txt",
-        "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg", "-sigInputPath",
+        "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg", "text/plain", "-sigInputPath",
         "src/test/resources/testFiles/xades/test-bdoc-ts.xml"};
     TestDigiDoc4JUtil.call(parameters);
 
     Assert.assertThat(stdOut.getLog(), StringContains.containsString("The result of the LTV validation process is not acceptable to continue the process!"));
   }
 
+  @Test
+  public void validateDetachedXades_mimeTypeNotSet_shouldFail() {
+    String[] parameters = new String[]{"-xades", "-digFile", "test.txt",
+            "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg", "-sigInputPath",
+            "src/test/resources/testFiles/xades/test-bdoc-ts.xml"};
+    TestDigiDoc4JUtil.call(parameters);
+
+    Assert.assertThat(stdOut.getLog(), StringContains.containsString("Problem with given parameters"));
+  }
 }
