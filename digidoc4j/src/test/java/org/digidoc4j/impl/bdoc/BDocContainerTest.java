@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.x509.SignaturePolicy;
@@ -38,7 +39,10 @@ import org.digidoc4j.exceptions.DuplicateSignatureFilesException;
 import org.digidoc4j.exceptions.IllegalSignatureProfileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.asic.AsicEntry;
+import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicSignature;
+import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
@@ -386,6 +390,60 @@ public class BDocContainerTest extends AbstractTest {
     Assert.assertEquals(1, container.getDataFiles().size());
     container.removeDataFile("test.txt");
     Assert.assertEquals(0, container.getDataFiles().size());
+  }
+
+  @Test
+  public void removeDataFileRemovesDataFileCompletelyFromBdocContainer() {
+    DataFile dataFile = new DataFile(new ByteArrayInputStream(new byte[]{0, 1, 2, 3}), "test-file.txt", "text/plain");
+
+    BDocContainer container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
+    container.addDataFile(dataFile);
+    Assert.assertTrue(container.getDataFiles().contains(dataFile));
+    Assert.assertNull(container.getContainerParseResult());
+
+    InputStream containerStream = container.saveAsStream();
+
+    container = (BDocContainer) ContainerBuilder.aContainer(Container.DocumentType.BDOC).fromStream(containerStream).build();
+    Assert.assertEquals(1, container.getDataFiles().size());
+    Assert.assertEquals(dataFile.getName(), container.getDataFiles().get(0).getName());
+    containerParseResultContainsDataFile(container.getContainerParseResult(), dataFile.getName());
+
+    container.removeDataFile(dataFile.getName());
+    Assert.assertTrue(container.getDataFiles().isEmpty());
+    containerParseResultDoesNotContainDataFile(container.getContainerParseResult(), dataFile.getName());
+
+    containerStream = container.saveAsStream();
+
+    container = (BDocContainer) ContainerBuilder.aContainer(Container.DocumentType.BDOC).fromStream(containerStream).build();
+    Assert.assertTrue(container.getDataFiles().isEmpty());
+    containerParseResultDoesNotContainDataFile(container.getContainerParseResult(), dataFile.getName());
+  }
+
+  @Test
+  public void removeDataFileRemovesDataFileCompletelyFromAsicEContainer() {
+    DataFile dataFile = new DataFile(new ByteArrayInputStream(new byte[]{0, 1, 2, 3}), "test-file.txt", "text/plain");
+
+    AsicEContainer container = this.createEmptyContainerBy(Container.DocumentType.ASICE);
+    container.addDataFile(dataFile);
+    Assert.assertTrue(container.getDataFiles().contains(dataFile));
+    Assert.assertNull(container.getContainerParseResult());
+
+    InputStream containerStream = container.saveAsStream();
+
+    container = (AsicEContainer) ContainerBuilder.aContainer(Container.DocumentType.ASICE).fromStream(containerStream).build();
+    Assert.assertEquals(1, container.getDataFiles().size());
+    Assert.assertEquals(dataFile.getName(), container.getDataFiles().get(0).getName());
+    containerParseResultContainsDataFile(container.getContainerParseResult(), dataFile.getName());
+
+    container.removeDataFile(dataFile.getName());
+    Assert.assertTrue(container.getDataFiles().isEmpty());
+    containerParseResultDoesNotContainDataFile(container.getContainerParseResult(), dataFile.getName());
+
+    containerStream = container.saveAsStream();
+
+    container = (AsicEContainer) ContainerBuilder.aContainer(Container.DocumentType.ASICE).fromStream(containerStream).build();
+    Assert.assertTrue(container.getDataFiles().isEmpty());
+    containerParseResultDoesNotContainDataFile(container.getContainerParseResult(), dataFile.getName());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -1109,4 +1167,46 @@ public class BDocContainerTest extends AbstractTest {
     return responderCertCount;
   }
 
+  private void containerParseResultContainsDataFile(AsicParseResult containerParseResult, final String dataFileName) {
+    boolean dataFileInAsicEntries = false;
+    for (AsicEntry asicEntry : containerParseResult.getAsicEntries()) {
+      dataFileInAsicEntries = dataFileName.equals(asicEntry.getContent().getName());
+      if (dataFileInAsicEntries) {
+        break;
+      }
+    }
+    Assert.assertTrue(dataFileInAsicEntries);
+
+    boolean dataFileInDataFiles = false;
+    for (DataFile dataFile : containerParseResult.getDataFiles()) {
+      dataFileInDataFiles = dataFile.getName().equals(dataFileName);
+      if (dataFileInDataFiles) {
+        break;
+      }
+    }
+    Assert.assertTrue(dataFileInDataFiles);
+
+    boolean dataFileInDetachedContents = false;
+    for (DSSDocument detachedContent : containerParseResult.getDetachedContents()) {
+      dataFileInDetachedContents = detachedContent.getName().equals(dataFileName);
+      if (dataFileInDetachedContents) {
+        break;
+      }
+    }
+    Assert.assertTrue(dataFileInDetachedContents);
+  }
+
+  private void containerParseResultDoesNotContainDataFile(AsicParseResult containerParseResult, String dataFileName) {
+    for (AsicEntry asicEntry : containerParseResult.getAsicEntries()) {
+      Assert.assertFalse(dataFileName.equals(asicEntry.getContent().getName()));
+    }
+
+    for (DataFile dataFile : containerParseResult.getDataFiles()) {
+      Assert.assertFalse(dataFile.getName().equals(dataFileName));
+    }
+
+    for (DSSDocument detachedContent : containerParseResult.getDetachedContents()) {
+      Assert.assertFalse(detachedContent.getName().equals(dataFileName));
+    }
+  }
 }

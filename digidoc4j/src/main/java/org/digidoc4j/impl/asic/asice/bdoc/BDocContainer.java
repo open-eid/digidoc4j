@@ -14,7 +14,6 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.impl.asic.AsicContainerCreator;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicSignatureOpener;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
@@ -22,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * Offers functionality for handling data files and signatures in a container.
@@ -95,11 +93,6 @@ public class BDocContainer extends AsicEContainer {
    */
   public BDocContainer(AsicParseResult containerParseResult, Configuration configuration) {
     super(containerParseResult, configuration, Constant.BDOC_CONTAINER_TYPE);
-  }
-
-  @Override
-  public void save(OutputStream out) {
-    writeAsicContainer(new AsicContainerCreator(out));
   }
 
   @Override
