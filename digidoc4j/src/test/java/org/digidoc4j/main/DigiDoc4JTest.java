@@ -856,7 +856,7 @@ public class DigiDoc4JTest extends AbstractTest {
     String xadesSignaturePath = "singatures0.xml";
 
     String[] parameters = new String[]{"-xades", "-digFile", "test.txt",
-        "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12",
+        "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg", "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12",
         "test", "-sigOutputPath", xadesSignaturePath};
     TestDigiDoc4JUtil.call(parameters);
 
