@@ -284,7 +284,8 @@ public class BDocContainerTest extends AbstractTest {
   public void testRemoveSignatureWhenOneSignatureExists() throws Exception {
     Container container = this.createNonEmptyContainerBy(Container.DocumentType.BDOC);
     this.createSignatureBy(container, this.pkcs12SignatureToken);
-    container.removeSignature(0);
+    Signature signature = container.getSignatures().get(0);
+    container.removeSignature(signature);
     String file = this.getFileBy("bdoc");
     container.save(file);
     Assert.assertEquals(0, container.getSignatures().size());
@@ -305,7 +306,8 @@ public class BDocContainerTest extends AbstractTest {
   public void testRemoveSignatureWhenTwoSignaturesExist() throws Exception {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/asics_testing_two_signatures.bdoc");
     Assert.assertEquals(2, container.getSignatures().size());
-    container.removeSignature(0);
+    Signature signature = container.getSignatures().get(0);
+    container.removeSignature(signature);
     String file = this.getFileBy("bdoc");
     container.save(file);
     container = ContainerOpener.open(file);
@@ -320,7 +322,8 @@ public class BDocContainerTest extends AbstractTest {
     container.save(file);
     container = ContainerOpener.open(file);
     Assert.assertEquals(3, container.getSignatures().size());
-    container.removeSignature(1);
+    Signature signature = container.getSignatures().get(1);
+    container.removeSignature(signature);
     file = this.getFileBy("bdoc");
     container.save(file);
     container = ContainerOpener.open(file);
@@ -390,60 +393,6 @@ public class BDocContainerTest extends AbstractTest {
     Assert.assertEquals(1, container.getDataFiles().size());
     container.removeDataFile("test.txt");
     Assert.assertEquals(0, container.getDataFiles().size());
-  }
-
-  @Test
-  public void removeDataFileRemovesDataFileCompletelyFromBdocContainer() {
-    DataFile dataFile = new DataFile(new ByteArrayInputStream(new byte[]{0, 1, 2, 3}), "test-file.txt", "text/plain");
-
-    BDocContainer container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
-    container.addDataFile(dataFile);
-    Assert.assertTrue(container.getDataFiles().contains(dataFile));
-    Assert.assertNull(container.getContainerParseResult());
-
-    InputStream containerStream = container.saveAsStream();
-
-    container = (BDocContainer) ContainerBuilder.aContainer(Container.DocumentType.BDOC).fromStream(containerStream).build();
-    Assert.assertEquals(1, container.getDataFiles().size());
-    Assert.assertEquals(dataFile.getName(), container.getDataFiles().get(0).getName());
-    containerParseResultContainsDataFile(container.getContainerParseResult(), dataFile.getName());
-
-    container.removeDataFile(dataFile.getName());
-    Assert.assertTrue(container.getDataFiles().isEmpty());
-    containerParseResultDoesNotContainDataFile(container.getContainerParseResult(), dataFile.getName());
-
-    containerStream = container.saveAsStream();
-
-    container = (BDocContainer) ContainerBuilder.aContainer(Container.DocumentType.BDOC).fromStream(containerStream).build();
-    Assert.assertTrue(container.getDataFiles().isEmpty());
-    containerParseResultDoesNotContainDataFile(container.getContainerParseResult(), dataFile.getName());
-  }
-
-  @Test
-  public void removeDataFileRemovesDataFileCompletelyFromAsicEContainer() {
-    DataFile dataFile = new DataFile(new ByteArrayInputStream(new byte[]{0, 1, 2, 3}), "test-file.txt", "text/plain");
-
-    AsicEContainer container = this.createEmptyContainerBy(Container.DocumentType.ASICE);
-    container.addDataFile(dataFile);
-    Assert.assertTrue(container.getDataFiles().contains(dataFile));
-    Assert.assertNull(container.getContainerParseResult());
-
-    InputStream containerStream = container.saveAsStream();
-
-    container = (AsicEContainer) ContainerBuilder.aContainer(Container.DocumentType.ASICE).fromStream(containerStream).build();
-    Assert.assertEquals(1, container.getDataFiles().size());
-    Assert.assertEquals(dataFile.getName(), container.getDataFiles().get(0).getName());
-    containerParseResultContainsDataFile(container.getContainerParseResult(), dataFile.getName());
-
-    container.removeDataFile(dataFile.getName());
-    Assert.assertTrue(container.getDataFiles().isEmpty());
-    containerParseResultDoesNotContainDataFile(container.getContainerParseResult(), dataFile.getName());
-
-    containerStream = container.saveAsStream();
-
-    container = (AsicEContainer) ContainerBuilder.aContainer(Container.DocumentType.ASICE).fromStream(containerStream).build();
-    Assert.assertTrue(container.getDataFiles().isEmpty());
-    containerParseResultDoesNotContainDataFile(container.getContainerParseResult(), dataFile.getName());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -1165,48 +1114,5 @@ public class BDocContainerTest extends AbstractTest {
       }
     }
     return responderCertCount;
-  }
-
-  private void containerParseResultContainsDataFile(AsicParseResult containerParseResult, final String dataFileName) {
-    boolean dataFileInAsicEntries = false;
-    for (AsicEntry asicEntry : containerParseResult.getAsicEntries()) {
-      dataFileInAsicEntries = dataFileName.equals(asicEntry.getContent().getName());
-      if (dataFileInAsicEntries) {
-        break;
-      }
-    }
-    Assert.assertTrue(dataFileInAsicEntries);
-
-    boolean dataFileInDataFiles = false;
-    for (DataFile dataFile : containerParseResult.getDataFiles()) {
-      dataFileInDataFiles = dataFile.getName().equals(dataFileName);
-      if (dataFileInDataFiles) {
-        break;
-      }
-    }
-    Assert.assertTrue(dataFileInDataFiles);
-
-    boolean dataFileInDetachedContents = false;
-    for (DSSDocument detachedContent : containerParseResult.getDetachedContents()) {
-      dataFileInDetachedContents = detachedContent.getName().equals(dataFileName);
-      if (dataFileInDetachedContents) {
-        break;
-      }
-    }
-    Assert.assertTrue(dataFileInDetachedContents);
-  }
-
-  private void containerParseResultDoesNotContainDataFile(AsicParseResult containerParseResult, String dataFileName) {
-    for (AsicEntry asicEntry : containerParseResult.getAsicEntries()) {
-      Assert.assertFalse(dataFileName.equals(asicEntry.getContent().getName()));
-    }
-
-    for (DataFile dataFile : containerParseResult.getDataFiles()) {
-      Assert.assertFalse(dataFile.getName().equals(dataFileName));
-    }
-
-    for (DSSDocument detachedContent : containerParseResult.getDetachedContents()) {
-      Assert.assertFalse(detachedContent.getName().equals(dataFileName));
-    }
   }
 }

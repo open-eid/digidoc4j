@@ -348,21 +348,21 @@ public abstract class AsicContainer implements Container {
       return;
     }
     String signatureFileName = signatureDocument.getName();
+    removeExistingSignatureFromContainer(signatureFileName);
     removeExistingFileFromContainer(signatureFileName);
   }
 
-  private void removeExistingFileFromContainer(String filePath) {
-    LOGGER.debug("Removing file from the container: " + filePath);
-    if (containerParseResult != null) {
-      List<AsicEntry> asicEntries = containerParseResult.getAsicEntries();
-      for (AsicEntry entry : asicEntries) {
-        String entryFileName = entry.getZipEntry().getName();
-        if (StringUtils.equalsIgnoreCase(filePath, entryFileName)) {
-          asicEntries.remove(entry);
-          LOGGER.debug("File was successfully removed");
-          break;
-        }
-      }
+  private void removeExistingSignatureFromContainer(String signatureName) {
+    LOGGER.debug("Removing signature '{}' from the container", signatureName);
+    if (containerParseResult.removeSignature(signatureName)) {
+      LOGGER.debug("Signature '{}' successfully removed from container", signatureName);
+    }
+  }
+
+  private void removeExistingFileFromContainer(String fileName) {
+    LOGGER.debug("Removing file '{}' from the container" + fileName);
+    if (containerParseResult.removeAsicEntry(fileName)) {
+      LOGGER.debug("File '{}' successfully removed from container", fileName);
     }
   }
 
@@ -421,7 +421,9 @@ public abstract class AsicContainer implements Container {
     dataFiles.add(dataFile);
     newDataFiles.add(dataFile);
     dataFilesHaveChanged = true;
-    removeExistingFileFromContainer(AsicManifest.XML_PATH);
+    if (!isNewContainer()) {
+      removeExistingFileFromContainer(AsicManifest.XML_PATH);
+    }
   }
 
   @Override
@@ -500,6 +502,7 @@ public abstract class AsicContainer implements Container {
         removeExistingSignature((AsicSignature) signature);
       }
     } else {
+      newSignatures.remove(signature);
       signatures.remove(signature);
     }
   }
@@ -508,15 +511,10 @@ public abstract class AsicContainer implements Container {
   @Deprecated
   public void removeSignature(int signatureId) {
     LOGGER.debug("Removing signature from index " + signatureId);
-    if (!isNewContainer()) {
-      Signature signature = signatures.get(signatureId);
-      if (signature != null) {
-        removeSignature(signature);
-      }
-    } else {
-      signatures.remove(signatureId);
+    Signature signature = signatures.get(signatureId);
+    if (signature != null) {
+      removeSignature(signature);
     }
-
   }
 
   @Override

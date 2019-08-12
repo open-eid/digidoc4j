@@ -11,6 +11,7 @@
 package org.digidoc4j.impl.asic;
 
 import eu.europa.esig.dss.DSSDocument;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.impl.asic.manifest.ManifestParser;
 import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
@@ -53,12 +54,20 @@ public class AsicParseResult implements Serializable {
   public List<XadesSignatureWrapper> getSignatures() {
     return signatures;
   }
-
   /**
    * @param signatures list of signatures
    */
   public void setSignatures(List<XadesSignatureWrapper> signatures) {
     this.signatures = signatures;
+  }
+
+  public boolean removeSignature(String signatureName) {
+    for (XadesSignatureWrapper signatureWrapper : signatures) {
+      if (StringUtils.equalsIgnoreCase(signatureWrapper.getSignatureDocument().getName(), signatureName)) {
+        return signatures.remove(signatureWrapper);
+      }
+    }
+    return false;
   }
 
   /**
@@ -94,6 +103,15 @@ public class AsicParseResult implements Serializable {
 
   public void setAsicEntries(List<AsicEntry> asicEntries) {
     this.asicEntries = asicEntries;
+  }
+
+  public boolean removeAsicEntry(String asicEntryName) {
+    for (AsicEntry asicEntry : asicEntries) {
+      if (StringUtils.equalsIgnoreCase(asicEntry.getZipEntry().getName(), asicEntryName)) {
+        return asicEntries.remove(asicEntry);
+      }
+    }
+    return false;
   }
 
   public ManifestParser getManifestParser() {
