@@ -24,7 +24,7 @@ import org.apache.http.util.EntityUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ServiceType;
 import org.digidoc4j.exceptions.ConnectionTimedOutException;
-import org.digidoc4j.exceptions.InvalidServiceUrlException;
+import org.digidoc4j.exceptions.ServiceUnreachableException;
 import org.digidoc4j.exceptions.NetworkException;
 import org.digidoc4j.exceptions.ServiceAccessDeniedException;
 import org.digidoc4j.exceptions.TechnicalException;
@@ -79,7 +79,7 @@ public abstract class SkDataLoader extends CommonsDataLoader {
       return readHttpResponse(httpResponse);
 
     } catch (UnknownHostException e) {
-      throw new InvalidServiceUrlException(url, getServiceType());
+      throw new ServiceUnreachableException(url, getServiceType());
     } catch (InterruptedIOException e) {
       throw new ConnectionTimedOutException(url, getServiceType());
     } catch (NetworkException e) {

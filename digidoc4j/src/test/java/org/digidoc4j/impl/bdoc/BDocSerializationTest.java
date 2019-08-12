@@ -22,7 +22,7 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureValidationResult;
-import org.digidoc4j.exceptions.InvalidServiceUrlException;
+import org.digidoc4j.exceptions.ServiceUnreachableException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.hamcrest.Matchers;
@@ -59,7 +59,7 @@ public class BDocSerializationTest extends AbstractTest {
     Assert.assertEquals(1, container.getSignatures().size());
   }
 
-  @Test(expected = InvalidServiceUrlException.class)
+  @Test(expected = ServiceUnreachableException.class)
   public void changeConfigurationAfterDeserializationToInvalidOcspAndThrowConnectionFailureException(){
     String serializedDataToSignPath = this.getFileBy("bdoc");
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);

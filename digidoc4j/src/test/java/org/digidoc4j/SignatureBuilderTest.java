@@ -15,7 +15,7 @@ import eu.europa.esig.dss.x509.SignaturePolicy;
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.exceptions.IllegalSignatureProfileException;
-import org.digidoc4j.exceptions.InvalidServiceUrlException;
+import org.digidoc4j.exceptions.ServiceUnreachableException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
@@ -802,7 +802,7 @@ public class SignatureBuilderTest extends AbstractTest {
     Configuration configuration = Configuration.of(TEST);
     configuration.setOcspSource("http://invalid.ocsp.url");
 
-    expectedException.expect(InvalidServiceUrlException.class);
+    expectedException.expect(ServiceUnreachableException.class);
     expectedException.expectMessage("Failed to connect to OCSP service <" + configuration.getOcspSource() + ">");
 
     Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).withConfiguration(configuration).build();
@@ -818,7 +818,7 @@ public class SignatureBuilderTest extends AbstractTest {
     Configuration configuration = Configuration.of(TEST);
     configuration.setOcspSource("http://invalid.ocsp.url");
 
-    expectedException.expect(InvalidServiceUrlException.class);
+    expectedException.expect(ServiceUnreachableException.class);
     expectedException.expectMessage("Failed to connect to OCSP service <" + configuration.getOcspSource() + ">");
 
     Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).withConfiguration(configuration).build();
