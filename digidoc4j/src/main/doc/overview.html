@@ -61,7 +61,7 @@
 <p>See also: {@link org.digidoc4j.SignatureValidationResult org.digidoc4j.ValidationResult}</p>
 <h2>Using TSL lists as  trust  anchors</h2>
 <p>TSL (Trust Service status List) list is a signed XML document that provides information about the status of trust services. The format is based on <a href="http://www.etsi.org/deliver/etsi_ts/119600_119699/119612/01.02.01_60/ts_119612v010201p.pdf" target="_blank">ETSI 119 612</a> standard.  </p>
-<p>digidoc4j uses TSL lists for checking the trustworthiness of  the certificates that are used in the signature.  The <a href="https://ec.europa.eu/information_society/policy/esignature/trusted-list/" target="_blank">European Commission's  TSL</a> list is used as the List Of Trusted List (LOTL) (accessible from: <a href="https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml" target="_blank">https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml</a>).</p>
+<p>digidoc4j uses TSL lists for checking the trustworthiness of  the certificates that are used in the signature.  The <a href="https://ec.europa.eu/information_society/policy/esignature/trusted-list/" target="_blank">European Commission's  TSL</a> list is used as the List Of Trusted List (LOTL) (accessible from: <a href="https://ec.europa.eu/tools/lotl/eu-lotl.xml" target="_blank">https://ec.europa.eu/tools/lotl/eu-lotl.xml</a>).</p>
 <p>The main use case regarding TSL lists usage is:</p>
 <ol>
   <li>Using TSL lists for checking the trustworthiness of  the signer's certificate, OCSP service and time-stamping service certificates during signature creation and validation processes.</li>
@@ -123,7 +123,7 @@
     </tr>
     <tr>
       <td>TSL repository</td>
-      <td><p>Repository for the  European Commission's central TSL list  with links to the locations where the trusted lists are published as notified by EU Member States, accessible from <a href="https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml" target="_blank">https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml</a>. <br>
+      <td><p>Repository for the  European Commission's central TSL list  with links to the locations where the trusted lists are published as notified by EU Member States, accessible from <a href="https://ec.europa.eu/tools/lotl/eu-lotl.xml" target="_blank">https://ec.europa.eu/tools/lotl/eu-lotl.xml</a>. <br>
         <br>
         See also: <br>
         - Standard document: <a href="http://www.etsi.org/deliver/etsi_ts/119600_119699/119612/01.02.01_60/ts_119612v010201p.pdf" target="_blank">ETSI 119 612</a><br>
