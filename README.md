@@ -46,7 +46,6 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
 * [DigiDoc4j API](http://open-eid.github.io/digidoc4j/)
 * [Examples](https://github.com/open-eid/digidoc4j/wiki/Examples-of-using-it)
 * [Wiki](https://github.com/open-eid/digidoc4j/wiki)
-* [Pivotal Tracker](https://www.pivotaltracker.com/n/projects/1110130) contains user stories and issues
 * [Architecture of ID-software](http://open-eid.github.io/)
 * [Digital signature formats](http://www.id.ee/index.php?id=36108)
 * [BDOC 2.1.2 specification](http://id.ee/public/bdoc-spec212-eng.pdf)
@@ -67,12 +66,12 @@ You can use the library as a Maven dependency from the Maven Central (http://mvn
 <dependency>
 	<groupId>org.digidoc4j</groupId>
 	<artifactId>digidoc4j</artifactId>
-	<version>1.x.x</version>
+	<version>3.x.x</version>
 </dependency>
 ```
 
 # Known issues
-The list of user stories and issues are tracked in [Pivotal Tracker](https://www.pivotaltracker.com/n/projects/1110130)
+The list of issues are tracked in [GitHub](https://github.com/open-eid/digidoc4j/issues)
 
 # Licence
 * LGPL (GNU Library General Public License, see LICENSE.LGPL)

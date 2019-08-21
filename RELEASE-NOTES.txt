@@ -1,6 +1,15 @@
 DigiDoc4J Java library release notes
 ------------------------------------
 
+Release 3.3.0
+------------------
+Summary of the major changes since 3.2.0
+------------------------------------------
+* Default LOTL location update
+* Depracate currect method for DigestDataFile creation. Addition of obligatory mimeType setting.
+* Fix of removeDataFile functionality
+* Dependencies update
+
 Release 3.2.0
 ------------------
 Summary of the major changes since 3.1.1
