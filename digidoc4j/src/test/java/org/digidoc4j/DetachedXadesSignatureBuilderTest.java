@@ -1,5 +1,9 @@
 package org.digidoc4j;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.digidoc4j.exceptions.InvalidSignatureException;
@@ -9,11 +13,6 @@ import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 
 public class DetachedXadesSignatureBuilderTest extends AbstractTest {
 
@@ -308,6 +307,21 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
          .buildDataToSign();
 
     Signature signature = dataToSign.finalize(this.pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    assertTimestampSignature(signature);
+    assertValidSignature(signature);
+  }
+
+  @Test
+  public void mimeTypeValueNotInitialized() throws Exception{
+    byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
+    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
+
+    Signature signature = DetachedXadesSignatureBuilder
+        .withConfiguration(new Configuration())
+        .withDataFile(digestDataFile)
+        .withSignatureToken(pkcs12EccSignatureToken)
+        .invokeSigningProcess();
+
     assertTimestampSignature(signature);
     assertValidSignature(signature);
   }
