@@ -344,7 +344,7 @@ public final class DigiDoc4J {
   }
 
   private static Option addDigestFile() {
-    return OptionBuilder.withArgName("name digest").hasArgs(ExecutionOption.DIGEST_FILE.getCount())
+    return OptionBuilder.withArgName("name digest mimeType").hasArgs(ExecutionOption.DIGEST_FILE.getCount())
         .withDescription("sets digest (in base64) data file for detached XadES").create(ExecutionOption.DIGEST_FILE
             .getName());
   }
