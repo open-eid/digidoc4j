@@ -66,7 +66,7 @@ public final class Constant {
   public static class Production {
 
     public static final String TSP_SOURCE = "http://tsa.sk.ee";
-    public static final String TSL_LOCATION = "https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml";
+    public static final String TSL_LOCATION = "https://ec.europa.eu/tools/lotl/eu-lotl.xml";
     public static final String TSL_KEYSTORE_LOCATION = "keystore/keystore.jks";
     public static final String VALIDATION_POLICY = "conf/constraint.xml";
     public static final String OCSP_SOURCE = "http://ocsp.sk.ee/";

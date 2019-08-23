@@ -85,7 +85,7 @@ public class DDocFacade implements Serializable {
       String dataFileName = FilenameUtils.getName(dataFile.getFileName());
       try {
         if (isHashcodeForm(dataFile)) {
-            DigestDataFile digestDataFile = new DigestDataFile(dataFileName, DigestAlgorithm.SHA1, dataFile.getDigestValueOfType("sha1"));
+            DigestDataFile digestDataFile = new DigestDataFile(dataFileName, DigestAlgorithm.SHA1, dataFile.getDigestValueOfType("sha1"), dataFile.getMimeType());
             digestDataFile.setContentType(HASHCODE_CONTENT_TYPE);
             dataFiles.add(digestDataFile);
         } else {

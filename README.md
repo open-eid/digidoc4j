@@ -56,7 +56,6 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
 * [DigiDoc4j API](http://open-eid.github.io/digidoc4j/)
 * [Examples](https://github.com/open-eid/digidoc4j/wiki/Examples-of-using-it)
 * [Wiki](https://github.com/open-eid/digidoc4j/wiki)
-* [Pivotal Tracker](https://www.pivotaltracker.com/n/projects/1110130) contains user stories and issues
 * [Architecture of ID-software](http://open-eid.github.io/)
 * [Digital signature formats](http://www.id.ee/index.php?id=36108)
 * [BDOC 2.1.2 specification](http://id.ee/public/bdoc-spec212-eng.pdf)
@@ -66,7 +65,7 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
 * Java 1.7
 * Internet access to external verification services
  * OCSP (Online Certificate Status Protocol) - http://ocsp.sk.ee
- * EU TSL (European Commission's Trusted Status List) - https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml
+ * EU TSL (European Commission's Trusted Status List) - https://ec.europa.eu/tools/lotl/eu-lotl.xml
  * All the EU member states' TL servers referred in the EU TSL. Note that this list may change. (e.g. https://sr.riik.ee/tsl/estonian-tsl.xml, https://sede.minetur.gob.es/Prestadores/TSL/TSL.xml, https://www.viestintavirasto.fi/attachments/TSL-Ficora.xml etc.)
  * TSA (Time Stamping Authority) - http://tsa.sk.ee
 
@@ -82,7 +81,7 @@ You can use the library as a Maven dependency from the Maven Central (http://mvn
 ```
 
 # Known issues
-The list of user stories and issues are tracked in [Pivotal Tracker](https://www.pivotaltracker.com/n/projects/1110130)
+The list of issues are tracked in [GitHub](https://github.com/open-eid/digidoc4j/issues)
 
 # Licence
 * LGPL (GNU Library General Public License, see LICENSE.LGPL)

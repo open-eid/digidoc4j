@@ -28,7 +28,7 @@ public enum ExecutionOption {
   SIGNATURE("sig", 1),
 
   DETACHED_XADES("xades", 0),
-  DIGEST_FILE("digFile" , 2),
+  DIGEST_FILE("digFile" , 3),
   XADES_OUTPUT_PATH("sigOutputPath" , 1),
   XADES_INPUT_PATH("sigInputPath" , 1);
 

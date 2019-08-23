@@ -10,11 +10,27 @@
 
 package org.digidoc4j;
 
-import eu.europa.esig.dss.tsl.Condition;
-import eu.europa.esig.dss.tsl.KeyUsageBit;
-import eu.europa.esig.dss.tsl.ServiceInfo;
-import eu.europa.esig.dss.tsl.ServiceInfoStatus;
-import eu.europa.esig.dss.x509.CertificateToken;
+import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.junit.Assert.assertFalse;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
@@ -34,26 +50,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.FileTime;
-import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.junit.Assert.assertFalse;
+import eu.europa.esig.dss.tsl.Condition;
+import eu.europa.esig.dss.tsl.KeyUsageBit;
+import eu.europa.esig.dss.tsl.ServiceInfo;
+import eu.europa.esig.dss.tsl.ServiceInfoStatus;
+import eu.europa.esig.dss.x509.CertificateToken;
 
 public class ConfigurationTest extends AbstractTest {
 
@@ -441,7 +442,7 @@ public class ConfigurationTest extends AbstractTest {
   @Test
   public void defaultProductionConfiguration() throws Exception {
     this.configuration = Configuration.of(Configuration.Mode.PROD);
-    Assert.assertEquals("https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml",
+    Assert.assertEquals("https://ec.europa.eu/tools/lotl/eu-lotl.xml",
         this.configuration.getTslLocation());
   }
 
@@ -496,7 +497,7 @@ public class ConfigurationTest extends AbstractTest {
   public void defaultConstructorWithUnSetSystemProperty() throws Exception {
     this.clearGlobalMode();
     this.configuration = new Configuration();
-    Assert.assertEquals("https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml",
+    Assert.assertEquals("https://ec.europa.eu/tools/lotl/eu-lotl.xml",
         this.configuration.getTslLocation());
   }
 

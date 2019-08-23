@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.x509.SignaturePolicy;
@@ -38,7 +39,10 @@ import org.digidoc4j.exceptions.DuplicateSignatureFilesException;
 import org.digidoc4j.exceptions.IllegalSignatureProfileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.asic.AsicEntry;
+import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicSignature;
+import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
@@ -280,7 +284,8 @@ public class BDocContainerTest extends AbstractTest {
   public void testRemoveSignatureWhenOneSignatureExists() throws Exception {
     Container container = this.createNonEmptyContainerBy(Container.DocumentType.BDOC);
     this.createSignatureBy(container, this.pkcs12SignatureToken);
-    container.removeSignature(0);
+    Signature signature = container.getSignatures().get(0);
+    container.removeSignature(signature);
     String file = this.getFileBy("bdoc");
     container.save(file);
     Assert.assertEquals(0, container.getSignatures().size());
@@ -301,7 +306,8 @@ public class BDocContainerTest extends AbstractTest {
   public void testRemoveSignatureWhenTwoSignaturesExist() throws Exception {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/asics_testing_two_signatures.bdoc");
     Assert.assertEquals(2, container.getSignatures().size());
-    container.removeSignature(0);
+    Signature signature = container.getSignatures().get(0);
+    container.removeSignature(signature);
     String file = this.getFileBy("bdoc");
     container.save(file);
     container = ContainerOpener.open(file);
@@ -316,7 +322,8 @@ public class BDocContainerTest extends AbstractTest {
     container.save(file);
     container = ContainerOpener.open(file);
     Assert.assertEquals(3, container.getSignatures().size());
-    container.removeSignature(1);
+    Signature signature = container.getSignatures().get(1);
+    container.removeSignature(signature);
     file = this.getFileBy("bdoc");
     container.save(file);
     container = ContainerOpener.open(file);
@@ -1108,5 +1115,4 @@ public class BDocContainerTest extends AbstractTest {
     }
     return responderCertCount;
   }
-
 }
