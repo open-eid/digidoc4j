@@ -1,6 +1,6 @@
 package org.digidoc4j;
 
-import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.model.x509.CertificateToken;
 import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
 import org.junit.Assert;

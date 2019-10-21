@@ -37,6 +37,13 @@ public interface XadesSignature extends Serializable {
   String getId();
 
   /**
+   * This method returns XML digital signature id, it can be null.
+   *
+   * @return XML digital signature id.
+   */
+  String getXmlDigitalSignatureId();
+
+  /**
    * This method returns city name(string object), it can be empty.
    *
    * @return city.

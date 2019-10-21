@@ -111,7 +111,7 @@
         </MandatedUnsignedQProperties>
     </MainSignature>
     <Timestamp>
-        <TimestampDelay Unit="DAYS">0</TimestampDelay>
+        <TimestampDelay Level="IGNORE" Unit="DAYS" Value="0"/>
         <RevocationTimeAgainstBestSignatureTime Level="FAIL"/>
         <AlgorithmReliableAtBestSignatureTime Level="FAIL"/>
         <Coherence Level="FAIL"/>
@@ -178,7 +178,7 @@
         </CACertificate>
     </Timestamp>
     <Revocation>
-        <RevocationFreshness Unit="DAYS">0</RevocationFreshness>
+        <RevocationFreshness Level="IGNORE" Unit="DAYS" Value="0"/>
         <SigningCertificate>
             <Signature Level="FAIL"/>
             <Expiration Level="FAIL"/>

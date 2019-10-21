@@ -1,6 +1,6 @@
 package org.digidoc4j.impl.asic.xades;
 
-import eu.europa.esig.dss.jaxb.simplereport.XmlSignature;
+import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
 import eu.europa.esig.dss.validation.process.MessageTag;
 import eu.europa.esig.dss.validation.reports.Reports;
 import org.slf4j.Logger;

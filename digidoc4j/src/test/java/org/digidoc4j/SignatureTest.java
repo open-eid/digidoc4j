@@ -33,6 +33,7 @@ import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
 import org.digidoc4j.impl.ddoc.DDocOpener;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
+import org.digidoc4j.test.util.TestIdUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.DateUtils;
 import org.digidoc4j.utils.Helper;
@@ -40,16 +41,16 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.FileDocument;
-import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
-import eu.europa.esig.dss.validation.SignatureQualification;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.FileDocument;
+import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
+import eu.europa.esig.dss.enumerations.SignatureQualification;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
-import eu.europa.esig.dss.validation.policy.rules.Indication;
-import eu.europa.esig.dss.validation.policy.rules.SubIndication;
+import eu.europa.esig.dss.enumerations.Indication;
+import eu.europa.esig.dss.enumerations.SubIndication;
 import eu.europa.esig.dss.validation.reports.Reports;
-import eu.europa.esig.dss.validation.reports.SimpleReport;
-import eu.europa.esig.dss.x509.ocsp.OCSPSource;
+import eu.europa.esig.dss.simplereport.SimpleReport;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 
 public class SignatureTest extends AbstractTest {
 
@@ -141,7 +142,7 @@ public class SignatureTest extends AbstractTest {
   public void testGetIdForBDoc() {
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/ocsp_cert_is_not_in_tsl.bdoc");
-    Assert.assertEquals("id-99E491801522116744419D9357CEFCC5", container.getSignatures().get(0).getId());
+    Assert.assertEquals("S-F0D2B7DEEF53AA4E415E616AE24E9FE743159D19DF8BCF99B92F9EED00B10E", container.getSignatures().get(0).getId());
   }
 
   @Test
@@ -235,8 +236,8 @@ public class SignatureTest extends AbstractTest {
     SignatureValidationResult validate = container.validate();
     Assert.assertEquals(1, validate.getErrors().size());
     String report = validate.getReport();
-    Assert.assertTrue(report.contains("Id=\"S0\" SignatureFormat=\"XAdES-BASELINE-LT\""));
-    Assert.assertTrue(report.contains("Id=\"S1\" SignatureFormat=\"XAdES-BASELINE-LT\""));
+    Assert.assertTrue(report.contains("Id=\"" + TestIdUtil.findExactlyOneSignatureByXmlDigitalSignatureId(container, "S0").getId() + "\" SignatureFormat=\"XAdES-BASELINE-LT\""));
+    Assert.assertTrue(report.contains("Id=\"" + TestIdUtil.findExactlyOneSignatureByXmlDigitalSignatureId(container, "S1").getId() + "\" SignatureFormat=\"XAdES-BASELINE-LT\""));
     Assert.assertTrue(report.contains("<Indication>TOTAL_PASSED</Indication>"));
     Assert.assertTrue(report.contains("<Indication>INDETERMINATE</Indication>"));
   }
@@ -439,12 +440,14 @@ public class SignatureTest extends AbstractTest {
         Paths.get("src/test/resources/testFiles/valid-containers/asics_testing_two_signatures.bdoc"),
         this.configuration);
     SignatureValidationResult result = container.validate();
-    Assert.assertEquals(Indication.INDETERMINATE, result.getIndication("S0"));
-    Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, result.getSubIndication("S0"));
-    Assert.assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification("S0").getLabel());
-    Assert.assertEquals(Indication.INDETERMINATE, result.getIndication("S1"));
-    Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, result.getSubIndication("S1"));
-    Assert.assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification("S1").getLabel());
+    String signatureId0 = TestIdUtil.findExactlyOneSignatureByXmlDigitalSignatureId(container, "S0").getId();
+    String signatureId1 = TestIdUtil.findExactlyOneSignatureByXmlDigitalSignatureId(container, "S1").getId();
+    Assert.assertEquals(Indication.INDETERMINATE, result.getIndication(signatureId0));
+    Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, result.getSubIndication(signatureId0));
+    Assert.assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification(signatureId0).getLabel());
+    Assert.assertEquals(Indication.INDETERMINATE, result.getIndication(signatureId1));
+    Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, result.getSubIndication(signatureId1));
+    Assert.assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification(signatureId1).getLabel());
     Assert.assertEquals(Indication.INDETERMINATE, result.getIndication(null));
     Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, result.getSubIndication(null));
     Assert.assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification(null).getLabel());
@@ -485,6 +488,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
+  @org.junit.Ignore("DD4J-476 -- needs further investigation")
   public void signatureReportOnlyOneSignatureValid() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.TEST);
     Container container = this.openContainerByConfiguration(
@@ -492,9 +496,10 @@ public class SignatureTest extends AbstractTest {
         this.configuration);
     SignatureValidationResult result = container.validate();
     //Signature with id "S1" is invalid
-    Assert.assertEquals(Indication.INDETERMINATE, result.getIndication("S1"));
-    Assert.assertEquals(SubIndication.NO_SIGNING_CERTIFICATE_FOUND, result.getSubIndication("S1"));
-    Assert.assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification("S1").getLabel());
+    String signatureId1 = TestIdUtil.findExactlyOneSignatureByXmlDigitalSignatureId(container, "S1").getId();
+    Assert.assertEquals(Indication.INDETERMINATE, result.getIndication(signatureId1));
+    Assert.assertEquals(SubIndication.NO_SIGNING_CERTIFICATE_FOUND, result.getSubIndication(signatureId1));
+    Assert.assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification(signatureId1).getLabel());
     //Signature with id "S0" is valid
     Assert.assertEquals(Indication.TOTAL_PASSED, result.getIndication(null));
     Assert.assertEquals(null, result.getSubIndication(null));

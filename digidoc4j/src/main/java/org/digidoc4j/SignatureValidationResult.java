@@ -15,10 +15,10 @@ import java.util.List;
 
 import org.digidoc4j.impl.asic.report.SignatureValidationReport;
 
-import eu.europa.esig.dss.validation.SignatureQualification;
-import eu.europa.esig.dss.validation.policy.rules.Indication;
-import eu.europa.esig.dss.validation.policy.rules.SubIndication;
-import eu.europa.esig.dss.validation.reports.SimpleReport;
+import eu.europa.esig.dss.enumerations.SignatureQualification;
+import eu.europa.esig.dss.enumerations.Indication;
+import eu.europa.esig.dss.enumerations.SubIndication;
+import eu.europa.esig.dss.simplereport.SimpleReport;
 
 /**
  * Validation result information.

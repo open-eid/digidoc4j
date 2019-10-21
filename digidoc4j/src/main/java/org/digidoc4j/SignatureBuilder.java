@@ -10,7 +10,7 @@
 
 package org.digidoc4j;
 
-import eu.europa.esig.dss.Policy;
+import eu.europa.esig.dss.model.Policy;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.NotSupportedException;
@@ -48,7 +48,7 @@ import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
  * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureDigestAlgorithm(DigestAlgorithm) withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)}. // Digest algorithm is SHA-256 <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureProfile(SignatureProfile) withSignatureProfile(SignatureProfile.LT_TM)}. // Signature profile is Time-Mark <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withSigningCertificate(X509Certificate) withSigningCertificate(x509Certificate)}. <br/>
- * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureId(String) withSignatureId("1")}. <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withXmlDigitalSignatureId(String) withXmlDigitalSignatureId("1")}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureToken(SignatureToken) withSignatureToken(signatureToken)}. // Use signature token <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withEncryptionAlgorithm(EncryptionAlgorithm) withEncryptionAlgorithm(EncryptionAlgorithm.RSA)}. // Encryption algorithm is RSA <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withOwnSignaturePolicy(Policy) withOwnSignaturePolicy(policy)}. <br/>
@@ -293,11 +293,11 @@ public abstract class SignatureBuilder implements Serializable {
   /**
    * Set signature ID.
    *
-   * @param signatureId signature id.
+   * @param xmlDigitalSignatureId XML digital signature id.
    * @return builder for creating a signature.
    */
-  public SignatureBuilder withSignatureId(String signatureId) {
-    signatureParameters.setSignatureId(signatureId);
+  public SignatureBuilder withXmlDigitalSignatureId(String xmlDigitalSignatureId) {
+    signatureParameters.setXmlDigitalSignatureId(xmlDigitalSignatureId);
     return this;
   }
 

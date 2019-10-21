@@ -653,7 +653,7 @@ public class DigiDoc4JTest extends AbstractTest {
 
       @Override
       public void checkAssertion() throws Exception {
-        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature S0 is valid"));
+        Assert.assertThat(stdOut.getLog(), containsPattern("Signature S-[A-Z0-9]{64} is valid"));
       }
 
     });
@@ -684,7 +684,7 @@ public class DigiDoc4JTest extends AbstractTest {
 
       @Override
       public void checkAssertion() throws Exception {
-        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature S0 is valid"));
+        Assert.assertThat(stdOut.getLog(), containsPattern("Signature S-[A-Z0-9]{64} is valid"));
       }
 
     });
@@ -717,7 +717,7 @@ public class DigiDoc4JTest extends AbstractTest {
 
       @Override
       public void checkAssertion() throws Exception {
-        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature S1 is valid"));
+        Assert.assertThat(stdOut.getLog(), containsPattern("Signature S-[A-Z0-9]{64} is valid"));
       }
 
     });
@@ -753,7 +753,7 @@ public class DigiDoc4JTest extends AbstractTest {
       @Override
       public void checkAssertion() throws Exception {
         Assert.assertThat(stdOut.getLog(),
-            StringContains.containsString("Signature id-c0be584463a9dca56c3e9500a3d17e75 is valid"));
+            containsPattern("Signature S-[A-Z0-9]{64} is valid"));
       }
 
     });
@@ -784,7 +784,7 @@ public class DigiDoc4JTest extends AbstractTest {
 
       @Override
       public void checkAssertion() throws Exception {
-        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature S1 is not valid"));
+        Assert.assertThat(stdOut.getLog(), containsPattern("Signature S-[A-Z0-9]{64} is not valid"));
       }
 
     });
@@ -864,7 +864,7 @@ public class DigiDoc4JTest extends AbstractTest {
         "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg", "text/plain","-sigInputPath", xadesSignaturePath};
     TestDigiDoc4JUtil.call(parameters);
 
-    Assert.assertThat(stdOut.getLog(), containsPattern("Signature id-[a-z0-9]+ is valid"));
+    Assert.assertThat(stdOut.getLog(), containsPattern("Signature S-[A-Z0-9]{64} is valid"));
     new File(xadesSignaturePath).delete();
   }
 

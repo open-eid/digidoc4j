@@ -19,7 +19,7 @@ import org.digidoc4j.test.util.TestCommonUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
-import eu.europa.esig.dss.x509.CertificatePool;
+import eu.europa.esig.dss.spi.x509.CertificatePool;
 
 public class LazyTslLoadingTest extends AbstractTest {
 

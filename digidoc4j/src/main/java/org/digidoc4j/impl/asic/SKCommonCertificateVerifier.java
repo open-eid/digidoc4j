@@ -14,17 +14,18 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import org.digidoc4j.impl.asic.tsl.LazyCertificatePool;
 
-import eu.europa.esig.dss.client.http.DataLoader;
+import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
-import eu.europa.esig.dss.x509.CertificatePool;
-import eu.europa.esig.dss.x509.CertificateSource;
-import eu.europa.esig.dss.x509.crl.CRLSource;
-import eu.europa.esig.dss.x509.crl.ListCRLSource;
-import eu.europa.esig.dss.x509.ocsp.ListOCSPSource;
-import eu.europa.esig.dss.x509.ocsp.OCSPSource;
+import eu.europa.esig.dss.spi.x509.CertificatePool;
+import eu.europa.esig.dss.spi.x509.CertificateSource;
+import eu.europa.esig.dss.spi.x509.revocation.crl.CRLSource;
+import eu.europa.esig.dss.validation.ListCRLSource;
+import eu.europa.esig.dss.validation.ListOCSPSource;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 
 /**
  * Delegate class for SD-DSS CommonCertificateVerifier. Needed for making serialization possible
@@ -118,6 +119,16 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   }
 
   @Override
+  public void setDefaultDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+    commonCertificateVerifier.setDefaultDigestAlgorithm(digestAlgorithm);
+  }
+
+  @Override
+  public DigestAlgorithm getDefaultDigestAlgorithm() {
+    return commonCertificateVerifier.getDefaultDigestAlgorithm();
+  }
+
+  @Override
   public void setExceptionOnMissingRevocationData(boolean throwExceptionOnMissingRevocationData) {
     commonCertificateVerifier.setExceptionOnMissingRevocationData(throwExceptionOnMissingRevocationData);
   }
@@ -154,6 +165,16 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   @Override
   public boolean isExceptionOnInvalidTimestamp() {
     return commonCertificateVerifier.isExceptionOnInvalidTimestamp();
+  }
+
+  @Override
+  public void setExceptionOnNoRevocationAfterBestSignatureTime(boolean exceptionOnNoRevocationAfterBestSignatureTime) {
+    commonCertificateVerifier.setExceptionOnNoRevocationAfterBestSignatureTime(exceptionOnNoRevocationAfterBestSignatureTime);
+  }
+
+  @Override
+  public boolean isExceptionOnNoRevocationAfterBestSignatureTime() {
+    return commonCertificateVerifier.isExceptionOnNoRevocationAfterBestSignatureTime();
   }
 
   @Override

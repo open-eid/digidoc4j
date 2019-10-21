@@ -17,7 +17,7 @@ import org.digidoc4j.impl.StreamDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.model.DSSDocument;
 
 /**
  * Handling large files from a stream to be stored temporarily on disk.

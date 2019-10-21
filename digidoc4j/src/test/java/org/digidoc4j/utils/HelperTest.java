@@ -25,7 +25,7 @@ import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 
-import eu.europa.esig.dss.MimeType;
+import eu.europa.esig.dss.model.MimeType;
 
 public class HelperTest extends AbstractTest {
 

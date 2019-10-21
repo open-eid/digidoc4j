@@ -12,7 +12,7 @@ package org.digidoc4j.impl.asic;
 
 import org.digidoc4j.Configuration;
 
-import eu.europa.esig.dss.client.http.commons.FileCacheDataLoader;
+import eu.europa.esig.dss.service.http.commons.FileCacheDataLoader;
 
 /**
  * Cache data loader

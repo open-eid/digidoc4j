@@ -10,7 +10,7 @@
 
 package org.digidoc4j;
 
-import eu.europa.esig.dss.Policy;
+import eu.europa.esig.dss.model.Policy;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ import java.util.List;
  * <ul>
  *   <li>Signature production place</li>
  *   <li>Roles of the signer</li>
- *   <li>Signature id</li>
+ *   <li>XML digital signature id</li>
  *   <li>Digest algorithm</li>
  *   <li>Encryption algorithm</li>
  *   <li>Signature profile</li>
@@ -44,7 +44,7 @@ public class SignatureParameters implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(SignatureParameters.class);
   private SignatureProductionPlace productionPlace = new SignatureProductionPlace();
   private List<String> roles = new ArrayList<>();
-  private String signatureId;
+  private String xmlDigitalSignatureId;
   private DigestAlgorithm digestAlgorithm;
   private EncryptionAlgorithm encryptionAlgorithm;
   private SignatureProfile signatureProfile;
@@ -123,22 +123,22 @@ public class SignatureParameters implements Serializable {
   }
 
   /**
-   * Set signature id.
+   * Set XML digital signature id.
    *
-   * @param signatureId signature ID
+   * @param xmlDigitalSignatureId signature ID
    */
-  public void setSignatureId(String signatureId) {
-    logger.debug("Set signature id to " + signatureId);
-    this.signatureId = signatureId;
+  public void setXmlDigitalSignatureId(String xmlDigitalSignatureId) {
+    logger.debug("Set XML digital signature id to " + xmlDigitalSignatureId);
+    this.xmlDigitalSignatureId = xmlDigitalSignatureId;
   }
 
   /**
-   * Get signature id.
+   * Get XML digital signature id.
    *
-   * @return signatureId signature ID
+   * @return xmlDigitalSignatureId signature ID
    */
-  public String getSignatureId() {
-    return signatureId;
+  public String getXmlDigitalSignatureId() {
+    return xmlDigitalSignatureId;
   }
 
   /**

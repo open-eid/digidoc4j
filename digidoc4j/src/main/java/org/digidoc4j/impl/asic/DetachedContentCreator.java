@@ -17,7 +17,7 @@ import java.util.List;
 
 import org.digidoc4j.DataFile;
 
-import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.model.DSSDocument;
 
 /**
  * Class for building list of detached content files.

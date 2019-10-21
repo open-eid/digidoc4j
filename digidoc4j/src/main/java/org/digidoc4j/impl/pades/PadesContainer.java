@@ -8,12 +8,12 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.europa.esig.dss.enumerations.RevocationType;
 import eu.europa.esig.dss.pdf.PdfObjFactory;
-import eu.europa.esig.dss.pdf.pdfbox.PdfBoxObjectFactory;
+import eu.europa.esig.dss.pdf.pdfbox.PdfBoxDefaultObjectFactory;
 import eu.europa.esig.dss.pades.validation.PDFDocumentValidator;
 import eu.europa.esig.dss.validation.CertificateVerifier;
-import eu.europa.esig.dss.validation.reports.wrapper.DiagnosticData;
-import org.apache.commons.lang3.StringUtils;
+import eu.europa.esig.dss.diagnostic.DiagnosticData;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerValidationResult;
@@ -30,9 +30,9 @@ import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
 
-import eu.europa.esig.dss.FileDocument;
+import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
-import eu.europa.esig.dss.validation.policy.rules.Indication;
+import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.validation.reports.Reports;
 import org.digidoc4j.impl.asic.xades.validation.TimestampSignatureValidator;
 import org.slf4j.Logger;
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public class PadesContainer implements Container {
 
   static {
-    PdfObjFactory.setInstance(new PdfBoxObjectFactory());
+    PdfObjFactory.setInstance(new PdfBoxDefaultObjectFactory());
   }
 
   private static final Logger logger = LoggerFactory.getLogger(PadesContainer.class);
@@ -166,10 +166,10 @@ public class PadesContainer implements Container {
     if (diagnosticData == null) {
       return;
     }
-    String certificateRevocationSource = diagnosticData
+    RevocationType certificateRevocationSource = diagnosticData
             .getCertificateRevocationSource(diagnosticData.getFirstSigningCertificateId());
     logger.debug("Revocation source is <{}>", certificateRevocationSource);
-    if (StringUtils.equalsIgnoreCase("CRLToken", certificateRevocationSource)) {
+    if (RevocationType.CRL.equals(certificateRevocationSource)) {
       logger.error("Signing certificate revocation source is CRL instead of OCSP");
       result.getErrors().add(new UntrustedRevocationSourceException());
     }

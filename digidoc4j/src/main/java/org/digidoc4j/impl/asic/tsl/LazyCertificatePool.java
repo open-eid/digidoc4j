@@ -16,7 +16,11 @@ import java.util.Set;
 
 import javax.security.auth.x500.X500Principal;
 
-import eu.europa.esig.dss.x509.*;
+import eu.europa.esig.dss.enumerations.CertificateSourceType;
+import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.model.x509.Token;
+import eu.europa.esig.dss.spi.x509.CertificatePool;
+import eu.europa.esig.dss.spi.x509.CertificateSource;
 import org.bouncycastle.cms.SignerId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +93,7 @@ public class LazyCertificatePool extends CertificatePool {
   }
 
   @Override
-  public List<CertificateToken> get(X500Principal x500Principal) {
+  public Set<CertificateToken> get(X500Principal x500Principal) {
     return getCertificatePool().get(x500Principal);
   }
 

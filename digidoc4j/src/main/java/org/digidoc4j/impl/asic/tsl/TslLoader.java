@@ -26,13 +26,13 @@ import org.digidoc4j.impl.asic.CachingDataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSException;
-import eu.europa.esig.dss.client.http.DataLoader;
-import eu.europa.esig.dss.client.http.Protocol;
-import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
+import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.spi.client.http.Protocol;
+import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.tsl.service.TSLValidationJob;
-import eu.europa.esig.dss.x509.KeyStoreCertificateSource;
+import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
 
 /**
  * TSL loader
@@ -90,7 +90,6 @@ public class TslLoader implements Serializable {
     job.setCheckTSLSignatures(this.checkSignature);
     job.setOjUrl("");
     job.setFilterTerritories(this.configuration.getTrustedTerritories());
-    job.setLotlRootSchemeInfoUri("");
     return job;
   }
 

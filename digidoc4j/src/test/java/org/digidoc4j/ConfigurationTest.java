@@ -50,11 +50,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.tsl.Condition;
-import eu.europa.esig.dss.tsl.KeyUsageBit;
-import eu.europa.esig.dss.tsl.ServiceInfo;
-import eu.europa.esig.dss.tsl.ServiceInfoStatus;
-import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.spi.tsl.Condition;
+import eu.europa.esig.dss.enumerations.KeyUsageBit;
+import eu.europa.esig.dss.spi.tsl.ServiceInfo;
+import eu.europa.esig.dss.spi.tsl.ServiceInfoStatus;
+import eu.europa.esig.dss.model.x509.CertificateToken;
 
 public class ConfigurationTest extends AbstractTest {
 
@@ -89,8 +89,8 @@ public class ConfigurationTest extends AbstractTest {
     TSLCertificateSource source = new TSLCertificateSourceImpl();
     this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);
     CertificateToken certificateToken = source.getCertificates().get(0);
-    Assert.assertThat(certificateToken.getKeyUsageBits(), hasItem(KeyUsageBit.nonRepudiation));
-    Assert.assertTrue(certificateToken.checkKeyUsage(KeyUsageBit.nonRepudiation));
+    Assert.assertThat(certificateToken.getKeyUsageBits(), hasItem(KeyUsageBit.NON_REPUDIATION));
+    Assert.assertTrue(certificateToken.checkKeyUsage(KeyUsageBit.NON_REPUDIATION));
     Set<ServiceInfo> associatedTSPS = source.getTrustServices(certificateToken);
     ServiceInfo serviceInfo = associatedTSPS.iterator().next();
     //TODO test ServiceInfoStatus new methods

@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl.asic;
 
-import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.model.DSSDocument;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
@@ -447,6 +447,9 @@ public abstract class AsicContainer implements Container {
     for (Signature sig : signatures) {
       if (sig.getId() != null && sig.getId().equalsIgnoreCase(signature.getId())) {
         throw new TechnicalException("Signature with Id \"" + signature.getId() + "\" already exists");
+      }
+      if (sig.getXmlDigitalSignatureId() != null && sig.getXmlDigitalSignatureId().equalsIgnoreCase(signature.getXmlDigitalSignatureId())) {
+        throw new TechnicalException("Signature with XML digital signature Id \"" + signature.getXmlDigitalSignatureId() + "\" already exists");
       }
     }
   }

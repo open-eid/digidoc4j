@@ -14,8 +14,7 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.cert.ocsp.BasicOCSPResp;
+import eu.europa.esig.dss.enumerations.RevocationType;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignedWithExpiredCertificateException;
@@ -26,8 +25,8 @@ import org.digidoc4j.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.validation.TimestampToken;
-import eu.europa.esig.dss.validation.reports.wrapper.DiagnosticData;
+import eu.europa.esig.dss.validation.timestamp.TimestampToken;
+import eu.europa.esig.dss.diagnostic.DiagnosticData;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class TimestampSignatureValidator extends XadesSignatureValidator {
@@ -60,11 +59,13 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
     if (timestamp == null) {
       return;
     }
-    List<BasicOCSPResp> ocspResponses = signature.getOCSPSource().getContainedOCSPResponses();
-    if (ocspResponses == null || ocspResponses.isEmpty()) {
-      return;
-    }
-    Date ocspTime = ocspResponses.get(0).getProducedAt();
+    Date ocspTime = signature
+            .getOCSPSource()
+            .getOCSPResponsesList()
+            .stream()
+            .map(r -> r.getBasicOCSPResp().getProducedAt())
+            .findFirst()
+            .orElse(null);
     if (ocspTime == null) {
       return;
     }
@@ -99,10 +100,10 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
     if (diagnosticData == null) {
       return;
     }
-    String certificateRevocationSource = diagnosticData
+    RevocationType certificateRevocationSource = diagnosticData
         .getCertificateRevocationSource(diagnosticData.getFirstSigningCertificateId());
     this.log.debug("Revocation source is <{}>", certificateRevocationSource);
-    if (StringUtils.equalsIgnoreCase("CRLToken", certificateRevocationSource)) {
+    if (RevocationType.CRL.equals(certificateRevocationSource)) {
       this.log.error("Signing certificate revocation source is CRL instead of OCSP");
       this.addValidationError(new UntrustedRevocationSourceException());
     }

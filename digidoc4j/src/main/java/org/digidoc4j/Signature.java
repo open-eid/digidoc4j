@@ -43,6 +43,13 @@ public interface Signature extends Serializable {
   String getId();
 
   /**
+   * Returns XML digital signature id if present.
+   *
+   * @return XML digital signature id.
+   */
+  String getXmlDigitalSignatureId();
+
+  /**
    * Returns the signature OCSP response nonce.
    * <p>
    * For a sic Signature it throws a NotYetImplementedException.

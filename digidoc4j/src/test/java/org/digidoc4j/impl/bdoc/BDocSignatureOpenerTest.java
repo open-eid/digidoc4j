@@ -10,9 +10,9 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.FileDocument;
-import eu.europa.esig.dss.InMemoryDocument;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.FileDocument;
+import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +25,7 @@ import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
+import org.digidoc4j.test.util.TestIdUtil;
 import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
 import org.junit.Test;
@@ -43,9 +44,9 @@ public class BDocSignatureOpenerTest extends AbstractTest {
     Signature signature = this.signatureOpener.open(
             constructXadesSignatureWrapper(new FileDocument("src/test/resources/testFiles/xades/test-bes-signature.xml")));
     Assert.assertTrue(signature instanceof BDocSignature);
-    Assert.assertEquals("Assert 2", "id-693869a500c60f0dc262f7287f033d5d", signature.getId());
+    TestIdUtil.assertMatchesSignatureIdPattern(signature.getId());
     Assert.assertEquals(SignatureProfile.B_BES, signature.getProfile());
-    Assert.assertEquals("Assert 3", "id-693869a500c60f0dc262f7287f033d5d", signature.getId());
+    Assert.assertEquals("Assert 3", "id-693869a500c60f0dc262f7287f033d5d", signature.getXmlDigitalSignatureId());
     Assert.assertEquals("Assert 4", "http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
     Assert.assertEquals(new Date(1454928400000L), signature.getSigningTime());
     Assert.assertEquals("Assert 5", "Tallinn", signature.getCity());
@@ -58,7 +59,7 @@ public class BDocSignatureOpenerTest extends AbstractTest {
     Assert.assertTrue(StringUtils.startsWith(signature.getSigningCertificate().issuerName(), "C=EE,O=AS Sertifitseerimiskeskus"));
     byte[] signatureInBytes = signature.getAdESSignature();
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(new InMemoryDocument(signatureInBytes));
-    Assert.assertEquals("Assert 11", "id-693869a500c60f0dc262f7287f033d5d", validator.getSignatures().get(0).getId());
+    Assert.assertEquals("Assert 11", "id-693869a500c60f0dc262f7287f033d5d", validator.getSignatures().get(0).getDAIdentifier());
     Assert.assertNull("Assert 12", signature.getOCSPCertificate());
     Assert.assertNull("Assert 13", signature.getOCSPResponseCreationTime());
     Assert.assertNull("Assert 14", signature.getTimeStampTokenCertificate());
@@ -73,7 +74,8 @@ public class BDocSignatureOpenerTest extends AbstractTest {
     Signature signature = this.signatureOpener.open(
             constructXadesSignatureWrapper(new FileDocument("src/test/resources/testFiles/xades/test-bdoc-ts.xml")));
     Assert.assertNotNull("Assert 1", signature);
-    Assert.assertEquals("Assert 2", "S0", signature.getId());
+    TestIdUtil.assertMatchesSignatureIdPattern(signature.getId());
+    Assert.assertEquals("Assert 2", "S0", signature.getXmlDigitalSignatureId());
     Assert.assertEquals("Assert 3", SignatureProfile.LT, signature.getProfile());
     Assert.assertEquals("Assert 4", "http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
     Assert.assertEquals("Assert 5", date_2016_29_1_time_19_58_36, signature.getSigningTime());
@@ -94,7 +96,8 @@ public class BDocSignatureOpenerTest extends AbstractTest {
     String serializedPath = this.getFileBy("ser");
     Helper.serialize(signature, serializedPath);
     signature = Helper.deserializer(serializedPath);
-    Assert.assertEquals("S0", signature.getId());
+    TestIdUtil.assertMatchesSignatureIdPattern(signature.getId());
+    Assert.assertEquals("S0", signature.getXmlDigitalSignatureId());
   }
 
   @Test
@@ -102,7 +105,8 @@ public class BDocSignatureOpenerTest extends AbstractTest {
     byte[] signatureBytes = FileUtils.readFileToByteArray(new File("src/test/resources/testFiles/xades/bdoc-tm-jdigidoc-mobile-id.xml"));
     Signature signature = this.signatureOpener.open(
             constructXadesSignatureWrapper(new InMemoryDocument(signatureBytes)));
-    Assert.assertEquals("S935237", signature.getId());
+    TestIdUtil.assertMatchesSignatureIdPattern(signature.getId());
+    Assert.assertEquals("S935237", signature.getXmlDigitalSignatureId());
   }
 
   /*

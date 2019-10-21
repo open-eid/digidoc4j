@@ -13,7 +13,7 @@ package org.digidoc4j.impl;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import eu.europa.esig.dss.client.http.commons.TimestampDataLoader;
+import eu.europa.esig.dss.service.http.commons.TimestampDataLoader;
 import org.bouncycastle.tsp.TimeStampRequest;
 import org.bouncycastle.tsp.TimeStampResponse;
 import org.digidoc4j.AbstractTest;

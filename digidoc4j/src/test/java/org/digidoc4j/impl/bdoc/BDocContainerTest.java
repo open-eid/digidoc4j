@@ -10,10 +10,9 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DomUtils;
-import eu.europa.esig.dss.Policy;
-import eu.europa.esig.dss.x509.SignaturePolicy;
+import eu.europa.esig.dss.model.Policy;
+import eu.europa.esig.dss.validation.SignaturePolicy;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
@@ -39,16 +38,14 @@ import org.digidoc4j.exceptions.DuplicateSignatureFilesException;
 import org.digidoc4j.exceptions.IllegalSignatureProfileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.impl.asic.AsicEntry;
-import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicSignature;
-import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.test.util.TestIdUtil;
 import org.digidoc4j.utils.Helper;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -75,25 +72,25 @@ public class BDocContainerTest extends AbstractTest {
   @Test
   public void testSetDigestAlgorithmToSHA256() throws Exception {
     AsicESignature signature = this.createSignatureBy(DigestAlgorithm.SHA256, this.pkcs12SignatureToken);
-    Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureDigestAlgorithm().getXmlId());
+    Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureDigestAlgorithm().getUri());
   }
 
   @Test
   public void testSetDigestAlgorithmToSHA1() throws Exception {
     AsicESignature signature = this.createSignatureBy(DigestAlgorithm.SHA1, this.pkcs12SignatureToken);
-    Assert.assertEquals("http://www.w3.org/2000/09/xmldsig#sha1", signature.getSignatureDigestAlgorithm().getXmlId());
+    Assert.assertEquals("http://www.w3.org/2000/09/xmldsig#sha1", signature.getSignatureDigestAlgorithm().getUri());
   }
 
   @Test
   public void testSetDigestAlgorithmToSHA224() throws Exception {
     AsicESignature signature = this.createSignatureBy(DigestAlgorithm.SHA224, this.pkcs12SignatureToken);
-    Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#sha224", signature.getSignatureDigestAlgorithm().getXmlId());
+    Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#sha224", signature.getSignatureDigestAlgorithm().getUri());
   }
 
   @Test
   public void testDefaultDigestAlgorithm() throws Exception {
     AsicESignature signature = this.createSignatureBy(Container.DocumentType.BDOC, this.pkcs12SignatureToken);
-    Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureDigestAlgorithm().getXmlId());
+    Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureDigestAlgorithm().getUri());
   }
 
   @Test
@@ -470,34 +467,34 @@ public class BDocContainerTest extends AbstractTest {
   }
 
   @Test
-  public void setsSignatureId() throws Exception {
+  public void setsXmlDigitalSignatureId() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"), "text/plain");
-    Signature signature1 = SignatureBuilder.aSignature(container).withSignatureId("SIGNATURE-1").
+    Signature signature1 = SignatureBuilder.aSignature(container).withXmlDigitalSignatureId("SIGNATURE-1").
         withSignatureToken(this.pkcs12SignatureToken).invokeSigning();
     container.addSignature(signature1);
-    Signature signature2 = SignatureBuilder.aSignature(container).withSignatureId("SIGNATURE-2").
+    Signature signature2 = SignatureBuilder.aSignature(container).withXmlDigitalSignatureId("SIGNATURE-2").
         withSignatureToken(this.pkcs12SignatureToken).invokeSigning();
     container.addSignature(signature2);
     String file = this.getFileBy("bdoc");
     container.saveAsFile(file);
     container = ContainerOpener.open(file);
-    Assert.assertEquals("SIGNATURE-1", container.getSignatures().get(0).getId());
-    Assert.assertEquals("SIGNATURE-2", container.getSignatures().get(1).getId());
+    Assert.assertEquals("SIGNATURE-1", container.getSignatures().get(0).getXmlDigitalSignatureId());
+    Assert.assertEquals("SIGNATURE-2", container.getSignatures().get(1).getXmlDigitalSignatureId());
     ZipFile zip = new ZipFile(file);
     Assert.assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
     Assert.assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
   }
 
   @Test
-  public void setsDefaultSignatureId() throws Exception {
+  public void setsDefaultXmlDigitalSignatureId() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"), "text/plain");
     this.createSignatureBy(container, this.pkcs12SignatureToken);
     this.createSignatureBy(container, this.pkcs12SignatureToken);
     String file = this.getFileBy("bdoc");
     container.save(file);
     container = ContainerOpener.open(file);
-    String signature1Id = container.getSignatures().get(0).getId();
-    String signature2Id = container.getSignatures().get(1).getId();
+    String signature1Id = container.getSignatures().get(0).getXmlDigitalSignatureId();
+    String signature2Id = container.getSignatures().get(1).getXmlDigitalSignatureId();
     Assert.assertFalse(StringUtils.equals(signature1Id, signature2Id));
     Assert.assertTrue(signature1Id.startsWith("id-"));
     Assert.assertTrue(signature2Id.startsWith("id-"));
@@ -745,10 +742,11 @@ public class BDocContainerTest extends AbstractTest {
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     DataToSign dataToSign = SignatureBuilder.aSignature(container).
         withSignatureDigestAlgorithm(DigestAlgorithm.SHA512).withSigningCertificate(this.pkcs12SignatureToken.getCertificate()).
-        withSignatureId("S99").withRoles("manager", "employee").withCity("city").withStateOrProvince("state").
+        withXmlDigitalSignatureId("S99").withRoles("manager", "employee").withCity("city").withStateOrProvince("state").
         withPostalCode("postalCode").withCountry("country").buildDataToSign();
     byte[] signatureValue = this.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
     Signature signature = dataToSign.finalize(signatureValue);
+    TestIdUtil.assertMatchesSignatureIdPattern(signature.getId());
     container.addSignature(signature);
     String file = this.getFileBy("bdoc");
     container.saveAsFile(file);
@@ -758,7 +756,8 @@ public class BDocContainerTest extends AbstractTest {
     Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha512", resultSignature.getSignatureMethod());
     Assert.assertEquals("employee", resultSignature.getSignerRoles().get(1));
     Assert.assertEquals("city", resultSignature.getCity());
-    Assert.assertEquals("S99", resultSignature.getId());
+    Assert.assertEquals("S99", resultSignature.getXmlDigitalSignatureId());
+    Assert.assertEquals(signature.getId(), resultSignature.getId());
   }
 
   @Test
@@ -882,10 +881,10 @@ public class BDocContainerTest extends AbstractTest {
   }
 
   @Test(expected = TechnicalException.class)
-  public void addSingatureWithDuplicateId_throwsException() throws Exception {
+  public void addSingatureWithDuplicateXmlDigitalSignatureId_throwsException() throws Exception {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/test.asice");
     Signature signature = SignatureBuilder.aSignature(container).
-            withSignatureToken(this.pkcs12SignatureToken).withSignatureId("S0").invokeSigning();
+            withSignatureToken(this.pkcs12SignatureToken).withXmlDigitalSignatureId("S0").invokeSigning();
     container.addSignature(signature);
   }
 
@@ -959,13 +958,15 @@ public class BDocContainerTest extends AbstractTest {
 
   @Test
   public void whenOpeningContainer_withSignaturePolicyImpliedElement_inTMSignatures_shouldThrowException() {
-    SignatureValidationResult result = ContainerBuilder.aContainer()
+    Container container = ContainerBuilder.aContainer()
         .fromExistingFile(
             "src/test/resources/prodFiles/invalid-containers/23608_bdoc21-invalid-nonce-policy-and-implied.bdoc")
-        .withConfiguration(new Configuration(Configuration.Mode.PROD)).build().validate();
+        .withConfiguration(new Configuration(Configuration.Mode.PROD)).build();
+    SignatureValidationResult result = container.validate();
     Assert.assertFalse("Container should be invalid", result.isValid());
     Assert.assertEquals("Incorrect errors count", 1, result.getErrors().size());
-    Assert.assertEquals("(Signature ID: S0) - Signature contains forbidden <SignaturePolicyImplied> element",
+    String signatureId = TestIdUtil.findExactlyOneSignatureByXmlDigitalSignatureId(container, "S0").getId();
+    Assert.assertEquals("(Signature ID: " + signatureId + ") - Signature contains forbidden <SignaturePolicyImplied> element",
         result.getErrors().get(0).toString());
   }
 
@@ -1011,6 +1012,7 @@ public class BDocContainerTest extends AbstractTest {
   }
 
   @Test
+  @org.junit.Ignore("DD4J-476 -- needs further investigation")
   public void timeStampCertStatusDeprecated() throws Exception {
     BDocContainer container = new BDocContainer("src/test/resources/testFiles/invalid-containers/invalid-containers-23816_leedu_live_TS_authority.asice", new Configuration(Configuration.Mode.PROD));
     Assert.assertFalse(container.validate().isValid());
@@ -1021,7 +1023,7 @@ public class BDocContainerTest extends AbstractTest {
     String signatureId = "signatureId";
     byte[] digestValue = Base64.decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs=");
     String qualifier = "qualifier";
-    eu.europa.esig.dss.DigestAlgorithm digestAlgorithm = eu.europa.esig.dss.DigestAlgorithm.SHA256;
+    eu.europa.esig.dss.enumerations.DigestAlgorithm digestAlgorithm = eu.europa.esig.dss.enumerations.DigestAlgorithm.SHA256;
     String spuri = "spuri";
     Policy signaturePolicy = new Policy();
     signaturePolicy.setId(signatureId);
@@ -1042,8 +1044,8 @@ public class BDocContainerTest extends AbstractTest {
     SignaturePolicy policyId = asicSignature.getOrigin().getDssSignature().getPolicyId();
     Assert.assertEquals(spuri, policyId.getUrl());
     Assert.assertEquals(signatureId, policyId.getIdentifier());
-    Assert.assertEquals(digestAlgorithm, policyId.getDigestAlgorithm());
-    Assert.assertEquals("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs=", policyId.getDigestValue());
+    Assert.assertEquals(digestAlgorithm, policyId.getDigest().getAlgorithm());
+    Assert.assertArrayEquals(Base64.decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="), policyId.getDigest().getValue());
   }
 
   @Test
@@ -1060,8 +1062,8 @@ public class BDocContainerTest extends AbstractTest {
     SignaturePolicy policyId = bdocSignature.getOrigin().getDssSignature().getPolicyId();
     Assert.assertEquals("https://www.sk.ee/repository/bdoc-spec21.pdf", policyId.getUrl());
     Assert.assertEquals("" + XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
-    Assert.assertEquals(eu.europa.esig.dss.DigestAlgorithm.SHA256, policyId.getDigestAlgorithm());
-    Assert.assertEquals("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A=", policyId.getDigestValue());
+    Assert.assertEquals(eu.europa.esig.dss.enumerations.DigestAlgorithm.SHA256, policyId.getDigest().getAlgorithm());
+    Assert.assertArrayEquals(Base64.decodeBase64("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A="), policyId.getDigest().getValue());
   }
 
   @Test

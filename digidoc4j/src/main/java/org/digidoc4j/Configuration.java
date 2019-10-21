@@ -10,7 +10,7 @@
 
 package org.digidoc4j;
 
-import eu.europa.esig.dss.client.http.Protocol;
+import eu.europa.esig.dss.spi.client.http.Protocol;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;

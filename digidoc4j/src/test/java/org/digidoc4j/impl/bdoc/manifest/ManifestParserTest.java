@@ -7,7 +7,7 @@ import org.digidoc4j.impl.asic.manifest.ManifestParser;
 import org.junit.Assert;
 import org.junit.Test;
 
-import eu.europa.esig.dss.FileDocument;
+import eu.europa.esig.dss.model.FileDocument;
 
 public class ManifestParserTest {
 

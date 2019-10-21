@@ -10,9 +10,9 @@
 
 package org.digidoc4j.impl.asic;
 
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.jaxb.simplereport.SimpleReport;
-import eu.europa.esig.dss.jaxb.simplereport.XmlPolicy;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.simplereport.jaxb.XmlSimpleReport;
+import eu.europa.esig.dss.simplereport.jaxb.XmlPolicy;
 import eu.europa.esig.dss.validation.reports.Reports;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -77,8 +77,8 @@ public class AsicValidationReportBuilder {
    *
    * @return List<SimpleReport>
    */
-  public List<eu.europa.esig.dss.validation.reports.SimpleReport> buildSignatureSimpleReports() {
-    List<eu.europa.esig.dss.validation.reports.SimpleReport> signaturesReport = new ArrayList<>();
+  public List<eu.europa.esig.dss.simplereport.SimpleReport> buildSignatureSimpleReports() {
+    List<eu.europa.esig.dss.simplereport.SimpleReport> signaturesReport = new ArrayList<>();
     for (SignatureValidationData validationData : signatureValidationData) {
       signaturesReport.add(validationData.getReport().getReports().getSimpleReport());
     }
@@ -157,7 +157,7 @@ public class AsicValidationReportBuilder {
       return null;
     }
     SignatureValidationData validationData = signatureValidationData.get(0);
-    SimpleReport simpleReport = validationData.getReport().getReports().getSimpleReportJaxb();
+    XmlSimpleReport simpleReport = validationData.getReport().getReports().getSimpleReportJaxb();
     return simpleReport.getPolicy();
   }
 

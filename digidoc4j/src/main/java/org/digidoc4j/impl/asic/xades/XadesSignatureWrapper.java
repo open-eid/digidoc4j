@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl.asic.xades;
 
-import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.model.DSSDocument;
 
 import java.io.Serializable;
 

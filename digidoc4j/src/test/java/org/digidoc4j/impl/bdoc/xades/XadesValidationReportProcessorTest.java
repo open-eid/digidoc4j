@@ -1,7 +1,7 @@
 package org.digidoc4j.impl.bdoc.xades;
 
-import eu.europa.esig.dss.jaxb.simplereport.SimpleReport;
-import eu.europa.esig.dss.jaxb.simplereport.XmlSignature;
+import eu.europa.esig.dss.simplereport.jaxb.XmlSimpleReport;
+import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
 import eu.europa.esig.dss.validation.process.MessageTag;
 import eu.europa.esig.dss.validation.reports.Reports;
 import org.digidoc4j.impl.asic.xades.XadesValidationReportProcessor;
@@ -22,7 +22,7 @@ public class XadesValidationReportProcessorTest {
                 MessageTag.QUAL_IS_ADES.getMessage(),
                 MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS1.getMessage()
         );
-        SimpleReport simpleReport = new SimpleReport();
+        XmlSimpleReport simpleReport = new XmlSimpleReport();
         simpleReport.getSignature().add(signature);
 
         Reports validationReports = Mockito.mock(Reports.class);
@@ -39,7 +39,7 @@ public class XadesValidationReportProcessorTest {
                 MessageTag.QUAL_IS_ADES.getMessage(),
                 MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS2.getMessage()
         );
-        SimpleReport simpleReport = new SimpleReport();
+        XmlSimpleReport simpleReport = new XmlSimpleReport();
         simpleReport.getSignature().add(signature);
 
         Reports validationReports = Mockito.mock(Reports.class);
@@ -56,7 +56,7 @@ public class XadesValidationReportProcessorTest {
                 MessageTag.QUAL_IS_ADES.getMessage(),
                 MessageTag.QUAL_FOR_SIGN_AT_CC.getMessage()
         );
-        SimpleReport simpleReport = new SimpleReport();
+        XmlSimpleReport simpleReport = new XmlSimpleReport();
         simpleReport.getSignature().add(signature);
 
         Reports validationReports = Mockito.mock(Reports.class);

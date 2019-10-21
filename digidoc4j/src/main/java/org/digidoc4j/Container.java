@@ -17,7 +17,7 @@ import java.io.Serializable;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
-import eu.europa.esig.dss.MimeType;
+import eu.europa.esig.dss.model.MimeType;
 
 /**
  * Offers functionality for handling data files and signatures in a container.

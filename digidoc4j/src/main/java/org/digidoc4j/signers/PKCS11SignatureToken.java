@@ -23,10 +23,10 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.EncryptionAlgorithm;
-import eu.europa.esig.dss.SignatureValue;
-import eu.europa.esig.dss.ToBeSigned;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.enumerations.EncryptionAlgorithm;
+import eu.europa.esig.dss.model.SignatureValue;
+import eu.europa.esig.dss.model.ToBeSigned;
 import eu.europa.esig.dss.token.AbstractSignatureTokenConnection;
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
 import eu.europa.esig.dss.token.KSPrivateKeyEntry;
@@ -177,7 +177,7 @@ public class PKCS11SignatureToken implements SignatureToken {
     try {
       logger.debug("Signing with PKCS#11 and " + digestAlgorithm.name());
       ToBeSigned toBeSigned = new ToBeSigned(dataToSign);
-      eu.europa.esig.dss.DigestAlgorithm dssDigestAlgorithm = eu.europa.esig.dss.DigestAlgorithm.forXML(digestAlgorithm.toString());
+      eu.europa.esig.dss.enumerations.DigestAlgorithm dssDigestAlgorithm = eu.europa.esig.dss.enumerations.DigestAlgorithm.forXML(digestAlgorithm.toString());
       SignatureValue signature = signatureTokenConnection.sign(toBeSigned, dssDigestAlgorithm, privateKeyEntry);
       return signature.getValue();
     } catch (Exception e) {

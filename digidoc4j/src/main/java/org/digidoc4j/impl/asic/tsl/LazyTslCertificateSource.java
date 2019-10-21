@@ -13,21 +13,19 @@ package org.digidoc4j.impl.asic.tsl;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
-import javax.security.auth.x500.X500Principal;
-
-import eu.europa.esig.dss.tsl.TLInfo;
-import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
-import eu.europa.esig.dss.x509.CertificateSourceType;
+import eu.europa.esig.dss.spi.tsl.TLInfo;
+import eu.europa.esig.dss.spi.tsl.TrustedListsCertificateSource;
+import eu.europa.esig.dss.enumerations.CertificateSourceType;
 import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSException;
-import eu.europa.esig.dss.tsl.ServiceInfo;
+import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.spi.tsl.ServiceInfo;
 import eu.europa.esig.dss.tsl.service.TSLValidationJob;
-import eu.europa.esig.dss.x509.CertificatePool;
-import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.spi.x509.CertificatePool;
+import eu.europa.esig.dss.model.x509.CertificateToken;
 
 /**
  * Lazily initialized certificate source. It allows to initialize objects and populate parameters
@@ -88,11 +86,6 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
   }
 
   @Override
-  public List<CertificateToken> get(X500Principal x500Principal) {
-    return this.getCertificateSource().get(x500Principal);
-  }
-
-  @Override
   public Set<ServiceInfo> getTrustServices(CertificateToken token) {
     return this.getCertificateSource().getTrustServices(token);
   }
@@ -115,6 +108,11 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
   @Override
   public List<CertificateToken> getCertificates() {
     return this.getCertificateSource().getCertificates();
+  }
+
+  @Override
+  public boolean isTrusted(CertificateToken certificateToken) {
+    return this.getCertificateSource().isTrusted(certificateToken);
   }
 
   @Override

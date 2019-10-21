@@ -32,13 +32,13 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 import eu.europa.esig.dss.DomUtils;
-import eu.europa.esig.dss.validation.policy.rules.Indication;
+import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.validation.process.MessageTag;
-import eu.europa.esig.dss.validation.reports.DetailedReport;
+import eu.europa.esig.dss.detailedreport.DetailedReport;
 import eu.europa.esig.dss.validation.reports.Reports;
-import eu.europa.esig.dss.validation.reports.SimpleReport;
-import eu.europa.esig.dss.validation.reports.wrapper.DiagnosticData;
-import eu.europa.esig.dss.x509.SignaturePolicy;
+import eu.europa.esig.dss.simplereport.SimpleReport;
+import eu.europa.esig.dss.diagnostic.DiagnosticData;
+import eu.europa.esig.dss.validation.SignaturePolicy;
 import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
@@ -176,14 +176,12 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   private int findSignedPropertiesReferencesCount() {
-    List<Element> signatureReferences = this.getDssSignature().getSignatureReferences();
-    int nrOfSignedPropertiesReferences = 0;
-    for (Element signatureReference : signatureReferences) {
-      String type = signatureReference.getAttribute("Type");
-      if (StringUtils.equals(XadesSignatureValidator.XADES_SIGNED_PROPERTIES, type))
-        nrOfSignedPropertiesReferences++;
-    }
-    return nrOfSignedPropertiesReferences;
+    return (int) this
+            .getDssSignature()
+            .getReferences()
+            .stream()
+            .filter(r -> StringUtils.equals(XadesSignatureValidator.XADES_SIGNED_PROPERTIES, r.getType()))
+            .count();
   }
 
   private void addReportedErrors() {

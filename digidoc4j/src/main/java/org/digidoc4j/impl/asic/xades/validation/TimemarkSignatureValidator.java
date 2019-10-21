@@ -10,19 +10,11 @@
 
 package org.digidoc4j.impl.asic.xades.validation;
 
-import java.security.cert.X509Certificate;
-import java.util.Date;
-
-import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.InvalidTimemarkSignatureException;
-import org.digidoc4j.exceptions.SignedWithExpiredCertificateException;
-import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import eu.europa.esig.dss.validation.reports.wrapper.DiagnosticData;
 
 public class TimemarkSignatureValidator extends TimestampSignatureValidator {
 

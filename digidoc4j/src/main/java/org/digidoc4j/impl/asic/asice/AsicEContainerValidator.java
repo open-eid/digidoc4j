@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl.asic.asice;
 
-import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.model.DSSDocument;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.digidoc4j.Configuration;

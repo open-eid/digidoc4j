@@ -15,16 +15,17 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 
 import java.util.Date;
 
+import eu.europa.esig.dss.enumerations.SignatureLevel;
 import org.digidoc4j.impl.asic.report.SignatureValidationReport;
 import org.junit.Assert;
 import org.junit.Test;
 
-import eu.europa.esig.dss.jaxb.simplereport.XmlSignature;
-import eu.europa.esig.dss.jaxb.simplereport.XmlSignatureLevel;
-import eu.europa.esig.dss.jaxb.simplereport.XmlSignatureScope;
-import eu.europa.esig.dss.validation.SignatureQualification;
-import eu.europa.esig.dss.validation.policy.rules.Indication;
-import eu.europa.esig.dss.validation.policy.rules.SubIndication;
+import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
+import eu.europa.esig.dss.simplereport.jaxb.XmlSignatureLevel;
+import eu.europa.esig.dss.simplereport.jaxb.XmlSignatureScope;
+import eu.europa.esig.dss.enumerations.SignatureQualification;
+import eu.europa.esig.dss.enumerations.Indication;
+import eu.europa.esig.dss.enumerations.SubIndication;
 
 public class SignatureValidationReportTest {
 
@@ -49,7 +50,7 @@ public class SignatureValidationReportTest {
     //TODO not in use DSS 5.2
     //signature.setType("Type");
     signature.setParentId("Parent ID");
-    signature.setSignatureFormat("Format");
+    signature.setSignatureFormat(SignatureLevel.UNKNOWN);
     SignatureValidationReport report = SignatureValidationReport.create(signature);
     Assert.assertEquals(today, report.getSigningTime());
     Assert.assertEquals("SignedBy", report.getSignedBy());
@@ -65,7 +66,7 @@ public class SignatureValidationReportTest {
     //TODO not in use DSS 5.2
     //Assert.assertEquals("Type", report.getType());
     Assert.assertEquals("Parent ID", report.getParentId());
-    Assert.assertEquals("Format", report.getSignatureFormat());
+    Assert.assertEquals(SignatureLevel.UNKNOWN, report.getSignatureFormat());
   }
 
 }

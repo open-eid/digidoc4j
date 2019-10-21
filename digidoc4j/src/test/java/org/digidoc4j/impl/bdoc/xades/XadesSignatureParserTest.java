@@ -22,14 +22,15 @@ import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.impl.asic.xades.XadesSignatureParser;
 import org.digidoc4j.impl.asic.xades.XadesValidationReportGenerator;
+import org.digidoc4j.test.util.TestIdUtil;
 import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.FileDocument;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class XadesSignatureParserTest extends AbstractTest {
@@ -42,7 +43,8 @@ public class XadesSignatureParserTest extends AbstractTest {
     XadesValidationReportGenerator xadesReportGenerator = createXadesReportGenerator("src/test/resources/testFiles/xades/test-bes-signature.xml");
     XadesSignature signature = new XadesSignatureParser().parse(xadesReportGenerator);
     Assert.assertEquals("Assert 1", SignatureProfile.B_BES, signature.getProfile());
-    Assert.assertEquals("Assert 2", "id-693869a500c60f0dc262f7287f033d5d", signature.getId());
+    TestIdUtil.assertMatchesSignatureIdPattern(signature.getId());
+    Assert.assertEquals("Assert 2", "id-693869a500c60f0dc262f7287f033d5d", signature.getXmlDigitalSignatureId());
     Assert.assertEquals("Assert 3", "http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
     Assert.assertEquals("Assert 4", new Date(1454928400000L), signature.getSigningTime());
     Assert.assertEquals("Assert 5", "Tallinn", signature.getCity());
@@ -65,7 +67,8 @@ public class XadesSignatureParserTest extends AbstractTest {
     XadesValidationReportGenerator xadesReportGenerator = this.createXadesReportGenerator("src/test/resources/testFiles/xades/test-bdoc-tm.xml");
     XadesSignature signature = new XadesSignatureParser().parse(xadesReportGenerator);
     Assert.assertEquals("Assert 1", SignatureProfile.LT_TM, signature.getProfile());
-    Assert.assertEquals("Assert 2", "id-a4fc49d6d0d7f647f6f2f4edde485943", signature.getId());
+    TestIdUtil.assertMatchesSignatureIdPattern(signature.getId());
+    Assert.assertEquals("Assert 2", "id-a4fc49d6d0d7f647f6f2f4edde485943", signature.getXmlDigitalSignatureId());
     Assert.assertNotNull("Assert 3", signature.getOCSPResponseCreationTime());
     Assert.assertEquals("Assert 4", new Date(1454685580000L), signature.getOCSPResponseCreationTime());
     Assert.assertEquals("Assert 5", signature.getOCSPResponseCreationTime(), signature.getTrustedSigningTime());
@@ -78,7 +81,8 @@ public class XadesSignatureParserTest extends AbstractTest {
     XadesValidationReportGenerator xadesReportGenerator = this.createXadesReportGenerator("src/test/resources/testFiles/xades/test-bdoc-ts.xml");
     XadesSignature signature = new XadesSignatureParser().parse(xadesReportGenerator);
     Assert.assertEquals("Assert 1", SignatureProfile.LT, signature.getProfile());
-    Assert.assertEquals("Assert 2", "S0", signature.getId());
+    Assert.assertEquals("Assert 2", "S0", signature.getXmlDigitalSignatureId());
+    TestIdUtil.assertMatchesSignatureIdPattern(signature.getId());
     Assert.assertEquals("Assert 3", new Date(1454090316000L), signature.getTimeStampCreationTime());
     Assert.assertEquals("Assert 4", signature.getTimeStampCreationTime(), signature.getTrustedSigningTime());
   }
@@ -88,7 +92,8 @@ public class XadesSignatureParserTest extends AbstractTest {
     XadesValidationReportGenerator xadesReportGenerator = this.createXadesReportGenerator("src/test/resources/testFiles/xades/test-bdoc-tsa.xml");
     XadesSignature signature = new XadesSignatureParser().parse(xadesReportGenerator);
     Assert.assertEquals("Assert 1", SignatureProfile.LTA, signature.getProfile());
-    Assert.assertEquals("Assert 2", "id-168ef7d05729874fab1a88705b09b5bb", signature.getId());
+    TestIdUtil.assertMatchesSignatureIdPattern(signature.getId());
+    Assert.assertEquals("Assert 2", "id-168ef7d05729874fab1a88705b09b5bb", signature.getXmlDigitalSignatureId());
     Assert.assertEquals("Assert 3", "http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
     Assert.assertEquals("Assert 4", new Date(1455032287000L), signature.getSigningTime());
     Assert.assertTrue("Assert 5", StringUtils.startsWith(signature.getSigningCertificate().issuerName(), "C=EE,O=AS Sertifitseerimiskeskus"));
@@ -101,12 +106,14 @@ public class XadesSignatureParserTest extends AbstractTest {
   public void serializeSignature() throws Exception {
     XadesValidationReportGenerator xadesReportGenerator = this.createXadesReportGenerator("src/test/resources/testFiles/xades/test-bdoc-tsa.xml");
     XadesSignature signature = new XadesSignatureParser().parse(xadesReportGenerator);
+    String signatureId = signature.getId();
     String serializedPath = this.createTemporaryFile().getPath();
     Helper.serialize(signature, serializedPath);
     signature = Helper.deserializer(serializedPath);
-    Assert.assertEquals("Assert 1", "id-168ef7d05729874fab1a88705b09b5bb", signature.getId());
+    Assert.assertEquals("Assert 1", signatureId, signature.getId());
+    Assert.assertEquals("Assert 2", "id-168ef7d05729874fab1a88705b09b5bb", signature.getXmlDigitalSignatureId());
     XAdESSignature dssSignature = signature.getDssSignature();
-    Assert.assertNotNull("Assert 2", dssSignature.getReferences());
+    Assert.assertNotNull("Assert 3", dssSignature.getReferences());
   }
 
   @Test(expected = InvalidSignatureException.class)

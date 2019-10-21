@@ -10,11 +10,11 @@
 
 package org.digidoc4j.impl.asic.xades;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.Policy;
-import eu.europa.esig.dss.SignatureLevel;
-import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
-import eu.europa.esig.dss.x509.ocsp.OCSPSource;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.Policy;
+import eu.europa.esig.dss.enumerations.SignatureLevel;
+import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.Signature;

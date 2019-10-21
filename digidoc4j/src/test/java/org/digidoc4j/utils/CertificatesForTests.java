@@ -10,7 +10,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -22,10 +21,10 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
 
-import eu.europa.esig.dss.tsl.ServiceInfo;
-import eu.europa.esig.dss.tsl.ServiceInfoStatus;
-import eu.europa.esig.dss.util.TimeDependentValues;
-import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.spi.tsl.ServiceInfo;
+import eu.europa.esig.dss.spi.tsl.ServiceInfoStatus;
+import eu.europa.esig.dss.spi.util.TimeDependentValues;
+import eu.europa.esig.dss.model.x509.CertificateToken;
 
 public class CertificatesForTests {
   private TSLCertificateSource tslCertificateSource = new TSLCertificateSourceImpl();

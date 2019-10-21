@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl.asic.manifest;
 
-import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.DomUtils;
 import org.apache.xml.security.signature.Reference;
 import org.digidoc4j.Signature;

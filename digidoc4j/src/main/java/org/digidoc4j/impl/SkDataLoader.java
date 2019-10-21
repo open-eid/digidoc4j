@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl;
 
-import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
+import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.utils.Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;

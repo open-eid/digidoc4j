@@ -10,8 +10,8 @@
 
 package org.digidoc4j;
 
-import eu.europa.esig.dss.InMemoryDocument;
-import eu.europa.esig.dss.Policy;
+import eu.europa.esig.dss.model.InMemoryDocument;
+import eu.europa.esig.dss.model.Policy;
 import org.digidoc4j.exceptions.DataFileMissingException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
@@ -153,7 +153,7 @@ public class DetachedXadesSignatureBuilder {
    * @return builder for creating a signature.
    */
   public DetachedXadesSignatureBuilder withSignatureId(String signatureId) {
-    signatureParameters.setSignatureId(signatureId);
+    signatureParameters.setXmlDigitalSignatureId(signatureId);
     return this;
   }
 

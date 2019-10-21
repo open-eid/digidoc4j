@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl.asic;
 
-import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.model.DSSDocument;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.impl.asic.manifest.ManifestParser;

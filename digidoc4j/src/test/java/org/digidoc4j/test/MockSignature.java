@@ -44,6 +44,11 @@ public class MockSignature implements Signature {
   }
 
   @Override
+  public String getXmlDigitalSignatureId() {
+    return null;
+  }
+
+  @Override
   public byte[] getOCSPNonce() {
     return new byte[0];
   }

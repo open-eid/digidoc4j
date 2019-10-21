@@ -10,10 +10,10 @@
 
 package org.digidoc4j.impl;
 
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.x509.CertificateSource;
-import eu.europa.esig.dss.x509.CertificateToken;
-import eu.europa.esig.dss.x509.ocsp.OCSPSource;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.spi.x509.CertificateSource;
+import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.digidoc4j.CertificateValidator;
 import org.digidoc4j.Configuration;
@@ -23,7 +23,6 @@ import org.digidoc4j.exceptions.NetworkException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.x500.X500Principal;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -75,9 +74,7 @@ public class OCSPCertificateValidator implements CertificateValidator {
     CertificateToken certificateToken = null;
     try {
       certificateToken = DSSUtils.loadCertificate(certificate.getEncoded());
-      if (certificateToken.getIssuerX500Principal() != null) {
-        return this.getFromCertificateSource(certificateToken.getIssuerX500Principal());
-      }
+      return this.getIssuerForCertificateToken(certificateToken);
     } catch (IllegalStateException e) {
       LOGGER.warn("Certificate with DSS ID <{}> is untrusted. Not all the intermediate certificates added into OCSP" +
               " certificate source?",
@@ -88,21 +85,21 @@ public class OCSPCertificateValidator implements CertificateValidator {
             "Failed to parse issuer certificate token. Not all intermediate certificates added into OCSP.");
   }
 
-  private CertificateToken getFromCertificateSource(X500Principal principal) {
-    List<CertificateToken> tokens = this.getCertificateTokens(principal);
+  private CertificateToken getIssuerForCertificateToken(CertificateToken certificateToken) {
+    List<CertificateToken> tokens = this.getIssuerFromCertificateSource(certificateToken);
     if (tokens.size() != 1) {
       throw new IllegalStateException(String.format("<%s> matching certificate tokens found from certificate source",
-          tokens.size()));
+              tokens.size()));
     }
     return tokens.get(0);
   }
 
-  private List<CertificateToken> getCertificateTokens(X500Principal principal) {
-    List<CertificateToken> tokens = this.configuration.getTSL().get(principal);
-    if (CollectionUtils.isEmpty(tokens)) {
-      tokens = this.certificateSource.get(principal);
+  private List<CertificateToken> getIssuerFromCertificateSource(CertificateToken certificateToken) {
+    List<CertificateToken> issuers = this.configuration.getTSL().getCertificatePool().getIssuers(certificateToken);
+    if (CollectionUtils.isEmpty(issuers)) {
+      issuers = this.certificateSource.getCertificatePool().getIssuers(certificateToken);
     }
-    return tokens;
+    return issuers;
   }
 
   /*

@@ -21,14 +21,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemOutRule;
 
-import eu.europa.esig.dss.DigestAlgorithm;
-import eu.europa.esig.dss.MimeType;
-import eu.europa.esig.dss.SignatureAlgorithm;
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import eu.europa.esig.dss.model.MimeType;
+import eu.europa.esig.dss.enumerations.SignatureAlgorithm;
 import eu.europa.esig.dss.utils.Utils;
-import eu.europa.esig.dss.validation.TimestampToken;
-import eu.europa.esig.dss.validation.policy.rules.Indication;
-import eu.europa.esig.dss.x509.CertificatePool;
-import eu.europa.esig.dss.x509.TimestampType;
+import eu.europa.esig.dss.validation.timestamp.TimestampToken;
+import eu.europa.esig.dss.enumerations.Indication;
+import eu.europa.esig.dss.spi.x509.CertificatePool;
+import eu.europa.esig.dss.enumerations.TimestampType;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -101,7 +101,7 @@ public class TimeStampTokenTest extends AbstractTest {
       Assert.assertEquals(TimestampType.ARCHIVE_TIMESTAMP, token.getTimeStampType());
       Assert.assertEquals(DigestAlgorithm.SHA256, token.getSignedDataDigestAlgo());
       Assert.assertEquals(SignatureAlgorithm.RSA_SHA256, token.getSignatureAlgorithm());
-      Assert.assertTrue(Utils.isStringNotBlank(token.getEncodedSignedDataDigestValue()));
+      Assert.assertTrue(Utils.isStringNotBlank(Utils.toBase64(token.getMessageImprintDigest())));
       Assert.assertFalse(token.isSelfSigned());
       Assert.assertFalse(token.matchData(new byte[]{1, 2, 3}));
       Assert.assertTrue(token.isMessageImprintDataFound());

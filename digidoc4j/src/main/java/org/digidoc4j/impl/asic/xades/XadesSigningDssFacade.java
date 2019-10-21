@@ -27,25 +27,25 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import eu.europa.esig.dss.BLevelParameters;
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.DSSException;
-import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.model.BLevelParameters;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.DomUtils;
-import eu.europa.esig.dss.EncryptionAlgorithm;
-import eu.europa.esig.dss.InMemoryDocument;
-import eu.europa.esig.dss.Policy;
-import eu.europa.esig.dss.SignatureLevel;
-import eu.europa.esig.dss.SignaturePackaging;
-import eu.europa.esig.dss.SignatureValue;
-import eu.europa.esig.dss.SignerLocation;
-import eu.europa.esig.dss.ToBeSigned;
-import eu.europa.esig.dss.asic.ASiCNamespace;
+import eu.europa.esig.dss.enumerations.EncryptionAlgorithm;
+import eu.europa.esig.dss.model.InMemoryDocument;
+import eu.europa.esig.dss.model.Policy;
+import eu.europa.esig.dss.enumerations.SignatureLevel;
+import eu.europa.esig.dss.enumerations.SignaturePackaging;
+import eu.europa.esig.dss.model.SignatureValue;
+import eu.europa.esig.dss.model.SignerLocation;
+import eu.europa.esig.dss.model.ToBeSigned;
+import eu.europa.esig.dss.asic.common.ASiCNamespace;
 import eu.europa.esig.dss.validation.CertificateVerifier;
-import eu.europa.esig.dss.x509.CertificateSource;
-import eu.europa.esig.dss.x509.CertificateToken;
-import eu.europa.esig.dss.x509.ocsp.OCSPSource;
-import eu.europa.esig.dss.x509.tsp.TSPSource;
+import eu.europa.esig.dss.spi.x509.CertificateSource;
+import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
+import eu.europa.esig.dss.spi.x509.tsp.TSPSource;
 import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XAdESSignatureParameters;
 import eu.europa.esig.dss.xades.signature.XAdESService;
@@ -193,7 +193,7 @@ public class XadesSigningDssFacade {
   }
 
   public void setSigningDate(Date signingDate) {
-    xAdESSignatureParameters.getBLevelParams().setSigningDate(signingDate);
+    xAdESSignatureParameters.bLevel().setSigningDate(signingDate);
   }
 
   public void setEn319132(boolean isSigningCertificateV2) {
@@ -210,7 +210,7 @@ public class XadesSigningDssFacade {
 
   private void initDefaultXadesParameters() {
     xAdESSignatureParameters.clearCertificateChain();
-    xAdESSignatureParameters.getBLevelParams().setSigningDate(new Date());
+    xAdESSignatureParameters.bLevel().setSigningDate(new Date());
     xAdESSignatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
     xAdESSignatureParameters.setSignatureLevel(SignatureLevel.XAdES_BASELINE_LT);
     xAdESSignatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
@@ -231,7 +231,7 @@ public class XadesSigningDssFacade {
     logger.debug("Surrounding signature document with xades tag");
     Document signatureDom = DomUtils.buildDOM(signedDocument);
     Element signatureElement = signatureDom.getDocumentElement();
-    Document document = XmlDomCreator.createDocument(ASiCNamespace.NS, XmlDomCreator.ASICS_NS, signatureElement);
+    Document document = XmlDomCreator.createDocument(ASiCNamespace.ASIC_NS, XmlDomCreator.ASICS_NS, signatureElement);
     byte[] documentBytes = DSSXMLUtils.serializeNode(document);
     return new InMemoryDocument(documentBytes);
   }
