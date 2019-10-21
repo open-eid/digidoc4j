@@ -241,6 +241,11 @@
             <version>${dss.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>28.1-jre</version>
+        </dependency>
+        <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-crl-parser</artifactId>
             <version>${dss.version}</version>
