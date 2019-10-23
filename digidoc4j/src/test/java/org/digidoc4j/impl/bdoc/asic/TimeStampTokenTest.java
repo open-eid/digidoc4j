@@ -100,7 +100,7 @@ public class TimeStampTokenTest extends AbstractTest {
       assertNotNull(token.getSignatureAlgorithm());
       Assert.assertEquals(TimestampType.ARCHIVE_TIMESTAMP, token.getTimeStampType());
       Assert.assertEquals(DigestAlgorithm.SHA256, token.getSignedDataDigestAlgo());
-      Assert.assertEquals(SignatureAlgorithm.RSA_SHA256, token.getSignatureAlgorithm());
+      Assert.assertEquals(SignatureAlgorithm.RSA_SHA512, token.getSignatureAlgorithm());
       Assert.assertTrue(Utils.isStringNotBlank(Utils.toBase64(token.getMessageImprintDigest())));
       Assert.assertFalse(token.isSelfSigned());
       Assert.assertFalse(token.matchData(new byte[]{1, 2, 3}));

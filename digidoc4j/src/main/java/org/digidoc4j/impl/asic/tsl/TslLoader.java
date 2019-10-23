@@ -75,7 +75,7 @@ public class TslLoader implements Serializable {
       this.tslRepository.setTrustedListsCertificateSource(this.tslCertificateSource);
       this.tslValidationJob = this.createTslValidationJob(this.tslRepository);
     } catch (DSSException e) {
-      throw new TslCertificateSourceInitializationException("Unable to load TSL", e);
+      throw new TslCertificateSourceInitializationException("Failed to initialize TSL: " + e.getMessage(), e);
     }
   }
 

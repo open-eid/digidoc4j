@@ -488,7 +488,6 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  @org.junit.Ignore("DD4J-476 -- needs further investigation")
   public void signatureReportOnlyOneSignatureValid() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.TEST);
     Container container = this.openContainerByConfiguration(
@@ -499,7 +498,7 @@ public class SignatureTest extends AbstractTest {
     String signatureId1 = TestIdUtil.findExactlyOneSignatureByXmlDigitalSignatureId(container, "S1").getId();
     Assert.assertEquals(Indication.INDETERMINATE, result.getIndication(signatureId1));
     Assert.assertEquals(SubIndication.NO_SIGNING_CERTIFICATE_FOUND, result.getSubIndication(signatureId1));
-    Assert.assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification(signatureId1).getLabel());
+    Assert.assertEquals(SignatureQualification.INDETERMINATE_QESIG.getLabel(), result.getSignatureQualification(signatureId1).getLabel());
     //Signature with id "S0" is valid
     Assert.assertEquals(Indication.TOTAL_PASSED, result.getIndication(null));
     Assert.assertEquals(null, result.getSubIndication(null));

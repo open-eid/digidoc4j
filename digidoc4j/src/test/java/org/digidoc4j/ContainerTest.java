@@ -18,6 +18,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
+import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
@@ -25,6 +26,7 @@ import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.digidoc4j.utils.Helper;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -531,14 +533,19 @@ public class ContainerTest extends AbstractTest {
     Assert.assertEquals("myRole / myResolution", signature.getSignerRoles().get(0));
   }
 
-  @Test(expected = TslCertificateSourceInitializationException.class)
+  @Test
   public void testSetConfigurationForBDoc() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.TEST);
     this.configuration.setTslLocation("pole");
     Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).withConfiguration(
         this.configuration).
         withDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain").build();
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    try {
+      this.createSignatureBy(container, this.pkcs12SignatureToken);
+      Assert.fail("Should not reach here");
+    } catch (TechnicalException exception) {
+      Assert.assertThat(exception.getMessage(), Matchers.containsString("Failed to initialize TSL"));
+    }
   }
 
   @Test

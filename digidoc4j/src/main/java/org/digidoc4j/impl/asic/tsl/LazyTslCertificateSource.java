@@ -160,7 +160,7 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
         LOGGER.debug("Finished refreshing TSL, cache expires at {}", this.getNextCacheExpirationDate());
       }
     } catch (DSSException e) {
-      throw new TslCertificateSourceInitializationException("Unable to load TSL", e);
+      throw new TslCertificateSourceInitializationException("Failed to initialize TSL: " + e.getMessage(), e);
     }
   }
 

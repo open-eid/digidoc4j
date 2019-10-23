@@ -119,7 +119,7 @@ public class XadesSigningDssFacade {
       signedDocument = xAdESService.signDocument(detachedContentList, xAdESSignatureParameters, dssSignatureValue);
     } catch (DSSException e) {
       logger.warn("Signing document in DSS failed:" + e.getMessage());
-      throw new TechnicalException("Got error in signing process: ", e);
+      throw new TechnicalException("Got error in signing process: " + e.getMessage(), e);
     }
     DSSDocument correctedSignedDocument = surroundWithXadesXmlTag(signedDocument);
     return correctedSignedDocument;
