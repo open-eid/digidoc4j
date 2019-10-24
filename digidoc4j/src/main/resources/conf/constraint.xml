@@ -153,7 +153,7 @@
       <ReferenceDataIntact Level="FAIL"/>
       <SignatureIntact Level="FAIL"/>
       <ProspectiveCertificateChain Level="FAIL"/>
-      <TrustedServiceTypeIdentifier Level="WARN">
+      <TrustedServiceTypeIdentifier Level="FAIL">
         <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA</Id>
         <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA/QTST</Id>
         <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA/TSS-QC</Id>
@@ -175,7 +175,7 @@
         <RevocationDataFreshness Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
-        <NotSelfSigned Level="WARN"/>
+        <NotSelfSigned Level="FAIL"/>
         <Cryptographic Level="FAIL">
           <AcceptableEncryptionAlgo>
             <Algo>RSA</Algo>

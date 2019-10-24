@@ -1012,7 +1012,6 @@ public class BDocContainerTest extends AbstractTest {
   }
 
   @Test
-  @org.junit.Ignore("DD4J-476 -- needs further investigation")
   public void timeStampCertStatusDeprecated() throws Exception {
     BDocContainer container = new BDocContainer("src/test/resources/testFiles/invalid-containers/invalid-containers-23816_leedu_live_TS_authority.asice", new Configuration(Configuration.Mode.PROD));
     Assert.assertFalse(container.validate().isValid());
