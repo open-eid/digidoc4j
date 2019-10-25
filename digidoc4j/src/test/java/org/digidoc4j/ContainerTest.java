@@ -535,17 +535,14 @@ public class ContainerTest extends AbstractTest {
 
   @Test
   public void testSetConfigurationForBDoc() throws Exception {
+    expectedException.expect(TechnicalException.class);
+    expectedException.expectMessage(Matchers.containsString("Failed to initialize TSL"));
     this.configuration = new Configuration(Configuration.Mode.TEST);
     this.configuration.setTslLocation("pole");
     Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).withConfiguration(
         this.configuration).
         withDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain").build();
-    try {
-      this.createSignatureBy(container, this.pkcs12SignatureToken);
-      Assert.fail("Should not reach here");
-    } catch (TechnicalException exception) {
-      Assert.assertThat(exception.getMessage(), Matchers.containsString("Failed to initialize TSL"));
-    }
+    this.createSignatureBy(container, this.pkcs12SignatureToken);
   }
 
   @Test

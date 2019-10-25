@@ -194,7 +194,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
         .withPostalCode("myPostalCode")
         .withCountry("myCountry")
         .withRoles("myRole / myResolution")
-        .withSignatureId("SIGNATURE-1")
+        .withXmlDigitalSignatureId("SIGNATURE-1")
         .withSignatureToken(pkcs12EccSignatureToken)
         .invokeSigningProcess();
     Assert.assertTrue(signature.validateSignature().isValid());
