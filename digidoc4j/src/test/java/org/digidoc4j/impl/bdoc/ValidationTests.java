@@ -781,6 +781,15 @@ public class ValidationTests extends AbstractTest {
     Assert.assertFalse(validationResult.getWarnings().contains(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS2.getMessage()));
   }
 
+  @Test
+  public void container_withTimestampTakenWhenSigningCertificateWasNotValid_shouldBeInvalid() throws Exception {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/signing_certificate_not_valid_during_timestamping.asice");
+    SignatureValidationResult result = container.validate();
+    Assert.assertFalse("Signature must not be valid when timestamp was taken while signing certificate was not valid", result.isValid());
+    Assert.assertEquals(1, result.getErrors().size());
+    Assert.assertEquals("Signature has been created with expired certificate", result.getErrors().get(0).getMessage());
+  }
+
   /*
    * RESTRICTED METHODS
    */
