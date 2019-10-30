@@ -710,39 +710,42 @@ public class DigiDoc4JTest extends AbstractTest {
   }
 
   @Test
-  public void verifyValidEdoc() throws Exception {
+  public void verifyEdoc() throws Exception {
     this.setGlobalMode(Configuration.Mode.PROD);
-    this.systemExit.expectSystemExitWithStatus(0);
+    this.systemExit.expectSystemExitWithStatus(1);
     this.systemExit.checkAssertionAfterwards(new Assertion() {
 
       @Override
       public void checkAssertion() throws Exception {
-        Assert.assertThat(stdOut.getLog(), containsPattern("Signature S-[A-Z0-9]{64} is valid"));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("OCSP response production time is before timestamp time"));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature has 1 validation errors"));
+        Assert.assertThat(stdOut.getLog(), containsPattern("Signature S-[A-Z0-9]{64} is not valid"));
       }
 
     });
     String outputFolder = this.testFolder.newFolder("outputFolder").getPath();
     String[] parameters = new String[]{"-in",
-        "src/test/resources/prodFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc", "-v",
+        "src/test/resources/prodFiles/invalid-containers/edoc2_lv-eId_sha256.edoc", "-v",
         "-r", outputFolder};
     DigiDoc4J.main(parameters);
   }
 
   @Test
-  public void verifyValidEdocWithDss() throws Exception {
+  public void verifyEdocWithDss() throws Exception {
     this.setGlobalMode(Configuration.Mode.PROD);
-    this.systemExit.expectSystemExitWithStatus(0);
+    this.systemExit.expectSystemExitWithStatus(1);
     this.systemExit.checkAssertionAfterwards(new Assertion() {
 
       @Override
       public void checkAssertion() throws Exception {
-        Assert.assertThat(stdOut.getLog(),
-            StringContains.containsString("Validation was successful. Container is valid"));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("OCSP response production time is before timestamp time"));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature has 1 validation errors"));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Validation finished. Container is NOT valid!"));
       }
 
     });
     DigiDoc4J.main(new String[]{"-in",
-        "src/test/resources/prodFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc", "-v"});
+        "src/test/resources/prodFiles/invalid-containers/edoc2_lv-eId_sha256.edoc", "-v"});
   }
 
   @Test

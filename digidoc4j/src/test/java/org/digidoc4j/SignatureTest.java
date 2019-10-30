@@ -417,7 +417,7 @@ public class SignatureTest extends AbstractTest {
     TSLCertificateSource certificateSource = tslManager.getTsl();
     this.configuration.setTSL(certificateSource);
     DSSDocument document = new FileDocument(
-        "src/test/resources/prodFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc");
+        "src/test/resources/prodFiles/invalid-containers/edoc2_lv-eId_sha256.edoc");
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
     SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
     OCSPSource ocspSource = OCSPSourceBuilder.anOcspSource().withConfiguration(this.configuration).build();

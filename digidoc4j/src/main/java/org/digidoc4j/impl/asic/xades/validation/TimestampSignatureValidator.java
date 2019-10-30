@@ -10,14 +10,20 @@
 
 package org.digidoc4j.impl.asic.xades.validation;
 
+import java.math.BigInteger;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import eu.europa.esig.dss.enumerations.RevocationType;
+import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignedWithExpiredCertificateException;
+import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.exceptions.TimestampAndOcspResponseTimeDeltaTooLargeException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
@@ -55,18 +61,28 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
     if (signatureTimestamps == null || signatureTimestamps.isEmpty()) {
       return;
     }
-    Date timestamp = signatureTimestamps.get(0).getGenerationTime();
+    Date timestamp = signatureTimestamps.stream()
+            .map(TimestampToken::getGenerationTime)
+            .filter(t -> t != null)
+            .sorted()
+            .findFirst()
+            .orElse(null);
     if (timestamp == null) {
       return;
     }
-    Date ocspTime = signature
-            .getOCSPSource()
-            .getOCSPResponsesList()
-            .stream()
-            .map(r -> r.getBasicOCSPResp().getProducedAt())
+    List<BasicOCSPResp> signingCertificateOcspResponses = getOcspResponsesForSigningCertificate(signature);
+    if (signingCertificateOcspResponses == null || signingCertificateOcspResponses.isEmpty()) {
+      return;
+    }
+    Date ocspTime = signingCertificateOcspResponses.stream()
+            .map(BasicOCSPResp::getProducedAt)
+            .filter(t -> DateUtils.compareAtSamePrecision(timestamp, t) <= 0)
+            .sorted()
             .findFirst()
             .orElse(null);
     if (ocspTime == null) {
+      this.log.error("OCSP response production time is before timestamp time");
+      addValidationError(new TimestampAfterOCSPResponseTimeException());
       return;
     }
     int deltaLimit = this.configuration.getRevocationAndTimestampDeltaInMinutes();
@@ -107,6 +123,26 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
       this.log.error("Signing certificate revocation source is CRL instead of OCSP");
       this.addValidationError(new UntrustedRevocationSourceException());
     }
+  }
+
+  private List<BasicOCSPResp> getOcspResponsesForSigningCertificate(XAdESSignature signature) {
+    X509Cert signingCertificate = this.signature.getSigningCertificate();
+    if (signingCertificate == null) {
+      return null;
+    }
+    BigInteger certificateSerialNumber = signingCertificate.getX509Certificate().getSerialNumber();
+    return signature
+            .getOCSPSource()
+            .getOCSPResponsesList()
+            .stream()
+            .map(r -> r.getBasicOCSPResp())
+            .filter(r -> isOcspResponseForCertificate(r, certificateSerialNumber))
+            .collect(Collectors.toList());
+  }
+
+  private static boolean isOcspResponseForCertificate(BasicOCSPResp ocspResponse, BigInteger certificateSerialNumber) {
+    return Arrays.stream(ocspResponse.getResponses())
+            .anyMatch(r -> certificateSerialNumber.equals(r.getCertID().getSerialNumber()));
   }
 
 }

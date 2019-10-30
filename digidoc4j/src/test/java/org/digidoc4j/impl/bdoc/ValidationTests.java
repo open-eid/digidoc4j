@@ -30,6 +30,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.InvalidTimestampException;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
@@ -788,6 +789,15 @@ public class ValidationTests extends AbstractTest {
     Assert.assertFalse("Signature must not be valid when timestamp was taken while signing certificate was not valid", result.isValid());
     Assert.assertEquals(1, result.getErrors().size());
     Assert.assertEquals("Signature has been created with expired certificate", result.getErrors().get(0).getMessage());
+  }
+
+  @Test
+  public void container_withOcspBeforeTS_shouldBeInvalid() {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/TS-08_23634_TS_OCSP_before_TS.asice");
+    SignatureValidationResult result = container.validate();
+    Assert.assertFalse("Signature must not be valid when OCSP was taken before timestamp", result.isValid());
+    Assert.assertTrue("Result errors must contain " + TimestampAfterOCSPResponseTimeException.class.getSimpleName(),
+            result.getErrors().stream().anyMatch(e -> e instanceof TimestampAfterOCSPResponseTimeException));
   }
 
   /*
