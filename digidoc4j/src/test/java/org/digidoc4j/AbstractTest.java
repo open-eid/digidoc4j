@@ -28,7 +28,6 @@ import org.digidoc4j.test.TargetTemporaryFolderRule;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
-import org.digidoc4j.impl.ServiceAccessScope;
 import org.digidoc4j.utils.Helper;
 import org.junit.After;
 import org.junit.Assert;
@@ -326,11 +325,9 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     if (digestAlgorithm != null) {
       builder.withSignatureDigestAlgorithm(digestAlgorithm);
     }
-    try (ServiceAccessScope scope = new ServiceAccessScope(e -> System.out.println(e.getServiceType() + ": " + e.getServiceUrl()))) {
-      Signature signature = builder.invokeSigning();
-      container.addSignature(signature);
-      return (T) signature;
-    }
+    Signature signature = builder.invokeSigning();
+    container.addSignature(signature);
+    return (T) signature;
   }
 
   protected <T> T createSignatureBy(Container.DocumentType type, SignatureToken signatureToken) {
