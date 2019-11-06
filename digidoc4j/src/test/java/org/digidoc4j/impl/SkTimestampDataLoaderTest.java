@@ -27,12 +27,15 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.digidoc4j.Configuration.Mode.TEST;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
@@ -62,38 +65,67 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void accessDeniedToOCSPService() {
-    instanceRule.stubFor(post("/").willReturn(WireMock.aResponse().withStatus(403)));
+  public void successfulResponseFromTSPService() {
+    instanceRule.stubFor(post("/").willReturn(WireMock.aResponse().withStatus(200).withBody(new byte[] {0, 1, 2, 3})));
+    ServiceAccessListener listener = Mockito.mock(ServiceAccessListener.class);
 
     SkTimestampDataLoader dataLoader = new SkTimestampDataLoader(Configuration.of(TEST));
     dataLoader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
     String serviceUrl = MOCK_PROXY_URL + instanceRule.port() + "/";
 
-    try {
+    try (ServiceAccessScope scope = new ServiceAccessScope(listener)) {
+      byte[] response = dataLoader.post(serviceUrl, new byte[] {1});
+      assertArrayEquals(new byte[] {0, 1, 2, 3}, response);
+    }
+
+    ArgumentCaptor<ServiceAccessEvent> argumentCaptor = ArgumentCaptor.forClass(ServiceAccessEvent.class);
+    Mockito.verify(listener, Mockito.times(1)).accept(argumentCaptor.capture());
+    Mockito.verifyNoMoreInteractions(listener);
+
+    ServiceAccessEvent capturedEvent = argumentCaptor.getValue();
+    assertEquals(MOCK_PROXY_URL + instanceRule.port() + "/", capturedEvent.getServiceUrl());
+    assertEquals(ServiceType.TSP, capturedEvent.getServiceType());
+  }
+
+  @Test
+  public void accessDeniedToTSPService() {
+    instanceRule.stubFor(post("/").willReturn(WireMock.aResponse().withStatus(403)));
+    ServiceAccessListener listener = Mockito.mock(ServiceAccessListener.class);
+
+    SkTimestampDataLoader dataLoader = new SkTimestampDataLoader(Configuration.of(TEST));
+    dataLoader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
+    String serviceUrl = MOCK_PROXY_URL + instanceRule.port() + "/";
+
+    try (ServiceAccessScope scope = new ServiceAccessScope(listener)) {
       dataLoader.post(serviceUrl, new byte[] {1});
       fail("Expected to throw ServiceAccessDeniedException");
     } catch (ServiceAccessDeniedException e) {
       assertSame(ServiceType.TSP, e.getServiceType());
       assertEquals("Access denied to TSP service <" + serviceUrl + ">", e.getMessage());
     }
+
+    Mockito.verifyZeroInteractions(listener);
   }
 
   @Test
   public void connectionToTSPServiceTimedOut() {
     instanceRule.stubFor(post("/").willReturn(WireMock.aResponse().withFixedDelay(200)));
+    ServiceAccessListener listener = Mockito.mock(ServiceAccessListener.class);
 
     SkTimestampDataLoader dataLoader = new SkTimestampDataLoader(Configuration.of(TEST));
     dataLoader.setTimeoutSocket(100);
     dataLoader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT_TM));
     String serviceUrl = MOCK_PROXY_URL + instanceRule.port() + "/";
 
-    try {
+    try (ServiceAccessScope scope = new ServiceAccessScope(listener)) {
       dataLoader.post(serviceUrl, new byte[] {1});
       fail("Expected to throw ConnectionTimedOutException");
     } catch (ConnectionTimedOutException e) {
       assertSame(ServiceType.TSP, e.getServiceType());
       assertEquals("Connection to TSP service <" + serviceUrl + "> timed out", e.getMessage());
     }
+
+    Mockito.verifyZeroInteractions(listener);
   }
 
   @Test

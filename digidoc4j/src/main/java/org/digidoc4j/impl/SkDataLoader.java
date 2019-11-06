@@ -76,8 +76,9 @@ public abstract class SkDataLoader extends CommonsDataLoader {
       client = getHttpClient(url);
       httpResponse = this.getHttpResponse(client, httpRequest);
       validateHttpResponse(httpResponse, url);
-      return readHttpResponse(httpResponse);
-
+      byte[] responseBytes = readHttpResponse(httpResponse);
+      publishExternalServiceAccessEvent(url);
+      return responseBytes;
     } catch (UnknownHostException e) {
       throw new ServiceUnreachableException(url, getServiceType());
     } catch (InterruptedIOException e) {
@@ -104,6 +105,13 @@ public abstract class SkDataLoader extends CommonsDataLoader {
     if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN) {
       throw new ServiceAccessDeniedException(url, getServiceType());
     }
+  }
+
+  private void publishExternalServiceAccessEvent(final String url) {
+    ServiceAccessScope.notifyExternalServiceAccessListenerIfPresent(() -> {
+      final ServiceType serviceType = getServiceType();
+      return new ServiceAccessEvent(url, serviceType);
+    });
   }
 
   protected abstract ServiceType getServiceType();
