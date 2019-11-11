@@ -15,7 +15,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
-import org.digidoc4j.impl.asic.tsl.LazyCertificatePool;
+import org.digidoc4j.impl.asic.tsl.CompoundCertificatePool;
 
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.validation.CertificateVerifier;
@@ -115,7 +115,7 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
     if (this.trustedCertSource == null) {
       return this.commonCertificateVerifier.createValidationPool();
     }
-    return new LazyCertificatePool(this.trustedCertSource);
+    return new CompoundCertificatePool(this.trustedCertSource);
   }
 
   @Override

@@ -14,7 +14,7 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
-import org.digidoc4j.impl.asic.tsl.LazyCertificatePool;
+import org.digidoc4j.impl.asic.tsl.CompoundCertificatePool;
 import org.digidoc4j.test.util.TestCommonUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class LazyTslLoadingTest extends AbstractTest {
     SKCommonCertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
     certificateVerifier.setTrustedCertSource(tsl);
     CertificatePool certificatePool = certificateVerifier.createValidationPool();
-    Assert.assertTrue(certificatePool instanceof LazyCertificatePool);
+    Assert.assertTrue(certificatePool instanceof CompoundCertificatePool);
     Assert.assertEquals(tsl.getCertificatePool().getNumberOfCertificates(), certificatePool.getNumberOfCertificates());
   }
 
