@@ -62,8 +62,8 @@ public class AsicSignature implements Signature {
   }
 
   @Override
-  public String getXmlDigitalSignatureId() {
-    return xadesSignature.getXmlDigitalSignatureId();
+  public String getUniqueId() {
+    return xadesSignature.getUniqueId();
   }
 
   @Override

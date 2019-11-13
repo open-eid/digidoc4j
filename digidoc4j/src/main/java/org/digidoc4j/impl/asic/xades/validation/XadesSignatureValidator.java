@@ -57,6 +57,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   private List<DigiDoc4JException> validationErrors = new ArrayList<>();
   private List<DigiDoc4JException> validationWarnings = new ArrayList<>();
   private String signatureId;
+  private String signatureUniqueId;
   protected Configuration configuration;
 
   /**
@@ -68,6 +69,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   public XadesSignatureValidator(XadesSignature signature, Configuration configuration) {
     this.signature = signature;
     this.signatureId = signature.getId();
+    this.signatureUniqueId = signature.getUniqueId();
     this.configuration = configuration;
   }
 
@@ -101,12 +103,12 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   protected void addValidationError(DigiDoc4JException error) {
-    error.setSignatureId(this.getDssSignature().getId());
+    error.setSignatureId(this.signatureId);
     this.validationErrors.add(error);
   }
 
   protected void addValidationWarning(DigiDoc4JException warning) {
-    warning.setSignatureId(this.getDssSignature().getId());
+    warning.setSignatureId(this.signatureId);
     this.validationWarnings.add(warning);
   }
 
@@ -187,7 +189,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   private void addReportedErrors() {
     LOGGER.debug("Extracting reported errors");
     if (this.simpleReport != null) {
-      for (String errorMessage : this.simpleReport.getErrors(this.signatureId)) {
+      for (String errorMessage : this.simpleReport.getErrors(this.signatureUniqueId)) {
         /*if (this.isRedundantErrorMessage(errorMessage)) {
           LOGGER.debug("Ignoring redundant error message: " + errorMessage);
           continue;
@@ -197,7 +199,7 @@ public class XadesSignatureValidator implements SignatureValidator {
         } else if (errorMessage.contains(MessageTag.PSV_IPSVC_ANS.getMessage())) {
           this.addValidationError(new CertificateRevokedException(errorMessage));
         } else {
-          this.addValidationError(new DigiDoc4JException(errorMessage, this.getDssSignature().getId()));
+          this.addValidationError(new DigiDoc4JException(errorMessage, this.signatureId));
         }
       }
     }
@@ -213,7 +215,7 @@ public class XadesSignatureValidator implements SignatureValidator {
 
   private void addReportedWarnings() {
     if (this.simpleReport != null) {
-      for (String warning : this.simpleReport.getWarnings(this.signatureId)) {
+      for (String warning : this.simpleReport.getWarnings(this.signatureUniqueId)) {
         this.validationWarnings.add(new DigiDoc4JException(warning, this.signatureId));
       }
     }
@@ -231,7 +233,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     if (diagnosticData == null) {
       return true;
     }
-    List<String> timestampIdList = diagnosticData.getTimestampIdList(signatureId);
+    List<String> timestampIdList = diagnosticData.getTimestampIdList(signatureUniqueId);
     if (CollectionUtils.isEmpty(timestampIdList)) {
       return true;
     }
@@ -241,7 +243,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   private SimpleReport getSimpleReport(Map<String, SimpleReport> simpleReports) {
-    SimpleReport simpleRep = simpleReports.get(this.signatureId);
+    SimpleReport simpleRep = simpleReports.get(this.signatureUniqueId);
     if (simpleRep != null && simpleReports.size() == 1) {
       return simpleReports.values().iterator().next();
     }

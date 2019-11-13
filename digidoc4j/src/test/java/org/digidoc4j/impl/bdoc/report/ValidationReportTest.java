@@ -32,7 +32,7 @@ public class ValidationReportTest extends AbstractTest {
   public void validContainerWithOneSignature() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
     Signature signature = this.createSignatureBy(container, SignatureProfile.LT, this.pkcs12SignatureToken);
-    String signatureId = signature.getId();
+    String signatureId = signature.getUniqueId();
     SignatureValidationResult result = container.validate();
     Assert.assertTrue(result.isValid());
     String report = result.getReport();
@@ -112,8 +112,8 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("2", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("2", "/SimpleReport/ValidSignaturesCount", report);
     TestAssert.assertXPathHasValue("2", "count(/SimpleReport/Signature)", report);
-    TestAssert.assertXPathHasValue(signature1.getId(), "/SimpleReport/Signature[1]/@Id", report);
-    TestAssert.assertXPathHasValue(signature2.getId(), "/SimpleReport/Signature[2]/@Id", report);
+    TestAssert.assertXPathHasValue(signature1.getUniqueId(), "/SimpleReport/Signature[1]/@Id", report);
+    TestAssert.assertXPathHasValue(signature2.getUniqueId(), "/SimpleReport/Signature[2]/@Id", report);
     TestAssert.assertXPathHasValue("XAdES-BASELINE-LT-TM", "/SimpleReport/Signature[1]/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("XAdES-BASELINE-LT", "/SimpleReport/Signature[2]/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature[1]/SignatureScope/@name", report);

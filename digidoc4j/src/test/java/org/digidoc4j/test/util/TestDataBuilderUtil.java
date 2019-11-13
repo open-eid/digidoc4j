@@ -81,7 +81,7 @@ public class TestDataBuilderUtil {
 
   public static DataToSign buildDataToSign(Container container, String signatureId) {
     SignatureBuilder builder = TestDataBuilderUtil.prepareDataToSign(container);
-    builder.withXmlDigitalSignatureId(signatureId);
+    builder.withSignatureId(signatureId);
     return builder.buildDataToSign();
   }
 

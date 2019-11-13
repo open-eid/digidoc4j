@@ -34,6 +34,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * ASIC validation report builder
@@ -83,6 +85,14 @@ public class AsicValidationReportBuilder {
       signaturesReport.add(validationData.getReport().getReports().getSimpleReport());
     }
     return signaturesReport;
+  }
+
+  public Map<String, String> buildSignatureIdMap() {
+    return signatureValidationData.stream().collect(Collectors.toMap(
+            SignatureValidationData::getSignatureId,
+            SignatureValidationData::getSignatureUniqueId,
+            (v1, v2) -> v1
+    ));
   }
 
   /**

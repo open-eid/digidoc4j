@@ -149,11 +149,11 @@ public class DetachedXadesSignatureBuilder {
   /**
    * Set signature ID.
    *
-   * @param xmlDigitalSignatureId XML digital signature id.
+   * @param signatureId signature id.
    * @return builder for creating a signature.
    */
-  public DetachedXadesSignatureBuilder withXmlDigitalSignatureId(String xmlDigitalSignatureId) {
-    signatureParameters.setXmlDigitalSignatureId(xmlDigitalSignatureId);
+  public DetachedXadesSignatureBuilder withSignatureId(String signatureId) {
+    signatureParameters.setSignatureId(signatureId);
     return this;
   }
 

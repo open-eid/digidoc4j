@@ -11,7 +11,6 @@ import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
-import org.digidoc4j.test.util.TestIdUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -194,7 +193,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
         .withPostalCode("myPostalCode")
         .withCountry("myCountry")
         .withRoles("myRole / myResolution")
-        .withXmlDigitalSignatureId("SIGNATURE-1")
+        .withSignatureId("SIGNATURE-1")
         .withSignatureToken(pkcs12EccSignatureToken)
         .invokeSigningProcess();
     Assert.assertTrue(signature.validateSignature().isValid());
@@ -204,8 +203,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     Assert.assertEquals("myCountry", signature.getCountryName());
     Assert.assertEquals(1, signature.getSignerRoles().size());
     Assert.assertEquals("myRole / myResolution", signature.getSignerRoles().get(0));
-    Assert.assertEquals("SIGNATURE-1", signature.getXmlDigitalSignatureId());
-    TestIdUtil.assertMatchesSignatureIdPattern(signature.getId());
+    Assert.assertEquals("SIGNATURE-1", signature.getId());
     assertTimestampSignature(signature);
     assertValidSignature(signature);
   }

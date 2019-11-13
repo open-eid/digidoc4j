@@ -4,7 +4,6 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
-import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DetachedXadesSignatureBuilder;
 import org.digidoc4j.Signature;
@@ -39,7 +38,7 @@ public class TslIntegrityTest extends AbstractTest {
         Signature signature = DetachedXadesSignatureBuilder.withConfiguration(configuration)
                 .withSignatureToken(pkcs12SignatureToken)
                 .withDataFile(createDefaultDataFile())
-                .withXmlDigitalSignatureId("SIG-ID")
+                .withSignatureId("SIG-ID")
                 .invokeSigning();
 
         assertCentralTslNotChanged(pkcs12SignatureToken.getCertificate());
@@ -56,7 +55,7 @@ public class TslIntegrityTest extends AbstractTest {
 
         Signature signature = SignatureBuilder.aSignature(container)
                 .withSignatureToken(pkcs12SignatureToken)
-                .withXmlDigitalSignatureId("SIG-ID")
+                .withSignatureId("SIG-ID")
                 .invokeSigning();
 
         assertCentralTslNotChanged(pkcs12SignatureToken.getCertificate());

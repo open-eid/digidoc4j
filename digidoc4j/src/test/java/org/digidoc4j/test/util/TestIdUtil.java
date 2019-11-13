@@ -28,7 +28,7 @@ public final class TestIdUtil {
 
     public static Signature findExactlyOneSignatureByXmlDigitalSignatureId(Container container, String xmlDigitalSignatureId) {
         return container.getSignatures().stream()
-                .filter(s -> xmlDigitalSignatureId.equals(s.getXmlDigitalSignatureId()))
+                .filter(s -> xmlDigitalSignatureId.equals(s.getId()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("No signature " + xmlDigitalSignatureId + " found"));
     }

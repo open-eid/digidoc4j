@@ -87,7 +87,7 @@ public class DDocSignature implements Signature {
   }
 
   @Override
-  public String getXmlDigitalSignatureId() {
+  public String getUniqueId() {
     return getId();
   }
 

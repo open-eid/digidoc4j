@@ -45,7 +45,6 @@ import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.TestAssert;
-import org.digidoc4j.test.util.TestIdUtil;
 import org.digidoc4j.utils.Helper;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -467,34 +466,34 @@ public class BDocContainerTest extends AbstractTest {
   }
 
   @Test
-  public void setsXmlDigitalSignatureId() throws Exception {
+  public void setsSignatureId() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"), "text/plain");
-    Signature signature1 = SignatureBuilder.aSignature(container).withXmlDigitalSignatureId("SIGNATURE-1").
+    Signature signature1 = SignatureBuilder.aSignature(container).withSignatureId("SIGNATURE-1").
         withSignatureToken(this.pkcs12SignatureToken).invokeSigning();
     container.addSignature(signature1);
-    Signature signature2 = SignatureBuilder.aSignature(container).withXmlDigitalSignatureId("SIGNATURE-2").
+    Signature signature2 = SignatureBuilder.aSignature(container).withSignatureId("SIGNATURE-2").
         withSignatureToken(this.pkcs12SignatureToken).invokeSigning();
     container.addSignature(signature2);
     String file = this.getFileBy("bdoc");
     container.saveAsFile(file);
     container = ContainerOpener.open(file);
-    Assert.assertEquals("SIGNATURE-1", container.getSignatures().get(0).getXmlDigitalSignatureId());
-    Assert.assertEquals("SIGNATURE-2", container.getSignatures().get(1).getXmlDigitalSignatureId());
+    Assert.assertEquals("SIGNATURE-1", container.getSignatures().get(0).getId());
+    Assert.assertEquals("SIGNATURE-2", container.getSignatures().get(1).getId());
     ZipFile zip = new ZipFile(file);
     Assert.assertNotNull(zip.getEntry("META-INF/signatures0.xml"));
     Assert.assertNotNull(zip.getEntry("META-INF/signatures1.xml"));
   }
 
   @Test
-  public void setsDefaultXmlDigitalSignatureId() throws Exception {
+  public void setsDefaultSignatureId() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"), "text/plain");
     this.createSignatureBy(container, this.pkcs12SignatureToken);
     this.createSignatureBy(container, this.pkcs12SignatureToken);
     String file = this.getFileBy("bdoc");
     container.save(file);
     container = ContainerOpener.open(file);
-    String signature1Id = container.getSignatures().get(0).getXmlDigitalSignatureId();
-    String signature2Id = container.getSignatures().get(1).getXmlDigitalSignatureId();
+    String signature1Id = container.getSignatures().get(0).getId();
+    String signature2Id = container.getSignatures().get(1).getId();
     Assert.assertFalse(StringUtils.equals(signature1Id, signature2Id));
     Assert.assertTrue(signature1Id.startsWith("id-"));
     Assert.assertTrue(signature2Id.startsWith("id-"));
@@ -742,11 +741,10 @@ public class BDocContainerTest extends AbstractTest {
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     DataToSign dataToSign = SignatureBuilder.aSignature(container).
         withSignatureDigestAlgorithm(DigestAlgorithm.SHA512).withSigningCertificate(this.pkcs12SignatureToken.getCertificate()).
-        withXmlDigitalSignatureId("S99").withRoles("manager", "employee").withCity("city").withStateOrProvince("state").
+        withSignatureId("S99").withRoles("manager", "employee").withCity("city").withStateOrProvince("state").
         withPostalCode("postalCode").withCountry("country").buildDataToSign();
     byte[] signatureValue = this.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
     Signature signature = dataToSign.finalize(signatureValue);
-    TestIdUtil.assertMatchesSignatureIdPattern(signature.getId());
     container.addSignature(signature);
     String file = this.getFileBy("bdoc");
     container.saveAsFile(file);
@@ -756,8 +754,7 @@ public class BDocContainerTest extends AbstractTest {
     Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha512", resultSignature.getSignatureMethod());
     Assert.assertEquals("employee", resultSignature.getSignerRoles().get(1));
     Assert.assertEquals("city", resultSignature.getCity());
-    Assert.assertEquals("S99", resultSignature.getXmlDigitalSignatureId());
-    Assert.assertEquals(signature.getId(), resultSignature.getId());
+    Assert.assertEquals("S99", resultSignature.getId());
   }
 
   @Test
@@ -881,10 +878,10 @@ public class BDocContainerTest extends AbstractTest {
   }
 
   @Test(expected = TechnicalException.class)
-  public void addSingatureWithDuplicateXmlDigitalSignatureId_throwsException() throws Exception {
+  public void addSignatureWithDuplicateSignatureId_throwsException() throws Exception {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/test.asice");
     Signature signature = SignatureBuilder.aSignature(container).
-            withSignatureToken(this.pkcs12SignatureToken).withXmlDigitalSignatureId("S0").invokeSigning();
+            withSignatureToken(this.pkcs12SignatureToken).withSignatureId("S0").invokeSigning();
     container.addSignature(signature);
   }
 
@@ -958,15 +955,13 @@ public class BDocContainerTest extends AbstractTest {
 
   @Test
   public void whenOpeningContainer_withSignaturePolicyImpliedElement_inTMSignatures_shouldThrowException() {
-    Container container = ContainerBuilder.aContainer()
+    SignatureValidationResult result = ContainerBuilder.aContainer()
         .fromExistingFile(
             "src/test/resources/prodFiles/invalid-containers/23608_bdoc21-invalid-nonce-policy-and-implied.bdoc")
-        .withConfiguration(new Configuration(Configuration.Mode.PROD)).build();
-    SignatureValidationResult result = container.validate();
+        .withConfiguration(new Configuration(Configuration.Mode.PROD)).build().validate();
     Assert.assertFalse("Container should be invalid", result.isValid());
     Assert.assertEquals("Incorrect errors count", 1, result.getErrors().size());
-    String signatureId = TestIdUtil.findExactlyOneSignatureByXmlDigitalSignatureId(container, "S0").getId();
-    Assert.assertEquals("(Signature ID: " + signatureId + ") - Signature contains forbidden <SignaturePolicyImplied> element",
+    Assert.assertEquals("(Signature ID: S0) - Signature contains forbidden <SignaturePolicyImplied> element",
         result.getErrors().get(0).toString());
   }
 

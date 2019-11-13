@@ -25,7 +25,6 @@ import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.ServiceUnreachableException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.digidoc4j.test.util.TestIdUtil;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -108,10 +107,9 @@ public class BDocSerializationTest extends AbstractTest {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     Signature signature = SignatureBuilder.aSignature(container).withSignatureDigestAlgorithm(DigestAlgorithm.SHA512).
-        withSignatureToken(this.pkcs12SignatureToken).withXmlDigitalSignatureId("S99").withRoles("manager", "employee").
+        withSignatureToken(this.pkcs12SignatureToken).withSignatureId("S99").withRoles("manager", "employee").
         withCity("city").withStateOrProvince("state").withPostalCode("postalCode").withCountry("country").
         invokeSigning();
-    TestIdUtil.assertMatchesSignatureIdPattern(signature.getId());
     container.addSignature(signature);
     this.serialize(container, this.serializedContainerLocation);
     Container deserializedContainer = this.deserializer(this.serializedContainerLocation);
@@ -121,8 +119,7 @@ public class BDocSerializationTest extends AbstractTest {
     Assert.assertEquals("state", deserializedSignature.getStateOrProvince());
     Assert.assertEquals("country", deserializedSignature.getCountryName());
     Assert.assertEquals("employee", deserializedSignature.getSignerRoles().get(1));
-    Assert.assertEquals("S99", deserializedSignature.getXmlDigitalSignatureId());
-    Assert.assertEquals(signature.getId(), deserializedSignature.getId());
+    Assert.assertEquals("S99", deserializedSignature.getId());
     Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha512", deserializedSignature.getSignatureMethod());
   }
 
@@ -136,7 +133,7 @@ public class BDocSerializationTest extends AbstractTest {
     Signature signature = deserializedContainer.getSignatures().get(0);
     Assert.assertEquals("", signature.getCity());
     Assert.assertThat(signature.getSignerRoles(), Matchers.is(Matchers.empty()));
-    Assert.assertTrue(signature.getXmlDigitalSignatureId().startsWith("id-"));
+    Assert.assertTrue(signature.getId().startsWith("id-"));
     Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
   }
 

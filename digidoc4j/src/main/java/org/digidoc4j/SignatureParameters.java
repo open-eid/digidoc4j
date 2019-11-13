@@ -31,7 +31,7 @@ import java.util.List;
  * <ul>
  *   <li>Signature production place</li>
  *   <li>Roles of the signer</li>
- *   <li>XML digital signature id</li>
+ *   <li>Signature id</li>
  *   <li>Digest algorithm</li>
  *   <li>Encryption algorithm</li>
  *   <li>Signature profile</li>
@@ -44,7 +44,7 @@ public class SignatureParameters implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(SignatureParameters.class);
   private SignatureProductionPlace productionPlace = new SignatureProductionPlace();
   private List<String> roles = new ArrayList<>();
-  private String xmlDigitalSignatureId;
+  private String signatureId;
   private DigestAlgorithm digestAlgorithm;
   private EncryptionAlgorithm encryptionAlgorithm;
   private SignatureProfile signatureProfile;
@@ -123,22 +123,22 @@ public class SignatureParameters implements Serializable {
   }
 
   /**
-   * Set XML digital signature id.
+   * Set signature id.
    *
-   * @param xmlDigitalSignatureId signature ID
+   * @param signatureId signature ID
    */
-  public void setXmlDigitalSignatureId(String xmlDigitalSignatureId) {
-    logger.debug("Set XML digital signature id to " + xmlDigitalSignatureId);
-    this.xmlDigitalSignatureId = xmlDigitalSignatureId;
+  public void setSignatureId(String signatureId) {
+    logger.debug("Set signature id to " + signatureId);
+    this.signatureId = signatureId;
   }
 
   /**
-   * Get XML digital signature id.
+   * Get signature id.
    *
-   * @return xmlDigitalSignatureId signature ID
+   * @return signature ID
    */
-  public String getXmlDigitalSignatureId() {
-    return xmlDigitalSignatureId;
+  public String getSignatureId() {
+    return signatureId;
   }
 
   /**

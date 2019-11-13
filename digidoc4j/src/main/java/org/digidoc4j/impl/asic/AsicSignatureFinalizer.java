@@ -118,7 +118,7 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
     validateDataFilesToSign(dataFiles);
     byte[] dataToSign = facade.getDataToSign(dataFiles);
     String signatureId = facade.getSignatureId();
-    signatureParameters.setXmlDigitalSignatureId(signatureId);
+    signatureParameters.setSignatureId(signatureId);
     return dataToSign;
   }
 
@@ -252,8 +252,8 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
   }
 
   private void setSignatureId() {
-    if (StringUtils.isNotBlank(signatureParameters.getXmlDigitalSignatureId())) {
-      facade.setSignatureId(signatureParameters.getXmlDigitalSignatureId());
+    if (StringUtils.isNotBlank(signatureParameters.getSignatureId())) {
+      facade.setSignatureId(signatureParameters.getSignatureId());
     }
   }
 

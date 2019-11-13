@@ -43,11 +43,11 @@ public interface Signature extends Serializable {
   String getId();
 
   /**
-   * Returns XML digital signature id if present.
+   * Returns the identifier that uniquely identifies this signature.
    *
-   * @return XML digital signature id.
+   * @return unique identifier
    */
-  String getXmlDigitalSignatureId();
+  String getUniqueId();
 
   /**
    * Returns the signature OCSP response nonce.

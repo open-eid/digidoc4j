@@ -68,7 +68,7 @@ public class SignatureBuilderTest extends AbstractTest {
     SignatureBuilder builder = SignatureBuilder.aSignature(container).withCity("San Pedro").
         withStateOrProvince("Puerto Vallarta").withPostalCode("13456").withCountry("Val Verde").
         withRoles("Manager", "Suspicious Fisherman").withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
-        withSignatureProfile(SignatureProfile.LT_TM).withXmlDigitalSignatureId("S0").
+        withSignatureProfile(SignatureProfile.LT_TM).withSignatureId("S0").
         withSigningCertificate(this.pkcs12SignatureToken.getCertificate());
     DataToSign dataToSign = builder.buildDataToSign();
     SignatureParameters parameters = dataToSign.getSignatureParameters();
@@ -79,7 +79,7 @@ public class SignatureBuilderTest extends AbstractTest {
     Assert.assertEquals("Manager", parameters.getRoles().get(0));
     Assert.assertEquals(DigestAlgorithm.SHA256, parameters.getDigestAlgorithm());
     Assert.assertEquals(SignatureProfile.LT_TM, parameters.getSignatureProfile());
-    Assert.assertEquals("S0", parameters.getXmlDigitalSignatureId());
+    Assert.assertEquals("S0", parameters.getSignatureId());
     Assert.assertSame(this.pkcs12SignatureToken.getCertificate(), parameters.getSigningCertificate());
     byte[] bytesToSign = dataToSign.getDataToSign();
     Assert.assertNotNull(bytesToSign);
@@ -888,7 +888,7 @@ public class SignatureBuilderTest extends AbstractTest {
 
   private Signature openSignatureFromExistingSignatureDocument(Container container) throws IOException {
     Signature signature = this.openAdESSignature(container);
-    Assert.assertEquals("S-6AC58041EB289D7C0E73A569F7F978F909A2B61B19C6C611FD8005ECEA35EB95", signature.getId());
+    Assert.assertEquals("id-6a5d6671af7a9e0ab9a5e4d49d69800d", signature.getId());
     return signature;
   }
 

@@ -61,12 +61,12 @@ public class BesSignature extends DssXadesSignature {
 
   @Override
   public String getId() {
-    return getDssSignature().getId();
+    return getDssSignature().getDAIdentifier();
   }
 
   @Override
-  public String getXmlDigitalSignatureId() {
-    return getDssSignature().getDAIdentifier();
+  public String getUniqueId() {
+    return getDssSignature().getId();
   }
 
   @Override
