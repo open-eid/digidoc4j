@@ -13,6 +13,7 @@ package org.digidoc4j.impl.asic.report;
 import java.util.List;
 
 import eu.europa.esig.dss.enumerations.SignatureLevel;
+import eu.europa.esig.dss.simplereport.jaxb.XmlCertificate;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.xades.validation.SignatureValidationData;
@@ -48,6 +49,8 @@ public class SignatureValidationReportCreator {
     updateDocumentName();
     updateIndication();
     updateSignatureFormat();
+    updateSignatureId();
+    updateSignedBy();
     return signatureValidationReport;
   }
 
@@ -85,6 +88,21 @@ public class SignatureValidationReportCreator {
     }
     if (validationData.getSignatureProfile() == SignatureProfile.B_EPES) {
       signatureValidationReport.setSignatureFormat(SignatureLevel.XAdES_BASELINE_B_EPES);
+    }
+  }
+
+  private void updateSignatureId() {
+    signatureValidationReport.setId(validationData.getSignatureId());
+  }
+
+  private void updateSignedBy() {
+    final String signedBy = signatureValidationReport.getSignedBy();
+    if (signedBy != null && signatureValidationReport.getCertificateChain() != null) {
+      signatureValidationReport.getCertificateChain().getCertificate().stream()
+              .filter(c -> signedBy.equals(c.getId()))
+              .map(XmlCertificate::getQualifiedName)
+              .findFirst()
+              .ifPresent(signatureValidationReport::setSignedBy);
     }
   }
 }

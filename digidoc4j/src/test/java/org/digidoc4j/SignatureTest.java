@@ -33,7 +33,6 @@ import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
 import org.digidoc4j.impl.ddoc.DDocOpener;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.digidoc4j.test.util.TestIdUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.DateUtils;
 import org.digidoc4j.utils.Helper;
@@ -236,8 +235,8 @@ public class SignatureTest extends AbstractTest {
     SignatureValidationResult validate = container.validate();
     Assert.assertEquals(1, validate.getErrors().size());
     String report = validate.getReport();
-    Assert.assertTrue(report.contains("Id=\"" + TestIdUtil.findExactlyOneSignatureByXmlDigitalSignatureId(container, "S0").getUniqueId() + "\" SignatureFormat=\"XAdES-BASELINE-LT\""));
-    Assert.assertTrue(report.contains("Id=\"" + TestIdUtil.findExactlyOneSignatureByXmlDigitalSignatureId(container, "S1").getUniqueId() + "\" SignatureFormat=\"XAdES-BASELINE-LT\""));
+    Assert.assertTrue(report.contains("Id=\"S0\" SignatureFormat=\"XAdES-BASELINE-LT\""));
+    Assert.assertTrue(report.contains("Id=\"S1\" SignatureFormat=\"XAdES-BASELINE-LT\""));
     Assert.assertTrue(report.contains("<Indication>TOTAL_PASSED</Indication>"));
     Assert.assertTrue(report.contains("<Indication>INDETERMINATE</Indication>"));
   }
