@@ -82,12 +82,14 @@ public class ServiceAccessScopeTest {
 
             Future<ThreadSafeListener> result = executorService.submit(() -> notifyExternalServiceAccessListenerInLocalScope(ServiceType.AIA_OCSP));
             Assert.assertEquals(1, result.get().getReceivedEvents().size());
-        } finally {
+
             executorService.shutdown();
             Assert.assertTrue(
                     "Abnormal termination of " + executorService.getClass().getSimpleName(),
                     executorService.awaitTermination(10L, TimeUnit.SECONDS)
             );
+        } finally {
+            executorService.shutdownNow();
         }
 
         List<ServiceAccessEvent> receivedEvents = threadSafeListener.getReceivedEvents();
@@ -143,7 +145,7 @@ public class ServiceAccessScopeTest {
         @Override
         public ServiceAccessEvent get() {
             String serviceUrl = Thread.currentThread().getName() + "/" + serviceType;
-            return new ServiceAccessEvent(serviceUrl, serviceType);
+            return new ServiceAccessEvent(serviceUrl, serviceType, true);
         }
 
     }

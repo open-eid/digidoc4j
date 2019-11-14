@@ -36,7 +36,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class SkOCSPDataLoaderTest extends AbstractTest {
@@ -77,13 +79,10 @@ public class SkOCSPDataLoaderTest extends AbstractTest {
       assertArrayEquals(new byte[] {0, 1, 2, 3}, response);
     }
 
-    ArgumentCaptor<ServiceAccessEvent> argumentCaptor = ArgumentCaptor.forClass(ServiceAccessEvent.class);
-    Mockito.verify(listener, Mockito.times(1)).accept(argumentCaptor.capture());
-    Mockito.verifyNoMoreInteractions(listener);
-
-    ServiceAccessEvent capturedEvent = argumentCaptor.getValue();
+    ServiceAccessEvent capturedEvent = verifyAndCaptureServiceAccessEvent(listener);
     assertEquals(MOCK_PROXY_URL + instanceRule.port() + "/", capturedEvent.getServiceUrl());
     assertEquals(ServiceType.OCSP, capturedEvent.getServiceType());
+    assertTrue(capturedEvent.isSuccess());
   }
 
   @Test
@@ -103,7 +102,10 @@ public class SkOCSPDataLoaderTest extends AbstractTest {
       assertEquals("Access denied to OCSP service <" + serviceUrl + ">", e.getMessage());
     }
 
-    Mockito.verifyZeroInteractions(listener);
+    ServiceAccessEvent capturedEvent = verifyAndCaptureServiceAccessEvent(listener);
+    assertEquals(MOCK_PROXY_URL + instanceRule.port() + "/", capturedEvent.getServiceUrl());
+    assertEquals(ServiceType.OCSP, capturedEvent.getServiceType());
+    assertFalse(capturedEvent.isSuccess());
   }
 
   @Test
@@ -124,7 +126,10 @@ public class SkOCSPDataLoaderTest extends AbstractTest {
       assertEquals("Connection to OCSP service <" + serviceUrl + "> timed out", e.getMessage());
     }
 
-    Mockito.verifyZeroInteractions(listener);
+    ServiceAccessEvent capturedEvent = verifyAndCaptureServiceAccessEvent(listener);
+    assertEquals(MOCK_PROXY_URL + instanceRule.port() + "/", capturedEvent.getServiceUrl());
+    assertEquals(ServiceType.OCSP, capturedEvent.getServiceType());
+    assertFalse(capturedEvent.isSuccess());
   }
 
   @Test
@@ -141,5 +146,12 @@ public class SkOCSPDataLoaderTest extends AbstractTest {
     WireMock.verify(postRequestedFor(urlMatching("/"))
           .withHeader("Content-Type", containing("application/ocsp-request"))
           .withHeader("User-Agent", containing("LIB DigiDoc4j")));
+  }
+
+  private static ServiceAccessEvent verifyAndCaptureServiceAccessEvent(ServiceAccessListener mockedListener) {
+    ArgumentCaptor<ServiceAccessEvent> argumentCaptor = ArgumentCaptor.forClass(ServiceAccessEvent.class);
+    Mockito.verify(mockedListener, Mockito.times(1)).accept(argumentCaptor.capture());
+    Mockito.verifyNoMoreInteractions(mockedListener);
+    return argumentCaptor.getValue();
   }
 }

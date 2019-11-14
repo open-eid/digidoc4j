@@ -8,9 +8,12 @@ public class ServiceAccessEvent {
 
     private final ServiceType serviceType;
 
-    public ServiceAccessEvent(String serviceUrl, ServiceType serviceType) {
+    private final boolean success;
+
+    public ServiceAccessEvent(String serviceUrl, ServiceType serviceType, boolean success) {
         this.serviceUrl = serviceUrl;
         this.serviceType = serviceType;
+        this.success = success;
     }
 
     public String getServiceUrl() {
@@ -19,6 +22,10 @@ public class ServiceAccessEvent {
 
     public ServiceType getServiceType() {
         return serviceType;
+    }
+
+    public boolean isSuccess() {
+        return success;
     }
 
 }

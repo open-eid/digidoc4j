@@ -77,15 +77,19 @@ public abstract class SkDataLoader extends CommonsDataLoader {
       httpResponse = this.getHttpResponse(client, httpRequest);
       validateHttpResponse(httpResponse, url);
       byte[] responseBytes = readHttpResponse(httpResponse);
-      publishExternalServiceAccessEvent(url);
+      publishExternalServiceAccessEvent(url, true);
       return responseBytes;
     } catch (UnknownHostException e) {
+      publishExternalServiceAccessEvent(url, false);
       throw new ServiceUnreachableException(url, getServiceType());
     } catch (InterruptedIOException e) {
+      publishExternalServiceAccessEvent(url, false);
       throw new ConnectionTimedOutException(url, getServiceType());
     } catch (NetworkException e) {
+      publishExternalServiceAccessEvent(url, false);
       throw e;
     } catch (Exception e) {
+      publishExternalServiceAccessEvent(url, false);
       throw new NetworkException("Unable to process <" + getServiceType() + "> POST call for service <" + url + ">", url, getServiceType(), e);
     } finally {
       try {
@@ -107,10 +111,10 @@ public abstract class SkDataLoader extends CommonsDataLoader {
     }
   }
 
-  private void publishExternalServiceAccessEvent(final String url) {
+  private void publishExternalServiceAccessEvent(final String url, final boolean success) {
     ServiceAccessScope.notifyExternalServiceAccessListenerIfPresent(() -> {
       final ServiceType serviceType = getServiceType();
-      return new ServiceAccessEvent(url, serviceType);
+      return new ServiceAccessEvent(url, serviceType, success);
     });
   }
 

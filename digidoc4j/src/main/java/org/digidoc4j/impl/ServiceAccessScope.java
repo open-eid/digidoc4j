@@ -51,7 +51,8 @@ public final class ServiceAccessScope implements AutoCloseable {
      * Is invoked automatically if managed by the {@code try}-with-resources statement, otherwise <strong>must</strong>
      * be invoked explicitly either in the finally block or by some other reliable means to prevent the managed
      * {@link ServiceAccessListener} from leaking out from its intended scope!
-     * Leakage may cause unexpected behaviour and/or the {@link ServiceAccessListener} from being garbage collected!
+     * Failure to end(/close) this scope properly may cause unexpected behaviour and/or prevent the managed
+     * {@link ServiceAccessListener} from being garbage collected!
      */
     @Override
     public void close() {
