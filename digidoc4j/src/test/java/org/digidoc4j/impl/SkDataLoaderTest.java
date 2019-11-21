@@ -11,7 +11,6 @@
 package org.digidoc4j.impl;
 
 import eu.europa.esig.dss.model.MimeType;
-import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
 import eu.europa.esig.dss.service.http.proxy.ProxyProperties;
 import org.digidoc4j.AbstractTest;
@@ -20,7 +19,6 @@ import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.impl.asic.CachingDataLoader;
 import org.digidoc4j.impl.asic.tsl.TslLoader;
 import org.digidoc4j.test.MockSkDataLoader;
 import org.digidoc4j.test.TestAssert;
@@ -37,25 +35,10 @@ public class SkDataLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void cachingDataLoader_withoutProxyConfiguration() throws Exception {
-    CommonsDataLoader dataLoader = new CachingDataLoader(this.configuration);
-    Assert.assertNull(dataLoader.getProxyConfig());
-  }
-
-  @Test
   public void ocspDataLoader_withProxyConfiguration() throws Exception {
     this.configuration.setHttpProxyHost("proxyHost");
     this.configuration.setHttpProxyPort(1345);
     SkDataLoader dataLoader = new SkOCSPDataLoader(this.configuration);
-    TestAssert.assertHTTPProxyIsConfigured(dataLoader, "proxyHost", 1345);
-    TestAssert.assertProxyCredentialsAreUnset(dataLoader);
-  }
-
-  @Test
-  public void cachingDataLoader_withProxyConfiguration() throws Exception {
-    this.configuration.setHttpProxyHost("proxyHost");
-    this.configuration.setHttpProxyPort(1345);
-    CommonsDataLoader dataLoader = new CachingDataLoader(this.configuration);
     TestAssert.assertHTTPProxyIsConfigured(dataLoader, "proxyHost", 1345);
     TestAssert.assertProxyCredentialsAreUnset(dataLoader);
   }

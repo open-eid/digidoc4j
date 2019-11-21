@@ -11,6 +11,7 @@
 package org.digidoc4j;
 
 import eu.europa.esig.dss.spi.client.http.Protocol;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -18,6 +19,7 @@ import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.impl.asic.tsl.TslManager;
+import org.digidoc4j.utils.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -130,6 +132,9 @@ import static java.util.Arrays.asList;
  * <li>SSL_TRUSTSTORE_PATH: SSL TrustStore path</li>
  * <li>SSL_TRUSTSTORE_TYPE: SSL TrustStore type (default is "jks")</li>
  * <li>SSL_TRUSTSTORE_PASSWORD: SSL TrustStore password (default is an empty string)</li>
+ * <li>SSL_PROTOCOL: SSL protocol (default is "TLSv1.2")</li>
+ * <li>SUPPORTED_SSL_PROTOCOLS: list of supported SSL protocols (by default uses implementation defaults)</li>
+ * <li>SUPPORTED_SSL_CIPHER_SUITES: list of supported SSL cipher suites (by default uses implementation defaults)</li>
  * <li>ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES: Allowed delay between timestamp and OCSP response in minutes.</li>
  * <li>ALLOW_UNSAFE_INTEGER: Allows to use unsafe Integer because of few applications still struggle with the
  * ASN.1 BER encoding rules for an INTEGER as described in:
@@ -161,8 +166,13 @@ public class Configuration implements Serializable {
    * Application mode
    */
   public enum Mode {
-    TEST,
-    PROD
+    TEST("digidoc4j-test.yaml", "digidoc4j.yaml"),
+    PROD("digidoc4j.yaml"),
+    ;
+    final String[] defaultConfigurationFiles;
+    Mode(String... defaultConfigurationFiles) {
+      this.defaultConfigurationFiles = defaultConfigurationFiles;
+    }
   }
 
   /**
@@ -205,7 +215,7 @@ public class Configuration implements Serializable {
     }
     LOGGER.debug("------------------------ <MODE: {}> ------------------------", mode);
     this.mode = mode;
-    this.loadConfiguration("digidoc4j.yaml");
+    this.loadDefaultConfigurationFor(mode);
     this.initDefaultValues();
     LOGGER.debug("------------------------ </MODE: {}> ------------------------", mode);
     if (!LOGGER.isDebugEnabled()) {
@@ -936,7 +946,11 @@ public class Configuration implements Serializable {
    * @return True if SSL configuration is enabled, otherwise False.
    */
   public boolean isSslConfigurationEnabled() {
-    return StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.SslKeystorePath));
+    return StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.SslKeystorePath)) ||
+            StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.SslTruststorePath)) ||
+            StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.SslProtocol)) ||
+            CollectionUtils.isNotEmpty(this.getConfigurationValues(ConfigurationParameter.SupportedSslProtocols)) ||
+            CollectionUtils.isNotEmpty(this.getConfigurationValues(ConfigurationParameter.SupportedSslCipherSuites));
   }
 
   /**
@@ -1045,6 +1059,62 @@ public class Configuration implements Serializable {
    */
   public String getSslTruststorePassword() {
     return this.getConfigurationParameter(ConfigurationParameter.SslTruststorePassword);
+  }
+
+  /**
+   * Set SSL protocol.
+   *
+   * @param sslProtocol protocol
+   */
+  public void setSslProtocol(String sslProtocol) {
+    this.setConfigurationParameter(ConfigurationParameter.SslProtocol, sslProtocol);
+  }
+
+  /**
+   * Get SSL protocol.
+   *
+   * @return protocol
+   */
+  public String getSslProtocol() {
+    return this.getConfigurationParameter(ConfigurationParameter.SslProtocol);
+  }
+
+  /**
+   * Set supported SSL protocols.
+   *
+   * @param supportedSslProtocols list of supported protocols
+   */
+  public void setSupportedSslProtocols(List<String> supportedSslProtocols) {
+    this.setConfigurationParameter(ConfigurationParameter.SupportedSslProtocols, Optional.ofNullable(supportedSslProtocols)
+            .map(l -> l.toArray(new String[l.size()])).orElse(null));
+  }
+
+  /**
+   * Get supported SSL protocols.
+   *
+   * @return list of supported protocols
+   */
+  public List<String> getSupportedSslProtocols() {
+    return this.getConfigurationValues(ConfigurationParameter.SupportedSslProtocols);
+  }
+
+  /**
+   * Set supported SSL cipher suites.
+   *
+   * @param supportedSslCipherSuites list of supported cipher suites
+   */
+  public void setSupportedSslCipherSuites(List<String> supportedSslCipherSuites) {
+    this.setConfigurationParameter(ConfigurationParameter.SupportedSslCipherSuites, Optional.ofNullable(supportedSslCipherSuites)
+            .map(l -> l.toArray(new String[l.size()])).orElse(null));
+  }
+
+  /**
+   * Get supported SSL cipher suites.
+   *
+   * @return list of supported cipher suites
+   */
+  public List<String> getSupportedSslCipherSuites() {
+    return this.getConfigurationValues(ConfigurationParameter.SupportedSslCipherSuites);
   }
 
   /**
@@ -1309,6 +1379,9 @@ public class Configuration implements Serializable {
         this.getParameter(Constant.System.JAVAX_NET_SSL_TRUST_STORE, "SSL_TRUSTSTORE_PATH"));
     this.setConfigurationParameter(ConfigurationParameter.SslTruststorePassword,
         this.getParameter(Constant.System.JAVAX_NET_SSL_TRUST_STORE_PASSWORD, "SSL_TRUSTSTORE_PASSWORD"));
+    this.setConfigurationParameterFromFile("SSL_PROTOCOL", ConfigurationParameter.SslProtocol);
+    this.setConfigurationParameterValueListFromFile("SUPPORTED_SSL_PROTOCOLS", ConfigurationParameter.SupportedSslProtocols);
+    this.setConfigurationParameterValueListFromFile("SUPPORTED_SSL_CIPHER_SUITES", ConfigurationParameter.SupportedSslCipherSuites);
     this.setConfigurationParameter(ConfigurationParameter.AllowASN1UnsafeInteger, this.getParameter(Constant
         .System.ORG_BOUNCYCASTLE_ASN1_ALLOW_UNSAFE_INTEGER, "ALLOW_UNSAFE_INTEGER"));
     this.loadYamlOcspResponders();
@@ -1325,6 +1398,15 @@ public class Configuration implements Serializable {
     } else {
         this.setConfigurationParameter(ConfigurationParameter.AllowASN1UnsafeInteger, "true");
     }
+  }
+
+  private Hashtable<String, String> loadDefaultConfigurationFor(Mode mode) {
+    for (String file : mode.defaultConfigurationFiles) {
+      if (ResourceUtils.isFileReadable(file) || ResourceUtils.isResourceAccessible(file)) {
+        return loadConfiguration(file);
+      }
+    }
+    return loadConfiguration(mode.defaultConfigurationFiles[mode.defaultConfigurationFiles.length - 1]);
   }
 
   private Hashtable<String, String> loadConfigurationSettings(InputStream stream) {
@@ -1595,12 +1677,16 @@ public class Configuration implements Serializable {
   }
 
   private void setConfigurationParameterFromFile(String fileKey, ConfigurationParameter parameter) {
-    if (this.configurationFromFile == null) {
-      return;
-    }
-    Object fileValue = this.configurationFromFile.get(fileKey);
+    String fileValue = this.getParameterFromFile(fileKey);
     if (fileValue != null) {
       this.setConfigurationParameter(parameter, fileValue.toString());
+    }
+  }
+
+  private void setConfigurationParameterValueListFromFile(String fileKey, ConfigurationParameter parameter) {
+    List<String> fileValues = this.getStringListParameterFromFile(fileKey);
+    if (fileValues != null) {
+      this.setConfigurationParameter(parameter, fileValues.toArray(new String[fileValues.size()]));
     }
   }
 

@@ -71,7 +71,7 @@ public abstract class SkDataLoader extends CommonsDataLoader {
       HttpEntity requestEntity = new BufferedHttpEntity(httpEntity);
       httpRequest.setEntity(requestEntity);
       if (StringUtils.isNotBlank(this.contentType)) {
-        httpRequest.setHeader(CONTENT_TYPE, this.contentType);
+        httpRequest.setHeader("Content-Type", this.contentType);
       }
       client = getHttpClient(url);
       httpResponse = this.getHttpResponse(client, httpRequest);

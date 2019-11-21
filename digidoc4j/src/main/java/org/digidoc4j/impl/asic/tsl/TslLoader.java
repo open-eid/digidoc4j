@@ -17,12 +17,13 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import eu.europa.esig.dss.service.http.commons.FileCacheDataLoader;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
-import org.digidoc4j.impl.asic.CachingDataLoader;
+import org.digidoc4j.impl.asic.DataLoaderDecorator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,16 +95,19 @@ public class TslLoader implements Serializable {
   }
 
   private DataLoader createDataLoader() {
+    CommonsDataLoader commonsDataLoader = new CommonsDataLoader();
     if (Protocol.isHttpUrl(this.configuration.getTslLocation())) {
-      CachingDataLoader dataLoader = new CachingDataLoader(this.configuration);
-      dataLoader.setTimeoutConnection(this.configuration.getConnectionTimeout());
-      dataLoader.setTimeoutSocket(this.configuration.getSocketTimeout());
-      dataLoader.setCacheExpirationTime(this.configuration.getTslCacheExpirationTime());
-      dataLoader.setFileCacheDirectory(this.fileCacheDirectory);
+      DataLoaderDecorator.decorateWithProxySettings(commonsDataLoader, configuration);
+      DataLoaderDecorator.decorateWithSslSettings(commonsDataLoader, configuration);
+      commonsDataLoader.setTimeoutConnection(this.configuration.getConnectionTimeout());
+      commonsDataLoader.setTimeoutSocket(this.configuration.getSocketTimeout());
+      FileCacheDataLoader fileCacheDataLoader = new FileCacheDataLoader(commonsDataLoader);
+      fileCacheDataLoader.setCacheExpirationTime(this.configuration.getTslCacheExpirationTime());
+      fileCacheDataLoader.setFileCacheDirectory(this.fileCacheDirectory);
       logger.debug("Using file cache directory for storing TSL: {}", this.fileCacheDirectory);
-      return dataLoader;
+      return fileCacheDataLoader;
     } else {
-      return new CommonsDataLoader();
+      return commonsDataLoader;
     }
   }
 
