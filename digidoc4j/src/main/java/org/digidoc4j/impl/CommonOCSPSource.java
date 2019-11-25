@@ -58,7 +58,7 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
   @Override
   public String getAccessLocation(X509Certificate certificate) {
     if (getConfiguration().isAiaOcspPreferred()) {
-      LOGGER.info("Trying to find AIA OCSP url for certificate <{}>", certificate.getSubjectDN().getName());
+      LOGGER.info("Trying to find AIA OCSP url for certificate");
       String aiaOcspFromCertificate = getAccessLocationFromCertificate(certificate);
       if (!StringUtils.isEmpty(aiaOcspFromCertificate)) {
         LOGGER.info("Found AIA OCSP url from certificate");
