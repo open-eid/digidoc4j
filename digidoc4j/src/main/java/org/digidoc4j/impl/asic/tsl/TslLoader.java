@@ -11,11 +11,10 @@
 package org.digidoc4j.impl.asic.tsl;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import eu.europa.esig.dss.service.http.commons.FileCacheDataLoader;
 import org.apache.commons.io.FileUtils;
@@ -24,6 +23,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
 import org.digidoc4j.impl.asic.DataLoaderDecorator;
+import org.digidoc4j.utils.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,32 +112,25 @@ public class TslLoader implements Serializable {
   }
 
   private KeyStoreCertificateSource getKeyStore() {
-    File tslKeystoreFile = this.getTslKeystoreFile();
-    try {
-      return new KeyStoreCertificateSource(tslKeystoreFile, DEFAULT_KEYSTORE_TYPE,
+    try (InputStream tslKeyStoreInputStream = openTslKeyStoreInputStream()) {
+      return new KeyStoreCertificateSource(tslKeyStoreInputStream, DEFAULT_KEYSTORE_TYPE,
           this.configuration.getTslKeyStorePassword());
     } catch (IOException e) {
       throw new TslKeyStoreNotFoundException("Unable to retrieve keystore", e);
     }
   }
 
-  private File getTslKeystoreFile() throws TslKeyStoreNotFoundException {
-    try {
-      String keystoreLocation = this.configuration.getTslKeyStoreLocation();
-      if (Files.exists(Paths.get(keystoreLocation))) {
-        return new File(keystoreLocation);
-      }
-      File tempFile = File.createTempFile("temp-tsl-keystore", ".jks");
-      InputStream in = getClass().getClassLoader().getResourceAsStream(keystoreLocation);
-      if (in == null) {
-        throw new TslKeyStoreNotFoundException("Unable to retrieve TSL keystore", new RuntimeException(String.format
-            ("Keystore not found by location <%s>", keystoreLocation)));
-      }
-      FileUtils.copyInputStreamToFile(in, tempFile);
-      return tempFile;
-    } catch (IOException e) {
-      throw new TslKeyStoreNotFoundException("Unable to retrieve TSL keystore", e);
+  private InputStream openTslKeyStoreInputStream() throws IOException, TslKeyStoreNotFoundException {
+    String keystoreLocation = this.configuration.getTslKeyStoreLocation();
+    if (ResourceUtils.isFileReadable(keystoreLocation)) {
+      return new FileInputStream(keystoreLocation);
     }
+    InputStream in = getClass().getClassLoader().getResourceAsStream(keystoreLocation);
+    if (in == null) {
+      throw new TslKeyStoreNotFoundException("Unable to retrieve TSL keystore", new RuntimeException(String.format
+              ("Keystore not found by location <%s>", keystoreLocation)));
+    }
+    return in;
   }
 
   /*
