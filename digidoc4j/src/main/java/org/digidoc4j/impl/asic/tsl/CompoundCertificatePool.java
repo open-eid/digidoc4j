@@ -63,18 +63,20 @@ public class CompoundCertificatePool extends CertificatePool {
 
     /**
      * Reimplemented {@link CertificatePool#getIssuer(Token)} to find the best match from among all the entries!
+     * Implementation originates from DSS version 5.5. On introducing changes to this method, ensure that both pools
+     * are considered when searching for an issuer!
      */
     @Override
     public CertificateToken getIssuer(final Token token) {
-        final List<CertificateToken> issuers = getIssuers(token);
+        List<CertificateToken> issuers = getIssuers(token);
         if (Utils.isCollectionNotEmpty(issuers)) {
-            return issuers.stream()
-                    .filter(i -> i.isValidOn(token.getCreationDate()))
-                    .findFirst()
-                    .orElseGet(() -> {
-                        logger.warn("No issuer found for the token creation date. The process continues with an issuer which has the same public key.");
-                        return issuers.stream().findFirst().get();
-                    });
+            for (CertificateToken issuer : issuers) {
+                if (issuer.isValidOn(token.getCreationDate())) {
+                    return issuer;
+                }
+            }
+            logger.warn("No issuer found for the token creation date. The process continues with an issuer which has the same public key.");
+            return issuers.iterator().next();
         } else {
             return null;
         }
