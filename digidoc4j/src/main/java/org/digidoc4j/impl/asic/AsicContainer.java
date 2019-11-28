@@ -72,7 +72,6 @@ public abstract class AsicContainer implements Container {
   private List<Signature> signatures = new ArrayList<>();
   private List<DataFile> newDataFiles = new ArrayList<>();
   private AsicParseResult containerParseResult;
-  private ContainerValidationResult validationResult;
   private boolean dataFilesHaveChanged;
   private String containerType = "";
 
@@ -159,13 +158,11 @@ public abstract class AsicContainer implements Container {
 
   @Override
   public ContainerValidationResult validate() {
-    if (this.validationResult == null) {
-      this.validationResult = this.validateContainer();
+    ContainerValidationResult validationResult = this.validateContainer();
+    if (validationResult instanceof AbstractValidationResult) {
+      ((AbstractValidationResult) validationResult).print(this.configuration);
     }
-    if (this.validationResult instanceof AbstractValidationResult) {
-      ((AbstractValidationResult) this.validationResult).print(this.configuration);
-    }
-    return this.validationResult;
+    return validationResult;
   }
 
   protected ContainerValidationResult validateContainer() {

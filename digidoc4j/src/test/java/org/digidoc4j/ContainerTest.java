@@ -331,8 +331,9 @@ public class ContainerTest extends AbstractTest {
     ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    Assert.assertTrue(container.validate().isValid());
-    Assert.assertFalse(container.validate().hasWarnings());
+    SignatureValidationResult result = container.validate();
+    Assert.assertTrue(result.isValid());
+    Assert.assertFalse(result.hasWarnings());
   }
 
   @Ignore //This test fails in Travis
@@ -342,8 +343,8 @@ public class ContainerTest extends AbstractTest {
     ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/SK-XML1.0.ddoc");
     SignatureValidationResult result = container.validate();
-    Assert.assertTrue(container.validate().isValid());
-    Assert.assertTrue(container.validate().hasWarnings());
+    Assert.assertTrue(result.isValid());
+    Assert.assertTrue(result.hasWarnings());
     Assert.assertEquals(177, result.getWarnings().get(0).getErrorCode());
     Assert.assertTrue(result.getReport().contains("Old and unsupported format:"));
   }
@@ -354,8 +355,8 @@ public class ContainerTest extends AbstractTest {
     ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/DIGIDOC-XML1.1.ddoc");
     SignatureValidationResult result = container.validate();
-    Assert.assertTrue(container.validate().isValid());
-    Assert.assertTrue(container.validate().hasWarnings());
+    Assert.assertTrue(result.isValid());
+    Assert.assertTrue(result.hasWarnings());
     Assert.assertEquals(177, result.getWarnings().get(0).getErrorCode());
     Assert.assertTrue(result.getReport().contains("Old and unsupported format:"));
   }
@@ -366,8 +367,8 @@ public class ContainerTest extends AbstractTest {
     ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/DIGIDOC-XML1.2.ddoc");
     SignatureValidationResult result = container.validate();
-    Assert.assertTrue(container.validate().isValid());
-    Assert.assertTrue(container.validate().hasWarnings());
+    Assert.assertTrue(result.isValid());
+    Assert.assertTrue(result.hasWarnings());
     Assert.assertEquals(177, result.getWarnings().get(0).getErrorCode());
     Assert.assertTrue(result.getReport().contains("Old and unsupported format:"));
   }
