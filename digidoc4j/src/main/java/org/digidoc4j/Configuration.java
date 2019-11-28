@@ -1384,6 +1384,7 @@ public class Configuration implements Serializable {
     this.setConfigurationParameterValueListFromFile("SUPPORTED_SSL_CIPHER_SUITES", ConfigurationParameter.SupportedSslCipherSuites);
     this.setConfigurationParameter(ConfigurationParameter.AllowASN1UnsafeInteger, this.getParameter(Constant
         .System.ORG_BOUNCYCASTLE_ASN1_ALLOW_UNSAFE_INTEGER, "ALLOW_UNSAFE_INTEGER"));
+    this.setConfigurationParameter(ConfigurationParameter.preferAiaOcsp, this.getParameterFromFile("PREFER_AIA_OCSP"));
     this.loadYamlOcspResponders();
     this.loadYamlTrustedTerritories();
     this.loadYamlTSPs();
