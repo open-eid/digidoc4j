@@ -46,21 +46,18 @@ public class IncompleteSigningTest extends AbstractTest {
   public void signatureProfileLtTmShouldFailWhenSigningCertificateIsNotTrustedByTSL() {
     setUpProdConfigurationWithTestTsaAndOcsp();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
-    Assert.fail("Should have thrown exception!");
   }
 
   @Test(expected = OCSPRequestFailedException.class)
   public void signatureProfileLtShouldFailWhenSigningCertificateIsNotTrustedByTSL() {
     setUpProdConfigurationWithTestTsaAndOcsp();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT, pkcs12SignatureToken);
-    Assert.fail("Should have thrown exception!");
   }
 
   @Test(expected = OCSPRequestFailedException.class)
   public void signatureProfileLtaShouldFailWhenSigningCertificateIsNotTrustedByTSL() {
     setUpProdConfigurationWithTestTsaAndOcsp();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LTA, pkcs12SignatureToken);
-    Assert.fail("Should have thrown exception!");
   }
 
   @Test
@@ -90,7 +87,6 @@ public class IncompleteSigningTest extends AbstractTest {
     setUpProdConfigurationWithTestTsaAndOcsp();
     ensureCertificateTrustedByTSL(pkcs12SignatureToken.getCertificate());
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
-    Assert.fail("Should have thrown exception!");
   }
 
   @Test(expected = CertificateValidationException.class)
@@ -98,7 +94,6 @@ public class IncompleteSigningTest extends AbstractTest {
     setUpProdConfigurationWithTestTsaAndOcsp();
     ensureCertificateTrustedByTSL(pkcs12SignatureToken.getCertificate());
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT, pkcs12SignatureToken);
-    Assert.fail("Should have thrown exception!");
   }
 
   @Test(expected = CertificateValidationException.class)
@@ -106,7 +101,6 @@ public class IncompleteSigningTest extends AbstractTest {
     setUpProdConfigurationWithTestTsaAndOcsp();
     ensureCertificateTrustedByTSL(pkcs12SignatureToken.getCertificate());
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LTA, pkcs12SignatureToken);
-    Assert.fail("Should have thrown exception!");
   }
 
   @Test
@@ -137,21 +131,18 @@ public class IncompleteSigningTest extends AbstractTest {
   public void signatureProfileLtTmShouldFailWhenTslCouldNotBeLoaded() {
     setUpTestConfigurationWithEmptyTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
-    Assert.fail("Should have thrown exception!");
   }
 
   @Test(expected = TechnicalException.class)
   public void signatureProfileLtShouldFailWhenTslCouldNotBeLoaded() {
     setUpTestConfigurationWithEmptyTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT, pkcs12SignatureToken);
-    Assert.fail("Should have thrown exception!");
   }
 
   @Test(expected = TechnicalException.class)
   public void signatureProfileLtaShouldFailWhenTslCouldNotBeLoaded() {
     setUpTestConfigurationWithEmptyTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LTA, pkcs12SignatureToken);
-    Assert.fail("Should have thrown exception!");
   }
 
   @Test
@@ -180,21 +171,18 @@ public class IncompleteSigningTest extends AbstractTest {
   public void signatureProfileLtTmShouldFailWhenTslLoadingFails() {
     setUpTestConfigurationWithFailingTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
-    Assert.fail("Should have thrown exception!");
   }
 
   @Test(expected = TechnicalException.class)
   public void signatureProfileLtShouldFailWhenTslLoadingFails() {
     setUpTestConfigurationWithFailingTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT, pkcs12SignatureToken);
-    Assert.fail("Should have thrown exception!");
   }
 
   @Test(expected = TechnicalException.class)
   public void signatureProfileLtaShouldFailWhenTslLoadingFails() {
     setUpTestConfigurationWithFailingTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LTA, pkcs12SignatureToken);
-    Assert.fail("Should have thrown exception!");
   }
 
   @Test
@@ -223,21 +211,18 @@ public class IncompleteSigningTest extends AbstractTest {
   public void signatureProfileLtTmShouldFailWhenDataLoadersFail() {
     setUpTestConfigurationWithOkTslButFailingDataLoaders();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
-    Assert.fail("Should have thrown exception!");
   }
 
   @Test(expected = NetworkException.class)
   public void signatureProfileLtShouldFailWhenDataLoadersFail() {
     setUpTestConfigurationWithOkTslButFailingDataLoaders();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT, pkcs12SignatureToken);
-    Assert.fail("Should have thrown exception!");
   }
 
   @Test(expected = NetworkException.class)
   public void signatureProfileLtaShouldFailWhenDataLoadersFail() {
     setUpTestConfigurationWithOkTslButFailingDataLoaders();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LTA, pkcs12SignatureToken);
-    Assert.fail("Should have thrown exception!");
   }
 
   @Test
