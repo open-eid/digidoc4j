@@ -159,7 +159,7 @@ public class Configuration implements Serializable {
 
   private List<String> trustedTerritories = new ArrayList<>();
   private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
-  private LinkedHashMap configurationFromFile;
+  private LinkedHashMap<String, Object> configurationFromFile;
   private String configurationInputSourceName;
 
   /**
@@ -1295,6 +1295,7 @@ public class Configuration implements Serializable {
       setDDoc4JParameter("ALLOWED_OCSP_RESPONDERS_FOR_TM", StringUtils.join(Constant.Test.DEFAULT_OCSP_RESPONDERS, ","));
       this.setConfigurationParameter(ConfigurationParameter.AllowedOcspRespondersForTM, Constant.Test.DEFAULT_OCSP_RESPONDERS);
       this.setConfigurationParameter(ConfigurationParameter.preferAiaOcsp, "false");
+      this.loadYamlAiaOCSPs(loadYamlFromResource("defaults/demo_aia_ocsp.yaml"), true);
     } else {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Production.TSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.TslLocation, Constant.Production.TSL_LOCATION);
@@ -1309,6 +1310,7 @@ public class Configuration implements Serializable {
       setDDoc4JParameter("ALLOWED_OCSP_RESPONDERS_FOR_TM", StringUtils.join(Constant.Production.DEFAULT_OCSP_RESPONDERS, ","));
       this.setConfigurationParameter(ConfigurationParameter.AllowedOcspRespondersForTM, Constant.Production.DEFAULT_OCSP_RESPONDERS);
       this.setConfigurationParameter(ConfigurationParameter.preferAiaOcsp, "false");
+      this.loadYamlAiaOCSPs(loadYamlFromResource("defaults/live_aia_ocsp.yaml"), true);
     }
     LOGGER.debug("{} configuration: {}", this.mode, this.registry);
     this.loadInitialConfigurationValues();
@@ -1388,7 +1390,7 @@ public class Configuration implements Serializable {
     this.loadYamlOcspResponders();
     this.loadYamlTrustedTerritories();
     this.loadYamlTSPs();
-    this.loadYamlAiaOCSPs();
+    this.loadYamlAiaOCSPs(configurationFromFile, false);
     this.postLoad();
   }
 
@@ -1411,10 +1413,8 @@ public class Configuration implements Serializable {
   }
 
   private Hashtable<String, String> loadConfigurationSettings(InputStream stream) {
-    configurationFromFile = new LinkedHashMap();
-    Yaml yaml = new Yaml();
     try {
-      configurationFromFile = (LinkedHashMap) yaml.load(stream);
+      configurationFromFile = new Yaml().loadAs(stream, LinkedHashMap.class);
     } catch (Exception e) {
       ConfigurationException exception = new ConfigurationException("Configuration from "
           + configurationInputSourceName + " is not correctly formatted");
@@ -1422,7 +1422,24 @@ public class Configuration implements Serializable {
       throw exception;
     }
     IOUtils.closeQuietly(stream);
+    if (configurationFromFile == null) {
+      configurationFromFile = new LinkedHashMap<>();
+    }
     return mapToDDoc4JDocConfiguration();
+  }
+
+  private LinkedHashMap<String, Object> loadYamlFromResource(String resource) {
+    try (InputStream in = getClass().getClassLoader().getResourceAsStream(resource)) {
+      return new Yaml().loadAs(Objects.requireNonNull(in), LinkedHashMap.class);
+    } catch (NullPointerException e) {
+      String message = "Resource not found: " + resource;
+      LOGGER.error(message);
+      throw new ConfigurationException(message);
+    } catch (Exception e) {
+      String message = "Failed to load configuration from resource: " + resource;
+      LOGGER.error(message);
+      throw new ConfigurationException(message, e);
+    }
   }
 
   private InputStream getResourceAsStream(String certFile) {
@@ -1551,35 +1568,36 @@ public class Configuration implements Serializable {
     }
   }
 
-  private void loadYamlAiaOCSPs() {
-    List<Map<String, Object>> aiaOcsps = (List<Map<String, Object>>) this.configurationFromFile.get("AIA_OCSPS");
-    if (aiaOcsps == null) {
-      this.setConfigurationParameter(ConfigurationParameter.aiaOcspsCount, "0");
-      return;
+  private void loadYamlAiaOCSPs(LinkedHashMap<String, Object> configurationFromYaml, boolean reset) {
+    List<Map<String, Object>> aiaOcspsFromYaml = (List<Map<String, Object>>) configurationFromYaml.get("AIA_OCSPS");
+    if (reset) {
+      this.aiaOcspMap.clear();
     }
-    this.setConfigurationParameter(ConfigurationParameter.aiaOcspsCount, String.valueOf(aiaOcsps.size()));
-    List<Pair<String, ConfigurationParameter>> entryPairs = Arrays.asList(
-            Pair.of("ISSUER_CN", ConfigurationParameter.issuerCn),
-            Pair.of("OCSP_SOURCE", ConfigurationParameter.aiaOcspSource),
-            Pair.of("USE_NONCE", ConfigurationParameter.useNonce)
-    );
-    for (int i = 0; i < aiaOcsps.size(); i++) {
-      Map<String, Object> tsp = aiaOcsps.get(i);
-      Object issuerCn = tsp.get("ISSUER_CN").toString();
-      if (issuerCn != null) {
-        this.aiaOcspMap.put(issuerCn.toString(), new HashMap<ConfigurationParameter, String>());
-        for (Pair<String, ConfigurationParameter> pair : entryPairs) {
-          Object entryValue = tsp.get(pair.getKey());
-          if (entryValue != null) {
-            this.aiaOcspMap.get(issuerCn.toString()).put(pair.getValue(), entryValue.toString());
-          } else {
-            this.logError(String.format("No value found for an entry <%s(%s)>", pair.getKey(), i + 1));
+    if (CollectionUtils.isNotEmpty(aiaOcspsFromYaml)) {
+      List<Pair<String, ConfigurationParameter>> entryPairs = Arrays.asList(
+              Pair.of("ISSUER_CN", ConfigurationParameter.issuerCn),
+              Pair.of("OCSP_SOURCE", ConfigurationParameter.aiaOcspSource),
+              Pair.of("USE_NONCE", ConfigurationParameter.useNonce)
+      );
+      for (int i = 0; i < aiaOcspsFromYaml.size(); i++) {
+        Map<String, Object> aiaOcspFromYaml = aiaOcspsFromYaml.get(i);
+        Object issuerCn = aiaOcspFromYaml.get("ISSUER_CN");
+        if (issuerCn != null) {
+          Map<ConfigurationParameter, String> aiaOcspMapEntry = this.aiaOcspMap.computeIfAbsent(issuerCn.toString(), k -> new HashMap<>());
+          for (Pair<String, ConfigurationParameter> pair : entryPairs) {
+            Object entryValue = aiaOcspFromYaml.get(pair.getKey());
+            if (entryValue != null) {
+              aiaOcspMapEntry.put(pair.getValue(), entryValue.toString());
+            } else {
+              this.logError(String.format("No value found for an entry <%s(%d)>", pair.getKey(), i + 1));
+            }
           }
+        } else {
+          this.logError(String.format("No value found for an entry <ISSUER_CN(%d)>", i + 1));
         }
-      } else {
-        this.logError(String.format("No value found for an entry <ISSUER_CN(%s)>", i + 1));
       }
     }
+    this.setConfigurationParameter(ConfigurationParameter.aiaOcspsCount, String.valueOf(this.aiaOcspMap.size()));
   }
 
   /**

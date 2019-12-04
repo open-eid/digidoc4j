@@ -14,11 +14,14 @@ import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertFalse;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +33,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1085,12 +1089,17 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void aiaOcspNotPreferredByDefault() {
+  public void aiaOcspNotPreferredByDefault_defaultTest() {
     Assert.assertFalse(configuration.isAiaOcspPreferred());
   }
 
+    @Test
+    public void aiaOcspNotPreferredByDefault_defaultProd() {
+        Assert.assertFalse(Configuration.of(Configuration.Mode.PROD).isAiaOcspPreferred());
+    }
+
   @Test
-  public void getAiaOcspSourceByCNForTestMode() {
+  public void getAiaOcspSourceByCN_defaultTest() {
     Assert.assertNull(configuration.getAiaOcspSourceByCN(null));
     Assert.assertNull(configuration.getAiaOcspSourceByCN("ESTEID2018"));
     Assert.assertNull(configuration.getAiaOcspSourceByCN("ESTEID-SK 2011"));
@@ -1111,7 +1120,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getAiaOcspSourceByCNForProdMode() {
+  public void getAiaOcspSourceByCN_defaultProd() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     Assert.assertNull(configuration.getAiaOcspSourceByCN(null));
     Assert.assertEquals("http://aia.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("ESTEID2018"));
@@ -1133,7 +1142,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getUseNonceForAiaOcspByCNForTestMode() {
+  public void getUseNonceForAiaOcspByCN_defaultTest() {
     Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN(null));
     Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
     Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
@@ -1146,7 +1155,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getUseNonceForAiaOcspByCNForProdMode() {
+  public void getUseNonceForAiaOcspByCN_defaultProd() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN(null));
     Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("ESTEID2018"));
@@ -1157,6 +1166,107 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("EID-SK 2016"));
     Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("NQ-SK 2016"));
     Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("KLASS3-SK 2016"));
+  }
+
+  @Test
+  public void testAiaOcspNotConfiguredThroughYamlShouldUseDefaults_customTest() throws Exception {
+    loadConfigurationFromString(configuration, "");
+    Assert.assertEquals("http://aia.demo.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
+    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
+    Assert.assertEquals("http://aia.demo.sk.ee/esteid2011", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
+    Assert.assertEquals("http://aia.demo.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2011"));
+    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2010"));
+    Assert.assertEquals("http://aia.demo.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2015"));
+    Assert.assertEquals("http://aia.demo.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2016"));
+    Assert.assertEquals("http://aia.demo.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of NQ-SK 2016"));
+    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2016"));
+  }
+
+  @Test
+  public void testConfigureAdditionalAiaOcspThroughYaml_customTest() throws Exception {
+    loadConfigurationFromString(configuration, "AIA_OCSPS:",
+            "  - ISSUER_CN: OCSP NAME",
+            "    OCSP_SOURCE: scheme://host/path",
+            "    USE_NONCE: true");
+    Assert.assertEquals("http://aia.demo.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
+    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
+    Assert.assertEquals("http://aia.demo.sk.ee/esteid2011", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
+    Assert.assertEquals("http://aia.demo.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2011"));
+    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2010"));
+    Assert.assertEquals("http://aia.demo.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2015"));
+    Assert.assertEquals("http://aia.demo.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2016"));
+    Assert.assertEquals("http://aia.demo.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of NQ-SK 2016"));
+    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2016"));
+    Assert.assertEquals("scheme://host/path", configuration.getAiaOcspSourceByCN("OCSP NAME"));
+    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("OCSP NAME"));
+  }
+
+  @Test
+  public void testReconfigureExistingAiaOcspThroughYaml_customTest() throws Exception {
+    loadConfigurationFromString(configuration, "AIA_OCSPS:",
+            "  - ISSUER_CN: TEST of ESTEID2018",
+            "    OCSP_SOURCE: new-url-for-test-of-esteid-2018",
+            "    USE_NONCE: false",
+            "  - ISSUER_CN: TEST of ESTEID-SK 2011",
+            "    OCSP_SOURCE: new-url-for-test-of-esteid-sk-2011",
+            "    USE_NONCE: true");
+    Assert.assertEquals("new-url-for-test-of-esteid-2018", configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
+    Assert.assertEquals("new-url-for-test-of-esteid-sk-2011", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
+    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
+    Assert.assertEquals("http://aia.demo.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2011"));
+    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2010"));
+    Assert.assertEquals("http://aia.demo.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2015"));
+    Assert.assertEquals("http://aia.demo.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2016"));
+    Assert.assertEquals("http://aia.demo.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of NQ-SK 2016"));
+    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2016"));
+  }
+
+  @Test
+  public void testConfigureNewAiaOcspThroughYaml_missingIssuerCN() throws Exception {
+    expectedException.expect(ConfigurationException.class);
+    expectedException.expectMessage(Matchers.containsString("No value found for an entry <ISSUER_CN(1)>"));
+    loadConfigurationFromString(configuration, "AIA_OCSPS:",
+            "  - OCSP_SOURCE: scheme://host/path",
+            "    USE_NONCE: true");
+  }
+
+  @Test
+  public void testConfigureNewAiaOcspThroughYaml_missingOcspSource() throws Exception {
+    expectedException.expect(ConfigurationException.class);
+    expectedException.expectMessage(Matchers.containsString("No value found for an entry <OCSP_SOURCE(1)>"));
+    loadConfigurationFromString(configuration, "AIA_OCSPS:",
+            "  - ISSUER_CN: OCSP NAME",
+            "    USE_NONCE: true");
+  }
+
+  @Test
+  public void testConfigureNewAiaOcspThroughYaml_missingUseNonce() throws Exception {
+    expectedException.expect(ConfigurationException.class);
+    expectedException.expectMessage(Matchers.containsString("No value found for an entry <USE_NONCE(1)>"));
+    loadConfigurationFromString(configuration, "AIA_OCSPS:",
+            "  - ISSUER_CN: OCSP NAME",
+            "    OCSP_SOURCE: scheme://host/path");
   }
 
   @Test
@@ -1270,6 +1380,13 @@ public class ConfigurationTest extends AbstractTest {
         "        CERTS:\n" +
         "         - jar://certs/ESTEID-SK 2007 OCSP.crt\n" +
         "        URL: http://ocsp.sk.ee", parameter));
+  }
+
+  private static void loadConfigurationFromString(Configuration configuration, String... lines) throws Exception {
+    String concatenatedString = Arrays.stream(lines).collect(Collectors.joining("\n"));
+    try (InputStream in = new ByteArrayInputStream(concatenatedString.getBytes(StandardCharsets.UTF_8))) {
+      configuration.loadConfiguration(in);
+    }
   }
 
 }

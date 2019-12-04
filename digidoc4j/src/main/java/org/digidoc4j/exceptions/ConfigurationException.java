@@ -22,4 +22,14 @@ public class ConfigurationException extends DigiDoc4JException {
   public ConfigurationException(String message) {
     super(message);
   }
+
+  /**
+   * Create a configuration exception with give message and cause
+   *
+   * @param message Message for the exception
+   * @param cause Cause of exception
+   */
+  public ConfigurationException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }
