@@ -11,12 +11,12 @@
 package org.digidoc4j.impl.asic.xades;
 
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.xml.security.signature.Reference;
@@ -28,12 +28,11 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.validation.SignatureProductionPlace;
-import eu.europa.esig.dss.x509.CertificateToken;
-import eu.europa.esig.dss.xades.DSSXMLUtils;
+import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
@@ -62,6 +61,11 @@ public class BesSignature extends DssXadesSignature {
 
   @Override
   public String getId() {
+    return getDssSignature().getDAIdentifier();
+  }
+
+  @Override
+  public String getUniqueId() {
     return getDssSignature().getId();
   }
 
@@ -70,7 +74,7 @@ public class BesSignature extends DssXadesSignature {
     String xmlId = null;
     DigestAlgorithm algorithm = this.getDssSignature().getDigestAlgorithm();
     if (algorithm != null){
-      xmlId =  algorithm.getXmlId();
+      xmlId =  algorithm.getUri();
     }
     return xmlId == null ? "" : xmlId;
   }
@@ -102,8 +106,11 @@ public class BesSignature extends DssXadesSignature {
 
   @Override
   public List<String> getSignerRoles() {
-    String[] claimedSignerRoles = getDssSignature().getClaimedSignerRoles();
-    return claimedSignerRoles == null ? Collections.<String>emptyList() : Arrays.asList(claimedSignerRoles);
+    return getDssSignature()
+            .getClaimedSignerRoles()
+            .stream()
+            .map(r -> r.getRole())
+            .collect(Collectors.toList());
   }
 
   @Override
@@ -129,9 +136,7 @@ public class BesSignature extends DssXadesSignature {
   @Override
   public byte[] getSignatureValue() {
     logger.debug("Getting signature value");
-    Element signatureValueElement = getDssSignature().getSignatureValue();
-    String textContent = signatureValueElement.getTextContent();
-    return Base64.decodeBase64(textContent);
+    return getDssSignature().getSignatureValue();
   }
 
   /**

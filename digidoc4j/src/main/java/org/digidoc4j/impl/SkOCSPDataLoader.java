@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl;
 
-import eu.europa.esig.dss.client.http.commons.OCSPDataLoader;
+import eu.europa.esig.dss.service.http.commons.OCSPDataLoader;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ServiceType;
 

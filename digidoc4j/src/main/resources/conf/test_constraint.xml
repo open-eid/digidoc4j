@@ -1,6 +1,5 @@
 <ConstraintsParameters Name="QES AdESQC TL based" xmlns="http://dss.esig.europa.eu/validation/policy">
-  <Description>RIA customized validation policy
-  </Description>
+  <Description>RIA customized validation policy</Description>
   <SignatureConstraints>
     <AcceptablePolicies Level="FAIL">
       <Id>ANY_POLICY</Id>
@@ -32,7 +31,7 @@
         <RevocationDataAvailable Level="FAIL"/>
         <RevocationDataNextUpdatePresent Level="WARN"/>
         <RevocationDataFreshness Level="FAIL"/>
-        <KeyUsage Level="WARN">
+        <KeyUsage Level="FAIL">
           <Id>nonRepudiation</Id>
         </KeyUsage>
         <NotRevoked Level="FAIL"/>
@@ -145,7 +144,7 @@
     </UnsignedAttributes>
   </SignatureConstraints>
   <Timestamp>
-    <TimestampDelay Level="FAIL" Unit="DAYS" Value="0"/>
+    <TimestampDelay Level="IGNORE" Unit="DAYS" Value="0"/>
     <RevocationTimeAgainstBestSignatureTime Level="FAIL"/>
     <BestSignatureTimeBeforeIssuanceDateOfSigningCertificate Level="FAIL"/>
     <Coherence Level="FAIL"/>
@@ -154,17 +153,18 @@
       <ReferenceDataIntact Level="FAIL"/>
       <SignatureIntact Level="FAIL"/>
       <ProspectiveCertificateChain Level="FAIL"/>
-      <TrustedServiceTypeIdentifier Level="WARN">
+      <TrustedServiceTypeIdentifier Level="FAIL">
         <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA</Id>
         <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA/QTST</Id>
         <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA/TSS-QC</Id>
         <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA/TSS-AdESQCandQES</Id>
       </TrustedServiceTypeIdentifier>
-      <TrustedServiceStatus Level="WARN">
+      <TrustedServiceStatus Level="FAIL">
         <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision</Id>
         <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/accredited</Id>
         <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/supervisionincessation</Id>
         <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted</Id>
+        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/recognisedatnationallevel</Id>
       </TrustedServiceStatus>
       <SigningCertificate>
         <Recognition Level="FAIL"/>
@@ -175,6 +175,7 @@
         <RevocationDataFreshness Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
+        <NotSelfSigned Level="FAIL"/>
         <Cryptographic Level="FAIL">
           <AcceptableEncryptionAlgo>
             <Algo>RSA</Algo>
@@ -260,7 +261,7 @@
     </BasicSignatureConstraints>
   </Timestamp>
   <Revocation>
-    <RevocationFreshness Level="FAIL" Unit="DAYS" Value="0"/>
+    <RevocationFreshness Level="IGNORE" Unit="DAYS" Value="0"/>
     <BasicSignatureConstraints>
       <ReferenceDataExistence Level="FAIL"/>
       <ReferenceDataIntact Level="FAIL"/>

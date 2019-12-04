@@ -12,7 +12,7 @@ package org.digidoc4j.test;
 
 import org.digidoc4j.DataFile;
 
-import eu.europa.esig.dss.InMemoryDocument;
+import eu.europa.esig.dss.model.InMemoryDocument;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)

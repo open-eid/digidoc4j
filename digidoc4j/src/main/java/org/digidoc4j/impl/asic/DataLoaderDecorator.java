@@ -16,9 +16,11 @@ import org.digidoc4j.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
-import eu.europa.esig.dss.client.http.proxy.ProxyConfig;
-import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
+import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
+import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
+import eu.europa.esig.dss.service.http.proxy.ProxyProperties;
+
+import java.util.List;
 
 /**
  * Data loader decorator
@@ -79,19 +81,37 @@ public class DataLoaderDecorator {
   public static void decorateWithSslSettings(CommonsDataLoader dataLoader, Configuration configuration) {
     if (configuration.isSslConfigurationEnabled()) {
       logger.debug("Configuring SSL");
-      dataLoader.setSslKeystorePath(configuration.getSslKeystorePath());
-      dataLoader.setSslTruststorePath(configuration.getSslTruststorePath());
-      if (configuration.getSslKeystoreType() != null) {
-        dataLoader.setSslKeystoreType(configuration.getSslKeystoreType());
+
+      if (configuration.getSslKeystorePath() != null) {
+        dataLoader.setSslKeystorePath(configuration.getSslKeystorePath());
+        if (configuration.getSslKeystoreType() != null) {
+          dataLoader.setSslKeystoreType(configuration.getSslKeystoreType());
+        }
+        if (configuration.getSslKeystorePassword() != null) {
+          dataLoader.setSslKeystorePassword(configuration.getSslKeystorePassword());
+        }
       }
-      if (configuration.getSslKeystorePassword() != null) {
-        dataLoader.setSslKeystorePassword(configuration.getSslKeystorePassword());
+
+      if (configuration.getSslTruststorePath() != null) {
+        dataLoader.setSslTruststorePath(configuration.getSslTruststorePath());
+        if (configuration.getSslTruststoreType() != null) {
+          dataLoader.setSslTruststoreType(configuration.getSslTruststoreType());
+        }
+        if (configuration.getSslTruststorePassword() != null) {
+          dataLoader.setSslTruststorePassword(configuration.getSslTruststorePassword());
+        }
       }
-      if (configuration.getSslTruststoreType() != null) {
-        dataLoader.setSslTruststoreType(configuration.getSslTruststoreType());
+
+      if (configuration.getSslProtocol() != null) {
+        dataLoader.setSslProtocol(configuration.getSslProtocol());
       }
-      if (configuration.getSslTruststorePassword() != null) {
-        dataLoader.setSslTruststorePassword(configuration.getSslTruststorePassword());
+      if (configuration.getSupportedSslProtocols() != null) {
+        List<String> supportedSslProtocols = configuration.getSupportedSslProtocols();
+        dataLoader.setSupportedSSLProtocols(supportedSslProtocols.toArray(new String[supportedSslProtocols.size()]));
+      }
+      if (configuration.getSupportedSslCipherSuites() != null) {
+        List<String> supportedSslCipherSuites = (configuration.getSupportedSslCipherSuites());
+        dataLoader.setSupportedSSLCipherSuites(supportedSslCipherSuites.toArray(new String[supportedSslCipherSuites.size()]));
       }
     }
   }

@@ -10,7 +10,7 @@
 
 package org.digidoc4j;
 
-import eu.europa.esig.dss.Policy;
+import eu.europa.esig.dss.model.Policy;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
@@ -135,7 +135,7 @@ public class SignatureParameters implements Serializable {
   /**
    * Get signature id.
    *
-   * @return signatureId signature ID
+   * @return signature ID
    */
   public String getSignatureId() {
     return signatureId;

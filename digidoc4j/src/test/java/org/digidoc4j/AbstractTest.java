@@ -1,9 +1,9 @@
 package org.digidoc4j;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.Policy;
-import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.model.Policy;
+import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
@@ -525,7 +525,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     customPolicy.setSpuri("spuri");
     customPolicy.setQualifier("qualifier");
     customPolicy.setDigestValue("some".getBytes(StandardCharsets.UTF_8));
-    customPolicy.setDigestAlgorithm(eu.europa.esig.dss.DigestAlgorithm.SHA512);
+    customPolicy.setDigestAlgorithm(eu.europa.esig.dss.enumerations.DigestAlgorithm.SHA512);
     return customPolicy;
   }
 }

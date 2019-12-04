@@ -10,12 +10,12 @@
 
 package org.digidoc4j.utils;
 
-import eu.europa.esig.dss.Policy;
+import eu.europa.esig.dss.model.Policy;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 
-import static eu.europa.esig.dss.DigestAlgorithm.SHA256;
+import static eu.europa.esig.dss.enumerations.DigestAlgorithm.SHA256;
 
 public final class PolicyUtils {
 

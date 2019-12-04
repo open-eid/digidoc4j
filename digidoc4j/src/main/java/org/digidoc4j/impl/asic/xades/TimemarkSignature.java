@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -32,7 +33,7 @@ import org.digidoc4j.exceptions.CertificateNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.model.x509.CertificateToken;
 
 /**
  * Signature for BDOC where timemark is taken from OCSP response.
@@ -71,7 +72,12 @@ public class TimemarkSignature extends BesSignature {
 
   @Override
   public List<BasicOCSPResp> getOcspResponses() {
-    return getDssSignature().getOCSPSource().getContainedOCSPResponses();
+    return getDssSignature()
+            .getOCSPSource()
+            .getOCSPResponsesList()
+            .stream()
+            .map(rb -> rb.getBasicOCSPResp())
+            .collect(Collectors.toList());
   }
 
   @Override

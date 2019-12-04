@@ -10,12 +10,12 @@
 
 package org.digidoc4j.signers;
 
-import eu.europa.esig.dss.DSSASN1Utils;
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.DigestAlgorithm;
-import eu.europa.esig.dss.InMemoryDocument;
-import eu.europa.esig.dss.MimeType;
-import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.spi.DSSASN1Utils;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import eu.europa.esig.dss.model.InMemoryDocument;
+import eu.europa.esig.dss.model.MimeType;
+import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.digidoc4j.Configuration;

@@ -10,9 +10,9 @@
 
 package org.digidoc4j.impl.asic;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.SignerLocation;
-import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.SignerLocation;
+import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
@@ -47,9 +47,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LTA;
+import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_B;
+import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_LT;
+import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_LTA;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
@@ -73,7 +73,7 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
     if ((signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA || CertificateUtils.isEcdsaCertificate(signatureParameters.getSigningCertificate()))
             && DSSSignatureUtils.isAsn1Encoded(signatureValue)) {
       LOGGER.debug("Finalizing signature ASN1: {} [{}]", Helper.bytesToHex(signatureValue, HEX_MAX_LENGTH), signatureValue.length);
-      signatureValue = DSSSignatureUtils.convertToXmlDSig(eu.europa.esig.dss.EncryptionAlgorithm.ECDSA,
+      signatureValue = DSSSignatureUtils.convertToXmlDSig(eu.europa.esig.dss.enumerations.EncryptionAlgorithm.ECDSA,
               signatureValue);
     }
     LOGGER.debug("Finalizing signature XmlDSig: {} [{}]", Helper.bytesToHex(signatureValue, HEX_MAX_LENGTH), signatureValue.length);
@@ -101,11 +101,11 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
     if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile())) {
       BDocSignatureOpener signatureOpener = new BDocSignatureOpener(configuration);
       signature = signatureOpener.open(signatureWrapper);
-      validateOcspResponse(signature.getOrigin());
     } else {
       AsicESignatureOpener signatureOpener = new AsicESignatureOpener(configuration);
       signature = signatureOpener.open(signatureWrapper);
     }
+    validateOcspResponse(signature.getOrigin());
     LOGGER.info("Signing asic successfully completed");
     return signature;
   }
@@ -202,10 +202,10 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
   private void setEncryptionAlgorithm() {
     if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA) {
       LOGGER.debug("Using ECDSA encryption algorithm");
-      facade.setEncryptionAlgorithm(eu.europa.esig.dss.EncryptionAlgorithm.ECDSA);
+      facade.setEncryptionAlgorithm(eu.europa.esig.dss.enumerations.EncryptionAlgorithm.ECDSA);
     } else {
       LOGGER.debug("Using RSA encryption algorithm");
-      facade.setEncryptionAlgorithm(eu.europa.esig.dss.EncryptionAlgorithm.RSA);
+      facade.setEncryptionAlgorithm(eu.europa.esig.dss.enumerations.EncryptionAlgorithm.RSA);
     }
   }
 

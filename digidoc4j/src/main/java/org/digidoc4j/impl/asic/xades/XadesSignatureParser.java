@@ -16,9 +16,9 @@ import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.SignatureLevel;
+import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.validation.SignaturePolicyProvider;
-import eu.europa.esig.dss.x509.SignaturePolicy;
+import eu.europa.esig.dss.validation.SignaturePolicy;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 /**

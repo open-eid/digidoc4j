@@ -14,11 +14,14 @@ import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertFalse;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +33,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,17 +48,18 @@ import org.digidoc4j.test.util.TestCommonUtil;
 import org.digidoc4j.test.util.TestFileUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.Helper;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.tsl.Condition;
-import eu.europa.esig.dss.tsl.KeyUsageBit;
-import eu.europa.esig.dss.tsl.ServiceInfo;
-import eu.europa.esig.dss.tsl.ServiceInfoStatus;
-import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.spi.tsl.Condition;
+import eu.europa.esig.dss.enumerations.KeyUsageBit;
+import eu.europa.esig.dss.spi.tsl.ServiceInfo;
+import eu.europa.esig.dss.spi.tsl.ServiceInfoStatus;
+import eu.europa.esig.dss.model.x509.CertificateToken;
 
 public class ConfigurationTest extends AbstractTest {
 
@@ -89,8 +94,8 @@ public class ConfigurationTest extends AbstractTest {
     TSLCertificateSource source = new TSLCertificateSourceImpl();
     this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);
     CertificateToken certificateToken = source.getCertificates().get(0);
-    Assert.assertThat(certificateToken.getKeyUsageBits(), hasItem(KeyUsageBit.nonRepudiation));
-    Assert.assertTrue(certificateToken.checkKeyUsage(KeyUsageBit.nonRepudiation));
+    Assert.assertThat(certificateToken.getKeyUsageBits(), hasItem(KeyUsageBit.NON_REPUDIATION));
+    Assert.assertTrue(certificateToken.checkKeyUsage(KeyUsageBit.NON_REPUDIATION));
     Set<ServiceInfo> associatedTSPS = source.getTrustServices(certificateToken);
     ServiceInfo serviceInfo = associatedTSPS.iterator().next();
     //TODO test ServiceInfoStatus new methods
@@ -202,6 +207,29 @@ public class ConfigurationTest extends AbstractTest {
     } catch (TslCertificateSourceInitializationException e) {
       Assert.assertEquals("Not ETSI compliant signature. The signature is not valid.", e.getMessage());
     }
+  }
+
+  @Test
+  public void lotlLoadingFailsWithNoLotlSslCertificateInTruststore() {
+    expectedException.expect(TslCertificateSourceInitializationException.class);
+    expectedException.expectMessage(Matchers.startsWith("Failed to initialize TSL"));
+    configuration.setSslTruststorePath("testFiles/truststores/empty-truststore.p12");
+    configuration.setSslTruststorePassword("digidoc4j-password");
+    configuration.setSslTruststoreType("PKCS12");
+    evictTSLCache();
+    configuration.getTSL().refresh();
+  }
+
+  @Test
+  public void eeTlLoadingFailsWithNoEeTlSslCertificateInTruststore() {
+    Configuration configuration = Configuration.of(Configuration.Mode.PROD);
+    configuration.setSslTruststorePath("src/test/resources/testFiles/truststores/lotl-ssl-only-truststore.p12");
+    configuration.setSslTruststorePassword("digidoc4j-password");
+    configuration.setSslTruststoreType("PKCS12");
+    evictTSLCache();
+    ValidationResult validationResult = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/valid_prod_bdoc_eid.bdoc", configuration).validate();
+    Assert.assertTrue("Certificate path should not be trusted", validationResult.getErrors().stream()
+            .anyMatch(e -> "The certificate path is not trusted!".equals(e.getMessage())));
   }
 
   @Test
@@ -845,6 +873,9 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertNull(this.configuration.getSslTruststorePath());
     Assert.assertNull(this.configuration.getSslTruststoreType());
     Assert.assertNull(this.configuration.getSslTruststorePassword());
+    Assert.assertNull(this.configuration.getSslProtocol());
+    Assert.assertNull(this.configuration.getSupportedSslProtocols());
+    Assert.assertNull(this.configuration.getSupportedSslCipherSuites());
   }
 
   @Test
@@ -857,6 +888,9 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertEquals("sslTruststorePath", this.configuration.getSslTruststorePath());
     Assert.assertEquals("sslTruststoreType", this.configuration.getSslTruststoreType());
     Assert.assertEquals("sslTruststorePassword", this.configuration.getSslTruststorePassword());
+    Assert.assertEquals("sslProtocol", this.configuration.getSslProtocol());
+    Assert.assertEquals(Arrays.asList("sslProtocol1", "sslProtocol2", "sslProtocol3"), this.configuration.getSupportedSslProtocols());
+    Assert.assertEquals(Arrays.asList("sslCipherSuite1", "sslCipherSuite2"), this.configuration.getSupportedSslCipherSuites());
   }
 
   @Test
@@ -936,6 +970,7 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertEquals("TEST_TSP_SOURCE", this.configuration.getRegistry().get(ConfigurationParameter.TspSource).get(0));
     Assert.assertEquals("TEST_VALIDATION_POLICY", this.configuration.getRegistry().get(ConfigurationParameter.ValidationPolicy).get(0));
     Assert.assertEquals("TEST_TSL_LOCATION", this.configuration.getRegistry().get(ConfigurationParameter.TslLocation).get(0));
+    Assert.assertEquals("true", this.configuration.getRegistry().get(ConfigurationParameter.preferAiaOcsp).get(0));
 
     this.configuration.setTslLocation("Set TSL location");
     this.configuration.setTspSource("Set TSP source");
@@ -1054,21 +1089,26 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void aiaOcspNotPreferredByDefault() {
+  public void aiaOcspNotPreferredByDefault_defaultTest() {
     Assert.assertFalse(configuration.isAiaOcspPreferred());
   }
 
+    @Test
+    public void aiaOcspNotPreferredByDefault_defaultProd() {
+        Assert.assertFalse(Configuration.of(Configuration.Mode.PROD).isAiaOcspPreferred());
+    }
+
   @Test
-  public void getAiaOcspSourceByCN() {
-    Assert.assertEquals(null, configuration.getAiaOcspSourceByCN(null));
-    Assert.assertEquals("http://aia.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("ESTEID2018"));
-    Assert.assertEquals("http://aia.sk.ee/esteid2011", configuration.getAiaOcspSourceByCN("ESTEID-SK 2011"));
-    Assert.assertEquals("http://aia.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("EID-SK 2011"));
-    Assert.assertEquals("http://aia.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("KLASS3-SK 2010"));
-    Assert.assertEquals("http://aia.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("ESTEID-SK 2015"));
-    Assert.assertEquals("http://aia.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("EID-SK 2016"));
-    Assert.assertEquals("http://aia.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("NQ-SK 2016"));
-    Assert.assertEquals("http://aia.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("KLASS3-SK 2016"));
+  public void getAiaOcspSourceByCN_defaultTest() {
+    Assert.assertNull(configuration.getAiaOcspSourceByCN(null));
+    Assert.assertNull(configuration.getAiaOcspSourceByCN("ESTEID2018"));
+    Assert.assertNull(configuration.getAiaOcspSourceByCN("ESTEID-SK 2011"));
+    Assert.assertNull(configuration.getAiaOcspSourceByCN("EID-SK 2011"));
+    Assert.assertNull(configuration.getAiaOcspSourceByCN("KLASS3-SK 2010"));
+    Assert.assertNull(configuration.getAiaOcspSourceByCN("ESTEID-SK 2015"));
+    Assert.assertNull(configuration.getAiaOcspSourceByCN("EID-SK 2016"));
+    Assert.assertNull(configuration.getAiaOcspSourceByCN("NQ-SK 2016"));
+    Assert.assertNull(configuration.getAiaOcspSourceByCN("KLASS3-SK 2016"));
     Assert.assertEquals("http://aia.demo.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
     Assert.assertEquals("http://aia.demo.sk.ee/esteid2011", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
     Assert.assertEquals("http://aia.demo.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
@@ -1080,7 +1120,43 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getUseNonceForAiaOcspByCN() {
+  public void getAiaOcspSourceByCN_defaultProd() {
+    Configuration configuration = Configuration.of(Configuration.Mode.PROD);
+    Assert.assertNull(configuration.getAiaOcspSourceByCN(null));
+    Assert.assertEquals("http://aia.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("ESTEID2018"));
+    Assert.assertEquals("http://aia.sk.ee/esteid2011", configuration.getAiaOcspSourceByCN("ESTEID-SK 2011"));
+    Assert.assertEquals("http://aia.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("EID-SK 2011"));
+    Assert.assertEquals("http://aia.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("KLASS3-SK 2010"));
+    Assert.assertEquals("http://aia.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("ESTEID-SK 2015"));
+    Assert.assertEquals("http://aia.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("EID-SK 2016"));
+    Assert.assertEquals("http://aia.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("NQ-SK 2016"));
+    Assert.assertEquals("http://aia.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("KLASS3-SK 2016"));
+    Assert.assertNull(configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
+    Assert.assertNull(configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
+    Assert.assertNull(configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
+    Assert.assertNull(configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
+    Assert.assertNull(configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
+    Assert.assertNull(configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
+    Assert.assertNull(configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
+    Assert.assertNull(configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
+  }
+
+  @Test
+  public void getUseNonceForAiaOcspByCN_defaultTest() {
+    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN(null));
+    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2011"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2010"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2015"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of NQ-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2016"));
+  }
+
+  @Test
+  public void getUseNonceForAiaOcspByCN_defaultProd() {
+    Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN(null));
     Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("ESTEID2018"));
     Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("ESTEID-SK 2011"));
@@ -1090,14 +1166,107 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("EID-SK 2016"));
     Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("NQ-SK 2016"));
     Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("KLASS3-SK 2016"));
+  }
+
+  @Test
+  public void testAiaOcspNotConfiguredThroughYamlShouldUseDefaults_customTest() throws Exception {
+    loadConfigurationFromString(configuration, "");
+    Assert.assertEquals("http://aia.demo.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
     Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
+    Assert.assertEquals("http://aia.demo.sk.ee/esteid2011", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
     Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
+    Assert.assertEquals("http://aia.demo.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
     Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2011"));
+    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
     Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2010"));
+    Assert.assertEquals("http://aia.demo.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
     Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2015"));
+    Assert.assertEquals("http://aia.demo.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
     Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2016"));
+    Assert.assertEquals("http://aia.demo.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
     Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of NQ-SK 2016"));
+    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
     Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2016"));
+  }
+
+  @Test
+  public void testConfigureAdditionalAiaOcspThroughYaml_customTest() throws Exception {
+    loadConfigurationFromString(configuration, "AIA_OCSPS:",
+            "  - ISSUER_CN: OCSP NAME",
+            "    OCSP_SOURCE: scheme://host/path",
+            "    USE_NONCE: true");
+    Assert.assertEquals("http://aia.demo.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
+    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
+    Assert.assertEquals("http://aia.demo.sk.ee/esteid2011", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
+    Assert.assertEquals("http://aia.demo.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2011"));
+    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2010"));
+    Assert.assertEquals("http://aia.demo.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2015"));
+    Assert.assertEquals("http://aia.demo.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2016"));
+    Assert.assertEquals("http://aia.demo.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of NQ-SK 2016"));
+    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2016"));
+    Assert.assertEquals("scheme://host/path", configuration.getAiaOcspSourceByCN("OCSP NAME"));
+    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("OCSP NAME"));
+  }
+
+  @Test
+  public void testReconfigureExistingAiaOcspThroughYaml_customTest() throws Exception {
+    loadConfigurationFromString(configuration, "AIA_OCSPS:",
+            "  - ISSUER_CN: TEST of ESTEID2018",
+            "    OCSP_SOURCE: new-url-for-test-of-esteid-2018",
+            "    USE_NONCE: false",
+            "  - ISSUER_CN: TEST of ESTEID-SK 2011",
+            "    OCSP_SOURCE: new-url-for-test-of-esteid-sk-2011",
+            "    USE_NONCE: true");
+    Assert.assertEquals("new-url-for-test-of-esteid-2018", configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
+    Assert.assertEquals("new-url-for-test-of-esteid-sk-2011", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
+    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
+    Assert.assertEquals("http://aia.demo.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2011"));
+    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2010"));
+    Assert.assertEquals("http://aia.demo.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2015"));
+    Assert.assertEquals("http://aia.demo.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2016"));
+    Assert.assertEquals("http://aia.demo.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of NQ-SK 2016"));
+    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
+    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2016"));
+  }
+
+  @Test
+  public void testConfigureNewAiaOcspThroughYaml_missingIssuerCN() throws Exception {
+    expectedException.expect(ConfigurationException.class);
+    expectedException.expectMessage(Matchers.containsString("No value found for an entry <ISSUER_CN(1)>"));
+    loadConfigurationFromString(configuration, "AIA_OCSPS:",
+            "  - OCSP_SOURCE: scheme://host/path",
+            "    USE_NONCE: true");
+  }
+
+  @Test
+  public void testConfigureNewAiaOcspThroughYaml_missingOcspSource() throws Exception {
+    expectedException.expect(ConfigurationException.class);
+    expectedException.expectMessage(Matchers.containsString("No value found for an entry <OCSP_SOURCE(1)>"));
+    loadConfigurationFromString(configuration, "AIA_OCSPS:",
+            "  - ISSUER_CN: OCSP NAME",
+            "    USE_NONCE: true");
+  }
+
+  @Test
+  public void testConfigureNewAiaOcspThroughYaml_missingUseNonce() throws Exception {
+    expectedException.expect(ConfigurationException.class);
+    expectedException.expectMessage(Matchers.containsString("No value found for an entry <USE_NONCE(1)>"));
+    loadConfigurationFromString(configuration, "AIA_OCSPS:",
+            "  - ISSUER_CN: OCSP NAME",
+            "    OCSP_SOURCE: scheme://host/path");
   }
 
   @Test
@@ -1211,6 +1380,13 @@ public class ConfigurationTest extends AbstractTest {
         "        CERTS:\n" +
         "         - jar://certs/ESTEID-SK 2007 OCSP.crt\n" +
         "        URL: http://ocsp.sk.ee", parameter));
+  }
+
+  private static void loadConfigurationFromString(Configuration configuration, String... lines) throws Exception {
+    String concatenatedString = Arrays.stream(lines).collect(Collectors.joining("\n"));
+    try (InputStream in = new ByteArrayInputStream(concatenatedString.getBytes(StandardCharsets.UTF_8))) {
+      configuration.loadConfiguration(in);
+    }
   }
 
 }

@@ -3,7 +3,7 @@ package org.digidoc4j.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.MimeType;
+import eu.europa.esig.dss.model.MimeType;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)

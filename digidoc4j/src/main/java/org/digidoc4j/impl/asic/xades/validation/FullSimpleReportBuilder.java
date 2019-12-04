@@ -7,11 +7,11 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.jaxb.detailedreport.XmlBasicBuildingBlocks;
-import eu.europa.esig.dss.jaxb.detailedreport.XmlName;
-import eu.europa.esig.dss.jaxb.detailedreport.XmlSubXCV;
-import eu.europa.esig.dss.validation.policy.Context;
-import eu.europa.esig.dss.validation.reports.DetailedReport;
+import eu.europa.esig.dss.detailedreport.jaxb.XmlBasicBuildingBlocks;
+import eu.europa.esig.dss.detailedreport.jaxb.XmlName;
+import eu.europa.esig.dss.detailedreport.jaxb.XmlSubXCV;
+import eu.europa.esig.dss.enumerations.Context;
+import eu.europa.esig.dss.detailedreport.DetailedReport;
 
 /**
  * Created by Andrei on 1.03.2018.

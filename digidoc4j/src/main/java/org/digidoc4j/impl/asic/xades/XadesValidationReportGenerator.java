@@ -10,8 +10,8 @@
 
 package org.digidoc4j.impl.asic.xades;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.validation.AdvancedSignature;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.reports.Reports;

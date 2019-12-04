@@ -10,10 +10,10 @@
 
 package org.digidoc4j.utils;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.MimeType;
-import eu.europa.esig.dss.SignatureLevel;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.model.MimeType;
+import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.validation.SignaturePolicyProvider;
 import eu.europa.esig.dss.xades.DSSXMLUtils;
 import org.apache.commons.io.FilenameUtils;

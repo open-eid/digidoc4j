@@ -25,8 +25,8 @@ import org.digidoc4j.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 
 /**
  * Created by Andrei on 24.11.2017.

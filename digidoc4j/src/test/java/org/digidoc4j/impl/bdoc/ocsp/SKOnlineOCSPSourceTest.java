@@ -10,11 +10,11 @@
 
 package org.digidoc4j.impl.bdoc.ocsp;
 
-import eu.europa.esig.dss.DSSException;
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.x509.CertificateSource;
-import eu.europa.esig.dss.x509.CertificateToken;
-import eu.europa.esig.dss.x509.ocsp.OCSPToken;
+import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.spi.x509.CertificateSource;
+import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPToken;
 import org.bouncycastle.asn1.ocsp.OCSPResponseStatus;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Base64;
@@ -343,8 +343,10 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
 
   private CertificateToken getIssuerCertificateToken(X509Certificate subjectCertificate, CertificateSource certificateSource) throws CertificateEncodingException {
     CertificateToken subjectCertificateToken = DSSUtils.loadCertificate(subjectCertificate.getEncoded());
-    X500Principal subjectPrincipal = subjectCertificateToken.getIssuerX500Principal();
-    return certificateSource.get(subjectPrincipal).get(0);
+    final String canonicalizedIssuerName = subjectCertificateToken.getIssuerX500Principal().getName(X500Principal.CANONICAL);
+    return certificateSource.getCertificates().stream()
+            .filter(ct -> ct.getCanonicalizedSubject().equals(canonicalizedIssuerName))
+            .findFirst().orElseThrow(() -> new IllegalStateException("No issuer certificate token found"));
   }
 
   private void mockOcspResponse(int ocspResponseStatus) {

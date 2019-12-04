@@ -22,7 +22,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.DomUtils;
 
 public class ManifestParser implements Serializable {

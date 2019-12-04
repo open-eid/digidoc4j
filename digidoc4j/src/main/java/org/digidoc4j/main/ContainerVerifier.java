@@ -10,9 +10,9 @@
 
 package org.digidoc4j.main;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.InMemoryDocument;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.reports.Reports;
 import org.apache.commons.cli.CommandLine;

@@ -10,10 +10,9 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DomUtils;
-import eu.europa.esig.dss.Policy;
-import eu.europa.esig.dss.x509.SignaturePolicy;
+import eu.europa.esig.dss.model.Policy;
+import eu.europa.esig.dss.validation.SignaturePolicy;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
@@ -39,10 +38,7 @@ import org.digidoc4j.exceptions.DuplicateSignatureFilesException;
 import org.digidoc4j.exceptions.IllegalSignatureProfileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.impl.asic.AsicEntry;
-import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicSignature;
-import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
@@ -75,25 +71,25 @@ public class BDocContainerTest extends AbstractTest {
   @Test
   public void testSetDigestAlgorithmToSHA256() throws Exception {
     AsicESignature signature = this.createSignatureBy(DigestAlgorithm.SHA256, this.pkcs12SignatureToken);
-    Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureDigestAlgorithm().getXmlId());
+    Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureDigestAlgorithm().getUri());
   }
 
   @Test
   public void testSetDigestAlgorithmToSHA1() throws Exception {
     AsicESignature signature = this.createSignatureBy(DigestAlgorithm.SHA1, this.pkcs12SignatureToken);
-    Assert.assertEquals("http://www.w3.org/2000/09/xmldsig#sha1", signature.getSignatureDigestAlgorithm().getXmlId());
+    Assert.assertEquals("http://www.w3.org/2000/09/xmldsig#sha1", signature.getSignatureDigestAlgorithm().getUri());
   }
 
   @Test
   public void testSetDigestAlgorithmToSHA224() throws Exception {
     AsicESignature signature = this.createSignatureBy(DigestAlgorithm.SHA224, this.pkcs12SignatureToken);
-    Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#sha224", signature.getSignatureDigestAlgorithm().getXmlId());
+    Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#sha224", signature.getSignatureDigestAlgorithm().getUri());
   }
 
   @Test
   public void testDefaultDigestAlgorithm() throws Exception {
     AsicESignature signature = this.createSignatureBy(Container.DocumentType.BDOC, this.pkcs12SignatureToken);
-    Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureDigestAlgorithm().getXmlId());
+    Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureDigestAlgorithm().getUri());
   }
 
   @Test
@@ -882,7 +878,7 @@ public class BDocContainerTest extends AbstractTest {
   }
 
   @Test(expected = TechnicalException.class)
-  public void addSingatureWithDuplicateId_throwsException() throws Exception {
+  public void addSignatureWithDuplicateSignatureId_throwsException() throws Exception {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/test.asice");
     Signature signature = SignatureBuilder.aSignature(container).
             withSignatureToken(this.pkcs12SignatureToken).withSignatureId("S0").invokeSigning();
@@ -1021,7 +1017,7 @@ public class BDocContainerTest extends AbstractTest {
     String signatureId = "signatureId";
     byte[] digestValue = Base64.decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs=");
     String qualifier = "qualifier";
-    eu.europa.esig.dss.DigestAlgorithm digestAlgorithm = eu.europa.esig.dss.DigestAlgorithm.SHA256;
+    eu.europa.esig.dss.enumerations.DigestAlgorithm digestAlgorithm = eu.europa.esig.dss.enumerations.DigestAlgorithm.SHA256;
     String spuri = "spuri";
     Policy signaturePolicy = new Policy();
     signaturePolicy.setId(signatureId);
@@ -1042,8 +1038,8 @@ public class BDocContainerTest extends AbstractTest {
     SignaturePolicy policyId = asicSignature.getOrigin().getDssSignature().getPolicyId();
     Assert.assertEquals(spuri, policyId.getUrl());
     Assert.assertEquals(signatureId, policyId.getIdentifier());
-    Assert.assertEquals(digestAlgorithm, policyId.getDigestAlgorithm());
-    Assert.assertEquals("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs=", policyId.getDigestValue());
+    Assert.assertEquals(digestAlgorithm, policyId.getDigest().getAlgorithm());
+    Assert.assertArrayEquals(Base64.decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="), policyId.getDigest().getValue());
   }
 
   @Test
@@ -1060,8 +1056,8 @@ public class BDocContainerTest extends AbstractTest {
     SignaturePolicy policyId = bdocSignature.getOrigin().getDssSignature().getPolicyId();
     Assert.assertEquals("https://www.sk.ee/repository/bdoc-spec21.pdf", policyId.getUrl());
     Assert.assertEquals("" + XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
-    Assert.assertEquals(eu.europa.esig.dss.DigestAlgorithm.SHA256, policyId.getDigestAlgorithm());
-    Assert.assertEquals("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A=", policyId.getDigestValue());
+    Assert.assertEquals(eu.europa.esig.dss.enumerations.DigestAlgorithm.SHA256, policyId.getDigest().getAlgorithm());
+    Assert.assertArrayEquals(Base64.decodeBase64("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A="), policyId.getDigest().getValue());
   }
 
   @Test

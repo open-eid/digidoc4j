@@ -12,7 +12,7 @@ package org.digidoc4j.impl.asic;
 
 import org.digidoc4j.DataFile;
 
-import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.model.DSSDocument;
 
 /**
  * ASIC data file

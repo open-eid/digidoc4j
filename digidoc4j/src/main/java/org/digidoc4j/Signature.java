@@ -43,6 +43,13 @@ public interface Signature extends Serializable {
   String getId();
 
   /**
+   * Returns the identifier that uniquely identifies this signature.
+   *
+   * @return unique identifier
+   */
+  String getUniqueId();
+
+  /**
    * Returns the signature OCSP response nonce.
    * <p>
    * For a sic Signature it throws a NotYetImplementedException.

@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import eu.europa.esig.dss.jaxb.simplereport.XmlSignature;
+import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
@@ -40,6 +40,7 @@ public class SignatureValidationReport extends XmlSignature {
     //report.setType(xmlSignature.getType());
     report.setParentId(xmlSignature.getParentId());
     report.setSignatureFormat(xmlSignature.getSignatureFormat());
+    report.setCertificateChain(xmlSignature.getCertificateChain());
     return report;
   }
 

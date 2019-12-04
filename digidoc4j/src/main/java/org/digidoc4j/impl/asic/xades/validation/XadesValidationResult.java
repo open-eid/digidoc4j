@@ -14,7 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import eu.europa.esig.dss.validation.reports.Reports;
-import eu.europa.esig.dss.validation.reports.SimpleReport;
+import eu.europa.esig.dss.simplereport.SimpleReport;
 
 public class XadesValidationResult {
 

@@ -12,10 +12,10 @@ package org.digidoc4j.impl.asic;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.Collection;
+import java.util.Comparator;
 
-import org.apache.commons.codec.binary.Base64;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPResponseBinary;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
@@ -28,8 +28,8 @@ import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 /**
@@ -48,7 +48,7 @@ public class OcspNonceValidator implements Serializable {
    */
   public OcspNonceValidator(XAdESSignature signature) {
     this.signature = signature;
-    ocspResponse = getLatestOcspResponse(signature.getOCSPSource().getContainedOCSPResponses());
+    ocspResponse = getLatestOcspResponse(signature.getOCSPSource().getOCSPResponsesList());
   }
 
   /**
@@ -66,22 +66,12 @@ public class OcspNonceValidator implements Serializable {
     return isOcspResponseValid(ocspResponse);
   }
 
-  private BasicOCSPResp getLatestOcspResponse(List<BasicOCSPResp> ocspResponses) {
-    if (ocspResponses.size() == 0) {
-      return null;
-    }
-
-    BasicOCSPResp basicOCSPResp = ocspResponses.get(0);
-    Date latestDate = basicOCSPResp.getProducedAt();
-
-    for (int i = 1; i < ocspResponses.size(); i++) {
-      BasicOCSPResp ocspResp = ocspResponses.get(i);
-      if (ocspResp.getProducedAt().after(latestDate)) {
-        latestDate = ocspResp.getProducedAt();
-        basicOCSPResp = ocspResp;
-      }
-    }
-    return basicOCSPResp;
+  private BasicOCSPResp getLatestOcspResponse(Collection<OCSPResponseBinary> ocspResponses) {
+    return ocspResponses
+            .stream()
+            .map(r -> r.getBasicOCSPResp())
+            .max(Comparator.comparing(BasicOCSPResp::getProducedAt))
+            .orElse(null);
   }
 
   private boolean isOcspResponseValid(BasicOCSPResp latestOcspResponse) {
@@ -112,8 +102,7 @@ public class OcspNonceValidator implements Serializable {
 
   private byte[] getSignatureDigestValue(byte[] octets) {
     DigestAlgorithm usedDigestAlgorithm = getExtensionDigestAlgorithm(octets);
-    String signatureValueInBase64 = signature.getSignatureValue().getFirstChild().getNodeValue();
-    byte[] signatureValue = Base64.decodeBase64(signatureValueInBase64.getBytes());
+    byte[] signatureValue = signature.getSignatureValue();
     return DSSUtils.digest(usedDigestAlgorithm, signatureValue);
   }
 

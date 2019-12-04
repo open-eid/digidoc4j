@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl.asic.asice.bdoc;
 
-import eu.europa.esig.dss.Policy;
+import eu.europa.esig.dss.model.Policy;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.SignatureParameters;

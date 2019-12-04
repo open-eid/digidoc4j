@@ -1,10 +1,11 @@
 package org.digidoc4j.impl.bdoc;
 
-import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.model.DSSDocument;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
@@ -26,6 +27,7 @@ import java.io.InputStream;
 import static org.digidoc4j.Container.DocumentType.ASICE;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -52,19 +54,25 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
     BDocSignature containerSignature = (BDocSignature) container.getSignatures().get(0);
     assertEquals(containerSignature.getId(), signature.getId());
     containerParseResultContainsSignature(container.getContainerParseResult(), containerSignature.getSignatureDocument().getName());
-    assertTrue(container.validate().isValid());
+    ContainerValidationResult validationResult = container.validate();
+    assertTrue(validationResult.isValid());
+    containerValidationResultContainsSignature(validationResult, containerSignature);
 
     container.removeSignature(containerSignature);
     assertTrue(container.getSignatures().isEmpty());
     containerParseResultDoesNotContainSignature(container.getContainerParseResult(), containerSignature.getSignatureDocument().getName());
-    assertTrue(container.validate().isValid());
+    validationResult = container.validate();
+    assertTrue(validationResult.isValid());
+    containerValidationResultDoesNotContainSignature(validationResult, containerSignature);
 
     containerStream = container.saveAsStream();
 
     container = (BDocContainer) ContainerBuilder.aContainer(BDOC).fromStream(containerStream).build();
     assertTrue(container.getSignatures().isEmpty());
     containerParseResultDoesNotContainSignature(container.getContainerParseResult(), containerSignature.getSignatureDocument().getName());
-    assertTrue(container.validate().isValid());
+    validationResult = container.validate();
+    assertTrue(validationResult.isValid());
+    containerValidationResultDoesNotContainSignature(validationResult, containerSignature);
   }
 
   @Test
@@ -85,19 +93,25 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
     AsicESignature containerSignature = (AsicESignature) container.getSignatures().get(0);
     assertEquals(containerSignature.getId(), signature.getId());
     containerParseResultContainsSignature(container.getContainerParseResult(), containerSignature.getSignatureDocument().getName());
-    assertTrue(container.validate().isValid());
+    ContainerValidationResult validationResult = container.validate();
+    assertTrue(validationResult.isValid());
+    containerValidationResultContainsSignature(validationResult, containerSignature);
 
     container.removeSignature(containerSignature);
     assertTrue(container.getSignatures().isEmpty());
     containerParseResultDoesNotContainSignature(container.getContainerParseResult(), containerSignature.getSignatureDocument().getName());
-    assertTrue(container.validate().isValid());
+    validationResult = container.validate();
+    assertTrue(validationResult.isValid());
+    containerValidationResultDoesNotContainSignature(validationResult, containerSignature);
 
     containerStream = container.saveAsStream();
 
     container = (AsicEContainer) ContainerBuilder.aContainer(ASICE).fromStream(containerStream).build();
     assertTrue(container.getSignatures().isEmpty());
     containerParseResultDoesNotContainSignature(container.getContainerParseResult(), containerSignature.getSignatureDocument().getName());
-    assertTrue(container.validate().isValid());
+    validationResult = container.validate();
+    assertTrue(validationResult.isValid());
+    containerValidationResultDoesNotContainSignature(validationResult, containerSignature);
   }
 
   @Test
@@ -267,6 +281,24 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
     for (DSSDocument detachedContent : containerParseResult.getDetachedContents()) {
       assertNotEquals(detachedContent.getName(), dataFileName);
     }
+  }
+
+  private static void containerValidationResultContainsSignature(final ContainerValidationResult validationResult, final Signature signature) {
+    assertTrue(
+            "Validation result should contain signature: " + signature.getId(),
+            validationResultContainsSignatureById(validationResult, signature.getId())
+    );
+  }
+
+  private static void containerValidationResultDoesNotContainSignature(final ContainerValidationResult validationResult, final Signature signature) {
+    assertFalse(
+            "Validation result should not contain signature: " + signature.getId(),
+            validationResultContainsSignatureById(validationResult, signature.getId())
+    );
+  }
+
+  private static boolean validationResultContainsSignatureById(final ContainerValidationResult validationResult, final String signatureId) {
+    return validationResult.getReports().stream().anyMatch(r -> signatureId.equals(r.getId()));
   }
 
   private Container openContainer(String path) {

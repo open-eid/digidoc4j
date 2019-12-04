@@ -13,7 +13,7 @@ package org.digidoc4j.impl.bdoc.tsl;
 import eu.europa.esig.dss.tsl.TSLValidationModel;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.tsl.service.TSLValidationJob;
-import eu.europa.esig.dss.validation.policy.rules.Indication;
+import eu.europa.esig.dss.enumerations.Indication;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.asic.tsl.TslLoader;

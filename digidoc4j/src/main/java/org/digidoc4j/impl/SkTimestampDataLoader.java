@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl;
 
-import eu.europa.esig.dss.client.http.commons.TimestampDataLoader;
+import eu.europa.esig.dss.service.http.commons.TimestampDataLoader;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ServiceType;
 

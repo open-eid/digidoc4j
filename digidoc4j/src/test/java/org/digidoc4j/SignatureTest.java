@@ -40,16 +40,16 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.FileDocument;
-import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
-import eu.europa.esig.dss.validation.SignatureQualification;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.FileDocument;
+import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
+import eu.europa.esig.dss.enumerations.SignatureQualification;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
-import eu.europa.esig.dss.validation.policy.rules.Indication;
-import eu.europa.esig.dss.validation.policy.rules.SubIndication;
+import eu.europa.esig.dss.enumerations.Indication;
+import eu.europa.esig.dss.enumerations.SubIndication;
 import eu.europa.esig.dss.validation.reports.Reports;
-import eu.europa.esig.dss.validation.reports.SimpleReport;
-import eu.europa.esig.dss.x509.ocsp.OCSPSource;
+import eu.europa.esig.dss.simplereport.SimpleReport;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 
 public class SignatureTest extends AbstractTest {
 
@@ -416,7 +416,7 @@ public class SignatureTest extends AbstractTest {
     TSLCertificateSource certificateSource = tslManager.getTsl();
     this.configuration.setTSL(certificateSource);
     DSSDocument document = new FileDocument(
-        "src/test/resources/prodFiles/valid-containers/valid_edoc2_lv-eId_sha256.edoc");
+        "src/test/resources/prodFiles/invalid-containers/edoc2_lv-eId_sha256.edoc");
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
     SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
     OCSPSource ocspSource = OCSPSourceBuilder.anOcspSource().withConfiguration(this.configuration).build();
@@ -494,7 +494,7 @@ public class SignatureTest extends AbstractTest {
     //Signature with id "S1" is invalid
     Assert.assertEquals(Indication.INDETERMINATE, result.getIndication("S1"));
     Assert.assertEquals(SubIndication.NO_SIGNING_CERTIFICATE_FOUND, result.getSubIndication("S1"));
-    Assert.assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification("S1").getLabel());
+    Assert.assertEquals(SignatureQualification.INDETERMINATE_QESIG.getLabel(), result.getSignatureQualification("S1").getLabel());
     //Signature with id "S0" is valid
     Assert.assertEquals(Indication.TOTAL_PASSED, result.getIndication(null));
     Assert.assertEquals(null, result.getSubIndication(null));

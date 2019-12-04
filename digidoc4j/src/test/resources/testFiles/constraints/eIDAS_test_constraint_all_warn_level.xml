@@ -1,6 +1,5 @@
 <ConstraintsParameters Name="QES AdESQC TL based" xmlns="http://dss.esig.europa.eu/validation/policy">
-  <Description>RIA customized validation policy
-  </Description>
+  <Description>RIA customized validation policy</Description>
   <SignatureConstraints>
     <AcceptablePolicies Level="FAIL">
       <Id>ANY_POLICY</Id>
@@ -32,7 +31,7 @@
         <RevocationDataAvailable Level="FAIL"/>
         <RevocationDataNextUpdatePresent Level="WARN"/>
         <RevocationDataFreshness Level="FAIL"/>
-        <KeyUsage Level="WARN">
+        <KeyUsage Level="FAIL">
           <Id>nonRepudiation</Id>
         </KeyUsage>
         <NotRevoked Level="FAIL"/>
@@ -57,6 +56,10 @@
             <Algo>SHA256</Algo>
             <Algo>SHA384</Algo>
             <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
             <Algo>RIPEMD160</Algo>
           </AcceptableDigestAlgo>
         </Cryptographic>
@@ -86,6 +89,10 @@
             <Algo>SHA256</Algo>
             <Algo>SHA384</Algo>
             <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
             <Algo>RIPEMD160</Algo>
           </AcceptableDigestAlgo>
         </Cryptographic>
@@ -107,6 +114,10 @@
           <Algo>SHA256</Algo>
           <Algo>SHA384</Algo>
           <Algo>SHA512</Algo>
+          <Algo>SHA3-224</Algo>
+          <Algo>SHA3-256</Algo>
+          <Algo>SHA3-384</Algo>
+          <Algo>SHA3-512</Algo>
           <Algo>RIPEMD160</Algo>
         </AcceptableDigestAlgo>
       </Cryptographic>
@@ -133,7 +144,7 @@
     </UnsignedAttributes>
   </SignatureConstraints>
   <Timestamp>
-    <TimestampDelay Level="FAIL" Unit="DAYS" Value="0"/>
+    <TimestampDelay Level="IGNORE" Unit="DAYS" Value="0"/>
     <RevocationTimeAgainstBestSignatureTime Level="FAIL"/>
     <BestSignatureTimeBeforeIssuanceDateOfSigningCertificate Level="FAIL"/>
     <Coherence Level="FAIL"/>
@@ -142,17 +153,18 @@
       <ReferenceDataIntact Level="FAIL"/>
       <SignatureIntact Level="FAIL"/>
       <ProspectiveCertificateChain Level="FAIL"/>
-      <TrustedServiceTypeIdentifier Level="WARN">
+      <TrustedServiceTypeIdentifier Level="FAIL">
         <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA</Id>
         <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA/QTST</Id>
         <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA/TSS-QC</Id>
         <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA/TSS-AdESQCandQES</Id>
       </TrustedServiceTypeIdentifier>
-      <TrustedServiceStatus Level="WARN">
+      <TrustedServiceStatus Level="FAIL">
         <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision</Id>
         <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/accredited</Id>
         <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/supervisionincessation</Id>
         <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted</Id>
+        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/recognisedatnationallevel</Id>
       </TrustedServiceStatus>
       <SigningCertificate>
         <Recognition Level="FAIL"/>
@@ -163,6 +175,7 @@
         <RevocationDataFreshness Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
+        <NotSelfSigned Level="FAIL"/>
         <Cryptographic Level="FAIL">
           <AcceptableEncryptionAlgo>
             <Algo>RSA</Algo>
@@ -180,6 +193,10 @@
             <Algo>SHA256</Algo>
             <Algo>SHA384</Algo>
             <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
             <Algo>RIPEMD160</Algo>
           </AcceptableDigestAlgo>
         </Cryptographic>
@@ -209,6 +226,10 @@
             <Algo>SHA256</Algo>
             <Algo>SHA384</Algo>
             <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
             <Algo>RIPEMD160</Algo>
           </AcceptableDigestAlgo>
         </Cryptographic>
@@ -230,13 +251,17 @@
           <Algo>SHA256</Algo>
           <Algo>SHA384</Algo>
           <Algo>SHA512</Algo>
+          <Algo>SHA3-224</Algo>
+          <Algo>SHA3-256</Algo>
+          <Algo>SHA3-384</Algo>
+          <Algo>SHA3-512</Algo>
           <Algo>RIPEMD160</Algo>
         </AcceptableDigestAlgo>
       </Cryptographic>
     </BasicSignatureConstraints>
   </Timestamp>
   <Revocation>
-    <RevocationFreshness Level="FAIL" Unit="DAYS" Value="0"/>
+    <RevocationFreshness Level="IGNORE" Unit="DAYS" Value="0"/>
     <BasicSignatureConstraints>
       <ReferenceDataExistence Level="FAIL"/>
       <ReferenceDataIntact Level="FAIL"/>
@@ -279,6 +304,10 @@
             <Algo>SHA256</Algo>
             <Algo>SHA384</Algo>
             <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
             <Algo>RIPEMD160</Algo>
           </AcceptableDigestAlgo>
         </Cryptographic>
@@ -308,6 +337,10 @@
             <Algo>SHA256</Algo>
             <Algo>SHA384</Algo>
             <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
             <Algo>RIPEMD160</Algo>
           </AcceptableDigestAlgo>
         </Cryptographic>
@@ -329,6 +362,10 @@
           <Algo>SHA256</Algo>
           <Algo>SHA384</Algo>
           <Algo>SHA512</Algo>
+          <Algo>SHA3-224</Algo>
+          <Algo>SHA3-256</Algo>
+          <Algo>SHA3-384</Algo>
+          <Algo>SHA3-512</Algo>
           <Algo>RIPEMD160</Algo>
         </AcceptableDigestAlgo>
       </Cryptographic>
@@ -343,5 +380,4 @@
     <TLVersion Level="WARN" value="5" />
     <TLConsistency Level="WARN" />
   </eIDAS>
-
 </ConstraintsParameters>

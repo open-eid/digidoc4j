@@ -10,10 +10,10 @@
 
 package org.digidoc4j.impl.bdoc.manifest;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.FileDocument;
-import eu.europa.esig.dss.InMemoryDocument;
-import eu.europa.esig.dss.MimeType;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.FileDocument;
+import eu.europa.esig.dss.model.InMemoryDocument;
+import eu.europa.esig.dss.model.MimeType;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;

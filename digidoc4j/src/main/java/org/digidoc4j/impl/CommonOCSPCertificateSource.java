@@ -11,8 +11,8 @@ import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.x509.CertificateToken;
-import eu.europa.esig.dss.x509.CommonCertificateSource;
+import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.spi.x509.CommonCertificateSource;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)

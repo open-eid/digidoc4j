@@ -28,8 +28,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.FileDocument;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class XadesSignatureParserTest extends AbstractTest {
@@ -101,12 +101,14 @@ public class XadesSignatureParserTest extends AbstractTest {
   public void serializeSignature() throws Exception {
     XadesValidationReportGenerator xadesReportGenerator = this.createXadesReportGenerator("src/test/resources/testFiles/xades/test-bdoc-tsa.xml");
     XadesSignature signature = new XadesSignatureParser().parse(xadesReportGenerator);
+    String signatureId = signature.getId();
     String serializedPath = this.createTemporaryFile().getPath();
     Helper.serialize(signature, serializedPath);
     signature = Helper.deserializer(serializedPath);
-    Assert.assertEquals("Assert 1", "id-168ef7d05729874fab1a88705b09b5bb", signature.getId());
+    Assert.assertEquals("Assert 1", signatureId, signature.getId());
+    Assert.assertEquals("Assert 2", "id-168ef7d05729874fab1a88705b09b5bb", signature.getId());
     XAdESSignature dssSignature = signature.getDssSignature();
-    Assert.assertNotNull("Assert 2", dssSignature.getReferences());
+    Assert.assertNotNull("Assert 3", dssSignature.getReferences());
   }
 
   @Test(expected = InvalidSignatureException.class)

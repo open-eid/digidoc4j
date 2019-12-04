@@ -10,7 +10,7 @@
 
 package org.digidoc4j.test;
 
-import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.model.DSSDocument;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataToSign;
 import org.digidoc4j.DigestAlgorithm;

@@ -1,6 +1,6 @@
 package org.digidoc4j.exceptions;
 
-import eu.europa.esig.dss.DSSException;
+import eu.europa.esig.dss.model.DSSException;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
