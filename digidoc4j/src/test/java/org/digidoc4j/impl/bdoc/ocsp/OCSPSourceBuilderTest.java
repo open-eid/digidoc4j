@@ -10,8 +10,10 @@
 
 package org.digidoc4j.impl.bdoc.ocsp;
 
+import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.DataLoaderFactory;
 import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.CommonOCSPSource;
@@ -20,6 +22,7 @@ import org.digidoc4j.impl.asic.ocsp.BDocTMOcspSource;
 import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class OCSPSourceBuilderTest extends AbstractTest {
 
@@ -47,6 +50,32 @@ public class OCSPSourceBuilderTest extends AbstractTest {
     TestAssert.assertOCSPSource(this.configuration, source, "ASiC_E_BASELINE_LT_TM");
   }
 
+  @Test
+  public void buildDefaultOCSPSource_customDataLoader() {
+    DataLoader mockDataLoader = createMockDataLoader();
+    configuration.setOcspDataLoaderFactory(createMockOcspDataLoaderFactory(mockDataLoader));
+    SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource().withConfiguration(configuration).build();
+    Assert.assertSame(mockDataLoader, source.getDataLoader());
+  }
+
+  @Test
+  public void buildTimemarkOCSPSource_customDataLoader() {
+    DataLoader mockDataLoader = createMockDataLoader();
+    configuration.setOcspDataLoaderFactory(createMockOcspDataLoaderFactory(mockDataLoader));
+    SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withConfiguration(configuration)
+            .withSignatureProfile(SignatureProfile.LT_TM).withSignatureValue(new byte[]{1, 2, 3}).build();
+    Assert.assertSame(mockDataLoader, source.getDataLoader());
+  }
+
+  @Test
+  public void buildTimestampOCSPSource_customDataLoader() {
+    DataLoader mockDataLoader = createMockDataLoader();
+    configuration.setOcspDataLoaderFactory(createMockOcspDataLoaderFactory(mockDataLoader));
+    SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withConfiguration(configuration)
+            .withSignatureProfile(SignatureProfile.LT).build();
+    Assert.assertSame(mockDataLoader, source.getDataLoader());
+  }
+
   /*
    * RESTRICTED METHODS
    */
@@ -54,6 +83,16 @@ public class OCSPSourceBuilderTest extends AbstractTest {
   @Override
   protected void before() {
     this.configuration = new Configuration(Configuration.Mode.TEST);
+  }
+
+  private DataLoaderFactory createMockOcspDataLoaderFactory(DataLoader dataLoader) {
+    DataLoaderFactory dataLoaderFactory = Mockito.mock(DataLoaderFactory.class);
+    Mockito.doReturn(dataLoader).when(dataLoaderFactory).create();
+    return dataLoaderFactory;
+  }
+
+  private DataLoader createMockDataLoader() {
+    return Mockito.mock(DataLoader.class);
   }
 
 }

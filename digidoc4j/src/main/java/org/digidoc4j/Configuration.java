@@ -162,6 +162,10 @@ public class Configuration implements Serializable {
   private LinkedHashMap<String, Object> configurationFromFile;
   private String configurationInputSourceName;
 
+  private DataLoaderFactory ocspDataLoaderFactory;
+  private DataLoaderFactory tspDataLoaderFactory;
+  private DataLoaderFactory tslDataLoaderFactory;
+
   /**
    * Application mode
    */
@@ -298,6 +302,22 @@ public class Configuration implements Serializable {
     String value = String.valueOf(shouldSignOcspRequests);
     this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, value);
     this.setDDoc4JParameter(Constant.DDoc4J.OCSP_SIGN_REQUESTS, value);
+  }
+
+  /**
+   * Set a data loader factory that manages the creation of custom data loaders for creating OCSP requests.
+   * @param ocspDataLoaderFactory OCSP data loader factory.
+   */
+  public void setOcspDataLoaderFactory(DataLoaderFactory ocspDataLoaderFactory) {
+    this.ocspDataLoaderFactory = ocspDataLoaderFactory;
+  }
+
+  /**
+   * Returns the currently set OCSP data loader factory or <code>null</code> if no custom data loader factory is set.
+   * @return OCSP data loader factory.
+   */
+  public DataLoaderFactory getOcspDataLoaderFactory() {
+    return ocspDataLoaderFactory;
   }
 
   /**
@@ -505,6 +525,22 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Set a data loader factory that manages the creation of custom data loaders for downloading TSL.
+   * @param tslDataLoaderFactory TSL data loader factory.
+   */
+  public void setTslDataLoaderFactory(DataLoaderFactory tslDataLoaderFactory) {
+    this.tslDataLoaderFactory = tslDataLoaderFactory;
+  }
+
+  /**
+   * Returns the currently set TSL data loader factory or <code>null</code> if no custom data loader factory is set.
+   * @return TSL data loader factory.
+   */
+  public DataLoaderFactory getTslDataLoaderFactory() {
+    return tslDataLoaderFactory;
+  }
+
+  /**
    * Get the TSP Source
    *
    * @return TSP Source
@@ -528,6 +564,22 @@ public class Configuration implements Serializable {
     }
     LOGGER.info("Source by country <{}> not found, using default TSP source", country);
     return this.getTspSource();
+  }
+
+  /**
+   * Set a data loader factory that manages the creation of custom data loaders for creating TSP requests.
+   * @param tspDataLoaderFactory TSP data loader factory.
+   */
+  public void setTspDataLoaderFactory(DataLoaderFactory tspDataLoaderFactory) {
+    this.tspDataLoaderFactory = tspDataLoaderFactory;
+  }
+
+  /**
+   * Returns the currently set TSP data loader factory or <code>null</code> if no custom data loader factory is set.
+   * @return TSP data loader factory.
+   */
+  public DataLoaderFactory getTspDataLoaderFactory() {
+    return tspDataLoaderFactory;
   }
 
   /**

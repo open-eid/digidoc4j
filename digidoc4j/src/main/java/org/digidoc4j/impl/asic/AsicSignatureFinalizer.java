@@ -13,6 +13,7 @@ package org.digidoc4j.impl.asic;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.SignerLocation;
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
@@ -30,8 +31,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.SignatureFinalizer;
-import org.digidoc4j.impl.SkDataLoader;
-import org.digidoc4j.impl.SkTimestampDataLoader;
+import org.digidoc4j.impl.TspDataLoaderFactory;
 import org.digidoc4j.impl.asic.asice.AsicESignatureOpener;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
@@ -273,8 +273,9 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
 
   private void setTimeStampProviderSource() {
     OnlineTSPSource tspSource = new OnlineTSPSource(this.getTspSource(configuration));
-    SkDataLoader dataLoader = new SkTimestampDataLoader(configuration);
-    dataLoader.setUserAgent(Helper.createBDocUserAgent(this.signatureParameters.getSignatureProfile()));
+    DataLoader dataLoader = new TspDataLoaderFactory(configuration,
+            Helper.createBDocUserAgent(this.signatureParameters.getSignatureProfile())
+    ).create();
     tspSource.setDataLoader(dataLoader);
     this.facade.setTspSource(tspSource);
   }

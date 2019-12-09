@@ -16,21 +16,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 
-import eu.europa.esig.dss.service.http.commons.FileCacheDataLoader;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
-import org.digidoc4j.impl.asic.DataLoaderDecorator;
 import org.digidoc4j.utils.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.model.DSSException;
-import eu.europa.esig.dss.spi.client.http.DataLoader;
-import eu.europa.esig.dss.spi.client.http.Protocol;
-import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
@@ -82,7 +77,7 @@ public class TslLoader implements Serializable {
 
   private TSLValidationJob createTslValidationJob(TSLRepository repository) {
     TSLValidationJob job = new TSLValidationJob();
-    job.setDataLoader(this.createDataLoader());
+    job.setDataLoader(new TslDataLoaderFactory(this.configuration, fileCacheDirectory).create());
     job.setOjContentKeyStore(this.getKeyStore());
     job.setLotlUrl(this.configuration.getTslLocation());
     job.setLotlCode("EU");
@@ -92,23 +87,6 @@ public class TslLoader implements Serializable {
     job.setOjUrl("");
     job.setFilterTerritories(this.configuration.getTrustedTerritories());
     return job;
-  }
-
-  private DataLoader createDataLoader() {
-    CommonsDataLoader commonsDataLoader = new CommonsDataLoader();
-    if (Protocol.isHttpUrl(this.configuration.getTslLocation())) {
-      DataLoaderDecorator.decorateWithProxySettings(commonsDataLoader, configuration);
-      DataLoaderDecorator.decorateWithSslSettings(commonsDataLoader, configuration);
-      commonsDataLoader.setTimeoutConnection(this.configuration.getConnectionTimeout());
-      commonsDataLoader.setTimeoutSocket(this.configuration.getSocketTimeout());
-      FileCacheDataLoader fileCacheDataLoader = new FileCacheDataLoader(commonsDataLoader);
-      fileCacheDataLoader.setCacheExpirationTime(this.configuration.getTslCacheExpirationTime());
-      fileCacheDataLoader.setFileCacheDirectory(this.fileCacheDirectory);
-      logger.debug("Using file cache directory for storing TSL: {}", this.fileCacheDirectory);
-      return fileCacheDataLoader;
-    } else {
-      return commonsDataLoader;
-    }
   }
 
   private KeyStoreCertificateSource getKeyStore() {

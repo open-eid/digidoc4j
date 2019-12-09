@@ -32,6 +32,7 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.SkDataLoader;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
@@ -58,7 +59,7 @@ public final class TestAssert {
   public static void assertOCSPSource(Configuration configuration, SKOnlineOCSPSource source, String userAgentPart) {
     Assert.assertSame(configuration, source.getConfiguration());
     Assert.assertNotNull(source.getDataLoader());
-    Assert.assertThat(source.getDataLoader().getUserAgent(), CoreMatchers.containsString(userAgentPart));
+    Assert.assertThat(((SkDataLoader) source.getDataLoader()).getUserAgent(), CoreMatchers.containsString(userAgentPart));
   }
 
   public static void assertXPathHasValue(String expectedValue, String xPathExpression, String xmlInput) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {

@@ -151,12 +151,16 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
   private void setAiaOCspParams(X509Certificate certificate) {
     useAiaOCSP = true;
     useNonce = getConfiguration().getUseNonceForAiaOcspByCN(getCN(certificate.getIssuerX500Principal()));
-    ((SkOCSPDataLoader) getDataLoader()).setAsAiaOcsp(true);
+    if (getDataLoader() instanceof SkOCSPDataLoader) {
+      ((SkOCSPDataLoader) getDataLoader()).setAsAiaOcsp(true);
+    }
   }
 
   private void setAndUsePayedOcspParams() {
     useAiaOCSP = false;
     useNonce = getConfiguration().isOcspNonceUsed();
-    ((SkOCSPDataLoader) getDataLoader()).setAsAiaOcsp(false);
+    if (getDataLoader() instanceof SkOCSPDataLoader) {
+      ((SkOCSPDataLoader) getDataLoader()).setAsAiaOcsp(false);
+    }
   }
 }
