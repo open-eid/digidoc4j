@@ -866,12 +866,32 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * @param connectionType type of external connections.
+   * @return HTTPS proxy host.
+   */
+  public String getHttpsProxyHostFor(ExternalConnectionType connectionType) {
+    String proxyHost = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyHost));
+    return (proxyHost != null) ? proxyHost : this.getHttpsProxyHost();
+  }
+
+  /**
    * Set HTTPS network proxy host.
    *
    * @param httpsProxyHost https proxy host.
    */
   public void setHttpsProxyHost(String httpsProxyHost) {
     this.setConfigurationParameter(ConfigurationParameter.HttpsProxyHost, httpsProxyHost);
+  }
+
+  /**
+   * Set HTTPS network proxy host for specific type of external connections.
+   * Overrides network proxy host set via {@link Configuration#setHttpsProxyHost(String)}
+   *
+   * @param connectionType type of external connections.
+   * @param httpsProxyHost https proxy host.
+   */
+  public void setHttpsProxyHostFor(ExternalConnectionType connectionType, String httpsProxyHost) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyHost), httpsProxyHost);
   }
 
   /**
@@ -882,12 +902,32 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * @param connectionType type of external connection
+   * @return HTTPS proxy port
+   */
+  public Integer getHttpsProxyPortFor(ExternalConnectionType connectionType) {
+    Integer proxyPort = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyPort), Integer.class);
+    return (proxyPort != null) ? proxyPort : this.getHttpsProxyPort();
+  }
+
+  /**
    * Set HTTPS network proxy port.
    *
    * @param httpsProxyPort https proxy port.
    */
   public void setHttpsProxyPort(int httpsProxyPort) {
     this.setConfigurationParameter(ConfigurationParameter.HttpsProxyPort, String.valueOf(httpsProxyPort));
+  }
+
+  /**
+   * Set HTTPS network proxy port for specific type of external connections.
+   * Overrides network proxy port set via {@link Configuration#setHttpsProxyPort(int)}
+   *
+   * @param connectionType type of external connections.
+   * @param httpsProxyPort https proxy port.
+   */
+  public void setHttpsProxyPortFor(ExternalConnectionType connectionType, int httpsProxyPort) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyPort), String.valueOf(httpsProxyPort));
   }
 
 
@@ -901,12 +941,34 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Get http proxy host for specific external connection type.
+   *
+   * @param connectionType type of external connections.
+   * @return http proxy host.
+   */
+  public String getHttpProxyHostFor(ExternalConnectionType connectionType) {
+    String proxyHost = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyHost));
+    return (proxyHost != null) ? proxyHost : this.getHttpProxyHost();
+  }
+
+  /**
    * Set HTTP network proxy host.
    *
    * @param httpProxyHost http proxy host.
    */
   public void setHttpProxyHost(String httpProxyHost) {
     this.setConfigurationParameter(ConfigurationParameter.HttpProxyHost, httpProxyHost);
+  }
+
+  /**
+   * Set HTTP network proxy host for specific type of external connections.
+   * Overrides network proxy host set via {@link Configuration#setHttpProxyHost(String)}
+   *
+   * @param connectionType type of external connections.
+   * @param httpProxyHost http proxy host.
+   */
+  public void setHttpProxyHostFor(ExternalConnectionType connectionType, String httpProxyHost) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyHost), httpProxyHost);
   }
 
   /**
@@ -919,12 +981,34 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Get http proxy port for specific type of external connections.
+   *
+   * @param connectionType type of external connections.
+   * @return http proxy port.
+   */
+  public Integer getHttpProxyPortFor(ExternalConnectionType connectionType) {
+    Integer proxyPort = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyPort), Integer.class);
+    return (proxyPort != null) ? proxyPort : this.getHttpProxyPort();
+  }
+
+  /**
    * Set HTTP network proxy port.
    *
    * @param httpProxyPort Port number.
    */
   public void setHttpProxyPort(int httpProxyPort) {
     this.setConfigurationParameter(ConfigurationParameter.HttpProxyPort, String.valueOf(httpProxyPort));
+  }
+
+  /**
+   * Set HTTP network proxy port for specific type of external connections.
+   * Overrides network proxy port set via {@link Configuration#setHttpProxyPort(int)}
+   *
+   * @param connectionType type of external connections.
+   * @param httpProxyPort Port number.
+   */
+  public void setHttpProxyPortFor(ExternalConnectionType connectionType, int httpProxyPort) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyPort), String.valueOf(httpProxyPort));
   }
 
   /**
@@ -937,12 +1021,34 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Set HTTP network proxy user name for specific type of external connections.
+   * Overrides network proxy user name set via {@link Configuration#setHttpProxyUser(String)}
+   *
+   * @param connectionType type of external connections.
+   * @param httpProxyUser username.
+   */
+  public void setHttpProxyUserFor(ExternalConnectionType connectionType, String httpProxyUser) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyUser), httpProxyUser);
+  }
+
+  /**
    * Get http proxy user.
    *
    * @return http proxy user.
    */
   public String getHttpProxyUser() {
     return this.getConfigurationParameter(ConfigurationParameter.HttpProxyUser);
+  }
+
+  /**
+   * Get http proxy user for specific type of external connections.
+   *
+   * @param connectionType type of external connections.
+   * @return http proxy user.
+   */
+  public String getHttpProxyUserFor(ExternalConnectionType connectionType) {
+    String proxyUser = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyUser));
+    return (proxyUser != null) ? proxyUser : this.getHttpProxyUser();
   }
 
   /**
@@ -955,6 +1061,17 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Set HTTP network proxy password for specific type of external connections.
+   * Overrides network proxy password set via {@link Configuration#setHttpProxyPassword(String)}
+   *
+   * @param connectionType type of external connections.
+   * @param httpProxyPassword password.
+   */
+  public void setHttpProxyPasswordFor(ExternalConnectionType connectionType, String httpProxyPassword) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyPassword), httpProxyPassword);
+  }
+
+  /**
    * Get http proxy password.
    *
    * @return http proxy password.
@@ -964,15 +1081,35 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Get http proxy password for specific type of external connections.
+   *
+   * @param connectionType type of external connections.
+   * @return http proxy password.
+   */
+  public String getHttpProxyPasswordFor(ExternalConnectionType connectionType) {
+    String proxyPassword = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyPassword));
+    return (proxyPassword != null) ? proxyPassword : this.getHttpProxyPassword();
+  }
+
+  /**
    * Is network proxy enabled?
    *
    * @return True if network proxy is enabled, otherwise False.
    */
   public boolean isNetworkProxyEnabled() {
-    return this.getConfigurationParameter(ConfigurationParameter.HttpProxyPort, Integer.class) != null &&
-        StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.HttpProxyHost))
-        || this.getConfigurationParameter(ConfigurationParameter.HttpsProxyPort, Integer.class) != null &&
-        StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.HttpsProxyHost));
+    return this.getHttpProxyPort() != null && StringUtils.isNotBlank(this.getHttpProxyHost()) ||
+            this.getHttpsProxyPort() != null && StringUtils.isNotBlank(this.getHttpsProxyHost());
+  }
+
+  /**
+   * Is network proxy enabled for specific type of external connections?
+   *
+   * @param connectionType type of external connections.
+   * @return True if network proxy is enabled, otherwise False.
+   */
+  public boolean isNetworkProxyEnabledFor(ExternalConnectionType connectionType) {
+    return this.getHttpProxyPortFor(connectionType) != null && StringUtils.isNotBlank(this.getHttpProxyHostFor(connectionType)) ||
+            this.getHttpsProxyPortFor(connectionType) != null && StringUtils.isNotBlank(this.getHttpsProxyHostFor(connectionType));
   }
 
   /**
@@ -982,11 +1119,25 @@ public class Configuration implements Serializable {
   public boolean isProxyOfType(Protocol protocol) {
     switch (protocol) {
       case HTTP:
-        return this.getConfigurationParameter(ConfigurationParameter.HttpProxyPort, Integer.class) != null &&
-            StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.HttpProxyHost));
+        return this.getHttpProxyPort() != null && StringUtils.isNotBlank(this.getHttpProxyHost());
       case HTTPS:
-        return this.getConfigurationParameter(ConfigurationParameter.HttpsProxyPort, Integer.class) != null &&
-            StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.HttpsProxyHost));
+        return this.getHttpsProxyPort() != null && StringUtils.isNotBlank(this.getHttpsProxyHost());
+      default:
+        throw new RuntimeException(String.format("Protocol <%s> not supported", protocol));
+    }
+  }
+
+  /**
+   * @param connectionType type of external connections
+   * @param protocol protocol
+   * @return boolean
+   */
+  public boolean isProxyOfTypeFor(ExternalConnectionType connectionType, Protocol protocol) {
+    switch (protocol) {
+      case HTTP:
+        return this.getHttpProxyPortFor(connectionType) != null && StringUtils.isNotBlank(this.getHttpProxyHostFor(connectionType));
+      case HTTPS:
+        return this.getHttpsProxyPortFor(connectionType) != null && StringUtils.isNotBlank(this.getHttpsProxyHostFor(connectionType));
       default:
         throw new RuntimeException(String.format("Protocol <%s> not supported", protocol));
     }
@@ -998,143 +1149,311 @@ public class Configuration implements Serializable {
    * @return True if SSL configuration is enabled, otherwise False.
    */
   public boolean isSslConfigurationEnabled() {
-    return StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.SslKeystorePath)) ||
-            StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.SslTruststorePath)) ||
-            StringUtils.isNotBlank(this.getConfigurationParameter(ConfigurationParameter.SslProtocol)) ||
-            CollectionUtils.isNotEmpty(this.getConfigurationValues(ConfigurationParameter.SupportedSslProtocols)) ||
-            CollectionUtils.isNotEmpty(this.getConfigurationValues(ConfigurationParameter.SupportedSslCipherSuites));
+    return StringUtils.isNotBlank(this.getSslKeystorePath()) ||
+            StringUtils.isNotBlank(this.getSslTruststorePath()) ||
+            StringUtils.isNotBlank(this.getSslProtocol()) ||
+            CollectionUtils.isNotEmpty(this.getSupportedSslProtocols()) ||
+            CollectionUtils.isNotEmpty(this.getSupportedSslCipherSuites());
+  }
+
+  /**
+   * Is ssl configuration enabled for specific type of external connections?
+   *
+   * @param connectionType type of external connections.
+   * @return True if SSL configuration is enabled, otherwise False.
+   */
+  public boolean isSslConfigurationEnabledFor(ExternalConnectionType connectionType) {
+    return StringUtils.isNotBlank(this.getSslKeystorePathFor(connectionType)) ||
+            StringUtils.isNotBlank(this.getSslTruststorePathFor(connectionType)) ||
+            StringUtils.isNotBlank(this.getSslProtocolFor(connectionType)) ||
+            CollectionUtils.isNotEmpty(this.getSupportedSslProtocolsFor(connectionType)) ||
+            CollectionUtils.isNotEmpty(this.getSupportedSslCipherSuitesFor(connectionType));
   }
 
   /**
    * Set SSL KeyStore path.
    *
-   * @param sslKeystorePath path to a file
+   * @param sslKeystorePath path to SSL keystore.
    */
   public void setSslKeystorePath(String sslKeystorePath) {
     this.setConfigurationParameter(ConfigurationParameter.SslKeystorePath, sslKeystorePath);
   }
 
   /**
+   * Set SSL KeyStore path for specific type of external connections.
+   * Overrides keystore path set via {@link Configuration#setSslKeystorePath(String)}
+   *
+   * @param connectionType type of external connections.
+   * @param sslKeystorePath path to SSL keystore.
+   */
+  public void setSslKeystorePathFor(ExternalConnectionType connectionType, String sslKeystorePath) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SslKeystorePath), sslKeystorePath);
+  }
+
+  /**
    * Get SSL KeyStore path.
    *
-   * @return path to a file
+   * @return path to SSL keystore.
    */
   public String getSslKeystorePath() {
     return this.getConfigurationParameter(ConfigurationParameter.SslKeystorePath);
   }
 
   /**
+   * Get SSL KeyStore path for specific type of external connections.
+   *
+   * @param connectionType type of external connections.
+   * @return path to SSL keystore.
+   */
+  public String getSslKeystorePathFor(ExternalConnectionType connectionType) {
+    String keystorePath = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SslKeystorePath));
+    return (keystorePath != null) ? keystorePath : this.getSslKeystorePath();
+  }
+
+  /**
    * Set SSL KeyStore type. Default is "jks".
    *
-   * @param sslKeystoreType type.
+   * @param sslKeystoreType type of SSL keystore.
    */
   public void setSslKeystoreType(String sslKeystoreType) {
     this.setConfigurationParameter(ConfigurationParameter.SslKeystoreType, sslKeystoreType);
   }
 
   /**
+   * Set SSL KeyStore type for specific type of external connections.
+   * Overrides keystore type set via {@link Configuration#setSslKeystoreType(String)}
+   *
+   * @param connectionType type of external connections.
+   * @param sslKeystoreType type of SSL keystore.
+   */
+  public void setSslKeystoreTypeFor(ExternalConnectionType connectionType, String sslKeystoreType) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SslKeystoreType), sslKeystoreType);
+  }
+
+  /**
    * Get SSL KeyStore type.
    *
-   * @return type.
+   * @return type of SSL keystore.
    */
   public String getSslKeystoreType() {
     return this.getConfigurationParameter(ConfigurationParameter.SslKeystoreType);
   }
 
   /**
+   * Get SSL KeyStore type for specific type of external connections.
+   *
+   * @param connectionType type of external connections.
+   * @return type of SSL keystore.
+   */
+  public String getSslKeystoreTypeFor(ExternalConnectionType connectionType) {
+    String keystoreType = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SslKeystoreType));
+    return (keystoreType != null) ? keystoreType : this.getSslKeystoreType();
+  }
+
+  /**
    * Set SSL KeyStore password. Default is an empty string.
    *
-   * @param sslKeystorePassword password.
+   * @param sslKeystorePassword SSL keystore password.
    */
   public void setSslKeystorePassword(String sslKeystorePassword) {
     this.setConfigurationParameter(ConfigurationParameter.SslKeystorePassword, sslKeystorePassword);
   }
 
   /**
+   * Set SSL KeyStore password for specific type of external connections.
+   * Overrides keystore password set via {@link Configuration#setSslKeystorePassword(String)}
+   *
+   * @param connectionType type of external connections.
+   * @param sslKeystorePassword SSL keystore password.
+   */
+  public void setSslKeystorePasswordFor(ExternalConnectionType connectionType, String sslKeystorePassword) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SslKeystorePassword), sslKeystorePassword);
+  }
+
+  /**
    * Get Ssl keystore password.
    *
-   * @return password.
+   * @return SSL keystore password.
    */
   public String getSslKeystorePassword() {
     return this.getConfigurationParameter(ConfigurationParameter.SslKeystorePassword);
   }
 
   /**
+   * Get Ssl keystore password for specific type of external connections.
+   *
+   * @param connectionType type of external connections.
+   * @return SSL keystore password.
+   */
+  public String getSslKeystorePasswordFor(ExternalConnectionType connectionType) {
+    String keystorePassword = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SslKeystorePassword));
+    return (keystorePassword != null) ? keystorePassword : this.getSslKeystorePassword();
+  }
+
+  /**
    * Set SSL TrustStore path.
    *
-   * @param sslTruststorePath path to a file.
+   * @param sslTruststorePath path to SSL truststore.
    */
   public void setSslTruststorePath(String sslTruststorePath) {
     this.setConfigurationParameter(ConfigurationParameter.SslTruststorePath, sslTruststorePath);
   }
 
   /**
+   * Set SSL TrustStore path for specific type of external connections.
+   * Overrides truststore path set via {@link Configuration#setSslTruststorePath(String)}
+   *
+   * @param connectionType type of external connections.
+   * @param sslTruststorePath path to SSL truststore.
+   */
+  public void setSslTruststorePathFor(ExternalConnectionType connectionType, String sslTruststorePath) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SslTruststorePath), sslTruststorePath);
+  }
+
+  /**
    * Get SSL TrustStore path
    *
-   * @return path to a file.
+   * @return path to SSL truststore.
    */
   public String getSslTruststorePath() {
     return this.getConfigurationParameter(ConfigurationParameter.SslTruststorePath);
   }
 
   /**
+   * Get SSL TrustStore path for specific type of external connections.
+   *
+   * @param connectionType type of external connections.
+   * @return path to SSL truststore.
+   */
+  public String getSslTruststorePathFor(ExternalConnectionType connectionType) {
+    String truststorePath = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SslTruststorePath));
+    return (truststorePath != null) ? truststorePath : this.getSslTruststorePath();
+  }
+
+  /**
    * Set SSL TrustStore type. Default is "jks".
    *
-   * @param sslTruststoreType type.
+   * @param sslTruststoreType type of SSL truststore.
    */
   public void setSslTruststoreType(String sslTruststoreType) {
     this.setConfigurationParameter(ConfigurationParameter.SslTruststoreType, sslTruststoreType);
   }
 
   /**
+   * Set SSL TrustStore type for specific type of external connections.
+   * Overrides truststore type set via {@link Configuration#setSslTruststoreType(String)}
+   *
+   * @param connectionType type of external connections.
+   * @param sslTruststoreType type of SSL truststore.
+   */
+  public void setSslTruststoreTypeFor(ExternalConnectionType connectionType, String sslTruststoreType) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SslTruststoreType), sslTruststoreType);
+  }
+
+  /**
    * Get SSL TrustStore type.
    *
-   * @return type.
+   * @return type of SSL truststore.
    */
   public String getSslTruststoreType() {
     return this.getConfigurationParameter(ConfigurationParameter.SslTruststoreType);
   }
 
   /**
+   * Get SSL TrustStore type for specific type of external connections.
+   *
+   * @param connectionType type of external connections.
+   * @return type of SSL truststore.
+   */
+  public String getSslTruststoreTypeFor(ExternalConnectionType connectionType) {
+    String truststoreType = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SslTruststoreType));
+    return (truststoreType != null) ? truststoreType : this.getSslTruststoreType();
+  }
+
+  /**
    * Set SSL TrustStore password. Default is an empty string.
    *
-   * @param sslTruststorePassword password.
+   * @param sslTruststorePassword SSL truststore password.
    */
   public void setSslTruststorePassword(String sslTruststorePassword) {
     this.setConfigurationParameter(ConfigurationParameter.SslTruststorePassword, sslTruststorePassword);
   }
 
   /**
+   * Set SSL TrustStore password for specific type of external connections.
+   * Overrides truststore password set via {@link Configuration#setSslTruststorePassword(String)}
+   *
+   * @param connectionType type of external connections.
+   * @param sslTruststorePassword SSL truststore password.
+   */
+  public void setSslTruststorePasswordFor(ExternalConnectionType connectionType, String sslTruststorePassword) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SslTruststorePassword), sslTruststorePassword);
+  }
+
+  /**
    * Get Ssl truststore password.
    *
-   * @return password.
+   * @return SSL truststore password.
    */
   public String getSslTruststorePassword() {
     return this.getConfigurationParameter(ConfigurationParameter.SslTruststorePassword);
   }
 
   /**
+   * Get Ssl truststore password for specific type of external connections.
+   *
+   * @param connectionType type of external connections.
+   * @return SSL truststore password.
+   */
+  public String getSslTruststorePasswordFor(ExternalConnectionType connectionType) {
+    String truststorePassword = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SslTruststorePassword));
+    return (truststorePassword != null) ? truststorePassword : this.getSslTruststorePassword();
+  }
+
+  /**
    * Set SSL protocol.
    *
-   * @param sslProtocol protocol
+   * @param sslProtocol SSL protocol.
    */
   public void setSslProtocol(String sslProtocol) {
     this.setConfigurationParameter(ConfigurationParameter.SslProtocol, sslProtocol);
   }
 
   /**
+   * Set SSL protocol for specific type of external connections.
+   * Overrides SSL protocol set via {@link Configuration#setSslProtocol(String)}
+   *
+   * @param connectionType type of external connections.
+   * @param sslProtocol SSL protocol.
+   */
+  public void setSslProtocolFor(ExternalConnectionType connectionType, String sslProtocol) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SslProtocol), sslProtocol);
+  }
+
+  /**
    * Get SSL protocol.
    *
-   * @return protocol
+   * @return SSL protocol.
    */
   public String getSslProtocol() {
     return this.getConfigurationParameter(ConfigurationParameter.SslProtocol);
   }
 
   /**
+   * Get SSL protocol for specific type of external connections.
+   *
+   * @param connectionType type of external connections.
+   * @return SSL protocol.
+   */
+  public String getSslProtocolFor(ExternalConnectionType connectionType) {
+    String protocol = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SslProtocol));
+    return (protocol != null) ? protocol : this.getSslProtocol();
+  }
+
+  /**
    * Set supported SSL protocols.
    *
-   * @param supportedSslProtocols list of supported protocols
+   * @param supportedSslProtocols list of supported SSL protocols.
    */
   public void setSupportedSslProtocols(List<String> supportedSslProtocols) {
     this.setConfigurationParameter(ConfigurationParameter.SupportedSslProtocols, Optional.ofNullable(supportedSslProtocols)
@@ -1142,18 +1461,41 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Set supported SSL protocols for specific type of external connections.
+   * Overrides SSL protocols set via {@link Configuration#setSupportedSslProtocols(List)}
+   *
+   * @param connectionType type of external connections.
+   * @param supportedSslProtocols list of supported SSL protocols.
+   */
+  public void setSupportedSslProtocolsFor(ExternalConnectionType connectionType, List<String> supportedSslProtocols) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SupportedSslProtocols),
+            Optional.ofNullable(supportedSslProtocols).map(l -> l.toArray(new String[l.size()])).orElse(null));
+  }
+
+  /**
    * Get supported SSL protocols.
    *
-   * @return list of supported protocols
+   * @return list of supported SSL protocols.
    */
   public List<String> getSupportedSslProtocols() {
     return this.getConfigurationValues(ConfigurationParameter.SupportedSslProtocols);
   }
 
   /**
+   * Get supported SSL protocols for specific type of external connections.
+   *
+   * @param connectionType type of external connections.
+   * @return list of supported SSL protocols.
+   */
+  public List<String> getSupportedSslProtocolsFor(ExternalConnectionType connectionType) {
+    List<String> supportedProtocols = this.getConfigurationValues(connectionType.mapToSpecificParameter(ConfigurationParameter.SupportedSslProtocols));
+    return (supportedProtocols != null) ? supportedProtocols : this.getSupportedSslProtocols();
+  }
+
+  /**
    * Set supported SSL cipher suites.
    *
-   * @param supportedSslCipherSuites list of supported cipher suites
+   * @param supportedSslCipherSuites list of supported SSL cipher suites.
    */
   public void setSupportedSslCipherSuites(List<String> supportedSslCipherSuites) {
     this.setConfigurationParameter(ConfigurationParameter.SupportedSslCipherSuites, Optional.ofNullable(supportedSslCipherSuites)
@@ -1161,12 +1503,35 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Set supported SSL cipher suites for specific type of external connections.
+   * Overrides SSL cipher suites set via {@link Configuration#setSupportedSslCipherSuites(List)}
+   *
+   * @param connectionType type of external connections.
+   * @param supportedSslCipherSuites list of supported SSL cipher suites.
+   */
+  public void setSupportedSslCipherSuitesFor(ExternalConnectionType connectionType, List<String> supportedSslCipherSuites) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SupportedSslCipherSuites),
+            Optional.ofNullable(supportedSslCipherSuites).map(l -> l.toArray(new String[l.size()])).orElse(null));
+  }
+
+  /**
    * Get supported SSL cipher suites.
    *
-   * @return list of supported cipher suites
+   * @return list of supported SSL cipher suites.
    */
   public List<String> getSupportedSslCipherSuites() {
     return this.getConfigurationValues(ConfigurationParameter.SupportedSslCipherSuites);
+  }
+
+  /**
+   * Get supported SSL cipher suites for specific type of external connections.
+   *
+   * @param connectionType type of external connections.
+   * @return list of supported SSL cipher suites.
+   */
+  public List<String> getSupportedSslCipherSuitesFor(ExternalConnectionType connectionType) {
+    List<String> supportedCipherSuites = this.getConfigurationValues(connectionType.mapToSpecificParameter(ConfigurationParameter.SupportedSslCipherSuites));
+    return (supportedCipherSuites != null) ? supportedCipherSuites : this.getSupportedSslCipherSuites();
   }
 
   /**
@@ -1410,32 +1775,38 @@ public class Configuration implements Serializable {
     this.setDDoc4JDocConfigurationValue("SIGN_OCSP_REQUESTS", Boolean.toString(this.hasToBeOCSPRequestSigned()));
     this.setDDoc4JDocConfigurationValue("DIGIDOC_PKCS12_CONTAINER", this.getOCSPAccessCertificateFileName());
     this.initOcspAccessCertPasswordForDDoc4J();
-    this.setConfigurationParameter(ConfigurationParameter.HttpProxyHost,
-        this.getParameter(Constant.System.HTTP_PROXY_HOST, "HTTP_PROXY_HOST"));
-    this.setConfigurationParameter(ConfigurationParameter.HttpProxyPort,
-        this.getParameter(Constant.System.HTTP_PROXY_PORT, "HTTP_PROXY_PORT"));
-    this.setConfigurationParameter(ConfigurationParameter.HttpsProxyHost,
-        this.getParameter(Constant.System.HTTPS_PROXY_HOST, "HTTPS_PROXY_HOST"));
-    this.setConfigurationParameter(ConfigurationParameter.HttpsProxyPort,
-        this.getParameter(Constant.System.HTTPS_PROXY_PORT, "HTTPS_PROXY_PORT"));
-    this.setConfigurationParameter(ConfigurationParameter.HttpProxyUser, this.getParameterFromFile("HTTP_PROXY_USER"));
-    this.setConfigurationParameter(ConfigurationParameter.HttpProxyPassword,
-        this.getParameterFromFile("HTTP_PROXY_PASSWORD"));
-    this.setConfigurationParameter(ConfigurationParameter.SslKeystoreType,
-        this.getParameterFromFile("SSL_KEYSTORE_TYPE"));
-    this.setConfigurationParameter(ConfigurationParameter.SslTruststoreType,
-        this.getParameterFromFile("SSL_TRUSTSTORE_TYPE"));
-    this.setConfigurationParameter(ConfigurationParameter.SslKeystorePath,
-        this.getParameter(Constant.System.JAVAX_NET_SSL_KEY_STORE, "SSL_KEYSTORE_PATH"));
-    this.setConfigurationParameter(ConfigurationParameter.SslKeystorePassword,
-        this.getParameter(Constant.System.JAVAX_NET_SSL_KEY_STORE_PASSWORD, "SSL_KEYSTORE_PASSWORD"));
-    this.setConfigurationParameter(ConfigurationParameter.SslTruststorePath,
-        this.getParameter(Constant.System.JAVAX_NET_SSL_TRUST_STORE, "SSL_TRUSTSTORE_PATH"));
-    this.setConfigurationParameter(ConfigurationParameter.SslTruststorePassword,
-        this.getParameter(Constant.System.JAVAX_NET_SSL_TRUST_STORE_PASSWORD, "SSL_TRUSTSTORE_PASSWORD"));
-    this.setConfigurationParameterFromFile("SSL_PROTOCOL", ConfigurationParameter.SslProtocol);
-    this.setConfigurationParameterValueListFromFile("SUPPORTED_SSL_PROTOCOLS", ConfigurationParameter.SupportedSslProtocols);
-    this.setConfigurationParameterValueListFromFile("SUPPORTED_SSL_CIPHER_SUITES", ConfigurationParameter.SupportedSslCipherSuites);
+    this.setConfigurationParameterFromSystemOrFile(Constant.System.HTTP_PROXY_HOST, ConfigurationParameter.HttpProxyHost);
+    this.setConfigurationParameterFromSystemOrFile(Constant.System.HTTP_PROXY_PORT, ConfigurationParameter.HttpProxyPort);
+    this.setConfigurationParameterFromSystemOrFile(Constant.System.HTTPS_PROXY_HOST, ConfigurationParameter.HttpsProxyHost);
+    this.setConfigurationParameterFromSystemOrFile(Constant.System.HTTPS_PROXY_PORT, ConfigurationParameter.HttpsProxyPort);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.HttpProxyUser);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.HttpProxyPassword);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.SslKeystoreType);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.SslTruststoreType);
+    this.setConfigurationParameterFromSystemOrFile(Constant.System.JAVAX_NET_SSL_KEY_STORE, ConfigurationParameter.SslKeystorePath);
+    this.setConfigurationParameterFromSystemOrFile(Constant.System.JAVAX_NET_SSL_KEY_STORE_PASSWORD, ConfigurationParameter.SslKeystorePassword);
+    this.setConfigurationParameterFromSystemOrFile(Constant.System.JAVAX_NET_SSL_TRUST_STORE, ConfigurationParameter.SslTruststorePath);
+    this.setConfigurationParameterFromSystemOrFile(Constant.System.JAVAX_NET_SSL_TRUST_STORE_PASSWORD, ConfigurationParameter.SslTruststorePassword);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.SslProtocol);
+    this.setConfigurationParameterValueListFromFile(ConfigurationParameter.SupportedSslProtocols);
+    this.setConfigurationParameterValueListFromFile(ConfigurationParameter.SupportedSslCipherSuites);
+    for (ExternalConnectionType connectionType : ExternalConnectionType.values()) {
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyHost));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyPort));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyHost));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyPort));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyUser));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyPassword));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.SslKeystoreType));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.SslTruststoreType));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.SslKeystorePath));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.SslKeystorePassword));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.SslTruststorePath));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.SslTruststorePassword));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.SslProtocol));
+      this.setConfigurationParameterValueListFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.SupportedSslProtocols));
+      this.setConfigurationParameterValueListFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.SupportedSslCipherSuites));
+    }
     this.setConfigurationParameter(ConfigurationParameter.AllowASN1UnsafeInteger, this.getParameter(Constant
         .System.ORG_BOUNCYCASTLE_ASN1_ALLOW_UNSAFE_INTEGER, "ALLOW_UNSAFE_INTEGER"));
     this.setConfigurationParameter(ConfigurationParameter.preferAiaOcsp, this.getParameterFromFile("PREFER_AIA_OCSP"));
@@ -1754,11 +2125,23 @@ public class Configuration implements Serializable {
     }
   }
 
+  private void setConfigurationParameterFromFile(ConfigurationParameter parameter) {
+    setConfigurationParameterFromFile(parameter.fileKey, parameter);
+  }
+
+  private void setConfigurationParameterFromSystemOrFile(String systemKey, ConfigurationParameter parameter) {
+    setConfigurationParameter(parameter, getParameter(systemKey, parameter.fileKey));
+  }
+
   private void setConfigurationParameterValueListFromFile(String fileKey, ConfigurationParameter parameter) {
     List<String> fileValues = this.getStringListParameterFromFile(fileKey);
     if (fileValues != null) {
       this.setConfigurationParameter(parameter, fileValues.toArray(new String[fileValues.size()]));
     }
+  }
+
+  private void setConfigurationParameterValueListFromFile(ConfigurationParameter parameter) {
+    setConfigurationParameterValueListFromFile(parameter.fileKey, parameter);
   }
 
   private void setDDoc4JDocConfigurationValue(String key, String defaultValue) {

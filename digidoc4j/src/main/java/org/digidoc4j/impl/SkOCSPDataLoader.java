@@ -12,14 +12,17 @@ package org.digidoc4j.impl;
 
 import eu.europa.esig.dss.service.http.commons.OCSPDataLoader;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.ExternalConnectionType;
 import org.digidoc4j.ServiceType;
+import org.digidoc4j.impl.asic.DataLoaderDecorator;
 
 public class SkOCSPDataLoader extends SkDataLoader {
 
   private boolean isAiaOcsp = false;
 
   public SkOCSPDataLoader(Configuration configuration) {
-    super(configuration);
+    DataLoaderDecorator.decorateWithProxySettingsFor(ExternalConnectionType.OCSP, this, configuration);
+    DataLoaderDecorator.decorateWithSslSettingsFor(ExternalConnectionType.OCSP, this, configuration);
     contentType = OCSPDataLoader.OCSP_CONTENT_TYPE;
   }
 

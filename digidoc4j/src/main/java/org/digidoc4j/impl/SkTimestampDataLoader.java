@@ -12,12 +12,15 @@ package org.digidoc4j.impl;
 
 import eu.europa.esig.dss.service.http.commons.TimestampDataLoader;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.ExternalConnectionType;
 import org.digidoc4j.ServiceType;
+import org.digidoc4j.impl.asic.DataLoaderDecorator;
 
 public class SkTimestampDataLoader extends SkDataLoader {
 
   public SkTimestampDataLoader(Configuration configuration) {
-    super(configuration);
+    DataLoaderDecorator.decorateWithProxySettingsFor(ExternalConnectionType.TSP, this, configuration);
+    DataLoaderDecorator.decorateWithSslSettingsFor(ExternalConnectionType.TSP, this, configuration);
     contentType = TimestampDataLoader.TIMESTAMP_QUERY_CONTENT_TYPE;
   }
 

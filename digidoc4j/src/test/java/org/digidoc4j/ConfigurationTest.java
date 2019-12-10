@@ -223,9 +223,9 @@ public class ConfigurationTest extends AbstractTest {
   @Test
   public void eeTlLoadingFailsWithNoEeTlSslCertificateInTruststore() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
-    configuration.setSslTruststorePath("src/test/resources/testFiles/truststores/lotl-ssl-only-truststore.p12");
-    configuration.setSslTruststorePassword("digidoc4j-password");
-    configuration.setSslTruststoreType("PKCS12");
+    configuration.setSslTruststorePathFor(ExternalConnectionType.TSL, "src/test/resources/testFiles/truststores/lotl-ssl-only-truststore.p12");
+    configuration.setSslTruststorePasswordFor(ExternalConnectionType.TSL, "digidoc4j-password");
+    configuration.setSslTruststoreTypeFor(ExternalConnectionType.TSL, "PKCS12");
     evictTSLCache();
     ValidationResult validationResult = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/valid_prod_bdoc_eid.bdoc", configuration).validate();
     Assert.assertTrue("Certificate path should not be trusted", validationResult.getErrors().stream()
@@ -842,19 +842,40 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertFalse(this.configuration.isNetworkProxyEnabled());
     Assert.assertNull(this.configuration.getHttpProxyHost());
     Assert.assertNull(this.configuration.getHttpProxyPort());
+    Assert.assertNull(this.configuration.getHttpsProxyHost());
+    Assert.assertNull(this.configuration.getHttpsProxyPort());
     Assert.assertNull(this.configuration.getHttpProxyUser());
     Assert.assertNull(this.configuration.getHttpProxyPassword());
+    for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
+      Assert.assertFalse(this.configuration.isNetworkProxyEnabledFor(connectionType));
+      Assert.assertNull(this.configuration.getHttpProxyHostFor(connectionType));
+      Assert.assertNull(this.configuration.getHttpProxyPortFor(connectionType));
+      Assert.assertNull(this.configuration.getHttpsProxyHostFor(connectionType));
+      Assert.assertNull(this.configuration.getHttpsProxyPortFor(connectionType));
+      Assert.assertNull(this.configuration.getHttpProxyUserFor(connectionType));
+      Assert.assertNull(this.configuration.getHttpProxyPasswordFor(connectionType));
+    }
   }
 
   @Test
-  public void getProxyConfigurationFromConfigurationFile() throws Exception {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
+  public void getProxyConfigurationFromConfigurationFile_allParametersSet() throws Exception {
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     Assert.assertTrue(this.configuration.isNetworkProxyEnabled());
     Assert.assertEquals("cache.noile.ee", this.configuration.getHttpProxyHost());
     Assert.assertEquals(8080, this.configuration.getHttpProxyPort().longValue());
+    Assert.assertEquals("secure.noile.ee", this.configuration.getHttpsProxyHost());
+    Assert.assertEquals(8443, this.configuration.getHttpsProxyPort().longValue());
     Assert.assertEquals("proxyMan", this.configuration.getHttpProxyUser());
     Assert.assertEquals("proxyPass", this.configuration.getHttpProxyPassword());
-
+    for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
+      Assert.assertTrue(this.configuration.isNetworkProxyEnabledFor(connectionType));
+      Assert.assertEquals(connectionType + ".cache.noile.ee", this.configuration.getHttpProxyHostFor(connectionType));
+      Assert.assertEquals(80800 + connectionType.ordinal(), this.configuration.getHttpProxyPortFor(connectionType).longValue());
+      Assert.assertEquals(connectionType + ".secure.noile.ee", this.configuration.getHttpsProxyHostFor(connectionType));
+      Assert.assertEquals(84430 + connectionType.ordinal(), this.configuration.getHttpsProxyPortFor(connectionType).longValue());
+      Assert.assertEquals(connectionType + "-proxyMan", this.configuration.getHttpProxyUserFor(connectionType));
+      Assert.assertEquals(connectionType + "-proxyPass", this.configuration.getHttpProxyPasswordFor(connectionType));
+    }
   }
 
   @Test
@@ -862,6 +883,48 @@ public class ConfigurationTest extends AbstractTest {
     this.expectedException.expect(ConfigurationException.class);
     this.expectedException.expectMessage("Configuration parameter HTTP_PROXY_PORT should have an integer value but the actual value is: notA_number.");
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_key_usage.yaml");
+  }
+
+  @Test
+  public void getProxyConfigurationFromConfigurationFile_GenericParametersSet() throws Exception {
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_generic_proxy_and_ssl_settings.yaml");
+    Assert.assertTrue(this.configuration.isNetworkProxyEnabled());
+    Assert.assertEquals("cache.noile.ee", this.configuration.getHttpProxyHost());
+    Assert.assertEquals(8080, this.configuration.getHttpProxyPort().longValue());
+    Assert.assertEquals("secure.noile.ee", this.configuration.getHttpsProxyHost());
+    Assert.assertEquals(8443, this.configuration.getHttpsProxyPort().longValue());
+    Assert.assertEquals("proxyMan", this.configuration.getHttpProxyUser());
+    Assert.assertEquals("proxyPass", this.configuration.getHttpProxyPassword());
+    for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
+      Assert.assertTrue(this.configuration.isNetworkProxyEnabledFor(connectionType));
+      Assert.assertEquals("cache.noile.ee", this.configuration.getHttpProxyHostFor(connectionType));
+      Assert.assertEquals(8080, this.configuration.getHttpProxyPortFor(connectionType).longValue());
+      Assert.assertEquals("secure.noile.ee", this.configuration.getHttpsProxyHostFor(connectionType));
+      Assert.assertEquals(8443, this.configuration.getHttpsProxyPortFor(connectionType).longValue());
+      Assert.assertEquals("proxyMan", this.configuration.getHttpProxyUserFor(connectionType));
+      Assert.assertEquals("proxyPass", this.configuration.getHttpProxyPasswordFor(connectionType));
+    }
+  }
+
+  @Test
+  public void getProxyConfigurationFromConfigurationFile_specificParametersSet() throws Exception {
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_specific_proxy_and_ssl_settings.yaml");
+    Assert.assertFalse(this.configuration.isNetworkProxyEnabled());
+    Assert.assertNull(this.configuration.getHttpProxyHost());
+    Assert.assertNull(this.configuration.getHttpProxyPort());
+    Assert.assertNull(this.configuration.getHttpsProxyHost());
+    Assert.assertNull(this.configuration.getHttpsProxyPort());
+    Assert.assertNull(this.configuration.getHttpProxyUser());
+    Assert.assertNull(this.configuration.getHttpProxyPassword());
+    for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
+      Assert.assertTrue(this.configuration.isNetworkProxyEnabledFor(connectionType));
+      Assert.assertEquals(connectionType + ".cache.noile.ee", this.configuration.getHttpProxyHostFor(connectionType));
+      Assert.assertEquals(80800 + connectionType.ordinal(), this.configuration.getHttpProxyPortFor(connectionType).longValue());
+      Assert.assertEquals(connectionType + ".secure.noile.ee", this.configuration.getHttpsProxyHostFor(connectionType));
+      Assert.assertEquals(84430 + connectionType.ordinal(), this.configuration.getHttpsProxyPortFor(connectionType).longValue());
+      Assert.assertEquals(connectionType + "-proxyMan", this.configuration.getHttpProxyUserFor(connectionType));
+      Assert.assertEquals(connectionType + "-proxyPass", this.configuration.getHttpProxyPasswordFor(connectionType));
+    }
   }
 
   @Test
@@ -876,10 +939,22 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertNull(this.configuration.getSslProtocol());
     Assert.assertNull(this.configuration.getSupportedSslProtocols());
     Assert.assertNull(this.configuration.getSupportedSslCipherSuites());
+    for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
+      Assert.assertFalse(this.configuration.isSslConfigurationEnabledFor(connectionType));
+      Assert.assertNull(this.configuration.getSslKeystorePathFor(connectionType));
+      Assert.assertNull(this.configuration.getSslKeystoreTypeFor(connectionType));
+      Assert.assertNull(this.configuration.getSslKeystorePasswordFor(connectionType));
+      Assert.assertNull(this.configuration.getSslTruststorePathFor(connectionType));
+      Assert.assertNull(this.configuration.getSslTruststoreTypeFor(connectionType));
+      Assert.assertNull(this.configuration.getSslTruststorePasswordFor(connectionType));
+      Assert.assertNull(this.configuration.getSslProtocolFor(connectionType));
+      Assert.assertNull(this.configuration.getSupportedSslProtocolsFor(connectionType));
+      Assert.assertNull(this.configuration.getSupportedSslCipherSuitesFor(connectionType));
+    }
   }
 
   @Test
-  public void getSslConfigurationFromConfigurationFile() throws Exception {
+  public void getSslConfigurationFromConfigurationFile_allParametersSet() throws Exception {
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     Assert.assertTrue(configuration.isSslConfigurationEnabled());
     Assert.assertEquals("sslKeystorePath", this.configuration.getSslKeystorePath());
@@ -891,6 +966,80 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertEquals("sslProtocol", this.configuration.getSslProtocol());
     Assert.assertEquals(Arrays.asList("sslProtocol1", "sslProtocol2", "sslProtocol3"), this.configuration.getSupportedSslProtocols());
     Assert.assertEquals(Arrays.asList("sslCipherSuite1", "sslCipherSuite2"), this.configuration.getSupportedSslCipherSuites());
+    for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
+      Assert.assertTrue(configuration.isSslConfigurationEnabledFor(connectionType));
+      Assert.assertEquals(connectionType + "-sslKeystorePath", this.configuration.getSslKeystorePathFor(connectionType));
+      Assert.assertEquals(connectionType + "-sslKeystoreType", this.configuration.getSslKeystoreTypeFor(connectionType));
+      Assert.assertEquals(connectionType + "-sslKeystorePassword", this.configuration.getSslKeystorePasswordFor(connectionType));
+      Assert.assertEquals(connectionType + "-sslTruststorePath", this.configuration.getSslTruststorePathFor(connectionType));
+      Assert.assertEquals(connectionType + "-sslTruststoreType", this.configuration.getSslTruststoreTypeFor(connectionType));
+      Assert.assertEquals(connectionType + "-sslTruststorePassword", this.configuration.getSslTruststorePasswordFor(connectionType));
+      Assert.assertEquals(connectionType + "-sslProtocol", this.configuration.getSslProtocolFor(connectionType));
+      Assert.assertEquals(
+              Arrays.asList("sslProtocol1", "sslProtocol2", "sslProtocol3").stream().map(p -> connectionType + "-" + p).collect(Collectors.toList()),
+              this.configuration.getSupportedSslProtocolsFor(connectionType));
+      Assert.assertEquals(
+              Arrays.asList("sslCipherSuite1", "sslCipherSuite2").stream().map(cs -> connectionType + "-" + cs).collect(Collectors.toList()),
+              this.configuration.getSupportedSslCipherSuitesFor(connectionType));
+    }
+  }
+
+  @Test
+  public void getSslConfigurationFromConfigurationFile_genericParametersSet() throws Exception {
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_generic_proxy_and_ssl_settings.yaml");
+    Assert.assertTrue(configuration.isSslConfigurationEnabled());
+    Assert.assertEquals("sslKeystorePath", this.configuration.getSslKeystorePath());
+    Assert.assertEquals("sslKeystoreType", this.configuration.getSslKeystoreType());
+    Assert.assertEquals("sslKeystorePassword", this.configuration.getSslKeystorePassword());
+    Assert.assertEquals("sslTruststorePath", this.configuration.getSslTruststorePath());
+    Assert.assertEquals("sslTruststoreType", this.configuration.getSslTruststoreType());
+    Assert.assertEquals("sslTruststorePassword", this.configuration.getSslTruststorePassword());
+    Assert.assertEquals("sslProtocol", this.configuration.getSslProtocol());
+    Assert.assertEquals(Arrays.asList("sslProtocol1", "sslProtocol2", "sslProtocol3"), this.configuration.getSupportedSslProtocols());
+    Assert.assertEquals(Arrays.asList("sslCipherSuite1", "sslCipherSuite2"), this.configuration.getSupportedSslCipherSuites());
+    for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
+      Assert.assertTrue(configuration.isSslConfigurationEnabledFor(connectionType));
+      Assert.assertEquals("sslKeystorePath", this.configuration.getSslKeystorePathFor(connectionType));
+      Assert.assertEquals("sslKeystoreType", this.configuration.getSslKeystoreTypeFor(connectionType));
+      Assert.assertEquals("sslKeystorePassword", this.configuration.getSslKeystorePasswordFor(connectionType));
+      Assert.assertEquals("sslTruststorePath", this.configuration.getSslTruststorePathFor(connectionType));
+      Assert.assertEquals("sslTruststoreType", this.configuration.getSslTruststoreTypeFor(connectionType));
+      Assert.assertEquals("sslTruststorePassword", this.configuration.getSslTruststorePasswordFor(connectionType));
+      Assert.assertEquals("sslProtocol", this.configuration.getSslProtocolFor(connectionType));
+      Assert.assertEquals(Arrays.asList("sslProtocol1", "sslProtocol2", "sslProtocol3"), this.configuration.getSupportedSslProtocolsFor(connectionType));
+      Assert.assertEquals(Arrays.asList("sslCipherSuite1", "sslCipherSuite2"), this.configuration.getSupportedSslCipherSuitesFor(connectionType));
+    }
+  }
+
+  @Test
+  public void getSslConfigurationFromConfigurationFile_specificParametersSet() throws Exception {
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_specific_proxy_and_ssl_settings.yaml");
+    Assert.assertFalse(this.configuration.isSslConfigurationEnabled());
+    Assert.assertNull(this.configuration.getSslKeystorePath());
+    Assert.assertNull(this.configuration.getSslKeystoreType());
+    Assert.assertNull(this.configuration.getSslKeystorePassword());
+    Assert.assertNull(this.configuration.getSslTruststorePath());
+    Assert.assertNull(this.configuration.getSslTruststoreType());
+    Assert.assertNull(this.configuration.getSslTruststorePassword());
+    Assert.assertNull(this.configuration.getSslProtocol());
+    Assert.assertNull(this.configuration.getSupportedSslProtocols());
+    Assert.assertNull(this.configuration.getSupportedSslCipherSuites());
+    for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
+      Assert.assertTrue(configuration.isSslConfigurationEnabledFor(connectionType));
+      Assert.assertEquals(connectionType + "-sslKeystorePath", this.configuration.getSslKeystorePathFor(connectionType));
+      Assert.assertEquals(connectionType + "-sslKeystoreType", this.configuration.getSslKeystoreTypeFor(connectionType));
+      Assert.assertEquals(connectionType + "-sslKeystorePassword", this.configuration.getSslKeystorePasswordFor(connectionType));
+      Assert.assertEquals(connectionType + "-sslTruststorePath", this.configuration.getSslTruststorePathFor(connectionType));
+      Assert.assertEquals(connectionType + "-sslTruststoreType", this.configuration.getSslTruststoreTypeFor(connectionType));
+      Assert.assertEquals(connectionType + "-sslTruststorePassword", this.configuration.getSslTruststorePasswordFor(connectionType));
+      Assert.assertEquals(connectionType + "-sslProtocol", this.configuration.getSslProtocolFor(connectionType));
+      Assert.assertEquals(
+              Arrays.asList("sslProtocol1", "sslProtocol2", "sslProtocol3").stream().map(p -> connectionType + "-" + p).collect(Collectors.toList()),
+              this.configuration.getSupportedSslProtocolsFor(connectionType));
+      Assert.assertEquals(
+              Arrays.asList("sslCipherSuite1", "sslCipherSuite2").stream().map(cs -> connectionType + "-" + cs).collect(Collectors.toList()),
+              this.configuration.getSupportedSslCipherSuitesFor(connectionType));
+    }
   }
 
   @Test

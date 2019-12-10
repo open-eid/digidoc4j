@@ -45,6 +45,8 @@ public abstract class SkDataLoader extends CommonsDataLoader {
   protected static final Logger LOGGER = LoggerFactory.getLogger(SkDataLoader.class);
   private String userAgent;
 
+  protected SkDataLoader() {}
+
   protected SkDataLoader(Configuration configuration) {
     DataLoaderDecorator.decorateWithProxySettings(this, configuration);
     DataLoaderDecorator.decorateWithSslSettings(this, configuration);

@@ -18,6 +18,7 @@ import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.spi.client.http.Protocol;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataLoaderFactory;
+import org.digidoc4j.ExternalConnectionType;
 import org.digidoc4j.impl.asic.DataLoaderDecorator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +50,8 @@ public class TslDataLoaderFactory implements DataLoaderFactory {
   private DataLoader createDataLoader() {
     CommonsDataLoader commonsDataLoader = new CommonsDataLoader();
     if (Protocol.isHttpUrl(this.configuration.getTslLocation())) {
-      DataLoaderDecorator.decorateWithProxySettings(commonsDataLoader, configuration);
-      DataLoaderDecorator.decorateWithSslSettings(commonsDataLoader, configuration);
+      DataLoaderDecorator.decorateWithProxySettingsFor(ExternalConnectionType.TSL, commonsDataLoader, configuration);
+      DataLoaderDecorator.decorateWithSslSettingsFor(ExternalConnectionType.TSL, commonsDataLoader, configuration);
       commonsDataLoader.setTimeoutConnection(this.configuration.getConnectionTimeout());
       commonsDataLoader.setTimeoutSocket(this.configuration.getSocketTimeout());
       FileCacheDataLoader fileCacheDataLoader = new FileCacheDataLoader(commonsDataLoader);
