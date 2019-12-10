@@ -1827,11 +1827,15 @@ public class Configuration implements Serializable {
   }
 
   private Hashtable<String, String> loadDefaultConfigurationFor(Mode mode) {
+    // Search for a suitable configuration file from the filesystem first
     for (String file : mode.defaultConfigurationFiles) {
-      if (ResourceUtils.isFileReadable(file) || ResourceUtils.isResourceAccessible(file)) {
-        return loadConfiguration(file);
-      }
+      if (ResourceUtils.isFileReadable(file)) return loadConfiguration(file);
     }
+    // If not found from the filesystem, only then search from classpath
+    for (String file : mode.defaultConfigurationFiles) {
+      if (ResourceUtils.isResourceAccessible(file)) return loadConfiguration(file);
+    }
+    // If no suitable file found, try to load the last file from the list to get the default error handling and logging
     return loadConfiguration(mode.defaultConfigurationFiles[mode.defaultConfigurationFiles.length - 1]);
   }
 
