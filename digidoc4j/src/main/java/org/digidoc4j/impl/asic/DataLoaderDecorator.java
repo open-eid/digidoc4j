@@ -36,43 +36,17 @@ public class DataLoaderDecorator {
    */
   public static void decorateWithProxySettings(CommonsDataLoader dataLoader, Configuration configuration) {
     if (configuration.isNetworkProxyEnabled()) {
-      ProxyConfig proxyConfig = DataLoaderDecorator.create(configuration);
+      ProxyProperties httpProxyProperties = createProxyProperties(
+              configuration.getHttpProxyPort(), configuration.getHttpProxyHost(),
+              configuration.getHttpProxyUser(), configuration.getHttpProxyPassword()
+      );
+      ProxyProperties httpsProxyProperties = createProxyProperties(
+              configuration.getHttpsProxyPort(), configuration.getHttpsProxyHost(),
+              configuration.getHttpProxyUser(), configuration.getHttpProxyPassword()
+      );
+      ProxyConfig proxyConfig = createProxyConfig(httpProxyProperties, httpsProxyProperties);
       dataLoader.setProxyConfig(proxyConfig);
     }
-  }
-
-  private static ProxyConfig create(Configuration configuration) {
-    logger.debug("Creating proxy settings");
-    ProxyConfig proxy = new ProxyConfig();
-
-    ProxyProperties httpProxyProperties = new ProxyProperties();
-    if (configuration.getHttpProxyPort() != null
-        && isNotBlank(configuration.getHttpProxyHost())) {
-    httpProxyProperties.setHost(configuration.getHttpProxyHost());
-    httpProxyProperties.setPort(configuration.getHttpProxyPort());
-    //not implemented
-    //httpProxyProperties.setExcludedHosts();
-    }
-
-    ProxyProperties httpsProxyProperties = new ProxyProperties();
-    if (configuration.getHttpsProxyPort() != null
-        && isNotBlank(configuration.getHttpsProxyHost())) {
-    httpsProxyProperties.setHost(configuration.getHttpsProxyHost());
-    httpsProxyProperties.setPort(configuration.getHttpsProxyPort());
-    //not implemented
-    //httpsProxyProperties.setExcludedHosts();
-    }
-
-    if (isNotBlank(configuration.getHttpProxyUser()) && isNotBlank(configuration.getHttpProxyPassword())) {
-      httpProxyProperties.setUser(configuration.getHttpProxyUser());
-      httpProxyProperties.setPassword(configuration.getHttpProxyPassword());
-
-      httpsProxyProperties.setUser(configuration.getHttpProxyUser());
-      httpsProxyProperties.setPassword(configuration.getHttpProxyPassword());
-    }
-    proxy.setHttpProperties(httpProxyProperties);
-    proxy.setHttpsProperties(httpsProxyProperties);
-    return proxy;
   }
 
   /**
@@ -82,43 +56,38 @@ public class DataLoaderDecorator {
    */
   public static void decorateWithProxySettingsFor(ExternalConnectionType connectionType, CommonsDataLoader dataLoader, Configuration configuration) {
     if (configuration.isNetworkProxyEnabledFor(connectionType)) {
-      ProxyConfig proxyConfig = DataLoaderDecorator.createFor(connectionType, configuration);
+      ProxyProperties httpProxyProperties = createProxyProperties(
+              configuration.getHttpProxyPortFor(connectionType), configuration.getHttpProxyHostFor(connectionType),
+              configuration.getHttpProxyUserFor(connectionType), configuration.getHttpProxyPasswordFor(connectionType)
+      );
+      ProxyProperties httpsProxyProperties = createProxyProperties(
+              configuration.getHttpsProxyPortFor(connectionType), configuration.getHttpsProxyHostFor(connectionType),
+              configuration.getHttpProxyUserFor(connectionType), configuration.getHttpProxyPasswordFor(connectionType)
+      );
+      ProxyConfig proxyConfig = createProxyConfig(httpProxyProperties, httpsProxyProperties);
       dataLoader.setProxyConfig(proxyConfig);
     }
   }
 
-  private static ProxyConfig createFor(ExternalConnectionType connectionType, Configuration configuration) {
+  private static ProxyConfig createProxyConfig(ProxyProperties httpProxyProperties, ProxyProperties httpsProxyProperties) {
     logger.debug("Creating proxy settings");
-    ProxyConfig proxy = new ProxyConfig();
+    ProxyConfig proxyConfig = new ProxyConfig();
+    proxyConfig.setHttpProperties(httpProxyProperties);
+    proxyConfig.setHttpsProperties(httpsProxyProperties);
+    return proxyConfig;
+  }
 
-    ProxyProperties httpProxyProperties = new ProxyProperties();
-    if (configuration.getHttpProxyPortFor(connectionType) != null
-            && isNotBlank(configuration.getHttpProxyHostFor(connectionType))) {
-      httpProxyProperties.setHost(configuration.getHttpProxyHostFor(connectionType));
-      httpProxyProperties.setPort(configuration.getHttpProxyPortFor(connectionType));
-      //not implemented
-      //httpProxyProperties.setExcludedHosts();
+  private static ProxyProperties createProxyProperties(Integer proxyPort, String proxyHost, String proxyUser, String proxyPassword) {
+    ProxyProperties proxyProperties = new ProxyProperties();
+    if (proxyPort != null && isNotBlank(proxyHost)) {
+      proxyProperties.setPort(proxyPort);
+      proxyProperties.setHost(proxyHost);
     }
-
-    ProxyProperties httpsProxyProperties = new ProxyProperties();
-    if (configuration.getHttpsProxyPortFor(connectionType) != null
-            && isNotBlank(configuration.getHttpsProxyHostFor(connectionType))) {
-      httpsProxyProperties.setHost(configuration.getHttpsProxyHostFor(connectionType));
-      httpsProxyProperties.setPort(configuration.getHttpsProxyPortFor(connectionType));
-      //not implemented
-      //httpsProxyProperties.setExcludedHosts();
+    if (isNotBlank(proxyUser) && isNotBlank(proxyPassword)) {
+      proxyProperties.setUser(proxyUser);
+      proxyProperties.setPassword(proxyPassword);
     }
-
-    if (isNotBlank(configuration.getHttpProxyUserFor(connectionType)) && isNotBlank(configuration.getHttpProxyPasswordFor(connectionType))) {
-      httpProxyProperties.setUser(configuration.getHttpProxyUserFor(connectionType));
-      httpProxyProperties.setPassword(configuration.getHttpProxyPasswordFor(connectionType));
-
-      httpsProxyProperties.setUser(configuration.getHttpProxyUserFor(connectionType));
-      httpsProxyProperties.setPassword(configuration.getHttpProxyPasswordFor(connectionType));
-    }
-    proxy.setHttpProperties(httpProxyProperties);
-    proxy.setHttpsProperties(httpsProxyProperties);
-    return proxy;
+    return proxyProperties;
   }
 
   /**
@@ -128,38 +97,13 @@ public class DataLoaderDecorator {
   public static void decorateWithSslSettings(CommonsDataLoader dataLoader, Configuration configuration) {
     if (configuration.isSslConfigurationEnabled()) {
       logger.debug("Configuring SSL");
-
-      if (configuration.getSslKeystorePath() != null) {
-        dataLoader.setSslKeystorePath(configuration.getSslKeystorePath());
-        if (configuration.getSslKeystoreType() != null) {
-          dataLoader.setSslKeystoreType(configuration.getSslKeystoreType());
-        }
-        if (configuration.getSslKeystorePassword() != null) {
-          dataLoader.setSslKeystorePassword(configuration.getSslKeystorePassword());
-        }
-      }
-
-      if (configuration.getSslTruststorePath() != null) {
-        dataLoader.setSslTruststorePath(configuration.getSslTruststorePath());
-        if (configuration.getSslTruststoreType() != null) {
-          dataLoader.setSslTruststoreType(configuration.getSslTruststoreType());
-        }
-        if (configuration.getSslTruststorePassword() != null) {
-          dataLoader.setSslTruststorePassword(configuration.getSslTruststorePassword());
-        }
-      }
-
-      if (configuration.getSslProtocol() != null) {
-        dataLoader.setSslProtocol(configuration.getSslProtocol());
-      }
-      if (configuration.getSupportedSslProtocols() != null) {
-        List<String> supportedSslProtocols = configuration.getSupportedSslProtocols();
-        dataLoader.setSupportedSSLProtocols(supportedSslProtocols.toArray(new String[supportedSslProtocols.size()]));
-      }
-      if (configuration.getSupportedSslCipherSuites() != null) {
-        List<String> supportedSslCipherSuites = configuration.getSupportedSslCipherSuites();
-        dataLoader.setSupportedSSLCipherSuites(supportedSslCipherSuites.toArray(new String[supportedSslCipherSuites.size()]));
-      }
+      configureSslKeystore(dataLoader, configuration.getSslKeystorePath(),
+              configuration.getSslKeystoreType(), configuration.getSslKeystorePassword());
+      configureSslTruststore(dataLoader, configuration.getSslTruststorePath(),
+              configuration.getSslTruststoreType(), configuration.getSslTruststorePassword());
+      configureSslProtocol(dataLoader, configuration.getSslProtocol());
+      configureSupportedSslProtocols(dataLoader, configuration.getSupportedSslProtocols());
+      configureSupportedSslCipherSuites(dataLoader, configuration.getSupportedSslCipherSuites());
     }
   }
 
@@ -171,38 +115,55 @@ public class DataLoaderDecorator {
   public static void decorateWithSslSettingsFor(ExternalConnectionType connectionType, CommonsDataLoader dataLoader, Configuration configuration) {
     if (configuration.isSslConfigurationEnabledFor(connectionType)) {
       logger.debug("Configuring SSL");
+      configureSslKeystore(dataLoader, configuration.getSslKeystorePathFor(connectionType),
+              configuration.getSslKeystoreTypeFor(connectionType), configuration.getSslKeystorePasswordFor(connectionType));
+      configureSslTruststore(dataLoader, configuration.getSslTruststorePathFor(connectionType),
+              configuration.getSslTruststoreTypeFor(connectionType), configuration.getSslTruststorePasswordFor(connectionType));
+      configureSslProtocol(dataLoader, configuration.getSslProtocolFor(connectionType));
+      configureSupportedSslProtocols(dataLoader, configuration.getSupportedSslProtocolsFor(connectionType));
+      configureSupportedSslCipherSuites(dataLoader, configuration.getSupportedSslCipherSuitesFor(connectionType));
+    }
+  }
 
-      if (configuration.getSslKeystorePathFor(connectionType) != null) {
-        dataLoader.setSslKeystorePath(configuration.getSslKeystorePathFor(connectionType));
-        if (configuration.getSslKeystoreTypeFor(connectionType) != null) {
-          dataLoader.setSslKeystoreType(configuration.getSslKeystoreTypeFor(connectionType));
-        }
-        if (configuration.getSslKeystorePasswordFor(connectionType) != null) {
-          dataLoader.setSslKeystorePassword(configuration.getSslKeystorePasswordFor(connectionType));
-        }
+  private static void configureSslKeystore(CommonsDataLoader dataLoader, String sslKeystorePath, String sslKeystoreType, String sslKeystorePassword) {
+    if (sslKeystorePath != null) {
+      dataLoader.setSslKeystorePath(sslKeystorePath);
+      if (sslKeystoreType != null) {
+        dataLoader.setSslKeystoreType(sslKeystoreType);
       }
+      if (sslKeystorePassword != null) {
+        dataLoader.setSslKeystorePassword(sslKeystorePassword);
+      }
+    }
+  }
 
-      if (configuration.getSslTruststorePathFor(connectionType) != null) {
-        dataLoader.setSslTruststorePath(configuration.getSslTruststorePathFor(connectionType));
-        if (configuration.getSslTruststoreTypeFor(connectionType) != null) {
-          dataLoader.setSslTruststoreType(configuration.getSslTruststoreTypeFor(connectionType));
-        }
-        if (configuration.getSslTruststorePasswordFor(connectionType) != null) {
-          dataLoader.setSslTruststorePassword(configuration.getSslTruststorePasswordFor(connectionType));
-        }
+  private static void configureSslTruststore(CommonsDataLoader dataLoader, String sslTruststorePath, String sslTruststoreType, String sslTruststorePassword) {
+    if (sslTruststorePath != null) {
+      dataLoader.setSslTruststorePath(sslTruststorePath);
+      if (sslTruststoreType != null) {
+        dataLoader.setSslTruststoreType(sslTruststoreType);
       }
+      if (sslTruststorePassword != null) {
+        dataLoader.setSslTruststorePassword(sslTruststorePassword);
+      }
+    }
+  }
 
-      if (configuration.getSslProtocolFor(connectionType) != null) {
-        dataLoader.setSslProtocol(configuration.getSslProtocolFor(connectionType));
-      }
-      if (configuration.getSupportedSslProtocolsFor(connectionType) != null) {
-        List<String> supportedSslProtocols = configuration.getSupportedSslProtocolsFor(connectionType);
-        dataLoader.setSupportedSSLProtocols(supportedSslProtocols.toArray(new String[supportedSslProtocols.size()]));
-      }
-      if (configuration.getSupportedSslCipherSuitesFor(connectionType) != null) {
-        List<String> supportedSslCipherSuites = configuration.getSupportedSslCipherSuitesFor(connectionType);
-        dataLoader.setSupportedSSLCipherSuites(supportedSslCipherSuites.toArray(new String[supportedSslCipherSuites.size()]));
-      }
+  private static void configureSslProtocol(CommonsDataLoader dataLoader, String sslProtocol) {
+    if (sslProtocol != null) {
+      dataLoader.setSslProtocol(sslProtocol);
+    }
+  }
+
+  private static void configureSupportedSslProtocols(CommonsDataLoader dataLoader, List<String> supportedSslProtocols) {
+    if (supportedSslProtocols != null) {
+      dataLoader.setSupportedSSLProtocols(supportedSslProtocols.toArray(new String[supportedSslProtocols.size()]));
+    }
+  }
+
+  private static void configureSupportedSslCipherSuites(CommonsDataLoader dataLoader, List<String> supportedSslCipherSuites) {
+    if (supportedSslCipherSuites != null) {
+      dataLoader.setSupportedSSLCipherSuites(supportedSslCipherSuites.toArray(new String[supportedSslCipherSuites.size()]));
     }
   }
 }
