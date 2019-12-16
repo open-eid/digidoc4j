@@ -125,6 +125,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.source.version>1.8</project.source.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
@@ -218,15 +219,6 @@
     </build>
 
     <profiles>
-        <profile>
-            <id>java8</id>
-            <activation>
-                <jdk>[1.8,)</jdk>
-            </activation>
-            <properties>
-                <project.source.version>1.8</project.source.version>
-            </properties>
-        </profile>
         <profile>
             <id>delivery</id>
             <build>
