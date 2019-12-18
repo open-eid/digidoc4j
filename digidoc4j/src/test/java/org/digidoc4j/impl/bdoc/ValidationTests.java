@@ -369,9 +369,10 @@ public class ValidationTests extends AbstractTest {
         .open("src/test/resources/prodFiles/invalid-containers/REF-03_bdoc21-TM-no-signedpropref.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(1, errors.size());
+    Assert.assertEquals(2, errors.size());
     TestAssert.assertContainsError("(Signature ID: S0) - SignedProperties Reference element is missing", errors);
-    Assert.assertEquals(1, container.getSignatures().get(0).validateSignature().getErrors().size());
+    TestAssert.assertContainsError("(Signature ID: S0) - The result of the LTV validation process is not acceptable to continue the process!", errors);
+    Assert.assertEquals(2, container.getSignatures().get(0).validateSignature().getErrors().size());
   }
 
   @Test
@@ -380,8 +381,9 @@ public class ValidationTests extends AbstractTest {
         .open("src/test/resources/prodFiles/invalid-containers/REF-03_bdoc21-TS-no-signedpropref.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(1, errors.size());
+    Assert.assertEquals(2, errors.size());
     TestAssert.assertContainsError("(Signature ID: S0) - SignedProperties Reference element is missing", errors);
+    TestAssert.assertContainsError("(Signature ID: S0) - The result of the LTV validation process is not acceptable to continue the process!", errors);
   }
 
   @Test
