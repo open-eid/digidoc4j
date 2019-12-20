@@ -14,7 +14,13 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
-import eu.europa.esig.dss.tsl.*;
+import eu.europa.esig.dss.enumerations.KeyUsageBit;
+import eu.europa.esig.dss.spi.tsl.Condition;
+import eu.europa.esig.dss.spi.tsl.ServiceInfo;
+import eu.europa.esig.dss.spi.tsl.ServiceInfoStatus;
+import eu.europa.esig.dss.spi.tsl.TLInfo;
+import eu.europa.esig.dss.spi.tsl.TrustedListsCertificateSource;
+import eu.europa.esig.dss.tsl.KeyUsageCondition;
 import eu.europa.esig.dss.validation.process.qualification.EIDASUtils;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -25,8 +31,8 @@ import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.util.TimeDependentValues;
-import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.spi.util.TimeDependentValues;
+import eu.europa.esig.dss.model.x509.CertificateToken;
 
 /**
  * Certificate source with the purpose of adding trusted certificate(s) manually
@@ -65,7 +71,7 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
   @Override
   public void addTSLCertificate(X509Certificate certificate) {
     ServiceInfo serviceInfo = new ServiceInfo();
-    Condition condition = new KeyUsageCondition(KeyUsageBit.nonRepudiation, true);
+    Condition condition = new KeyUsageCondition(KeyUsageBit.NON_REPUDIATION, true);
     Map<String, List<Condition>> qualifiersAndConditions = new HashMap<>();
     qualifiersAndConditions.put("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD", Arrays.asList(condition));
     ServiceInfoStatus status = new ServiceInfoStatus(getCN(certificate), getServiceType(certificate),

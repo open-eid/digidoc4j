@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -31,6 +32,7 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.SkDataLoader;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
@@ -41,12 +43,10 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import org.digidoc4j.ddoc.DigiDocException;
-import org.digidoc4j.ddoc.utils.ConfigManager;
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
-import eu.europa.esig.dss.client.http.proxy.ProxyConfig;
-import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
+import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
+import eu.europa.esig.dss.service.http.proxy.ProxyProperties;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
@@ -59,18 +59,17 @@ public final class TestAssert {
   public static void assertOCSPSource(Configuration configuration, SKOnlineOCSPSource source, String userAgentPart) {
     Assert.assertSame(configuration, source.getConfiguration());
     Assert.assertNotNull(source.getDataLoader());
-    Assert.assertThat(source.getDataLoader().getUserAgent(), CoreMatchers.containsString(userAgentPart));
+    Assert.assertThat(((SkDataLoader) source.getDataLoader()).getUserAgent(), CoreMatchers.containsString(userAgentPart));
   }
 
   public static void assertXPathHasValue(String expectedValue, String xPathExpression, String xmlInput) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder builder = factory.newDocumentBuilder();
-    Document doc = builder.parse(IOUtils.toInputStream(xmlInput, "UTF-8"));
-    XPathFactory xPathfactory = XPathFactory.newInstance();
-    XPath xpath = xPathfactory.newXPath();
-    XPathExpression expr = xpath.compile(xPathExpression);
-    String evaluate = expr.evaluate(doc);
-    Assert.assertEquals(expectedValue, evaluate);
+    Assert.assertEquals("Value at \"" + xPathExpression + "\" should equal to \"" + expectedValue + "\"",
+            expectedValue, getXPathValue(xPathExpression, xmlInput));
+  }
+
+  public static void assertXPathHasValue(Pattern expectedValue, String xPathExpression, String xmlInput) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+    Assert.assertTrue("Value at \"" + xPathExpression + "\" should match " + expectedValue.pattern(),
+            expectedValue.matcher(getXPathValue(xPathExpression, xmlInput)).matches());
   }
 
   public static void assertDSSDocumentIsSigned(DSSDocument document) throws IOException {
@@ -143,6 +142,16 @@ public final class TestAssert {
   /*
    * RESTRICTED METHODS
    */
+
+  private static String getXPathValue(String xPathExpression, String xmlInput) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder builder = factory.newDocumentBuilder();
+    Document doc = builder.parse(IOUtils.toInputStream(xmlInput, "UTF-8"));
+    XPathFactory xPathfactory = XPathFactory.newInstance();
+    XPath xpath = xPathfactory.newXPath();
+    XPathExpression expr = xpath.compile(xPathExpression);
+    return expr.evaluate(doc);
+  }
 
   private static DSSDocument findSignedFile(Signature signature, String fileName) {
     XadesSignature origin = ((AsicESignature)signature).getOrigin();

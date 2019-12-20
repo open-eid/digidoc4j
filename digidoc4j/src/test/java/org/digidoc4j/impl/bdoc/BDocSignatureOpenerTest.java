@@ -10,9 +10,9 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.FileDocument;
-import eu.europa.esig.dss.InMemoryDocument;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.FileDocument;
+import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,7 +43,6 @@ public class BDocSignatureOpenerTest extends AbstractTest {
     Signature signature = this.signatureOpener.open(
             constructXadesSignatureWrapper(new FileDocument("src/test/resources/testFiles/xades/test-bes-signature.xml")));
     Assert.assertTrue(signature instanceof BDocSignature);
-    Assert.assertEquals("Assert 2", "id-693869a500c60f0dc262f7287f033d5d", signature.getId());
     Assert.assertEquals(SignatureProfile.B_BES, signature.getProfile());
     Assert.assertEquals("Assert 3", "id-693869a500c60f0dc262f7287f033d5d", signature.getId());
     Assert.assertEquals("Assert 4", "http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
@@ -58,7 +57,7 @@ public class BDocSignatureOpenerTest extends AbstractTest {
     Assert.assertTrue(StringUtils.startsWith(signature.getSigningCertificate().issuerName(), "C=EE,O=AS Sertifitseerimiskeskus"));
     byte[] signatureInBytes = signature.getAdESSignature();
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(new InMemoryDocument(signatureInBytes));
-    Assert.assertEquals("Assert 11", "id-693869a500c60f0dc262f7287f033d5d", validator.getSignatures().get(0).getId());
+    Assert.assertEquals("Assert 11", "id-693869a500c60f0dc262f7287f033d5d", validator.getSignatures().get(0).getDAIdentifier());
     Assert.assertNull("Assert 12", signature.getOCSPCertificate());
     Assert.assertNull("Assert 13", signature.getOCSPResponseCreationTime());
     Assert.assertNull("Assert 14", signature.getTimeStampTokenCertificate());

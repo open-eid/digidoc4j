@@ -11,11 +11,11 @@
 package org.digidoc4j.impl;
 
 
-import eu.europa.esig.dss.CommonDocument;
-import eu.europa.esig.dss.DSSException;
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.DigestAlgorithm;
-import eu.europa.esig.dss.MimeType;
+import eu.europa.esig.dss.model.CommonDocument;
+import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import eu.europa.esig.dss.model.MimeType;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * @see eu.europa.esig.dss.DSSDocument implementation to handle big files. It writes data to temporary
+ * @see eu.europa.esig.dss.model.DSSDocument implementation to handle big files. It writes data to temporary
  * files.
  */
 public class StreamDocument extends CommonDocument {

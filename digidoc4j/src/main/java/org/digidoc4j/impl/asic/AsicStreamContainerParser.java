@@ -20,6 +20,7 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.utils.MimeTypeUtil;
+import org.digidoc4j.utils.ZipEntryInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +78,6 @@ public class AsicStreamContainerParser extends AsicContainerParser {
 
   @Override
   protected InputStream getZipEntryInputStream(ZipEntry entry) {
-    return zipInputStream;
+    return new ZipEntryInputStream(zipInputStream);
   }
 }

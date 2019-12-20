@@ -12,15 +12,17 @@ package org.digidoc4j.impl.asic.report;
 
 import java.util.List;
 
+import eu.europa.esig.dss.enumerations.SignatureLevel;
+import eu.europa.esig.dss.simplereport.jaxb.XmlCertificate;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.xades.validation.SignatureValidationData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.jaxb.simplereport.SimpleReport;
-import eu.europa.esig.dss.jaxb.simplereport.XmlSignature;
-import eu.europa.esig.dss.validation.policy.rules.Indication;
+import eu.europa.esig.dss.simplereport.jaxb.XmlSimpleReport;
+import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
+import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.validation.reports.Reports;
 
 public class SignatureValidationReportCreator {
@@ -28,7 +30,7 @@ public class SignatureValidationReportCreator {
   private final static Logger logger = LoggerFactory.getLogger(SignatureValidationReportCreator.class);
   private SignatureValidationData validationData;
   private Reports reports;
-  private SimpleReport simpleReport;
+  private XmlSimpleReport simpleReport;
   private SignatureValidationReport signatureValidationReport;
 
   public SignatureValidationReportCreator(SignatureValidationData validationData) {
@@ -47,6 +49,8 @@ public class SignatureValidationReportCreator {
     updateDocumentName();
     updateIndication();
     updateSignatureFormat();
+    updateSignatureId();
+    updateSignedBy();
     return signatureValidationReport;
   }
 
@@ -80,10 +84,25 @@ public class SignatureValidationReportCreator {
 
   private void updateSignatureFormat() {
     if (validationData.getSignatureProfile() == SignatureProfile.LT_TM) {
-      signatureValidationReport.setSignatureFormat("XAdES_BASELINE_LT_TM");
+      signatureValidationReport.setSignatureFormat(SignatureLevel.XAdES_BASELINE_LT_TM);
     }
     if (validationData.getSignatureProfile() == SignatureProfile.B_EPES) {
-      signatureValidationReport.setSignatureFormat("XAdES_BASELINE_B_EPES");
+      signatureValidationReport.setSignatureFormat(SignatureLevel.XAdES_BASELINE_B_EPES);
+    }
+  }
+
+  private void updateSignatureId() {
+    signatureValidationReport.setId(validationData.getSignatureId());
+  }
+
+  private void updateSignedBy() {
+    final String signedBy = signatureValidationReport.getSignedBy();
+    if (signedBy != null && signatureValidationReport.getCertificateChain() != null) {
+      signatureValidationReport.getCertificateChain().getCertificate().stream()
+              .filter(c -> signedBy.equals(c.getId()))
+              .map(XmlCertificate::getQualifiedName)
+              .findFirst()
+              .ifPresent(signatureValidationReport::setSignedBy);
     }
   }
 }

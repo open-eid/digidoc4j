@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl.asic;
 
-import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.model.DSSDocument;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.impl.asic.xades.XadesSignatureParser;

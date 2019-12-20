@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl.asic;
 
-import eu.europa.esig.dss.InMemoryDocument;
+import eu.europa.esig.dss.model.InMemoryDocument;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataToSign;
 import org.digidoc4j.EncryptionAlgorithm;

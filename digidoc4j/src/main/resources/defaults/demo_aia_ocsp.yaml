@@ -1,0 +1,25 @@
+AIA_OCSPS:
+  - ISSUER_CN: TEST of ESTEID2018
+    OCSP_SOURCE: http://aia.demo.sk.ee/esteid2018
+    USE_NONCE: true
+  - ISSUER_CN: TEST of ESTEID-SK 2011
+    OCSP_SOURCE: http://aia.demo.sk.ee/esteid2011
+    USE_NONCE: false
+  - ISSUER_CN: TEST of EID-SK 2011
+    OCSP_SOURCE: http://aia.demo.sk.ee/eid2011
+    USE_NONCE: false
+  - ISSUER_CN: TEST of KLASS3-SK 2010
+    OCSP_SOURCE: http://aia.demo.sk.ee/klass3-2010
+    USE_NONCE: false
+  - ISSUER_CN: TEST of ESTEID-SK 2015
+    OCSP_SOURCE: http://aia.demo.sk.ee/esteid2015
+    USE_NONCE: false
+  - ISSUER_CN: TEST of EID-SK 2016
+    OCSP_SOURCE: http://aia.demo.sk.ee/eid2016
+    USE_NONCE: false
+  - ISSUER_CN: TEST of NQ-SK 2016
+    OCSP_SOURCE: http://aia.demo.sk.ee/nq2016
+    USE_NONCE: false
+  - ISSUER_CN: TEST of KLASS3-SK 2016
+    OCSP_SOURCE: http://aia.demo.sk.ee/klass3-2016
+    USE_NONCE: false

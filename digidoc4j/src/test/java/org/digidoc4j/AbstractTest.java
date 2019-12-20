@@ -1,18 +1,18 @@
 package org.digidoc4j;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.Policy;
-import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.model.Policy;
+import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
-import org.digidoc4j.impl.SkDataLoader;
-import org.digidoc4j.impl.SkOCSPDataLoader;
-import org.digidoc4j.impl.SkTimestampDataLoader;
+import org.digidoc4j.impl.OcspDataLoaderFactory;
+import org.digidoc4j.impl.TspDataLoaderFactory;
 import org.digidoc4j.impl.asic.AsicFileContainerParser;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicStreamContainerParser;
@@ -444,15 +444,13 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected CommonOCSPSource createOCSPSource() {
     CommonOCSPSource source = new CommonOCSPSource(this.configuration);
-    SkDataLoader loader = new SkOCSPDataLoader(this.configuration);
-    loader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
+    DataLoader loader = new OcspDataLoaderFactory(this.configuration, Helper.createBDocUserAgent(SignatureProfile.LT)).create();
     source.setDataLoader(loader);
     return source;
   }
 
   private OnlineTSPSource createTSPSource() {
-    SkDataLoader loader = new SkTimestampDataLoader(this.configuration);
-    loader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
+    DataLoader loader = new TspDataLoaderFactory(this.configuration, Helper.createBDocUserAgent(SignatureProfile.LT)).create();
     OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
     source.setDataLoader(loader);
     return source;
@@ -525,7 +523,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     customPolicy.setSpuri("spuri");
     customPolicy.setQualifier("qualifier");
     customPolicy.setDigestValue("some".getBytes(StandardCharsets.UTF_8));
-    customPolicy.setDigestAlgorithm(eu.europa.esig.dss.DigestAlgorithm.SHA512);
+    customPolicy.setDigestAlgorithm(eu.europa.esig.dss.enumerations.DigestAlgorithm.SHA512);
     return customPolicy;
   }
 }

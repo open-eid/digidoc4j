@@ -1,14 +1,20 @@
 package org.digidoc4j.impl.bdoc.asic;
 
+import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.digidoc4j.AbstractTest;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
+import org.digidoc4j.DataLoaderFactory;
 import org.digidoc4j.DataToSign;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureFinalizerBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.SignatureFinalizer;
+import org.digidoc4j.impl.SkOCSPDataLoader;
+import org.digidoc4j.impl.SkTimestampDataLoader;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -93,5 +99,43 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
     assertValidSignature(signature);
 
     assertThat(dataToSignBytes, equalTo(signatureFinalizer.getDataToBeSigned()));
+  }
+
+  @Test
+  public void testCustomTspDataLoaderUsedForSigning() {
+    configuration = Configuration.of(Configuration.Mode.TEST);
+    SkTimestampDataLoader tspDataLoader = new SkTimestampDataLoader(configuration);
+    tspDataLoader.setUserAgent("custom-user-agent-string");
+    DataLoader dataLoaderSpy = Mockito.spy(tspDataLoader);
+
+    DataLoaderFactory dataLoaderFactory = Mockito.mock(DataLoaderFactory.class);
+    Mockito.doReturn(dataLoaderSpy).when(dataLoaderFactory).create();
+    configuration.setTspDataLoaderFactory(dataLoaderFactory);
+
+    Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), pkcs12SignatureToken);
+    assertValidSignature(signature);
+
+    Mockito.verify(dataLoaderFactory, Mockito.times(1)).create();
+    Mockito.verify(dataLoaderSpy, Mockito.times(1)).post(Mockito.eq(configuration.getTspSource()), Mockito.any(byte[].class));
+    Mockito.verifyNoMoreInteractions(dataLoaderFactory);
+  }
+
+  @Test
+  public void testCustomOcspDataLoaderUsedForSigning() {
+    configuration = Configuration.of(Configuration.Mode.TEST);
+    SkOCSPDataLoader ocspDataLoader = new SkOCSPDataLoader(configuration);
+    ocspDataLoader.setUserAgent("custom-user-agent-string");
+    DataLoader dataLoaderSpy = Mockito.spy(ocspDataLoader);
+
+    DataLoaderFactory dataLoaderFactory = Mockito.mock(DataLoaderFactory.class);
+    Mockito.doReturn(dataLoaderSpy).when(dataLoaderFactory).create();
+    configuration.setOcspDataLoaderFactory(dataLoaderFactory);
+
+    Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), pkcs12SignatureToken);
+    assertValidSignature(signature);
+
+    Mockito.verify(dataLoaderFactory, Mockito.times(1)).create();
+    Mockito.verify(dataLoaderSpy, Mockito.times(1)).post(Mockito.eq(configuration.getOcspSource()), Mockito.any(byte[].class));
+    Mockito.verifyNoMoreInteractions(dataLoaderFactory);
   }
 }

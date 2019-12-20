@@ -10,12 +10,12 @@
 
 package org.digidoc4j;
 
-import eu.europa.esig.dss.x509.ocsp.OCSPSource;
+import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
+import org.digidoc4j.impl.OcspDataLoaderFactory;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
-import org.digidoc4j.impl.SkDataLoader;
-import org.digidoc4j.impl.SkOCSPDataLoader;
 import org.digidoc4j.impl.asic.ocsp.BDocTMOcspSource;
 import org.digidoc4j.utils.Helper;
 
@@ -59,18 +59,18 @@ public class OCSPSourceBuilder {
     if (this.configuration == null) {
       this.configuration = ConfigurationSingeltonHolder.getInstance();
     }
-    SkDataLoader loader = new SkOCSPDataLoader(this.configuration);
+    DataLoader loader;
     SKOnlineOCSPSource source;
     if (this.defaultOCSPSource) {
       source = new CommonOCSPSource(this.configuration);
-      loader.setUserAgent(Helper.createUserAgent());
+      loader = new OcspDataLoaderFactory(this.configuration, Helper.createUserAgent()).create();
     } else {
       if (SignatureProfile.LT_TM.equals(this.signatureProfile)) {
         source = new BDocTMOcspSource(this.configuration, this.signatureValue);
       } else {
         source = new CommonOCSPSource(this.configuration);
       }
-      loader.setUserAgent(Helper.createBDocUserAgent(this.signatureProfile));
+      loader = new OcspDataLoaderFactory(this.configuration, Helper.createBDocUserAgent(this.signatureProfile)).create();
     }
     source.setDataLoader(loader);
     return source;

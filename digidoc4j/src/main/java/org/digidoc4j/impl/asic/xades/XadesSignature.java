@@ -30,11 +30,18 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 public interface XadesSignature extends Serializable {
 
   /**
-   * This method returns Dss signature id(string object).
+   * This method returns signature id(string object).
    *
-   * @return dss signature id.
+   * @return signature id.
    */
   String getId();
+
+  /**
+   * This method returns the identifier that uniquely identifies this signature.
+   *
+   * @return unique identifier.
+   */
+  String getUniqueId();
 
   /**
    * This method returns city name(string object), it can be empty.

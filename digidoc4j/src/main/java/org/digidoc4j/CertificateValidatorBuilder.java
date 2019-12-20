@@ -7,9 +7,9 @@ import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.impl.CommonOCSPCertificateSource;
 import org.digidoc4j.impl.OCSPCertificateValidator;
 
-import eu.europa.esig.dss.DSSException;
-import eu.europa.esig.dss.x509.CertificateSource;
-import eu.europa.esig.dss.x509.ocsp.OCSPSource;
+import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.spi.x509.CertificateSource;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 
 /**
  * Builder for certificate validator. Currently only OCSP is supported

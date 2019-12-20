@@ -20,8 +20,8 @@ import org.digidoc4j.impl.asic.xades.validation.XadesValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.DigestAlgorithm;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 
 /**
  * Created by Andrei on 29.11.2017.
@@ -59,6 +59,11 @@ public class AsicSignature implements Signature {
   @Override
   public String getId() {
     return xadesSignature.getId();
+  }
+
+  @Override
+  public String getUniqueId() {
+    return xadesSignature.getUniqueId();
   }
 
   @Override

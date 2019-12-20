@@ -10,18 +10,18 @@
 
 package org.digidoc4j.impl.asic.xades;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.Policy;
-import eu.europa.esig.dss.SignatureLevel;
-import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
-import eu.europa.esig.dss.x509.ocsp.OCSPSource;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.Policy;
+import eu.europa.esig.dss.enumerations.SignatureLevel;
+import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.impl.SkDataLoader;
-import org.digidoc4j.impl.SkTimestampDataLoader;
+import org.digidoc4j.impl.TspDataLoaderFactory;
 import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.utils.Helper;
 import org.digidoc4j.utils.PolicyUtils;
@@ -109,8 +109,7 @@ public class SignatureExtender {
 
   private OnlineTSPSource createTimeStampProviderSource(SignatureProfile profile) {
     OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
-    SkDataLoader loader = new SkTimestampDataLoader(this.configuration);
-    loader.setUserAgent(Helper.createBDocUserAgent(profile));
+    DataLoader loader = new TspDataLoaderFactory(this.configuration, Helper.createBDocUserAgent(profile)).create();
     source.setDataLoader(loader);
     return source;
   }

@@ -10,8 +10,10 @@
 
 package org.digidoc4j.impl.bdoc.tsl;
 
-import java.util.Map;
-
+import eu.europa.esig.dss.tsl.TSLValidationModel;
+import eu.europa.esig.dss.tsl.service.TSLRepository;
+import eu.europa.esig.dss.tsl.service.TSLValidationJob;
+import eu.europa.esig.dss.enumerations.Indication;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.asic.tsl.TslLoader;
@@ -21,16 +23,13 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import eu.europa.esig.dss.tsl.TSLValidationModel;
-import eu.europa.esig.dss.tsl.service.TSLRepository;
-import eu.europa.esig.dss.tsl.service.TSLValidationJob;
-import eu.europa.esig.dss.validation.policy.rules.Indication;
+import java.util.Map;
 
 public class TslLoaderTest extends AbstractTest {
 
   private TslLoader tslLoader;
 
-  @Ignore // TODO: DD4J-410
+  @Ignore
   @Test
   public void loadAndValidateProdTsl() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
@@ -65,8 +64,8 @@ public class TslLoaderTest extends AbstractTest {
     Assert.assertTrue(lastModified < newModificationTime);
   }
 
-  @Ignore // TODO: DD4J-410
   @Test
+  @Ignore
   public void loadTsl_forAllCountries_byDefault() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
     TSLRepository tslRepository = this.initTSLAndGetRepository();
@@ -75,8 +74,8 @@ public class TslLoaderTest extends AbstractTest {
     this.assertCountryLoaded(tslRepository, "ES");
   }
 
-  @Ignore // TODO: DD4J-410
   @Test
+  @Ignore
   public void loadTsl_forOneContry() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
     this.configuration.setTrustedTerritories("EE");
@@ -85,8 +84,8 @@ public class TslLoaderTest extends AbstractTest {
     this.assertCountryNotLoaded(tslRepository, "FR");
   }
 
-  @Ignore // TODO: DD4J-410
   @Test
+  @Ignore
   public void loadTsl_forTwoCountries() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
     this.configuration.setTrustedTerritories("EE", "ES");
@@ -107,8 +106,8 @@ public class TslLoaderTest extends AbstractTest {
    * Ignore countries with invalid TSL: DE (Germany) and HR (Croatia)
    */
 
-  @Ignore // TODO: DD4J-410
   @Test
+  @Ignore
   public void loadTsl_withoutCountryHr_byDefault() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
     TSLRepository tslRepository = this.initTSLAndGetRepository();

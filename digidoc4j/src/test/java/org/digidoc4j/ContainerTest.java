@@ -18,6 +18,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
+import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
@@ -25,6 +26,7 @@ import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.digidoc4j.utils.Helper;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -329,8 +331,9 @@ public class ContainerTest extends AbstractTest {
     ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    Assert.assertTrue(container.validate().isValid());
-    Assert.assertFalse(container.validate().hasWarnings());
+    SignatureValidationResult result = container.validate();
+    Assert.assertTrue(result.isValid());
+    Assert.assertFalse(result.hasWarnings());
   }
 
   @Ignore //This test fails in Travis
@@ -340,8 +343,8 @@ public class ContainerTest extends AbstractTest {
     ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/SK-XML1.0.ddoc");
     SignatureValidationResult result = container.validate();
-    Assert.assertTrue(container.validate().isValid());
-    Assert.assertTrue(container.validate().hasWarnings());
+    Assert.assertTrue(result.isValid());
+    Assert.assertTrue(result.hasWarnings());
     Assert.assertEquals(177, result.getWarnings().get(0).getErrorCode());
     Assert.assertTrue(result.getReport().contains("Old and unsupported format:"));
   }
@@ -352,8 +355,8 @@ public class ContainerTest extends AbstractTest {
     ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/DIGIDOC-XML1.1.ddoc");
     SignatureValidationResult result = container.validate();
-    Assert.assertTrue(container.validate().isValid());
-    Assert.assertTrue(container.validate().hasWarnings());
+    Assert.assertTrue(result.isValid());
+    Assert.assertTrue(result.hasWarnings());
     Assert.assertEquals(177, result.getWarnings().get(0).getErrorCode());
     Assert.assertTrue(result.getReport().contains("Old and unsupported format:"));
   }
@@ -364,8 +367,8 @@ public class ContainerTest extends AbstractTest {
     ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/DIGIDOC-XML1.2.ddoc");
     SignatureValidationResult result = container.validate();
-    Assert.assertTrue(container.validate().isValid());
-    Assert.assertTrue(container.validate().hasWarnings());
+    Assert.assertTrue(result.isValid());
+    Assert.assertTrue(result.hasWarnings());
     Assert.assertEquals(177, result.getWarnings().get(0).getErrorCode());
     Assert.assertTrue(result.getReport().contains("Old and unsupported format:"));
   }
@@ -531,8 +534,10 @@ public class ContainerTest extends AbstractTest {
     Assert.assertEquals("myRole / myResolution", signature.getSignerRoles().get(0));
   }
 
-  @Test(expected = TslCertificateSourceInitializationException.class)
+  @Test
   public void testSetConfigurationForBDoc() throws Exception {
+    expectedException.expect(TechnicalException.class);
+    expectedException.expectMessage(Matchers.containsString("Failed to initialize TSL"));
     this.configuration = new Configuration(Configuration.Mode.TEST);
     this.configuration.setTslLocation("pole");
     Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).withConfiguration(

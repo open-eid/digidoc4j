@@ -10,15 +10,16 @@
 
 package org.digidoc4j.impl;
 
-import eu.europa.esig.dss.DSSException;
-import eu.europa.esig.dss.DSSRevocationUtils;
-import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.spi.DSSRevocationUtils;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
 import eu.europa.esig.dss.token.KSPrivateKeyEntry;
 import eu.europa.esig.dss.token.Pkcs12SignatureToken;
-import eu.europa.esig.dss.x509.CertificateToken;
-import eu.europa.esig.dss.x509.ocsp.OCSPSource;
-import eu.europa.esig.dss.x509.ocsp.OCSPToken;
+import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPToken;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
@@ -62,7 +63,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   public static final String OID_OCSP_SIGNING = "1.3.6.1.5.5.7.3.9";
   private static final Logger LOGGER = LoggerFactory.getLogger(SKOnlineOCSPSource.class);
 
-  private SkDataLoader dataLoader;
+  private DataLoader dataLoader;
   private Configuration configuration;
 
   /**
@@ -212,8 +213,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   }
 
   protected void verifyOcspResponderCertificate(CertificateToken token) {
-    List<CertificateToken> tokens = configuration.getTSL().get(token.getCertificate().getSubjectX500Principal());
-    if (CollectionUtils.isEmpty(tokens)) {
+    if (!configuration.getTSL().isTrusted(token)) {
       throw CertificateValidationException.of(CertificateValidationStatus.UNTRUSTED,
               String.format("OCSP response certificate <%s> match is not found in TSL", token.getDSSIdAsString()));
     }
@@ -266,7 +266,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     token.setBasicOCSPResp(ocspResponse);
     token.setCertId(certificateID);
     token.setSourceURL(accessLocation);
-    token.extractInfo();
+    token.initInfo();
     return token;
   }
 
@@ -304,9 +304,9 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   /**
    * Gets data loader
    *
-   * @return SkDataLoader
+   * @return DataLoader
    */
-  public SkDataLoader getDataLoader() {
+  public DataLoader getDataLoader() {
     return dataLoader;
   }
 
@@ -315,7 +315,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
    *
    * @param dataLoader Data loader object to be used.
    */
-  public void setDataLoader(SkDataLoader dataLoader) {
+  public void setDataLoader(DataLoader dataLoader) {
     this.dataLoader = dataLoader;
   }
 

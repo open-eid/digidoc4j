@@ -10,11 +10,11 @@
 
 package org.digidoc4j.impl.bdoc.xades;
 
-import eu.europa.esig.dss.DSSDocument;
-import eu.europa.esig.dss.EncryptionAlgorithm;
-import eu.europa.esig.dss.FileDocument;
-import eu.europa.esig.dss.Policy;
-import eu.europa.esig.dss.SignerLocation;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.enumerations.EncryptionAlgorithm;
+import eu.europa.esig.dss.model.FileDocument;
+import eu.europa.esig.dss.model.Policy;
+import eu.europa.esig.dss.model.SignerLocation;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
@@ -30,9 +30,9 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 
-import static eu.europa.esig.dss.DigestAlgorithm.SHA256;
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_B;
-import static eu.europa.esig.dss.SignatureLevel.XAdES_BASELINE_LT;
+import static eu.europa.esig.dss.enumerations.DigestAlgorithm.SHA256;
+import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_B;
+import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_LT;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
 
 public class XadesSigningDssFacadeTest extends AbstractTest {

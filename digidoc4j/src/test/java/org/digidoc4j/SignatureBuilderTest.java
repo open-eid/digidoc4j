@@ -10,8 +10,8 @@
 
 package org.digidoc4j;
 
-import eu.europa.esig.dss.validation.TimestampToken;
-import eu.europa.esig.dss.x509.SignaturePolicy;
+import eu.europa.esig.dss.validation.timestamp.TimestampToken;
+import eu.europa.esig.dss.validation.SignaturePolicy;
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.exceptions.IllegalSignatureProfileException;

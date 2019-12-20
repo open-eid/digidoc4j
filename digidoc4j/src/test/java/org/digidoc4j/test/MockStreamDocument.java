@@ -16,7 +16,7 @@ import java.io.FileNotFoundException;
 
 import org.digidoc4j.impl.StreamDocument;
 
-import eu.europa.esig.dss.MimeType;
+import eu.europa.esig.dss.model.MimeType;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)

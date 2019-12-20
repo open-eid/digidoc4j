@@ -6,8 +6,8 @@ import org.digidoc4j.impl.asic.DataLoaderDecorator;
 import org.junit.Assert;
 import org.junit.Test;
 
-import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
-import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
+import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
+import eu.europa.esig.dss.service.http.proxy.ProxyProperties;
 
 /**
  * Created by Andrei on 15.09.2017.

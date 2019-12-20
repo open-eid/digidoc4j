@@ -12,7 +12,9 @@ package org.digidoc4j.impl.asic;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -20,10 +22,10 @@ import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.AbstractSignatureValidationResult;
 
-import eu.europa.esig.dss.validation.SignatureQualification;
-import eu.europa.esig.dss.validation.policy.rules.Indication;
-import eu.europa.esig.dss.validation.policy.rules.SubIndication;
-import eu.europa.esig.dss.validation.reports.SimpleReport;
+import eu.europa.esig.dss.enumerations.SignatureQualification;
+import eu.europa.esig.dss.enumerations.Indication;
+import eu.europa.esig.dss.enumerations.SubIndication;
+import eu.europa.esig.dss.simplereport.SimpleReport;
 
 /**
  * Validation result information.
@@ -34,6 +36,7 @@ public class AsicContainerValidationResult extends AbstractSignatureValidationRe
     ContainerValidationResult {
 
   private List<DigiDoc4JException> containerErrors = new ArrayList<>();
+  private Map<String, String> signatureIdMap = Collections.emptyMap();
   private AsicValidationReportBuilder validationReportBuilder;
 
   @Override
@@ -42,6 +45,7 @@ public class AsicContainerValidationResult extends AbstractSignatureValidationRe
       SimpleReport report = this.getSimpleReport();
       return report != null ? report.getIndication(report.getFirstSignatureId()) : null;
     }
+    signatureId = resolveSignatureId(signatureId);
     SimpleReport report = this.getSimpleReportBySignatureId(signatureId);
     return report != null ? report.getIndication(signatureId) : null;
   }
@@ -52,6 +56,7 @@ public class AsicContainerValidationResult extends AbstractSignatureValidationRe
       SimpleReport report = this.getSimpleReport();
       return report != null ? report.getSubIndication(report.getFirstSignatureId()) : null;
     }
+    signatureId = resolveSignatureId(signatureId);
     SimpleReport report = this.getSimpleReportBySignatureId(signatureId);
     return report != null ? report.getSubIndication(signatureId) : null;
   }
@@ -62,6 +67,7 @@ public class AsicContainerValidationResult extends AbstractSignatureValidationRe
       SimpleReport report = this.getSimpleReport();
       return report != null ? report.getSignatureQualification(report.getFirstSignatureId()) : null;
     }
+    signatureId = resolveSignatureId(signatureId);
     SimpleReport report = this.getSimpleReportBySignatureId(signatureId);
     return report != null ? report.getSignatureQualification(signatureId) : null;
   }
@@ -107,6 +113,7 @@ public class AsicContainerValidationResult extends AbstractSignatureValidationRe
       this.report = this.validationReportBuilder.buildXmlReport();
       this.reports = this.validationReportBuilder.buildSignatureValidationReports();
       this.simpleReports = this.validationReportBuilder.buildSignatureSimpleReports();
+      this.signatureIdMap = this.validationReportBuilder.buildSignatureIdMap();
     }
   }
 
@@ -124,6 +131,10 @@ public class AsicContainerValidationResult extends AbstractSignatureValidationRe
       }
     }
     return null;
+  }
+
+  private String resolveSignatureId(String signatureId) {
+    return signatureIdMap.getOrDefault(signatureId, signatureId);
   }
 
   /*

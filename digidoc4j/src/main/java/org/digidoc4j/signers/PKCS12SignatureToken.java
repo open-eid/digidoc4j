@@ -10,8 +10,8 @@
 
 package org.digidoc4j.signers;
 
-import eu.europa.esig.dss.SignatureValue;
-import eu.europa.esig.dss.ToBeSigned;
+import eu.europa.esig.dss.model.SignatureValue;
+import eu.europa.esig.dss.model.ToBeSigned;
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
 import eu.europa.esig.dss.token.KSPrivateKeyEntry;
 import eu.europa.esig.dss.token.KeyStoreSignatureTokenConnection;
@@ -119,8 +119,8 @@ public class PKCS12SignatureToken implements SignatureToken {
   public byte[] sign(org.digidoc4j.DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
     logger.info("Signing with PKCS#12 signature token, using digest algorithm: " + digestAlgorithm.name());
     ToBeSigned toBeSigned = new ToBeSigned(dataToSign);
-    eu.europa.esig.dss.DigestAlgorithm dssDigestAlgorithm =
-        eu.europa.esig.dss.DigestAlgorithm.forXML(digestAlgorithm.toString());
+    eu.europa.esig.dss.enumerations.DigestAlgorithm dssDigestAlgorithm =
+        eu.europa.esig.dss.enumerations.DigestAlgorithm.forXML(digestAlgorithm.toString());
     SignatureValue signature = signatureTokenConnection.sign(toBeSigned, dssDigestAlgorithm, keyEntry);
     return signature.getValue();
   }

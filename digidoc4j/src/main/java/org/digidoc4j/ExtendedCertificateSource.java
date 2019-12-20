@@ -3,7 +3,7 @@ package org.digidoc4j;
 import java.io.FileFilter;
 import java.nio.file.Path;
 
-import eu.europa.esig.dss.x509.CertificateSource;
+import eu.europa.esig.dss.spi.x509.CertificateSource;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)

@@ -10,8 +10,8 @@
 
 package org.digidoc4j.utils;
 
-import eu.europa.esig.dss.DigestAlgorithm;
-import eu.europa.esig.dss.Policy;
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import eu.europa.esig.dss.model.Policy;
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.hamcrest.core.IsEqual;

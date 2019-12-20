@@ -18,8 +18,8 @@ import java.security.cert.X509Certificate;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.asic.tsl.TslLoader;
 
-import eu.europa.esig.dss.DSSException;
-import eu.europa.esig.dss.DSSUtils;
+import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.spi.DSSUtils;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)

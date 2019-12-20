@@ -19,6 +19,7 @@ public class SignatureValidationData implements Serializable {
 
   private ValidationResult validationResult;
   private String signatureId;
+  private String signatureUniqueId;
   private XadesValidationResult report;
   private SignatureProfile signatureProfile;
 
@@ -36,6 +37,14 @@ public class SignatureValidationData implements Serializable {
 
   public String getSignatureId() {
     return signatureId;
+  }
+
+  public void setSignatureUniqueId(String signatureUniqueId) {
+    this.signatureUniqueId = signatureUniqueId;
+  }
+
+  public String getSignatureUniqueId() {
+    return signatureUniqueId;
   }
 
   public void setReport(XadesValidationResult report) {

@@ -15,7 +15,7 @@ import org.bouncycastle.asn1.x509.Extension;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.CommonOCSPSource;
-import org.digidoc4j.impl.SkOCSPDataLoader;
+import org.digidoc4j.impl.OcspDataLoaderFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   public void gettingOCSPNonceShouldReturnNull_inCaseOfOlderAiaOcsp() throws Exception {
     this.configuration.setPreferAiaOcsp(true);
     CommonOCSPSource source = new CommonOCSPSource(this.configuration);
-    source.setDataLoader(new SkOCSPDataLoader(this.configuration));
+    source.setDataLoader(new OcspDataLoaderFactory(this.configuration, null).create());
     X509Certificate certificate = this.pkcs12EccSignatureToken.getCertificate();
     source.getAccessLocation(certificate);
     Extension nonce = source.createNonce(certificate);

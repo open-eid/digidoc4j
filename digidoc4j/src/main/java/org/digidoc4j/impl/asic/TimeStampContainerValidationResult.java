@@ -7,7 +7,7 @@ import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.AbstractSignatureValidationResult;
 
-import eu.europa.esig.dss.validation.policy.rules.Indication;
+import eu.europa.esig.dss.enumerations.Indication;
 
 /**
  * Created by Andrei on 27.11.2017.

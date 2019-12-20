@@ -1,6 +1,6 @@
 package org.digidoc4j;
 
-import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.model.x509.CertificateToken;
 import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
 import org.junit.Assert;
@@ -83,7 +83,7 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
   public void testLoadingOCSPIntermediateCertificatesFromCustomLocation() {
     ExtendedCertificateSource source = CertificateValidatorBuilder.getDefaultCertificateSource();
     source.importFromPath(Paths.get("src/test/resources/testFiles/certs"));
-    Assert.assertEquals("Not equals", 9, source.getCertificatePool().getNumberOfCertificates());
+    Assert.assertEquals("Not equals", 10, source.getCertificatePool().getNumberOfCertificates());
   }
 
   /*

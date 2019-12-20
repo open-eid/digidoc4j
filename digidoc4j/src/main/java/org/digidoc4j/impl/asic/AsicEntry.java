@@ -13,7 +13,7 @@ package org.digidoc4j.impl.asic;
 import java.io.Serializable;
 import java.util.zip.ZipEntry;
 
-import eu.europa.esig.dss.DSSDocument;
+import eu.europa.esig.dss.model.DSSDocument;
 
 /**
  * ASIC entry

@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl;
 
-import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.model.x509.CertificateToken;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.DEROctetString;
@@ -58,7 +58,7 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
   @Override
   public String getAccessLocation(X509Certificate certificate) {
     if (getConfiguration().isAiaOcspPreferred()) {
-      LOGGER.info("Trying to find AIA OCSP url for certificate <{}>", certificate.getSubjectDN().getName());
+      LOGGER.info("Trying to find AIA OCSP url for certificate");
       String aiaOcspFromCertificate = getAccessLocationFromCertificate(certificate);
       if (!StringUtils.isEmpty(aiaOcspFromCertificate)) {
         LOGGER.info("Found AIA OCSP url from certificate");
@@ -99,8 +99,8 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
   @Override
   protected void verifyOcspResponderCertificate(CertificateToken token) {
     TSLCertificateSource certificateSource = getConfiguration().getTSL();
-    if (CollectionUtils.isEmpty(certificateSource.get(token.getCertificate().getSubjectX500Principal()))
-            && CollectionUtils.isEmpty(certificateSource.get(token.getCertificate().getIssuerX500Principal()))) {
+    if (!certificateSource.isTrusted(token)
+            && CollectionUtils.isEmpty(certificateSource.getCertificatePool().get(token.getCertificate().getIssuerX500Principal()))) {
       throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNTRUSTED,
               String.format("OCSP response certificate <%s> match is not found in TSL", token.getDSSIdAsString()));
     }
@@ -151,12 +151,16 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
   private void setAiaOCspParams(X509Certificate certificate) {
     useAiaOCSP = true;
     useNonce = getConfiguration().getUseNonceForAiaOcspByCN(getCN(certificate.getIssuerX500Principal()));
-    ((SkOCSPDataLoader) getDataLoader()).setAsAiaOcsp(true);
+    if (getDataLoader() instanceof SkOCSPDataLoader) {
+      ((SkOCSPDataLoader) getDataLoader()).setAsAiaOcsp(true);
+    }
   }
 
   private void setAndUsePayedOcspParams() {
     useAiaOCSP = false;
     useNonce = getConfiguration().isOcspNonceUsed();
-    ((SkOCSPDataLoader) getDataLoader()).setAsAiaOcsp(false);
+    if (getDataLoader() instanceof SkOCSPDataLoader) {
+      ((SkOCSPDataLoader) getDataLoader()).setAsAiaOcsp(false);
+    }
   }
 }

@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl;
 
-import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
+import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.utils.Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -45,6 +45,8 @@ public abstract class SkDataLoader extends CommonsDataLoader {
   protected static final Logger LOGGER = LoggerFactory.getLogger(SkDataLoader.class);
   private String userAgent;
 
+  protected SkDataLoader() {}
+
   protected SkDataLoader(Configuration configuration) {
     DataLoaderDecorator.decorateWithProxySettings(this, configuration);
     DataLoaderDecorator.decorateWithSslSettings(this, configuration);
@@ -71,20 +73,25 @@ public abstract class SkDataLoader extends CommonsDataLoader {
       HttpEntity requestEntity = new BufferedHttpEntity(httpEntity);
       httpRequest.setEntity(requestEntity);
       if (StringUtils.isNotBlank(this.contentType)) {
-        httpRequest.setHeader(CONTENT_TYPE, this.contentType);
+        httpRequest.setHeader("Content-Type", this.contentType);
       }
       client = getHttpClient(url);
       httpResponse = this.getHttpResponse(client, httpRequest);
       validateHttpResponse(httpResponse, url);
-      return readHttpResponse(httpResponse);
-
+      byte[] responseBytes = readHttpResponse(httpResponse);
+      publishExternalServiceAccessEvent(url, true);
+      return responseBytes;
     } catch (UnknownHostException e) {
+      publishExternalServiceAccessEvent(url, false);
       throw new ServiceUnreachableException(url, getServiceType());
     } catch (InterruptedIOException e) {
+      publishExternalServiceAccessEvent(url, false);
       throw new ConnectionTimedOutException(url, getServiceType());
     } catch (NetworkException e) {
+      publishExternalServiceAccessEvent(url, false);
       throw e;
     } catch (Exception e) {
+      publishExternalServiceAccessEvent(url, false);
       throw new NetworkException("Unable to process <" + getServiceType() + "> POST call for service <" + url + ">", url, getServiceType(), e);
     } finally {
       try {
@@ -104,6 +111,13 @@ public abstract class SkDataLoader extends CommonsDataLoader {
     if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN) {
       throw new ServiceAccessDeniedException(url, getServiceType());
     }
+  }
+
+  private void publishExternalServiceAccessEvent(final String url, final boolean success) {
+    ServiceAccessScope.notifyExternalServiceAccessListenerIfPresent(() -> {
+      final ServiceType serviceType = getServiceType();
+      return new ServiceAccessEvent(url, serviceType, success);
+    });
   }
 
   protected abstract ServiceType getServiceType();

@@ -13,6 +13,8 @@ package org.digidoc4j.utils;
 import static org.apache.commons.lang3.time.DateUtils.addSeconds;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -74,4 +76,32 @@ public final class DateUtils {
     sdf.setTimeZone(TimeZone.getTimeZone(GREENWICH_MEAN_TIME));
     return sdf;
   }
+
+  /**
+   * If the precision of either of the date objects is no greater than seconds,
+   * then the comparison is performed as if both date objects were truncated to seconds;
+   * otherwise regular comparison is performed
+   *
+   * @param date1 the first date to compare
+   * @param date2 the second date to compare
+   * @return the result of the comparison
+   */
+  public static int compareAtSamePrecision(Date date1, Date date2) {
+    return compareAtSamePrecision(date1.toInstant(), date2.toInstant());
+  }
+
+  private static int compareAtSamePrecision(Instant instant1, Instant instant2) {
+    boolean precise1 = instant1.getNano() != 0L;
+    boolean precise2 = instant2.getNano() != 0L;
+
+    if (precise1 & !precise2) {
+      instant1 = instant1.truncatedTo(ChronoUnit.SECONDS);
+    }
+    if (precise2 & !precise1) {
+      instant2 = instant2.truncatedTo(ChronoUnit.SECONDS);
+    }
+
+    return instant1.compareTo(instant2);
+  }
+
 }

@@ -87,6 +87,11 @@ public class DDocSignature implements Signature {
   }
 
   @Override
+  public String getUniqueId() {
+    return getId();
+  }
+
+  @Override
   public byte[] getOCSPNonce() {
     logger.debug("getOCSPNonce");
     return null;

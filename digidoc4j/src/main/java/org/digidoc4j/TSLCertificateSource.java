@@ -3,10 +3,10 @@ package org.digidoc4j;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
-import eu.europa.esig.dss.tsl.ServiceInfo;
-import eu.europa.esig.dss.tsl.TLInfo;
-import eu.europa.esig.dss.x509.CertificateSource;
-import eu.europa.esig.dss.x509.CertificateToken;
+import eu.europa.esig.dss.spi.tsl.ServiceInfo;
+import eu.europa.esig.dss.spi.tsl.TLInfo;
+import eu.europa.esig.dss.spi.x509.CertificateSource;
+import eu.europa.esig.dss.model.x509.CertificateToken;
 
 /**
  * Trusted List certificates

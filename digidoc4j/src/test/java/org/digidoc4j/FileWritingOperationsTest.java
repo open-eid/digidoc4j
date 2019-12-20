@@ -10,7 +10,7 @@
 
 package org.digidoc4j;
 
-import eu.europa.esig.dss.MimeType;
+import eu.europa.esig.dss.model.MimeType;
 import org.digidoc4j.test.RestrictedExternalResourceRule;
 import org.digidoc4j.test.RestrictedExternalResourceRule.FileWritingRestrictedException;
 import org.digidoc4j.test.TestAssert;

@@ -55,8 +55,8 @@ public enum DigestAlgorithm {
     return digestInfoPrefix;
   }
 
-  public eu.europa.esig.dss.DigestAlgorithm getDssDigestAlgorithm() {
-    return eu.europa.esig.dss.DigestAlgorithm.forXML(uri.toString());
+  public eu.europa.esig.dss.enumerations.DigestAlgorithm getDssDigestAlgorithm() {
+    return eu.europa.esig.dss.enumerations.DigestAlgorithm.forXML(uri.toString());
   }
 
   /**

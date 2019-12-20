@@ -19,12 +19,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import eu.europa.esig.dss.jaxb.simplereport.SimpleReport;
+import eu.europa.esig.dss.simplereport.jaxb.XmlSimpleReport;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @XmlRootElement(name = "SimpleReport")
-public class ContainerValidationReport extends SimpleReport {
+public class ContainerValidationReport extends XmlSimpleReport {
 
   @XmlElement(name = "Signature")
   protected List<SignatureValidationReport> signatures;

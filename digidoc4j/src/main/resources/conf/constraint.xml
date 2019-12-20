@@ -128,6 +128,7 @@
       <CertDigestMatch Level="FAIL"/>
       <IssuerSerialMatch Level="WARN"/>
       <SigningTime Level="FAIL"/>
+      <MessageDigestOrSignedPropertiesPresent Level="FAIL" />
       <!--<ContentType Level="FAIL" value="1.2.840.113549.1.7.1" />
       <ContentHints Level="FAIL" value="*" />
       <CommitmentTypeIndication Level="FAIL">
@@ -144,7 +145,7 @@
     </UnsignedAttributes>
   </SignatureConstraints>
   <Timestamp>
-    <TimestampDelay Level="FAIL" Unit="DAYS" Value="0"/>
+    <TimestampDelay Level="IGNORE" Unit="DAYS" Value="0"/>
     <RevocationTimeAgainstBestSignatureTime Level="FAIL"/>
     <BestSignatureTimeBeforeIssuanceDateOfSigningCertificate Level="FAIL"/>
     <Coherence Level="FAIL"/>
@@ -153,7 +154,7 @@
       <ReferenceDataIntact Level="FAIL"/>
       <SignatureIntact Level="FAIL"/>
       <ProspectiveCertificateChain Level="FAIL"/>
-      <TrustedServiceTypeIdentifier Level="WARN">
+      <TrustedServiceTypeIdentifier Level="FAIL">
         <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA</Id>
         <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA/QTST</Id>
         <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA/TSS-QC</Id>
@@ -175,7 +176,7 @@
         <RevocationDataFreshness Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
-        <NotSelfSigned Level="WARN"/>
+        <NotSelfSigned Level="FAIL"/>
         <Cryptographic Level="FAIL">
           <AcceptableEncryptionAlgo>
             <Algo>RSA</Algo>
@@ -261,7 +262,7 @@
     </BasicSignatureConstraints>
   </Timestamp>
   <Revocation>
-    <RevocationFreshness Level="FAIL" Unit="DAYS" Value="0"/>
+    <RevocationFreshness Level="IGNORE" Unit="DAYS" Value="0"/>
     <BasicSignatureConstraints>
       <ReferenceDataExistence Level="FAIL"/>
       <ReferenceDataIntact Level="FAIL"/>

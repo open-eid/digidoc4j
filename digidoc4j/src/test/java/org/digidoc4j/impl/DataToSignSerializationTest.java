@@ -10,8 +10,8 @@
 
 package org.digidoc4j.impl;
 
-import eu.europa.esig.dss.DigestAlgorithm;
-import eu.europa.esig.dss.Policy;
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import eu.europa.esig.dss.model.Policy;
 import org.apache.commons.lang3.SerializationUtils;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
