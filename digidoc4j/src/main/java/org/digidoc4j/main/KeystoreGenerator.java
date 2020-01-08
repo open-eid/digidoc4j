@@ -2,7 +2,6 @@ package org.digidoc4j.main;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +18,6 @@ import java.util.UUID;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.IOUtils;
 
 import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
@@ -56,7 +54,7 @@ public final class KeystoreGenerator {
     }
   }
 
-  private KeystoreGenerator() {};
+  private KeystoreGenerator() {}
 
   public static KeystoreGenerator aGenerator() {
     return new KeystoreGenerator();
@@ -106,9 +104,7 @@ public final class KeystoreGenerator {
       throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
     createKeystore(keyStoreFilepath, keyStorePassword);
     KeyStore store = KeyStore.getInstance(DEFAULT_KEYSTORE_TYPE);
-    store.load(new FileInputStream(keyStoreFilepath), keyStorePassword.toCharArray());
-
-    OutputStream fos = new FileOutputStream(keyStoreFilepath);
+    loadIntoKeystoreFormFile(store, keyStoreFilepath, keyStorePassword);
 
     File dir = new File(keyStoreCertsFilepath);
     File[] directoryListing = dir.listFiles();
@@ -116,22 +112,21 @@ public final class KeystoreGenerator {
       for (File child : directoryListing) {
         addCertificate(store, child.getPath());
       }
-      store.store(fos, keyStorePassword.toCharArray());
-      IOUtils.closeQuietly(fos);
+      saveKeystoreToFile(store, keyStoreFilepath, keyStorePassword);
       readKeyStore(keyStoreFilepath, keyStorePassword);
     } else {
       System.out.println("No certificates found!");
     }
   }
 
-  private void addCertificate(KeyStore store, String filepath) throws KeyStoreException, FileNotFoundException {
-    InputStream fis = new FileInputStream(filepath);
-    CertificateToken europanCert = DSSUtils.loadCertificate(fis);
-    System.out.println("Adding certificate " + filepath);
-    displayCertificateDigests(europanCert);
+  private void addCertificate(KeyStore store, String filepath) throws KeyStoreException, IOException {
+    try (InputStream fis = new FileInputStream(filepath)) {
+      CertificateToken europanCert = DSSUtils.loadCertificate(fis);
+      System.out.println("Adding certificate " + filepath);
+      displayCertificateDigests(europanCert);
 
-    store.setCertificateEntry(UUID.randomUUID().toString(), europanCert.getCertificate());
-    IOUtils.closeQuietly(fis);
+      store.setCertificateEntry(UUID.randomUUID().toString(), europanCert.getCertificate());
+    }
   }
 
   private void displayCertificateDigests(CertificateToken europanCert) {
@@ -150,9 +145,8 @@ public final class KeystoreGenerator {
   }
 
   private void readKeyStore(String keyStoreFilepath, String keyStorePassword) throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
-    InputStream fis = new FileInputStream(keyStoreFilepath);
-    KeyStore store = KeyStore.getInstance("JKS");
-    store.load(fis, keyStorePassword.toCharArray());
+    KeyStore store = KeyStore.getInstance(DEFAULT_KEYSTORE_TYPE);
+    loadIntoKeystoreFormFile(store, keyStoreFilepath, keyStorePassword);
 
     Enumeration<String> aliases = store.aliases();
     while (aliases.hasMoreElements()) {
@@ -163,18 +157,25 @@ public final class KeystoreGenerator {
         System.out.println(certificateToken);
       }
     }
-
-    IOUtils.closeQuietly(fis);
   }
-
 
   private void createKeystore(String keyStoreFilepath, String keyStorePassword) throws CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException {
     KeyStore trustStore = KeyStore.getInstance(DEFAULT_KEYSTORE_TYPE);
     trustStore.load(null, keyStorePassword.toCharArray());
     Path pathToKeystore = Paths.get(keyStoreFilepath);
     pathToKeystore.getParent().toFile().mkdirs();
-    OutputStream fos = new FileOutputStream(keyStoreFilepath);
-    trustStore.store(fos, keyStorePassword.toCharArray());
-    IOUtils.closeQuietly(fos);
+    saveKeystoreToFile(trustStore, keyStoreFilepath, keyStorePassword);
+  }
+
+  private static void loadIntoKeystoreFormFile(KeyStore store, String keyStoreFilepath, String keyStorePassword) throws IOException, CertificateException, NoSuchAlgorithmException {
+    try (InputStream inputStream = new FileInputStream(keyStoreFilepath)) {
+      store.load(inputStream, keyStorePassword.toCharArray());
+    }
+  }
+
+  private static void saveKeystoreToFile(KeyStore store, String keyStoreFilepath, String keyStorePassword) throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException {
+    try (OutputStream outputStream = new FileOutputStream(keyStoreFilepath)) {
+      store.store(outputStream, keyStorePassword.toCharArray());
+    }
   }
 }

@@ -200,8 +200,8 @@ public class XadesSigningDssFacade {
     xAdESSignatureParameters.setEn319132(isSigningCertificateV2);
   }
 
-  public void getEn319132() {
-    xAdESSignatureParameters.isEn319132();
+  public boolean isEn319132() {
+    return xAdESSignatureParameters.isEn319132();
   }
 
   public void setTspSource(TSPSource tspSource) {

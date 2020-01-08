@@ -94,10 +94,10 @@ public final class DateUtils {
     boolean precise1 = instant1.getNano() != 0L;
     boolean precise2 = instant2.getNano() != 0L;
 
-    if (precise1 & !precise2) {
+    if (precise1 && !precise2) {
       instant1 = instant1.truncatedTo(ChronoUnit.SECONDS);
     }
-    if (precise2 & !precise1) {
+    if (precise2 && !precise1) {
       instant2 = instant2.truncatedTo(ChronoUnit.SECONDS);
     }
 

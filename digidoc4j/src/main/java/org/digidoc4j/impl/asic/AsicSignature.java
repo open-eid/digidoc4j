@@ -29,7 +29,7 @@ import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 public class AsicSignature implements Signature {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicSignature.class);
-  private ValidationResult validationResult;
+  private transient ValidationResult validationResult;
   private XadesSignature xadesSignature;
   private SignatureValidator validator;
   private DSSDocument signatureDocument;

@@ -1847,8 +1847,9 @@ public class Configuration implements Serializable {
           + configurationInputSourceName + " is not correctly formatted");
       LOGGER.error(exception.getMessage());
       throw exception;
+    } finally {
+      IOUtils.closeQuietly(stream);
     }
-    IOUtils.closeQuietly(stream);
     if (configurationFromFile == null) {
       configurationFromFile = new LinkedHashMap<>();
     }
@@ -1978,7 +1979,7 @@ public class Configuration implements Serializable {
     );
     for (int i = 0; i < tsps.size(); i++) {
       Map<String, Object> tsp = tsps.get(i);
-      Object country = tsp.get("TSP_C").toString();
+      Object country = tsp.get("TSP_C");
       if (country != null) {
         this.tspMap.put(country.toString(), new HashMap<ConfigurationParameter, String>());
         for (Pair<String, ConfigurationParameter> pair : entryPairs) {

@@ -26,8 +26,6 @@ public class XadesSignatureValidatorFactory {
       xadesValidator = new XadesSignatureValidator(signature, configuration);
     } else if (profile == SignatureProfile.LT_TM) {
       xadesValidator = new TimemarkSignatureValidator(signature, configuration);
-    } else if (profile == SignatureProfile.LT) {
-      xadesValidator = new TimestampSignatureValidator(signature, configuration);
     } else {
       xadesValidator = new TimestampSignatureValidator(signature, configuration);
     }

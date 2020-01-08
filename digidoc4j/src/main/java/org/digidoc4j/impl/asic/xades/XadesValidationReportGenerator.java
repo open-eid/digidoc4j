@@ -33,7 +33,7 @@ import java.util.List;
 
 public class XadesValidationReportGenerator implements Serializable {
 
-  private final Logger log = LoggerFactory.getLogger(XadesValidationReportGenerator.class);
+  private static final Logger log = LoggerFactory.getLogger(XadesValidationReportGenerator.class);
   private transient SignedDocumentValidator signedDocumentValidator;
   private transient Reports reports;
   private transient XAdESSignature xadesSignature;

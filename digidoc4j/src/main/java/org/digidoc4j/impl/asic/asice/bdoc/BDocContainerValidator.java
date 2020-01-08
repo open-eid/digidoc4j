@@ -14,12 +14,10 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.asice.AsicEContainerValidator;
 
-import java.io.Serializable;
-
 /**
  * BDOC container validator
  */
-public class BDocContainerValidator extends AsicEContainerValidator implements Serializable {
+public class BDocContainerValidator extends AsicEContainerValidator {
 
   /**
    * @param configuration configuration

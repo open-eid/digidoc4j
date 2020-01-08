@@ -218,20 +218,17 @@ public final class Helper {
    * @throws IOException when the signature is not found
    */
   public static String extractSignature(String file, int index) throws IOException {
-    ZipFile zipFile = new ZipFile(file);
-    String signatureFileName = "META-INF/signatures" + index + ".xml";
-    ZipEntry entry = zipFile.getEntry(signatureFileName);
+    try (ZipFile zipFile = new ZipFile(file)) {
+      String signatureFileName = "META-INF/signatures" + index + ".xml";
+      ZipEntry entry = zipFile.getEntry(signatureFileName);
 
-    if (entry == null)
-      throw new IOException(signatureFileName + " does not exists in archive: " + file);
+      if (entry == null)
+        throw new IOException(signatureFileName + " does not exists in archive: " + file);
 
-    InputStream inputStream = zipFile.getInputStream(entry);
-    String signatureContent = IOUtils.toString(inputStream, "UTF-8");
-
-    zipFile.close();
-    inputStream.close();
-
-    return signatureContent;
+      try (InputStream inputStream = zipFile.getInputStream(entry)) {
+        return IOUtils.toString(inputStream, "UTF-8");
+      }
+    }
   }
 
   /**
@@ -241,18 +238,14 @@ public final class Helper {
    * @param file   file to store serialized object in
    */
   public static <T> void serialize(T object, File file) {
-    FileOutputStream fileOut = null;
-    ObjectOutputStream out = null;
-    try {
-      fileOut = new FileOutputStream(file);
-      out = new ObjectOutputStream(fileOut);
+    try (
+            FileOutputStream fileOut = new FileOutputStream(file);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+    ) {
       out.writeObject(object);
       out.flush();
     } catch (Exception e) {
       throw new DigiDoc4JException(e);
-    } finally {
-      IOUtils.closeQuietly(out);
-      IOUtils.closeQuietly(fileOut);
     }
   }
 
@@ -274,18 +267,14 @@ public final class Helper {
    * @return container
    */
   public static <T> T deserializer(File file) {
-    FileInputStream fileIn = null;
-    ObjectInputStream in = null;
-    try {
-      fileIn = new FileInputStream(file);
-      in = new ObjectInputStream(fileIn);
+    try (
+            FileInputStream fileIn = new FileInputStream(file);
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+    ) {
       T object = (T) in.readObject();
       return object;
     } catch (Exception e) {
       throw new DigiDoc4JException(e);
-    } finally {
-      IOUtils.closeQuietly(in);
-      IOUtils.closeQuietly(fileIn);
     }
   }
 
@@ -535,7 +524,6 @@ public final class Helper {
     for (File f : dir.listFiles(filenameFilter)) {
       if (!f.delete()) {
         f.deleteOnExit();
-        System.gc();
       }
     }
   }
@@ -594,18 +582,19 @@ public final class Helper {
       if (!outputFolder.exists()) {
         if (outputFolder.mkdirs()) {
           List<ZipEntry> entries = new ArrayList<>();
-          ZipFile zipFile = new ZipFile(file);
-          Enumeration<? extends ZipEntry> e = zipFile.entries();
-          while (e.hasMoreElements()) {
-            ZipEntry entry = e.nextElement();
-            if (entry.getName().startsWith(fragments[1]) && !entry.isDirectory()) {
-              entries.add(entry);
+          try (ZipFile zipFile = new ZipFile(file)) {
+            Enumeration<? extends ZipEntry> e = zipFile.entries();
+            while (e.hasMoreElements()) {
+              ZipEntry entry = e.nextElement();
+              if (entry.getName().startsWith(fragments[1]) && !entry.isDirectory()) {
+                entries.add(entry);
+              }
             }
-          }
-          for (ZipEntry entry : entries) {
-            try (InputStream inputStream = zipFile.getInputStream(entry); OutputStream outputStream = new
-                FileOutputStream(Paths.get(outputFolder.getPath(), new File(entry.getName()).getName()).toFile())) {
-              IOUtils.copy(inputStream, outputStream);
+            for (ZipEntry entry : entries) {
+              try (InputStream inputStream = zipFile.getInputStream(entry); OutputStream outputStream = new
+                      FileOutputStream(Paths.get(outputFolder.getPath(), new File(entry.getName()).getName()).toFile())) {
+                IOUtils.copy(inputStream, outputStream);
+              }
             }
           }
         } else {

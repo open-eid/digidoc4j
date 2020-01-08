@@ -12,7 +12,7 @@ package org.digidoc4j.exceptions;
 
 public class InvalidSignatureException extends DigiDoc4JException {
 
-  public static String MESSAGE = "Invalid signature document";
+  public static final String MESSAGE = "Invalid signature document";
 
   public InvalidSignatureException() {
     super(MESSAGE);

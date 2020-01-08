@@ -36,8 +36,6 @@ public class StreamDocument extends CommonDocument {
   private static final Logger logger = LoggerFactory.getLogger(StreamDocument.class);
 
   private static final int MAX_SIZE_IN_MEMORY = 1024 * 5;
-  String documentName;
-  MimeType mimeType;
   File temporaryFile;
 
   //TODO if file is small enough you can read it into byte[] and cache it
@@ -52,8 +50,8 @@ public class StreamDocument extends CommonDocument {
   public StreamDocument(InputStream stream, String documentName, MimeType mimeType) {
     logger.debug("Document name: " + documentName + ", mime type: " + mimeType);
     createTemporaryFileOfStream(stream);
-    this.documentName = documentName;
-    this.mimeType = mimeType;
+    super.name = documentName;
+    super.mimeType = mimeType;
   }
 
   private void createTemporaryFileOfStream(InputStream stream) {
@@ -90,13 +88,7 @@ public class StreamDocument extends CommonDocument {
   }
 
   @Override
-  public String getName() {
-    return documentName;
-  }
-
-  @Override
   public void setName(String s) {
-
   }
 
   @Override
@@ -106,6 +98,7 @@ public class StreamDocument extends CommonDocument {
 
   @Override
   public MimeType getMimeType() {
+    MimeType mimeType = super.getMimeType();
     logger.debug("Mime type: " + mimeType);
     return mimeType;
   }
@@ -113,7 +106,7 @@ public class StreamDocument extends CommonDocument {
   @Override
   public void setMimeType(MimeType mimeType) {
     logger.debug("Mime type: " + mimeType);
-    this.mimeType = mimeType;
+    super.setMimeType(mimeType);
   }
 
   @Override

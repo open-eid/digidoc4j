@@ -44,7 +44,7 @@ import eu.europa.esig.dss.model.x509.CertificateToken;
  */
 public class TSLCertificateSourceImpl extends TrustedListsCertificateSource implements TSLCertificateSource {
 
-  public static String OID_TIMESTAMPING = "1.3.6.1.5.5.7.3.8";
+  public static final String OID_TIMESTAMPING = "1.3.6.1.5.5.7.3.8";
 
   private static final Logger logger = LoggerFactory.getLogger(TSLCertificateSourceImpl.class);
 
