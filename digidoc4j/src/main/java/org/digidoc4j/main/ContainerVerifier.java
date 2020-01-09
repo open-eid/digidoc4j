@@ -30,7 +30,7 @@ import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.ddoc.factory.DigiDocGenFactory;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
-import org.digidoc4j.impl.OcspDataLoaderFactory;
+import org.digidoc4j.impl.AiaDataLoaderFactory;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
 import org.digidoc4j.impl.asic.tsl.TslManager;
 import org.digidoc4j.impl.ddoc.DDocContainer;
@@ -164,7 +164,7 @@ public class ContainerVerifier {
     SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
     verifier.setOcspSource(OCSPSourceBuilder.anOcspSource().withConfiguration(configuration).build());
     verifier.setTrustedCertSource(configuration.getTSL());
-    verifier.setDataLoader(new OcspDataLoaderFactory(configuration, null).create());
+    verifier.setDataLoader(new AiaDataLoaderFactory(configuration).create());
     validator.setCertificateVerifier(verifier);
     Reports reports = validator.validateDocument();
     if (reportsDir != null) {

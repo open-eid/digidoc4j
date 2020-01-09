@@ -165,6 +165,7 @@ public class Configuration implements Serializable {
   private DataLoaderFactory ocspDataLoaderFactory;
   private DataLoaderFactory tspDataLoaderFactory;
   private DataLoaderFactory tslDataLoaderFactory;
+  private DataLoaderFactory aiaDataLoaderFactory;
 
   /**
    * Application mode
@@ -538,6 +539,22 @@ public class Configuration implements Serializable {
    */
   public DataLoaderFactory getTslDataLoaderFactory() {
     return tslDataLoaderFactory;
+  }
+
+  /**
+   * Set a data loader factory that manages the creation of custom data loaders for accessing AIA certificate sources.
+   * @param aiaDataLoaderFactory AIA data loader factory.
+   */
+  public void setAiaDataLoaderFactory(DataLoaderFactory aiaDataLoaderFactory) {
+    this.aiaDataLoaderFactory = aiaDataLoaderFactory;
+  }
+
+  /**
+   * Returns the currently set AIA data loader factory or <code>null</code> if no custom data loader factory is set.
+   * @return AIA data loader factory.
+   */
+  public DataLoaderFactory getAiaDataLoaderFactory() {
+    return aiaDataLoaderFactory;
   }
 
   /**

@@ -62,6 +62,24 @@ public enum ExternalConnectionType {
             Pair.of(SslProtocol, TspSslProtocol),
             Pair.of(SupportedSslProtocols, TspSupportedSslProtocols),
             Pair.of(SupportedSslCipherSuites, TspSupportedSslCipherSuites)
+    ),
+
+    AIA(
+            Pair.of(HttpProxyHost, AiaHttpProxyHost),
+            Pair.of(HttpProxyPort, AiaHttpProxyPort),
+            Pair.of(HttpsProxyHost, AiaHttpsProxyHost),
+            Pair.of(HttpsProxyPort, AiaHttpsProxyPort),
+            Pair.of(HttpProxyUser, AiaHttpProxyUser),
+            Pair.of(HttpProxyPassword, AiaHttpProxyPassword),
+            Pair.of(SslKeystoreType, AiaSslKeystoreType),
+            Pair.of(SslTruststoreType, AiaSslTruststoreType),
+            Pair.of(SslKeystorePath, AiaSslKeystorePath),
+            Pair.of(SslKeystorePassword, AiaSslKeystorePassword),
+            Pair.of(SslTruststorePath, AiaSslTruststorePath),
+            Pair.of(SslTruststorePassword, AiaSslTruststorePassword),
+            Pair.of(SslProtocol, AiaSslProtocol),
+            Pair.of(SupportedSslProtocols, AiaSupportedSslProtocols),
+            Pair.of(SupportedSslCipherSuites, AiaSupportedSslCipherSuites)
     );
 
     private final Map<ConfigurationParameter, ConfigurationParameter> genericToSpecificParameterMap;
@@ -73,7 +91,7 @@ public enum ExternalConnectionType {
     ConfigurationParameter mapToSpecificParameter(ConfigurationParameter genericParameter) {
         ConfigurationParameter specificParameter = genericToSpecificParameterMap.get(genericParameter);
         if (specificParameter == null) {
-            throw new IllegalArgumentException("No mapping founds for " + genericParameter + " in " + this);
+            throw new IllegalArgumentException("No mappings found for " + genericParameter + " in " + this);
         }
         return specificParameter;
     }

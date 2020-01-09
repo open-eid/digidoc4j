@@ -28,6 +28,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
+import org.digidoc4j.impl.AiaDataLoaderFactory;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
 
 import eu.europa.esig.dss.model.FileDocument;
@@ -305,6 +306,8 @@ public class PadesContainer implements Container {
     certificateVerifier.setSignatureCRLSource(null); //Disable CRL checks
     logger.debug("Setting trusted cert source to the certificate verifier");
     certificateVerifier.setTrustedCertSource(configuration.getTSL());
+    logger.debug("Setting custom data loader to the certificate verifier");
+    certificateVerifier.setDataLoader(new AiaDataLoaderFactory(configuration).create());
     logger.debug("Finished creating certificate verifier");
     return certificateVerifier;
   }

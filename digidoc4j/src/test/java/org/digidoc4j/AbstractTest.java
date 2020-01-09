@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.impl.AiaDataLoaderFactory;
 import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.impl.OcspDataLoaderFactory;
@@ -436,6 +437,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected XadesSigningDssFacade createSigningFacade() {
     XadesSigningDssFacade facade = new XadesSigningDssFacade();
+    facade.setCustomDataLoader(new AiaDataLoaderFactory(configuration).create());
     facade.setCertificateSource(this.configuration.getTSL());
     facade.setOcspSource(this.createOCSPSource());
     facade.setTspSource(this.createTSPSource());

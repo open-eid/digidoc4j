@@ -21,6 +21,7 @@ import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.impl.AiaDataLoaderFactory;
 import org.digidoc4j.impl.TspDataLoaderFactory;
 import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.utils.Helper;
@@ -93,6 +94,7 @@ public class SignatureExtender {
     SignatureLevel signatureLevel = getSignatureLevel(profile);
     extendingFacade.setSignatureLevel(signatureLevel);
     setSignaturePolicy(profile);
+    extendingFacade.setCustomDataLoader(new AiaDataLoaderFactory(configuration).create());
   }
 
   private DSSDocument extendSignature(Signature signature, SignatureProfile profile) {

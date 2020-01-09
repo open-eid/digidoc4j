@@ -29,6 +29,7 @@ import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
+import org.digidoc4j.impl.AiaDataLoaderFactory;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.impl.TspDataLoaderFactory;
@@ -188,6 +189,7 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
     setSignaturePolicy();
     setClaimedSigningDate();
     setTimeStampProviderSource();
+    setCustomDataLoader();
   }
 
   private void setDigestAlgorithm() {
@@ -290,5 +292,9 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
       }
     }
     return configuration.getTspSource();
+  }
+
+  private void setCustomDataLoader() {
+    this.facade.setCustomDataLoader(new AiaDataLoaderFactory(configuration).create());
   }
 }
