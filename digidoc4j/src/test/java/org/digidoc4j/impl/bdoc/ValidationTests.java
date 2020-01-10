@@ -241,7 +241,7 @@ public class ValidationTests extends AbstractTest {
         .open("src/test/resources/prodFiles/invalid-containers/revocation_timestamp_delta_26h.asice", configuration)
         .validate();
     Assert.assertEquals(0, result.getErrors().size());
-    Assert.assertEquals(3, result.getWarnings().size());
+    Assert.assertEquals(2, result.getWarnings().size());
   }
 
   @Test
@@ -602,6 +602,7 @@ public class ValidationTests extends AbstractTest {
   public void containerValidation_withManuallyAddedTrustedCertificates_shouldSucceed() throws Exception {
     TSLCertificateSourceImpl tsl = new TSLCertificateSourceImpl();
     Configuration conf = Configuration.of(Configuration.Mode.PROD);
+    conf.setAllowASN1UnsafeInteger(true);
     conf.setTSL(tsl);
     try (InputStream inputStream = new FileInputStream("src/test/resources/prodFiles/certs/ESTEID-SK_2011.pem.crt")) {
       tsl.addTSLCertificate(DSSUtils.loadCertificate(inputStream).getCertificate());
@@ -668,12 +669,12 @@ public class ValidationTests extends AbstractTest {
     Signature signature = signatureList.get(0);
     String signatureId = signature.getId();
     Assert.assertFalse(result.isValid());
-    Assert.assertEquals(4, errors.size());
+    Assert.assertEquals(3, errors.size());
     Assert.assertEquals("(Signature ID: " + signatureId +
         ") - The result of the timestamps validation process is not conclusive!",
-        errors.get(1).toString());
+        errors.get(0).toString());
     Assert.assertEquals("(Signature ID: " + signatureId + ") - Signature has an invalid timestamp",
-        errors.get(3).toString());
+        errors.get(2).toString());
   }
 
   @Test
@@ -738,6 +739,7 @@ public class ValidationTests extends AbstractTest {
   public void sameCertAddedTwiceToTSL_containerValidationShouldSucceed() {
     Configuration conf = Configuration.of(Configuration.Mode.PROD);
     conf.setTSL(new TSLCertificateSourceImpl());
+    conf.setAllowASN1UnsafeInteger(true);
     TestTSLUtil.addCertificateFromFileToTsl(conf, "src/test/resources/prodFiles/certs/ESTEID-SK_2011.pem.crt");
     TestTSLUtil.addCertificateFromFileToTsl(conf, "src/test/resources/prodFiles/certs/ESTEID-SK_2011.pem.crt");
     TestTSLUtil.addCertificateFromFileToTsl(conf, "src/test/resources/prodFiles/certs/SK_OCSP_RESPONDER_2011.pem.cer");
