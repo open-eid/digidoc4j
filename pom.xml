@@ -129,7 +129,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <maven.compiler.compilerVersion>1.7</maven.compiler.compilerVersion>
         <slf4j.version>1.7.26</slf4j.version>
-        <bouncycastle.version>1.64</bouncycastle.version>
+        <bouncycastle.version>1.62</bouncycastle.version>
         <javadocOpt>none</javadocOpt>
     </properties>
 
