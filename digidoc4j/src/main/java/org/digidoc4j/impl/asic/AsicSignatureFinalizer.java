@@ -101,11 +101,11 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
     if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile())) {
       BDocSignatureOpener signatureOpener = new BDocSignatureOpener(configuration);
       signature = signatureOpener.open(signatureWrapper);
-      validateOcspResponse(signature.getOrigin());
     } else {
       AsicESignatureOpener signatureOpener = new AsicESignatureOpener(configuration);
       signature = signatureOpener.open(signatureWrapper);
     }
+    validateOcspResponse(signature.getOrigin());
     LOGGER.info("Signing asic successfully completed");
     return signature;
   }
