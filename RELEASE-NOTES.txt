@@ -1,6 +1,13 @@
 DigiDoc4J Java library release notes
 ------------------------------------
 
+Release 3.3.1
+------------------
+Summary of the major changes since 3.3.0
+------------------------------------------
+* Ensure that signature creation fails if making an OCSP request is not possible
+* Dependencies update
+
 Release 3.3.0
 ------------------
 Summary of the major changes since 3.2.0
