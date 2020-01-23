@@ -463,39 +463,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.2</version>
-                <executions>
-                    <execution>
-                        <id>custom-deploy</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <classifier>library</classifier>
-                            <excludes>
-                                <exclude>prototype/**</exclude>
-                            </excludes>
-                            <archive>
-                                <manifestSections>
-                                    <manifestSection>
-                                        <Name>DigiDoc4j</Name>
-                                        <manifestEntries>
-                                            <Implementation-Vendor>Republic of Estonia Information System Authority
-                                            </Implementation-Vendor>
-                                            <Implementation-Title>Java BDoc/DigiDoc library</Implementation-Title>
-                                            <Implementation-Version>${project.version}</Implementation-Version>
-                                        </manifestEntries>
-                                    </manifestSection>
-                                </manifestSections>
-                            </archive>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <configuration>
