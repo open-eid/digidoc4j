@@ -13,6 +13,7 @@ package org.digidoc4j.impl.bdoc.ocsp;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.DataLoaderFactory;
 import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.SignatureProfile;
@@ -31,7 +32,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withConfiguration(
         this.configuration).build();
     Assert.assertEquals(CommonOCSPSource.class, source.getClass());
-    TestAssert.assertOCSPSource(this.configuration, source, "XAdES_BASELINE_LT");
+    TestAssert.assertOCSPSource(this.configuration, source, Constant.USER_AGENT_STRING);
   }
 
   @Test
@@ -39,7 +40,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withSignatureProfile(
         SignatureProfile.LT).withConfiguration(this.configuration).build();
     Assert.assertEquals(CommonOCSPSource.class, source.getClass());
-    TestAssert.assertOCSPSource(this.configuration, source, "XAdES_BASELINE_LT");
+    TestAssert.assertOCSPSource(this.configuration, source, Constant.USER_AGENT_STRING);
   }
 
   @Test
@@ -47,7 +48,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withSignatureProfile(
         SignatureProfile.LT_TM).withSignatureValue(new byte[]{1, 2, 3}).withConfiguration(this.configuration).build();
     Assert.assertEquals(BDocTMOcspSource.class, source.getClass());
-    TestAssert.assertOCSPSource(this.configuration, source, "ASiC_E_BASELINE_LT_TM");
+    TestAssert.assertOCSPSource(this.configuration, source, Constant.USER_AGENT_STRING);
   }
 
   @Test

@@ -79,6 +79,8 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   protected static final String ASICS_WITH_TS = "src/test/resources/testFiles/valid-containers/ddoc-valid.asics";
   protected static final String DDOC_TEST_FILE = "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc";
 
+  protected static final String USER_AGENT_STRING = "test-user-agent";
+
   protected static final PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
   protected static final PKCS12SignatureToken pkcs12EccSignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray());
   protected static final PKCS12SignatureToken pkcs12Esteid2018SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/sign_ESTEID2018.p12", "1234".toCharArray());
@@ -446,13 +448,13 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected CommonOCSPSource createOCSPSource() {
     CommonOCSPSource source = new CommonOCSPSource(this.configuration);
-    DataLoader loader = new OcspDataLoaderFactory(this.configuration, Helper.createBDocUserAgent(SignatureProfile.LT)).create();
+    DataLoader loader = new OcspDataLoaderFactory(this.configuration, USER_AGENT_STRING).create();
     source.setDataLoader(loader);
     return source;
   }
 
   private OnlineTSPSource createTSPSource() {
-    DataLoader loader = new TspDataLoaderFactory(this.configuration, Helper.createBDocUserAgent(SignatureProfile.LT)).create();
+    DataLoader loader = new TspDataLoaderFactory(this.configuration, USER_AGENT_STRING).create();
     OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
     source.setDataLoader(loader);
     return source;

@@ -18,6 +18,7 @@ import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.OCSPSourceBuilder;
@@ -275,9 +276,7 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
 
   private void setTimeStampProviderSource() {
     OnlineTSPSource tspSource = new OnlineTSPSource(this.getTspSource(configuration));
-    DataLoader dataLoader = new TspDataLoaderFactory(configuration,
-            Helper.createBDocUserAgent(this.signatureParameters.getSignatureProfile())
-    ).create();
+    DataLoader dataLoader = new TspDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create();
     tspSource.setDataLoader(dataLoader);
     this.facade.setTspSource(tspSource);
   }

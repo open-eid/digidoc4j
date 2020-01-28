@@ -29,6 +29,8 @@ public final class Constant {
   @Deprecated
   public static final String PADES_CONTAINER_TYPE = "PADES";
 
+  public static final String USER_AGENT_STRING = "LIB DigiDoc4j";
+
   public static class System {
 
     public static final String JAVAX_NET_SSL_TRUST_STORE_PASSWORD = "javax.net.ssl.trustStorePassword";
