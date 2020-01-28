@@ -19,16 +19,15 @@ import org.bouncycastle.tsp.TimeStampResponse;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ServiceType;
-import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.ConnectionTimedOutException;
 import org.digidoc4j.exceptions.ServiceAccessDeniedException;
-import org.digidoc4j.utils.Helper;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
@@ -63,10 +62,11 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
 
   @Test
   public void accessDeniedToOCSPService() {
-    instanceRule.stubFor(post("/").willReturn(WireMock.aResponse().withStatus(403)));
+    instanceRule.stubFor(post("/").withHeader("User-Agent", equalTo(USER_AGENT_STRING))
+            .willReturn(WireMock.aResponse().withStatus(403)));
 
     SkTimestampDataLoader dataLoader = new SkTimestampDataLoader(Configuration.of(TEST));
-    dataLoader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
+    dataLoader.setUserAgent(USER_AGENT_STRING);
     String serviceUrl = MOCK_PROXY_URL + instanceRule.port() + "/";
 
     try {
@@ -80,11 +80,12 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
 
   @Test
   public void connectionToTSPServiceTimedOut() {
-    instanceRule.stubFor(post("/").willReturn(WireMock.aResponse().withFixedDelay(200)));
+    instanceRule.stubFor(post("/").withHeader("User-Agent", equalTo(USER_AGENT_STRING))
+            .willReturn(WireMock.aResponse().withFixedDelay(200)));
 
     SkTimestampDataLoader dataLoader = new SkTimestampDataLoader(Configuration.of(TEST));
     dataLoader.setTimeoutSocket(100);
-    dataLoader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT_TM));
+    dataLoader.setUserAgent(USER_AGENT_STRING);
     String serviceUrl = MOCK_PROXY_URL + instanceRule.port() + "/";
 
     try {
@@ -102,7 +103,7 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
     instanceRule.stubFor(post("/").willReturn(WireMock.aResponse().proxiedFrom(configuration.getTspSource())));
     byte[] tsRequest = new byte[]{48, 57, 2, 1, 1, 48, 49, 48, 13, 6, 9, 96, -122, 72, 1, 101, 3, 4, 2, 1, 5, 0, 4, 32, 2, 91, 64, 111, 35, -23, -19, -46, 57, -80, -63, -80, -74, 100, 72, 97, -47, -17, -35, -62, 102, 52, 116, 73, -10, -120, 115, 62, 2, 87, -29, -21, 1, 1, -1};
     SkDataLoader dataLoader = new SkTimestampDataLoader(configuration);
-    dataLoader.setUserAgent(Helper.createBDocUserAgent(SignatureProfile.LT));
+    dataLoader.setUserAgent(USER_AGENT_STRING);
     String serviceUrl = MOCK_PROXY_URL + instanceRule.port() + "/";
     byte[] response = dataLoader.post(serviceUrl, tsRequest);
     Assert.assertNotNull(response);
@@ -111,6 +112,6 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
     timeStampResponse.validate(new TimeStampRequest(tsRequest));
     WireMock.verify(postRequestedFor(urlMatching("/"))
           .withHeader("Content-Type", containing("application/timestamp-query"))
-          .withHeader("User-Agent", containing("LIB DigiDoc4j")));
+          .withHeader("User-Agent", containing(USER_AGENT_STRING)));
   }
 }

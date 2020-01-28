@@ -315,7 +315,7 @@ public final class Helper {
   }
 
   /**
-   * creates user agent value for given container
+   * Loads X509Certificate from the specified location
    * /**
    *
    * @param filePath file location
@@ -341,6 +341,7 @@ public final class Helper {
    * @param container container used for creation user agent
    * @return user agent string
    */
+  @Deprecated
   public static String createUserAgent(Container container) {
     String documentType = container.getDocumentType().toString();
     String version = container.getVersion();
@@ -351,6 +352,7 @@ public final class Helper {
   /**
    * @return user agent
    */
+  @Deprecated
   public static String createUserAgent() {
     return Helper.createUserAgent(null, null, null);
   }
@@ -361,6 +363,7 @@ public final class Helper {
    * @param signatureProfile signature profile
    * @return user agent
    */
+  @Deprecated
   public static String createUserAgent(String documentType, String version, String signatureProfile) {
     StringBuilder ua = new StringBuilder("LIB DigiDoc4j/").append(Version.VERSION == null ? "DEV" : Version.VERSION);
     if (StringUtils.isNotBlank(documentType)) {
@@ -385,6 +388,7 @@ public final class Helper {
     return userAgent;
   }
 
+  @Deprecated
   public static String createBDocAsicSUserAgent(SignatureProfile signatureProfile) {
     if (signatureProfile == SignatureProfile.LT_TM) {
       return createUserAgent(MimeType.ASICS.getMimeTypeString(), null, ASIC_S_TM_SIGNATURE_LEVEL);
@@ -393,14 +397,17 @@ public final class Helper {
     return createBDocUserAgent(signatureLevel);
   }
 
+  @Deprecated
   public static String createBDocAsicSUserAgent() {
     return createUserAgent(MimeType.ASICS.getMimeTypeString(), null, EMPTY_CONTAINER_SIGNATURE_LEVEL_ASIC_S);
   }
 
+  @Deprecated
   public static String createBDocUserAgent() {
     return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, EMPTY_CONTAINER_SIGNATURE_LEVEL_ASIC_E);
   }
 
+  @Deprecated
   public static String createBDocUserAgent(SignatureProfile signatureProfile) {
     if (signatureProfile == SignatureProfile.LT_TM) {
       return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, ASIC_E_TM_SIGNATURE_LEVEL);

@@ -10,7 +10,6 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.Policy;
 import eu.europa.esig.dss.x509.SignaturePolicy;
@@ -21,6 +20,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
@@ -39,17 +39,13 @@ import org.digidoc4j.exceptions.DuplicateSignatureFilesException;
 import org.digidoc4j.exceptions.IllegalSignatureProfileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.impl.asic.AsicEntry;
-import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicSignature;
-import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.TestAssert;
-import org.digidoc4j.utils.Helper;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -812,7 +808,7 @@ public class BDocContainerTest extends AbstractTest {
     this.createSignatureBy(container, this.pkcs12SignatureToken);
     String file = this.getFileBy("bdoc");
     container.save(file);
-    String expectedComment = Helper.createBDocUserAgent(SignatureProfile.LT);
+    String expectedComment = Constant.USER_AGENT_STRING;
     ZipFile zipFile = new ZipFile(file);
     Assert.assertEquals(expectedComment, zipFile.getEntry("mimetype").getComment());
     Assert.assertEquals(expectedComment, zipFile.getEntry("META-INF/manifest.xml").getComment());

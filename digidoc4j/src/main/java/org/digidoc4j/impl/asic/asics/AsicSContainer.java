@@ -14,14 +14,12 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.asic.AsicContainer;
 import org.digidoc4j.impl.asic.AsicContainerCreator;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicSignatureOpener;
 import org.digidoc4j.impl.asic.asice.AsicESignatureOpener;
-import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,11 +114,7 @@ public class AsicSContainer extends AsicContainer {
   }
 
   protected String createUserAgent() {
-    if (!getSignatures().isEmpty()) {
-      SignatureProfile profile = getSignatures().get(0).getProfile();
-      return Helper.createBDocAsicSUserAgent(profile);
-    }
-    return Helper.createBDocAsicSUserAgent();
+    return Constant.USER_AGENT_STRING;
   }
 
   @Override

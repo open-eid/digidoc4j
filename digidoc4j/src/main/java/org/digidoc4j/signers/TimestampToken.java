@@ -19,12 +19,12 @@ import eu.europa.esig.dss.client.tsp.OnlineTSPSource;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.SkDataLoader;
 import org.digidoc4j.impl.SkTimestampDataLoader;
-import org.digidoc4j.utils.Helper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -89,7 +89,7 @@ public final class TimestampToken {
     }
     source.setTspServer(configuration.getTspSource());
     SkDataLoader loader = new SkTimestampDataLoader(configuration);
-    loader.setUserAgent(Helper.createBDocAsicSUserAgent());
+    loader.setUserAgent(Constant.USER_AGENT_STRING);
     source.setDataLoader(loader);
     return source;
   }
