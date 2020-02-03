@@ -439,7 +439,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected XadesSigningDssFacade createSigningFacade() {
     XadesSigningDssFacade facade = new XadesSigningDssFacade();
-    facade.setCustomDataLoader(new AiaDataLoaderFactory(configuration).create());
+    facade.setCustomDataLoader(new AiaDataLoaderFactory(configuration, USER_AGENT_STRING).create());
     facade.setCertificateSource(this.configuration.getTSL());
     facade.setOcspSource(this.createOCSPSource());
     facade.setTspSource(this.createTSPSource());

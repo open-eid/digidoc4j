@@ -97,23 +97,7 @@ public enum ConfigurationParameter {
   TspSslTruststorePassword("TSP_SSL_TRUSTSTORE_PASSWORD"),
   TspSslProtocol("TSP_SSL_PROTOCOL"),
   TspSupportedSslProtocols("TSP_SUPPORTED_SSL_PROTOCOLS"),
-  TspSupportedSslCipherSuites("TSP_SUPPORTED_SSL_CIPHER_SUITES"),
-
-  AiaHttpProxyHost("AIA_HTTP_PROXY_HOST"),
-  AiaHttpProxyPort("AIA_HTTP_PROXY_PORT"),
-  AiaHttpsProxyHost("AIA_HTTPS_PROXY_HOST"),
-  AiaHttpsProxyPort("AIA_HTTPS_PROXY_PORT"),
-  AiaHttpProxyUser("AIA_HTTP_PROXY_USER"),
-  AiaHttpProxyPassword("AIA_HTTP_PROXY_PASSWORD"),
-  AiaSslKeystoreType("AIA_SSL_KEYSTORE_TYPE"),
-  AiaSslTruststoreType("AIA_SSL_TRUSTSTORE_TYPE"),
-  AiaSslKeystorePath("AIA_SSL_KEYSTORE_PATH"),
-  AiaSslKeystorePassword("AIA_SSL_KEYSTORE_PASSWORD"),
-  AiaSslTruststorePath("AIA_SSL_TRUSTSTORE_PATH"),
-  AiaSslTruststorePassword("AIA_SSL_TRUSTSTORE_PASSWORD"),
-  AiaSslProtocol("AIA_SSL_PROTOCOL"),
-  AiaSupportedSslProtocols("AIA_SUPPORTED_SSL_PROTOCOLS"),
-  AiaSupportedSslCipherSuites("AIA_SUPPORTED_SSL_CIPHER_SUITES");
+  TspSupportedSslCipherSuites("TSP_SUPPORTED_SSL_CIPHER_SUITES");
 
   final String fileKey;
 

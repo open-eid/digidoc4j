@@ -94,7 +94,7 @@ public class SignatureExtender {
     SignatureLevel signatureLevel = getSignatureLevel(profile);
     extendingFacade.setSignatureLevel(signatureLevel);
     setSignaturePolicy(profile);
-    extendingFacade.setCustomDataLoader(new AiaDataLoaderFactory(configuration).create());
+    extendingFacade.setCustomDataLoader(new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create());
   }
 
   private DSSDocument extendSignature(Signature signature, SignatureProfile profile) {

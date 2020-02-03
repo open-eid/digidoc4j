@@ -10,12 +10,9 @@
 
 package org.digidoc4j.impl;
 
-import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataLoaderFactory;
-import org.digidoc4j.ExternalConnectionType;
-import org.digidoc4j.impl.asic.DataLoaderDecorator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,10 +22,14 @@ import org.slf4j.LoggerFactory;
 public class AiaDataLoaderFactory implements DataLoaderFactory {
 
   private static final Logger logger = LoggerFactory.getLogger(AiaDataLoaderFactory.class);
-  private Configuration configuration;
+  private static final int MAX_REDIRECTS_TO_FOLLOW = 5;
 
-  public AiaDataLoaderFactory(Configuration configuration) {
+  private Configuration configuration;
+  private String userAgent;
+
+  public AiaDataLoaderFactory(Configuration configuration, String userAgent) {
     this.configuration = configuration;
+    this.userAgent = userAgent;
   }
 
   @Override
@@ -43,9 +44,11 @@ public class AiaDataLoaderFactory implements DataLoaderFactory {
 
   private DataLoader createDataLoader() {
     logger.debug("Creating AIA data loader");
-    CommonsDataLoader dataLoader = new CommonsDataLoader();
-    DataLoaderDecorator.decorateWithProxySettingsFor(ExternalConnectionType.AIA, dataLoader, configuration);
-    DataLoaderDecorator.decorateWithSslSettingsFor(ExternalConnectionType.AIA, dataLoader, configuration);
+    SimpleHttpGetDataLoader dataLoader = new SimpleHttpGetDataLoader();
+    dataLoader.setConnectTimeout(configuration.getConnectionTimeout());
+    dataLoader.setReadTimeout(configuration.getSocketTimeout());
+    dataLoader.setFollowRedirects(MAX_REDIRECTS_TO_FOLLOW);
+    dataLoader.setUserAgent(userAgent);
     return dataLoader;
   }
 

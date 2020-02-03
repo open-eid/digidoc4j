@@ -294,6 +294,6 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
   }
 
   private void setCustomDataLoader() {
-    this.facade.setCustomDataLoader(new AiaDataLoaderFactory(configuration).create());
+    this.facade.setCustomDataLoader(new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create());
   }
 }
