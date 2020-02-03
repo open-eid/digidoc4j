@@ -5,8 +5,8 @@
 DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers of signed documents.
 
 # Features
-* Creating BDOC, ASiC-E containers
-* Validating BDOC, ASiC-E, ASIC-S and DDOC containers
+* Creating ASiC-E and BDOC containers
+* Validating ASiC-E, BDOC, ASIC-S and DDOC containers
 * Creating and validating detached XadES
 
 # How to use it
@@ -16,23 +16,27 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
 * Download the latest [release](https://github.com/open-eid/digidoc4j/releases)
 * See the [library development guide](https://github.com/open-eid/digidoc4j/wiki/Development). Your contribution and pull requests are more than welcome
 
-# BDOC (ASiC-E - Associated Signature Container Extended) container format
-* Has **.bdoc**, **.asice** or **.sce** extension
-* BDOC is a new digital signature format developed in 2014 to replace the old, DDOC (DigiDoc) digital signature format.
-* The benefits of the new format include the higher security level, the long-term integrity of the signed documents, as well as the better compliance with international standards.
+# ASiC-E (Associated Signature Container Extended) container format
+* Has **.asice** or **.sce** extension.
+* This format is default format since 2019.
+* ASIC-E containers are in compliance with EU standards.
+* Signatures are stored in **XAdES** format.
+* Supports following signature formats:
+  * **LT** (Long Term) - Signature with **time-stamp** and **OCSP** (both "regular" and AIA OCSP are supported).
+  * **LTA** (Long Term Archival) -  signature format has additional **archival time-stamp** to LT profile.
+* **.asice** or **.sce** file is in fact a ZIP container with the signed files, the signatures and the protocol control information and can basically be opened by any program that recognizes the ZIP format.
+* It is recommended not to use special characters in the data file’s name, i.e. it is suggested to use only the characters that are categorized as “unreserved” according to RFC3986 (http://tools.ietf.org/html/rfc3986).
+
+# BDOC (Estonian specific implementation of Associated Signature Container Extended) container format
+* Has **.bdoc** extension
+* BDOC is a digital signature format developed in 2014 to replace the old, DDOC (DigiDoc) digital signature format.
+* This format has been used as a default digital signature format in Estonia since 2015 until end of 2018.
 * BDOC container is based on **ASiC-E** standard.
 * Signatures are stored in **XAdES** format.
-* Supports two signature formats: **BDOC-TM** and **BDOC-TS**
-  * **BDOC-TM** signature format has **time-mark** ensuring long-term provability of the authenticity of the signature.
-    * This format has been used as a default digital signature format in Estonia since 2015.
+* Supports signature formats: 
+  * **LT_TM** (Long Term TimeMark) - signature has **time-mark** ensuring long-term provability of the authenticity of the signature.
     * It is based on **XAdES baseline LT** signature format.
-    * Recommended extension is **.bdoc**
-  * **BDOC-TS** signature format has **time-stamp**.
-    * In contrast to the BDOC-TM format, long-term provability of the authenticity of the signature is ensured by time-stamps.
-    * It is based on **XAdES baseline LT** signature format and uses RFC3161 based time-stamps which makes it highly compliant in international context.
-    * To ensure better compliance with international standards, it's recommended to sign documents with the **BDOC-TS time-stamp** signature profile.
-    * Recommended extension is **.asice**
-* **.bdoc** or **.asice** file is in fact a ZIP container with the signed files, the signatures and the protocol control information and can basically be opened by any program that recognizes the ZIP format.
+* **.bdoc** file is in fact a ZIP container with the signed files, the signatures and the protocol control information and can basically be opened by any program that recognizes the ZIP format.
 * It is recommended not to use special characters in the data file’s name, i.e. it is suggested to use only the characters that are categorized as “unreserved” according to RFC3986 (http://tools.ietf.org/html/rfc3986).
 
 # ASiC-S (ASiC-E - Associated Signature Container Simple) container format
@@ -54,7 +58,6 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
 * [DigiDoc4j API](http://open-eid.github.io/digidoc4j/)
 * [Examples](https://github.com/open-eid/digidoc4j/wiki/Examples-of-using-it)
 * [Wiki](https://github.com/open-eid/digidoc4j/wiki)
-* [Pivotal Tracker](https://www.pivotaltracker.com/n/projects/1110130) contains user stories and issues
 * [Architecture of ID-software](http://open-eid.github.io/)
 * [Digital signature formats](http://www.id.ee/index.php?id=36108)
 * [BDOC 2.1.2 specification](http://id.ee/public/bdoc-spec212-eng.pdf)
