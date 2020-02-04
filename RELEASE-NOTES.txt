@@ -3,11 +3,20 @@ DigiDoc4J Java library release notes
 
 Release 3.3.1
 ------------------
+NB! 3.3.1 is intended for legacy systems. Support for versions 3.x.x is not planned to extend beyond the end of 2020.
+
 Summary of the major changes since 3.3.0
 ------------------------------------------
 * Ensure that signature creation fails if making an OCSP request is not possible
 * Removal of system information being exposed via User-Agent (zip comments and request headers)
-* Dependencies update
+* Dependencies updates and adjustments (in order to be compatible with Java 7)
+
+NB! The versions of some dependencies have been adjusted in order to be compatible with Java 7 out-of-the-box.
+When using Java versions 8 and up, it is advisable to override the versions of at least the following dependencies:
+* org.apache.santuario:xmlsec at least up to version 2.1.4
+* org.bouncycastle:bcpkix-jdk15on & org.bouncycastle:bcprov-jdk15on
+  - up to version 1.62 - if validation of signatures containing encapsulated CRL data is required
+  - beyond version 1.62 - if validation of signatures containing encapsulated CRL data is not needed
 
 Release 3.3.0
 ------------------
