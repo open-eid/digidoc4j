@@ -3,12 +3,11 @@ package org.digidoc4j;
 import java.io.File;
 import java.io.FileInputStream;
 
+import eu.europa.esig.dss.model.MimeType;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.google.common.net.MediaType;
 
 public class FileNameTest extends AbstractTest {
 
@@ -17,7 +16,7 @@ public class FileNameTest extends AbstractTest {
     File folder = this.testFolder.newFolder("tmp");
     try (FileInputStream stream = new FileInputStream("src/test/resources/testFiles/special-char-files/dds_acrobat.pdf")) {
       Container container = ContainerBuilder.aContainer().withDataFile(stream,
-          "xxx,%2003:1737,%2031.08.2015.a.pdf", MediaType.PDF.toString())
+          "xxx,%2003:1737,%2031.08.2015.a.pdf", MimeType.PDF.getMimeTypeString())
           .usingTempDirectory(folder.getPath()).build();
       String file = this.getFileBy("bdoc");
       container.saveAsFile(file);
@@ -29,7 +28,7 @@ public class FileNameTest extends AbstractTest {
   public void createContainer() throws Exception {
     File folder = this.testFolder.newFolder("tmp");
     try (FileInputStream stream = new FileInputStream("src/test/resources/testFiles/special-char-files/dds_acrobat.pdf")) {
-      Container container = ContainerBuilder.aContainer().withDataFile(stream, "cgi.pdf", MediaType.PDF.toString())
+      Container container = ContainerBuilder.aContainer().withDataFile(stream, "cgi.pdf", MimeType.PDF.getMimeTypeString())
           .usingTempDirectory(folder.getPath()).build();
       String file = this.getFileBy("bdoc");
       container.saveAsFile(file);
