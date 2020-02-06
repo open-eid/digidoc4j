@@ -1,6 +1,26 @@
 DigiDoc4J Java library release notes
 ------------------------------------
 
+Release 4.0.0
+------------------
+Summary of the major changes since 4.0.0-RC.1
+----------------------------------------------
+* Removal of system information being exposed via User-Agent (zip comments and request headers)
+* Addition of default redirect-supporting data loader for accessing AIA certificate resources
+* Removal of unnecessary logging dependencies
+* Dependencies update
+
+Known issues
+------------
+* We have noticed a decrease in performance with the introduction of properly accessing AIA certificate resources
+* Opening a container that contains signatures, triggers TSL loading (TSL lazy loading does not work as expected)
+* BouncyCastle versions 1.64 and up are not supported when validating signatures containing encapsulated CRL data
+* While upgrading from versions older than 2.1.1 be sure that your integration :
+  - doesn't use Xalan or XercesImpl dependencies
+  - uses a patched Java version (JDK8 or higher)
+    Xalan and XercesImpl were used to patch XML vulnerabilities in older java versions. They should be discarded with higher versions because they override default Java XML security.
+    If it is not possible to remove Xalan, then you can set your system property to override TransformerFactory : System.setProperty("javax.xml.transform.TransformerFactory","com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
+
 Release 4.0.0-RC.1
 ------------------
 NB! 4.0.0-RC.1 introduces breaking changes compared to 3.x.x version. Substantial changes may be further introduced before finalization of version 4.0.0.
