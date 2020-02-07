@@ -519,6 +519,7 @@
                                         <attribute name="Implementation-Version" value="${project.version}"/>
                                         <attribute name="Main-Class" value="org.digidoc4j.main.DigiDoc4J"/>
                                         <attribute name="Class-Path" value=". ./bcprov-jdk15on.jar"/>
+                                        <attribute name="Multi-Release" value="true"/>
                                     </manifest>
                                 </jar>
                                 <delete file="${dss.util.build}/temp.jar"/>
