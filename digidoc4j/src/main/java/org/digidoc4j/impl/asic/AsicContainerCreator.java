@@ -12,7 +12,6 @@ package org.digidoc4j.impl.asic;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,7 +23,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
@@ -155,9 +153,6 @@ public class AsicContainerCreator {
     for (AsicEntry asicEntry : asicEntries) {
       DSSDocument content = asicEntry.getContent();
       ZipEntry zipEntry = asicEntry.getZipEntry();
-      if (!StringUtils.equalsIgnoreCase(ZIP_ENTRY_MIMETYPE, zipEntry.getName())) {
-        zipOutputStream.setLevel(ZipEntry.DEFLATED);
-      }
       new StreamEntryCallback(zipEntry, content.openStream(), false).write();
     }
   }
