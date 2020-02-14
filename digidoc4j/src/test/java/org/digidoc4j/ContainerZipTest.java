@@ -31,6 +31,12 @@ public class ContainerZipTest extends AbstractTest {
   }
 
   @Test
+  public void newAsicsContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+    Container container = createNonEmptyContainerBy(Container.DocumentType.ASICS);
+    readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
+  }
+
+  @Test
   public void newBdocContainerSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     File testFile = createTestContainerFile(createNonEmptyContainerBy(Container.DocumentType.BDOC), "new-unsigned-bdoc.bdoc");
     readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
@@ -43,6 +49,12 @@ public class ContainerZipTest extends AbstractTest {
   }
 
   @Test
+  public void newAsicsContainerSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+    File testFile = createTestContainerFile(createNonEmptyContainerBy(Container.DocumentType.ASICS), "new-unsigned-asics.asics");
+    readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
+  }
+
+  @Test
   public void loadedBdocContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = ContainerOpener.open(createTestUnsignedBdocFile().getPath());
     readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
@@ -51,6 +63,12 @@ public class ContainerZipTest extends AbstractTest {
   @Test
   public void loadedAsiceContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = ContainerOpener.open(createTestUnsignedAsiceFile().getPath());
+    readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
+  }
+
+  @Test
+  public void loadedAsicsContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+    Container container = ContainerOpener.open(createTestUnsignedAsicsFile().getPath());
     readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
   }
 
@@ -69,6 +87,13 @@ public class ContainerZipTest extends AbstractTest {
   }
 
   @Test
+  public void loadedAsicsContainerSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+    Container container = ContainerOpener.open(createTestUnsignedAsicsFile().getPath());
+    File testFile = createTestContainerFile(container, "loaded-unsigned-asics.asics");
+    readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
+  }
+
+  @Test
   public void loadedBdocWithDeflatedMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = ContainerOpener.open(createTestDeflatedMimeTypeBdocFile().getPath());
     readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
@@ -77,6 +102,12 @@ public class ContainerZipTest extends AbstractTest {
   @Test
   public void loadedAsiceWithDeflatedMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = ContainerOpener.open(createTestDeflatedMimeTypeAsiceFile().getPath());
+    readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
+  }
+
+  @Test
+  public void loadedAsicsWithDeflatedMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+    Container container = ContainerOpener.open(createTestDeflatedMimeTypeAsicsFile().getPath());
     readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
   }
 
@@ -94,6 +125,13 @@ public class ContainerZipTest extends AbstractTest {
     readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
   }
 
+  @Test
+  public void loadedAsicsWithDeflatedMimeTypeSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+    Container container = ContainerOpener.open(createTestDeflatedMimeTypeAsicsFile().getPath());
+    File testFile = createTestContainerFile(container, "loaded-unsigned-asics.asics");
+    readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
+  }
+
   private File createTestUnsignedBdocFile() throws Exception {
     File testUnsignedBdocFile = testFolder.newFile("original-unsigned-bdoc.bdoc");
     createNonEmptyContainerBy(Container.DocumentType.BDOC).saveAsFile(testUnsignedBdocFile.getPath());
@@ -106,6 +144,12 @@ public class ContainerZipTest extends AbstractTest {
     return testUnsignedAsiceFile;
   }
 
+  private File createTestUnsignedAsicsFile() throws Exception {
+    File testUnsignedAsicsFile = testFolder.newFile("original-unsigned-asics.asics");
+    createNonEmptyContainerBy(Container.DocumentType.ASICS).saveAsFile(testUnsignedAsicsFile.getPath());
+    return testUnsignedAsicsFile;
+  }
+
   private File createTestDeflatedMimeTypeBdocFile() throws Exception {
     File testDeflatedMimeTypeBdocFile = testFolder.newFile("original-deflated-mimetype-bdoc.bdoc");
     saveDegenerateContainerWithDeflatedMimeType(testDeflatedMimeTypeBdocFile, Manifest.MANIFEST_BDOC_MIME_2_0);
@@ -116,6 +160,12 @@ public class ContainerZipTest extends AbstractTest {
     File testDeflatedMimeTypeAsiceFile = testFolder.newFile("original-deflated-mimetype-asice.asice");
     saveDegenerateContainerWithDeflatedMimeType(testDeflatedMimeTypeAsiceFile, MimeType.ASICE.getMimeTypeString());
     return testDeflatedMimeTypeAsiceFile;
+  }
+
+  private File createTestDeflatedMimeTypeAsicsFile() throws Exception {
+    File testDeflatedMimeTypeAsicsFile = testFolder.newFile("original-deflated-mimetype-asics.asics");
+    saveDegenerateContainerWithDeflatedMimeType(testDeflatedMimeTypeAsicsFile, MimeType.ASICS.getMimeTypeString());
+    return testDeflatedMimeTypeAsicsFile;
   }
 
   private File createTestContainerFile(Container container, String fileName) throws Exception {
