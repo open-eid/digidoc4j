@@ -69,6 +69,7 @@ public abstract class AsicContainerParser {
   private ManifestParser manifestParser;
   private boolean storeDataFilesOnlyInMemory;
   private boolean manifestFound = false;
+  private boolean mimeTypeFound = false;
   private long maxDataFileCachedInBytes;
   private DataFile timestampToken;
 
@@ -105,6 +106,10 @@ public abstract class AsicContainerParser {
     String entryName = entry.getName();
     logger.debug("Paring zip entry " + entryName + " with comment: " + entry.getComment());
     if (isMimeType(entryName)) {
+      if (this.mimeTypeFound) {
+        throw new DigiDoc4JException("Multiple mimetype files disallowed");
+      }
+      this.mimeTypeFound = true;
       extractMimeType(entry);
     } else if (isManifest(entryName)) {
       if (this.manifestFound) {

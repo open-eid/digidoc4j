@@ -36,6 +36,13 @@ public class AsicEntry implements Serializable {
   }
 
   /**
+   * @return name
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
    * @return DSS document
    */
   public DSSDocument getContent() {

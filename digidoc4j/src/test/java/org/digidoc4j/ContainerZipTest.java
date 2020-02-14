@@ -2,6 +2,7 @@ package org.digidoc4j;
 
 import eu.europa.esig.dss.model.MimeType;
 import org.digidoc4j.ddoc.Manifest;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -10,6 +11,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
+import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -132,6 +135,75 @@ public class ContainerZipTest extends AbstractTest {
     readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
   }
 
+  @Test
+  public void loadedBdocWithNonFirstMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+    File testNonFirstMimeTypeBdocFile = testFolder.newFile("original-non-first-mimetype-bdoc.bdoc");
+    saveDegenerateContainerWithNonFirstMimeType(testNonFirstMimeTypeBdocFile, Manifest.MANIFEST_BDOC_MIME_2_0);
+    Container container = ContainerOpener.open(testNonFirstMimeTypeBdocFile.getPath());
+    readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
+  }
+
+  @Test
+  public void loadedAsiceWithNonFirstMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+    File testNonFirstMimeTypeAsiceFile = testFolder.newFile("original-non-first-mimetype-asice.asice");
+    saveDegenerateContainerWithNonFirstMimeType(testNonFirstMimeTypeAsiceFile, MimeType.ASICE.getMimeTypeString());
+    Container container = ContainerOpener.open(testNonFirstMimeTypeAsiceFile.getPath());
+    readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
+  }
+
+  @Test
+  public void loadedAsicsWithNonFirstMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+    File testNonFirstMimeTypeAsicsFile = testFolder.newFile("original-non-first-mimetype-asics.asics");
+    saveDegenerateContainerWithNonFirstMimeType(testNonFirstMimeTypeAsicsFile, MimeType.ASICS.getMimeTypeString());
+    Container container = ContainerOpener.open(testNonFirstMimeTypeAsicsFile.getPath());
+    readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
+  }
+
+  @Test
+  public void loadedBdocWithNonFirstMimeTypeSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+    File testNonFirstMimeTypeBdocFile = testFolder.newFile("original-non-first-mimetype-bdoc.bdoc");
+    saveDegenerateContainerWithNonFirstMimeType(testNonFirstMimeTypeBdocFile, Manifest.MANIFEST_BDOC_MIME_2_0);
+    File testFile = createTestContainerFile(ContainerOpener.open(testNonFirstMimeTypeBdocFile.getPath()), "loaded-non-first-mimetype-bdoc.bdoc");
+    readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
+  }
+
+  @Test
+  public void loadedAsiceWithNonFirstMimeTypeSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+    File testNonFirstMimeTypeAsiceFile = testFolder.newFile("original-non-first-mimetype-asice.asice");
+    saveDegenerateContainerWithNonFirstMimeType(testNonFirstMimeTypeAsiceFile, MimeType.ASICE.getMimeTypeString());
+    File testFile = createTestContainerFile(ContainerOpener.open(testNonFirstMimeTypeAsiceFile.getPath()), "loaded-non-first-mimetype-asice.asice");
+    readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
+  }
+
+  @Test
+  public void loadedAsicsWithNonFirstMimeTypeSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+    File testNonFirstMimeTypeAsicsFile = testFolder.newFile("original-non-first-mimetype-asics.asics");
+    saveDegenerateContainerWithNonFirstMimeType(testNonFirstMimeTypeAsicsFile, MimeType.ASICS.getMimeTypeString());
+    File testFile = createTestContainerFile(ContainerOpener.open(testNonFirstMimeTypeAsicsFile.getPath()), "loaded-non-first-mimetype-asics.asics");
+    readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
+  }
+
+  @Test
+  public void loadingBdocWithTwoMimeTypesShouldFail() {
+    expectedException.expect(DigiDoc4JException.class);
+    expectedException.expectMessage("Multiple mimetype files disallowed");
+    openContainerBy(Paths.get("src/test/resources/testFiles/degenerate-containers/2-mimetypes.bdoc"));
+  }
+
+  @Test
+  public void loadingAsiceWithTwoMimeTypesShouldFail() {
+    expectedException.expect(DigiDoc4JException.class);
+    expectedException.expectMessage("Multiple mimetype files disallowed");
+    openContainerBy(Paths.get("src/test/resources/testFiles/degenerate-containers/2-mimetypes.asice"));
+  }
+
+  @Test
+  public void loadingAsicsWithTwoMimeTypesShouldFail() {
+    expectedException.expect(DigiDoc4JException.class);
+    expectedException.expectMessage("Multiple mimetype files disallowed");
+    openContainerBy(Paths.get("src/test/resources/testFiles/degenerate-containers/2-mimetypes.asics"));
+  }
+
   private File createTestUnsignedBdocFile() throws Exception {
     File testUnsignedBdocFile = testFolder.newFile("original-unsigned-bdoc.bdoc");
     createNonEmptyContainerBy(Container.DocumentType.BDOC).saveAsFile(testUnsignedBdocFile.getPath());
@@ -184,6 +256,38 @@ public class ContainerZipTest extends AbstractTest {
       zipOutputStream.write(mimeTypeContent.getBytes(StandardCharsets.US_ASCII));
       zipOutputStream.closeEntry();
     }
+  }
+
+  private static void saveDegenerateContainerWithNonFirstMimeType(File destinationFile, String mimeTypeContent) throws Exception {
+    try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(destinationFile))) {
+      zipOutputStream.putNextEntry(new ZipEntry("Some-other-entry"));
+      zipOutputStream.write("\tSome other entry content.\n".getBytes(StandardCharsets.UTF_8));
+      zipOutputStream.closeEntry();
+
+      writeValidMimeTypeTo(zipOutputStream, mimeTypeContent);
+    }
+  }
+
+  private static ZipEntry writeValidMimeTypeTo(ZipOutputStream zipOutputStream, String mimeTypeContent) throws Exception {
+    ZipEntry zipEntry = new ZipEntry(MIME_TYPE_ENTRY_NAME);
+    zipEntry.setMethod(ZipEntry.STORED);
+
+    byte[] content = mimeTypeContent.getBytes(StandardCharsets.US_ASCII);
+    zipEntry.setCrc(calculateCrc32(content));
+    zipEntry.setCompressedSize(content.length);
+    zipEntry.setSize(content.length);
+
+    zipOutputStream.putNextEntry(zipEntry);
+    zipOutputStream.write(content);
+    zipOutputStream.closeEntry();
+
+    return zipEntry;
+  }
+
+  private static long calculateCrc32(byte[] content) {
+    CRC32 crc32 = new CRC32();
+    crc32.update(content);
+    return crc32.getValue();
   }
 
   private static void readAndAssertFirstEntryStoredMimeType(InputStream inputStream) throws Exception {
