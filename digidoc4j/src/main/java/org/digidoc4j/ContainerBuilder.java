@@ -327,7 +327,7 @@ public abstract class ContainerBuilder {
     return containerImplementations.containsKey(containerType);
   }
 
-  public class ContainerDataFile {
+  public static class ContainerDataFile {
 
     public String filePath;
     String mimeType;

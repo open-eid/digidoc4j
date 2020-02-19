@@ -73,7 +73,7 @@ public enum ExternalConnectionType {
     ConfigurationParameter mapToSpecificParameter(ConfigurationParameter genericParameter) {
         ConfigurationParameter specificParameter = genericToSpecificParameterMap.get(genericParameter);
         if (specificParameter == null) {
-            throw new IllegalArgumentException("No mapping founds for " + genericParameter + " in " + this);
+            throw new IllegalArgumentException("No mappings found for " + genericParameter + " in " + this);
         }
         return specificParameter;
     }

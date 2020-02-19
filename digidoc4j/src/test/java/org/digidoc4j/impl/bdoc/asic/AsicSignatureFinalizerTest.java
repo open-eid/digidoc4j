@@ -1,5 +1,6 @@
 package org.digidoc4j.impl.bdoc.asic;
 
+import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
@@ -136,6 +137,24 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
 
     Mockito.verify(dataLoaderFactory, Mockito.times(1)).create();
     Mockito.verify(dataLoaderSpy, Mockito.times(1)).post(Mockito.eq(configuration.getOcspSource()), Mockito.any(byte[].class));
+    Mockito.verifyNoMoreInteractions(dataLoaderFactory);
+  }
+
+  @Test
+  public void testCustomAiaDataLoaderUsedForSigning() {
+    configuration = Configuration.of(Configuration.Mode.TEST);
+    CommonsDataLoader aiaDataLoader = new CommonsDataLoader();
+    DataLoader dataLoaderSpy = Mockito.spy(aiaDataLoader);
+
+    DataLoaderFactory dataLoaderFactory = Mockito.mock(DataLoaderFactory.class);
+    Mockito.doReturn(dataLoaderSpy).when(dataLoaderFactory).create();
+    configuration.setAiaDataLoaderFactory(dataLoaderFactory);
+
+    Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), pkcs12SignatureToken);
+    assertValidSignature(signature);
+
+    Mockito.verify(dataLoaderFactory, Mockito.atLeast(1)).create();
+    Mockito.verify(dataLoaderSpy, Mockito.times(1)).get("http://www.sk.ee/certs/TEST_of_EE_Certification_Centre_Root_CA.der.crt");
     Mockito.verifyNoMoreInteractions(dataLoaderFactory);
   }
 }

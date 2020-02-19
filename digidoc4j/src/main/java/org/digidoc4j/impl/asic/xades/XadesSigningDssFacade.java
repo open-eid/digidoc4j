@@ -42,6 +42,7 @@ import eu.europa.esig.dss.model.SignerLocation;
 import eu.europa.esig.dss.model.ToBeSigned;
 import eu.europa.esig.dss.asic.common.ASiCNamespace;
 import eu.europa.esig.dss.validation.CertificateVerifier;
+import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.spi.x509.CertificateSource;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
@@ -200,12 +201,16 @@ public class XadesSigningDssFacade {
     xAdESSignatureParameters.setEn319132(isSigningCertificateV2);
   }
 
-  public void getEn319132() {
-    xAdESSignatureParameters.isEn319132();
+  public boolean isEn319132() {
+    return xAdESSignatureParameters.isEn319132();
   }
 
   public void setTspSource(TSPSource tspSource) {
     xAdESService.setTspSource(tspSource);
+  }
+
+  public void setCustomDataLoader(DataLoader dataLoader) {
+    certificateVerifier.setDataLoader(dataLoader);
   }
 
   private void initDefaultXadesParameters() {

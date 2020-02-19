@@ -7,7 +7,7 @@
     <groupId>org.digidoc4j</groupId>
     <artifactId>digidoc4j</artifactId>
     <packaging>jar</packaging>
-    <version>4.0.0-RC.1</version>
+    <version>4.0.0</version>
 
     <name>DigiDoc4j</name>
     <description>DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers
@@ -18,7 +18,7 @@
     <parent>
         <artifactId>digidoc4j-parent</artifactId>
         <groupId>org.digidoc4j</groupId>
-        <version>4.0.0-RC.1</version>
+        <version>4.0.0</version>
     </parent>
 
     <properties>
@@ -43,7 +43,7 @@
         <dependency>
             <artifactId>ddoc4j</artifactId>
             <groupId>org.digidoc4j</groupId>
-            <version>4.0.0-RC.1</version>
+            <version>4.0.0</version>
         </dependency>
 
         <dependency>
@@ -108,11 +108,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>log4j-over-slf4j</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
         <dependency>
@@ -217,16 +212,6 @@
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
-            <artifactId>dss-utils-google-guava</artifactId>
-            <version>${dss.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>28.1-jre</version>
-        </dependency>
-        <dependency>
-            <groupId>${dss.groupId}</groupId>
             <artifactId>dss-crl-parser</artifactId>
             <version>${dss.version}</version>
         </dependency>
@@ -260,11 +245,13 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback-classic.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <version>${logback-classic.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
@@ -317,25 +304,25 @@
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock</artifactId>
-            <version>2.23.2</version>
+            <version>2.25.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.9.9.3</version>
+            <version>2.10.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.9.9</version>
+            <version>2.10.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>2.9.9</version>
+            <version>2.10.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -466,39 +453,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.2</version>
-                <executions>
-                    <execution>
-                        <id>custom-deploy</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <classifier>library</classifier>
-                            <excludes>
-                                <exclude>prototype/**</exclude>
-                            </excludes>
-                            <archive>
-                                <manifestSections>
-                                    <manifestSection>
-                                        <Name>DigiDoc4j</Name>
-                                        <manifestEntries>
-                                            <Implementation-Vendor>Republic of Estonia Information System Authority
-                                            </Implementation-Vendor>
-                                            <Implementation-Title>Java BDoc/DigiDoc library</Implementation-Title>
-                                            <Implementation-Version>${project.version}</Implementation-Version>
-                                        </manifestEntries>
-                                    </manifestSection>
-                                </manifestSections>
-                            </archive>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <configuration>
@@ -551,6 +505,8 @@
                                     <zipgroupfileset dir="${dss.util.lib}" includes="**/*.jar" excludes="bcprov-*.jar"/>
                                     <zipgroupfileset dir="${project.build.directory}" includes="**/digidoc4j-*.jar"
                                                      excludes="*-javadoc.jar *-sources.jar"/>
+                                    <zipgroupfileset dir="${project.build.directory}"
+                                                     includes="**/logback-*.jar"/>
                                 </jar>
                                 <jar destfile="${dss.util.build}/digidoc4j-util.jar">
                                     <zipfileset src="${dss.util.build}/temp.jar"
@@ -563,6 +519,7 @@
                                         <attribute name="Implementation-Version" value="${project.version}"/>
                                         <attribute name="Main-Class" value="org.digidoc4j.main.DigiDoc4J"/>
                                         <attribute name="Class-Path" value=". ./bcprov-jdk15on.jar"/>
+                                        <attribute name="Multi-Release" value="true"/>
                                     </manifest>
                                 </jar>
                                 <delete file="${dss.util.build}/temp.jar"/>

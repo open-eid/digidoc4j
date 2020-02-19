@@ -13,7 +13,9 @@ package org.digidoc4j.impl.asic.xades;
 import java.util.List;
 
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.exceptions.InvalidSignatureException;
+import org.digidoc4j.impl.AiaDataLoaderFactory;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
@@ -62,6 +64,8 @@ public class XadesValidationDssFacade {
     certificateVerifier.setSignatureCRLSource(null); //Disable CRL checks
     logger.debug("Setting trusted cert source to the certificate verifier");
     certificateVerifier.setTrustedCertSource(configuration.getTSL());
+    logger.debug("Setting custom data loader to the certificate verifier");
+    certificateVerifier.setDataLoader(new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create());
     logger.debug("Finished creating certificate verifier");
     return certificateVerifier;
   }

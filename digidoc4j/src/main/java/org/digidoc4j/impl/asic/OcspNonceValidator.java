@@ -10,7 +10,6 @@
 
 package org.digidoc4j.impl.asic;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -35,7 +34,7 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 /**
  * Validator of OCSP response NONCE extension
  */
-public class OcspNonceValidator implements Serializable {
+public class OcspNonceValidator {
 
   private static final Logger logger = LoggerFactory.getLogger(OcspNonceValidator.class);
 

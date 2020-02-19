@@ -6,6 +6,7 @@ branches:
   only:
   - develop
   - master
+  - 3.x.x
 before_install:
 - export TZ=Europe/Helsinki
 install: true
@@ -13,9 +14,8 @@ script: mvn clean verify -q -Dgpg.skip
 notifications:
   email:
     recipients:
-    - andres.voll@nortal.com
     - aare.nurm@nortal.com
     - siim.suu@nortal.com
-    - jorgen.heinsoo@nortal.com
+    - risto.seene@nortal.com
     on_success: change
     on_failure: always

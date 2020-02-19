@@ -1,6 +1,7 @@
 package org.digidoc4j;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -27,6 +28,8 @@ public final class Constant {
   public static final String ASICS_CONTAINER_TYPE = "ASICS";
   @Deprecated
   public static final String PADES_CONTAINER_TYPE = "PADES";
+
+  public static final String USER_AGENT_STRING = "LIB DigiDoc4j";
 
   public static class System {
 
@@ -70,10 +73,10 @@ public final class Constant {
     public static final String TSL_KEYSTORE_LOCATION = "keystore/keystore.jks";
     public static final String VALIDATION_POLICY = "conf/constraint.xml";
     public static final String OCSP_SOURCE = "http://ocsp.sk.ee/";
-    public static final List<String> DEFAULT_TRUESTED_TERRITORIES =
+    public static final List<String> DEFAULT_TRUESTED_TERRITORIES = Collections.unmodifiableList(
       Arrays.asList("AT", "BE", "BG", "CY", "CZ", /*"DE",*/ "DK", "EE", "ES", "FI", "FR",
         "GR", "HU", /*"HR",*/ "IE", "IS", "IT", "LT", "LU", "LV", "LI", "MT", "NO", "NL",
-        "PL", "PT", "RO", "SE", "SI", "SK", "UK");
+        "PL", "PT", "RO", "SE", "SI", "SK", "UK"));
     public static final String[] DEFAULT_OCSP_RESPONDERS = {"SK OCSP RESPONDER 2011", "ESTEID-SK 2007 OCSP RESPONDER 2010",
             "ESTEID-SK 2007 OCSP RESPONDER", "ESTEID-SK OCSP RESPONDER 2005", "ESTEID-SK OCSP RESPONDER", "EID-SK 2007 OCSP RESPONDER 2010",
             "EID-SK 2007 OCSP RESPONDER", "EID-SK OCSP RESPONDER", "KLASS3-SK 2010 OCSP RESPONDER", "KLASS3-SK OCSP RESPONDER 2009", "KLASS3-SK OCSP RESPONDER"

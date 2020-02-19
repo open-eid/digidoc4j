@@ -67,7 +67,7 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
 
   @Override
   public Map<String, TLInfo> getSummary() {
-    return this.getSummary();
+    return this.getCertificateSource().getSummary();
   }
 
   @Override

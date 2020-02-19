@@ -21,11 +21,8 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.*;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
-
-import eu.europa.esig.dss.model.MimeType;
 
 public class HelperTest extends AbstractTest {
 
@@ -92,63 +89,6 @@ public class HelperTest extends AbstractTest {
       zipStream.closeEntry();
     }
     Helper.extractSignature(file, 0);
-  }
-
-  @Test
-  public void createUserAgentForBDOC() throws Exception {
-    String userAgent = Helper.createBDocUserAgent();
-    Assert.assertThat(userAgent, Matchers.containsString(MimeType.ASICE.getMimeTypeString()));
-  }
-
-  @Test
-  public void createUserAgentForDDOC() throws Exception {
-    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    String userAgent = Helper.createUserAgent(container);
-    Assert.assertThat(userAgent, Matchers.containsString("DDOC"));
-  }
-
-  @Test
-  public void createUserAgentSignatureProfileForBDOC() {
-    String userAgent = Helper.createBDocUserAgent(SignatureProfile.LTA);
-    Assert.assertThat(userAgent, Matchers.containsString("signatureProfile: XAdES_BASELINE_LTA"));
-  }
-
-  @Test
-  public void createUserAgentForUnknownSignatureProfile() {
-    String userAgent = Helper.createBDocUserAgent();
-    Assert.assertThat(userAgent, Matchers.containsString("signatureProfile: ASiC_E"));
-  }
-
-  @Test
-  public void createUserAgentSignatureProfileForBDocTm() throws Exception {
-    String userAgent = Helper.createBDocUserAgent(SignatureProfile.LT_TM);
-    Assert.assertThat(userAgent, Matchers.containsString("signatureProfile: ASiC_E_BASELINE_LT_TM"));
-  }
-
-  @Test
-  public void createUserAgentSignatureProfileForBDocTs() throws Exception {
-    String userAgent = Helper.createBDocUserAgent(SignatureProfile.LT);
-    Assert.assertThat(userAgent, Matchers.containsString("signatureProfile: XAdES_BASELINE_LT"));
-  }
-
-  @Test
-  public void createUserAgentSignatureProfileForDDOC() {
-    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    String userAgent = Helper.createUserAgent(container);
-    Assert.assertThat(userAgent, Matchers.containsString("signatureProfile: LT_TM"));
-  }
-
-  @Test
-  public void createUserAgentSignatureVersionForDDOC() {
-    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    String userAgent = Helper.createUserAgent(container);
-    Assert.assertThat(userAgent, Matchers.containsString("format: DDOC/1.3"));
-  }
-
-  @Test
-  public void createUserAgentSignatureVersionForBDOC() {
-    String userAgent = Helper.createBDocUserAgent();
-    Assert.assertThat(userAgent, Matchers.containsString("format: application/vnd.etsi.asic-e+zip"));
   }
 
   @Test(expected = DigiDoc4JException.class)

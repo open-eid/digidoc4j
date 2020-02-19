@@ -12,8 +12,6 @@ package org.digidoc4j.utils;
 
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.spi.DSSUtils;
-import eu.europa.esig.dss.model.MimeType;
-import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.validation.SignaturePolicyProvider;
 import eu.europa.esig.dss.xades.DSSXMLUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -24,8 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.DataFile;
-import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.Version;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.slf4j.Logger;
@@ -77,11 +73,6 @@ public final class Helper {
   public static final String SPECIAL_CHARACTERS = "[\\\\<>:\"/|?*]";
   private static final Logger logger = LoggerFactory.getLogger(Helper.class);
   private static final int ZIP_VERIFICATION_CODE = 0x504b0304;
-  private static final int INT_LENGTH = 4;
-  private static final String ASIC_E_TM_SIGNATURE_LEVEL = "ASiC_E_BASELINE_LT_TM";
-  private static final String ASIC_S_TM_SIGNATURE_LEVEL = "ASiC_S_BASELINE_LT_TM";
-  private static final String EMPTY_CONTAINER_SIGNATURE_LEVEL_ASIC_E = "ASiC_E";
-  private static final String EMPTY_CONTAINER_SIGNATURE_LEVEL_ASIC_S = "ASiC_S";
   private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
   private static Random random = new SecureRandom();
 
@@ -167,7 +158,7 @@ public final class Helper {
   public static boolean isZipFile(InputStream stream) throws IOException {
     DataInputStream in = new DataInputStream(stream);
     if (stream.markSupported())
-      stream.mark(INT_LENGTH);
+      stream.mark(Integer.BYTES);
     int test = in.readInt();
     if (stream.markSupported())
       stream.reset();
@@ -218,20 +209,17 @@ public final class Helper {
    * @throws IOException when the signature is not found
    */
   public static String extractSignature(String file, int index) throws IOException {
-    ZipFile zipFile = new ZipFile(file);
-    String signatureFileName = "META-INF/signatures" + index + ".xml";
-    ZipEntry entry = zipFile.getEntry(signatureFileName);
+    try (ZipFile zipFile = new ZipFile(file)) {
+      String signatureFileName = "META-INF/signatures" + index + ".xml";
+      ZipEntry entry = zipFile.getEntry(signatureFileName);
 
-    if (entry == null)
-      throw new IOException(signatureFileName + " does not exists in archive: " + file);
+      if (entry == null)
+        throw new IOException(signatureFileName + " does not exists in archive: " + file);
 
-    InputStream inputStream = zipFile.getInputStream(entry);
-    String signatureContent = IOUtils.toString(inputStream, "UTF-8");
-
-    zipFile.close();
-    inputStream.close();
-
-    return signatureContent;
+      try (InputStream inputStream = zipFile.getInputStream(entry)) {
+        return IOUtils.toString(inputStream, "UTF-8");
+      }
+    }
   }
 
   /**
@@ -241,18 +229,14 @@ public final class Helper {
    * @param file   file to store serialized object in
    */
   public static <T> void serialize(T object, File file) {
-    FileOutputStream fileOut = null;
-    ObjectOutputStream out = null;
-    try {
-      fileOut = new FileOutputStream(file);
-      out = new ObjectOutputStream(fileOut);
+    try (
+            FileOutputStream fileOut = new FileOutputStream(file);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+    ) {
       out.writeObject(object);
       out.flush();
     } catch (Exception e) {
       throw new DigiDoc4JException(e);
-    } finally {
-      IOUtils.closeQuietly(out);
-      IOUtils.closeQuietly(fileOut);
     }
   }
 
@@ -274,18 +258,14 @@ public final class Helper {
    * @return container
    */
   public static <T> T deserializer(File file) {
-    FileInputStream fileIn = null;
-    ObjectInputStream in = null;
-    try {
-      fileIn = new FileInputStream(file);
-      in = new ObjectInputStream(fileIn);
+    try (
+            FileInputStream fileIn = new FileInputStream(file);
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+    ) {
       T object = (T) in.readObject();
       return object;
     } catch (Exception e) {
       throw new DigiDoc4JException(e);
-    } finally {
-      IOUtils.closeQuietly(in);
-      IOUtils.closeQuietly(fileIn);
     }
   }
 
@@ -315,7 +295,7 @@ public final class Helper {
   }
 
   /**
-   * creates user agent value for given container
+   * Loads X509Certificate from the specified location
    * /**
    *
    * @param filePath file location
@@ -329,98 +309,6 @@ public final class Helper {
       }
     } catch (Exception e) {
       throw new RuntimeException(String.format("Unable to load certificate from <%s>", filePath), e);
-    }
-  }
-
-  /**
-   * creates user agent value for given container
-   * format is:
-   * LIB DigiDoc4J/VERSION format: CONTAINER_TYPE signatureProfile: SIGNATURE_PROFILE
-   * Java: JAVA_VERSION/JAVA_PROVIDER OS: OPERATING_SYSTEM JVM: JVM
-   *
-   * @param container container used for creation user agent
-   * @return user agent string
-   */
-  public static String createUserAgent(Container container) {
-    String documentType = container.getDocumentType().toString();
-    String version = container.getVersion();
-    String signatureProfile = container.getSignatureProfile();
-    return Helper.createUserAgent(documentType, version, signatureProfile);
-  }
-
-  /**
-   * @return user agent
-   */
-  public static String createUserAgent() {
-    return Helper.createUserAgent(null, null, null);
-  }
-
-  /**
-   * @param documentType     type
-   * @param version          version
-   * @param signatureProfile signature profile
-   * @return user agent
-   */
-  public static String createUserAgent(String documentType, String version, String signatureProfile) {
-    StringBuilder ua = new StringBuilder("LIB DigiDoc4j/").append(Version.VERSION == null ? "DEV" : Version.VERSION);
-    if (StringUtils.isNotBlank(documentType)) {
-      ua.append(" format: ").append(documentType);
-    }
-    if (StringUtils.isNotBlank(version)) {
-      ua.append("/").append(version);
-    }
-    if (StringUtils.isNotBlank(signatureProfile)) {
-      ua.append(" signatureProfile: ").append(signatureProfile);
-    }
-    ua.append(" Java: ").append(System.getProperty("java.version"));
-    ua.append("/").append(System.getProperty("java.vendor"));
-    ua.append(" OS: ").append(System.getProperty("os.name"));
-    ua.append("/").append(System.getProperty("os.arch"));
-    ua.append("/").append(System.getProperty("os.version"));
-    ua.append(" JVM: ").append(System.getProperty("java.vm.name"));
-    ua.append("/").append(System.getProperty("java.vm.vendor"));
-    ua.append("/").append(System.getProperty("java.vm.version"));
-    String userAgent = ua.toString();
-    logger.debug("User-Agent: " + userAgent);
-    return userAgent;
-  }
-
-  public static String createBDocAsicSUserAgent(SignatureProfile signatureProfile) {
-    if (signatureProfile == SignatureProfile.LT_TM) {
-      return createUserAgent(MimeType.ASICS.getMimeTypeString(), null, ASIC_S_TM_SIGNATURE_LEVEL);
-    }
-    SignatureLevel signatureLevel = determineSignatureLevel(signatureProfile);
-    return createBDocUserAgent(signatureLevel);
-  }
-
-  public static String createBDocAsicSUserAgent() {
-    return createUserAgent(MimeType.ASICS.getMimeTypeString(), null, EMPTY_CONTAINER_SIGNATURE_LEVEL_ASIC_S);
-  }
-
-  public static String createBDocUserAgent() {
-    return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, EMPTY_CONTAINER_SIGNATURE_LEVEL_ASIC_E);
-  }
-
-  public static String createBDocUserAgent(SignatureProfile signatureProfile) {
-    if (signatureProfile == SignatureProfile.LT_TM) {
-      return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, ASIC_E_TM_SIGNATURE_LEVEL);
-    }
-    SignatureLevel signatureLevel = determineSignatureLevel(signatureProfile);
-    return createBDocUserAgent(signatureLevel);
-  }
-
-  private static String createBDocUserAgent(SignatureLevel signatureLevel) {
-    return createUserAgent(MimeType.ASICE.getMimeTypeString(), null, signatureLevel.name());
-  }
-
-  //TODO find solution
-  private static SignatureLevel determineSignatureLevel(SignatureProfile signatureProfile) {
-    if (signatureProfile == SignatureProfile.B_BES) {
-      return SignatureLevel.XAdES_BASELINE_B;
-    } else if (signatureProfile == SignatureProfile.LTA) {
-      return SignatureLevel.XAdES_BASELINE_LTA;
-    } else {
-      return SignatureLevel.XAdES_BASELINE_LT;
     }
   }
 
@@ -535,7 +423,6 @@ public final class Helper {
     for (File f : dir.listFiles(filenameFilter)) {
       if (!f.delete()) {
         f.deleteOnExit();
-        System.gc();
       }
     }
   }
@@ -594,18 +481,19 @@ public final class Helper {
       if (!outputFolder.exists()) {
         if (outputFolder.mkdirs()) {
           List<ZipEntry> entries = new ArrayList<>();
-          ZipFile zipFile = new ZipFile(file);
-          Enumeration<? extends ZipEntry> e = zipFile.entries();
-          while (e.hasMoreElements()) {
-            ZipEntry entry = e.nextElement();
-            if (entry.getName().startsWith(fragments[1]) && !entry.isDirectory()) {
-              entries.add(entry);
+          try (ZipFile zipFile = new ZipFile(file)) {
+            Enumeration<? extends ZipEntry> e = zipFile.entries();
+            while (e.hasMoreElements()) {
+              ZipEntry entry = e.nextElement();
+              if (entry.getName().startsWith(fragments[1]) && !entry.isDirectory()) {
+                entries.add(entry);
+              }
             }
-          }
-          for (ZipEntry entry : entries) {
-            try (InputStream inputStream = zipFile.getInputStream(entry); OutputStream outputStream = new
-                FileOutputStream(Paths.get(outputFolder.getPath(), new File(entry.getName()).getName()).toFile())) {
-              IOUtils.copy(inputStream, outputStream);
+            for (ZipEntry entry : entries) {
+              try (InputStream inputStream = zipFile.getInputStream(entry); OutputStream outputStream = new
+                      FileOutputStream(Paths.get(outputFolder.getPath(), new File(entry.getName()).getName()).toFile())) {
+                IOUtils.copy(inputStream, outputStream);
+              }
             }
           }
         } else {

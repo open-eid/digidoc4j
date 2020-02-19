@@ -88,7 +88,6 @@ public class DetachedXadesSignatureExecutor {
       }
       Signature signature = signatureBuilder.openAdESSignature(xadesSignature);
       ValidationResult result = signature.validateSignature();
-      result.getErrors();
       if (result.isValid()) {
         LOGGER.info("Signature " + signature.getId() + " is valid");
       } else {

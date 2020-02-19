@@ -34,7 +34,6 @@ import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.validation.SignatureProductionPlace;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.xades.XPathQueryHolder;
-import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 /**
  * BES signature
@@ -43,7 +42,7 @@ public class BesSignature extends DssXadesSignature {
 
   private final static Logger logger = LoggerFactory.getLogger(BesSignature.class);
   private SignatureProductionPlace signerLocation;
-  private Element signatureElement;
+  private transient Element signatureElement;
   private XPathQueryHolder xPathQueryHolder; // This variable contains the XPathQueryHolder adapted to the signature schema.
   private X509Cert signingCertificate;
   private Set<CertificateToken> encapsulatedCertificates;
@@ -53,9 +52,7 @@ public class BesSignature extends DssXadesSignature {
    */
   public BesSignature(XadesValidationReportGenerator xadesReportGenerator) {
     super(xadesReportGenerator);
-    XAdESSignature dssSignature = xadesReportGenerator.openDssSignature();
-    this.signatureElement = dssSignature.getSignatureElement();
-    this.xPathQueryHolder = dssSignature.getXPathQueryHolder();
+    this.xPathQueryHolder = getDssSignature().getXPathQueryHolder();
     logger.debug("Using xpath query holder: " + xPathQueryHolder.getClass());
   }
 
@@ -211,6 +208,9 @@ public class BesSignature extends DssXadesSignature {
   }
 
   protected Element getSignatureElement() {
+    if (signatureElement == null) {
+      signatureElement = getDssSignature().getSignatureElement();
+    }
     return signatureElement;
   }
 
@@ -242,7 +242,7 @@ public class BesSignature extends DssXadesSignature {
 
   protected Set<CertificateToken> findCertificates(String xPath) {
     Set<CertificateToken> certificates = new HashSet<>();
-    NodeList nodeList = DomUtils.getNodeList(signatureElement, xPath);
+    NodeList nodeList = DomUtils.getNodeList(getSignatureElement(), xPath);
     for (int i = 0; i < nodeList.getLength(); i++) {
       Element certificateElement = (Element) nodeList.item(i);
       CertificateToken certToken = createCertificateToken(certificateElement);

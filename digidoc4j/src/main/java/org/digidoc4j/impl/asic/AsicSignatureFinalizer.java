@@ -18,6 +18,7 @@ import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.OCSPSourceBuilder;
@@ -29,6 +30,7 @@ import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
+import org.digidoc4j.impl.AiaDataLoaderFactory;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.impl.TspDataLoaderFactory;
@@ -188,6 +190,7 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
     setSignaturePolicy();
     setClaimedSigningDate();
     setTimeStampProviderSource();
+    setCustomDataLoader();
   }
 
   private void setDigestAlgorithm() {
@@ -273,9 +276,7 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
 
   private void setTimeStampProviderSource() {
     OnlineTSPSource tspSource = new OnlineTSPSource(this.getTspSource(configuration));
-    DataLoader dataLoader = new TspDataLoaderFactory(configuration,
-            Helper.createBDocUserAgent(this.signatureParameters.getSignatureProfile())
-    ).create();
+    DataLoader dataLoader = new TspDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create();
     tspSource.setDataLoader(dataLoader);
     this.facade.setTspSource(tspSource);
   }
@@ -290,5 +291,9 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
       }
     }
     return configuration.getTspSource();
+  }
+
+  private void setCustomDataLoader() {
+    this.facade.setCustomDataLoader(new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create());
   }
 }

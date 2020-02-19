@@ -36,15 +36,11 @@ import eu.europa.esig.dss.xades.validation.XAdESSignature;
 public class TimestampSignature extends TimemarkSignature {
 
   private final static Logger logger = LoggerFactory.getLogger(TimestampSignature.class);
-  private Element signatureElement;
-  private XPathQueryHolder xPathQueryHolder;
-  private TimeStampToken timeStampToken;
-  private X509Cert timestampTokenCertificate;
+  private transient TimeStampToken timeStampToken;
+  private transient X509Cert timestampTokenCertificate;
 
   public TimestampSignature(XadesValidationReportGenerator xadesReportGenerator) {
     super(xadesReportGenerator);
-    this.xPathQueryHolder = getxPathQueryHolder();
-    this.signatureElement = getSignatureElement();
   }
 
   @Override
@@ -92,8 +88,9 @@ public class TimestampSignature extends TimemarkSignature {
   }
 
   private TimeStampToken findTimestampToken() {
+    XPathQueryHolder xPathQueryHolder = getxPathQueryHolder();
     logger.debug("Finding timestamp token");
-    NodeList timestampNodes = DomUtils.getNodeList(signatureElement, xPathQueryHolder.XPATH_SIGNATURE_TIMESTAMP);
+    NodeList timestampNodes = DomUtils.getNodeList(getSignatureElement(), xPathQueryHolder.XPATH_SIGNATURE_TIMESTAMP);
     if (timestampNodes.getLength() == 0) {
       logger.warn("Signature timestamp element was not found");
       return null;

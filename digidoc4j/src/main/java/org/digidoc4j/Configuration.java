@@ -165,6 +165,7 @@ public class Configuration implements Serializable {
   private DataLoaderFactory ocspDataLoaderFactory;
   private DataLoaderFactory tspDataLoaderFactory;
   private DataLoaderFactory tslDataLoaderFactory;
+  private DataLoaderFactory aiaDataLoaderFactory;
 
   /**
    * Application mode
@@ -538,6 +539,22 @@ public class Configuration implements Serializable {
    */
   public DataLoaderFactory getTslDataLoaderFactory() {
     return tslDataLoaderFactory;
+  }
+
+  /**
+   * Set a data loader factory that manages the creation of custom data loaders for accessing AIA certificate sources.
+   * @param aiaDataLoaderFactory AIA data loader factory.
+   */
+  public void setAiaDataLoaderFactory(DataLoaderFactory aiaDataLoaderFactory) {
+    this.aiaDataLoaderFactory = aiaDataLoaderFactory;
+  }
+
+  /**
+   * Returns the currently set AIA data loader factory or <code>null</code> if no custom data loader factory is set.
+   * @return AIA data loader factory.
+   */
+  public DataLoaderFactory getAiaDataLoaderFactory() {
+    return aiaDataLoaderFactory;
   }
 
   /**
@@ -1847,8 +1864,9 @@ public class Configuration implements Serializable {
           + configurationInputSourceName + " is not correctly formatted");
       LOGGER.error(exception.getMessage());
       throw exception;
+    } finally {
+      IOUtils.closeQuietly(stream);
     }
-    IOUtils.closeQuietly(stream);
     if (configurationFromFile == null) {
       configurationFromFile = new LinkedHashMap<>();
     }
@@ -1978,7 +1996,7 @@ public class Configuration implements Serializable {
     );
     for (int i = 0; i < tsps.size(); i++) {
       Map<String, Object> tsp = tsps.get(i);
-      Object country = tsp.get("TSP_C").toString();
+      Object country = tsp.get("TSP_C");
       if (country != null) {
         this.tspMap.put(country.toString(), new HashMap<ConfigurationParameter, String>());
         for (Pair<String, ConfigurationParameter> pair : entryPairs) {

@@ -24,6 +24,7 @@ import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.StreamDocument;
+import org.digidoc4j.impl.UncompressedAsicEntry;
 import org.digidoc4j.impl.asic.manifest.ManifestEntry;
 import org.digidoc4j.impl.asic.manifest.ManifestParser;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
@@ -68,6 +69,7 @@ public abstract class AsicContainerParser {
   private ManifestParser manifestParser;
   private boolean storeDataFilesOnlyInMemory;
   private boolean manifestFound = false;
+  private boolean mimeTypeFound = false;
   private long maxDataFileCachedInBytes;
   private DataFile timestampToken;
 
@@ -104,6 +106,10 @@ public abstract class AsicContainerParser {
     String entryName = entry.getName();
     logger.debug("Paring zip entry " + entryName + " with comment: " + entry.getComment());
     if (isMimeType(entryName)) {
+      if (this.mimeTypeFound) {
+        throw new DigiDoc4JException("Multiple mimetype files disallowed");
+      }
+      this.mimeTypeFound = true;
       extractMimeType(entry);
     } else if (isManifest(entryName)) {
       if (this.manifestFound) {
@@ -127,9 +133,9 @@ public abstract class AsicContainerParser {
     try {
       InputStream zipFileInputStream = getZipEntryInputStream(entry);
       BOMInputStream bomInputStream = new BOMInputStream(zipFileInputStream);
-      DSSDocument document = new InMemoryDocument(bomInputStream);
-      mimeType = StringUtils.trim(IOUtils.toString(getDocumentBytes(document), "UTF-8"));
-      extractAsicEntry(entry, document);
+      InMemoryDocument document = new InMemoryDocument(bomInputStream);
+      mimeType = StringUtils.trim(IOUtils.toString(document.getBytes(), "UTF-8"));
+      extractUncompressedAsicEntry(entry, document);
     } catch (IOException e) {
       logger.error("Error parsing container mime type: " + e.getMessage());
       throw new TechnicalException("Error parsing container mime type: " + e.getMessage(), e);
@@ -181,6 +187,14 @@ public abstract class AsicContainerParser {
 
   private AsicEntry extractAsicEntry(ZipEntry zipEntry, DSSDocument document) {
     AsicEntry asicEntry = new AsicEntry(zipEntry);
+    asicEntry.setContent(document);
+    asicEntries.add(asicEntry);
+    return asicEntry;
+  }
+
+  private UncompressedAsicEntry extractUncompressedAsicEntry(ZipEntry zipEntry, InMemoryDocument document) {
+    UncompressedAsicEntry asicEntry = new UncompressedAsicEntry(zipEntry);
+    asicEntry.updateMetadataIfNotPresent(document::getBytes);
     asicEntry.setContent(document);
     asicEntries.add(asicEntry);
     return asicEntry;
@@ -273,15 +287,6 @@ public abstract class AsicContainerParser {
       if (currentSignatureFileIndex == null || currentSignatureFileIndex <= fileIndex) {
         currentSignatureFileIndex = fileIndex;
       }
-    }
-  }
-
-  private byte[] getDocumentBytes(DSSDocument document) {
-    try {
-      return IOUtils.toByteArray(document.openStream());
-    } catch (IOException e) {
-      logger.error("Error getting document content: " + e.getMessage());
-      throw new TechnicalException("Error getting document content: " + e.getMessage(), e);
     }
   }
 

@@ -10,12 +10,10 @@
 
 package org.digidoc4j.impl.asic.xades.validation;
 
-import java.io.Serializable;
-
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
 
-public class SignatureValidationData implements Serializable {
+public class SignatureValidationData {
 
   private ValidationResult validationResult;
   private String signatureId;

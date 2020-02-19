@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.impl.AiaDataLoaderFactory;
 import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.impl.OcspDataLoaderFactory;
@@ -77,6 +78,8 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   protected static final String ASICE_WITH_TS_SIG = "src/test/resources/testFiles/valid-containers/valid-asice.asice";
   protected static final String ASICS_WITH_TS = "src/test/resources/testFiles/valid-containers/ddoc-valid.asics";
   protected static final String DDOC_TEST_FILE = "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc";
+
+  protected static final String USER_AGENT_STRING = "test-user-agent";
 
   protected static final PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
   protected static final PKCS12SignatureToken pkcs12EccSignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray());
@@ -436,6 +439,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected XadesSigningDssFacade createSigningFacade() {
     XadesSigningDssFacade facade = new XadesSigningDssFacade();
+    facade.setCustomDataLoader(new AiaDataLoaderFactory(configuration, USER_AGENT_STRING).create());
     facade.setCertificateSource(this.configuration.getTSL());
     facade.setOcspSource(this.createOCSPSource());
     facade.setTspSource(this.createTSPSource());
@@ -444,13 +448,13 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected CommonOCSPSource createOCSPSource() {
     CommonOCSPSource source = new CommonOCSPSource(this.configuration);
-    DataLoader loader = new OcspDataLoaderFactory(this.configuration, Helper.createBDocUserAgent(SignatureProfile.LT)).create();
+    DataLoader loader = new OcspDataLoaderFactory(this.configuration, USER_AGENT_STRING).create();
     source.setDataLoader(loader);
     return source;
   }
 
   private OnlineTSPSource createTSPSource() {
-    DataLoader loader = new TspDataLoaderFactory(this.configuration, Helper.createBDocUserAgent(SignatureProfile.LT)).create();
+    DataLoader loader = new TspDataLoaderFactory(this.configuration, USER_AGENT_STRING).create();
     OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
     source.setDataLoader(loader);
     return source;

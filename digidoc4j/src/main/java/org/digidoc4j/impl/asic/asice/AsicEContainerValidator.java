@@ -34,7 +34,6 @@ import org.digidoc4j.impl.asic.xades.validation.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +43,7 @@ import java.util.concurrent.Future;
 /**
  * ASIC-E container validator
  */
-public class AsicEContainerValidator implements Serializable {
+public class AsicEContainerValidator {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicEContainerValidator.class);
 

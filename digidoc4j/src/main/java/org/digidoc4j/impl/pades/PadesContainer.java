@@ -15,6 +15,7 @@ import eu.europa.esig.dss.pades.validation.PDFDocumentValidator;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.diagnostic.DiagnosticData;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
@@ -28,6 +29,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
+import org.digidoc4j.impl.AiaDataLoaderFactory;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
 
 import eu.europa.esig.dss.model.FileDocument;
@@ -305,6 +307,8 @@ public class PadesContainer implements Container {
     certificateVerifier.setSignatureCRLSource(null); //Disable CRL checks
     logger.debug("Setting trusted cert source to the certificate verifier");
     certificateVerifier.setTrustedCertSource(configuration.getTSL());
+    logger.debug("Setting custom data loader to the certificate verifier");
+    certificateVerifier.setDataLoader(new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create());
     logger.debug("Finished creating certificate verifier");
     return certificateVerifier;
   }

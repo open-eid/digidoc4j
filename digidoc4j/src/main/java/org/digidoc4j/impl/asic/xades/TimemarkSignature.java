@@ -41,9 +41,9 @@ import eu.europa.esig.dss.model.x509.CertificateToken;
 public class TimemarkSignature extends BesSignature {
 
   private static final Logger logger = LoggerFactory.getLogger(TimemarkSignature.class);
-  private X509Cert ocspCertificate;
-  private BasicOCSPResp ocspResponse;
-  private Date ocspResponseTime;
+  private transient X509Cert ocspCertificate;
+  private transient BasicOCSPResp ocspResponse;
+  private transient Date ocspResponseTime;
 
   /**
    * @param xadesReportGenerator XADES validation report generator

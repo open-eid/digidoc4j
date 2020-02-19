@@ -12,7 +12,6 @@ package org.digidoc4j.impl.asic;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,7 +23,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
@@ -152,14 +150,13 @@ public class AsicContainerCreator {
    */
   public void writeExistingEntries(Collection<AsicEntry> asicEntries) {
     logger.debug("Writing existing zip container entries");
-    for (AsicEntry asicEntry : asicEntries) {
-      DSSDocument content = asicEntry.getContent();
-      ZipEntry zipEntry = asicEntry.getZipEntry();
-      if (!StringUtils.equalsIgnoreCase(ZIP_ENTRY_MIMETYPE, zipEntry.getName())) {
-        zipOutputStream.setLevel(ZipEntry.DEFLATED);
-      }
-      new StreamEntryCallback(zipEntry, content.openStream(), false).write();
-    }
+    asicEntries.stream()
+            .sorted(AsicContainerCreator::compareAsicEntriesPrioritizeMimeType)
+            .forEach(asicEntry -> {
+              DSSDocument content = asicEntry.getContent();
+              ZipEntry zipEntry = asicEntry.getZipEntry();
+              new StreamEntryCallback(zipEntry, content.openStream(), false).write();
+            });
   }
 
   /**
@@ -254,6 +251,18 @@ public class AsicContainerCreator {
     crc.update(mimeTypeBytes);
     entryMimetype.setCrc(crc.getValue());
     return entryMimetype;
+  }
+
+  private static int compareAsicEntriesPrioritizeMimeType(AsicEntry left, AsicEntry right) {
+    boolean leftIsMimeType = ZIP_ENTRY_MIMETYPE.equalsIgnoreCase(left.getName());
+    boolean rightIsMimeType = ZIP_ENTRY_MIMETYPE.equalsIgnoreCase(right.getName());
+    if (leftIsMimeType && !rightIsMimeType) {
+      return -1;
+    } else if (!leftIsMimeType && rightIsMimeType) {
+      return 1;
+    } else {
+      return 0;
+    }
   }
 
   private static void handleIOException(String message, IOException e) {
