@@ -685,7 +685,7 @@ public class SAXDigiDocFactory
                     if (DigestValue != null) {
                         if(m_doc.getFormat().equals(SignedDoc.FORMAT_SK_XML))
                             df.setAltDigest(DigestValue);
-                        else if(ContentType != null && ContentType.equals(DataFile.CONTENT_HASHCODE))
+                        if(ContentType != null && ContentType.equals(DataFile.CONTENT_HASHCODE))
                             df.setDigestValue(DigestValue);
                     }
                     if (Codepage != null)

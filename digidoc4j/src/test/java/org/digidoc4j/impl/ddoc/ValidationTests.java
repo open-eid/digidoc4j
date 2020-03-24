@@ -36,7 +36,22 @@ public class ValidationTests extends AbstractTest {
     TestAssert.assertContainsError("OCSP Responder does not meet TM requirements", result.getErrors());
   }
 
-  /*
+  @Test
+  public void testValidateDDoc10Hashcode() {
+    this.configuration = Configuration.of(Configuration.Mode.PROD);
+    this.configuration.getDDoc4JConfiguration().put("DATAFILE_HASHCODE_MODE", "true");
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
+    Container container = ContainerOpener
+             .open("src/test/resources/prodFiles/valid-containers/SK-XML1_0_hashcode.ddoc");
+    SignatureValidationResult result = container.validate();
+    Assert.assertTrue(result.isValid());
+    Assert.assertTrue(result.hasWarnings());
+    Assert.assertEquals(177, result.getWarnings().get(0).getErrorCode());
+    Assert.assertTrue(result.getReport().contains("Old and unsupported format:"));
+  }
+
+
+    /*
    * RESTRICTED METHODS
    */
 
