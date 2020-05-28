@@ -715,7 +715,7 @@ public class BDocContainerTest extends AbstractTest {
     Assert.assertTrue(container.validate().isValid());
     Assert.assertEquals(1, container.getSignatures().size());
     Signature resultSignature = container.getSignatures().get(0);
-    Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", resultSignature.getSignatureMethod());
+    Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", resultSignature.getSignatureMethod());
     Assert.assertThat(resultSignature.getSignerRoles(), Matchers.is(Matchers.empty()));
     Assert.assertEquals("", resultSignature.getCity());
     Assert.assertTrue(StringUtils.isNotBlank(resultSignature.getId()));
@@ -751,7 +751,7 @@ public class BDocContainerTest extends AbstractTest {
     container = ContainerOpener.open(file);
     Assert.assertEquals(1, container.getSignatures().size());
     Signature resultSignature = container.getSignatures().get(0);
-    Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha512", resultSignature.getSignatureMethod());
+    Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha512", resultSignature.getSignatureMethod());
     Assert.assertEquals("employee", resultSignature.getSignerRoles().get(1));
     Assert.assertEquals("city", resultSignature.getCity());
     Assert.assertEquals("S99", resultSignature.getId());

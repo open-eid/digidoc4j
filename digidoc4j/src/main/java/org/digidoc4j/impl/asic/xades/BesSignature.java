@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import eu.europa.esig.dss.enumerations.SignatureAlgorithm;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.xml.security.signature.Reference;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
@@ -29,7 +30,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import eu.europa.esig.dss.spi.DSSUtils;
-import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.validation.SignatureProductionPlace;
 import eu.europa.esig.dss.model.x509.CertificateToken;
@@ -69,9 +69,9 @@ public class BesSignature extends DssXadesSignature {
   @Override
   public String getSignatureMethod() {
     String xmlId = null;
-    DigestAlgorithm algorithm = this.getDssSignature().getDigestAlgorithm();
-    if (algorithm != null){
-      xmlId =  algorithm.getUri();
+    SignatureAlgorithm algorithm = this.getDssSignature().getSignatureAlgorithm();
+    if (algorithm != null) {
+      xmlId = algorithm.getUri();
     }
     return xmlId == null ? "" : xmlId;
   }

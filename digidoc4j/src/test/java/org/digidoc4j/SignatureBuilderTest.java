@@ -227,7 +227,7 @@ public class SignatureBuilderTest extends AbstractTest {
     SignatureParameters signatureParameters = dataToSign.getSignatureParameters();
     Assert.assertEquals(DigestAlgorithm.SHA256, signatureParameters.getDigestAlgorithm());
     Signature signature = TestDataBuilderUtil.makeSignature(container, dataToSign);
-    Assert.assertEquals(DigestAlgorithm.SHA256.toString(), signature.getSignatureMethod());
+    Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", signature.getSignatureMethod());
     Assert.assertTrue(container.validate().isValid());
   }
 

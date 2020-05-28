@@ -43,7 +43,7 @@ public class XadesSignatureParserTest extends AbstractTest {
     XadesSignature signature = new XadesSignatureParser().parse(xadesReportGenerator);
     Assert.assertEquals("Assert 1", SignatureProfile.B_BES, signature.getProfile());
     Assert.assertEquals("Assert 2", "id-693869a500c60f0dc262f7287f033d5d", signature.getId());
-    Assert.assertEquals("Assert 3", "http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
+    Assert.assertEquals("Assert 3", "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", signature.getSignatureMethod());
     Assert.assertEquals("Assert 4", new Date(1454928400000L), signature.getSigningTime());
     Assert.assertEquals("Assert 5", "Tallinn", signature.getCity());
     Assert.assertEquals("Assert 6", "Harjumaa", signature.getStateOrProvince());
@@ -89,7 +89,7 @@ public class XadesSignatureParserTest extends AbstractTest {
     XadesSignature signature = new XadesSignatureParser().parse(xadesReportGenerator);
     Assert.assertEquals("Assert 1", SignatureProfile.LTA, signature.getProfile());
     Assert.assertEquals("Assert 2", "id-168ef7d05729874fab1a88705b09b5bb", signature.getId());
-    Assert.assertEquals("Assert 3", "http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
+    Assert.assertEquals("Assert 3", "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", signature.getSignatureMethod());
     Assert.assertEquals("Assert 4", new Date(1455032287000L), signature.getSigningTime());
     Assert.assertTrue("Assert 5", StringUtils.startsWith(signature.getSigningCertificate().issuerName(), "C=EE,O=AS Sertifitseerimiskeskus"));
     Assert.assertEquals("Assert 6", new Date(1455032289000L), signature.getOCSPResponseCreationTime());

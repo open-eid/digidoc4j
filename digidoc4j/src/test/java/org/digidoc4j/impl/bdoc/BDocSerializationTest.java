@@ -120,7 +120,7 @@ public class BDocSerializationTest extends AbstractTest {
     Assert.assertEquals("country", deserializedSignature.getCountryName());
     Assert.assertEquals("employee", deserializedSignature.getSignerRoles().get(1));
     Assert.assertEquals("S99", deserializedSignature.getId());
-    Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha512", deserializedSignature.getSignatureMethod());
+    Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha512", deserializedSignature.getSignatureMethod());
   }
 
   @Test
@@ -134,7 +134,7 @@ public class BDocSerializationTest extends AbstractTest {
     Assert.assertEquals("", signature.getCity());
     Assert.assertThat(signature.getSignerRoles(), Matchers.is(Matchers.empty()));
     Assert.assertTrue(signature.getId().startsWith("id-"));
-    Assert.assertEquals("http://www.w3.org/2001/04/xmlenc#sha256", signature.getSignatureMethod());
+    Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", signature.getSignatureMethod());
   }
 
   @Test

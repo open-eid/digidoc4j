@@ -556,7 +556,7 @@ public class ContainerTest extends AbstractTest {
     String file = this.getFileBy("bdoc");
     container.saveAsFile(file);
     container = ContainerOpener.open(file);
-    Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#sha224",
+    Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha224",
         container.getSignatures().get(0).getSignatureMethod());
   }
 
