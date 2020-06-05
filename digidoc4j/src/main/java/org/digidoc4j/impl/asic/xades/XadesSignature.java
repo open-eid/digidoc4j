@@ -183,4 +183,11 @@ public interface XadesSignature extends Serializable {
    */
   XadesValidationResult validate();
 
+  /**
+   * This method returns the signature OCSP response nonce
+   * or {@code null} if OCSP response is not present or OCSP nonce is not found inside the OCSP response.
+   *
+   * @return OCSP response nonce or {@code null} if not found
+   */
+  byte[] getOCSPNonce();
 }

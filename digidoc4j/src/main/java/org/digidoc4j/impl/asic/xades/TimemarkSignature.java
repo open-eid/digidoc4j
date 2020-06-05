@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Primitive;
+import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -44,6 +45,7 @@ public class TimemarkSignature extends BesSignature {
   private transient X509Cert ocspCertificate;
   private transient BasicOCSPResp ocspResponse;
   private transient Date ocspResponseTime;
+  private transient byte[] ocspNonce;
 
   /**
    * @param xadesReportGenerator XADES validation report generator
@@ -96,6 +98,23 @@ public class TimemarkSignature extends BesSignature {
   @Override
   public Date getTrustedSigningTime() {
     return getOCSPResponseCreationTime();
+  }
+
+  @Override
+  public byte[] getOCSPNonce() {
+    if (ocspNonce != null) {
+      return ocspNonce;
+    }
+    initOcspResponse();
+    if (ocspResponse == null) {
+      return null;
+    }
+    Extension nonceExt = ocspResponse.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
+    if (nonceExt == null) {
+      return null;
+    }
+    ocspNonce = nonceExt.getExtnValue().getOctets();
+    return ocspNonce;
   }
 
   private void initOcspResponse() {

@@ -137,6 +137,17 @@ public class BesSignature extends DssXadesSignature {
   }
 
   /**
+   * B_BES signature does not contain OCSP response
+   *
+   * @return null
+   */
+  @Override
+  public byte[] getOCSPNonce() {
+    logger.info("B_BES signature does not contain OCSP response");
+    return null;
+  }
+
+  /**
    * B_BES signature does not contain OCSP response time or Timestamp to provide trusted signing time.
    *
    * @return null

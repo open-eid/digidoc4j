@@ -1,7 +1,10 @@
 package org.digidoc4j.ddoc;
 
+import org.bouncycastle.cert.ocsp.BasicOCSPResp;
+import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.digidoc4j.ddoc.factory.DigiDocVerifyFactory;
 import org.digidoc4j.ddoc.factory.DigiDocXmlGenFactory;
+import org.digidoc4j.ddoc.utils.BouncyCastleNotaryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -821,5 +824,32 @@ public class Signature implements Serializable
             m_logger.error("Error converting Signature to string: " + ex);
         }
         return null;
+    }
+
+    /**
+     * Returns the signature OCSP response nonce
+     * or {@code null} if signed doc is not "SK-XML" or "DIGIDOC-XML" format,
+     * OCSP response is not present or OCSP nonce is not found inside the OCSP response.
+     *
+     * @return OCSP response nonce or {@code null} if not found
+     * @throws DigiDocException for OCSP nonce parse errors
+     */
+    public byte[] getOCSPNonce() throws DigiDocException {
+        if (!BouncyCastleNotaryUtil.isApplicableFormatForOcspNonce(m_sigDoc) || m_unsigProp == null) {
+            return null;
+        }
+
+        Notary ocspResponse = m_unsigProp.getNotary();
+        if (ocspResponse == null) {
+            return null;
+        }
+
+        try {
+            OCSPResp resp = new OCSPResp(ocspResponse.getOcspResponseData());
+            BasicOCSPResp basResp = (BasicOCSPResp) resp.getResponseObject();
+            return BouncyCastleNotaryUtil.getNonce(basResp, m_sigDoc);
+        } catch (Exception ex) {
+            throw DigiDocException.getHandledException(ex, DigiDocException.ERR_OCSP_PARSE);
+        }
     }
 }

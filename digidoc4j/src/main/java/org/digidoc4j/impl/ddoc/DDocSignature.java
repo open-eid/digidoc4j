@@ -15,6 +15,7 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.ddoc.CertValue;
+import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.slf4j.Logger;
@@ -94,7 +95,12 @@ public class DDocSignature implements Signature {
   @Override
   public byte[] getOCSPNonce() {
     logger.debug("getOCSPNonce");
-    return null;
+    try {
+      return origin.getOCSPNonce();
+    } catch (DigiDocException e) {
+      logger.error("Failed to parse OCSP nonce: " + e.getMessage());
+      throw new DigiDoc4JException(e);
+    }
   }
 
   @Override

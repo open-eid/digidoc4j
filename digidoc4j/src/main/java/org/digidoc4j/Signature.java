@@ -50,11 +50,10 @@ public interface Signature extends Serializable {
   String getUniqueId();
 
   /**
-   * Returns the signature OCSP response nonce.
-   * <p>
-   * For a sic Signature it throws a NotYetImplementedException.
+   * Returns the signature OCSP response nonce
+   * or {@code null} if OCSP response is not present or OCSP nonce is not found inside the OCSP response.
    *
-   * @return OCSP response nonce
+   * @return OCSP response nonce or {@code null} if not found
    */
   byte[] getOCSPNonce();
 

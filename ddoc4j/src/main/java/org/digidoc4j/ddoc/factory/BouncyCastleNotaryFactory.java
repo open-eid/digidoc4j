@@ -1,13 +1,12 @@
 package org.digidoc4j.ddoc.factory;
 
 import org.digidoc4j.ddoc.*;
+import org.digidoc4j.ddoc.utils.BouncyCastleNotaryUtil;
 import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.digidoc4j.ddoc.utils.ConvertUtils;
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.ocsp.BasicOCSPResponse;
-import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.ocsp.ResponderID;
-import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.X509Name;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.ocsp.*;
@@ -25,9 +24,7 @@ import java.io.OutputStream;
 import java.security.*;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class BouncyCastleNotaryFactory implements NotaryFactory
 {
@@ -281,10 +278,9 @@ public class BouncyCastleNotaryFactory implements NotaryFactory
             if(m_logger.isDebugEnabled())
                 m_logger.debug("Verif sig: " + sig.getId() + " format: " + sig.getSignedDoc().getFormat() + " nonce policy: " + sig.hasBdoc2NoncePolicy());
             boolean ok = true;
-            if(sig.getSignedDoc().getFormat().equals(SignedDoc.FORMAT_SK_XML) ||
-                    sig.getSignedDoc().getFormat().equals(SignedDoc.FORMAT_DIGIDOC_XML)) {
+            if(BouncyCastleNotaryUtil.isApplicableFormatForOcspNonce(sig.getSignedDoc())) {
                 byte[] nonce1 = SignedDoc.digestOfType(sig.getSignatureValue().getValue(), SignedDoc.SHA1_DIGEST_TYPE);
-                byte[] nonce2 = getNonce(basResp, sig.getSignedDoc());
+                byte[] nonce2 = BouncyCastleNotaryUtil.getNonce(basResp, sig.getSignedDoc());
                 if(nonce1 == null || nonce2 == null || nonce1.length != nonce2.length)
                     ok = false;
                 for(int i = 0; (nonce1 != null) && (nonce2 != null) && (i < nonce1.length) && (i < nonce2.length); i++)
@@ -335,66 +331,6 @@ public class BouncyCastleNotaryFactory implements NotaryFactory
             } else {
                 X509Name name = new X509Name((ASN1Sequence)o);
                 return "byName: " + name.toString();
-            }
-        }
-        else
-            return null;
-    }
-
-    /**
-     * Method to get NONCE array from responce
-     * @param basResp
-     * @return OCSP nonce value
-     */
-    private byte[] getNonce(BasicOCSPResp basResp, SignedDoc sdoc) {
-        if(basResp != null) {
-            try {
-                byte[] nonce2 = null;
-                Set extOids = basResp.getNonCriticalExtensionOIDs();
-                boolean bAsn1=false;
-                String sType = null;
-                if(m_logger.isDebugEnabled())
-                    m_logger.debug("Nonce exts: " + extOids.size());
-                if(extOids.size() >= 1) {
-                    Extension ext = basResp.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
-                    if(ext != null) {
-                        if(m_logger.isDebugEnabled())
-                            m_logger.debug("Ext: " + ext.getExtnId() + " val-len: " + ((ext.getExtnValue() != null) ? ext.getExtnValue().getOctets().length : 0));
-                        if(ext.getExtnValue() != null && ext.getExtnValue().getOctets() != null && ext.getExtnValue().getOctets().length == 20) {
-                            nonce2 = ext.getExtnValue().getOctets();
-                            m_logger.debug("Raw nonce len: " + ((nonce2 != null) ? nonce2.length : 0));
-                        } else {
-                            ASN1Encodable extObj = ext.getParsedValue();
-                            nonce2 = extObj.toASN1Primitive().getEncoded();
-                        }
-                    }
-                }
-                boolean bCheckOcspNonce = ConfigManager.instance().getBooleanProperty("CHECK_OCSP_NONCE", false);
-                if(sdoc != null && sdoc.getFormat() != null && sdoc.getFormat().equals(SignedDoc.FORMAT_SK_XML)) bCheckOcspNonce = false;
-                if(m_logger.isDebugEnabled() && nonce2 != null)
-                    m_logger.debug("Nonce hex: " + ConvertUtils.bin2hex(nonce2) + " b64: " + Base64Util.encode(nonce2) + " len: " + nonce2.length + " asn1: " + bAsn1);
-                if(sdoc != null && sdoc.getFormat() != null && sdoc.getFormat().equals(SignedDoc.FORMAT_DIGIDOC_XML) || sdoc == null) {
-                    if(nonce2 != null && nonce2.length == 22) { //  nonce2[0] == V_ASN1_OCTET_STRING
-                        byte[] b = new byte[20];
-                        System.arraycopy(nonce2, nonce2.length - 20, b, 0, 20);
-                        nonce2 = b;
-                        bAsn1=true;
-                        sType = "ASN1-NONCE";
-                    }
-                }
-                if(m_logger.isDebugEnabled() && nonce2 != null)
-                    m_logger.debug("Nonce hex: " + ConvertUtils.bin2hex(nonce2) + " b64: " + Base64Util.encode(nonce2) + " len: " + nonce2.length + " type: " + sType);
-                else
-                    m_logger.debug("No nonce");
-                if(!bAsn1 && bCheckOcspNonce) {
-                    throw new DigiDocException(DigiDocException.ERR_OCSP_NONCE,
-                            "Invalid nonce: " + ((nonce2 != null) ? ConvertUtils.bin2hex(nonce2) + " length: " + nonce2.length : "NO-NONCE") + "!", null);
-                }
-                return nonce2;
-            } catch(Exception ex) {
-                m_logger.error("Error reading ocsp nonce: " + ex);
-                ex.printStackTrace();
-                return null;
             }
         }
         else

@@ -145,10 +145,23 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testGetNonce() {
+  public void testGetNonceForDDOC() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     Signature signature = container.getSignatures().get(0);
-    Assert.assertEquals(null, Base64.encodeBase64String(signature.getOCSPNonce())); //todo correct nonce is needed
+    Assert.assertEquals("UR7APOIqSmZhuX/C+sqpqXP9sog=", Base64.encodeBase64String(signature.getOCSPNonce()));
+  }
+
+
+  @Test(expected = DigiDoc4JException.class)
+  public void testGetNonceWithNonceParseErrorForDDOC() {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/ddoc_with_corrupted_ocsp_response.ddoc");
+    container.getSignatures().get(0).getOCSPNonce();
+  }
+
+  @Test
+  public void testGetNonceWithNoOcspResponseForDDOC() {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/ddoc_with_no_ocsp_response.ddoc");
+    Assert.assertNull(container.getSignatures().get(0).getOCSPNonce());
   }
 
   @Test
@@ -302,11 +315,17 @@ public class SignatureTest extends AbstractTest {
     container.getSignatures().get(0).getTimeStampTokenCertificate();
   }
 
-  @Test(expected = NotYetImplementedException.class)
+  @Test
   public void testGetNonceForBDoc() {
-    Container container = ContainerOpener.open(
-        "src/test/resources/testFiles/invalid-containers/asics_for_testing.bdoc");
-    container.getSignatures().get(0).getOCSPNonce();
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
+    String nonce =  Base64.encodeBase64String(container.getSignatures().get(0).getOCSPNonce());
+    Assert.assertEquals("MDEwDQYJYIZIAWUDBAIBBQAEIGYrFuVObKYFoA8P22TxZ8knTH4dLASQ2hEG5ejvV1gK", nonce);
+  }
+
+  @Test
+  public void testGetNonceForAsiceWithoutNonce() {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/LT_without_nonce.asice");
+    Assert.assertNull(container.getSignatures().get(0).getOCSPNonce());
   }
 
   @Test

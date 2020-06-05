@@ -68,7 +68,7 @@ public class AsicSignature implements Signature {
 
   @Override
   public byte[] getOCSPNonce() {
-    throw new NotYetImplementedException();
+    return xadesSignature.getOCSPNonce();
   }
 
   @Override

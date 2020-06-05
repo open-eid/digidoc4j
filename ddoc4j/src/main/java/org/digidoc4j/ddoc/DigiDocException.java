@@ -258,10 +258,18 @@ public class DigiDocException extends Exception {
      * @param code error code
      */
     public static void handleException(Exception ex, int code) throws DigiDocException {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(ex.toString(), ex);
-        }
+        logException(ex);
         throw new DigiDocException(code, ex.getClass().getName(), ex);
     }
 
+    public static DigiDocException getHandledException(Exception ex, int code) {
+        logException(ex);
+        return new DigiDocException(code, ex.getClass().getName(), ex);
+    }
+
+    private static void logException(Exception ex) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(ex.toString(), ex);
+        }
+    }
 }
