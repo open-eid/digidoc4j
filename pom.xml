@@ -127,6 +127,12 @@
             <organization>Nortal</organization>
             <organizationUrl>https://www.nortal.com</organizationUrl>
         </developer>
+        <developer>
+            <name>Priit Üksküla</name>
+            <email>Priit.Ykskyla at Nortal.com</email>
+            <organization>Nortal</organization>
+            <organizationUrl>https://www.nortal.com</organizationUrl>
+        </developer>
     </developers>
 
     <properties>
