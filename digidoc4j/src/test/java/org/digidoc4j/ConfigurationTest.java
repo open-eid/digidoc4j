@@ -256,7 +256,7 @@ public class ConfigurationTest extends AbstractTest {
     BDocContainer container = (BDocContainer) ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE)
         .withConfiguration(this.configuration).build();
     container.getConfiguration().getTSL();
-    Assert.assertEquals(10, container.getConfiguration().getTSL().getCertificates().size());
+    Assert.assertEquals(12, container.getConfiguration().getTSL().getCertificates().size());
     try {
       int tenSeconds = 10000;
       String tslHost = "10.0.25.57";
@@ -1213,8 +1213,8 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertTrue(trustedTerritories.contains("EE"));
     Assert.assertTrue(trustedTerritories.contains("BE"));
     Assert.assertTrue(trustedTerritories.contains("NO"));
-    Assert.assertFalse(trustedTerritories.contains("DE"));
-    Assert.assertFalse(trustedTerritories.contains("HR"));
+    Assert.assertTrue(trustedTerritories.contains("DE"));
+    Assert.assertTrue(trustedTerritories.contains("HR"));
   }
 
   @Test
