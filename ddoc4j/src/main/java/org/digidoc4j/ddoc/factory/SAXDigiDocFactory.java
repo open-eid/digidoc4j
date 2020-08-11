@@ -1529,6 +1529,7 @@ public class SAXDigiDocFactory
                             String sDf = null;
                             if(m_sbCollectChars != null) {
                                 sDf = m_sbCollectChars.toString();
+                                setDataFileBodyAsData(df);
                                 m_sbCollectChars = null;
                             } else if(df.getDfCacheFile() != null) {
                                 byte[] data = null;
@@ -1547,15 +1548,10 @@ public class SAXDigiDocFactory
                             if(m_logger.isDebugEnabled())
                                 m_logger.debug("Digest: " + df.getId() + " - " + Base64Util.encode(df.getDigest()) + " size: " + df.getSize());
                         } else {
-                            long nSize = df.getSize();
                             if(m_logger.isDebugEnabled())
                                 m_logger.debug("DF: " + df.getId() + " cache-file: " + df.getDfCacheFile());
                             if(df.getDfCacheFile() == null) {
-                                byte[] b = Base64Util.decode(m_sbCollectChars.toString());
-                                if(m_logger.isDebugEnabled())
-                                    m_logger.debug("DF: " + df.getId() + " orig-size: " + nSize + " new size: " + b.length);
-                                if(b != null && nSize == 0) nSize = b.length;
-                                df.setBodyAsData(ConvertUtils.str2data(m_sbCollectChars.toString(), "UTF-8"), true, nSize);
+                                setDataFileBodyAsData(df);
                             }
                             // calc digest over end tag
                             updateDigest("</DataFile>".getBytes());
@@ -2083,6 +2079,15 @@ public class SAXDigiDocFactory
         }
 
         //} // if(m_nCollectMode == 0)
+    }
+
+    private void setDataFileBodyAsData(DataFile df) throws DigiDocException {
+        long nSize = df.getSize();
+        byte[] b = Base64Util.decode(m_sbCollectChars.toString());
+        if(m_logger.isDebugEnabled())
+            m_logger.debug("DF: " + df.getId() + " orig-size: " + nSize + " new size: " + b.length);
+        if(nSize == 0) nSize = b.length;
+        df.setBodyAsData(ConvertUtils.str2data(m_sbCollectChars.toString(), "UTF-8"), true, nSize);
     }
 
     /**

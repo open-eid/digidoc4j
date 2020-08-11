@@ -228,6 +228,13 @@ public class DDocFacadeTest extends AbstractTest {
     Assert.assertEquals("ryndefail4.txt", dataFilesFromFacade.get(4).getName());
   }
 
+  @Test
+  public void skXmlDataFilesAreRetrievableWhenMemoryCachingIsConfigured() {
+    this.configuration.setMaxFileSizeCachedInMemoryInMB(-1);
+    DDocFacade facade = openDDocFacade("src/test/resources/prodFiles/valid-containers/SK-XML1.0.ddoc");
+    Assert.assertEquals("Tartu ja Tallinna koostooleping.doc", facade.getDataFiles().get(0).getName());
+  }
+
   /*
    * RESTRICTED METHODS
    */
