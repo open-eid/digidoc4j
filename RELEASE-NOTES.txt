@@ -1,6 +1,24 @@
 DigiDoc4J Java library release notes
 ------------------------------------
 
+Release 4.0.3
+------------------
+Bug fixes
+------------------------------
+* Fix retrieval of data files from DDOC 1.0 when in-memory caching is used
+
+Known issues
+------------
+* We have noticed a decrease in performance with the introduction of properly accessing AIA certificate resources
+* Opening a container that contains signatures, triggers TSL loading (TSL lazy loading does not work as expected)
+* BouncyCastle versions 1.64 and up are not supported when validating signatures containing encapsulated CRL data
+* While upgrading from versions older than 2.1.1 be sure that your integration :
+  - doesn't use Xalan or XercesImpl dependencies
+  - uses a patched Java version (JDK8 or higher)
+    Xalan and XercesImpl were used to patch XML vulnerabilities in older java versions. They should be discarded with higher versions because they override default Java XML security.
+    If it is not possible to remove Xalan, then you can set your system property to override TransformerFactory : System.setProperty("javax.xml.transform.TransformerFactory","com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
+* DIGIDOC_MAX_DATAFILE_CACHED parameter does not work correctly for DDOC because the value is compared as bytes instead of MB
+
 Release 4.0.2
 ------------------
 Summary of the major changes since 4.0.1
