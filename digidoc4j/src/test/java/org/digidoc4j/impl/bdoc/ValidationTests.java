@@ -799,6 +799,12 @@ public class ValidationTests extends AbstractTest {
             result.getErrors().stream().anyMatch(e -> e instanceof TimestampAfterOCSPResponseTimeException));
   }
 
+  @Test
+  public void container_withPssSignature_shouldBeValid(){
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/PSS-signature.asice");
+    TestAssert.assertContainerIsValid(container);
+  }
+
   /*
    * RESTRICTED METHODS
    */
