@@ -1,5 +1,8 @@
 ﻿![EU Regional Development Fund](digidoc4j/src/main/doc/resources/EL_Regionaalarengu_Fond_horisontaalne-vaike.jpg)
 
+# Build status
+
+[![Build Status](https://travis-ci.com/open-eid/digidoc4j.svg?branch=develop)](https://travis-ci.com/open-eid/digidoc4j)
 
 # DigiDoc4j
 DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers of signed documents.
