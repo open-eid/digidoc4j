@@ -1,7 +1,9 @@
-dist: xenial
+dist: focal
 language: java
 jdk:
 - openjdk8
+- openjdk10
+- openjdk11
 branches:
   only:
   - develop
@@ -16,6 +18,5 @@ notifications:
     recipients:
     - aare.nurm@nortal.com
     - siim.suu@nortal.com
-    - risto.seene@nortal.com
     on_success: change
     on_failure: always
