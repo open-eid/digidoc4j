@@ -1,5 +1,6 @@
 package org.digidoc4j;
 
+import eu.europa.esig.dss.enumerations.ObjectIdentifierQualifier;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.model.Policy;
@@ -525,7 +526,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     Policy customPolicy = new Policy();
     customPolicy.setId("id");
     customPolicy.setSpuri("spuri");
-    customPolicy.setQualifier("qualifier");
+    customPolicy.setQualifier(ObjectIdentifierQualifier.OID_AS_URN);
     customPolicy.setDigestValue("some".getBytes(StandardCharsets.UTF_8));
     customPolicy.setDigestAlgorithm(eu.europa.esig.dss.enumerations.DigestAlgorithm.SHA512);
     return customPolicy;

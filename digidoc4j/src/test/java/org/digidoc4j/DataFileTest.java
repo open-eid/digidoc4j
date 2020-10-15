@@ -82,14 +82,16 @@ public class DataFileTest extends AbstractTest {
     }
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void incorrectMimeType() {
     this.dataFile = new DataFile("src/test/resources/testFiles/helper-files/test.txt", "incorrect");
+    Assert.assertNotNull(this.dataFile.getMediaType());
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void incorrectMimeTypeByteArrayConstructor() {
     this.dataFile = new DataFile(new byte[]{0x041}, "src/test/resources/testFiles/helper-files/test.txt", "incorrect");
+    Assert.assertNotNull(this.dataFile.getMediaType());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -125,10 +127,12 @@ public class DataFileTest extends AbstractTest {
     }
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void createDocumentFromInoutStreamThrowsException() throws IOException {
     try (ByteArrayInputStream stream = new ByteArrayInputStream("test".getBytes())) {
-      new DataFile(stream, "test.txt", "unknown");
+      this.dataFile = new DataFile(stream, "test.txt", "unknown");
+      Assert.assertNotNull(this.dataFile.getMediaType());
+      Assert.assertArrayEquals("test".getBytes(), dataFile.getBytes());
     }
   }
 

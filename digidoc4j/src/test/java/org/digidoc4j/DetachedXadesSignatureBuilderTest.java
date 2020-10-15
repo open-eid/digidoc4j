@@ -12,6 +12,7 @@ import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class DetachedXadesSignatureBuilderTest extends AbstractTest {
@@ -147,9 +148,11 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     ValidationResult validationResult = signature.validateSignature();
     Assert.assertFalse(validationResult.isValid());
     Assert.assertEquals(1, validationResult.getWarnings().size());
-    Assert.assertEquals("The signature/seal is an INDETERMINATE AdES!", validationResult.getWarnings().get(0).getMessage());
-    Assert.assertEquals(1, validationResult.getErrors().size());
+    Assert.assertEquals("The signature/seal is an INDETERMINATE AdES digital signature!", validationResult.getWarnings().get(0).getMessage());
+    Assert.assertEquals(2, validationResult.getErrors().size());
     Assert.assertEquals("The result of the LTV validation process is not acceptable to continue the process!", validationResult.getErrors().get(0).getMessage());
+    Assert.assertEquals("No acceptable revocation data for the certificate!", validationResult.getErrors().get(1).getMessage());
+
   }
 
   @Test
@@ -167,6 +170,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-622")
   public void signWithLTAProfile() throws Exception {
     byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
     DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest, "text/plain");

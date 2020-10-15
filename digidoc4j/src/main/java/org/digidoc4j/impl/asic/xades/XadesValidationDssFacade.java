@@ -63,7 +63,7 @@ public class XadesValidationDssFacade {
     certificateVerifier.setCrlSource(null); //Disable CRL checks
     certificateVerifier.setSignatureCRLSource(null); //Disable CRL checks
     logger.debug("Setting trusted cert source to the certificate verifier");
-    certificateVerifier.setTrustedCertSource(configuration.getTSL());
+    certificateVerifier.setTrustedCertSources(configuration.getTSL());
     logger.debug("Setting custom data loader to the certificate verifier");
     certificateVerifier.setDataLoader(new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create());
     logger.debug("Finished creating certificate verifier");

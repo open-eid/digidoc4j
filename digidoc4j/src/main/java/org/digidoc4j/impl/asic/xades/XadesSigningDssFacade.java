@@ -1,22 +1,38 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic.xades;
 
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
+import eu.europa.esig.dss.DomUtils;
+import eu.europa.esig.dss.asic.common.ASiCNamespace;
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import eu.europa.esig.dss.enumerations.EncryptionAlgorithm;
+import eu.europa.esig.dss.enumerations.SignatureLevel;
+import eu.europa.esig.dss.enumerations.SignaturePackaging;
+import eu.europa.esig.dss.model.BLevelParameters;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.model.InMemoryDocument;
+import eu.europa.esig.dss.model.Policy;
+import eu.europa.esig.dss.model.SignatureValue;
+import eu.europa.esig.dss.model.SignerLocation;
+import eu.europa.esig.dss.model.ToBeSigned;
+import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.spi.x509.CertificateSource;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
+import eu.europa.esig.dss.spi.x509.tsp.TSPSource;
+import eu.europa.esig.dss.validation.CertificateVerifier;
+import eu.europa.esig.dss.xades.DSSXMLUtils;
+import eu.europa.esig.dss.xades.XAdESSignatureParameters;
+import eu.europa.esig.dss.xades.signature.XAdESService;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TechnicalException;
@@ -27,29 +43,12 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import eu.europa.esig.dss.model.BLevelParameters;
-import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.model.DSSException;
-import eu.europa.esig.dss.enumerations.DigestAlgorithm;
-import eu.europa.esig.dss.DomUtils;
-import eu.europa.esig.dss.enumerations.EncryptionAlgorithm;
-import eu.europa.esig.dss.model.InMemoryDocument;
-import eu.europa.esig.dss.model.Policy;
-import eu.europa.esig.dss.enumerations.SignatureLevel;
-import eu.europa.esig.dss.enumerations.SignaturePackaging;
-import eu.europa.esig.dss.model.SignatureValue;
-import eu.europa.esig.dss.model.SignerLocation;
-import eu.europa.esig.dss.model.ToBeSigned;
-import eu.europa.esig.dss.asic.common.ASiCNamespace;
-import eu.europa.esig.dss.validation.CertificateVerifier;
-import eu.europa.esig.dss.spi.client.http.DataLoader;
-import eu.europa.esig.dss.spi.x509.CertificateSource;
-import eu.europa.esig.dss.model.x509.CertificateToken;
-import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
-import eu.europa.esig.dss.spi.x509.tsp.TSPSource;
-import eu.europa.esig.dss.xades.DSSXMLUtils;
-import eu.europa.esig.dss.xades.XAdESSignatureParameters;
-import eu.europa.esig.dss.xades.signature.XAdESService;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Facade class for DSS Xades signing functionality.
@@ -73,6 +72,7 @@ public class XadesSigningDssFacade {
 
   /**
    * Method getDataToSign converts File into byte array
+   *
    * @param dataFiles List of files to be signed
    * @return Data in byte array, not digest!
    */
@@ -96,8 +96,9 @@ public class XadesSigningDssFacade {
 
   /**
    * Method for signing and adding files into container.
+   *
    * @param signatureValue Signature value in byte array
-   * @param dataFiles Collection of files
+   * @param dataFiles      Collection of files
    * @return Container what is containing datafiles and signature
    */
   public DSSDocument signDocument(byte[] signatureValue, Collection<DataFile> dataFiles) {
@@ -114,7 +115,7 @@ public class XadesSigningDssFacade {
     }
     logger.debug("Signature parameters: " + xAdESSignatureParameters.toString());
     SignatureValue dssSignatureValue = new SignatureValue(xAdESSignatureParameters.getSignatureAlgorithm(),
-        signatureValue);
+            signatureValue);
     DSSDocument signedDocument;
     try {
       signedDocument = xAdESService.signDocument(detachedContentList, xAdESSignatureParameters, dssSignatureValue);
@@ -214,7 +215,7 @@ public class XadesSigningDssFacade {
   }
 
   private void initDefaultXadesParameters() {
-    xAdESSignatureParameters.clearCertificateChain();
+    xAdESSignatureParameters.getCertificateChain().clear();
     xAdESSignatureParameters.bLevel().setSigningDate(new Date());
     xAdESSignatureParameters.setSignaturePackaging(SignaturePackaging.DETACHED);
     xAdESSignatureParameters.setSignatureLevel(SignatureLevel.XAdES_BASELINE_LT);

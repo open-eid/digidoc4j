@@ -135,7 +135,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("XAdES-BASELINE-LT-TM", "/SimpleReport/Signature/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865", "/SimpleReport/Signature/SignedBy", report);
     TestAssert.assertXPathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
-    TestAssert.assertXPathHasValue("NO_POE", "/SimpleReport/Signature/SubIndication", report);
+    TestAssert.assertXPathHasValue("REVOKED_NO_POE", "/SimpleReport/Signature/SubIndication", report);
     TestAssert.assertXPathHasValue("The past signature validation is not conclusive!", "/SimpleReport/Signature/Errors", report);
     TestAssert.assertXPathHasValue("META-INF/signatures0.xml", "/SimpleReport/Signature/DocumentName", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
@@ -157,7 +157,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("NO_CERTIFICATE_CHAIN_FOUND", "/SimpleReport/Signature/SubIndication", report);
     TestAssert.assertXPathHasValue("META-INF/signatures0.xml", "/SimpleReport/Signature/DocumentName", report);
     TestAssert.assertXPathHasValue("RELEASE-NOTES.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
-    TestAssert.assertXPathHasValue("The certificate path is not trusted!", "/SimpleReport/Signature/Errors", report);
+    TestAssert.assertXPathHasValue("Unable to build a certificate chain until a trusted list!", "/SimpleReport/Signature/Errors", report);
     TestAssert.assertXPathHasValue("Manifest file has an entry for file <incorrect.txt> with mimetype <text/plain> " +
         "but the signature file for signature S0 does not have an entry for this file", "/SimpleReport/ContainerError[1]", report);
     TestAssert.assertXPathHasValue("The signature file for signature S0 has an entry for file <RELEASE-NOTES.txt> " +
@@ -183,7 +183,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("XAdES-BASELINE-T", "/SimpleReport/Signature/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("ŽAIKOVSKI,IGOR,37101010021", "/SimpleReport/Signature/SignedBy", report);
     TestAssert.assertXPathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
-    TestAssert.assertXPathHasValue("The result of the timestamps validation process is not conclusive!", "/SimpleReport/Signature/Errors[1]", report);
+    TestAssert.assertXPathHasValue("Unable to build a certificate chain until a trusted list!", "/SimpleReport/Signature/Errors[1]", report);
     TestAssert.assertXPathHasValue("META-INF/signatures0.xml", "/SimpleReport/Signature/DocumentName", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
   }

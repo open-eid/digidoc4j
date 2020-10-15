@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Implementation class for validating certificates by using OCSP requests
@@ -86,18 +87,18 @@ public class OCSPCertificateValidator implements CertificateValidator {
   }
 
   private CertificateToken getIssuerForCertificateToken(CertificateToken certificateToken) {
-    List<CertificateToken> tokens = this.getIssuerFromCertificateSource(certificateToken);
+    Set<CertificateToken> tokens = this.getIssuerFromCertificateSource(certificateToken);
     if (tokens.size() != 1) {
       throw new IllegalStateException(String.format("<%s> matching certificate tokens found from certificate source",
               tokens.size()));
     }
-    return tokens.get(0);
+    return tokens.iterator().next();
   }
 
-  private List<CertificateToken> getIssuerFromCertificateSource(CertificateToken certificateToken) {
-    List<CertificateToken> issuers = this.configuration.getTSL().getCertificatePool().getIssuers(certificateToken);
+  private Set<CertificateToken> getIssuerFromCertificateSource(CertificateToken certificateToken) {
+    Set<CertificateToken> issuers = this.configuration.getTSL().getBySubject(certificateToken.getIssuer());
     if (CollectionUtils.isEmpty(issuers)) {
-      issuers = this.certificateSource.getCertificatePool().getIssuers(certificateToken);
+      issuers = this.certificateSource.getBySubject(certificateToken.getIssuer());
     }
     return issuers;
   }

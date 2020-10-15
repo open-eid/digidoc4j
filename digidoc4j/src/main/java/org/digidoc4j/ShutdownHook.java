@@ -3,11 +3,11 @@ package org.digidoc4j;
 import java.lang.reflect.Field;
 import java.util.concurrent.ExecutorService;
 
+import eu.europa.esig.dss.tsl.job.TLValidationJob;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.impl.asic.tsl.LazyTslCertificateSource;
 import org.digidoc4j.impl.asic.xades.validation.ThreadPoolManager;
 
-import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 
 /**
  * Shutdown hook for a clean shutdown
@@ -69,10 +69,10 @@ public class ShutdownHook extends Thread {
   }
 
   private void shutdownTSLValidationJob(Configuration configuration) {
-    TSLValidationJob job = null;
+    TLValidationJob job = null;
     TSLCertificateSource source = configuration.getTSL();
     if (source instanceof LazyTslCertificateSource) {
-      job = ((LazyTslCertificateSource) source).getTslLoader().getTslValidationJob();
+      job = ((LazyTslCertificateSource) source).getTslLoader().getTlValidationJob();
     } else {
       System.out.println("Unable to shutdown TSL validation job");
     }

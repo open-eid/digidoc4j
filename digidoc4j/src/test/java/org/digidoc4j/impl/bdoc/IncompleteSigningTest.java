@@ -1,13 +1,13 @@
 package org.digidoc4j.impl.bdoc;
 
 import eu.europa.esig.dss.model.x509.CertificateToken;
-import eu.europa.esig.dss.spi.x509.CertificatePool;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.exceptions.NetworkException;
@@ -22,19 +22,20 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 
+
 /**
  * Description of tests by their suffix:
- *
+ * <p>
  * ...WhenSigningCertificateIsNotTrustedByTSL() - uses PROD configuration in order to get a TSL where signing certificate is not trusted.
  * NB: TSP and OCSP sources are set to demo URLs in order to prevent requests to non-free services!
- *
+ * <p>
  * ...WhenOcspResponderIsNotTrustedByTSL() - uses PROD configuration in order to get a TSL where OCSP responder certificate is not trusted.
  * NB: TSP and OCSP sources are set to demo URLs in order to prevent requests to non-free TSA and get a non-trusted response from OCSP!
- *
+ * <p>
  * ...WhenTslCouldNotBeLoaded() - uses TEST configuration with empty SSL truststore in order to prevent TSL from loading.
- *
+ * <p>
  * ...WhenTslLoadingFails() - uses TEST configuration with invalid SSL truststore configuration in order to prevent TSL from loading.
- *
+ * <p>
  * ...WhenDataLoadersFail() - uses TEST configuration with successfully loaded TSL and subsequently configured invalid SSL truststore
  * configuration in order to make TSA and OCSP requests to fail.
  */
@@ -268,7 +269,7 @@ public class IncompleteSigningTest extends AbstractTest {
 
   private void setUpTestConfigurationWithFailingTSL() {
     configuration = Configuration.of(Configuration.Mode.TEST);
-    configuration.setSslTruststorePath("invalid-truststore-path");
+    configuration.setSslTruststorePath("classpath:testFiles/truststores/empty-truststore.p12");
     configuration.setSslTruststorePassword("invalid-truststore-password");
     configuration.setSslTruststoreType("INVALID_TRUSTSTORE_TYPE");
     configuration.getTSL().invalidateCache();
@@ -277,25 +278,23 @@ public class IncompleteSigningTest extends AbstractTest {
   private void setUpTestConfigurationWithOkTslButFailingDataLoaders() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     configuration.getTSL().refresh();
-    configuration.setSslTruststorePath("invalid-truststore-path");
+    configuration.setSslTruststorePath("classpath:testFiles/truststores/empty-truststore.p12");
     configuration.setSslTruststorePassword("invalid-truststore-password");
     configuration.setSslTruststoreType("INVALID_TRUSTSTORE_TYPE");
   }
 
   private void ensureCertificateTrustedByTSL(X509Certificate certificate) {
     CertificateToken certificateToken = new CertificateToken(certificate);
-    CertificatePool tslPool = configuration.getTSL().getCertificatePool();
-    if (tslPool.getIssuer(certificateToken) != null) {
+    TSLCertificateSource certificateSource = configuration.getTSL();
+    if (!certificateSource.getBySubject(certificateToken.getIssuer()).isEmpty()) {
       return;
     }
     addCertificateToTSL(
-            Paths.get("src", "test", "resources","testFiles", "certs", "TEST_of_ESTEID-SK_2015.pem.crt"),
+            Paths.get("src", "test", "resources", "testFiles", "certs", "TEST_of_ESTEID-SK_2015.pem.crt"),
             configuration.getTSL()
     );
-    Assert.assertNotNull(
-            "Issuer for '" + certificate.getSubjectDN().getName() + "' not found in TSL! Test or test files might be invalid or out-dated!",
-            tslPool.getIssuer(certificateToken)
-    );
+    Assert.assertFalse("Issuer for '" + certificate.getSubjectDN().getName() + "' not found in TSL! Test or test files might be invalid or out-dated!",
+            certificateSource.getBySubject(certificateToken.getIssuer()).isEmpty());
   }
 
   private Signature reloadSignature(Signature signature, Configuration.Mode mode) {

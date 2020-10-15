@@ -10,16 +10,18 @@
 
 package org.digidoc4j.impl;
 
+import eu.europa.esig.dss.enumerations.CertificateStatus;
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.DSSRevocationUtils;
 import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPToken;
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
 import eu.europa.esig.dss.token.KSPrivateKeyEntry;
 import eu.europa.esig.dss.token.Pkcs12SignatureToken;
-import eu.europa.esig.dss.model.x509.CertificateToken;
-import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
-import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPToken;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
@@ -33,6 +35,7 @@ import org.bouncycastle.cert.ocsp.CertificateID;
 import org.bouncycastle.cert.ocsp.OCSPException;
 import org.bouncycastle.cert.ocsp.OCSPReqBuilder;
 import org.bouncycastle.cert.ocsp.OCSPResp;
+import org.bouncycastle.cert.ocsp.SingleResp;
 import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
@@ -89,13 +92,13 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     try {
       return queryOCSPToken(accessLocation, certificateToken, issuerCertificateToken);
 
-    // DSS ignores and silently consumes DSSException resulting with invalid signature without OCSP.
-    // Must rethrow as other exception to stop the signing process - no OCSP, no signature.
-    // Any OCSP query exception should stop the signing process.
+      // DSS ignores and silently consumes DSSException resulting with invalid signature without OCSP.
+      // Must rethrow as other exception to stop the signing process - no OCSP, no signature.
+      // Any OCSP query exception should stop the signing process.
     } catch (DSSException e) {
       throw new TechnicalException("OCSP request failed", e);
 
-    // Attach common data to CertificateValidationException and rethrow
+      // Attach common data to CertificateValidationException and rethrow
     } catch (CertificateValidationException e) {
       e.setServiceType(getOCSPType());
       e.setServiceUrl(accessLocation);
@@ -125,14 +128,14 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   protected abstract Extension createNonce(X509Certificate certificate);
 
   private OCSPToken queryOCSPToken(String accessLocation, CertificateToken certificateToken, CertificateToken issuerCertificateToken) {
-    CertificateID certificateID = DSSRevocationUtils.getOCSPCertificateID(certificateToken, issuerCertificateToken);
+    CertificateID certificateID = DSSRevocationUtils.getOCSPCertificateID(certificateToken, issuerCertificateToken, DigestAlgorithm.SHA1);
     Extension nonceExtension = createNonce(certificateToken.getCertificate());
 
     byte[] response = dataLoader.post(accessLocation, buildRequest(certificateID, nonceExtension));
     BasicOCSPResp ocspResponse = parseAndVerifyOCSPResponse(response, accessLocation);
     checkNonce(ocspResponse, nonceExtension);
 
-    OCSPToken ocspToken = constructOCSPToken(ocspResponse, certificateID, accessLocation);
+    OCSPToken ocspToken = constructOCSPToken(ocspResponse, accessLocation, certificateToken, issuerCertificateToken);
     verifyOCSPToken(ocspToken);
     return ocspToken;
   }
@@ -223,8 +226,8 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
                 String.format("OCSP response certificate <%s> does not have 'OCSPSigning' extended key usage", token.getDSSIdAsString()));
       }
     } catch (CertificateParsingException e) {
-        throw CertificateValidationException.of(CertificateValidationStatus.TECHNICAL,
-                String.format("Error on verifying 'OCSPSigning' extended key usage for OCSP response certificate <%s>", token.getDSSIdAsString()), e);
+      throw CertificateValidationException.of(CertificateValidationStatus.TECHNICAL,
+              String.format("Error on verifying 'OCSPSigning' extended key usage for OCSP response certificate <%s>", token.getDSSIdAsString()), e);
     }
   }
 
@@ -261,12 +264,11 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     }
   }
 
-  private OCSPToken constructOCSPToken(BasicOCSPResp ocspResponse, CertificateID certificateID, String accessLocation) {
-    OCSPToken token = new OCSPToken();
-    token.setBasicOCSPResp(ocspResponse);
-    token.setCertId(certificateID);
+  private OCSPToken constructOCSPToken(BasicOCSPResp ocspResponse, String accessLocation,
+                                       CertificateToken subjectCert, CertificateToken issuerCert) {
+    SingleResp latestSingleResponse = DSSRevocationUtils.getLatestSingleResponse(ocspResponse, subjectCert, issuerCert);
+    OCSPToken token = new OCSPToken(ocspResponse, latestSingleResponse, subjectCert, issuerCert);
     token.setSourceURL(accessLocation);
-    token.initInfo();
     return token;
   }
 
@@ -276,15 +278,18 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     }
 
     if (token.getStatus() != null) {
-      if (!token.getStatus()) {
-        LOGGER.debug("Certificate with DSS ID <{}> - status <{}>", token.getDSSIdAsString(), token.getReason().name());
+      LOGGER.debug("Certificate with DSS ID <{}> - status <{}>", token.getDSSIdAsString(), token.getStatus().name());
+      if (CertificateStatus.REVOKED.equals(token.getStatus())) {
         throw CertificateValidationException.of(CertificateValidationStatus.REVOKED, "Certificate status is revoked");
+      }
+      if (CertificateStatus.UNKNOWN.equals(token.getStatus())) {
+        throw CertificateValidationException.of(CertificateValidationStatus.UNKNOWN, "Certificate is unknown");
       }
     } else {
       if (token.getReason() != null) {
-        LOGGER.debug("Certificate with DSS ID <{}> - status <{}>", token.getDSSIdAsString(), token.getReason().name());
-        throw CertificateValidationException.of(CertificateValidationStatus.UNKNOWN, "Certificate is unknown");
+        LOGGER.debug("Certificate with DSS ID <{}> - reason <{}>", token.getDSSIdAsString(), token.getReason().name());
       }
+      throw CertificateValidationException.of(CertificateValidationStatus.UNKNOWN, "Certificate is unknown");
     }
   }
 

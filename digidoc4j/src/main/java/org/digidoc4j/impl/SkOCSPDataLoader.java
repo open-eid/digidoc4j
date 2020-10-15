@@ -19,11 +19,12 @@ import org.digidoc4j.impl.asic.DataLoaderDecorator;
 public class SkOCSPDataLoader extends SkDataLoader {
 
   private boolean isAiaOcsp = false;
+  protected static final String OCSP_CONTENT_TYPE = "application/ocsp-request";
 
   public SkOCSPDataLoader(Configuration configuration) {
     DataLoaderDecorator.decorateWithProxySettingsFor(ExternalConnectionType.OCSP, this, configuration);
     DataLoaderDecorator.decorateWithSslSettingsFor(ExternalConnectionType.OCSP, this, configuration);
-    contentType = OCSPDataLoader.OCSP_CONTENT_TYPE;
+    contentType = OCSP_CONTENT_TYPE;
   }
 
   public void setAsAiaOcsp(boolean isAiaOcsp) {

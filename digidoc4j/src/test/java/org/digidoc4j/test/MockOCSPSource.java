@@ -20,6 +20,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import org.apache.commons.lang3.time.DateUtils;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
@@ -27,15 +28,7 @@ import org.bouncycastle.asn1.x509.CRLReason;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.Extensions;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.ocsp.BasicOCSPRespBuilder;
-import org.bouncycastle.cert.ocsp.CertificateID;
-import org.bouncycastle.cert.ocsp.CertificateStatus;
-import org.bouncycastle.cert.ocsp.OCSPException;
-import org.bouncycastle.cert.ocsp.OCSPReq;
-import org.bouncycastle.cert.ocsp.OCSPReqBuilder;
-import org.bouncycastle.cert.ocsp.Req;
-import org.bouncycastle.cert.ocsp.RevokedStatus;
-import org.bouncycastle.cert.ocsp.UnknownStatus;
+import org.bouncycastle.cert.ocsp.*;
 import org.bouncycastle.cert.ocsp.jcajce.JcaBasicOCSPRespBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.DigestCalculator;
@@ -43,6 +36,7 @@ import org.bouncycastle.operator.DigestCalculatorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
+import org.digidoc4j.impl.asic.xades.DssXadesSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,33 +100,24 @@ public class MockOCSPSource implements OCSPSource {
       BigInteger serialNumber = certificateToken.getCertificate().getSerialNumber();
       X509Certificate issuerCertificate = issuerCertificateToken.getCertificate();
       OCSPReq ocspRequest = generateOCSPRequest(issuerCertificate, serialNumber);
-      BasicOCSPRespBuilder builder = new JcaBasicOCSPRespBuilder(issuerCertificate.getPublicKey(), this.getSHA1DigestCalculator());
+      BasicOCSPRespBuilder builder = new JcaBasicOCSPRespBuilder(issuerCertificate.getPublicKey(), getSHA1DigestCalculator());
       Extension extension = ocspRequest.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
       if (extension != null) {
         builder.setResponseExtensions(new Extensions(new Extension[]{extension}));
       }
       for (Req request : ocspRequest.getRequestList()) {
         final CertificateID certificateID = request.getCertID();
-        boolean isOK = true; // TODO Whaat?
-        if (isOK) {
-          builder.addResponse(certificateID, CertificateStatus.GOOD, this.ocspDate, null, null);
-        } else {
-          builder.addResponse(certificateID, new RevokedStatus(DateUtils.addDays(this.ocspDate, -1), CRLReason.privilegeWithdrawn));
-        }
+        builder.addResponse(certificateID, CertificateStatus.GOOD, this.ocspDate, null, null);
       }
       X509CertificateHolder[] chain = {new X509CertificateHolder(issuerCertificate.getEncoded()), new X509CertificateHolder(this.certificate.getEncoded())};
-      OCSPToken token = new OCSPToken();
-      token.setBasicOCSPResp(builder.build(new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(this.key), chain, this.ocspDate));
-      token.setCertId(DSSRevocationUtils.getOCSPCertificateID(certificateToken, issuerCertificateToken));
-      token.initInfo();
-      return token;
-    } catch (OCSPException e) {
-      throw new DSSException(e);
-    } catch (IOException e) {
-      throw new DSSException(e);
-    } catch (CertificateEncodingException e) {
-      throw new DSSException(e);
-    } catch (OperatorCreationException e) {
+
+      BasicOCSPResp basicOCSPResp = builder.build(new JcaContentSignerBuilder("SHA1withRSA")
+              .setProvider("BC")
+              .build(this.key), chain, this.ocspDate);
+
+      SingleResp singleResp = DSSRevocationUtils.getLatestSingleResponse(basicOCSPResp, certificateToken, issuerCertificateToken);
+      return new OCSPToken(basicOCSPResp, singleResp, certificateToken, issuerCertificateToken);
+    } catch (OCSPException | IOException | CertificateEncodingException | OperatorCreationException e) {
       throw new DSSException(e);
     }
   }

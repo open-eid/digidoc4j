@@ -18,10 +18,12 @@ import org.digidoc4j.impl.asic.DataLoaderDecorator;
 
 public class SkTimestampDataLoader extends SkDataLoader {
 
+  protected static final String TIMESTAMP_QUERY_CONTENT_TYPE = "application/timestamp-query";
+
   public SkTimestampDataLoader(Configuration configuration) {
     DataLoaderDecorator.decorateWithProxySettingsFor(ExternalConnectionType.TSP, this, configuration);
     DataLoaderDecorator.decorateWithSslSettingsFor(ExternalConnectionType.TSP, this, configuration);
-    contentType = TimestampDataLoader.TIMESTAMP_QUERY_CONTENT_TYPE;
+    contentType = TIMESTAMP_QUERY_CONTENT_TYPE;
   }
 
   @Override

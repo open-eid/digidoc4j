@@ -40,7 +40,7 @@ public class TslManagerTest extends AbstractTest {
     TSLCertificateSource tsl = this.tslManager.getTsl();
     Assert.assertTrue(tsl instanceof LazyTslCertificateSource);
     Assert.assertFalse(((LazyTslCertificateSource) tsl).getLastCacheReloadingTime() != null);
-    Assert.assertTrue(tsl.getCertificatePool().getNumberOfCertificates() > 0);
+    Assert.assertTrue(tsl.getNumberOfCertificates() > 0);
     Assert.assertTrue(((LazyTslCertificateSource) tsl).getLastCacheReloadingTime() != null);
   }
 

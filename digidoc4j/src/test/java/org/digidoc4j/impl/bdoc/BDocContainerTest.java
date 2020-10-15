@@ -11,6 +11,7 @@
 package org.digidoc4j.impl.bdoc;
 
 import eu.europa.esig.dss.DomUtils;
+import eu.europa.esig.dss.enumerations.ObjectIdentifierQualifier;
 import eu.europa.esig.dss.model.Policy;
 import eu.europa.esig.dss.validation.SignaturePolicy;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
@@ -1016,7 +1017,7 @@ public class BDocContainerTest extends AbstractTest {
   public void settingUpOwnSignaturePolicy() throws Exception {
     String signatureId = "signatureId";
     byte[] digestValue = Base64.decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs=");
-    String qualifier = "qualifier";
+    ObjectIdentifierQualifier qualifier = ObjectIdentifierQualifier.OID_AS_URN;
     eu.europa.esig.dss.enumerations.DigestAlgorithm digestAlgorithm = eu.europa.esig.dss.enumerations.DigestAlgorithm.SHA256;
     String spuri = "spuri";
     Policy signaturePolicy = new Policy();
@@ -1073,16 +1074,18 @@ public class BDocContainerTest extends AbstractTest {
 
     Assert.assertSame(4, validationResult.getWarnings().size());
 
-    Assert.assertSame(7, validationResult.getErrors().size());
+    Assert.assertSame(9, validationResult.getErrors().size());
     List<DigiDoc4JException> errors = validationResult.getErrors();
     Assert.assertEquals(errors.get(0).getMessage(), "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.1.1");
     Assert.assertEquals(errors.get(1).getMessage(), "The result of the LTV validation process is not acceptable to continue the process!");
-    Assert.assertEquals(errors.get(2).getMessage(), "OCSP nonce is invalid");
-    Assert.assertEquals(errors.get(3).getMessage(), "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.1.1");
-    Assert.assertEquals(errors.get(4).getMessage(), "The result of the LTV validation process is not acceptable to continue the process!");
-    Assert.assertEquals(errors.get(5).getMessage(), "OCSP nonce is invalid");
+    Assert.assertEquals(errors.get(2).getMessage(), "The signature policy is not available!");
+    Assert.assertEquals(errors.get(3).getMessage(), "OCSP nonce is invalid");
+    Assert.assertEquals(errors.get(4).getMessage(), "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.1.1");
+    Assert.assertEquals(errors.get(5).getMessage(), "The result of the LTV validation process is not acceptable to continue the process!");
+    Assert.assertEquals(errors.get(6).getMessage(), "The signature policy is not available!");
+    Assert.assertEquals(errors.get(7).getMessage(), "OCSP nonce is invalid");
 
-    DigiDoc4JException duplicateSigFileEx = errors.get(6);
+    DigiDoc4JException duplicateSigFileEx = errors.get(8);
     Assert.assertTrue(duplicateSigFileEx instanceof DuplicateSignatureFilesException);
     Assert.assertEquals(duplicateSigFileEx.getMessage(), "Duplicate signature files: META-INF/signatures1.xml");
   }
@@ -1093,7 +1096,7 @@ public class BDocContainerTest extends AbstractTest {
 
   private int countOCSPResponderCertificates(XAdESSignature signature) {
     return this.countResponderCertIdInsCertificateValues(DomUtils.getElement(signature.getSignatureElement(),
-        signature.getXPathQueryHolder().XPATH_CERTIFICATE_VALUES));
+            signature.getXAdESPaths().getCertificateValuesPath()));
   }
 
   private int countResponderCertIdInsCertificateValues(Element certificateValues) {

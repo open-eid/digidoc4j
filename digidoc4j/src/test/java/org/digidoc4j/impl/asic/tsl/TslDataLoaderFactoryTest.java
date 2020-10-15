@@ -63,7 +63,7 @@ public class TslDataLoaderFactoryTest extends AbstractTest {
   @Test
   public void testDefaultFileCacheDataLoaderWithSslConfigCreatedWhenNoCustomDataLoaderFactoryConfiguredAndTslLocationIsHttpUrl() {
     configuration.setTslLocation("http://tsl.host:8080/path");
-    configuration.setSslTruststorePath("/ssl/truststore/path");
+    configuration.setSslTruststorePath("classpath:testFiles/truststores/empty-truststore.p12");
     configuration.setSslTruststorePassword("ssl-truststore-password");
     configuration.setSslTruststoreType("SSL_TRUSTSTORE_TYPE");
     configuration.setSupportedSslCipherSuites(Arrays.asList("supported_cipher_suite"));

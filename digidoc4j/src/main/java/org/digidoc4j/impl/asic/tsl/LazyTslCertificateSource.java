@@ -1,51 +1,56 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic.tsl;
 
-import java.security.cert.X509Certificate;
-import java.util.*;
-
-import eu.europa.esig.dss.spi.tsl.TLInfo;
-import eu.europa.esig.dss.spi.tsl.TrustedListsCertificateSource;
 import eu.europa.esig.dss.enumerations.CertificateSourceType;
+import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.model.x509.X500PrincipalHelper;
+import eu.europa.esig.dss.spi.tsl.LOTLInfo;
+import eu.europa.esig.dss.spi.tsl.TLValidationJobSummary;
+import eu.europa.esig.dss.spi.tsl.TrustProperties;
+import eu.europa.esig.dss.spi.tsl.TrustedListsCertificateSource;
+import eu.europa.esig.dss.tsl.job.TLValidationJob;
 import org.digidoc4j.TSLCertificateSource;
+import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.model.DSSException;
-import eu.europa.esig.dss.spi.tsl.ServiceInfo;
-import eu.europa.esig.dss.tsl.service.TSLValidationJob;
-import eu.europa.esig.dss.spi.x509.CertificatePool;
-import eu.europa.esig.dss.model.x509.CertificateToken;
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Lazily initialized certificate source. It allows to initialize objects and populate parameters
  * where a certificate source is necessary, but is not yet accessed.
- *
+ * <p>
  * The goal is to postpone initialization and downloading of TSL until it is really needed to speed up processes.
  * For example, it is not necessary to download TSL to open container and see signature parameters, but DSS library
  * requires the presence of certificate source. TSL should be downloaded for validation and other functionality where
  * it is really necessary to check the certificates.
- *
+ * <p>
  * To achieve that, a lazily initialized certificate source is used.
  */
 public class LazyTslCertificateSource extends TrustedListsCertificateSource implements TSLCertificateSource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LazyTslCertificateSource.class);
-  private transient TSLValidationJob tslValidationJob;
+  private static final String CACHE_ERROR_STATUS = "ERROR";
+  private transient TLValidationJob tlValidationJob;
   private TSLCertificateSource certificateSource;
   private Long lastCacheReloadingTime;
   private Long cacheExpirationTime;
-  private TslLoader tslLoader;
+  private final TslLoader tslLoader;
 
   /**
    * @param tslLoader TSL loader
@@ -56,23 +61,8 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
   }
 
   @Override
-  public TLInfo getTlInfo(String countryCode) {
-    return this.getCertificateSource().getTlInfo(countryCode);
-  }
-
-  @Override
-  public TLInfo getLotlInfo() {
-    return this.getCertificateSource().getLotlInfo();
-  }
-
-  @Override
-  public Map<String, TLInfo> getSummary() {
+  public TLValidationJobSummary getSummary() {
     return this.getCertificateSource().getSummary();
-  }
-
-  @Override
-  public CertificatePool getCertificatePool() {
-    return this.getCertificateSource().getCertificatePool();
   }
 
   @Override
@@ -86,7 +76,12 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
   }
 
   @Override
-  public Set<ServiceInfo> getTrustServices(CertificateToken token) {
+  public boolean isKnown(CertificateToken token) {
+    return this.getCertificateSource().isKnown(token);
+  }
+
+  @Override
+  public List<TrustProperties> getTrustServices(CertificateToken token) {
     return this.getCertificateSource().getTrustServices(token);
   }
 
@@ -101,8 +96,13 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
   }
 
   @Override
-  public void addCertificate(CertificateToken certificate, List<ServiceInfo> serviceInfos) {
-    this.getCertificateSource().addCertificate(certificate, serviceInfos);
+  public Set<CertificateToken> getBySubject(X500PrincipalHelper subject) {
+    return this.getCertificateSource().getBySubject(subject);
+  }
+
+  @Override
+  public Set<CertificateToken> getByPublicKey(PublicKey publicKey) {
+    return this.getCertificateSource().getByPublicKey(publicKey);
   }
 
   @Override
@@ -112,7 +112,7 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
 
   @Override
   public boolean isTrusted(CertificateToken certificateToken) {
-    return this.getCertificateSource().isTrusted(certificateToken);
+    return isKnown(certificateToken);
   }
 
   @Override
@@ -136,7 +136,7 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
     }
   }
 
-  private TSLCertificateSource getCertificateSource() {
+  protected TSLCertificateSource getCertificateSource() {
     LOGGER.debug("Accessing TSL");
     this.refreshIfCacheExpired();
     return this.certificateSource;
@@ -154,7 +154,8 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
     try {
       this.populateTsl();
       LOGGER.debug("Refreshing TSL");
-      this.tslValidationJob.refresh();
+      this.tlValidationJob.onlineRefresh();
+      this.validateLotlLoading();
       this.lastCacheReloadingTime = new Date().getTime();
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("Finished refreshing TSL, cache expires at {}", this.getNextCacheExpirationDate());
@@ -164,10 +165,19 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
     }
   }
 
+  private void validateLotlLoading() {
+    for (LOTLInfo info : certificateSource.getSummary().getLOTLInfos()) {
+      if (CACHE_ERROR_STATUS.equals(info.getDownloadCacheInfo().getStatusName())
+              || !info.getParsingCacheInfo().isResultExist()) {
+        throw new TechnicalException("Failed to initialize TSL");
+      }
+    }
+  }
+
   private void populateTsl() {
-    if (this.tslValidationJob == null || this.certificateSource == null) {
+    if (this.tlValidationJob == null || this.certificateSource == null) {
       this.tslLoader.prepareTsl();
-      this.tslValidationJob = this.tslLoader.getTslValidationJob();
+      this.tlValidationJob = this.tslLoader.getTlValidationJob();
       this.certificateSource = this.tslLoader.getTslCertificateSource();
     }
   }
@@ -201,8 +211,7 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
     this.cacheExpirationTime = cacheExpirationTime;
   }
 
-  public TslLoader getTslLoader(){
+  public TslLoader getTslLoader() {
     return tslLoader;
   }
-
 }

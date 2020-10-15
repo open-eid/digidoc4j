@@ -188,9 +188,9 @@ public class ManifestValidator {
         if (node != null) {
           String referenceId = node.getAttributes().getNamedItem("Id").getNodeValue();
           mimeTypeString = DomUtils.getValue(signatureNode,
-              "./ds:Object/xades:QualifyingProperties/xades:SignedProperties/"
-                  + "xades:SignedDataObjectProperties/xades:DataObjectFormat"
-                  + "[@ObjectReference=\"#" + referenceId + "\"]/xades:MimeType");
+              "./ds:Object/xades132:QualifyingProperties/xades132:SignedProperties/"
+                  + "xades132:SignedDataObjectProperties/xades132:DataObjectFormat"
+                  + "[@ObjectReference=\"#" + referenceId + "\"]/xades132:MimeType");
         }
 
         // TODO: mimeTypeString == null ? node == null?

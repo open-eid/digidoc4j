@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j;
 
@@ -68,9 +68,9 @@ public class ContainerBuilderTest extends AbstractTest {
     File testFile2 = this.createTemporaryFileBy("testFile2.txt", "TEST");
     LargeDataFile largeDataFile = new LargeDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "largeStreamFile.txt", "text/plain");
     Container container = ContainerBuilder.aContainer().withDataFile(testFile1.getPath(), "text/plain").
-        withDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "streamFile.txt", "text/plain").
-        withDataFile(this.createTemporaryFileBy("ExampleFile.txt", "TEST"), "text/plain").
-        withDataFile(new DataFile(testFile2.getPath(), "text/plain")).withDataFile(largeDataFile).build();
+            withDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "streamFile.txt", "text/plain").
+            withDataFile(this.createTemporaryFileBy("ExampleFile.txt", "TEST"), "text/plain").
+            withDataFile(new DataFile(testFile2.getPath(), "text/plain")).withDataFile(largeDataFile).build();
     Assert.assertEquals(5, container.getDataFiles().size());
     Assert.assertEquals("testFile.txt", container.getDataFiles().get(0).getName());
     Assert.assertEquals("streamFile.txt", container.getDataFiles().get(1).getName());
@@ -87,7 +87,7 @@ public class ContainerBuilderTest extends AbstractTest {
   @Test(expected = InvalidDataFileException.class)
   public void buildContainer_withStreamDocAndNullFileName_shouldThrowException() throws Exception {
     ContainerBuilder.aContainer().withDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), null, "text/plain").
-        build();
+            build();
   }
 
   @Test(expected = InvalidDataFileException.class)
@@ -95,10 +95,11 @@ public class ContainerBuilderTest extends AbstractTest {
     ContainerBuilder.aContainer().withDataFile("testFile.txt", null).build();
   }
 
-  @Test(expected = InvalidDataFileException.class)
-  public void buildContainer_withInvalidMimeType_shouldThrowException() throws Exception {
-    ContainerBuilder.aContainer().
-        withDataFile("src/test/resources/testFiles/helper-files/test.txt", "application\\rtf").build();
+  @Test
+  public void buildContainer_withInvalidMimeType_shouldSucceed() {
+    Container container = ContainerBuilder.aContainer().
+            withDataFile("src/test/resources/testFiles/helper-files/test.txt", "application\\rtf").build();
+    Assert.assertTrue(container.validate().isValid());
   }
 
   @Test
@@ -176,8 +177,8 @@ public class ContainerBuilderTest extends AbstractTest {
   public void useExtendedBDocContainerImplementation() throws Exception {
     ContainerBuilder.setContainerImplementation("BDOC", BDocContainer.class);
     Container container = ContainerBuilder.
-        aContainer("BDOC").
-        build();
+            aContainer("BDOC").
+            build();
     Assert.assertEquals("BDOC-EXTENDED", container.getType());
   }
 
@@ -194,7 +195,7 @@ public class ContainerBuilderTest extends AbstractTest {
     this.configuration = Configuration.of(Configuration.Mode.TEST);
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", CustomContainer.class);
     Container container = ContainerBuilder.aContainer("TEST-FORMAT").
-        withConfiguration(this.configuration).build();
+            withConfiguration(this.configuration).build();
     Assert.assertEquals("TEST-FORMAT", container.getType());
     Assert.assertSame(this.configuration, ((CustomContainer) container).getConfiguration());
   }
@@ -204,7 +205,7 @@ public class ContainerBuilderTest extends AbstractTest {
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", CustomContainer.class);
     CustomConfiguration configuration = new CustomConfiguration();
     Container container = ContainerBuilder.aContainer("TEST-FORMAT").
-        withConfiguration(configuration).build();
+            withConfiguration(configuration).build();
     Assert.assertEquals("TEST-FORMAT", container.getType());
     Assert.assertSame(configuration, ((CustomContainer) container).getConfiguration());
   }
@@ -220,7 +221,7 @@ public class ContainerBuilderTest extends AbstractTest {
     this.configuration = new Configuration(Configuration.Mode.TEST);
     this.configuration.setTspSource("test-value");
     Container container = ContainerBuilder.aContainer().withConfiguration(this.configuration).
-        fromExistingFile(BDOC_WITH_TM_SIG).build();
+            fromExistingFile(BDOC_WITH_TM_SIG).build();
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
     Assert.assertEquals("test-value", ((BDocContainer) container).getConfiguration().getTspSource());
   }
@@ -252,7 +253,7 @@ public class ContainerBuilderTest extends AbstractTest {
     File testFile = this.createTemporaryFileBy("testFile.txt", "TEST");
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", CustomContainer.class);
     Container container = ContainerBuilder.aContainer("TEST-FORMAT").withConfiguration(this.configuration).
-        fromExistingFile(testFile.getPath()).build();
+            fromExistingFile(testFile.getPath()).build();
     Assert.assertEquals("TEST-FORMAT", container.getType());
     Assert.assertEquals(testFile.getPath(), ((CustomContainer) container).getOpenedFromFile());
     Assert.assertSame(this.configuration, ((CustomContainer) container).getConfiguration());
@@ -264,7 +265,7 @@ public class ContainerBuilderTest extends AbstractTest {
     File testFile = this.createTemporaryFileBy("testFile.txt", "TEST");
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", CustomContainer.class);
     Container container = ContainerBuilder.aContainer("TEST-FORMAT").withConfiguration(configuration).
-        fromExistingFile(testFile.getPath()).build();
+            fromExistingFile(testFile.getPath()).build();
     Assert.assertEquals("TEST-FORMAT", container.getType());
     Assert.assertEquals(testFile.getPath(), ((CustomContainer) container).getOpenedFromFile());
     Assert.assertSame(configuration, ((CustomContainer) container).getConfiguration());
@@ -299,8 +300,8 @@ public class ContainerBuilderTest extends AbstractTest {
     this.configuration.setTspSource("test-value");
     InputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_TM_SIG));
     Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).
-        withConfiguration(this.configuration).
-        fromStream(stream).build();
+            withConfiguration(this.configuration).
+            fromStream(stream).build();
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
     assertBDocContainer(container);
     Assert.assertEquals("test-value", container.getConfiguration().getTspSource());
@@ -310,9 +311,9 @@ public class ContainerBuilderTest extends AbstractTest {
   public void openBDocContainerWithBEpesSignatureFromStream_withConfiguration() throws Exception {
     InputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_B_EPES_SIG));
     Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC)
-              .withConfiguration(this.configuration)
-              .fromStream(stream)
-              .build();
+            .withConfiguration(this.configuration)
+            .fromStream(stream)
+            .build();
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
     assertBDocContainer(container);
     assertBEpesSignature(container.getSignatures().get(0));
@@ -398,7 +399,7 @@ public class ContainerBuilderTest extends AbstractTest {
     this.configuration = Configuration.of(Configuration.Mode.TEST);
     try (InputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE))) {
       Container container = ContainerBuilder.aContainer(DDOC).withConfiguration(this.configuration).
-          fromStream(stream).build();
+              fromStream(stream).build();
       TestAssert.assertContainerIsOpened(container, DDOC);
       Assert.assertSame(this.configuration, ((DDocContainer) container).getDDoc4JFacade().getConfiguration());
     }
@@ -408,7 +409,7 @@ public class ContainerBuilderTest extends AbstractTest {
   public void openDefaultContainerFromStream_withDDOC() throws Exception {
     InputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE));
     Container container = ContainerBuilder.aContainer().withConfiguration(Configuration.of(Configuration.Mode.TEST)).
-        fromStream(stream).build();
+            fromStream(stream).build();
     TestAssert.assertContainerIsOpened(container, DDOC);
   }
 
@@ -427,7 +428,7 @@ public class ContainerBuilderTest extends AbstractTest {
     InputStream stream = FileUtils.openInputStream(this.createTemporaryFileBy("testFile.txt", "TEST"));
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", CustomContainer.class);
     Container container = ContainerBuilder.aContainer("TEST-FORMAT").withConfiguration(this.configuration).
-        fromStream(stream).build();
+            fromStream(stream).build();
     Assert.assertEquals("TEST-FORMAT", container.getType());
     Assert.assertSame(stream, ((CustomContainer) container).getOpenedFromStream());
     Assert.assertSame(this.configuration, ((CustomContainer) container).getConfiguration());
@@ -439,7 +440,7 @@ public class ContainerBuilderTest extends AbstractTest {
     InputStream stream = FileUtils.openInputStream(this.createTemporaryFileBy("testFile.txt", "TEST"));
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", CustomContainer.class);
     Container container = ContainerBuilder.aContainer("TEST-FORMAT").withConfiguration(this.configuration).
-        fromStream(stream).build();
+            fromStream(stream).build();
     Assert.assertEquals("TEST-FORMAT", container.getType());
     Assert.assertSame(stream, ((CustomContainer) container).getOpenedFromStream());
     Assert.assertSame(this.configuration, ((CustomContainer) container).getConfiguration());
@@ -450,8 +451,8 @@ public class ContainerBuilderTest extends AbstractTest {
     File folder = this.testFolder.newFolder();
     Assert.assertTrue(folder.list().length == 0);
     ContainerBuilder.aContainer(DDOC).
-        fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc").
-        usingTempDirectory(folder.getPath()).build();
+            fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc").
+            usingTempDirectory(folder.getPath()).build();
     Assert.assertTrue(folder.list().length > 0);
   }
 
@@ -460,8 +461,8 @@ public class ContainerBuilderTest extends AbstractTest {
     File folder = this.testFolder.newFolder();
     Assert.assertTrue(folder.list().length == 0);
     ContainerBuilder.aContainer(DDOC).
-        fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc").
-        withConfiguration(Configuration.of(Configuration.Mode.TEST)).usingTempDirectory(folder.getPath()).build();
+            fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc").
+            withConfiguration(Configuration.of(Configuration.Mode.TEST)).usingTempDirectory(folder.getPath()).build();
     Assert.assertTrue(folder.list().length > 0);
   }
 
@@ -471,7 +472,7 @@ public class ContainerBuilderTest extends AbstractTest {
     Assert.assertTrue(folder.list().length == 0);
     InputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE));
     ContainerBuilder.aContainer(DDOC).fromStream(stream).
-        usingTempDirectory(folder.getPath()).build();
+            usingTempDirectory(folder.getPath()).build();
     Assert.assertTrue(folder.list().length > 0);
   }
 
@@ -481,23 +482,23 @@ public class ContainerBuilderTest extends AbstractTest {
     Assert.assertTrue(folder.list().length == 0);
     InputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE));
     ContainerBuilder.aContainer(DDOC).withConfiguration(Configuration.of(Configuration.Mode.TEST))
-                    .fromStream(stream).usingTempDirectory(folder.getPath()).build();
+            .fromStream(stream).usingTempDirectory(folder.getPath()).build();
     Assert.assertTrue(folder.list().length > 0);
   }
 
   @Test
   public void openBOMBeginningDDocContainerFromPath() {
     Container container = ContainerBuilder.aContainer()
-              .fromExistingFile("src/test/resources/testFiles/valid-containers/BOM_algusega.ddoc")
-              .build();
+            .fromExistingFile("src/test/resources/testFiles/valid-containers/BOM_algusega.ddoc")
+            .build();
     Assert.assertTrue(container.validate().isValid());
   }
 
   @Test
   public void openBOMBeginningDDocContainerFromStream() throws IOException {
     Container container = ContainerBuilder.aContainer()
-              .fromStream(FileUtils.openInputStream(new File("src/test/resources/testFiles/valid-containers/BOM_algusega.ddoc")))
-              .build();
+            .fromStream(FileUtils.openInputStream(new File("src/test/resources/testFiles/valid-containers/BOM_algusega.ddoc")))
+            .build();
     Assert.assertTrue(container.validate().isValid());
   }
 

@@ -13,6 +13,7 @@ package org.digidoc4j.impl.asic.xades;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
+import eu.europa.esig.dss.xades.definition.XAdESPaths;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.tsp.TimeStampToken;
@@ -30,7 +31,6 @@ import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.validation.timestamp.TimestampToken;
 import eu.europa.esig.dss.model.x509.CertificateToken;
-import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 public class TimestampSignature extends TimemarkSignature {
@@ -86,9 +86,9 @@ public class TimestampSignature extends TimemarkSignature {
   }
 
   private TimeStampToken findTimestampToken() {
-    XPathQueryHolder xPathQueryHolder = getxPathQueryHolder();
+    XAdESPaths xAdESPaths = getxPathQueryHolder();
     logger.debug("Finding timestamp token");
-    NodeList timestampNodes = DomUtils.getNodeList(getSignatureElement(), xPathQueryHolder.XPATH_SIGNATURE_TIMESTAMP);
+    NodeList timestampNodes = DomUtils.getNodeList(getSignatureElement(), xAdESPaths.getSignatureTimestampsPath());
     if (timestampNodes.getLength() == 0) {
       logger.warn("Signature timestamp element was not found");
       return null;
@@ -97,7 +97,8 @@ public class TimestampSignature extends TimemarkSignature {
       logger.warn("Signature contains more than one timestamp: " + timestampNodes.getLength() + ". Using only the first one");
     }
     Node timestampNode = timestampNodes.item(0);
-    Element timestampTokenNode = DomUtils.getElement(timestampNode, xPathQueryHolder.XPATH__ENCAPSULATED_TIMESTAMP);
+
+    Element timestampTokenNode = DomUtils.getElement(timestampNode, xAdESPaths.getCurrentEncapsulatedTimestamp());
     if (timestampTokenNode == null) {
       logger.warn("The timestamp cannot be extracted from the signature");
       return null;

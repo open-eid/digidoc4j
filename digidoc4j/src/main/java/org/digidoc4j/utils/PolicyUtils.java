@@ -10,6 +10,7 @@
 
 package org.digidoc4j.utils;
 
+import eu.europa.esig.dss.enumerations.ObjectIdentifierQualifier;
 import eu.europa.esig.dss.model.Policy;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +29,7 @@ public final class PolicyUtils {
     Policy signaturePolicy = new Policy();
     signaturePolicy.setId("urn:oid:" + XadesSignatureValidator.TM_POLICY);
     signaturePolicy.setDigestValue(Base64.decodeBase64("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A="));
-    signaturePolicy.setQualifier("OIDAsURN");
+    signaturePolicy.setQualifier(ObjectIdentifierQualifier.OID_AS_URN);
     signaturePolicy.setDigestAlgorithm(SHA256);
     signaturePolicy.setSpuri("https://www.sk.ee/repository/bdoc-spec21.pdf");
     return signaturePolicy;
@@ -36,13 +37,14 @@ public final class PolicyUtils {
 
   /**
    * Determines if all required fields are defined for given policy.
+   *
    * @param policy policy to be validated
    * @return whether all policy required fields are defined
    */
   public static boolean areAllPolicyValuesDefined(Policy policy) {
     return StringUtils.isNotBlank(policy.getId())
             && policy.getDigestValue() != null
-            && StringUtils.isNotBlank(policy.getQualifier())
+            && policy.getQualifier() != null
             && policy.getDigestAlgorithm() != null
             && StringUtils.isNotBlank(policy.getSpuri());
   }

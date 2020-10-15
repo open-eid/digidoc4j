@@ -28,7 +28,7 @@ public class PolicyUtilsTest {
   public void createBDocSignaturePolicy() {
     Policy policy = PolicyUtils.createBDocSignaturePolicy();
     assertEquals("urn:oid:" + XadesSignatureValidator.TM_POLICY, policy.getId());
-    assertEquals("OIDAsURN", policy.getQualifier());
+    assertEquals("OIDAsURN", policy.getQualifier().getValue());
     assertEquals(DigestAlgorithm.SHA256, policy.getDigestAlgorithm());
     assertEquals("https://www.sk.ee/repository/bdoc-spec21.pdf", policy.getSpuri());
     assertThat(Base64.decodeBase64("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A="), IsEqual.equalTo(policy.getDigestValue()));

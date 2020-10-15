@@ -10,9 +10,9 @@
 
 package org.digidoc4j.impl.asic;
 
+import eu.europa.esig.dss.simplereport.jaxb.XmlValidationPolicy;
 import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSimpleReport;
-import eu.europa.esig.dss.simplereport.jaxb.XmlPolicy;
 import eu.europa.esig.dss.validation.reports.Reports;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -144,7 +144,7 @@ public class AsicValidationReportBuilder {
   private String generateNewReport() {
     logger.debug("Generating a new XML validation report");
     ContainerValidationReport report = new ContainerValidationReport();
-    report.setPolicy(extractValidationPolicy());
+    report.setValidationPolicy(extractValidationPolicy());
     report.setValidationTime(new Date());
     report.setSignaturesCount(signatureValidationData.size());
     report.setValidSignaturesCount(extractValidSignaturesCount());
@@ -162,13 +162,13 @@ public class AsicValidationReportBuilder {
     return signaturesReport;
   }
 
-  private XmlPolicy extractValidationPolicy() {
+  private XmlValidationPolicy extractValidationPolicy() {
     if (signatureValidationData.isEmpty()) {
       return null;
     }
     SignatureValidationData validationData = signatureValidationData.get(0);
     XmlSimpleReport simpleReport = validationData.getReport().getReports().getSimpleReportJaxb();
-    return simpleReport.getPolicy();
+    return simpleReport.getValidationPolicy();
   }
 
   private int extractValidSignaturesCount() {

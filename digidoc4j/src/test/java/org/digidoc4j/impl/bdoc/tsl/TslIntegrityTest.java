@@ -28,8 +28,8 @@ public class TslIntegrityTest extends AbstractTest {
         configuration.getTSL().refresh();
 
         initialCertificatesCountInTslSource = configuration.getTSL().getNumberOfCertificates();
-        initialCertificatesCountInTslPool = configuration.getTSL().getCertificatePool().getNumberOfCertificates();
-        initialEntitiesCountInTslPool = configuration.getTSL().getCertificatePool().getNumberOfEntities();
+        initialCertificatesCountInTslPool = configuration.getTSL().getNumberOfCertificates();
+        initialEntitiesCountInTslPool = configuration.getTSL().getNumberOfTrustedPublicKeys();
         Assert.assertEquals(initialCertificatesCountInTslSource, initialCertificatesCountInTslPool);
     }
 
@@ -89,16 +89,16 @@ public class TslIntegrityTest extends AbstractTest {
         Assert.assertEquals(
                 String.format("TSL certificate pool is expected to contain %d certificates", initialCertificatesCountInTslPool),
                 initialCertificatesCountInTslPool,
-                configuration.getTSL().getCertificatePool().getNumberOfCertificates()
+                configuration.getTSL().getNumberOfCertificates()
         );
         Assert.assertEquals(
                 String.format("TSL certificate pool is expected to contain %d entities", initialEntitiesCountInTslPool),
                 initialEntitiesCountInTslPool,
-                configuration.getTSL().getCertificatePool().getNumberOfEntities()
+                configuration.getTSL().getNumberOfTrustedPublicKeys()
         );
         Assert.assertFalse(
                 String.format("TSL certificate pool is expected not to contain certificate %s", certificateExpectedToBeMissing.getSubjectDN().getName()),
-                configuration.getTSL().getCertificatePool().getCertificateTokens().stream().anyMatch(ct -> certificateExpectedToBeMissing.equals(ct.getCertificate()))
+                configuration.getTSL().getCertificates().stream().anyMatch(ct -> certificateExpectedToBeMissing.equals(ct.getCertificate()))
         );
     }
 

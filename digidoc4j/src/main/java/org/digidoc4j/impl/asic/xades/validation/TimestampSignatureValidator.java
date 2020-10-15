@@ -1,15 +1,16 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic.xades.validation;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -18,6 +19,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import eu.europa.esig.dss.enumerations.RevocationType;
+import eu.europa.esig.dss.simplereport.SimpleReport;
+import eu.europa.esig.dss.spi.DSSRevocationUtils;
+import eu.europa.esig.dss.validation.reports.Reports;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.X509Cert;
@@ -104,7 +108,7 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
     }
     X509Certificate signerCert = this.signature.getSigningCertificate().getX509Certificate();
     boolean isCertValid = signingTime.compareTo(signerCert.getNotBefore()) >= 0
-        && signingTime.compareTo(signerCert.getNotAfter()) <= 0;
+            && signingTime.compareTo(signerCert.getNotAfter()) <= 0;
     if (!isCertValid) {
       this.log.error("Signature has been created with expired certificate");
       this.addValidationError(new SignedWithExpiredCertificateException());
@@ -112,12 +116,21 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
   }
 
   private void addRevocationErrors() {
-    DiagnosticData diagnosticData = this.signature.validate().getReports().getDiagnosticData();
+    Reports reports = this.signature.validate().getReports();
+    DiagnosticData diagnosticData = reports.getDiagnosticData();
     if (diagnosticData == null) {
       return;
     }
-    RevocationType certificateRevocationSource = diagnosticData
-        .getCertificateRevocationSource(diagnosticData.getFirstSigningCertificateId());
+    SimpleReport simpleReport = reports.getSimpleReport();
+    String signatureId = simpleReport.getFirstSignatureId();
+    if (signatureId == null) {
+      return;
+    }
+    String certificateId = diagnosticData.getSigningCertificateId(signatureId);
+    if (certificateId == null) {
+      return;
+    }
+    RevocationType certificateRevocationSource = diagnosticData.getCertificateRevocationSource(certificateId);
     this.log.debug("Revocation source is <{}>", certificateRevocationSource);
     if (RevocationType.CRL.equals(certificateRevocationSource)) {
       this.log.error("Signing certificate revocation source is CRL instead of OCSP");
@@ -131,11 +144,15 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
       return null;
     }
     BigInteger certificateSerialNumber = signingCertificate.getX509Certificate().getSerialNumber();
-    return signature
-            .getOCSPSource()
-            .getOCSPResponsesList()
+    return signature.getOCSPSource().getAllRevocationBinaries()
             .stream()
-            .map(r -> r.getBasicOCSPResp())
+            .map(o -> {
+              try {
+                return DSSRevocationUtils.loadOCSPFromBinaries(o.getBinaries());
+              } catch (IOException e) {
+                throw new IllegalArgumentException("Invalid ocsp binary");
+              }
+            })
             .filter(r -> isOcspResponseForCertificate(r, certificateSerialNumber))
             .collect(Collectors.toList());
   }

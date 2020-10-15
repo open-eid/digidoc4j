@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.bdoc.ocsp;
 
+import eu.europa.esig.dss.enumerations.CertificateStatus;
 import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.spi.x509.CertificateSource;
@@ -71,7 +72,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
 
     SKOnlineOCSPSource ocspSource = constructOCSPSource();
     OCSPToken revocationToken = ocspSource.getRevocationToken(new CertificateToken(subjectCertificate), issuerCertificateToken);
-    assertTrue(revocationToken.getStatus());
+    assertEquals(CertificateStatus.GOOD, revocationToken.getStatus());
   }
 
   @Test
@@ -345,7 +346,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
     CertificateToken subjectCertificateToken = DSSUtils.loadCertificate(subjectCertificate.getEncoded());
     final String canonicalizedIssuerName = subjectCertificateToken.getIssuerX500Principal().getName(X500Principal.CANONICAL);
     return certificateSource.getCertificates().stream()
-            .filter(ct -> ct.getCanonicalizedSubject().equals(canonicalizedIssuerName))
+            .filter(ct -> ct.getSubject().getCanonical().equals(canonicalizedIssuerName))
             .findFirst().orElseThrow(() -> new IllegalStateException("No issuer certificate token found"));
   }
 

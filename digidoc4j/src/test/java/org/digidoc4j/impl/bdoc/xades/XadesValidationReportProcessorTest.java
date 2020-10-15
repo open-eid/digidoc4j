@@ -1,8 +1,9 @@
 package org.digidoc4j.impl.bdoc.xades;
 
+import eu.europa.esig.dss.i18n.I18nProvider;
+import eu.europa.esig.dss.i18n.MessageTag;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSimpleReport;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
-import eu.europa.esig.dss.validation.process.MessageTag;
 import eu.europa.esig.dss.validation.reports.Reports;
 import org.digidoc4j.impl.asic.xades.XadesValidationReportProcessor;
 import org.junit.Test;
@@ -15,15 +16,16 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.when;
 
 public class XadesValidationReportProcessorTest {
+    private static final I18nProvider i18nProvider = new I18nProvider();
 
     @Test
     public void organizationNameMissingWarningRemoved() {
         XmlSignature signature = mockSignatureWithWarnings(
-                MessageTag.QUAL_IS_ADES.getMessage(),
-                MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS1.getMessage()
+                i18nProvider.getMessage(MessageTag.QUAL_IS_ADES),
+                i18nProvider.getMessage(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS1)
         );
         XmlSimpleReport simpleReport = new XmlSimpleReport();
-        simpleReport.getSignature().add(signature);
+        simpleReport.getSignatureOrTimestamp().add(signature);
 
         Reports validationReports = Mockito.mock(Reports.class);
         when(validationReports.getSimpleReportJaxb()).thenReturn(simpleReport);
@@ -36,11 +38,11 @@ public class XadesValidationReportProcessorTest {
     @Test
     public void trustedCertificateNotMatchingWithTrustedServiceWarningRemoved() {
         XmlSignature signature = mockSignatureWithWarnings(
-                MessageTag.QUAL_IS_ADES.getMessage(),
-                MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS2.getMessage()
+                i18nProvider.getMessage(MessageTag.QUAL_IS_ADES),
+                i18nProvider.getMessage(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS2)
         );
         XmlSimpleReport simpleReport = new XmlSimpleReport();
-        simpleReport.getSignature().add(signature);
+        simpleReport.getSignatureOrTimestamp().add(signature);
 
         Reports validationReports = Mockito.mock(Reports.class);
         when(validationReports.getSimpleReportJaxb()).thenReturn(simpleReport);
@@ -53,11 +55,11 @@ public class XadesValidationReportProcessorTest {
     @Test
     public void noWarningRemoved() {
         XmlSignature signature = mockSignatureWithWarnings(
-                MessageTag.QUAL_IS_ADES.getMessage(),
-                MessageTag.QUAL_FOR_SIGN_AT_CC.getMessage()
+                i18nProvider.getMessage(MessageTag.QUAL_IS_ADES),
+                i18nProvider.getMessage(MessageTag.QUAL_FOR_SIGN_AT_CC)
         );
         XmlSimpleReport simpleReport = new XmlSimpleReport();
-        simpleReport.getSignature().add(signature);
+        simpleReport.getSignatureOrTimestamp().add(signature);
 
         Reports validationReports = Mockito.mock(Reports.class);
         when(validationReports.getSimpleReportJaxb()).thenReturn(simpleReport);

@@ -265,7 +265,7 @@ public class SimpleHttpGetDataLoaderTest {
     CertificateToken loadedCertificate = DSSUtils.loadCertificate(response);
     Assert.assertTrue(
             "Certificate subject principal should contain 'CN=EE Certification Centre Root CA'",
-            loadedCertificate.getSubjectX500Principal().getName().contains("CN=EE Certification Centre Root CA")
+            loadedCertificate.getSubject().getPrincipal().getName().contains("CN=EE Certification Centre Root CA")
     );
     assertLogInOrder(
             Matchers.matchesPattern("Received HTTP 3[0-9]{2} from 'http://www.sk.ee/certs/EE_Certification_Centre_Root_CA.der.crt', redirecting to 'https://www.sk.ee/certs/EE_Certification_Centre_Root_CA.der.crt'"),

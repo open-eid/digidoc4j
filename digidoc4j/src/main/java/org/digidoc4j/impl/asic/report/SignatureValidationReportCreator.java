@@ -1,29 +1,30 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic.report;
 
-import java.util.List;
-
+import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.simplereport.jaxb.XmlCertificate;
+import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
+import eu.europa.esig.dss.simplereport.jaxb.XmlSimpleReport;
+import eu.europa.esig.dss.simplereport.jaxb.XmlToken;
+import eu.europa.esig.dss.validation.reports.Reports;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.xades.validation.SignatureValidationData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.simplereport.jaxb.XmlSimpleReport;
-import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
-import eu.europa.esig.dss.enumerations.Indication;
-import eu.europa.esig.dss.validation.reports.Reports;
+import java.util.List;
+import java.util.Optional;
 
 public class SignatureValidationReportCreator {
 
@@ -55,11 +56,16 @@ public class SignatureValidationReportCreator {
   }
 
   private SignatureValidationReport cloneSignatureValidationReport() {
-    if (simpleReport.getSignature().size() > 1) {
-      logger.warn("Simple report contains more than one signature: " + simpleReport.getSignature().size());
+    if (simpleReport.getSignaturesCount() > 1) {
+      logger.warn("Simple report contains more than one signature: " + simpleReport.getSignaturesCount());
     }
-    XmlSignature signatureXmlReport = simpleReport.getSignature().get(0);
-    return SignatureValidationReport.create(signatureXmlReport);
+    Optional<XmlToken> signatureXmlReport = simpleReport.getSignatureOrTimestamp().stream()
+            .filter(s -> s instanceof XmlSignature)
+            .findFirst();
+    if (signatureXmlReport.isPresent()) {
+      return SignatureValidationReport.create((XmlSignature) signatureXmlReport.get());
+    }
+    throw new IllegalArgumentException("No signature found from simple report");
   }
 
   private void updateMissingErrors() {

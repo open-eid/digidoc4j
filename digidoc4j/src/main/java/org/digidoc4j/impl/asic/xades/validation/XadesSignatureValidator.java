@@ -12,11 +12,11 @@ package org.digidoc4j.impl.asic.xades.validation;
 
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import eu.europa.esig.dss.i18n.I18nProvider;
+import eu.europa.esig.dss.i18n.MessageTag;
+import eu.europa.esig.dss.xades.definition.XAdESPaths;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
@@ -33,13 +33,11 @@ import org.w3c.dom.Element;
 
 import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.enumerations.Indication;
-import eu.europa.esig.dss.validation.process.MessageTag;
 import eu.europa.esig.dss.detailedreport.DetailedReport;
 import eu.europa.esig.dss.validation.reports.Reports;
 import eu.europa.esig.dss.simplereport.SimpleReport;
 import eu.europa.esig.dss.diagnostic.DiagnosticData;
 import eu.europa.esig.dss.validation.SignaturePolicy;
-import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
 /**
@@ -117,10 +115,10 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   protected boolean isSignaturePolicyImpliedElementPresented() {
-    XPathQueryHolder xPathQueryHolder = this.getDssSignature().getXPathQueryHolder();
+    XAdESPaths xAdESPaths = this.getDssSignature().getXAdESPaths();
     Element signaturePolicyImpliedElement = DomUtils.getElement(this.getDssSignature().getSignatureElement(),
-        String.format("%s%s", xPathQueryHolder.XPATH_SIGNATURE_POLICY_IDENTIFIER,
-            xPathQueryHolder.XPATH__SIGNATURE_POLICY_IMPLIED.replace(".", "")));
+        String.format("%s%s", xAdESPaths.getSignaturePolicyIdentifier(),
+                xAdESPaths.getCurrentSignaturePolicyImplied().replace(".", "")));
     return signaturePolicyImpliedElement != null;
   }
 
@@ -156,10 +154,11 @@ public class XadesSignatureValidator implements SignatureValidator {
 
   private void addPolicyIdentifierQualifierValidationErrors() {
     LOGGER.debug("Extracting policy identifier qualifier validation errors");
-    XPathQueryHolder xPathQueryHolder = getDssSignature().getXPathQueryHolder();
+    XAdESPaths xAdESPaths = getDssSignature().getXAdESPaths();
     Element signatureElement = getDssSignature().getSignatureElement();
-    Element element = DomUtils.getElement(signatureElement, xPathQueryHolder.XPATH_SIGNATURE_POLICY_IDENTIFIER);
-    Element identifier = DomUtils.getElement(element, "./xades:SignaturePolicyId/xades:SigPolicyId/xades:Identifier");
+
+    Element element = DomUtils.getElement(signatureElement, xAdESPaths.getSignaturePolicyIdentifier());
+    Element identifier = DomUtils.getElement(element, "./xades132:SignaturePolicyId/xades132:SigPolicyId/xades132:Identifier");
     String qualifier = identifier.getAttribute("Qualifier");
     if (!StringUtils.equals(XadesSignatureValidator.OIDAS_URN, qualifier)) {
       this.addValidationError(new WrongPolicyIdentifierQualifierException(String.format("Wrong policy identifier qualifier: %s", qualifier)));
@@ -190,13 +189,15 @@ public class XadesSignatureValidator implements SignatureValidator {
     LOGGER.debug("Extracting reported errors");
     if (this.simpleReport != null) {
       for (String errorMessage : this.simpleReport.getErrors(this.signatureUniqueId)) {
+        I18nProvider i18nProvider = new I18nProvider();
         /*if (this.isRedundantErrorMessage(errorMessage)) {
           LOGGER.debug("Ignoring redundant error message: " + errorMessage);
           continue;
         }*/
-        if (errorMessage.contains(MessageTag.BBB_XCV_ISCR_ANS.getMessage())) {
+
+        if (errorMessage.contains(i18nProvider.getMessage(MessageTag.BBB_XCV_ISCR_ANS))) {
           this.addValidationError(new CertificateRevokedException(errorMessage));
-        } else if (errorMessage.contains(MessageTag.PSV_IPSVC_ANS.getMessage())) {
+        } else if (errorMessage.contains(i18nProvider.getMessage(MessageTag.PSV_IPSVC_ANS))) {
           this.addValidationError(new CertificateRevokedException(errorMessage));
         } else {
           this.addValidationError(new DigiDoc4JException(errorMessage, this.signatureId));
@@ -205,13 +206,6 @@ public class XadesSignatureValidator implements SignatureValidator {
     }
   }
 
-  private boolean isRedundantErrorMessage(String errorMessage) {
-    return equalsIgnoreCase(errorMessage, MessageTag.ADEST_ROBVPIIC_ANS.getMessage())
-        || equalsIgnoreCase(errorMessage, MessageTag.LTV_ABSV_ANS.getMessage())
-        || equalsIgnoreCase(errorMessage, MessageTag.ARCH_LTVV_ANS.getMessage())
-        || equalsIgnoreCase(errorMessage, MessageTag.BBB_XCV_RFC_ANS.getMessage())
-        || equalsIgnoreCase(errorMessage, MessageTag.BBB_XCV_SUB_ANS.getMessage());
-  }
 
   private void addReportedWarnings() {
     if (this.simpleReport != null) {

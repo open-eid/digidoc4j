@@ -99,8 +99,9 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
   @Override
   protected void verifyOcspResponderCertificate(CertificateToken token) {
     TSLCertificateSource certificateSource = getConfiguration().getTSL();
+
     if (!certificateSource.isTrusted(token)
-            && CollectionUtils.isEmpty(certificateSource.getCertificatePool().get(token.getCertificate().getIssuerX500Principal()))) {
+            && CollectionUtils.isEmpty(certificateSource.getBySubject(token.getIssuer()))) {
       throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNTRUSTED,
               String.format("OCSP response certificate <%s> match is not found in TSL", token.getDSSIdAsString()));
     }

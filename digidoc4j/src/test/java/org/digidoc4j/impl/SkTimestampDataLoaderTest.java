@@ -62,7 +62,7 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
   @Test
   public void getContentType() {
     SkTimestampDataLoader dataLoader = new SkTimestampDataLoader(Configuration.of(TEST));
-    assertEquals(TimestampDataLoader.TIMESTAMP_QUERY_CONTENT_TYPE, dataLoader.getContentType());
+    assertEquals(SkTimestampDataLoader.TIMESTAMP_QUERY_CONTENT_TYPE, dataLoader.getContentType());
   }
 
   @Test

@@ -1,27 +1,33 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
-import org.digidoc4j.Configuration;
-import org.digidoc4j.ExternalConnectionType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
 import eu.europa.esig.dss.service.http.proxy.ProxyProperties;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.ExternalConnectionType;
+import org.digidoc4j.utils.ResourceUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
+import java.util.Objects;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * Data loader decorator
@@ -31,7 +37,7 @@ public class DataLoaderDecorator {
   private final static Logger logger = LoggerFactory.getLogger(DataLoaderDecorator.class);
 
   /**
-   * @param dataLoader data loader
+   * @param dataLoader    data loader
    * @param configuration configuration
    */
   public static void decorateWithProxySettings(CommonsDataLoader dataLoader, Configuration configuration) {
@@ -51,8 +57,8 @@ public class DataLoaderDecorator {
 
   /**
    * @param connectionType type of external connections
-   * @param dataLoader data loader
-   * @param configuration configuration
+   * @param dataLoader     data loader
+   * @param configuration  configuration
    */
   public static void decorateWithProxySettingsFor(ExternalConnectionType connectionType, CommonsDataLoader dataLoader, Configuration configuration) {
     if (configuration.isNetworkProxyEnabledFor(connectionType)) {
@@ -91,7 +97,7 @@ public class DataLoaderDecorator {
   }
 
   /**
-   * @param dataLoader data loader
+   * @param dataLoader    data loader
    * @param configuration configuration
    */
   public static void decorateWithSslSettings(CommonsDataLoader dataLoader, Configuration configuration) {
@@ -109,8 +115,8 @@ public class DataLoaderDecorator {
 
   /**
    * @param connectionType type of external connections
-   * @param dataLoader data loader
-   * @param configuration configuration
+   * @param dataLoader     data loader
+   * @param configuration  configuration
    */
   public static void decorateWithSslSettingsFor(ExternalConnectionType connectionType, CommonsDataLoader dataLoader, Configuration configuration) {
     if (configuration.isSslConfigurationEnabledFor(connectionType)) {
@@ -127,7 +133,7 @@ public class DataLoaderDecorator {
 
   private static void configureSslKeystore(CommonsDataLoader dataLoader, String sslKeystorePath, String sslKeystoreType, String sslKeystorePassword) {
     if (sslKeystorePath != null) {
-      dataLoader.setSslKeystorePath(sslKeystorePath);
+      dataLoader.setSslKeystore(new FileDocument(ResourceUtils.getFullPath(sslKeystorePath).toFile()));
       if (sslKeystoreType != null) {
         dataLoader.setSslKeystoreType(sslKeystoreType);
       }
@@ -139,7 +145,7 @@ public class DataLoaderDecorator {
 
   private static void configureSslTruststore(CommonsDataLoader dataLoader, String sslTruststorePath, String sslTruststoreType, String sslTruststorePassword) {
     if (sslTruststorePath != null) {
-      dataLoader.setSslTruststorePath(sslTruststorePath);
+      dataLoader.setSslTruststore(new FileDocument(ResourceUtils.getFullPath(sslTruststorePath).toFile()));
       if (sslTruststoreType != null) {
         dataLoader.setSslTruststoreType(sslTruststoreType);
       }

@@ -48,7 +48,6 @@ public class TslManager implements Serializable {
     if (this.tslCertificateSource == null) {
       logger.debug("Loading TSL in a synchronized block");
       TslLoader tslLoader = new TslLoader(this.configuration);
-      tslLoader.setCheckSignature(true);
       LazyTslCertificateSource lazyTsl = new LazyTslCertificateSource(tslLoader);
       lazyTsl.setCacheExpirationTime(this.configuration.getTslCacheExpirationTime());
       this.tslCertificateSource = lazyTsl;

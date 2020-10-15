@@ -1,19 +1,15 @@
 package org.digidoc4j.impl.pades;
 
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-
-import eu.europa.esig.dss.enumerations.RevocationType;
-import eu.europa.esig.dss.pdf.PdfObjFactory;
-import eu.europa.esig.dss.pdf.pdfbox.PdfBoxDefaultObjectFactory;
-import eu.europa.esig.dss.pades.validation.PDFDocumentValidator;
-import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.diagnostic.DiagnosticData;
+import eu.europa.esig.dss.enumerations.Indication;
+import eu.europa.esig.dss.enumerations.RevocationType;
+import eu.europa.esig.dss.model.FileDocument;
+import eu.europa.esig.dss.pades.validation.PDFDocumentValidator;
+import eu.europa.esig.dss.pdf.pdfbox.PdfBoxDefaultObjectFactory;
+import eu.europa.esig.dss.validation.CertificateVerifier;
+import eu.europa.esig.dss.validation.SignedDocumentValidator;
+import eu.europa.esig.dss.validation.reports.Reports;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
@@ -31,23 +27,22 @@ import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.AiaDataLoaderFactory;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
-
-import eu.europa.esig.dss.model.FileDocument;
-import eu.europa.esig.dss.validation.SignedDocumentValidator;
-import eu.europa.esig.dss.enumerations.Indication;
-import eu.europa.esig.dss.validation.reports.Reports;
 import org.digidoc4j.impl.asic.xades.validation.TimestampSignatureValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Andrei on 17.11.2017.
  */
-public class PadesContainer implements Container {
+public class PadesContainer extends PdfBoxDefaultObjectFactory implements Container {
 
-  static {
-    PdfObjFactory.setInstance(new PdfBoxDefaultObjectFactory());
-  }
 
   private static final Logger logger = LoggerFactory.getLogger(PadesContainer.class);
 
@@ -168,8 +163,14 @@ public class PadesContainer implements Container {
     if (diagnosticData == null) {
       return;
     }
-    RevocationType certificateRevocationSource = diagnosticData
-            .getCertificateRevocationSource(diagnosticData.getFirstSigningCertificateId());
+
+    String signatureId = diagnosticData.getFirstSignatureId();
+    String certificateId = diagnosticData.getSigningCertificateId(signatureId);
+    if (certificateId == null) {
+      return;
+    }
+
+    RevocationType certificateRevocationSource = diagnosticData.getCertificateRevocationSource(certificateId);
     logger.debug("Revocation source is <{}>", certificateRevocationSource);
     if (RevocationType.CRL.equals(certificateRevocationSource)) {
       logger.error("Signing certificate revocation source is CRL instead of OCSP");

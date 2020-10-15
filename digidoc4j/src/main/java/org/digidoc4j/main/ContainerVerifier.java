@@ -193,7 +193,7 @@ public class ContainerVerifier {
     }
     boolean isValid = true;
     for (String signatureId : reports.getSimpleReport().getSignatureIdList()) {
-      isValid = isValid && reports.getSimpleReport().isSignatureValid(signatureId);
+      isValid = isValid && reports.getSimpleReport().isValid(signatureId);
     }
     if (isValid) {
       logger.info("Validation was successful. Container is valid");

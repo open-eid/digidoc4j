@@ -1,26 +1,22 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic.tsl;
 
-import java.security.cert.CertificateParsingException;
-import java.security.cert.X509Certificate;
-import java.util.*;
-
-import eu.europa.esig.dss.enumerations.KeyUsageBit;
-import eu.europa.esig.dss.spi.tsl.Condition;
-import eu.europa.esig.dss.spi.tsl.ServiceInfo;
-import eu.europa.esig.dss.spi.tsl.ServiceInfoStatus;
+import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.tsl.TLInfo;
+import eu.europa.esig.dss.spi.tsl.TrustProperties;
+import eu.europa.esig.dss.spi.tsl.TrustServiceStatusAndInformationExtensions;
 import eu.europa.esig.dss.spi.tsl.TrustedListsCertificateSource;
-import eu.europa.esig.dss.tsl.KeyUsageCondition;
+import eu.europa.esig.dss.spi.tsl.builder.TrustServiceProviderBuilder;
+import eu.europa.esig.dss.spi.util.MutableTimeDependentValues;
 import eu.europa.esig.dss.validation.process.qualification.EIDASUtils;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -31,8 +27,14 @@ import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.spi.util.TimeDependentValues;
-import eu.europa.esig.dss.model.x509.CertificateToken;
+import java.security.cert.CertificateParsingException;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Certificate source with the purpose of adding trusted certificate(s) manually
@@ -56,13 +58,13 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
    * <p/>
    * ServiceName will be the certificate's CN field value <br/>
    * ServiceTypeIdentifier will be: <br/>
-   *    http://uri.etsi.org/TrstSvc/Svctype/Certstatus/OCSP/QC - if certificate contains "OCSPSigning" extended key usage <br/>
-   *    http://uri.etsi.org/TrstSvc/Svctype/TSA/QTST - if certificate contains "timeStamping" extended key usage
-   *    http://uri.etsi.org/TrstSvc/Svctype/CA/QC - otherwise <br/>
+   * http://uri.etsi.org/TrstSvc/Svctype/Certstatus/OCSP/QC - if certificate contains "OCSPSigning" extended key usage <br/>
+   * http://uri.etsi.org/TrstSvc/Svctype/TSA/QTST - if certificate contains "timeStamping" extended key usage
+   * http://uri.etsi.org/TrstSvc/Svctype/CA/QC - otherwise <br/>
    * Qualifier will be http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD with nonRepudiation <br/>
    * ServiceStatus will be: <br/>
-   *    Certificate's NotBefore pre Eidas -> http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision <br/>
-   *    Certificate's NotBefore post Eidas -> http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted <br/>
+   * Certificate's NotBefore pre Eidas -> http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision <br/>
+   * Certificate's NotBefore post Eidas -> http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted <br/>
    * CountryCode will be EU <br/>
    * TLInfo for EU will be added automatically when it does not exist
    *
@@ -70,37 +72,39 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
    */
   @Override
   public void addTSLCertificate(X509Certificate certificate) {
-    ServiceInfo serviceInfo = new ServiceInfo();
-    Condition condition = new KeyUsageCondition(KeyUsageBit.NON_REPUDIATION, true);
-    Map<String, List<Condition>> qualifiersAndConditions = new HashMap<>();
-    qualifiersAndConditions.put("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD", Arrays.asList(condition));
-    ServiceInfoStatus status = new ServiceInfoStatus(getCN(certificate), getServiceType(certificate),
-        getStatus(certificate.getNotBefore()),
-        qualifiersAndConditions,
-            Arrays.asList("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/ForeSignatures"),
-        null,
-        null,
-        certificate.getNotBefore(),
-        null);
-    TimeDependentValues timeDependentValues = new TimeDependentValues(Arrays.asList(status));
-    serviceInfo.setStatus(timeDependentValues);
+    TrustServiceProviderBuilder trustServiceProviderBuilder = new TrustServiceProviderBuilder();
+    trustServiceProviderBuilder.setTerritory("EU");
+    trustServiceProviderBuilder.setNames(new HashMap<String, List<String>>() {{
+      put("EN", Collections.singletonList(getCN(certificate)));
+    }});
 
-    String countryCode = "EU";
-    serviceInfo.setTlCountryCode(countryCode);
-    if (getTlInfo(countryCode) == null) {
-      TLInfo tlInfo = new TLInfo();
-      tlInfo.setCountryCode(countryCode);
-      tlInfo.setVersion(5);
-      updateTlInfo(countryCode, tlInfo);
-    }
-    addCertificate(new CertificateToken(certificate), new ArrayList<>(Arrays.asList(serviceInfo)));
+    TrustServiceStatusAndInformationExtensions.TrustServiceStatusAndInformationExtensionsBuilder extensionsBuilder = new TrustServiceStatusAndInformationExtensions.
+            TrustServiceStatusAndInformationExtensionsBuilder();
+    extensionsBuilder.setNames(new HashMap<String, List<String>>() {{
+      put("EN", Collections.singletonList(getCN(certificate)));
+    }});
+    extensionsBuilder.setType(getServiceType(certificate));
+    extensionsBuilder.setStatus(getStatus(certificate.getNotBefore()));
+    extensionsBuilder.setConditionsForQualifiers(Collections.emptyList());
+    extensionsBuilder.setAdditionalServiceInfoUris(Collections.emptyList());
+    extensionsBuilder.setServiceSupplyPoints(Collections.emptyList());
+    extensionsBuilder.setExpiredCertsRevocationInfo(null);
+    extensionsBuilder.setStartDate(new Date());
+    extensionsBuilder.setEndDate(new Date());
+    TrustServiceStatusAndInformationExtensions statusAndInformationExtensions = extensionsBuilder.build();
+
+    MutableTimeDependentValues<TrustServiceStatusAndInformationExtensions> statusHistoryList = new MutableTimeDependentValues<>();
+    statusHistoryList.addOldest(statusAndInformationExtensions);
+
+    TLInfo tlInfo = new TLInfo(null, null, null, "EU.xml");
+    TrustProperties trustProperties = new TrustProperties(tlInfo.getIdentifier(), trustServiceProviderBuilder.build(), statusHistoryList);
+    super.addCertificate(new CertificateToken(certificate), Collections.singletonList(trustProperties));
   }
 
   /**
    * Invalidates cache
-   *
+   * <p>
    * Only applicable when cache is used.
-   *
    */
   @Override
   public void invalidateCache() {
@@ -114,7 +118,7 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
   }
 
   private String getCN(X509Certificate certificate) {
-    X500Name x500name = new X500Name(certificate.getSubjectX500Principal().getName() );
+    X500Name x500name = new X500Name(certificate.getSubjectX500Principal().getName());
     RDN cn = x500name.getRDNs(BCStyle.CN)[0];
     return IETFUtils.valueToString(cn.getFirst().getValue());
   }

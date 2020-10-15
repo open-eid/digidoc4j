@@ -10,9 +10,9 @@
 
 package org.digidoc4j.impl.bdoc.tsl;
 
-import eu.europa.esig.dss.tsl.TSLValidationModel;
-import eu.europa.esig.dss.tsl.service.TSLRepository;
-import eu.europa.esig.dss.tsl.service.TSLValidationJob;
+import eu.europa.esig.dss.spi.tsl.LOTLInfo;
+import eu.europa.esig.dss.spi.tsl.TLInfo;
+import eu.europa.esig.dss.tsl.job.TLValidationJob;
 import eu.europa.esig.dss.enumerations.Indication;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
@@ -23,8 +23,6 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Map;
-
 public class TslLoaderTest extends AbstractTest {
 
   private TslLoader tslLoader;
@@ -34,11 +32,9 @@ public class TslLoaderTest extends AbstractTest {
   public void loadAndValidateProdTsl() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
     this.createTSLLoader();
-    this.tslLoader.setCheckSignature(true);
     this.tslLoader.prepareTsl();
-    TSLValidationJob tslValidationJob = this.tslLoader.getTslValidationJob();
-    tslValidationJob.refresh();
-    this.tslLoader.getTslRepository();
+    TLValidationJob tslValidationJob = this.tslLoader.getTlValidationJob();
+    tslValidationJob.onlineRefresh();
     this.assertTSLIsValid();
   }
 
@@ -68,7 +64,7 @@ public class TslLoaderTest extends AbstractTest {
   @Ignore
   public void loadTsl_forAllCountries_byDefault() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
-    TSLRepository tslRepository = this.initTSLAndGetRepository();
+    LOTLInfo tslRepository = this.initTSLAndGetRepository();
     this.assertCountryLoaded(tslRepository, "EE");
     this.assertCountryLoaded(tslRepository, "DK");
     this.assertCountryLoaded(tslRepository, "ES");
@@ -79,7 +75,7 @@ public class TslLoaderTest extends AbstractTest {
   public void loadTsl_forOneContry() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
     this.configuration.setTrustedTerritories("EE");
-    TSLRepository tslRepository = this.initTSLAndGetRepository();
+    LOTLInfo tslRepository = this.initTSLAndGetRepository();
     this.assertCountryLoaded(tslRepository, "EE");
     this.assertCountryNotLoaded(tslRepository, "FR");
   }
@@ -89,7 +85,7 @@ public class TslLoaderTest extends AbstractTest {
   public void loadTsl_forTwoCountries() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
     this.configuration.setTrustedTerritories("EE", "ES");
-    TSLRepository tslRepository = this.initTSLAndGetRepository();
+    LOTLInfo tslRepository = this.initTSLAndGetRepository();
     this.assertCountryLoaded(tslRepository, "EE");
     this.assertCountryLoaded(tslRepository, "ES");
     this.assertCountryNotLoaded(tslRepository, "FR");
@@ -98,7 +94,7 @@ public class TslLoaderTest extends AbstractTest {
   @Test
   public void loadTestTsl_shouldContainTestTerritory() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.TEST);
-    TSLRepository tslRepository = this.initTSLAndGetRepository();
+    LOTLInfo tslRepository = this.initTSLAndGetRepository();
     this.assertCountryLoaded(tslRepository, "EE_T");
   }
 
@@ -110,7 +106,7 @@ public class TslLoaderTest extends AbstractTest {
   @Ignore
   public void loadTsl_withoutCountryHr_byDefault() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.PROD);
-    TSLRepository tslRepository = this.initTSLAndGetRepository();
+    LOTLInfo tslRepository = this.initTSLAndGetRepository();
     this.assertCountryLoaded(tslRepository, "EE");
     this.assertCountryLoaded(tslRepository, "DK");
     this.assertCountryLoaded(tslRepository, "NO");
@@ -129,41 +125,39 @@ public class TslLoaderTest extends AbstractTest {
 
   private void createTSLLoader() {
     this.tslLoader = new TslLoader(this.configuration);
-    this.tslLoader.setCheckSignature(false);
   }
 
-  private TSLRepository initTSLAndGetRepository() {
+  private LOTLInfo initTSLAndGetRepository() {
     this.createTSLLoader();
     this.tslLoader.prepareTsl();
-    this.tslLoader.getTslValidationJob().refresh();
-    return this.tslLoader.getTslRepository();
+    this.tslLoader.getTlValidationJob().onlineRefresh();
+    return this.tslLoader.getTlValidationJob().getSummary().getLOTLInfos().get(0);
   }
 
   private long refreshTSLAndGetCacheLastModificationTime() {
     this.tslLoader.prepareTsl();
-    this.tslLoader.getTslValidationJob().refresh();
+    this.tslLoader.getTlValidationJob().onlineRefresh();
     return TestTSLUtil.getCacheLastModified();
   }
 
   private void assertTSLIsValid() {
-    TSLRepository repository = this.tslLoader.getTslRepository();
-    Map<String, TSLValidationModel> modelMap = repository.getAllMapTSLValidationModels();
-    for (String country : modelMap.keySet()) {
-      TSLValidationModel model = repository.getByCountry(country);
-      Indication indication = model.getValidationResult().getIndication();
+    LOTLInfo lotlInfo = this.tslLoader.getTlValidationJob().getSummary().getLOTLInfos().get(0);;
+    for (TLInfo country :lotlInfo.getTLInfos()) {
+      Indication indication = country.getValidationCacheInfo().getIndication();
       Assert.assertEquals("TSL is not valid for country " + country, Indication.TOTAL_PASSED, indication);
     }
   }
 
-  private void assertCountryLoaded(TSLRepository tslRepository, String countryIsoCode) {
-    TSLValidationModel model = tslRepository.getByCountry(countryIsoCode);
-    Assert.assertNotNull(String.format("TSL model for country <%s> is null", countryIsoCode), model);
-    Assert.assertTrue(model.getParseResult().getServiceProviders().size() > 0);
+  private void assertCountryLoaded(LOTLInfo lotlInfo, String countryIsoCode) {
+    boolean isLoaded = lotlInfo.getTLInfos().stream()
+            .anyMatch(tlInfo -> tlInfo.getParsingCacheInfo().getTerritory().equals(countryIsoCode));
+    Assert.assertTrue(isLoaded);
   }
 
-  private void assertCountryNotLoaded(TSLRepository tslRepository, String countryIsoCode) {
-    TSLValidationModel countryTsl = tslRepository.getByCountry(countryIsoCode);
-    Assert.assertNull(countryTsl);
+  private void assertCountryNotLoaded(LOTLInfo lotlInfo, String countryIsoCode) {
+    boolean isLoaded = lotlInfo.getTLInfos().stream()
+            .anyMatch(tlInfo -> tlInfo.getParsingCacheInfo().getTerritory().equals(countryIsoCode));
+    Assert.assertFalse(isLoaded);
   }
 
 }

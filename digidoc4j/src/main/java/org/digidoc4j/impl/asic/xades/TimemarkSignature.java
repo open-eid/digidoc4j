@@ -1,21 +1,17 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic.xades;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.spi.DSSRevocationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
@@ -34,7 +30,11 @@ import org.digidoc4j.exceptions.CertificateNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.model.x509.CertificateToken;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Signature for BDOC where timemark is taken from OCSP response.
@@ -74,11 +74,15 @@ public class TimemarkSignature extends BesSignature {
 
   @Override
   public List<BasicOCSPResp> getOcspResponses() {
-    return getDssSignature()
-            .getOCSPSource()
-            .getOCSPResponsesList()
+    return getDssSignature().getOCSPSource().getAllRevocationBinaries()
             .stream()
-            .map(rb -> rb.getBasicOCSPResp())
+            .map(rb -> {
+              try {
+                return DSSRevocationUtils.loadOCSPFromBinaries(rb.getBinaries());
+              } catch (IOException e) {
+                throw new IllegalArgumentException("Invalid ocsp binary");
+              }
+            })
             .collect(Collectors.toList());
   }
 
@@ -135,7 +139,7 @@ public class TimemarkSignature extends BesSignature {
     }
     if (containedOCSPResponses.size() > 1) {
       logger.warn("Signature contains more than one OCSP response: "
-          + containedOCSPResponses.size() + ". Using the first one.");
+              + containedOCSPResponses.size() + ". Using the first one.");
     }
     return containedOCSPResponses.get(0);
   }
@@ -160,13 +164,14 @@ public class TimemarkSignature extends BesSignature {
       for (CertificateToken cert : getDssSignature().getCertificates()) {
         if (isKeyHash) {
           ASN1Primitive skiPrimitive = JcaX509ExtensionUtils.parseExtensionValue(
-              cert.getCertificate().getExtensionValue(Extension.subjectKeyIdentifier.getId()));
+                  cert.getCertificate().getExtensionValue(Extension.subjectKeyIdentifier.getId()));
           byte[] keyIdentifier = ASN1OctetString.getInstance(skiPrimitive.getEncoded()).getOctets();
           if (Arrays.equals(keyHash, keyIdentifier)) {
             return new X509Cert(cert.getCertificate());
           }
         } else {
-          String certCn = getCN(new X500Name(cert.getSubjectX500Principal().getName()));
+
+          String certCn = getCN(new X500Name(cert.getSubject().getPrincipal().getName()));
           if (StringUtils.equals(certCn, primitiveName)) {
             return new X509Cert(cert.getCertificate());
           }

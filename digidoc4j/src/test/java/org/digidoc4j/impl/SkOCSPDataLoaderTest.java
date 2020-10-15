@@ -61,7 +61,7 @@ public class SkOCSPDataLoaderTest extends AbstractTest {
   @Test
   public void getContentType() {
     SkOCSPDataLoader dataLoader = new SkOCSPDataLoader(Configuration.of(TEST));
-    assertEquals(OCSPDataLoader.OCSP_CONTENT_TYPE, dataLoader.getContentType());
+    assertEquals(SkOCSPDataLoader.OCSP_CONTENT_TYPE, dataLoader.getContentType());
   }
 
   @Test

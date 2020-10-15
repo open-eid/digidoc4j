@@ -217,6 +217,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-617")
   public void testValidationForBDocDefaultValidation() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.TEST);
     TestTSLUtil.addSkTsaCertificateToTsl(this.configuration);
@@ -244,12 +245,12 @@ public class SignatureTest extends AbstractTest {
     Signature signature = container.getSignatures().get(0);
     Assert.assertEquals(0, signature.validateSignature().getErrors().size());
     signature = container.getSignatures().get(1);
-    Assert.assertEquals(1, signature.validateSignature().getErrors().size());
+    Assert.assertEquals(2, signature.validateSignature().getErrors().size());
     SignatureValidationResult validate = container.validate();
-    Assert.assertEquals(1, validate.getErrors().size());
+    Assert.assertEquals(2, validate.getErrors().size());
     String report = validate.getReport();
-    Assert.assertTrue(report.contains("Id=\"S0\" SignatureFormat=\"XAdES-BASELINE-LT\""));
-    Assert.assertTrue(report.contains("Id=\"S1\" SignatureFormat=\"XAdES-BASELINE-LT\""));
+    Assert.assertTrue(report.contains("SignatureFormat=\"XAdES-BASELINE-LT\" Id=\"S0\""));
+    Assert.assertTrue(report.contains("SignatureFormat=\"XAdES-BASELINE-LT\" Id=\"S1\""));
     Assert.assertTrue(report.contains("<Indication>TOTAL_PASSED</Indication>"));
     Assert.assertTrue(report.contains("<Indication>INDETERMINATE</Indication>"));
   }
@@ -446,7 +447,7 @@ public class SignatureTest extends AbstractTest {
     Reports reports = validator.validateDocument();
     boolean isValid = true;
     for (String signatureId : reports.getSimpleReport().getSignatureIdList()) {
-      isValid = isValid && reports.getSimpleReport().isSignatureValid(signatureId);
+      isValid = isValid && reports.getSimpleReport().isValid(signatureId);
     }
     Assert.assertTrue(isValid);
   }

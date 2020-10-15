@@ -10,16 +10,14 @@
 
 package org.digidoc4j.impl.bdoc.tsl;
 
+import eu.europa.esig.dss.spi.x509.ListCertificateSource;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
-import org.digidoc4j.impl.asic.tsl.CompoundCertificatePool;
 import org.digidoc4j.test.util.TestCommonUtil;
 import org.junit.Assert;
 import org.junit.Test;
-
-import eu.europa.esig.dss.spi.x509.CertificatePool;
 
 public class LazyTslLoadingTest extends AbstractTest {
 
@@ -28,9 +26,8 @@ public class LazyTslLoadingTest extends AbstractTest {
     TSLCertificateSource tsl = this.configuration.getTSL();
     SKCommonCertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
     certificateVerifier.setTrustedCertSource(tsl);
-    CertificatePool certificatePool = certificateVerifier.createValidationPool();
-    Assert.assertTrue(certificatePool instanceof CompoundCertificatePool);
-    Assert.assertEquals(tsl.getCertificatePool().getNumberOfCertificates(), certificatePool.getNumberOfCertificates());
+    ListCertificateSource listCertificateSource = certificateVerifier.getTrustedCertSources();
+    Assert.assertEquals(tsl.getNumberOfCertificates(), listCertificateSource.getNumberOfCertificates());
   }
 
   @Test
@@ -41,9 +38,10 @@ public class LazyTslLoadingTest extends AbstractTest {
     Assert.assertTrue(this.isTSLCacheEmpty());
     SKCommonCertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
     certificateVerifier.setTrustedCertSource(tsl);
-    CertificatePool certificatePool = certificateVerifier.createValidationPool();
+
     Assert.assertTrue(this.isTSLCacheEmpty());
-    Assert.assertEquals(tsl.getCertificatePool().getNumberOfCertificates(), certificatePool.getNumberOfCertificates());
+    ListCertificateSource listCertificateSource = certificateVerifier.getTrustedCertSources();
+    Assert.assertEquals(tsl.getNumberOfCertificates(), listCertificateSource.getNumberOfCertificates());
     Assert.assertFalse(this.isTSLCacheEmpty());
   }
 

@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm;
+import eu.europa.esig.dss.validation.SignerRole;
+import eu.europa.esig.dss.xades.definition.XAdESPaths;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.xml.security.signature.Reference;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
@@ -33,7 +35,6 @@ import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.validation.SignatureProductionPlace;
 import eu.europa.esig.dss.model.x509.CertificateToken;
-import eu.europa.esig.dss.xades.XPathQueryHolder;
 
 /**
  * BES signature
@@ -41,9 +42,10 @@ import eu.europa.esig.dss.xades.XPathQueryHolder;
 public class BesSignature extends DssXadesSignature {
 
   private final static Logger logger = LoggerFactory.getLogger(BesSignature.class);
+  private final static String XPATH_KEY_INFO_X509_CERTIFICATE = "./ds:KeyInfo/ds:X509Data/ds:X509Certificate";
   private SignatureProductionPlace signerLocation;
   private transient Element signatureElement;
-  private XPathQueryHolder xPathQueryHolder; // This variable contains the XPathQueryHolder adapted to the signature schema.
+  private XAdESPaths xAdESPaths; // This variable contains the XAdESPaths adapted to the signature schema.
   private X509Cert signingCertificate;
   private Set<CertificateToken> encapsulatedCertificates;
 
@@ -52,8 +54,8 @@ public class BesSignature extends DssXadesSignature {
    */
   public BesSignature(XadesValidationReportGenerator xadesReportGenerator) {
     super(xadesReportGenerator);
-    this.xPathQueryHolder = getDssSignature().getXPathQueryHolder();
-    logger.debug("Using xpath query holder: " + xPathQueryHolder.getClass());
+    this.xAdESPaths = getDssSignature().getXAdESPaths();
+    logger.debug("Using xpath query holder: " + xAdESPaths.getClass());
   }
 
   @Override
@@ -106,7 +108,7 @@ public class BesSignature extends DssXadesSignature {
     return getDssSignature()
             .getClaimedSignerRoles()
             .stream()
-            .map(r -> r.getRole())
+            .map(SignerRole::getRole)
             .collect(Collectors.toList());
   }
 
@@ -225,14 +227,14 @@ public class BesSignature extends DssXadesSignature {
     return signatureElement;
   }
 
-  protected XPathQueryHolder getxPathQueryHolder() {
-    return xPathQueryHolder;
+  protected XAdESPaths getxPathQueryHolder() {
+    return xAdESPaths;
   }
 
   protected Set<CertificateToken> getEncapsulatedCertificates() {
     if (encapsulatedCertificates == null) {
       logger.debug("Finding encapsulated certificates");
-      encapsulatedCertificates = findCertificates(xPathQueryHolder.XPATH_ENCAPSULATED_X509_CERTIFICATE);
+      encapsulatedCertificates = findCertificates(xAdESPaths.getEncapsulatedCertificateValuesPath());
       logger.debug("Found " + encapsulatedCertificates.size() + " encapsulated certificates");
     }
     return encapsulatedCertificates;
@@ -240,7 +242,7 @@ public class BesSignature extends DssXadesSignature {
 
   private CertificateToken findKeyInfoCertificate() {
     logger.debug("Finding key info certificate");
-    Set<CertificateToken> keyInfoCertificates = findCertificates(xPathQueryHolder.XPATH_KEY_INFO_X509_CERTIFICATE);
+    Set<CertificateToken> keyInfoCertificates = findCertificates(XPATH_KEY_INFO_X509_CERTIFICATE);
     if (keyInfoCertificates.isEmpty()) {
       logger.debug("Signing certificate not found");
       return null;

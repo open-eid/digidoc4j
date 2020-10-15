@@ -718,7 +718,7 @@ public class DigiDoc4JTest extends AbstractTest {
       @Override
       public void checkAssertion() throws Exception {
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("OCSP response production time is before timestamp time"));
-        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature has 1 validation errors"));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature has 4 validation errors"));
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature S1 is not valid"));
       }
 
@@ -739,7 +739,7 @@ public class DigiDoc4JTest extends AbstractTest {
       @Override
       public void checkAssertion() throws Exception {
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("OCSP response production time is before timestamp time"));
-        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature has 1 validation errors"));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature has 4 validation errors"));
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("Validation finished. Container is NOT valid!"));
       }
 
@@ -834,8 +834,7 @@ public class DigiDoc4JTest extends AbstractTest {
       @Override
       public void checkAssertion() throws Exception {
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("Type = REVOCATION. BBB_XCV_CCCBB_REV_ANS: " +
-            "The certificate chain for revocation data is not trusted, there is no trusted anchor" +
-            ""));
+            "The certificate chain for revocation data is not trusted, it does not contain a trust anchor"));
       }
     });
     String outputFolder = this.testFolder.newFolder("outputFolder").getPath();

@@ -11,6 +11,7 @@
 package org.digidoc4j.impl;
 
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import eu.europa.esig.dss.enumerations.ObjectIdentifierQualifier;
 import eu.europa.esig.dss.model.Policy;
 import org.apache.commons.lang3.SerializationUtils;
 import org.digidoc4j.AbstractTest;
@@ -176,7 +177,7 @@ public class DataToSignSerializationTest extends AbstractTest {
     Policy customPolicy = new Policy();
     customPolicy.setId("SOME-ID");
     customPolicy.setSpuri("spuri");
-    customPolicy.setQualifier("qualifier");
+    customPolicy.setQualifier(ObjectIdentifierQualifier.OID_AS_URN);
     customPolicy.setDigestValue("some".getBytes(StandardCharsets.UTF_8));
     customPolicy.setDigestAlgorithm(DigestAlgorithm.SHA512);
 
@@ -196,8 +197,8 @@ public class DataToSignSerializationTest extends AbstractTest {
     ValidationResult validationResult = signature.validateSignature();
     assertFalse(validationResult.isValid());
     assertEquals(1, validationResult.getWarnings().size());
-    assertEquals("The signature/seal is an INDETERMINATE AdES!", validationResult.getWarnings().get(0).getMessage());
-    assertEquals(1, validationResult.getErrors().size());
+    assertEquals("The signature/seal is an INDETERMINATE AdES digital signature!", validationResult.getWarnings().get(0).getMessage());
+    assertEquals(2, validationResult.getErrors().size());
     assertEquals("The result of the LTV validation process is not acceptable to continue the process!", validationResult.getErrors().get(0).getMessage());
   }
 

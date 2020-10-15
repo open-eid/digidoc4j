@@ -1,20 +1,20 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-
-import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPResponseBinary;
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import eu.europa.esig.dss.model.identifier.EncapsulatedRevocationTokenIdentifier;
+import eu.europa.esig.dss.spi.DSSRevocationUtils;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.xades.validation.XAdESSignature;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
@@ -27,9 +27,10 @@ import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.spi.DSSUtils;
-import eu.europa.esig.dss.enumerations.DigestAlgorithm;
-import eu.europa.esig.dss.xades.validation.XAdESSignature;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Set;
 
 /**
  * Validator of OCSP response NONCE extension
@@ -43,15 +44,17 @@ public class OcspNonceValidator {
 
   /**
    * Constructor of the validator
+   *
    * @param signature Xades signature object
    */
   public OcspNonceValidator(XAdESSignature signature) {
     this.signature = signature;
-    ocspResponse = getLatestOcspResponse(signature.getOCSPSource().getOCSPResponsesList());
+    ocspResponse = getLatestOcspResponse(signature.getOCSPSource().getAllRevocationBinaries());
   }
 
   /**
    * Method for asking if OCSP response is valid or not.
+   *
    * @return True if OCSP response is valid, false otherwise.
    */
   public boolean isValid() {
@@ -65,17 +68,23 @@ public class OcspNonceValidator {
     return isOcspResponseValid(ocspResponse);
   }
 
-  private BasicOCSPResp getLatestOcspResponse(Collection<OCSPResponseBinary> ocspResponses) {
+  private BasicOCSPResp getLatestOcspResponse(Set<EncapsulatedRevocationTokenIdentifier> ocspResponses) {
     return ocspResponses
             .stream()
-            .map(r -> r.getBasicOCSPResp())
+            .map(o -> {
+              try {
+                return DSSRevocationUtils.loadOCSPFromBinaries(o.getBinaries());
+              } catch (IOException e) {
+                throw new IllegalArgumentException("Invalid ocsp binary");
+              }
+            })
             .max(Comparator.comparing(BasicOCSPResp::getProducedAt))
             .orElse(null);
   }
 
   private boolean isOcspResponseValid(BasicOCSPResp latestOcspResponse) {
     Extension extension = latestOcspResponse.getExtension(
-        new ASN1ObjectIdentifier(OCSPObjectIdentifiers.id_pkix_ocsp_nonce.getId()));
+            new ASN1ObjectIdentifier(OCSPObjectIdentifiers.id_pkix_ocsp_nonce.getId()));
     if (extension == null) {
       logger.error("No valid OCSP extension found in signature: " + signature.getId());
       return false;

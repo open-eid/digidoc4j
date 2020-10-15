@@ -3,8 +3,10 @@ package org.digidoc4j;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
-import eu.europa.esig.dss.spi.tsl.ServiceInfo;
+
 import eu.europa.esig.dss.spi.tsl.TLInfo;
+import eu.europa.esig.dss.spi.tsl.TLValidationJobSummary;
+import eu.europa.esig.dss.spi.tsl.TrustProperties;
 import eu.europa.esig.dss.spi.x509.CertificateSource;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 
@@ -45,11 +47,11 @@ public interface TSLCertificateSource extends CertificateSource {
    *
    * @param certificate
    *            the certificate you have to trust
-   * @param serviceInfos
+   * @param trustProperties
    *            list of the service information associated to the service
    * @return the corresponding certificate token
    */
-  void addCertificate(final CertificateToken certificate, final List<ServiceInfo> serviceInfos);
+  void addCertificate(final CertificateToken certificate, final List<TrustProperties> trustProperties);
 
   /**
    * Retrieves the list of all certificate tokens from this source.
@@ -59,12 +61,12 @@ public interface TSLCertificateSource extends CertificateSource {
   List<CertificateToken> getCertificates();
 
   /**
-   * Retrieves the list of service infos for the gifen certificate token.
+   * Retrieves the list of trust properties for the gifen certificate token.
    *
    * @param token
-   * @return all the Service Infos associated with the certificate token.
+   * @return all the Trust Properties associated with the certificate token.
    */
-  Set<ServiceInfo> getTrustServices(CertificateToken token);
+  List<TrustProperties> getTrustServices(CertificateToken token);
 
   /**
    * This method returns the number of stored certificates in this source
@@ -73,11 +75,7 @@ public interface TSLCertificateSource extends CertificateSource {
    */
   int getNumberOfCertificates();
 
-  TLInfo getLotlInfo();
-
-  TLInfo getTlInfo(String countryCode);
-
-  Map<String, TLInfo> getSummary();
+  TLValidationJobSummary getSummary();
 
   int getNumberOfTrustedPublicKeys();
 

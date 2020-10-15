@@ -10,9 +10,12 @@
 
 package org.digidoc4j.test;
 
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.FileDocument;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ServiceType;
 import org.digidoc4j.impl.SkDataLoader;
+import org.digidoc4j.utils.ResourceUtils;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
@@ -20,10 +23,10 @@ import org.digidoc4j.impl.SkDataLoader;
 
 public class MockSkDataLoader extends SkDataLoader {
 
-  private String sslKeystorePath;
+  private DSSDocument sslKeystore;
   private String sslKeystoreType;
   private String sslKeystorePassword;
-  private String sslTruststorePath;
+  private DSSDocument sslTruststore;
   private String sslTruststoreType;
   private String sslTruststorePassword;
   private boolean isSslKeystoreTypeSet;
@@ -40,13 +43,13 @@ public class MockSkDataLoader extends SkDataLoader {
     return ServiceType.OCSP;
   }
 
-  public String getSslKeystorePath() {
-    return sslKeystorePath;
+  public DSSDocument getSslKeystore() {
+    return sslKeystore;
   }
 
-  public void setSslKeystorePath(String sslKeystorePath) {
-    super.setSslKeystorePath(sslKeystorePath);
-    this.sslKeystorePath = sslKeystorePath;
+  public void setSslKeystore(DSSDocument sslKeystore) {
+    super.setSslKeystore(sslKeystore);
+    this.sslKeystore = sslKeystore;
   }
 
   public String getSslKeystoreType() {
@@ -69,13 +72,13 @@ public class MockSkDataLoader extends SkDataLoader {
     this.sslKeystorePasswordSet = true;
   }
 
-  public String getSslTruststorePath() {
-    return sslTruststorePath;
+  public DSSDocument getSslTruststore() {
+    return sslTruststore;
   }
 
-  public void setSslTruststorePath(String sslTruststorePath) {
-    this.sslTruststorePath = sslTruststorePath;
-    super.setSslTruststorePath(sslTruststorePath);
+  public void setSslTruststore(DSSDocument sslTruststore) {
+    this.sslTruststore = sslTruststore;
+    super.setSslKeystore(sslTruststore);
   }
 
   public String getSslTruststoreType() {
