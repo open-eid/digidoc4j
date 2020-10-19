@@ -35,7 +35,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import eu.europa.esig.dss.spi.tsl.ConditionForQualifiers;
 import eu.europa.esig.dss.spi.tsl.TrustProperties;
+import eu.europa.esig.dss.spi.tsl.TrustServiceStatusAndInformationExtensions;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
@@ -89,13 +91,20 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-617")
   public void addingCertificateToTsl() throws Exception {
     TSLCertificateSource source = new TSLCertificateSourceImpl();
     this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);
     CertificateToken certificateToken = source.getCertificates().get(0);
     Assert.assertThat(certificateToken.getKeyUsageBits(), hasItem(KeyUsageBit.NON_REPUDIATION));
     Assert.assertTrue(certificateToken.checkKeyUsage(KeyUsageBit.NON_REPUDIATION));
+    List<TrustProperties> associatedTSPS = source.getTrustServices(certificateToken);
+    TrustProperties trustProperties = associatedTSPS.iterator().next();
+    TrustServiceStatusAndInformationExtensions informationExtensions = trustProperties.getTrustService().getLatest();
+    Assert.assertEquals("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", informationExtensions.getStatus());
+    Assert.assertEquals("http://uri.etsi.org/TrstSvc/Svctype/CA/QC", informationExtensions.getType());
+    Assert.assertNotNull(informationExtensions.getStartDate());
+    List<ConditionForQualifiers> qualifiersAndConditions = informationExtensions.getConditionsForQualifiers();
+    Assert.assertTrue(qualifiersAndConditions.get(0).getQualifiers().contains("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD"));
   }
 
   @Test
@@ -224,7 +233,6 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-617")
   public void addedTSLIsValid() throws IOException, CertificateException {
     TSLCertificateSource source = this.configuration.getTSL();
     this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);

@@ -46,10 +46,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
@@ -196,23 +194,22 @@ public class ValidationTests extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-617")
-  public void secondSignatureFileContainsIncorrectFileName() throws IOException, CertificateException {
+  public void secondSignatureFileContainsIncorrectFileName() {
     TestTSLUtil.addSkTsaCertificateToTsl(this.configuration);
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/filename_mismatch_second_signature.asice",
         this.configuration);
     SignatureValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
-    Assert.assertEquals(3, errors.size());
+    Assert.assertEquals(4, errors.size());
     Assert.assertEquals("(Signature ID: S1) - The result of the LTV validation process is not acceptable to continue the process!",
         errors.get(0).toString());
     Assert.assertEquals(
         "(Signature ID: S1) - Manifest file has an entry for file <test.txt> with mimetype <text/plain> but "
             + "the signature file for signature S1 does not have an entry for this file",
-        errors.get(1).toString());
-    Assert.assertEquals("Container contains a file named <test.txt> which is not found in the signature file",
         errors.get(2).toString());
+    Assert.assertEquals("Container contains a file named <test.txt> which is not found in the signature file",
+        errors.get(3).toString());
   }
 
   @Test
@@ -319,13 +316,12 @@ public class ValidationTests extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-617")
   public void containerMissesFileWhichIsInManifestAndSignatureFile() {
     TestTSLUtil.addSkTsaCertificateToTsl(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/zip_misses_file_which_is_in_manifest.asice");
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    TestAssert.assertContainsError("(Signature ID: S0) - The certificate chain for timestamp is not trusted, there is no trusted anchor.", errors); // Timestamp issuer originates from PROD chain
+    TestAssert.assertContainsError("(Signature ID: S0) - The certificate chain for timestamp is not trusted, it does not contain a trust anchor.", errors); // Timestamp issuer originates from PROD chain
   }
 
   @Test
@@ -548,7 +544,6 @@ public class ValidationTests extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-617")
   public void bdocTM_signedWithValidCert_isExpiredByNow_shouldBeValid() throws Exception {
     String containerPath =
         "src/test/resources/testFiles/valid-containers/valid_bdoc_tm_signed_with_valid_cert_expired_by_now.bdoc";
@@ -612,7 +607,6 @@ public class ValidationTests extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-617")
   public void containerValidation_withManuallyAddedTrustedCertificates_shouldSucceed() throws Exception {
     TSLCertificateSourceImpl tsl = new TSLCertificateSourceImpl();
     Configuration conf = Configuration.of(Configuration.Mode.PROD);
@@ -649,7 +643,6 @@ public class ValidationTests extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-617")
   public void mixTSLCertAndTSLOnlineSources_SignatureTypeLT_valid() throws Exception {
     try (InputStream caStream = new FileInputStream("src/test/resources/testFiles/certs/exampleCA.cer")) {
       this.configuration.getTSL().addTSLCertificate(DSSUtils.loadCertificate(caStream).getCertificate());
@@ -666,7 +659,6 @@ public class ValidationTests extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-617")
   public void mixTSLCertAndTSLOnlineSources_SignatureTypeLT_notValid() throws Exception {
     TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
     try (InputStream inputStream = new FileInputStream("src/test/resources/testFiles/certs/exampleCA.cer")) {
@@ -686,12 +678,12 @@ public class ValidationTests extends AbstractTest {
     Signature signature = signatureList.get(0);
     String signatureId = signature.getId();
     Assert.assertFalse(result.isValid());
-    Assert.assertEquals(3, errors.size());
+    Assert.assertEquals(4, errors.size());
     Assert.assertEquals("(Signature ID: " + signatureId +
         ") - The result of the timestamps validation process is not conclusive!",
-        errors.get(0).toString());
+        errors.get(1).toString());
     Assert.assertEquals("(Signature ID: " + signatureId + ") - Signature has an invalid timestamp",
-        errors.get(2).toString());
+        errors.get(3).toString());
   }
 
   @Test
@@ -752,7 +744,6 @@ public class ValidationTests extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-617")
   public void sameCertAddedTwiceToTSL_containerValidationShouldSucceed() {
     Configuration conf = Configuration.of(Configuration.Mode.PROD);
     conf.setTSL(new TSLCertificateSourceImpl());
@@ -781,7 +772,6 @@ public class ValidationTests extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-617")
   public void testContainerWithSignatureWarningOfTrustedCertificateNotMatchingWithTrustService_warningIsRemoved() {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
     Container container = ContainerBuilder.aContainer().

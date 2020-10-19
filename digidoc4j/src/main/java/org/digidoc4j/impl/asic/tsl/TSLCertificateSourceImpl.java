@@ -10,13 +10,20 @@
 
 package org.digidoc4j.impl.asic.tsl;
 
+import eu.europa.esig.dss.enumerations.KeyUsageBit;
 import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.spi.tsl.Condition;
+import eu.europa.esig.dss.spi.tsl.ConditionForQualifiers;
+import eu.europa.esig.dss.spi.tsl.LOTLInfo;
 import eu.europa.esig.dss.spi.tsl.TLInfo;
+import eu.europa.esig.dss.spi.tsl.TLValidationJobSummary;
 import eu.europa.esig.dss.spi.tsl.TrustProperties;
 import eu.europa.esig.dss.spi.tsl.TrustServiceStatusAndInformationExtensions;
 import eu.europa.esig.dss.spi.tsl.TrustedListsCertificateSource;
 import eu.europa.esig.dss.spi.tsl.builder.TrustServiceProviderBuilder;
 import eu.europa.esig.dss.spi.util.MutableTimeDependentValues;
+import eu.europa.esig.dss.tsl.dto.ParsingCacheDTO;
+import eu.europa.esig.dss.tsl.dto.condition.KeyUsageCondition;
 import eu.europa.esig.dss.validation.process.qualification.EIDASUtils;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -34,19 +41,19 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 /**
  * Certificate source with the purpose of adding trusted certificate(s) manually
  * <p/>
- * PS! When then adding CA/QC certificates manually,
- * note that service info's country code of the certificate
- * must match with at least one of the TLInfo's country code. <br/>
- * TlInfo(s) can be added with {@link #updateTlInfo(String, TLInfo)}
  */
 public class TSLCertificateSourceImpl extends TrustedListsCertificateSource implements TSLCertificateSource {
 
   public static final String OID_TIMESTAMPING = "1.3.6.1.5.5.7.3.8";
+  public static final String FOR_ESIGNATURES = "http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/ForeSignatures";
+  private static final String CUSTOM_LOTL_URL = "user_defined_LOTL";
+  private static final String CUSTOM_TL_URL = "user_defined_TL";
+
 
   private static final Logger logger = LoggerFactory.getLogger(TSLCertificateSourceImpl.class);
 
@@ -65,40 +72,42 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
    * ServiceStatus will be: <br/>
    * Certificate's NotBefore pre Eidas -> http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision <br/>
    * Certificate's NotBefore post Eidas -> http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted <br/>
-   * CountryCode will be EU <br/>
-   * TLInfo for EU will be added automatically when it does not exist
    *
    * @param certificate X509 certificate to be added to the list
    */
   @Override
   public void addTSLCertificate(X509Certificate certificate) {
+
     TrustServiceProviderBuilder trustServiceProviderBuilder = new TrustServiceProviderBuilder();
     trustServiceProviderBuilder.setTerritory("EU");
     trustServiceProviderBuilder.setNames(new HashMap<String, List<String>>() {{
-      put("EN", Collections.singletonList(getCN(certificate)));
+      put("EN", Arrays.asList(getCN(certificate)));
     }});
 
     TrustServiceStatusAndInformationExtensions.TrustServiceStatusAndInformationExtensionsBuilder extensionsBuilder = new TrustServiceStatusAndInformationExtensions.
             TrustServiceStatusAndInformationExtensionsBuilder();
     extensionsBuilder.setNames(new HashMap<String, List<String>>() {{
-      put("EN", Collections.singletonList(getCN(certificate)));
+      put("EN", Arrays.asList(getCN(certificate)));
     }});
+
     extensionsBuilder.setType(getServiceType(certificate));
     extensionsBuilder.setStatus(getStatus(certificate.getNotBefore()));
-    extensionsBuilder.setConditionsForQualifiers(Collections.emptyList());
-    extensionsBuilder.setAdditionalServiceInfoUris(Collections.emptyList());
-    extensionsBuilder.setServiceSupplyPoints(Collections.emptyList());
-    extensionsBuilder.setExpiredCertsRevocationInfo(null);
-    extensionsBuilder.setStartDate(new Date());
-    extensionsBuilder.setEndDate(new Date());
-    TrustServiceStatusAndInformationExtensions statusAndInformationExtensions = extensionsBuilder.build();
+    Condition condition = new KeyUsageCondition(KeyUsageBit.NON_REPUDIATION, true);
 
+    ConditionForQualifiers conditionForQualifiers = new ConditionForQualifiers(condition, Arrays.asList("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD"));
+    extensionsBuilder.setConditionsForQualifiers(Arrays.asList(conditionForQualifiers));
+    extensionsBuilder.setAdditionalServiceInfoUris(Collections.singletonList(FOR_ESIGNATURES));
+    extensionsBuilder.setStartDate(certificate.getNotBefore());
+    extensionsBuilder.setEndDate(null);
+
+    TrustServiceStatusAndInformationExtensions statusAndInformationExtensions = extensionsBuilder.build();
     MutableTimeDependentValues<TrustServiceStatusAndInformationExtensions> statusHistoryList = new MutableTimeDependentValues<>();
     statusHistoryList.addOldest(statusAndInformationExtensions);
 
-    TLInfo tlInfo = new TLInfo(null, null, null, "EU.xml");
-    TrustProperties trustProperties = new TrustProperties(tlInfo.getIdentifier(), trustServiceProviderBuilder.build(), statusHistoryList);
-    super.addCertificate(new CertificateToken(certificate), Collections.singletonList(trustProperties));
+    TrustProperties trustProperties = new TrustProperties(getFirstSuitableTLInfo().getIdentifier(),
+            trustServiceProviderBuilder.build(), statusHistoryList);
+
+    addCertificate(new CertificateToken(certificate), Arrays.asList(trustProperties));
   }
 
   /**
@@ -113,8 +122,36 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
   }
 
   @Override
+  public TLValidationJobSummary getSummary() {
+    if (super.getSummary() == null) {
+      super.setSummary(new TLValidationJobSummary(Arrays.asList(createUserDefinedLOTL()), null));
+    }
+    return super.getSummary();
+  }
+
+  @Override
   public void refresh() {
     logger.warn("Not possible to refresh this certificate source");
+  }
+
+  private TLInfo getFirstSuitableTLInfo() {
+    Optional<TLInfo> tlInfo = this.getSummary().getLOTLInfos().stream()
+            .flatMap(lotlInfo -> lotlInfo.getTLInfos().stream())
+            .filter(tl -> CUSTOM_TL_URL.equals(tl.getUrl()))
+            .findFirst();
+    if (!tlInfo.isPresent()) {
+      this.getSummary().getLOTLInfos().add(createUserDefinedLOTL());
+    }
+    return this.getSummary().getLOTLInfos().get(0).getTLInfos().get(0);
+  }
+
+  private LOTLInfo createUserDefinedLOTL() {
+    ParsingCacheDTO parsingInfoRecord = new ParsingCacheDTO();
+    parsingInfoRecord.setVersion(5);
+    TLInfo tlInfo = new TLInfo(null, parsingInfoRecord, null, CUSTOM_TL_URL);
+    LOTLInfo lotlInfo = new LOTLInfo(null, parsingInfoRecord, null, CUSTOM_LOTL_URL);
+    lotlInfo.setTlInfos(Arrays.asList(tlInfo));
+    return lotlInfo;
   }
 
   private String getCN(X509Certificate certificate) {

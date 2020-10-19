@@ -217,7 +217,6 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-617")
   public void testValidationForBDocDefaultValidation() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.TEST);
     TestTSLUtil.addSkTsaCertificateToTsl(this.configuration);
