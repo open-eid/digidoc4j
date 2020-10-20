@@ -131,7 +131,6 @@ public class TslLoader implements Serializable {
             .and(new XMLOtherTSLPointer())
             .and(new SchemeTerritoryOtherTSLPointer(trustedTerritories))
     );
-    lotlSource.setPivotSupport(true);
 
     return lotlSource;
   }
