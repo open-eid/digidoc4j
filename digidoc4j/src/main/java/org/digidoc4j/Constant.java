@@ -54,7 +54,7 @@ public final class Constant {
   public static class Test {
 
     public static final String TSP_SOURCE = "http://demo.sk.ee/tsa";
-    public static final String TSL_LOCATION = "http://localhost/tl-mp-test-EE.xml";
+    public static final String TSL_LOCATION = "https://open-eid.github.io/test-TL/tl-mp-test-EE.xml";
     public static final String TSL_KEYSTORE_LOCATION = "keystore/test-keystore.jks";
     public static final String VALIDATION_POLICY = "conf/test_constraint.xml";
     public static final String OCSP_SOURCE = "http://demo.sk.ee/ocsp";
