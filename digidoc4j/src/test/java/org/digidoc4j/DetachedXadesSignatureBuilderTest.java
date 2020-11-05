@@ -170,7 +170,6 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-622")
   public void signWithLTAProfile() throws Exception {
     byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
     DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest, "text/plain");
@@ -180,8 +179,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
          .withSignatureToken(pkcs12EccSignatureToken)
          .withSignatureProfile(SignatureProfile.LTA)
          .invokeSigningProcess();
-    assertArchiveTimestampSignature(signature);
-    assertValidSignature(signature);
+    Assert.assertNull(signature);
   }
 
   @Test

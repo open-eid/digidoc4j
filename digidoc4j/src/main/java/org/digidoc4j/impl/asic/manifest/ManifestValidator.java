@@ -1,17 +1,17 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic.manifest;
 
-import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.DomUtils;
+import eu.europa.esig.dss.model.DSSDocument;
 import org.apache.xml.security.signature.Reference;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -79,15 +79,15 @@ public class ManifestValidator {
         ManifestEntry signatureEntry = signatureEntryForFile(fileName, signatureEntries);
         if (signatureEntry != null) {
           errorMessages.add(new ManifestErrorMessage("Manifest file has an entry for file <"
-              + fileName + "> with mimetype <"
-              + manifestEntry.getMimeType() + "> but the signature file for signature " + signatureId
-              + " indicates the mimetype is <" + signatureEntry.getMimeType() + ">", signatureId));
+                  + fileName + "> with mimetype <"
+                  + manifestEntry.getMimeType() + "> but the signature file for signature " + signatureId
+                  + " indicates the mimetype is <" + signatureEntry.getMimeType() + ">", signatureId));
           two.remove(signatureEntry);
         } else {
           errorMessages.add(new ManifestErrorMessage("Manifest file has an entry for file <"
-              + fileName + "> with mimetype <"
-              + manifestEntry.getMimeType() + "> but the signature file for signature " + signatureId
-              + " does not have an entry for this file", signatureId));
+                  + fileName + "> with mimetype <"
+                  + manifestEntry.getMimeType() + "> but the signature file for signature " + signatureId
+                  + " does not have an entry for this file", signatureId));
         }
       }
     }
@@ -95,9 +95,9 @@ public class ManifestValidator {
     if (two.size() > 0 && twoPrim.size() > 0) {
       for (ManifestEntry manifestEntry : two) {
         errorMessages.add(new ManifestErrorMessage("The signature file for signature "
-            + signatureId + " has an entry for file <"
-            + manifestEntry.getFileName() + "> with mimetype <" + manifestEntry.getMimeType()
-            + "> but the manifest file does not have an entry for this file", signatureId));
+                + signatureId + " has an entry for file <"
+                + manifestEntry.getFileName() + "> with mimetype <" + manifestEntry.getMimeType()
+                + "> but the manifest file does not have an entry for this file", signatureId));
       }
     }
 
@@ -138,7 +138,7 @@ public class ManifestValidator {
     errorMessages.addAll(validateFilesInContainer(signatureEntries));
 
     logger.info("Validation of meta data within the manifest file and signature files error count: "
-        + errorMessages.size());
+            + errorMessages.size());
     return errorMessages;
   }
 
@@ -153,7 +153,7 @@ public class ManifestValidator {
       String alterName = fileInContainer.replaceAll("\\ ", "+");
       if (!signatureEntriesFileNames.contains(fileInContainer) && !signatureEntriesFileNames.contains(alterName)) {
         errorMessages.add(new ManifestErrorMessage(String.format("Container contains a file named <%s> which is not "
-            + "found in the signature file", fileInContainer)));
+                + "found in the signature file", fileInContainer)));
       }
     }
     return errorMessages;
@@ -184,13 +184,14 @@ public class ManifestValidator {
 
         Node signatureNode = origin.getDssSignature().getSignatureElement();
         Node node = DomUtils.getNode(signatureNode, "./ds:SignedInfo/ds:Reference[@URI=\""
-            + reference.getURI() + "\"]");
+                + reference.getURI() + "\"]");
         if (node != null) {
           String referenceId = node.getAttributes().getNamedItem("Id").getNodeValue();
+          String xAdESPrefix = origin.getDssSignature().getXAdESPaths().getNamespace().getPrefix();
           mimeTypeString = DomUtils.getValue(signatureNode,
-              "./ds:Object/xades132:QualifyingProperties/xades132:SignedProperties/"
-                  + "xades132:SignedDataObjectProperties/xades132:DataObjectFormat"
-                  + "[@ObjectReference=\"#" + referenceId + "\"]/xades132:MimeType");
+                  "./ds:Object/" + xAdESPrefix + ":QualifyingProperties/" + xAdESPrefix + ":SignedProperties/"
+                          + xAdESPrefix + ":SignedDataObjectProperties/" + xAdESPrefix + ":DataObjectFormat"
+                          + "[@ObjectReference=\"#" + referenceId + "\"]/" + xAdESPrefix + ":MimeType");
         }
 
         // TODO: mimeTypeString == null ? node == null?
@@ -221,7 +222,7 @@ public class ManifestValidator {
     for (DSSDocument detachedContent : detachedContents) {
       String name = detachedContent.getName();
       if (!(MANIFEST_PATH.equals(name) || ("META-INF/".equals(name)) || (MIMETYPE_PATH.equals(name)
-          || signatureFileNames.contains(name)))) {
+              || signatureFileNames.contains(name)))) {
         fileEntries.add(name);
       }
     }

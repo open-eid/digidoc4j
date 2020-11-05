@@ -48,7 +48,11 @@ public final class ResourceUtils {
     } else if (path.startsWith("file:")) {
       path = path.substring("file:".length());
     }
-    return Paths.get(path);
+    Path fullPath = Paths.get(path);
+    if (Files.exists(fullPath)) {
+      return fullPath;
+    }
+    throw new IllegalArgumentException("Invalid path");
   }
 
   private ResourceUtils() {

@@ -29,9 +29,8 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-615")
   public void invalidTimestampMsgIsNotExistForASICE() {
-    Assert.assertEquals(0, this.openContainerByConfiguration(Paths.get(ASICE_LOCATION)).validate().getErrors().size());
+    Assert.assertEquals(1, this.openContainerByConfiguration(Paths.get(ASICE_LOCATION)).validate().getErrors().size());
   }
 
   /*

@@ -1,27 +1,39 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic.xades.validation;
 
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
-
-import java.util.*;
-
+import eu.europa.esig.dss.DomUtils;
+import eu.europa.esig.dss.detailedreport.DetailedReport;
+import eu.europa.esig.dss.diagnostic.DiagnosticData;
+import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.i18n.I18nProvider;
 import eu.europa.esig.dss.i18n.MessageTag;
+import eu.europa.esig.dss.simplereport.SimpleReport;
+import eu.europa.esig.dss.validation.SignaturePolicy;
+import eu.europa.esig.dss.validation.reports.Reports;
 import eu.europa.esig.dss.xades.definition.XAdESPaths;
+import eu.europa.esig.dss.xades.validation.XAdESSignature;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ValidationResult;
-import org.digidoc4j.exceptions.*;
+import org.digidoc4j.exceptions.CertificateRevokedException;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.InvalidOcspNonceException;
+import org.digidoc4j.exceptions.InvalidOcspResponderException;
+import org.digidoc4j.exceptions.InvalidTimestampException;
+import org.digidoc4j.exceptions.MultipleSignedPropertiesException;
+import org.digidoc4j.exceptions.SignedPropertiesMissingException;
+import org.digidoc4j.exceptions.WrongPolicyIdentifierException;
+import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
 import org.digidoc4j.impl.SimpleValidationResult;
 import org.digidoc4j.impl.asic.OcspNonceValidator;
 import org.digidoc4j.impl.asic.OcspResponderValidator;
@@ -31,14 +43,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-import eu.europa.esig.dss.DomUtils;
-import eu.europa.esig.dss.enumerations.Indication;
-import eu.europa.esig.dss.detailedreport.DetailedReport;
-import eu.europa.esig.dss.validation.reports.Reports;
-import eu.europa.esig.dss.simplereport.SimpleReport;
-import eu.europa.esig.dss.diagnostic.DiagnosticData;
-import eu.europa.esig.dss.validation.SignaturePolicy;
-import eu.europa.esig.dss.xades.validation.XAdESSignature;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Signature validator for Xades signatures.
@@ -61,7 +69,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   /**
    * Constructor.
    *
-   * @param signature Signature object for validation
+   * @param signature     Signature object for validation
    * @param configuration configuretion
    */
   public XadesSignatureValidator(XadesSignature signature, Configuration configuration) {
@@ -78,7 +86,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     this.validationReport = validationResult.getReports();
     this.simpleReport = this.getSimpleReport(validationResult.buildSimpleReports());
     this.populateValidationErrors();
-    if (configuration.isFullReportNeeded()){
+    if (configuration.isFullReportNeeded()) {
       FullSimpleReportBuilder detailedReportParser = new FullSimpleReportBuilder(validationReport.getDetailedReport());
       detailedReportParser.addDetailedReportEexeptions(validationErrors, validationWarnings);
     }
@@ -117,8 +125,8 @@ public class XadesSignatureValidator implements SignatureValidator {
   protected boolean isSignaturePolicyImpliedElementPresented() {
     XAdESPaths xAdESPaths = this.getDssSignature().getXAdESPaths();
     Element signaturePolicyImpliedElement = DomUtils.getElement(this.getDssSignature().getSignatureElement(),
-        String.format("%s%s", xAdESPaths.getSignaturePolicyIdentifier(),
-                xAdESPaths.getCurrentSignaturePolicyImplied().replace(".", "")));
+            String.format("%s%s", xAdESPaths.getSignaturePolicyIdentifier(),
+                    xAdESPaths.getCurrentSignaturePolicyImplied().replace(".", "")));
     return signaturePolicyImpliedElement != null;
   }
 
@@ -156,9 +164,10 @@ public class XadesSignatureValidator implements SignatureValidator {
     LOGGER.debug("Extracting policy identifier qualifier validation errors");
     XAdESPaths xAdESPaths = getDssSignature().getXAdESPaths();
     Element signatureElement = getDssSignature().getSignatureElement();
-
+    String xAdESPrefix = xAdESPaths.getNamespace().getPrefix();
     Element element = DomUtils.getElement(signatureElement, xAdESPaths.getSignaturePolicyIdentifier());
-    Element identifier = DomUtils.getElement(element, "./xades132:SignaturePolicyId/xades132:SigPolicyId/xades132:Identifier");
+    Element identifier = DomUtils.getElement(element, "./" + xAdESPrefix + ":SignaturePolicyId/" + xAdESPrefix
+            + ":SigPolicyId/" + xAdESPrefix + ":Identifier");
     String qualifier = identifier.getAttribute("Qualifier");
     if (!StringUtils.equals(XadesSignatureValidator.OIDAS_URN, qualifier)) {
       this.addValidationError(new WrongPolicyIdentifierQualifierException(String.format("Wrong policy identifier qualifier: %s", qualifier)));
