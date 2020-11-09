@@ -141,7 +141,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
-        <slf4j.version>1.7.26</slf4j.version>
+        <slf4j.version>1.7.30</slf4j.version>
         <bouncycastle.version>1.65</bouncycastle.version>
         <javadocOpt>none</javadocOpt>
     </properties>
@@ -166,7 +166,7 @@
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.12</version>
+                <version>1.15</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -187,7 +187,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>3.2.1</version>
                     <executions>
                         <execution>
                             <id>attach-sources</id>
@@ -201,7 +201,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.2.0</version>
                     <executions>
                         <execution>
                             <id>attach-javadocs</id>
@@ -224,7 +224,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.7.9</version>
+                    <version>0.8.6</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -276,6 +276,7 @@
                             <destFile>${project.build.directory}/jacoco-unit.exec</destFile>
                             <dataFile>${project.build.directory}/jacoco-unit.exec</dataFile>
                         </configuration>
+
                         <executions>
                             <execution>
                                 <id>prepare-unit-test-agent</id>
@@ -291,6 +292,16 @@
                                     <goal>merge</goal>
                                     <goal>report</goal>
                                 </goals>
+                                <configuration>
+                                    <fileSets>
+                                        <fileSet>
+                                            <directory>${project.build.directory}</directory>
+                                            <includes>
+                                                <include>*.exec</include>
+                                            </includes>
+                                        </fileSet>
+                                    </fileSets>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -304,7 +315,7 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
-                        <version>5.3.0</version>
+                        <version>6.0.3</version>
                         <configuration>
                             <skipTestScope>false</skipTestScope>
                             <skipDependencyManagement>false</skipDependencyManagement>

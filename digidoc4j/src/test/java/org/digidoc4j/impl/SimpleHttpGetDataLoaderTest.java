@@ -60,6 +60,7 @@ public class SimpleHttpGetDataLoaderTest {
   public WireMockRule instanceRuleHTTPS = new WireMockRule(WireMockConfiguration.wireMockConfig().httpsPort(Options.DYNAMIC_PORT)
           .keystorePath("src/test/resources/testFiles/keystores/server-localhost.jks")
           .keystorePassword("digidoc4j-password")
+          .keyManagerPassword("digidoc4j-password")
           .keystoreType("JKS"));
 
   private Appender<ILoggingEvent> mockedAppender;
