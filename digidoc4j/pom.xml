@@ -472,6 +472,16 @@
                             <goal>merge</goal>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <fileSets>
+                                <fileSet>
+                                    <directory>${project.build.directory}</directory>
+                                    <includes>
+                                        <include>*.exec</include>
+                                    </includes>
+                                </fileSet>
+                            </fileSets>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
