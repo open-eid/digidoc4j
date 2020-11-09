@@ -5,7 +5,7 @@ import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ValidationTests extends AbstractTest {
+public class ValidationTest extends AbstractTest {
 
   @Test
   public void setInvalidOcspResponder() {

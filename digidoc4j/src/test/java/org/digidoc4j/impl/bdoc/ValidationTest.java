@@ -51,7 +51,7 @@ import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
-public class ValidationTests extends AbstractTest {
+public class ValidationTest extends AbstractTest {
 
   public static final Configuration PROD_CONFIGURATION = new Configuration(Configuration.Mode.PROD);
   public static final Configuration PROD_CONFIGURATION_WITH_TEST_POLICY = new Configuration(Configuration.Mode.PROD);
