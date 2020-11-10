@@ -1,20 +1,25 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.signers;
 
-import java.io.IOException;
-import java.security.*;
-import java.security.cert.X509Certificate;
-import java.util.List;
-
+import eu.europa.esig.dss.enumerations.EncryptionAlgorithm;
+import eu.europa.esig.dss.model.SignatureValue;
+import eu.europa.esig.dss.model.ToBeSigned;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.token.AbstractSignatureTokenConnection;
+import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
+import eu.europa.esig.dss.token.KSPrivateKeyEntry;
+import eu.europa.esig.dss.token.PasswordInputCallback;
+import eu.europa.esig.dss.token.Pkcs11SignatureToken;
+import eu.europa.esig.dss.token.PrefilledPasswordCallback;
 import org.apache.commons.lang3.ArrayUtils;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.SignatureToken;
@@ -23,15 +28,13 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.spi.DSSUtils;
-import eu.europa.esig.dss.enumerations.EncryptionAlgorithm;
-import eu.europa.esig.dss.model.SignatureValue;
-import eu.europa.esig.dss.model.ToBeSigned;
-import eu.europa.esig.dss.token.AbstractSignatureTokenConnection;
-import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
-import eu.europa.esig.dss.token.KSPrivateKeyEntry;
-import eu.europa.esig.dss.token.PasswordInputCallback;
-import eu.europa.esig.dss.token.Pkcs11SignatureToken;
+import java.security.InvalidKeyException;
+import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.SignatureException;
+import java.security.cert.X509Certificate;
+import java.util.List;
 
 /**
  * Implements PKCS#11 interface for Smart Cards and hardware tokens.
@@ -49,6 +52,8 @@ import eu.europa.esig.dss.token.Pkcs11SignatureToken;
 public class PKCS11SignatureToken implements SignatureToken {
 
   private static final Logger logger = LoggerFactory.getLogger(PKCS11SignatureToken.class);
+  private static final String EXTRA_PKCS11_CONFIG = "";
+  private static final Integer DEFAULT_SLOT_ID = -1;
   private AbstractSignatureTokenConnection signatureTokenConnection;
   private KSPrivateKeyEntry privateKeyEntry;
   private String label;
@@ -62,7 +67,8 @@ public class PKCS11SignatureToken implements SignatureToken {
    */
   public PKCS11SignatureToken(String pkcs11ModulePath, char[] password, int slotIndex) {
     logger.debug("Initializing PKCS#11 signature token from " + pkcs11ModulePath + " and slot " + slotIndex);
-    signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, new KeyStore.PasswordProtection(password), slotIndex);
+    PasswordInputCallback passwordCallback = new PrefilledPasswordCallback(new KeyStore.PasswordProtection(password));
+    signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, passwordCallback, DEFAULT_SLOT_ID, slotIndex, EXTRA_PKCS11_CONFIG);
     privateKeyEntry = findPrivateKey(X509Cert.KeyUsage.NON_REPUDIATION);
   }
 
@@ -77,7 +83,7 @@ public class PKCS11SignatureToken implements SignatureToken {
    */
   public PKCS11SignatureToken(String pkcs11ModulePath, PasswordInputCallback passwordCallback, int slotIndex) {
     logger.debug("Initializing PKCS#11 signature token with password callback from " + pkcs11ModulePath + " and slot " + slotIndex);
-    signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, passwordCallback, slotIndex);
+    signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, passwordCallback, DEFAULT_SLOT_ID, slotIndex, EXTRA_PKCS11_CONFIG);
     privateKeyEntry = findPrivateKey(X509Cert.KeyUsage.NON_REPUDIATION);
   }
 
@@ -89,33 +95,34 @@ public class PKCS11SignatureToken implements SignatureToken {
    * @param slotIndex        Token slot index, depends on the hardware token.
    * @param label            Label of the keypair in HSM.
    */
-   public PKCS11SignatureToken(String pkcs11ModulePath, char[] password, int slotIndex, String label) {
-     this.label = label;
-     logger.debug("Initializing PKCS#11 signature token from " + pkcs11ModulePath + " and slot " + slotIndex+ " and " +
-         "label " + label);
-     signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, new KeyStore.PasswordProtection(password), slotIndex);
-     privateKeyEntry = findPrivateKey(X509Cert.KeyUsage.NON_REPUDIATION);
-   }
+  public PKCS11SignatureToken(String pkcs11ModulePath, char[] password, int slotIndex, String label) {
+    this.label = label;
+    logger.debug("Initializing PKCS#11 signature token from " + pkcs11ModulePath + " and slot " + slotIndex + " and " +
+            "label " + label);
+    PasswordInputCallback passwordCallback = new PrefilledPasswordCallback(new KeyStore.PasswordProtection(password));
+    signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, passwordCallback, DEFAULT_SLOT_ID, slotIndex, EXTRA_PKCS11_CONFIG);
+    privateKeyEntry = findPrivateKey(X509Cert.KeyUsage.NON_REPUDIATION);
+  }
 
-   /**
-    * Initializes the PKCS#11 token with password callback.
-    * <p/>
-    * This Password Callback is used in order to retrieve the password from the user when accessing the Key Store.
-    *
-    * @param pkcs11ModulePath PKCS#11 module path, depends on your operating system and installed smart card or hardware
-    *                        token library.
-    * @param passwordCallback callback for providing the password for the private key.
-    * @param slotIndex        Token slot index, depends on the hardware token.
-    * @param label            Label of the keypair in HSM.
-    */
-    public PKCS11SignatureToken(String pkcs11ModulePath, PasswordInputCallback passwordCallback, int slotIndex,
-                                String label) {
-      this.label = label;
-      logger.debug("Initializing PKCS#11 signature token with password callback from " + pkcs11ModulePath + " and " +
-          "slot " + slotIndex + " Label " + label);
-      signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, passwordCallback, slotIndex);
-      privateKeyEntry = findPrivateKey(X509Cert.KeyUsage.NON_REPUDIATION);
-    }
+  /**
+   * Initializes the PKCS#11 token with password callback.
+   * <p/>
+   * This Password Callback is used in order to retrieve the password from the user when accessing the Key Store.
+   *
+   * @param pkcs11ModulePath PKCS#11 module path, depends on your operating system and installed smart card or hardware
+   *                         token library.
+   * @param passwordCallback callback for providing the password for the private key.
+   * @param slotIndex        Token slot index, depends on the hardware token.
+   * @param label            Label of the keypair in HSM.
+   */
+  public PKCS11SignatureToken(String pkcs11ModulePath, PasswordInputCallback passwordCallback, int slotIndex,
+                              String label) {
+    this.label = label;
+    logger.debug("Initializing PKCS#11 signature token with password callback from " + pkcs11ModulePath + " and " +
+            "slot " + slotIndex + " Label " + label);
+    signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, passwordCallback, DEFAULT_SLOT_ID, slotIndex, EXTRA_PKCS11_CONFIG);
+    privateKeyEntry = findPrivateKey(X509Cert.KeyUsage.NON_REPUDIATION);
+  }
 
   /**
    * Fetches the private key entries from the hardware token for information purposes.
@@ -133,7 +140,7 @@ public class PKCS11SignatureToken implements SignatureToken {
    * @param keyEntry Private key entry to set
    */
   public void usePrivateKeyEntry(DSSPrivateKeyEntry keyEntry) {
-    this.privateKeyEntry = (KSPrivateKeyEntry)keyEntry;
+    this.privateKeyEntry = (KSPrivateKeyEntry) keyEntry;
   }
 
   @Override
@@ -157,18 +164,18 @@ public class PKCS11SignatureToken implements SignatureToken {
   }
 
   @Override
-  public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign){
-    if (privateKeyEntry != null){
+  public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
+    if (privateKeyEntry != null) {
       String encryptionAlg = privateKeyEntry.getEncryptionAlgorithm().getName();
-      if ("ECDSA".equals(encryptionAlg)){
+      if ("ECDSA".equals(encryptionAlg)) {
         logger.debug("Sign ECDSA");
         return signECDSA(digestAlgorithm, dataToSign);
-      } else if ("RSA".equals(encryptionAlg)){
+      } else if ("RSA".equals(encryptionAlg)) {
         logger.debug("Sign RSA");
         return signRSA(digestAlgorithm, dataToSign);
       }
       throw new TechnicalException("Failed to sign with PKCS#11. Encryption Algorithm should be ECDSA or RSA " +
-          "but actually is : " + encryptionAlg);
+              "but actually is : " + encryptionAlg);
     }
     throw new TechnicalException("privateKeyEntry is null");
   }
@@ -185,7 +192,7 @@ public class PKCS11SignatureToken implements SignatureToken {
       throw new TechnicalException("Failed to sign with PKCS#11: " + e.getMessage(), e);
     }
     /*
-    */
+     */
   }
 
 
