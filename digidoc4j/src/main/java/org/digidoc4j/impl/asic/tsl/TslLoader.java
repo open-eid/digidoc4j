@@ -14,7 +14,6 @@ import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.service.http.commons.FileCacheDataLoader;
 import eu.europa.esig.dss.spi.client.http.DSSFileLoader;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
-import eu.europa.esig.dss.spi.client.http.IgnoreDataLoader;
 import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
 import eu.europa.esig.dss.tsl.alerts.TLAlert;
 import eu.europa.esig.dss.tsl.alerts.detections.TLExpirationDetection;
@@ -129,8 +128,11 @@ public class TslLoader implements Serializable {
 
     lotlSource.setLotlPredicate(new EULOTLOtherTSLPointer()
             .and(new XMLOtherTSLPointer())
-            .and(new SchemeTerritoryOtherTSLPointer(trustedTerritories))
     );
+
+    if (!trustedTerritories.isEmpty()) {
+      lotlSource.setTlPredicate(new SchemeTerritoryOtherTSLPointer(trustedTerritories));
+    }
 
     return lotlSource;
   }
