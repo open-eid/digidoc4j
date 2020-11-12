@@ -1,6 +1,6 @@
 package org.digidoc4j.impl.asic;
 
-import eu.europa.esig.dss.model.FileDocument;
+import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
 import eu.europa.esig.dss.service.http.proxy.ProxyProperties;
@@ -56,7 +56,7 @@ public class DataLoaderDecoratorTest {
     Mockito.doReturn(null).when(configuration).getSupportedSslCipherSuites();
 
     DataLoaderDecorator.decorateWithSslSettings(dataLoader, configuration);
-    Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystore(any(FileDocument.class));
+    Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystore(any(InMemoryDocument.class));
     Mockito.verifyNoMoreInteractions(dataLoader);
   }
 
@@ -69,7 +69,7 @@ public class DataLoaderDecoratorTest {
       Mockito.doReturn(null).when(configuration).getSupportedSslCipherSuitesFor(connectionType);
 
       DataLoaderDecorator.decorateWithSslSettingsFor(connectionType, dataLoader, configuration);
-      Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystore(any(FileDocument.class));
+      Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystore(any(InMemoryDocument.class));
       Mockito.verifyNoMoreInteractions(dataLoader);
 
       Mockito.reset(configuration, dataLoader);
@@ -86,7 +86,7 @@ public class DataLoaderDecoratorTest {
     Mockito.doReturn(null).when(configuration).getSupportedSslCipherSuites();
 
     DataLoaderDecorator.decorateWithSslSettings(dataLoader, configuration);
-    Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystore(any(FileDocument.class));
+    Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystore(any(InMemoryDocument.class));
     Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystoreType("sslKeystoreType");
     Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystorePassword("sslKeystorePassword");
     Mockito.verifyNoMoreInteractions(dataLoader);
@@ -103,7 +103,7 @@ public class DataLoaderDecoratorTest {
       Mockito.doReturn(null).when(configuration).getSupportedSslCipherSuitesFor(connectionType);
 
       DataLoaderDecorator.decorateWithSslSettingsFor(connectionType, dataLoader, configuration);
-      Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystore(any(FileDocument.class));
+      Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystore(any(InMemoryDocument.class));
       Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystoreType("sslKeystoreType");
       Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystorePassword("sslKeystorePassword");
       Mockito.verifyNoMoreInteractions(dataLoader);
@@ -120,7 +120,7 @@ public class DataLoaderDecoratorTest {
     Mockito.doReturn(null).when(configuration).getSupportedSslCipherSuites();
 
     DataLoaderDecorator.decorateWithSslSettings(dataLoader, configuration);
-    Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststore(any(FileDocument.class));
+    Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststore(any(InMemoryDocument.class));
     Mockito.verifyNoMoreInteractions(dataLoader);
   }
 
@@ -133,7 +133,7 @@ public class DataLoaderDecoratorTest {
       Mockito.doReturn(null).when(configuration).getSupportedSslCipherSuitesFor(connectionType);
 
       DataLoaderDecorator.decorateWithSslSettingsFor(connectionType, dataLoader, configuration);
-      Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststore(any(FileDocument.class));
+      Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststore(any(InMemoryDocument.class));
       Mockito.verifyNoMoreInteractions(dataLoader);
 
       Mockito.reset(configuration, dataLoader);
@@ -150,7 +150,7 @@ public class DataLoaderDecoratorTest {
     Mockito.doReturn(null).when(configuration).getSupportedSslCipherSuites();
 
     DataLoaderDecorator.decorateWithSslSettings(dataLoader, configuration);
-    Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststore(any(FileDocument.class));
+    Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststore(any(InMemoryDocument.class));
     Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststoreType("sslTruststoreType");
     Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststorePassword("sslTruststorePassword");
     Mockito.verifyNoMoreInteractions(dataLoader);
@@ -167,7 +167,7 @@ public class DataLoaderDecoratorTest {
       Mockito.doReturn(null).when(configuration).getSupportedSslCipherSuitesFor(connectionType);
 
       DataLoaderDecorator.decorateWithSslSettingsFor(connectionType, dataLoader, configuration);
-      Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststore(any(FileDocument.class));
+      Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststore(any(InMemoryDocument.class));
       Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststoreType("sslTruststoreType");
       Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststorePassword("sslTruststorePassword");
       Mockito.verifyNoMoreInteractions(dataLoader);
@@ -254,11 +254,11 @@ public class DataLoaderDecoratorTest {
 
     DataLoaderDecorator.decorateWithSslSettings(dataLoader, configuration);
 
-    Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystore(any(FileDocument.class));
+    Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystore(any(InMemoryDocument.class));
     Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystoreType("sslKeystoreType");
     Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystorePassword("sslKeystorePassword");
 
-    Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststore(any(FileDocument.class));
+    Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststore(any(InMemoryDocument.class));
     Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststoreType("sslTruststoreType");
     Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststorePassword("sslTruststorePassword");
 
@@ -288,11 +288,11 @@ public class DataLoaderDecoratorTest {
 
       DataLoaderDecorator.decorateWithSslSettingsFor(connectionType, dataLoader, configuration);
 
-      Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystore(any(FileDocument.class));
+      Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystore(any(InMemoryDocument.class));
       Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystoreType("sslKeystoreType");
       Mockito.verify(dataLoader, Mockito.times(1)).setSslKeystorePassword("sslKeystorePassword");
 
-      Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststore(any(FileDocument.class));
+      Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststore(any(InMemoryDocument.class));
       Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststoreType("sslTruststoreType");
       Mockito.verify(dataLoader, Mockito.times(1)).setSslTruststorePassword("sslTruststorePassword");
 

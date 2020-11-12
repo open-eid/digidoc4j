@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl;
 
@@ -67,8 +67,8 @@ public class SkDataLoaderTest extends AbstractTest {
     this.configuration.setHttpProxyHost("cache.elion.ee");
     this.configuration.setHttpProxyPort(8080);
     Container container = ContainerBuilder.aContainer().withConfiguration(this.configuration).
-        withDataFile("src/test/resources/testFiles/helper-files/test.txt", MimeType.TEXT.getMimeTypeString()).
-        build();
+            withDataFile("src/test/resources/testFiles/helper-files/test.txt", MimeType.TEXT.getMimeTypeString()).
+            build();
     Signature signature = this.createSignatureBy(container, SignatureProfile.LT, this.pkcs12SignatureToken);
     Assert.assertTrue(signature.validateSignature().isValid());
   }
@@ -97,10 +97,10 @@ public class SkDataLoaderTest extends AbstractTest {
     this.configuration.setSslTruststoreType("truststore.type");
     this.configuration.setSslTruststorePassword("truststore.password");
     MockSkDataLoader dataLoader = new MockSkDataLoader(this.configuration);
-    Assert.assertEquals("keystore.jks", dataLoader.getSslKeystore().getName());
+    Assert.assertNotNull(dataLoader.getSslKeystore());
     Assert.assertEquals("keystore.type", dataLoader.getSslKeystoreType());
     Assert.assertEquals("keystore.password", dataLoader.getSslKeystorePassword());
-    Assert.assertEquals("truststore.jks", dataLoader.getSslTruststore().getName());
+    Assert.assertNotNull(dataLoader.getSslTruststore());
     Assert.assertEquals("truststore.type", dataLoader.getSslTruststoreType());
     Assert.assertEquals("truststore.password", dataLoader.getSslTruststorePassword());
     Assert.assertTrue(dataLoader.isSslKeystoreTypeSet());
@@ -114,10 +114,10 @@ public class SkDataLoaderTest extends AbstractTest {
     this.configuration.setSslKeystorePath("classpath:testFiles/keystores/keystore.jks");
     this.configuration.setSslTruststorePath("classpath:testFiles/keystores/truststore.jks");
     MockSkDataLoader dataLoader = new MockSkDataLoader(this.configuration);
-    Assert.assertEquals("keystore.jks", dataLoader.getSslKeystore().getName());
+    Assert.assertNotNull(dataLoader.getSslKeystore());
     Assert.assertNull(dataLoader.getSslKeystoreType());
     Assert.assertNull(dataLoader.getSslKeystorePassword());
-    Assert.assertEquals("truststore.jks", dataLoader.getSslTruststore().getName());
+    Assert.assertNotNull(dataLoader.getSslTruststore());
     Assert.assertNull(dataLoader.getSslTruststoreType());
     Assert.assertNull(dataLoader.getSslTruststorePassword());
     Assert.assertFalse(dataLoader.isSslKeystoreTypeSet());

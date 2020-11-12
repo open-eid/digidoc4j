@@ -1,11 +1,11 @@
 package org.digidoc4j.utils;
 
-import org.digidoc4j.impl.asic.DataLoaderDecorator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,26 +33,22 @@ public final class ResourceUtils {
     }
   }
 
-  public static Path getFullPath(String path) {
+  public static InputStream getResource(String path) {
     if (path.startsWith("classpath:")) {
       path = path.substring("classpath:".length());
-      try {
-        URL url = DataLoaderDecorator.class.getClassLoader().getResource(path);
-        if (url == null) {
-          throw new IllegalArgumentException("Invalid path");
-        }
-        return Paths.get(url.toURI());
-      } catch (URISyntaxException e) {
-        throw new IllegalArgumentException("Invalid path");
+      InputStream inputStream = ResourceUtils.class.getClassLoader().getResourceAsStream(path);
+      if (inputStream == null) {
+        throw new IllegalArgumentException("Resource not found: " + path);
       }
+      return inputStream;
     } else if (path.startsWith("file:")) {
       path = path.substring("file:".length());
     }
-    Path fullPath = Paths.get(path);
-    if (Files.exists(fullPath)) {
-      return fullPath;
+    try {
+      return new FileInputStream(path);
+    } catch (FileNotFoundException e) {
+      throw new IllegalArgumentException("Resource not found: " + path);
     }
-    throw new IllegalArgumentException("Invalid path");
   }
 
   private ResourceUtils() {

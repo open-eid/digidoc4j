@@ -3,6 +3,7 @@ package org.digidoc4j.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,36 +41,38 @@ public class ResourceUtilsTest {
   }
 
   @Test
-  public void getFullPathWithClasspathPrefix() {
-    Path path = Paths.get("target/test-classes/logback-test.xml");
-    Assert.assertEquals(path.toAbsolutePath().toString(), ResourceUtils.getFullPath("classpath:logback-test.xml").toString());
+  public void getResourceWithClasspathPrefix() {
+    InputStream inputStream = ResourceUtils.getResource("classpath:testFiles/keystores/truststore.jks");
+    Assert.assertNotNull(inputStream);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void getFullPathWithInvalidClasspathPrefixPath() {
-    ResourceUtils.getFullPath("classpath:test.xml");
+  public void getResourceWithInvalidClasspathPrefixPath() {
+    ResourceUtils.getResource("classpath:test.xml");
   }
 
   @Test
-  public void getFullPathWithFilePrefix() {
-    Path path = Paths.get("target/test-classes/logback-test.xml");
-    Assert.assertEquals(path.toAbsolutePath().toString(), ResourceUtils.getFullPath("file:" + path.toAbsolutePath().toString()).toString());
+  public void getResourceWithFilePrefix() {
+    Path path = Paths.get("target/test-classes/testFiles/keystores/truststore.jks");
+    InputStream inputStream = ResourceUtils.getResource("file:" + path.toAbsolutePath().toString());
+    Assert.assertNotNull(inputStream);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void getFullPathWithInvalidFilePrefix() {
-    ResourceUtils.getFullPath("file:test.xml");
+  public void getResourceWithInvalidFilePrefix() {
+    ResourceUtils.getResource("file:test.xml");
   }
 
   @Test
-  public void getFullPathWithoutPrefix() {
-    Path path = Paths.get("target/test-classes/logback-test.xml");
-    Assert.assertEquals(path.toAbsolutePath().toString(), ResourceUtils.getFullPath(path.toAbsolutePath().toString()).toString());
+  public void getResourceWithoutPrefix() {
+    Path path = Paths.get("target/test-classes/testFiles/keystores/truststore.jks");
+    InputStream inputStream = ResourceUtils.getResource(path.toAbsolutePath().toString());
+    Assert.assertNotNull(inputStream);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void getFullPathWithInvalidPath() {
-    ResourceUtils.getFullPath("test.xml");
+  public void getResourceWithInvalidPath() {
+    ResourceUtils.getResource("test.xml");
   }
-  
+
 }

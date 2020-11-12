@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl.asic;
 
-import eu.europa.esig.dss.model.FileDocument;
+import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
 import eu.europa.esig.dss.service.http.proxy.ProxyProperties;
@@ -20,12 +20,7 @@ import org.digidoc4j.utils.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
-import java.util.Objects;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -133,7 +128,7 @@ public class DataLoaderDecorator {
 
   private static void configureSslKeystore(CommonsDataLoader dataLoader, String sslKeystorePath, String sslKeystoreType, String sslKeystorePassword) {
     if (sslKeystorePath != null) {
-      dataLoader.setSslKeystore(new FileDocument(ResourceUtils.getFullPath(sslKeystorePath).toFile()));
+      dataLoader.setSslKeystore(new InMemoryDocument(ResourceUtils.getResource(sslKeystorePath)));
       if (sslKeystoreType != null) {
         dataLoader.setSslKeystoreType(sslKeystoreType);
       }
@@ -145,7 +140,7 @@ public class DataLoaderDecorator {
 
   private static void configureSslTruststore(CommonsDataLoader dataLoader, String sslTruststorePath, String sslTruststoreType, String sslTruststorePassword) {
     if (sslTruststorePath != null) {
-      dataLoader.setSslTruststore(new FileDocument(ResourceUtils.getFullPath(sslTruststorePath).toFile()));
+      dataLoader.setSslTruststore(new InMemoryDocument(ResourceUtils.getResource(sslTruststorePath)));
       if (sslTruststoreType != null) {
         dataLoader.setSslTruststoreType(sslTruststoreType);
       }
