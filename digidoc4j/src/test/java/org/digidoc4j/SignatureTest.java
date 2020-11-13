@@ -176,7 +176,7 @@ public class SignatureTest extends AbstractTest {
   public void testGetOCSPCertificateForBDoc() throws CertificateEncodingException {
     Signature signature = this.createSignatureBy(Container.DocumentType.BDOC, this.pkcs12SignatureToken);
     byte[] encoded = signature.getOCSPCertificate().getX509Certificate().getEncoded();
-    Assert.assertEquals(Certificates.OCSP_CERTIFICATE, Base64.encodeBase64String(encoded));
+    Assert.assertEquals(Certificates.OCSP_CERTIFICATE_2020, Base64.encodeBase64String(encoded));
   }
 
   @Test
