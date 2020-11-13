@@ -21,6 +21,7 @@ import eu.europa.esig.dss.tsl.alerts.detections.TLSignatureErrorDetection;
 import eu.europa.esig.dss.tsl.alerts.handlers.log.LogTLExpirationAlertHandler;
 import eu.europa.esig.dss.tsl.alerts.handlers.log.LogTLSignatureErrorAlertHandler;
 import eu.europa.esig.dss.tsl.function.EULOTLOtherTSLPointer;
+import eu.europa.esig.dss.tsl.function.EUTLOtherTSLPointer;
 import eu.europa.esig.dss.tsl.function.SchemeTerritoryOtherTSLPointer;
 import eu.europa.esig.dss.tsl.function.XMLOtherTSLPointer;
 import eu.europa.esig.dss.tsl.job.TLValidationJob;
@@ -131,7 +132,9 @@ public class TslLoader implements Serializable {
     );
 
     if (!trustedTerritories.isEmpty()) {
-      lotlSource.setTlPredicate(new SchemeTerritoryOtherTSLPointer(trustedTerritories));
+      lotlSource.setTlPredicate(new SchemeTerritoryOtherTSLPointer(trustedTerritories).and(new EUTLOtherTSLPointer()
+              .and(new XMLOtherTSLPointer()))
+      );
     }
 
     return lotlSource;
