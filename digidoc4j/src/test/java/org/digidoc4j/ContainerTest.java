@@ -74,7 +74,7 @@ public class ContainerTest extends AbstractTest {
         Paths.get("src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc"));
     SignatureValidationResult result = container.validate();
     Assert.assertFalse("Container is valid", result.isValid());
-    Assert.assertEquals("No errors count match", 2, result.getErrors().size());
+    Assert.assertEquals("No errors count match", 1, result.getErrors().size());
   }
 
   @Test
@@ -536,7 +536,7 @@ public class ContainerTest extends AbstractTest {
 
   @Test
   public void testSetConfigurationForBDoc() throws Exception {
-    expectedException.expect(TechnicalException.class);
+    expectedException.expect(TslCertificateSourceInitializationException.class);
     expectedException.expectMessage(Matchers.containsString("Failed to initialize TSL"));
     this.configuration = new Configuration(Configuration.Mode.TEST);
     this.configuration.setTslLocation("pole");

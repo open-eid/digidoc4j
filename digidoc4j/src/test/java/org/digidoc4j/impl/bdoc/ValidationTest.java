@@ -665,7 +665,7 @@ public class ValidationTest extends AbstractTest {
       X509Certificate certificate = DSSUtils.loadCertificate(inputStream).getCertificate();
       certificateSource.addTSLCertificate(certificate);
       certificateSource.addTSLCertificate(DSSUtils
-          .loadCertificate(new FileInputStream("src/test/resources/testFiles/certs/TEST_of_SK_OCSP_RESPONDER_2011_2020.crt"))
+          .loadCertificate(new FileInputStream("src/test/resources/testFiles/certs/TEST_of_SK_OCSP_RESPONDER_2020.der.cer"))
           .getCertificate());
     }
     this.configuration.setTSL(certificateSource);

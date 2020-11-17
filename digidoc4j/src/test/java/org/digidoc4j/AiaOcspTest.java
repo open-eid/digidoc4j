@@ -22,7 +22,7 @@ public class AiaOcspTest extends AbstractTest {
                 .build();
         this.createSignatureBy(container, this.pkcs12SignatureToken);
         assertTrue(container.validate().isValid());
-        assertEquals("EMAILADDRESS=pki@sk.ee, CN=TEST of SK OCSP RESPONDER 2011, OU=OCSP, O=AS Sertifitseerimiskeskus, C=EE", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
+        assertEquals("EMAILADDRESS=pki@sk.ee, CN=TEST of SK OCSP RESPONDER 2020, OU=OCSP, O=AS Sertifitseerimiskeskus, C=EE", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class AiaOcspTest extends AbstractTest {
                 .build();
         this.createSignatureBy(container, SignatureProfile.LT_TM, this.pkcs12SignatureToken);
         assertTrue(container.validate().isValid());
-        assertEquals("EMAILADDRESS=pki@sk.ee, CN=TEST of SK OCSP RESPONDER 2011, OU=OCSP, O=AS Sertifitseerimiskeskus, C=EE", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
+        assertEquals("EMAILADDRESS=pki@sk.ee, CN=TEST of SK OCSP RESPONDER 2020, OU=OCSP, O=AS Sertifitseerimiskeskus, C=EE", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
     }
 
     @Test

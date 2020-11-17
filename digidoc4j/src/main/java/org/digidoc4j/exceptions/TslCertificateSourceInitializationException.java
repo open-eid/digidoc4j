@@ -6,4 +6,8 @@ public class TslCertificateSourceInitializationException extends DigiDoc4JExcept
     super(message, cause);
   }
 
+  public TslCertificateSourceInitializationException(String message) {
+    super(message);
+  }
+
 }

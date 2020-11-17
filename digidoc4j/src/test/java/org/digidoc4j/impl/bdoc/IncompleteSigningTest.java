@@ -13,6 +13,7 @@ import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.exceptions.NetworkException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -128,19 +129,19 @@ public class IncompleteSigningTest extends AbstractTest {
     );
   }
 
-  @Test(expected = TechnicalException.class)
+  @Test(expected = TslCertificateSourceInitializationException.class)
   public void signatureProfileLtTmShouldFailWhenTslCouldNotBeLoaded() {
     setUpTestConfigurationWithEmptyTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
   }
 
-  @Test(expected = TechnicalException.class)
+  @Test(expected = TslCertificateSourceInitializationException.class)
   public void signatureProfileLtShouldFailWhenTslCouldNotBeLoaded() {
     setUpTestConfigurationWithEmptyTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT, pkcs12SignatureToken);
   }
 
-  @Test(expected = TechnicalException.class)
+  @Test(expected = TslCertificateSourceInitializationException.class)
   public void signatureProfileLtaShouldFailWhenTslCouldNotBeLoaded() {
     setUpTestConfigurationWithEmptyTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LTA, pkcs12SignatureToken);
@@ -168,7 +169,7 @@ public class IncompleteSigningTest extends AbstractTest {
     );
   }
 
-  @Test(expected = TechnicalException.class)
+  @Test(expected = TslCertificateSourceInitializationException.class)
   public void signatureProfileLtTmShouldFailWhenTslLoadingFails() {
     setUpTestConfigurationWithFailingTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);

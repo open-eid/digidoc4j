@@ -169,7 +169,7 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
     for (LOTLInfo info : certificateSource.getSummary().getLOTLInfos()) {
       if (CACHE_ERROR_STATUS.equals(info.getDownloadCacheInfo().getStatusName())
               || !info.getParsingCacheInfo().isResultExist()) {
-        throw new TechnicalException("Failed to initialize TSL");
+        throw new TslCertificateSourceInitializationException("Failed to initialize TSL");
       }
     }
   }

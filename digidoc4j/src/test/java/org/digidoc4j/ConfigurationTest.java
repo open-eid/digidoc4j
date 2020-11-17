@@ -213,7 +213,7 @@ public class ConfigurationTest extends AbstractTest {
   public void lotlLoadingFailsWithNoLotlSslCertificateInTruststore() {
     expectedException.expect(TslCertificateSourceInitializationException.class);
     expectedException.expectMessage(Matchers.startsWith("Failed to initialize TSL"));
-    configuration.setSslTruststorePath("testFiles/truststores/empty-truststore.p12");
+    configuration.setSslTruststorePath("classpath:testFiles/truststores/empty-truststore.p12");
     configuration.setSslTruststorePassword("digidoc4j-password");
     configuration.setSslTruststoreType("PKCS12");
     evictTSLCache();
@@ -256,7 +256,7 @@ public class ConfigurationTest extends AbstractTest {
     BDocContainer container = (BDocContainer) ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE)
         .withConfiguration(this.configuration).build();
     container.getConfiguration().getTSL();
-    Assert.assertEquals(12, container.getConfiguration().getTSL().getCertificates().size());
+    Assert.assertEquals(13, container.getConfiguration().getTSL().getCertificates().size());
     try {
       int tenSeconds = 10000;
       String tslHost = "10.0.25.57";
