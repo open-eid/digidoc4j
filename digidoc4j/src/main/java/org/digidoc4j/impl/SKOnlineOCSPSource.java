@@ -203,15 +203,34 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
   private void verifyOCSPResponse(BasicOCSPResp response) throws IOException {
     List<X509CertificateHolder> holders = Arrays.asList(response.getCerts());
     if (CollectionUtils.isNotEmpty(holders)) {
+      boolean hasOcspResponderCert = false;
       for (X509CertificateHolder holder : holders) {
         CertificateToken token = DSSUtils.loadCertificate(holder.getEncoded());
+        if (isOcspResponderCertificate(token)) {
+          hasOcspResponderCert = true;
+        } else {
+          continue;
+        }
         verifyOcspResponderCertificate(token);
         verifyOCSPResponseSignature(token, response);
+      }
+      if(!hasOcspResponderCert) {
+        throw CertificateValidationException.of(CertificateValidationStatus.TECHNICAL,
+            "None of the OCSP response certificates does have 'OCSPSigning' extended key usage");
       }
     } else {
       if (!this.configuration.isTest()) {
         LOGGER.warn("OCSP response signature will not be verified. No response certificates has been found");
       }
+    }
+  }
+
+  protected boolean isOcspResponderCertificate(CertificateToken token) {
+    try {
+      return token.getCertificate().getExtendedKeyUsage() != null && token.getCertificate().getExtendedKeyUsage().contains(OID_OCSP_SIGNING);
+    } catch (CertificateParsingException e) {
+      throw CertificateValidationException.of(CertificateValidationStatus.TECHNICAL,
+          String.format("Error on verifying 'OCSPSigning' extended key usage for OCSP response certificate <%s>", token.getDSSIdAsString()), e);
     }
   }
 
