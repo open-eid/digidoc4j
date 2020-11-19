@@ -20,7 +20,6 @@ import eu.europa.esig.dss.spi.tsl.TrustProperties;
 import eu.europa.esig.dss.spi.tsl.TrustedListsCertificateSource;
 import eu.europa.esig.dss.tsl.job.TLValidationJob;
 import org.digidoc4j.TSLCertificateSource;
-import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,9 +166,10 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
 
   private void validateLotlLoading() {
     for (LOTLInfo info : certificateSource.getSummary().getLOTLInfos()) {
-      if (CACHE_ERROR_STATUS.equals(info.getDownloadCacheInfo().getStatusName())
-              || !info.getParsingCacheInfo().isResultExist()) {
-        throw new TslCertificateSourceInitializationException("Failed to initialize TSL");
+      if (CACHE_ERROR_STATUS.equals(info.getDownloadCacheInfo().getStatusName())) {
+        throw new TslCertificateSourceInitializationException("Failed to download LOTL");
+      } else if (!info.getParsingCacheInfo().isResultExist()) {
+        throw new TslCertificateSourceInitializationException("Failed to parse LOTL");
       }
     }
   }

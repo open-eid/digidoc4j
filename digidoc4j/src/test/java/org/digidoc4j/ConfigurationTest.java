@@ -212,7 +212,7 @@ public class ConfigurationTest extends AbstractTest {
   @Test
   public void lotlLoadingFailsWithNoLotlSslCertificateInTruststore() {
     expectedException.expect(TslCertificateSourceInitializationException.class);
-    expectedException.expectMessage(Matchers.startsWith("Failed to initialize TSL"));
+    expectedException.expectMessage(Matchers.startsWith("Failed to download LOTL"));
     configuration.setSslTruststorePath("classpath:testFiles/truststores/empty-truststore.p12");
     configuration.setSslTruststorePassword("digidoc4j-password");
     configuration.setSslTruststoreType("PKCS12");
