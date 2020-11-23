@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j;
 
@@ -17,16 +17,14 @@ import org.digidoc4j.exceptions.DataFileNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
-import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.digidoc4j.utils.Helper;
-import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -252,19 +250,19 @@ public class ContainerTest extends AbstractTest {
   @Test(expected = NotSupportedException.class)
   public void DDocSignRaw_throwsException() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    container.signRaw(new byte[] {0});
+    container.signRaw(new byte[]{0});
   }
 
   @Test(expected = NotSupportedException.class)
   public void DDocAddRawSignature_throwsException() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    container.addRawSignature(new byte[] {0});
+    container.addRawSignature(new byte[]{0});
   }
 
   @Test(expected = NotSupportedException.class)
   public void DDocAddRawSignatureAsStreamArray_throwsException() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    container.addRawSignature(new ByteArrayInputStream(new byte[] {0}));
+    container.addRawSignature(new ByteArrayInputStream(new byte[]{0}));
   }
 
   @Test(expected = NotSupportedException.class)
@@ -453,9 +451,9 @@ public class ContainerTest extends AbstractTest {
   @Test
   public void testConfigurationIsKeptWithInDDoc() throws Exception {
     DDocContainer container = (DDocContainer) ContainerBuilder.aContainer(Container.DocumentType.DDOC)
-            .withConfiguration(Configuration.getInstance())
-            .fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc")
-            .build();
+        .withConfiguration(Configuration.getInstance())
+        .fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc")
+        .build();
     Assert.assertEquals(Configuration.getInstance(), container.getDDoc4JFacade().getConfiguration());
   }
 
@@ -535,9 +533,8 @@ public class ContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testSetConfigurationForBDoc() throws Exception {
-    expectedException.expect(TslCertificateSourceInitializationException.class);
-    expectedException.expectMessage(Matchers.containsString("Failed to download LOTL"));
+  public void testSetConfigurationForBDoc() {
+    expectedException.expect(OCSPRequestFailedException.class);
     this.configuration = new Configuration(Configuration.Mode.TEST);
     this.configuration.setTslLocation("pole");
     Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).withConfiguration(

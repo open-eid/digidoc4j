@@ -27,6 +27,7 @@ import eu.europa.esig.dss.tsl.function.XMLOtherTSLPointer;
 import eu.europa.esig.dss.tsl.job.TLValidationJob;
 import eu.europa.esig.dss.tsl.source.LOTLSource;
 import eu.europa.esig.dss.tsl.sync.AcceptAllStrategy;
+import eu.europa.esig.dss.tsl.sync.ExpirationAndSignatureCheckStrategy;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.Configuration;
@@ -99,13 +100,13 @@ public class TslLoader implements Serializable {
     LOTLSource lotlSource = createLOTLSource();
     job.setListOfTrustedListSources(lotlSource);
     job.setTrustedListCertificateSource(this.tslCertificateSource);
-    job.setSynchronizationStrategy(new AcceptAllStrategy());
+    job.setSynchronizationStrategy(new ExpirationAndSignatureCheckStrategy());
 
     job.setTLAlerts(Arrays.asList(tlSigningAlert(), tlExpirationDetection()));
 
     return job;
   }
-
+  
   public TLAlert tlSigningAlert() {
     TLSignatureErrorDetection signingDetection = new TLSignatureErrorDetection();
     LogTLSignatureErrorAlertHandler handler = new LogTLSignatureErrorAlertHandler();

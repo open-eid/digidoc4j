@@ -210,14 +210,14 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void lotlLoadingFailsWithNoLotlSslCertificateInTruststore() {
-    expectedException.expect(TslCertificateSourceInitializationException.class);
-    expectedException.expectMessage(Matchers.startsWith("Failed to download LOTL"));
+  public void lotlLoadingWithNoLotlSslCertificateInTruststore() {
     configuration.setSslTruststorePath("classpath:testFiles/truststores/empty-truststore.p12");
     configuration.setSslTruststorePassword("digidoc4j-password");
     configuration.setSslTruststoreType("PKCS12");
     evictTSLCache();
     configuration.getTSL().refresh();
+    ValidationResult validationResult = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/valid_prod_bdoc_eid.bdoc", configuration).validate();
+    Assert.assertTrue(validationResult.getErrors().stream().anyMatch(e -> "The certificate chain for signature is not trusted, it does not contain a trust anchor.".equals(e.getMessage())));
   }
 
   @Test
@@ -272,24 +272,26 @@ public class ConfigurationTest extends AbstractTest {
     }
   }
 
-  @Test(expected = DigiDoc4JException.class)
-  public void TSLFileNotFoundThrowsException() {
+  @Test
+  public void TSLFileNotFoundThrowsNoException() {
     this.configuration.setTslLocation("file:test-tsl/NotExisting.xml");
     BDocContainer container = (BDocContainer) ContainerBuilder.
         aContainer(BDOC_CONTAINER_TYPE).
         withConfiguration(this.configuration).
         build();
     container.getConfiguration().getTSL().refresh();
+    Assert.assertEquals(0, this.configuration.getTSL().getCertificates().size());
   }
 
-  @Test(expected = DigiDoc4JException.class)
-  public void TSLConnectionFailureThrowsException() {
+  @Test
+  public void TSLConnectionFailureThrowsNoException() {
     this.configuration.setTslLocation("http://127.0.0.1/tsl/incorrect.xml");
     BDocContainer container = (BDocContainer) ContainerBuilder.
         aContainer(BDOC_CONTAINER_TYPE).
         withConfiguration(this.configuration).
         build();
     container.getConfiguration().getTSL().refresh();
+    Assert.assertEquals(0, this.configuration.getTSL().getCertificates().size());
   }
 
   @Test

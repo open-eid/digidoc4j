@@ -129,19 +129,19 @@ public class IncompleteSigningTest extends AbstractTest {
     );
   }
 
-  @Test(expected = TslCertificateSourceInitializationException.class)
+  @Test(expected = OCSPRequestFailedException.class)
   public void signatureProfileLtTmShouldFailWhenTslCouldNotBeLoaded() {
     setUpTestConfigurationWithEmptyTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
   }
 
-  @Test(expected = TslCertificateSourceInitializationException.class)
+  @Test(expected = OCSPRequestFailedException.class)
   public void signatureProfileLtShouldFailWhenTslCouldNotBeLoaded() {
     setUpTestConfigurationWithEmptyTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT, pkcs12SignatureToken);
   }
 
-  @Test(expected = TslCertificateSourceInitializationException.class)
+  @Test(expected = OCSPRequestFailedException.class)
   public void signatureProfileLtaShouldFailWhenTslCouldNotBeLoaded() {
     setUpTestConfigurationWithEmptyTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LTA, pkcs12SignatureToken);
@@ -169,7 +169,7 @@ public class IncompleteSigningTest extends AbstractTest {
     );
   }
 
-  @Test(expected = TslCertificateSourceInitializationException.class)
+  @Test(expected = OCSPRequestFailedException.class)
   public void signatureProfileLtTmShouldFailWhenTslLoadingFails() {
     setUpTestConfigurationWithFailingTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);

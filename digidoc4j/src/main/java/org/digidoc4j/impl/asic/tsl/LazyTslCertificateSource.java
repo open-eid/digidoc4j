@@ -154,23 +154,12 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
       this.populateTsl();
       LOGGER.debug("Refreshing TSL");
       this.tlValidationJob.onlineRefresh();
-      this.validateLotlLoading();
       this.lastCacheReloadingTime = new Date().getTime();
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("Finished refreshing TSL, cache expires at {}", this.getNextCacheExpirationDate());
       }
     } catch (DSSException e) {
       throw new TslCertificateSourceInitializationException("Failed to initialize TSL: " + e.getMessage(), e);
-    }
-  }
-
-  private void validateLotlLoading() {
-    for (LOTLInfo info : certificateSource.getSummary().getLOTLInfos()) {
-      if (CACHE_ERROR_STATUS.equals(info.getDownloadCacheInfo().getStatusName())) {
-        throw new TslCertificateSourceInitializationException("Failed to download LOTL");
-      } else if (!info.getParsingCacheInfo().isResultExist()) {
-        throw new TslCertificateSourceInitializationException("Failed to parse LOTL");
-      }
     }
   }
 
