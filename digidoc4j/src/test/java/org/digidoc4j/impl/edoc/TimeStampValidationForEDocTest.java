@@ -23,9 +23,9 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
   public void timestampAfterOcspResponseTimeShouldResultInInvalidContainerForEDOC() {
     ContainerValidationResult validationResult = this.openContainerByConfiguration(Paths.get(EDOC_LOCATION)).validate();
     Assert.assertFalse("Signature should be invalid if timestamp was taken after OCSP", validationResult.isValid());
-    Assert.assertEquals(4, validationResult.getErrors().size());
+    Assert.assertEquals(2, validationResult.getErrors().size());
     Assert.assertTrue("Validation result should contain " + TimestampAfterOCSPResponseTimeException.class.getSimpleName(),
-            validationResult.getErrors().get(3) instanceof TimestampAfterOCSPResponseTimeException);
+            validationResult.getErrors().get(1) instanceof TimestampAfterOCSPResponseTimeException);
   }
 
   @Test

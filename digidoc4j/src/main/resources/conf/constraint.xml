@@ -374,7 +374,7 @@
         <Recognition Level="FAIL"/>
         <Signature Level="FAIL"/>
         <NotExpired Level="FAIL"/>
-        <RevocationDataAvailable Level="FAIL"/>
+        <RevocationDataAvailable Level="INFORM"/>
         <RevocationDataNextUpdatePresent Level="WARN"/>
         <RevocationDataFreshness Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
