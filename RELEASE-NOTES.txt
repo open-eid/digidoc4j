@@ -1,5 +1,20 @@
 DigiDoc4J Java library release notes
 ------------------------------------
+Release 4.1.0-RC.1
+------------------
+Summary of the major changes since 4.0.3
+------------------------------------------
+* Started to use DSS version 5.7 (sd-dss.5.7.d4j.1), previously used DSS 5.5 - BouncyCastle version 1.65 is recommended. Check changes in DSS here: https://github.com/esig/dss/releases
+* Upgrade of dependencies
+* Upgrade of TSL TLS truststores
+* Failure to load or validate LOTL is only loged. No exception is thrown.
+* LOTL and TSL are kept and used in memory until their nextUpdate expiration. Resolves problem where TSL is not available at refresh.
+* Removed OCSP RevocationDataAvailable parameter from default constraint.
+* Only qualifed TimeStamps are accepted in validation (QTST identifier must be present in TSL).
+* Deleted unnecessary Intellij project files
+* Removed ability to create hashcode LTA signatures
+* New default test OCSP responder - TEST of SK OCSP RESPONDER 2020
+* Changed TSLCertificateSource interface
 
 Release 4.0.3
 ------------------
