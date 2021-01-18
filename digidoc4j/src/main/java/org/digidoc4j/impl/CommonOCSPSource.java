@@ -36,6 +36,7 @@ import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
+import java.util.Date;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
@@ -97,7 +98,8 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
   }
 
   @Override
-  protected void verifyOcspResponderCertificate(CertificateToken token) {
+  protected void verifyOcspResponderCertificate(CertificateToken token, Date producedAt) {
+    verifyValidityDate(token, producedAt);
     TSLCertificateSource certificateSource = getConfiguration().getTSL();
 
     if (!certificateSource.isTrusted(token)

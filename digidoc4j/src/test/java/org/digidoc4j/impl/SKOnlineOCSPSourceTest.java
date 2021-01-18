@@ -8,7 +8,7 @@
  * Version 2.1, February 1999
  */
 
-package org.digidoc4j.impl.bdoc.ocsp;
+package org.digidoc4j.impl;
 
 import eu.europa.esig.dss.enumerations.CertificateStatus;
 import eu.europa.esig.dss.model.DSSException;
@@ -17,17 +17,25 @@ import eu.europa.esig.dss.spi.x509.CertificateSource;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPToken;
 import org.bouncycastle.asn1.ocsp.OCSPResponseStatus;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.jce.X509Principal;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.util.encoders.Base64;
+import org.bouncycastle.x509.X509V3CertificateGenerator;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.ServiceType;
-import org.digidoc4j.exceptions.CertificateValidationException;
+import org.digidoc4j.exceptions.*;
 import org.digidoc4j.exceptions.CertificateValidationException.CertificateValidationStatus;
-import org.digidoc4j.exceptions.ServiceAccessDeniedException;
-import org.digidoc4j.exceptions.ServiceUnavailableException;
-import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.CommonOCSPCertificateSource;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.SkOCSPDataLoader;
@@ -38,12 +46,15 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.security.auth.x500.X500Principal;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.security.Security;
+import java.security.*;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.junit.Assert.assertEquals;
@@ -57,6 +68,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SKOnlineOCSPSourceTest extends AbstractTest {
 
+  private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
   private X509Certificate issuerCert;
 
   @Mock
@@ -105,8 +117,8 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
 
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource()
-          .withConfiguration(configuration)
-          .build();
+            .withConfiguration(configuration)
+            .build();
     try {
       ocspSource.getRevocationToken(new CertificateToken(subjectCertificate), issuerCertificateToken);
       fail("Expected to throw CertificateValidationException");
@@ -126,8 +138,8 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
     configuration.setOCSPAccessCertificatePassword("test".toCharArray());
 
     SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource()
-          .withConfiguration(configuration)
-          .build();
+            .withConfiguration(configuration)
+            .build();
 
     CommonOCSPCertificateSource certificateSource = new CommonOCSPCertificateSource();
     certificateSource.addCertificate(new CertificateToken(openX509Certificate(Paths.get("src/test/resources/testFiles/certs/TESTofEECertificationCentreRootCA.crt"))));
@@ -305,6 +317,36 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
+  public void getOCSPToken_ocspCertificateExpired() throws Exception {
+    this.expectedException.expect(CertificateValidationException.class);
+    this.expectedException.expectMessage("OCSP response certificate <C-E83A008AF341579A76367AF41CDD371F7F35E949220FC4621A3F2596A73D1D05> is expired or not yet valid");
+
+    X509Certificate subjectCertificate = openX509Certificate(Paths.get("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer"));
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource()
+            .withConfiguration(configuration)
+            .build();
+
+    Date producedAt = this.dateFormat.parse("08.09.2024");
+    ocspSource.verifyOcspResponderCertificate(new CertificateToken(subjectCertificate), producedAt);
+  }
+
+  @Test
+  public void getOCSPToken_ocspCertificateNotYetValid() throws Exception {
+    this.expectedException.expect(CertificateValidationException.class);
+    this.expectedException.expectMessage("OCSP response certificate <C-E83A008AF341579A76367AF41CDD371F7F35E949220FC4621A3F2596A73D1D05> is expired or not yet valid");
+
+    X509Certificate subjectCertificate = openX509Certificate(Paths.get("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer"));
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource()
+            .withConfiguration(configuration)
+            .build();
+
+    Date producedAt = this.dateFormat.parse("06.03.2011");
+    ocspSource.verifyOcspResponderCertificate(new CertificateToken(subjectCertificate), producedAt);
+  }
+
+  @Test
   public void getOCSPToken_anyDSSExceptionRethrownAsTechnicalException() {
     expectedException.expectMessage("OCSP request failed");
     expectedException.expect(TechnicalException.class);
@@ -333,13 +375,13 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
     Security.addProvider(new BouncyCastleProvider());
     this.configuration = Configuration.of(TEST);
     this.issuerCert = this.openX509Certificate(
-        Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt")); //Any certificate will do
+            Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt")); //Any certificate will do
   }
 
   private SKOnlineOCSPSource constructOCSPSource() {
     return (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource()
-          .withConfiguration(configuration)
-          .build();
+            .withConfiguration(configuration)
+            .build();
   }
 
   private CertificateToken getIssuerCertificateToken(X509Certificate subjectCertificate, CertificateSource certificateSource) throws CertificateEncodingException {

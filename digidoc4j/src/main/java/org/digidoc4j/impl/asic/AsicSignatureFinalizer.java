@@ -27,6 +27,7 @@ import org.digidoc4j.SignatureContainerMatcherValidator;
 import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.X509Cert;
+import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
@@ -108,6 +109,7 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
       signature = signatureOpener.open(signatureWrapper);
     }
     validateOcspResponse(signature.getOrigin());
+    validateTimestampResponse(signature.getOrigin());
     LOGGER.info("Signing asic successfully completed");
     return signature;
   }
@@ -136,10 +138,10 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
 
   private void setOcspSource(byte[] signatureValueBytes) {
     SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().
-          withSignatureProfile(this.signatureParameters.getSignatureProfile()).
-              withSignatureValue(signatureValueBytes).
-              withConfiguration(configuration).
-              build();
+            withSignatureProfile(this.signatureParameters.getSignatureProfile()).
+            withSignatureValue(signatureValueBytes).
+            withConfiguration(configuration).
+            build();
     this.facade.setOcspSource(ocspSource);
   }
 
@@ -164,6 +166,16 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
     if (ocspResponses == null || ocspResponses.isEmpty()) {
       LOGGER.error("Signature does not contain OCSP response");
       throw new OCSPRequestFailedException(xadesSignature.getId());
+    }
+  }
+
+  private void validateTimestampResponse(XadesSignature signature) {
+    if (signature.getTimeStampCreationTime() == null) {
+      return;
+    }
+    if (!signature.getTimeStampTokenCertificate().isValid(signature.getTimeStampCreationTime())) {
+      throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNTRUSTED,
+              "Timestamp response certificate is expired or not yet valid");
     }
   }
 

@@ -56,6 +56,7 @@ import java.security.KeyStore;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -211,12 +212,12 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
         } else {
           continue;
         }
-        verifyOcspResponderCertificate(token);
+        verifyOcspResponderCertificate(token, response.getProducedAt());
         verifyOCSPResponseSignature(token, response);
       }
-      if(!hasOcspResponderCert) {
+      if (!hasOcspResponderCert) {
         throw CertificateValidationException.of(CertificateValidationStatus.TECHNICAL,
-            "None of the OCSP response certificates does have 'OCSPSigning' extended key usage");
+                "None of the OCSP response certificates does have 'OCSPSigning' extended key usage");
       }
     } else {
       if (!this.configuration.isTest()) {
@@ -230,11 +231,12 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
       return token.getCertificate().getExtendedKeyUsage() != null && token.getCertificate().getExtendedKeyUsage().contains(OID_OCSP_SIGNING);
     } catch (CertificateParsingException e) {
       throw CertificateValidationException.of(CertificateValidationStatus.TECHNICAL,
-          String.format("Error on verifying 'OCSPSigning' extended key usage for OCSP response certificate <%s>", token.getDSSIdAsString()), e);
+              String.format("Error on verifying 'OCSPSigning' extended key usage for OCSP response certificate <%s>", token.getDSSIdAsString()), e);
     }
   }
 
-  protected void verifyOcspResponderCertificate(CertificateToken token) {
+  protected void verifyOcspResponderCertificate(CertificateToken token, Date producedAt) {
+    verifyValidityDate(token, producedAt);
     if (!configuration.getTSL().isTrusted(token)) {
       throw CertificateValidationException.of(CertificateValidationStatus.UNTRUSTED,
               String.format("OCSP response certificate <%s> match is not found in TSL", token.getDSSIdAsString()));
@@ -247,6 +249,15 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     } catch (CertificateParsingException e) {
       throw CertificateValidationException.of(CertificateValidationStatus.TECHNICAL,
               String.format("Error on verifying 'OCSPSigning' extended key usage for OCSP response certificate <%s>", token.getDSSIdAsString()), e);
+    }
+  }
+
+  protected void verifyValidityDate(CertificateToken token, Date producedAt) {
+    X509Certificate x509Certificate = token.getCertificate();
+    if (x509Certificate.getNotAfter().before(producedAt)
+            || x509Certificate.getNotBefore().after(producedAt)) {
+      throw CertificateValidationException.of(CertificateValidationStatus.UNTRUSTED,
+              String.format("OCSP response certificate <%s> is expired or not yet valid", token.getDSSIdAsString()));
     }
   }
 
