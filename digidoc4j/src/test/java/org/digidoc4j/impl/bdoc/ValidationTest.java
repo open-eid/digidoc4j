@@ -156,6 +156,17 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  public void signaturePolicyIsPolicyImplied(){
+    Container container = ContainerOpener
+            .open("src/test/resources/testFiles/valid-containers/policyImplied.asice",
+                    this.configuration);
+    SignatureValidationResult validationResult = container.validate();
+    Assert.assertTrue(validationResult.isValid());
+    Assert.assertEquals(1, validationResult.getWarnings().size());
+    Assert.assertEquals("Signature created with implied policy, additional conditions may apply!", validationResult.getWarnings().get(0).getMessage());
+  }
+
+  @Test
   public void containerFileContainsExtraFile() {
     Container container = ContainerOpener
         .open("src/test/resources/testFiles/invalid-containers/KS-18_lisatudfail.4.asice",
