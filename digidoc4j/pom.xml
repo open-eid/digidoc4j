@@ -25,7 +25,7 @@
         <logback-classic.version>1.2.3</logback-classic.version>
         <junit.version>4.13.1</junit.version>
         <dss.groupId>org.digidoc4j.dss</dss.groupId>
-        <dss.version>5.7.d4j.1</dss.version>
+        <dss.version>5.7.d4j.2</dss.version>
         <dss.util.build>${project.build.directory}/build/util</dss.util.build>
         <dss.util.lib>${project.build.directory}/library/util</dss.util.lib>
         <dss.zip.lib>${project.build.directory}/library/zip</dss.zip.lib>
