@@ -11,6 +11,7 @@
 package org.digidoc4j.impl.asic;
 
 import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.InMemoryDocument;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
@@ -53,6 +54,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -522,6 +524,10 @@ public abstract class AsicContainer implements Container {
       String name = dataFile.getName();
       if (StringUtils.equals(fileName, name)) {
         removeDataFileFromContainer(dataFile);
+        dataFilesHaveChanged = true;
+        if (!isNewContainer()) {
+          removeExistingFileFromContainer(AsicManifest.XML_PATH);
+        }
         LOGGER.info("Data file named '{}' has been removed", fileName);
         return;
       }
@@ -536,6 +542,10 @@ public abstract class AsicContainer implements Container {
     boolean wasRemovalSuccessful = removeDataFileFromContainer(file);
     if (!wasRemovalSuccessful) {
       throw new DataFileNotFoundException(file.getName());
+    }
+    dataFilesHaveChanged = true;
+    if (!isNewContainer()) {
+      removeExistingFileFromContainer(AsicManifest.XML_PATH);
     }
     LOGGER.info("Data file named '{}' has been removed", file.getName());
   }
