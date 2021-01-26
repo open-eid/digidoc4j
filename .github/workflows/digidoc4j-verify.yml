@@ -23,4 +23,6 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
       - name: Build with Maven
+        env:
+          TZ: Europe/Helsinki
         run: mvn clean verify -q -"Dgpg.skip"
