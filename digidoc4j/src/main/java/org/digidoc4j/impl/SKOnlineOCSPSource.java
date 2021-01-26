@@ -117,7 +117,7 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     if (getConfiguration() != null) {
       return getConfiguration().getOcspSource();
     }
-    return Constant.Test.OCSP_SOURCE;
+    throw new ConfigurationException("Configuration needed for OCSP request");
   }
 
   /*
