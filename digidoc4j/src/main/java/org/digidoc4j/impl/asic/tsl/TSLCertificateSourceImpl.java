@@ -163,7 +163,7 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
   private String getServiceType(X509Certificate certificate) {
     try {
       List<String> extendedKeyUsage = certificate.getExtendedKeyUsage();
-      if (extendedKeyUsage != null) {
+      if (extendedKeyUsage != null && certificate.getBasicConstraints() == -1) {
         if (extendedKeyUsage.contains(SKOnlineOCSPSource.OID_OCSP_SIGNING)) {
           return "http://uri.etsi.org/TrstSvc/Svctype/Certstatus/OCSP/QC";
         }
