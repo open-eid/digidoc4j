@@ -91,11 +91,11 @@ public class SignatureBuilderTest extends AbstractTest {
     Container container = this.createNonEmptyContainer();
     DataToSign dataToSign = TestDataBuilderUtil.buildDataToSign(container, "S0");
     Signature signature = TestDataBuilderUtil.makeSignature(container, dataToSign);
-    this.assertSignatureIsValid(signature);
+    this.assertSignatureIsValid(signature, SignatureProfile.LT);
     DataToSign dataToSign2 = TestDataBuilderUtil.buildDataToSign(container, "S1");
     Signature signature2 = TestDataBuilderUtil.makeSignature(container, dataToSign2);
-    this.assertSignatureIsValid(signature2);
-    container.saveAsFile(this.getFileBy("bdoc"));
+    this.assertSignatureIsValid(signature2, SignatureProfile.LT);
+    container.saveAsFile(this.getFileBy("asice"));
   }
 
   @Test
@@ -108,7 +108,7 @@ public class SignatureBuilderTest extends AbstractTest {
     container.addSignature(signature);
     Assert.assertTrue(signature.validateSignature().isValid());
     container.saveAsFile(this.getFileBy("bdoc"));
-    this.assertSignatureIsValid(signature);
+    this.assertSignatureIsValid(signature, SignatureProfile.LT_TM);
     Assert.assertEquals("Tallinn", signature.getCity());
     Assert.assertEquals("Harjumaa", signature.getStateOrProvince());
     Assert.assertEquals("13456", signature.getPostalCode());
@@ -897,9 +897,9 @@ public class SignatureBuilderTest extends AbstractTest {
     return SignatureBuilder.aSignature(container).openAdESSignature(signatureBytes);
   }
 
-  private void assertSignatureIsValid(Signature signature) {
+  private void assertSignatureIsValid(Signature signature, SignatureProfile expectedSignatureProfile) {
     Assert.assertNotNull(signature.getOCSPResponseCreationTime());
-    Assert.assertEquals(SignatureProfile.LT_TM, signature.getProfile());
+    Assert.assertEquals(expectedSignatureProfile, signature.getProfile());
     Assert.assertNotNull(signature.getClaimedSigningTime());
     Assert.assertNotNull(signature.getAdESSignature());
     Assert.assertTrue(signature.getAdESSignature().length > 1);

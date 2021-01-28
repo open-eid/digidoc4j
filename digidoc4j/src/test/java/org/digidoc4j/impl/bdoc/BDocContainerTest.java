@@ -1026,7 +1026,7 @@ public class BDocContainerTest extends AbstractTest {
     signaturePolicy.setQualifier(qualifier);
     signaturePolicy.setDigestAlgorithm(digestAlgorithm);
     signaturePolicy.setSpuri(spuri);
-    Container container = ContainerBuilder.aContainer().build();
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).build();
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     Signature signature = SignatureBuilder.aSignature(container).withOwnSignaturePolicy(signaturePolicy).
         withSignatureDigestAlgorithm(DigestAlgorithm.SHA224).withSignatureToken(this.pkcs12SignatureToken).
@@ -1045,7 +1045,7 @@ public class BDocContainerTest extends AbstractTest {
 
   @Test
   public void containerWithSignaturePolicyByDefault() throws Exception {
-    Container container = ContainerBuilder.aContainer().build();
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).build();
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     Signature signature = SignatureBuilder.aSignature(container).withSignatureDigestAlgorithm(DigestAlgorithm.SHA224).
         withSignatureToken(this.pkcs12SignatureToken).withSignatureProfile(SignatureProfile.LT_TM).invokeSigning();

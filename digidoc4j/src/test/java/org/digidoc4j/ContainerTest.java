@@ -593,7 +593,7 @@ public class ContainerTest extends AbstractTest {
   public void constructorWithConfigurationParameter() throws Exception {
     Container container = ContainerBuilder.aContainer().
         withConfiguration(Configuration.getInstance()).build();
-    Assert.assertEquals("BDOC", container.getType());
+    Assert.assertEquals("ASICE", container.getType());
   }
 
   @Test

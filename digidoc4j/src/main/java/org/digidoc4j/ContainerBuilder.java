@@ -71,12 +71,12 @@ public abstract class ContainerBuilder {
   private DataFile timeStampToken;
 
   /**
-   * Create a new BDoc container builder.
+   * Create a new ASICE container builder.
    *
-   * @return builder for creating or opening a BDOC(ASICE) container.
+   * @return builder for creating or opening a ASICE container.
    */
   public static ContainerBuilder aContainer() {
-    return aContainer(Container.DocumentType.BDOC);
+    return aContainer(Container.DocumentType.ASICE);
   }
 
   /**

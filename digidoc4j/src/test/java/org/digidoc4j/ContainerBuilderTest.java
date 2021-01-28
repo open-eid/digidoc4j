@@ -15,6 +15,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.test.CustomConfiguration;
@@ -42,7 +43,7 @@ public class ContainerBuilderTest extends AbstractTest {
   public void buildEmptyContainer() throws Exception {
     ContainerBuilder builder = ContainerBuilder.aContainer();
     Container container = builder.build();
-    Assert.assertEquals("BDOC", container.getType());
+    Assert.assertEquals("ASICE", container.getType());
     Assert.assertTrue(container.getDataFiles().isEmpty());
     Assert.assertTrue(container.getSignatures().isEmpty());
   }
@@ -56,7 +57,7 @@ public class ContainerBuilderTest extends AbstractTest {
   public void buildBDocContainer() throws Exception {
     this.configuration = new Configuration(Configuration.Mode.TEST);
     this.configuration.setTspSource("test-value");
-    Container container = ContainerBuilder.aContainer().withConfiguration(this.configuration).build();
+    Container container = ContainerBuilder.aContainer(BDOC).withConfiguration(this.configuration).build();
     BDocContainer bDocContainer = (BDocContainer) container;
     Assert.assertEquals("BDOC", container.getType());
     Assert.assertEquals("test-value", bDocContainer.getConfiguration().getTspSource());
@@ -167,7 +168,7 @@ public class ContainerBuilderTest extends AbstractTest {
 
   @Test
   public void overrideExistingBDocContainerImplementation() throws Exception {
-    ContainerBuilder.setContainerImplementation("BDOC", CustomContainer.class);
+    ContainerBuilder.setContainerImplementation("ASICE", CustomContainer.class);
     Container container = ContainerBuilder.aContainer().build();
     Assert.assertEquals("TEST-FORMAT", container.getType());
   }
@@ -184,10 +185,10 @@ public class ContainerBuilderTest extends AbstractTest {
 
   @Test
   public void clearCustomContainerImplementations_shouldUseDefaultContainerImplementation() throws Exception {
-    ContainerBuilder.setContainerImplementation("BDOC", BDocContainer.class);
+    ContainerBuilder.setContainerImplementation("ASICE", AsicEContainer.class);
     ContainerBuilder.removeCustomContainerImplementations();
     Container container = ContainerBuilder.aContainer().build();
-    Assert.assertEquals("BDOC", container.getType());
+    Assert.assertEquals("ASICE", container.getType());
   }
 
   @Test

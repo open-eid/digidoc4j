@@ -12,6 +12,7 @@ package org.digidoc4j.impl.bdoc;
 
 import org.apache.xml.security.signature.Reference;
 import org.digidoc4j.*;
+import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
@@ -61,7 +62,7 @@ public class UriEncodingTest extends AbstractTest {
   private void signAndAssert(String fileName, String expectedEncoding) {
     Signature signature = sign(fileName);
     Assert.assertTrue(signature.validateSignature().isValid());
-    List<Reference> referencesInSignature = ((BDocSignature) signature).getOrigin().getReferences();
+    List<Reference> referencesInSignature = ((AsicESignature) signature).getOrigin().getReferences();
     Assert.assertEquals(expectedEncoding, referencesInSignature.get(0).getURI());
   }
 
