@@ -6,7 +6,11 @@ name: Digidoc4j CI with Maven
 on:
   push:
     branches:
-      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - master
       - develop
 
 jobs:
