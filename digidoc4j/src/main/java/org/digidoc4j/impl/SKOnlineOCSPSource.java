@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl;
 
+import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.enumerations.CertificateStatus;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.model.DSSException;
@@ -17,11 +18,13 @@ import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.DSSRevocationUtils;
 import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.spi.x509.ResponderId;
 import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPToken;
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
 import eu.europa.esig.dss.token.KSPrivateKeyEntry;
 import eu.europa.esig.dss.token.Pkcs12SignatureToken;
+import eu.europa.esig.dss.utils.Utils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
@@ -201,13 +204,14 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     }
   }
 
-  private void verifyOCSPResponse(BasicOCSPResp response) throws IOException {
+  protected void verifyOCSPResponse(BasicOCSPResp response) throws IOException {
+    ResponderId responderId = DSSRevocationUtils.getDSSResponderId(response.getResponderId());
     List<X509CertificateHolder> holders = Arrays.asList(response.getCerts());
     if (CollectionUtils.isNotEmpty(holders)) {
       boolean hasOcspResponderCert = false;
       for (X509CertificateHolder holder : holders) {
         CertificateToken token = DSSUtils.loadCertificate(holder.getEncoded());
-        if (isOcspResponderCertificate(token)) {
+        if (responderId.isRelatedToCertificate(token)) {
           hasOcspResponderCert = true;
         } else {
           continue;
@@ -217,21 +221,12 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
       }
       if (!hasOcspResponderCert) {
         throw CertificateValidationException.of(CertificateValidationStatus.TECHNICAL,
-                "None of the OCSP response certificates does have 'OCSPSigning' extended key usage");
+                "OCSP responderId is not related to any certificates");
       }
     } else {
       if (!this.configuration.isTest()) {
         LOGGER.warn("OCSP response signature will not be verified. No response certificates has been found");
       }
-    }
-  }
-
-  protected boolean isOcspResponderCertificate(CertificateToken token) {
-    try {
-      return token.getCertificate().getExtendedKeyUsage() != null && token.getCertificate().getExtendedKeyUsage().contains(OID_OCSP_SIGNING);
-    } catch (CertificateParsingException e) {
-      throw CertificateValidationException.of(CertificateValidationStatus.TECHNICAL,
-              String.format("Error on verifying 'OCSPSigning' extended key usage for OCSP response certificate <%s>", token.getDSSIdAsString()), e);
     }
   }
 
