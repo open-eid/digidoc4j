@@ -24,12 +24,14 @@ import org.bouncycastle.asn1.DLSequence;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
+import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -38,7 +40,8 @@ import java.util.Set;
 public class OcspNonceValidator {
 
   private static final Logger logger = LoggerFactory.getLogger(OcspNonceValidator.class);
-
+  private static final List<String> ALL_TM_POLICIES = Arrays.asList("1.3.6.1.4.1.10015.1000.2.10.10", "1.3.6.1.4.1.10015.1000.3.1.1",
+          "1.3.6.1.4.1.10015.1000.3.2.1", "1.3.6.1.4.1.10015.1000.3.2.3");
   private XAdESSignature signature;
   private BasicOCSPResp ocspResponse;
 
@@ -59,6 +62,10 @@ public class OcspNonceValidator {
    */
   public boolean isValid() {
     if (signature.getPolicyId() == null) {
+      return true;
+    }
+    String policyIdentifier = Helper.getIdentifier(signature.getPolicyId().getIdentifier());
+    if (!ALL_TM_POLICIES.contains(policyIdentifier)) {
       return true;
     }
     if (ocspResponse == null) {

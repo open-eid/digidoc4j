@@ -11,11 +11,13 @@
 package org.digidoc4j;
 
 import org.digidoc4j.test.TestAssert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class LibraryInteroperabilityTest extends AbstractTest {
 
   @Test
+  @Ignore("DD4J-672")
   public void verifySignatureWithDigiDoc4j_BC_unsafe_integer_by_default() {
     Container container = ContainerBuilder.aContainer().
         fromExistingFile("src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc").

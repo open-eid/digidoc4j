@@ -138,15 +138,25 @@ public class XadesSignatureValidator implements SignatureValidator {
     LOGGER.debug("Extracting policy validation errors");
     XAdESSignature dssSignature = this.getDssSignature();
     SignaturePolicy policy = dssSignature.getPolicyId();
-    if (policy != null && dssSignature.getSignatureTimestamps().isEmpty()) {
+    if (policy == null) {
+      return;
+    }
+    addPolicyImpliedWarning();
+    if (dssSignature.getSignatureTimestamps().isEmpty()) {
       String policyIdentifier = Helper.getIdentifier(policy.getIdentifier());
       if (!StringUtils.equals(XadesSignatureValidator.TM_POLICY, policyIdentifier)) {
         this.addValidationError(new WrongPolicyIdentifierException(String.format("Wrong policy identifier: %s", policyIdentifier)));
       } else {
         this.addPolicyIdentifierQualifierValidationErrors();
       }
-    } else if (policy != null && !dssSignature.getSignatureTimestamps().isEmpty()) {
+    } else if (!dssSignature.getSignatureTimestamps().isEmpty()) {
       LOGGER.debug("Signature profile is not LT_TM, but has defined policy");
+    }
+  }
+
+  private void addPolicyImpliedWarning() {
+    if (isSignaturePolicyImpliedElementPresented()) {
+      this.addValidationWarning(new WrongPolicyIdentifierException("Signature created with implied policy, additional conditions may apply!"));
     }
   }
 
