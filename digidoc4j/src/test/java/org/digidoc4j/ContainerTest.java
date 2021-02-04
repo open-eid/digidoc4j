@@ -12,6 +12,7 @@ package org.digidoc4j;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.DataFileNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -20,6 +21,8 @@ import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocContainerBuilder;
+import org.digidoc4j.impl.asic.manifest.AsicManifest;
 import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.test.TestAssert;
@@ -34,10 +37,13 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.security.cert.CertificateEncodingException;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class ContainerTest extends AbstractTest {
 
@@ -132,6 +138,32 @@ public class ContainerTest extends AbstractTest {
     Assert.assertEquals(1, dataFiles.size());
     Assert.assertEquals("test.txt", dataFiles.get(0).getName());
     Assert.assertEquals("text/plain", dataFiles.get(0).getMediaType());
+  }
+
+  @Test
+  public void removeDataFileRemovesFileFromManifest() throws IOException {
+    Container nonEmptyContainer = this.createNonEmptyContainer();
+    Container container = BDocContainerBuilder
+            .aContainer()
+            .fromStream(nonEmptyContainer.saveAsStream())
+            .withConfiguration(configuration)
+            .build();
+
+    container.removeDataFile(container.getDataFiles().get(0));
+
+    InputStream inputStream = container.saveAsStream();
+    boolean manifestVerified = false;
+    try (ZipInputStream zis = new ZipInputStream(inputStream)) {
+      ZipEntry zipEntry;
+      while ((zipEntry = zis.getNextEntry()) != null) {
+        if (zipEntry.getName().equals(AsicManifest.XML_PATH)) {
+          manifestVerified = true;
+          String manifestContent = IOUtils.toString(zis, StandardCharsets.UTF_8);
+          Assert.assertFalse(manifestContent.contains("<manifest:file-entry manifest:full-path=\"junit"));
+        }
+      }
+      Assert.assertTrue(manifestVerified);
+    }
   }
 
   @Test(expected = DataFileNotFoundException.class)
@@ -561,7 +593,7 @@ public class ContainerTest extends AbstractTest {
   public void constructorWithConfigurationParameter() throws Exception {
     Container container = ContainerBuilder.aContainer().
         withConfiguration(Configuration.getInstance()).build();
-    Assert.assertEquals("BDOC", container.getType());
+    Assert.assertEquals("ASICE", container.getType());
   }
 
   @Test

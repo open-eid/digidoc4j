@@ -102,6 +102,20 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  public void validCAServiceTypeIdentification() {
+    this.configuration = Configuration.of(Configuration.Mode.PROD);
+    TSLCertificateSource source = this.configuration.getTSL();
+    Container container = ContainerBuilder.aContainer().
+            fromExistingFile("src/test/resources/testFiles/valid-containers/valid-asice.asice").
+            withConfiguration(this.configuration).build();
+    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/TEST_of_ESTEID-SK_2015.pem.crt"), source);
+    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer"), source);
+    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/DEMO_OF_SK_TSA_2014.cer"), source);
+    ContainerValidationResult result = container.validate();
+    Assert.assertTrue(result.isValid());
+  }
+
+  @Test
   public void testValidateBeforeAndAfterContainerChange() {
     Container container = this.createNonEmptyContainer();
     this.createSignatureBy(container, this.pkcs12SignatureToken);

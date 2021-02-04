@@ -230,7 +230,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected Container createNonEmptyContainerByConfiguration() {
-    return ContainerBuilder.aContainer().withConfiguration(this.configuration)
+    return ContainerBuilder.aContainer(BDOC).withConfiguration(this.configuration)
         .withDataFile(this.createTemporaryFileBy("TOP SECRET").getPath(), "text/plain").build();
   }
 

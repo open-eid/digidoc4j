@@ -49,7 +49,7 @@ public class TestDataBuilderUtil {
   }
 
   public static Container createContainerWithFile(String dataFilePath, String mimeType) {
-    return ContainerBuilder.aContainer().withConfiguration(new Configuration(Configuration.Mode.TEST)).
+    return ContainerBuilder.aContainer(Container.DocumentType.BDOC).withConfiguration(new Configuration(Configuration.Mode.TEST)).
         withDataFile(dataFilePath, mimeType).build();
   }
 
@@ -96,7 +96,7 @@ public class TestDataBuilderUtil {
 
   private static SignatureBuilder prepareDataToSign(Container container) {
     return SignatureBuilder.aSignature(container).withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
-        withSignatureProfile(SignatureProfile.LT_TM).withSigningCertificate(TestSigningUtil.getSigningCertificate());
+        withSignatureProfile(SignatureProfile.LT).withSigningCertificate(TestSigningUtil.getSigningCertificate());
   }
 
   public static File createTestFile(TemporaryFolder testFolder) throws IOException {
