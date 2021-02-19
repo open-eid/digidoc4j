@@ -147,7 +147,7 @@ public class DataToSignSerializationTest extends AbstractTest {
     );
 
     for (Container container : containers) {
-      Signature signature = finalizeAndValidateContainerSignature(container, 40000);
+      Signature signature = finalizeAndValidateContainerSignature(container, 80000);
       if (!container.getType().equalsIgnoreCase(Container.DocumentType.ASICS.name())) {
         container.addSignature(signature);
       }
@@ -165,7 +165,7 @@ public class DataToSignSerializationTest extends AbstractTest {
     );
 
     for (Container container: containers) {
-      Signature signature = finalizeAndValidateContainerSignature(container, 40000);
+      Signature signature = finalizeAndValidateContainerSignature(container, 80000);
       if (!container.getType().equalsIgnoreCase(Container.DocumentType.ASICS.name())) {
         container.addSignature(signature);
       }
@@ -247,6 +247,7 @@ public class DataToSignSerializationTest extends AbstractTest {
    */
   private Signature finalizeAndValidateSignature(DataToSign dataToSign, int dataFilesCount, int dataToSignAdditionalWeightInBytes) {
     byte[] dataToSignSerialized = SerializationUtils.serialize(dataToSign);
+
     assertTrue(dataToSignAdditionalWeightInBytes + 20000 > dataToSignSerialized.length);
     assertTrue(DATA_TO_SIGN_DIGEST_EXPECTED_CEILING_SIZE * dataFilesCount > dataToSign.getDataToSign().length);
 
