@@ -835,6 +835,20 @@ public class ValidationTest extends AbstractTest {
     TestAssert.assertContainerIsValid(container);
   }
 
+  @Test
+  public void container_withExpiredAIAOCSP_LT_shouldBeInvalid() {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/esteid2018signerAiaOcspLT.asice");
+    ContainerValidationResult validationResult = container.validate();
+    Assert.assertEquals(2, validationResult.getErrors().size());
+  }
+
+  @Test
+  public void container_withExpiredAIAOCSP_LTA_shouldBeInvalid() {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/esteid2018signerAiaOcspLTA.asice");
+    ContainerValidationResult validationResult = container.validate();
+    Assert.assertEquals(2, validationResult.getErrors().size());
+  }
+
   /*
    * RESTRICTED METHODS
    */
