@@ -12,6 +12,7 @@ package org.digidoc4j;
 
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -19,6 +20,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class ContainerOpenerTest extends AbstractTest {
@@ -178,6 +180,35 @@ public class ContainerOpenerTest extends AbstractTest {
   @Test
   public void testSignatureXMLContainsTrailingContent() {
     ContainerOpener.open("src/test/resources/testFiles/valid-containers/signature_xml_contains_trailing_content.bdoc");
+  }
+
+  @Test
+  public void containerOpener_fileWithZipBomb() {
+    this.expectedException.expect(TechnicalException.class);
+    this.expectedException.expectMessage("Zip Bomb detected in the ZIP container. Validation is interrupted.");
+    ContainerOpener.open("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc");
+  }
+
+  @Test
+  public void containerOpener_fileWithZipBomb_fileCachedInMemory() {
+    this.expectedException.expect(TechnicalException.class);
+    this.expectedException.expectMessage("Zip Bomb detected in the ZIP container. Validation is interrupted.");
+    configuration.setMaxFileSizeCachedInMemoryInMB(1);
+    ContainerOpener.open("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc");
+  }
+
+  @Test
+  public void containerOpener_streamWithZipBomb() throws FileNotFoundException {
+    this.expectedException.expect(TechnicalException.class);
+    this.expectedException.expectMessage("Zip Bomb detected in the ZIP container. Validation is interrupted.");
+    ContainerOpener.open(new FileInputStream("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc"), this.configuration);
+  }
+
+  @Test
+  public void containerOpener_streamWithZipBomb_fileCachedInMemory() throws FileNotFoundException {
+    this.expectedException.expectMessage("Zip Bomb detected in the ZIP container. Validation is interrupted.");
+    configuration.setMaxFileSizeCachedInMemoryInMB(1);
+    ContainerOpener.open(new FileInputStream("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc"), this.configuration);
   }
 
   /*

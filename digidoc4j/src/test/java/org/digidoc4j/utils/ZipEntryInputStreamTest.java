@@ -21,7 +21,7 @@ public class ZipEntryInputStreamTest {
 
     @Before
     public void setUp() {
-        zipEntryInputStream = new ZipEntryInputStream(zipInputStream);
+        zipEntryInputStream = new ZipEntryInputStream(zipInputStream, null);
         Mockito.verifyZeroInteractions(zipInputStream);
     }
 
