@@ -14,6 +14,21 @@ import java.nio.file.Paths;
 public class CertificateValidatorBuilderTest extends AbstractTest {
 
   @Test
+  public void findOnlyOneIssuerWhenCNAreSame() throws Exception {
+    CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(this.configuration).build();
+    validator.getCertificateSource().addCertificate(new CertificateToken(this.openX509Certificate(Paths.get
+        ("src/test/resources/testFiles/certs/sameCN_first.crt"))));
+    validator.getCertificateSource().addCertificate(new CertificateToken(this.openX509Certificate(Paths.get
+        ("src/test/resources/testFiles/certs/sameCN_second.crt"))));
+    try {
+      validator.validate(this.openX509Certificate(Paths.get("src/test/resources/testFiles/certs/sameCN_first_child.crt")));
+    } catch (CertificateValidationException e) {
+      Assert.assertEquals("Not equals", CertificateValidationException.CertificateValidationStatus.UNKNOWN, e
+          .getCertificateStatus());
+    }
+  }
+
+  @Test
   public void testCertificateStatusGood() {
     CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(this.configuration).build();
     validator.getCertificateSource().addCertificate(new CertificateToken(this.openX509Certificate(Paths.get
@@ -83,7 +98,7 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
   public void testLoadingOCSPIntermediateCertificatesFromCustomLocation() {
     ExtendedCertificateSource source = CertificateValidatorBuilder.getDefaultCertificateSource();
     source.importFromPath(Paths.get("src/test/resources/testFiles/certs"));
-    Assert.assertEquals("Not equals", 10, source.getCertificates().size());
+    Assert.assertEquals("Not equals", 13, source.getCertificates().size());
   }
 
   /*
