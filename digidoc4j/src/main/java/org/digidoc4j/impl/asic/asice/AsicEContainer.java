@@ -157,7 +157,7 @@ public class AsicEContainer extends AsicContainer {
 
   @Override
   public void save(OutputStream out) {
-    writeAsicContainer(new AsicContainerCreator(out));
+    writeAsicContainer(new AsicContainerCreator(out, getConfiguration()));
   }
 
   @Override

@@ -23,6 +23,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
@@ -49,11 +50,14 @@ public class AsicContainerCreator {
   private final ZipOutputStream zipOutputStream;
   private final OutputStream outputStream;
   private String zipComment;
+  private Configuration configuration;
 
   /**
    * @param outputStream stream
+   * @param configuration
    */
-  public AsicContainerCreator(OutputStream outputStream) {
+  public AsicContainerCreator(OutputStream outputStream, Configuration configuration) {
+    this.configuration = configuration;
     this.outputStream = outputStream;
     this.zipOutputStream = new ZipOutputStream(outputStream, CHARSET);
   }
@@ -65,7 +69,7 @@ public class AsicContainerCreator {
     } catch (IOException e) {
       handleIOException("Unable to finish creating asic ZIP container", e);
     } finally {
-      Helper.deleteTmpFiles();
+      Helper.deleteTmpFiles(configuration.getTempFileMaxAge());
     }
   }
 

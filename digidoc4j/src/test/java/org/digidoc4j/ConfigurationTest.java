@@ -1138,6 +1138,24 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
+  public void getDefaultTempFileMaxAge() throws Exception {
+    Assert.assertEquals(86400000, this.configuration.getTempFileMaxAge());
+  }
+
+  @Test
+  public void loadTempFileMaxAgeFromFile() throws Exception {
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_temp_file_max_age.yaml");
+    Assert.assertEquals(60, this.configuration.getTempFileMaxAge());
+  }
+
+  @Test
+  public void setTempFileMaxAgeFromCode(){
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_temp_file_max_age.yaml");
+    this.configuration.setTempFileMaxAge(1000);
+    Assert.assertEquals(1000, this.configuration.getTempFileMaxAge());
+  }
+
+  @Test
   public void getDefaultConnectionTimeout() throws Exception {
     Assert.assertEquals(1000, this.configuration.getConnectionTimeout());
     Assert.assertEquals(1000, this.configuration.getSocketTimeout());

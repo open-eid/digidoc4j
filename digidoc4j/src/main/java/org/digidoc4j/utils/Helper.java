@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.utils;
 
@@ -230,8 +230,8 @@ public final class Helper {
    */
   public static <T> void serialize(T object, File file) {
     try (
-            FileOutputStream fileOut = new FileOutputStream(file);
-            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+        FileOutputStream fileOut = new FileOutputStream(file);
+        ObjectOutputStream out = new ObjectOutputStream(fileOut);
     ) {
       out.writeObject(object);
       out.flush();
@@ -259,8 +259,8 @@ public final class Helper {
    */
   public static <T> T deserializer(File file) {
     try (
-            FileInputStream fileIn = new FileInputStream(file);
-            ObjectInputStream in = new ObjectInputStream(fileIn);
+        FileInputStream fileIn = new FileInputStream(file);
+        ObjectInputStream in = new ObjectInputStream(fileIn);
     ) {
       T object = (T) in.readObject();
       return object;
@@ -412,15 +412,14 @@ public final class Helper {
   /**
    * delete tmp files from temp folder created by StreamDocument
    */
-  public static void deleteTmpFiles() {
+  public static void deleteTmpFiles(long allowedAge) {
     File dir = new File(System.getProperty("java.io.tmpdir"));
-    FilenameFilter filenameFilter = new FilenameFilter() {
-      @Override
-      public boolean accept(File dir, String name) {
-        return name.toLowerCase().startsWith("digidoc4j") && name.toLowerCase().endsWith(".tmp");
-      }
-    };
+    FilenameFilter filenameFilter = (dir1, name) -> name.toLowerCase().startsWith("digidoc4j")
+        && name.toLowerCase().endsWith(".tmp");
     for (File f : dir.listFiles(filenameFilter)) {
+      if (System.currentTimeMillis() - f.lastModified() < allowedAge) {
+        continue;
+      }
       if (!f.delete()) {
         f.deleteOnExit();
       }
@@ -491,7 +490,7 @@ public final class Helper {
             }
             for (ZipEntry entry : entries) {
               try (InputStream inputStream = zipFile.getInputStream(entry); OutputStream outputStream = new
-                      FileOutputStream(Paths.get(outputFolder.getPath(), new File(entry.getName()).getName()).toFile())) {
+                  FileOutputStream(Paths.get(outputFolder.getPath(), new File(entry.getName()).getName()).toFile())) {
                 IOUtils.copy(inputStream, outputStream);
               }
             }
