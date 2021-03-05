@@ -125,6 +125,11 @@ public class PKCS12SignatureToken implements SignatureToken {
     return signature.getValue();
   }
 
+  @Override
+  public void close() {
+    signatureTokenConnection.close();
+  }
+
   /**
    * Returns key entry alias in keyStore.
    */

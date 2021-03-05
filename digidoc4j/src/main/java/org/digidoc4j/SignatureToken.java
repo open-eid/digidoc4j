@@ -33,4 +33,5 @@ public interface SignatureToken {
    */
   byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign);
 
+  void close();
 }

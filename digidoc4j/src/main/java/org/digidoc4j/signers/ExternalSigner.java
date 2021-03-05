@@ -35,4 +35,9 @@ public abstract class ExternalSigner implements SignatureToken {
     return this.signingCertificate;
   }
 
+  @Override
+  public void close(){
+    //Do nothing
+  }
+
 }
