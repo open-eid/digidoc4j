@@ -216,25 +216,11 @@ public class ManifestValidator {
 
   private List<String> getFilesInContainer() {
     List<String> fileEntries = new ArrayList<>();
-
-    List<String> signatureFileNames = getSignatureFileNames();
-
     for (DSSDocument detachedContent : detachedContents) {
       String name = detachedContent.getName();
-      if (!(MANIFEST_PATH.equals(name) || ("META-INF/".equals(name)) || (MIMETYPE_PATH.equals(name)
-              || signatureFileNames.contains(name)))) {
-        fileEntries.add(name);
-      }
+      fileEntries.add(name);
     }
     return fileEntries;
   }
 
-  private List<String> getSignatureFileNames() {
-    List<String> signatureFileNames = new ArrayList<>();
-    for (Signature signature : signatures) {
-      String signatureFileName = "META-INF/signature" + signature.getId().toLowerCase() + ".xml";
-      signatureFileNames.add(signatureFileName);
-    }
-    return signatureFileNames;
-  }
 }

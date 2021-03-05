@@ -152,10 +152,9 @@ public class StreamDocumentTest extends AbstractTest {
     File dir = new File(System.getProperty("java.io.tmpdir"));
     FilenameFilter filenameFilter = (dir1, name) -> name.toLowerCase().startsWith("digidoc4j")
         && name.toLowerCase().endsWith(".tmp");
-    int initialCount = dir.listFiles(filenameFilter).length;
     Helper.deleteTmpFiles(10000000);
     int count = dir.listFiles(filenameFilter).length;
-    Assert.assertEquals(initialCount, count);
+    Assert.assertTrue(count >= 1);
     Helper.deleteTmpFiles(0);
     count = dir.listFiles(filenameFilter).length;
     Assert.assertEquals(0, count);
