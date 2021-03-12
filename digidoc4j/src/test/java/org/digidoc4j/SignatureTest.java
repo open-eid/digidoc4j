@@ -318,7 +318,7 @@ public class SignatureTest extends AbstractTest {
   @Test
   public void testGetNonceForBDoc() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
-    String nonce =  Base64.encodeBase64String(container.getSignatures().get(0).getOCSPNonce());
+    String nonce = Base64.encodeBase64String(container.getSignatures().get(0).getOCSPNonce());
     Assert.assertEquals("MDEwDQYJYIZIAWUDBAIBBQAEIGYrFuVObKYFoA8P22TxZ8knTH4dLASQ2hEG5ejvV1gK", nonce);
   }
 
@@ -428,27 +428,12 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-469")
-  public void checkCertificateSSCDSupport() {
+  public void certificateContainsNotSupportedTssQcQualifier() {
     this.configuration = new Configuration(Configuration.Mode.PROD);
-    TslManager tslManager = new TslManager(this.configuration);
-    TSLCertificateSource certificateSource = tslManager.getTsl();
-    this.configuration.setTSL(certificateSource);
-    DSSDocument document = new FileDocument(
-        "src/test/resources/prodFiles/invalid-containers/edoc2_lv-eId_sha256.edoc");
-    SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
-    SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
-    OCSPSource ocspSource = OCSPSourceBuilder.anOcspSource().withConfiguration(this.configuration).build();
-    verifier.setOcspSource(ocspSource);
-    verifier.setTrustedCertSource(this.configuration.getTSL());
-    verifier.setDataLoader(new CommonsDataLoader());
-    validator.setCertificateVerifier(verifier);
-    Reports reports = validator.validateDocument();
-    boolean isValid = true;
-    for (String signatureId : reports.getSimpleReport().getSignatureIdList()) {
-      isValid = isValid && reports.getSimpleReport().isValid(signatureId);
-    }
-    Assert.assertTrue(isValid);
+    Container container = this.openContainerByConfiguration(
+        Paths.get("src/test/resources/prodFiles/invalid-containers/edoc2_lv-eId_sha256.edoc"),
+        this.configuration);
+    Assert.assertFalse(container.validate().isValid());
   }
 
   @Test
