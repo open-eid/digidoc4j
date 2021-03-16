@@ -18,6 +18,7 @@ import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.model.MimeType;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidDataFileException;
@@ -27,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -168,7 +168,7 @@ public class DataFile implements Serializable {
    */
   public String getName() {
     String documentName = document.getName();
-    String name = new File(documentName).getName();
+    String name = FilenameUtils.getName(documentName);
     logger.trace("File name: for document " + documentName + " is " + name);
     return name;
   }

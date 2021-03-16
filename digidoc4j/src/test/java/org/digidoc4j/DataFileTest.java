@@ -10,18 +10,18 @@
 
 package org.digidoc4j;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.test.MockDataFile;
-import org.junit.Assert;
-import org.junit.Test;
+import java.util.function.Function;
 
 public class DataFileTest extends AbstractTest {
 
@@ -34,7 +34,7 @@ public class DataFileTest extends AbstractTest {
 
   @Test
   public void testGetFileSizeForInMemoryDocument() {
-    Assert.assertEquals(2, new MockDataFile(new byte[]{1, 2}, "fileName", "text/plain").getFileSize());
+    Assert.assertEquals(2, new DataFile(new byte[]{1, 2}, "fileName", "text/plain").getFileSize());
   }
 
   @Test
@@ -111,6 +111,11 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
+  public void testInMemoryDocumentFileNameEscaping() {
+    testFileNameEscaping(fileName -> new DataFile(new byte[]{0x041}, fileName, "text/plain"));
+  }
+
+  @Test
   public void testGetBytes() throws Exception {
     DataFile dataFile = new DataFile(new byte[]{0x041}, "suura.txt", "text/plain");
     Assert.assertArrayEquals(new byte[]{0x041}, dataFile.getBytes());
@@ -137,6 +142,25 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
+  public void testGetFileNameForStreamedFile() throws Exception {
+    try (ByteArrayInputStream stream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
+      DataFile dataFile = new DataFile(stream, "test.txt", "text/plain");
+      Assert.assertEquals("test.txt", dataFile.getName());
+    }
+  }
+
+  @Test
+  public void testFileNameEscapingForStreamedFile() {
+    testFileNameEscaping(fileName -> {
+      try (ByteArrayInputStream stream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
+        return new DataFile(stream, fileName, "text/plain");
+      } catch (IOException e) {
+        throw new IllegalStateException("Failed to open stream", e);
+      }
+    });
+  }
+
+  @Test
   public void calculateSizeForStreamedFile() throws Exception {
     try (ByteArrayInputStream stream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
       DataFile dataFile = new DataFile(stream, "test.txt", "text/plain");
@@ -157,6 +181,23 @@ public class DataFileTest extends AbstractTest {
   @Override
   protected void before() {
     this.dataFile = new DataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+  }
+
+  private static void testFileNameEscaping(Function<String, DataFile> dataFileFactory) {
+    String fileName = "file-name.ext";
+    DataFile dataFile;
+
+    dataFile = dataFileFactory.apply(fileName);
+    Assert.assertEquals(fileName, dataFile.getName());
+
+    dataFile = dataFileFactory.apply(String.format("dir%s%s", File.separator, fileName));
+    Assert.assertEquals(fileName, dataFile.getName());
+
+    dataFile = dataFileFactory.apply(String.format("..%s%s", File.separator, fileName));
+    Assert.assertEquals(fileName, dataFile.getName());
+
+    dataFile = dataFileFactory.apply(String.format("..%s..%sdir%s..%s%s", File.separator, File.separator, File.separator, File.separator, fileName));
+    Assert.assertEquals(fileName, dataFile.getName());
   }
 
 }
