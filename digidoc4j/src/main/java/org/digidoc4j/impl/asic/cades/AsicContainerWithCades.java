@@ -1,15 +1,14 @@
-package org.digidoc4j.impl.pades;
+package org.digidoc4j.impl.asic.cades;
 
-
+import eu.europa.esig.dss.asic.cades.validation.ASiCContainerWithCAdESValidator;
 import eu.europa.esig.dss.diagnostic.DiagnosticData;
 import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.RevocationType;
-import eu.europa.esig.dss.model.FileDocument;
-import eu.europa.esig.dss.pades.validation.PDFDocumentValidator;
-import eu.europa.esig.dss.pdf.pdfbox.PdfBoxDefaultObjectFactory;
+import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.reports.Reports;
+
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
@@ -22,41 +21,40 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignedInfo;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
 import org.digidoc4j.impl.AiaDataLoaderFactory;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
-import org.digidoc4j.impl.asic.xades.validation.TimestampSignatureValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Andrei on 17.11.2017.
- */
-public class PadesContainer extends PdfBoxDefaultObjectFactory implements Container {
+public class AsicContainerWithCades implements Container {
 
 
-  private static final Logger logger = LoggerFactory.getLogger(PadesContainer.class);
+  private static final Logger logger = LoggerFactory.getLogger(AsicContainerWithCades.class);
 
-  public static final String PADES = "PADES";
+  public static final String TYPE = "Asic";
   private final Configuration configuration;
-  private final String containerPath;
+  private final DSSDocument dssDocument;
 
   /**
    * @param configuration configuration context
-   * @param containerPath the path of container
+   * @param dssDocument   the dssDocument of container
    */
-  public PadesContainer(Configuration configuration, String containerPath) {
+  public AsicContainerWithCades(Configuration configuration, DSSDocument dssDocument) {
     this.configuration = configuration;
-    this.containerPath = containerPath;
+    this.dssDocument = dssDocument;
   }
 
   @Override
@@ -91,7 +89,7 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
 
   @Override
   public String getType() {
-    return PADES;
+    return TYPE;
   }
 
   @Override
@@ -125,21 +123,20 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
   }
 
   /**
-   * Validate pades container
+   * Validate ASIC container with Cades
    *
    * @return ValidationResult
    */
   public ContainerValidationResult validate() {
-    FileDocument document = new FileDocument(new File(this.containerPath));
-    SignedDocumentValidator validator = new PDFDocumentValidator(new FileDocument(new File(this.containerPath)));
-    if (!validator.isSupported(document)) {
-      String message = "Invalid PDF document provided!";
+    SignedDocumentValidator validator = new ASiCContainerWithCAdESValidator(dssDocument);
+    if (!validator.isSupported(dssDocument)) {
+      String message = "Invalid ASIC with Cades document provided!";
       logger.error(message);
       throw new DigiDoc4JException(message);
     }
     validator.setCertificateVerifier(createCertificateVerifier());
-    Reports reports = validator.validateDocument(this.getClass().getClassLoader().getResourceAsStream(this.configuration.getValidationPolicy()));
-    PadesContainerValidationResult result = new PadesContainerValidationResult(reports.getSimpleReport());
+    Reports reports = validator.validateDocument(getValidationPolicyAsStream());
+    AsicContainerWithCadesValidationResult result = new AsicContainerWithCadesValidationResult(reports.getSimpleReport());
     result.setReport(reports.getXmlSimpleReport());
     for (String id : reports.getSimpleReport().getSignatureIdList()) {
       Indication indication = reports.getSimpleReport().getIndication(id);
@@ -153,17 +150,11 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
     return result;
   }
 
-
-  /**
-   * Copied from {@link TimestampSignatureValidator#addRevocationErrors()}
-   * TODO: Refactor to avoid code duplications & add further error checking
-   */
-  private void addRevocationErrors(PadesContainerValidationResult result, Reports reports) {
+  private void addRevocationErrors(AsicContainerWithCadesValidationResult result, Reports reports) {
     DiagnosticData diagnosticData = reports.getDiagnosticData();
     if (diagnosticData == null) {
       return;
     }
-
     String signatureId = diagnosticData.getFirstSignatureId();
     String certificateId = diagnosticData.getSigningCertificateId(signatureId);
     if (certificateId == null) {
@@ -176,16 +167,29 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
       logger.error("Signing certificate revocation source is CRL instead of OCSP");
       result.getErrors().add(new UntrustedRevocationSourceException());
     }
+
+  }
+
+  private InputStream getValidationPolicyAsStream() {
+    String policyFile = this.configuration.getValidationPolicy();
+    if (Files.exists(Paths.get(policyFile))) {
+      try {
+        return new FileInputStream(policyFile);
+      } catch (FileNotFoundException ex) {
+        logger.warn(ex.getMessage());
+      }
+    }
+    return this.getClass().getClassLoader().getResourceAsStream(policyFile);
   }
 
   @Override
   public void setTimeStampToken(DataFile timeStampToken) {
-    throw new NotSupportedException("Not for Pades container");
+    throw new NotYetImplementedException();
   }
 
   @Override
   public DataFile getTimeStampToken() {
-    throw new NotSupportedException("Not for Pades container");
+    throw new NotYetImplementedException();
   }
 
   private List<DigiDoc4JException> getExceptions(List<String> exceptionString) {

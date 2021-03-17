@@ -1,0 +1,383 @@
+<ConstraintsParameters Name="QES AdESQC TL based" xmlns="http://dss.esig.europa.eu/validation/policy">
+  <Description>RIA customized validation policy</Description>
+  <SignatureConstraints>
+    <AcceptablePolicies Level="WARN">
+      <Id>ANY_POLICY</Id>
+      <Id>NO_POLICY</Id>
+    </AcceptablePolicies>
+    <PolicyAvailable Level="WARN"/>
+    <PolicyHashMatch Level="INFORM"/>
+    <AcceptableFormats Level="WARN">
+      <Id>*</Id> <!-- ALL -->
+    </AcceptableFormats>
+    <BasicSignatureConstraints>
+      <ReferenceDataExistence Level="WARN"/>
+      <ReferenceDataIntact Level="WARN"/>
+      <SignatureIntact Level="WARN"/>
+      <ProspectiveCertificateChain Level="WARN"/>
+      <TrustedServiceTypeIdentifier Level="WARN">
+        <Id>http://uri.etsi.org/TrstSvc/Svctype/CA/QC</Id>
+      </TrustedServiceTypeIdentifier>
+      <TrustedServiceStatus Level="WARN">
+        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision</Id>
+        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/accredited</Id>
+        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/supervisionincessation</Id>
+        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted</Id>
+      </TrustedServiceStatus>
+      <SigningCertificate>
+        <Recognition Level="WARN"/>
+        <Signature Level="WARN"/>
+        <NotExpired Level="INFORM"/>
+        <RevocationDataAvailable Level="WARN"/>
+        <RevocationDataNextUpdatePresent Level="WARN"/>
+        <RevocationDataFreshness Level="WARN"/>
+        <KeyUsage Level="WARN">
+          <Id>nonRepudiation</Id>
+        </KeyUsage>
+        <NotRevoked Level="WARN"/>
+        <NotOnHold Level="WARN"/>
+        <Qualification Level="WARN"/>
+        <SupportedByQSCD Level="WARN"/>
+        <IssuedToLegalPerson Level="INFORM"/>
+        <Cryptographic Level="WARN">
+          <AcceptableEncryptionAlgo>
+            <Algo>RSA</Algo>
+            <Algo>DSA</Algo>
+            <Algo>ECDSA</Algo>
+          </AcceptableEncryptionAlgo>
+          <MiniPublicKeySize>
+            <Algo Size="1024">RSA</Algo>
+            <Algo Size="128">DSA</Algo>
+            <Algo Size="192">ECDSA</Algo>
+          </MiniPublicKeySize>
+          <AcceptableDigestAlgo>
+            <Algo>SHA1</Algo>
+            <Algo>SHA224</Algo>
+            <Algo>SHA256</Algo>
+            <Algo>SHA384</Algo>
+            <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
+            <Algo>RIPEMD160</Algo>
+          </AcceptableDigestAlgo>
+        </Cryptographic>
+      </SigningCertificate>
+      <CACertificate>
+        <Signature Level="WARN"/>
+        <NotExpired Level="WARN"/>
+        <RevocationDataAvailable Level="WARN"/>
+        <RevocationDataNextUpdatePresent Level="WARN"/>
+        <RevocationDataFreshness Level="WARN"/>
+        <NotRevoked Level="WARN"/>
+        <NotOnHold Level="WARN"/>
+        <Cryptographic Level="WARN">
+          <AcceptableEncryptionAlgo>
+            <Algo>RSA</Algo>
+            <Algo>DSA</Algo>
+            <Algo>ECDSA</Algo>
+          </AcceptableEncryptionAlgo>
+          <MiniPublicKeySize>
+            <Algo Size="1024">RSA</Algo>
+            <Algo Size="128">DSA</Algo>
+            <Algo Size="192">ECDSA</Algo>
+          </MiniPublicKeySize>
+          <AcceptableDigestAlgo>
+            <Algo>SHA1</Algo>
+            <Algo>SHA224</Algo>
+            <Algo>SHA256</Algo>
+            <Algo>SHA384</Algo>
+            <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
+            <Algo>RIPEMD160</Algo>
+          </AcceptableDigestAlgo>
+        </Cryptographic>
+      </CACertificate>
+      <Cryptographic Level="WARN">
+        <AcceptableEncryptionAlgo>
+          <Algo>RSA</Algo>
+          <Algo>DSA</Algo>
+          <Algo>ECDSA</Algo>
+        </AcceptableEncryptionAlgo>
+        <MiniPublicKeySize>
+          <Algo Size="1024">RSA</Algo>
+          <Algo Size="128">DSA</Algo>
+          <Algo Size="192">ECDSA</Algo>
+        </MiniPublicKeySize>
+        <AcceptableDigestAlgo>
+          <Algo>SHA1</Algo>
+          <Algo>SHA224</Algo>
+          <Algo>SHA256</Algo>
+          <Algo>SHA384</Algo>
+          <Algo>SHA512</Algo>
+          <Algo>SHA3-224</Algo>
+          <Algo>SHA3-256</Algo>
+          <Algo>SHA3-384</Algo>
+          <Algo>SHA3-512</Algo>
+          <Algo>RIPEMD160</Algo>
+        </AcceptableDigestAlgo>
+      </Cryptographic>
+    </BasicSignatureConstraints>
+    <SignedAttributes>
+      <SigningCertificatePresent Level="WARN"/>
+      <CertDigestPresent Level="WARN"/>
+      <CertDigestMatch Level="WARN"/>
+      <IssuerSerialMatch Level="WARN"/>
+      <SigningTime Level="WARN"/>
+      <MessageDigestOrSignedPropertiesPresent Level="WARN" />
+      <!--<ContentType Level="WARN" value="1.2.840.113549.1.7.1" />
+      <ContentHints Level="WARN" value="*" />
+      <CommitmentTypeIndication Level="WARN">
+          <Id>1.2.840.113549.1.9.16.6.1</Id>
+          <Id>1.2.840.113549.1.9.16.6.4</Id>
+          <Id>1.2.840.113549.1.9.16.6.5</Id>
+          <Id>1.2.840.113549.1.9.16.6.6</Id>
+      </CommitmentTypeIndication>
+      <SignerLocation Level="WARN" />
+      <ContentTimeStamp Level="WARN" /> -->
+    </SignedAttributes>
+    <UnsignedAttributes>
+      <!--		<CounterSignature Level="IGNORE" /> check presence -->
+    </UnsignedAttributes>
+  </SignatureConstraints>
+  <Timestamp>
+    <TimestampDelay Level="IGNORE" Unit="DAYS" Value="0"/>
+    <RevocationTimeAgainstBestSignatureTime Level="WARN"/>
+    <BestSignatureTimeBeforeExpirationDateOfSigningCertificate Level="WARN"/>
+    <Coherence Level="WARN"/>
+    <BasicSignatureConstraints>
+      <ReferenceDataExistence Level="WARN"/>
+      <ReferenceDataIntact Level="WARN"/>
+      <SignatureIntact Level="WARN"/>
+      <ProspectiveCertificateChain Level="WARN"/>
+      <TrustedServiceTypeIdentifier Level="WARN">
+        <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA</Id>
+        <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA/QTST</Id>
+        <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA/TSS-QC</Id>
+        <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA/TSS-AdESQCandQES</Id>
+      </TrustedServiceTypeIdentifier>
+      <TrustedServiceStatus Level="WARN">
+        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision</Id>
+        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/accredited</Id>
+        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/supervisionincessation</Id>
+        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted</Id>
+        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/recognisedatnationallevel</Id>
+      </TrustedServiceStatus>
+      <SigningCertificate>
+        <Recognition Level="WARN"/>
+        <Signature Level="WARN"/>
+        <NotExpired Level="WARN"/>
+        <RevocationDataAvailable Level="WARN"/>
+        <RevocationDataNextUpdatePresent Level="WARN"/>
+        <RevocationDataFreshness Level="WARN"/>
+        <NotRevoked Level="WARN"/>
+        <NotOnHold Level="WARN"/>
+        <NotSelfSigned Level="WARN"/>
+        <Cryptographic Level="WARN">
+          <AcceptableEncryptionAlgo>
+            <Algo>RSA</Algo>
+            <Algo>DSA</Algo>
+            <Algo>ECDSA</Algo>
+          </AcceptableEncryptionAlgo>
+          <MiniPublicKeySize>
+            <Algo Size="1024">RSA</Algo>
+            <Algo Size="128">DSA</Algo>
+            <Algo Size="256">ECDSA</Algo>
+          </MiniPublicKeySize>
+          <AcceptableDigestAlgo>
+            <Algo>SHA1</Algo>
+            <Algo>SHA224</Algo>
+            <Algo>SHA256</Algo>
+            <Algo>SHA384</Algo>
+            <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
+            <Algo>RIPEMD160</Algo>
+          </AcceptableDigestAlgo>
+        </Cryptographic>
+      </SigningCertificate>
+      <CACertificate>
+        <Signature Level="WARN"/>
+        <NotExpired Level="WARN"/>
+        <RevocationDataAvailable Level="WARN"/>
+        <RevocationDataNextUpdatePresent Level="WARN"/>
+        <RevocationDataFreshness Level="WARN"/>
+        <NotRevoked Level="WARN"/>
+        <NotOnHold Level="WARN"/>
+        <Cryptographic Level="WARN">
+          <AcceptableEncryptionAlgo>
+            <Algo>RSA</Algo>
+            <Algo>DSA</Algo>
+            <Algo>ECDSA</Algo>
+          </AcceptableEncryptionAlgo>
+          <MiniPublicKeySize>
+            <Algo Size="1024">RSA</Algo>
+            <Algo Size="128">DSA</Algo>
+            <Algo Size="256">ECDSA</Algo>
+          </MiniPublicKeySize>
+          <AcceptableDigestAlgo>
+            <Algo>SHA1</Algo>
+            <Algo>SHA224</Algo>
+            <Algo>SHA256</Algo>
+            <Algo>SHA384</Algo>
+            <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
+            <Algo>RIPEMD160</Algo>
+          </AcceptableDigestAlgo>
+        </Cryptographic>
+      </CACertificate>
+      <Cryptographic Level="WARN">
+        <AcceptableEncryptionAlgo>
+          <Algo>RSA</Algo>
+          <Algo>DSA</Algo>
+          <Algo>ECDSA</Algo>
+        </AcceptableEncryptionAlgo>
+        <MiniPublicKeySize>
+          <Algo Size="128">DSA</Algo>
+          <Algo Size="1024">RSA</Algo>
+          <Algo Size="192">ECDSA</Algo>
+        </MiniPublicKeySize>
+        <AcceptableDigestAlgo>
+          <Algo>SHA1</Algo>
+          <Algo>SHA224</Algo>
+          <Algo>SHA256</Algo>
+          <Algo>SHA384</Algo>
+          <Algo>SHA512</Algo>
+          <Algo>SHA3-224</Algo>
+          <Algo>SHA3-256</Algo>
+          <Algo>SHA3-384</Algo>
+          <Algo>SHA3-512</Algo>
+          <Algo>RIPEMD160</Algo>
+        </AcceptableDigestAlgo>
+      </Cryptographic>
+    </BasicSignatureConstraints>
+  </Timestamp>
+  <Revocation>
+    <RevocationFreshness Level="IGNORE" Unit="DAYS" Value="0"/>
+    <BasicSignatureConstraints>
+      <ReferenceDataExistence Level="WARN"/>
+      <ReferenceDataIntact Level="WARN"/>
+      <SignatureIntact Level="WARN"/>
+      <ProspectiveCertificateChain Level="WARN"/>
+      <TrustedServiceTypeIdentifier Level="WARN">
+        <Id>http://uri.etsi.org/TrstSvc/Svctype/CA/QC</Id>
+        <Id>http://uri.etsi.org/TrstSvc/Svctype/Certstatus/OCSP</Id>
+        <Id>http://uri.etsi.org/TrstSvc/Svctype/Certstatus/OCSP/QC</Id>
+      </TrustedServiceTypeIdentifier>
+      <TrustedServiceStatus Level="WARN">
+        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision</Id>
+        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/accredited</Id>
+        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/supervisionincessation</Id>
+        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted</Id>
+      </TrustedServiceStatus>
+      <SigningCertificate>
+        <Recognition Level="WARN"/>
+        <Signature Level="WARN"/>
+        <NotExpired Level="WARN"/>
+        <RevocationDataAvailable Level="WARN"/>
+        <RevocationDataNextUpdatePresent Level="WARN"/>
+        <RevocationDataFreshness Level="WARN"/>
+        <NotRevoked Level="WARN"/>
+        <NotOnHold Level="WARN"/>
+        <Cryptographic Level="WARN">
+          <AcceptableEncryptionAlgo>
+            <Algo>RSA</Algo>
+            <Algo>DSA</Algo>
+            <Algo>ECDSA</Algo>
+          </AcceptableEncryptionAlgo>
+          <MiniPublicKeySize>
+            <Algo Size="1024">RSA</Algo>
+            <Algo Size="128">DSA</Algo>
+            <Algo Size="256">ECDSA</Algo>
+          </MiniPublicKeySize>
+          <AcceptableDigestAlgo>
+            <Algo>SHA1</Algo>
+            <Algo>SHA224</Algo>
+            <Algo>SHA256</Algo>
+            <Algo>SHA384</Algo>
+            <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
+            <Algo>RIPEMD160</Algo>
+          </AcceptableDigestAlgo>
+        </Cryptographic>
+      </SigningCertificate>
+      <CACertificate>
+        <Signature Level="WARN"/>
+        <NotExpired Level="WARN"/>
+        <RevocationDataAvailable Level="WARN"/>
+        <RevocationDataNextUpdatePresent Level="WARN"/>
+        <RevocationDataFreshness Level="WARN"/>
+        <NotRevoked Level="WARN"/>
+        <NotOnHold Level="WARN"/>
+        <Cryptographic Level="WARN">
+          <AcceptableEncryptionAlgo>
+            <Algo>RSA</Algo>
+            <Algo>DSA</Algo>
+            <Algo>ECDSA</Algo>
+          </AcceptableEncryptionAlgo>
+          <MiniPublicKeySize>
+            <Algo Size="1024">RSA</Algo>
+            <Algo Size="128">DSA</Algo>
+            <Algo Size="256">ECDSA</Algo>
+          </MiniPublicKeySize>
+          <AcceptableDigestAlgo>
+            <Algo>SHA1</Algo>
+            <Algo>SHA224</Algo>
+            <Algo>SHA256</Algo>
+            <Algo>SHA384</Algo>
+            <Algo>SHA512</Algo>
+            <Algo>SHA3-224</Algo>
+            <Algo>SHA3-256</Algo>
+            <Algo>SHA3-384</Algo>
+            <Algo>SHA3-512</Algo>
+            <Algo>RIPEMD160</Algo>
+          </AcceptableDigestAlgo>
+        </Cryptographic>
+      </CACertificate>
+      <Cryptographic Level="WARN">
+        <AcceptableEncryptionAlgo>
+          <Algo>RSA</Algo>
+          <Algo>DSA</Algo>
+          <Algo>ECDSA</Algo>
+        </AcceptableEncryptionAlgo>
+        <MiniPublicKeySize>
+          <Algo Size="128">DSA</Algo>
+          <Algo Size="1024">RSA</Algo>
+          <Algo Size="192">ECDSA</Algo>
+        </MiniPublicKeySize>
+        <AcceptableDigestAlgo>
+          <Algo>SHA1</Algo>
+          <Algo>SHA224</Algo>
+          <Algo>SHA256</Algo>
+          <Algo>SHA384</Algo>
+          <Algo>SHA512</Algo>
+          <Algo>SHA3-224</Algo>
+          <Algo>SHA3-256</Algo>
+          <Algo>SHA3-384</Algo>
+          <Algo>SHA3-512</Algo>
+          <Algo>RIPEMD160</Algo>
+        </AcceptableDigestAlgo>
+      </Cryptographic>
+    </BasicSignatureConstraints>
+  </Revocation>
+
+  <!-- eIDAS REGL 910/EU/2014 -->
+  <eIDAS>
+    <TLFreshness Level="WARN" Unit="HOURS" Value="6" />
+    <TLNotExpired Level="WARN" />
+    <TLWellSigned Level="WARN" />
+    <TLVersion Level="WARN" value="5" />
+  </eIDAS>
+</ConstraintsParameters>
