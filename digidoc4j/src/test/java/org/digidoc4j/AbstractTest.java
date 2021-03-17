@@ -461,6 +461,25 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     return source;
   }
 
+  @FunctionalInterface
+  protected interface PotentiallyThrowing<T extends Throwable> {
+    void run() throws T;
+  }
+
+  @SuppressWarnings("unchecked")
+  protected static <T extends Throwable> T assertThrows(Class<T> type, PotentiallyThrowing<T> toTest) {
+    try {
+      toTest.run();
+    } catch (Throwable t) {
+      if (type.isInstance(t)) {
+        return (T) t;
+      }
+      Assert.fail(String.format("Expected %s, but an %s was thrown", type.getSimpleName(), t.getClass().getSimpleName()));
+    }
+    Assert.fail(String.format("Expected %s, but nothing was thrown", type.getSigners()));
+    return null; // For compiler
+  }
+
   protected void assertBDocContainer(Container container) {
     Assert.assertNotNull(container);
     Assert.assertTrue(container instanceof BDocContainer);

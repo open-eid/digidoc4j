@@ -11,7 +11,6 @@
 package org.digidoc4j.impl.asic;
 
 import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.model.InMemoryDocument;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
@@ -32,6 +31,7 @@ import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
+import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.AbstractValidationResult;
 import org.digidoc4j.impl.asic.asice.AsicEContainerValidator;
@@ -54,7 +54,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -492,6 +491,10 @@ public abstract class AsicContainer implements Container {
     }
 
     LOGGER.info("Removing signature " + signature.getId());
+    if (!signatures.contains(signature)) {
+      throw new SignatureNotFoundException("Signature not found: " + signature.getId());
+    }
+
     if (!isNewContainer()) {
       validateIncomingSignature(signature);
       boolean wasNewlyAddedSignature = newSignatures.remove(signature);
@@ -510,10 +513,13 @@ public abstract class AsicContainer implements Container {
   @Deprecated
   public void removeSignature(int signatureId) {
     LOGGER.debug("Removing signature from index " + signatureId);
-    Signature signature = signatures.get(signatureId);
-    if (signature != null) {
-      removeSignature(signature);
+    if (signatureId >= 0 && signatureId < signatures.size()) {
+      Signature signature = signatures.get(signatureId);
+      if (signature != null) {
+        removeSignature(signature);
+      }
     }
+    throw new SignatureNotFoundException(String.format("Signature from index %d not found", signatureId));
   }
 
   @Override
