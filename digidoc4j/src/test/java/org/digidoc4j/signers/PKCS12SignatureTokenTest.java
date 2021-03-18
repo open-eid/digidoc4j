@@ -1,29 +1,30 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.signers;
-
-import java.security.cert.CertificateEncodingException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.X509Cert;
+import org.digidoc4j.exceptions.InvalidKeyException;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.security.cert.CertificateEncodingException;
 
 public class PKCS12SignatureTokenTest extends AbstractTest {
 
   @Test
   public void getCertificate() throws CertificateEncodingException {
-    X509Cert x509Cert = new X509Cert(this.pkcs12SignatureToken.getCertificate());
+    X509Cert x509Cert = new X509Cert(pkcs12SignatureToken.getCertificate());
     Assert.assertEquals("MIIFrjCCA5agAwIBAgIQUwvkG7xZfERXDit8E7z6DDANBgkqhkiG9w0BAQsFADBr" +
             "MQswCQYDVQQGEwJFRTEiMCAGA1UECgwZQVMgU2VydGlmaXRzZWVyaW1pc2tlc2t1" +
             "czEXMBUGA1UEYQwOTlRSRUUtMTA3NDcwMTMxHzAdBgNVBAMMFlRFU1Qgb2YgRVNU" +
@@ -64,5 +65,27 @@ public class PKCS12SignatureTokenTest extends AbstractTest {
     byte[] actual = this.pkcs12SignatureToken.sign(DigestAlgorithm.SHA512, new byte[]{0x41});
     Assert.assertArrayEquals(expected, actual);
   }
+
+  @Test
+  public void closeSignatureTokenWhenSigning() {
+    this.expectedException.expect(InvalidKeyException.class);
+    this.expectedException.expectMessage("Private key entry is missing. Connection may be closed.");
+    PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
+
+    Assert.assertNotNull(pkcs12SignatureToken.sign(DigestAlgorithm.SHA512, new byte[]{0x41}));
+    pkcs12SignatureToken.close();
+    pkcs12SignatureToken.sign(DigestAlgorithm.SHA512, new byte[]{0x41});
+  }
+
+  @Test
+  public void closeSignatureTokenWhenAskingCertificate() {
+    this.expectedException.expect(InvalidKeyException.class);
+    this.expectedException.expectMessage("Private key entry is missing. Connection may be closed.");
+    PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
+    Assert.assertNotNull(pkcs12SignatureToken.getCertificate());
+    pkcs12SignatureToken.close();
+    pkcs12SignatureToken.getCertificate();
+  }
+
 
 }
