@@ -3,6 +3,10 @@ DigiDoc4J Java library release notes
 
 Release 4.1.1
 ------------------
+Signer certificate for the EU List of eIDAS Trusted Lists (LOTL) was changed on 25.03.2021. This resulted in failure to sign or validate signatures with DD4J version 4.1.0.
+Current version of DD4J (4.1.1) must be used to ensure that signing and signature validation works.
+It is also possible to create a new custom keystore according to https://github.com/open-eid/digidoc4j/wiki/Questions-&-Answers#how-to-add-trust-for-new-eu-tsl-signing-certificates.
+
 Summary of the major changes since 4.1.0
 ------------------------------------------
 * Updated LOTL signer certificates in truststore
