@@ -256,7 +256,7 @@ public class ConfigurationTest extends AbstractTest {
     BDocContainer container = (BDocContainer) ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE)
         .withConfiguration(this.configuration).build();
     container.getConfiguration().getTSL();
-    Assert.assertEquals(14, container.getConfiguration().getTSL().getCertificates().size());
+    Assert.assertEquals(15, container.getConfiguration().getTSL().getCertificates().size());
     try {
       int tenSeconds = 10000;
       String tslHost = "10.0.25.57";
