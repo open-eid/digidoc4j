@@ -474,9 +474,9 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
       if (type.isInstance(t)) {
         return (T) t;
       }
-      Assert.fail(String.format("Expected %s, but an %s was thrown", type.getSimpleName(), t.getClass().getSimpleName()));
+      Assert.fail(String.format("Expected %s, but an %s was thrown: %s", type.getSimpleName(), t.getClass().getSimpleName(), t.getMessage()));
     }
-    Assert.fail(String.format("Expected %s, but nothing was thrown", type.getSigners()));
+    Assert.fail(String.format("Expected %s, but nothing was thrown", type.getSimpleName()));
     return null; // For compiler
   }
 

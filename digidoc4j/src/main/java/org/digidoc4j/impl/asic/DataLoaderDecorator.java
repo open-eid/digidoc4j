@@ -10,16 +10,17 @@
 
 package org.digidoc4j.impl.asic;
 
-import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
 import eu.europa.esig.dss.service.http.proxy.ProxyProperties;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ExternalConnectionType;
-import org.digidoc4j.utils.ResourceUtils;
+import org.digidoc4j.utils.KeyStoreDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.Period;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -30,6 +31,20 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class DataLoaderDecorator {
 
   private final static Logger logger = LoggerFactory.getLogger(DataLoaderDecorator.class);
+  /**
+   * Minimum validation interval of 5 minutes should be enough for the most common case of TSL data loaders, targeting
+   * key-store validation per each TSL cache update.
+   * Every time the TSL cache is updated (e.g. once a day), TLS trust-stores and/or key-stores are accessed (if configured)
+   * per TL fetch from each country. Minimum key-store validation interval should be long enough that the validation of the
+   * key-store is not performed multiple times per update cycle, but short enough the validation would be invoked per
+   * desired number of TSL updates.
+   */
+  private final static Duration MIN_KEYSTORE_VALIDATION_INTERVAL = Duration.ofMinutes(5L);
+  /**
+   * Maximum warning period determines how long before certificate expiration date should warning messages about the upcoming
+   * expiration be logged.
+   */
+  private final static Period MAX_KEYSTORE_WARNING_PERIOD = Period.ofDays(60);
 
   /**
    * @param dataLoader    data loader
@@ -128,7 +143,7 @@ public class DataLoaderDecorator {
 
   private static void configureSslKeystore(CommonsDataLoader dataLoader, String sslKeystorePath, String sslKeystoreType, String sslKeystorePassword) {
     if (sslKeystorePath != null) {
-      dataLoader.setSslKeystore(new InMemoryDocument(ResourceUtils.getResource(sslKeystorePath)));
+      dataLoader.setSslKeystore(new KeyStoreDocument(sslKeystorePath, sslKeystoreType, sslKeystorePassword, MIN_KEYSTORE_VALIDATION_INTERVAL, MAX_KEYSTORE_WARNING_PERIOD));
       if (sslKeystoreType != null) {
         dataLoader.setSslKeystoreType(sslKeystoreType);
       }
@@ -140,7 +155,7 @@ public class DataLoaderDecorator {
 
   private static void configureSslTruststore(CommonsDataLoader dataLoader, String sslTruststorePath, String sslTruststoreType, String sslTruststorePassword) {
     if (sslTruststorePath != null) {
-      dataLoader.setSslTruststore(new InMemoryDocument(ResourceUtils.getResource(sslTruststorePath)));
+      dataLoader.setSslTruststore(new KeyStoreDocument(sslTruststorePath, sslTruststoreType, sslTruststorePassword, MIN_KEYSTORE_VALIDATION_INTERVAL, MAX_KEYSTORE_WARNING_PERIOD));
       if (sslTruststoreType != null) {
         dataLoader.setSslTruststoreType(sslTruststoreType);
       }

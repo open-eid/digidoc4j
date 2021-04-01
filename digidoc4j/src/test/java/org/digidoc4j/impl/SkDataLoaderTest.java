@@ -90,19 +90,19 @@ public class SkDataLoaderTest extends AbstractTest {
 
   @Test
   public void dataLoader_withSslConfiguration_shouldSetSslValues() throws Exception {
-    this.configuration.setSslKeystorePath("classpath:testFiles/keystores/keystore.jks");
-    this.configuration.setSslKeystoreType("keystore.type");
-    this.configuration.setSslKeystorePassword("keystore.password");
+    this.configuration.setSslKeystorePath("classpath:testFiles/keystores/keystore.p12");
+    this.configuration.setSslKeystoreType("PKCS12");
+    this.configuration.setSslKeystorePassword("keystore-password");
     this.configuration.setSslTruststorePath("classpath:testFiles/keystores/truststore.jks");
-    this.configuration.setSslTruststoreType("truststore.type");
-    this.configuration.setSslTruststorePassword("truststore.password");
+    this.configuration.setSslTruststoreType("JKS");
+    this.configuration.setSslTruststorePassword("digidoc4j-password");
     MockSkDataLoader dataLoader = new MockSkDataLoader(this.configuration);
     Assert.assertNotNull(dataLoader.getSslKeystore());
-    Assert.assertEquals("keystore.type", dataLoader.getSslKeystoreType());
-    Assert.assertEquals("keystore.password", dataLoader.getSslKeystorePassword());
+    Assert.assertEquals("PKCS12", dataLoader.getSslKeystoreType());
+    Assert.assertEquals("keystore-password", dataLoader.getSslKeystorePassword());
     Assert.assertNotNull(dataLoader.getSslTruststore());
-    Assert.assertEquals("truststore.type", dataLoader.getSslTruststoreType());
-    Assert.assertEquals("truststore.password", dataLoader.getSslTruststorePassword());
+    Assert.assertEquals("JKS", dataLoader.getSslTruststoreType());
+    Assert.assertEquals("digidoc4j-password", dataLoader.getSslTruststorePassword());
     Assert.assertTrue(dataLoader.isSslKeystoreTypeSet());
     Assert.assertTrue(dataLoader.isSslKeystorePasswordSet());
     Assert.assertTrue(dataLoader.isSslTruststoreTypeSet());
