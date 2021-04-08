@@ -62,9 +62,9 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
 * [Examples](https://github.com/open-eid/digidoc4j/wiki/Examples-of-using-it)
 * [Wiki](https://github.com/open-eid/digidoc4j/wiki)
 * [Architecture of ID-software](http://open-eid.github.io/)
-* [Digital signature formats](http://www.id.ee/index.php?id=36108)
-* [BDOC 2.1.2 specification](http://id.ee/public/bdoc-spec212-eng.pdf)
-* [DDOC specification](http://www.id.ee/public/DigiDoc_format_1.3.pdf)
+* [Digital signature formats](https://www.id.ee/en/rubriik/digital-signing/)
+* [BDOC 2.1.2 specification](http://id.ee/wp-content/uploads/2020/06/bdoc-spec212-eng.pdf)
+* [DDOC specification](https://www.id.ee/wp-content/uploads/2020/08/digidoc_format_1.3.pdf)
 
 # Requirements
 * Java **8** (since version 4.0.0-RC.1)
