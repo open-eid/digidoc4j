@@ -52,15 +52,15 @@ public class DataLoaderDecorator {
    */
   public static void decorateWithProxySettings(CommonsDataLoader dataLoader, Configuration configuration) {
     if (configuration.isNetworkProxyEnabled()) {
-      ProxyProperties httpProxyProperties = createProxyProperties(
+      ProxyProperties httpProxyProperties = createProxyPropertiesIfHostAndPortPresent(
               configuration.getHttpProxyPort(), configuration.getHttpProxyHost(),
               configuration.getHttpProxyUser(), configuration.getHttpProxyPassword()
       );
-      ProxyProperties httpsProxyProperties = createProxyProperties(
+      ProxyProperties httpsProxyProperties = createProxyPropertiesIfHostAndPortPresent(
               configuration.getHttpsProxyPort(), configuration.getHttpsProxyHost(),
               configuration.getHttpProxyUser(), configuration.getHttpProxyPassword()
       );
-      ProxyConfig proxyConfig = createProxyConfig(httpProxyProperties, httpsProxyProperties);
+      ProxyConfig proxyConfig = createProxyConfigIfAnyPropertiesPresent(httpProxyProperties, httpsProxyProperties);
       dataLoader.setProxyConfig(proxyConfig);
     }
   }
@@ -72,38 +72,44 @@ public class DataLoaderDecorator {
    */
   public static void decorateWithProxySettingsFor(ExternalConnectionType connectionType, CommonsDataLoader dataLoader, Configuration configuration) {
     if (configuration.isNetworkProxyEnabledFor(connectionType)) {
-      ProxyProperties httpProxyProperties = createProxyProperties(
+      ProxyProperties httpProxyProperties = createProxyPropertiesIfHostAndPortPresent(
               configuration.getHttpProxyPortFor(connectionType), configuration.getHttpProxyHostFor(connectionType),
               configuration.getHttpProxyUserFor(connectionType), configuration.getHttpProxyPasswordFor(connectionType)
       );
-      ProxyProperties httpsProxyProperties = createProxyProperties(
+      ProxyProperties httpsProxyProperties = createProxyPropertiesIfHostAndPortPresent(
               configuration.getHttpsProxyPortFor(connectionType), configuration.getHttpsProxyHostFor(connectionType),
               configuration.getHttpProxyUserFor(connectionType), configuration.getHttpProxyPasswordFor(connectionType)
       );
-      ProxyConfig proxyConfig = createProxyConfig(httpProxyProperties, httpsProxyProperties);
+      ProxyConfig proxyConfig = createProxyConfigIfAnyPropertiesPresent(httpProxyProperties, httpsProxyProperties);
       dataLoader.setProxyConfig(proxyConfig);
     }
   }
 
-  private static ProxyConfig createProxyConfig(ProxyProperties httpProxyProperties, ProxyProperties httpsProxyProperties) {
-    logger.debug("Creating proxy settings");
-    ProxyConfig proxyConfig = new ProxyConfig();
-    proxyConfig.setHttpProperties(httpProxyProperties);
-    proxyConfig.setHttpsProperties(httpsProxyProperties);
-    return proxyConfig;
+  private static ProxyConfig createProxyConfigIfAnyPropertiesPresent(ProxyProperties httpProxyProperties, ProxyProperties httpsProxyProperties) {
+    if (httpProxyProperties != null || httpsProxyProperties != null) {
+      logger.debug("Creating proxy settings");
+      ProxyConfig proxyConfig = new ProxyConfig();
+      proxyConfig.setHttpProperties(httpProxyProperties);
+      proxyConfig.setHttpsProperties(httpsProxyProperties);
+      return proxyConfig;
+    } else {
+      return null;
+    }
   }
 
-  private static ProxyProperties createProxyProperties(Integer proxyPort, String proxyHost, String proxyUser, String proxyPassword) {
-    ProxyProperties proxyProperties = new ProxyProperties();
+  private static ProxyProperties createProxyPropertiesIfHostAndPortPresent(Integer proxyPort, String proxyHost, String proxyUser, String proxyPassword) {
     if (proxyPort != null && isNotBlank(proxyHost)) {
+      ProxyProperties proxyProperties = new ProxyProperties();
       proxyProperties.setPort(proxyPort);
       proxyProperties.setHost(proxyHost);
+      if (isNotBlank(proxyUser) && isNotBlank(proxyPassword)) {
+        proxyProperties.setUser(proxyUser);
+        proxyProperties.setPassword(proxyPassword);
+      }
+      return proxyProperties;
+    } else {
+      return null;
     }
-    if (isNotBlank(proxyUser) && isNotBlank(proxyPassword)) {
-      proxyProperties.setUser(proxyUser);
-      proxyProperties.setPassword(proxyPassword);
-    }
-    return proxyProperties;
   }
 
   /**

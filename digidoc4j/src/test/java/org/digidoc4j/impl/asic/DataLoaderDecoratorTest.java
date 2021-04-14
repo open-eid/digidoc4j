@@ -2,7 +2,6 @@ package org.digidoc4j.impl.asic;
 
 import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
-import eu.europa.esig.dss.service.http.proxy.ProxyProperties;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ExternalConnectionType;
 import org.digidoc4j.utils.KeyStoreDocument;
@@ -39,7 +38,7 @@ public class DataLoaderDecoratorTest {
   public void decorateWithSslSettingsShouldDoNothingWhenSslConfigurationNotEnabled() {
     Mockito.doReturn(false).when(configuration).isSslConfigurationEnabled();
     DataLoaderDecorator.decorateWithSslSettings(dataLoader, configuration);
-    Mockito.verifyZeroInteractions(dataLoader);
+    Mockito.verifyNoInteractions(dataLoader);
   }
 
   @Test
@@ -48,7 +47,7 @@ public class DataLoaderDecoratorTest {
       Mockito.doReturn(false).when(configuration).isSslConfigurationEnabled();
       Mockito.doReturn(false).when(configuration).isSslConfigurationEnabledFor(connectionType);
       DataLoaderDecorator.decorateWithSslSettingsFor(connectionType, dataLoader, configuration);
-      Mockito.verifyZeroInteractions(dataLoader);
+      Mockito.verifyNoInteractions(dataLoader);
 
       Mockito.reset(configuration, dataLoader);
     }
@@ -319,7 +318,7 @@ public class DataLoaderDecoratorTest {
   public void decorateWithProxySettingsShouldDoNothingWhenNetworkProxyNotEnabled() {
     Mockito.doReturn(false).when(configuration).isNetworkProxyEnabled();
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
-    Mockito.verifyZeroInteractions(dataLoader);
+    Mockito.verifyNoInteractions(dataLoader);
   }
 
   @Test
@@ -327,7 +326,71 @@ public class DataLoaderDecoratorTest {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(false).when(configuration).isNetworkProxyEnabledFor(connectionType);
       DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
-      Mockito.verifyZeroInteractions(dataLoader);
+      Mockito.verifyNoInteractions(dataLoader);
+
+      Mockito.reset(configuration, dataLoader);
+    }
+  }
+
+  @Test
+  public void decorateWithProxySettingsShouldApplyNullConfigIfHostIsNotConfigured() {
+    Mockito.doReturn(true).when(configuration).isNetworkProxyEnabled();
+    Mockito.doReturn(8073).when(configuration).getHttpProxyPort();
+    Mockito.doReturn(473).when(configuration).getHttpsProxyPort();
+    Mockito.doReturn("proxyUser").when(configuration).getHttpProxyUser();
+    Mockito.doReturn("proxyPassword").when(configuration).getHttpProxyPassword();
+
+    DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
+    ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
+    Assert.assertNull(capturedProxyConfig);
+  }
+
+  @Test
+  public void decorateWithProxySettingsForShouldApplyNullConfigIfHostIsNotConfigured() {
+    for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
+      Mockito.doReturn(true).when(configuration).isNetworkProxyEnabledFor(connectionType);
+      Mockito.doReturn(8073).when(configuration).getHttpProxyPortFor(connectionType);
+      Mockito.doReturn(473).when(configuration).getHttpsProxyPortFor(connectionType);
+      Mockito.doReturn("proxyUser").when(configuration).getHttpProxyUserFor(connectionType);
+      Mockito.doReturn("proxyPassword").when(configuration).getHttpProxyPasswordFor(connectionType);
+
+      DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
+      ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
+      Assert.assertNull(capturedProxyConfig);
+
+      Mockito.reset(configuration, dataLoader);
+    }
+  }
+
+  @Test
+  public void decorateWithProxySettingsShouldApplyNullConfigIfPortIsNotConfigured() {
+    Mockito.doReturn(true).when(configuration).isNetworkProxyEnabled();
+    Mockito.doReturn(null).when(configuration).getHttpProxyPort();
+    Mockito.doReturn("httpProxyHost").when(configuration).getHttpProxyHost();
+    Mockito.doReturn(null).when(configuration).getHttpsProxyPort();
+    Mockito.doReturn("httpsProxyHost").when(configuration).getHttpsProxyHost();
+    Mockito.doReturn("proxyUser").when(configuration).getHttpProxyUser();
+    Mockito.doReturn("proxyPassword").when(configuration).getHttpProxyPassword();
+
+    DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
+    ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
+    Assert.assertNull(capturedProxyConfig);
+  }
+
+  @Test
+  public void decorateWithProxySettingsForShouldApplyNullConfigIfPortIsNotConfigured() {
+    for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
+      Mockito.doReturn(true).when(configuration).isNetworkProxyEnabledFor(connectionType);
+      Mockito.doReturn(null).when(configuration).getHttpProxyPortFor(connectionType);
+      Mockito.doReturn("httpProxyHost").when(configuration).getHttpProxyHostFor(connectionType);
+      Mockito.doReturn(null).when(configuration).getHttpsProxyPortFor(connectionType);
+      Mockito.doReturn("httpsProxyHost").when(configuration).getHttpsProxyHostFor(connectionType);
+      Mockito.doReturn("proxyUser").when(configuration).getHttpProxyUserFor(connectionType);
+      Mockito.doReturn("proxyPassword").when(configuration).getHttpProxyPasswordFor(connectionType);
+
+      DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
+      ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
+      Assert.assertNull(capturedProxyConfig);
 
       Mockito.reset(configuration, dataLoader);
     }
@@ -336,12 +399,13 @@ public class DataLoaderDecoratorTest {
   @Test
   public void decorateWithProxySettingsShouldApplyHttpHostAndPortIfConfigured() {
     Mockito.doReturn(true).when(configuration).isNetworkProxyEnabled();
-    Mockito.doReturn(Integer.valueOf(8073)).when(configuration).getHttpProxyPort();
+    Mockito.doReturn(8073).when(configuration).getHttpProxyPort();
     Mockito.doReturn("httpProxyHost").when(configuration).getHttpProxyHost();
 
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-    assertProxyPropertiesNotConfigured(capturedProxyConfig.getHttpsProperties());
+    Assert.assertNotNull(capturedProxyConfig.getHttpProperties());
+    Assert.assertNull(capturedProxyConfig.getHttpsProperties());
 
     Assert.assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
     Assert.assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
@@ -354,12 +418,13 @@ public class DataLoaderDecoratorTest {
   public void decorateWithProxySettingsForShouldApplyHttpHostAndPortIfConfigured() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isNetworkProxyEnabledFor(connectionType);
-      Mockito.doReturn(Integer.valueOf(8073)).when(configuration).getHttpProxyPortFor(connectionType);
+      Mockito.doReturn(8073).when(configuration).getHttpProxyPortFor(connectionType);
       Mockito.doReturn("httpProxyHost").when(configuration).getHttpProxyHostFor(connectionType);
 
       DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
       ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-      assertProxyPropertiesNotConfigured(capturedProxyConfig.getHttpsProperties());
+      Assert.assertNotNull(capturedProxyConfig.getHttpProperties());
+      Assert.assertNull(capturedProxyConfig.getHttpsProperties());
 
       Assert.assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
       Assert.assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
@@ -374,12 +439,13 @@ public class DataLoaderDecoratorTest {
   @Test
   public void decorateWithProxySettingsShouldApplyHttpsHostAndPortIfConfigured() {
     Mockito.doReturn(true).when(configuration).isNetworkProxyEnabled();
-    Mockito.doReturn(Integer.valueOf(473)).when(configuration).getHttpsProxyPort();
+    Mockito.doReturn(473).when(configuration).getHttpsProxyPort();
     Mockito.doReturn("httpsProxyHost").when(configuration).getHttpsProxyHost();
 
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-    assertProxyPropertiesNotConfigured(capturedProxyConfig.getHttpProperties());
+    Assert.assertNull(capturedProxyConfig.getHttpProperties());
+    Assert.assertNotNull(capturedProxyConfig.getHttpsProperties());
 
     Assert.assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
     Assert.assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
@@ -392,12 +458,13 @@ public class DataLoaderDecoratorTest {
   public void decorateWithProxySettingsForShouldApplyHttpsHostAndPortIfConfigured() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isNetworkProxyEnabledFor(connectionType);
-      Mockito.doReturn(Integer.valueOf(473)).when(configuration).getHttpsProxyPortFor(connectionType);
+      Mockito.doReturn(473).when(configuration).getHttpsProxyPortFor(connectionType);
       Mockito.doReturn("httpsProxyHost").when(configuration).getHttpsProxyHostFor(connectionType);
 
       DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
       ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-      assertProxyPropertiesNotConfigured(capturedProxyConfig.getHttpProperties());
+      Assert.assertNull(capturedProxyConfig.getHttpProperties());
+      Assert.assertNotNull(capturedProxyConfig.getHttpsProperties());
 
       Assert.assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
       Assert.assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
@@ -410,45 +477,85 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsShouldApplyUserAndPasswordIfConfigured() {
+  public void decorateWithProxySettingsShouldApplyHttpUserAndPasswordIfConfigured() {
     Mockito.doReturn(true).when(configuration).isNetworkProxyEnabled();
+    Mockito.doReturn(8073).when(configuration).getHttpProxyPort();
+    Mockito.doReturn("httpProxyHost").when(configuration).getHttpProxyHost();
     Mockito.doReturn("proxyUser").when(configuration).getHttpProxyUser();
     Mockito.doReturn("proxyPassword").when(configuration).getHttpProxyPassword();
 
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
+    Assert.assertNotNull(capturedProxyConfig.getHttpProperties());
+    Assert.assertNull(capturedProxyConfig.getHttpsProperties());
 
-    Assert.assertEquals(0, capturedProxyConfig.getHttpProperties().getPort());
-    Assert.assertNull(capturedProxyConfig.getHttpProperties().getHost());
+    Assert.assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
+    Assert.assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
     Assert.assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
     Assert.assertEquals("proxyUser", capturedProxyConfig.getHttpProperties().getUser());
     Assert.assertEquals("proxyPassword", capturedProxyConfig.getHttpProperties().getPassword());
+  }
 
-    Assert.assertEquals(0, capturedProxyConfig.getHttpsProperties().getPort());
-    Assert.assertNull(capturedProxyConfig.getHttpsProperties().getHost());
+  @Test
+  public void decorateWithProxySettingsForShouldApplyHttpUserAndPasswordIfConfigured() {
+    for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
+      Mockito.doReturn(true).when(configuration).isNetworkProxyEnabledFor(connectionType);
+      Mockito.doReturn(8073).when(configuration).getHttpProxyPortFor(connectionType);
+      Mockito.doReturn("httpProxyHost").when(configuration).getHttpProxyHostFor(connectionType);
+      Mockito.doReturn("proxyUser").when(configuration).getHttpProxyUserFor(connectionType);
+      Mockito.doReturn("proxyPassword").when(configuration).getHttpProxyPasswordFor(connectionType);
+
+      DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
+      ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
+      Assert.assertNotNull(capturedProxyConfig.getHttpProperties());
+      Assert.assertNull(capturedProxyConfig.getHttpsProperties());
+
+      Assert.assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
+      Assert.assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
+      Assert.assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
+      Assert.assertEquals("proxyUser", capturedProxyConfig.getHttpProperties().getUser());
+      Assert.assertEquals("proxyPassword", capturedProxyConfig.getHttpProperties().getPassword());
+
+      Mockito.reset(configuration, dataLoader);
+    }
+  }
+
+  @Test
+  public void decorateWithProxySettingsShouldApplyHttpsUserAndPasswordIfConfigured() {
+    Mockito.doReturn(true).when(configuration).isNetworkProxyEnabled();
+    Mockito.doReturn(473).when(configuration).getHttpsProxyPort();
+    Mockito.doReturn("httpsProxyHost").when(configuration).getHttpsProxyHost();
+    Mockito.doReturn("proxyUser").when(configuration).getHttpProxyUser();
+    Mockito.doReturn("proxyPassword").when(configuration).getHttpProxyPassword();
+
+    DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
+    ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
+    Assert.assertNull(capturedProxyConfig.getHttpProperties());
+    Assert.assertNotNull(capturedProxyConfig.getHttpsProperties());
+
+    Assert.assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
+    Assert.assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
     Assert.assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
     Assert.assertEquals("proxyUser", capturedProxyConfig.getHttpsProperties().getUser());
     Assert.assertEquals("proxyPassword", capturedProxyConfig.getHttpsProperties().getPassword());
   }
 
   @Test
-  public void decorateWithProxySettingsForShouldApplyUserAndPasswordIfConfigured() {
+  public void decorateWithProxySettingsForShouldApplyHttpsUserAndPasswordIfConfigured() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isNetworkProxyEnabledFor(connectionType);
+      Mockito.doReturn(473).when(configuration).getHttpsProxyPortFor(connectionType);
+      Mockito.doReturn("httpsProxyHost").when(configuration).getHttpsProxyHostFor(connectionType);
       Mockito.doReturn("proxyUser").when(configuration).getHttpProxyUserFor(connectionType);
       Mockito.doReturn("proxyPassword").when(configuration).getHttpProxyPasswordFor(connectionType);
 
       DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
       ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
+      Assert.assertNull(capturedProxyConfig.getHttpProperties());
+      Assert.assertNotNull(capturedProxyConfig.getHttpsProperties());
 
-      Assert.assertEquals(0, capturedProxyConfig.getHttpProperties().getPort());
-      Assert.assertNull(capturedProxyConfig.getHttpProperties().getHost());
-      Assert.assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
-      Assert.assertEquals("proxyUser", capturedProxyConfig.getHttpProperties().getUser());
-      Assert.assertEquals("proxyPassword", capturedProxyConfig.getHttpProperties().getPassword());
-
-      Assert.assertEquals(0, capturedProxyConfig.getHttpsProperties().getPort());
-      Assert.assertNull(capturedProxyConfig.getHttpsProperties().getHost());
+      Assert.assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
+      Assert.assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
       Assert.assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
       Assert.assertEquals("proxyUser", capturedProxyConfig.getHttpsProperties().getUser());
       Assert.assertEquals("proxyPassword", capturedProxyConfig.getHttpsProperties().getPassword());
@@ -460,15 +567,17 @@ public class DataLoaderDecoratorTest {
   @Test
   public void decorateWithProxySettingsShouldApplyAllConfiguredProxySettings() {
     Mockito.doReturn(true).when(configuration).isNetworkProxyEnabled();
-    Mockito.doReturn(Integer.valueOf(8073)).when(configuration).getHttpProxyPort();
+    Mockito.doReturn(8073).when(configuration).getHttpProxyPort();
     Mockito.doReturn("httpProxyHost").when(configuration).getHttpProxyHost();
-    Mockito.doReturn(Integer.valueOf(473)).when(configuration).getHttpsProxyPort();
+    Mockito.doReturn(473).when(configuration).getHttpsProxyPort();
     Mockito.doReturn("httpsProxyHost").when(configuration).getHttpsProxyHost();
     Mockito.doReturn("proxyUser").when(configuration).getHttpProxyUser();
     Mockito.doReturn("proxyPassword").when(configuration).getHttpProxyPassword();
 
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
+    Assert.assertNotNull(capturedProxyConfig.getHttpProperties());
+    Assert.assertNotNull(capturedProxyConfig.getHttpsProperties());
 
     Assert.assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
     Assert.assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
@@ -487,15 +596,17 @@ public class DataLoaderDecoratorTest {
   public void decorateWithProxySettingsForShouldApplyAllConfiguredProxySettings() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isNetworkProxyEnabledFor(connectionType);
-      Mockito.doReturn(Integer.valueOf(8073)).when(configuration).getHttpProxyPortFor(connectionType);
+      Mockito.doReturn(8073).when(configuration).getHttpProxyPortFor(connectionType);
       Mockito.doReturn("httpProxyHost").when(configuration).getHttpProxyHostFor(connectionType);
-      Mockito.doReturn(Integer.valueOf(473)).when(configuration).getHttpsProxyPortFor(connectionType);
+      Mockito.doReturn(473).when(configuration).getHttpsProxyPortFor(connectionType);
       Mockito.doReturn("httpsProxyHost").when(configuration).getHttpsProxyHostFor(connectionType);
       Mockito.doReturn("proxyUser").when(configuration).getHttpProxyUserFor(connectionType);
       Mockito.doReturn("proxyPassword").when(configuration).getHttpProxyPasswordFor(connectionType);
 
       DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
       ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
+      Assert.assertNotNull(capturedProxyConfig.getHttpProperties());
+      Assert.assertNotNull(capturedProxyConfig.getHttpsProperties());
 
       Assert.assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
       Assert.assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
@@ -518,14 +629,6 @@ public class DataLoaderDecoratorTest {
     Mockito.verify(dataLoader, Mockito.times(1)).setProxyConfig(argumentCaptor.capture());
     Mockito.verifyNoMoreInteractions(dataLoader);
     return argumentCaptor.getValue();
-  }
-
-  private void assertProxyPropertiesNotConfigured(ProxyProperties proxyProperties) {
-    Assert.assertEquals(0, proxyProperties.getPort());
-    Assert.assertNull(proxyProperties.getExcludedHosts());
-    Assert.assertNull(proxyProperties.getHost());
-    Assert.assertNull(proxyProperties.getUser());
-    Assert.assertNull(proxyProperties.getPassword());
   }
 
 }
