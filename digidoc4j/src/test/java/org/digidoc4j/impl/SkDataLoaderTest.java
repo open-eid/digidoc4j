@@ -21,7 +21,6 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.asic.tsl.TslLoader;
 import org.digidoc4j.test.MockSkDataLoader;
-import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -39,8 +38,16 @@ public class SkDataLoaderTest extends AbstractTest {
     this.configuration.setHttpProxyHost("proxyHost");
     this.configuration.setHttpProxyPort(1345);
     SkDataLoader dataLoader = new SkOCSPDataLoader(this.configuration);
-    TestAssert.assertHTTPProxyIsConfigured(dataLoader, "proxyHost", 1345);
-    TestAssert.assertProxyCredentialsAreUnset(dataLoader);
+    ProxyConfig config = dataLoader.getProxyConfig();
+    Assert.assertNotNull(config);
+    ProxyProperties httpProperties = config.getHttpProperties();
+    Assert.assertNotNull(httpProperties);
+    ProxyProperties httpsProperties = config.getHttpsProperties();
+    Assert.assertNull(httpsProperties);
+    Assert.assertEquals("proxyHost", httpProperties.getHost());
+    Assert.assertEquals(1345, httpProperties.getPort());
+    Assert.assertNull(httpProperties.getUser());
+    Assert.assertNull(httpProperties.getPassword());
   }
 
   @Test
@@ -50,14 +57,16 @@ public class SkDataLoaderTest extends AbstractTest {
     this.configuration.setHttpProxyUser("proxyUser");
     this.configuration.setHttpProxyPassword("proxyPassword");
     SkDataLoader loader = new SkOCSPDataLoader(this.configuration);
-    TestAssert.assertHTTPProxyIsConfigured(loader, "proxyHost", 1345);
     ProxyConfig config = loader.getProxyConfig();
+    Assert.assertNotNull(config);
     ProxyProperties httpProperties = config.getHttpProperties();
+    Assert.assertNotNull(httpProperties);
     ProxyProperties httpsProperties = config.getHttpsProperties();
+    Assert.assertNull(httpsProperties);
+    Assert.assertEquals("proxyHost", httpProperties.getHost());
+    Assert.assertEquals(1345, httpProperties.getPort());
     Assert.assertEquals("proxyUser", httpProperties.getUser());
-    Assert.assertEquals("proxyUser", httpsProperties.getUser());
     Assert.assertEquals("proxyPassword", httpProperties.getPassword());
-    Assert.assertEquals("proxyPassword", httpsProperties.getPassword());
   }
 
   @Test
