@@ -593,6 +593,17 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  public void asiceLT_noAdditionalCertificatesInSignature_shouldBeValid() {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    Container container = ContainerBuilder.aContainer().
+            fromExistingFile("src/test/resources/testFiles/valid-containers/NoAdditionalCertificates_LT.asice").
+            withConfiguration(configuration)
+            .build();
+    ContainerValidationResult test = container.validate();
+    Assert.assertTrue(test.isValid());
+  }
+
+  @Test
   public void signaturesWithCrlShouldBeInvalid() throws Exception {
     SignatureValidationResult result = this.openContainerByConfiguration(
         Paths.get("src/test/resources/prodFiles/invalid-containers/asic-with-crl-and-without-ocsp.asice"),
