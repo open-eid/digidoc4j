@@ -593,10 +593,36 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  public void bdocTM_noOcspCertificateInSignatureNorInOcspToken_shouldBeInvalid() {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    Container container = ContainerBuilder.aContainer().
+            fromExistingFile("src/test/resources/testFiles/invalid-containers/NoOcspCertificateAnywhere.bdoc").
+            withConfiguration(configuration)
+            .build();
+    ContainerValidationResult test = container.validate();
+    Assert.assertFalse(test.isValid());
+    Assert.assertEquals(0, test.getContainerErrors().size());
+    Assert.assertEquals(1, test.getErrors().size());
+    TestAssert.assertContainsError("OCSP Responder does not meet TM requirements", test.getErrors());
+  }
+
+  @Test
   public void asiceLT_noAdditionalCertificatesInSignature_shouldBeValid() {
     Configuration configuration = new Configuration(Configuration.Mode.TEST);
     Container container = ContainerBuilder.aContainer().
             fromExistingFile("src/test/resources/testFiles/valid-containers/NoAdditionalCertificates_LT.asice").
+            withConfiguration(configuration)
+            .build();
+    ContainerValidationResult test = container.validate();
+    Assert.assertTrue(test.isValid());
+  }
+
+  @Test
+  public void asiceLT_noOcspCertificateInSignatureNorInOcspTokenButInTsl_shouldBeValid() {
+    Configuration configuration = new Configuration(Configuration.Mode.TEST);
+    addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/SK_TSA.pem.crt"), configuration.getTSL());
+    Container container = ContainerBuilder.aContainer().
+            fromExistingFile("src/test/resources/testFiles/valid-containers/NoOcspCertificateAnywhere_LT_liveTS.asice").
             withConfiguration(configuration)
             .build();
     ContainerValidationResult test = container.validate();
