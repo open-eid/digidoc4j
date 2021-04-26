@@ -126,8 +126,8 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   public void ocspAccessSettingsInvalid_throwsServiceAccessDeniedException() throws CertificateEncodingException {
     Configuration configuration = Configuration.of(TEST);
     configuration.setSignOCSPRequests(true);
-    configuration.setOCSPAccessCertificateFileName("src/test/resources/testFiles/p12/signout.p12");
-    configuration.setOCSPAccessCertificatePassword("test".toCharArray());
+    configuration.setOCSPAccessCertificateFileName(TestSigningUtil.TEST_PKI_CONTAINER);
+    configuration.setOCSPAccessCertificatePassword(TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD.toCharArray());
 
     SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource()
             .withConfiguration(configuration)

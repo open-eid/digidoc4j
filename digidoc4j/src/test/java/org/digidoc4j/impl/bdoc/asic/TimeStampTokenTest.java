@@ -166,7 +166,7 @@ public class TimeStampTokenTest extends AbstractTest {
         "text/plain", "-datst", "SHA256", "-tst"};
     TestDigiDoc4JUtil.call(parameters);
     parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
-        "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
+        "text/plain", "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
     TestDigiDoc4JUtil.call(parameters);
     Assert.assertThat(this.stdOut.getLog(), StringContains.containsString(
         "This container has already timestamp. Should be no signatures in case of timestamped ASiCS container."));

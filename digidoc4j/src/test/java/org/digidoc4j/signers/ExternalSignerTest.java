@@ -53,7 +53,7 @@ public class ExternalSignerTest extends AbstractTest {
   @Ignore // TODO Fix me when possible
   public void testAsyncSigning() {
     Container container = this.createNonEmptyContainer();
-    DataToSign dataToSign = SignatureBuilder.aSignature(container).withSigningCertificate(this.pkcs12SignatureToken.getCertificate()).
+    DataToSign dataToSign = SignatureBuilder.aSignature(container).withSigningCertificate(pkcs12SignatureToken.getCertificate()).
         buildDataToSign();
     String containerFile = this.getFileBy("bin");
     String dataToSignFile = this.getFileBy("bin");
@@ -72,14 +72,14 @@ public class ExternalSignerTest extends AbstractTest {
    */
 
   private SignatureToken getExternalSignatureToken() {
-    return new ExternalSigner(this.pkcs12SignatureToken.getCertificate()) {
+    return new ExternalSigner(pkcs12SignatureToken.getCertificate()) {
 
       @Override
       public byte[] sign(DigestAlgorithm digestAlgorithm, byte[] dataToSign) {
         try {
           KeyStore keyStore = KeyStore.getInstance("PKCS12");
-          try (FileInputStream stream = new FileInputStream("src/test/resources/testFiles/p12/signout.p12")) {
-            keyStore.load(stream, "test".toCharArray());
+          try (FileInputStream stream = new FileInputStream(TestSigningUtil.TEST_PKI_CONTAINER)) {
+            keyStore.load(stream, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD.toCharArray());
           }
           PrivateKey privateKey = (PrivateKey) keyStore.getKey("1", "test".toCharArray());
           return TestSigningUtil.encrypt(String.format("NONEwith%s", privateKey.getAlgorithm()), privateKey, TestSigningUtil.addPadding(dataToSign));

@@ -166,8 +166,9 @@ public class DigiDoc4JTest extends AbstractTest {
     });
     String file = this.getFileBy("ddoc");
     String[] parameters = new String[]{"-in", file, "-type", "DDOC",
-        "-add", "src/test/resources/testFiles/helper-files/test.txt",
-        "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "LT_TM"};
+        "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
+        "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD,
+        "-profile", "LT_TM"};
     DigiDoc4J.main(parameters);
   }
 
@@ -187,8 +188,9 @@ public class DigiDoc4JTest extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     container.saveAsFile(file);
     String[] parameters = new String[]{"-in", file, "-type", "DDOC",
-            "-add", "src/test/resources/testFiles/helper-files/test.txt",
-            "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test", "-profile", "LT_TM"};
+            "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
+            "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD,
+            "-profile", "LT_TM"};
     DigiDoc4J.main(parameters);
   }
 
@@ -273,7 +275,7 @@ public class DigiDoc4JTest extends AbstractTest {
     String[] parameters = new String[]{"-in", file,
         "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
         "-pkcs11", "/usr/local/lib/opensc-pkcs11.so", "01497", "2",
-        "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
+        "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
     DigiDoc4J.main(parameters);
   }
 
@@ -282,7 +284,7 @@ public class DigiDoc4JTest extends AbstractTest {
     this.systemExit.expectSystemExitWithStatus(2);
     String file = this.getFileBy("bdoc");
     String[] parameters = new String[]{"-in", file, "-add", "src/test/resources/testFiles/helper-files/test.txt",
-        "-pkcs12", "src/test/resources/testFiles/p12/signout.p12", "test"};
+        "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
     DigiDoc4J.main(parameters);
   }
 
@@ -290,8 +292,8 @@ public class DigiDoc4JTest extends AbstractTest {
   public void createMultipleSignedContainers_whereInputDirIsFile_shouldThrowException() throws Exception {
     this.systemExit.expectSystemExitWithStatus(6);
     String[] parameters = new String[]{"-inputDir", this.testFolder.newFile("inputFolder").getPath(),
-        "-outputDir", this.testFolder.newFolder("outputFolder").getPath(), "-pkcs12",
-        "src/test/resources/testFiles/p12/signout.p12", "test"};
+        "-outputDir", this.testFolder.newFolder("outputFolder").getPath(),
+        "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
     DigiDoc4J.main(parameters);
   }
 
@@ -300,17 +302,17 @@ public class DigiDoc4JTest extends AbstractTest {
     String inputFolder = this.testFolder.newFolder("inputFolder").getPath();
     String outputFolder = this.testFolder.newFile("outputFolder").getPath();
     this.systemExit.expectSystemExitWithStatus(6);
-    String[] parameters = new String[]{"-inputDir", inputFolder, "-outputDir", outputFolder, "-pkcs12",
-        "src/test/resources/testFiles/p12/signout.p12", "test"};
+    String[] parameters = new String[]{"-inputDir", inputFolder, "-outputDir", outputFolder,
+        "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
     DigiDoc4J.main(parameters);
   }
 
   @Test
   public void createMultipleSignedContainers_withEmptyInputDir_shouldDoNothing() throws Exception {
     this.systemExit.expectSystemExitWithStatus(0);
-    String[] parameters = new String[]{"-inputDir", this.testFolder.newFolder("inputFolder").getPath(), "-outputDir",
-        this.testFolder.newFolder("outputFolder").getPath(), "-pkcs12",
-        "src/test/resources/testFiles/p12/signout.p12", "test"};
+    String[] parameters = new String[]{"-inputDir", this.testFolder.newFolder("inputFolder").getPath(),
+        "-outputDir", this.testFolder.newFolder("outputFolder").getPath(),
+        "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
     DigiDoc4J.main(parameters);
   }
 
@@ -865,9 +867,10 @@ public class DigiDoc4JTest extends AbstractTest {
   public void createAndValidateDetachedXades() throws Exception {
     String xadesSignaturePath = "singatures0.xml";
 
-    String[] parameters = new String[]{"-xades", "-digFile", "test.txt",
-        "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg", "text/plain", "-pkcs12", "src/test/resources/testFiles/p12/signout.p12",
-        "test", "-sigOutputPath", xadesSignaturePath};
+    String[] parameters = new String[]{"-xades",
+        "-digFile", "test.txt", "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg", "text/plain",
+        "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD,
+        "-sigOutputPath", xadesSignaturePath};
     TestDigiDoc4JUtil.call(parameters);
 
     parameters = new String[]{"-xades", "-digFile", "test.txt",

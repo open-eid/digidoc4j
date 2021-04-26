@@ -15,6 +15,7 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.InvalidKeyException;
+import org.digidoc4j.test.util.TestSigningUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -75,7 +76,7 @@ public class PKCS12SignatureTokenTest extends AbstractTest {
   public void closeSignatureTokenWhenSigning() {
     this.expectedException.expect(InvalidKeyException.class);
     this.expectedException.expectMessage("Private key entry is missing. Connection may be closed.");
-    PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
+    PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken(TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD.toCharArray());
 
     Assert.assertNotNull(pkcs12SignatureToken.sign(DigestAlgorithm.SHA512, new byte[]{0x41}));
     pkcs12SignatureToken.close();
@@ -86,7 +87,7 @@ public class PKCS12SignatureTokenTest extends AbstractTest {
   public void closeSignatureTokenWhenAskingCertificate() {
     this.expectedException.expect(InvalidKeyException.class);
     this.expectedException.expectMessage("Private key entry is missing. Connection may be closed.");
-    PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
+    PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken(TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD.toCharArray());
     Assert.assertNotNull(pkcs12SignatureToken.getCertificate());
     pkcs12SignatureToken.close();
     pkcs12SignatureToken.getCertificate();

@@ -171,7 +171,7 @@ public class IncompleteSigningTest extends AbstractTest {
     );
   }
 
-  @Test(expected = TechnicalException.class)
+  @Test(expected = OCSPRequestFailedException.class)
   public void signatureProfileLtTmShouldFailWhenTslLoadingFails() {
     setUpTestConfigurationWithFailingTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
