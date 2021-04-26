@@ -28,8 +28,8 @@ import java.security.cert.X509Certificate;
 
 public class TestSigningUtil {
 
-  public static final String TEST_PKI_CONTAINER = "src/test/resources/testFiles/p12/signout.p12";
-  public static final String TEST_PKI_CONTAINER_PASSWORD = "test";
+  public static final String TEST_PKI_CONTAINER = "src/test/resources/testFiles/p12/sign_RSA_from_TEST_of_ESTEIDSK2015.p12";
+  public static final String TEST_PKI_CONTAINER_PASSWORD = "1234";
   public static final String TEST_ECC_PKI_CONTAINER = "src/test/resources/testFiles/p12/MadDogOY.p12";
   public static final String TEST_ECC_PKI_CONTAINER_PASSWORD = "test";
   public static final X509Certificate SIGN_CERT = TestSigningUtil.toX509Certificate("-----BEGIN CERTIFICATE-----\r\n" +

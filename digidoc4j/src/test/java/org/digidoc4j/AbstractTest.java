@@ -82,7 +82,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected static final String USER_AGENT_STRING = "test-user-agent";
 
-  protected static final PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
+  protected static final PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/sign_RSA_from_TEST_of_ESTEIDSK2015.p12", "1234".toCharArray());
   protected static final PKCS12SignatureToken pkcs12EccSignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray());
   protected static final PKCS12SignatureToken pkcs12Esteid2018SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/sign_ESTEID2018.p12", "1234".toCharArray());
   protected Configuration configuration;
@@ -205,22 +205,27 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     return builder.build();
   }
 
+  @SuppressWarnings("unchecked")
   protected <T> T createEmptyContainer() {
     return (T) ContainerBuilder.aContainer().build();
   }
 
+  @SuppressWarnings("unchecked")
   protected <T> T createEmptyContainer(Configuration configuration) {
     return (T) ContainerBuilder.aContainer().withConfiguration(configuration).build();
   }
 
+  @SuppressWarnings("unchecked")
   protected <T> T createEmptyContainer(Class<T> clazz) {
     return (T) ContainerBuilder.aContainer().build();
   }
 
+  @SuppressWarnings("unchecked")
   protected <T> T createEmptyContainerBy(Container.DocumentType type) {
     return (T) ContainerBuilder.aContainer(type).build();
   }
 
+  @SuppressWarnings("unchecked")
   protected <T> T createEmptyContainerBy(Container.DocumentType type, Class<T> clazz) {
     return (T) ContainerBuilder.aContainer(type).build();
   }
@@ -287,7 +292,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected String getFileContent(InputStream stream) {
     try {
-      return IOUtils.toString(stream, "UTF-8");
+      return IOUtils.toString(stream, StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -309,6 +314,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     return file;
   }
 
+  @SuppressWarnings("unchecked")
   protected <T> T createSignatureBy(Container container, SignatureToken signatureToken) {
     return (T) this.createSignatureBy(container, (SignatureProfile) null, signatureToken);
   }
@@ -321,6 +327,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     return this.createSignatureBy(container, signatureProfile, null, signatureToken);
   }
 
+  @SuppressWarnings("unchecked")
   protected <T> T createSignatureBy(Container container, SignatureProfile signatureProfile, DigestAlgorithm digestAlgorithm, SignatureToken signatureToken) {
     SignatureBuilder builder = SignatureBuilder.aSignature(container).withSignatureToken(signatureToken);
     if (signatureProfile != null) {
@@ -335,21 +342,22 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected <T> T createSignatureBy(Container.DocumentType type, SignatureToken signatureToken) {
-    return (T) this.createSignatureBy(type, null, signatureToken, Configuration.Mode.TEST);
+    return this.createSignatureBy(type, null, signatureToken, Configuration.Mode.TEST);
   }
 
   protected <T> T createSignatureBy(Container.DocumentType type, SignatureToken signatureToken, Class<T> clazz) {
-    return (T) this.createSignatureBy(type, null, signatureToken, Configuration.Mode.TEST);
+    return this.createSignatureBy(type, null, signatureToken, Configuration.Mode.TEST);
   }
 
   protected <T> T createSignatureBy(Container.DocumentType type, SignatureToken signatureToken, Configuration.Mode mode) {
-    return (T) this.createSignatureBy(type, null, signatureToken, mode);
+    return this.createSignatureBy(type, null, signatureToken, mode);
   }
 
   protected <T> T createSignatureBy(Container.DocumentType type, SignatureProfile signatureProfile, SignatureToken signatureToken) {
-    return (T) this.createSignatureBy(type, signatureProfile, signatureToken, Configuration.Mode.TEST);
+    return this.createSignatureBy(type, signatureProfile, signatureToken, Configuration.Mode.TEST);
   }
 
+  @SuppressWarnings("unchecked")
   protected <T> T createSignatureBy(Container.DocumentType type, SignatureProfile signatureProfile, SignatureToken signatureToken, Configuration.Mode mode) {
     try {
       SignatureBuilder builder = SignatureBuilder.aSignature(TestDataBuilderUtil.createContainerWithFile(this.testFolder, type, mode));
@@ -362,6 +370,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     }
   }
 
+  @SuppressWarnings("unchecked")
   protected <T> T createSignatureBy(DigestAlgorithm digestAlgorithm, SignatureToken signatureToken) {
     try {
       return (T) SignatureBuilder.aSignature(this.createNonEmptyContainer()).withSignatureDigestAlgorithm(digestAlgorithm).
@@ -374,7 +383,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   protected String createSignedContainerBy(String extension) {
     String file = this.getFileBy(extension);
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"), "text/plain");
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
     container.save(file);
     return file;
   }
@@ -403,11 +412,11 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected byte[] sign(byte[] dataToSign, DigestAlgorithm digestAlgorithm) {
-    return this.pkcs12SignatureToken.sign(digestAlgorithm, dataToSign);
+    return pkcs12SignatureToken.sign(digestAlgorithm, dataToSign);
   }
 
   protected byte[] getDataToSign(XadesSigningDssFacade facade) {
-    facade.setSigningCertificate(this.pkcs12SignatureToken.getCertificate());
+    facade.setSigningCertificate(pkcs12SignatureToken.getCertificate());
     return facade.getDataToSign(this.createDataFilesToSign());
   }
 

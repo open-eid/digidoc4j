@@ -123,14 +123,14 @@ public class ValidationTest extends AbstractTest {
 
     Assert.assertTrue(result.isValid());
     Assert.assertEquals(1, result.getReports().size());
-    Assert.assertEquals("ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865", result.getReports().get(0).getSignedBy());
+    Assert.assertEquals("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", result.getReports().get(0).getSignedBy());
 
     this.createSignatureBy(container, this.pkcs12Esteid2018SignatureToken);
     result = container.validate();
 
     Assert.assertTrue(result.isValid());
     Assert.assertEquals(2, result.getReports().size());
-    Assert.assertEquals("ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865", result.getReports().get(0).getSignedBy());
+    Assert.assertEquals("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", result.getReports().get(0).getSignedBy());
     Assert.assertEquals("JÕEORG,JAAK-KRISTJAN,38001085718", result.getReports().get(1).getSignedBy());
   }
 

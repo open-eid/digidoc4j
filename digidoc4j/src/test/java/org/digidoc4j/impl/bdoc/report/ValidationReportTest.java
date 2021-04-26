@@ -30,7 +30,7 @@ public class ValidationReportTest extends AbstractTest {
   @Test
   public void validContainerWithOneSignature() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
-    Signature signature = this.createSignatureBy(container, SignatureProfile.LT, this.pkcs12SignatureToken);
+    Signature signature = this.createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
     String signatureId = signature.getId();
     SignatureValidationResult result = container.validate();
     Assert.assertTrue(result.isValid());
@@ -41,13 +41,13 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature)", report);
     TestAssert.assertXPathHasValue(signatureId, "/SimpleReport/Signature/@Id", report);
     TestAssert.assertXPathHasValue("XAdES-BASELINE-LT", "/SimpleReport/Signature/@SignatureFormat", report);
-    TestAssert.assertXPathHasValue("ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865", "/SimpleReport/Signature[@Id='" + signatureId + "']/SignedBy", report);
+    TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", "/SimpleReport/Signature[@Id='" + signatureId + "']/SignedBy", report);
     TestAssert.assertXPathHasValue("TOTAL_PASSED", "/SimpleReport/Signature[@Id='" + signatureId + "']/Indication", report);
     TestAssert.assertXPathHasValue("Full document", "/SimpleReport/Signature[@Id='" + signatureId + "']/SignatureScope", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature[@Id='" + signatureId + "']/SignatureScope/@name", report);
     TestAssert.assertXPathHasValue("", "/SimpleReport/Signature[@Id='" + signatureId + "']/Errors", report);
     TestAssert.assertXPathHasValue("true", "count(/SimpleReport/Signature[@Id='" + signatureId + "']/CertificateChain/Certificate) > 1", report);
-    TestAssert.assertXPathHasValue("ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865", "/SimpleReport/Signature[@Id='" + signatureId +
+    TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", "/SimpleReport/Signature[@Id='" + signatureId +
             "']/CertificateChain/Certificate[1]/qualifiedName", report);
   }
 
@@ -55,7 +55,7 @@ public class ValidationReportTest extends AbstractTest {
   public void validContainerWithOneTmSignature() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
     container.addDataFile("src/test/resources/testFiles/special-char-files/dds_acrobat.pdf", MimeType.PDF.getMimeTypeString());
-    this.createSignatureBy(container, SignatureProfile.LT_TM, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, SignatureProfile.LT_TM, pkcs12SignatureToken);
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("1", "/SimpleReport/ValidSignaturesCount", report);
@@ -65,13 +65,13 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope[1]/@name", report);
     TestAssert.assertXPathHasValue("dds_acrobat.pdf", "/SimpleReport/Signature/SignatureScope[2]/@name", report);
     TestAssert.assertXPathHasValue("true", "count(/SimpleReport/Signature/CertificateChain/Certificate) > 1", report);
-    TestAssert.assertXPathHasValue("ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865", "/SimpleReport/Signature/CertificateChain/Certificate[1]/qualifiedName", report);
+    TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", "/SimpleReport/Signature/CertificateChain/Certificate[1]/qualifiedName", report);
   }
 
   @Test
   public void containerWithOneBesSignature() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
-    this.createSignatureBy(container, SignatureProfile.B_BES, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
@@ -81,13 +81,13 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("TRY_LATER", "/SimpleReport/Signature/SubIndication", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
     TestAssert.assertXPathHasValue("true", "count(/SimpleReport/Signature/CertificateChain/Certificate) > 1", report);
-    TestAssert.assertXPathHasValue("ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865", "/SimpleReport/Signature/CertificateChain/Certificate[1]/qualifiedName", report);
+    TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", "/SimpleReport/Signature/CertificateChain/Certificate[1]/qualifiedName", report);
   }
 
   @Test
   public void containerWithOneEpesSignature() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
-    this.createSignatureBy(container, SignatureProfile.B_EPES, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, SignatureProfile.B_EPES, pkcs12SignatureToken);
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
@@ -97,14 +97,14 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("TRY_LATER", "/SimpleReport/Signature/SubIndication", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
     TestAssert.assertXPathHasValue("true", "count(/SimpleReport/Signature/CertificateChain/Certificate) > 1", report);
-    TestAssert.assertXPathHasValue("ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865", "/SimpleReport/Signature/CertificateChain/Certificate[1]/qualifiedName", report);
+    TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", "/SimpleReport/Signature/CertificateChain/Certificate[1]/qualifiedName", report);
   }
 
   @Test
   public void validContainerWithTwoSignatures() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
-    Signature signature1 = this.createSignatureBy(container, SignatureProfile.LT_TM, this.pkcs12SignatureToken);
-    Signature signature2 = this.createSignatureBy(container, SignatureProfile.LT, this.pkcs12SignatureToken);
+    Signature signature1 = this.createSignatureBy(container, SignatureProfile.LT_TM, pkcs12SignatureToken);
+    Signature signature2 = this.createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
     SignatureValidationResult result = container.validate();
     Assert.assertTrue(result.isValid());
     String report = result.getReport();
@@ -118,9 +118,9 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature[1]/SignatureScope/@name", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature[2]/SignatureScope/@name", report);
     TestAssert.assertXPathHasValue("true", "count(/SimpleReport/Signature[1]/CertificateChain/Certificate) > 1", report);
-    TestAssert.assertXPathHasValue("ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865", "/SimpleReport/Signature[1]/CertificateChain/Certificate[1]/qualifiedName", report);
+    TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", "/SimpleReport/Signature[1]/CertificateChain/Certificate[1]/qualifiedName", report);
     TestAssert.assertXPathHasValue("true", "count(/SimpleReport/Signature[2]/CertificateChain/Certificate) > 1", report);
-    TestAssert.assertXPathHasValue("ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865", "/SimpleReport/Signature[2]/CertificateChain/Certificate[1]/qualifiedName", report);
+    TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", "/SimpleReport/Signature[2]/CertificateChain/Certificate[1]/qualifiedName", report);
   }
 
   @Test
