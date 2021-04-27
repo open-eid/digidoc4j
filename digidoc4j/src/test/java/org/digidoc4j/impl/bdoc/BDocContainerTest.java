@@ -1058,7 +1058,7 @@ public class BDocContainerTest extends AbstractTest {
     Assert.assertEquals("https://www.sk.ee/repository/bdoc-spec21.pdf", policyId.getUrl());
     Assert.assertEquals("" + XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
     Assert.assertEquals(eu.europa.esig.dss.enumerations.DigestAlgorithm.SHA256, policyId.getDigest().getAlgorithm());
-    Assert.assertArrayEquals(Base64.decodeBase64("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A="), policyId.getDigest().getValue());
+    Assert.assertArrayEquals(Base64.decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="), policyId.getDigest().getValue());
   }
 
   @Test
