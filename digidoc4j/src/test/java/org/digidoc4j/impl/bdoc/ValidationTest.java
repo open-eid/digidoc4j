@@ -283,7 +283,11 @@ public class ValidationTest extends AbstractTest {
         .open("src/test/resources/prodFiles/invalid-containers/revocation_timestamp_delta_26h.asice", configuration)
         .validate();
     Assert.assertEquals(0, result.getErrors().size());
-    Assert.assertEquals(2, result.getWarnings().size());
+    Assert.assertEquals(1, result.getWarnings().size());
+    TestAssert.assertContainsError(
+            "The difference between the OCSP response time and the signature timestamp is in allowable range",
+            result.getWarnings()
+    );
   }
 
   @Test

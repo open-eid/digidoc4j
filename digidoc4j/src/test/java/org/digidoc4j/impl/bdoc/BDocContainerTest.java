@@ -1074,7 +1074,7 @@ public class BDocContainerTest extends AbstractTest {
     Assert.assertSame(1, validationResult.getContainerErrors().size());
     Assert.assertEquals(validationResult.getContainerErrors().get(0).getMessage(), "Duplicate signature files: META-INF/signatures1.xml");
 
-    Assert.assertSame(4, validationResult.getWarnings().size());
+    Assert.assertSame(2, validationResult.getWarnings().size());
 
     Assert.assertSame(9, validationResult.getErrors().size());
     List<DigiDoc4JException> errors = validationResult.getErrors();

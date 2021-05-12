@@ -43,8 +43,6 @@
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
         <NotSelfSigned Level="FAIL"/>
-        <Qualification Level="WARN"/>
-        <SupportedByQSCD Level="WARN"/>
         <IssuedToNaturalPerson Level="INFORM" />
         <IssuedToLegalPerson Level="INFORM"/>
         <UsePseudonym Level="INFORM"/>
@@ -186,8 +184,6 @@
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
         <NotSelfSigned Level="FAIL"/>
-        <!-- 				<Qualification Level="WARN" /> -->
-        <!-- 				<SupportedByQSCD Level="WARN" /> -->
         <!-- 				<IssuedToNaturalPerson Level="INFORM" /> -->
         <!-- 				<IssuedToLegalPerson Level="INFORM" /> -->
         <UsePseudonym Level="INFORM"/>
