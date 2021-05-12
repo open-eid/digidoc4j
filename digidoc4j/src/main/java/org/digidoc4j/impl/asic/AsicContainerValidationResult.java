@@ -10,32 +10,26 @@
 
 package org.digidoc4j.impl.asic;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+import eu.europa.esig.dss.enumerations.Indication;
+import eu.europa.esig.dss.enumerations.SignatureQualification;
+import eu.europa.esig.dss.enumerations.SubIndication;
+import eu.europa.esig.dss.simplereport.SimpleReport;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.ContainerValidationResult;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.AbstractSignatureValidationResult;
+import org.digidoc4j.impl.AbstractContainerValidationResult;
 
-import eu.europa.esig.dss.enumerations.SignatureQualification;
-import eu.europa.esig.dss.enumerations.Indication;
-import eu.europa.esig.dss.enumerations.SubIndication;
-import eu.europa.esig.dss.simplereport.SimpleReport;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Validation result information.
  * <p>
  * For BDOC the ValidationResult contains only information for the first signature of each signature XML file
  */
-public class AsicContainerValidationResult extends AbstractSignatureValidationResult implements
-    ContainerValidationResult {
+public class AsicContainerValidationResult extends AbstractContainerValidationResult implements ContainerValidationResult {
 
-  private List<DigiDoc4JException> containerErrors = new ArrayList<>();
   private Map<String, String> signatureIdMap = Collections.emptyMap();
   private AsicValidationReportBuilder validationReportBuilder;
 
@@ -135,24 +129,6 @@ public class AsicContainerValidationResult extends AbstractSignatureValidationRe
 
   private String resolveSignatureId(String signatureId) {
     return signatureIdMap.getOrDefault(signatureId, signatureId);
-  }
-
-  /*
-   * ACCESSORS
-   */
-
-  @Override
-  public List<DigiDoc4JException> getContainerErrors() {
-    return containerErrors;
-  }
-
-  /**
-   * Set container errors only.
-   *
-   * @param containerErrors Discovered list of container errors
-   */
-  public void setContainerErrors(List<DigiDoc4JException> containerErrors) {
-    this.containerErrors = containerErrors;
   }
 
 }

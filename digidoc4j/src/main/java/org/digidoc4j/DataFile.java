@@ -27,7 +27,6 @@ import org.digidoc4j.impl.StreamDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,6 +35,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.OptionalLong;
 
 /**
  * Data file wrapper providing methods for handling signed files or files to be signed in Container.
@@ -73,9 +73,7 @@ public class DataFile implements Serializable {
    */
   public DataFile(byte[] data, String fileName, String mimeType) {
     logger.debug("File name: " + fileName + ", mime type: " + mimeType);
-    ByteArrayInputStream stream = new ByteArrayInputStream(data);
-    document = new InMemoryDocument(stream, fileName, getMimeType(mimeType));
-    IOUtils.closeQuietly(stream);
+    document = new InMemoryDocument(data.clone(), fileName, getMimeType(mimeType));
   }
 
   /**
@@ -105,7 +103,7 @@ public class DataFile implements Serializable {
   protected MimeType getMimeType(String mimeType) {
     try {
       MimeType mimeTypeCode = MimeType.fromMimeTypeString(mimeType);
-      logger.debug("Mime type: ", mimeTypeCode);
+      logger.debug("Mime type: {}", mimeTypeCode);
       return mimeTypeCode;
     } catch (DSSException e) {
       logger.error(e.getMessage());
@@ -189,20 +187,55 @@ public class DataFile implements Serializable {
    * @return file size in bytes
    */
   public long getFileSize() {
-    long fileSize;
+    OptionalLong fileBackedSize = getFileSizeIfBackedByFile();
+    if (fileBackedSize.isPresent()) {
+      return fileBackedSize.getAsLong();
+    }
+    long fileSize = 0L;
+    try (InputStream inputStream = getStream()) {
+      // Read the entire stream, but do not build yet another byte[] to hold the entire contents. Just skip and count the bytes.
+      //  InputStream.skip(long) is not reliable to count the actual number of bytes available via an input stream.
+      byte[] skipBuffer = new byte[IOUtils.DEFAULT_BUFFER_SIZE];
+      int bytesRead;
+      while ((bytesRead = inputStream.read(skipBuffer)) > 0) {
+        fileSize += bytesRead;
+      }
+    } catch (IOException e) {
+      throw new TechnicalException("Error reading document bytes: " + e.getMessage(), e);
+    }
+    logger.debug("File document size: " + fileSize);
+    return fileSize;
+  }
+
+  /**
+   * Returns {@code true} if the data file size is 0 bytes.
+   *
+   * @return {@code true} if the data file is empty
+   */
+  public boolean isFileEmpty() {
+    OptionalLong fileBackedSize = getFileSizeIfBackedByFile();
+    if (fileBackedSize.isPresent()) {
+      return (fileBackedSize.getAsLong() < 1L);
+    }
+    try (InputStream inputStream = getStream()) {
+      return (inputStream.read() < 0); // read() returns -1 if no bytes to read
+    } catch (IOException e) {
+      throw new TechnicalException("Error reading document bytes: " + e.getMessage(), e);
+    }
+  }
+
+  private OptionalLong getFileSizeIfBackedByFile() {
     if (document instanceof StreamDocument || document instanceof FileDocument) {
       try {
-        fileSize = Files.size(Paths.get(document.getAbsolutePath()));
+        long fileSize = Files.size(Paths.get(document.getAbsolutePath()));
         logger.debug("Document size: " + fileSize);
-        return fileSize;
+        return OptionalLong.of(fileSize);
       } catch (IOException e) {
         logger.error(e.getMessage());
         throw new DigiDoc4JException(e);
       }
     }
-    fileSize = getBytes().length;
-    logger.debug("File document size: " + fileSize);
-    return fileSize;
+    return OptionalLong.empty();
   }
 
   /**

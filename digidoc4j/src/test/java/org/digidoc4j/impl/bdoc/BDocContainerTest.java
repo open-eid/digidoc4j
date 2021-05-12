@@ -572,7 +572,9 @@ public class BDocContainerTest extends AbstractTest {
   public void testAddTwoFilesAsStream() throws Exception {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     ByteArrayInputStream stream = new ByteArrayInputStream("tere, tere".getBytes());
+    stream.mark(Integer.MAX_VALUE);
     container.addDataFile(stream, "test1.txt", "text/plain");
+    stream.reset();
     container.addDataFile(stream, "test2.txt", "text/plain");
   }
 

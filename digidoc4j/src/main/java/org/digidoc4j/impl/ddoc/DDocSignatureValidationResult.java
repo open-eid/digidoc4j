@@ -14,7 +14,7 @@ import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.AbstractSignatureValidationResult;
+import org.digidoc4j.impl.AbstractContainerValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Comment;
@@ -33,11 +33,9 @@ import java.util.List;
 /**
  * Overview of errors and warnings for DDoc
  */
-public class DDocSignatureValidationResult extends AbstractSignatureValidationResult implements
-    ContainerValidationResult {
+public class DDocSignatureValidationResult extends AbstractContainerValidationResult implements ContainerValidationResult {
 
   private final Logger log = LoggerFactory.getLogger(DDocSignatureValidationResult.class);
-  private List<DigiDoc4JException> containerExceptions = new ArrayList<>();
   private Document document;
   private Element rootElement;
   private boolean hasFatalErrors = false;
@@ -68,7 +66,7 @@ public class DDocSignatureValidationResult extends AbstractSignatureValidationRe
       removeDuplicates(exceptions);
       removeDuplicates(openContainerExceptions);
       for (DigiDocException exception : openContainerExceptions) {
-        this.containerExceptions.add(new DigiDoc4JException(exception.getCode(), exception.getMessage()));
+        super.containerErrors.add(new DigiDoc4JException(exception.getCode(), exception.getMessage()));
         if (SignedDoc.hasFatalErrs((ArrayList) openContainerExceptions)) {
           this.hasFatalErrors = true;
         }
@@ -165,11 +163,6 @@ public class DDocSignatureValidationResult extends AbstractSignatureValidationRe
   /*
    * ACCESSORS
    */
-
-  @Override
-  public List<DigiDoc4JException> getContainerErrors() {
-    return containerExceptions;
-  }
 
   /**
    * Does the container have fatal errors

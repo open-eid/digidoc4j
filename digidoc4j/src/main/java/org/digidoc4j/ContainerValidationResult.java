@@ -19,4 +19,11 @@ public interface ContainerValidationResult extends SignatureValidationResult {
    */
   List<DigiDoc4JException> getContainerErrors();
 
+  /**
+   * Get list container related warnings.
+   *
+   * @return List of exceptions
+   */
+  List<DigiDoc4JException> getContainerWarnings();
+
 }

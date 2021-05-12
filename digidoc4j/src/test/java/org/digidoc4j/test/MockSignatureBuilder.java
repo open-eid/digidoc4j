@@ -21,6 +21,8 @@ import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.impl.SignatureFinalizer;
 
+import java.util.ArrayList;
+
 /**
  * Used in unit tests.
  */
@@ -31,7 +33,7 @@ public class MockSignatureBuilder extends SignatureBuilder {
 
   @Override
   public DataToSign buildDataToSign() throws SignerCertificateRequiredException, ContainerWithoutFilesException {
-    SignatureFinalizer signatureFinalizer = new SignatureFinalizer(null, null, null) {
+    SignatureFinalizer signatureFinalizer = new SignatureFinalizer(new ArrayList<>(), null, null) {
       @Override
       public Signature finalizeSignature(byte[] signatureValue) {
         finalizedSignatureValue = signatureValue;

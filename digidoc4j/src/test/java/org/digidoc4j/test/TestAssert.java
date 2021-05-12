@@ -79,7 +79,7 @@ public final class TestAssert {
         return;
       }
     }
-    Assert.assertFalse(String.format("Expected <%s> was not found", error), true);
+    Assert.fail(String.format("Expected <%s> was not found", error));
   }
 
   public static void assertSignatureMetadataContainsFileName(Signature signature, String fileName) {
@@ -109,6 +109,17 @@ public final class TestAssert {
   public static void assertSaveAsStream(Container container) throws IOException {
     container.validate();
     TestAssert.assertContainerStream(container.saveAsStream());
+  }
+
+  public static void assertSuppressed(Throwable throwable, Class<?> suppressedType, String... suppressedMessages) {
+    Throwable[] suppressedList = throwable.getSuppressed();
+    Assert.assertNotNull(suppressedList);
+    Assert.assertEquals(suppressedMessages.length, suppressedList.length);
+    for (int i = 0; i < suppressedMessages.length; ++i) {
+      Assert.assertNotNull(suppressedList[i]);
+      Assert.assertTrue(suppressedType.isInstance(suppressedList[i]));
+      Assert.assertEquals(suppressedMessages[i], suppressedList[i].getMessage());
+    }
   }
 
   /*

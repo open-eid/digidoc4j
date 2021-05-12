@@ -11,6 +11,7 @@
 package org.digidoc4j.impl.asic;
 
 import eu.europa.esig.dss.model.DSSDocument;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
@@ -28,11 +29,13 @@ import org.digidoc4j.SignedInfo;
 import org.digidoc4j.exceptions.DataFileNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
+import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.AbstractContainerValidationResult;
 import org.digidoc4j.impl.AbstractValidationResult;
 import org.digidoc4j.impl.asic.asice.AsicEContainerValidator;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
@@ -58,6 +61,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Andrei on 7.11.2017.
@@ -167,30 +171,32 @@ public abstract class AsicContainer implements Container {
   }
 
   protected ContainerValidationResult validateContainer() {
+    ContainerValidationResult containerValidationResult;
     if (this.timeStampToken != null) {
-      return this.validateTimestampToken();
+      containerValidationResult = this.validateTimestampToken();
     } else {
+      AsicEContainerValidator containerValidator;
       if (!this.isNewContainer()) {
         if (DocumentType.BDOC.name().equalsIgnoreCase(this.containerType)) {
-          return new BDocContainerValidator(this.containerParseResult, this.getConfiguration(),
-                  !this.dataFilesHaveChanged).validate(this.getSignatures());
+          containerValidator = new BDocContainerValidator(containerParseResult, getConfiguration(), !dataFilesHaveChanged);
         } else if (DocumentType.ASICS.name().equalsIgnoreCase(this.containerType)) {
-          return new AsicSContainerValidator(this.containerParseResult, this.getConfiguration(),
-                  !this.dataFilesHaveChanged).validate(this.getSignatures());
+          containerValidator = new AsicSContainerValidator(containerParseResult, getConfiguration(), !dataFilesHaveChanged);
         } else {
-          return new AsicEContainerValidator(this.containerParseResult, this.getConfiguration(),
-              !this.dataFilesHaveChanged).validate(this.getSignatures());
+          containerValidator = new AsicEContainerValidator(containerParseResult, getConfiguration(), !dataFilesHaveChanged);
         }
       } else {
         if (DocumentType.BDOC.name().equalsIgnoreCase(this.containerType)) {
-          return new BDocContainerValidator(this.getConfiguration()).validate(this.getSignatures());
+          containerValidator = new BDocContainerValidator(getConfiguration());
         } else if (DocumentType.ASICS.name().equalsIgnoreCase(this.containerType)) {
-          return new AsicSContainerValidator(this.getConfiguration()).validate(this.getSignatures());
+          containerValidator = new AsicSContainerValidator(getConfiguration());
         } else {
-          return new AsicEContainerValidator(this.getConfiguration()).validate(this.getSignatures());
+          containerValidator = new AsicEContainerValidator(getConfiguration());
         }
       }
+      containerValidationResult = containerValidator.validate(getSignatures());
     }
+    validateDataFiles(containerValidationResult);
+    return containerValidationResult;
   }
 
   private ContainerValidationResult validateTimestampToken() {
@@ -198,6 +204,31 @@ public abstract class AsicContainer implements Container {
       this.containerParseResult = new AsicStreamContainerParser(this.saveAsStream(), this.getConfiguration()).read();
     }
     return new TimeStampTokenValidator(this.containerParseResult).validate();
+  }
+
+  private void validateDataFiles(ContainerValidationResult containerValidationResult) {
+    List<String> dataFilesValidationWarnings = dataFiles.stream()
+            .filter(DataFile::isFileEmpty)
+            .map(dataFile -> String.format("Data file '%s' is empty", dataFile.getName()))
+            .collect(Collectors.toList());
+
+    if (CollectionUtils.isEmpty(dataFilesValidationWarnings)) {
+      return;
+    }
+
+    if (containerValidationResult instanceof AbstractContainerValidationResult) {
+      AbstractContainerValidationResult abstractContainerValidationResult = (AbstractContainerValidationResult) containerValidationResult;
+      List<DigiDoc4JException> exceptions = dataFilesValidationWarnings.stream().map(InvalidDataFileException::new).collect(Collectors.toList());
+      abstractContainerValidationResult.addContainerWarnings(exceptions);
+      abstractContainerValidationResult.addWarnings(exceptions);
+    } else if (containerValidationResult instanceof AbstractValidationResult) {
+      List<DigiDoc4JException> exceptions = dataFilesValidationWarnings.stream().map(InvalidDataFileException::new).collect(Collectors.toList());
+      ((AbstractValidationResult) containerValidationResult).addWarnings(exceptions);
+    } else {
+      for (String dataFileValidationWarning : dataFilesValidationWarnings) {
+        LOGGER.warn(dataFileValidationWarning);
+      }
+    }
   }
 
   @Override
@@ -283,6 +314,14 @@ public abstract class AsicContainer implements Container {
     if (isContainerSigned()) {
       LOGGER.error("Datafiles cannot be removed from an already signed container");
       throw new RemovingDataFileException();
+    }
+  }
+
+  protected void verifyDataFileIsNotEmpty(DataFile dataFile) {
+    if (dataFile.isFileEmpty()) {
+      String errorMessage = "Datafiles cannot be empty";
+      LOGGER.error(errorMessage);
+      throw new InvalidDataFileException(errorMessage);
     }
   }
 
@@ -407,6 +446,7 @@ public abstract class AsicContainer implements Container {
 
   @Override
   public void addDataFile(DataFile dataFile) {
+    verifyDataFileIsNotEmpty(dataFile);
     String fileName = dataFile.getName();
     verifyIfAllowedToAddDataFile(fileName);
     if (Constant.ASICS_CONTAINER_TYPE.equals(getType())) {

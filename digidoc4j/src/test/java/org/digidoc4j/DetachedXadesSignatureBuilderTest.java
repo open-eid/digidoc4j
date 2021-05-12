@@ -6,13 +6,13 @@ import java.security.MessageDigest;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
+import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class DetachedXadesSignatureBuilderTest extends AbstractTest {
@@ -93,6 +93,24 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
 
     assertTimestampSignature(signature);
     assertValidSignature(signature);
+  }
+
+  @Test(expected = InvalidDataFileException.class)
+  public void invokeSigningWithEmptyDataFileThrowsException() {
+    DataFile dataFile = new DataFile(new byte[0], "hello.txt", "text/plain");
+    DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+        .withDataFile(dataFile)
+        .withSignatureToken(pkcs12EccSignatureToken)
+        .invokeSigning();
+  }
+
+  @Test(expected = InvalidDataFileException.class)
+  public void buildDataToSignWithEmptyDataFileThrowsException() {
+    DataFile dataFile = new DataFile(new byte[0], "hello.txt", "text/plain");
+    DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+        .withDataFile(dataFile)
+        .withSignatureToken(pkcs12EccSignatureToken)
+        .invokeSigning();
   }
 
   @Test(expected = SignatureTokenMissingException.class)
