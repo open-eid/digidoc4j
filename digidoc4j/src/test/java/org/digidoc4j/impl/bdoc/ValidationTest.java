@@ -176,8 +176,9 @@ public class ValidationTest extends AbstractTest {
                     this.configuration);
     SignatureValidationResult validationResult = container.validate();
     Assert.assertTrue(validationResult.isValid());
-    Assert.assertEquals(1, validationResult.getWarnings().size());
+    Assert.assertEquals(2, validationResult.getWarnings().size());
     Assert.assertEquals("Signature created with implied policy, additional conditions may apply!", validationResult.getWarnings().get(0).getMessage());
+    Assert.assertEquals("The authority info access is not present!", validationResult.getWarnings().get(1).getMessage());
   }
 
   @Test
@@ -283,9 +284,13 @@ public class ValidationTest extends AbstractTest {
         .open("src/test/resources/prodFiles/invalid-containers/revocation_timestamp_delta_26h.asice", configuration)
         .validate();
     Assert.assertEquals(0, result.getErrors().size());
-    Assert.assertEquals(1, result.getWarnings().size());
+    Assert.assertEquals(2, result.getWarnings().size());
     TestAssert.assertContainsError(
             "The difference between the OCSP response time and the signature timestamp is in allowable range",
+            result.getWarnings()
+    );
+    TestAssert.assertContainsError(
+            "The authority info access is not present!",
             result.getWarnings()
     );
   }

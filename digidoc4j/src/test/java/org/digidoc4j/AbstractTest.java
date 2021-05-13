@@ -550,6 +550,13 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     Assert.assertTrue(validationResult.getErrors().isEmpty());
   }
 
+  protected void assertValidSignatureWithWarnings(Signature signature) {
+    ValidationResult validationResult = signature.validateSignature();
+    Assert.assertTrue(validationResult.isValid());
+    Assert.assertTrue(validationResult.hasWarnings());
+    Assert.assertTrue(validationResult.getErrors().isEmpty());
+  }
+
   protected Policy validCustomPolicy() {
     Policy customPolicy = new Policy();
     customPolicy.setId("id");
