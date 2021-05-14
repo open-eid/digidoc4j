@@ -227,7 +227,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.6</version>
+                    <version>0.8.7</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -318,7 +318,7 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
-                        <version>6.0.3</version>
+                        <version>6.1.6</version>
                         <configuration>
                             <skipTestScope>false</skipTestScope>
                             <skipDependencyManagement>false</skipDependencyManagement>
