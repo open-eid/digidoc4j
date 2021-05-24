@@ -382,9 +382,9 @@ public class ValidationTest extends AbstractTest {
         .open("src/test/resources/prodFiles/invalid-containers/23608_bdoc21-invalid-nonce-policy-oid.bdoc", PROD_CONFIGURATION);
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(1, errors.size());
-    Assert.assertEquals("(Signature ID: S0) - Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.4.3",
-        errors.get(0).toString());
+    Assert.assertEquals(2, errors.size());
+    TestAssert.assertContainsError("Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.4.3", errors);
+    TestAssert.assertContainsError("The certificate is not related to a granted status!", errors);
   }
 
   @Test
@@ -448,10 +448,11 @@ public class ValidationTest extends AbstractTest {
         .open("src/test/resources/prodFiles/invalid-containers/nonce-vale-sisu.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(5, errors.size());
-    Assert.assertEquals("(Signature ID: S0) - Wrong policy identifier: 1.3.6.1.4.1.10015.1000.2.10.10",
-        errors.get(0).toString());
-    Assert.assertEquals("(Signature ID: S0) - OCSP nonce is invalid", errors.get(3).toString());
+    Assert.assertEquals(6, errors.size());
+    TestAssert.assertContainsError("OCSP nonce is invalid", errors);
+    TestAssert.assertContainsError("Wrong policy identifier: 1.3.6.1.4.1.10015.1000.2.10.10", errors);
+    TestAssert.assertContainsError("The result of the LTV validation process is not acceptable to continue the process!", errors);
+    TestAssert.assertContainsError("The certificate is not related to a granted status!", errors);
   }
 
   @Test
@@ -783,18 +784,18 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validateBDocTs_Isvalid() throws Exception {
+  public void validateBDocTs_Invalid() throws Exception {
     Container container = ContainerOpener.open("src/test/resources/prodFiles/invalid-containers/bdoc21-ts-ok.bdoc", PROD_CONFIGURATION);
     SignatureValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
-    Assert.assertEquals(8, result.getErrors().size());
+    Assert.assertEquals(9, result.getErrors().size());
+    TestAssert.assertContainsError("The result of the timestamps validation process is not conclusive!", result.getErrors());
+    TestAssert.assertContainsError("The certificate chain for timestamp is not trusted, it does not contain a trust anchor.", result.getErrors());
+    TestAssert.assertContainsError("Signature has an invalid timestamp", result.getErrors());
+    TestAssert.assertContainsError("The result of the LTV validation process is not acceptable to continue the process!", result.getErrors());
+    TestAssert.assertContainsError("The certificate is not related to a granted status!", result.getErrors());
     TestAssert.assertContainsError(
-        "(Signature ID: S0) - The result of the timestamps validation process is not conclusive!",
-        result.getErrors());
-    TestAssert.assertContainsError(
-        "(Signature ID: S0) - Signature has an invalid timestamp", result.getErrors());
-    TestAssert.assertContainsError(
-        "(Signature ID: S0) - Manifest file has an entry for file <build.xml> with mimetype <text/xml> but the " +
+        "Manifest file has an entry for file <build.xml> with mimetype <text/xml> but the " +
             "signature file for signature S0 indicates the mimetype is <>", result.getErrors());
   }
 
