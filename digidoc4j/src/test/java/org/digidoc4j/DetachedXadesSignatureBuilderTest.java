@@ -6,13 +6,13 @@ import java.security.MessageDigest;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
+import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class DetachedXadesSignatureBuilderTest extends AbstractTest {
@@ -33,7 +33,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     byte[] signatureValue = pkcs12EccSignatureToken.sign(deserializedDataToSign.getDigestAlgorithm(), deserializedDataToSign.getDataToSign());
     Signature signature = dataToSign.finalize(signatureValue);
     assertTimestampSignature(signature);
-    assertValidSignature(signature);
+    assertValidSignatureWithWarnings(signature);
   }
 
   @Test
@@ -47,7 +47,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
         .invokeSigning();
 
     assertTimestampSignature(signature);
-    assertValidSignature(signature);
+    assertValidSignatureWithWarnings(signature);
   }
 
   @Test
@@ -79,7 +79,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
         .invokeSigning();
 
     assertTimestampSignature(signature);
-    assertValidSignature(signature);
+    assertValidSignatureWithWarnings(signature);
   }
 
   @Test
@@ -92,7 +92,25 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
         .invokeSigning();
 
     assertTimestampSignature(signature);
-    assertValidSignature(signature);
+    assertValidSignatureWithWarnings(signature);
+  }
+
+  @Test(expected = InvalidDataFileException.class)
+  public void invokeSigningWithEmptyDataFileThrowsException() {
+    DataFile dataFile = new DataFile(new byte[0], "hello.txt", "text/plain");
+    DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+        .withDataFile(dataFile)
+        .withSignatureToken(pkcs12EccSignatureToken)
+        .invokeSigning();
+  }
+
+  @Test(expected = InvalidDataFileException.class)
+  public void buildDataToSignWithEmptyDataFileThrowsException() {
+    DataFile dataFile = new DataFile(new byte[0], "hello.txt", "text/plain");
+    DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+        .withDataFile(dataFile)
+        .withSignatureToken(pkcs12EccSignatureToken)
+        .invokeSigning();
   }
 
   @Test(expected = SignatureTokenMissingException.class)
@@ -131,7 +149,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
          .invokeSigningProcess();
 
     assertTimemarkSignature(signature);
-    assertValidSignature(signature);
+    assertValidSignatureWithWarnings(signature);
   }
 
   @Test
@@ -147,8 +165,9 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     assertBEpesSignature(signature);
     ValidationResult validationResult = signature.validateSignature();
     Assert.assertFalse(validationResult.isValid());
-    Assert.assertEquals(1, validationResult.getWarnings().size());
+    Assert.assertEquals(2, validationResult.getWarnings().size());
     Assert.assertEquals("The signature/seal is an INDETERMINATE AdES digital signature!", validationResult.getWarnings().get(0).getMessage());
+    Assert.assertEquals("The authority info access is not present!", validationResult.getWarnings().get(1).getMessage());
     Assert.assertEquals(2, validationResult.getErrors().size());
     Assert.assertEquals("The result of the LTV validation process is not acceptable to continue the process!", validationResult.getErrors().get(0).getMessage());
     Assert.assertEquals("No acceptable revocation data for the certificate!", validationResult.getErrors().get(1).getMessage());
@@ -166,7 +185,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
          .withSignatureProfile(SignatureProfile.LT)
          .invokeSigningProcess();
     assertTimestampSignature(signature);
-    assertValidSignature(signature);
+    assertValidSignatureWithWarnings(signature);
   }
 
   @Test
@@ -207,7 +226,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     Assert.assertEquals("myRole / myResolution", signature.getSignerRoles().get(0));
     Assert.assertEquals("SIGNATURE-1", signature.getId());
     assertTimestampSignature(signature);
-    assertValidSignature(signature);
+    assertValidSignatureWithWarnings(signature);
   }
 
   @Test
@@ -224,7 +243,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
         .openAdESSignature(xadesSignature);
 
     assertTimestampSignature(signature);
-    assertValidSignature(signature);
+    assertValidSignatureWithWarnings(signature);
   }
 
   @Test
@@ -325,7 +344,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
         .invokeSigningProcess();
 
     assertTimestampSignature(signature);
-    assertValidSignature(signature);
+    assertValidSignatureWithWarnings(signature);
   }
 
   @Test
@@ -340,7 +359,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .invokeSigningProcess();
 
     assertTimestampSignature(signature);
-    assertValidSignature(signature);
+    assertValidSignatureWithWarnings(signature);
   }
 
   @Test
@@ -358,7 +377,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .invokeSigningProcess();
 
     assertTimestampSignature(signature);
-    assertValidSignature(signature);
+    assertValidSignatureWithWarnings(signature);
 
     Container container = ContainerOpener.open(BDOC_WITH_TM_SIG, configuration);
     container.addSignature(signature);
@@ -381,7 +400,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .invokeSigningProcess();
 
     assertTimestampSignature(signature);
-    assertValidSignature(signature);
+    assertValidSignatureWithWarnings(signature);
 
     Container container = ContainerOpener.open(BDOC_WITH_TM_SIG, configuration);
     container.addSignature(signature);

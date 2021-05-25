@@ -1,19 +1,14 @@
 package org.digidoc4j.impl.asic;
 
-import java.util.List;
-
+import eu.europa.esig.dss.enumerations.Indication;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.digidoc4j.ContainerValidationResult;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.AbstractSignatureValidationResult;
-
-import eu.europa.esig.dss.enumerations.Indication;
+import org.digidoc4j.impl.AbstractContainerValidationResult;
 
 /**
  * Created by Andrei on 27.11.2017.
  */
-public class TimeStampContainerValidationResult extends AbstractSignatureValidationResult implements
-    ContainerValidationResult {
+public class TimeStampContainerValidationResult extends AbstractContainerValidationResult implements ContainerValidationResult {
 
   private TimeStampToken timeStampToken;
   private String signedBy = "";
@@ -29,11 +24,6 @@ public class TimeStampContainerValidationResult extends AbstractSignatureValidat
       return Indication.TOTAL_PASSED;
     }
     return Indication.TOTAL_FAILED;
-  }
-
-  @Override
-  public List<DigiDoc4JException> getContainerErrors() {
-    return this.errors;
   }
 
   /*

@@ -100,7 +100,7 @@ public class DDocContainer implements Container {
 
   @Override
   public void removeSignature(Signature signature) {
-    throw new NotSupportedException("Removing data files is not supported anymore for DDoc!");
+    throw new NotSupportedException("Removing signatures is not supported anymore for DDoc!");
   }
 
   @Override
@@ -261,7 +261,7 @@ public class DDocContainer implements Container {
   @Override
   @Deprecated
   public void removeSignature(int signatureId) {
-    throw new NotSupportedException("Removing data files is not supported anymore for DDoc!");
+    throw new NotSupportedException("Removing signatures is not supported anymore for DDoc!");
   }
 
   /**

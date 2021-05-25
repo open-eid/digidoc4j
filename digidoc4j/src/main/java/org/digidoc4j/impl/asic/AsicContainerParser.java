@@ -1,16 +1,17 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic;
 
 import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.model.MimeType;
 import org.apache.commons.io.IOUtils;
@@ -72,6 +73,12 @@ public abstract class AsicContainerParser {
   private boolean mimeTypeFound = false;
   private long maxDataFileCachedInBytes;
   private DataFile timestampToken;
+  protected static final long ZIP_ENTRY_THRESHOLD = 1000000; // 1 MB
+  /**
+   * Maximum compression ratio.
+   */
+  protected static final long ZIP_ENTRY_RATIO = 50;
+
 
   protected AsicContainerParser(Configuration configuration) {
     this.configuration = configuration;
@@ -81,6 +88,7 @@ public abstract class AsicContainerParser {
 
   /**
    * Method for parsing and validating ASiC container.
+   *
    * @return parsing result
    */
   public AsicParseResult read() {
@@ -173,9 +181,18 @@ public abstract class AsicContainerParser {
     logger.debug("Zip entry size is <{}> bytes", entry.getSize());
     MimeType mimeTypeCode = MimeTypeUtil.mimeTypeOf(this.getDataFileMimeType(entry.getName()));
     if (this.storeDataFilesOnlyInMemory || entry.getSize() <= this.maxDataFileCachedInBytes) {
-      return new InMemoryDocument(this.getZipEntryInputStream(entry), entry.getName(), mimeTypeCode);
+      return new InMemoryDocument(toByteArray(this.getZipEntryInputStream(entry)), entry.getName(), mimeTypeCode);
     } else {
       return new StreamDocument(this.getZipEntryInputStream(entry), entry.getName(), mimeTypeCode);
+    }
+  }
+
+  private byte[] toByteArray(InputStream inputStream) {
+    try {
+      return IOUtils.toByteArray(inputStream);
+    } catch (IOException e) {
+      logger.error(e.getMessage());
+      throw new TechnicalException(e.getMessage());
     }
   }
 
@@ -217,10 +234,10 @@ public abstract class AsicContainerParser {
 
   private void validateParseResult() {
     if (!StringUtils.equalsIgnoreCase(MimeType.ASICE.getMimeTypeString(), mimeType)
-        && !StringUtils.equalsIgnoreCase(MimeType.ASICS.getMimeTypeString(), mimeType)) {
+            && !StringUtils.equalsIgnoreCase(MimeType.ASICS.getMimeTypeString(), mimeType)) {
       logger.error("Container mime type is not " + MimeType.ASICE.getMimeTypeString() + " but is " + mimeType);
       throw new UnsupportedFormatException("Container mime type is not " + MimeType.ASICE.getMimeTypeString()
-          + " OR " + MimeType.ASICS.getMimeTypeString() + " but is " + mimeType);
+              + " OR " + MimeType.ASICS.getMimeTypeString() + " but is " + mimeType);
     }
     if (!this.signatures.isEmpty() && this.dataFiles.isEmpty()) {
       throw new ContainerWithoutFilesException("The reference data object(s) is not found!");

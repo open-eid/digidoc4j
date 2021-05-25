@@ -14,6 +14,9 @@ public final class ResourceUtils {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ResourceUtils.class);
 
+  private static final String CLASSPATH_PREFIX = "classpath:";
+  private static final String FILE_PREFIX = "file:";
+
   public static boolean isResourceAccessible(String path) {
     try {
       return ResourceUtils.class.getClassLoader().getResource(path) != null;
@@ -34,15 +37,15 @@ public final class ResourceUtils {
   }
 
   public static InputStream getResource(String path) {
-    if (path.startsWith("classpath:")) {
-      path = path.substring("classpath:".length());
+    if (path.startsWith(CLASSPATH_PREFIX)) {
+      path = path.substring(CLASSPATH_PREFIX.length());
       InputStream inputStream = ResourceUtils.class.getClassLoader().getResourceAsStream(path);
       if (inputStream == null) {
         throw new IllegalArgumentException("Resource not found: " + path);
       }
       return inputStream;
-    } else if (path.startsWith("file:")) {
-      path = path.substring("file:".length());
+    } else if (path.startsWith(FILE_PREFIX)) {
+      path = path.substring(FILE_PREFIX.length());
     }
     try {
       return new FileInputStream(path);

@@ -31,7 +31,7 @@ public class PolicyUtilsTest {
     assertEquals("OIDAsURN", policy.getQualifier().getValue());
     assertEquals(DigestAlgorithm.SHA256, policy.getDigestAlgorithm());
     assertEquals("https://www.sk.ee/repository/bdoc-spec21.pdf", policy.getSpuri());
-    assertThat(Base64.decodeBase64("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A="), IsEqual.equalTo(policy.getDigestValue()));
+    assertThat(Base64.decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="), IsEqual.equalTo(policy.getDigestValue()));
   }
 
   @Test

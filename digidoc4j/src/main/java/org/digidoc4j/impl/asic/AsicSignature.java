@@ -199,8 +199,8 @@ public class AsicSignature implements Signature {
       logger.info(
           "Signature has " + validationResult.getErrors().size() + " validation errors and " + validationResult.getWarnings().size() + " warnings");
     } else {
-      logger.debug(
-          "Using existing validation errors with " + validationResult.getErrors().size() + " validation errors and " + validationResult.getWarnings().size() + " warnings");
+      logger.debug("Using cached signature validation result. " +
+          "Signature has " + validationResult.getErrors().size() + " validation errors and " + validationResult.getWarnings().size() + " warnings");
     }
     return validationResult;
   }

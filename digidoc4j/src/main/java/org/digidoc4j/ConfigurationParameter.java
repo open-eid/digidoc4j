@@ -97,7 +97,9 @@ public enum ConfigurationParameter {
   TspSslTruststorePassword("TSP_SSL_TRUSTSTORE_PASSWORD"),
   TspSslProtocol("TSP_SSL_PROTOCOL"),
   TspSupportedSslProtocols("TSP_SUPPORTED_SSL_PROTOCOLS"),
-  TspSupportedSslCipherSuites("TSP_SUPPORTED_SSL_CIPHER_SUITES");
+  TspSupportedSslCipherSuites("TSP_SUPPORTED_SSL_CIPHER_SUITES"),
+  TempFileMaxAgeInMillis;
+
 
   final String fileKey;
 

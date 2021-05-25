@@ -24,7 +24,7 @@ public class TokenAlgorithmSupportTest {
 
   @Test
   public void getDefaultDigestAlgorithm_shouldReturnSha256() throws Exception {
-    PKCS12SignatureToken testSignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/signout.p12", "test".toCharArray());
+    PKCS12SignatureToken testSignatureToken = new PKCS12SignatureToken(TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD.toCharArray());
     DigestAlgorithm digestAlgorithm = TokenAlgorithmSupport.determineSignatureDigestAlgorithm(testSignatureToken.getCertificate());
     Assert.assertEquals(DigestAlgorithm.SHA256, digestAlgorithm);
   }

@@ -2,6 +2,9 @@ package org.digidoc4j.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.digidoc4j.Configuration;
@@ -78,6 +81,10 @@ public abstract class AbstractValidationResult implements ValidationResult {
     return errors;
   }
 
+  public void addErrors(List<DigiDoc4JException> errors) {
+    this.errors = concatenate(this.errors, errors);
+  }
+
   public void setErrors(List<DigiDoc4JException> errors) {
     this.errors = errors;
   }
@@ -87,8 +94,19 @@ public abstract class AbstractValidationResult implements ValidationResult {
     return warnings;
   }
 
+  public void addWarnings(List<DigiDoc4JException> warnings) {
+    this.warnings = concatenate(this.warnings, warnings);
+  }
+
   public void setWarnings(List<DigiDoc4JException> warnings) {
     this.warnings = warnings;
+  }
+
+  protected static List<DigiDoc4JException> concatenate(List<DigiDoc4JException> first, List<DigiDoc4JException> second) {
+    return Stream.concat(
+            Optional.ofNullable(first).map(List::stream).orElseGet(Stream::empty),
+            Optional.ofNullable(second).map(List::stream).orElseGet(Stream::empty)
+    ).collect(Collectors.toList());
   }
 
 }

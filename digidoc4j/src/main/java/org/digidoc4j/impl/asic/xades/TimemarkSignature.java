@@ -10,8 +10,10 @@
 
 package org.digidoc4j.impl.asic.xades;
 
+import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.DSSRevocationUtils;
+import eu.europa.esig.dss.spi.DSSUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
@@ -21,9 +23,11 @@ import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.RespID;
+import org.bouncycastle.util.encoders.Hex;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.CertificateNotFoundException;
@@ -31,10 +35,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Signature for BDOC where timemark is taken from OCSP response.
@@ -145,11 +153,10 @@ public class TimemarkSignature extends BesSignature {
   }
 
   private X509Cert findOcspCertificate() {
-    String rId = "";
     String signatureId = getDssSignature().getId();
+    String responderIdString = "";
     try {
       RespID responderId = ocspResponse.getResponderId();
-      rId = responderId.toString();
       String primitiveName = getCN(responderId.toASN1Primitive().getName());
       byte[] keyHash = responderId.toASN1Primitive().getKeyHash();
 
@@ -157,11 +164,19 @@ public class TimemarkSignature extends BesSignature {
 
       if (isKeyHash) {
         logger.debug("Using keyHash {} for OCSP certificate match", keyHash);
+        responderIdString = Hex.toHexString(keyHash);
       } else {
         logger.debug("Using ASN1Primitive {} for OCSP certificate match", primitiveName);
+        responderIdString = primitiveName;
       }
 
-      for (CertificateToken cert : getDssSignature().getCertificates()) {
+      List<CertificateToken> availableCertificates = new ArrayList<>();
+      Optional.ofNullable(ocspResponse.getCerts()).map(Arrays::stream).orElseGet(Stream::empty)
+              .map(TimemarkSignature::ocspCertificateHolderToCertificateToken).filter(Objects::nonNull)
+              .forEach(availableCertificates::add);
+      availableCertificates.addAll(getDssSignature().getCertificates());
+
+      for (CertificateToken cert : availableCertificates) {
         if (isKeyHash) {
           ASN1Primitive skiPrimitive = JcaX509ExtensionUtils.parseExtensionValue(
                   cert.getCertificate().getExtensionValue(Extension.subjectKeyIdentifier.getId()));
@@ -179,19 +194,31 @@ public class TimemarkSignature extends BesSignature {
       }
 
     } catch (IOException e) {
-      logger.error("Unable to wrap and extract SubjectKeyIdentifier from certificate - technical error. {}", e);
+      logger.error("Unable to wrap and extract SubjectKeyIdentifier from certificate - technical error.", e);
     }
 
-    logger.error("OCSP certificate for " + rId + " was not found in TSL");
-    throw new CertificateNotFoundException("OCSP certificate for " + rId + " was not found in TSL", signatureId);
+    String errorMessage = String.format(
+            "OCSP certificate for \"%s\" was not found in neither OCSP response nor signature",
+            responderIdString
+    );
+    logger.error(errorMessage);
+    throw new CertificateNotFoundException(errorMessage, signatureId);
   }
 
-  private boolean useKeyHashForOCSP(String primitiveName, byte[] keyHash) {
+  private static boolean useKeyHashForOCSP(String primitiveName, byte[] keyHash) {
     return (keyHash != null && keyHash.length > 0) && (primitiveName == null || primitiveName.trim().length() == 0);
   }
 
+  private static CertificateToken ocspCertificateHolderToCertificateToken(X509CertificateHolder x509CertificateHolder) {
+    try {
+      return DSSUtils.loadCertificate(x509CertificateHolder.getEncoded());
+    } catch (DSSException | IOException e) {
+      logger.error("Failed to parse OCSP certificate: {}", getCN(x509CertificateHolder.getSubject()), e);
+      return null;
+    }
+  }
 
-  private String getCN(X500Name x500Name) {
+  private static String getCN(X500Name x500Name) {
     if (x500Name == null) return null;
     RDN[] rdNs = x500Name.getRDNs(new ASN1ObjectIdentifier("2.5.4.3"));
     if (rdNs == null || rdNs.length == 0) {

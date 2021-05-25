@@ -136,6 +136,7 @@ import static java.util.Arrays.asList;
  * <li>SUPPORTED_SSL_PROTOCOLS: list of supported SSL protocols (by default uses implementation defaults)</li>
  * <li>SUPPORTED_SSL_CIPHER_SUITES: list of supported SSL cipher suites (by default uses implementation defaults)</li>
  * <li>ALLOWED_TS_AND_OCSP_RESPONSE_DELTA_IN_MINUTES: Allowed delay between timestamp and OCSP response in minutes.</li>
+ * <li>TEMP_FILE_MAX_AGE: Maximum age in milliseconds till TEMP files are deleted (works only when saving container).</li>
  * <li>ALLOW_UNSAFE_INTEGER: Allows to use unsafe Integer because of few applications still struggle with the
  * ASN.1 BER encoding rules for an INTEGER as described in:
  * {@link https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf. }
@@ -643,6 +644,24 @@ public class Configuration implements Serializable {
       return Boolean.valueOf(useNonce);
     }
     return true;
+  }
+
+  /**
+   * Set temp file max age in millis
+   *
+   * @param tempFileMaxAgeInMillis max age in millis
+   */
+  public void setTempFileMaxAge(long tempFileMaxAgeInMillis) {
+    this.setConfigurationParameter(ConfigurationParameter.TempFileMaxAgeInMillis, String.valueOf(tempFileMaxAgeInMillis));
+  }
+
+  /**
+   * Get temp file max age
+   *
+   * @return temp file max age in millis
+   */
+  public long getTempFileMaxAge() {
+    return this.getConfigurationParameter(ConfigurationParameter.TempFileMaxAgeInMillis, Long.class);
   }
 
   /**
@@ -1167,10 +1186,10 @@ public class Configuration implements Serializable {
    */
   public boolean isSslConfigurationEnabled() {
     return StringUtils.isNotBlank(this.getSslKeystorePath()) ||
-            StringUtils.isNotBlank(this.getSslTruststorePath()) ||
-            StringUtils.isNotBlank(this.getSslProtocol()) ||
-            CollectionUtils.isNotEmpty(this.getSupportedSslProtocols()) ||
-            CollectionUtils.isNotEmpty(this.getSupportedSslCipherSuites());
+        StringUtils.isNotBlank(this.getSslTruststorePath()) ||
+        StringUtils.isNotBlank(this.getSslProtocol()) ||
+        CollectionUtils.isNotEmpty(this.getSupportedSslProtocols()) ||
+        CollectionUtils.isNotEmpty(this.getSupportedSslCipherSuites());
   }
 
   /**
@@ -1181,10 +1200,10 @@ public class Configuration implements Serializable {
    */
   public boolean isSslConfigurationEnabledFor(ExternalConnectionType connectionType) {
     return StringUtils.isNotBlank(this.getSslKeystorePathFor(connectionType)) ||
-            StringUtils.isNotBlank(this.getSslTruststorePathFor(connectionType)) ||
-            StringUtils.isNotBlank(this.getSslProtocolFor(connectionType)) ||
-            CollectionUtils.isNotEmpty(this.getSupportedSslProtocolsFor(connectionType)) ||
-            CollectionUtils.isNotEmpty(this.getSupportedSslCipherSuitesFor(connectionType));
+        StringUtils.isNotBlank(this.getSslTruststorePathFor(connectionType)) ||
+        StringUtils.isNotBlank(this.getSslProtocolFor(connectionType)) ||
+        CollectionUtils.isNotEmpty(this.getSupportedSslProtocolsFor(connectionType)) ||
+        CollectionUtils.isNotEmpty(this.getSupportedSslCipherSuitesFor(connectionType));
   }
 
   /**
@@ -1474,7 +1493,7 @@ public class Configuration implements Serializable {
    */
   public void setSupportedSslProtocols(List<String> supportedSslProtocols) {
     this.setConfigurationParameter(ConfigurationParameter.SupportedSslProtocols, Optional.ofNullable(supportedSslProtocols)
-            .map(l -> l.toArray(new String[l.size()])).orElse(null));
+        .map(l -> l.toArray(new String[l.size()])).orElse(null));
   }
 
   /**
@@ -1486,7 +1505,7 @@ public class Configuration implements Serializable {
    */
   public void setSupportedSslProtocolsFor(ExternalConnectionType connectionType, List<String> supportedSslProtocols) {
     this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SupportedSslProtocols),
-            Optional.ofNullable(supportedSslProtocols).map(l -> l.toArray(new String[l.size()])).orElse(null));
+        Optional.ofNullable(supportedSslProtocols).map(l -> l.toArray(new String[l.size()])).orElse(null));
   }
 
   /**
@@ -1528,7 +1547,7 @@ public class Configuration implements Serializable {
    */
   public void setSupportedSslCipherSuitesFor(ExternalConnectionType connectionType, List<String> supportedSslCipherSuites) {
     this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.SupportedSslCipherSuites),
-            Optional.ofNullable(supportedSslCipherSuites).map(l -> l.toArray(new String[l.size()])).orElse(null));
+        Optional.ofNullable(supportedSslCipherSuites).map(l -> l.toArray(new String[l.size()])).orElse(null));
   }
 
   /**
@@ -1690,9 +1709,9 @@ public class Configuration implements Serializable {
     return copyConfiguration;
   }
 
-    /*
-     * RESTRICTED METHODS
-     */
+  /*
+   * RESTRICTED METHODS
+   */
 
   protected ConfigurationRegistry getRegistry() {
     return this.registry;
@@ -1709,6 +1728,8 @@ public class Configuration implements Serializable {
     this.setConfigurationParameter(ConfigurationParameter.RevocationAndTimestampDeltaInMinutes,
         String.valueOf(Constant.ONE_DAY_IN_MINUTES));
     this.setConfigurationParameter(ConfigurationParameter.TslCacheExpirationTimeInMillis,
+        String.valueOf(Constant.ONE_DAY_IN_MILLISECONDS));
+    this.setConfigurationParameter(ConfigurationParameter.TempFileMaxAgeInMillis,
         String.valueOf(Constant.ONE_DAY_IN_MILLISECONDS));
     this.setConfigurationParameter(ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes, "15");
     this.setConfigurationParameter(ConfigurationParameter.SignatureProfile, Constant.Default.SIGNATURE_PROFILE);
@@ -1774,6 +1795,7 @@ public class Configuration implements Serializable {
         ConfigurationParameter.OcspAccessCertificateFile);
     this.setConfigurationParameterFromFile("DIGIDOC_PKCS12_PASSWD",
         ConfigurationParameter.OcspAccessCertificatePassword);
+    this.setConfigurationParameterFromFile("TEMP_FILE_MAX_AGE", ConfigurationParameter.TempFileMaxAgeInMillis);
     this.setConfigurationParameterFromFile("CONNECTION_TIMEOUT", ConfigurationParameter.ConnectionTimeoutInMillis);
     this.setConfigurationParameterFromFile("SOCKET_TIMEOUT", ConfigurationParameter.SocketTimeoutInMillis);
     this.setConfigurationParameterFromFile("SIGN_OCSP_REQUESTS", ConfigurationParameter.SignOcspRequests);
@@ -2020,9 +2042,9 @@ public class Configuration implements Serializable {
     }
     if (CollectionUtils.isNotEmpty(aiaOcspsFromYaml)) {
       List<Pair<String, ConfigurationParameter>> entryPairs = Arrays.asList(
-              Pair.of("ISSUER_CN", ConfigurationParameter.issuerCn),
-              Pair.of("OCSP_SOURCE", ConfigurationParameter.aiaOcspSource),
-              Pair.of("USE_NONCE", ConfigurationParameter.useNonce)
+          Pair.of("ISSUER_CN", ConfigurationParameter.issuerCn),
+          Pair.of("OCSP_SOURCE", ConfigurationParameter.aiaOcspSource),
+          Pair.of("USE_NONCE", ConfigurationParameter.useNonce)
       );
       for (int i = 0; i < aiaOcspsFromYaml.size(); i++) {
         Map<String, Object> aiaOcspFromYaml = aiaOcspsFromYaml.get(i);
@@ -2101,7 +2123,7 @@ public class Configuration implements Serializable {
     }
   }
 
-  private void loadYamlOcspResponders(){
+  private void loadYamlOcspResponders() {
     List<String> responders = getStringListParameterFromFile("ALLOWED_OCSP_RESPONDERS_FOR_TM");
     if (responders != null) {
       String[] respondersValue = responders.toArray(new String[0]);

@@ -49,7 +49,7 @@ import java.util.List;
  * For Linux, it could be /usr/lib/x86_64-linux-gnu/opensc-pkcs11.so, <br/>
  * For OSX, it could be /usr/local/lib/opensc-pkcs11.so <br/>
  */
-public class PKCS11SignatureToken implements SignatureToken {
+public class PKCS11SignatureToken implements SignatureToken  {
 
   private static final Logger logger = LoggerFactory.getLogger(PKCS11SignatureToken.class);
   private static final String EXTRA_PKCS11_CONFIG = "";
@@ -98,7 +98,7 @@ public class PKCS11SignatureToken implements SignatureToken {
   public PKCS11SignatureToken(String pkcs11ModulePath, char[] password, int slotIndex, String label) {
     this.label = label;
     logger.debug("Initializing PKCS#11 signature token from " + pkcs11ModulePath + " and slot " + slotIndex + " and " +
-            "label " + label);
+        "label " + label);
     PasswordInputCallback passwordCallback = new PrefilledPasswordCallback(new KeyStore.PasswordProtection(password));
     signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, passwordCallback, DEFAULT_SLOT_ID, slotIndex, EXTRA_PKCS11_CONFIG);
     privateKeyEntry = findPrivateKey(X509Cert.KeyUsage.NON_REPUDIATION);
@@ -119,7 +119,7 @@ public class PKCS11SignatureToken implements SignatureToken {
                               String label) {
     this.label = label;
     logger.debug("Initializing PKCS#11 signature token with password callback from " + pkcs11ModulePath + " and " +
-            "slot " + slotIndex + " Label " + label);
+        "slot " + slotIndex + " Label " + label);
     signatureTokenConnection = new Pkcs11SignatureToken(pkcs11ModulePath, passwordCallback, DEFAULT_SLOT_ID, slotIndex, EXTRA_PKCS11_CONFIG);
     privateKeyEntry = findPrivateKey(X509Cert.KeyUsage.NON_REPUDIATION);
   }
@@ -175,7 +175,7 @@ public class PKCS11SignatureToken implements SignatureToken {
         return signRSA(digestAlgorithm, dataToSign);
       }
       throw new TechnicalException("Failed to sign with PKCS#11. Encryption Algorithm should be ECDSA or RSA " +
-              "but actually is : " + encryptionAlg);
+          "but actually is : " + encryptionAlg);
     }
     throw new TechnicalException("privateKeyEntry is null");
   }
@@ -227,5 +227,10 @@ public class PKCS11SignatureToken implements SignatureToken {
     signer.update(digestToSign);
     byte[] signatureValue = signer.sign();
     return signatureValue;
+  }
+
+  @Override
+  public void close() {
+    signatureTokenConnection.close();
   }
 }

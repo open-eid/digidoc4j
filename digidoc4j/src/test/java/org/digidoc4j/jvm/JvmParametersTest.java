@@ -54,8 +54,7 @@ public class JvmParametersTest extends AbstractTest {
     ProxyProperties httpsProperties = dataLoader.getProxyConfig().getHttpsProperties();
     Assert.assertEquals("http.proxyHost", httpProperties.getHost());
     Assert.assertEquals(8800, httpProperties.getPort());
-    Assert.assertEquals(null, httpsProperties.getHost());
-    Assert.assertEquals(0, httpsProperties.getPort());
+    Assert.assertNull(httpsProperties);
   }
 
   @Test
@@ -67,8 +66,7 @@ public class JvmParametersTest extends AbstractTest {
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, this.configuration);
     ProxyProperties httpProperties = dataLoader.getProxyConfig().getHttpProperties();
     ProxyProperties httpsProperties = dataLoader.getProxyConfig().getHttpsProperties();
-    Assert.assertEquals(null, httpProperties.getHost());
-    Assert.assertEquals(0, httpProperties.getPort());
+    Assert.assertNull(httpProperties);
     Assert.assertEquals("https.proxyHost", httpsProperties.getHost());
     Assert.assertEquals(10000, httpsProperties.getPort());
   }

@@ -18,6 +18,15 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  public void missingURIAttributeValue() {
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
+    Container container = ContainerBuilder.aContainer()
+        .fromExistingFile("src/test/resources/testFiles/invalid-containers/23133_ddoc-12.ddoc").build();
+    SignatureValidationResult result = container.validate();
+    TestAssert.assertContainsError("URI Attribute value is required", result.getErrors());
+  }
+
+  @Test
   public void defaultOcspResponderSuccessful(){
     ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener

@@ -1,19 +1,34 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl;
+
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.model.MimeType;
+import org.apache.commons.io.IOUtils;
+import org.digidoc4j.AbstractTest;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.test.MockStreamDocument;
+import org.digidoc4j.utils.Helper;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -22,20 +37,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.apache.commons.io.IOUtils;
-import org.digidoc4j.AbstractTest;
-import org.digidoc4j.DataFile;
-import org.digidoc4j.test.MockStreamDocument;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import eu.europa.esig.dss.model.DSSException;
-import eu.europa.esig.dss.enumerations.DigestAlgorithm;
-import eu.europa.esig.dss.model.MimeType;
 
 public class StreamDocumentTest extends AbstractTest {
 
@@ -144,6 +145,19 @@ public class StreamDocumentTest extends AbstractTest {
     try (FileInputStream fileInputStream = new FileInputStream(file)) {
       Assert.assertArrayEquals(new byte[]{0x041}, IOUtils.toByteArray(fileInputStream));
     }
+  }
+
+  @Test
+  public void documentManualDeletion() {
+    File dir = new File(System.getProperty("java.io.tmpdir"));
+    FilenameFilter filenameFilter = (dir1, name) -> name.toLowerCase().startsWith("digidoc4j")
+        && name.toLowerCase().endsWith(".tmp");
+    Helper.deleteTmpFiles(10000000);
+    int count = dir.listFiles(filenameFilter).length;
+    Assert.assertTrue(count >= 1);
+    Helper.deleteTmpFiles(0);
+    count = dir.listFiles(filenameFilter).length;
+    Assert.assertEquals(0, count);
   }
 
   @Test

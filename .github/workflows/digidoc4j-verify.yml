@@ -6,7 +6,11 @@ name: Digidoc4j CI with Maven
 on:
   push:
     branches:
-      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - master
       - develop
 
 jobs:
@@ -14,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-18.04]
+        os: [ ubuntu-20.04 ]
         java: [ 8, 11, 15 ]
     steps:
       - uses: actions/checkout@v2

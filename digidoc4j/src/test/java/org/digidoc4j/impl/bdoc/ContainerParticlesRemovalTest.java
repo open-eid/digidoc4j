@@ -9,6 +9,7 @@ import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.impl.asic.AsicEntry;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
@@ -143,6 +144,88 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
     container = (BDocContainer) ContainerBuilder.aContainer(BDOC).fromStream(containerStream).build();
     assertSame(0, container.getSignatures().size());
     assertSame(0, container.getContainerParseResult().getSignatures().size());
+  }
+
+  @Test
+  public void tryingToRemoveNonExistingSignatureFromBDocContainer_shouldThrowAnException() {
+    BDocContainer container = this.createEmptyContainerBy(BDOC);
+    container.addDataFile(mockDataFile());
+
+    Signature containerSignature = this.createSignatureBy(container, SignatureProfile.LT_TM, pkcs12SignatureToken);
+    Signature unrelatedSignature = this.createSignatureBy(BDOC, SignatureProfile.LT_TM, pkcs12SignatureToken);
+
+    assertEquals(1, container.getSignatures().size());
+    assertTrue(container.getSignatures().contains(containerSignature));
+
+    SignatureNotFoundException caughtException = assertThrows(
+            SignatureNotFoundException.class,
+            () -> container.removeSignature(unrelatedSignature)
+    );
+
+    assertEquals("Signature not found: " + unrelatedSignature.getId(), caughtException.getMessage());
+    assertEquals(1, container.getSignatures().size());
+    assertTrue(container.getSignatures().contains(containerSignature));
+  }
+
+  @Test
+  public void tryingToRemoveNonExistingSignatureFromASiCEContainer_shouldThrowAnException() {
+    AsicEContainer container = this.createEmptyContainerBy(ASICE);
+    container.addDataFile(mockDataFile());
+
+    Signature containerSignature = this.createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
+    Signature unrelatedSignature = this.createSignatureBy(ASICE, SignatureProfile.LT, pkcs12SignatureToken);
+
+    assertEquals(1, container.getSignatures().size());
+    assertTrue(container.getSignatures().contains(containerSignature));
+
+    SignatureNotFoundException caughtException = assertThrows(
+            SignatureNotFoundException.class,
+            () -> container.removeSignature(unrelatedSignature)
+    );
+
+    assertEquals("Signature not found: " + unrelatedSignature.getId(), caughtException.getMessage());
+    assertEquals(1, container.getSignatures().size());
+    assertTrue(container.getSignatures().contains(containerSignature));
+  }
+
+  @Test
+  public void tryingToRemoveNonExistingSignatureByIndexFromBDocContainer_shouldThrowAnException() {
+    BDocContainer container = this.createEmptyContainerBy(BDOC);
+    container.addDataFile(mockDataFile());
+
+    Signature signature = this.createSignatureBy(container, SignatureProfile.LT_TM, pkcs12SignatureToken);
+
+    assertEquals(1, container.getSignatures().size());
+    assertTrue(container.getSignatures().contains(signature));
+
+    SignatureNotFoundException caughtException = assertThrows(
+            SignatureNotFoundException.class,
+            () -> container.removeSignature(1)
+    );
+
+    assertEquals("Signature from index 1 not found", caughtException.getMessage());
+    assertEquals(1, container.getSignatures().size());
+    assertTrue(container.getSignatures().contains(signature));
+  }
+
+  @Test
+  public void tryingToRemoveNonExistingSignatureByIndexFromASiCEContainer_shouldThrowAnException() {
+    AsicEContainer container = this.createEmptyContainerBy(ASICE);
+    container.addDataFile(mockDataFile());
+
+    Signature signature = this.createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
+
+    assertEquals(1, container.getSignatures().size());
+    assertTrue(container.getSignatures().contains(signature));
+
+    SignatureNotFoundException caughtException = assertThrows(
+            SignatureNotFoundException.class,
+            () -> container.removeSignature(1)
+    );
+
+    assertEquals("Signature from index 1 not found", caughtException.getMessage());
+    assertEquals(1, container.getSignatures().size());
+    assertTrue(container.getSignatures().contains(signature));
   }
 
   @Test

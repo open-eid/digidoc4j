@@ -28,7 +28,7 @@ public final class PolicyUtils {
   public static Policy createBDocSignaturePolicy() {
     Policy signaturePolicy = new Policy();
     signaturePolicy.setId("urn:oid:" + XadesSignatureValidator.TM_POLICY);
-    signaturePolicy.setDigestValue(Base64.decodeBase64("7pudpH4eXlguSZY2e/pNbKzGsq+fu//woYL1SZFws1A="));
+    signaturePolicy.setDigestValue(Base64.decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));
     signaturePolicy.setQualifier(ObjectIdentifierQualifier.OID_AS_URN);
     signaturePolicy.setDigestAlgorithm(SHA256);
     signaturePolicy.setSpuri("https://www.sk.ee/repository/bdoc-spec21.pdf");

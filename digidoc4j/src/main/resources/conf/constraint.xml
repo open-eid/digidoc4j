@@ -15,24 +15,15 @@
       <ReferenceDataExistence Level="FAIL"/>
       <ReferenceDataIntact Level="FAIL"/>
       <SignatureIntact Level="FAIL"/>
-      <SignatureDuplicated Level="WARN"/>
+      <SignatureDuplicated Level="FAIL"/>
       <ProspectiveCertificateChain Level="FAIL"/>
       <SignerInformationStore Level="FAIL"/>
-<!--      <TrustedServiceTypeIdentifier Level="WARN">
-        <Id>http://uri.etsi.org/TrstSvc/Svctype/CA/QC</Id>
-      </TrustedServiceTypeIdentifier>
-      <TrustedServiceStatus Level="FAIL">
-        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision</Id>
-        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/accredited</Id>
-        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/supervisionincessation</Id>
-        <Id>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted</Id>
-      </TrustedServiceStatus>-->
       <SigningCertificate>
         <Recognition Level="FAIL"/>
         <Signature Level="FAIL"/>
         <NotExpired Level="INFORM"/>
-        <AuthorityInfoAccessPresent Level="INFORM"/>
-        <RevocationInfoAccessPresent Level="INFORM"/>
+        <AuthorityInfoAccessPresent Level="WARN"/>
+        <RevocationInfoAccessPresent Level="WARN"/>
         <RevocationDataAvailable Level="FAIL"/>
         <RevocationDataNextUpdatePresent Level="WARN"/>
         <RevocationDataFreshness Level="FAIL"/>
@@ -43,10 +34,6 @@
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
         <NotSelfSigned Level="FAIL"/>
-        <Qualification Level="WARN"/>
-        <SupportedByQSCD Level="WARN"/>
-        <IssuedToNaturalPerson Level="INFORM" />
-        <IssuedToLegalPerson Level="INFORM"/>
         <UsePseudonym Level="INFORM"/>
         <Cryptographic Level="FAIL">
           <AcceptableEncryptionAlgo>
@@ -186,8 +173,6 @@
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
         <NotSelfSigned Level="FAIL"/>
-        <!-- 				<Qualification Level="WARN" /> -->
-        <!-- 				<SupportedByQSCD Level="WARN" /> -->
         <!-- 				<IssuedToNaturalPerson Level="INFORM" /> -->
         <!-- 				<IssuedToLegalPerson Level="INFORM" /> -->
         <UsePseudonym Level="INFORM"/>

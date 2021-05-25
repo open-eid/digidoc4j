@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.exceptions.InvalidDataFileException;
+import org.digidoc4j.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,4 +68,15 @@ public class DigestDataFile extends DataFile {
   public void setContentType(String contentType) {
     this.contentType = contentType;
   }
+
+  @Override
+  public long getFileSize() {
+    throw new NotSupportedException("Querying size of digest datafile is not supported");
+  }
+
+  @Override
+  public boolean isFileEmpty() {
+    return false;
+  }
+
 }

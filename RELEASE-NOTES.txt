@@ -1,6 +1,32 @@
 DigiDoc4J Java library release notes
 ------------------------------------
 
+Release 4.2.0
+------------------
+Summary of the major changes since 4.1.1
+------------------------------------------
+* ZIP-bomb attack protection
+* If not specified, create ASiC-E (instead of BDOC) containers by default
+* Search BDOC TM signature OCSP certificate from OCSP token first and then from the unsigned properties of the signature
+* Limitations for empty (0-byte) datafiles:
+  - Adding empty datafiles to containers is not permitted; signing containers containing empty datafiles is not permitted
+  - Validating containers containing empty datafiles adds additional container warnings
+* Changes in validation policies
+* Upgrade of TSL TLS truststore
+* Dependencies update
+* Bug fixes
+
+Known issues
+------------
+* We have noticed a decrease in performance with the introduction of properly accessing AIA certificate resources
+* Opening a container that contains signatures, triggers TSL loading (TSL lazy loading does not work as expected)
+* While upgrading from versions older than 2.1.1 be sure that your integration :
+  - doesn't use Xalan or XercesImpl dependencies
+  - uses a patched Java version (JDK8 or higher)
+    Xalan and XercesImpl were used to patch XML vulnerabilities in older java versions. They should be discarded with higher versions because they override default Java XML security.
+    If it is not possible to remove Xalan, then you can set your system property to override TransformerFactory : System.setProperty("javax.xml.transform.TransformerFactory","com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
+
+
 Release 4.1.1
 ------------------
 Signer certificate for the EU List of eIDAS Trusted Lists (LOTL) was changed on 25.03.2021. This resulted in failure to sign or validate signatures with DD4J version 4.1.0.

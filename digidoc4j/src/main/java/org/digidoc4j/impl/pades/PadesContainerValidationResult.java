@@ -1,23 +1,19 @@
 package org.digidoc4j.impl.pades;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-import org.digidoc4j.ContainerValidationResult;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.AbstractSignatureValidationResult;
-
 import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.SubIndication;
 import eu.europa.esig.dss.simplereport.SimpleReport;
+import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.ContainerValidationResult;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.AbstractContainerValidationResult;
+
+import java.util.Arrays;
 
 /**
  * Created by Andrei on 20.11.2017.
  */
-public class PadesContainerValidationResult extends AbstractSignatureValidationResult implements
-    ContainerValidationResult {
+public class PadesContainerValidationResult extends AbstractContainerValidationResult implements ContainerValidationResult {
 
   /**
    * @param simpleReport simple report
@@ -49,15 +45,6 @@ public class PadesContainerValidationResult extends AbstractSignatureValidationR
   @Override
   protected String getResultName() {
     return "PAdES container";
-  }
-
-  /*
-   * ACCESSORS
-   */
-
-  @Override
-  public List<DigiDoc4JException> getContainerErrors() {
-    return Collections.emptyList();
   }
 
 }

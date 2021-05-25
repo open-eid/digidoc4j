@@ -1,68 +1,97 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.signers;
-
-import java.security.cert.CertificateEncodingException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.X509Cert;
+import org.digidoc4j.exceptions.InvalidKeyException;
+import org.digidoc4j.test.util.TestSigningUtil;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.security.cert.CertificateEncodingException;
 
 public class PKCS12SignatureTokenTest extends AbstractTest {
 
   @Test
   public void getCertificate() throws CertificateEncodingException {
-    X509Cert x509Cert = new X509Cert(this.pkcs12SignatureToken.getCertificate());
-    Assert.assertEquals("MIIFrjCCA5agAwIBAgIQUwvkG7xZfERXDit8E7z6DDANBgkqhkiG9w0BAQsFADBr" +
+    X509Cert x509Cert = new X509Cert(pkcs12SignatureToken.getCertificate());
+    Assert.assertEquals("MIIGuDCCBKCgAwIBAgIQbsALi4xUxPdggr2EPjoVJjANBgkqhkiG9w0BAQsFADBr" +
             "MQswCQYDVQQGEwJFRTEiMCAGA1UECgwZQVMgU2VydGlmaXRzZWVyaW1pc2tlc2t1" +
             "czEXMBUGA1UEYQwOTlRSRUUtMTA3NDcwMTMxHzAdBgNVBAMMFlRFU1Qgb2YgRVNU" +
-            "RUlELVNLIDIwMTUwHhcNMTYwNDEzMTEyMDI4WhcNMjEwNDEyMjA1OTU5WjCBtDEL" +
-            "MAkGA1UEBhMCRUUxDzANBgNVBAoMBkVTVEVJRDEaMBgGA1UECwwRZGlnaXRhbCBz" +
-            "aWduYXR1cmUxMTAvBgNVBAMMKMW9w5VSSU7DnFfFoEtZLE3DhFLDnC1Mw5bDllos" +
-            "MTE0MDQxNzY4NjUxFzAVBgNVBAQMDsW9w5VSSU7DnFfFoEtZMRYwFAYDVQQqDA1N" +
-            "w4RSw5wtTMOWw5ZaMRQwEgYDVQQFEwsxMTQwNDE3Njg2NTCCASIwDQYJKoZIhvcN" +
-            "AQEBBQADggEPADCCAQoCggEBAJrWrja4BY6nlDXf/46So37NcJoDAB8d6pZr2XxM" +
-            "4cCv3MqAKAuf8oew38jc+/20oBiMo9bSWfTrjCtunuyJxBi6/xX1SwXqXpCIcAeA" +
-            "tL8SA4NRuWQGEFxGRJtPUNpzVkiIBI5u+yENpxvGFOW7777u0E7E3p/Jx6Y6HflI" +
-            "CQPm48zjzeBytJ+m6v6EdObnOpeJtusaZ+Yg/hmrCRRgJeRtnjJIw5LmLrjqm185" +
-            "BFtgwFH0J8iAr18FSua5yLP343s4vZx8np1NqmdJrlHt5IjX2D3+QAObJmh/U+id" +
-            "oNdThlJlst/cj5/y496vR+PhSWIWzqv//xYH41qIkXDjD+UCAwEAAaOCAQIwgf8w" +
-            "CQYDVR0TBAIwADAOBgNVHQ8BAf8EBAMCBkAwOwYDVR0gBDQwMjAwBgkrBgEEAc4f" +
-            "AwEwIzAhBggrBgEFBQcCARYVaHR0cHM6Ly93d3cuc2suZWUvY3BzMB0GA1UdDgQW" +
-            "BBQ27kyYhup5RKLxTM1gxY+BDz/N0jAiBggrBgEFBQcBAwQWMBQwCAYGBACORgEB" +
-            "MAgGBgQAjkYBBDAfBgNVHSMEGDAWgBRJwPJEOWXVm0Y7DThgg7HWLSiGpjBBBgNV" +
-            "HR8EOjA4MDagNKAyhjBodHRwOi8vd3d3LnNrLmVlL2NybHMvZXN0ZWlkL3Rlc3Rf" +
-            "ZXN0ZWlkMjAxNS5jcmwwDQYJKoZIhvcNAQELBQADggIBAHUUiGcIgXB3INd78mGF" +
-            "yIz+u8+TLPON0va0mRuugy1TEH0eWZqNhv2+7vvzd8CLoOp4aHrUwvx7zGaND/bO" +
-            "w4dC1dO5zsXh1EziNAfaNqzYP2QQ4BckqZeGl0+d7OVyP5/HgZOYI90qYLvkjWSn" +
-            "eSFXZ2BN8Jku6l0dUnhsQqCoLKl0j4F+1u+GwC9pjzm2aVoYRs3CcNgkAa1O3SKK" +
-            "9PXpz/chFE1dfvT8xPagroVkzDCZ4o6Rp+8OPBPYacQhdIH6DyagPcbdKz1S0EC8" +
-            "q+7qm1C8bM05oyYfkoBLU6afgRGHcpRMFQRBnsu7o1LQIMsRF5dWWTqL4FLLw6iF" +
-            "exZA6z3HMilu+yolLxURaD3oWMcWzLKi0Ic88T8LNyz5ksWDDZXAoso0ZDTAh/Da" +
-            "FEdeQs9MnOkGzrvswrEG2MUs33XHhp988TWgRQGAJU/JZQR057I/UxfikYRhZ5oM" +
-            "7qPBy4oDh3VlhMsY5yHuK400Xi202xoXVS+VG33xB7KCvbwuemZSlVewxTX0ZJg5" +
-            "qTcwIXRMlsWffqyVWpnxjnvWmqO01nrbgjlpBAbDDT2R/JXPOjVpgjhQGEmNmVj3" +
-            "OvfjvLlXXP7CZ4Vxwxy0aBPPvVHoyWjFycsqm4EFGSGkcB17NcP3dlj7ZwloBobg" +
-            "ittrqXcLf8qik7sGgHnaa7Cc",
+            "RUlELVNLIDIwMTUwIBcNMjEwNDIzMTIyODUyWhgPMjAzMDEyMTcyMzU5NTlaMIGf" +
+            "MQswCQYDVQQGEwJFRTE9MDsGA1UEAww0T+KAmUNPTk5Fxb0txaBVU0xJSyBURVNU" +
+            "TlVNQkVSLE1BUlkgw4ROTiw2MDAwMTAxMzczOTEnMCUGA1UEBAweT+KAmUNPTk5F" +
+            "xb0txaBVU0xJSyBURVNUTlVNQkVSMRIwEAYDVQQqDAlNQVJZIMOETk4xFDASBgNV" +
+            "BAUTCzYwMDAxMDEzNzM5MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA" +
+            "r8Gtz4AS8HoY2UpUvD9/OxJzymnvSTR5LKcG7+rLdXszEgdyRCy0sHg1yRseZgXu" +
+            "XQsAG/IGKQFUOBND6LAD2Puv+wk4HenB7EZmeiDQzdKGE3CoRz+UU+zz8EqQTzZi" +
+            "l85R7kK1oDi3b1RtB4flELSQ38ufeOFAli97K2hhYGVtPDOcJIbz4jej4UqQnY80" +
+            "Ma+5niQxsN9pf2W/Fe2r7TMtqmo+aKbaWMr3uLESbPGpiffetcWnllmLQR2lcx2w" +
+            "aHXp3XeUQXHBbtO0oypaxpgDTcRBLH3ZGuElj0KGfXqRaO6dwOjjHG5G8+Tzvy/2" +
+            "pvGuqbr9RvcH3QMmG1mEswIDAQABo4ICHzCCAhswCQYDVR0TBAIwADAOBgNVHQ8B" +
+            "Af8EBAMCBkAwdQYDVR0gBG4wbDBfBgorBgEEAc4fAwEDMFEwHgYIKwYBBQUHAgIw" +
+            "EgwQT25seSBmb3IgVEVTVElORzAvBggrBgEFBQcCARYjaHR0cHM6Ly93d3cuc2su" +
+            "ZWUvcmVwb3NpdG9vcml1bS9DUFMwCQYHBACL7EABAjAdBgNVHQ4EFgQUNGA6HJQi" +
+            "W4kukHbhN6CmD0Js1McwgYoGCCsGAQUFBwEDBH4wfDAIBgYEAI5GAQEwCAYGBACO" +
+            "RgEEMFEGBgQAjkYBBTBHMEUWP2h0dHBzOi8vc2suZWUvZW4vcmVwb3NpdG9yeS9j" +
+            "b25kaXRpb25zLWZvci11c2Utb2YtY2VydGlmaWNhdGVzLxMCRU4wEwYGBACORgEG" +
+            "MAkGBwQAjkYBBgEwHwYDVR0jBBgwFoAUScDyRDll1ZtGOw04YIOx1i0ohqYwgYMG" +
+            "CCsGAQUFBwEBBHcwdTAsBggrBgEFBQcwAYYgaHR0cDovL2FpYS5kZW1vLnNrLmVl" +
+            "L2VzdGVpZDIwMTUwRQYIKwYBBQUHMAKGOWh0dHBzOi8vc2suZWUvdXBsb2FkL2Zp" +
+            "bGVzL1RFU1Rfb2ZfRVNURUlELVNLXzIwMTUuZGVyLmNydDA0BgNVHR8ELTArMCmg" +
+            "J6AlhiNodHRwczovL2Muc2suZWUvdGVzdF9lc3RlaWQyMDE1LmNybDANBgkqhkiG" +
+            "9w0BAQsFAAOCAgEAn5yOThHC3o+qywote9HYZz6TgGUin606KONrUcbsP9UMZwKF" +
+            "HhQBAZE9ycJ3iOIKtEk0VlH5vwL0MvyY26VyHgkprozEcX5OCQKBCTn/ZKR+IIXQ" +
+            "wNT0ZadQHTAuCLidHH9bI4/CofTWtr6udYezmQs7FIXbcazQ6cgkb937HulVHt4x" +
+            "IDZ8kp9oUaqbpUfCSu5zOspQRM2ih0MshPmZvkS9qeFgbkTD0D+RPccxV7jjHCbH" +
+            "xjHzYNFrq2JJuKacxx/OR12KGKOtcGlYjFxWl18MJ/n3tvoEcWaXKtPZ+BmStbPH" +
+            "RFb29fkSIWtEzFRSbbLYeHkC53m8lWQ4kXhMJ10aZs9nXRVJ0I4/wMjZTpO6lMkq" +
+            "Exm77nyycxPv3glJWssFp5LEKgJKxWt2aT9ihHypqEPVjBZGfppFOJT81gxLLF0k" +
+            "MVxnRqpNbi/1thY5IIxFgGzxIHJlIMuw/HECMJ+/n19dF+Z8tqCoxhNxEQm409jR" +
+            "v6/RsRhtQ5IIY0PR8eL5xzwgET5BWy5AjUtzGeQsEiywY9+kNfLgv0GQsdfiyhyG" +
+            "z5oX/8t9AlntTTLpUdWRs4IU3M1yLV2qxc/zAyXRZYJ5nbkwg1oR3wttTYcQ+uFk" +
+            "0qCoYsLHPmNmFGYZrt00lbulpieIS/YGdFmdtQn7vip/y7LOGEU02m84Lpo=",
         Base64.encodeBase64String(x509Cert.getX509Certificate().getEncoded()));
   }
 
   @Test
   public void sign() {                                //TODO know expected value
-    byte[] expected = new byte[]{40, -84, -43, -95, -8, 46, -27, -2, 41, 80, -96, -74, 125, 37, -11, 85, -22, 64, -87, 122, 41, -29, 91, -35, 104, 60, 86, -98, -65, -101, 81, 74, -10, 35, -24, -115, -14, 115, -58, -53, -28, -53, 47, -82, 74, -21, 88, -111, -31, 47, 112, 71, 41, -32, 120, 119, 109, 34, -96, 124, -61, -5, 112, 114, 122, 1, 30, -105, 112, 67, 116, -32, -44, -123, -43, 26, 63, -28, -41, 82, -79, -32, 98, 93, 20, -76, -94, 105, 40, -95, -1, -97, -33, 88, 31, 92, -115, -114, 118, -94, 3, 126, -25, -100, -84, 72, -84, 51, -122, -59, -72, 0, 123, 68, -116, 91, -105, 7, 81, -106, 10, 58, -39, 53, 109, -48, -121, 4, -111, 32, -127, -74, -3, -73, -57, -12, 114, 126, -20, -40, 76, -58, 119, -108, 85, -124, 97, -55, -82, -120, -94, -40, -10, -96, -60, 29, 84, 55, 12, 77, 27, -117, -3, 84, 39, -24, -66, -89, -5, 51, -64, -53, -16, -43, -53, 63, -59, -32, 48, 82, -85, -124, -107, -85, 43, 37, 62, -63, 42, -8, 86, -79, 42, -119, -37, 30, 6, -71, 30, -63, 98, 109, 56, 74, 69, -14, -44, 104, 86, -87, 37, 109, 91, 59, -58, 33, 81, -69, -50, -82, 121, 69, -99, 18, 51, -63, 116, -56, -26, 96, -81, -17, -106, -57, 45, -15, 11, -39, -24, 121, -59, -38, 83, -3, 21, -104, -102, 116, 44, 108, -7, 79, -49, -106, 28, -82};
-    byte[] actual = this.pkcs12SignatureToken.sign(DigestAlgorithm.SHA512, new byte[]{0x41});
+    byte[] expected = new byte[]{-127,-10,88,-97,-31,-28,99,55,-33,-83,10,-18,8,-83,-34,123,75,60,27,34,-41,3,62,-100,89,15,6,-38,82,-52,51,71,-14,-66,-92,88,-107,79,-22,125,3,-44,-11,112,110,60,-28,-77,54,-49,7,89,-66,-43,116,-67,83,-31,-34,119,101,-68,-44,105,-58,114,-2,-99,80,98,-21,-72,88,1,-103,-15,85,39,-50,-17,-63,-121,123,-121,-66,59,-27,-59,-6,-55,-32,-55,43,-126,43,-39,-33,2,-22,40,-18,-15,-83,26,-3,14,-29,-20,36,-17,-119,95,-63,99,111,109,25,-96,13,115,-113,75,48,61,-34,-75,86,18,76,-48,-96,-111,68,-58,-104,110,99,-19,125,34,14,3,82,-48,39,-4,35,-104,-43,-58,-35,-83,-18,38,-87,19,9,-74,114,-24,-33,69,76,105,125,78,108,-84,43,104,-95,124,38,-125,33,108,-122,-121,-104,113,98,17,-81,-91,-99,80,-123,58,6,108,-59,-41,-33,-39,98,125,112,-58,120,-32,-99,51,-29,-50,30,-22,94,11,113,-107,-119,-49,-52,83,-83,-101,-52,108,92,91,-78,17,-78,-42,71,2,-125,73,112,-72,79,51,2,-95,-88,54,-32,77,99,-76,60,-2,-90,100,50,101,-58,48,-30,-119,-76,-63,-21,-55,-112,76};
+    byte[] actual = pkcs12SignatureToken.sign(DigestAlgorithm.SHA512, new byte[]{0x41});
     Assert.assertArrayEquals(expected, actual);
   }
+
+  @Test
+  public void closeSignatureTokenWhenSigning() {
+    this.expectedException.expect(InvalidKeyException.class);
+    this.expectedException.expectMessage("Private key entry is missing. Connection may be closed.");
+    PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken(TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD.toCharArray());
+
+    Assert.assertNotNull(pkcs12SignatureToken.sign(DigestAlgorithm.SHA512, new byte[]{0x41}));
+    pkcs12SignatureToken.close();
+    pkcs12SignatureToken.sign(DigestAlgorithm.SHA512, new byte[]{0x41});
+  }
+
+  @Test
+  public void closeSignatureTokenWhenAskingCertificate() {
+    this.expectedException.expect(InvalidKeyException.class);
+    this.expectedException.expectMessage("Private key entry is missing. Connection may be closed.");
+    PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken(TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD.toCharArray());
+    Assert.assertNotNull(pkcs12SignatureToken.getCertificate());
+    pkcs12SignatureToken.close();
+    pkcs12SignatureToken.getCertificate();
+  }
+
 
 }

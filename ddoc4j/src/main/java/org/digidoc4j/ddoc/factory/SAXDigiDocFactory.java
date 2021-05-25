@@ -984,7 +984,12 @@ public class SAXDigiDocFactory
                     String Id = attrs.getValue("Id");
                     if(Id != null)
                         ref.setId(Id);
-                    ref.setUri(ConvertUtils.unescapeXmlSymbols(ConvertUtils.uriDecode(URI)));
+                    if (URI==null) {
+                        DigiDocException ex = new DigiDocException(DigiDocException.ERR_DATA_FILE_ATTR_VALUE,"URI Attribute value is required", null);
+                        handleSAXError(ex);
+                    } else {
+                      ref.setUri(ConvertUtils.unescapeXmlSymbols(ConvertUtils.uriDecode(URI)));
+                    }
                     String sType = attrs.getValue("Type");
                     if(sType != null)
                         ref.setType(sType);

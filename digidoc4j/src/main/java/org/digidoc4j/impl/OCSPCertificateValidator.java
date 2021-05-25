@@ -10,9 +10,11 @@
 
 package org.digidoc4j.impl;
 
+import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.model.x509.Token;
+import eu.europa.esig.dss.model.x509.X500PrincipalHelper;
 import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.spi.x509.CertificateSource;
-import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.digidoc4j.CertificateValidator;
@@ -25,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.util.List;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -83,24 +85,38 @@ public class OCSPCertificateValidator implements CertificateValidator {
               .getDSSIdAsString(), e);
     }
     throw CertificateValidationException.of(CertificateValidationStatus.UNTRUSTED,
-            "Failed to parse issuer certificate token. Not all intermediate certificates added into OCSP.");
+        "Failed to parse issuer certificate token. Not all intermediate certificates added into OCSP.");
   }
 
   private CertificateToken getIssuerForCertificateToken(CertificateToken certificateToken) {
     Set<CertificateToken> tokens = this.getIssuerFromCertificateSource(certificateToken);
     if (tokens.size() != 1) {
       throw new IllegalStateException(String.format("<%s> matching certificate tokens found from certificate source",
-              tokens.size()));
+          tokens.size()));
     }
     return tokens.iterator().next();
   }
 
   private Set<CertificateToken> getIssuerFromCertificateSource(CertificateToken certificateToken) {
-    Set<CertificateToken> issuers = this.configuration.getTSL().getBySubject(certificateToken.getIssuer());
+    Set<CertificateToken> issuers = getIssuers(certificateToken, this.configuration.getTSL());
     if (CollectionUtils.isEmpty(issuers)) {
-      issuers = this.certificateSource.getBySubject(certificateToken.getIssuer());
+      issuers = getIssuers(certificateToken, this.certificateSource);
     }
     return issuers;
+  }
+
+  private Set<CertificateToken> getIssuers(final Token token, CertificateSource certificateSource) {
+    if (token.getPublicKeyOfTheSigner() != null) {
+      return certificateSource.getByPublicKey(token.getPublicKeyOfTheSigner());
+    } else if (token.getIssuerX500Principal() != null) {
+      Set<CertificateToken> potentialIssuers = certificateSource.getBySubject(new X500PrincipalHelper(token.getIssuerX500Principal()));
+      for (CertificateToken potentialIssuer : potentialIssuers) {
+        if (token.isSignedBy(potentialIssuer)) {
+          return certificateSource.getByPublicKey(potentialIssuer.getPublicKey());
+        }
+      }
+    }
+    return Collections.emptySet();
   }
 
   /*

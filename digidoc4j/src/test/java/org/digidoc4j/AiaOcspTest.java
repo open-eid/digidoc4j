@@ -44,7 +44,7 @@ public class AiaOcspTest extends AbstractTest {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         configuration.setPreferAiaOcsp(true);
         File testFile1 = this.createTemporaryFileBy("testFile.txt", "TEST");
-        Container container = ContainerBuilder.aContainer()
+        Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC)
                 .withDataFile(testFile1.getPath(), "text/plain")
                 .withConfiguration(configuration)
                 .build();

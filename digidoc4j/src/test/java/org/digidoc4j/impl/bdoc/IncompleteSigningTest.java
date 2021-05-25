@@ -1,6 +1,9 @@
 package org.digidoc4j.impl.bdoc;
 
+import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.spi.client.http.DataLoader;
+import org.apache.commons.codec.binary.Hex;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
@@ -10,10 +13,9 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.CertificateValidationException;
-import org.digidoc4j.exceptions.NetworkException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
+import org.digidoc4j.test.MockConfigurableDataLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,10 +37,10 @@ import java.security.cert.X509Certificate;
  * <p>
  * ...WhenTslCouldNotBeLoaded() - uses TEST configuration with empty SSL truststore in order to prevent TSL from loading.
  * <p>
- * ...WhenTslLoadingFails() - uses TEST configuration with invalid SSL truststore configuration in order to prevent TSL from loading.
+ * ...WhenTslLoadingFails() - uses TEST configuration with failing data loaders in order to prevent TSL from loading.
  * <p>
- * ...WhenDataLoadersFail() - uses TEST configuration with successfully loaded TSL and subsequently configured invalid SSL truststore
- * configuration in order to make TSA and OCSP requests to fail.
+ * ...WhenDataLoadersFail() - uses TEST configuration with successfully loaded TSL and subsequently configured failing
+ * data loaders in order to make TSA and OCSP requests to fail.
  */
 public class IncompleteSigningTest extends AbstractTest {
 
@@ -209,19 +211,19 @@ public class IncompleteSigningTest extends AbstractTest {
     );
   }
 
-  @Test(expected = NetworkException.class)
+  @Test(expected = TechnicalException.class)
   public void signatureProfileLtTmShouldFailWhenDataLoadersFail() {
     setUpTestConfigurationWithOkTslButFailingDataLoaders();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
   }
 
-  @Test(expected = NetworkException.class)
+  @Test(expected = TechnicalException.class)
   public void signatureProfileLtShouldFailWhenDataLoadersFail() {
     setUpTestConfigurationWithOkTslButFailingDataLoaders();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT, pkcs12SignatureToken);
   }
 
-  @Test(expected = NetworkException.class)
+  @Test(expected = TechnicalException.class)
   public void signatureProfileLtaShouldFailWhenDataLoadersFail() {
     setUpTestConfigurationWithOkTslButFailingDataLoaders();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LTA, pkcs12SignatureToken);
@@ -270,18 +272,14 @@ public class IncompleteSigningTest extends AbstractTest {
 
   private void setUpTestConfigurationWithFailingTSL() {
     configuration = Configuration.of(Configuration.Mode.TEST);
-    configuration.setSslTruststorePath("classpath:testFiles/truststores/empty-truststore.p12");
-    configuration.setSslTruststorePassword("invalid-truststore-password");
-    configuration.setSslTruststoreType("INVALID_TRUSTSTORE_TYPE");
+    configureFailingDataLoaders(configuration);
     configuration.getTSL().invalidateCache();
   }
 
   private void setUpTestConfigurationWithOkTslButFailingDataLoaders() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     configuration.getTSL().refresh();
-    configuration.setSslTruststorePath("classpath:testFiles/truststores/empty-truststore.p12");
-    configuration.setSslTruststorePassword("invalid-truststore-password");
-    configuration.setSslTruststoreType("INVALID_TRUSTSTORE_TYPE");
+    configureFailingDataLoaders(configuration);
   }
 
   private void ensureCertificateTrustedByTSL(X509Certificate certificate) {
@@ -313,6 +311,25 @@ public class IncompleteSigningTest extends AbstractTest {
     } catch (IOException e) {
       throw new IllegalStateException("I/O operation failed", e);
     }
+  }
+
+  private static void configureFailingDataLoaders(Configuration configuration) {
+    DataLoader failingDataLoader = new MockConfigurableDataLoader()
+            .withGetter((url, refresh) -> {
+              String message = String.format("Failed to GET URL: %s", url);
+              if (refresh != null) {
+                message += String.format("; refresh: %s", refresh);
+              }
+              throw new DSSException(message);
+            })
+            .withPoster((url, content) -> {
+              String contentHex = (content == null) ? "null" : Hex.encodeHexString(content);
+              throw new DSSException(String.format("Failed to POST URL: %s; content: %s", url, contentHex));
+            });
+
+    configuration.setOcspDataLoaderFactory(() -> failingDataLoader);
+    configuration.setTslDataLoaderFactory(() -> failingDataLoader);
+    configuration.setTspDataLoaderFactory(() -> failingDataLoader);
   }
 
 }

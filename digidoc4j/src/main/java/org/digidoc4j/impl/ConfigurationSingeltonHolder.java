@@ -26,18 +26,22 @@ public class ConfigurationSingeltonHolder {
    * A thread-safe way of getting a single configuration object.
    */
   public static Configuration getInstance() {
-    if (configuration == null) {
+    // For correct usage of double-checked locking for lazy initialization in Java,
+    //  see: https://en.wikipedia.org/wiki/Double-checked_locking#Usage_in_Java
+    Configuration localConfigurationReference = configuration;
+    if (localConfigurationReference == null) {
       //Using double-checked locking for ensuring that no other thread has started initializing Configuration object already
       synchronized (ConfigurationSingeltonHolder.class) {
-        if (configuration == null) {
+        localConfigurationReference = configuration;
+        if (localConfigurationReference == null) {
           logger.info("Creating a new configuration instance");
-          configuration = new Configuration();
+          configuration = localConfigurationReference = new Configuration();
         }
       }
     } else {
       logger.info("Using existing configuration instance");
     }
-    return configuration;
+    return localConfigurationReference;
   }
 
   /**

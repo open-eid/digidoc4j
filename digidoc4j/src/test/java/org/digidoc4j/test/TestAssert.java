@@ -10,31 +10,16 @@
 
 package org.digidoc4j.test;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
+import eu.europa.esig.dss.model.DSSDocument;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.SkDataLoader;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
-import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -43,10 +28,18 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
-import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
-import eu.europa.esig.dss.service.http.proxy.ProxyProperties;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
@@ -86,7 +79,7 @@ public final class TestAssert {
         return;
       }
     }
-    Assert.assertFalse(String.format("Expected <%s> was not found", error), true);
+    Assert.fail(String.format("Expected <%s> was not found", error));
   }
 
   public static void assertSignatureMetadataContainsFileName(Signature signature, String fileName) {
@@ -118,25 +111,15 @@ public final class TestAssert {
     TestAssert.assertContainerStream(container.saveAsStream());
   }
 
-  public static void assertHTTPProxyIsConfigured(CommonsDataLoader loader, String proxyHost, int proxyPort) {
-    ProxyConfig config = loader.getProxyConfig();
-    Assert.assertNotNull(config);
-    ProxyProperties httpProperties = config.getHttpProperties();
-    ProxyProperties httpsProperties = config.getHttpsProperties();
-    Assert.assertEquals(proxyHost, httpProperties.getHost());
-    Assert.assertEquals(proxyPort, httpProperties.getPort());
-    Assert.assertEquals(null, httpsProperties.getHost());
-    Assert.assertEquals(0, httpsProperties.getPort());
-  }
-
-  public static void assertProxyCredentialsAreUnset(CommonsDataLoader loader) {
-    ProxyConfig config = loader.getProxyConfig();
-    ProxyProperties httpProperties = config.getHttpProperties();
-    ProxyProperties httpsProperties = config.getHttpsProperties();
-    Assert.assertTrue(isEmpty(httpProperties.getUser()));
-    Assert.assertTrue(isEmpty(httpsProperties.getUser()));
-    Assert.assertTrue(isEmpty(httpProperties.getPassword()));
-    Assert.assertTrue(isEmpty(httpsProperties.getPassword()));
+  public static void assertSuppressed(Throwable throwable, Class<?> suppressedType, String... suppressedMessages) {
+    Throwable[] suppressedList = throwable.getSuppressed();
+    Assert.assertNotNull(suppressedList);
+    Assert.assertEquals(suppressedMessages.length, suppressedList.length);
+    for (int i = 0; i < suppressedMessages.length; ++i) {
+      Assert.assertNotNull(suppressedList[i]);
+      Assert.assertTrue(suppressedType.isInstance(suppressedList[i]));
+      Assert.assertEquals(suppressedMessages[i], suppressedList[i].getMessage());
+    }
   }
 
   /*

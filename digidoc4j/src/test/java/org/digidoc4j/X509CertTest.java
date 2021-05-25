@@ -27,20 +27,20 @@ import org.mockito.Mockito;
 
 public class X509CertTest {
 
-  private final X509Cert certificate = new X509Cert("src/test/resources/testFiles/certs/signout.pem");
+  private final X509Cert certificate = new X509Cert("src/test/resources/testFiles/certs/sign_RSA_from_TEST_of_ESTEIDSK2015.pem");
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
 
   @Test
   public void testGetX509Certificate() throws Exception {
     X509Certificate x509Certificate = this.certificate.getX509Certificate();
-    Assert.assertEquals("SERIALNUMBER=11404176865, GIVENNAME=MÄRÜ-LÖÖZ, SURNAME=ŽÕRINÜWŠKY, " +
-            "CN=\"ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865\", OU=digital signature, O=ESTEID, C=EE",
+    Assert.assertEquals("SERIALNUMBER=60001013739, GIVENNAME=MARY ÄNN, SURNAME=O’CONNEŽ-ŠUSLIK TESTNUMBER, " +
+            "CN=\"O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739\", C=EE",
         x509Certificate.getSubjectDN().getName());
   }
 
   @Test
   public void testGetSerialNumber() {
-    Assert.assertEquals("530be41bbc597c44570e2b7c13bcfa0c", this.certificate.getSerial());
+    Assert.assertEquals("6ec00b8b8c54c4f76082bd843e3a1526", this.certificate.getSerial());
   }
 
   @Test
@@ -59,7 +59,7 @@ public class X509CertTest {
 
   @Test
   public void testGetPolicies() throws IOException {
-    Assert.assertEquals(1, this.certificate.getCertificatePolicies().size());
+    Assert.assertEquals(2, this.certificate.getCertificatePolicies().size());
   }
 
   @Test
@@ -105,19 +105,19 @@ public class X509CertTest {
 
   @Test
   public void testGetPartOfSubjectName() throws Exception {
-    Assert.assertEquals("11404176865", this.certificate.getSubjectName(X509Cert.SubjectName.SERIALNUMBER));
-    Assert.assertEquals("märü-lööz", this.certificate.getSubjectName(X509Cert.SubjectName.GIVENNAME).toLowerCase());
-    Assert.assertEquals("žõrinüwšky", this.certificate.getSubjectName(X509Cert.SubjectName.SURNAME).toLowerCase());
-    Assert.assertEquals("\"žõrinüwšky,märü-lööz,11404176865\"", this.certificate.getSubjectName(X509Cert.SubjectName.CN).toLowerCase());
-    Assert.assertEquals("digital signature", this.certificate.getSubjectName(X509Cert.SubjectName.OU).toLowerCase());
-    Assert.assertEquals("esteid", this.certificate.getSubjectName(X509Cert.SubjectName.O).toLowerCase());
+    Assert.assertEquals("60001013739", this.certificate.getSubjectName(X509Cert.SubjectName.SERIALNUMBER));
+    Assert.assertEquals("mary änn", this.certificate.getSubjectName(X509Cert.SubjectName.GIVENNAME).toLowerCase());
+    Assert.assertEquals("o’connež-šuslik testnumber", this.certificate.getSubjectName(X509Cert.SubjectName.SURNAME).toLowerCase());
+    Assert.assertEquals("\"o’connež-šuslik testnumber,mary änn,60001013739\"", this.certificate.getSubjectName(X509Cert.SubjectName.CN).toLowerCase());
     Assert.assertEquals("ee", this.certificate.getSubjectName(X509Cert.SubjectName.C).toLowerCase());
+    Assert.assertNull(this.certificate.getSubjectName(X509Cert.SubjectName.OU));
+    Assert.assertNull(this.certificate.getSubjectName(X509Cert.SubjectName.O));
   }
 
   @Test
   public void testGetSubjectName() throws Exception {
-    Assert.assertEquals("SERIALNUMBER=11404176865, GIVENNAME=MÄRÜ-LÖÖZ, SURNAME=ŽÕRINÜWŠKY, CN=\"ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ," +
-        "11404176865\", OU=digital signature, O=ESTEID, C=EE", this.certificate.getSubjectName());
+    Assert.assertEquals("SERIALNUMBER=60001013739, GIVENNAME=MARY ÄNN, SURNAME=O’CONNEŽ-ŠUSLIK TESTNUMBER, " +
+        "CN=\"O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739\", C=EE", this.certificate.getSubjectName());
   }
 
   @Test
