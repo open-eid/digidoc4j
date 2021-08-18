@@ -64,7 +64,7 @@ public class AiaOcspTest extends AbstractTest {
                 .build();
         this.createSignatureBy(container, this.pkcs12EccSignatureToken);
         assertTrue(container.validate().isValid());
-        assertEquals("C=EE, O=SK ID Solutions AS, OU=OCSP, CN=DEMO of ESTEID-SK 2011 AIA OCSP RESPONDER 2018", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
+        assertEquals("C=EE, O=SK ID Solutions AS, OU=OCSP, CN=DEMO of ESTEID-SK 2015 AIA OCSP RESPONDER 2018", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
     }
 
     @Test
