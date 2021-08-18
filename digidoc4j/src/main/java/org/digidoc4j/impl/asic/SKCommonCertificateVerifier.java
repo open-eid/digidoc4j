@@ -33,16 +33,9 @@ import java.io.Serializable;
 public class SKCommonCertificateVerifier implements Serializable, CertificateVerifier {
 
   private transient CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
-  private transient CertificateSource trustedCertSource;
 
   public SKCommonCertificateVerifier() {
     this.commonCertificateVerifier.setAlertOnMissingRevocationData(new SilentOnStatusAlert());
-  }
-
-  @Override
-  public void setTrustedCertSource(final CertificateSource trustedCertSource) {
-    this.trustedCertSource = trustedCertSource;
-    this.commonCertificateVerifier.setTrustedCertSource(trustedCertSource);
   }
 
   @Override
@@ -88,11 +81,6 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   @Override
   public ListCertificateSource getTrustedCertSources() {
     return this.commonCertificateVerifier.getTrustedCertSources();
-  }
-
-  @Override
-  public void setAdjunctCertSource(final CertificateSource adjunctCertSource) {
-    this.commonCertificateVerifier.setAdjunctCertSource(adjunctCertSource);
   }
 
   @Override

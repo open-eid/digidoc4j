@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.enumerations.SignatureLevel;
-import eu.europa.esig.dss.validation.SignaturePolicyProvider;
 import eu.europa.esig.dss.validation.SignaturePolicy;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 
@@ -71,9 +70,7 @@ public class XadesSignatureParser {
   }
 
   private boolean containsPolicyId(XAdESSignature xAdESSignature) {
-    xAdESSignature.checkSignaturePolicy(new SignaturePolicyProvider());
-
-    SignaturePolicy policyId = xAdESSignature.getPolicyId();
+    SignaturePolicy policyId = xAdESSignature.getSignaturePolicy();
     if (policyId == null) {
       return false;
     }
@@ -84,7 +81,7 @@ public class XadesSignatureParser {
     if (!containsPolicyId(xAdESSignature)) {
       return false;
     }
-    SignaturePolicy policyId = xAdESSignature.getPolicyId();
+    SignaturePolicy policyId = xAdESSignature.getSignaturePolicy();
     String identifier = Helper.getIdentifier(policyId.getIdentifier());
     return StringUtils.equals(XadesSignatureValidator.TM_POLICY, identifier);
   }

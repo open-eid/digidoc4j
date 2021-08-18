@@ -13,7 +13,6 @@ package org.digidoc4j.utils;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.validation.SignaturePolicyProvider;
-import eu.europa.esig.dss.xades.DSSXMLUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.CanReadFileFilter;
@@ -46,6 +45,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
@@ -74,7 +74,7 @@ public final class Helper {
   private static final Logger logger = LoggerFactory.getLogger(Helper.class);
   private static final int ZIP_VERIFICATION_CODE = 0x504b0304;
   private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
-  private static Random random = new SecureRandom();
+  private static final Random random = new SecureRandom();
 
   private Helper() {
   }
@@ -162,8 +162,7 @@ public final class Helper {
     int test = in.readInt();
     if (stream.markSupported())
       stream.reset();
-    final int zipVerificationCode = ZIP_VERIFICATION_CODE;
-    return test == zipVerificationCode;
+    return test == ZIP_VERIFICATION_CODE;
   }
 
   /**
@@ -217,7 +216,7 @@ public final class Helper {
         throw new IOException(signatureFileName + " does not exists in archive: " + file);
 
       try (InputStream inputStream = zipFile.getInputStream(entry)) {
-        return IOUtils.toString(inputStream, "UTF-8");
+        return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
       }
     }
   }
@@ -257,13 +256,13 @@ public final class Helper {
    * @param file file containing the serialized container
    * @return container
    */
+  @SuppressWarnings("unchecked")
   public static <T> T deserializer(File file) {
     try (
         FileInputStream fileIn = new FileInputStream(file);
         ObjectInputStream in = new ObjectInputStream(fileIn);
     ) {
-      T object = (T) in.readObject();
-      return object;
+      return (T) in.readObject();
     } catch (Exception e) {
       throw new DigiDoc4JException(e);
     }
@@ -315,7 +314,7 @@ public final class Helper {
   /**
    * Checks that file name contains special characters
    *
-   * @param fileName
+   * @param fileName file name to check
    * @return true if file name contains following symbols: <>:"/\|?*
    */
   public static boolean hasSpecialCharacters(String fileName) {
@@ -326,20 +325,18 @@ public final class Helper {
 
   public static String getIdentifier(String identifier) {
     String id = identifier.trim();
-    if (DSSXMLUtils.isOid(id)) {
-      id = id.substring(id.lastIndexOf(':') + 1);
-    } else {
-      return id;
+    if (DSSUtils.isUrnOid(id)) {
+      return DSSUtils.getOidCode(id);
     }
     return id;
   }
 
   public static SignaturePolicyProvider getBdocSignaturePolicyProvider(DSSDocument signature) {
     SignaturePolicyProvider signaturePolicyProvider = new SignaturePolicyProvider();
-    Map<String, DSSDocument> signaturePoliciesById = new HashMap<String, DSSDocument>();
+    Map<String, DSSDocument> signaturePoliciesById = new HashMap<>();
     signaturePoliciesById.put(XadesSignatureValidator.TM_POLICY, signature);
 
-    Map<String, DSSDocument> signaturePoliciesByUrl = new HashMap<String, DSSDocument>();
+    Map<String, DSSDocument> signaturePoliciesByUrl = new HashMap<>();
     signaturePoliciesByUrl.put("https://www.sk.ee/repository/bdoc-spec21.pdf", signature);
 
     signaturePolicyProvider.setSignaturePoliciesById(signaturePoliciesById);

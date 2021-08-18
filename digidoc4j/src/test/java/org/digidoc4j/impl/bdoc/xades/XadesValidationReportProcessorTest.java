@@ -56,7 +56,7 @@ public class XadesValidationReportProcessorTest {
     public void noWarningRemoved() {
         XmlSignature signature = mockSignatureWithWarnings(
                 i18nProvider.getMessage(MessageTag.QUAL_IS_ADES),
-                i18nProvider.getMessage(MessageTag.QUAL_FOR_SIGN_AT_CC)
+                i18nProvider.getMessage(MessageTag.QUAL_CERT_TYPE_AT_CC)
         );
         XmlSimpleReport simpleReport = new XmlSimpleReport();
         simpleReport.getSignatureOrTimestamp().add(signature);

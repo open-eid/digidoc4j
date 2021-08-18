@@ -5,6 +5,7 @@ import eu.europa.esig.dss.diagnostic.DiagnosticData;
 import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.RevocationType;
 import eu.europa.esig.dss.model.FileDocument;
+import eu.europa.esig.dss.pades.PAdESUtils;
 import eu.europa.esig.dss.pades.validation.PDFDocumentValidator;
 import eu.europa.esig.dss.pdf.pdfbox.PdfBoxDefaultObjectFactory;
 import eu.europa.esig.dss.validation.CertificateVerifier;
@@ -131,12 +132,12 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
    */
   public ContainerValidationResult validate() {
     FileDocument document = new FileDocument(new File(this.containerPath));
-    SignedDocumentValidator validator = new PDFDocumentValidator(new FileDocument(new File(this.containerPath)));
-    if (!validator.isSupported(document)) {
+    if (!PAdESUtils.isPDFDocument(document)) {
       String message = "Invalid PDF document provided!";
       logger.error(message);
       throw new DigiDoc4JException(message);
     }
+    SignedDocumentValidator validator = new PDFDocumentValidator(document);
     validator.setCertificateVerifier(createCertificateVerifier());
     Reports reports = validator.validateDocument(this.getClass().getClassLoader().getResourceAsStream(this.configuration.getValidationPolicy()));
     PadesContainerValidationResult result = new PadesContainerValidationResult(reports.getSimpleReport());
@@ -307,7 +308,7 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
     certificateVerifier.setCrlSource(null); //Disable CRL checks
     certificateVerifier.setSignatureCRLSource(null); //Disable CRL checks
     logger.debug("Setting trusted cert source to the certificate verifier");
-    certificateVerifier.setTrustedCertSource(configuration.getTSL());
+    certificateVerifier.setTrustedCertSources(configuration.getTSL());
     logger.debug("Setting custom data loader to the certificate verifier");
     certificateVerifier.setDataLoader(new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create());
     logger.debug("Finished creating certificate verifier");

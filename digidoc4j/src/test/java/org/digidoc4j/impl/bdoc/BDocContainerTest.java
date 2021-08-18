@@ -1038,7 +1038,7 @@ public class BDocContainerTest extends AbstractTest {
     container.saveAsFile(file);
     container = ContainerOpener.open(file);
     AsicSignature asicSignature = (AsicSignature) container.getSignatures().get(0);
-    SignaturePolicy policyId = asicSignature.getOrigin().getDssSignature().getPolicyId();
+    SignaturePolicy policyId = asicSignature.getOrigin().getDssSignature().getSignaturePolicy();
     Assert.assertEquals(spuri, policyId.getUrl());
     Assert.assertEquals(signatureId, policyId.getIdentifier());
     Assert.assertEquals(digestAlgorithm, policyId.getDigest().getAlgorithm());
@@ -1056,7 +1056,7 @@ public class BDocContainerTest extends AbstractTest {
     container.saveAsFile(file);
     container = ContainerOpener.open(file);
     BDocSignature bdocSignature = (BDocSignature) container.getSignatures().get(0);
-    SignaturePolicy policyId = bdocSignature.getOrigin().getDssSignature().getPolicyId();
+    SignaturePolicy policyId = bdocSignature.getOrigin().getDssSignature().getSignaturePolicy();
     Assert.assertEquals("https://www.sk.ee/repository/bdoc-spec21.pdf", policyId.getUrl());
     Assert.assertEquals("" + XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
     Assert.assertEquals(eu.europa.esig.dss.enumerations.DigestAlgorithm.SHA256, policyId.getDigest().getAlgorithm());

@@ -20,6 +20,7 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
   private static final String ASICE_LOCATION = "src/test/resources/testFiles/valid-containers/latvian_signed_container.asice";
 
   @Test
+  @Ignore("TODO: DD4J-731")
   public void timestampAfterOcspResponseTimeShouldResultInInvalidContainerForEDOC() {
     ContainerValidationResult validationResult = this.openContainerByConfiguration(Paths.get(EDOC_LOCATION)).validate();
     Assert.assertFalse("Signature should be invalid if timestamp was taken after OCSP", validationResult.isValid());

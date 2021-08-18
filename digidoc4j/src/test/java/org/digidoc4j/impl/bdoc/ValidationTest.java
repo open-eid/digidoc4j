@@ -800,6 +800,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("TODO: DD4J-730")
   public void validateSpuriElement_UriIsMissing() throws Exception {
     Container container = ContainerOpener
         .open("src/test/resources/testFiles/valid-containers/23608_bdoc21-no-nonce-policy.bdoc", this.configuration);
@@ -897,14 +898,20 @@ public class ValidationTest extends AbstractTest {
   public void container_withExpiredAIAOCSP_LT_shouldBeInvalid() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/esteid2018signerAiaOcspLT.asice");
     ContainerValidationResult validationResult = container.validate();
-    Assert.assertEquals(2, validationResult.getErrors().size());
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
+            "The result of the LTV validation process is not acceptable to continue the process!",
+            "No acceptable revocation data for the certificate!"
+    );
   }
 
   @Test
   public void container_withExpiredAIAOCSP_LTA_shouldBeInvalid() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/esteid2018signerAiaOcspLTA.asice");
     ContainerValidationResult validationResult = container.validate();
-    Assert.assertEquals(2, validationResult.getErrors().size());
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
+            "The result of the LTV validation process is not acceptable to continue the process!",
+            "No acceptable revocation data for the certificate!"
+    );
   }
 
   /*

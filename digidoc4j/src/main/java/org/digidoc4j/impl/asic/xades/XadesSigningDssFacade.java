@@ -11,7 +11,7 @@
 package org.digidoc4j.impl.asic.xades;
 
 import eu.europa.esig.dss.DomUtils;
-import eu.europa.esig.dss.asic.common.ASiCNamespace;
+import eu.europa.esig.dss.asic.common.definition.ASiCNamespace;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.enumerations.EncryptionAlgorithm;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
@@ -27,6 +27,7 @@ import eu.europa.esig.dss.model.ToBeSigned;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.spi.x509.CertificateSource;
+import eu.europa.esig.dss.spi.x509.ListCertificateSource;
 import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import eu.europa.esig.dss.spi.x509.tsp.TSPSource;
 import eu.europa.esig.dss.validation.CertificateVerifier;
@@ -154,7 +155,11 @@ public class XadesSigningDssFacade {
   }
 
   public void setCertificateSource(CertificateSource certificateSource) {
-    certificateVerifier.setTrustedCertSource(certificateSource);
+    if (certificateSource == null || certificateSource instanceof ListCertificateSource) {
+      certificateVerifier.setTrustedCertSources((ListCertificateSource) certificateSource);
+    } else {
+      certificateVerifier.setTrustedCertSources(certificateSource);
+    }
   }
 
   public void setSignatureDigestAlgorithm(org.digidoc4j.DigestAlgorithm digestAlgorithm) {
@@ -237,7 +242,7 @@ public class XadesSigningDssFacade {
     logger.debug("Surrounding signature document with xades tag");
     Document signatureDom = DomUtils.buildDOM(signedDocument);
     Element signatureElement = signatureDom.getDocumentElement();
-    Document document = XmlDomCreator.createDocument(ASiCNamespace.ASIC_NS, XmlDomCreator.ASICS_NS, signatureElement);
+    Document document = XmlDomCreator.createDocument(ASiCNamespace.NS.getUri(), XmlDomCreator.ASICS_NS, signatureElement);
     byte[] documentBytes = DSSXMLUtils.serializeNode(document);
     return new InMemoryDocument(documentBytes);
   }

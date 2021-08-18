@@ -137,7 +137,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   private void addPolicyValidationErrors() {
     LOGGER.debug("Extracting policy validation errors");
     XAdESSignature dssSignature = this.getDssSignature();
-    SignaturePolicy policy = dssSignature.getPolicyId();
+    SignaturePolicy policy = dssSignature.getSignaturePolicy();
     if (policy == null) {
       return;
     }
@@ -162,7 +162,7 @@ public class XadesSignatureValidator implements SignatureValidator {
 
   private void addPolicyUriValidationErrors() {
     LOGGER.debug("Extracting policy URL validation errors");
-    SignaturePolicy policy = this.getDssSignature().getPolicyId();
+    SignaturePolicy policy = this.getDssSignature().getSignaturePolicy();
     if (policy != null && !isSignaturePolicyImpliedElementPresented()) {
       if (StringUtils.isBlank(policy.getUrl())) {
         this.addValidationError(new WrongPolicyIdentifierException("Error: The URL in signature policy is empty or not available"));
