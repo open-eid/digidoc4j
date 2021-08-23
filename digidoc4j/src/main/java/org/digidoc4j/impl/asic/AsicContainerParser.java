@@ -11,7 +11,6 @@
 package org.digidoc4j.impl.asic;
 
 import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.model.MimeType;
 import org.apache.commons.io.IOUtils;
@@ -53,37 +52,38 @@ public abstract class AsicContainerParser {
 
   public static final String MANIFEST = "META-INF/manifest.xml";
   public static final String TIMESTAMP_TOKEN = "META-INF/timestamp.tst";
+
   private static final Logger logger = LoggerFactory.getLogger(AsicContainerParser.class);
   //Matches META-INF/*signatures*.xml where the last * is a number
   private static final String SIGNATURES_FILE_REGEX = "META-INF/(.*)signatures(.*).xml";
   private static final Pattern SIGNATURE_FILE_ENDING_PATTERN = Pattern.compile("(\\d+).xml");
+
   private final Configuration configuration;
-  private AsicParseResult parseResult = new AsicParseResult();
-  private List<DSSDocument> signatures = new ArrayList<>();
-  private LinkedHashMap<String, DataFile> dataFiles = new LinkedHashMap<>();
-  private List<DSSDocument> detachedContents = new ArrayList<>();
+  private final AsicParseResult parseResult = new AsicParseResult();
+  private final List<DSSDocument> signatures = new ArrayList<>();
+  private final LinkedHashMap<String, DataFile> dataFiles = new LinkedHashMap<>();
+  private final List<DSSDocument> detachedContents = new ArrayList<>();
   private Integer currentSignatureFileIndex;
   private String mimeType;
   private String zipFileComment;
-  private List<AsicEntry> asicEntries = new ArrayList<>();
+  private final List<AsicEntry> asicEntries = new ArrayList<>();
   private Map<String, ManifestEntry> manifestFileItems = Collections.emptyMap();
   private ManifestParser manifestParser;
-  private boolean storeDataFilesOnlyInMemory;
+  private final boolean storeDataFilesOnlyInMemory;
   private boolean manifestFound = false;
   private boolean mimeTypeFound = false;
-  private long maxDataFileCachedInBytes;
+  private final long maxDataFileCachedInBytes;
   private DataFile timestampToken;
-  protected static final long ZIP_ENTRY_THRESHOLD = 1000000; // 1 MB
-  /**
-   * Maximum compression ratio.
-   */
-  protected static final long ZIP_ENTRY_RATIO = 50;
+  private final long zipCompressionRatioCheckThreshold;
+  private final long zipMaxAllowedCompressionRatio;
 
 
   protected AsicContainerParser(Configuration configuration) {
     this.configuration = configuration;
     storeDataFilesOnlyInMemory = configuration.storeDataFilesOnlyInMemory();
     maxDataFileCachedInBytes = configuration.getMaxDataFileCachedInBytes();
+    zipCompressionRatioCheckThreshold = configuration.getZipCompressionRatioCheckThresholdInBytes();
+    zipMaxAllowedCompressionRatio = configuration.getMaxAllowedZipCompressionRatio();
   }
 
   /**
@@ -138,25 +138,30 @@ public abstract class AsicContainerParser {
   }
 
   private void extractMimeType(ZipEntry entry) {
-    try {
-      InputStream zipFileInputStream = getZipEntryInputStream(entry);
-      BOMInputStream bomInputStream = new BOMInputStream(zipFileInputStream);
-      InMemoryDocument document = new InMemoryDocument(bomInputStream);
+    try (
+            InputStream zipFileInputStream = getZipEntryInputStream(entry);
+            BOMInputStream bomInputStream = new BOMInputStream(zipFileInputStream)
+    ) {
+      InMemoryDocument document = new InMemoryDocument(IOUtils.toByteArray(bomInputStream));
       mimeType = StringUtils.trim(IOUtils.toString(document.getBytes(), "UTF-8"));
       extractUncompressedAsicEntry(entry, document);
     } catch (IOException e) {
       logger.error("Error parsing container mime type: " + e.getMessage());
-      throw new TechnicalException("Error parsing container mime type: " + e.getMessage(), e);
+      throw new TechnicalException("Error parsing container mime type", e);
     }
   }
 
   private void extractSignature(ZipEntry entry) {
     logger.debug("Extracting signature");
-    InputStream zipFileInputStream = getZipEntryInputStream(entry);
-    String fileName = entry.getName();
-    InMemoryDocument document = new InMemoryDocument(zipFileInputStream, fileName);
-    signatures.add(document);
-    extractSignatureAsicEntry(entry, document);
+    try (InputStream zipFileInputStream = getZipEntryInputStream(entry)) {
+      String fileName = entry.getName();
+      InMemoryDocument document = new InMemoryDocument(IOUtils.toByteArray(zipFileInputStream), fileName);
+      signatures.add(document);
+      extractSignatureAsicEntry(entry, document);
+    } catch (IOException e) {
+      logger.error("Error parsing container signature: " + e.getMessage());
+      throw new TechnicalException("Error parsing container signature", e);
+    }
   }
 
   private void extractTimeStamp(ZipEntry entry) {
@@ -303,6 +308,15 @@ public abstract class AsicContainerParser {
       int fileIndex = Integer.parseInt(indexNumber);
       if (currentSignatureFileIndex == null || currentSignatureFileIndex <= fileIndex) {
         currentSignatureFileIndex = fileIndex;
+      }
+    }
+  }
+
+  protected void verifyContainerUnpackingIsSafeToProceed(long packedSize, long unpackedSize) {
+    if (unpackedSize > zipCompressionRatioCheckThreshold) {
+      final long allowedMaximumUnpackedSize = packedSize * zipMaxAllowedCompressionRatio;
+      if (unpackedSize > allowedMaximumUnpackedSize) {
+        throw new TechnicalException("Zip Bomb detected in the ZIP container. Validation is interrupted.");
       }
     }
   }

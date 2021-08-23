@@ -57,6 +57,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static org.digidoc4j.Container.DocumentType.ASICE;
 import static org.digidoc4j.Container.DocumentType.ASICS;
@@ -481,12 +482,12 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
       toTest.run();
     } catch (Throwable t) {
       if (type.isInstance(t)) {
-        return (T) t;
+        return Objects.requireNonNull((T) t, "Caught exception cannot be null");
       }
       Assert.fail(String.format("Expected %s, but an %s was thrown: %s", type.getSimpleName(), t.getClass().getSimpleName(), t.getMessage()));
     }
     Assert.fail(String.format("Expected %s, but nothing was thrown", type.getSimpleName()));
-    return null; // For compiler
+    throw new IllegalStateException("Should have not reached here!"); // For compiler
   }
 
   protected void assertBDocContainer(Container container) {

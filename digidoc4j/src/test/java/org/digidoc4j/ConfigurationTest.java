@@ -1045,6 +1045,38 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
+  public void testDefaultZipCompressionConfiguration() {
+    Assert.assertEquals(1024 * 1024, this.configuration.getZipCompressionRatioCheckThresholdInBytes());
+    Assert.assertEquals(100, this.configuration.getMaxAllowedZipCompressionRatio());
+  }
+
+  @Test
+  public void getInvalidZipCompressionRatioCheckThresholdInBytes() {
+    this.expectedException.expect(ConfigurationException.class);
+    this.expectedException.expectMessage("Configuration parameter ZIP_COMPRESSION_RATIO_CHECK_THRESHOLD_IN_BYTES should have a long integer value but the actual value is: invalidValue.");
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_zip_threshold.yaml");
+  }
+
+  @Test
+  public void getInvalidMaxAllowedZipCompressionRatio() {
+    this.expectedException.expect(ConfigurationException.class);
+    this.expectedException.expectMessage("Configuration parameter MAX_ALLOWED_ZIP_COMPRESSION_RATIO should have an integer value but the actual value is: invalidValue.");
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_zip_ratio.yaml");
+  }
+
+  @Test
+  public void setZipCompressionRatioCheckThresholdInBytes() {
+    this.configuration.setZipCompressionRatioCheckThresholdInBytes(1234567);
+    Assert.assertEquals(1234567, this.configuration.getZipCompressionRatioCheckThresholdInBytes());
+  }
+
+  @Test
+  public void setMaxAllowedZipCompressionRatio() {
+    this.configuration.setMaxAllowedZipCompressionRatio(2345);
+    Assert.assertEquals(2345, this.configuration.getMaxAllowedZipCompressionRatio());
+  }
+
+  @Test
   public void loadMultipleCAsFromConfigurationFile() throws Exception {
     Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_two_cas.yaml");
     this.configuration.getDDoc4JConfiguration();
@@ -1122,6 +1154,8 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertEquals("TEST_VALIDATION_POLICY", this.configuration.getRegistry().get(ConfigurationParameter.ValidationPolicy).get(0));
     Assert.assertEquals("TEST_TSL_LOCATION", this.configuration.getRegistry().get(ConfigurationParameter.TslLocation).get(0));
     Assert.assertEquals("true", this.configuration.getRegistry().get(ConfigurationParameter.preferAiaOcsp).get(0));
+    Assert.assertEquals("73", this.configuration.getRegistry().get(ConfigurationParameter.ZipCompressionRatioCheckThreshold).get(0));
+    Assert.assertEquals("37", this.configuration.getRegistry().get(ConfigurationParameter.MaxAllowedZipCompressionRatio).get(0));
 
     this.configuration.setTslLocation("Set TSL location");
     this.configuration.setTspSource("Set TSP source");
