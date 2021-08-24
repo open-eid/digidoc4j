@@ -24,7 +24,7 @@
     <properties>
         <hamcrest.version>2.2</hamcrest.version>
         <logback-classic.version>1.2.3</logback-classic.version>
-        <jackson.version>2.12.3</jackson.version>
+        <jackson.version>2.12.4</jackson.version>
         <junit.version>4.13.2</junit.version>
         <dss.groupId>org.digidoc4j.dss</dss.groupId>
         <dss.version>5.7.d4j.2</dss.version>
@@ -69,7 +69,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.8.0</version>
+            <version>2.11.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -105,7 +105,7 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.28</version>
+            <version>1.29</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -212,7 +212,7 @@
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
-            <version>2.0.23</version>
+            <version>2.0.24</version>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
@@ -243,7 +243,7 @@
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
-            <version>2.3.4</version>
+            <version>2.3.5</version>
         </dependency>
         <dependency>
             <groupId>javax.activation</groupId>
@@ -253,7 +253,7 @@
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
-            <version>2.3.4</version>
+            <version>2.3.5</version>
         </dependency>
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
@@ -287,7 +287,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>3.10.0</version>
+            <version>3.12.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
