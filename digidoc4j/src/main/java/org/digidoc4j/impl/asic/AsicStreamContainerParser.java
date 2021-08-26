@@ -31,10 +31,10 @@ import java.util.zip.ZipInputStream;
 public class AsicStreamContainerParser extends AsicContainerParser {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicStreamContainerParser.class);
-  private ZipInputStream zipInputStream;
-  private long entryOffset;
-  private static final int BUFFER_SIZE = 512;
-  CountingInputStream countingInputStream;
+
+  private final CountingInputStream countingInputStream;
+  private final ZipInputStream zipInputStream;
+  private long totalContainerBytesUnpacked;
 
   /**
    * @param inputStream   input stream
@@ -42,8 +42,8 @@ public class AsicStreamContainerParser extends AsicContainerParser {
    */
   public AsicStreamContainerParser(InputStream inputStream, Configuration configuration) {
     super(configuration);
-    this.countingInputStream = new CountingInputStream(inputStream);
-    zipInputStream = new ZipInputStream(this.countingInputStream);
+    countingInputStream = new CountingInputStream(inputStream);
+    zipInputStream = new ZipInputStream(countingInputStream);
   }
 
   @Override
@@ -56,14 +56,13 @@ public class AsicStreamContainerParser extends AsicContainerParser {
     logger.debug("Parsing zip stream");
     try {
       ZipEntry entry;
-
+      totalContainerBytesUnpacked = 0L;
       while ((entry = zipInputStream.getNextEntry()) != null) {
-        this.entryOffset = this.countingInputStream.getByteCount();
         parseEntry(entry);
       }
     } catch (IOException e) {
       logger.error("Error reading asic container stream: " + e.getMessage());
-      throw new TechnicalException("Error reading asic container stream: ", e);
+      throw new TechnicalException("Error reading asic container stream", e);
     } finally {
       IOUtils.closeQuietly(zipInputStream);
     }
@@ -85,19 +84,13 @@ public class AsicStreamContainerParser extends AsicContainerParser {
 
   @Override
   protected InputStream getZipEntryInputStream(ZipEntry entry) {
-    return new ZipEntryInputStream(zipInputStream, new EntryValidator()::validate);
+    return new ZipEntryInputStream(zipInputStream, this::validate);
   }
 
-  protected class EntryValidator {
-    public void validate(long unCompressed) throws IOException {
-      long compressed = countingInputStream.getByteCount() - entryOffset;
-      if (compressed < BUFFER_SIZE) {
-        compressed = BUFFER_SIZE;
-      }
-      if (unCompressed > ZIP_ENTRY_THRESHOLD && compressed * ZIP_ENTRY_RATIO < unCompressed) {
-        throw new IOException("Zip Bomb detected in the ZIP container. Validation is interrupted.");
-      }
-    }
+  private void validate(long bytesRead) {
+    long totalCompressedBytesRead = countingInputStream.getByteCount();
+    totalContainerBytesUnpacked += bytesRead;
+    verifyContainerUnpackingIsSafeToProceed(totalCompressedBytesRead, totalContainerBytesUnpacked);
   }
 
 }

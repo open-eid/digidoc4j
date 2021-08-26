@@ -2,6 +2,7 @@ package org.digidoc4j.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.function.LongConsumer;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -11,12 +12,11 @@ import java.util.zip.ZipInputStream;
 public class ZipEntryInputStream extends InputStream {
 
   private final ZipInputStream zipInputStream;
-  private final ThrowingConsumer<Integer, IOException> validator;
-  private int counter;
+  private final LongConsumer inputReadListener;
 
-  public ZipEntryInputStream(ZipInputStream zipInputStream, ThrowingConsumer<Integer, IOException> validator) {
+  public ZipEntryInputStream(ZipInputStream zipInputStream, LongConsumer inputReadListener) {
     this.zipInputStream = zipInputStream;
-    this.validator = validator;
+    this.inputReadListener = inputReadListener;
   }
 
   @Override
@@ -41,23 +41,23 @@ public class ZipEntryInputStream extends InputStream {
 
   @Override
   public int read() throws IOException {
-    int result = zipInputStream.read();
-    checkEntry(result);
-    return result;
+    int valueRead = zipInputStream.read();
+    notifyInputRead(valueRead < 0 ? 0L : 1L);
+    return valueRead;
   }
 
   @Override
   public int read(byte[] b) throws IOException {
-    int result = zipInputStream.read(b);
-    checkEntry(result);
-    return result;
+    int bytesRead = zipInputStream.read(b);
+    notifyInputRead(bytesRead < 0 ? 0L : bytesRead);
+    return bytesRead;
   }
 
   @Override
   public int read(byte[] b, int off, int len) throws IOException {
-    int result = zipInputStream.read(b, off, len);
-    checkEntry(result);
-    return result;
+    int bytesRead = zipInputStream.read(b, off, len);
+    notifyInputRead(bytesRead < 0 ? 0L : bytesRead);
+    return bytesRead;
   }
 
   @Override
@@ -67,19 +67,15 @@ public class ZipEntryInputStream extends InputStream {
 
   @Override
   public long skip(long n) throws IOException {
-    return zipInputStream.skip(n);
+    long bytesSkipped = zipInputStream.skip(n);
+    notifyInputRead(bytesSkipped);
+    return bytesSkipped;
   }
 
-  private void checkEntry(int result) throws IOException {
-    if (validator != null) {
-      counter += result;
-      validator.accept(counter);
+  private void notifyInputRead(long bytesRead) {
+    if (inputReadListener != null) {
+      inputReadListener.accept(bytesRead);
     }
-  }
-
-  @FunctionalInterface
-  public interface ThrowingConsumer<T, E extends Exception> {
-    void accept(T t) throws E;
   }
 
 }
