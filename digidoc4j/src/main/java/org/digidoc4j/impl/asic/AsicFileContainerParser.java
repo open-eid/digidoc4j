@@ -31,8 +31,11 @@ import java.util.zip.ZipFile;
 public class AsicFileContainerParser extends AsicContainerParser {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicFileContainerParser.class);
-  private ZipFile zipFile;
-  private long containerSize;
+  private static final int READ_BUFFER_SIZE = 2048;
+
+  private final ZipFile zipFile;
+  private final long containerSize;
+  private long totalContainerBytesUnpacked;
 
   /**
    * @param containerPath path
@@ -57,27 +60,27 @@ public class AsicFileContainerParser extends AsicContainerParser {
       setZipFileComment(zipFileComment);
       parseZipFileManifest();
       Enumeration<? extends ZipEntry> entries = zipFile.entries();
+      totalContainerBytesUnpacked = 0L;
       while (entries.hasMoreElements()) {
         ZipEntry zipEntry = entries.nextElement();
-        verifyIfZipBomb(getZipEntryInputStream(zipEntry));
+        verifyIfZipBomb(zipEntry);
         parseEntry(zipEntry);
       }
     } catch (IOException e) {
-      throw new TechnicalException("Zip Bomb detected in the ZIP container. Validation is interrupted.");
+      logger.error("Error reading asic container file: " + e.getMessage());
+      throw new TechnicalException("Error reading asic container file", e);
     } finally {
       IOUtils.closeQuietly(zipFile);
     }
   }
 
-  private void verifyIfZipBomb(InputStream inputStream) throws IOException {
-    byte[] data = new byte[2048];
-    int nRead;
-    int byteCounter = 0;
-    long allowedSize = containerSize * ZIP_ENTRY_RATIO;
-    while ((nRead = inputStream.read(data)) != -1) {
-      byteCounter += nRead;
-      if (byteCounter > ZIP_ENTRY_THRESHOLD && byteCounter > allowedSize) {
-        throw new TechnicalException("Zip Bomb detected in the ZIP container. Validation is interrupted.");
+  private void verifyIfZipBomb(ZipEntry zipEntry) throws IOException {
+    try (InputStream inputStream = getZipEntryInputStream(zipEntry)) {
+      byte[] readBuffer = new byte[READ_BUFFER_SIZE];
+      int bytesRead;
+      while ((bytesRead = inputStream.read(readBuffer)) != -1) {
+        totalContainerBytesUnpacked += bytesRead;
+        verifyContainerUnpackingIsSafeToProceed(containerSize, totalContainerBytesUnpacked);
       }
     }
   }

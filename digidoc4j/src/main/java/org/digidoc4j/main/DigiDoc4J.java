@@ -324,8 +324,8 @@ public final class DigiDoc4J {
 
   private static Option type() {
     return OptionBuilder.withArgName("type").hasArg()
-        .withDescription("sets container type. Types can be DDOC, BDOC, ASICE or ASICS").withLongOpt("type").create(
-            "t");
+        .withDescription("sets container type. Types can be BDOC, ASICE or ASICS")
+        .withLongOpt("type").create("t");
   }
 
   private static Option extractDataFile() {

@@ -24,11 +24,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
+import java.util.function.BiPredicate;
 
 import static java.util.Arrays.asList;
 
@@ -143,6 +160,10 @@ import static java.util.Arrays.asList;
  * NB! Strict Validation applied by default.</li>
  * <li>ALLOWED_OCSP_RESPONDERS_FOR_TM: whitelist of OCSP responders for timemark validation
  * (for example: SK OCSP RESPONDER 2011, ESTEID-SK OCSP RESPONDER, KLASS3-SK OCSP RESPONDER)</li>
+ * <li>ZIP_COMPRESSION_RATIO_CHECK_THRESHOLD_IN_BYTES: the threshold of how much memory (in bytes) are the unpacked
+ * contents of a ZIP-based container allowed to consume before ZIP compression ratio check kicks in</li>
+ * <li>MAX_ALLOWED_ZIP_COMPRESSION_RATIO: the maximum ratio of how much are the contents of a ZIP-based container
+ * allowed to expand on unpacking before the container is considered harmful.</li>
  * </ul>
  */
 public class Configuration implements Serializable {
@@ -1671,6 +1692,63 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Set the maximum ratio of how much are the contents of a ZIP-based container allowed to expand on unpacking before
+   * the container is considered harmful.
+   *
+   * @see #setZipCompressionRatioCheckThresholdInBytes(long)
+   * @see #getZipCompressionRatioCheckThresholdInBytes()
+   *
+   * @param maxAllowedZipCompressionRatio maximum ratio of how much are the contents of a ZIP-based container allowed to expand
+   */
+  public void setMaxAllowedZipCompressionRatio(int maxAllowedZipCompressionRatio) {
+    setConfigurationParameter(ConfigurationParameter.MaxAllowedZipCompressionRatio, String.valueOf(maxAllowedZipCompressionRatio));
+  }
+
+  /**
+   * Get the maximum ratio of how much are the contents of a ZIP-based container allowed to expand on unpacking before
+   * the container is considered harmful.
+   *
+   * @see #setZipCompressionRatioCheckThresholdInBytes(long)
+   * @see #getZipCompressionRatioCheckThresholdInBytes()
+   *
+   * @return maximum ratio of how much are the contents of a ZIP-based container allowed to expand
+   */
+  public int getMaxAllowedZipCompressionRatio() {
+    return Optional
+            .ofNullable(getConfigurationParameter(ConfigurationParameter.MaxAllowedZipCompressionRatio, Integer.class))
+            .orElse(Integer.MAX_VALUE);
+  }
+
+  /**
+   * Set the threshold of how much memory (in bytes) are the unpacked contents of a ZIP-based container allowed to
+   * consume before ZIP compression ratio check kicks in.
+   *
+   * @see #setMaxAllowedZipCompressionRatio(int)
+   * @see #getMaxAllowedZipCompressionRatio()
+   *
+   * @param zipCompressionRatioCheckThresholdInBytes threshold of how much memory are the unpacked contents of
+   *                                                 a ZIP-based container allowed to consume
+   */
+  public void setZipCompressionRatioCheckThresholdInBytes(long zipCompressionRatioCheckThresholdInBytes) {
+    setConfigurationParameter(ConfigurationParameter.ZipCompressionRatioCheckThreshold, String.valueOf(zipCompressionRatioCheckThresholdInBytes));
+  }
+
+  /**
+   * Get the threshold of how much memory (in bytes) are the unpacked contents of a ZIP-based container allowed to
+   * consume before ZIP compression ratio check kicks in.
+   *
+   * @see #setMaxAllowedZipCompressionRatio(int)
+   * @see #getMaxAllowedZipCompressionRatio()
+   *
+   * @return threshold of how much memory are the unpacked contents of a ZIP-based container allowed to consume
+   */
+  public long getZipCompressionRatioCheckThresholdInBytes() {
+    return Optional
+            .ofNullable(getConfigurationParameter(ConfigurationParameter.ZipCompressionRatioCheckThreshold, Long.class))
+            .orElse(Long.MAX_VALUE);
+  }
+
+  /**
    * @return true when configuration is Configuration.Mode.TEST
    * @see Configuration.Mode#TEST
    */
@@ -1738,6 +1816,8 @@ public class Configuration implements Serializable {
     this.setConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded,
         Constant.Default.FULL_SIMPLE_REPORT);
     this.setConfigurationParameter(ConfigurationParameter.useNonce, "true");
+    this.setConfigurationParameter(ConfigurationParameter.ZipCompressionRatioCheckThreshold, "1048576");
+    this.setConfigurationParameter(ConfigurationParameter.MaxAllowedZipCompressionRatio, "100");
     if (Mode.TEST.equals(this.mode)) {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Test.TSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.TslLocation, Constant.Test.TSL_LOCATION);
@@ -1849,6 +1929,10 @@ public class Configuration implements Serializable {
     this.setConfigurationParameter(ConfigurationParameter.AllowASN1UnsafeInteger, this.getParameter(Constant
         .System.ORG_BOUNCYCASTLE_ASN1_ALLOW_UNSAFE_INTEGER, "ALLOW_UNSAFE_INTEGER"));
     this.setConfigurationParameter(ConfigurationParameter.preferAiaOcsp, this.getParameterFromFile("PREFER_AIA_OCSP"));
+    this.setConfigurationParameterFromFile("ZIP_COMPRESSION_RATIO_CHECK_THRESHOLD_IN_BYTES",
+            ConfigurationParameter.ZipCompressionRatioCheckThreshold, this::isValidLongParameter);
+    this.setConfigurationParameterFromFile("MAX_ALLOWED_ZIP_COMPRESSION_RATIO",
+            ConfigurationParameter.MaxAllowedZipCompressionRatio, this::isValidIntegerParameter);
     this.loadYamlOcspResponders();
     this.loadYamlTrustedTerritories();
     this.loadYamlTSPs();
@@ -1955,7 +2039,7 @@ public class Configuration implements Serializable {
   }
 
   private boolean isValidIntegerParameter(String configParameter, String value) {
-    Integer parameterValue;
+    int parameterValue;
     try {
       parameterValue = Integer.parseInt(value);
     } catch (Exception e) {
@@ -1967,6 +2051,18 @@ public class Configuration implements Serializable {
     if (configParameter.equals("DIGIDOC_MAX_DATAFILE_CACHED") && parameterValue < -1) {
       String errorMessage = "Configuration parameter " + configParameter + " should be greater or equal -1"
           + " but the actual value is: " + value + ".";
+      this.logError(errorMessage);
+      return false;
+    }
+    return true;
+  }
+
+  private boolean isValidLongParameter(String configParameter, String value) {
+    try {
+      Long.parseLong(value);
+    } catch (Exception e) {
+      String errorMessage = "Configuration parameter " + configParameter + " should have a long integer value"
+              + " but the actual value is: " + value + ".";
       this.logError(errorMessage);
       return false;
     }
@@ -2162,11 +2258,15 @@ public class Configuration implements Serializable {
     return Arrays.asList(value.split("\\s*,\\s*")); //Split by comma and trim whitespace
   }
 
-  private void setConfigurationParameterFromFile(String fileKey, ConfigurationParameter parameter) {
+  private void setConfigurationParameterFromFile(String fileKey, ConfigurationParameter parameter, BiPredicate<String, String> parameterValidator) {
     String fileValue = this.getParameterFromFile(fileKey);
-    if (fileValue != null) {
-      this.setConfigurationParameter(parameter, fileValue.toString());
+    if (fileValue != null && (parameterValidator == null || parameterValidator.test(fileKey, fileValue))) {
+      this.setConfigurationParameter(parameter, fileValue);
     }
+  }
+
+  private void setConfigurationParameterFromFile(String fileKey, ConfigurationParameter parameter) {
+    setConfigurationParameterFromFile(fileKey, parameter, null);
   }
 
   private void setConfigurationParameterFromFile(ConfigurationParameter parameter) {

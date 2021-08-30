@@ -98,7 +98,10 @@ public enum ConfigurationParameter {
   TspSslProtocol("TSP_SSL_PROTOCOL"),
   TspSupportedSslProtocols("TSP_SUPPORTED_SSL_PROTOCOLS"),
   TspSupportedSslCipherSuites("TSP_SUPPORTED_SSL_CIPHER_SUITES"),
-  TempFileMaxAgeInMillis;
+
+  TempFileMaxAgeInMillis,
+  MaxAllowedZipCompressionRatio,
+  ZipCompressionRatioCheckThreshold;
 
 
   final String fileKey;
