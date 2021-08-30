@@ -22,7 +22,6 @@ import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainerBuilder;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
-import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.CustomContainer;
 import org.digidoc4j.test.MockSignatureBuilder;
@@ -165,7 +164,7 @@ public class SignatureBuilderTest extends AbstractTest {
     Assert.assertNull(signature.getTimeStampCreationTime());
     AsicESignature bDocSignature = (AsicESignature) signature;
     SignaturePolicy policyId = bDocSignature.getOrigin().getDssSignature().getSignaturePolicy();
-    Assert.assertEquals(XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
+    Assert.assertEquals("1.3.6.1.4.1.10015.1000.3.2.1", policyId.getIdentifier());
   }
 
   @Test

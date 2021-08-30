@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -41,8 +40,7 @@ import java.util.Set;
 public class OcspNonceValidator {
 
   private static final Logger logger = LoggerFactory.getLogger(OcspNonceValidator.class);
-  private static final List<String> ALL_TM_POLICIES = Arrays.asList("1.3.6.1.4.1.10015.1000.2.10.10", "1.3.6.1.4.1.10015.1000.3.1.1",
-          "1.3.6.1.4.1.10015.1000.3.2.1", "1.3.6.1.4.1.10015.1000.3.2.3");
+
   private final XAdESSignature signature;
   private final BasicOCSPResp ocspResponse;
 
@@ -66,7 +64,7 @@ public class OcspNonceValidator {
       return true;
     }
     String policyIdentifier = Helper.getIdentifier(signature.getSignaturePolicy().getIdentifier());
-    if (!ALL_TM_POLICIES.contains(policyIdentifier)) {
+    if (!TmSignaturePolicyType.isTmPolicyOid(policyIdentifier)) {
       return true;
     }
     if (ocspResponse == null) {

@@ -22,7 +22,7 @@ import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
+import org.digidoc4j.impl.asic.TmSignaturePolicyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -334,7 +334,7 @@ public final class Helper {
   public static SignaturePolicyProvider getBdocSignaturePolicyProvider(DSSDocument signature) {
     SignaturePolicyProvider signaturePolicyProvider = new SignaturePolicyProvider();
     Map<String, DSSDocument> signaturePoliciesById = new HashMap<>();
-    signaturePoliciesById.put(XadesSignatureValidator.TM_POLICY, signature);
+    signaturePoliciesById.put(TmSignaturePolicyType.BDOC_2_1_0.getOid(), signature);
 
     Map<String, DSSDocument> signaturePoliciesByUrl = new HashMap<>();
     signaturePoliciesByUrl.put("https://www.sk.ee/repository/bdoc-spec21.pdf", signature);
