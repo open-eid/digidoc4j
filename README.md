@@ -2,7 +2,7 @@
 
 # Build status
 
-[![Build Status](https://travis-ci.com/open-eid/digidoc4j.svg?branch=develop)](https://travis-ci.com/open-eid/digidoc4j)
+[![Digidoc4j CI with Maven](https://github.com/open-eid/digidoc4j/actions/workflows/digidoc4j-verify.yml/badge.svg?branch=master)](https://github.com/open-eid/digidoc4j/actions/workflows/digidoc4j-verify.yml)
 
 # DigiDoc4j
 DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers of signed documents.
