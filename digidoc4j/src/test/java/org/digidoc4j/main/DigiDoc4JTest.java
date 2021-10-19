@@ -720,7 +720,6 @@ public class DigiDoc4JTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("TODO: DD4J-731")
   public void verifyEdoc() throws Exception {
     this.setGlobalMode(Configuration.Mode.PROD);
     this.systemExit.expectSystemExitWithStatus(1);
@@ -742,7 +741,6 @@ public class DigiDoc4JTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("TODO: DD4J-731")
   public void verifyEdocWithDss() throws Exception {
     this.setGlobalMode(Configuration.Mode.PROD);
     this.systemExit.expectSystemExitWithStatus(1);
