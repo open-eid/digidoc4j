@@ -25,7 +25,7 @@ public class LazyTslLoadingTest extends AbstractTest {
   public void createLazyCertificatePool() throws Exception {
     TSLCertificateSource tsl = this.configuration.getTSL();
     SKCommonCertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
-    certificateVerifier.setTrustedCertSource(tsl);
+    certificateVerifier.setTrustedCertSources(tsl);
     ListCertificateSource listCertificateSource = certificateVerifier.getTrustedCertSources();
     Assert.assertEquals(tsl.getNumberOfCertificates(), listCertificateSource.getNumberOfCertificates());
   }
@@ -37,7 +37,7 @@ public class LazyTslLoadingTest extends AbstractTest {
     TSLCertificateSource tsl = configuration.getTSL();
     Assert.assertTrue(this.isTSLCacheEmpty());
     SKCommonCertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
-    certificateVerifier.setTrustedCertSource(tsl);
+    certificateVerifier.setTrustedCertSources(tsl);
 
     Assert.assertTrue(this.isTSLCacheEmpty());
     ListCertificateSource listCertificateSource = certificateVerifier.getTrustedCertSources();

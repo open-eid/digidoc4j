@@ -13,8 +13,8 @@ package org.digidoc4j.impl.asic;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.SignerLocation;
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.spi.DSSASN1Utils;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
-import eu.europa.esig.dss.xades.signature.DSSSignatureUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
@@ -74,9 +74,9 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
   @Override
   public Signature finalizeSignature(byte[] signatureValue) {
     if ((signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA || CertificateUtils.isEcdsaCertificate(signatureParameters.getSigningCertificate()))
-            && DSSSignatureUtils.isAsn1Encoded(signatureValue)) {
+            && DSSASN1Utils.isAsn1Encoded(signatureValue)) {
       LOGGER.debug("Finalizing signature ASN1: {} [{}]", Helper.bytesToHex(signatureValue, HEX_MAX_LENGTH), signatureValue.length);
-      signatureValue = DSSSignatureUtils.convertToXmlDSig(eu.europa.esig.dss.enumerations.EncryptionAlgorithm.ECDSA,
+      signatureValue = DSSASN1Utils.fromAsn1toSignatureValue(eu.europa.esig.dss.enumerations.EncryptionAlgorithm.ECDSA,
               signatureValue);
     }
     LOGGER.debug("Finalizing signature XmlDSig: {} [{}]", Helper.bytesToHex(signatureValue, HEX_MAX_LENGTH), signatureValue.length);

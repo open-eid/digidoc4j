@@ -72,14 +72,24 @@ public final class TestAssert {
     Assert.assertTrue(bytes.length > 0);
   }
 
-  public static void assertContainsError(String error, List<DigiDoc4JException> errors) {
+  public static void assertContainsError(String expectedError, List<DigiDoc4JException> errors) {
     for (DigiDoc4JException e : errors) {
       TestAssert.log.info("Exception error message: <{}>", e.toString());
-      if (e.toString().contains(error)) {
+      if (e.toString().contains(expectedError)) {
         return;
       }
     }
-    Assert.fail(String.format("Expected <%s> was not found", error));
+    Assert.fail(String.format("Expected <%s> was not found", expectedError));
+  }
+
+  public static void assertContainsExactSetOfErrors(List<DigiDoc4JException> errors, String... expectedErrors) {
+    Assert.assertEquals(
+            String.format("Expected %d errors, but found %d", expectedErrors.length, errors.size()),
+            expectedErrors.length, errors.size()
+    );
+    for (String expectedError : expectedErrors) {
+      assertContainsError(expectedError, errors);
+    }
   }
 
   public static void assertSignatureMetadataContainsFileName(Signature signature, String fileName) {

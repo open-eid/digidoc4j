@@ -14,6 +14,7 @@ import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.detailedreport.DetailedReport;
 import eu.europa.esig.dss.diagnostic.DiagnosticData;
 import eu.europa.esig.dss.enumerations.Indication;
+import eu.europa.esig.dss.enumerations.ObjectIdentifierQualifier;
 import eu.europa.esig.dss.i18n.I18nProvider;
 import eu.europa.esig.dss.i18n.MessageTag;
 import eu.europa.esig.dss.simplereport.SimpleReport;
@@ -37,6 +38,7 @@ import org.digidoc4j.exceptions.WrongPolicyIdentifierQualifierException;
 import org.digidoc4j.impl.SimpleValidationResult;
 import org.digidoc4j.impl.asic.OcspNonceValidator;
 import org.digidoc4j.impl.asic.OcspResponderValidator;
+import org.digidoc4j.impl.asic.TmSignaturePolicyType;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
@@ -54,8 +56,6 @@ import java.util.Map;
 public class XadesSignatureValidator implements SignatureValidator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(XadesSignatureValidator.class);
-  public static final String TM_POLICY = "1.3.6.1.4.1.10015.1000.3.2.1";
-  private static final String OIDAS_URN = "OIDAsURN";
   private static final String XADES_SIGNED_PROPERTIES = "http://uri.etsi.org/01903#SignedProperties";
   protected XadesSignature signature;
   private transient Reports validationReport;
@@ -137,14 +137,14 @@ public class XadesSignatureValidator implements SignatureValidator {
   private void addPolicyValidationErrors() {
     LOGGER.debug("Extracting policy validation errors");
     XAdESSignature dssSignature = this.getDssSignature();
-    SignaturePolicy policy = dssSignature.getPolicyId();
+    SignaturePolicy policy = dssSignature.getSignaturePolicy();
     if (policy == null) {
       return;
     }
     addPolicyImpliedWarning();
     if (dssSignature.getSignatureTimestamps().isEmpty()) {
       String policyIdentifier = Helper.getIdentifier(policy.getIdentifier());
-      if (!StringUtils.equals(XadesSignatureValidator.TM_POLICY, policyIdentifier)) {
+      if (!StringUtils.equals(TmSignaturePolicyType.BDOC_2_1_0.getOid(), policyIdentifier)) {
         this.addValidationError(new WrongPolicyIdentifierException(String.format("Wrong policy identifier: %s", policyIdentifier)));
       } else {
         this.addPolicyIdentifierQualifierValidationErrors();
@@ -162,10 +162,21 @@ public class XadesSignatureValidator implements SignatureValidator {
 
   private void addPolicyUriValidationErrors() {
     LOGGER.debug("Extracting policy URL validation errors");
-    SignaturePolicy policy = this.getDssSignature().getPolicyId();
+    SignaturePolicy policy = this.getDssSignature().getSignaturePolicy();
     if (policy != null && !isSignaturePolicyImpliedElementPresented()) {
-      if (StringUtils.isBlank(policy.getUrl())) {
-        this.addValidationError(new WrongPolicyIdentifierException("Error: The URL in signature policy is empty or not available"));
+      String policyIdentifier = Helper.getIdentifier(policy.getIdentifier());
+      if (TmSignaturePolicyType.isTmPolicyOid(policyIdentifier)) {
+        String policyUrl = policy.getUrl();
+        if (StringUtils.equals(policyIdentifier, policyUrl)) {
+          // DD4J-730: Starting from DSS version 5.8, the policy URL defaults to the policy identifier OID if the URL is
+          //  missing in the signature. Since the BDOC standard requires that the URL is always present, this workaround
+          //  is required to identify cases when the URL is missing.
+          // TODO: review the usefulness and correctness of this workaround as soon as DSS is updated!
+          policyUrl = null;
+        }
+        if (StringUtils.isBlank(policyUrl)) {
+          this.addValidationError(new WrongPolicyIdentifierException("Error: The URL in signature policy is empty or not available"));
+        }
       }
     }
   }
@@ -179,7 +190,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     Element identifier = DomUtils.getElement(element, "./" + xAdESPrefix + ":SignaturePolicyId/" + xAdESPrefix
             + ":SigPolicyId/" + xAdESPrefix + ":Identifier");
     String qualifier = identifier.getAttribute("Qualifier");
-    if (!StringUtils.equals(XadesSignatureValidator.OIDAS_URN, qualifier)) {
+    if (!StringUtils.equals(ObjectIdentifierQualifier.OID_AS_URN.getValue(), qualifier)) {
       this.addValidationError(new WrongPolicyIdentifierQualifierException(String.format("Wrong policy identifier qualifier: %s", qualifier)));
     }
   }
@@ -188,10 +199,10 @@ public class XadesSignatureValidator implements SignatureValidator {
     LOGGER.debug("Extracting signed properties reference validation errors");
     int propertiesReferencesCount = this.findSignedPropertiesReferencesCount();
     if (propertiesReferencesCount == 0) {
-      this.addValidationError(new SignedPropertiesMissingException(String.format("SignedProperties Reference element is missing")));
+      this.addValidationError(new SignedPropertiesMissingException("SignedProperties Reference element is missing"));
     }
     if (propertiesReferencesCount > 1) {
-      this.addValidationError(new MultipleSignedPropertiesException(String.format("Multiple signed properties")));
+      this.addValidationError(new MultipleSignedPropertiesException("Multiple signed properties"));
     }
   }
 

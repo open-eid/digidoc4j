@@ -22,7 +22,6 @@ import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainerBuilder;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
-import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.CustomContainer;
 import org.digidoc4j.test.MockSignatureBuilder;
@@ -54,7 +53,7 @@ public class SignatureBuilderTest extends AbstractTest {
   public void buildingDataToSign_shouldReturnDataToSign() throws Exception {
     Container container = this.createNonEmptyContainer();
     SignatureBuilder builder = SignatureBuilder.aSignature(container).
-        withSigningCertificate(this.pkcs12SignatureToken.getCertificate());
+        withSigningCertificate(pkcs12SignatureToken.getCertificate());
     DataToSign dataToSign = builder.buildDataToSign();
     Assert.assertNotNull(dataToSign);
     Assert.assertNotNull(dataToSign.getDataToSign());
@@ -69,7 +68,7 @@ public class SignatureBuilderTest extends AbstractTest {
         withStateOrProvince("Puerto Vallarta").withPostalCode("13456").withCountry("Val Verde").
         withRoles("Manager", "Suspicious Fisherman").withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
         withSignatureProfile(SignatureProfile.LT_TM).withSignatureId("S0").
-        withSigningCertificate(this.pkcs12SignatureToken.getCertificate());
+        withSigningCertificate(pkcs12SignatureToken.getCertificate());
     DataToSign dataToSign = builder.buildDataToSign();
     SignatureParameters parameters = dataToSign.getSignatureParameters();
     Assert.assertEquals("San Pedro", parameters.getCity());
@@ -80,7 +79,7 @@ public class SignatureBuilderTest extends AbstractTest {
     Assert.assertEquals(DigestAlgorithm.SHA256, parameters.getDigestAlgorithm());
     Assert.assertEquals(SignatureProfile.LT_TM, parameters.getSignatureProfile());
     Assert.assertEquals("S0", parameters.getSignatureId());
-    Assert.assertSame(this.pkcs12SignatureToken.getCertificate(), parameters.getSigningCertificate());
+    Assert.assertSame(pkcs12SignatureToken.getCertificate(), parameters.getSigningCertificate());
     byte[] bytesToSign = dataToSign.getDataToSign();
     Assert.assertNotNull(bytesToSign);
     Assert.assertTrue(bytesToSign.length > 1);
@@ -104,7 +103,7 @@ public class SignatureBuilderTest extends AbstractTest {
     Signature signature = SignatureBuilder.aSignature(container).withCity("Tallinn").
         withStateOrProvince("Harjumaa").withPostalCode("13456").withCountry("Estonia").
         withRoles("Manager", "Suspicious Fisherman").withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
-        withSignatureProfile(SignatureProfile.LT_TM).withSignatureToken(this.pkcs12SignatureToken).invokeSigning();
+        withSignatureProfile(SignatureProfile.LT_TM).withSignatureToken(pkcs12SignatureToken).invokeSigning();
     container.addSignature(signature);
     Assert.assertTrue(signature.validateSignature().isValid());
     container.saveAsFile(this.getFileBy("bdoc"));
@@ -122,7 +121,7 @@ public class SignatureBuilderTest extends AbstractTest {
   public void createTimeMarkSignature_shouldNotContainTimestamp() throws Exception {
     Container container = this.createNonEmptyContainer();
     BDocSignature signature = (BDocSignature) SignatureBuilder.aSignature(container).
-        withSignatureProfile(SignatureProfile.LT_TM).withSignatureToken(this.pkcs12SignatureToken).invokeSigning();
+        withSignatureProfile(SignatureProfile.LT_TM).withSignatureToken(pkcs12SignatureToken).invokeSigning();
     Assert.assertTrue(signature.validateSignature().isValid());
     container.addSignature(signature);
     List<TimestampToken> signatureTimestamps = signature.getOrigin().getDssSignature().getSignatureTimestamps();
@@ -164,8 +163,8 @@ public class SignatureBuilderTest extends AbstractTest {
     Assert.assertNull(signature.getTimeStampTokenCertificate());
     Assert.assertNull(signature.getTimeStampCreationTime());
     AsicESignature bDocSignature = (AsicESignature) signature;
-    SignaturePolicy policyId = bDocSignature.getOrigin().getDssSignature().getPolicyId();
-    Assert.assertEquals(XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
+    SignaturePolicy policyId = bDocSignature.getOrigin().getDssSignature().getSignaturePolicy();
+    Assert.assertEquals("1.3.6.1.4.1.10015.1000.3.2.1", policyId.getIdentifier());
   }
 
   @Test
@@ -183,7 +182,7 @@ public class SignatureBuilderTest extends AbstractTest {
   @Test
   public void signWith2EccCertificate() throws Exception {
     Container container = this.createNonEmptyContainer();
-    Signature signature = SignatureBuilder.aSignature(container).withSignatureToken(this.pkcs12EccSignatureToken).
+    Signature signature = SignatureBuilder.aSignature(container).withSignatureToken(pkcs12EccSignatureToken).
         withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA).withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
         withSignatureProfile(SignatureProfile.LT_TM).invokeSigning();
     Assert.assertTrue(signature.validateSignature().isValid());
@@ -220,9 +219,9 @@ public class SignatureBuilderTest extends AbstractTest {
   @Test
   public void signWithDeterminedSignatureDigestAlgorithm() throws Exception {
     Container container = this.createNonEmptyContainer();
-    DigestAlgorithm digestAlgorithm = TokenAlgorithmSupport.determineSignatureDigestAlgorithm(this.pkcs12SignatureToken.getCertificate());
+    DigestAlgorithm digestAlgorithm = TokenAlgorithmSupport.determineSignatureDigestAlgorithm(pkcs12SignatureToken.getCertificate());
     DataToSign dataToSign = SignatureBuilder.aSignature(container).
-        withSignatureDigestAlgorithm(digestAlgorithm).withSigningCertificate(this.pkcs12SignatureToken.getCertificate()).
+        withSignatureDigestAlgorithm(digestAlgorithm).withSigningCertificate(pkcs12SignatureToken.getCertificate()).
         buildDataToSign();
     SignatureParameters signatureParameters = dataToSign.getSignatureParameters();
     Assert.assertEquals(DigestAlgorithm.SHA256, signatureParameters.getDigestAlgorithm());
@@ -309,11 +308,11 @@ public class SignatureBuilderTest extends AbstractTest {
   public void signAsiceContainerWithExtRsaTm() throws Exception {
     Container container = this.createNonEmptyContainer();
     DataToSign dataToSign = SignatureBuilder.aSignature(container).withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
-        withSignatureProfile(SignatureProfile.LT_TM).withSigningCertificate(this.pkcs12SignatureToken.getCertificate()).
+        withSignatureProfile(SignatureProfile.LT_TM).withSigningCertificate(pkcs12SignatureToken.getCertificate()).
         buildDataToSign();
     Assert.assertNotNull(dataToSign);
     // This call mocks the using of external signing functionality with hashcode
-    byte[] signatureValue = this.pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign());
+    byte[] signatureValue = pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign());
     Signature signature = dataToSign.finalize(signatureValue);
     Assert.assertNotNull(signature);
     Assert.assertTrue(signature.validateSignature().isValid());
@@ -326,11 +325,11 @@ public class SignatureBuilderTest extends AbstractTest {
   public void signAsiceContainerWithExtRsaLt() throws Exception {
     Container container = this.createNonEmptyContainer();
     DataToSign dataToSign = SignatureBuilder.aSignature(container).withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
-        withSignatureProfile(SignatureProfile.LT).withSigningCertificate(this.pkcs12SignatureToken.getCertificate()).
+        withSignatureProfile(SignatureProfile.LT).withSigningCertificate(pkcs12SignatureToken.getCertificate()).
         buildDataToSign();
     Assert.assertNotNull(dataToSign);
     // This call mocks the using of external signing functionality with hashcode
-    byte[] signatureValue = this.pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign());
+    byte[] signatureValue = pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign());
     Signature signature = dataToSign.finalize(signatureValue);
     Assert.assertNotNull(signature);
     Assert.assertTrue(signature.validateSignature().isValid());
@@ -401,7 +400,7 @@ public class SignatureBuilderTest extends AbstractTest {
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", CustomContainer.class);
     SignatureBuilder.setSignatureBuilderForContainerType("TEST-FORMAT", MockSignatureBuilder.class);
     Container container = TestDataBuilderUtil.createContainerWithFile(this.testFolder, "TEST-FORMAT");
-    Signature signature = SignatureBuilder.aSignature(container).withSignatureToken(this.pkcs12SignatureToken).
+    Signature signature = SignatureBuilder.aSignature(container).withSignatureToken(pkcs12SignatureToken).
         invokeSigning();
     Assert.assertNotNull(signature);
   }
@@ -414,7 +413,7 @@ public class SignatureBuilderTest extends AbstractTest {
     Signature signature = SignatureBuilder.aSignature(container)
             .withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
             .withSignatureProfile(SignatureProfile.B_BES)
-            .withSignatureToken(this.pkcs12SignatureToken)
+            .withSignatureToken(pkcs12SignatureToken)
             .invokeSigning();
     assertBBesSignature(signature);
   }
@@ -427,7 +426,7 @@ public class SignatureBuilderTest extends AbstractTest {
     SignatureBuilder.aSignature(container)
             .withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
             .withSignatureProfile(SignatureProfile.LT_TM)
-            .withSignatureToken(this.pkcs12SignatureToken)
+            .withSignatureToken(pkcs12SignatureToken)
             .invokeSigning();
   }
 
@@ -439,7 +438,7 @@ public class SignatureBuilderTest extends AbstractTest {
     SignatureBuilder.aSignature(container)
             .withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
             .withSignatureProfile(SignatureProfile.B_EPES)
-            .withSignatureToken(this.pkcs12SignatureToken)
+            .withSignatureToken(pkcs12SignatureToken)
             .invokeSigning();
   }
 
@@ -449,7 +448,7 @@ public class SignatureBuilderTest extends AbstractTest {
     ContainerBuilder.setContainerImplementation("BDOC", CustomContainer.class);
     SignatureBuilder.setSignatureBuilderForContainerType("BDOC", MockSignatureBuilder.class);
     Container container = this.createNonEmptyContainer();
-    Signature signature = this.createSignatureBy(container, this.pkcs12SignatureToken);
+    Signature signature = this.createSignatureBy(container, pkcs12SignatureToken);
     Assert.assertNotNull(signature);
     CustomContainer.resetType();
   }
@@ -458,12 +457,12 @@ public class SignatureBuilderTest extends AbstractTest {
   public void buildingBEpesSignatureResultsWithBDocSignature() {
     Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
-              .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+              .withSigningCertificate(pkcs12SignatureToken.getCertificate())
               .withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
               .withSignatureProfile(SignatureProfile.B_EPES)
               .buildDataToSign();
 
-    Signature signature = dataToSign.finalize(this.pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
     assertBEpesSignature(signature);
   }
 
@@ -589,11 +588,11 @@ public class SignatureBuilderTest extends AbstractTest {
     Assert.assertSame(SignatureProfile.LT, container.getConfiguration().getSignatureProfile());
 
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
-          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
           .withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
           .buildDataToSign();
 
-    Signature signature = dataToSign.finalize(this.pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
     assertTimestampSignature(signature);
     assertValidSignature(signature);
 
@@ -644,11 +643,11 @@ public class SignatureBuilderTest extends AbstractTest {
     Assert.assertSame(SignatureProfile.LT, container.getConfiguration().getSignatureProfile());
 
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
-          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
           .withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
           .buildDataToSign();
 
-    Signature signature = dataToSign.finalize(this.pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
     assertTimestampSignature(signature);
     assertValidSignature(signature);
 
@@ -735,7 +734,7 @@ public class SignatureBuilderTest extends AbstractTest {
     Container container = ContainerBuilder.aContainer(BDOC).build();
     container.addDataFile(new ByteArrayInputStream("something".getBytes()), "name", "text/plain");
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
-          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
           .withSignatureProfile(SignatureProfile.LT_TM)
           .withOwnSignaturePolicy(validCustomPolicy())
           .buildDataToSign();
@@ -753,7 +752,7 @@ public class SignatureBuilderTest extends AbstractTest {
     Container container = ContainerBuilder.aContainer(BDOC).build();
     container.addDataFile(new ByteArrayInputStream("something".getBytes()), "name", "text/plain");
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
-          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
           .withOwnSignaturePolicy(validCustomPolicy())
           .buildDataToSign();
 
@@ -767,7 +766,7 @@ public class SignatureBuilderTest extends AbstractTest {
     Container container = ContainerBuilder.aContainer(BDOC).build();
     container.addDataFile(new ByteArrayInputStream("something".getBytes()), "name", "text/plain");
     SignatureBuilder.aSignature(container)
-          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
           .withOwnSignaturePolicy(validCustomPolicy())
           .withSignatureProfile(SignatureProfile.LT)
           .buildDataToSign();
@@ -809,7 +808,7 @@ public class SignatureBuilderTest extends AbstractTest {
     container.addDataFile(new ByteArrayInputStream("something".getBytes(StandardCharsets.UTF_8)), "file name", "text/plain");
 
     SignatureBuilder.aSignature(container)
-          .withSignatureToken(this.pkcs12SignatureToken)
+          .withSignatureToken(pkcs12SignatureToken)
           .invokeSigning();
   }
 
@@ -825,7 +824,7 @@ public class SignatureBuilderTest extends AbstractTest {
     container.addDataFile(new ByteArrayInputStream("something".getBytes(StandardCharsets.UTF_8)), "file name", "text/plain");
 
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
-          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
           .buildDataToSign();
     dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
   }
@@ -835,12 +834,12 @@ public class SignatureBuilderTest extends AbstractTest {
     Assert.assertNotNull(dataToSign);
     Assert.assertEquals(signatureProfile, dataToSign.getSignatureParameters().getSignatureProfile());
 
-    return dataToSign.finalize(this.pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    return dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
   }
 
   private DataToSign buildDataToSign(Container container, SignatureProfile signatureProfile) {
     return SignatureBuilder.aSignature(container)
-              .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+              .withSigningCertificate(pkcs12SignatureToken.getCertificate())
               .withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
               .withSignatureProfile(signatureProfile)
               .buildDataToSign();
@@ -882,7 +881,7 @@ public class SignatureBuilderTest extends AbstractTest {
 
   private Signature createBDocSignatureWithProfile(SignatureProfile signatureProfile) {
     Container container = this.createNonEmptyContainer();
-    Signature signature = this.createSignatureBy(container, signatureProfile, this.pkcs12SignatureToken);
+    Signature signature = this.createSignatureBy(container, signatureProfile, pkcs12SignatureToken);
     return signature;
   }
 

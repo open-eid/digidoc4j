@@ -5,7 +5,6 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Paths;

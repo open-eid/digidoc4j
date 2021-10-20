@@ -203,11 +203,12 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
   @Test
   public void signWithSignerInfo() throws Exception {
     byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
-    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest, "text/plain");
+    DigestDataFile digestDataFile1 = new DigestDataFile("hello1.txt", DigestAlgorithm.SHA256, digest, "text/plain");
+    DigestDataFile digestDataFile2 = new DigestDataFile("hello2.txt", DigestAlgorithm.SHA256, digest, "text/plain");
 
     Signature signature = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
-        .withDataFile(digestDataFile)
-        .withDataFile(digestDataFile)
+        .withDataFile(digestDataFile1)
+        .withDataFile(digestDataFile2)
         .withCity("myCity")
         .withStateOrProvince("myStateOrProvince")
         .withPostalCode("myPostalCode")
@@ -250,7 +251,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
     DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
           .withDataFile(dataFile)
-          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
           .withSignatureProfile(SignatureProfile.LT_TM)
           .withOwnSignaturePolicy(validCustomPolicy())
           .buildDataToSign();
@@ -268,7 +269,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
     DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
          .withDataFile(dataFile)
-         .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+         .withSigningCertificate(pkcs12SignatureToken.getCertificate())
          .withOwnSignaturePolicy(validCustomPolicy())
          .buildDataToSign();
 
@@ -282,7 +283,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
     DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
          .withDataFile(dataFile)
-         .withSigningCertificate(this.pkcs12EccSignatureToken.getCertificate())
+         .withSigningCertificate(pkcs12EccSignatureToken.getCertificate())
          .withOwnSignaturePolicy(validCustomPolicy())
          .withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA)
          .buildDataToSign();
@@ -298,7 +299,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
     DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
           .withDataFile(dataFile)
-          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
           .withOwnSignaturePolicy(validCustomPolicy())
           .withSignatureProfile(SignatureProfile.LT)
           .buildDataToSign();
@@ -322,11 +323,11 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
 
     DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(configuration)
          .withDataFile(dataFile)
-         .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+         .withSigningCertificate(pkcs12SignatureToken.getCertificate())
          .withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
          .buildDataToSign();
 
-    Signature signature = dataToSign.finalize(this.pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
     assertTimestampSignature(signature);
     assertValidSignature(signature);
   }

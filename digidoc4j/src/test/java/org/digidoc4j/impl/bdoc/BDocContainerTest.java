@@ -44,7 +44,6 @@ import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
-import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.TestAssert;
 import org.hamcrest.Matchers;
@@ -1038,7 +1037,7 @@ public class BDocContainerTest extends AbstractTest {
     container.saveAsFile(file);
     container = ContainerOpener.open(file);
     AsicSignature asicSignature = (AsicSignature) container.getSignatures().get(0);
-    SignaturePolicy policyId = asicSignature.getOrigin().getDssSignature().getPolicyId();
+    SignaturePolicy policyId = asicSignature.getOrigin().getDssSignature().getSignaturePolicy();
     Assert.assertEquals(spuri, policyId.getUrl());
     Assert.assertEquals(signatureId, policyId.getIdentifier());
     Assert.assertEquals(digestAlgorithm, policyId.getDigest().getAlgorithm());
@@ -1056,9 +1055,9 @@ public class BDocContainerTest extends AbstractTest {
     container.saveAsFile(file);
     container = ContainerOpener.open(file);
     BDocSignature bdocSignature = (BDocSignature) container.getSignatures().get(0);
-    SignaturePolicy policyId = bdocSignature.getOrigin().getDssSignature().getPolicyId();
+    SignaturePolicy policyId = bdocSignature.getOrigin().getDssSignature().getSignaturePolicy();
     Assert.assertEquals("https://www.sk.ee/repository/bdoc-spec21.pdf", policyId.getUrl());
-    Assert.assertEquals("" + XadesSignatureValidator.TM_POLICY, policyId.getIdentifier());
+    Assert.assertEquals("1.3.6.1.4.1.10015.1000.3.2.1", policyId.getIdentifier());
     Assert.assertEquals(eu.europa.esig.dss.enumerations.DigestAlgorithm.SHA256, policyId.getDigest().getAlgorithm());
     Assert.assertArrayEquals(Base64.decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="), policyId.getDigest().getValue());
   }

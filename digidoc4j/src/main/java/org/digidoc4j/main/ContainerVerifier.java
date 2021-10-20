@@ -164,7 +164,7 @@ public class ContainerVerifier {
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
     SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
     verifier.setOcspSource(OCSPSourceBuilder.anOcspSource().withConfiguration(configuration).build());
-    verifier.setTrustedCertSource(configuration.getTSL());
+    verifier.setTrustedCertSources(configuration.getTSL());
     verifier.setDataLoader(new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create());
     validator.setCertificateVerifier(verifier);
     Reports reports = validator.validateDocument();
