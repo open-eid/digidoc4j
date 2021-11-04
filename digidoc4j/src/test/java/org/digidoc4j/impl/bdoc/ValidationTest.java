@@ -913,6 +913,30 @@ public class ValidationTest extends AbstractTest {
     );
   }
 
+  @Test
+  public void container_withMultipleEncapsulatedTimestampsInSingleSignatureTimeStamp_shouldBeInvalid() {
+    DSSException caughtException = assertThrows(
+            DSSException.class,
+            () -> ContainerOpener.open("src/test/resources/testFiles/invalid-containers/multiple_EncapsulatedTimeStamp_elements_in_single_SignatureTimeStamp.asice", configuration)
+    );
+    Assert.assertEquals(
+            "More than one result for XPath: ./xades132:EncapsulatedTimeStamp",
+            caughtException.getMessage()
+    );
+  }
+
+  @Test
+  public void container_withMultipleEncapsulatedTimestampsInSecondSignatureTimeStamp_shouldBeInvalid() {
+    DSSException caughtException = assertThrows(
+            DSSException.class,
+            () -> ContainerOpener.open("src/test/resources/testFiles/invalid-containers/multiple_EncapsulatedTimeStamp_elements_in_second_SignatureTimeStamp.asice", configuration)
+    );
+    Assert.assertEquals(
+            "More than one result for XPath: ./xades132:EncapsulatedTimeStamp",
+            caughtException.getMessage()
+    );
+  }
+
   /*
    * RESTRICTED METHODS
    */
