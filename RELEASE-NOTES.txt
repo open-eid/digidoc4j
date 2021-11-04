@@ -1,6 +1,25 @@
 DigiDoc4J Java library release notes
 ------------------------------------
 
+Release 4.2.2
+------------------
+Summary of the major changes since 4.2.1
+------------------------------------------
+* Update LOTL signer certificates' truststore
+* Update TSL TLS truststore
+* Update org.apache.santuario:xmlsec dependency
+
+Known issues
+------------
+* ContainerBuilder instances share mutable state which may cause unexpected behaviour while concurrently using multiple ContainerBuilder instances which have been created for different container types. This problem have been present since version 2.0.0 but may be more problematic after version 3.1.1.
+* We have noticed a decrease in performance with the introduction of properly accessing AIA certificate resources
+* Opening a container that contains signatures, triggers TSL loading (TSL lazy loading does not work as expected)
+* While upgrading from versions older than 2.1.1 be sure that your integration :
+  - doesn't use Xalan or XercesImpl dependencies
+  - uses a patched Java version (JDK8 or higher)
+    Xalan and XercesImpl were used to patch XML vulnerabilities in older java versions. They should be discarded with higher versions because they override default Java XML security.
+    If it is not possible to remove Xalan, then you can set your system property to override TransformerFactory : System.setProperty("javax.xml.transform.TransformerFactory","com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
+
 Release 4.2.1
 ------------------
 Summary of the major changes since 4.2.0
