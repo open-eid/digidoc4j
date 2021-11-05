@@ -13,6 +13,7 @@ package org.digidoc4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.TechnicalException;
@@ -83,6 +84,52 @@ public class ContainerBuilderTest extends AbstractTest {
     Assert.assertEquals("largeStreamFile.txt", container.getDataFiles().get(4).getName());
   }
 
+  @Test
+  public void buildASiCSContainerWithSecondDataFile() {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer(ASICS)
+            .withDataFile(new DataFile(new byte[] {0}, "file.name", "application/octet-stream"));
+    DigiDoc4JException caughtException = assertThrows(
+            DigiDoc4JException.class,
+            () -> containerBuilder.withDataFile(new DataFile(new byte[] {0}, "file2.name", "application/octet-stream"))
+    );
+    Assert.assertEquals("Cannot add second file in case of ASiCS container", caughtException.getMessage());
+  }
+
+  @Test
+  public void buildASiCSContainerWithSecondDataFileFromFile() {
+    File testFile = createTemporaryFileBy("testFile.txt", "TEST");
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer(ASICS)
+            .withDataFile(new DataFile(new byte[] {0}, "file.name", "application/octet-stream"));
+    DigiDoc4JException caughtException = assertThrows(
+            DigiDoc4JException.class,
+            () -> containerBuilder.withDataFile(testFile, "application/octet-stream")
+    );
+    Assert.assertEquals("Cannot add second file in case of ASiCS container", caughtException.getMessage());
+  }
+
+  @Test
+  public void buildASiCSContainerWithSecondDataFileFromPath() {
+    File testFile = createTemporaryFileBy("testFile.txt", "TEST");
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer(ASICS)
+            .withDataFile(new DataFile(new byte[] {0}, "file.name", "application/octet-stream"));
+    DigiDoc4JException caughtException = assertThrows(
+            DigiDoc4JException.class,
+            () -> containerBuilder.withDataFile(testFile.getPath(), "application/octet-stream")
+    );
+    Assert.assertEquals("Cannot add second file in case of ASiCS container", caughtException.getMessage());
+  }
+
+  @Test
+  public void buildASiCSContainerWithSecondDataFileFromInputStream() {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer(ASICS)
+            .withDataFile(new DataFile(new byte[] {0}, "file.name", "application/octet-stream"));
+    DigiDoc4JException caughtException = assertThrows(
+            DigiDoc4JException.class,
+            () -> containerBuilder.withDataFile(new ByteArrayInputStream(new byte[] {0}), "file.name", "application/octet-stream")
+    );
+    Assert.assertEquals("Cannot add second file in case of ASiCS container", caughtException.getMessage());
+  }
+
   @Test(expected = InvalidDataFileException.class)
   public void buildContainer_withNullFilePath_shouldThrowException() throws Exception {
     ContainerBuilder.aContainer().withDataFile((String) null, "text/plain").build();
@@ -146,7 +193,7 @@ public class ContainerBuilderTest extends AbstractTest {
   @Test
   public void signAndSaveContainerToStream() throws Exception {
     Container container = this.createNonEmptyContainer();
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
     try (InputStream stream = container.saveAsStream()) {
       byte[] bytes = IOUtils.toByteArray(stream);
       Assert.assertTrue(bytes.length > 10);

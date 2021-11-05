@@ -10,15 +10,15 @@
 
 package org.digidoc4j.impl;
 
-import java.io.InputStream;
-import java.lang.reflect.Constructor;
-
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
 
 /**
  * Custom container builder
@@ -36,6 +36,7 @@ public class CustomContainerBuilder extends ContainerBuilder {
     this.containerType = containerType;
   }
 
+  @Override
   protected Container createNewContainer() {
     if (configuration != null) {
       return instantiateContainer(configuration);
@@ -43,6 +44,7 @@ public class CustomContainerBuilder extends ContainerBuilder {
     return instantiateContainer();
   }
 
+  @Override
   protected Container openContainerFromFile() {
     if (configuration != null) {
       return instantiateContainer(containerFilePath, configuration);
@@ -50,6 +52,7 @@ public class CustomContainerBuilder extends ContainerBuilder {
     return instantiateContainer(containerFilePath);
   }
 
+  @Override
   protected Container openContainerFromStream() {
     if (configuration == null) {
       return instantiateContainer(containerInputStream);

@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +25,15 @@ public class AsicSContainerBuilder extends ContainerBuilder implements Serializa
 
   @Override
   public ContainerBuilder usingTempDirectory(String temporaryDirectoryPath) {
-    logger.warn("BDoc containers don't support setting temp directories");
+    logger.warn("ASiCS containers don't support setting temp directories");
     return this;
+  }
+
+  @Override
+  protected void assertAddingDataFileIsSupported() {
+    if (!dataFiles.isEmpty()){
+      throw new DigiDoc4JException("Cannot add second file in case of ASiCS container");
+    }
   }
 
 }

@@ -10,11 +10,11 @@
 
 package org.digidoc4j.impl.ddoc;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.exceptions.NotSupportedException;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * DDOC container builder
