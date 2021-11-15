@@ -320,7 +320,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
             .build();
 
     Date producedAt = this.dateFormat.parse("08.09.2024");
-    ocspSource.verifyOcspResponderCertificate(new CertificateToken(subjectCertificate), producedAt);
+    ocspSource.verifyValidityDate(new CertificateToken(subjectCertificate), producedAt);
   }
 
   @Test
@@ -335,7 +335,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
             .build();
 
     Date producedAt = this.dateFormat.parse("06.03.2011");
-    ocspSource.verifyOcspResponderCertificate(new CertificateToken(subjectCertificate), producedAt);
+    ocspSource.verifyValidityDate(new CertificateToken(subjectCertificate), producedAt);
   }
 
   @Test

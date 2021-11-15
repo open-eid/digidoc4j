@@ -11,7 +11,9 @@
 package org.digidoc4j.impl;
 
 import eu.europa.esig.dss.model.x509.CertificateToken;
-import org.apache.commons.collections4.CollectionUtils;
+import eu.europa.esig.dss.model.x509.X500PrincipalHelper;
+import eu.europa.esig.dss.spi.x509.ListCertificateSource;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPCertificateSource;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
@@ -34,9 +36,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
-import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
-import java.util.Date;
+import java.util.Set;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
@@ -98,24 +99,50 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
   }
 
   @Override
-  protected void verifyOcspResponderCertificate(CertificateToken token, Date producedAt) {
-    verifyValidityDate(token, producedAt);
-    TSLCertificateSource certificateSource = getConfiguration().getTSL();
+  protected void verifyOcspResponderCertificate(CertificateToken token, BasicOCSPResp ocspResponse) {
+    TSLCertificateSource tslCertificateSource = getConfiguration().getTSL();
 
-    if (!certificateSource.isTrusted(token)
-            && CollectionUtils.isEmpty(certificateSource.getBySubject(token.getIssuer()))) {
-      throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNTRUSTED,
-              String.format("OCSP response certificate <%s> match is not found in TSL", token.getDSSIdAsString()));
+    if (tslCertificateSource.isTrusted(token)) {
+      return;
     }
-    try {
-      if (!token.getCertificate().getExtendedKeyUsage().contains(OID_OCSP_SIGNING)) {
-        throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.TECHNICAL,
-                String.format("OCSP response certificate <%s> does not have 'OCSPSigning' extended key usage", token.getDSSIdAsString()));
+
+    OCSPCertificateSource ocspCertificateSource = new OCSPCertificateSource(ocspResponse);
+    ListCertificateSource allCertificateSources = new ListCertificateSource();
+    allCertificateSources.add(ocspCertificateSource);
+    allCertificateSources.add(tslCertificateSource);
+
+    CertificateToken currentToken = token;
+
+    do {
+      CertificateToken issuerToken = findIssuerFromCertificateSources(currentToken, allCertificateSources);
+      if (issuerToken != null && tslCertificateSource.isTrusted(issuerToken)) {
+        return;
+      } else if (issuerToken == currentToken) {
+        break;
       }
-    } catch (CertificateParsingException e) {
-      throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.TECHNICAL,
-              String.format("Error on verifying 'OCSPSigning' extended key usage for OCSP response certificate <%s>", token.getDSSIdAsString()), e);
+      currentToken = issuerToken;
+    } while (currentToken != null);
+
+    throw CertificateValidationException.of(CertificateValidationException.CertificateValidationStatus.UNTRUSTED,
+            String.format("OCSP response certificate <%s> match is not found in TSL", token.getDSSIdAsString()));
+  }
+
+  private static CertificateToken findIssuerFromCertificateSources(CertificateToken token, ListCertificateSource certificateSources) {
+    Set<CertificateToken> candidateIssuers;
+
+    if (token.getIssuerX500Principal() != null) {
+      candidateIssuers = certificateSources.getBySubject(new X500PrincipalHelper(token.getIssuerX500Principal()));
+    } else {
+      return null;
     }
+
+    for (CertificateToken candidateIssuer : candidateIssuers) {
+      if (token.isSignedBy(candidateIssuer) && candidateIssuer.isValidOn(token.getCreationDate())) {
+        return candidateIssuer;
+      }
+    }
+
+    return null;
   }
 
   @Override
