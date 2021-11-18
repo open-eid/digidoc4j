@@ -52,7 +52,7 @@ public class AsicEContainerBuilder extends ContainerBuilder implements Serializa
    * TODO: Should be refactored away in task -
    */
   private Container overrideContainerIfNeeded(Container container) {
-    if (container instanceof AsicContainer && container.getSignatures().isEmpty()) {
+    if (container instanceof AsicEContainer && container.getSignatures().isEmpty()) {
       AsicContainer asicContainer = (AsicContainer) container;
       if (isContainerOverrideNeeded(asicContainer)) {
         AsicParseResult containerParseResult = asicContainer.getContainerParseResult();
