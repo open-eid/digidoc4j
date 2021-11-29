@@ -12,6 +12,7 @@ package org.digidoc4j.impl.asic;
 
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.model.identifier.EncapsulatedRevocationTokenIdentifier;
+import eu.europa.esig.dss.model.x509.revocation.ocsp.OCSP;
 import eu.europa.esig.dss.spi.DSSRevocationUtils;
 import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
@@ -31,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -40,10 +40,9 @@ import java.util.Set;
 public class OcspNonceValidator {
 
   private static final Logger logger = LoggerFactory.getLogger(OcspNonceValidator.class);
-  private static final List<String> ALL_TM_POLICIES = Arrays.asList("1.3.6.1.4.1.10015.1000.2.10.10", "1.3.6.1.4.1.10015.1000.3.1.1",
-          "1.3.6.1.4.1.10015.1000.3.2.1", "1.3.6.1.4.1.10015.1000.3.2.3");
-  private XAdESSignature signature;
-  private BasicOCSPResp ocspResponse;
+
+  private final XAdESSignature signature;
+  private final BasicOCSPResp ocspResponse;
 
   /**
    * Constructor of the validator
@@ -61,11 +60,11 @@ public class OcspNonceValidator {
    * @return True if OCSP response is valid, false otherwise.
    */
   public boolean isValid() {
-    if (signature.getPolicyId() == null) {
+    if (signature.getSignaturePolicy() == null) {
       return true;
     }
-    String policyIdentifier = Helper.getIdentifier(signature.getPolicyId().getIdentifier());
-    if (!ALL_TM_POLICIES.contains(policyIdentifier)) {
+    String policyIdentifier = Helper.getIdentifier(signature.getSignaturePolicy().getIdentifier());
+    if (!TmSignaturePolicyType.isTmPolicyOid(policyIdentifier)) {
       return true;
     }
     if (ocspResponse == null) {
@@ -75,7 +74,7 @@ public class OcspNonceValidator {
     return isOcspResponseValid(ocspResponse);
   }
 
-  private BasicOCSPResp getLatestOcspResponse(Set<EncapsulatedRevocationTokenIdentifier> ocspResponses) {
+  private BasicOCSPResp getLatestOcspResponse(Set<EncapsulatedRevocationTokenIdentifier<OCSP>> ocspResponses) {
     return ocspResponses
             .stream()
             .map(o -> {

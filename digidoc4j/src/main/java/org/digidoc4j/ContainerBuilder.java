@@ -12,17 +12,11 @@ package org.digidoc4j;
 
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import org.apache.commons.lang3.StringUtils;
-import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.CustomContainerBuilder;
-import org.digidoc4j.impl.asic.AsicContainer;
-import org.digidoc4j.impl.asic.AsicParseResult;
-import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.AsicEContainerBuilder;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainerBuilder;
-import org.digidoc4j.impl.asic.asics.AsicSContainer;
 import org.digidoc4j.impl.asic.asics.AsicSContainerBuilder;
 import org.digidoc4j.impl.ddoc.DDocContainerBuilder;
 import org.digidoc4j.impl.pades.PadesContainerBuilder;
@@ -34,9 +28,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class for creating and opening containers.
@@ -62,12 +56,12 @@ public abstract class ContainerBuilder {
 
   private static final Logger logger = LoggerFactory.getLogger(ContainerBuilder.class);
 
-  protected static Map<String, Class<? extends Container>> containerImplementations = new HashMap<>();
+  protected static final Map<String, Class<? extends Container>> containerImplementations = new ConcurrentHashMap<>();
+
   protected Configuration configuration;
   protected List<ContainerDataFile> dataFiles = new ArrayList<>();
   protected String containerFilePath;
   protected InputStream containerInputStream;
-  protected static String containerType;
   private DataFile timeStampToken;
 
   /**
@@ -87,7 +81,6 @@ public abstract class ContainerBuilder {
    * @return builder for creating a container.
    */
   public static ContainerBuilder aContainer(String type) {
-    ContainerBuilder.containerType = type;
     if (ContainerBuilder.isCustomContainerType(type)) {
       return new CustomContainerBuilder(type);
     } else {
@@ -107,9 +100,8 @@ public abstract class ContainerBuilder {
    * @return builder for creating a container.
    */
   public static ContainerBuilder aContainer(Container.DocumentType type) {
-    ContainerBuilder.containerType = type.name();
-    if (ContainerBuilder.isCustomContainerType(ContainerBuilder.containerType)) {
-      return new CustomContainerBuilder(ContainerBuilder.containerType);
+    if (ContainerBuilder.isCustomContainerType(type.name())) {
+      return new CustomContainerBuilder(type.name());
     } else {
       switch (type) {
         case BDOC:
@@ -134,9 +126,9 @@ public abstract class ContainerBuilder {
    */
   public Container build() {
     if (shouldOpenContainerFromFile()) {
-      return overrideContainerIfNeeded(openContainerFromFile());
+      return openContainerFromFile();
     } else if (shouldOpenContainerFromStream()) {
-      return overrideContainerIfNeeded(openContainerFromStream());
+      return openContainerFromStream();
     }
     Container container = createNewContainer();
     addDataFilesToContainer(container);
@@ -166,10 +158,7 @@ public abstract class ContainerBuilder {
    * @throws InvalidDataFileException
    */
   public ContainerBuilder withDataFile(String filePath, String mimeType) throws InvalidDataFileException {
-    if (Constant.ASICS_CONTAINER_TYPE.equals(ContainerBuilder.containerType)
-        && !dataFiles.isEmpty()){
-      throw new DigiDoc4JException("Cannot add second file in case of ASICS container");
-    }
+    assertAddingDataFileIsSupported();
     dataFiles.add(new ContainerDataFile(filePath, mimeType));
     return this;
   }
@@ -184,10 +173,7 @@ public abstract class ContainerBuilder {
    * @throws InvalidDataFileException
    */
   public ContainerBuilder withDataFile(InputStream inputStream, String fileName, String mimeType) throws InvalidDataFileException {
-    if (Constant.ASICS_CONTAINER_TYPE.equals(ContainerBuilder.containerType)
-        && !dataFiles.isEmpty()){
-      throw new DigiDoc4JException("Cannot add second file in case of ASICS container");
-    }
+    assertAddingDataFileIsSupported();
     dataFiles.add(new ContainerDataFile(inputStream, fileName, mimeType));
     return this;
   }
@@ -201,10 +187,7 @@ public abstract class ContainerBuilder {
    * @throws InvalidDataFileException
    */
   public ContainerBuilder withDataFile(File file, String mimeType) throws InvalidDataFileException {
-    if (Constant.ASICS_CONTAINER_TYPE.equals(ContainerBuilder.containerType)
-        && !dataFiles.isEmpty()){
-      throw new DigiDoc4JException("Cannot add second file in case of ASICS container");
-    }
+    assertAddingDataFileIsSupported();
     dataFiles.add(new ContainerDataFile(file.getPath(), mimeType));
     return this;
   }
@@ -216,10 +199,7 @@ public abstract class ContainerBuilder {
    * @return builder for creating or opening a container.
    */
   public ContainerBuilder withDataFile(DataFile dataFile) {
-    if (Constant.ASICS_CONTAINER_TYPE.equals(ContainerBuilder.containerType)
-        && !dataFiles.isEmpty()){
-      throw new DigiDoc4JException("Cannot add second file in case of ASICS container");
-    }
+    assertAddingDataFileIsSupported();
     dataFiles.add(new ContainerDataFile(dataFile));
     return this;
   }
@@ -295,6 +275,10 @@ public abstract class ContainerBuilder {
       return ContainerOpener.open(containerInputStream, actAsBigFilesSupportEnabled);
     }
     return ContainerOpener.open(containerInputStream, configuration);
+  }
+
+  protected void assertAddingDataFileIsSupported() {
+    // No assertions by default. Override in derived classes if needed.
   }
 
   protected void addDataFilesToContainer(Container container) {
@@ -376,39 +360,7 @@ public abstract class ContainerBuilder {
             + Helper.SPECIAL_CHARACTERS);
       }
     }
+
   }
 
-  /**
-   * DD4J-414 - hackish solution for building BDoc container from existing container with no signatures.
-   * ContainerOpener considers any Asic container without signatures that is not ASiCS, a ASiCE by default.
-   * In the future ContainerOpener should take container type as an input to force BDoc when needed.
-   * At the moment did not want to change ContainerOpener API, that will be done with major release with
-   * more API changes.
-   *
-   * TODO: Should be refactored away in task -
-   */
-  private Container overrideContainerIfNeeded(Container container) {
-    if (container instanceof AsicContainer && container.getSignatures().isEmpty()) {
-      return overrideContainerIfDifferentType((AsicContainer) container);
-    } else {
-      return container;
-    }
-  }
-
-  private Container overrideContainerIfDifferentType(AsicContainer container) {
-    if (container instanceof AsicSContainer || containerType.equalsIgnoreCase(container.getType())) {
-      return container;
-    } else {
-      AsicParseResult containerParseResult = container.getContainerParseResult();
-      Configuration configuration = container.getConfiguration();
-
-      if (containerType.equals(Container.DocumentType.BDOC.name())) {
-        return new BDocContainer(containerParseResult, configuration);
-      } else if (containerType.equals(Container.DocumentType.ASICE.name())) {
-        return new AsicEContainer(containerParseResult, configuration);
-      } else {
-        return container;
-      }
-    }
-  }
 }

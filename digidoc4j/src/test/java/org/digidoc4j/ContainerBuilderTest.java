@@ -13,6 +13,7 @@ package org.digidoc4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.TechnicalException;
@@ -83,6 +84,52 @@ public class ContainerBuilderTest extends AbstractTest {
     Assert.assertEquals("largeStreamFile.txt", container.getDataFiles().get(4).getName());
   }
 
+  @Test
+  public void buildASiCSContainerWithSecondDataFile() {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer(ASICS)
+            .withDataFile(new DataFile(new byte[] {0}, "file.name", "application/octet-stream"));
+    DigiDoc4JException caughtException = assertThrows(
+            DigiDoc4JException.class,
+            () -> containerBuilder.withDataFile(new DataFile(new byte[] {0}, "file2.name", "application/octet-stream"))
+    );
+    Assert.assertEquals("Cannot add second file in case of ASiCS container", caughtException.getMessage());
+  }
+
+  @Test
+  public void buildASiCSContainerWithSecondDataFileFromFile() {
+    File testFile = createTemporaryFileBy("testFile.txt", "TEST");
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer(ASICS)
+            .withDataFile(new DataFile(new byte[] {0}, "file.name", "application/octet-stream"));
+    DigiDoc4JException caughtException = assertThrows(
+            DigiDoc4JException.class,
+            () -> containerBuilder.withDataFile(testFile, "application/octet-stream")
+    );
+    Assert.assertEquals("Cannot add second file in case of ASiCS container", caughtException.getMessage());
+  }
+
+  @Test
+  public void buildASiCSContainerWithSecondDataFileFromPath() {
+    File testFile = createTemporaryFileBy("testFile.txt", "TEST");
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer(ASICS)
+            .withDataFile(new DataFile(new byte[] {0}, "file.name", "application/octet-stream"));
+    DigiDoc4JException caughtException = assertThrows(
+            DigiDoc4JException.class,
+            () -> containerBuilder.withDataFile(testFile.getPath(), "application/octet-stream")
+    );
+    Assert.assertEquals("Cannot add second file in case of ASiCS container", caughtException.getMessage());
+  }
+
+  @Test
+  public void buildASiCSContainerWithSecondDataFileFromInputStream() {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer(ASICS)
+            .withDataFile(new DataFile(new byte[] {0}, "file.name", "application/octet-stream"));
+    DigiDoc4JException caughtException = assertThrows(
+            DigiDoc4JException.class,
+            () -> containerBuilder.withDataFile(new ByteArrayInputStream(new byte[] {0}), "file.name", "application/octet-stream")
+    );
+    Assert.assertEquals("Cannot add second file in case of ASiCS container", caughtException.getMessage());
+  }
+
   @Test(expected = InvalidDataFileException.class)
   public void buildContainer_withNullFilePath_shouldThrowException() throws Exception {
     ContainerBuilder.aContainer().withDataFile((String) null, "text/plain").build();
@@ -146,7 +193,7 @@ public class ContainerBuilderTest extends AbstractTest {
   @Test
   public void signAndSaveContainerToStream() throws Exception {
     Container container = this.createNonEmptyContainer();
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
     try (InputStream stream = container.saveAsStream()) {
       byte[] bytes = IOUtils.toByteArray(stream);
       Assert.assertTrue(bytes.length > 10);
@@ -334,6 +381,54 @@ public class ContainerBuilderTest extends AbstractTest {
   }
 
   @Test
+  public void openBDocContainerWithNoSignaturesFromFile_requiringBDoc_returnedBDoc() {
+    Container container = ContainerBuilder.aContainer(BDOC).fromExistingFile(BDOC_WITH_NO_SIG).build();
+    assertBDocContainer(container);
+    Assert.assertEquals(0, container.getSignatures().size());
+  }
+
+  @Test
+  public void openBDocContainerWithNoSignaturesFromStream_requiringBDoc_returnedBDoc() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_NO_SIG))) {
+      Container container = ContainerBuilder.aContainer(BDOC).fromStream(stream).build();
+      assertBDocContainer(container);
+      Assert.assertEquals(0, container.getSignatures().size());
+    }
+  }
+
+  @Test
+  public void openBDocContainerWithNoSignaturesFromFile_requiringAsicE_returnedAsicE() {
+    Container container = ContainerBuilder.aContainer(ASICE).fromExistingFile(BDOC_WITH_NO_SIG).build();
+    assertAsicEContainer(container);
+    Assert.assertEquals(0, container.getSignatures().size());
+  }
+
+  @Test
+  public void openBDocContainerWithNoSignaturesFromStream_requiringAsicE_returnedAsicE() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_NO_SIG))) {
+      Container container = ContainerBuilder.aContainer(ASICE).fromStream(stream).build();
+      assertAsicEContainer(container);
+      Assert.assertEquals(0, container.getSignatures().size());
+    }
+  }
+
+  @Test
+  public void openBDocContainerWithNoSignaturesFromFile_requiringAsicS_returnedAsicE() {
+    Container container = ContainerBuilder.aContainer(ASICS).fromExistingFile(BDOC_WITH_NO_SIG).build();
+    assertAsicEContainer(container);
+    Assert.assertEquals(0, container.getSignatures().size());
+  }
+
+  @Test
+  public void openBDocContainerWithNoSignaturesFromStream_requiringAsicS_returnedAsicE() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_NO_SIG))) {
+      Container container = ContainerBuilder.aContainer(ASICS).fromStream(stream).build();
+      assertAsicEContainer(container);
+      Assert.assertEquals(0, container.getSignatures().size());
+    }
+  }
+
+  @Test
   public void openAsicEContainerFromStream() throws Exception {
     try (InputStream stream = FileUtils.openInputStream(new File(ASICE_WITH_TS_SIG))) {
       Container container = ContainerBuilder.aContainer().fromStream(stream).build();
@@ -345,8 +440,15 @@ public class ContainerBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void openAsicContainerWithNoSignaturesFromStream_requiringBDoc_returnedBDoc() throws Exception {
-    try (InputStream stream = FileUtils.openInputStream(new File(ASIC_WITH_NO_SIG))) {
+  public void openAsicEContainerWithNoSignaturesFromFile_requiringBDoc_returnedBDoc() {
+    Container container = ContainerBuilder.aContainer(BDOC).fromExistingFile(ASICE_WITH_NO_SIG).build();
+    assertBDocContainer(container);
+    Assert.assertSame(0, container.getSignatures().size());
+  }
+
+  @Test
+  public void openAsicEContainerWithNoSignaturesFromStream_requiringBDoc_returnedBDoc() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(ASICE_WITH_NO_SIG))) {
       Container container = ContainerBuilder.aContainer(BDOC).fromStream(stream).build();
       assertBDocContainer(container);
       Assert.assertSame(0, container.getSignatures().size());
@@ -354,8 +456,15 @@ public class ContainerBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void openAsicContainerWithNoSignaturesFromStream_requiringAsicE_returnedAsicE() throws Exception {
-    try (InputStream stream = FileUtils.openInputStream(new File(ASIC_WITH_NO_SIG))) {
+  public void openAsicEContainerWithNoSignaturesFromFile_requiringAsicE_returnedAsicE() {
+    Container container = ContainerBuilder.aContainer(ASICE).fromExistingFile(ASICE_WITH_NO_SIG).build();
+    assertAsicEContainer(container);
+    Assert.assertSame(0, container.getSignatures().size());
+  }
+
+  @Test
+  public void openAsicEContainerWithNoSignaturesFromStream_requiringAsicE_returnedAsicE() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(ASICE_WITH_NO_SIG))) {
       Container container = ContainerBuilder.aContainer(ASICE).fromStream(stream).build();
       assertAsicEContainer(container);
       Assert.assertSame(0, container.getSignatures().size());
@@ -363,8 +472,15 @@ public class ContainerBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void openAsicContainerWithNoSignaturesFromStream_requiringAsicS_returnedAsicE() throws Exception {
-    try (InputStream stream = FileUtils.openInputStream(new File(ASIC_WITH_NO_SIG))) {
+  public void openAsicEContainerWithNoSignaturesFromFile_requiringAsicS_returnedAsicE() {
+    Container container = ContainerBuilder.aContainer(ASICS).fromExistingFile(ASICE_WITH_NO_SIG).build();
+    assertAsicEContainer(container);
+    Assert.assertSame(0, container.getSignatures().size());
+  }
+
+  @Test
+  public void openAsicEContainerWithNoSignaturesFromStream_requiringAsicS_returnedAsicE() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(ASICE_WITH_NO_SIG))) {
       Container container = ContainerBuilder.aContainer(ASICS).fromStream(stream).build();
       assertAsicEContainer(container);
       Assert.assertSame(0, container.getSignatures().size());
@@ -388,6 +504,54 @@ public class ContainerBuilderTest extends AbstractTest {
       assertAsicEContainer(container);
       Assert.assertSame(1, container.getSignatures().size());
       assertTimestampSignature(container.getSignatures().get(0));
+    }
+  }
+
+  @Test
+  public void openAsicSContainerWithNoSignaturesFromFile_requiringBDoc_returnedAsicS() {
+    Container container = ContainerBuilder.aContainer(BDOC).fromExistingFile(ASICS_WITH_NO_SIG).build();
+    assertAsicSContainer(container);
+    Assert.assertSame(0, container.getSignatures().size());
+  }
+
+  @Test
+  public void openAsicSContainerWithNoSignaturesFromStream_requiringBDoc_returnedAsicS() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(ASICS_WITH_NO_SIG))) {
+      Container container = ContainerBuilder.aContainer(BDOC).fromStream(stream).build();
+      assertAsicSContainer(container);
+      Assert.assertSame(0, container.getSignatures().size());
+    }
+  }
+
+  @Test
+  public void openAsicSContainerWithNoSignaturesFromFile_requiringAsicE_returnedAsicS() {
+    Container container = ContainerBuilder.aContainer(ASICE).fromExistingFile(ASICS_WITH_NO_SIG).build();
+    assertAsicSContainer(container);
+    Assert.assertSame(0, container.getSignatures().size());
+  }
+
+  @Test
+  public void openAsicSContainerWithNoSignaturesFromStream_requiringAsicE_returnedAsicS() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(ASICS_WITH_NO_SIG))) {
+      Container container = ContainerBuilder.aContainer(ASICE).fromStream(stream).build();
+      assertAsicSContainer(container);
+      Assert.assertSame(0, container.getSignatures().size());
+    }
+  }
+
+  @Test
+  public void openAsicSContainerWithNoSignaturesFromFile_requiringAsicS_returnedAsicS() {
+    Container container = ContainerBuilder.aContainer(ASICS).fromExistingFile(ASICS_WITH_NO_SIG).build();
+    assertAsicSContainer(container);
+    Assert.assertSame(0, container.getSignatures().size());
+  }
+
+  @Test
+  public void openAsicSContainerWithNoSignaturesFromStream_requiringAsicS_returnedAsicS() throws Exception {
+    try (InputStream stream = FileUtils.openInputStream(new File(ASICS_WITH_NO_SIG))) {
+      Container container = ContainerBuilder.aContainer(ASICS).fromStream(stream).build();
+      assertAsicSContainer(container);
+      Assert.assertSame(0, container.getSignatures().size());
     }
   }
 

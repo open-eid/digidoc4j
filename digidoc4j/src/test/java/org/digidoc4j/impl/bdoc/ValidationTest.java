@@ -97,7 +97,7 @@ public class ValidationTest extends AbstractTest {
   @Test
   public void testValidate() throws Exception {
     Container container = this.createNonEmptyContainer();
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
     Assert.assertEquals(0, container.validate().getErrors().size());
   }
 
@@ -118,14 +118,14 @@ public class ValidationTest extends AbstractTest {
   @Test
   public void testValidateBeforeAndAfterContainerChange() {
     Container container = this.createNonEmptyContainer();
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
     ContainerValidationResult result = container.validate();
 
     Assert.assertTrue(result.isValid());
     Assert.assertEquals(1, result.getReports().size());
     Assert.assertEquals("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", result.getReports().get(0).getSignedBy());
 
-    this.createSignatureBy(container, this.pkcs12Esteid2018SignatureToken);
+    this.createSignatureBy(container, pkcs12Esteid2018SignatureToken);
     result = container.validate();
 
     Assert.assertTrue(result.isValid());
@@ -897,14 +897,44 @@ public class ValidationTest extends AbstractTest {
   public void container_withExpiredAIAOCSP_LT_shouldBeInvalid() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/esteid2018signerAiaOcspLT.asice");
     ContainerValidationResult validationResult = container.validate();
-    Assert.assertEquals(2, validationResult.getErrors().size());
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
+            "The result of the LTV validation process is not acceptable to continue the process!",
+            "No acceptable revocation data for the certificate!"
+    );
   }
 
   @Test
   public void container_withExpiredAIAOCSP_LTA_shouldBeInvalid() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/esteid2018signerAiaOcspLTA.asice");
     ContainerValidationResult validationResult = container.validate();
-    Assert.assertEquals(2, validationResult.getErrors().size());
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
+            "The result of the LTV validation process is not acceptable to continue the process!",
+            "No acceptable revocation data for the certificate!"
+    );
+  }
+
+  @Test
+  public void container_withMultipleEncapsulatedTimestampsInSingleSignatureTimeStamp_shouldBeInvalid() {
+    DSSException caughtException = assertThrows(
+            DSSException.class,
+            () -> ContainerOpener.open("src/test/resources/testFiles/invalid-containers/multiple_EncapsulatedTimeStamp_elements_in_single_SignatureTimeStamp.asice", configuration)
+    );
+    Assert.assertEquals(
+            "More than one result for XPath: ./xades132:EncapsulatedTimeStamp",
+            caughtException.getMessage()
+    );
+  }
+
+  @Test
+  public void container_withMultipleEncapsulatedTimestampsInSecondSignatureTimeStamp_shouldBeInvalid() {
+    DSSException caughtException = assertThrows(
+            DSSException.class,
+            () -> ContainerOpener.open("src/test/resources/testFiles/invalid-containers/multiple_EncapsulatedTimeStamp_elements_in_second_SignatureTimeStamp.asice", configuration)
+    );
+    Assert.assertEquals(
+            "More than one result for XPath: ./xades132:EncapsulatedTimeStamp",
+            caughtException.getMessage()
+    );
   }
 
   /*

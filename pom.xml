@@ -6,7 +6,7 @@
 
     <groupId>org.digidoc4j</groupId>
     <artifactId>digidoc4j-parent</artifactId>
-    <version>4.2.2</version>
+    <version>4.3.0</version>
     <packaging>pom</packaging>
 
     <name>DigiDoc4J parent</name>
@@ -201,7 +201,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.3.1</version>
                     <configuration>
                         <source>8</source>
                     </configuration>

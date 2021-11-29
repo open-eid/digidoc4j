@@ -6,10 +6,12 @@ import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.model.Policy;
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.AiaDataLoaderFactory;
 import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
@@ -58,6 +60,7 @@ import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import static org.digidoc4j.Container.DocumentType.ASICE;
 import static org.digidoc4j.Container.DocumentType.ASICS;
@@ -75,10 +78,13 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   protected static final String BDOC_WITH_TM_SIG = "src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc";
   protected static final String BDOC_WITH_TM_AND_TS_SIG = "src/test/resources/testFiles/valid-containers/bdoc-with-tm-and-ts-signature.bdoc";
   protected static final String BDOC_WITH_B_EPES_SIG = "src/test/resources/testFiles/valid-containers/bdoc-with-b-epes-signature.bdoc";
+  protected static final String BDOC_WITH_NO_SIG = "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc";
   protected static final String ASIC_WITH_NO_SIG = "src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc";
   protected static final String ASICE_WITH_TS_SIG_BUT_BDOC_EXTENSION = "src/test/resources/testFiles/valid-containers/one_signature.bdoc";
   protected static final String ASICE_WITH_TS_SIG = "src/test/resources/testFiles/valid-containers/valid-asice.asice";
+  protected static final String ASICE_WITH_NO_SIG = "src/test/resources/testFiles/valid-containers/container_without_signatures.asice";
   protected static final String ASICS_WITH_TS = "src/test/resources/testFiles/valid-containers/ddoc-valid.asics";
+  protected static final String ASICS_WITH_NO_SIG = "src/test/resources/testFiles/valid-containers/container_without_signatures.asics";
   protected static final String DDOC_TEST_FILE = "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc";
 
   protected static final String USER_AGENT_STRING = "test-user-agent";
@@ -544,18 +550,59 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     Assert.assertEquals(SignatureProfile.B_BES, signature.getProfile());
   }
 
-  protected void assertValidSignature(Signature signature) {
+  protected static void assertValidSignature(Signature signature) {
     ValidationResult validationResult = signature.validateSignature();
-    Assert.assertTrue(validationResult.isValid());
-    Assert.assertFalse(validationResult.hasWarnings());
-    Assert.assertTrue(validationResult.getErrors().isEmpty());
+    Assert.assertTrue("Expected signature to be valid", validationResult.isValid());
+    assertHasNoWarnings(validationResult);
+    assertHasNoErrors(validationResult);
   }
 
-  protected void assertValidSignatureWithWarnings(Signature signature) {
+  protected static void assertValidSignatureWithWarnings(Signature signature) {
     ValidationResult validationResult = signature.validateSignature();
-    Assert.assertTrue(validationResult.isValid());
-    Assert.assertTrue(validationResult.hasWarnings());
-    Assert.assertTrue(validationResult.getErrors().isEmpty());
+    Assert.assertTrue("Expected signature to be valid", validationResult.isValid());
+    Assert.assertTrue("Expected validation warnings but none found", validationResult.hasWarnings());
+    assertHasNoErrors(validationResult);
+  }
+
+  protected static void assertSignatureWith(Signature signature, Consumer<List<DigiDoc4JException>> errorsVerifier, Consumer<List<DigiDoc4JException>> warningsVerifier) {
+    ValidationResult validationResult = signature.validateSignature();
+    Assert.assertEquals(errorsVerifier == null, validationResult.isValid());
+    if (errorsVerifier != null) {
+      List<DigiDoc4JException> errors = validationResult.getErrors();
+      Assert.assertTrue("Expected validation errors but none found", CollectionUtils.isNotEmpty(errors));
+      errorsVerifier.accept(errors);
+    } else {
+      assertHasNoErrors(validationResult);
+    }
+    if (warningsVerifier != null) {
+      List<DigiDoc4JException> warnings = validationResult.getWarnings();
+      Assert.assertTrue("Expected validation warnings but none found", CollectionUtils.isNotEmpty(warnings));
+      warningsVerifier.accept(warnings);
+    } else {
+      assertHasNoWarnings(validationResult);
+    }
+  }
+
+  protected static void assertHasNoErrors(ValidationResult validationResult) {
+    List<DigiDoc4JException> errors = validationResult.getErrors();
+    Assert.assertEquals(validationResult.isValid(), CollectionUtils.isEmpty(errors));
+    if (CollectionUtils.isNotEmpty(errors)) {
+      Assert.fail(String.format(
+              "Expected no validation errors, but found %d errors: %s",
+              errors.size(), errors
+      ));
+    }
+  }
+
+  protected static void assertHasNoWarnings(ValidationResult validationResult) {
+    List<DigiDoc4JException> warnings = validationResult.getWarnings();
+    Assert.assertEquals(validationResult.hasWarnings(), CollectionUtils.isNotEmpty(warnings));
+    if (CollectionUtils.isNotEmpty(warnings)) {
+      Assert.fail(String.format(
+              "Expected no validation warnings, but found %d warnings: %s",
+              warnings.size(), warnings
+      ));
+    }
   }
 
   protected Policy validCustomPolicy() {

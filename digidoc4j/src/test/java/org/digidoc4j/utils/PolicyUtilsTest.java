@@ -13,7 +13,6 @@ package org.digidoc4j.utils;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.model.Policy;
 import org.apache.commons.codec.binary.Base64;
-import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 import org.hamcrest.core.IsEqual;
 import org.junit.Test;
 
@@ -27,7 +26,7 @@ public class PolicyUtilsTest {
   @Test
   public void createBDocSignaturePolicy() {
     Policy policy = PolicyUtils.createBDocSignaturePolicy();
-    assertEquals("urn:oid:" + XadesSignatureValidator.TM_POLICY, policy.getId());
+    assertEquals("urn:oid:1.3.6.1.4.1.10015.1000.3.2.1", policy.getId());
     assertEquals("OIDAsURN", policy.getQualifier().getValue());
     assertEquals(DigestAlgorithm.SHA256, policy.getDigestAlgorithm());
     assertEquals("https://www.sk.ee/repository/bdoc-spec21.pdf", policy.getSpuri());

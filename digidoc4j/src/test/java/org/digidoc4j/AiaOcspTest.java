@@ -68,7 +68,6 @@ public class AiaOcspTest extends AbstractTest {
     }
 
     @Test
-    @Ignore("Fix by adding AdditionalServiceInformation to TEST of ESTEID2018 in test TSL")
     public void signAsiceContainerWithEsteid2018UsingAiaOcsp() {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         configuration.setPreferAiaOcsp(true);

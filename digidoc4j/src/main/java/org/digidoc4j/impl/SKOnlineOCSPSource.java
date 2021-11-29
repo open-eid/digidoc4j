@@ -10,7 +10,6 @@
 
 package org.digidoc4j.impl;
 
-import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.enumerations.CertificateStatus;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.model.DSSException;
@@ -24,7 +23,6 @@ import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPToken;
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
 import eu.europa.esig.dss.token.KSPrivateKeyEntry;
 import eu.europa.esig.dss.token.Pkcs12SignatureToken;
-import eu.europa.esig.dss.utils.Utils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
@@ -43,7 +41,6 @@ import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.Constant;
 import org.digidoc4j.ServiceType;
 import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.exceptions.CertificateValidationException.CertificateValidationStatus;
@@ -216,7 +213,9 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
         } else {
           continue;
         }
-        verifyOcspResponderCertificate(token, response.getProducedAt());
+        verifyValidityDate(token, response.getProducedAt());
+        verifyOcspResponderCertificate(token, response);
+        verifyOcspResponderCertificateKeyUsage(token);
         verifyOCSPResponseSignature(token, response);
       }
       if (!hasOcspResponderCert) {
@@ -230,12 +229,23 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     }
   }
 
-  protected void verifyOcspResponderCertificate(CertificateToken token, Date producedAt) {
-    verifyValidityDate(token, producedAt);
+  protected void verifyValidityDate(CertificateToken token, Date producedAt) {
+    X509Certificate x509Certificate = token.getCertificate();
+    if (x509Certificate.getNotAfter().before(producedAt)
+            || x509Certificate.getNotBefore().after(producedAt)) {
+      throw CertificateValidationException.of(CertificateValidationStatus.UNTRUSTED,
+              String.format("OCSP response certificate <%s> is expired or not yet valid", token.getDSSIdAsString()));
+    }
+  }
+
+  protected void verifyOcspResponderCertificate(CertificateToken token, BasicOCSPResp ocspResponse) {
     if (!configuration.getTSL().isTrusted(token)) {
       throw CertificateValidationException.of(CertificateValidationStatus.UNTRUSTED,
               String.format("OCSP response certificate <%s> match is not found in TSL", token.getDSSIdAsString()));
     }
+  }
+
+  private void verifyOcspResponderCertificateKeyUsage(CertificateToken token) {
     try {
       if (!token.getCertificate().getExtendedKeyUsage().contains(OID_OCSP_SIGNING)) {
         throw CertificateValidationException.of(CertificateValidationStatus.TECHNICAL,
@@ -244,15 +254,6 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
     } catch (CertificateParsingException e) {
       throw CertificateValidationException.of(CertificateValidationStatus.TECHNICAL,
               String.format("Error on verifying 'OCSPSigning' extended key usage for OCSP response certificate <%s>", token.getDSSIdAsString()), e);
-    }
-  }
-
-  protected void verifyValidityDate(CertificateToken token, Date producedAt) {
-    X509Certificate x509Certificate = token.getCertificate();
-    if (x509Certificate.getNotAfter().before(producedAt)
-            || x509Certificate.getNotBefore().after(producedAt)) {
-      throw CertificateValidationException.of(CertificateValidationStatus.UNTRUSTED,
-              String.format("OCSP response certificate <%s> is expired or not yet valid", token.getDSSIdAsString()));
     }
   }
 

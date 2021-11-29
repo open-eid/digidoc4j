@@ -14,7 +14,7 @@ import eu.europa.esig.dss.enumerations.ObjectIdentifierQualifier;
 import eu.europa.esig.dss.model.Policy;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
+import org.digidoc4j.impl.asic.TmSignaturePolicyType;
 
 import static eu.europa.esig.dss.enumerations.DigestAlgorithm.SHA256;
 
@@ -27,7 +27,7 @@ public final class PolicyUtils {
    */
   public static Policy createBDocSignaturePolicy() {
     Policy signaturePolicy = new Policy();
-    signaturePolicy.setId("urn:oid:" + XadesSignatureValidator.TM_POLICY);
+    signaturePolicy.setId("urn:oid:" + TmSignaturePolicyType.BDOC_2_1_0.getOid());
     signaturePolicy.setDigestValue(Base64.decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));
     signaturePolicy.setQualifier(ObjectIdentifierQualifier.OID_AS_URN);
     signaturePolicy.setDigestAlgorithm(SHA256);
