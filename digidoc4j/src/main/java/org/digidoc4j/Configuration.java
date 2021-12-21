@@ -903,7 +903,7 @@ public class Configuration implements Serializable {
    * @return SignatureProfile.
    */
   public SignatureProfile getSignatureProfile() {
-    return SignatureProfile.findByProfile(this.getConfigurationParameter(ConfigurationParameter.SignatureProfile));
+    return SignatureProfile.findByProfile(getConfigurationParameter(ConfigurationParameter.SignatureProfile));
   }
 
   /**
@@ -913,6 +913,16 @@ public class Configuration implements Serializable {
    */
   public DigestAlgorithm getSignatureDigestAlgorithm() {
     return DigestAlgorithm.findByAlgorithm(getConfigurationParameter(ConfigurationParameter.SignatureDigestAlgorithm));
+  }
+
+
+  /**
+   * Datafile digest algorithm.
+   *
+   * @return DigestAlgorithm.
+   */
+  public DigestAlgorithm getDataFileDigestAlgorithm() {
+    return DigestAlgorithm.findByAlgorithm(getConfigurationParameter(ConfigurationParameter.DataFileDigestAlgorithm));
   }
 
   /**
@@ -1606,7 +1616,8 @@ public class Configuration implements Serializable {
    * @return isFullReport needed boolean value.
    */
   public boolean isFullReportNeeded() {
-    return Boolean.parseBoolean(this.getConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded));
+    String isFullSimpleReportNeeded = getConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded);
+    return Boolean.parseBoolean(isFullSimpleReportNeeded != null ? isFullSimpleReportNeeded : Constant.Default.FULL_SIMPLE_REPORT);
   }
 
   /**
@@ -1810,11 +1821,6 @@ public class Configuration implements Serializable {
     this.setConfigurationParameter(ConfigurationParameter.TempFileMaxAgeInMillis,
         String.valueOf(Constant.ONE_DAY_IN_MILLISECONDS));
     this.setConfigurationParameter(ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes, "15");
-    this.setConfigurationParameter(ConfigurationParameter.SignatureProfile, Constant.Default.SIGNATURE_PROFILE);
-    this.setConfigurationParameter(ConfigurationParameter.SignatureDigestAlgorithm,
-        Constant.Default.SIGNATURE_DIGEST_ALGORITHM);
-    this.setConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded,
-        Constant.Default.FULL_SIMPLE_REPORT);
     this.setConfigurationParameter(ConfigurationParameter.useNonce, "true");
     this.setConfigurationParameter(ConfigurationParameter.ZipCompressionRatioCheckThreshold, "1048576");
     this.setConfigurationParameter(ConfigurationParameter.MaxAllowedZipCompressionRatio, "100");
@@ -1890,6 +1896,8 @@ public class Configuration implements Serializable {
     this.setConfigurationParameterFromFile("SIGNATURE_PROFILE", ConfigurationParameter.SignatureProfile);
     this.setConfigurationParameterFromFile("SIGNATURE_DIGEST_ALGORITHM",
         ConfigurationParameter.SignatureDigestAlgorithm);
+    this.setConfigurationParameterFromFile("DATAFILE_DIGEST_ALGORITHM",
+            ConfigurationParameter.DataFileDigestAlgorithm);
     this.setConfigurationParameterFromFile("PRINT_VALIDATION_REPORT", ConfigurationParameter.PrintValidationReport);
     this.setDDoc4JDocConfigurationValue("SIGN_OCSP_REQUESTS", Boolean.toString(this.hasToBeOCSPRequestSigned()));
     this.setDDoc4JDocConfigurationValue("DIGIDOC_PKCS12_CONTAINER", this.getOCSPAccessCertificateFileName());

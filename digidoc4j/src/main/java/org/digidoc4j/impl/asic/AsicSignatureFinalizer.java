@@ -193,7 +193,8 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
   }
 
   private void populateFacadeParameters() {
-    setDigestAlgorithm();
+    setSignatureDigestAlgorithm();
+    setDataFileDigestAlgorithm();
     setSigningCertificate();
     setEncryptionAlgorithm();
     setSignatureProfile();
@@ -205,9 +206,14 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
     setCustomDataLoader();
   }
 
-  private void setDigestAlgorithm() {
-    facade.setSignatureDigestAlgorithm(signatureParameters.getDigestAlgorithm());
+  private void setSignatureDigestAlgorithm() {
+    facade.setSignatureDigestAlgorithm(signatureParameters.getSignatureDigestAlgorithm());
   }
+
+  private void setDataFileDigestAlgorithm() {
+    facade.setDataFileDigestAlgorithm(signatureParameters.getDataFileDigestAlgorithm());
+  }
+
 
   private void setSigningCertificate() {
     X509Certificate signingCert = signatureParameters.getSigningCertificate();

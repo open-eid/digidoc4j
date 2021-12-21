@@ -166,6 +166,10 @@ public class XadesSigningDssFacade {
     xAdESSignatureParameters.setDigestAlgorithm(digestAlgorithm.getDssDigestAlgorithm());
   }
 
+  public void setDataFileDigestAlgorithm(org.digidoc4j.DigestAlgorithm digestAlgorithm) {
+    xAdESSignatureParameters.setReferenceDigestAlgorithm(digestAlgorithm.getDssDigestAlgorithm());
+  }
+
   public void setEncryptionAlgorithm(EncryptionAlgorithm encryptionAlgorithm) {
     xAdESSignatureParameters.setEncryptionAlgorithm(encryptionAlgorithm);
   }

@@ -11,21 +11,19 @@
 package org.digidoc4j.impl.asic;
 
 import eu.europa.esig.dss.model.InMemoryDocument;
-import org.digidoc4j.Configuration;
-import org.digidoc4j.DataToSign;
-import org.digidoc4j.EncryptionAlgorithm;
-import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureBuilder;
-import org.digidoc4j.SignatureFinalizerBuilder;
+import org.digidoc4j.*;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.utils.CertificateUtils;
+import org.digidoc4j.utils.DigestUtils;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.security.interfaces.ECPublicKey;
 
 /**
  * Signature builder for Asic container.
@@ -42,7 +40,7 @@ public class AsicSignatureBuilder extends SignatureBuilder {
     byte[] dataToSign = getSignatureFinalizer().getDataToBeSigned();
     byte[] signatureValue = null;
     try {
-      signatureValue = signatureToken.sign(signatureParameters.getDigestAlgorithm(), dataToSign);
+      signatureValue = signatureToken.sign(signatureParameters.getSignatureDigestAlgorithm(), dataToSign);
       return finalizeSignature(signatureValue);
     } catch (TechnicalException e) {
       String dataToSignHex = Helper.bytesToHex(dataToSign, AsicSignatureFinalizer.HEX_MAX_LENGTH);
@@ -91,15 +89,31 @@ public class AsicSignatureBuilder extends SignatureBuilder {
   }
 
   private void populateSignatureParameters() {
-    populateDigestAlgorithm();
     populateEncryptionAlgorithm();
+    populateSignatureDigestAlgorithm();
+    populateDataFileDigestAlgorithm();
     populateSignatureProfile();
   }
 
-  private void populateDigestAlgorithm() {
-    if (signatureParameters.getDigestAlgorithm() == null) {
-      signatureParameters.setDigestAlgorithm(getConfiguration().getSignatureDigestAlgorithm());
+  private void populateSignatureDigestAlgorithm() {
+    if (signatureParameters.getSignatureDigestAlgorithm() == null) {
+      DigestAlgorithm digestAlgorithm = getConfiguration().getSignatureDigestAlgorithm();
+      signatureParameters.setSignatureDigestAlgorithm(digestAlgorithm != null ? digestAlgorithm : getDefaultSignatureDigestAlgorithm());
     }
+  }
+
+  private void populateDataFileDigestAlgorithm() {
+    if (signatureParameters.getDataFileDigestAlgorithm() == null) {
+      DigestAlgorithm digestAlgorithm = getConfiguration().getDataFileDigestAlgorithm();
+      signatureParameters.setDataFileDigestAlgorithm(digestAlgorithm != null ? digestAlgorithm : Constant.Default.DATAFILE_DIGEST_ALGORITHM);
+    }
+  }
+
+  private DigestAlgorithm getDefaultSignatureDigestAlgorithm() {
+    if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA) {
+      return DigestUtils.getRecommendedSignatureDigestAlgorithm((ECPublicKey) signatureParameters.getSigningCertificate().getPublicKey());
+    }
+    return Constant.Default.SIGNATURE_DIGEST_ALGORITHM;
   }
 
   private void populateEncryptionAlgorithm() {
@@ -112,7 +126,8 @@ public class AsicSignatureBuilder extends SignatureBuilder {
 
   private void populateSignatureProfile() {
     if (signatureParameters.getSignatureProfile() == null) {
-      signatureParameters.setSignatureProfile(getConfiguration().getSignatureProfile());
+      SignatureProfile signatureProfile = getConfiguration().getSignatureProfile();
+      signatureParameters.setSignatureProfile(signatureProfile != null ? signatureProfile : Constant.Default.SIGNATURE_PROFILE);
     }
   }
 

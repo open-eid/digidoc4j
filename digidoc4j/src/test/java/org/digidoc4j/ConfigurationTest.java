@@ -1513,7 +1513,7 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void testLoadingSignatureProfile() throws Exception {
-    Assert.assertEquals(SignatureProfile.LT, this.configuration.getSignatureProfile());
+    Assert.assertNull(this.configuration.getSignatureProfile());
   }
 
   @Test
@@ -1524,13 +1524,24 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void testLoadingSignatureDigestAlgorithm() throws Exception {
-    Assert.assertEquals(DigestAlgorithm.SHA256, this.configuration.getSignatureDigestAlgorithm());
+    Assert.assertNull(this.configuration.getSignatureDigestAlgorithm());
   }
 
   @Test
   public void testLoadingSignatureDigestAlgorithmFromConf() throws Exception {
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     Assert.assertEquals(DigestAlgorithm.SHA512, this.configuration.getSignatureDigestAlgorithm());
+  }
+
+  @Test
+  public void testLoadingDataFileDigestAlgorithm() throws Exception {
+    Assert.assertNull(this.configuration.getDataFileDigestAlgorithm());
+  }
+
+  @Test
+  public void testLoadingDataFileDigestAlgorithmFromConf() throws Exception {
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    Assert.assertEquals(DigestAlgorithm.SHA512, this.configuration.getDataFileDigestAlgorithm());
   }
 
   @Test

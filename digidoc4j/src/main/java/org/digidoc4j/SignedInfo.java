@@ -29,7 +29,7 @@ public class SignedInfo implements Serializable {
   }
 
   public SignedInfo(byte[] dataToDigest, SignatureParameters signatureParameters) {
-    DigestAlgorithm digestAlgorithm = signatureParameters.getDigestAlgorithm();
+    DigestAlgorithm digestAlgorithm = signatureParameters.getSignatureDigestAlgorithm();
     digestToSign = DSSUtils.digest(forXML(digestAlgorithm.toString()), dataToDigest);
     this.signatureParameters = signatureParameters;
   }
@@ -43,7 +43,7 @@ public class SignedInfo implements Serializable {
   }
 
   public DigestAlgorithm getDigestAlgorithm() {
-    return signatureParameters.getDigestAlgorithm();
+    return signatureParameters.getSignatureDigestAlgorithm();
   }
 
   public SignatureParameters getSignatureParameters() {

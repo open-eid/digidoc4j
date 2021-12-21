@@ -76,7 +76,7 @@ public class SignatureBuilderTest extends AbstractTest {
     Assert.assertEquals("13456", parameters.getPostalCode());
     Assert.assertEquals("Val Verde", parameters.getCountry());
     Assert.assertEquals("Manager", parameters.getRoles().get(0));
-    Assert.assertEquals(DigestAlgorithm.SHA256, parameters.getDigestAlgorithm());
+    Assert.assertEquals(DigestAlgorithm.SHA256, parameters.getSignatureDigestAlgorithm());
     Assert.assertEquals(SignatureProfile.LT_TM, parameters.getSignatureProfile());
     Assert.assertEquals("S0", parameters.getSignatureId());
     Assert.assertSame(pkcs12SignatureToken.getCertificate(), parameters.getSigningCertificate());
@@ -224,7 +224,7 @@ public class SignatureBuilderTest extends AbstractTest {
         withSignatureDigestAlgorithm(digestAlgorithm).withSigningCertificate(pkcs12SignatureToken.getCertificate()).
         buildDataToSign();
     SignatureParameters signatureParameters = dataToSign.getSignatureParameters();
-    Assert.assertEquals(DigestAlgorithm.SHA256, signatureParameters.getDigestAlgorithm());
+    Assert.assertEquals(DigestAlgorithm.SHA256, signatureParameters.getSignatureDigestAlgorithm());
     Signature signature = TestDataBuilderUtil.makeSignature(container, dataToSign);
     Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", signature.getSignatureMethod());
     Assert.assertTrue(container.validate().isValid());
@@ -580,12 +580,10 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithoutSignatures_signWithoutAssignedProfile_profileTakenFromConf_shouldSucceedWithTimestampSignature() {
+  public void bDocContainerWithoutSignatures_signWithoutAssignedProfile_defaultPofileIsUsed_shouldSucceedWithTimestampSignature() {
     Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
     assertBDocContainer(container);
     Assert.assertTrue(container.getSignatures().isEmpty());
-
-    Assert.assertSame(SignatureProfile.LT, container.getConfiguration().getSignatureProfile());
 
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
           .withSigningCertificate(pkcs12SignatureToken.getCertificate())
@@ -593,6 +591,7 @@ public class SignatureBuilderTest extends AbstractTest {
           .buildDataToSign();
 
     Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Assert.assertSame(Constant.Default.SIGNATURE_PROFILE, signature.getProfile());
     assertTimestampSignature(signature);
     assertValidSignature(signature);
 
@@ -635,12 +634,10 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asiceContainerWithoutSignatures_signWithoutAssignedProfile_profileTakenFromConf_shouldSucceedWithTimestampSignature() {
+  public void asiceContainerWithoutSignatures_signWithoutAssignedProfile_defaultPofileIsUsed_shouldSucceedWithTimestampSignature() {
     Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
     assertAsicEContainer(container);
     Assert.assertTrue(container.getSignatures().isEmpty());
-
-    Assert.assertSame(SignatureProfile.LT, container.getConfiguration().getSignatureProfile());
 
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
           .withSigningCertificate(pkcs12SignatureToken.getCertificate())
@@ -648,6 +645,7 @@ public class SignatureBuilderTest extends AbstractTest {
           .buildDataToSign();
 
     Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Assert.assertSame(Constant.Default.SIGNATURE_PROFILE, signature.getProfile());
     assertTimestampSignature(signature);
     assertValidSignature(signature);
 
@@ -655,6 +653,52 @@ public class SignatureBuilderTest extends AbstractTest {
     assertAsicEContainer(container);
     Assert.assertSame(1, container.getSignatures().size());
     assertTimestampSignature(container.getSignatures().get(0));
+  }
+
+  @Test
+  public void signWith256EcKey_withoutAssigningSignatureDigestAlgo_sha256SignatureDigestAlgoIsUsed() {
+    Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
+    assertAsicEContainer(container);
+    Assert.assertTrue(container.getSignatures().isEmpty());
+
+    DataToSign dataToSign = SignatureBuilder.aSignature(container)
+            .withSigningCertificate(pkcs12EccSignatureToken.getCertificate())
+            .buildDataToSign();
+
+    Signature signature = dataToSign.finalize(pkcs12EccSignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Assert.assertEquals(DigestAlgorithm.SHA256, dataToSign.getSignatureParameters().getSignatureDigestAlgorithm());
+    assertValidSignature(signature);
+  }
+
+  @Test
+  public void signWith384EcKey_withoutAssigningSignatureDigestAlgo_sha384SignatureDigestAlgoIsUsed() {
+    Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
+    assertAsicEContainer(container);
+    Assert.assertTrue(container.getSignatures().isEmpty());
+
+    DataToSign dataToSign = SignatureBuilder.aSignature(container)
+            .withSigningCertificate(pkcs12Esteid2018SignatureToken.getCertificate())
+            .buildDataToSign();
+
+    Signature signature = dataToSign.finalize(pkcs12Esteid2018SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Assert.assertEquals(DigestAlgorithm.SHA384, dataToSign.getSignatureParameters().getSignatureDigestAlgorithm());
+    assertValidSignature(signature);
+  }
+
+  @Test
+  public void signWithDifferentDataFileAndSignatureDigestAlgorithm() throws Exception {
+    Container container = this.createNonEmptyContainer();
+    DataToSign dataToSign = SignatureBuilder.aSignature(container)
+            .withSignatureDigestAlgorithm(DigestAlgorithm.SHA384)
+            .withDataFileDigestAlgorithm(DigestAlgorithm.SHA512)
+            .withSigningCertificate(pkcs12SignatureToken.getCertificate())
+            .buildDataToSign();
+    SignatureParameters signatureParameters = dataToSign.getSignatureParameters();
+    Assert.assertEquals(DigestAlgorithm.SHA384, signatureParameters.getSignatureDigestAlgorithm());
+    Assert.assertEquals(DigestAlgorithm.SHA512, signatureParameters.getDataFileDigestAlgorithm());
+    Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha384", signature.getSignatureMethod());
+    Assert.assertTrue(container.validate().isValid());
   }
 
   @Test

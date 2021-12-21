@@ -13,6 +13,7 @@ public enum ConfigurationParameter {
   AllowedTimestampAndOCSPResponseDeltaInMinutes,
   SignatureProfile,
   SignatureDigestAlgorithm,
+  DataFileDigestAlgorithm,
   TspSource,
   TslLocation,
   TslKeyStoreLocation,

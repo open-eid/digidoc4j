@@ -21,12 +21,14 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.impl.asic.AsicSignatureFinalizer;
 import org.digidoc4j.utils.CertificateUtils;
+import org.digidoc4j.utils.DigestUtils;
 import org.digidoc4j.utils.Helper;
 import org.digidoc4j.utils.PolicyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPublicKey;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,7 +85,19 @@ public class DetachedXadesSignatureBuilder {
    * @return builder for creating a signature.
    */
   public DetachedXadesSignatureBuilder withSignatureDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
-    signatureParameters.setDigestAlgorithm(digestAlgorithm);
+    signatureParameters.setSignatureDigestAlgorithm(digestAlgorithm);
+    return this;
+  }
+
+
+  /**
+   * Set signature digest algorithm used to generate a signature.
+   *
+   * @param digestAlgorithm signature digest algorithm.
+   * @return builder for creating a signature.
+   */
+  public DetachedXadesSignatureBuilder withDataFileDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+    signatureParameters.setDataFileDigestAlgorithm(digestAlgorithm);
     return this;
   }
 
@@ -278,7 +292,7 @@ public class DetachedXadesSignatureBuilder {
     Signature result = null;
     byte[] signatureValue = null;
     try {
-      signatureValue = signatureToken.sign(signatureParameters.getDigestAlgorithm(), dataToSign);
+      signatureValue = signatureToken.sign(signatureParameters.getSignatureDigestAlgorithm(), dataToSign);
       result = finalizeSignature(signatureValue);
     } catch (TechnicalException e) {
       String dataToSignHex = Helper.bytesToHex(dataToSign, AsicSignatureFinalizer.HEX_MAX_LENGTH);
@@ -305,15 +319,31 @@ public class DetachedXadesSignatureBuilder {
   }
 
   private void populateSignatureParameters() {
-    populateDigestAlgorithm();
     populateEncryptionAlgorithm();
+    populateSignatureDigestAlgorithm();
+    populateDataFileDigestAlgorithm();
     populateSignatureProfile();
   }
 
-  private void populateDigestAlgorithm() {
-    if (signatureParameters.getDigestAlgorithm() == null) {
-      signatureParameters.setDigestAlgorithm(configuration.getSignatureDigestAlgorithm());
+  private void populateSignatureDigestAlgorithm() {
+    if (signatureParameters.getSignatureDigestAlgorithm() == null) {
+      DigestAlgorithm digestAlgorithm = configuration.getSignatureDigestAlgorithm();
+      signatureParameters.setSignatureDigestAlgorithm(digestAlgorithm != null ? digestAlgorithm : getDefaultSignatureDigestAlgorithm());
     }
+  }
+
+  private void populateDataFileDigestAlgorithm() {
+    if (signatureParameters.getDataFileDigestAlgorithm() == null) {
+      DigestAlgorithm digestAlgorithm = configuration.getDataFileDigestAlgorithm();
+      signatureParameters.setDataFileDigestAlgorithm(digestAlgorithm != null ? digestAlgorithm : Constant.Default.DATAFILE_DIGEST_ALGORITHM);
+    }
+  }
+
+  private DigestAlgorithm getDefaultSignatureDigestAlgorithm() {
+    if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA) {
+      return DigestUtils.getRecommendedSignatureDigestAlgorithm((ECPublicKey) signatureParameters.getSigningCertificate().getPublicKey());
+    }
+    return Constant.Default.SIGNATURE_DIGEST_ALGORITHM;
   }
 
   private void populateEncryptionAlgorithm() {
@@ -327,7 +357,8 @@ public class DetachedXadesSignatureBuilder {
 
   private void populateSignatureProfile() {
     if (signatureParameters.getSignatureProfile() == null) {
-      signatureParameters.setSignatureProfile(configuration.getSignatureProfile());
+      SignatureProfile signatureProfile = configuration.getSignatureProfile();
+      signatureParameters.setSignatureProfile(signatureProfile != null ? signatureProfile : Constant.Default.SIGNATURE_PROFILE);
     }
   }
 }

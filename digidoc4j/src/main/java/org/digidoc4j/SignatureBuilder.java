@@ -257,7 +257,19 @@ public abstract class SignatureBuilder implements Serializable {
    * @return builder for creating a signature.
    */
   public SignatureBuilder withSignatureDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
-    signatureParameters.setDigestAlgorithm(digestAlgorithm);
+    signatureParameters.setSignatureDigestAlgorithm(digestAlgorithm);
+    return this;
+  }
+
+
+  /**
+   * Set data file digest algorithm.
+   *
+   * @param digestAlgorithm datafile digest algorithm.
+   * @return builder for creating a signature.
+   */
+  public SignatureBuilder withDataFileDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+    signatureParameters.setDataFileDigestAlgorithm(digestAlgorithm);
     return this;
   }
 

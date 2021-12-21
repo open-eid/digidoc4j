@@ -316,10 +316,9 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signWithoutAssigningProfile_profileTakenFromConfiguration_shouldSucceedWithTimestampSignature() {
+  public void signWithoutAssigningProfile_defaultPofileIsUsed_shouldSucceedWithTimestampSignature() {
     DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
     Configuration configuration = new Configuration();
-    Assert.assertSame(SignatureProfile.LT, configuration.getSignatureProfile());
 
     DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(configuration)
          .withDataFile(dataFile)
@@ -328,7 +327,57 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
          .buildDataToSign();
 
     Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Assert.assertSame(Constant.Default.SIGNATURE_PROFILE, signature.getProfile());
     assertTimestampSignature(signature);
+    assertValidSignature(signature);
+  }
+
+  @Test
+  public void signWith256EcKey_withoutAssigningSignatureDigestAlgo_sha256SignatureDigestAlgoIsUsed() {
+    DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
+    Configuration configuration = new Configuration();
+
+    DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(configuration)
+            .withDataFile(dataFile)
+            .withSigningCertificate(pkcs12EccSignatureToken.getCertificate())
+            .buildDataToSign();
+
+    Signature signature = dataToSign.finalize(pkcs12EccSignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Assert.assertEquals(DigestAlgorithm.SHA256, dataToSign.getSignatureParameters().getSignatureDigestAlgorithm());
+    assertValidSignature(signature);
+  }
+
+  @Test
+  public void signWith384EcKey_withoutAssigningSignatureDigestAlgo_sha384SignatureDigestAlgoIsUsed() {
+    DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
+    Configuration configuration = new Configuration();
+
+    DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(configuration)
+            .withDataFile(dataFile)
+            .withSigningCertificate(pkcs12Esteid2018SignatureToken.getCertificate())
+            .buildDataToSign();
+
+    Signature signature = dataToSign.finalize(pkcs12Esteid2018SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Assert.assertEquals(DigestAlgorithm.SHA384, dataToSign.getSignatureParameters().getSignatureDigestAlgorithm());
+    assertValidSignature(signature);
+  }
+
+  @Test
+  public void signWithDifferentDataFileAndSignatureDigestAlgorithm() throws Exception {
+    DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
+    Configuration configuration = new Configuration();
+
+    DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(configuration)
+            .withSignatureDigestAlgorithm(DigestAlgorithm.SHA384)
+            .withDataFileDigestAlgorithm(DigestAlgorithm.SHA512)
+            .withDataFile(dataFile)
+            .withSigningCertificate(pkcs12SignatureToken.getCertificate())
+            .buildDataToSign();
+    SignatureParameters signatureParameters = dataToSign.getSignatureParameters();
+    Assert.assertEquals(DigestAlgorithm.SHA384, signatureParameters.getSignatureDigestAlgorithm());
+    Assert.assertEquals(DigestAlgorithm.SHA512, signatureParameters.getDataFileDigestAlgorithm());
+    Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha384", signature.getSignatureMethod());
     assertValidSignature(signature);
   }
 
