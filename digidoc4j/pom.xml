@@ -23,7 +23,7 @@
 
     <properties>
         <hamcrest.version>2.2</hamcrest.version>
-        <logback-classic.version>1.2.7</logback-classic.version>
+        <logback-classic.version>1.2.10</logback-classic.version>
         <jackson.version>2.13.0</jackson.version>
         <junit.version>4.13.2</junit.version>
         <dss.groupId>org.digidoc4j.dss</dss.groupId>
@@ -75,11 +75,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.12.0</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
