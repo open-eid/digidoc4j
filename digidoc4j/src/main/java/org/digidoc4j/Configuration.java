@@ -797,6 +797,24 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Set if TSL pivot support enabled
+   *
+   * @param tslPivotSupport whether TSL pivot support enabled
+   */
+  public void setTslPivotSupport(boolean tslPivotSupport) {
+    this.setConfigurationParameter(ConfigurationParameter.TslPivotSupport, String.valueOf(tslPivotSupport));
+  }
+
+  /**
+   * Get if TSL pivot support enabled
+   *
+   * @return whether TSL pivot support enabled
+   */
+  public boolean isTslPivotSupported() {
+    return Boolean.parseBoolean(getConfigurationParameter(ConfigurationParameter.TslPivotSupport));
+  }
+
+  /**
    * Sets the expiration time for TSL cache in milliseconds.
    * If more time has passed from the cache's creation time time, then a fresh TSL is downloaded and cached,
    * otherwise a cached copy is used.

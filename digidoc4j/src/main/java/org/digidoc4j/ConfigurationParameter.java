@@ -7,8 +7,6 @@ public enum ConfigurationParameter {
 
   ConnectionTimeoutInMillis,
   SocketTimeoutInMillis,
-  TslCacheExpirationTimeInMillis,
-  TslKeyStorePassword,
   RevocationAndTimestampDeltaInMinutes,
   AllowedTimestampAndOCSPResponseDeltaInMinutes,
   SignatureProfile,
@@ -17,6 +15,9 @@ public enum ConfigurationParameter {
   TspSource,
   TslLocation,
   TslKeyStoreLocation,
+  TslKeyStorePassword,
+  TslCacheExpirationTimeInMillis,
+  TslPivotSupport,
   ValidationPolicy,
   OcspSource,
   OcspAccessCertificateFile,

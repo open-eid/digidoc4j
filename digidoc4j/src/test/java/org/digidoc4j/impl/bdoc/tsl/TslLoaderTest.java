@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.bdoc.tsl;
 
+import eu.europa.esig.dss.enumerations.SubIndication;
 import eu.europa.esig.dss.spi.tsl.LOTLInfo;
 import eu.europa.esig.dss.spi.tsl.TLInfo;
 import eu.europa.esig.dss.tsl.job.TLValidationJob;
@@ -112,6 +113,26 @@ public class TslLoaderTest extends AbstractTest {
     this.assertCountryLoaded(tslRepository, "NO");
     this.assertCountryNotLoaded(tslRepository, "DE");
     this.assertCountryNotLoaded(tslRepository, "HR");
+  }
+
+  @Test
+  public void loadProdTsl_withOutdatedKeystore_shouldFail() {
+    this.configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setTslKeyStoreLocation("testFiles/keystores/outdated-lotl-keystore.jks");
+    LOTLInfo tslRepository = this.initTSLAndGetRepository();
+    Assert.assertEquals(Indication.INDETERMINATE, tslRepository.getValidationCacheInfo().getIndication());
+    Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, tslRepository.getValidationCacheInfo().getSubIndication());
+    Assert.assertEquals(0, configuration.getTSL().getNumberOfCertificates());
+  }
+
+  @Test
+  public void loadProdTsl_withOutdatedKeystoreAndPivotSupport_shouldSucceed() {
+    this.configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setTslKeyStoreLocation("testFiles/keystores/outdated-lotl-keystore.jks");
+    configuration.setTslPivotSupport(true);
+    LOTLInfo tslRepository = this.initTSLAndGetRepository();
+    Assert.assertEquals(Indication.TOTAL_PASSED, tslRepository.getValidationCacheInfo().getIndication());
+    Assert.assertTrue(configuration.getTSL().getNumberOfCertificates() > 0);
   }
 
   /*

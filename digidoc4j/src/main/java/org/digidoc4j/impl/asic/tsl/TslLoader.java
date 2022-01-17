@@ -26,7 +26,6 @@ import eu.europa.esig.dss.tsl.function.SchemeTerritoryOtherTSLPointer;
 import eu.europa.esig.dss.tsl.function.XMLOtherTSLPointer;
 import eu.europa.esig.dss.tsl.job.TLValidationJob;
 import eu.europa.esig.dss.tsl.source.LOTLSource;
-import eu.europa.esig.dss.tsl.sync.AcceptAllStrategy;
 import eu.europa.esig.dss.tsl.sync.ExpirationAndSignatureCheckStrategy;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -123,6 +122,7 @@ public class TslLoader implements Serializable {
     LOTLSource lotlSource = new LOTLSource();
     lotlSource.setUrl(this.configuration.getTslLocation());
     lotlSource.setCertificateSource(this.tslCertificateSource);
+    lotlSource.setPivotSupport(this.configuration.isTslPivotSupported());
 
     lotlSource.setCertificateSource(getKeyStore());
     Set<String> trustedTerritories = new HashSet<>();
