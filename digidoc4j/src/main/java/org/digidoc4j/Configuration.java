@@ -907,12 +907,30 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Set signature profile.
+   *
+   * @param signatureProfile profile of the signature
+   */
+  public void setSignatureProfile(SignatureProfile signatureProfile) {
+    this.setConfigurationParameter(ConfigurationParameter.SignatureProfile, signatureProfile.name());
+  }
+
+  /**
    * Signature digest algorithm.
    *
    * @return DigestAlgorithm.
    */
   public DigestAlgorithm getSignatureDigestAlgorithm() {
     return DigestAlgorithm.findByAlgorithm(getConfigurationParameter(ConfigurationParameter.SignatureDigestAlgorithm));
+  }
+
+  /**
+   * Set signature digest algorithm.
+   *
+   * @param digestAlgorithm digest algorithm of signature
+   */
+  public void setSignatureDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+    this.setConfigurationParameter(ConfigurationParameter.SignatureDigestAlgorithm, digestAlgorithm.name());
   }
 
 
@@ -923,6 +941,15 @@ public class Configuration implements Serializable {
    */
   public DigestAlgorithm getDataFileDigestAlgorithm() {
     return DigestAlgorithm.findByAlgorithm(getConfigurationParameter(ConfigurationParameter.DataFileDigestAlgorithm));
+  }
+
+  /**
+   * Set datafile digest algorithm.
+   *
+   * @param digestAlgorithm digest algorithm of datafile
+   */
+  public void setDataFileDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+    this.setConfigurationParameter(ConfigurationParameter.DataFileDigestAlgorithm, digestAlgorithm.name());
   }
 
   /**

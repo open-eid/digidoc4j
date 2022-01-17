@@ -11,7 +11,15 @@
 package org.digidoc4j.impl.asic;
 
 import eu.europa.esig.dss.model.InMemoryDocument;
-import org.digidoc4j.*;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
+import org.digidoc4j.DataToSign;
+import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.EncryptionAlgorithm;
+import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureBuilder;
+import org.digidoc4j.SignatureFinalizerBuilder;
+import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;

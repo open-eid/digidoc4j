@@ -18,19 +18,25 @@ public class DigestUtilsTest {
     }
 
     @Test
-    public void ecKeySizeLessThan384_returnsSha256() throws GeneralSecurityException {
+    public void ecKeySize224_returnsSha512() throws GeneralSecurityException {
+        KeyPair keyPair = generateEcKeyPair("secp224r1");
+        Assert.assertEquals(DigestAlgorithm.SHA512, DigestUtils.getRecommendedSignatureDigestAlgorithm((ECPublicKey) keyPair.getPublic()));
+    }
+
+    @Test
+    public void ecKeySize256_returnsSha256() throws GeneralSecurityException {
         KeyPair keyPair = generateEcKeyPair("secp256r1");
         Assert.assertEquals(DigestAlgorithm.SHA256, DigestUtils.getRecommendedSignatureDigestAlgorithm((ECPublicKey) keyPair.getPublic()));
     }
 
     @Test
-    public void ecKeySizeBetween384And512_returnsSha384() throws GeneralSecurityException {
+    public void ecKeySize384_returnsSha384() throws GeneralSecurityException {
         KeyPair keyPair = generateEcKeyPair("secp384r1");
         Assert.assertEquals(DigestAlgorithm.SHA384, DigestUtils.getRecommendedSignatureDigestAlgorithm((ECPublicKey) keyPair.getPublic()));
     }
 
     @Test
-    public void ecKeySizeMoreThan512_returnsSha512() throws GeneralSecurityException {
+    public void ecKeySize521_returnsSha512() throws GeneralSecurityException {
         KeyPair keyPair = generateEcKeyPair("secp521r1");
         Assert.assertEquals(DigestAlgorithm.SHA512, DigestUtils.getRecommendedSignatureDigestAlgorithm((ECPublicKey) keyPair.getPublic()));
     }
