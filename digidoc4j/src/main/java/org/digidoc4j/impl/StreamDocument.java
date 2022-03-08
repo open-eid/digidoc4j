@@ -36,7 +36,8 @@ public class StreamDocument extends CommonDocument {
   private static final Logger logger = LoggerFactory.getLogger(StreamDocument.class);
 
   private static final int MAX_SIZE_IN_MEMORY = 1024 * 5;
-  File temporaryFile;
+
+  protected final File temporaryFile;
 
   //TODO if file is small enough you can read it into byte[] and cache it
 
@@ -49,30 +50,31 @@ public class StreamDocument extends CommonDocument {
    */
   public StreamDocument(InputStream stream, String documentName, MimeType mimeType) {
     logger.debug("Document name: " + documentName + ", mime type: " + mimeType);
-    createTemporaryFileOfStream(stream);
+    this.temporaryFile = createTemporaryFileOfStream(stream);
     super.name = documentName;
     super.mimeType = mimeType;
   }
 
-  private void createTemporaryFileOfStream(InputStream stream) {
-    byte[] bytes = new byte[MAX_SIZE_IN_MEMORY];
-
-    FileOutputStream out = null;
-
+  private static File createTemporaryFileOfStream(InputStream stream) {
     try {
+      File temporaryFile;
       temporaryFile = File.createTempFile("digidoc4j", ".tmp");
-      out = new FileOutputStream(temporaryFile);
-      int result;
-      while ((result = stream.read(bytes)) > 0) {
-        out.write(bytes, 0, result);
-      }
-      out.flush();
       temporaryFile.deleteOnExit();
+
+      try (FileOutputStream out = new FileOutputStream(temporaryFile)) {
+        byte[] bytes = new byte[MAX_SIZE_IN_MEMORY];
+        int result;
+
+        while ((result = stream.read(bytes)) > 0) {
+          out.write(bytes, 0, result);
+        }
+        out.flush();
+      }
+
+      return temporaryFile;
     } catch (IOException e) {
       logger.error(e.getMessage());
       throw new DSSException(e);
-    } finally {
-      IOUtils.closeQuietly(out);
     }
   }
 
@@ -89,11 +91,6 @@ public class StreamDocument extends CommonDocument {
 
   @Override
   public void setName(String s) {
-  }
-
-  @Override
-  public String getAbsolutePath() {
-    return temporaryFile.getAbsolutePath();
   }
 
   @Override
@@ -136,6 +133,10 @@ public class StreamDocument extends CommonDocument {
       throw new DSSException(e);
     }
     return Base64.encodeBase64String(digestBytes);
+  }
+
+  public Long getStreamLengthIfKnown() {
+    return temporaryFile.length();
   }
 
   protected FileInputStream getTemporaryFileAsStream() throws FileNotFoundException {

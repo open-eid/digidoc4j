@@ -13,8 +13,11 @@ package org.digidoc4j.impl.asic.report;
 import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.simplereport.jaxb.XmlCertificate;
+import eu.europa.esig.dss.simplereport.jaxb.XmlDetails;
+import eu.europa.esig.dss.simplereport.jaxb.XmlMessage;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSimpleReport;
+import eu.europa.esig.dss.simplereport.jaxb.XmlTimestamps;
 import eu.europa.esig.dss.simplereport.jaxb.XmlToken;
 import eu.europa.esig.dss.validation.reports.Reports;
 import org.digidoc4j.SignatureProfile;
@@ -23,8 +26,12 @@ import org.digidoc4j.impl.asic.xades.validation.SignatureValidationData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class SignatureValidationReportCreator {
 
@@ -69,12 +76,40 @@ public class SignatureValidationReportCreator {
   }
 
   private void updateMissingErrors() {
-    List<String> errors = signatureValidationReport.getErrors();
+    List<String> existingErrorMessages = new ArrayList<>();
+    Optional.ofNullable(signatureValidationReport.getAdESValidationDetails())
+            .map(XmlDetails::getError).map(List::stream).orElseGet(Stream::empty)
+            .map(XmlMessage::getValue).forEach(existingErrorMessages::add);
+    Optional.ofNullable(signatureValidationReport.getQualificationDetails())
+            .map(XmlDetails::getError).map(List::stream).orElseGet(Stream::empty)
+            .map(XmlMessage::getValue).forEach(existingErrorMessages::add);
+    Optional.ofNullable(signatureValidationReport.getTimestamps())
+            .map(XmlTimestamps::getTimestamp).map(List::stream).orElseGet(Stream::empty)
+            .flatMap(timestamp -> Stream.concat(
+                    Optional.ofNullable(timestamp.getAdESValidationDetails()).map(XmlDetails::getError).map(List::stream).orElseGet(Stream::empty),
+                    Optional.ofNullable(timestamp.getQualificationDetails()).map(XmlDetails::getError).map(List::stream).orElseGet(Stream::empty)
+            )).map(XmlMessage::getValue).forEach(existingErrorMessages::add);
     for (DigiDoc4JException error : validationData.getValidationResult().getErrors()) {
-      if (!errors.contains(error.getMessage())) {
-        errors.add(error.getMessage());
+      String errorMessage = error.getMessage();
+      if (!existingErrorMessages.contains(errorMessage)) {
+        XmlMessage xmlError = new XmlMessage();
+        xmlError.setValue(errorMessage);
+        // TODO: add into the correct details block
+        ensureReportDetailsAndGetErrorList(
+                signatureValidationReport::getAdESValidationDetails,
+                signatureValidationReport::setAdESValidationDetails
+        ).add(xmlError);
       }
     }
+  }
+
+  private static List<XmlMessage> ensureReportDetailsAndGetErrorList(Supplier<XmlDetails> detailsGetter, Consumer<XmlDetails> detailsSetter) {
+    XmlDetails xmlDetails = detailsGetter.get();
+    if (xmlDetails == null) {
+      xmlDetails = new XmlDetails();
+      detailsSetter.accept(xmlDetails);
+    }
+    return xmlDetails.getError();
   }
 
   private void updateDocumentName() {

@@ -78,7 +78,10 @@ public class ContainerTest extends AbstractTest {
         Paths.get("src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc"));
     SignatureValidationResult result = container.validate();
     Assert.assertFalse("Container is valid", result.isValid());
-    Assert.assertEquals("No errors count match", 1, result.getErrors().size());
+    TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
+            "No acceptable trusted lists has been found!",
+            "The trusted list does not have the expected version!"
+    );
   }
 
   @Test

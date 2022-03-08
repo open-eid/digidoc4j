@@ -15,6 +15,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
+import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
@@ -82,22 +83,69 @@ public final class TestAssert {
     Assert.fail(String.format("Expected <%s> was not found", expectedError));
   }
 
-  public static void assertContainsExactSetOfErrors(List<DigiDoc4JException> errors, String... expectedErrors) {
-    Assert.assertEquals(
-            String.format("Expected %d errors, but found %d", expectedErrors.length, errors.size()),
-            expectedErrors.length, errors.size()
-    );
-    for (String expectedError : expectedErrors) {
-      assertContainsError(expectedError, errors);
+  public static void assertContainsErrors(List<DigiDoc4JException> errors, String... errorsToExpect) {
+    if (errorsToExpect.length == 0 || errorListContainsAllExpectedStrings(errors, errorsToExpect)) {
+      return;
     }
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append("Expected to find errors containing the following strings:");
+    for (String expectedError : errorsToExpect) {
+      stringBuilder.append(System.lineSeparator()).append('\t').append(expectedError);
+    }
+    if (errors.size() > 0) {
+      stringBuilder.append(System.lineSeparator()).append("Actual errors found (").append(errors.size()).append("):");
+      for (DigiDoc4JException exception : errors) {
+        stringBuilder.append(System.lineSeparator()).append('\t').append(exception);
+      }
+    } else {
+      stringBuilder.append("No errors found!");
+    }
+    Assert.fail(stringBuilder.toString());
+  }
+
+  public static void assertContainsExactSetOfErrors(List<DigiDoc4JException> errors, String... allExpectedErrors) {
+    assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(errors, allExpectedErrors.length, allExpectedErrors);
+  }
+
+  public static void assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(List<DigiDoc4JException> errors, int expectedNumberOfErrors, String... errorsToExpect) {
+    if (errors.size() == expectedNumberOfErrors && errorListContainsAllExpectedStrings(errors, errorsToExpect)) {
+      return;
+    }
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append("Expected ").append(expectedNumberOfErrors).append(" errors")
+            .append(errors.size() == expectedNumberOfErrors ? " and" : ", but")
+            .append(" found ").append(errors.size());
+    if (errorsToExpect.length > 0) {
+      stringBuilder.append(System.lineSeparator()).append("List of strings expected to be contained in error messages:");
+      for (String expectedError : errorsToExpect) {
+        stringBuilder.append(System.lineSeparator()).append('\t').append(expectedError);
+      }
+    }
+    if (errors.size() > 0) {
+      stringBuilder.append(System.lineSeparator()).append("Actual errors found (").append(errors.size()).append("):");
+      for (DigiDoc4JException exception : errors) {
+        stringBuilder.append(System.lineSeparator()).append('\t').append(exception);
+      }
+    }
+    Assert.fail(stringBuilder.toString());
   }
 
   public static void assertSignatureMetadataContainsFileName(Signature signature, String fileName) {
     Assert.assertNotNull(TestAssert.findSignedFile(signature, fileName));
   }
 
+  public static void assertContainerIsValid(ContainerValidationResult containerValidationResult) {
+    if (!containerValidationResult.isValid()) {
+      StringBuilder stringBuilder = new StringBuilder("Container is invalid");
+      for (DigiDoc4JException exception : containerValidationResult.getErrors()) {
+        stringBuilder.append(System.lineSeparator()).append('\t').append(exception);
+      }
+      Assert.fail(stringBuilder.toString());
+    }
+  }
+
   public static void assertContainerIsValid(Container container) {
-    Assert.assertTrue("Container is invalid", container.validate().isValid());
+    assertContainerIsValid(container.validate());
   }
 
   public static void assertContainerIsInvalid(Container container) {
@@ -159,6 +207,24 @@ public final class TestAssert {
 
   private static void assertContainerStream(InputStream stream) throws IOException {
     Assert.assertTrue(IOUtils.toByteArray(stream).length > 0);
+  }
+
+  private static boolean errorListContainsAllExpectedStrings(List<DigiDoc4JException> errorList, String... expectedStrings) {
+    for (String expectedString : expectedStrings) {
+      if (!errorListContainsExpectedString(errorList, expectedString)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static boolean errorListContainsExpectedString(List<DigiDoc4JException> errorList, String expectedString) {
+    for (DigiDoc4JException error : errorList) {
+      if (error != null && error.toString().contains(expectedString)) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

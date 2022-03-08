@@ -38,8 +38,8 @@ public class DetachedXadesSignatureBuilder {
 
   private static final Logger logger = LoggerFactory.getLogger(DetachedXadesSignatureBuilder.class);
 
-  private List<DataFile> dataFiles = new ArrayList<>();
-  private SignatureParameters signatureParameters = new SignatureParameters();
+  private final List<DataFile> dataFiles = new ArrayList<>();
+  private final SignatureParameters signatureParameters = new SignatureParameters();
   private Configuration configuration;
   private SignatureToken signatureToken;
   private SignatureFinalizer signatureFinalizer;

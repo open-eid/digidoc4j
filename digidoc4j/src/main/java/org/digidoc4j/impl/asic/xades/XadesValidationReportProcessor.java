@@ -2,9 +2,13 @@ package org.digidoc4j.impl.asic.xades;
 
 import eu.europa.esig.dss.i18n.I18nProvider;
 import eu.europa.esig.dss.i18n.MessageTag;
+import eu.europa.esig.dss.simplereport.jaxb.XmlDetails;
+import eu.europa.esig.dss.simplereport.jaxb.XmlMessage;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
+import eu.europa.esig.dss.simplereport.jaxb.XmlTimestamp;
 import eu.europa.esig.dss.simplereport.jaxb.XmlToken;
 import eu.europa.esig.dss.validation.reports.Reports;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,10 +46,30 @@ public class XadesValidationReportProcessor {
   }
 
   private static void removeFalsePositiveWarningsFromSignatureResult(XmlSignature signatureResult) {
-    for (String warning : new ArrayList<>(signatureResult.getWarnings())) {
-      if (WARNING_MESSAGES_TO_IGNORE.contains(warning)) {
-        signatureResult.getWarnings().remove(warning);
-        LOGGER.debug("Removed false-positive warning message: {}", warning);
+    removeFalsePositiveWarningsFromToken(signatureResult);
+    if (signatureResult.getTimestamps() != null && CollectionUtils.isNotEmpty(signatureResult.getTimestamps().getTimestamp())) {
+      for (XmlTimestamp timestampResult : signatureResult.getTimestamps().getTimestamp()) {
+        if (timestampResult != null) {
+          removeFalsePositiveWarningsFromToken(timestampResult);
+        }
+      }
+    }
+  }
+
+  private static void removeFalsePositiveWarningsFromToken(XmlToken token) {
+    if (token.getAdESValidationDetails() != null) {
+      removeFalsePositiveWarningsFromDetails(token.getAdESValidationDetails());
+    }
+    if (token.getQualificationDetails() != null) {
+      removeFalsePositiveWarningsFromDetails(token.getQualificationDetails());
+    }
+  }
+
+  private static void removeFalsePositiveWarningsFromDetails(XmlDetails details) {
+    for (XmlMessage warning : new ArrayList<>(details.getWarning())) {
+      if (WARNING_MESSAGES_TO_IGNORE.contains(warning.getValue())) {
+        details.getWarning().remove(warning);
+        LOGGER.debug("Removed false-positive warning message: \"{}\":\"{}\"", warning.getKey(), warning.getValue());
       }
     }
   }

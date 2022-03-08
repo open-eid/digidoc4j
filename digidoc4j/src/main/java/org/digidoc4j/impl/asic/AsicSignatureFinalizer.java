@@ -76,7 +76,7 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
     if ((signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA || CertificateUtils.isEcdsaCertificate(signatureParameters.getSigningCertificate()))
             && DSSASN1Utils.isAsn1Encoded(signatureValue)) {
       LOGGER.debug("Finalizing signature ASN1: {} [{}]", Helper.bytesToHex(signatureValue, HEX_MAX_LENGTH), signatureValue.length);
-      signatureValue = DSSASN1Utils.fromAsn1toSignatureValue(eu.europa.esig.dss.enumerations.EncryptionAlgorithm.ECDSA,
+      signatureValue = DSSASN1Utils.ensurePlainSignatureValue(eu.europa.esig.dss.enumerations.EncryptionAlgorithm.ECDSA,
               signatureValue);
     }
     LOGGER.debug("Finalizing signature XmlDSig: {} [{}]", Helper.bytesToHex(signatureValue, HEX_MAX_LENGTH), signatureValue.length);

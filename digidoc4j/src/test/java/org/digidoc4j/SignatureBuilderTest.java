@@ -25,6 +25,7 @@ import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.CustomContainer;
 import org.digidoc4j.test.MockSignatureBuilder;
+import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.digidoc4j.utils.TokenAlgorithmSupport;
@@ -262,7 +263,9 @@ public class SignatureBuilderTest extends AbstractTest {
     Signature signature = this.openAdESSignature(container);
     ValidationResult result = signature.validateSignature();
     Assert.assertFalse(result.isValid());
-    Assert.assertEquals("The result of the LTV validation process is not acceptable to continue the process!", result.getErrors().get(0).getMessage());
+    TestAssert.assertContainsErrors(result.getErrors(),
+            "The reference data object has not been found!"
+    );
   }
 
   @Test

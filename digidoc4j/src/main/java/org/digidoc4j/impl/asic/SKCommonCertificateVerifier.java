@@ -18,10 +18,11 @@ import eu.europa.esig.dss.model.x509.revocation.ocsp.OCSP;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.spi.x509.CertificateSource;
 import eu.europa.esig.dss.spi.x509.ListCertificateSource;
+import eu.europa.esig.dss.spi.x509.aia.AIASource;
 import eu.europa.esig.dss.spi.x509.revocation.RevocationSource;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
-import eu.europa.esig.dss.validation.ListRevocationSource;
+import eu.europa.esig.dss.validation.RevocationDataLoadingStrategy;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -79,6 +80,16 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   }
 
   @Override
+  public RevocationDataLoadingStrategy getRevocationDataLoadingStrategy() {
+    return this.commonCertificateVerifier.getRevocationDataLoadingStrategy();
+  }
+
+  @Override
+  public void setRevocationDataLoadingStrategy(RevocationDataLoadingStrategy revocationDataLoadingStrategy) {
+    this.commonCertificateVerifier.setRevocationDataLoadingStrategy(revocationDataLoadingStrategy);
+  }
+
+  @Override
   public ListCertificateSource getTrustedCertSources() {
     return this.commonCertificateVerifier.getTrustedCertSources();
   }
@@ -99,43 +110,19 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   }
 
   @Override
-  public DataLoader getDataLoader() {
-    return this.commonCertificateVerifier.getDataLoader();
-  }
-
-  @Override
+  @Deprecated
   public void setDataLoader(final DataLoader dataLoader) {
     this.commonCertificateVerifier.setDataLoader(dataLoader);
   }
 
   @Override
-  public ListRevocationSource<CRL> getSignatureCRLSource() {
-    return this.commonCertificateVerifier.getSignatureCRLSource();
+  public AIASource getAIASource() {
+    return this.commonCertificateVerifier.getAIASource();
   }
 
   @Override
-  public void setSignatureCRLSource(ListRevocationSource<CRL> signatureCRLSource) {
-    this.commonCertificateVerifier.setSignatureCRLSource(signatureCRLSource);
-  }
-
-  @Override
-  public ListRevocationSource<OCSP> getSignatureOCSPSource() {
-    return this.commonCertificateVerifier.getSignatureOCSPSource();
-  }
-
-  @Override
-  public void setSignatureOCSPSource(ListRevocationSource<OCSP> signatureOCSPSource) {
-    this.commonCertificateVerifier.setSignatureOCSPSource(signatureOCSPSource);
-  }
-
-  @Override
-  public ListCertificateSource getSignatureCertificateSource() {
-    return this.commonCertificateVerifier.getSignatureCertificateSource();
-  }
-
-  @Override
-  public void setSignatureCertificateSource(ListCertificateSource signatureCertificateSource) {
-    this.commonCertificateVerifier.setSignatureCertificateSource(signatureCertificateSource);
+  public void setAIASource(AIASource aiaSource) {
+    this.commonCertificateVerifier.setAIASource(aiaSource);
   }
 
   @Override
@@ -196,6 +183,16 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   @Override
   public StatusAlert getAlertOnUncoveredPOE() {
     return this.commonCertificateVerifier.getAlertOnUncoveredPOE();
+  }
+
+  @Override
+  public void setAlertOnExpiredSignature(StatusAlert alertOnUncoveredPOE) {
+    this.commonCertificateVerifier.setAlertOnExpiredSignature(alertOnUncoveredPOE);
+  }
+
+  @Override
+  public StatusAlert getAlertOnExpiredSignature() {
+    return this.commonCertificateVerifier.getAlertOnExpiredSignature();
   }
 
   @Override

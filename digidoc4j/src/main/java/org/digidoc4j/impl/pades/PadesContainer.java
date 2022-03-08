@@ -4,10 +4,14 @@ package org.digidoc4j.impl.pades;
 import eu.europa.esig.dss.diagnostic.DiagnosticData;
 import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.RevocationType;
+import eu.europa.esig.dss.jaxb.object.Message;
 import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.pades.PAdESUtils;
 import eu.europa.esig.dss.pades.validation.PDFDocumentValidator;
 import eu.europa.esig.dss.pdf.pdfbox.PdfBoxDefaultObjectFactory;
+import eu.europa.esig.dss.simplereport.SimpleReport;
+import eu.europa.esig.dss.simplereport.jaxb.XmlMessage;
+import eu.europa.esig.dss.simplereport.jaxb.XmlTimestamp;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.reports.Reports;
@@ -140,13 +144,26 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
     SignedDocumentValidator validator = new PDFDocumentValidator(document);
     validator.setCertificateVerifier(createCertificateVerifier());
     Reports reports = validator.validateDocument(this.getClass().getClassLoader().getResourceAsStream(this.configuration.getValidationPolicy()));
-    PadesContainerValidationResult result = new PadesContainerValidationResult(reports.getSimpleReport());
+    SimpleReport simpleReport = reports.getSimpleReport();
+    PadesContainerValidationResult result = new PadesContainerValidationResult(simpleReport);
     result.setReport(reports.getXmlSimpleReport());
-    for (String id : reports.getSimpleReport().getSignatureIdList()) {
-      Indication indication = reports.getSimpleReport().getIndication(id);
+    for (String id : simpleReport.getSignatureIdList()) {
+      Indication indication = simpleReport.getIndication(id);
       if (!Indication.TOTAL_PASSED.equals(indication)) {
-        result.getErrors().addAll(this.getExceptions(reports.getSimpleReport().getErrors(id)));
-        result.getWarnings().addAll(this.getExceptions(reports.getSimpleReport().getWarnings(id)));
+        result.getErrors().addAll(getExceptionsFromMessages(simpleReport.getAdESValidationErrors(id)));
+        result.getErrors().addAll(getExceptionsFromMessages(simpleReport.getQualificationErrors(id)));
+        result.getWarnings().addAll(getExceptionsFromMessages(simpleReport.getAdESValidationWarnings(id)));
+        result.getWarnings().addAll(getExceptionsFromMessages(simpleReport.getQualificationWarnings(id)));
+        for (XmlTimestamp timestamp : simpleReport.getSignatureTimestamps(id)) {
+          if (timestamp.getAdESValidationDetails() != null) {
+            result.getErrors().addAll(getExceptionsFromXmlMessages(timestamp.getAdESValidationDetails().getError()));
+            result.getWarnings().addAll(getExceptionsFromXmlMessages(timestamp.getAdESValidationDetails().getWarning()));
+          }
+          if (timestamp.getQualificationDetails() != null) {
+            result.getErrors().addAll(getExceptionsFromXmlMessages(timestamp.getQualificationDetails().getError()));
+            result.getWarnings().addAll(getExceptionsFromXmlMessages(timestamp.getQualificationDetails().getWarning()));
+          }
+        }
       }
     }
     addRevocationErrors(result, reports);
@@ -189,12 +206,20 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
     throw new NotSupportedException("Not for Pades container");
   }
 
-  private List<DigiDoc4JException> getExceptions(List<String> exceptionString) {
-    List<DigiDoc4JException> exc = new ArrayList<>();
-    for (String s : exceptionString) {
-      exc.add(new DigiDoc4JException(s));
+  private static List<DigiDoc4JException> getExceptionsFromMessages(List<Message> exceptionMessages) {
+    List<DigiDoc4JException> exceptions = new ArrayList<>();
+    for (Message exceptionMessage : exceptionMessages) {
+      exceptions.add(new DigiDoc4JException(exceptionMessage.getValue()));
     }
-    return exc;
+    return exceptions;
+  }
+
+  private static List<DigiDoc4JException> getExceptionsFromXmlMessages(List<XmlMessage> exceptionMessages) {
+    List<DigiDoc4JException> exceptions = new ArrayList<>();
+    for (XmlMessage exceptionMessage : exceptionMessages) {
+      exceptions.add(new DigiDoc4JException(exceptionMessage.getValue()));
+    }
+    return exceptions;
   }
 
   @Override
@@ -306,7 +331,6 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
     logger.debug("Creating new certificate verifier");
     CertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
     certificateVerifier.setCrlSource(null); //Disable CRL checks
-    certificateVerifier.setSignatureCRLSource(null); //Disable CRL checks
     logger.debug("Setting trusted cert source to the certificate verifier");
     certificateVerifier.setTrustedCertSources(configuration.getTSL());
     logger.debug("Setting custom data loader to the certificate verifier");

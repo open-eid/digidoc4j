@@ -16,6 +16,7 @@ import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.test.MockConfigurableDataLoader;
+import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,7 +45,7 @@ import java.security.cert.X509Certificate;
  */
 public class IncompleteSigningTest extends AbstractTest {
 
-  private static final String LTV_VALIDATION_ERROR_MESSAGE = "The result of the LTV validation process is not acceptable to continue the process!";
+  private static final String VALIDATION_ERROR_MESSAGE = "The certificate validation is not conclusive!";
 
   @Test(expected = OCSPRequestFailedException.class)
   public void signatureProfileLtTmShouldFailWhenSigningCertificateIsNotTrustedByTSL() {
@@ -69,10 +70,7 @@ public class IncompleteSigningTest extends AbstractTest {
     setUpProdConfigurationWithTestTsaAndOcsp();
     Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_BES, pkcs12SignatureToken);
     ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    Assert.assertTrue(
-            "Validation result is expected to contain error: " + LTV_VALIDATION_ERROR_MESSAGE,
-            validationResult.getErrors().stream().anyMatch(e -> e.getMessage().contains(LTV_VALIDATION_ERROR_MESSAGE))
-    );
+    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
   }
 
   @Test
@@ -80,10 +78,7 @@ public class IncompleteSigningTest extends AbstractTest {
     setUpProdConfigurationWithTestTsaAndOcsp();
     Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_EPES, pkcs12SignatureToken);
     ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    Assert.assertTrue(
-            "Validation result is expected to contain error: " + LTV_VALIDATION_ERROR_MESSAGE,
-            validationResult.getErrors().stream().anyMatch(e -> e.getMessage().contains(LTV_VALIDATION_ERROR_MESSAGE))
-    );
+    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
   }
 
   @Test(expected = CertificateValidationException.class)
@@ -113,10 +108,7 @@ public class IncompleteSigningTest extends AbstractTest {
     ensureCertificateTrustedByTSL(pkcs12SignatureToken.getCertificate());
     Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_BES, pkcs12SignatureToken);
     ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    Assert.assertTrue(
-            "Validation result is expected to contain error: " + LTV_VALIDATION_ERROR_MESSAGE,
-            validationResult.getErrors().stream().anyMatch(e -> e.getMessage().contains(LTV_VALIDATION_ERROR_MESSAGE))
-    );
+    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
   }
 
   @Test
@@ -125,10 +117,7 @@ public class IncompleteSigningTest extends AbstractTest {
     ensureCertificateTrustedByTSL(pkcs12SignatureToken.getCertificate());
     Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_EPES, pkcs12SignatureToken);
     ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    Assert.assertTrue(
-            "Validation result is expected to contain error: " + LTV_VALIDATION_ERROR_MESSAGE,
-            validationResult.getErrors().stream().anyMatch(e -> e.getMessage().contains(LTV_VALIDATION_ERROR_MESSAGE))
-    );
+    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
   }
 
   @Test(expected = OCSPRequestFailedException.class)
@@ -154,10 +143,7 @@ public class IncompleteSigningTest extends AbstractTest {
     setUpTestConfigurationWithEmptyTSL();
     Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_BES, pkcs12SignatureToken);
     ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    Assert.assertTrue(
-            "Validation result is expected to contain error: " + LTV_VALIDATION_ERROR_MESSAGE,
-            validationResult.getErrors().stream().anyMatch(e -> e.getMessage().contains(LTV_VALIDATION_ERROR_MESSAGE))
-    );
+    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
   }
 
   @Test
@@ -165,10 +151,7 @@ public class IncompleteSigningTest extends AbstractTest {
     setUpTestConfigurationWithOkTslButFailingDataLoaders();
     Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_EPES, pkcs12SignatureToken);
     ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    Assert.assertTrue(
-            "Validation result is expected to contain error: " + LTV_VALIDATION_ERROR_MESSAGE,
-            validationResult.getErrors().stream().anyMatch(e -> e.getMessage().contains(LTV_VALIDATION_ERROR_MESSAGE))
-    );
+    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
   }
 
   @Test(expected = OCSPRequestFailedException.class)
@@ -194,10 +177,7 @@ public class IncompleteSigningTest extends AbstractTest {
     setUpTestConfigurationWithFailingTSL();
     Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_BES, pkcs12SignatureToken);
     ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    Assert.assertTrue(
-            "Validation result is expected to contain error: " + LTV_VALIDATION_ERROR_MESSAGE,
-            validationResult.getErrors().stream().anyMatch(e -> e.getMessage().contains(LTV_VALIDATION_ERROR_MESSAGE))
-    );
+    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
   }
 
   @Test
@@ -205,10 +185,7 @@ public class IncompleteSigningTest extends AbstractTest {
     setUpTestConfigurationWithFailingTSL();
     Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_EPES, pkcs12SignatureToken);
     ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    Assert.assertTrue(
-            "Validation result is expected to contain error: " + LTV_VALIDATION_ERROR_MESSAGE,
-            validationResult.getErrors().stream().anyMatch(e -> e.getMessage().contains(LTV_VALIDATION_ERROR_MESSAGE))
-    );
+    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
   }
 
   @Test(expected = TechnicalException.class)
@@ -234,10 +211,7 @@ public class IncompleteSigningTest extends AbstractTest {
     setUpTestConfigurationWithOkTslButFailingDataLoaders();
     Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_BES, pkcs12SignatureToken);
     ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    Assert.assertTrue(
-            "Validation result is expected to contain error: " + LTV_VALIDATION_ERROR_MESSAGE,
-            validationResult.getErrors().stream().anyMatch(e -> e.getMessage().contains(LTV_VALIDATION_ERROR_MESSAGE))
-    );
+    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
   }
 
   @Test
@@ -245,10 +219,7 @@ public class IncompleteSigningTest extends AbstractTest {
     setUpTestConfigurationWithOkTslButFailingDataLoaders();
     Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_EPES, pkcs12SignatureToken);
     ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    Assert.assertTrue(
-            "Validation result is expected to contain error: " + LTV_VALIDATION_ERROR_MESSAGE,
-            validationResult.getErrors().stream().anyMatch(e -> e.getMessage().contains(LTV_VALIDATION_ERROR_MESSAGE))
-    );
+    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
   }
 
   /**

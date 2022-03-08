@@ -843,7 +843,7 @@ public class DigiDoc4JTest extends AbstractTest {
     this.systemExit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Type = REVOCATION. BBB_XCV_CCCBB_REV_ANS: " +
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString(
             "The certificate chain for revocation data is not trusted, it does not contain a trust anchor"));
       }
     });
@@ -888,7 +888,7 @@ public class DigiDoc4JTest extends AbstractTest {
         "src/test/resources/testFiles/xades/test-bdoc-ts.xml"};
     TestDigiDoc4JUtil.call(parameters);
 
-    Assert.assertThat(stdOut.getLog(), StringContains.containsString("The result of the LTV validation process is not acceptable to continue the process!"));
+    Assert.assertThat(stdOut.getLog(), StringContains.containsString("The reference data object is not intact!"));
   }
 
   @Test

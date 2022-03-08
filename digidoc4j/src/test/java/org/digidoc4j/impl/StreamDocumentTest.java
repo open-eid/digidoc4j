@@ -107,7 +107,7 @@ public class StreamDocumentTest extends AbstractTest {
 
   @Test
   public void getAbsolutePath() throws Exception {
-    Assert.assertTrue(this.document.getAbsolutePath(), this.document.getAbsolutePath().matches(".*digidoc4j.*.\\.tmp"));
+    Assert.assertTrue(this.document.temporaryFile.getAbsolutePath(), this.document.temporaryFile.getAbsolutePath().matches(".*digidoc4j.*.\\.tmp"));
   }
 
   @Test

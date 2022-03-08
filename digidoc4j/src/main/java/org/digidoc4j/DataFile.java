@@ -35,7 +35,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.OptionalLong;
 
 /**
  * Data file wrapper providing methods for handling signed files or files to be signed in Container.
@@ -187,9 +186,9 @@ public class DataFile implements Serializable {
    * @return file size in bytes
    */
   public long getFileSize() {
-    OptionalLong fileBackedSize = getFileSizeIfBackedByFile();
-    if (fileBackedSize.isPresent()) {
-      return fileBackedSize.getAsLong();
+    Long knownFileSize = getFileSizeIfKnown();
+    if (knownFileSize != null) {
+      return knownFileSize;
     }
     long fileSize = 0L;
     try (InputStream inputStream = getStream()) {
@@ -213,9 +212,9 @@ public class DataFile implements Serializable {
    * @return {@code true} if the data file is empty
    */
   public boolean isFileEmpty() {
-    OptionalLong fileBackedSize = getFileSizeIfBackedByFile();
-    if (fileBackedSize.isPresent()) {
-      return (fileBackedSize.getAsLong() < 1L);
+    Long knownFileSize = getFileSizeIfKnown();
+    if (knownFileSize != null) {
+      return (knownFileSize < 1L);
     }
     try (InputStream inputStream = getStream()) {
       return (inputStream.read() < 0); // read() returns -1 if no bytes to read
@@ -224,18 +223,22 @@ public class DataFile implements Serializable {
     }
   }
 
-  private OptionalLong getFileSizeIfBackedByFile() {
-    if (document instanceof StreamDocument || document instanceof FileDocument) {
+  private Long getFileSizeIfKnown() {
+    if (document instanceof StreamDocument) {
+      StreamDocument streamDocument = (StreamDocument) document;
+      return streamDocument.getStreamLengthIfKnown();
+    } else if (document instanceof FileDocument) {
+      FileDocument fileDocument = (FileDocument) document;
       try {
-        long fileSize = Files.size(Paths.get(document.getAbsolutePath()));
+        long fileSize = Files.size(Paths.get(fileDocument.getAbsolutePath()));
         logger.debug("Document size: " + fileSize);
-        return OptionalLong.of(fileSize);
+        return fileSize;
       } catch (IOException e) {
         logger.error(e.getMessage());
         throw new DigiDoc4JException(e);
       }
     }
-    return OptionalLong.empty();
+    return null;
   }
 
   /**

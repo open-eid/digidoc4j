@@ -45,7 +45,10 @@ public class PadesValidationTest extends AbstractTest {
             fromExistingFile("src/test/resources/prodFiles/invalid-containers/PadesProfileT.pdf").build();
     SignatureValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
-    TestAssert.assertContainsError("The result of the LTV validation process is not acceptable to continue the process!", result.getErrors());
+    TestAssert.assertContainsErrors(result.getErrors(),
+            "The certificate validation is not conclusive!",
+            "No acceptable revocation data for the certificate!"
+    );
   }
 
   @Test

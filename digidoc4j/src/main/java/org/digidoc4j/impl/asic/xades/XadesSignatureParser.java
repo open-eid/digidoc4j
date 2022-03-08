@@ -101,7 +101,7 @@ public class XadesSignatureParser {
   private static void assertNoExcessEncapsulatedTimeStamps(final XAdESSignature xadesSignature) {
     final XAdESPaths xadesPaths = xadesSignature.getXAdESPaths();
 
-    final NodeList signatureTimeStamps = DomUtils.getNodeList(xadesSignature.getSignatureElement(), xadesPaths.getSignatureTimestampsPath());
+    final NodeList signatureTimeStamps = DomUtils.getNodeList(xadesSignature.getSignatureElement(), xadesPaths.getSignatureTimestampPath());
     if (signatureTimeStamps == null || signatureTimeStamps.getLength() < 1) {
       return;
     }

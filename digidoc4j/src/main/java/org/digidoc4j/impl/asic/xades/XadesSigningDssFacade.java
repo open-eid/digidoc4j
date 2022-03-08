@@ -235,7 +235,6 @@ public class XadesSigningDssFacade {
 
   private void initCertificateVerifier() {
     certificateVerifier.setCrlSource(null); //Disable CRL checks
-    certificateVerifier.setSignatureCRLSource(null); //Disable CRL checks
   }
 
   private void initXadesMultipleService() {
