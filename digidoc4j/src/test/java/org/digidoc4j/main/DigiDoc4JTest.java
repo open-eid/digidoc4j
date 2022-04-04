@@ -728,6 +728,8 @@ public class DigiDoc4JTest extends AbstractTest {
       @Override
       public void checkAssertion() throws Exception {
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("OCSP response production time is before timestamp time"));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Error: (Signature ID: S1) - Timestamp time is after OCSP response production time"));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Error: (Signature ID: S1) - The certificate is not related to a TSA/QTST!"));
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature has 2 validation errors"));
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature S1 is not valid"));
       }
@@ -749,6 +751,8 @@ public class DigiDoc4JTest extends AbstractTest {
       @Override
       public void checkAssertion() throws Exception {
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("OCSP response production time is before timestamp time"));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Error: (Signature ID: S1) - Timestamp time is after OCSP response production time"));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Error: (Signature ID: S1) - The certificate is not related to a TSA/QTST!"));
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature has 2 validation errors"));
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("Validation finished. Container is NOT valid!"));
       }
