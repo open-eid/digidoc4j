@@ -234,7 +234,7 @@ public class XadesSignatureValidator implements SignatureValidator {
               this.simpleReport.getSignatureTimestamps(this.signatureUniqueId).stream()
                       .flatMap(timestamp -> getTokenMessages(timestamp, details -> details.getError().stream()))
                       .map(XmlMessage::getValue)
-      ).forEach(errorMessage -> {
+      ).distinct().forEach(errorMessage -> {
         if (errorMessage.contains(i18nProvider.getMessage(MessageTag.BBB_XCV_ISCR_ANS))) {
           this.addValidationError(new CertificateRevokedException(errorMessage));
         } else if (errorMessage.contains(i18nProvider.getMessage(MessageTag.PSV_IPSVC_ANS))) {
@@ -256,7 +256,7 @@ public class XadesSignatureValidator implements SignatureValidator {
               this.simpleReport.getSignatureTimestamps(this.signatureUniqueId).stream()
                       .flatMap(timestamp -> getTokenMessages(timestamp, details -> details.getWarning().stream()))
                       .map(XmlMessage::getValue)
-      ).forEach(warningMessage -> {
+      ).distinct().forEach(warningMessage -> {
         this.addValidationWarning(new DigiDoc4JException(warningMessage, this.signatureId));
       });
     }
