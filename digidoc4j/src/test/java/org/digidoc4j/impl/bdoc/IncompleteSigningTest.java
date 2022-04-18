@@ -1,7 +1,18 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl.bdoc;
 
 import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.spi.client.http.DSSFileLoader;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.apache.commons.codec.binary.Hex;
 import org.digidoc4j.AbstractTest;
@@ -16,6 +27,7 @@ import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.test.MockConfigurableDataLoader;
+import org.digidoc4j.test.MockConfigurableFileLoader;
 import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
 import org.junit.Test;
@@ -295,11 +307,18 @@ public class IncompleteSigningTest extends AbstractTest {
             })
             .withPoster((url, content) -> {
               String contentHex = (content == null) ? "null" : Hex.encodeHexString(content);
-              throw new DSSException(String.format("Failed to POST URL: %s; content: %s", url, contentHex));
+              String message = String.format("Failed to POST URL: %s; content: %s", url, contentHex);
+              throw new DSSException(message);
+            });
+
+    DSSFileLoader failingFileLoader = new MockConfigurableFileLoader()
+            .withDocumentGetter(url -> {
+              String message = String.format("Failed to GET URL: %s", url);
+              throw new DSSException(message);
             });
 
     configuration.setOcspDataLoaderFactory(() -> failingDataLoader);
-    configuration.setTslDataLoaderFactory(() -> failingDataLoader);
+    configuration.setTslFileLoaderFactory(() -> failingFileLoader);
     configuration.setTspDataLoaderFactory(() -> failingDataLoader);
   }
 

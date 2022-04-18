@@ -184,10 +184,11 @@ public class Configuration implements Serializable {
   private LinkedHashMap<String, Object> configurationFromFile;
   private String configurationInputSourceName;
 
+  private DataLoaderFactory aiaDataLoaderFactory;
   private DataLoaderFactory ocspDataLoaderFactory;
   private DataLoaderFactory tspDataLoaderFactory;
   private DataLoaderFactory tslDataLoaderFactory;
-  private DataLoaderFactory aiaDataLoaderFactory;
+  private DSSFileLoaderFactory tslFileLoaderFactory;
 
   /**
    * Application mode
@@ -548,9 +549,33 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Set a file loader factory that manages the creation of custom file loaders for downloading TSL.
+   * @param tslFileLoaderFactory TSL file loader factory.
+   */
+  public void setTslFileLoaderFactory(DSSFileLoaderFactory tslFileLoaderFactory) {
+    this.tslFileLoaderFactory = tslFileLoaderFactory;
+  }
+
+  /**
+   * Returns the currently set TSL file loader factory or <code>null</code> if no custom file loader factory is set.
+   * @return TSL file loader factory.
+   */
+  public DSSFileLoaderFactory getTslFileLoaderFactory() {
+    return tslFileLoaderFactory;
+  }
+
+  /**
    * Set a data loader factory that manages the creation of custom data loaders for downloading TSL.
    * @param tslDataLoaderFactory TSL data loader factory.
+   *
+   * @deprecated Prefer to use {@link #setTslFileLoaderFactory(DSSFileLoaderFactory)}
+   * and {@link #getTslFileLoaderFactory()} instead.
+   * If a custom TSL file loader factory is configured, then a custom TSL data loader factory has no effect.
+   * If a data loader created by a custom TSL data loader factory does not implement
+   * {@link eu.europa.esig.dss.spi.client.http.DSSFileLoader}, then it is wrapped into a
+   * {@link eu.europa.esig.dss.service.http.commons.FileCacheDataLoader}.
    */
+  @Deprecated
   public void setTslDataLoaderFactory(DataLoaderFactory tslDataLoaderFactory) {
     this.tslDataLoaderFactory = tslDataLoaderFactory;
   }
@@ -558,7 +583,15 @@ public class Configuration implements Serializable {
   /**
    * Returns the currently set TSL data loader factory or <code>null</code> if no custom data loader factory is set.
    * @return TSL data loader factory.
+   *
+   * @deprecated Prefer to use {@link #setTslFileLoaderFactory(DSSFileLoaderFactory)}
+   * and {@link #getTslFileLoaderFactory()} instead.
+   * If a custom TSL file loader factory is configured, then a custom TSL data loader factory has no effect.
+   * If a data loader created by a custom TSL data loader factory does not implement
+   * {@link eu.europa.esig.dss.spi.client.http.DSSFileLoader}, then it is wrapped into a
+   * {@link eu.europa.esig.dss.service.http.commons.FileCacheDataLoader}.
    */
+  @Deprecated
   public DataLoaderFactory getTslDataLoaderFactory() {
     return tslDataLoaderFactory;
   }

@@ -11,9 +11,7 @@
 package org.digidoc4j.impl.asic.tsl;
 
 import eu.europa.esig.dss.model.DSSException;
-import eu.europa.esig.dss.service.http.commons.FileCacheDataLoader;
 import eu.europa.esig.dss.spi.client.http.DSSFileLoader;
-import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
 import eu.europa.esig.dss.tsl.alerts.TLAlert;
 import eu.europa.esig.dss.tsl.alerts.detections.TLExpirationDetection;
@@ -26,7 +24,6 @@ import eu.europa.esig.dss.tsl.function.SchemeTerritoryOtherTSLPointer;
 import eu.europa.esig.dss.tsl.function.XMLOtherTSLPointer;
 import eu.europa.esig.dss.tsl.job.TLValidationJob;
 import eu.europa.esig.dss.tsl.source.LOTLSource;
-import eu.europa.esig.dss.tsl.sync.AcceptAllStrategy;
 import eu.europa.esig.dss.tsl.sync.ExpirationAndSignatureCheckStrategy;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -91,12 +88,9 @@ public class TslLoader implements Serializable {
   private TLValidationJob createTslValidationJob() {
     TLValidationJob job = new TLValidationJob();
 
-    DataLoader tslDataLoader = new TslDataLoaderFactory(this.configuration, fileCacheDirectory).create();
-    if (tslDataLoader instanceof DSSFileLoader) {
-      job.setOnlineDataLoader((DSSFileLoader) tslDataLoader);
-    } else {
-      job.setOnlineDataLoader(new FileCacheDataLoader(tslDataLoader));
-    }
+    DSSFileLoader tslFileLoader = new TslFileLoaderFactory(this.configuration, fileCacheDirectory).create();
+    job.setOnlineDataLoader(tslFileLoader);
+
     LOTLSource lotlSource = createLOTLSource();
     job.setListOfTrustedListSources(lotlSource);
     job.setTrustedListCertificateSource(this.tslCertificateSource);

@@ -10,22 +10,22 @@
 
 package org.digidoc4j;
 
-import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.spi.client.http.DSSFileLoader;
 
 import java.io.Serializable;
 
 /**
- * Manages the creation of new data loaders. Data loaders are used for getting OCSP and time-stamp requests,
- * and downloading lists of trusted lists (LOTL), trusted lists (TL) and certificates.
+ * Manages the creation of new file loaders. File loaders are used for
+ * downloading lists of trusted lists (LOTL) and trusted lists (TL).
  */
 @FunctionalInterface
-public interface DataLoaderFactory extends Serializable {
+public interface DSSFileLoaderFactory extends Serializable {
 
   /**
-   * Create a new data loader instance.
+   * Create a new file loader instance.
    *
-   * @return new data loader.
+   * @return new file loader.
    */
-  DataLoader create();
+  DSSFileLoader create();
 
 }
