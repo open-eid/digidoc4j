@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.utils;
 
 import org.slf4j.Logger;
@@ -37,21 +47,26 @@ public final class ResourceUtils {
   }
 
   public static InputStream getResource(String path) {
-    if (path.startsWith(CLASSPATH_PREFIX)) {
-      path = path.substring(CLASSPATH_PREFIX.length());
+    if (path.startsWith(CLASSPATH_PREFIX) || isResourceAccessible(path)) {
+      if (path.startsWith(CLASSPATH_PREFIX)) {
+        path = path.substring(CLASSPATH_PREFIX.length());
+      }
       InputStream inputStream = ResourceUtils.class.getClassLoader().getResourceAsStream(path);
       if (inputStream == null) {
-        throw new IllegalArgumentException("Resource not found: " + path);
+        throw new IllegalArgumentException("Classpath resource not found: " + path);
       }
       return inputStream;
-    } else if (path.startsWith(FILE_PREFIX)) {
-      path = path.substring(FILE_PREFIX.length());
+    } else if (path.startsWith(FILE_PREFIX) || isFileReadable(path)) {
+      if (path.startsWith(FILE_PREFIX)) {
+        path = path.substring(FILE_PREFIX.length());
+      }
+      try {
+        return new FileInputStream(path);
+      } catch (FileNotFoundException e) {
+        throw new IllegalArgumentException("File resource not found: " + path, e);
+      }
     }
-    try {
-      return new FileInputStream(path);
-    } catch (FileNotFoundException e) {
-      throw new IllegalArgumentException("Resource not found: " + path);
-    }
+    throw new IllegalArgumentException("Resource not found: " + path);
   }
 
   private ResourceUtils() {

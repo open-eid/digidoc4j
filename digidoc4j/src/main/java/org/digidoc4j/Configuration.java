@@ -133,8 +133,13 @@ import static java.util.Arrays.asList;
  * <li>TSP_SOURCE: Time Stamp Protocol source address</li>
  * <li>VALIDATION_POLICY: Validation policy source file</li>
  * <li>LOTL_LOCATION: LOTL (List of Trusted Lists) location</li>
- * <li>TSL_KEYSTORE_LOCATION: keystore location for tsl signing certificates</li>
- * <li>TSL_KEYSTORE_PASSWORD: keystore password for the keystore in TSL_KEYSTORE_LOCATION</li>
+ * <li>LOTL_TRUSTSTORE_PATH: path to the trust-store for LOTL signing certificates</li>
+ * <li>LOTL_TRUSTSTORE_TYPE: type of trust-store for LOTL signing certificates (default is "PKCS12")</li>
+ * <li>LOTL_TRUSTSTORE_PASSWORD: password for the truststore in LOTL_TRUSTSTORE_PATH</li>
+ * <li>TSL_KEYSTORE_LOCATION: keystore location for tsl signing certificates - <b>DEPRECATED:</b>
+ * use LOTL_TRUSTSTORE_PATH instead</li>
+ * <li>TSL_KEYSTORE_PASSWORD: keystore password for the keystore in TSL_KEYSTORE_LOCATION - <b>DEPRECATED:</b>
+ * use LOTL_TRUSTSTORE_PASSWORD instead</li>
  * <li>TSL_CACHE_EXPIRATION_TIME: TSL cache expiration time in milliseconds</li>
  * <li>TRUSTED_TERRITORIES: list of countries and territories to trust and load TSL certificates
  * (for example, EE, LV, FR)</li>
@@ -831,36 +836,103 @@ public class Configuration implements Serializable {
    * Set the KeyStore Location that holds potential TSL Signing certificates
    *
    * @param tslKeyStoreLocation KeyStore location to use
+   *
+   * @deprecated Use {@link #setLotlTruststorePath(String)} instead.
    */
+  @Deprecated
   public void setTslKeyStoreLocation(String tslKeyStoreLocation) {
-    this.setConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation, tslKeyStoreLocation);
+    setLotlTruststorePath(tslKeyStoreLocation);
   }
 
   /**
    * Get the Location to Keystore that holds potential TSL Signing certificates
    *
    * @return KeyStore Location
+   *
+   * @deprecated Use {@link #getLotlTruststorePath()} instead.
    */
+  @Deprecated
   public String getTslKeyStoreLocation() {
-    return this.getConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation);
+    return getLotlTruststorePath();
   }
 
   /**
    * Set the password for Keystore that holds potential TSL Signing certificates
    *
    * @param tslKeyStorePassword Keystore password
+   *
+   * @deprecated Use {@link #setLotlTruststorePassword(String)} instead.
    */
+  @Deprecated
   public void setTslKeyStorePassword(String tslKeyStorePassword) {
-    this.setConfigurationParameter(ConfigurationParameter.TslKeyStorePassword, tslKeyStorePassword);
+    setLotlTruststorePassword(tslKeyStorePassword);
   }
 
   /**
    * Get the password for Keystore that holds potential TSL Signing certificates
    *
    * @return Tsl Keystore password
+   *
+   * @deprecated Use {@link #getLotlTruststorePassword()} instead.
    */
+  @Deprecated
   public String getTslKeyStorePassword() {
-    return getConfigurationParameter(ConfigurationParameter.TslKeyStorePassword);
+    return getLotlTruststorePassword();
+  }
+
+  /**
+   * Set the path to the trust-store that holds potential LOTL signing certificates.
+   *
+   * @param lotlTruststorePath LOTL trust-store path to use
+   */
+  public void setLotlTruststorePath(String lotlTruststorePath) {
+    setConfigurationParameter(ConfigurationParameter.LotlTruststorePath, lotlTruststorePath);
+  }
+
+  /**
+   * Get the path to the trust-store that holds potential LOTL signing certificates.
+   *
+   * @return LOTL trust-store path
+   */
+  public String getLotlTruststorePath() {
+    return getConfigurationParameter(ConfigurationParameter.LotlTruststorePath);
+  }
+
+  /**
+   * Set the type of the trust-store that holds potential LOTL signing certificates.
+   * Default is {@code PKCS12}.
+   *
+   * @param lotlTruststoreType LOTL trust-store type to use
+   */
+  public void setLotlTruststoreType(String lotlTruststoreType) {
+    setConfigurationParameter(ConfigurationParameter.LotlTruststoreType, lotlTruststoreType);
+  }
+
+  /**
+   * Get the type of the trust-store that holds potential LOTL signing certificates.
+   *
+   * @return LOTL trust-store type
+   */
+  public String getLotlTruststoreType() {
+    return getConfigurationParameter(ConfigurationParameter.LotlTruststoreType);
+  }
+
+  /**
+   * Set the password for the trust-store that holds potential LOTL signing certificates.
+   *
+   * @param lotlTruststorePassword LOTL trust-store password
+   */
+  public void setLotlTruststorePassword(String lotlTruststorePassword) {
+    setConfigurationParameter(ConfigurationParameter.LotlTruststorePassword, lotlTruststorePassword);
+  }
+
+  /**
+   * Get the password for the trust-store that holds potential LOTL signing certificates.
+   *
+   * @return LOTL trust-store password
+   */
+  public String getLotlTruststorePassword() {
+    return getConfigurationParameter(ConfigurationParameter.LotlTruststorePassword);
   }
 
   /**
@@ -1925,7 +1997,8 @@ public class Configuration implements Serializable {
         String.valueOf(Constant.ONE_SECOND_IN_MILLISECONDS));
     this.setConfigurationParameter(ConfigurationParameter.SocketTimeoutInMillis,
         String.valueOf(Constant.ONE_SECOND_IN_MILLISECONDS));
-    this.setConfigurationParameter(ConfigurationParameter.TslKeyStorePassword, "digidoc4j-password");
+    this.setConfigurationParameter(ConfigurationParameter.LotlTruststoreType, "PKCS12");
+    this.setConfigurationParameter(ConfigurationParameter.LotlTruststorePassword, "digidoc4j-password");
     this.setConfigurationParameter(ConfigurationParameter.RevocationAndTimestampDeltaInMinutes,
         String.valueOf(Constant.ONE_DAY_IN_MINUTES));
     this.setConfigurationParameter(ConfigurationParameter.TslCacheExpirationTimeInMillis,
@@ -1939,7 +2012,7 @@ public class Configuration implements Serializable {
     if (Mode.TEST.equals(this.mode)) {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Test.TSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.LotlLocation, Constant.Test.LOTL_LOCATION);
-      this.setConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation, Constant.Test.TSL_KEYSTORE_LOCATION);
+      this.setConfigurationParameter(ConfigurationParameter.LotlTruststorePath, Constant.Test.LOTL_TRUSTSTORE_PATH);
       this.setConfigurationParameter(ConfigurationParameter.ValidationPolicy, Constant.Test.VALIDATION_POLICY);
       this.setConfigurationParameter(ConfigurationParameter.OcspSource, Constant.Test.OCSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, "false");
@@ -1952,8 +2025,7 @@ public class Configuration implements Serializable {
     } else {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Production.TSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.LotlLocation, Constant.Production.LOTL_LOCATION);
-      this.setConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation,
-          Constant.Production.TSL_KEYSTORE_LOCATION);
+      this.setConfigurationParameter(ConfigurationParameter.LotlTruststorePath, Constant.Production.LOTL_TRUSTSTORE_PATH);
       this.setConfigurationParameter(ConfigurationParameter.ValidationPolicy, Constant.Production.VALIDATION_POLICY);
       this.setConfigurationParameter(ConfigurationParameter.OcspSource, Constant.Production.OCSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, "false");
@@ -1998,8 +2070,11 @@ public class Configuration implements Serializable {
     this.setConfigurationParameterFromFile("CONNECTION_TIMEOUT", ConfigurationParameter.ConnectionTimeoutInMillis);
     this.setConfigurationParameterFromFile("SOCKET_TIMEOUT", ConfigurationParameter.SocketTimeoutInMillis);
     this.setConfigurationParameterFromFile("SIGN_OCSP_REQUESTS", ConfigurationParameter.SignOcspRequests);
-    this.setConfigurationParameterFromFile("TSL_KEYSTORE_LOCATION", ConfigurationParameter.TslKeyStoreLocation);
-    this.setConfigurationParameterFromFile("TSL_KEYSTORE_PASSWORD", ConfigurationParameter.TslKeyStorePassword);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.LotlTruststoreType);
+    this.setConfigurationParameterFromFile("TSL_KEYSTORE_LOCATION", ConfigurationParameter.LotlTruststorePath);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.LotlTruststorePath);
+    this.setConfigurationParameterFromFile("TSL_KEYSTORE_PASSWORD", ConfigurationParameter.LotlTruststorePassword);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.LotlTruststorePassword);
     this.setConfigurationParameterFromFile("TSL_CACHE_EXPIRATION_TIME",
         ConfigurationParameter.TslCacheExpirationTimeInMillis);
     this.setConfigurationParameterFromFile("REVOCATION_AND_TIMESTAMP_DELTA_IN_MINUTES",

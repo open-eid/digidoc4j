@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.bdoc.tsl;
 
@@ -119,7 +119,8 @@ public class TslLoaderTest extends AbstractTest {
   @Ignore("DD4J-490")
   public void loadProdTsl_withOutdatedKeystore_shouldFail() {
     this.configuration = new Configuration(Configuration.Mode.PROD);
-    configuration.setTslKeyStoreLocation("testFiles/keystores/outdated-lotl-keystore.jks");
+    configuration.setLotlTruststorePath("testFiles/keystores/outdated-lotl-keystore.jks");
+    configuration.setLotlTruststoreType("JKS");
     LOTLInfo tslRepository = this.initTSLAndGetRepository();
     Assert.assertEquals(Indication.INDETERMINATE, tslRepository.getValidationCacheInfo().getIndication());
     Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, tslRepository.getValidationCacheInfo().getSubIndication());
@@ -129,7 +130,8 @@ public class TslLoaderTest extends AbstractTest {
   @Test
   public void loadProdTsl_withOutdatedKeystoreAndPivotSupport_shouldSucceed() {
     this.configuration = new Configuration(Configuration.Mode.PROD);
-    configuration.setTslKeyStoreLocation("testFiles/keystores/outdated-lotl-keystore.jks");
+    configuration.setLotlTruststorePath("testFiles/keystores/outdated-lotl-keystore.jks");
+    configuration.setLotlTruststoreType("JKS");
     configuration.setTslPivotSupport(true);
     LOTLInfo tslRepository = this.initTSLAndGetRepository();
     Assert.assertEquals(Indication.TOTAL_PASSED, tslRepository.getValidationCacheInfo().getIndication());

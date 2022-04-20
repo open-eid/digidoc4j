@@ -29,14 +29,13 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.LotlTrustStoreNotFoundException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
-import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
 import org.digidoc4j.utils.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -51,7 +50,6 @@ public class TslLoader implements Serializable {
 
   public static final File fileCacheDirectory = new File(System.getProperty("java.io.tmpdir") + "/digidoc4jTSLCache");
   private static final Logger logger = LoggerFactory.getLogger(TslLoader.class);
-  private static final String DEFAULT_KEYSTORE_TYPE = "JKS";
   private transient TSLCertificateSourceImpl tslCertificateSource;
   private transient TLValidationJob tlValidationJob;
   private final Configuration configuration;
@@ -119,7 +117,7 @@ public class TslLoader implements Serializable {
     lotlSource.setCertificateSource(this.tslCertificateSource);
     lotlSource.setPivotSupport(this.configuration.isTslPivotSupported());
 
-    lotlSource.setCertificateSource(getKeyStore());
+    lotlSource.setCertificateSource(getTrustStore());
     Set<String> trustedTerritories = new HashSet<>();
     CollectionUtils.addAll(trustedTerritories, this.configuration.getTrustedTerritories());
 
@@ -137,26 +135,25 @@ public class TslLoader implements Serializable {
   }
 
 
-  private KeyStoreCertificateSource getKeyStore() {
-    try (InputStream tslKeyStoreInputStream = openTslKeyStoreInputStream()) {
-      return new KeyStoreCertificateSource(tslKeyStoreInputStream, DEFAULT_KEYSTORE_TYPE,
-              this.configuration.getTslKeyStorePassword());
+  private KeyStoreCertificateSource getTrustStore() {
+    try (InputStream lotlTrustStoreInputStream = openLotlTrustStoreInputStream()) {
+      return new KeyStoreCertificateSource(lotlTrustStoreInputStream,
+              configuration.getLotlTruststoreType(),
+              configuration.getLotlTruststorePassword());
     } catch (IOException e) {
-      throw new TslKeyStoreNotFoundException("Unable to retrieve keystore", e);
+      throw new LotlTrustStoreNotFoundException("Unable to retrieve trust-store", e);
     }
   }
 
-  private InputStream openTslKeyStoreInputStream() throws IOException, TslKeyStoreNotFoundException {
-    String keystoreLocation = this.configuration.getTslKeyStoreLocation();
-    if (ResourceUtils.isFileReadable(keystoreLocation)) {
-      return new FileInputStream(keystoreLocation);
+  private InputStream openLotlTrustStoreInputStream() throws IOException, LotlTrustStoreNotFoundException {
+    String trustStorePath = this.configuration.getLotlTruststorePath();
+    try {
+      return ResourceUtils.getResource(trustStorePath);
+    } catch (Exception e) {
+      throw new LotlTrustStoreNotFoundException(
+              "Unable to retrieve LOTL trust-store from path: " + trustStorePath, e
+      );
     }
-    InputStream in = getClass().getClassLoader().getResourceAsStream(keystoreLocation);
-    if (in == null) {
-      throw new TslKeyStoreNotFoundException("Unable to retrieve TSL keystore", new RuntimeException(String.format
-              ("Keystore not found by location <%s>", keystoreLocation)));
-    }
-    return in;
   }
 
   /*

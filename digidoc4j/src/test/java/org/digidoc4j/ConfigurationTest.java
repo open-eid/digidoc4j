@@ -19,7 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
-import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
+import org.digidoc4j.exceptions.LotlTrustStoreNotFoundException;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
 import org.digidoc4j.impl.asic.tsl.TslLoader;
@@ -207,9 +207,9 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void lotlValidationFailsWithWrongCertsInKeystore() {
+  public void lotlValidationFailsWithWrongCertsInTruststore() {
     this.configuration = new Configuration(Configuration.Mode.PROD);
-    this.configuration.setTslKeyStoreLocation("keystore/test-keystore.jks");
+    this.configuration.setLotlTruststorePath("truststores/test-lotl-truststore.p12");
     try {
       this.configuration.getTSL();
     } catch (TslCertificateSourceInitializationException e) {
@@ -351,7 +351,7 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void getTslLocationFromConfigurationFile() throws Exception {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_tsl_location_only.yaml");
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_tsl_location_and_keystore.yaml");
     Assert.assertEquals("file:conf/test_TSLLocation", this.configuration.getLotlLocation());
     Assert.assertEquals("file:conf/test_TSLLocation", this.configuration.getTslLocation());
   }
@@ -809,39 +809,70 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getTslKeystoreLocationFromConfigurationFile() throws Exception {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    Assert.assertEquals("keystore", this.configuration.getTslKeyStoreLocation());
+  public void getLotlTruststorePathFromConfigurationFile() throws Exception {
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    Assert.assertEquals("TEST_LOTL_TRUSTSTORE_PATH", this.configuration.getLotlTruststorePath());
+    Assert.assertEquals("TEST_LOTL_TRUSTSTORE_PATH", this.configuration.getTslKeyStoreLocation());
   }
 
-  @Test(expected = TslKeyStoreNotFoundException.class)
-  public void exceptionIsThrownWhenTslKeystoreIsNotFound() throws IOException {
+  @Test
+  public void getTslKeystoreLocationFromConfigurationFile() throws Exception {
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_tsl_location_and_keystore.yaml");
+    Assert.assertEquals("file:conf/test_TSLKeyStore_location", this.configuration.getLotlTruststorePath());
+    Assert.assertEquals("file:conf/test_TSLKeyStore_location", this.configuration.getTslKeyStoreLocation());
+  }
+
+  @Test(expected = LotlTrustStoreNotFoundException.class)
+  public void exceptionIsThrownWhenLotlTruststoreIsNotFound() throws IOException {
     this.configuration = Configuration.of(Configuration.Mode.PROD);
-    this.configuration.setTslKeyStoreLocation("not/existing/path");
+    this.configuration.setLotlTruststorePath("not/existing/path");
     this.configuration.getTSL().refresh();
   }
 
   @Test
-  public void testDefaultTslKeystoreLocation() throws Exception {
+  public void testDefaultLotlTruststorePath() throws Exception {
     this.configuration = Configuration.of(Configuration.Mode.PROD);
-    Assert.assertEquals("keystore/keystore.jks", this.configuration.getTslKeyStoreLocation());
+    Assert.assertEquals("classpath:truststores/lotl-truststore.p12", this.configuration.getLotlTruststorePath());
+    Assert.assertEquals("classpath:truststores/lotl-truststore.p12", this.configuration.getTslKeyStoreLocation());
   }
 
   @Test
-  public void testDefaultTestTslKeystoreLocation() throws Exception {
-    Assert.assertEquals("keystore/test-keystore.jks", this.configuration.getTslKeyStoreLocation());
+  public void testDefaultTestLotlTruststorePath() throws Exception {
+    Assert.assertEquals("classpath:truststores/test-lotl-truststore.p12", this.configuration.getLotlTruststorePath());
+    Assert.assertEquals("classpath:truststores/test-lotl-truststore.p12", this.configuration.getTslKeyStoreLocation());
   }
 
   @Test
-  public void testDefaultTslKeystorePassword() throws Exception {
+  public void getLotlTruststoreTypeFromConfigurationFile() throws Exception {
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    Assert.assertEquals("TEST_LOTL_TRUSTSTORE_TYPE", this.configuration.getLotlTruststoreType());
+  }
+
+  @Test
+  public void testDefaultLotlTruststoreType() throws Exception {
     this.configuration = Configuration.of(Configuration.Mode.PROD);
+    Assert.assertEquals("PKCS12", this.configuration.getLotlTruststoreType());
+  }
+
+  @Test
+  public void testDefaultLotlTruststorePassword() throws Exception {
+    this.configuration = Configuration.of(Configuration.Mode.PROD);
+    Assert.assertEquals("digidoc4j-password", this.configuration.getLotlTruststorePassword());
     Assert.assertEquals("digidoc4j-password", this.configuration.getTslKeyStorePassword());
   }
 
   @Test
+  public void getLotlTruststorePasswordFromConfigurationFile() throws Exception {
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    Assert.assertEquals("TEST_LOTL_TRUSTSTORE_PASSWORD", this.configuration.getLotlTruststorePassword());
+    Assert.assertEquals("TEST_LOTL_TRUSTSTORE_PASSWORD", this.configuration.getTslKeyStorePassword());
+  }
+
+  @Test
   public void getTslKeystorePasswordFromConfigurationFile() throws Exception {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    Assert.assertEquals("password", this.configuration.getTslKeyStorePassword());
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_tsl_location_and_keystore.yaml");
+    Assert.assertEquals("test_TSLKeyStore_password", this.configuration.getLotlTruststorePassword());
+    Assert.assertEquals("test_TSLKeyStore_password", this.configuration.getTslKeyStorePassword());
   }
 
   @Test

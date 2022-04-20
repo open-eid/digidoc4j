@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.utils;
 
 import org.junit.Assert;
@@ -46,33 +56,51 @@ public class ResourceUtilsTest {
     Assert.assertNotNull(inputStream);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void getResourceWithInvalidClasspathPrefixPath() {
-    ResourceUtils.getResource("classpath:test.xml");
+  @Test
+  public void getClasspathResourceWithoutPrefix() {
+    InputStream inputStream = ResourceUtils.getResource("testFiles/keystores/truststore.jks");
+    Assert.assertNotNull(inputStream);
+  }
+
+  @Test
+  public void getNonExistingResourceWithClasspathPrefixPath() {
+    IllegalArgumentException caughtException = Assert.assertThrows(
+            IllegalArgumentException.class,
+            () -> ResourceUtils.getResource("classpath:test.xml")
+    );
+    Assert.assertEquals("Classpath resource not found: test.xml", caughtException.getMessage());
   }
 
   @Test
   public void getResourceWithFilePrefix() {
     Path path = Paths.get("target/test-classes/testFiles/keystores/truststore.jks");
-    InputStream inputStream = ResourceUtils.getResource("file:" + path.toAbsolutePath().toString());
+    InputStream inputStream = ResourceUtils.getResource("file:" + path.toAbsolutePath());
     Assert.assertNotNull(inputStream);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void getResourceWithInvalidFilePrefix() {
-    ResourceUtils.getResource("file:test.xml");
-  }
-
   @Test
-  public void getResourceWithoutPrefix() {
+  public void getFileResourceWithoutPrefix() {
     Path path = Paths.get("target/test-classes/testFiles/keystores/truststore.jks");
     InputStream inputStream = ResourceUtils.getResource(path.toAbsolutePath().toString());
     Assert.assertNotNull(inputStream);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void getResourceWithInvalidPath() {
-    ResourceUtils.getResource("test.xml");
+  @Test
+  public void getNonExistingResourceWithFilePrefix() {
+    IllegalArgumentException caughtException = Assert.assertThrows(
+            IllegalArgumentException.class,
+            () -> ResourceUtils.getResource("file:test.xml")
+    );
+    Assert.assertEquals("File resource not found: test.xml", caughtException.getMessage());
+  }
+
+  @Test
+  public void getNonExistingResource() {
+    IllegalArgumentException caughtException = Assert.assertThrows(
+            IllegalArgumentException.class,
+            () -> ResourceUtils.getResource("test.xml")
+    );
+    Assert.assertEquals("Resource not found: test.xml", caughtException.getMessage());
   }
 
 }

@@ -56,7 +56,7 @@ public final class Constant {
 
     public static final String TSP_SOURCE = "http://demo.sk.ee/tsa";
     public static final String LOTL_LOCATION = "https://open-eid.github.io/test-TL/tl-mp-test-EE.xml";
-    public static final String TSL_KEYSTORE_LOCATION = "keystore/test-keystore.jks";
+    public static final String LOTL_TRUSTSTORE_PATH = "classpath:truststores/test-lotl-truststore.p12";
     public static final String VALIDATION_POLICY = "conf/test_constraint.xml";
     public static final String OCSP_SOURCE = "http://demo.sk.ee/ocsp";
     public static final String[] DEFAULT_OCSP_RESPONDERS = {"TEST of SK OCSP RESPONDER 2020", "TEST of EID-SK 2016 OCSP RESPONDER 2018", "TEST of SK OCSP RESPONDER 2011",
@@ -71,7 +71,7 @@ public final class Constant {
 
     public static final String TSP_SOURCE = "http://tsa.sk.ee";
     public static final String LOTL_LOCATION = "https://ec.europa.eu/tools/lotl/eu-lotl.xml";
-    public static final String TSL_KEYSTORE_LOCATION = "keystore/keystore.jks";
+    public static final String LOTL_TRUSTSTORE_PATH = "classpath:truststores/lotl-truststore.p12";
     public static final String VALIDATION_POLICY = "conf/constraint.xml";
     public static final String OCSP_SOURCE = "http://ocsp.sk.ee/";
     public static final List<String> DEFAULT_TRUESTED_TERRITORIES = Collections.unmodifiableList(
