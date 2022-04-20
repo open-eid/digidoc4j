@@ -13,7 +13,7 @@ public enum ConfigurationParameter {
   SignatureDigestAlgorithm,
   DataFileDigestAlgorithm,
   TspSource,
-  TslLocation,
+  LotlLocation("LOTL_LOCATION"),
   TslKeyStoreLocation,
   TslKeyStorePassword,
   TslCacheExpirationTimeInMillis,

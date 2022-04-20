@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j;
 
@@ -129,9 +129,10 @@ import static java.util.Arrays.asList;
  * <li>DIGIDOC_PKCS12_PASSWD: OCSP access certificate password</li>
  * <li>OCSP_SOURCE: Online Certificate Service Protocol source</li>
  * <li>SIGN_OCSP_REQUESTS: Should OCSP requests be signed? Allowed values: true, false</li>
- * <li>TSL_LOCATION: TSL Location</li>
+ * <li>TSL_LOCATION: TSL Location - <b>DEPRECATED:</b> use LOTL_LOCATION instead</li>
  * <li>TSP_SOURCE: Time Stamp Protocol source address</li>
  * <li>VALIDATION_POLICY: Validation policy source file</li>
+ * <li>LOTL_LOCATION: LOTL (List of Trusted Lists) location</li>
  * <li>TSL_KEYSTORE_LOCATION: keystore location for tsl signing certificates</li>
  * <li>TSL_KEYSTORE_PASSWORD: keystore password for the keystore in TSL_KEYSTORE_LOCATION</li>
  * <li>TSL_CACHE_EXPIRATION_TIME: TSL cache expiration time in milliseconds</li>
@@ -489,13 +490,32 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Get TSL location.
+   * Set LOTL (List of Trusted Lists) location.
+   * LOTL can be loaded from file (file://) or from web (http://). If file protocol is used then
+   * first try is to locate file from this location if file does not exist then it tries to load
+   * relatively from classpath.
+   * <p/>
+   * Setting new location clears old values
+   * <p/>
+   * Windows wants it in file:DRIVE:/directories/lotl-file.xml format
+   *
+   * @param lotlLocation LOTL location to be used
+   */
+  public void setLotlLocation(String lotlLocation) {
+    setConfigurationParameter(ConfigurationParameter.LotlLocation, lotlLocation);
+    tslManager.setTsl(null);
+  }
+
+  /**
+   * Get LOTL (List of Trusted Lists) location.
    *
    * @return url
    */
-  public String getTslLocation() {
-    String urlString = getConfigurationParameter(ConfigurationParameter.TslLocation);
-    if (!Protocol.isFileUrl(urlString)) return urlString;
+  public String getLotlLocation() {
+    String urlString = getConfigurationParameter(ConfigurationParameter.LotlLocation);
+    if (!Protocol.isFileUrl(urlString)) {
+      return urlString;
+    }
     try {
       String filePath = new URL(urlString).getPath();
       if (!new File(filePath).exists()) {
@@ -506,7 +526,19 @@ public class Configuration implements Serializable {
     } catch (MalformedURLException e) {
       LOGGER.warn(e.getMessage());
     }
-    return urlString == null ? "" : urlString;
+    return (urlString == null) ? "" : urlString;
+  }
+
+  /**
+   * Get TSL location.
+   *
+   * @return url
+   *
+   * @deprecated Use {@link #getLotlLocation()} instead.
+   */
+  @Deprecated
+  public String getTslLocation() {
+    return getLotlLocation();
   }
 
   /**
@@ -542,10 +574,12 @@ public class Configuration implements Serializable {
    * Windows wants it in file:DRIVE:/directories/tsl-file.xml format
    *
    * @param tslLocation TSL Location to be used
+   *
+   * @deprecated Use {@link #setLotlLocation(String)} instead.
    */
+  @Deprecated
   public void setTslLocation(String tslLocation) {
-    this.setConfigurationParameter(ConfigurationParameter.TslLocation, tslLocation);
-    this.tslManager.setTsl(null);
+    setLotlLocation(tslLocation);
   }
 
   /**
@@ -1904,7 +1938,7 @@ public class Configuration implements Serializable {
     this.setConfigurationParameter(ConfigurationParameter.MaxAllowedZipCompressionRatio, "100");
     if (Mode.TEST.equals(this.mode)) {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Test.TSP_SOURCE);
-      this.setConfigurationParameter(ConfigurationParameter.TslLocation, Constant.Test.TSL_LOCATION);
+      this.setConfigurationParameter(ConfigurationParameter.LotlLocation, Constant.Test.LOTL_LOCATION);
       this.setConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation, Constant.Test.TSL_KEYSTORE_LOCATION);
       this.setConfigurationParameter(ConfigurationParameter.ValidationPolicy, Constant.Test.VALIDATION_POLICY);
       this.setConfigurationParameter(ConfigurationParameter.OcspSource, Constant.Test.OCSP_SOURCE);
@@ -1917,7 +1951,7 @@ public class Configuration implements Serializable {
       this.loadYamlAiaOCSPs(loadYamlFromResource("defaults/demo_aia_ocsp.yaml"), true);
     } else {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Production.TSP_SOURCE);
-      this.setConfigurationParameter(ConfigurationParameter.TslLocation, Constant.Production.TSL_LOCATION);
+      this.setConfigurationParameter(ConfigurationParameter.LotlLocation, Constant.Production.LOTL_LOCATION);
       this.setConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation,
           Constant.Production.TSL_KEYSTORE_LOCATION);
       this.setConfigurationParameter(ConfigurationParameter.ValidationPolicy, Constant.Production.VALIDATION_POLICY);
@@ -1951,7 +1985,8 @@ public class Configuration implements Serializable {
     this.setDDoc4JDocConfigurationValue("DIGIDOC_OCSP_RESPONDER_URL", this.getOcspSource());
     this.setDDoc4JDocConfigurationValue("DIGIDOC_FACTORY_IMPL", Constant.DDoc4J.FACTORY_IMPLEMENTATION);
     this.setDDoc4JDocConfigurationValue("DIGIDOC_DF_CACHE_DIR", null);
-    this.setConfigurationParameterFromFile("TSL_LOCATION", ConfigurationParameter.TslLocation);
+    this.setConfigurationParameterFromFile("TSL_LOCATION", ConfigurationParameter.LotlLocation);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.LotlLocation);
     this.setConfigurationParameterFromFile("TSP_SOURCE", ConfigurationParameter.TspSource);
     this.setConfigurationParameterFromFile("VALIDATION_POLICY", ConfigurationParameter.ValidationPolicy);
     this.setConfigurationParameterFromFile("OCSP_SOURCE", ConfigurationParameter.OcspSource);

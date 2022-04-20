@@ -1,7 +1,7 @@
 DATAFILE_HASHCODE_MODE: false
 DIGIDOC_MAX_DATAFILE_CACHED: 8192
 DIGIDOC_SECURITY_PROVIDER: org.bouncycastle.jce.provider.BouncyCastleProvider1
-TSL_LOCATION: file:conf/test_TSLLocation
+LOTL_LOCATION: file:conf/test_LOTLLocation
 TSP_SOURCE: http://tsp.source.test/HttpTspServer
 VALIDATION_POLICY: conf/test_validation_policy.xml
 OCSP_SOURCE: http://www.openxades.org/cgi-bin/test_ocsp_source.cgi

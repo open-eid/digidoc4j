@@ -1,18 +1,38 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j;
 
-import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.junit.Assert.assertFalse;
+import eu.europa.esig.dss.enumerations.KeyUsageBit;
+import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.spi.tsl.ConditionForQualifiers;
+import eu.europa.esig.dss.spi.tsl.TrustProperties;
+import eu.europa.esig.dss.spi.tsl.TrustServiceStatusAndInformationExtensions;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.exceptions.ConfigurationException;
+import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
+import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
+import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
+import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
+import org.digidoc4j.impl.asic.tsl.TslLoader;
+import org.digidoc4j.test.util.TestCommonUtil;
+import org.digidoc4j.test.util.TestFileUtil;
+import org.digidoc4j.test.util.TestTSLUtil;
+import org.digidoc4j.utils.Helper;
+import org.hamcrest.Matchers;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -31,36 +51,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import eu.europa.esig.dss.spi.tsl.ConditionForQualifiers;
-import eu.europa.esig.dss.spi.tsl.TrustProperties;
-import eu.europa.esig.dss.spi.tsl.TrustServiceStatusAndInformationExtensions;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.digidoc4j.exceptions.ConfigurationException;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
-import org.digidoc4j.exceptions.TslKeyStoreNotFoundException;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
-import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
-import org.digidoc4j.impl.asic.tsl.TslLoader;
-import org.digidoc4j.test.util.TestCommonUtil;
-import org.digidoc4j.test.util.TestFileUtil;
-import org.digidoc4j.test.util.TestTSLUtil;
-import org.digidoc4j.utils.Helper;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import eu.europa.esig.dss.spi.tsl.Condition;
-import eu.europa.esig.dss.enumerations.KeyUsageBit;
-import eu.europa.esig.dss.model.x509.CertificateToken;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.junit.Assert.assertFalse;
 
 public class ConfigurationTest extends AbstractTest {
 
@@ -70,9 +65,22 @@ public class ConfigurationTest extends AbstractTest {
   private static final String OCSP_PKCS_12_PASSWD = "DIGIDOC_PKCS12_PASSWD";
 
   @Test
-  public void getTSLLocationWhenNotFileURL() {
-    String tslLocation = "URL:test";
+  public void getLotlLocationWhenNotFileURL() {
+    String lotlLocation = "URL:test";
+    this.configuration.setLotlLocation(lotlLocation);
+    Assert.assertEquals(lotlLocation, this.configuration.getLotlLocation());
+    Assert.assertEquals(lotlLocation, this.configuration.getTslLocation());
+  }
+
+  @Test
+  public void lotlLocationAndTslLocationReferToTheSameValue() {
+    String lotlLocation = "URL:test";
+    this.configuration.setLotlLocation(lotlLocation);
+    Assert.assertEquals(lotlLocation, this.configuration.getLotlLocation());
+    Assert.assertEquals(lotlLocation, this.configuration.getTslLocation());
+    String tslLocation = "URL:test2";
     this.configuration.setTslLocation(tslLocation);
+    Assert.assertEquals(tslLocation, this.configuration.getLotlLocation());
     Assert.assertEquals(tslLocation, this.configuration.getTslLocation());
   }
 
@@ -170,7 +178,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getTsl_whenCacheIsNotExpired_shouldUseCachedTsl() throws Exception {
+  public void getTsl_whenCacheIsNotExpired_shouldUseCachedTsl() {
     TestTSLUtil.evictCache();
     this.configuration.setTslCacheExpirationTime(10000L);
     TSLCertificateSource tsl1 = this.configuration.getTSL();
@@ -184,7 +192,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getTsl_whenCacheIsExpired_shouldDownloadNewTsl() throws Exception {
+  public void getTsl_whenCacheIsExpired_shouldDownloadNewTsl() {
     TestTSLUtil.evictCache();
     configuration.setTslCacheExpirationTime(500L);
     TSLCertificateSource tsl = configuration.getTSL();
@@ -251,32 +259,32 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void TSLIsLoadedAfterSettingNewTSLLocation() {
-    this.configuration.setTslLocation("https://open-eid.github.io/test-TL/tl-mp-test-EE.xml");
-    BDocContainer container = (BDocContainer) ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE)
+  public void TSLIsLoadedAfterSettingNewLOTLLocation() {
+    this.configuration.setLotlLocation("https://open-eid.github.io/test-TL/tl-mp-test-EE.xml");
+    BDocContainer container = (BDocContainer) ContainerBuilder.aContainer(Container.DocumentType.BDOC)
         .withConfiguration(this.configuration).build();
     container.getConfiguration().getTSL();
     Assert.assertEquals(15, container.getConfiguration().getTSL().getCertificates().size());
     try {
       int tenSeconds = 10000;
-      String tslHost = "10.0.25.57";
-      if (InetAddress.getByName(tslHost).isReachable(tenSeconds)) {
-        this.configuration.setTslLocation("http://" + tslHost + "/tsl/trusted-test-mp.xml");
-        container = (BDocContainer) ContainerBuilder.aContainer(BDOC_CONTAINER_TYPE).
+      String lotlHost = "10.0.25.57";
+      if (InetAddress.getByName(lotlHost).isReachable(tenSeconds)) {
+        this.configuration.setLotlLocation("http://" + lotlHost + "/tsl/trusted-test-mp.xml");
+        container = (BDocContainer) ContainerBuilder.aContainer(Container.DocumentType.BDOC).
             withConfiguration(this.configuration).build();
         Assert.assertNotEquals(5, container.getConfiguration().getTSL().getCertificates().size());
       } else {
-        this.log.error("Host <{}> is unreachable", tslHost);
+        this.log.error("Host <{}> is unreachable", lotlHost);
       }
     } catch (Exception e) {
     }
   }
 
   @Test
-  public void TSLFileNotFoundThrowsNoException() {
-    this.configuration.setTslLocation("file:test-tsl/NotExisting.xml");
+  public void LOTLFileNotFoundThrowsNoException() {
+    this.configuration.setLotlLocation("file:test-lotl/NotExisting.xml");
     BDocContainer container = (BDocContainer) ContainerBuilder.
-        aContainer(BDOC_CONTAINER_TYPE).
+        aContainer(Container.DocumentType.BDOC).
         withConfiguration(this.configuration).
         build();
     container.getConfiguration().getTSL().refresh();
@@ -284,10 +292,10 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void TSLConnectionFailureThrowsNoException() {
-    this.configuration.setTslLocation("http://127.0.0.1/tsl/incorrect.xml");
+  public void LOTLConnectionFailureThrowsNoException() {
+    this.configuration.setLotlLocation("http://127.0.0.1/lotl/incorrect.xml");
     BDocContainer container = (BDocContainer) ContainerBuilder.
-        aContainer(BDOC_CONTAINER_TYPE).
+        aContainer(Container.DocumentType.BDOC).
         withConfiguration(this.configuration).
         build();
     container.getConfiguration().getTSL().refresh();
@@ -297,7 +305,7 @@ public class ConfigurationTest extends AbstractTest {
   @Test
   public void testLoadConfiguration() throws Exception {
     BDocContainer container = (BDocContainer) ContainerBuilder.
-        aContainer(BDOC_CONTAINER_TYPE).
+        aContainer(Container.DocumentType.BDOC).
         withConfiguration(this.configuration).
         build();
     Assert.assertFalse(container.getConfiguration().isBigFilesSupportEnabled());
@@ -307,36 +315,53 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void whenTSLLocationIsMalformedURLNoErrorIsRaisedAndThisSameValueIsReturned() throws Exception {
-    String tslLocation = "file://C:\\";
-    this.configuration.setTslLocation(tslLocation);
-    Assert.assertEquals(tslLocation, configuration.getTslLocation());
+  public void whenLOTLLocationIsMalformedURLNoErrorIsRaisedAndThisSameValueIsReturned() throws Exception {
+    String lotlLocation = "file://C:\\";
+    this.configuration.setLotlLocation(lotlLocation);
+    Assert.assertEquals(lotlLocation, configuration.getLotlLocation());
   }
 
   @Test
-  public void getTSLLocationFileDoesNotExistReturnsUrlPath() {
-    String tslLocation = ("file:conf/does-not-exist.xml");
-    this.configuration.setTslLocation(tslLocation);
-    Assert.assertEquals(this.configuration.getTslLocation(), tslLocation);
+  public void getLOTLLocationFileDoesNotExistReturnsUrlPath() {
+    String lotlLocation = ("file:conf/does-not-exist.xml");
+    this.configuration.setLotlLocation(lotlLocation);
+    Assert.assertEquals(this.configuration.getLotlLocation(), lotlLocation);
+  }
+
+  @Test
+  public void setLotlLocation() throws Exception {
+    this.configuration.setLotlLocation("lotlLocation");
+    Assert.assertEquals("lotlLocation", this.configuration.getLotlLocation());
+    Assert.assertEquals("lotlLocation", this.configuration.getTslLocation());
   }
 
   @Test
   public void setTslLocation() throws Exception {
     this.configuration.setTslLocation("tslLocation");
+    Assert.assertEquals("tslLocation", this.configuration.getLotlLocation());
     Assert.assertEquals("tslLocation", this.configuration.getTslLocation());
+  }
+
+  @Test
+  public void getLotlLocationFromConfigurationFile() throws Exception {
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    Assert.assertEquals("TEST_LOTL_LOCATION", this.configuration.getLotlLocation());
+    Assert.assertEquals("TEST_LOTL_LOCATION", this.configuration.getTslLocation());
   }
 
   @Test
   public void getTslLocationFromConfigurationFile() throws Exception {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_tsl_location_only.yaml");
+    Assert.assertEquals("file:conf/test_TSLLocation", this.configuration.getLotlLocation());
     Assert.assertEquals("file:conf/test_TSLLocation", this.configuration.getTslLocation());
   }
 
   @Test
-  public void setTslLocationOverwritesConfigurationFile() throws Exception {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    this.configuration.setTslLocation("tslLocation");
-    Assert.assertEquals("tslLocation", this.configuration.getTslLocation());
+  public void setLotlLocationOverwritesConfigurationFile() throws Exception {
+    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    this.configuration.setLotlLocation("lotlLocation");
+    Assert.assertEquals("lotlLocation", this.configuration.getLotlLocation());
+    Assert.assertEquals("lotlLocation", this.configuration.getTslLocation());
   }
 
   @Test
@@ -359,9 +384,9 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void setUseOcspNonce() throws Exception {
-    Assert.assertEquals(true, this.configuration.isOcspNonceUsed());
+    Assert.assertTrue(this.configuration.isOcspNonceUsed());
     this.configuration.setUseOcspNonce(false);
-    Assert.assertEquals(false, this.configuration.isOcspNonceUsed());
+    Assert.assertFalse(this.configuration.isOcspNonceUsed());
   }
 
   @Test
@@ -415,14 +440,14 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void signingOcspRequest_ShouldBeDisabled_InProdByDefault() throws Exception {
+  public void signingOcspRequest_ShouldBeDisabled_InProdByDefault() {
     this.configuration = Configuration.of(Configuration.Mode.PROD);
     Assert.assertFalse(this.configuration.hasToBeOCSPRequestSigned());
     Assert.assertEquals("false", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
-  public void signingOcspRequest_ShouldBeDisabled_InTestByDefault() throws Exception {
+  public void signingOcspRequest_ShouldBeDisabled_InTestByDefault() {
     Assert.assertFalse(this.configuration.hasToBeOCSPRequestSigned());
     Assert.assertEquals("false", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
@@ -473,13 +498,13 @@ public class ConfigurationTest extends AbstractTest {
   public void defaultProductionConfiguration() throws Exception {
     this.configuration = Configuration.of(Configuration.Mode.PROD);
     Assert.assertEquals("https://ec.europa.eu/tools/lotl/eu-lotl.xml",
-        this.configuration.getTslLocation());
+        this.configuration.getLotlLocation());
   }
 
   @Test
   public void defaultConstructorWithSetSystemProperty() throws Exception {
     this.configuration = new Configuration();
-    Assert.assertEquals("https://open-eid.github.io/test-TL/tl-mp-test-EE.xml", this.configuration.getTslLocation());
+    Assert.assertEquals("https://open-eid.github.io/test-TL/tl-mp-test-EE.xml", this.configuration.getLotlLocation());
   }
 
   @Test
@@ -528,7 +553,7 @@ public class ConfigurationTest extends AbstractTest {
     this.clearGlobalMode();
     this.configuration = new Configuration();
     Assert.assertEquals("https://ec.europa.eu/tools/lotl/eu-lotl.xml",
-        this.configuration.getTslLocation());
+        this.configuration.getLotlLocation());
   }
 
   @Test
@@ -567,7 +592,6 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertNull(ddoc4jConf.get("DIGIDOC_DF_CACHE_DIR"));
   }
 
-  @SuppressWarnings("NumericOverflow")
   @Test
   public void loadsMaxDataFileCachedFromFile() throws Exception {
     Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
@@ -827,7 +851,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void defaultTslCacheExpirationTime_shouldBeOneDay() throws Exception {
+  public void defaultTslCacheExpirationTime_shouldBeOneDay() {
     long oneDayInMs = 1000 * 60 * 60 * 24;
     Assert.assertEquals(oneDayInMs, this.configuration.getTslCacheExpirationTime());
     Assert.assertEquals(oneDayInMs, Configuration.of(Configuration.Mode.PROD).getTslCacheExpirationTime());
@@ -840,7 +864,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void defaultProxyConfiguration_shouldNotBeSet() throws Exception {
+  public void defaultProxyConfiguration_shouldNotBeSet() {
     Assert.assertFalse(this.configuration.isNetworkProxyEnabled());
     Assert.assertNull(this.configuration.getHttpProxyHost());
     Assert.assertNull(this.configuration.getHttpProxyPort());
@@ -860,7 +884,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getProxyConfigurationFromConfigurationFile_allParametersSet() throws Exception {
+  public void getProxyConfigurationFromConfigurationFile_allParametersSet() {
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     Assert.assertTrue(this.configuration.isNetworkProxyEnabled());
     Assert.assertEquals("cache.noile.ee", this.configuration.getHttpProxyHost());
@@ -888,7 +912,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getProxyConfigurationFromConfigurationFile_GenericParametersSet() throws Exception {
+  public void getProxyConfigurationFromConfigurationFile_GenericParametersSet() {
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_generic_proxy_and_ssl_settings.yaml");
     Assert.assertTrue(this.configuration.isNetworkProxyEnabled());
     Assert.assertEquals("cache.noile.ee", this.configuration.getHttpProxyHost());
@@ -909,7 +933,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getProxyConfigurationFromConfigurationFile_specificParametersSet() throws Exception {
+  public void getProxyConfigurationFromConfigurationFile_specificParametersSet() {
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_specific_proxy_and_ssl_settings.yaml");
     Assert.assertFalse(this.configuration.isNetworkProxyEnabled());
     Assert.assertNull(this.configuration.getHttpProxyHost());
@@ -930,7 +954,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void defaultSslConfiguration_shouldNotBeSet() throws Exception {
+  public void defaultSslConfiguration_shouldNotBeSet() {
     Assert.assertFalse(this.configuration.isSslConfigurationEnabled());
     Assert.assertNull(this.configuration.getSslKeystorePath());
     Assert.assertNull(this.configuration.getSslKeystoreType());
@@ -956,7 +980,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getSslConfigurationFromConfigurationFile_allParametersSet() throws Exception {
+  public void getSslConfigurationFromConfigurationFile_allParametersSet() {
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     Assert.assertTrue(configuration.isSslConfigurationEnabled());
     Assert.assertEquals("sslKeystorePath", this.configuration.getSslKeystorePath());
@@ -978,16 +1002,16 @@ public class ConfigurationTest extends AbstractTest {
       Assert.assertEquals(connectionType + "-sslTruststorePassword", this.configuration.getSslTruststorePasswordFor(connectionType));
       Assert.assertEquals(connectionType + "-sslProtocol", this.configuration.getSslProtocolFor(connectionType));
       Assert.assertEquals(
-              Arrays.asList("sslProtocol1", "sslProtocol2", "sslProtocol3").stream().map(p -> connectionType + "-" + p).collect(Collectors.toList()),
+              Stream.of("sslProtocol1", "sslProtocol2", "sslProtocol3").map(p -> connectionType + "-" + p).collect(Collectors.toList()),
               this.configuration.getSupportedSslProtocolsFor(connectionType));
       Assert.assertEquals(
-              Arrays.asList("sslCipherSuite1", "sslCipherSuite2").stream().map(cs -> connectionType + "-" + cs).collect(Collectors.toList()),
+              Stream.of("sslCipherSuite1", "sslCipherSuite2").map(cs -> connectionType + "-" + cs).collect(Collectors.toList()),
               this.configuration.getSupportedSslCipherSuitesFor(connectionType));
     }
   }
 
   @Test
-  public void getSslConfigurationFromConfigurationFile_genericParametersSet() throws Exception {
+  public void getSslConfigurationFromConfigurationFile_genericParametersSet() {
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_generic_proxy_and_ssl_settings.yaml");
     Assert.assertTrue(configuration.isSslConfigurationEnabled());
     Assert.assertEquals("sslKeystorePath", this.configuration.getSslKeystorePath());
@@ -1014,7 +1038,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getSslConfigurationFromConfigurationFile_specificParametersSet() throws Exception {
+  public void getSslConfigurationFromConfigurationFile_specificParametersSet() {
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_specific_proxy_and_ssl_settings.yaml");
     Assert.assertFalse(this.configuration.isSslConfigurationEnabled());
     Assert.assertNull(this.configuration.getSslKeystorePath());
@@ -1036,10 +1060,10 @@ public class ConfigurationTest extends AbstractTest {
       Assert.assertEquals(connectionType + "-sslTruststorePassword", this.configuration.getSslTruststorePasswordFor(connectionType));
       Assert.assertEquals(connectionType + "-sslProtocol", this.configuration.getSslProtocolFor(connectionType));
       Assert.assertEquals(
-              Arrays.asList("sslProtocol1", "sslProtocol2", "sslProtocol3").stream().map(p -> connectionType + "-" + p).collect(Collectors.toList()),
+              Stream.of("sslProtocol1", "sslProtocol2", "sslProtocol3").map(p -> connectionType + "-" + p).collect(Collectors.toList()),
               this.configuration.getSupportedSslProtocolsFor(connectionType));
       Assert.assertEquals(
-              Arrays.asList("sslCipherSuite1", "sslCipherSuite2").stream().map(cs -> connectionType + "-" + cs).collect(Collectors.toList()),
+              Stream.of("sslCipherSuite1", "sslCipherSuite2").map(cs -> connectionType + "-" + cs).collect(Collectors.toList()),
               this.configuration.getSupportedSslCipherSuitesFor(connectionType));
     }
   }
@@ -1088,12 +1112,12 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void missingCA_shouldNotThrowException() throws Exception {
+  public void missingCA_shouldNotThrowException() {
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml");
   }
 
   @Test
-  public void missingCA_shouldThrowException_whenUsingDDoc() throws Exception {
+  public void missingCA_shouldThrowException_whenUsingDDoc() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "Empty or no DIGIDOC_CAS entry";
@@ -1127,7 +1151,7 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void verifyAllOptionalConfigurationSettingsAreLoadedFromFile() throws Exception {
-    this.configuration.setTslLocation("Set TSL location");
+    this.configuration.setLotlLocation("Set LOTL location");
     this.configuration.setTspSource("Set TSP source");
     this.configuration.setOCSPAccessCertificateFileName("Set OCSP access certificate file name");
     this.configuration.setOCSPAccessCertificatePassword("Set password".toCharArray());
@@ -1152,18 +1176,18 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertEquals("TEST_OCSP_SOURCE", this.configuration.getRegistry().get(ConfigurationParameter.OcspSource).get(0));
     Assert.assertEquals("TEST_TSP_SOURCE", this.configuration.getRegistry().get(ConfigurationParameter.TspSource).get(0));
     Assert.assertEquals("TEST_VALIDATION_POLICY", this.configuration.getRegistry().get(ConfigurationParameter.ValidationPolicy).get(0));
-    Assert.assertEquals("TEST_TSL_LOCATION", this.configuration.getRegistry().get(ConfigurationParameter.TslLocation).get(0));
+    Assert.assertEquals("TEST_LOTL_LOCATION", this.configuration.getRegistry().get(ConfigurationParameter.LotlLocation).get(0));
     Assert.assertEquals("true", this.configuration.getRegistry().get(ConfigurationParameter.preferAiaOcsp).get(0));
     Assert.assertEquals("73", this.configuration.getRegistry().get(ConfigurationParameter.ZipCompressionRatioCheckThreshold).get(0));
     Assert.assertEquals("37", this.configuration.getRegistry().get(ConfigurationParameter.MaxAllowedZipCompressionRatio).get(0));
 
-    this.configuration.setTslLocation("Set TSL location");
+    this.configuration.setLotlLocation("Set LOTL location");
     this.configuration.setTspSource("Set TSP source");
     this.configuration.setOCSPAccessCertificateFileName("Set OCSP access certificate file name");
     this.configuration.setOCSPAccessCertificatePassword("Set password".toCharArray());
     this.configuration.setOcspSource("Set OCSP source");
     this.configuration.setValidationPolicy("Set validation policy");
-    Assert.assertEquals("Set TSL location", this.configuration.getTslLocation());
+    Assert.assertEquals("Set LOTL location", this.configuration.getLotlLocation());
     Assert.assertEquals("Set TSP source", this.configuration.getTspSource());
     Assert.assertEquals("Set OCSP access certificate file name", this.configuration.getOCSPAccessCertificateFileName());
     Assert.assertEquals("Set password", this.configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificatePassword).get(0));
@@ -1212,7 +1236,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void revocationAndTimestampDelta_shouldBeOneDay() throws Exception {
+  public void revocationAndTimestampDelta_shouldBeOneDay() {
     int oneDayInMinutes = 24 * 60;
     Assert.assertEquals(oneDayInMinutes, this.configuration.getRevocationAndTimestampDeltaInMinutes());
   }
@@ -1255,12 +1279,12 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getTrustedTerritories_defaultTesting_shouldBeNull() throws Exception {
+  public void getTrustedTerritories_defaultTesting_shouldBeNull() {
     Assert.assertEquals(new ArrayList<>(), this.configuration.getTrustedTerritories());
   }
 
   @Test
-  public void getTrustedTerritories_defaultProd() throws Exception {
+  public void getTrustedTerritories_defaultProd() {
     this.configuration = Configuration.of(Configuration.Mode.PROD);
     List<String> trustedTerritories = this.configuration.getTrustedTerritories();
     Assert.assertNotNull(trustedTerritories);
@@ -1578,7 +1602,7 @@ public class ConfigurationTest extends AbstractTest {
     return !this.configuration.getRegistry().getSealValue().equals(otherConfiguration.getRegistry().generateSealValue());
   }
 
-  private File generateConfigurationByParameter(String parameter) throws IOException {
+  private File generateConfigurationByParameter(String parameter) {
     return this.createTemporaryFileBy(String.format("%s\n" +
         "DIGIDOC_CAS:\n" +
         "- DIGIDOC_CA:\n" +
@@ -1597,7 +1621,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   private static void loadConfigurationFromString(Configuration configuration, String... lines) throws Exception {
-    String concatenatedString = Arrays.stream(lines).collect(Collectors.joining("\n"));
+    String concatenatedString = String.join("\n", lines);
     try (InputStream in = new ByteArrayInputStream(concatenatedString.getBytes(StandardCharsets.UTF_8))) {
       configuration.loadConfiguration(in);
     }

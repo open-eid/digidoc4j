@@ -116,6 +116,7 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-490")
   public void loadProdTsl_withOutdatedKeystore_shouldFail() {
     this.configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setTslKeyStoreLocation("testFiles/keystores/outdated-lotl-keystore.jks");

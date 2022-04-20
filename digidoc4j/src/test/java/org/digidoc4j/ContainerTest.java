@@ -571,7 +571,7 @@ public class ContainerTest extends AbstractTest {
   public void testSetConfigurationForBDoc() {
     expectedException.expect(OCSPRequestFailedException.class);
     this.configuration = new Configuration(Configuration.Mode.TEST);
-    this.configuration.setTslLocation("pole");
+    this.configuration.setLotlLocation("pole");
     Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).withConfiguration(
         this.configuration).
         withDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain").build();

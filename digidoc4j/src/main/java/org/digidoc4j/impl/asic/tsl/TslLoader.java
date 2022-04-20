@@ -115,7 +115,7 @@ public class TslLoader implements Serializable {
 
   private LOTLSource createLOTLSource() {
     LOTLSource lotlSource = new LOTLSource();
-    lotlSource.setUrl(this.configuration.getTslLocation());
+    lotlSource.setUrl(this.configuration.getLotlLocation());
     lotlSource.setCertificateSource(this.tslCertificateSource);
     lotlSource.setPivotSupport(this.configuration.isTslPivotSupported());
 
