@@ -116,11 +116,10 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-490")
-  public void loadProdTsl_withOutdatedKeystore_shouldFail() {
+  public void loadProdTsl_withDefaultLotlTruststoreAndPivotSupportDisabled_shouldFail() {
+    // TODO: this test might be needed to be updated after the pivot chain is reset
     this.configuration = new Configuration(Configuration.Mode.PROD);
-    configuration.setLotlTruststorePath("testFiles/keystores/outdated-lotl-keystore.jks");
-    configuration.setLotlTruststoreType("JKS");
+    configuration.setLotlPivotSupportEnabled(false);
     LOTLInfo tslRepository = this.initTSLAndGetRepository();
     Assert.assertEquals(Indication.INDETERMINATE, tslRepository.getValidationCacheInfo().getIndication());
     Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, tslRepository.getValidationCacheInfo().getSubIndication());
@@ -128,14 +127,59 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void loadProdTsl_withOutdatedKeystoreAndPivotSupport_shouldSucceed() {
+  public void loadProdTsl_withDefaultLotlTruststoreAndPivotSupportEnabled_shouldSucceed() {
+    // TODO: this test might be needed to be updated after the pivot chain is reset
     this.configuration = new Configuration(Configuration.Mode.PROD);
-    configuration.setLotlTruststorePath("testFiles/keystores/outdated-lotl-keystore.jks");
-    configuration.setLotlTruststoreType("JKS");
-    configuration.setTslPivotSupport(true);
+    configuration.setLotlPivotSupportEnabled(true);
     LOTLInfo tslRepository = this.initTSLAndGetRepository();
     Assert.assertEquals(Indication.TOTAL_PASSED, tslRepository.getValidationCacheInfo().getIndication());
     Assert.assertTrue(configuration.getTSL().getNumberOfCertificates() > 0);
+  }
+
+  @Test
+  public void loadProdTsl_withPivot300LotlTruststoreAndPivotSupportDisabled_shouldSucceed() {
+    this.configuration = new Configuration(Configuration.Mode.PROD);
+    // TODO: this might be needed to be updated after the next pivot release
+    //  The used truststore contains the certificates specified in pivot LOTL with sequence number 300
+    configuration.setLotlTruststorePath("prodFiles/truststores/lotl-pivot300-truststore.p12");
+    configuration.setLotlPivotSupportEnabled(false);
+    LOTLInfo tslRepository = this.initTSLAndGetRepository();
+    Assert.assertEquals(Indication.TOTAL_PASSED, tslRepository.getValidationCacheInfo().getIndication());
+    Assert.assertTrue(configuration.getTSL().getNumberOfCertificates() > 0);
+  }
+
+  @Test
+  public void loadProdTsl_withPivot300LotlTruststoreAndPivotSupportEnabled_shouldSucceed() {
+    this.configuration = new Configuration(Configuration.Mode.PROD);
+    // TODO: this might be needed to be updated after the next pivot release
+    //  The used truststore contains the certificates specified in pivot LOTL with sequence number 300
+    configuration.setLotlTruststorePath("prodFiles/truststores/lotl-pivot300-truststore.p12");
+    configuration.setLotlPivotSupportEnabled(true);
+    LOTLInfo tslRepository = this.initTSLAndGetRepository();
+    Assert.assertEquals(Indication.TOTAL_PASSED, tslRepository.getValidationCacheInfo().getIndication());
+    Assert.assertTrue(configuration.getTSL().getNumberOfCertificates() > 0);
+  }
+
+  @Test
+  public void loadProdTsl_withNonLotlSignersTruststoreAndPivotSupportDisabled_shouldFail() {
+    this.configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setLotlTruststorePath("testFiles/truststores/lotl-ssl-only-truststore.p12");
+    configuration.setLotlPivotSupportEnabled(false);
+    LOTLInfo tslRepository = this.initTSLAndGetRepository();
+    Assert.assertEquals(Indication.INDETERMINATE, tslRepository.getValidationCacheInfo().getIndication());
+    Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, tslRepository.getValidationCacheInfo().getSubIndication());
+    Assert.assertEquals(0, configuration.getTSL().getNumberOfCertificates());
+  }
+
+  @Test
+  public void loadProdTsl_withNonLotlSignersTruststoreAndPivotSupportEnabled_shouldFail() {
+    this.configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setLotlTruststorePath("testFiles/truststores/lotl-ssl-only-truststore.p12");
+    configuration.setLotlPivotSupportEnabled(true);
+    LOTLInfo tslRepository = this.initTSLAndGetRepository();
+    Assert.assertEquals(Indication.INDETERMINATE, tslRepository.getValidationCacheInfo().getIndication());
+    Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, tslRepository.getValidationCacheInfo().getSubIndication());
+    Assert.assertEquals(0, configuration.getTSL().getNumberOfCertificates());
   }
 
   /*

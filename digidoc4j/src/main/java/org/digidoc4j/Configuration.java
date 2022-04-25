@@ -136,6 +136,8 @@ import static java.util.Arrays.asList;
  * <li>LOTL_TRUSTSTORE_PATH: path to the trust-store for LOTL signing certificates</li>
  * <li>LOTL_TRUSTSTORE_TYPE: type of trust-store for LOTL signing certificates (default is "PKCS12")</li>
  * <li>LOTL_TRUSTSTORE_PASSWORD: password for the truststore in LOTL_TRUSTSTORE_PATH</li>
+ * <li>LOTL_PIVOT_SUPPORT_ENABLED: whether to enable LOTL pivot support (default is "true" for PROD mode
+ * and "false" for TEST mode)</li>
  * <li>TSL_KEYSTORE_LOCATION: keystore location for tsl signing certificates - <b>DEPRECATED:</b>
  * use LOTL_TRUSTSTORE_PATH instead</li>
  * <li>TSL_KEYSTORE_PASSWORD: keystore password for the keystore in TSL_KEYSTORE_LOCATION - <b>DEPRECATED:</b>
@@ -936,21 +938,21 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Set if TSL pivot support enabled
+   * Set whether LOTL pivot support should be enabled
    *
-   * @param tslPivotSupport whether TSL pivot support enabled
+   * @param lotlPivotSupport whether LOTL pivot support should be enabled
    */
-  public void setTslPivotSupport(boolean tslPivotSupport) {
-    this.setConfigurationParameter(ConfigurationParameter.TslPivotSupport, String.valueOf(tslPivotSupport));
+  public void setLotlPivotSupportEnabled(boolean lotlPivotSupport) {
+    this.setConfigurationParameter(ConfigurationParameter.LotlPivotSupportEnabled, String.valueOf(lotlPivotSupport));
   }
 
   /**
-   * Get if TSL pivot support enabled
+   * Get whether LOTL pivot support is enabled
    *
-   * @return whether TSL pivot support enabled
+   * @return whether LOTL pivot support is enabled
    */
-  public boolean isTslPivotSupported() {
-    return Boolean.parseBoolean(getConfigurationParameter(ConfigurationParameter.TslPivotSupport));
+  public boolean isLotlPivotSupportEnabled() {
+    return Boolean.parseBoolean(getConfigurationParameter(ConfigurationParameter.LotlPivotSupportEnabled));
   }
 
   /**
@@ -2013,6 +2015,7 @@ public class Configuration implements Serializable {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Test.TSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.LotlLocation, Constant.Test.LOTL_LOCATION);
       this.setConfigurationParameter(ConfigurationParameter.LotlTruststorePath, Constant.Test.LOTL_TRUSTSTORE_PATH);
+      this.setConfigurationParameter(ConfigurationParameter.LotlPivotSupportEnabled, "false");
       this.setConfigurationParameter(ConfigurationParameter.ValidationPolicy, Constant.Test.VALIDATION_POLICY);
       this.setConfigurationParameter(ConfigurationParameter.OcspSource, Constant.Test.OCSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, "false");
@@ -2026,6 +2029,7 @@ public class Configuration implements Serializable {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Production.TSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.LotlLocation, Constant.Production.LOTL_LOCATION);
       this.setConfigurationParameter(ConfigurationParameter.LotlTruststorePath, Constant.Production.LOTL_TRUSTSTORE_PATH);
+      this.setConfigurationParameter(ConfigurationParameter.LotlPivotSupportEnabled, "true");
       this.setConfigurationParameter(ConfigurationParameter.ValidationPolicy, Constant.Production.VALIDATION_POLICY);
       this.setConfigurationParameter(ConfigurationParameter.OcspSource, Constant.Production.OCSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, "false");
@@ -2075,6 +2079,7 @@ public class Configuration implements Serializable {
     this.setConfigurationParameterFromFile(ConfigurationParameter.LotlTruststorePath);
     this.setConfigurationParameterFromFile("TSL_KEYSTORE_PASSWORD", ConfigurationParameter.LotlTruststorePassword);
     this.setConfigurationParameterFromFile(ConfigurationParameter.LotlTruststorePassword);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.LotlPivotSupportEnabled);
     this.setConfigurationParameterFromFile("TSL_CACHE_EXPIRATION_TIME",
         ConfigurationParameter.TslCacheExpirationTimeInMillis);
     this.setConfigurationParameterFromFile("REVOCATION_AND_TIMESTAMP_DELTA_IN_MINUTES",

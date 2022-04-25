@@ -876,6 +876,28 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
+  public void testDefaultLotlPivotSupportEnabled() throws Exception {
+    this.configuration = Configuration.of(Configuration.Mode.PROD);
+    Assert.assertTrue(this.configuration.isLotlPivotSupportEnabled());
+  }
+
+  @Test
+  public void testDefaultTestLotlPivotSupportDisabled() throws Exception {
+    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    Assert.assertFalse(this.configuration.isLotlPivotSupportEnabled());
+  }
+
+  @Test
+  public void getLotlPivotSupportFromConfigurationFile() throws Exception {
+    this.configuration.setLotlPivotSupportEnabled(true);
+    Assert.assertTrue(this.configuration.isLotlPivotSupportEnabled());
+    loadConfigurationFromString(this.configuration, "LOTL_PIVOT_SUPPORT_ENABLED: false");
+    Assert.assertFalse(this.configuration.isLotlPivotSupportEnabled());
+    loadConfigurationFromString(this.configuration, "LOTL_PIVOT_SUPPORT_ENABLED: true");
+    Assert.assertTrue(this.configuration.isLotlPivotSupportEnabled());
+  }
+
+  @Test
   public void setTslCacheExpirationTime() throws Exception {
     this.configuration.setTslCacheExpirationTime(1337);
     Assert.assertEquals(1337, this.configuration.getTslCacheExpirationTime());

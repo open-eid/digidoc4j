@@ -28,13 +28,13 @@ import eu.europa.esig.dss.model.x509.CertificateToken;
  */
 public final class KeystoreGenerator {
 
-  private static final String DEFAULT_KEYSTORE_CERTIFICATES_FILEPATH = "keystore/keystore_certs";
-  private static final String DEFAULT_KEYSTORE_FILEPATH = "keystore/keystore.jks";
-  private static final String DEFAULT_KEYSTORE_PASSWORD = "digidoc4j-password";
-  private static final String DEFAULT_KEYSTORE_TYPE = "JKS";
+  private static final String DEFAULT_TRUSTSTORE_CERTIFICATES_FILEPATH = "truststores/truststore_certs";
+  private static final String DEFAULT_TRUSTSTORE_FILEPATH = "truststores/lotl-truststore.p12";
+  private static final String DEFAULT_TRUSTSTORE_PASSWORD = "digidoc4j-password";
+  private static final String DEFAULT_TRUSTSTORE_TYPE = "PKCS12";
 
-  private static final String TEST_KEYSTORE_CERTIFICATES_FILEPATH = "keystore/test_keystore_certs/";
-  private static final String TEST_KEYSTORE_FILEPATH = "keystore/test-keystore.jks";
+  private static final String TEST_TRUSTSTORE_CERTIFICATES_FILEPATH = "truststores/test_truststore_certs/";
+  private static final String TEST_TRUSTSTORE_FILEPATH = "truststores/test-lotl-truststore.p12";
 
   private String keyStoreCertificateFilepath;
   private String keyStoreFilepath;
@@ -46,8 +46,8 @@ public final class KeystoreGenerator {
   public static void main(String[] args) {
     try {
       KeystoreGenerator.aGenerator()
-          .withCertificateDirectory(TEST_KEYSTORE_CERTIFICATES_FILEPATH)
-          .withKeyStoreFilepath(TEST_KEYSTORE_FILEPATH)
+          .withCertificateDirectory(TEST_TRUSTSTORE_CERTIFICATES_FILEPATH)
+          .withKeyStoreFilepath(TEST_TRUSTSTORE_FILEPATH)
           .generateKeystore();
     } catch (CertificateException | NoSuchAlgorithmException | IOException | KeyStoreException e) {
       e.printStackTrace();
@@ -83,9 +83,9 @@ public final class KeystoreGenerator {
    * @throws IOException
    */
   public void generateKeystore() throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
-    keyStoreFilepath = keyStoreFilepath == null ? DEFAULT_KEYSTORE_FILEPATH : keyStoreFilepath;
-    keyStoreCertificateFilepath = keyStoreCertificateFilepath == null ? DEFAULT_KEYSTORE_CERTIFICATES_FILEPATH : keyStoreCertificateFilepath;
-    keyStorePassword = keyStorePassword == null ? DEFAULT_KEYSTORE_PASSWORD : keyStorePassword;
+    keyStoreFilepath = keyStoreFilepath == null ? DEFAULT_TRUSTSTORE_FILEPATH : keyStoreFilepath;
+    keyStoreCertificateFilepath = keyStoreCertificateFilepath == null ? DEFAULT_TRUSTSTORE_CERTIFICATES_FILEPATH : keyStoreCertificateFilepath;
+    keyStorePassword = keyStorePassword == null ? DEFAULT_TRUSTSTORE_PASSWORD : keyStorePassword;
     generateKeystore(keyStoreCertificateFilepath, keyStoreFilepath, keyStorePassword);
   }
 
@@ -103,7 +103,7 @@ public final class KeystoreGenerator {
   private void generateKeystore(String keyStoreCertsFilepath, String keyStoreFilepath, String keyStorePassword)
       throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
     createKeystore(keyStoreFilepath, keyStorePassword);
-    KeyStore store = KeyStore.getInstance(DEFAULT_KEYSTORE_TYPE);
+    KeyStore store = KeyStore.getInstance(DEFAULT_TRUSTSTORE_TYPE);
     loadIntoKeystoreFormFile(store, keyStoreFilepath, keyStorePassword);
 
     File dir = new File(keyStoreCertsFilepath);
@@ -145,7 +145,7 @@ public final class KeystoreGenerator {
   }
 
   private void readKeyStore(String keyStoreFilepath, String keyStorePassword) throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
-    KeyStore store = KeyStore.getInstance(DEFAULT_KEYSTORE_TYPE);
+    KeyStore store = KeyStore.getInstance(DEFAULT_TRUSTSTORE_TYPE);
     loadIntoKeystoreFormFile(store, keyStoreFilepath, keyStorePassword);
 
     Enumeration<String> aliases = store.aliases();
@@ -160,7 +160,7 @@ public final class KeystoreGenerator {
   }
 
   private void createKeystore(String keyStoreFilepath, String keyStorePassword) throws CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException {
-    KeyStore trustStore = KeyStore.getInstance(DEFAULT_KEYSTORE_TYPE);
+    KeyStore trustStore = KeyStore.getInstance(DEFAULT_TRUSTSTORE_TYPE);
     trustStore.load(null, keyStorePassword.toCharArray());
     Path pathToKeystore = Paths.get(keyStoreFilepath);
     pathToKeystore.getParent().toFile().mkdirs();
