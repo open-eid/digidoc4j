@@ -10,6 +10,27 @@
 
 package org.digidoc4j;
 
+import eu.europa.esig.dss.enumerations.Indication;
+import eu.europa.esig.dss.enumerations.SignatureQualification;
+import eu.europa.esig.dss.enumerations.SubIndication;
+import eu.europa.esig.dss.simplereport.SimpleReport;
+import org.apache.commons.codec.binary.Base64;
+import org.custommonkey.xmlunit.XMLAssert;
+import org.digidoc4j.exceptions.CertificateNotFoundException;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.impl.Certificates;
+import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
+import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
+import org.digidoc4j.impl.ddoc.DDocOpener;
+import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.test.util.TestDataBuilderUtil;
+import org.digidoc4j.test.util.TestTSLUtil;
+import org.digidoc4j.utils.DateUtils;
+import org.digidoc4j.utils.Helper;
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Paths;
@@ -19,37 +40,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import org.apache.commons.codec.binary.Base64;
-import org.custommonkey.xmlunit.XMLAssert;
-import org.digidoc4j.exceptions.CertificateNotFoundException;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
-import org.digidoc4j.impl.Certificates;
-import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
-import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
-import org.digidoc4j.impl.asic.tsl.TslManager;
-import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
-import org.digidoc4j.impl.ddoc.DDocOpener;
-import org.digidoc4j.test.TestAssert;
-import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.digidoc4j.test.util.TestTSLUtil;
-import org.digidoc4j.utils.DateUtils;
-import org.digidoc4j.utils.Helper;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.model.FileDocument;
-import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
-import eu.europa.esig.dss.enumerations.SignatureQualification;
-import eu.europa.esig.dss.validation.SignedDocumentValidator;
-import eu.europa.esig.dss.enumerations.Indication;
-import eu.europa.esig.dss.enumerations.SubIndication;
-import eu.europa.esig.dss.validation.reports.Reports;
-import eu.europa.esig.dss.simplereport.SimpleReport;
-import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 
 public class SignatureTest extends AbstractTest {
 
@@ -244,9 +234,9 @@ public class SignatureTest extends AbstractTest {
     Signature signature = container.getSignatures().get(0);
     Assert.assertEquals(0, signature.validateSignature().getErrors().size());
     signature = container.getSignatures().get(1);
-    Assert.assertEquals(2, signature.validateSignature().getErrors().size());
+    Assert.assertEquals(4, signature.validateSignature().getErrors().size());
     SignatureValidationResult validate = container.validate();
-    Assert.assertEquals(2, validate.getErrors().size());
+    Assert.assertEquals(4, validate.getErrors().size());
     String report = validate.getReport();
     Assert.assertTrue(report.contains("SignatureFormat=\"XAdES-BASELINE-LT\" Id=\"S0\""));
     Assert.assertTrue(report.contains("SignatureFormat=\"XAdES-BASELINE-LT\" Id=\"S1\""));

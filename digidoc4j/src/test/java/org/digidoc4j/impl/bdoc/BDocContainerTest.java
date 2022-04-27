@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.bdoc;
 
@@ -1075,16 +1075,20 @@ public class BDocContainerTest extends AbstractTest {
 
     Assert.assertSame(4, validationResult.getWarnings().size());
 
-    Assert.assertSame(7, validationResult.getErrors().size());
+    Assert.assertSame(11, validationResult.getErrors().size());
     List<DigiDoc4JException> errors = validationResult.getErrors();
     Assert.assertEquals(errors.get(0).getMessage(), "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.1.1");
     Assert.assertEquals(errors.get(1).getMessage(), "The signature policy is not available!");
-    Assert.assertEquals(errors.get(2).getMessage(), "OCSP nonce is invalid");
-    Assert.assertEquals(errors.get(3).getMessage(), "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.1.1");
-    Assert.assertEquals(errors.get(4).getMessage(), "The signature policy is not available!");
-    Assert.assertEquals(errors.get(5).getMessage(), "OCSP nonce is invalid");
+    Assert.assertEquals(errors.get(2).getMessage(), "The certificate validation is not conclusive!");
+    Assert.assertEquals(errors.get(3).getMessage(), "The current time is not in the validity range of the signer's certificate!");
+    Assert.assertEquals(errors.get(4).getMessage(), "OCSP nonce is invalid");
+    Assert.assertEquals(errors.get(5).getMessage(), "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.1.1");
+    Assert.assertEquals(errors.get(6).getMessage(), "The signature policy is not available!");
+    Assert.assertEquals(errors.get(7).getMessage(), "The certificate validation is not conclusive!");
+    Assert.assertEquals(errors.get(8).getMessage(), "The current time is not in the validity range of the signer's certificate!");
+    Assert.assertEquals(errors.get(9).getMessage(), "OCSP nonce is invalid");
 
-    DigiDoc4JException duplicateSigFileEx = errors.get(6);
+    DigiDoc4JException duplicateSigFileEx = errors.get(10);
     Assert.assertTrue(duplicateSigFileEx instanceof DuplicateSignatureFilesException);
     Assert.assertEquals(duplicateSigFileEx.getMessage(), "Duplicate signature files: META-INF/signatures1.xml");
   }

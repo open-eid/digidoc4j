@@ -165,7 +165,7 @@ public class ValidationTest extends AbstractTest {
         .open("src/test/resources/prodFiles/invalid-containers/filename_mismatch_signature.asice", PROD_CONFIGURATION);
     SignatureValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
-    Assert.assertEquals(5, errors.size());
+    Assert.assertEquals(7, errors.size());
     TestAssert.assertContainsError("(Signature ID: S0) - The signature file for signature S0 has an entry for file <0123456789~#%&()=`@{[]}'.txt> with mimetype <application/pdf> but the manifest file does not have an entry for this file", errors);
   }
 
@@ -213,7 +213,9 @@ public class ValidationTest extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/invalid-data-file.bdoc");
     SignatureValidationResult validate = container.validate();
     TestAssert.assertContainsExactSetOfErrors(validate.getErrors(),
-            "(Signature ID: S0) - The reference data object is not intact!"
+            "(Signature ID: S0) - The reference data object is not intact!",
+            "(Signature ID: S0) - The current time is not in the validity range of the signer's certificate!",
+            "(Signature ID: S0) - The certificate validation is not conclusive!"
     );
   }
 
@@ -224,11 +226,13 @@ public class ValidationTest extends AbstractTest {
         "src/test/resources/testFiles/invalid-containers/filename_mismatch_second_signature.asice",
         this.configuration);
     SignatureValidationResult validate = container.validate();
-    TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(validate.getErrors(), 3,
+    TestAssert.assertContainsExactSetOfErrors(validate.getErrors(),
             "(Signature ID: S1) - The reference data object is not intact!",
             "(Signature ID: S1) - Manifest file has an entry for file <test.txt> with mimetype <text/plain> but "
-            + "the signature file for signature S1 does not have an entry for this file",
-            "Container contains a file named <test.txt> which is not found in the signature file"
+                    + "the signature file for signature S1 does not have an entry for this file",
+            "Container contains a file named <test.txt> which is not found in the signature file",
+            "The current time is not in the validity range of the signer's certificate!",
+            "The certificate validation is not conclusive!"
     );
   }
 
@@ -255,7 +259,9 @@ public class ValidationTest extends AbstractTest {
     SignatureValidationResult result = container.validate();
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "(Signature ID: S0) - The reference data object has not been found!",
-            "Container contains a file named <test1.txt> which is not found in the signature file"
+            "Container contains a file named <test1.txt> which is not found in the signature file",
+            "The current time is not in the validity range of the signer's certificate!",
+            "The certificate validation is not conclusive!"
     );
   }
 
@@ -381,9 +387,14 @@ public class ValidationTest extends AbstractTest {
         .open("src/test/resources/prodFiles/invalid-containers/23608_bdoc21-invalid-nonce-policy-oid.bdoc", PROD_CONFIGURATION);
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(2, errors.size());
-    TestAssert.assertContainsError("Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.4.3", errors);
-    TestAssert.assertContainsError("The certificate is not related to a granted status!", errors);
+    TestAssert.assertContainsExactSetOfErrors(errors,
+            "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.4.3",
+            "The certificate is not related to a granted status!",
+            "The current time is not in the validity range of the signer's certificate!",
+            "The certificate validation is not conclusive!",
+            "The best-signature-time is not before the expiration date of the signing certificate!",
+            "The past signature validation is not conclusive!"
+    );
   }
 
   @Test
@@ -402,11 +413,13 @@ public class ValidationTest extends AbstractTest {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/REF-03_bdoc21-TM-no-signedpropref.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
     SignatureValidationResult result = container.validate();
-    TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(result.getErrors(), 3,
+    TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "(Signature ID: S0) - SignedProperties Reference element is missing",
-            "(Signature ID: S0) - The certificate is not related to a granted status!"
+            "(Signature ID: S0) - The signed qualifying property: neither 'message-digest' nor 'SignedProperties' is present!",
+            "(Signature ID: S0) - The current time is not in the validity range of the signer's certificate!",
+            "(Signature ID: S0) - The certificate validation is not conclusive!"
     );
-    Assert.assertEquals(3, container.getSignatures().get(0).validateSignature().getErrors().size());
+    Assert.assertEquals(4, container.getSignatures().get(0).validateSignature().getErrors().size());
   }
 
   @Test
@@ -414,9 +427,11 @@ public class ValidationTest extends AbstractTest {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/REF-03_bdoc21-TS-no-signedpropref.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
     SignatureValidationResult result = container.validate();
-    TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(result.getErrors(), 3,
+    TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "(Signature ID: S0) - SignedProperties Reference element is missing",
-            "(Signature ID: S0) - The certificate is not related to a granted status!"
+            "(Signature ID: S0) - The signed qualifying property: neither 'message-digest' nor 'SignedProperties' is present!",
+            "(Signature ID: S0) - The current time is not in the validity range of the signer's certificate!",
+            "(Signature ID: S0) - The certificate validation is not conclusive!"
     );
   }
 
@@ -446,12 +461,16 @@ public class ValidationTest extends AbstractTest {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/nonce-vale-sisu.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
     SignatureValidationResult result = container.validate();
-    TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(result.getErrors(), 6,
+    TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "OCSP nonce is invalid",
             "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.2.10.10",
             "The certificate is not related to a granted status!",
             "The signature policy is not available!",
-            "The reference data object has not been found!"
+            "The reference data object has not been found!",
+            "The signature file for signature S0 has an entry for file <META-INF/manifest.xml> with mimetype "
+                    + "<application/xml> but the manifest file does not have an entry for this file",
+            "The current time is not in the validity range of the signer's certificate!",
+            "The certificate validation is not conclusive!"
     );
   }
 
@@ -543,7 +562,11 @@ public class ValidationTest extends AbstractTest {
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "(Signature ID: S0) - The certificate chain for time-stamp is not trusted, it does not contain a trust anchor.",
             "(Signature ID: S0) - Unable to build a certificate chain up to a trusted list!",
-            "(Signature ID: S0) - " + InvalidTimestampException.MESSAGE
+            "(Signature ID: S0) - " + InvalidTimestampException.MESSAGE,
+            "(Signature ID: S0) - The current time is not in the validity range of the signer's certificate!",
+            "(Signature ID: S0) - The certificate validation is not conclusive!",
+            "(Signature ID: S0) - The best-signature-time is not before the expiration date of the signing certificate!",
+            "(Signature ID: S0) - The past signature validation is not conclusive!"
     );
   }
 
@@ -861,13 +884,15 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-777")
-  public void container_withTimestampTakenWhenSigningCertificateWasNotValid_shouldBeInvalid() throws Exception {
+  public void container_withTimestampTakenWhenSigningCertificateWasNotValid_shouldBeInvalid() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/signing_certificate_not_valid_during_timestamping.asice");
     SignatureValidationResult result = container.validate();
     Assert.assertFalse("Signature must not be valid when timestamp was taken while signing certificate was not valid", result.isValid());
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
-            "Signature has been created with expired certificate"
+            "The best-signature-time is not before the expiration date of the signing certificate!",
+            "The past signature validation is not conclusive!",
+            "The current time is not in the validity range of the signer's certificate!",
+            "The certificate validation is not conclusive!"
     );
   }
 
