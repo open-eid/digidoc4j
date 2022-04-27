@@ -12,7 +12,6 @@ package org.digidoc4j.impl.asic.xades.validation;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -26,7 +25,6 @@ import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.SignedWithExpiredCertificateException;
 import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.exceptions.TimestampAndOcspResponseTimeDeltaTooLargeException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
@@ -54,7 +52,6 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
   @Override
   protected void populateValidationErrors() {
     super.populateValidationErrors();
-    this.addCertificateExpirationError();
     this.addSigningTimeErrors();
     this.addRevocationErrors();
   }
@@ -98,20 +95,6 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
     } else if (this.configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes() < differenceInMinutes && differenceInMinutes < deltaLimit) {
       this.log.warn("The difference (in minutes) between the OCSP response production time and the signature timestamp is in allowable range (<{}>, allowed maximum <{}>)", differenceInMinutes, deltaLimit);
       this.addValidationWarning(new DigiDoc4JException("The difference between the OCSP response time and the signature timestamp is in allowable range"));
-    }
-  }
-
-  private void addCertificateExpirationError() {
-    Date signingTime = this.signature.getTrustedSigningTime();
-    if (signingTime == null) {
-      return;
-    }
-    X509Certificate signerCert = this.signature.getSigningCertificate().getX509Certificate();
-    boolean isCertValid = signingTime.compareTo(signerCert.getNotBefore()) >= 0
-            && signingTime.compareTo(signerCert.getNotAfter()) <= 0;
-    if (!isCertValid) {
-      this.log.error("Signature has been created with expired certificate");
-      this.addValidationError(new SignedWithExpiredCertificateException());
     }
   }
 

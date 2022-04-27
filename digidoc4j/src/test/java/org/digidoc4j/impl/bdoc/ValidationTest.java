@@ -517,39 +517,41 @@ public class ValidationTest extends AbstractTest {
   @Test
   public void validBDocRsa2047_whenASN1UnsafeIntegerAllowed() {
     PROD_CONFIGURATION.setAllowASN1UnsafeInteger(true);
-    Assert.assertEquals(true, PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
+    Assert.assertTrue(PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047.bdoc", PROD_CONFIGURATION);
-    SignatureValidationResult result = container.validate();
-    TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(result.getErrors(), 0);
+    ContainerValidationResult result = container.validate();
+    TestAssert.assertContainerIsValid(result);
     PROD_CONFIGURATION.setAllowASN1UnsafeInteger(false);
   }
 
   @Test
   public void validTSRsa2047_whenASN1UnsafeIntegerAllowed() {
     PROD_CONFIGURATION.setAllowASN1UnsafeInteger(true);
-    Assert.assertEquals(true, PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
+    Assert.assertTrue(PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047_TS.asice", PROD_CONFIGURATION);
-    SignatureValidationResult result = container.validate();
-    List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(0, errors.size());
+    ContainerValidationResult result = container.validate();
+    TestAssert.assertContainerIsValid(result);
     PROD_CONFIGURATION.setAllowASN1UnsafeInteger(false);
   }
 
-  @Test(expected = TechnicalException.class)
+  @Test
   public void invalidBDocRsa2047_whenASN1UnsafeIntegerNotAllowed() {
     PROD_CONFIGURATION.setAllowASN1UnsafeInteger(false);
-    Assert.assertEquals(false, PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
+    Assert.assertFalse(PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
     Container container = ContainerOpener
             .open("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047.bdoc", PROD_CONFIGURATION);
-    container.validate();
+    ContainerValidationResult result = container.validate();
+    TestAssert.assertContainsErrors(result.getErrors(),
+            "There is no candidate for the signing certificate!"
+    );
   }
 
   @Test(expected = TechnicalException.class)
   public void invalidTSRsa2047_whenASN1UnsafeIntegerNotAllowed() {
     PROD_CONFIGURATION.setAllowASN1UnsafeInteger(false);
-    Assert.assertEquals(false, PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
+    Assert.assertFalse(PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
     Container container = ContainerOpener
             .open("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047_TS.asice", PROD_CONFIGURATION);
     container.validate();
