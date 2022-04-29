@@ -2,9 +2,9 @@ package org.digidoc4j;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.digidoc4j.ConfigurationParameter.*;
 
@@ -13,10 +13,12 @@ public enum ExternalConnectionType {
     TSL(
             Pair.of(HttpProxyHost, TslHttpProxyHost),
             Pair.of(HttpProxyPort, TslHttpProxyPort),
-            Pair.of(HttpsProxyHost, TslHttpsProxyHost),
-            Pair.of(HttpsProxyPort, TslHttpsProxyPort),
             Pair.of(HttpProxyUser, TslHttpProxyUser),
             Pair.of(HttpProxyPassword, TslHttpProxyPassword),
+            Pair.of(HttpsProxyHost, TslHttpsProxyHost),
+            Pair.of(HttpsProxyPort, TslHttpsProxyPort),
+            Pair.of(HttpsProxyUser, TslHttpsProxyUser),
+            Pair.of(HttpsProxyPassword, TslHttpsProxyPassword),
             Pair.of(SslKeystoreType, TslSslKeystoreType),
             Pair.of(SslTruststoreType, TslSslTruststoreType),
             Pair.of(SslKeystorePath, TslSslKeystorePath),
@@ -31,10 +33,12 @@ public enum ExternalConnectionType {
     OCSP(
             Pair.of(HttpProxyHost, OcspHttpProxyHost),
             Pair.of(HttpProxyPort, OcspHttpProxyPort),
-            Pair.of(HttpsProxyHost, OcspHttpsProxyHost),
-            Pair.of(HttpsProxyPort, OcspHttpsProxyPort),
             Pair.of(HttpProxyUser, OcspHttpProxyUser),
             Pair.of(HttpProxyPassword, OcspHttpProxyPassword),
+            Pair.of(HttpsProxyHost, OcspHttpsProxyHost),
+            Pair.of(HttpsProxyPort, OcspHttpsProxyPort),
+            Pair.of(HttpsProxyUser, OcspHttpsProxyUser),
+            Pair.of(HttpsProxyPassword, OcspHttpsProxyPassword),
             Pair.of(SslKeystoreType, OcspSslKeystoreType),
             Pair.of(SslTruststoreType, OcspSslTruststoreType),
             Pair.of(SslKeystorePath, OcspSslKeystorePath),
@@ -49,10 +53,12 @@ public enum ExternalConnectionType {
     TSP(
             Pair.of(HttpProxyHost, TspHttpProxyHost),
             Pair.of(HttpProxyPort, TspHttpProxyPort),
-            Pair.of(HttpsProxyHost, TspHttpsProxyHost),
-            Pair.of(HttpsProxyPort, TspHttpsProxyPort),
             Pair.of(HttpProxyUser, TspHttpProxyUser),
             Pair.of(HttpProxyPassword, TspHttpProxyPassword),
+            Pair.of(HttpsProxyHost, TspHttpsProxyHost),
+            Pair.of(HttpsProxyPort, TspHttpsProxyPort),
+            Pair.of(HttpsProxyUser, TspHttpsProxyUser),
+            Pair.of(HttpsProxyPassword, TspHttpsProxyPassword),
             Pair.of(SslKeystoreType, TspSslKeystoreType),
             Pair.of(SslTruststoreType, TspSslTruststoreType),
             Pair.of(SslKeystorePath, TspSslKeystorePath),
@@ -66,8 +72,10 @@ public enum ExternalConnectionType {
 
     private final Map<ConfigurationParameter, ConfigurationParameter> genericToSpecificParameterMap;
 
+    @SafeVarargs
     ExternalConnectionType(Pair<ConfigurationParameter, ConfigurationParameter>... parameterMappings) {
-        genericToSpecificParameterMap = Arrays.stream(parameterMappings).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        genericToSpecificParameterMap = Stream.of(parameterMappings)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     ConfigurationParameter mapToSpecificParameter(ConfigurationParameter genericParameter) {

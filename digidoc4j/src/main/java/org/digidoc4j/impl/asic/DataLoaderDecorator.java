@@ -58,7 +58,7 @@ public class DataLoaderDecorator {
       );
       ProxyProperties httpsProxyProperties = createProxyPropertiesIfHostAndPortPresent(
               configuration.getHttpsProxyPort(), configuration.getHttpsProxyHost(),
-              configuration.getHttpProxyUser(), configuration.getHttpProxyPassword()
+              configuration.getHttpsProxyUser(), configuration.getHttpsProxyPassword()
       );
       ProxyConfig proxyConfig = createProxyConfigIfAnyPropertiesPresent(httpProxyProperties, httpsProxyProperties);
       dataLoader.setProxyConfig(proxyConfig);
@@ -78,7 +78,7 @@ public class DataLoaderDecorator {
       );
       ProxyProperties httpsProxyProperties = createProxyPropertiesIfHostAndPortPresent(
               configuration.getHttpsProxyPortFor(connectionType), configuration.getHttpsProxyHostFor(connectionType),
-              configuration.getHttpProxyUserFor(connectionType), configuration.getHttpProxyPasswordFor(connectionType)
+              configuration.getHttpsProxyUserFor(connectionType), configuration.getHttpsProxyPasswordFor(connectionType)
       );
       ProxyConfig proxyConfig = createProxyConfigIfAnyPropertiesPresent(httpProxyProperties, httpsProxyProperties);
       dataLoader.setProxyConfig(proxyConfig);

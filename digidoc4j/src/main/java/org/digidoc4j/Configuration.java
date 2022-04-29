@@ -151,6 +151,8 @@ import static java.util.Arrays.asList;
  * <li>HTTP_PROXY_PASSWORD: network proxy password (for basic auth proxy)</li>
  * <li>HTTPS_PROXY_HOST: https network proxy host name</li>
  * <li>HTTPS_PROXY_PORT: https network proxy port</li>
+ * <li>HTTPS_PROXY_USER: https network proxy user (for basic auth proxy)</li>
+ * <li>HTTPS_PROXY_PASSWORD: https network proxy password (for basic auth proxy)</li>
  * <li>SSL_KEYSTORE_PATH: SSL KeyStore path</li>
  * <li>SSL_KEYSTORE_TYPE: SSL KeyStore type (default is "jks")</li>
  * <li>SSL_KEYSTORE_PASSWORD: SSL KeyStore password (default is an empty string)</li>
@@ -1183,6 +1185,86 @@ public class Configuration implements Serializable {
     this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyPort), String.valueOf(httpsProxyPort));
   }
 
+  /**
+   * Set HTTPS network proxy user name.
+   *
+   * @param httpsProxyUser username.
+   */
+  public void setHttpsProxyUser(String httpsProxyUser) {
+    this.setConfigurationParameter(ConfigurationParameter.HttpsProxyUser, httpsProxyUser);
+  }
+
+  /**
+   * Set HTTPS network proxy user name for specific type of external connections.
+   * Overrides network proxy user name set via {@link Configuration#setHttpsProxyUser(String)}
+   *
+   * @param connectionType type of external connections.
+   * @param httpsProxyUser username.
+   */
+  public void setHttpsProxyUserFor(ExternalConnectionType connectionType, String httpsProxyUser) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyUser), httpsProxyUser);
+  }
+
+  /**
+   * Get HTTPS proxy user.
+   *
+   * @return HTTPS proxy user.
+   */
+  public String getHttpsProxyUser() {
+    return this.getConfigurationParameter(ConfigurationParameter.HttpsProxyUser);
+  }
+
+  /**
+   * Get HTTPS proxy user for specific type of external connections.
+   *
+   * @param connectionType type of external connections.
+   * @return HTTPS proxy user.
+   */
+  public String getHttpsProxyUserFor(ExternalConnectionType connectionType) {
+    String proxyUser = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyUser));
+    return (proxyUser != null) ? proxyUser : this.getHttpsProxyUser();
+  }
+
+  /**
+   * Set HTTPS network proxy password.
+   *
+   * @param httpsProxyPassword password.
+   */
+  public void setHttpsProxyPassword(String httpsProxyPassword) {
+    this.setConfigurationParameter(ConfigurationParameter.HttpsProxyPassword, httpsProxyPassword);
+  }
+
+  /**
+   * Set HTTPS network proxy password for specific type of external connections.
+   * Overrides network proxy password set via {@link Configuration#setHttpsProxyPassword(String)}
+   *
+   * @param connectionType type of external connections.
+   * @param httpsProxyPassword password.
+   */
+  public void setHttpsProxyPasswordFor(ExternalConnectionType connectionType, String httpsProxyPassword) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyPassword), httpsProxyPassword);
+  }
+
+  /**
+   * Get HTTPS proxy password.
+   *
+   * @return HTTPS proxy password.
+   */
+  public String getHttpsProxyPassword() {
+    return this.getConfigurationParameter(ConfigurationParameter.HttpsProxyPassword);
+  }
+
+  /**
+   * Get HTTPS proxy password for specific type of external connections.
+   *
+   * @param connectionType type of external connections.
+   * @return HTTPS proxy password.
+   */
+  public String getHttpsProxyPasswordFor(ExternalConnectionType connectionType) {
+    String proxyPassword = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyPassword));
+    return (proxyPassword != null) ? proxyPassword : this.getHttpsProxyPassword();
+  }
+
 
   /**
    * Get http proxy host.
@@ -2101,6 +2183,8 @@ public class Configuration implements Serializable {
     this.setConfigurationParameterFromSystemOrFile(Constant.System.HTTPS_PROXY_PORT, ConfigurationParameter.HttpsProxyPort);
     this.setConfigurationParameterFromFile(ConfigurationParameter.HttpProxyUser);
     this.setConfigurationParameterFromFile(ConfigurationParameter.HttpProxyPassword);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.HttpsProxyUser);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.HttpsProxyPassword);
     this.setConfigurationParameterFromFile(ConfigurationParameter.SslKeystoreType);
     this.setConfigurationParameterFromFile(ConfigurationParameter.SslTruststoreType);
     this.setConfigurationParameterFromSystemOrFile(Constant.System.JAVAX_NET_SSL_KEY_STORE, ConfigurationParameter.SslKeystorePath);
@@ -2113,10 +2197,12 @@ public class Configuration implements Serializable {
     for (ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyHost));
       this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyPort));
-      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyHost));
-      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyPort));
       this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyUser));
       this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyPassword));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyHost));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyPort));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyUser));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyPassword));
       this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.SslKeystoreType));
       this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.SslTruststoreType));
       this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.SslKeystorePath));

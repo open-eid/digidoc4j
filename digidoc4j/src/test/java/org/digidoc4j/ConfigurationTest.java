@@ -921,18 +921,22 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertFalse(this.configuration.isNetworkProxyEnabled());
     Assert.assertNull(this.configuration.getHttpProxyHost());
     Assert.assertNull(this.configuration.getHttpProxyPort());
-    Assert.assertNull(this.configuration.getHttpsProxyHost());
-    Assert.assertNull(this.configuration.getHttpsProxyPort());
     Assert.assertNull(this.configuration.getHttpProxyUser());
     Assert.assertNull(this.configuration.getHttpProxyPassword());
+    Assert.assertNull(this.configuration.getHttpsProxyHost());
+    Assert.assertNull(this.configuration.getHttpsProxyPort());
+    Assert.assertNull(this.configuration.getHttpsProxyUser());
+    Assert.assertNull(this.configuration.getHttpsProxyPassword());
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Assert.assertFalse(this.configuration.isNetworkProxyEnabledFor(connectionType));
       Assert.assertNull(this.configuration.getHttpProxyHostFor(connectionType));
       Assert.assertNull(this.configuration.getHttpProxyPortFor(connectionType));
-      Assert.assertNull(this.configuration.getHttpsProxyHostFor(connectionType));
-      Assert.assertNull(this.configuration.getHttpsProxyPortFor(connectionType));
       Assert.assertNull(this.configuration.getHttpProxyUserFor(connectionType));
       Assert.assertNull(this.configuration.getHttpProxyPasswordFor(connectionType));
+      Assert.assertNull(this.configuration.getHttpsProxyHostFor(connectionType));
+      Assert.assertNull(this.configuration.getHttpsProxyPortFor(connectionType));
+      Assert.assertNull(this.configuration.getHttpsProxyUserFor(connectionType));
+      Assert.assertNull(this.configuration.getHttpsProxyPasswordFor(connectionType));
     }
   }
 
@@ -942,18 +946,22 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertTrue(this.configuration.isNetworkProxyEnabled());
     Assert.assertEquals("cache.noile.ee", this.configuration.getHttpProxyHost());
     Assert.assertEquals(8080, this.configuration.getHttpProxyPort().longValue());
+    Assert.assertEquals("plainProxyMan", this.configuration.getHttpProxyUser());
+    Assert.assertEquals("plainProxyPass", this.configuration.getHttpProxyPassword());
     Assert.assertEquals("secure.noile.ee", this.configuration.getHttpsProxyHost());
     Assert.assertEquals(8443, this.configuration.getHttpsProxyPort().longValue());
-    Assert.assertEquals("proxyMan", this.configuration.getHttpProxyUser());
-    Assert.assertEquals("proxyPass", this.configuration.getHttpProxyPassword());
+    Assert.assertEquals("secureProxyMan", this.configuration.getHttpsProxyUser());
+    Assert.assertEquals("secureProxyPass", this.configuration.getHttpsProxyPassword());
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Assert.assertTrue(this.configuration.isNetworkProxyEnabledFor(connectionType));
       Assert.assertEquals(connectionType + ".cache.noile.ee", this.configuration.getHttpProxyHostFor(connectionType));
       Assert.assertEquals(80800 + connectionType.ordinal(), this.configuration.getHttpProxyPortFor(connectionType).longValue());
+      Assert.assertEquals(connectionType + "-plainProxyMan", this.configuration.getHttpProxyUserFor(connectionType));
+      Assert.assertEquals(connectionType + "-plainProxyPass", this.configuration.getHttpProxyPasswordFor(connectionType));
       Assert.assertEquals(connectionType + ".secure.noile.ee", this.configuration.getHttpsProxyHostFor(connectionType));
       Assert.assertEquals(84430 + connectionType.ordinal(), this.configuration.getHttpsProxyPortFor(connectionType).longValue());
-      Assert.assertEquals(connectionType + "-proxyMan", this.configuration.getHttpProxyUserFor(connectionType));
-      Assert.assertEquals(connectionType + "-proxyPass", this.configuration.getHttpProxyPasswordFor(connectionType));
+      Assert.assertEquals(connectionType + "-secureProxyMan", this.configuration.getHttpsProxyUserFor(connectionType));
+      Assert.assertEquals(connectionType + "-secureProxyPass", this.configuration.getHttpsProxyPasswordFor(connectionType));
     }
   }
 
@@ -970,18 +978,22 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertTrue(this.configuration.isNetworkProxyEnabled());
     Assert.assertEquals("cache.noile.ee", this.configuration.getHttpProxyHost());
     Assert.assertEquals(8080, this.configuration.getHttpProxyPort().longValue());
+    Assert.assertEquals("plainProxyMan", this.configuration.getHttpProxyUser());
+    Assert.assertEquals("plainProxyPass", this.configuration.getHttpProxyPassword());
     Assert.assertEquals("secure.noile.ee", this.configuration.getHttpsProxyHost());
     Assert.assertEquals(8443, this.configuration.getHttpsProxyPort().longValue());
-    Assert.assertEquals("proxyMan", this.configuration.getHttpProxyUser());
-    Assert.assertEquals("proxyPass", this.configuration.getHttpProxyPassword());
+    Assert.assertEquals("secureProxyMan", this.configuration.getHttpsProxyUser());
+    Assert.assertEquals("secureProxyPass", this.configuration.getHttpsProxyPassword());
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Assert.assertTrue(this.configuration.isNetworkProxyEnabledFor(connectionType));
       Assert.assertEquals("cache.noile.ee", this.configuration.getHttpProxyHostFor(connectionType));
       Assert.assertEquals(8080, this.configuration.getHttpProxyPortFor(connectionType).longValue());
+      Assert.assertEquals("plainProxyMan", this.configuration.getHttpProxyUserFor(connectionType));
+      Assert.assertEquals("plainProxyPass", this.configuration.getHttpProxyPasswordFor(connectionType));
       Assert.assertEquals("secure.noile.ee", this.configuration.getHttpsProxyHostFor(connectionType));
       Assert.assertEquals(8443, this.configuration.getHttpsProxyPortFor(connectionType).longValue());
-      Assert.assertEquals("proxyMan", this.configuration.getHttpProxyUserFor(connectionType));
-      Assert.assertEquals("proxyPass", this.configuration.getHttpProxyPasswordFor(connectionType));
+      Assert.assertEquals("secureProxyMan", this.configuration.getHttpsProxyUserFor(connectionType));
+      Assert.assertEquals("secureProxyPass", this.configuration.getHttpsProxyPasswordFor(connectionType));
     }
   }
 
@@ -991,18 +1003,22 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertFalse(this.configuration.isNetworkProxyEnabled());
     Assert.assertNull(this.configuration.getHttpProxyHost());
     Assert.assertNull(this.configuration.getHttpProxyPort());
-    Assert.assertNull(this.configuration.getHttpsProxyHost());
-    Assert.assertNull(this.configuration.getHttpsProxyPort());
     Assert.assertNull(this.configuration.getHttpProxyUser());
     Assert.assertNull(this.configuration.getHttpProxyPassword());
+    Assert.assertNull(this.configuration.getHttpsProxyHost());
+    Assert.assertNull(this.configuration.getHttpsProxyPort());
+    Assert.assertNull(this.configuration.getHttpsProxyUser());
+    Assert.assertNull(this.configuration.getHttpsProxyPassword());
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Assert.assertTrue(this.configuration.isNetworkProxyEnabledFor(connectionType));
       Assert.assertEquals(connectionType + ".cache.noile.ee", this.configuration.getHttpProxyHostFor(connectionType));
       Assert.assertEquals(80800 + connectionType.ordinal(), this.configuration.getHttpProxyPortFor(connectionType).longValue());
+      Assert.assertEquals(connectionType + "-plainProxyMan", this.configuration.getHttpProxyUserFor(connectionType));
+      Assert.assertEquals(connectionType + "-plainProxyPass", this.configuration.getHttpProxyPasswordFor(connectionType));
       Assert.assertEquals(connectionType + ".secure.noile.ee", this.configuration.getHttpsProxyHostFor(connectionType));
       Assert.assertEquals(84430 + connectionType.ordinal(), this.configuration.getHttpsProxyPortFor(connectionType).longValue());
-      Assert.assertEquals(connectionType + "-proxyMan", this.configuration.getHttpProxyUserFor(connectionType));
-      Assert.assertEquals(connectionType + "-proxyPass", this.configuration.getHttpProxyPasswordFor(connectionType));
+      Assert.assertEquals(connectionType + "-secureProxyMan", this.configuration.getHttpsProxyUserFor(connectionType));
+      Assert.assertEquals(connectionType + "-secureProxyPass", this.configuration.getHttpsProxyPasswordFor(connectionType));
     }
   }
 
