@@ -146,7 +146,7 @@ public class AsicContainerCreator {
   public void writeTimestampToken(DataFile dataFile) {
     logger.debug("Adding signatures to the asic zip container");
     String signatureFileName = "META-INF/timestamp.tst";
-    new BytesEntryCallback(new ZipEntry(signatureFileName), dataFile.getBytes()).write();
+    new StreamEntryCallback(new ZipEntry(signatureFileName), dataFile.getStream()).write();
   }
 
   /**
@@ -193,7 +193,9 @@ public class AsicContainerCreator {
 
     @Override
     void doWithEntryStream(OutputStream stream) throws IOException {
-      IOUtils.copy(inputStream, stream);
+      try (InputStream in = inputStream) {
+        IOUtils.copy(in, stream);
+      }
     }
 
   }

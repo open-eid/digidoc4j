@@ -368,11 +368,7 @@ public final class Helper {
         fromExistingFile(pathFrom).
         build();
 
-    List<byte[]> files = new ArrayList<>();
-    for (DataFile dataFile : container.getDataFiles()) {
-      files.add(dataFile.getBytes());
-    }
-    return files;
+    return getAllFilesFromContainerAsBytes(container);
   }
 
   /**
@@ -383,8 +379,7 @@ public final class Helper {
    */
   public static void saveAllFilesFromContainerToFolder(Container container, String path) {
     for (DataFile dataFile : container.getDataFiles()) {
-      File file = new File(path + File.separator + dataFile.getName());
-      DSSUtils.saveToFile(dataFile.getBytes(), file);
+      dataFile.saveAs(path + File.separator + dataFile.getName());
     }
   }
 
@@ -400,10 +395,7 @@ public final class Helper {
         fromExistingFile(pathFrom).
         build();
 
-    for (DataFile dataFile : container.getDataFiles()) {
-      File file = new File(pathTo + File.separator + dataFile.getName());
-      DSSUtils.saveToFile(dataFile.getBytes(), file);
-    }
+    saveAllFilesFromContainerToFolder(container, pathTo);
   }
 
   /**

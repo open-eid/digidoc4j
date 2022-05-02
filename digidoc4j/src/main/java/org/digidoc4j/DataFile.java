@@ -1,23 +1,22 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j;
 
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.DSSException;
-import eu.europa.esig.dss.spi.DSSUtils;
-import eu.europa.esig.dss.model.Digest;
-import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.model.MimeType;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -43,7 +42,6 @@ public class DataFile implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(DataFile.class);
 
   private DSSDocument document = null;
-  private Digest digest = null;
   private String id;
 
   /**
@@ -112,8 +110,8 @@ public class DataFile implements Serializable {
 
   /**
    * Calculates digest http://www.w3.org/2001/04/xmlenc#sha256 for the data file.
-   * If the digest has already been calculated it will return it, otherwise it calculates the digest.
-   * <p/>
+   * If digest values are cached by the implementation and the digest has already been calculated,
+   * then the cached value will be returned, otherwise the digest value is calculated and returned.
    *
    * @return calculated digest
    */
@@ -122,7 +120,10 @@ public class DataFile implements Serializable {
   }
 
   /**
-   * Calculates digest for data file. If digest is already calculated returns it, otherwise calculates the digest.
+   * Calculates digest for data file.
+   * If digest values are cached by the implementation and the digest has already been calculated,
+   * then the cached value will be returned, otherwise the digest value is calculated and returned.
+   *
    * <p>Supported uris for BDoc:</p>
    * <br>http://www.w3.org/2000/09/xmldsig#sha1
    * <br>http://www.w3.org/2001/04/xmldsig-more#sha224
@@ -136,13 +137,9 @@ public class DataFile implements Serializable {
    */
   public byte[] calculateDigest(URL method) {
     logger.debug("URL method: " + method);
-    if (digest == null) {
-      DigestAlgorithm digestAlgorithm = DigestAlgorithm.forXML(method.toString());
-      digest = new Digest(digestAlgorithm, calculateDigestInternal(digestAlgorithm));
-    } else {
-      logger.debug("Returning existing digest value");
-    }
-    return digest.getValue();
+    DigestAlgorithm digestAlgorithm = DigestAlgorithm.forXML(method.toString());
+    String digestBase64String = document.getDigest(digestAlgorithm);
+    return Base64.decodeBase64(digestBase64String);
   }
 
   /**
@@ -151,11 +148,6 @@ public class DataFile implements Serializable {
    */
   public byte[] calculateDigest(org.digidoc4j.DigestAlgorithm digestType) {
     return calculateDigest(digestType.uri());
-  }
-
-  byte[] calculateDigestInternal(DigestAlgorithm digestAlgorithm) {
-    logger.debug("Digest algorithm: " + digestAlgorithm);
-    return DSSUtils.digest(digestAlgorithm, getBytes());
   }
 
   /**
@@ -224,7 +216,12 @@ public class DataFile implements Serializable {
   }
 
   private Long getFileSizeIfKnown() {
-    if (document instanceof StreamDocument) {
+    if (document instanceof InMemoryDocument) {
+      InMemoryDocument inMemoryDocument = (InMemoryDocument) document;
+      if (inMemoryDocument.getBytes() != null) {
+        return (long) (inMemoryDocument.getBytes().length);
+      }
+    } else if (document instanceof StreamDocument) {
       StreamDocument streamDocument = (StreamDocument) document;
       return streamDocument.getStreamLengthIfKnown();
     } else if (document instanceof FileDocument) {
@@ -264,8 +261,9 @@ public class DataFile implements Serializable {
    * @throws java.io.IOException on file write error
    */
   public void saveAs(OutputStream out) throws IOException {
-    out.write(getBytes());
-    out.close();
+    try (OutputStream outputStream = out) {
+      document.writeTo(outputStream);
+    }
   }
 
   /**
@@ -323,7 +321,7 @@ public class DataFile implements Serializable {
     this.document = document;
   }
 
-  private URL getSha256DigestMethodUrl() {
+  private static URL getSha256DigestMethodUrl() {
     try {
       return new URL("http://www.w3.org/2001/04/xmlenc#sha256");
     } catch (MalformedURLException e) {
