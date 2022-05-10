@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.bdoc;
 
@@ -39,14 +39,14 @@ public class BDocSignatureOpenerTest extends AbstractTest {
   private BDocSignatureOpener signatureOpener;
 
   @Test
-  public void openBesSignature() throws Exception {
+  public void openBesSignature() {
     Signature signature = this.signatureOpener.open(
             constructXadesSignatureWrapper(new FileDocument("src/test/resources/testFiles/xades/test-bes-signature.xml")));
     Assert.assertTrue(signature instanceof BDocSignature);
     Assert.assertEquals(SignatureProfile.B_BES, signature.getProfile());
     Assert.assertEquals("Assert 3", "id-693869a500c60f0dc262f7287f033d5d", signature.getId());
     Assert.assertEquals("Assert 4", "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", signature.getSignatureMethod());
-    Assert.assertEquals(new Date(1454928400000L), signature.getSigningTime());
+    Assert.assertEquals(new Date(1454928400000L), signature.getClaimedSigningTime());
     Assert.assertEquals("Assert 5", "Tallinn", signature.getCity());
     Assert.assertEquals("Assert 6", "Harjumaa", signature.getStateOrProvince());
     Assert.assertEquals("Assert 7", "13456", signature.getPostalCode());
@@ -66,7 +66,7 @@ public class BDocSignatureOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void openXadesSignature() throws Exception {
+  public void openXadesSignature() {
     Date date_2016_29_1_time_19_58_36 = new Date(1454090316000L);
     Date date_2016_29_1_time_19_58_37 = new Date(1454090317000L);
     Signature signature = this.signatureOpener.open(
@@ -75,7 +75,7 @@ public class BDocSignatureOpenerTest extends AbstractTest {
     Assert.assertEquals("Assert 2", "S0", signature.getId());
     Assert.assertEquals("Assert 3", SignatureProfile.LT, signature.getProfile());
     Assert.assertEquals("Assert 4", "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", signature.getSignatureMethod());
-    Assert.assertEquals("Assert 5", date_2016_29_1_time_19_58_36, signature.getSigningTime());
+    Assert.assertEquals("Assert 5", date_2016_29_1_time_19_58_36, signature.getTrustedSigningTime());
     Assert.assertTrue("Assert 6", StringUtils.startsWith(signature.getSigningCertificate().issuerName(), "C=EE,O=AS Sertifitseerimiskeskus"));
     Assert.assertNotNull("Assert 7", signature.getOCSPCertificate());
     Assert.assertTrue("Assert 8", StringUtils.contains(signature.getOCSPCertificate().getSubjectName(), "OU=OCSP"));
@@ -87,7 +87,7 @@ public class BDocSignatureOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void serializeBDocSignature() throws Exception {
+  public void serializeBDocSignature() {
     Signature signature = this.signatureOpener.open(
             constructXadesSignatureWrapper(new FileDocument("src/test/resources/testFiles/xades/test-bdoc-ts.xml")));
     String serializedPath = this.getFileBy("ser");
@@ -112,7 +112,7 @@ public class BDocSignatureOpenerTest extends AbstractTest {
   protected void before() {
     this.configuration = Configuration.of(Configuration.Mode.TEST);
     this.signatureOpener = new BDocSignatureOpener(this.configuration);
-    this.signatureParser = new AsicSignatureParser(Collections.<DSSDocument>singletonList(
+    this.signatureParser = new AsicSignatureParser(Collections.singletonList(
             new FileDocument("src/test/resources/testFiles/helper-files/test.txt")), this.configuration);
   }
 

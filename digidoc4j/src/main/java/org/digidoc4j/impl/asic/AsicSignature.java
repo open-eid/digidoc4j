@@ -1,18 +1,23 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl.asic;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Date;
-import java.util.List;
-
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import eu.europa.esig.dss.model.DSSDocument;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.X509Cert;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.impl.asic.xades.validation.SignatureValidator;
@@ -20,8 +25,9 @@ import org.digidoc4j.impl.asic.xades.validation.XadesValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Andrei on 29.11.2017.
@@ -77,12 +83,6 @@ public class AsicSignature implements Signature {
   }
 
   @Override
-  @Deprecated
-  public String getPolicy() {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
   public String getPostalCode() {
     return xadesSignature.getPostalCode();
   }
@@ -96,17 +96,6 @@ public class AsicSignature implements Signature {
   @Override
   public Date getOCSPResponseCreationTime() {
     return xadesSignature.getOCSPResponseCreationTime();
-  }
-
-  /**
-   * This method returns Date object, it can be null.
-   *
-   * @return Date
-   */
-  @Override
-  @Deprecated
-  public Date getProducedAt() {
-    return getOCSPResponseCreationTime();
   }
 
   @Override
@@ -157,30 +146,6 @@ public class AsicSignature implements Signature {
     return xadesSignature.getSigningTime();
   }
 
-  /**
-   * Gets signing time depending on the signature profile.
-   *
-   * @return Date
-   */
-  @Override
-  public Date getSigningTime() {
-    logger.debug("get signing time by profile: " + getProfile());
-    switch (getProfile()) {
-      case B_BES:
-        return getClaimedSigningTime();
-      case B_EPES:
-        return getClaimedSigningTime();
-      default:
-        return getTrustedSigningTime();
-    }
-  }
-
-  @Override
-  @Deprecated
-  public URI getSignaturePolicyURI() {
-    throw new NotYetImplementedException();
-  }
-
   @Override
   public String getStateOrProvince() {
     return xadesSignature.getStateOrProvince();
@@ -206,12 +171,6 @@ public class AsicSignature implements Signature {
   }
 
   @Override
-  @Deprecated
-  public List<DigiDoc4JException> validate() {
-    return validateSignature().getErrors();
-  }
-
-  @Override
   public byte[] getAdESSignature() {
     logger.debug("Getting full XAdES signature byte array");
     try {
@@ -219,12 +178,6 @@ public class AsicSignature implements Signature {
     } catch (IOException e) {
       throw new TechnicalException("Error parsing xades signature: " + e.getMessage(), e);
     }
-  }
-
-  @Override
-  @Deprecated
-  public byte[] getRawSignature() {
-    return getAdESSignature();
   }
 
   /**

@@ -1,17 +1,28 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.MimeType;
+import org.apache.commons.io.IOUtils;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
+import org.digidoc4j.DataFile;
+import org.digidoc4j.Signature;
+import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.asic.manifest.AsicManifest;
+import org.digidoc4j.utils.Helper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,21 +32,6 @@ import java.util.Collection;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import org.apache.commons.io.IOUtils;
-import org.digidoc4j.Configuration;
-import org.digidoc4j.Constant;
-import org.digidoc4j.DataFile;
-import org.digidoc4j.Signature;
-import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.impl.asic.manifest.AsicManifest;
-import org.digidoc4j.utils.Helper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.model.MimeType;
 
 /**
  * ASIC container creator
@@ -71,15 +67,6 @@ public class AsicContainerCreator {
     } finally {
       Helper.deleteTmpFiles(configuration.getTempFileMaxAge());
     }
-  }
-
-  @Deprecated
-  public InputStream fetchInputStreamOfFinalizedContainer() {
-    if (outputStream instanceof ByteArrayOutputStream) {
-      logger.debug("Fetching input stream of the finalized container");
-      return new ByteArrayInputStream(((ByteArrayOutputStream) outputStream).toByteArray());
-    }
-    throw new NotSupportedException("instance not backed by an in-memory stream");
   }
 
   /**

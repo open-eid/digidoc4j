@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j;
 
 import eu.europa.esig.dss.enumerations.ObjectIdentifierQualifier;
@@ -387,18 +397,18 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     }
   }
 
-  protected String createSignedContainerBy(String extension) {
+  protected String createSignedContainerBy(Container.DocumentType type, String extension) {
     String file = this.getFileBy(extension);
-    Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"), "text/plain");
-    this.createSignatureBy(container, pkcs12SignatureToken);
-    container.save(file);
+    Container container = this.createNonEmptyContainerBy(type, Paths.get("src/test/resources/testFiles/helper-files/test.txt"), "text/plain");
+    SignatureProfile signatureProfile = (type == BDOC) ? SignatureProfile.LT_TM : SignatureProfile.LT;
+    createSignatureBy(container, signatureProfile, pkcs12SignatureToken);
+    container.saveAsFile(file);
     return file;
   }
 
   protected String createNonEmptyLargeContainer(long size) {
     String fileName = this.getFileBy("bdoc");
-    try {
-      RandomAccessFile largeFile = new RandomAccessFile(fileName, "rw");
+    try (RandomAccessFile largeFile = new RandomAccessFile(fileName, "rw")) {
       largeFile.setLength(size);// TODO: create large file correctly
     } catch (Exception e) {
       throw new RuntimeException(e);

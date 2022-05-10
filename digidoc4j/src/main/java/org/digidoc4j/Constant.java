@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j;
 
 import java.util.Arrays;
@@ -20,13 +30,10 @@ public final class Constant {
   public static final long CACHE_ALL_DATA_FILES = -1;
   public static final long CACHE_NO_DATA_FILES = 0;
 
-  @Deprecated
+  public static final String DDOC_CONTAINER_TYPE = "DDOC";
   public static final String BDOC_CONTAINER_TYPE = "BDOC";
-  @Deprecated
   public static final String ASICE_CONTAINER_TYPE = "ASICE";
-  @Deprecated
   public static final String ASICS_CONTAINER_TYPE = "ASICS";
-  @Deprecated
   public static final String PADES_CONTAINER_TYPE = "PADES";
 
   public static final String USER_AGENT_STRING = "LIB DigiDoc4j";

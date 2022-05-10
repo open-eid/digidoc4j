@@ -413,24 +413,6 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Enables big files support. Sets limit in MB when handling files are creating temporary file for streaming in
-   * container creation and adding data files.
-   * <p/>
-   * Used by DigiDoc4J and by DDoc4J.
-   *
-   * @param maxFileSizeCachedInMB Maximum size in MB.
-   * @deprecated obnoxious naming. Use {@link Configuration#setMaxFileSizeCachedInMemoryInMB(long)} instead.
-   */
-  @Deprecated
-  public void enableBigFilesSupport(long maxFileSizeCachedInMB) {
-    LOGGER.debug("Set maximum datafile cached to: " + maxFileSizeCachedInMB);
-    String value = Long.toString(maxFileSizeCachedInMB);
-    if (isValidIntegerParameter("DIGIDOC_MAX_DATAFILE_CACHED", value)) {
-      ddoc4jConfiguration.put("DIGIDOC_MAX_DATAFILE_CACHED", value);
-    }
-  }
-
-  /**
    * Sets limit in MB when handling files are creating temporary file for streaming in
    * container creation and adding data files.
    * <p/>
@@ -439,16 +421,11 @@ public class Configuration implements Serializable {
    * @param maxFileSizeCachedInMB maximum data file size in MB stored in memory.
    */
   public void setMaxFileSizeCachedInMemoryInMB(long maxFileSizeCachedInMB) {
-    enableBigFilesSupport(maxFileSizeCachedInMB);
-  }
-
-  /**
-   * @return is big file support enabled
-   * @deprecated obnoxious naming. Use {@link Configuration#storeDataFilesOnlyInMemory()} instead.
-   */
-  @Deprecated
-  public boolean isBigFilesSupportEnabled() {
-    return getMaxDataFileCachedInMB() >= 0;
+    LOGGER.debug("Set maximum datafile cached to: " + maxFileSizeCachedInMB);
+    String value = Long.toString(maxFileSizeCachedInMB);
+    if (isValidIntegerParameter("DIGIDOC_MAX_DATAFILE_CACHED", value)) {
+      ddoc4jConfiguration.put("DIGIDOC_MAX_DATAFILE_CACHED", value);
+    }
   }
 
   /**

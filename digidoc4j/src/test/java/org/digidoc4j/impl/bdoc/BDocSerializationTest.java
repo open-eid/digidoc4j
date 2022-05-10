@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* ThMatchers.is software Matchers.is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as thMatchers.is
-* project Matchers.is concerned Matchers.is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.bdoc;
 
@@ -23,14 +23,11 @@ import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.ServiceUnreachableException;
-import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.net.URI;
 import java.util.Date;
 
 public class BDocSerializationTest extends AbstractTest {
@@ -39,12 +36,12 @@ public class BDocSerializationTest extends AbstractTest {
   private String serializedContainerLocation;
 
   @Test
-  public void twoStepSigningWithSerialization() throws IOException, ClassNotFoundException {
+  public void twoStepSigningWithSerialization() {
     String serializedDataToSignPath = this.getFileBy("bdoc");
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     DataToSign dataToSign = SignatureBuilder.aSignature(container).
-        withSigningCertificate(this.pkcs12SignatureToken.getCertificate()).buildDataToSign();
+        withSigningCertificate(pkcs12SignatureToken.getCertificate()).buildDataToSign();
     this.serialize(container, this.serializedContainerLocation);
     this.serialize(dataToSign, serializedDataToSignPath);
     dataToSign = this.deserializer(serializedDataToSignPath);
@@ -65,7 +62,7 @@ public class BDocSerializationTest extends AbstractTest {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     DataToSign dataToSign = SignatureBuilder.aSignature(container).
-            withSigningCertificate(this.pkcs12SignatureToken.getCertificate()).buildDataToSign();
+            withSigningCertificate(pkcs12SignatureToken.getCertificate()).buildDataToSign();
     this.serialize(container, this.serializedContainerLocation);
     this.serialize(dataToSign, serializedDataToSignPath);
     dataToSign = this.deserializer(serializedDataToSignPath);
@@ -76,17 +73,17 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void verifySerialization() throws Exception {
+  public void verifySerialization() {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
     this.serialize(container, this.serializedContainerLocation);
     Container deserializedContainer = this.deserializer(this.serializedContainerLocation);
     Assert.assertTrue(deserializedContainer.validate().isValid());
   }
 
   @Test
-  public void serializeExistingContainer() throws Exception {
+  public void serializeExistingContainer() {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
     serialize(container, serializedContainerLocation);
     Container deserializedContainer = deserializer(serializedContainerLocation);
@@ -95,7 +92,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void validateAfterSerializingExistingContainer() throws Exception {
+  public void validateAfterSerializingExistingContainer() {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
     this.serialize(container, this.serializedContainerLocation);
     Container deserializedContainer = this.deserializer(this.serializedContainerLocation);
@@ -103,11 +100,11 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationVerifySpecifiedSignatureParameters() throws Exception {
+  public void serializationVerifySpecifiedSignatureParameters() {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     Signature signature = SignatureBuilder.aSignature(container).withSignatureDigestAlgorithm(DigestAlgorithm.SHA512).
-        withSignatureToken(this.pkcs12SignatureToken).withSignatureId("S99").withRoles("manager", "employee").
+        withSignatureToken(pkcs12SignatureToken).withSignatureId("S99").withRoles("manager", "employee").
         withCity("city").withStateOrProvince("state").withPostalCode("postalCode").withCountry("country").
         invokeSigning();
     container.addSignature(signature);
@@ -124,10 +121,10 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationVerifyDefaultSignatureParameters() throws Exception {
+  public void serializationVerifyDefaultSignatureParameters() {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
     this.serialize(container, this.serializedContainerLocation);
     Container deserializedContainer = this.deserializer(this.serializedContainerLocation);
     Signature signature = deserializedContainer.getSignatures().get(0);
@@ -138,10 +135,10 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationGetDocumentType() throws Exception {
+  public void serializationGetDocumentType() {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
     this.serialize(container, this.serializedContainerLocation);
     Container deserializedContainer = this.deserializer(this.serializedContainerLocation);
     Assert.assertEquals(container.getType(), deserializedContainer.getType());
@@ -151,7 +148,7 @@ public class BDocSerializationTest extends AbstractTest {
   public void serializationGetOCSPCertificate() throws Exception {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
     this.serialize(container, this.serializedContainerLocation);
     Container deserializedContainer = this.deserializer(this.serializedContainerLocation);
     byte[] ocspCertBeforeSerialization = container.getSignatures().get(0).getOCSPCertificate().
@@ -162,10 +159,10 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationGetSigningTime() throws Exception {
+  public void serializationGetSigningTime() {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
     this.serialize(container, this.serializedContainerLocation);
     Container deserializedContainer = this.deserializer(this.serializedContainerLocation);
     Date signingTimeBeforeSerialization = container.getSignatures().get(0).getClaimedSigningTime();
@@ -173,35 +170,11 @@ public class BDocSerializationTest extends AbstractTest {
     Assert.assertEquals(signingTimeBeforeSerialization, signingTimeAfterSerialization);
   }
 
-  @Test(expected = NotYetImplementedException.class)
-  public void serializationGetPolicy() throws Exception {
-    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
-    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
-    this.serialize(container, this.serializedContainerLocation);
-    Container deserializedContainer = this.deserializer(this.serializedContainerLocation);
-    String signaturePolicyBeforeSerialization = container.getSignatures().get(0).getPolicy();
-    String signaturePolicyAfterSerialization = deserializedContainer.getSignatures().get(0).getPolicy();
-    Assert.assertEquals(signaturePolicyBeforeSerialization, signaturePolicyAfterSerialization);
-  }
-
-  @Test(expected = NotYetImplementedException.class)
-  public void serializationGetSignaturePolicyURI() throws Exception {
-    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
-    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
-    this.serialize(container, this.serializedContainerLocation);
-    Container deserializedContainer = this.deserializer(this.serializedContainerLocation);
-    URI signaturePolicyURIBeforeSerialization = container.getSignatures().get(0).getSignaturePolicyURI();
-    URI signaturePolicyURIAfterSerialization = deserializedContainer.getSignatures().get(0).getSignaturePolicyURI();
-    Assert.assertEquals(signaturePolicyURIBeforeSerialization, signaturePolicyURIAfterSerialization);
-  }
-
   @Test
   public void serializationGetSigningCertificate() throws Exception {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
     this.serialize(container, this.serializedContainerLocation);
     Container deserializedContainer = this.deserializer(this.serializedContainerLocation);
     byte[] signingCertBeforeSerialization = container.getSignatures().get(0).getSigningCertificate().
@@ -212,10 +185,10 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationGetRawSignature() throws Exception {
+  public void serializationGetRawSignature() {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
     this.serialize(container, this.serializedContainerLocation);
     Container deserializedContainer = this.deserializer(this.serializedContainerLocation);
     byte[] rawSignatureBeforeSerialization = container.getSignatures().get(0).getAdESSignature();
@@ -227,7 +200,7 @@ public class BDocSerializationTest extends AbstractTest {
   public void serializationGetTimeStampTokenCertificate() throws Exception {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    this.createSignatureBy(container, SignatureProfile.LT, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
     this.serialize(container, this.serializedContainerLocation);
     Container deserializedContainer = this.deserializer(this.serializedContainerLocation);
     byte[] timeStampTokenCertificateBeforeSerialization = container.getSignatures().get(0).
@@ -238,10 +211,10 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationGetProfile() throws Exception {
+  public void serializationGetProfile() {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
     this.serialize(container, this.serializedContainerLocation);
     Container deserializedContainer = this.deserializer(this.serializedContainerLocation);
     SignatureProfile signatureProfileBeforeSerialization = container.getSignatures().get(0).getProfile();
@@ -250,10 +223,10 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationGetDataFiles() throws Exception {
+  public void serializationGetDataFiles() {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
     this.serialize(container, this.serializedContainerLocation);
     Container deserializedContainer = this.deserializer(this.serializedContainerLocation);
     int nrOfDataFilesBeforeSerialization = container.getDataFiles().size();
@@ -265,7 +238,7 @@ public class BDocSerializationTest extends AbstractTest {
   public void serializationDataFileCheck() throws Exception {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
     this.serialize(container, this.serializedContainerLocation);
     Container deserializedContainer = this.deserializer(this.serializedContainerLocation);
     DataFile dataFileBeforeSerialization = container.getDataFiles().get(0);
@@ -290,7 +263,7 @@ public class BDocSerializationTest extends AbstractTest {
     container = SerializationUtils.deserialize(serializedContainer);
 
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
-            .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+            .withSigningCertificate(pkcs12SignatureToken.getCertificate())
             .withSignatureProfile(SignatureProfile.LT_TM)
             .buildDataToSign();
 

@@ -1,5 +1,14 @@
-package org.digidoc4j.impl.pades;
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
+package org.digidoc4j.impl.pades;
 
 import eu.europa.esig.dss.diagnostic.DiagnosticData;
 import eu.europa.esig.dss.enumerations.Indication;
@@ -20,12 +29,8 @@ import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
-import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.SignatureToken;
-import org.digidoc4j.SignedInfo;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
@@ -39,7 +44,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +51,6 @@ import java.util.List;
  * Created by Andrei on 17.11.2017.
  */
 public class PadesContainer extends PdfBoxDefaultObjectFactory implements Container {
-
 
   private static final Logger logger = LoggerFactory.getLogger(PadesContainer.class);
 
@@ -223,107 +226,12 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
   }
 
   @Override
-  public SignedInfo prepareSigning(X509Certificate signerCert) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
   public Configuration getConfiguration() {
     return configuration;
   }
 
   @Override
-  public String getSignatureProfile() {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public void setSignatureParameters(SignatureParameters signatureParameters) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public DigestAlgorithm getDigestAlgorithm() {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public void addRawSignature(byte[] signature) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public void addRawSignature(InputStream signatureStream) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public DataFile getDataFile(int index) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public int countDataFiles() {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public void removeDataFile(String fileName) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public void removeSignature(int signatureId) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public void save(String path) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
   public void save(OutputStream out) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public Signature sign(SignatureToken signatureToken) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public Signature signRaw(byte[] rawSignature) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public Signature getSignature(int index) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public int countSignatures() {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public DocumentType getDocumentType() {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public String getVersion() {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public void extendTo(SignatureProfile profile) {
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public void setSignatureProfile(SignatureProfile profile) {
     throw new NotYetImplementedException();
   }
 

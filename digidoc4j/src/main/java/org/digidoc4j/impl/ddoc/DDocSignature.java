@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.ddoc;
 
@@ -21,7 +21,6 @@ import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Date;
@@ -111,13 +110,6 @@ public class DDocSignature implements Signature {
   }
 
   @Override
-  @Deprecated
-  public String getPolicy() {
-    logger.debug("getPolicy");
-    return "";
-  }
-
-  @Override
   public String getPostalCode() {
 
     String postalCode = null;
@@ -138,17 +130,6 @@ public class DDocSignature implements Signature {
     Date date = origin.getSignatureProducedAtTime();
     logger.debug("OCSP response creation time: " + date);
     return date;
-  }
-
-  /**
-   * This method returns OCSP response creation time (Date object), it can be null.
-   *
-   * @return date.
-   */
-  @Override
-  @Deprecated
-  public Date getProducedAt() {
-    return getOCSPResponseCreationTime();
   }
 
   @Override
@@ -204,18 +185,6 @@ public class DDocSignature implements Signature {
   }
 
   @Override
-  public Date getSigningTime() {
-    return getClaimedSigningTime();
-  }
-
-  @Override
-  @Deprecated
-  public URI getSignaturePolicyURI() {
-    logger.debug("getSignaturePolicyURI");
-    return null;
-  }
-
-  @Override
   public String getStateOrProvince() {
     logger.debug("getStateOrProvince");
     
@@ -238,12 +207,6 @@ public class DDocSignature implements Signature {
     return new DDocSignatureValidationResult(validationResult, origin.getSignedDoc().getFormat());
   }
 
-  @Override
-  @Deprecated
-  public List<DigiDoc4JException> validate() {
-    return validateSignature().getErrors();
-  }
-
   /**
    * Retrieves CertValue element with the desired type
    *
@@ -259,12 +222,6 @@ public class DDocSignature implements Signature {
   public byte[] getAdESSignature() {
     logger.debug("getAdESSignature");
     return origin.getOrigContent();
-  }
-
-  @Override
-  @Deprecated
-  public byte[] getRawSignature() {
-    return getAdESSignature();
   }
 
   /**

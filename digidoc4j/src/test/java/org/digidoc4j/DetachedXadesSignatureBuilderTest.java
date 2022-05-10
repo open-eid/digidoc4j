@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j;
 
 import java.io.File;
@@ -366,7 +376,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signWithDifferentDataFileAndSignatureDigestAlgorithm() throws Exception {
+  public void signWithDifferentDataFileAndSignatureDigestAlgorithm() {
     DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
     Configuration configuration = new Configuration();
 
@@ -381,21 +391,6 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     Assert.assertEquals(DigestAlgorithm.SHA512, signatureParameters.getDataFileDigestAlgorithm());
     Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
     Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha384", signature.getSignatureMethod());
-    assertValidSignature(signature);
-  }
-
-  @Test
-  public void mimeTypeValueNotInitialized() throws Exception{
-    byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
-    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
-
-    Signature signature = DetachedXadesSignatureBuilder
-        .withConfiguration(new Configuration())
-        .withDataFile(digestDataFile)
-        .withSignatureToken(pkcs12EccSignatureToken)
-        .invokeSigningProcess();
-
-    assertTimestampSignature(signature);
     assertValidSignature(signature);
   }
 

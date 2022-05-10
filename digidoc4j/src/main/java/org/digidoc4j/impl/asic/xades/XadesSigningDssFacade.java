@@ -46,7 +46,6 @@ import org.w3c.dom.Element;
 
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -126,15 +125,6 @@ public class XadesSigningDssFacade {
     }
     DSSDocument correctedSignedDocument = surroundWithXadesXmlTag(signedDocument);
     return correctedSignedDocument;
-  }
-
-  @Deprecated
-  public DSSDocument extendSignature(DSSDocument xadesSignature, DSSDocument detachedContent) {
-    logger.debug("Extending signature with DSS");
-    xAdESSignatureParameters.setDetachedContents(Arrays.asList(detachedContent));
-    DSSDocument extendedSignature = xAdESService.extendDocument(xadesSignature, xAdESSignatureParameters);
-    logger.debug("Finished extending signature with DSS");
-    return extendedSignature;
   }
 
   public DSSDocument extendSignature(DSSDocument xadesSignature, List<DSSDocument> detachedContents) {

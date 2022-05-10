@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic;
 
@@ -49,7 +49,7 @@ public class AsicSignatureBuilder extends SignatureBuilder {
     byte[] signatureValue = null;
     try {
       signatureValue = signatureToken.sign(signatureParameters.getSignatureDigestAlgorithm(), dataToSign);
-      return finalizeSignature(signatureValue);
+      return getSignatureFinalizer().finalizeSignature(signatureValue);
     } catch (TechnicalException e) {
       String dataToSignHex = Helper.bytesToHex(dataToSign, AsicSignatureFinalizer.HEX_MAX_LENGTH);
       String signatureValueHex = signatureValue == null ? null : Helper.bytesToHex(signatureValue, AsicSignatureFinalizer.HEX_MAX_LENGTH);
@@ -74,14 +74,6 @@ public class AsicSignatureBuilder extends SignatureBuilder {
     }
     InMemoryDocument document = new InMemoryDocument(signatureDocument);
     return getSignatureFinalizer().createSignature(document);
-  }
-
-  /**
-   * @deprecated use {@link SignatureBuilder#invokeSigningProcess()} or {@link SignatureFinalizer#finalizeSignature(byte[] signatureValue)} instead.
-   */
-  @Deprecated
-  public Signature finalizeSignature(byte[] signatureValue) {
-    return getSignatureFinalizer().finalizeSignature(signatureValue);
   }
 
   public Configuration getConfiguration() {

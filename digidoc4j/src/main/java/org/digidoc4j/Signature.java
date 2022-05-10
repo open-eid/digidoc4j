@@ -1,20 +1,18 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-
-import org.digidoc4j.exceptions.DigiDoc4JException;
 
 /**
  * Signature interface. Provides an interface for handling a signature and the corresponding OCSP response properties.
@@ -65,31 +63,11 @@ public interface Signature extends Serializable {
   X509Cert getOCSPCertificate();
 
   /**
-   * If the container is DDOC then it returns an empty string.
-   * <p>
-   * For a BDOC Signature it throws a NotYetImplementedException.
-   *
-   * @return signature policy
-   * @deprecated will be removed in the future
-   */
-  @Deprecated
-  String getPolicy();
-
-  /**
    * Returns the signature production postal code.
    *
    * @return postal code
    */
   String getPostalCode();
-
-  /**
-   * Returns the signature OCSP producedAt timestamp.
-   *
-   * @return producedAt timestamp
-   * @deprecated use {@link Signature#getOCSPResponseCreationTime()} instead. Will be removed in the future.
-   */
-  @Deprecated
-  Date getProducedAt();
 
   /**
    * Returns the signature OCSP producedAt timestamp.
@@ -155,25 +133,6 @@ public interface Signature extends Serializable {
   Date getClaimedSigningTime();
 
   /**
-   * Returns the computer's time of signing.
-   *
-   * @return signing time
-   * @deprecated use {@link Signature#getClaimedSigningTime()} instead. Will be removed in the future.
-   */
-  @Deprecated
-  Date getSigningTime();
-
-  /**
-   * If the container is DDoc then it returns an empty string.
-   * For a BDOC Signature it throws a NotYetImplementedException.
-   *
-   * @return signature policy uri
-   * @deprecated will be removed in the future
-   */
-  @Deprecated
-  java.net.URI getSignaturePolicyURI();
-
-  /**
    * Returns the signature production state or province.
    *
    * @return production state or province
@@ -196,25 +155,9 @@ public interface Signature extends Serializable {
   ValidationResult validateSignature();
 
   /**
-   * Validates the signature.
-   *
-   * @return list of Digidoc4JExceptions
-   * @deprecated use {@link Signature#validateSignature()} instead.
-   */
-  @Deprecated
-  List<DigiDoc4JException> validate();
-
-  /**
    * Returns signature as XAdES XML
    *
    * @return signature as byte array
    */
   byte[] getAdESSignature();
-
-  /**
-   * @return signature as byte array
-   * @deprecated use {@link Signature#getAdESSignature()} instead.
-   */
-  @Deprecated
-  byte[] getRawSignature();
 }

@@ -10,13 +10,10 @@
 
 package org.digidoc4j;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.DataFileNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
@@ -31,7 +28,6 @@ import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -40,7 +36,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.security.cert.CertificateEncodingException;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -102,7 +97,7 @@ public class ContainerTest extends AbstractTest {
         Paths.get("src/test/resources/testFiles/valid-containers/bdoc-tm-with-large-data-file.bdoc"));
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertTrue(errors.size() == 0);
+    Assert.assertEquals(0, errors.size());
     Assert.assertTrue(result.isValid());
   }
 
@@ -134,7 +129,7 @@ public class ContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testAddOneFileToContainerForBDoc() throws Exception {
+  public void testAddOneFileToContainerForBDoc() {
     Container container = this.createEmptyContainer();
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     List<DataFile> dataFiles = container.getDataFiles();
@@ -167,45 +162,6 @@ public class ContainerTest extends AbstractTest {
       }
       Assert.assertTrue(manifestVerified);
     }
-  }
-
-  @Test(expected = DataFileNotFoundException.class)
-  public void nameBasedDataFileRemovalFromEmptyContainer_shouldThrowDataFileNotFoundException() {
-    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
-    Assert.assertSame(0, container.getDataFiles().size());
-    container.removeDataFile("test.txt");
-  }
-
-  @Test(expected = DataFileNotFoundException.class)
-  public void wrongNameBasedDataFileRemovalFromNonEmptyContainer_shouldThrowDataFileNotFoundException() {
-    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
-    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    Assert.assertSame(1, container.getDataFiles().size());
-    container.removeDataFile("some_different_file_name.txt");
-  }
-
-  @Test
-  public void nameBasedDataFileRemovalFromCreatedNotSignedContainer_shouldSucceed() {
-    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
-    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    Assert.assertSame(1, container.getDataFiles().size());
-    container.removeDataFile("test.txt");
-    Assert.assertSame(0, container.getDataFiles().size());
-  }
-
-  @Test
-  public void nameBasedDataFileRemovalFromOpenedNotSignedContainer_shouldSucceed() {
-    Container container = this.openContainerBy(Paths.get(ASIC_WITH_NO_SIG));
-    Assert.assertSame(1, container.getDataFiles().size());
-    container.removeDataFile("test.txt");
-    Assert.assertSame(0, container.getDataFiles().size());
-  }
-
-  @Test(expected = RemovingDataFileException.class)
-  public void nameBasedDataFileRemovalFromSignedContainer_shouldThrowRemovingDataFileException() {
-    Container container = this.openContainerBy(Paths.get(ASICE_WITH_TS_SIG));
-    Assert.assertSame(1, container.getDataFiles().size());
-    container.removeDataFile(container.getDataFiles().get(0).getName());
   }
 
   @Test(expected = DataFileNotFoundException.class)
@@ -255,7 +211,7 @@ public class ContainerTest extends AbstractTest {
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     TestDataBuilderUtil.signContainer(container);
     String file = this.getFileBy("bdoc");
-    container.save(file);
+    container.saveAsFile(file);
     Assert.assertTrue(Helper.isZipFile(new File(file)));
   }
 
@@ -271,45 +227,9 @@ public class ContainerTest extends AbstractTest {
   }
 
   @Test(expected = NotSupportedException.class)
-  public void DDocPrepareSigning_throwsException() {
-    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    container.prepareSigning(this.pkcs12SignatureToken.getCertificate());
-  }
-
-  @Test(expected = NotSupportedException.class)
-  public void DDocSign_throwsException() {
-    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    container.sign(pkcs12SignatureToken);
-  }
-
-  @Test(expected = NotSupportedException.class)
-  public void DDocSignRaw_throwsException() {
-    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    container.signRaw(new byte[]{0});
-  }
-
-  @Test(expected = NotSupportedException.class)
-  public void DDocAddRawSignature_throwsException() {
-    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    container.addRawSignature(new byte[]{0});
-  }
-
-  @Test(expected = NotSupportedException.class)
-  public void DDocAddRawSignatureAsStreamArray_throwsException() {
-    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    container.addRawSignature(new ByteArrayInputStream(new byte[]{0}));
-  }
-
-  @Test(expected = NotSupportedException.class)
-  public void DDocAddDataFile_throwsException() throws Exception {
+  public void DDocAddDataFile_throwsException() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-  }
-
-  @Test(expected = NotSupportedException.class)
-  public void DDocExtendTo_throwsException() {
-    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    container.extendTo(SignatureProfile.LT_TM);
   }
 
   @Test(expected = NotSupportedException.class)
@@ -319,7 +239,7 @@ public class ContainerTest extends AbstractTest {
   }
 
   @Test
-  public void addLargeFileToBDoc() throws Exception {
+  public void addLargeFileToBDoc() {
     DataFile dataFile = new LargeDataFile(new ByteArrayInputStream(new byte[]{0, 1, 2, 3}), "large-doc.txt",
         "text/plain");
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
@@ -344,12 +264,12 @@ public class ContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testOpenCreatedDDocFile() throws Exception {
+  public void testOpenCreatedDDocFile() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     String file = this.getFileBy("ddoc");
-    container.save(file);
+    container.saveAsFile(file);
     Container containerForReading = ContainerOpener.open(file);
-    Assert.assertEquals(Container.DocumentType.DDOC, containerForReading.getDocumentType());
+    Assert.assertEquals(Constant.DDOC_CONTAINER_TYPE, containerForReading.getType());
     Assert.assertEquals(1, container.getDataFiles().size());
   }
 
@@ -359,7 +279,7 @@ public class ContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testValidateDDoc() throws Exception {
+  public void testValidateDDoc() {
     this.configuration = Configuration.of(Configuration.Mode.TEST);
     ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open(
@@ -371,7 +291,7 @@ public class ContainerTest extends AbstractTest {
 
   @Ignore //This test fails in Travis
   @Test
-  public void testValidateDDoc10() throws Exception {
+  public void testValidateDDoc10() {
     this.configuration = Configuration.of(Configuration.Mode.PROD);
     ConfigManagerInitializer.forceInitConfigManager(this.configuration);
     Container container = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/SK-XML1.0.ddoc");
@@ -437,7 +357,7 @@ public class ContainerTest extends AbstractTest {
   @Test(expected = DigiDoc4JException.class)
   public void testOpenFromStreamTooShortToVerifyIfIsZip() {
     try (FileInputStream stream = new FileInputStream(
-        new File("src/test/resources/testFiles/invalid-containers/tooShortToVerifyIfIsZip.ddoc"))) {
+        "src/test/resources/testFiles/invalid-containers/tooShortToVerifyIfIsZip.ddoc")) {
       ContainerOpener.open(stream, true);
     } catch (DigiDoc4JException e) {
       throw e;
@@ -458,9 +378,9 @@ public class ContainerTest extends AbstractTest {
   public void openContainerFromStreamAsBDoc() throws IOException {
     Container container = this.createEmptyContainer();
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    Signature signature = this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
     String file = this.getFileBy("bdoc");
-    container.save(file);
+    container.saveAsFile(file);
     try (FileInputStream stream = new FileInputStream(file)) {
       Container containerToTest = ContainerOpener.open(stream, false);
       Assert.assertEquals(1, containerToTest.getSignatures().size());
@@ -484,7 +404,7 @@ public class ContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testConfigurationIsKeptWithInDDoc() throws Exception {
+  public void testConfigurationIsKeptWithInDDoc() {
     DDocContainer container = (DDocContainer) ContainerBuilder.aContainer(Container.DocumentType.DDOC)
         .withConfiguration(Configuration.getInstance())
         .fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc")
@@ -493,71 +413,33 @@ public class ContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testExtendToForBDOC() {
+  public void testExtendSignatureProfileForBDOC() {
     Container container = this.createEmptyContainer();
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     Signature signature = SignatureBuilder.aSignature(container).withSignatureProfile(SignatureProfile.B_BES).
-        withSignatureToken(this.pkcs12SignatureToken).invokeSigning();
+        withSignatureToken(pkcs12SignatureToken).invokeSigning();
     container.addSignature(signature);
-    container.extendTo(SignatureProfile.LT);
+    container.extendSignatureProfile(SignatureProfile.LT);
     Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
-  }
-
-  @Test
-  public void addRawSignatureToBDocContainer() throws Exception {
-    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
-    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    byte[] signatureBytes = FileUtils.readFileToByteArray(
-        new File("src/test/resources/testFiles/xades/valid-bdoc-tm.xml"));
-    container.addRawSignature(signatureBytes);
-    String file = this.getFileBy("bdoc");
-    container.saveAsFile(file);
-    container = ContainerOpener.open(file);
-    Assert.assertEquals(1, container.getSignatures().size());
-    Assert.assertTrue(container.validate().isValid());
-  }
-
-  @Test
-  public void addRawSignatureToExistingBDocContainer() throws Exception {
-    Container container = this.createNonEmptyContainerBy(
-        Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
-    byte[] signatureBytes = FileUtils.readFileToByteArray(
-        new File("src/test/resources/testFiles/xades/valid-bdoc-tm.xml"));
-    container.addRawSignature(signatureBytes);
-    String file = this.getFileBy("bdoc");
-    container.saveAsFile(file);
-    container = ContainerOpener.open(file);
-    Assert.assertEquals(2, container.getSignatures().size());
-    TestAssert.assertContainerIsValid(container);
-  }
-
-  @Test(expected = InvalidSignatureException.class)
-  public void testAddRawSignatureAsByteArrayForBDoc() throws CertificateEncodingException, IOException, SAXException {
-    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
-    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
-    container.addRawSignature(Base64.decodeBase64("fo4aA1PVI//1agzBm2Vcxj7sk9pYQJt+9a7xLFSkfF10RocvGjVPBI65RMqyxGIsje" +
-        "LoeDERfTcjHdNojoK/gEdKtme4z6kvkZzjMjDuJu7krK/3DHBtW3XZleIaWZSWySahUiPNNIuk5ykACUolh+K/UK2aWL3Nh64EWvC8aznLV0" +
-        "M21s7GwTv7+iVXhR/6c3O22saWKWsteGT0/AqfcBRoj13H/NyuZOULqU0PFOhbJtV8RyZgC9n2uYBFsnutt5GPvhP+U93gkmFQ0+iC1a9Ktt" +
-        "j4QH5si35YmRIe0fp8tGDo6li63/tybb+kQ96AIaRe1NxpkKVDBGNi+VNVNA=="));
   }
 
   @Test(expected = DigiDoc4JException.class)
   public void testRemovingNotExistingSignatureThrowsException() {
     Container container = this.createEmptyContainerBy(Container.DocumentType.DDOC);
-    container.removeSignature(0);
+    Signature signature = SignatureBuilder.aSignature(container).withSignatureProfile(SignatureProfile.LT_TM).
+            withSignatureToken(pkcs12SignatureToken).invokeSigning();
+    container.removeSignature(signature);
   }
 
 
   @Test
-  public void testSigningWithSignerInfo() throws Exception {
+  public void testSigningWithSignerInfo() {
     Container container = this.createEmptyContainer();
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     Signature signature = SignatureBuilder.aSignature(container).withCity("myCity").withStateOrProvince(
         "myStateOrProvince").
         withPostalCode("myPostalCode").withCountry("myCountry").withRoles("myRole / myResolution").
-        withSignatureToken(this.pkcs12SignatureToken).invokeSigning();
+        withSignatureToken(pkcs12SignatureToken).invokeSigning();
     container.addSignature(signature);
     Assert.assertEquals("myCity", signature.getCity());
     Assert.assertEquals("myStateOrProvince", signature.getStateOrProvince());
@@ -575,15 +457,15 @@ public class ContainerTest extends AbstractTest {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).withConfiguration(
         this.configuration).
         withDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain").build();
-    this.createSignatureBy(container, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, pkcs12SignatureToken);
   }
 
   @Test
-  public void mustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224() throws Exception {
+  public void mustBePossibleToCreateAndVerifyContainerWhereDigestAlgorithmIsSHA224() {
     Container container = this.createEmptyContainer();
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     Signature signature = SignatureBuilder.aSignature(container).withSignatureDigestAlgorithm(DigestAlgorithm.SHA224).
-        withSignatureToken(this.pkcs12SignatureToken).invokeSigning();
+        withSignatureToken(pkcs12SignatureToken).invokeSigning();
     container.addSignature(signature);
     String file = this.getFileBy("bdoc");
     container.saveAsFile(file);
@@ -593,38 +475,41 @@ public class ContainerTest extends AbstractTest {
   }
 
   @Test
-  public void constructorWithConfigurationParameter() throws Exception {
+  public void constructorWithConfigurationParameter() {
     Container container = ContainerBuilder.aContainer().
         withConfiguration(Configuration.getInstance()).build();
     Assert.assertEquals("ASICE", container.getType());
   }
 
   @Test
-  @Ignore // Fails on Jenkins - need to verify
-  public void createContainerWhenAttachmentNameContainsEstonianCharacters() throws Exception {
+  public void createContainerWhenAttachmentNameContainsEstonianCharacters() {
     Container container = this.createEmptyContainer();
-    String s = "src/test/resources/testFiles/test_o\u0303a\u0308o\u0308u\u0308.txt";
-    container.addDataFile(s, "text/plain");
-    container.sign(this.pkcs12SignatureToken);
+    String s = "\u0303a\u0308o\u0308u\u0308";
+    container.addDataFile(new DataFile(
+            s.getBytes(StandardCharsets.UTF_8),
+            s + ".txt",
+            "text/plain"
+    ));
+    createSignatureBy(container, pkcs12SignatureToken);
     Assert.assertEquals(1, container.getDataFiles().size());
     TestAssert.assertContainerIsValid(container);
   }
 
   @Test
-  public void containerTypeStringValueForBDOC() throws Exception {
+  public void containerTypeStringValueForBDOC() {
     Assert.assertEquals("application/vnd.etsi.asic-e+zip",
-        this.createEmptyContainer(Container.class).getDocumentType().toString());
+        Container.DocumentType.BDOC.toString());
   }
 
   @Test
-  public void testSigningMultipleFilesInContainer() throws Exception {
+  public void testSigningMultipleFilesInContainer() {
     Container container = this.createEmptyContainer();
     container.addDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "1.txt", "text/plain");
     container.addDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "2.txt", "text/plain");
     container.addDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "3.txt", "text/plain");
     TestDataBuilderUtil.signContainer(container);
     String file = this.getFileBy("bdoc");
-    container.save(file);
+    container.saveAsFile(file);
     Assert.assertEquals(3, container.getDataFiles().size());
     this.assertContainsDataFile("1.txt", container);
     this.assertContainsDataFile("2.txt", container);
@@ -647,7 +532,7 @@ public class ContainerTest extends AbstractTest {
         return;
       }
     }
-    Assert.assertFalse("Data file '" + fileName + "' was not found in the container", true);
+    Assert.fail("Data file '" + fileName + "' was not found in the container");
   }
 
 }
