@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.bdoc.report;
 
@@ -31,10 +31,11 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 public class SignatureValidationReportTest {
 
   @Test
-  public void copyXmlSignatureParameters() throws Exception {
+  public void copyXmlSignatureParameters() {
     XmlSignature signature = new XmlSignature();
     Date today = new Date();
     signature.setSigningTime(today);
+    signature.setBestSignatureTime(today);
     signature.setSignedBy("SignedBy");
     signature.setIndication(Indication.TOTAL_PASSED);
     XmlSignatureLevel sigLevel = new XmlSignatureLevel();
@@ -50,12 +51,13 @@ public class SignatureValidationReportTest {
     signature.getQualificationDetails().getError().addAll(asList(createMessage("QError1"), createMessage("QError2")));
     signature.getQualificationDetails().getWarning().addAll(asList(createMessage("QWarning1"), createMessage("QWarning2")));
     signature.getQualificationDetails().getInfo().addAll(asList(createMessage("QInfo1"), createMessage("QInfo2")));
-    signature.getSignatureScope().addAll(asList(new XmlSignatureScope()));
+    signature.getSignatureScope().add(new XmlSignatureScope());
     signature.setId("123abc");
     signature.setParentId("Parent ID");
     signature.setSignatureFormat(SignatureLevel.UNKNOWN);
     SignatureValidationReport report = SignatureValidationReport.create(signature);
     Assert.assertEquals(today, report.getSigningTime());
+    Assert.assertEquals(today, report.getBestSignatureTime());
     Assert.assertEquals("SignedBy", report.getSignedBy());
     Assert.assertEquals(Indication.TOTAL_PASSED, report.getIndication());
     Assert.assertEquals("QES", report.getSignatureLevel().getValue().name());

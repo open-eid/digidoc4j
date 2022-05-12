@@ -114,6 +114,7 @@ public class SignatureValidationReport implements Serializable {
   public static SignatureValidationReport create(XmlSignature xmlSignature) {
     SignatureValidationReport report = new SignatureValidationReport();
     report.setSigningTime(xmlSignature.getSigningTime());
+    report.setBestSignatureTime(xmlSignature.getBestSignatureTime());
     report.setSignedBy(xmlSignature.getSignedBy());
     report.setIndication(xmlSignature.getIndication());
     report.setSignatureLevel(xmlSignature.getSignatureLevel());

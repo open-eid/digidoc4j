@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.bdoc.report;
 
@@ -49,6 +49,8 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("true", "count(/SimpleReport/Signature[@Id='" + signatureId + "']/CertificateChain/Certificate) > 1", report);
     TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", "/SimpleReport/Signature[@Id='" + signatureId +
             "']/CertificateChain/Certificate[1]/qualifiedName", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature[@Id='" + signatureId + "']/SigningTime)", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature[@Id='" + signatureId + "']/BestSignatureTime)", report);
   }
 
   @Test
@@ -66,6 +68,8 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("dds_acrobat.pdf", "/SimpleReport/Signature/SignatureScope[2]/@name", report);
     TestAssert.assertXPathHasValue("true", "count(/SimpleReport/Signature/CertificateChain/Certificate) > 1", report);
     TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", "/SimpleReport/Signature/CertificateChain/Certificate[1]/qualifiedName", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature/SigningTime)", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature/BestSignatureTime)", report);
   }
 
   @Test
