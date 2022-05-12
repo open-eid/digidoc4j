@@ -46,6 +46,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiPredicate;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 
@@ -145,6 +146,8 @@ import static java.util.Arrays.asList;
  * <li>TSL_CACHE_EXPIRATION_TIME: TSL cache expiration time in milliseconds</li>
  * <li>TRUSTED_TERRITORIES: list of countries and territories to trust and load TSL certificates
  * (for example, EE, LV, FR)</li>
+ * <li>REQUIRED_TERRITORIES: list of countries and territories that must be successfully loaded
+ * into the TSL (for example, EE, LV, FR) - used by the default TSL refresh callback</li>
  * <li>HTTP_PROXY_HOST: network proxy host name</li>
  * <li>HTTP_PROXY_PORT: network proxy port</li>
  * <li>HTTP_PROXY_USER: network proxy user (for basic auth proxy)</li>
@@ -190,6 +193,7 @@ public class Configuration implements Serializable {
   private HashMap<String, Map<ConfigurationParameter, String>> aiaOcspMap = new HashMap<>();
 
   private List<String> trustedTerritories = new ArrayList<>();
+  private List<String> requiredTerritories = new ArrayList<>();
   private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
   private LinkedHashMap<String, Object> configurationFromFile;
   private String configurationInputSourceName;
@@ -199,6 +203,7 @@ public class Configuration implements Serializable {
   private DataLoaderFactory tspDataLoaderFactory;
   private DataLoaderFactory tslDataLoaderFactory;
   private DSSFileLoaderFactory tslFileLoaderFactory;
+  private TSLRefreshCallback tslRefreshCallback;
 
   /**
    * Application mode
@@ -582,6 +587,23 @@ public class Configuration implements Serializable {
    */
   public DSSFileLoaderFactory getTslFileLoaderFactory() {
     return tslFileLoaderFactory;
+  }
+
+  /**
+   * Sets a callback that validates the state of the TSL after each TSL refresh.
+   * If no custom callback is configured, a default callback is used for TSL validation.
+   * @param tslRefreshCallback a callback to validate TSL after a refresh
+   */
+  public void setTslRefreshCallback(TSLRefreshCallback tslRefreshCallback) {
+    this.tslRefreshCallback = tslRefreshCallback;
+  }
+
+  /**
+   * Returns the currently configured TSL refresh callback or {@code null} if no custom callback is configured.
+   * @return configured TSL refresh callback or {@code null}
+   */
+  public TSLRefreshCallback getTslRefreshCallback() {
+    return tslRefreshCallback;
   }
 
   /**
@@ -1903,16 +1925,16 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Set countries and territories (2 letter country codes) whom to trust and accept certificates.
+   * Set countries and territories (alpha-2 country codes) whom to trust and accept certificates.
    * <p/>
-   * It is possible accept signatures (and certificates) only from particular countries by filtering
+   * It is possible to accept signatures (and certificates) only from particular countries by filtering
    * trusted territories. Only the TSL (and certificates) from those countries are then downloaded and
    * others are skipped.
    * <p/>
    * For example, it is possible to trust signatures only from these three countries: Estonia, Latvia and France,
    * and skip all other countries: "EE", "LV", "FR".
    *
-   * @param trustedTerritories list of 2 letter country codes.
+   * @param trustedTerritories list of alpha-2 country codes.
    */
   public void setTrustedTerritories(String... trustedTerritories) {
     this.trustedTerritories = Arrays.asList(trustedTerritories);
@@ -1921,10 +1943,38 @@ public class Configuration implements Serializable {
   /**
    * Get trusted territories.
    *
-   * @return trusted territories list.
+   * @return list of trusted territories
    */
   public List<String> getTrustedTerritories() {
     return trustedTerritories;
+  }
+
+  /**
+   * Set countries and territories (alpha-2 country codes) whose trusted lists must always be successfully
+   * loaded into the TSL.
+   * <p>
+   * This list is used by the default TSL refresh callback.
+   * If the trusted list of any of these territories fails to load, then the TSL refresh is considered
+   * to have been failed.
+   *
+   * @param requiredTerritories list of alpha-2 country codes.
+   *
+   * @see #setTslRefreshCallback(TSLRefreshCallback)
+   * @see #getTslRefreshCallback()
+   */
+  public void setRequiredTerritories(String... requiredTerritories) {
+    this.requiredTerritories = Arrays.asList(requiredTerritories);
+  }
+
+  /**
+   * Get required territories.
+   *
+   * @return list of required territories
+   *
+   * @see #setRequiredTerritories(String...)
+   */
+  public List<String> getRequiredTerritories() {
+    return requiredTerritories;
   }
 
   /**
@@ -2093,7 +2143,8 @@ public class Configuration implements Serializable {
       this.setConfigurationParameter(ConfigurationParameter.OcspSource, Constant.Production.OCSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, "false");
       this.setConfigurationParameter(ConfigurationParameter.PrintValidationReport, "false");
-      this.trustedTerritories = Constant.Production.DEFAULT_TRUESTED_TERRITORIES;
+      this.requiredTerritories = Constant.Production.DEFAULT_REQUIRED_TERRITORIES;
+      this.trustedTerritories = Constant.Production.DEFAULT_TRUSTED_TERRITORIES;
       this.setDDoc4JParameter("SIGN_OCSP_REQUESTS", "false");
       setDDoc4JParameter("ALLOWED_OCSP_RESPONDERS_FOR_TM", StringUtils.join(Constant.Production.DEFAULT_OCSP_RESPONDERS, ","));
       this.setConfigurationParameter(ConfigurationParameter.AllowedOcspRespondersForTM, Constant.Production.DEFAULT_OCSP_RESPONDERS);
@@ -2192,12 +2243,13 @@ public class Configuration implements Serializable {
     }
     this.setConfigurationParameter(ConfigurationParameter.AllowASN1UnsafeInteger, this.getParameter(Constant
         .System.ORG_BOUNCYCASTLE_ASN1_ALLOW_UNSAFE_INTEGER, "ALLOW_UNSAFE_INTEGER"));
-    this.setConfigurationParameter(ConfigurationParameter.preferAiaOcsp, this.getParameterFromFile("PREFER_AIA_OCSP"));
+    this.setConfigurationParameter(ConfigurationParameter.preferAiaOcsp, this.getStringParameterFromFile("PREFER_AIA_OCSP"));
     this.setConfigurationParameterFromFile("ZIP_COMPRESSION_RATIO_CHECK_THRESHOLD_IN_BYTES",
             ConfigurationParameter.ZipCompressionRatioCheckThreshold, this::isValidLongParameter);
     this.setConfigurationParameterFromFile("MAX_ALLOWED_ZIP_COMPRESSION_RATIO",
             ConfigurationParameter.MaxAllowedZipCompressionRatio, this::isValidIntegerParameter);
     this.loadYamlOcspResponders();
+    this.loadYamlRequiredTerritories();
     this.loadYamlTrustedTerritories();
     this.loadYamlTSPs();
     this.loadYamlAiaOCSPs(configurationFromFile, false);
@@ -2492,6 +2544,13 @@ public class Configuration implements Serializable {
     }
   }
 
+  private void loadYamlRequiredTerritories() {
+    List<String> territories = getStringListParameterFromFile("REQUIRED_TERRITORIES");
+    if (territories != null) {
+      requiredTerritories = territories;
+    }
+  }
+
   private void loadYamlTrustedTerritories() {
     List<String> territories = getStringListParameterFromFile("TRUSTED_TERRITORIES");
     if (territories != null) {
@@ -2499,11 +2558,16 @@ public class Configuration implements Serializable {
     }
   }
 
-  private String getParameterFromFile(String key) {
-    if (this.configurationFromFile == null) {
+  private Object getObjectParameterFromFile(String key) {
+    if (configurationFromFile != null) {
+      return configurationFromFile.get(key);
+    } else {
       return null;
     }
-    Object fileValue = this.configurationFromFile.get(key);
+  }
+
+  private String getStringParameterFromFile(String key) {
+    Object fileValue = getObjectParameterFromFile(key);
     if (fileValue == null) {
       return null;
     }
@@ -2515,15 +2579,17 @@ public class Configuration implements Serializable {
   }
 
   private List<String> getStringListParameterFromFile(String key) {
-    String value = getParameterFromFile(key);
-    if (value == null) {
-      return null;
+    Object objectValue = getObjectParameterFromFile(key);
+    if (objectValue instanceof List) {
+      return ((List<?>) objectValue).stream().map(Objects::toString).collect(Collectors.toList());
+    } else if (objectValue != null) {
+      return Arrays.asList(objectValue.toString().split("\\s*,\\s*")); //Split by comma and trim whitespace
     }
-    return Arrays.asList(value.split("\\s*,\\s*")); //Split by comma and trim whitespace
+    return null;
   }
 
   private void setConfigurationParameterFromFile(String fileKey, ConfigurationParameter parameter, BiPredicate<String, String> parameterValidator) {
-    String fileValue = this.getParameterFromFile(fileKey);
+    String fileValue = this.getStringParameterFromFile(fileKey);
     if (fileValue != null && (parameterValidator == null || parameterValidator.test(fileKey, fileValue))) {
       this.setConfigurationParameter(parameter, fileValue);
     }
@@ -2660,7 +2726,7 @@ public class Configuration implements Serializable {
    */
   private String getParameter(String systemKey, String fileKey) {
     String valueFromJvm = System.getProperty(systemKey);
-    String valueFromFile = this.getParameterFromFile(fileKey);
+    String valueFromFile = this.getStringParameterFromFile(fileKey);
     this.log(valueFromJvm, valueFromFile, systemKey, fileKey);
     return valueFromJvm != null ? valueFromJvm : valueFromFile;
   }

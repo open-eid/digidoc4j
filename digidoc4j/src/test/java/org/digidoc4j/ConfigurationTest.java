@@ -20,9 +20,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.LotlTrustStoreNotFoundException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
+import org.digidoc4j.exceptions.TslRefreshException;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
 import org.digidoc4j.impl.asic.tsl.TslLoader;
+import org.digidoc4j.test.MockTSLRefreshCallback;
+import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestCommonUtil;
 import org.digidoc4j.test.util.TestFileUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
@@ -48,6 +51,7 @@ import java.nio.file.attribute.FileTime;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -216,15 +220,24 @@ public class ConfigurationTest extends AbstractTest {
     }
   }
 
-  @Test
-  public void lotlLoadingWithNoLotlSslCertificateInTruststore() {
+  @Test(expected = TslRefreshException.class)
+  public void lotlLoadingWithNoLotlSslCertificateInTruststoreUsingDefaultTslCallback() {
     configuration.setSslTruststorePath("classpath:testFiles/truststores/empty-truststore.p12");
     configuration.setSslTruststorePassword("digidoc4j-password");
     configuration.setSslTruststoreType("PKCS12");
     evictTSLCache();
     configuration.getTSL().refresh();
+  }
+
+  @Test
+  public void lotlLoadingWithNoLotlSslCertificateInTruststoreUsingCustomTslCallback() {
+    configuration.setSslTruststorePath("classpath:testFiles/truststores/empty-truststore.p12");
+    configuration.setSslTruststorePassword("digidoc4j-password");
+    configuration.setSslTruststoreType("PKCS12");
+    evictTSLCache();
+    configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     ValidationResult validationResult = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/valid_prod_bdoc_eid.bdoc", configuration).validate();
-    Assert.assertTrue(validationResult.getErrors().stream().anyMatch(e -> "The certificate chain for signature is not trusted, it does not contain a trust anchor.".equals(e.getMessage())));
+    TestAssert.assertContainsErrors(validationResult.getErrors(), "The certificate chain for signature is not trusted, it does not contain a trust anchor.");
   }
 
   @Test
@@ -233,6 +246,7 @@ public class ConfigurationTest extends AbstractTest {
     configuration.setSslTruststorePathFor(ExternalConnectionType.TSL, "src/test/resources/testFiles/truststores/lotl-ssl-only-truststore.p12");
     configuration.setSslTruststorePasswordFor(ExternalConnectionType.TSL, "digidoc4j-password");
     configuration.setSslTruststoreTypeFor(ExternalConnectionType.TSL, "PKCS12");
+    configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     evictTSLCache();
     ValidationResult validationResult = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/valid_prod_bdoc_eid.bdoc", configuration).validate();
     Assert.assertTrue("Certificate path should not be trusted", validationResult.getErrors().stream()
@@ -240,7 +254,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void addedTSLIsValid() throws IOException, CertificateException {
+  public void addedTSLIsValid() {
     TSLCertificateSource source = this.configuration.getTSL();
     this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);
     this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/EE_Certification_Centre_Root_CA.pem.crt"), source);
@@ -280,6 +294,7 @@ public class ConfigurationTest extends AbstractTest {
   @Test
   public void LOTLFileNotFoundThrowsNoException() {
     this.configuration.setLotlLocation("file:test-lotl/NotExisting.xml");
+    this.configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     BDocContainer container = (BDocContainer) ContainerBuilder.
         aContainer(Container.DocumentType.BDOC).
         withConfiguration(this.configuration).
@@ -291,6 +306,7 @@ public class ConfigurationTest extends AbstractTest {
   @Test
   public void LOTLConnectionFailureThrowsNoException() {
     this.configuration.setLotlLocation("http://127.0.0.1/lotl/incorrect.xml");
+    this.configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     BDocContainer container = (BDocContainer) ContainerBuilder.
         aContainer(Container.DocumentType.BDOC).
         withConfiguration(this.configuration).
@@ -1350,13 +1366,13 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void getTrustedTerritories_defaultTesting_shouldBeNull() {
-    Assert.assertEquals(new ArrayList<>(), this.configuration.getTrustedTerritories());
+    Assert.assertEquals(Collections.emptyList(), configuration.getTrustedTerritories());
   }
 
   @Test
   public void getTrustedTerritories_defaultProd() {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    List<String> trustedTerritories = this.configuration.getTrustedTerritories();
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    List<String> trustedTerritories = configuration.getTrustedTerritories();
     Assert.assertNotNull(trustedTerritories);
     Assert.assertTrue(trustedTerritories.contains("EE"));
     Assert.assertTrue(trustedTerritories.contains("BE"));
@@ -1367,22 +1383,72 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void setTrustedTerritories() {
-    this.configuration.setTrustedTerritories("AR", "US", "CA");
-    List<String> trustedTerritories = this.configuration.getTrustedTerritories();
-    Assert.assertEquals(3, trustedTerritories.size());
-    Assert.assertEquals("AR", trustedTerritories.get(0));
-    Assert.assertEquals("US", trustedTerritories.get(1));
-    Assert.assertEquals("CA", trustedTerritories.get(2));
+    configuration.setTrustedTerritories("AR", "US", "CA");
+    List<String> trustedTerritories = configuration.getTrustedTerritories();
+    Assert.assertEquals(Arrays.asList("AR", "US", "CA"), trustedTerritories);
   }
 
   @Test
   public void loadTrustedTerritoriesFromConf() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    List<String> trustedTerritories = this.configuration.getTrustedTerritories();
-    Assert.assertEquals(3, trustedTerritories.size());
-    Assert.assertEquals("NZ", trustedTerritories.get(0));
-    Assert.assertEquals("AU", trustedTerritories.get(1));
-    Assert.assertEquals("BR", trustedTerritories.get(2));
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    List<String> trustedTerritories = configuration.getTrustedTerritories();
+    Assert.assertEquals(Arrays.asList("NZ", "AU", "BR"), trustedTerritories);
+  }
+
+  @Test
+  public void loadYamlTrustedTerritoriesFromConf() {
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc4j_test_conf_territories_lists.yaml");
+    List<String> trustedTerritories = configuration.getTrustedTerritories();
+    Assert.assertEquals(Arrays.asList("AU", "NZ", "AR"), trustedTerritories);
+  }
+
+  @Test
+  public void loadEmptyTrustedTerritoriesFromConf() throws Exception {
+    configuration.setTrustedTerritories("EE");
+    loadConfigurationFromString(configuration, "TRUSTED_TERRITORIES: []");
+    List<String> trustedTerritories = configuration.getTrustedTerritories();
+    Assert.assertEquals(Collections.emptyList(), trustedTerritories);
+  }
+
+  @Test
+  public void getRequiredTerritories_defaultTesting_shouldBeNull() {
+    Assert.assertEquals(Collections.emptyList(), configuration.getRequiredTerritories());
+  }
+
+  @Test
+  public void getRequiredTerritories_defaultProd() {
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    List<String> requiredTerritories = configuration.getRequiredTerritories();
+    Assert.assertEquals(Collections.singletonList("EE"), requiredTerritories);
+  }
+
+  @Test
+  public void setRequiredTerritories() {
+    configuration.setRequiredTerritories("CU", "LV");
+    List<String> requiredTerritories = configuration.getRequiredTerritories();
+    Assert.assertEquals(Arrays.asList("CU", "LV"), requiredTerritories);
+  }
+
+  @Test
+  public void loadRequiredTerritoriesFromConf() {
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    List<String> requiredTerritories = configuration.getRequiredTerritories();
+    Assert.assertEquals(Arrays.asList("GB", "LT"), requiredTerritories);
+  }
+
+  @Test
+  public void loadYamlRequiredTerritoriesFromConf() {
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc4j_test_conf_territories_lists.yaml");
+    List<String> requiredTerritories = configuration.getRequiredTerritories();
+    Assert.assertEquals(Arrays.asList("IE", "LV"), requiredTerritories);
+  }
+
+  @Test
+  public void loadEmptyRequiredTerritoriesFromConf() throws Exception {
+    configuration.setRequiredTerritories("EE");
+    loadConfigurationFromString(configuration, "REQUIRED_TERRITORIES: []");
+    List<String> requiredTerritories = configuration.getRequiredTerritories();
+    Assert.assertEquals(Collections.emptyList(), requiredTerritories);
   }
 
   @Test

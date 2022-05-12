@@ -28,6 +28,7 @@ import eu.europa.esig.dss.tsl.sync.ExpirationAndSignatureCheckStrategy;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.TSLRefreshCallback;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.LotlTrustStoreNotFoundException;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
@@ -41,6 +42,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -81,6 +83,11 @@ public class TslLoader implements Serializable {
     } catch (DSSException e) {
       throw new TslCertificateSourceInitializationException("Failed to initialize TSL: " + e.getMessage(), e);
     }
+  }
+
+  public TSLRefreshCallback getTslRefreshCallback() {
+    return Optional.ofNullable(configuration.getTslRefreshCallback())
+            .orElseGet(() -> new DefaultTSLRefreshCallback(configuration));
   }
 
   private TLValidationJob createTslValidationJob() {

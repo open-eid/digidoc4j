@@ -1,0 +1,8 @@
+REQUIRED_TERRITORIES:
+  - IE
+  - LV
+
+TRUSTED_TERRITORIES:
+  - AU
+  - NZ
+  - AR

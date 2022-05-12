@@ -12,9 +12,10 @@ package org.digidoc4j;
 
 import eu.europa.esig.dss.enumerations.ObjectIdentifierQualifier;
 import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.model.MimeType;
 import eu.europa.esig.dss.model.Policy;
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -67,6 +68,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -245,6 +247,41 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   @SuppressWarnings("unchecked")
   protected <T> T createEmptyContainerBy(Container.DocumentType type, Class<T> clazz) {
     return (T) ContainerBuilder.aContainer(type).build();
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T> T createContainer(DataFile... dataFiles) {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer();
+    Arrays.asList(dataFiles).forEach(containerBuilder::withDataFile);
+    return (T) containerBuilder.build();
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T> T createContainer(Configuration configuration, DataFile... dataFiles) {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer().withConfiguration(configuration);
+    Arrays.asList(dataFiles).forEach(containerBuilder::withDataFile);
+    return (T) containerBuilder.build();
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T> T createContainer(Class<T> clazz, DataFile... dataFiles) {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer();
+    Arrays.asList(dataFiles).forEach(containerBuilder::withDataFile);
+    return (T) containerBuilder.build();
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T> T createContainerBy(Container.DocumentType type, DataFile... dataFiles) {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer(type);
+    Arrays.asList(dataFiles).forEach(containerBuilder::withDataFile);
+    return (T) containerBuilder.build();
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T> T createContainerBy(Container.DocumentType type, Class<T> clazz, DataFile... dataFiles) {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer(type);
+    Arrays.asList(dataFiles).forEach(containerBuilder::withDataFile);
+    return (T) containerBuilder.build();
   }
 
   protected Container createNonEmptyContainer() {
@@ -439,6 +476,14 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected List<DataFile> createDataFilesToSign() {
     return Collections.singletonList(new DataFile("src/test/resources/testFiles/helper-files/test.txt", "plain/text"));
+  }
+
+  protected DataFile createBinaryDataFile(String fileName, byte[] fileContent) {
+    return new DataFile(fileContent, fileName, MimeType.BINARY.getMimeTypeString());
+  }
+
+  protected DataFile createTextDataFile(String fileName, String fileContent) {
+    return new DataFile(fileContent.getBytes(StandardCharsets.UTF_8), fileName, MimeType.TEXT.getMimeTypeString());
   }
 
   protected void evictTSLCache() {

@@ -22,6 +22,7 @@ import org.digidoc4j.impl.asic.asice.bdoc.BDocContainerBuilder;
 import org.digidoc4j.impl.asic.manifest.AsicManifest;
 import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
+import org.digidoc4j.test.MockTSLRefreshCallback;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.digidoc4j.utils.Helper;
@@ -453,6 +454,7 @@ public class ContainerTest extends AbstractTest {
   public void testSetConfigurationForBDoc() {
     expectedException.expect(OCSPRequestFailedException.class);
     this.configuration = new Configuration(Configuration.Mode.TEST);
+    this.configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     this.configuration.setLotlLocation("pole");
     Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).withConfiguration(
         this.configuration).

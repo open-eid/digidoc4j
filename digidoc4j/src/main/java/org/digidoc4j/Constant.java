@@ -81,7 +81,8 @@ public final class Constant {
     public static final String LOTL_TRUSTSTORE_PATH = "classpath:truststores/lotl-truststore.p12";
     public static final String VALIDATION_POLICY = "conf/constraint.xml";
     public static final String OCSP_SOURCE = "http://ocsp.sk.ee/";
-    public static final List<String> DEFAULT_TRUESTED_TERRITORIES = Collections.unmodifiableList(
+    public static final List<String> DEFAULT_REQUIRED_TERRITORIES = Collections.singletonList("EE");
+    public static final List<String> DEFAULT_TRUSTED_TERRITORIES = Collections.unmodifiableList(
       Arrays.asList("AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR",
         "EL", "HU", "HR", "IE", "IS", "IT", "LT", "LU", "LV", "LI", "MT", "NO", "NL",
         "PL", "PT", "RO", "SE", "SI", "SK", "UK"));

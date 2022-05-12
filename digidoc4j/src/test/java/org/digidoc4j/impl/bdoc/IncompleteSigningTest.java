@@ -26,8 +26,10 @@ import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.exceptions.TslRefreshException;
 import org.digidoc4j.test.MockConfigurableDataLoader;
 import org.digidoc4j.test.MockConfigurableFileLoader;
+import org.digidoc4j.test.MockTSLRefreshCallback;
 import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,7 +39,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
-
 
 /**
  * Description of tests by their suffix:
@@ -132,21 +133,42 @@ public class IncompleteSigningTest extends AbstractTest {
     TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
   }
 
-  @Test(expected = OCSPRequestFailedException.class)
-  public void signatureProfileLtTmShouldFailWhenTslCouldNotBeLoaded() {
+  @Test(expected = TslRefreshException.class)
+  public void signatureProfileLtTmShouldFailWhenTslCouldNotBeLoadedWithDefaultTslCallback() {
     setUpTestConfigurationWithEmptyTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
   }
 
   @Test(expected = OCSPRequestFailedException.class)
-  public void signatureProfileLtShouldFailWhenTslCouldNotBeLoaded() {
+  public void signatureProfileLtTmShouldFailWhenTslCouldNotBeLoadedWithCustomTslCallback() {
+    setUpTestConfigurationWithEmptyTSL();
+    configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
+    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
+  }
+
+  @Test(expected = TslRefreshException.class)
+  public void signatureProfileLtShouldFailWhenTslCouldNotBeLoadedWithDefaultTslCallback() {
     setUpTestConfigurationWithEmptyTSL();
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT, pkcs12SignatureToken);
   }
 
   @Test(expected = OCSPRequestFailedException.class)
-  public void signatureProfileLtaShouldFailWhenTslCouldNotBeLoaded() {
+  public void signatureProfileLtShouldFailWhenTslCouldNotBeLoadedWithCustomTslCallback() {
     setUpTestConfigurationWithEmptyTSL();
+    configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
+    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT, pkcs12SignatureToken);
+  }
+
+  @Test(expected = TslRefreshException.class)
+  public void signatureProfileLtaShouldFailWhenTslCouldNotBeLoadedWithDefaultTslCallback() {
+    setUpTestConfigurationWithEmptyTSL();
+    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LTA, pkcs12SignatureToken);
+  }
+
+  @Test(expected = OCSPRequestFailedException.class)
+  public void signatureProfileLtaShouldFailWhenTslCouldNotBeLoadedWithCustomTslCallback() {
+    setUpTestConfigurationWithEmptyTSL();
+    configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LTA, pkcs12SignatureToken);
   }
 
@@ -166,9 +188,16 @@ public class IncompleteSigningTest extends AbstractTest {
     TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
   }
 
-  @Test(expected = OCSPRequestFailedException.class)
-  public void signatureProfileLtTmShouldFailWhenTslLoadingFails() {
+  @Test(expected = TslRefreshException.class)
+  public void signatureProfileLtTmShouldFailWhenTslLoadingFailsWithDefaultTslCallback() {
     setUpTestConfigurationWithFailingTSL();
+    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
+  }
+
+  @Test(expected = OCSPRequestFailedException.class)
+  public void signatureProfileLtTmShouldFailWhenTslLoadingFailsWithCustomTslCallback() {
+    setUpTestConfigurationWithFailingTSL();
+    configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
   }
 
