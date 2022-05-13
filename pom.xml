@@ -141,8 +141,8 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
-        <slf4j.version>1.7.32</slf4j.version>
-        <bouncycastle.version>1.69</bouncycastle.version>
+        <slf4j.version>1.7.36</slf4j.version>
+        <bouncycastle.version>1.70</bouncycastle.version>
         <javadocOpt>none</javadocOpt>
     </properties>
 
@@ -177,7 +177,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <version>3.10.1</version>
                     <configuration>
                         <encoding>${project.build.sourceEncoding}</encoding>
                         <source>${maven.compiler.source}</source>
@@ -201,7 +201,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.3.1</version>
+                    <version>3.4.0</version>
                     <configuration>
                         <source>8</source>
                     </configuration>
@@ -222,12 +222,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.22.2</version>
+                    <version>3.0.0-M6</version>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.7</version>
+                    <version>0.8.8</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -318,7 +318,7 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
-                        <version>6.1.6</version>
+                        <version>7.1.0</version>
                         <configuration>
                             <skipTestScope>false</skipTestScope>
                             <skipDependencyManagement>false</skipDependencyManagement>

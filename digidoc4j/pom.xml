@@ -4,7 +4,6 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.digidoc4j</groupId>
     <artifactId>digidoc4j</artifactId>
     <packaging>jar</packaging>
     <version>4.3.0</version>
@@ -23,8 +22,9 @@
 
     <properties>
         <hamcrest.version>2.2</hamcrest.version>
-        <logback-classic.version>1.2.10</logback-classic.version>
-        <jackson.version>2.13.0</jackson.version>
+        <logback-classic.version>1.2.11</logback-classic.version>
+        <jackson.version>2.13.2</jackson.version>
+        <jackson-databind.version>${jackson.version}.2</jackson-databind.version>
         <junit.version>4.13.2</junit.version>
         <dss.groupId>org.digidoc4j.dss</dss.groupId>
         <dss.version>5.9.d4j.1</dss.version>
@@ -89,7 +89,7 @@
         <dependency>
             <groupId>org.apache.santuario</groupId>
             <artifactId>xmlsec</artifactId>
-            <version>2.2.3</version>
+            <version>2.2.4</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.codehaus.woodstox</groupId>
@@ -100,7 +100,7 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.29</version>
+            <version>1.30</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -203,11 +203,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- TODO: this overrides vulnerable pdfbox version in DSS; remove this after pdfbox version in DSS has been updated above 2.0.22! -->
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
-            <version>2.0.24</version>
+            <version>2.0.26</version>
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
@@ -238,7 +237,7 @@
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
-            <version>2.3.5</version>
+            <version>2.3.6</version>
         </dependency>
         <dependency>
             <groupId>javax.activation</groupId>
@@ -248,7 +247,7 @@
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
-            <version>2.3.5</version>
+            <version>2.3.6</version>
         </dependency>
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
@@ -282,7 +281,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>3.12.4</version>
+            <version>4.5.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -318,13 +317,13 @@
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock-jre8</artifactId>
-            <version>2.31.0</version>
+            <version>2.33.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
+            <version>${jackson-databind.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -354,7 +353,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20210307</version>
+            <version>20220320</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -516,7 +515,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>ant-util-zip</id>
@@ -608,12 +607,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
-                <version>2.5.2</version>
+                <version>3.0.0-M1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
+                <version>3.0.1</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
@@ -634,7 +633,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
-                    <version>2.5.2</version>
+                    <version>3.0.0-M1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -651,12 +650,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.2.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>3.2.4</version>
+                    <version>3.3.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -666,7 +665,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>2.5.3</version>
+                    <version>3.0.0-M5</version>
                     <configuration>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
                         <tagNameFormat>${project.version}</tagNameFormat>
@@ -695,17 +694,17 @@
                 <plugin>
                     <groupId>org.jvnet.jaxb2.maven2</groupId>
                     <artifactId>maven-jaxb2-plugin</artifactId>
-                    <version>0.14.0</version>
+                    <version>0.15.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.8.2</version>
+                    <version>3.0.0-M2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-antrun-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.1.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -715,7 +714,7 @@
                 <plugin>
                     <groupId>org.sonatype.plugins</groupId>
                     <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.6.8</version>
+                    <version>1.6.13</version>
                     <extensions>true</extensions>
                     <configuration>
                         <serverId>ossrh</serverId>
