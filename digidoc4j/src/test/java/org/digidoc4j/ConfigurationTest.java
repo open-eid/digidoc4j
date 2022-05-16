@@ -1301,8 +1301,8 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void getDefaultConnectionTimeout() {
-    Assert.assertEquals(1000, this.configuration.getConnectionTimeout());
-    Assert.assertEquals(1000, this.configuration.getSocketTimeout());
+    Assert.assertEquals(60000, this.configuration.getConnectionTimeout());
+    Assert.assertEquals(60000, this.configuration.getSocketTimeout());
   }
 
   @Test

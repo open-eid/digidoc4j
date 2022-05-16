@@ -63,6 +63,7 @@ public class TslFileLoaderFactory implements DSSFileLoaderFactory {
     DataLoaderDecorator.decorateWithProxySettingsFor(ExternalConnectionType.TSL, commonsDataLoader, configuration);
     DataLoaderDecorator.decorateWithSslSettingsFor(ExternalConnectionType.TSL, commonsDataLoader, configuration);
     commonsDataLoader.setTimeoutConnection(this.configuration.getConnectionTimeout());
+    commonsDataLoader.setTimeoutConnectionRequest(this.configuration.getConnectionTimeout());
     commonsDataLoader.setTimeoutSocket(this.configuration.getSocketTimeout());
     return wrapIntoFileCacheDataLoader(commonsDataLoader);
   }

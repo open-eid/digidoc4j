@@ -24,6 +24,7 @@ import java.util.List;
 public final class Constant {
 
   public static final int ONE_SECOND_IN_MILLISECONDS = 1000;
+  public static final int ONE_MINUTE_IN_MILLISECONDS = 60000;
   public static final int ONE_DAY_IN_MINUTES = 24 * 60;
   public static final long ONE_DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
   public static final long ONE_MB_IN_BYTES = 1048576;

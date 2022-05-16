@@ -106,7 +106,9 @@ import static java.util.Arrays.asList;
  * <li>CANONICALIZATION_FACTORY_IMPL: Canonicalization factory implementation.<br>
  * Default value: {@value Constant.DDoc4J#CANONICALIZATION_FACTORY_IMPLEMENTATION}</li>
  * <li>CONNECTION_TIMEOUT: TSL HTTP Connection timeout (milliseconds).<br>
- * Default value: 1000  </li>
+ * Default value: 60000  </li>
+ * <li>SOCKET_TIMEOUT: TSL HTTP Socket timeout (milliseconds).<br>
+ * Default value: 60000  </li>
  * <li>DIGIDOC_FACTORY_IMPL: Factory implementation.<br>
  * Default value: {@value Constant.DDoc4J#FACTORY_IMPLEMENTATION}</li>
  * <li>DIGIDOC_DF_CACHE_DIR: Temporary directory to use. Default: uses system's default temporary directory</li>
@@ -2105,9 +2107,9 @@ public class Configuration implements Serializable {
     LOGGER.debug("------------------------ DEFAULTS ------------------------");
     this.tslManager = new TslManager(this);
     this.setConfigurationParameter(ConfigurationParameter.ConnectionTimeoutInMillis,
-        String.valueOf(Constant.ONE_SECOND_IN_MILLISECONDS));
+        String.valueOf(Constant.ONE_MINUTE_IN_MILLISECONDS));
     this.setConfigurationParameter(ConfigurationParameter.SocketTimeoutInMillis,
-        String.valueOf(Constant.ONE_SECOND_IN_MILLISECONDS));
+        String.valueOf(Constant.ONE_MINUTE_IN_MILLISECONDS));
     this.setConfigurationParameter(ConfigurationParameter.LotlTruststoreType, "PKCS12");
     this.setConfigurationParameter(ConfigurationParameter.LotlTruststorePassword, "digidoc4j-password");
     this.setConfigurationParameter(ConfigurationParameter.RevocationAndTimestampDeltaInMinutes,
