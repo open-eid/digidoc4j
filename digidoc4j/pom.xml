@@ -23,8 +23,7 @@
     <properties>
         <hamcrest.version>2.2</hamcrest.version>
         <logback-classic.version>1.2.11</logback-classic.version>
-        <jackson.version>2.13.2</jackson.version>
-        <jackson-databind.version>${jackson.version}.2</jackson-databind.version>
+        <jackson.version>2.13.3</jackson.version>
         <junit.version>4.13.2</junit.version>
         <dss.groupId>org.digidoc4j.dss</dss.groupId>
         <dss.version>5.9.d4j.1</dss.version>
@@ -323,7 +322,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson-databind.version}</version>
+            <version>${jackson.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -709,7 +708,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
-                    <version>1.6</version>
+                    <version>3.0.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.sonatype.plugins</groupId>
