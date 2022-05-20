@@ -33,7 +33,7 @@
         <SerialNumberPresent Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
-        <RevocationIssuerNotExpired Level="FAIL" />
+        <RevocationIssuerNotExpired Level="INFORM" />
         <NotSelfSigned Level="FAIL"/>
         <UsePseudonym Level="INFORM"/>
         <Cryptographic Level="FAIL">
