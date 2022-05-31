@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl.bdoc;
 
 import eu.europa.esig.dss.model.DSSDocument;
@@ -8,6 +18,7 @@ import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.impl.asic.AsicEntry;
@@ -194,16 +205,21 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
     container.addDataFile(mockDataFile());
 
     Signature signature = this.createSignatureBy(container, SignatureProfile.LT_TM, pkcs12SignatureToken);
+    Signature nonExistingSignature = SignatureBuilder.aSignature(container)
+            .withSignatureProfile(SignatureProfile.LT_TM)
+            .withSignatureToken(pkcs12SignatureToken)
+            .withSignatureId("id-non-existing")
+            .invokeSigning();
 
     assertEquals(1, container.getSignatures().size());
     assertTrue(container.getSignatures().contains(signature));
 
     SignatureNotFoundException caughtException = assertThrows(
             SignatureNotFoundException.class,
-            () -> container.removeSignature(1)
+            () -> container.removeSignature(nonExistingSignature)
     );
 
-    assertEquals("Signature from index 1 not found", caughtException.getMessage());
+    assertEquals("Signature not found: id-non-existing", caughtException.getMessage());
     assertEquals(1, container.getSignatures().size());
     assertTrue(container.getSignatures().contains(signature));
   }
@@ -214,16 +230,21 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
     container.addDataFile(mockDataFile());
 
     Signature signature = this.createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
+    Signature nonExistingSignature = SignatureBuilder.aSignature(container)
+            .withSignatureProfile(SignatureProfile.LT)
+            .withSignatureToken(pkcs12SignatureToken)
+            .withSignatureId("id-non-existing")
+            .invokeSigning();
 
     assertEquals(1, container.getSignatures().size());
     assertTrue(container.getSignatures().contains(signature));
 
     SignatureNotFoundException caughtException = assertThrows(
             SignatureNotFoundException.class,
-            () -> container.removeSignature(1)
+            () -> container.removeSignature(nonExistingSignature)
     );
 
-    assertEquals("Signature from index 1 not found", caughtException.getMessage());
+    assertEquals("Signature not found: id-non-existing", caughtException.getMessage());
     assertEquals(1, container.getSignatures().size());
     assertTrue(container.getSignatures().contains(signature));
   }
@@ -245,7 +266,7 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
     containerParseResultContainsDataFile(container.getContainerParseResult(), dataFile.getName());
     assertTrue(container.validate().isValid());
 
-    container.removeDataFile(dataFile.getName());
+    container.removeDataFile(container.getDataFiles().get(0));
     assertTrue(container.getDataFiles().isEmpty());
     containerParseResultDoesNotContainDataFile(container.getContainerParseResult(), dataFile.getName());
     assertTrue(container.validate().isValid());
@@ -275,7 +296,7 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
     containerParseResultContainsDataFile(container.getContainerParseResult(), dataFile.getName());
     assertTrue(container.validate().isValid());
 
-    container.removeDataFile(dataFile.getName());
+    container.removeDataFile(container.getDataFiles().get(0));
     assertTrue(container.getDataFiles().isEmpty());
     containerParseResultDoesNotContainDataFile(container.getContainerParseResult(), dataFile.getName());
     assertTrue(container.validate().isValid());

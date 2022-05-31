@@ -88,7 +88,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
     Container container = createEmptyContainerBy(ASICE);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
-          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
           .withSignatureProfile(SignatureProfile.LT)
           .buildDataToSign();
 
@@ -122,7 +122,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
   public void signedBDocTwoStepSigning() {
     Container container = this.openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
-          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
           .withSignatureProfile(SignatureProfile.LT_TM)
           .buildDataToSign();
 
@@ -153,7 +153,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
   public void signedAsicETwoStepSigning() {
     Container container = this.openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice.asice"));
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
-          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
           .withSignatureProfile(SignatureProfile.LT)
           .buildDataToSign();
 
@@ -187,7 +187,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
     // Signature object returned signing dates have milliseconds removed, truncated also from test data
     long claimedSigningTimeLowerBound = new Date().getTime() / 1000 * 1000;
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
-          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
           .withSignatureProfile(SignatureProfile.LT_TM)
           .buildDataToSign();
     long claimedSigningTimeUpperBound = new Date().getTime() + 1000;
@@ -201,14 +201,14 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
     // Artificial delay to make claimed signing time and actual signing time differ
     Thread.sleep(1000);
 
-    long signingTimeLowerBound = new Date().getTime() / 1000 * 1000;
+    long trustedSigningTimeLowerBound = new Date().getTime() / 1000 * 1000;
     Signature signature = SignatureFinalizerBuilder.aFinalizer(container, dataToSign.getSignatureParameters())
            .finalizeSignature(signatureValue);
-    long signingTimeUpperBound = new Date().getTime() + 1000;
+    long trustedSigningTimeUpperBound = new Date().getTime() + 1000;
 
-    long signingTime = signature.getSigningTime().getTime();
-    assertTrue(signingTime >= signingTimeLowerBound);
-    assertTrue(signingTime <= signingTimeUpperBound);
+    long trustedSigningTime = signature.getTrustedSigningTime().getTime();
+    assertTrue(trustedSigningTime >= trustedSigningTimeLowerBound);
+    assertTrue(trustedSigningTime <= trustedSigningTimeUpperBound);
 
     long claimedSigningTime = signature.getClaimedSigningTime().getTime();
     assertTrue(claimedSigningTime >= claimedSigningTimeLowerBound);

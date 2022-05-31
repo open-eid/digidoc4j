@@ -121,16 +121,4 @@ public class AsicSContainer extends AsicContainer {
   public void addSignature(Signature signature) {
     throw new NotSupportedException("Not for ASiC-S container");
   }
-
-  @Override
-  @Deprecated
-  public void addRawSignature(byte[] signatureDocument) {
-    throw new NotSupportedException("Not for ASiC-S container");
-  }
-
-  @Override
-  @Deprecated
-  public void addRawSignature(InputStream signatureStream) {
-    throw new NotSupportedException("Not for ASiC-S container");
-  }
 }

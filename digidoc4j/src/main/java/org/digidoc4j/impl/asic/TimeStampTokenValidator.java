@@ -1,6 +1,7 @@
 package org.digidoc4j.impl.asic;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -93,7 +94,7 @@ public class TimeStampTokenValidator {
     if (!isSignatureValid) {
       errors.add(new DigiDoc4JException("Signature not intact"));
     }
-    boolean isMessageImprintsValid = this.isMessageImprintsValid(dataFile.getBytes(), token);
+    boolean isMessageImprintsValid = isMessageImprintsValid(dataFile, token);
     if (isSignatureValid && !isMessageImprintsValid) {
       errors.add(new DigiDoc4JException("Signature not intact"));
     }
@@ -104,9 +105,10 @@ public class TimeStampTokenValidator {
     return errors;
   }
 
-  private boolean isMessageImprintsValid(byte[] dataFileBytes, TimeStampToken token) {
+  private boolean isMessageImprintsValid(DataFile dataFile, TimeStampToken token) {
+    DigestAlgorithm digestAlgorithm = DigestAlgorithm.forOID(token.getTimeStampInfo().getMessageImprintAlgOID().getId());
     return Arrays.equals(token.getTimeStampInfo().getMessageImprintDigest(),
-        DSSUtils.digest(DigestAlgorithm.SHA256, dataFileBytes));
+        dataFile.calculateDigest(org.digidoc4j.DigestAlgorithm.getDigestAlgorithmUri(digestAlgorithm)));
   }
 
   private boolean isVersionValid(TimeStampToken token) {
@@ -135,8 +137,8 @@ public class TimeStampTokenValidator {
   }
 
   private TimeStampToken getTimeStamp(AsicParseResult documents) {
-    try {
-      return new TimeStampToken(new CMSSignedData(documents.getTimeStampToken().getBytes()));
+    try (InputStream inputStream = documents.getTimeStampToken().getStream()) {
+      return new TimeStampToken(new CMSSignedData(inputStream));
     } catch (CMSException | TSPException | IOException e) {
       throw new DigiDoc4JException("Document malformed or not matching documentType", e);
     }

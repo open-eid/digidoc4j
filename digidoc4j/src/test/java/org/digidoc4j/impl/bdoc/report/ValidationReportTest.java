@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.bdoc.report;
 
@@ -49,6 +49,8 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("true", "count(/SimpleReport/Signature[@Id='" + signatureId + "']/CertificateChain/Certificate) > 1", report);
     TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", "/SimpleReport/Signature[@Id='" + signatureId +
             "']/CertificateChain/Certificate[1]/qualifiedName", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature[@Id='" + signatureId + "']/SigningTime)", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature[@Id='" + signatureId + "']/BestSignatureTime)", report);
   }
 
   @Test
@@ -66,6 +68,8 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("dds_acrobat.pdf", "/SimpleReport/Signature/SignatureScope[2]/@name", report);
     TestAssert.assertXPathHasValue("true", "count(/SimpleReport/Signature/CertificateChain/Certificate) > 1", report);
     TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", "/SimpleReport/Signature/CertificateChain/Certificate[1]/qualifiedName", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature/SigningTime)", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature/BestSignatureTime)", report);
   }
 
   @Test
@@ -136,7 +140,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865", "/SimpleReport/Signature/SignedBy", report);
     TestAssert.assertXPathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
     TestAssert.assertXPathHasValue("REVOKED_NO_POE", "/SimpleReport/Signature/SubIndication", report);
-    TestAssert.assertXPathHasValue("The past signature validation is not conclusive!", "/SimpleReport/Signature/Errors", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature/Errors[.='The past signature validation is not conclusive!'])", report);
     TestAssert.assertXPathHasValue("META-INF/signatures0.xml", "/SimpleReport/Signature/DocumentName", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
     TestAssert.assertXPathHasValue("true", "count(/SimpleReport/Signature/CertificateChain/Certificate) > 1", report);
@@ -157,7 +161,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("NO_CERTIFICATE_CHAIN_FOUND", "/SimpleReport/Signature/SubIndication", report);
     TestAssert.assertXPathHasValue("META-INF/signatures0.xml", "/SimpleReport/Signature/DocumentName", report);
     TestAssert.assertXPathHasValue("RELEASE-NOTES.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
-    TestAssert.assertXPathHasValue("Unable to build a certificate chain until a trusted list!", "/SimpleReport/Signature/Errors", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature/Errors[.='Unable to build a certificate chain up to a trusted list!'])", report);
     TestAssert.assertXPathHasValue("Manifest file has an entry for file <incorrect.txt> with mimetype <text/plain> " +
         "but the signature file for signature S0 does not have an entry for this file", "/SimpleReport/ContainerError[1]", report);
     TestAssert.assertXPathHasValue("The signature file for signature S0 has an entry for file <RELEASE-NOTES.txt> " +
@@ -183,7 +187,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("XAdES-BASELINE-T", "/SimpleReport/Signature/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("ŽAIKOVSKI,IGOR,37101010021", "/SimpleReport/Signature/SignedBy", report);
     TestAssert.assertXPathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
-    TestAssert.assertXPathHasValue("Unable to build a certificate chain until a trusted list!", "/SimpleReport/Signature/Errors[1]", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature/Errors[.='Signature has an invalid timestamp'])", report);
     TestAssert.assertXPathHasValue("META-INF/signatures0.xml", "/SimpleReport/Signature/DocumentName", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
   }

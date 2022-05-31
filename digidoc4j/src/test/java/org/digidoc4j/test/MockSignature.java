@@ -1,29 +1,26 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.test;
-
-import java.net.URI;
-import java.util.Date;
-import java.util.List;
 
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.X509Cert;
-import org.digidoc4j.exceptions.DigiDoc4JException;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
  */
-
 public class MockSignature implements Signature {
 
   @Override
@@ -57,17 +54,7 @@ public class MockSignature implements Signature {
   }
 
   @Override
-  public String getPolicy() {
-    return null;
-  }
-
-  @Override
   public String getPostalCode() {
-    return null;
-  }
-
-  @Override
-  public Date getProducedAt() {
     return null;
   }
 
@@ -112,16 +99,6 @@ public class MockSignature implements Signature {
   }
 
   @Override
-  public Date getSigningTime() {
-    return null;
-  }
-
-  @Override
-  public URI getSignaturePolicyURI() {
-    return null;
-  }
-
-  @Override
   public String getStateOrProvince() {
     return null;
   }
@@ -137,17 +114,7 @@ public class MockSignature implements Signature {
   }
 
   @Override
-  public List<DigiDoc4JException> validate() {
-    return null;
-  }
-
-  @Override
   public byte[] getAdESSignature() {
-    return new byte[0];
-  }
-
-  @Override
-  public byte[] getRawSignature() {
     return new byte[0];
   }
 

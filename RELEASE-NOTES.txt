@@ -1,6 +1,79 @@
 DigiDoc4J Java library release notes
 ------------------------------------
 
+Release 5.0.0
+------------------
+Summary of the major changes since 4.3.0
+------------------------------------------
+* DSS version update to 5.9 (sd-dss.5.9.d4j.1), previously used DSS 5.8. Check changes in DSS here: https://github.com/esig/dss/releases
+* Pivot LOTL support (https://ec.europa.eu/tools/lotl/pivot-lotl-explanation.html):
+  - pivot LOTL support is enabled by default for PROD mode
+  - pivot LOTL support is configurable via Configuration.setLotlPivotSupportEnabled(boolean) and LOTL_PIVOT_SUPPORT_ENABLED configuration parameter
+* Improved digest algorithm selection:
+  - signature digest algorithm and datafile digest algorithm are separately configurable
+  - for ECC signatures, the default signature digest algorithm depends on the key length
+* Changes in handling the encoded datafile names in signatures:
+  - a '+' sign in an encoded data file name is decoded as '+' instead of a whitespace
+* TSL loading default connection and socket timeouts increased to 1 minute
+* TSL refresh callbacks. More information can be found here: https://github.com/open-eid/digidoc4j/wiki/Questions-&-Answers#tsl-refresh-callbacks-since-version-500
+* Separate configurability for HTTP and HTTPS proxy user and password
+* Refactoring of LOTL configuration API (Configuration class and YAML configuration parameters):
+  - added setLotlLocation(String) and getLotlLocation() methods, LOTL_LOCATION parameter (deprecated setTslLocation(String), getTslLocation() and TSL_LOCATION)
+  - added setLotlTruststorePath(String) and getLotlTruststorePath(String) methods, LOTL_TRUSTSTORE_PATH parameter (deprecated setTslKeyStoreLocation(String), getTslKeyStoreLocation() and TSL_KEYSTORE_LOCATION)
+  - added setLotlTruststorePassword(String) and getLotlTruststorePassword() methods, LOTL_TRUSTSTORE_PASSWORD parameter (deprecated setTslKeyStorePassword(String), getTslKeyStorePassword() and TSL_KEYSTORE_PASSWORD)
+  - added setLotlTruststoreType(String) and getLotlTruststoreType() methods, LOTL_TRUSTSTORE_TYPE parameter (set the default to "PKCS12" instead of "JKS")
+* Removal of old API-s that were deprecated before the version 4.0.0; an inconclusive list of removed public API-s:
+  - methods removed from Configuration class:
+    - void enableBigFilesSupport(long)
+    - boolean isBigFilesSupportEnabled()
+  - methods removed from Container interface and its implementing classes:
+    - void addRawSignature(byte[])
+    - void addRawSignature(InputStream)
+    - int countDataFiles()
+    - int countSignatures()
+    - void extendTo(SignatureProfile)
+    - DataFile getDataFile(int)
+    - DigestAlgorithm getDigestAlgorithm()
+    - DocumentType getDocumentType()
+    - Signature getSignature(int)
+    - String getSignatureProfile()
+    - String getVersion()
+    - SignedInfo prepareSigning(X509Certificate)
+    - void removeDataFile(String)
+    - void removeSignature(int)
+    - void save(String)
+    - void setSignatureParameters(SignatureParameters)
+    - void setSignatureProfile(SignatureProfile)
+    - Signature signRaw(byte[])
+    - Signature sign(SignatureToken)
+  - methods removed from Signature interface and its implementing classes:
+    - String getPolicy()
+    - Date getProducedAt()
+    - byte[] getRawSignature()
+    - URI getSignaturePolicyURI()
+    - Date getSigningTime()
+    - List<DigiDoc4JException> validate()
+  - DigestDataFile(String, DigestAlgorithm, byte[]) constructor without mimetype
+  - Signer interface and PKCS12Signer class
+* Removal of custom TSL TLS trust-store:
+  - by default, Java TLS trust-store is used for both PROD and TEST modes
+  - no custom TSL TLS trust-store is shipped with DigiDoc4J library
+* DataFile digest calculation and memory usage improvements:
+  - reduction of making redundant in-memory copies of the contents of datafiles
+  - improved calculation and caching of digest values
+* Dependencies update
+
+Known issues
+------------
+* We have noticed a slight increase in TSL loading times due to pivot LOTL support
+* We have noticed a decrease in performance with the introduction of properly accessing AIA certificate resources
+* Opening a container that contains signatures, triggers TSL loading (TSL lazy loading does not work as expected)
+* While upgrading from versions older than 2.1.1 be sure that your integration :
+  - doesn't use Xalan or XercesImpl dependencies
+  - uses a patched Java version (JDK8 or higher)
+    Xalan and XercesImpl were used to patch XML vulnerabilities in older java versions. They should be discarded with higher versions because they override default Java XML security.
+    If it is not possible to remove Xalan, then you can set your system property to override TransformerFactory : System.setProperty("javax.xml.transform.TransformerFactory","com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
+
 Release 4.3.0
 ------------------
 Summary of the major changes since 4.2.2

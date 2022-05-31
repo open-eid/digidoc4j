@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j;
 
 import java.io.File;
@@ -12,6 +22,7 @@ import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
+import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -165,11 +176,14 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     assertBEpesSignature(signature);
     ValidationResult validationResult = signature.validateSignature();
     Assert.assertFalse(validationResult.isValid());
-    Assert.assertEquals(1, validationResult.getWarnings().size());
-    Assert.assertEquals("The signature/seal is an INDETERMINATE AdES digital signature!", validationResult.getWarnings().get(0).getMessage());
-    Assert.assertEquals(2, validationResult.getErrors().size());
-    Assert.assertEquals("The result of the LTV validation process is not acceptable to continue the process!", validationResult.getErrors().get(0).getMessage());
-    Assert.assertEquals("No acceptable revocation data for the certificate!", validationResult.getErrors().get(1).getMessage());
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+            "The signature/seal is an INDETERMINATE AdES digital signature!"
+    );
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
+            "The certificate validation is not conclusive!",
+            "No revocation data found for the certificate!",
+            "No acceptable revocation data for the certificate!"
+    );
 
   }
 
@@ -187,17 +201,16 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     assertValidSignature(signature);
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void signWithLTAProfile() throws Exception {
     byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
     DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest, "text/plain");
 
-    Signature signature = DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
+    DetachedXadesSignatureBuilder.withConfiguration(new Configuration())
          .withDataFile(digestDataFile)
          .withSignatureToken(pkcs12EccSignatureToken)
          .withSignatureProfile(SignatureProfile.LTA)
          .invokeSigningProcess();
-    Assert.assertNull(signature);
   }
 
   @Test
@@ -316,10 +329,9 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signWithoutAssigningProfile_profileTakenFromConfiguration_shouldSucceedWithTimestampSignature() {
+  public void signWithoutAssigningProfile_defaultPofileIsUsed_shouldSucceedWithTimestampSignature() {
     DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
     Configuration configuration = new Configuration();
-    Assert.assertSame(SignatureProfile.LT, configuration.getSignatureProfile());
 
     DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(configuration)
          .withDataFile(dataFile)
@@ -328,22 +340,57 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
          .buildDataToSign();
 
     Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Assert.assertSame(Constant.Default.SIGNATURE_PROFILE, signature.getProfile());
     assertTimestampSignature(signature);
     assertValidSignature(signature);
   }
 
   @Test
-  public void mimeTypeValueNotInitialized() throws Exception{
-    byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
-    DigestDataFile digestDataFile = new DigestDataFile("hello.txt", DigestAlgorithm.SHA256, digest);
+  public void signWith256EcKey_withoutAssigningSignatureDigestAlgo_sha256SignatureDigestAlgoIsUsed() {
+    DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
+    Configuration configuration = new Configuration();
 
-    Signature signature = DetachedXadesSignatureBuilder
-        .withConfiguration(new Configuration())
-        .withDataFile(digestDataFile)
-        .withSignatureToken(pkcs12EccSignatureToken)
-        .invokeSigningProcess();
+    DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(configuration)
+            .withDataFile(dataFile)
+            .withSigningCertificate(pkcs12EccSignatureToken.getCertificate())
+            .buildDataToSign();
 
-    assertTimestampSignature(signature);
+    Signature signature = dataToSign.finalize(pkcs12EccSignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Assert.assertEquals(DigestAlgorithm.SHA256, dataToSign.getSignatureParameters().getSignatureDigestAlgorithm());
+    assertValidSignature(signature);
+  }
+
+  @Test
+  public void signWith384EcKey_withoutAssigningSignatureDigestAlgo_sha384SignatureDigestAlgoIsUsed() {
+    DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
+    Configuration configuration = new Configuration();
+
+    DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(configuration)
+            .withDataFile(dataFile)
+            .withSigningCertificate(pkcs12Esteid2018SignatureToken.getCertificate())
+            .buildDataToSign();
+
+    Signature signature = dataToSign.finalize(pkcs12Esteid2018SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Assert.assertEquals(DigestAlgorithm.SHA384, dataToSign.getSignatureParameters().getSignatureDigestAlgorithm());
+    assertValidSignature(signature);
+  }
+
+  @Test
+  public void signWithDifferentDataFileAndSignatureDigestAlgorithm() {
+    DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "filename", "text/plain");
+    Configuration configuration = new Configuration();
+
+    DataToSign dataToSign = DetachedXadesSignatureBuilder.withConfiguration(configuration)
+            .withSignatureDigestAlgorithm(DigestAlgorithm.SHA384)
+            .withDataFileDigestAlgorithm(DigestAlgorithm.SHA512)
+            .withDataFile(dataFile)
+            .withSigningCertificate(pkcs12SignatureToken.getCertificate())
+            .buildDataToSign();
+    SignatureParameters signatureParameters = dataToSign.getSignatureParameters();
+    Assert.assertEquals(DigestAlgorithm.SHA384, signatureParameters.getSignatureDigestAlgorithm());
+    Assert.assertEquals(DigestAlgorithm.SHA512, signatureParameters.getDataFileDigestAlgorithm());
+    Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+    Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha384", signature.getSignatureMethod());
     assertValidSignature(signature);
   }
 

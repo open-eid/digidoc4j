@@ -58,7 +58,8 @@ public class MockSignatureBuilder extends SignatureBuilder {
       @Override
       public SignatureParameters getSignatureParameters() {
         SignatureParameters signatureParameters = new SignatureParameters();
-        signatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA512);
+        signatureParameters.setSignatureDigestAlgorithm(DigestAlgorithm.SHA512);
+        signatureParameters.setDataFileDigestAlgorithm(DigestAlgorithm.SHA512);
         return signatureParameters;
       }
     };

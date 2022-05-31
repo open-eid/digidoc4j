@@ -728,6 +728,8 @@ public class DigiDoc4JTest extends AbstractTest {
       @Override
       public void checkAssertion() throws Exception {
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("OCSP response production time is before timestamp time"));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Error: (Signature ID: S1) - Timestamp time is after OCSP response production time"));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Error: (Signature ID: S1) - The certificate is not related to a TSA/QTST!"));
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature has 2 validation errors"));
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature S1 is not valid"));
       }
@@ -749,6 +751,8 @@ public class DigiDoc4JTest extends AbstractTest {
       @Override
       public void checkAssertion() throws Exception {
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("OCSP response production time is before timestamp time"));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Error: (Signature ID: S1) - Timestamp time is after OCSP response production time"));
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Error: (Signature ID: S1) - The certificate is not related to a TSA/QTST!"));
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("Signature has 2 validation errors"));
         Assert.assertThat(stdOut.getLog(), StringContains.containsString("Validation finished. Container is NOT valid!"));
       }
@@ -843,7 +847,7 @@ public class DigiDoc4JTest extends AbstractTest {
     this.systemExit.checkAssertionAfterwards(new Assertion() {
       @Override
       public void checkAssertion() throws Exception {
-        Assert.assertThat(stdOut.getLog(), StringContains.containsString("Type = REVOCATION. BBB_XCV_CCCBB_REV_ANS: " +
+        Assert.assertThat(stdOut.getLog(), StringContains.containsString(
             "The certificate chain for revocation data is not trusted, it does not contain a trust anchor"));
       }
     });
@@ -888,7 +892,7 @@ public class DigiDoc4JTest extends AbstractTest {
         "src/test/resources/testFiles/xades/test-bdoc-ts.xml"};
     TestDigiDoc4JUtil.call(parameters);
 
-    Assert.assertThat(stdOut.getLog(), StringContains.containsString("The result of the LTV validation process is not acceptable to continue the process!"));
+    Assert.assertThat(stdOut.getLog(), StringContains.containsString("The reference data object is not intact!"));
   }
 
   @Test

@@ -30,21 +30,6 @@ public class DigestDataFile extends DataFile {
     setDigestDataFile(fileName, digestAlgorithm, digest, getMimeType(mimeType));
   }
 
-  /**
-   * Creates digest based data file.
-   * In other words only the content's digest (not the content itself) is provided.
-   *
-   * @param fileName        name of the file
-   * @param digestAlgorithm algorithm of the digest
-   * @param digest          digest of the file contents
-   * @deprecated use DigestDataFile(String fileName, DigestAlgorithm digestAlgorithm, byte[] digest, String mimeType)
-   * https://github.com/open-eid/digidoc4j/wiki/Examples-of-using-it#detached-xades-containerless-signature-handling
-   */
-  @Deprecated
-  public DigestDataFile(String fileName, DigestAlgorithm digestAlgorithm, byte[] digest) {
-    setDigestDataFile(fileName, digestAlgorithm, digest, null);
-  }
-
   private void setDigestDataFile(String fileName, DigestAlgorithm digestAlgorithm, byte[] digest, MimeType mimeType) {
     logger.debug("File name: " + fileName +
         ", digest algorithm: " + digestAlgorithm + ", digest: " + Arrays.toString(digest));

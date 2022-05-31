@@ -45,7 +45,8 @@ public class SignatureParameters implements Serializable {
   private SignatureProductionPlace productionPlace = new SignatureProductionPlace();
   private List<String> roles = new ArrayList<>();
   private String signatureId;
-  private DigestAlgorithm digestAlgorithm;
+  private DigestAlgorithm dataFileDigestAlgorithm;
+  private DigestAlgorithm signatureDigestAlgorithm;
   private EncryptionAlgorithm encryptionAlgorithm;
   private SignatureProfile signatureProfile;
   private X509Certificate signingCertificate;
@@ -142,21 +143,40 @@ public class SignatureParameters implements Serializable {
   }
 
   /**
-   * Sets container digest type
+   * Sets signature digest type
    *
-   * @param algorithm digest algorithm
+   * @param algorithm signature digest algorithm
    */
-  public void setDigestAlgorithm(DigestAlgorithm algorithm) {
-    digestAlgorithm = algorithm;
+  public void setSignatureDigestAlgorithm(DigestAlgorithm algorithm) {
+    signatureDigestAlgorithm = algorithm;
   }
 
   /**
-   * Gets container digest type
+   * Gets signature digest type
    *
-   * @return container digest algorithm
+   * @return signature digest algorithm
    */
-  public DigestAlgorithm getDigestAlgorithm() {
-    return digestAlgorithm;
+  public DigestAlgorithm getSignatureDigestAlgorithm() {
+    return signatureDigestAlgorithm;
+  }
+
+
+  /**
+   * Sets data file digest type
+   *
+   * @param algorithm data file digest algorithm
+   */
+  public void setDataFileDigestAlgorithm(DigestAlgorithm algorithm) {
+    dataFileDigestAlgorithm = algorithm;
+  }
+
+  /**
+   * Gets data file digest type
+   *
+   * @return data file digest algorithm
+   */
+  public DigestAlgorithm getDataFileDigestAlgorithm() {
+    return dataFileDigestAlgorithm;
   }
 
   /**

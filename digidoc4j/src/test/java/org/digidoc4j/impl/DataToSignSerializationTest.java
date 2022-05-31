@@ -255,9 +255,9 @@ public class DataToSignSerializationTest extends AbstractTest {
     byte[] signatureValue = pkcs12SignatureToken.sign(dataToSignDeserialized.getDigestAlgorithm(), dataToSignDeserialized.getDataToSign());
     assertEquals(SIGNATURE_SIZE, signatureValue.length);
 
-    long signingTimeLowerBound = new Date().getTime() / 1000 * 1000;
+    long trustedSigningTimeLowerBound = new Date().getTime() / 1000 * 1000;
     Signature signature = dataToSignDeserialized.finalize(signatureValue);
-    assertSigningTime(signature.getSigningTime(), signingTimeLowerBound);
+    assertSigningTime(signature.getTrustedSigningTime(), trustedSigningTimeLowerBound);
 
     assertValidSignature(signature);
     return signature;

@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j;
 
@@ -46,6 +46,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiPredicate;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 
@@ -105,7 +106,9 @@ import static java.util.Arrays.asList;
  * <li>CANONICALIZATION_FACTORY_IMPL: Canonicalization factory implementation.<br>
  * Default value: {@value Constant.DDoc4J#CANONICALIZATION_FACTORY_IMPLEMENTATION}</li>
  * <li>CONNECTION_TIMEOUT: TSL HTTP Connection timeout (milliseconds).<br>
- * Default value: 1000  </li>
+ * Default value: 60000  </li>
+ * <li>SOCKET_TIMEOUT: TSL HTTP Socket timeout (milliseconds).<br>
+ * Default value: 60000  </li>
  * <li>DIGIDOC_FACTORY_IMPL: Factory implementation.<br>
  * Default value: {@value Constant.DDoc4J#FACTORY_IMPLEMENTATION}</li>
  * <li>DIGIDOC_DF_CACHE_DIR: Temporary directory to use. Default: uses system's default temporary directory</li>
@@ -129,20 +132,32 @@ import static java.util.Arrays.asList;
  * <li>DIGIDOC_PKCS12_PASSWD: OCSP access certificate password</li>
  * <li>OCSP_SOURCE: Online Certificate Service Protocol source</li>
  * <li>SIGN_OCSP_REQUESTS: Should OCSP requests be signed? Allowed values: true, false</li>
- * <li>TSL_LOCATION: TSL Location</li>
+ * <li>TSL_LOCATION: TSL Location - <b>DEPRECATED:</b> use LOTL_LOCATION instead</li>
  * <li>TSP_SOURCE: Time Stamp Protocol source address</li>
  * <li>VALIDATION_POLICY: Validation policy source file</li>
- * <li>TSL_KEYSTORE_LOCATION: keystore location for tsl signing certificates</li>
- * <li>TSL_KEYSTORE_PASSWORD: keystore password for the keystore in TSL_KEYSTORE_LOCATION</li>
+ * <li>LOTL_LOCATION: LOTL (List of Trusted Lists) location</li>
+ * <li>LOTL_TRUSTSTORE_PATH: path to the trust-store for LOTL signing certificates</li>
+ * <li>LOTL_TRUSTSTORE_TYPE: type of trust-store for LOTL signing certificates (default is "PKCS12")</li>
+ * <li>LOTL_TRUSTSTORE_PASSWORD: password for the truststore in LOTL_TRUSTSTORE_PATH</li>
+ * <li>LOTL_PIVOT_SUPPORT_ENABLED: whether to enable LOTL pivot support (default is "true" for PROD mode
+ * and "false" for TEST mode)</li>
+ * <li>TSL_KEYSTORE_LOCATION: keystore location for tsl signing certificates - <b>DEPRECATED:</b>
+ * use LOTL_TRUSTSTORE_PATH instead</li>
+ * <li>TSL_KEYSTORE_PASSWORD: keystore password for the keystore in TSL_KEYSTORE_LOCATION - <b>DEPRECATED:</b>
+ * use LOTL_TRUSTSTORE_PASSWORD instead</li>
  * <li>TSL_CACHE_EXPIRATION_TIME: TSL cache expiration time in milliseconds</li>
  * <li>TRUSTED_TERRITORIES: list of countries and territories to trust and load TSL certificates
  * (for example, EE, LV, FR)</li>
+ * <li>REQUIRED_TERRITORIES: list of countries and territories that must be successfully loaded
+ * into the TSL (for example, EE, LV, FR) - used by the default TSL refresh callback</li>
  * <li>HTTP_PROXY_HOST: network proxy host name</li>
  * <li>HTTP_PROXY_PORT: network proxy port</li>
  * <li>HTTP_PROXY_USER: network proxy user (for basic auth proxy)</li>
  * <li>HTTP_PROXY_PASSWORD: network proxy password (for basic auth proxy)</li>
  * <li>HTTPS_PROXY_HOST: https network proxy host name</li>
  * <li>HTTPS_PROXY_PORT: https network proxy port</li>
+ * <li>HTTPS_PROXY_USER: https network proxy user (for basic auth proxy)</li>
+ * <li>HTTPS_PROXY_PASSWORD: https network proxy password (for basic auth proxy)</li>
  * <li>SSL_KEYSTORE_PATH: SSL KeyStore path</li>
  * <li>SSL_KEYSTORE_TYPE: SSL KeyStore type (default is "jks")</li>
  * <li>SSL_KEYSTORE_PASSWORD: SSL KeyStore password (default is an empty string)</li>
@@ -180,14 +195,17 @@ public class Configuration implements Serializable {
   private HashMap<String, Map<ConfigurationParameter, String>> aiaOcspMap = new HashMap<>();
 
   private List<String> trustedTerritories = new ArrayList<>();
+  private List<String> requiredTerritories = new ArrayList<>();
   private ArrayList<String> inputSourceParseErrors = new ArrayList<>();
   private LinkedHashMap<String, Object> configurationFromFile;
   private String configurationInputSourceName;
 
+  private DataLoaderFactory aiaDataLoaderFactory;
   private DataLoaderFactory ocspDataLoaderFactory;
   private DataLoaderFactory tspDataLoaderFactory;
   private DataLoaderFactory tslDataLoaderFactory;
-  private DataLoaderFactory aiaDataLoaderFactory;
+  private DSSFileLoaderFactory tslFileLoaderFactory;
+  private TSLRefreshCallback tslRefreshCallback;
 
   /**
    * Application mode
@@ -402,24 +420,6 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Enables big files support. Sets limit in MB when handling files are creating temporary file for streaming in
-   * container creation and adding data files.
-   * <p/>
-   * Used by DigiDoc4J and by DDoc4J.
-   *
-   * @param maxFileSizeCachedInMB Maximum size in MB.
-   * @deprecated obnoxious naming. Use {@link Configuration#setMaxFileSizeCachedInMemoryInMB(long)} instead.
-   */
-  @Deprecated
-  public void enableBigFilesSupport(long maxFileSizeCachedInMB) {
-    LOGGER.debug("Set maximum datafile cached to: " + maxFileSizeCachedInMB);
-    String value = Long.toString(maxFileSizeCachedInMB);
-    if (isValidIntegerParameter("DIGIDOC_MAX_DATAFILE_CACHED", value)) {
-      ddoc4jConfiguration.put("DIGIDOC_MAX_DATAFILE_CACHED", value);
-    }
-  }
-
-  /**
    * Sets limit in MB when handling files are creating temporary file for streaming in
    * container creation and adding data files.
    * <p/>
@@ -428,16 +428,11 @@ public class Configuration implements Serializable {
    * @param maxFileSizeCachedInMB maximum data file size in MB stored in memory.
    */
   public void setMaxFileSizeCachedInMemoryInMB(long maxFileSizeCachedInMB) {
-    enableBigFilesSupport(maxFileSizeCachedInMB);
-  }
-
-  /**
-   * @return is big file support enabled
-   * @deprecated obnoxious naming. Use {@link Configuration#storeDataFilesOnlyInMemory()} instead.
-   */
-  @Deprecated
-  public boolean isBigFilesSupportEnabled() {
-    return getMaxDataFileCachedInMB() >= 0;
+    LOGGER.debug("Set maximum datafile cached to: " + maxFileSizeCachedInMB);
+    String value = Long.toString(maxFileSizeCachedInMB);
+    if (isValidIntegerParameter("DIGIDOC_MAX_DATAFILE_CACHED", value)) {
+      ddoc4jConfiguration.put("DIGIDOC_MAX_DATAFILE_CACHED", value);
+    }
   }
 
   /**
@@ -488,13 +483,32 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Get TSL location.
+   * Set LOTL (List of Trusted Lists) location.
+   * LOTL can be loaded from file (file://) or from web (http://). If file protocol is used then
+   * first try is to locate file from this location if file does not exist then it tries to load
+   * relatively from classpath.
+   * <p/>
+   * Setting new location clears old values
+   * <p/>
+   * Windows wants it in file:DRIVE:/directories/lotl-file.xml format
+   *
+   * @param lotlLocation LOTL location to be used
+   */
+  public void setLotlLocation(String lotlLocation) {
+    setConfigurationParameter(ConfigurationParameter.LotlLocation, lotlLocation);
+    tslManager.setTsl(null);
+  }
+
+  /**
+   * Get LOTL (List of Trusted Lists) location.
    *
    * @return url
    */
-  public String getTslLocation() {
-    String urlString = getConfigurationParameter(ConfigurationParameter.TslLocation);
-    if (!Protocol.isFileUrl(urlString)) return urlString;
+  public String getLotlLocation() {
+    String urlString = getConfigurationParameter(ConfigurationParameter.LotlLocation);
+    if (!Protocol.isFileUrl(urlString)) {
+      return urlString;
+    }
     try {
       String filePath = new URL(urlString).getPath();
       if (!new File(filePath).exists()) {
@@ -505,7 +519,19 @@ public class Configuration implements Serializable {
     } catch (MalformedURLException e) {
       LOGGER.warn(e.getMessage());
     }
-    return urlString == null ? "" : urlString;
+    return (urlString == null) ? "" : urlString;
+  }
+
+  /**
+   * Get TSL location.
+   *
+   * @return url
+   *
+   * @deprecated Use {@link #getLotlLocation()} instead.
+   */
+  @Deprecated
+  public String getTslLocation() {
+    return getLotlLocation();
   }
 
   /**
@@ -541,16 +567,59 @@ public class Configuration implements Serializable {
    * Windows wants it in file:DRIVE:/directories/tsl-file.xml format
    *
    * @param tslLocation TSL Location to be used
+   *
+   * @deprecated Use {@link #setLotlLocation(String)} instead.
    */
+  @Deprecated
   public void setTslLocation(String tslLocation) {
-    this.setConfigurationParameter(ConfigurationParameter.TslLocation, tslLocation);
-    this.tslManager.setTsl(null);
+    setLotlLocation(tslLocation);
+  }
+
+  /**
+   * Set a file loader factory that manages the creation of custom file loaders for downloading TSL.
+   * @param tslFileLoaderFactory TSL file loader factory.
+   */
+  public void setTslFileLoaderFactory(DSSFileLoaderFactory tslFileLoaderFactory) {
+    this.tslFileLoaderFactory = tslFileLoaderFactory;
+  }
+
+  /**
+   * Returns the currently set TSL file loader factory or <code>null</code> if no custom file loader factory is set.
+   * @return TSL file loader factory.
+   */
+  public DSSFileLoaderFactory getTslFileLoaderFactory() {
+    return tslFileLoaderFactory;
+  }
+
+  /**
+   * Sets a callback that validates the state of the TSL after each TSL refresh.
+   * If no custom callback is configured, a default callback is used for TSL validation.
+   * @param tslRefreshCallback a callback to validate TSL after a refresh
+   */
+  public void setTslRefreshCallback(TSLRefreshCallback tslRefreshCallback) {
+    this.tslRefreshCallback = tslRefreshCallback;
+  }
+
+  /**
+   * Returns the currently configured TSL refresh callback or {@code null} if no custom callback is configured.
+   * @return configured TSL refresh callback or {@code null}
+   */
+  public TSLRefreshCallback getTslRefreshCallback() {
+    return tslRefreshCallback;
   }
 
   /**
    * Set a data loader factory that manages the creation of custom data loaders for downloading TSL.
    * @param tslDataLoaderFactory TSL data loader factory.
+   *
+   * @deprecated Prefer to use {@link #setTslFileLoaderFactory(DSSFileLoaderFactory)}
+   * and {@link #getTslFileLoaderFactory()} instead.
+   * If a custom TSL file loader factory is configured, then a custom TSL data loader factory has no effect.
+   * If a data loader created by a custom TSL data loader factory does not implement
+   * {@link eu.europa.esig.dss.spi.client.http.DSSFileLoader}, then it is wrapped into a
+   * {@link eu.europa.esig.dss.service.http.commons.FileCacheDataLoader}.
    */
+  @Deprecated
   public void setTslDataLoaderFactory(DataLoaderFactory tslDataLoaderFactory) {
     this.tslDataLoaderFactory = tslDataLoaderFactory;
   }
@@ -558,7 +627,15 @@ public class Configuration implements Serializable {
   /**
    * Returns the currently set TSL data loader factory or <code>null</code> if no custom data loader factory is set.
    * @return TSL data loader factory.
+   *
+   * @deprecated Prefer to use {@link #setTslFileLoaderFactory(DSSFileLoaderFactory)}
+   * and {@link #getTslFileLoaderFactory()} instead.
+   * If a custom TSL file loader factory is configured, then a custom TSL data loader factory has no effect.
+   * If a data loader created by a custom TSL data loader factory does not implement
+   * {@link eu.europa.esig.dss.spi.client.http.DSSFileLoader}, then it is wrapped into a
+   * {@link eu.europa.esig.dss.service.http.commons.FileCacheDataLoader}.
    */
+  @Deprecated
   public DataLoaderFactory getTslDataLoaderFactory() {
     return tslDataLoaderFactory;
   }
@@ -764,36 +841,121 @@ public class Configuration implements Serializable {
    * Set the KeyStore Location that holds potential TSL Signing certificates
    *
    * @param tslKeyStoreLocation KeyStore location to use
+   *
+   * @deprecated Use {@link #setLotlTruststorePath(String)} instead.
    */
+  @Deprecated
   public void setTslKeyStoreLocation(String tslKeyStoreLocation) {
-    this.setConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation, tslKeyStoreLocation);
+    setLotlTruststorePath(tslKeyStoreLocation);
   }
 
   /**
    * Get the Location to Keystore that holds potential TSL Signing certificates
    *
    * @return KeyStore Location
+   *
+   * @deprecated Use {@link #getLotlTruststorePath()} instead.
    */
+  @Deprecated
   public String getTslKeyStoreLocation() {
-    return this.getConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation);
+    return getLotlTruststorePath();
   }
 
   /**
    * Set the password for Keystore that holds potential TSL Signing certificates
    *
    * @param tslKeyStorePassword Keystore password
+   *
+   * @deprecated Use {@link #setLotlTruststorePassword(String)} instead.
    */
+  @Deprecated
   public void setTslKeyStorePassword(String tslKeyStorePassword) {
-    this.setConfigurationParameter(ConfigurationParameter.TslKeyStorePassword, tslKeyStorePassword);
+    setLotlTruststorePassword(tslKeyStorePassword);
   }
 
   /**
    * Get the password for Keystore that holds potential TSL Signing certificates
    *
    * @return Tsl Keystore password
+   *
+   * @deprecated Use {@link #getLotlTruststorePassword()} instead.
    */
+  @Deprecated
   public String getTslKeyStorePassword() {
-    return getConfigurationParameter(ConfigurationParameter.TslKeyStorePassword);
+    return getLotlTruststorePassword();
+  }
+
+  /**
+   * Set the path to the trust-store that holds potential LOTL signing certificates.
+   *
+   * @param lotlTruststorePath LOTL trust-store path to use
+   */
+  public void setLotlTruststorePath(String lotlTruststorePath) {
+    setConfigurationParameter(ConfigurationParameter.LotlTruststorePath, lotlTruststorePath);
+  }
+
+  /**
+   * Get the path to the trust-store that holds potential LOTL signing certificates.
+   *
+   * @return LOTL trust-store path
+   */
+  public String getLotlTruststorePath() {
+    return getConfigurationParameter(ConfigurationParameter.LotlTruststorePath);
+  }
+
+  /**
+   * Set the type of the trust-store that holds potential LOTL signing certificates.
+   * Default is {@code PKCS12}.
+   *
+   * @param lotlTruststoreType LOTL trust-store type to use
+   */
+  public void setLotlTruststoreType(String lotlTruststoreType) {
+    setConfigurationParameter(ConfigurationParameter.LotlTruststoreType, lotlTruststoreType);
+  }
+
+  /**
+   * Get the type of the trust-store that holds potential LOTL signing certificates.
+   *
+   * @return LOTL trust-store type
+   */
+  public String getLotlTruststoreType() {
+    return getConfigurationParameter(ConfigurationParameter.LotlTruststoreType);
+  }
+
+  /**
+   * Set the password for the trust-store that holds potential LOTL signing certificates.
+   *
+   * @param lotlTruststorePassword LOTL trust-store password
+   */
+  public void setLotlTruststorePassword(String lotlTruststorePassword) {
+    setConfigurationParameter(ConfigurationParameter.LotlTruststorePassword, lotlTruststorePassword);
+  }
+
+  /**
+   * Get the password for the trust-store that holds potential LOTL signing certificates.
+   *
+   * @return LOTL trust-store password
+   */
+  public String getLotlTruststorePassword() {
+    return getConfigurationParameter(ConfigurationParameter.LotlTruststorePassword);
+  }
+
+  /**
+   * Set whether LOTL pivot support should be enabled
+   *
+   * @param lotlPivotSupport whether LOTL pivot support should be enabled
+   */
+  public void setLotlPivotSupportEnabled(boolean lotlPivotSupport) {
+    this.setConfigurationParameter(ConfigurationParameter.LotlPivotSupportEnabled, String.valueOf(lotlPivotSupport));
+  }
+
+  /**
+   * Get whether LOTL pivot support is enabled
+   *
+   * @return whether LOTL pivot support is enabled
+   */
+  public boolean isLotlPivotSupportEnabled() {
+    return Boolean.parseBoolean(getConfigurationParameter(ConfigurationParameter.LotlPivotSupportEnabled));
   }
 
   /**
@@ -903,7 +1065,16 @@ public class Configuration implements Serializable {
    * @return SignatureProfile.
    */
   public SignatureProfile getSignatureProfile() {
-    return SignatureProfile.findByProfile(this.getConfigurationParameter(ConfigurationParameter.SignatureProfile));
+    return SignatureProfile.findByProfile(getConfigurationParameter(ConfigurationParameter.SignatureProfile));
+  }
+
+  /**
+   * Set signature profile.
+   *
+   * @param signatureProfile profile of the signature
+   */
+  public void setSignatureProfile(SignatureProfile signatureProfile) {
+    this.setConfigurationParameter(ConfigurationParameter.SignatureProfile, signatureProfile.name());
   }
 
   /**
@@ -913,6 +1084,34 @@ public class Configuration implements Serializable {
    */
   public DigestAlgorithm getSignatureDigestAlgorithm() {
     return DigestAlgorithm.findByAlgorithm(getConfigurationParameter(ConfigurationParameter.SignatureDigestAlgorithm));
+  }
+
+  /**
+   * Set signature digest algorithm.
+   *
+   * @param digestAlgorithm digest algorithm of signature
+   */
+  public void setSignatureDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+    this.setConfigurationParameter(ConfigurationParameter.SignatureDigestAlgorithm, digestAlgorithm.name());
+  }
+
+
+  /**
+   * Datafile digest algorithm.
+   *
+   * @return DigestAlgorithm.
+   */
+  public DigestAlgorithm getDataFileDigestAlgorithm() {
+    return DigestAlgorithm.findByAlgorithm(getConfigurationParameter(ConfigurationParameter.DataFileDigestAlgorithm));
+  }
+
+  /**
+   * Set datafile digest algorithm.
+   *
+   * @param digestAlgorithm digest algorithm of datafile
+   */
+  public void setDataFileDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+    this.setConfigurationParameter(ConfigurationParameter.DataFileDigestAlgorithm, digestAlgorithm.name());
   }
 
   /**
@@ -985,6 +1184,86 @@ public class Configuration implements Serializable {
    */
   public void setHttpsProxyPortFor(ExternalConnectionType connectionType, int httpsProxyPort) {
     this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyPort), String.valueOf(httpsProxyPort));
+  }
+
+  /**
+   * Set HTTPS network proxy user name.
+   *
+   * @param httpsProxyUser username.
+   */
+  public void setHttpsProxyUser(String httpsProxyUser) {
+    this.setConfigurationParameter(ConfigurationParameter.HttpsProxyUser, httpsProxyUser);
+  }
+
+  /**
+   * Set HTTPS network proxy user name for specific type of external connections.
+   * Overrides network proxy user name set via {@link Configuration#setHttpsProxyUser(String)}
+   *
+   * @param connectionType type of external connections.
+   * @param httpsProxyUser username.
+   */
+  public void setHttpsProxyUserFor(ExternalConnectionType connectionType, String httpsProxyUser) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyUser), httpsProxyUser);
+  }
+
+  /**
+   * Get HTTPS proxy user.
+   *
+   * @return HTTPS proxy user.
+   */
+  public String getHttpsProxyUser() {
+    return this.getConfigurationParameter(ConfigurationParameter.HttpsProxyUser);
+  }
+
+  /**
+   * Get HTTPS proxy user for specific type of external connections.
+   *
+   * @param connectionType type of external connections.
+   * @return HTTPS proxy user.
+   */
+  public String getHttpsProxyUserFor(ExternalConnectionType connectionType) {
+    String proxyUser = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyUser));
+    return (proxyUser != null) ? proxyUser : this.getHttpsProxyUser();
+  }
+
+  /**
+   * Set HTTPS network proxy password.
+   *
+   * @param httpsProxyPassword password.
+   */
+  public void setHttpsProxyPassword(String httpsProxyPassword) {
+    this.setConfigurationParameter(ConfigurationParameter.HttpsProxyPassword, httpsProxyPassword);
+  }
+
+  /**
+   * Set HTTPS network proxy password for specific type of external connections.
+   * Overrides network proxy password set via {@link Configuration#setHttpsProxyPassword(String)}
+   *
+   * @param connectionType type of external connections.
+   * @param httpsProxyPassword password.
+   */
+  public void setHttpsProxyPasswordFor(ExternalConnectionType connectionType, String httpsProxyPassword) {
+    this.setConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyPassword), httpsProxyPassword);
+  }
+
+  /**
+   * Get HTTPS proxy password.
+   *
+   * @return HTTPS proxy password.
+   */
+  public String getHttpsProxyPassword() {
+    return this.getConfigurationParameter(ConfigurationParameter.HttpsProxyPassword);
+  }
+
+  /**
+   * Get HTTPS proxy password for specific type of external connections.
+   *
+   * @param connectionType type of external connections.
+   * @return HTTPS proxy password.
+   */
+  public String getHttpsProxyPasswordFor(ExternalConnectionType connectionType) {
+    String proxyPassword = this.getConfigurationParameter(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyPassword));
+    return (proxyPassword != null) ? proxyPassword : this.getHttpsProxyPassword();
   }
 
 
@@ -1606,7 +1885,8 @@ public class Configuration implements Serializable {
    * @return isFullReport needed boolean value.
    */
   public boolean isFullReportNeeded() {
-    return Boolean.parseBoolean(this.getConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded));
+    String isFullSimpleReportNeeded = getConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded);
+    return Boolean.parseBoolean(isFullSimpleReportNeeded != null ? isFullSimpleReportNeeded : Constant.Default.FULL_SIMPLE_REPORT);
   }
 
   /**
@@ -1647,16 +1927,16 @@ public class Configuration implements Serializable {
   }
 
   /**
-   * Set countries and territories (2 letter country codes) whom to trust and accept certificates.
+   * Set countries and territories (alpha-2 country codes) whom to trust and accept certificates.
    * <p/>
-   * It is possible accept signatures (and certificates) only from particular countries by filtering
+   * It is possible to accept signatures (and certificates) only from particular countries by filtering
    * trusted territories. Only the TSL (and certificates) from those countries are then downloaded and
    * others are skipped.
    * <p/>
    * For example, it is possible to trust signatures only from these three countries: Estonia, Latvia and France,
    * and skip all other countries: "EE", "LV", "FR".
    *
-   * @param trustedTerritories list of 2 letter country codes.
+   * @param trustedTerritories list of alpha-2 country codes.
    */
   public void setTrustedTerritories(String... trustedTerritories) {
     this.trustedTerritories = Arrays.asList(trustedTerritories);
@@ -1665,10 +1945,38 @@ public class Configuration implements Serializable {
   /**
    * Get trusted territories.
    *
-   * @return trusted territories list.
+   * @return list of trusted territories
    */
   public List<String> getTrustedTerritories() {
     return trustedTerritories;
+  }
+
+  /**
+   * Set countries and territories (alpha-2 country codes) whose trusted lists must always be successfully
+   * loaded into the TSL.
+   * <p>
+   * This list is used by the default TSL refresh callback.
+   * If the trusted list of any of these territories fails to load, then the TSL refresh is considered
+   * to have been failed.
+   *
+   * @param requiredTerritories list of alpha-2 country codes.
+   *
+   * @see #setTslRefreshCallback(TSLRefreshCallback)
+   * @see #getTslRefreshCallback()
+   */
+  public void setRequiredTerritories(String... requiredTerritories) {
+    this.requiredTerritories = Arrays.asList(requiredTerritories);
+  }
+
+  /**
+   * Get required territories.
+   *
+   * @return list of required territories
+   *
+   * @see #setRequiredTerritories(String...)
+   */
+  public List<String> getRequiredTerritories() {
+    return requiredTerritories;
   }
 
   /**
@@ -1799,10 +2107,11 @@ public class Configuration implements Serializable {
     LOGGER.debug("------------------------ DEFAULTS ------------------------");
     this.tslManager = new TslManager(this);
     this.setConfigurationParameter(ConfigurationParameter.ConnectionTimeoutInMillis,
-        String.valueOf(Constant.ONE_SECOND_IN_MILLISECONDS));
+        String.valueOf(Constant.ONE_MINUTE_IN_MILLISECONDS));
     this.setConfigurationParameter(ConfigurationParameter.SocketTimeoutInMillis,
-        String.valueOf(Constant.ONE_SECOND_IN_MILLISECONDS));
-    this.setConfigurationParameter(ConfigurationParameter.TslKeyStorePassword, "digidoc4j-password");
+        String.valueOf(Constant.ONE_MINUTE_IN_MILLISECONDS));
+    this.setConfigurationParameter(ConfigurationParameter.LotlTruststoreType, "PKCS12");
+    this.setConfigurationParameter(ConfigurationParameter.LotlTruststorePassword, "digidoc4j-password");
     this.setConfigurationParameter(ConfigurationParameter.RevocationAndTimestampDeltaInMinutes,
         String.valueOf(Constant.ONE_DAY_IN_MINUTES));
     this.setConfigurationParameter(ConfigurationParameter.TslCacheExpirationTimeInMillis,
@@ -1810,18 +2119,14 @@ public class Configuration implements Serializable {
     this.setConfigurationParameter(ConfigurationParameter.TempFileMaxAgeInMillis,
         String.valueOf(Constant.ONE_DAY_IN_MILLISECONDS));
     this.setConfigurationParameter(ConfigurationParameter.AllowedTimestampAndOCSPResponseDeltaInMinutes, "15");
-    this.setConfigurationParameter(ConfigurationParameter.SignatureProfile, Constant.Default.SIGNATURE_PROFILE);
-    this.setConfigurationParameter(ConfigurationParameter.SignatureDigestAlgorithm,
-        Constant.Default.SIGNATURE_DIGEST_ALGORITHM);
-    this.setConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded,
-        Constant.Default.FULL_SIMPLE_REPORT);
     this.setConfigurationParameter(ConfigurationParameter.useNonce, "true");
     this.setConfigurationParameter(ConfigurationParameter.ZipCompressionRatioCheckThreshold, "1048576");
     this.setConfigurationParameter(ConfigurationParameter.MaxAllowedZipCompressionRatio, "100");
     if (Mode.TEST.equals(this.mode)) {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Test.TSP_SOURCE);
-      this.setConfigurationParameter(ConfigurationParameter.TslLocation, Constant.Test.TSL_LOCATION);
-      this.setConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation, Constant.Test.TSL_KEYSTORE_LOCATION);
+      this.setConfigurationParameter(ConfigurationParameter.LotlLocation, Constant.Test.LOTL_LOCATION);
+      this.setConfigurationParameter(ConfigurationParameter.LotlTruststorePath, Constant.Test.LOTL_TRUSTSTORE_PATH);
+      this.setConfigurationParameter(ConfigurationParameter.LotlPivotSupportEnabled, "false");
       this.setConfigurationParameter(ConfigurationParameter.ValidationPolicy, Constant.Test.VALIDATION_POLICY);
       this.setConfigurationParameter(ConfigurationParameter.OcspSource, Constant.Test.OCSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, "false");
@@ -1833,14 +2138,15 @@ public class Configuration implements Serializable {
       this.loadYamlAiaOCSPs(loadYamlFromResource("defaults/demo_aia_ocsp.yaml"), true);
     } else {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Production.TSP_SOURCE);
-      this.setConfigurationParameter(ConfigurationParameter.TslLocation, Constant.Production.TSL_LOCATION);
-      this.setConfigurationParameter(ConfigurationParameter.TslKeyStoreLocation,
-          Constant.Production.TSL_KEYSTORE_LOCATION);
+      this.setConfigurationParameter(ConfigurationParameter.LotlLocation, Constant.Production.LOTL_LOCATION);
+      this.setConfigurationParameter(ConfigurationParameter.LotlTruststorePath, Constant.Production.LOTL_TRUSTSTORE_PATH);
+      this.setConfigurationParameter(ConfigurationParameter.LotlPivotSupportEnabled, "true");
       this.setConfigurationParameter(ConfigurationParameter.ValidationPolicy, Constant.Production.VALIDATION_POLICY);
       this.setConfigurationParameter(ConfigurationParameter.OcspSource, Constant.Production.OCSP_SOURCE);
       this.setConfigurationParameter(ConfigurationParameter.SignOcspRequests, "false");
       this.setConfigurationParameter(ConfigurationParameter.PrintValidationReport, "false");
-      this.trustedTerritories = Constant.Production.DEFAULT_TRUESTED_TERRITORIES;
+      this.requiredTerritories = Constant.Production.DEFAULT_REQUIRED_TERRITORIES;
+      this.trustedTerritories = Constant.Production.DEFAULT_TRUSTED_TERRITORIES;
       this.setDDoc4JParameter("SIGN_OCSP_REQUESTS", "false");
       setDDoc4JParameter("ALLOWED_OCSP_RESPONDERS_FOR_TM", StringUtils.join(Constant.Production.DEFAULT_OCSP_RESPONDERS, ","));
       this.setConfigurationParameter(ConfigurationParameter.AllowedOcspRespondersForTM, Constant.Production.DEFAULT_OCSP_RESPONDERS);
@@ -1867,7 +2173,8 @@ public class Configuration implements Serializable {
     this.setDDoc4JDocConfigurationValue("DIGIDOC_OCSP_RESPONDER_URL", this.getOcspSource());
     this.setDDoc4JDocConfigurationValue("DIGIDOC_FACTORY_IMPL", Constant.DDoc4J.FACTORY_IMPLEMENTATION);
     this.setDDoc4JDocConfigurationValue("DIGIDOC_DF_CACHE_DIR", null);
-    this.setConfigurationParameterFromFile("TSL_LOCATION", ConfigurationParameter.TslLocation);
+    this.setConfigurationParameterFromFile("TSL_LOCATION", ConfigurationParameter.LotlLocation);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.LotlLocation);
     this.setConfigurationParameterFromFile("TSP_SOURCE", ConfigurationParameter.TspSource);
     this.setConfigurationParameterFromFile("VALIDATION_POLICY", ConfigurationParameter.ValidationPolicy);
     this.setConfigurationParameterFromFile("OCSP_SOURCE", ConfigurationParameter.OcspSource);
@@ -1879,8 +2186,12 @@ public class Configuration implements Serializable {
     this.setConfigurationParameterFromFile("CONNECTION_TIMEOUT", ConfigurationParameter.ConnectionTimeoutInMillis);
     this.setConfigurationParameterFromFile("SOCKET_TIMEOUT", ConfigurationParameter.SocketTimeoutInMillis);
     this.setConfigurationParameterFromFile("SIGN_OCSP_REQUESTS", ConfigurationParameter.SignOcspRequests);
-    this.setConfigurationParameterFromFile("TSL_KEYSTORE_LOCATION", ConfigurationParameter.TslKeyStoreLocation);
-    this.setConfigurationParameterFromFile("TSL_KEYSTORE_PASSWORD", ConfigurationParameter.TslKeyStorePassword);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.LotlTruststoreType);
+    this.setConfigurationParameterFromFile("TSL_KEYSTORE_LOCATION", ConfigurationParameter.LotlTruststorePath);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.LotlTruststorePath);
+    this.setConfigurationParameterFromFile("TSL_KEYSTORE_PASSWORD", ConfigurationParameter.LotlTruststorePassword);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.LotlTruststorePassword);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.LotlPivotSupportEnabled);
     this.setConfigurationParameterFromFile("TSL_CACHE_EXPIRATION_TIME",
         ConfigurationParameter.TslCacheExpirationTimeInMillis);
     this.setConfigurationParameterFromFile("REVOCATION_AND_TIMESTAMP_DELTA_IN_MINUTES",
@@ -1890,6 +2201,8 @@ public class Configuration implements Serializable {
     this.setConfigurationParameterFromFile("SIGNATURE_PROFILE", ConfigurationParameter.SignatureProfile);
     this.setConfigurationParameterFromFile("SIGNATURE_DIGEST_ALGORITHM",
         ConfigurationParameter.SignatureDigestAlgorithm);
+    this.setConfigurationParameterFromFile("DATAFILE_DIGEST_ALGORITHM",
+            ConfigurationParameter.DataFileDigestAlgorithm);
     this.setConfigurationParameterFromFile("PRINT_VALIDATION_REPORT", ConfigurationParameter.PrintValidationReport);
     this.setDDoc4JDocConfigurationValue("SIGN_OCSP_REQUESTS", Boolean.toString(this.hasToBeOCSPRequestSigned()));
     this.setDDoc4JDocConfigurationValue("DIGIDOC_PKCS12_CONTAINER", this.getOCSPAccessCertificateFileName());
@@ -1900,6 +2213,8 @@ public class Configuration implements Serializable {
     this.setConfigurationParameterFromSystemOrFile(Constant.System.HTTPS_PROXY_PORT, ConfigurationParameter.HttpsProxyPort);
     this.setConfigurationParameterFromFile(ConfigurationParameter.HttpProxyUser);
     this.setConfigurationParameterFromFile(ConfigurationParameter.HttpProxyPassword);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.HttpsProxyUser);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.HttpsProxyPassword);
     this.setConfigurationParameterFromFile(ConfigurationParameter.SslKeystoreType);
     this.setConfigurationParameterFromFile(ConfigurationParameter.SslTruststoreType);
     this.setConfigurationParameterFromSystemOrFile(Constant.System.JAVAX_NET_SSL_KEY_STORE, ConfigurationParameter.SslKeystorePath);
@@ -1912,10 +2227,12 @@ public class Configuration implements Serializable {
     for (ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyHost));
       this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyPort));
-      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyHost));
-      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyPort));
       this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyUser));
       this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpProxyPassword));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyHost));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyPort));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyUser));
+      this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.HttpsProxyPassword));
       this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.SslKeystoreType));
       this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.SslTruststoreType));
       this.setConfigurationParameterFromFile(connectionType.mapToSpecificParameter(ConfigurationParameter.SslKeystorePath));
@@ -1928,12 +2245,13 @@ public class Configuration implements Serializable {
     }
     this.setConfigurationParameter(ConfigurationParameter.AllowASN1UnsafeInteger, this.getParameter(Constant
         .System.ORG_BOUNCYCASTLE_ASN1_ALLOW_UNSAFE_INTEGER, "ALLOW_UNSAFE_INTEGER"));
-    this.setConfigurationParameter(ConfigurationParameter.preferAiaOcsp, this.getParameterFromFile("PREFER_AIA_OCSP"));
+    this.setConfigurationParameter(ConfigurationParameter.preferAiaOcsp, this.getStringParameterFromFile("PREFER_AIA_OCSP"));
     this.setConfigurationParameterFromFile("ZIP_COMPRESSION_RATIO_CHECK_THRESHOLD_IN_BYTES",
             ConfigurationParameter.ZipCompressionRatioCheckThreshold, this::isValidLongParameter);
     this.setConfigurationParameterFromFile("MAX_ALLOWED_ZIP_COMPRESSION_RATIO",
             ConfigurationParameter.MaxAllowedZipCompressionRatio, this::isValidIntegerParameter);
     this.loadYamlOcspResponders();
+    this.loadYamlRequiredTerritories();
     this.loadYamlTrustedTerritories();
     this.loadYamlTSPs();
     this.loadYamlAiaOCSPs(configurationFromFile, false);
@@ -2228,6 +2546,13 @@ public class Configuration implements Serializable {
     }
   }
 
+  private void loadYamlRequiredTerritories() {
+    List<String> territories = getStringListParameterFromFile("REQUIRED_TERRITORIES");
+    if (territories != null) {
+      requiredTerritories = territories;
+    }
+  }
+
   private void loadYamlTrustedTerritories() {
     List<String> territories = getStringListParameterFromFile("TRUSTED_TERRITORIES");
     if (territories != null) {
@@ -2235,11 +2560,16 @@ public class Configuration implements Serializable {
     }
   }
 
-  private String getParameterFromFile(String key) {
-    if (this.configurationFromFile == null) {
+  private Object getObjectParameterFromFile(String key) {
+    if (configurationFromFile != null) {
+      return configurationFromFile.get(key);
+    } else {
       return null;
     }
-    Object fileValue = this.configurationFromFile.get(key);
+  }
+
+  private String getStringParameterFromFile(String key) {
+    Object fileValue = getObjectParameterFromFile(key);
     if (fileValue == null) {
       return null;
     }
@@ -2251,15 +2581,17 @@ public class Configuration implements Serializable {
   }
 
   private List<String> getStringListParameterFromFile(String key) {
-    String value = getParameterFromFile(key);
-    if (value == null) {
-      return null;
+    Object objectValue = getObjectParameterFromFile(key);
+    if (objectValue instanceof List) {
+      return ((List<?>) objectValue).stream().map(Objects::toString).collect(Collectors.toList());
+    } else if (objectValue != null) {
+      return Arrays.asList(objectValue.toString().split("\\s*,\\s*")); //Split by comma and trim whitespace
     }
-    return Arrays.asList(value.split("\\s*,\\s*")); //Split by comma and trim whitespace
+    return null;
   }
 
   private void setConfigurationParameterFromFile(String fileKey, ConfigurationParameter parameter, BiPredicate<String, String> parameterValidator) {
-    String fileValue = this.getParameterFromFile(fileKey);
+    String fileValue = this.getStringParameterFromFile(fileKey);
     if (fileValue != null && (parameterValidator == null || parameterValidator.test(fileKey, fileValue))) {
       this.setConfigurationParameter(parameter, fileValue);
     }
@@ -2396,7 +2728,7 @@ public class Configuration implements Serializable {
    */
   private String getParameter(String systemKey, String fileKey) {
     String valueFromJvm = System.getProperty(systemKey);
-    String valueFromFile = this.getParameterFromFile(fileKey);
+    String valueFromFile = this.getStringParameterFromFile(fileKey);
     this.log(valueFromJvm, valueFromFile, systemKey, fileKey);
     return valueFromJvm != null ? valueFromJvm : valueFromFile;
   }

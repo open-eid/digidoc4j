@@ -76,9 +76,7 @@ public final class TimestampToken {
    */
   public static DataFile generateTimestampToken(DigestAlgorithm digestAlgorithm, DataFile containerDataFile) {
     OnlineTSPSource onlineTSPSource = defineOnlineTSPSource(null);
-    byte[] dataFileDigest;
-    dataFileDigest = containerDataFile.getBytes();
-    byte[] digest = DSSUtils.digest(digestAlgorithm, dataFileDigest);
+    byte[] digest = containerDataFile.calculateDigest(org.digidoc4j.DigestAlgorithm.getDigestAlgorithmUri(digestAlgorithm));
     DataFile timeStampToken = getTimestampToken(onlineTSPSource, digestAlgorithm, digest);
     return timeStampToken;
   }

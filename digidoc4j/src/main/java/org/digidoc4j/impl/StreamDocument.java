@@ -1,23 +1,19 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl;
 
 
 import eu.europa.esig.dss.model.CommonDocument;
 import eu.europa.esig.dss.model.DSSException;
-import eu.europa.esig.dss.spi.DSSUtils;
-import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.model.MimeType;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +32,8 @@ public class StreamDocument extends CommonDocument {
   private static final Logger logger = LoggerFactory.getLogger(StreamDocument.class);
 
   private static final int MAX_SIZE_IN_MEMORY = 1024 * 5;
-  File temporaryFile;
+
+  protected final File temporaryFile;
 
   //TODO if file is small enough you can read it into byte[] and cache it
 
@@ -49,30 +46,31 @@ public class StreamDocument extends CommonDocument {
    */
   public StreamDocument(InputStream stream, String documentName, MimeType mimeType) {
     logger.debug("Document name: " + documentName + ", mime type: " + mimeType);
-    createTemporaryFileOfStream(stream);
+    this.temporaryFile = createTemporaryFileOfStream(stream);
     super.name = documentName;
     super.mimeType = mimeType;
   }
 
-  private void createTemporaryFileOfStream(InputStream stream) {
-    byte[] bytes = new byte[MAX_SIZE_IN_MEMORY];
-
-    FileOutputStream out = null;
-
+  private static File createTemporaryFileOfStream(InputStream stream) {
     try {
+      File temporaryFile;
       temporaryFile = File.createTempFile("digidoc4j", ".tmp");
-      out = new FileOutputStream(temporaryFile);
-      int result;
-      while ((result = stream.read(bytes)) > 0) {
-        out.write(bytes, 0, result);
-      }
-      out.flush();
       temporaryFile.deleteOnExit();
+
+      try (FileOutputStream out = new FileOutputStream(temporaryFile)) {
+        byte[] bytes = new byte[MAX_SIZE_IN_MEMORY];
+        int result;
+
+        while ((result = stream.read(bytes)) > 0) {
+          out.write(bytes, 0, result);
+        }
+        out.flush();
+      }
+
+      return temporaryFile;
     } catch (IOException e) {
       logger.error(e.getMessage());
       throw new DSSException(e);
-    } finally {
-      IOUtils.closeQuietly(out);
     }
   }
 
@@ -92,11 +90,6 @@ public class StreamDocument extends CommonDocument {
   }
 
   @Override
-  public String getAbsolutePath() {
-    return temporaryFile.getAbsolutePath();
-  }
-
-  @Override
   public MimeType getMimeType() {
     MimeType mimeType = super.getMimeType();
     logger.debug("Mime type: " + mimeType);
@@ -109,33 +102,8 @@ public class StreamDocument extends CommonDocument {
     super.setMimeType(mimeType);
   }
 
-  @Override
-  public void save(String filePath) {
-    logger.debug("File Path: " + filePath);
-    try {
-      FileOutputStream fileOutputStream = new FileOutputStream(filePath);
-      try {
-        IOUtils.copy(getTemporaryFileAsStream(), fileOutputStream);
-      } finally {
-        fileOutputStream.close();
-      }
-    } catch (IOException e) {
-      logger.error(e.getMessage());
-      throw new DSSException(e);
-    }
-  }
-
-  @Override
-  public String getDigest(DigestAlgorithm digestAlgorithm) {
-    logger.debug("Digest algorithm: " + digestAlgorithm);
-    byte[] digestBytes;
-    try {
-      digestBytes = DSSUtils.digest(digestAlgorithm, getTemporaryFileAsStream());
-    } catch (FileNotFoundException e) {
-      logger.error(e.getMessage());
-      throw new DSSException(e);
-    }
-    return Base64.encodeBase64String(digestBytes);
+  public Long getStreamLengthIfKnown() {
+    return temporaryFile.length();
   }
 
   protected FileInputStream getTemporaryFileAsStream() throws FileNotFoundException {

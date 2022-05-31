@@ -14,7 +14,6 @@ import eu.europa.esig.dss.enumerations.CertificateSourceType;
 import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.model.x509.X500PrincipalHelper;
-import eu.europa.esig.dss.spi.tsl.LOTLInfo;
 import eu.europa.esig.dss.spi.tsl.TLValidationJobSummary;
 import eu.europa.esig.dss.spi.tsl.TrustProperties;
 import eu.europa.esig.dss.spi.tsl.TrustedListsCertificateSource;
@@ -44,7 +43,7 @@ import java.util.Set;
 public class LazyTslCertificateSource extends TrustedListsCertificateSource implements TSLCertificateSource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LazyTslCertificateSource.class);
-  private static final String CACHE_ERROR_STATUS = "ERROR";
+
   private transient TLValidationJob tlValidationJob;
   private TSLCertificateSource certificateSource;
   private Long lastCacheReloadingTime;
@@ -154,9 +153,14 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
       this.populateTsl();
       LOGGER.debug("Refreshing TSL");
       this.tlValidationJob.onlineRefresh();
-      this.lastCacheReloadingTime = new Date().getTime();
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("Finished refreshing TSL, cache expires at {}", this.getNextCacheExpirationDate());
+      this.lastCacheReloadingTime = null;
+      if (tslLoader.getTslRefreshCallback().ensureTSLState(tlValidationJob.getSummary())) {
+        this.lastCacheReloadingTime = new Date().getTime();
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("Finished refreshing TSL, cache expires at {}", this.getNextCacheExpirationDate());
+        }
+      } else {
+        LOGGER.debug("Finished refreshing TSL, cache is still expired");
       }
     } catch (DSSException e) {
       throw new TslCertificateSourceInitializationException("Failed to initialize TSL: " + e.getMessage(), e);

@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j;
 
 import java.util.Arrays;
@@ -14,19 +24,17 @@ import java.util.List;
 public final class Constant {
 
   public static final int ONE_SECOND_IN_MILLISECONDS = 1000;
+  public static final int ONE_MINUTE_IN_MILLISECONDS = 60000;
   public static final int ONE_DAY_IN_MINUTES = 24 * 60;
   public static final long ONE_DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
   public static final long ONE_MB_IN_BYTES = 1048576;
   public static final long CACHE_ALL_DATA_FILES = -1;
   public static final long CACHE_NO_DATA_FILES = 0;
 
-  @Deprecated
+  public static final String DDOC_CONTAINER_TYPE = "DDOC";
   public static final String BDOC_CONTAINER_TYPE = "BDOC";
-  @Deprecated
   public static final String ASICE_CONTAINER_TYPE = "ASICE";
-  @Deprecated
   public static final String ASICS_CONTAINER_TYPE = "ASICS";
-  @Deprecated
   public static final String PADES_CONTAINER_TYPE = "PADES";
 
   public static final String USER_AGENT_STRING = "LIB DigiDoc4j";
@@ -46,16 +54,17 @@ public final class Constant {
 
   public static class Default {
 
-    public static final String SIGNATURE_PROFILE = "LT";
-    public static final String SIGNATURE_DIGEST_ALGORITHM = "SHA256";
+    public static final SignatureProfile SIGNATURE_PROFILE = SignatureProfile.LT;
+    public static final DigestAlgorithm SIGNATURE_DIGEST_ALGORITHM = DigestAlgorithm.SHA256;
+    public static final DigestAlgorithm DATAFILE_DIGEST_ALGORITHM = DigestAlgorithm.SHA256;
     public static final String FULL_SIMPLE_REPORT = "false";
   }
 
   public static class Test {
 
     public static final String TSP_SOURCE = "http://demo.sk.ee/tsa";
-    public static final String TSL_LOCATION = "https://open-eid.github.io/test-TL/tl-mp-test-EE.xml";
-    public static final String TSL_KEYSTORE_LOCATION = "keystore/test-keystore.jks";
+    public static final String LOTL_LOCATION = "https://open-eid.github.io/test-TL/tl-mp-test-EE.xml";
+    public static final String LOTL_TRUSTSTORE_PATH = "classpath:truststores/test-lotl-truststore.p12";
     public static final String VALIDATION_POLICY = "conf/test_constraint.xml";
     public static final String OCSP_SOURCE = "http://demo.sk.ee/ocsp";
     public static final String[] DEFAULT_OCSP_RESPONDERS = {"TEST of SK OCSP RESPONDER 2020", "TEST of EID-SK 2016 OCSP RESPONDER 2018", "TEST of SK OCSP RESPONDER 2011",
@@ -69,11 +78,12 @@ public final class Constant {
   public static class Production {
 
     public static final String TSP_SOURCE = "http://tsa.sk.ee";
-    public static final String TSL_LOCATION = "https://ec.europa.eu/tools/lotl/eu-lotl.xml";
-    public static final String TSL_KEYSTORE_LOCATION = "keystore/keystore.jks";
+    public static final String LOTL_LOCATION = "https://ec.europa.eu/tools/lotl/eu-lotl.xml";
+    public static final String LOTL_TRUSTSTORE_PATH = "classpath:truststores/lotl-truststore.p12";
     public static final String VALIDATION_POLICY = "conf/constraint.xml";
     public static final String OCSP_SOURCE = "http://ocsp.sk.ee/";
-    public static final List<String> DEFAULT_TRUESTED_TERRITORIES = Collections.unmodifiableList(
+    public static final List<String> DEFAULT_REQUIRED_TERRITORIES = Collections.singletonList("EE");
+    public static final List<String> DEFAULT_TRUSTED_TERRITORIES = Collections.unmodifiableList(
       Arrays.asList("AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR",
         "EL", "HU", "HR", "IE", "IS", "IT", "LT", "LU", "LV", "LI", "MT", "NO", "NL",
         "PL", "PT", "RO", "SE", "SI", "SK", "UK"));

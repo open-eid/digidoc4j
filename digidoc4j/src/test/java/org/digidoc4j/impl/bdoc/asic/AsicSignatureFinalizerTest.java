@@ -75,7 +75,7 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
     SignatureFinalizer signatureFinalizer = SignatureFinalizerBuilder.aFinalizer(container, dataToSign.getSignatureParameters());
     assertEquals(dataToSign.getSignatureParameters(), signatureFinalizer.getSignatureParameters());
     assertEquals(dataToSign.getConfiguration(), signatureFinalizer.getConfiguration());
-    assertEquals(dataToSign.getDigestAlgorithm(), signatureFinalizer.getSignatureParameters().getDigestAlgorithm());
+    assertEquals(dataToSign.getDigestAlgorithm(), signatureFinalizer.getSignatureParameters().getSignatureDigestAlgorithm());
   }
 
   @Test

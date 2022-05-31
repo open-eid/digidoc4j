@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j;
 
@@ -30,7 +30,6 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -87,7 +86,6 @@ public class ContainerOpener {
    * @param stream                      input stream
    * @param actAsBigFilesSupportEnabled acts as configuration parameter
    * @return container
-   * @see Configuration#isBigFilesSupportEnabled() returns true used for BDOC
    * @see ContainerBuilder
    */
   public static Container open(InputStream stream, boolean actAsBigFilesSupportEnabled) {

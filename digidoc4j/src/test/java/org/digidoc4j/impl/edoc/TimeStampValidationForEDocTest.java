@@ -4,6 +4,7 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
+import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,14 +23,20 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
   public void timestampAfterOcspResponseTimeShouldResultInInvalidContainerForEDOC() {
     ContainerValidationResult validationResult = this.openContainerByConfiguration(Paths.get(EDOC_LOCATION)).validate();
     Assert.assertFalse("Signature should be invalid if timestamp was taken after OCSP", validationResult.isValid());
-    Assert.assertEquals(2, validationResult.getErrors().size());
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
+            "Timestamp time is after OCSP response production time",
+            "The certificate is not related to a TSA/QTST!"
+    );
     Assert.assertTrue("Validation result should contain " + TimestampAfterOCSPResponseTimeException.class.getSimpleName(),
-            validationResult.getErrors().get(1) instanceof TimestampAfterOCSPResponseTimeException);
+            validationResult.getErrors().stream().anyMatch(e -> e instanceof TimestampAfterOCSPResponseTimeException));
   }
 
   @Test
   public void invalidTimestampMsgIsNotExistForASICE() {
-    Assert.assertEquals(1, this.openContainerByConfiguration(Paths.get(ASICE_LOCATION)).validate().getErrors().size());
+    ContainerValidationResult validationResult = this.openContainerByConfiguration(Paths.get(ASICE_LOCATION)).validate();
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
+            "The certificate is not related to a TSA/QTST!"
+    );
   }
 
   /*

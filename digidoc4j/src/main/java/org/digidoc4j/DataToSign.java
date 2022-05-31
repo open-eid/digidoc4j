@@ -61,7 +61,7 @@ public class DataToSign implements Serializable {
    * @return signature digest algorithm.
    */
   public DigestAlgorithm getDigestAlgorithm() {
-    return signatureFinalizer.getSignatureParameters().getDigestAlgorithm();
+    return signatureFinalizer.getSignatureParameters().getSignatureDigestAlgorithm();
   }
 
   /**

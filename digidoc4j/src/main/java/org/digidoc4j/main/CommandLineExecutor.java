@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.main;
 
@@ -36,8 +36,8 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
+import org.digidoc4j.exceptions.DataFileNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.asic.AsicContainer;
 import org.digidoc4j.impl.asic.asics.AsicSContainer;
 import org.digidoc4j.impl.ddoc.DDocContainer;
@@ -259,7 +259,11 @@ public class CommandLineExecutor {
       this.addData(container);
     }
     if (this.context.getCommandLine().hasOption("remove")) {
-      container.removeDataFile(this.context.getCommandLine().getOptionValue("remove"));
+      String fileToRemove = this.context.getCommandLine().getOptionValue("remove");
+      container.removeDataFile(container.getDataFiles().stream()
+              .filter(dataFile -> fileToRemove.equals(dataFile.getName()))
+              .findFirst().orElseThrow(() -> new DataFileNotFoundException("No datafile found: " + fileToRemove))
+      );
       this.fileHasChanged = true;
     }
     if (this.context.getCommandLine().hasOption(ExecutionOption.EXTRACT.getName())) {

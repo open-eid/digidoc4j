@@ -12,6 +12,7 @@ package org.digidoc4j.impl.asic.xades;
 
 import java.util.List;
 
+import eu.europa.esig.dss.exception.IllegalInputException;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
 import org.digidoc4j.exceptions.InvalidSignatureException;
@@ -51,7 +52,7 @@ public class XadesValidationDssFacade {
       SignaturePolicyProvider signaturePolicyProvider = Helper.getBdocSignaturePolicyProvider(signature);
       validator.setSignaturePolicyProvider(signaturePolicyProvider);
       return validator;
-    } catch (DSSException e) {
+    } catch (DSSException | IllegalInputException e) {
       logger.error("Failed to parse xades signature: " + e.getMessage());
       throw new InvalidSignatureException();
     }
@@ -61,7 +62,6 @@ public class XadesValidationDssFacade {
     logger.debug("Creating new certificate verifier");
     CertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
     certificateVerifier.setCrlSource(null); //Disable CRL checks
-    certificateVerifier.setSignatureCRLSource(null); //Disable CRL checks
     logger.debug("Setting trusted cert source to the certificate verifier");
     certificateVerifier.setTrustedCertSources(configuration.getTSL());
     logger.debug("Setting custom data loader to the certificate verifier");

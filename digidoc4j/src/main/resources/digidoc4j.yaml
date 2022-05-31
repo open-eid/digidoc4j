@@ -159,7 +159,3 @@ DIGIDOC_CAS:
         CA_CERT: jar://certs/KLASS3-SK.crt
         CN: SK Proxy OCSP Responder 2009
         URL: http://ocsp.sk.ee
-
-TSL_SSL_TRUSTSTORE_PATH: classpath:ssl/tsl_truststore.p12
-TSL_SSL_TRUSTSTORE_PASSWORD: digidoc4j-password
-TSL_SSL_TRUSTSTORE_TYPE: PKCS12

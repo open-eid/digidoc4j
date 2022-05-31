@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -107,7 +108,7 @@ public class StreamDocumentTest extends AbstractTest {
 
   @Test
   public void getAbsolutePath() throws Exception {
-    Assert.assertTrue(this.document.getAbsolutePath(), this.document.getAbsolutePath().matches(".*digidoc4j.*.\\.tmp"));
+    Assert.assertTrue(this.document.temporaryFile.getAbsolutePath(), this.document.temporaryFile.getAbsolutePath().matches(".*digidoc4j.*.\\.tmp"));
   }
 
   @Test
@@ -168,7 +169,7 @@ public class StreamDocumentTest extends AbstractTest {
   /*
     NB! If this test fails then ensure that directory testFiles/tmp/readonly is read-only!
    */
-  @Test(expected = DSSException.class)
+  @Test(expected = FileNotFoundException.class)
   public void saveWhenNoAccessRights() throws Exception {
     File tmp = StreamDocumentTest.readOnlyPath.toFile();
     String dataFileName = tmp.getAbsolutePath() + File.separator + "no_access.txt";

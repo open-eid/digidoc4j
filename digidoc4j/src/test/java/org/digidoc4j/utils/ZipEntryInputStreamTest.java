@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.utils;
 
 import org.junit.Assert;
@@ -14,229 +24,214 @@ import java.util.zip.ZipInputStream;
 @RunWith(MockitoJUnitRunner.class)
 public class ZipEntryInputStreamTest {
 
-    @Mock
-    private ZipInputStream zipInputStream;
+  @Mock
+  private ZipInputStream zipInputStream;
 
-    private ZipEntryInputStream zipEntryInputStream;
+  private ZipEntryInputStream zipEntryInputStream;
 
-    @Before
-    public void setUp() {
-        zipEntryInputStream = new ZipEntryInputStream(zipInputStream, null);
-        Mockito.verifyZeroInteractions(zipInputStream);
-    }
+  @Before
+  public void setUp() {
+    zipEntryInputStream = new ZipEntryInputStream(zipInputStream, null);
+    Mockito.verifyNoInteractions(zipInputStream);
+  }
 
+  @Test
+  public void availableShouldDelegateToZipInputStreamAvailable() throws IOException {
+    Mockito.doReturn(7).when(zipInputStream).available();
 
-    @Test
-    public void availableShouldDelegateToZipInputStreamAvailable() throws IOException {
-        Mockito.doReturn(7).when(zipInputStream).available();
+    int result = zipEntryInputStream.available();
+    Assert.assertEquals(7, result);
 
-        int result = zipEntryInputStream.available();
-        Assert.assertEquals(7, result);
+    Mockito.verify(zipInputStream, Mockito.times(1)).available();
+    Mockito.verifyNoMoreInteractions(zipInputStream);
+  }
 
-        Mockito.verify(zipInputStream, Mockito.times(1)).available();
-        Mockito.verifyNoMoreInteractions(zipInputStream);
-    }
+  @Test
+  public void availableShouldPassOnExceptionThrownByZipInputStreamAvailable() throws IOException {
+    IOException ioException = new IOException("Some ZipInputStream exception");
+    Mockito.doThrow(ioException).when(zipInputStream).available();
 
-    @Test
-    public void availableShouldPassOnExceptionThrownByZipInputStreamAvailable() throws IOException {
-        IOException ioException = new IOException("Some ZipInputStream exception");
-        Mockito.doThrow(ioException).when(zipInputStream).available();
+    IOException caughtException = Assert.assertThrows(
+            IOException.class,
+            () -> zipEntryInputStream.available()
+    );
 
-        try {
-            zipEntryInputStream.available();
-            Assert.fail("Should not reach here");
-        } catch (IOException exception) {
-            Assert.assertEquals(ioException.getMessage(), exception.getMessage());
-        }
+    Assert.assertSame(ioException, caughtException);
+    Mockito.verify(zipInputStream, Mockito.times(1)).available();
+    Mockito.verifyNoMoreInteractions(zipInputStream);
+  }
 
-        Mockito.verify(zipInputStream, Mockito.times(1)).available();
-        Mockito.verifyNoMoreInteractions(zipInputStream);
-    }
+  @Test
+  public void closeShouldDelegateToZipInputStreamCloseEntry() throws IOException {
+    zipEntryInputStream.close();
 
+    Mockito.verify(zipInputStream, Mockito.times(1)).closeEntry();
+    Mockito.verifyNoMoreInteractions(zipInputStream);
+  }
 
-    @Test
-    public void closeShouldDelegateToZipInputStreamCloseEntry() throws IOException {
-        zipEntryInputStream.close();
+  @Test
+  public void closeShouldPassOnExceptionThrownByZipInputStreamAvailable() throws IOException {
+    IOException ioException = new IOException("Some ZipInputStream exception");
+    Mockito.doThrow(ioException).when(zipInputStream).closeEntry();
 
-        Mockito.verify(zipInputStream, Mockito.times(1)).closeEntry();
-        Mockito.verifyNoMoreInteractions(zipInputStream);
-    }
+    IOException caughtException = Assert.assertThrows(
+            IOException.class,
+            () -> zipEntryInputStream.close()
+    );
 
-    @Test
-    public void closeShouldPassOnExceptionThrownByZipInputStreamAvailable() throws IOException {
-        IOException ioException = new IOException("Some ZipInputStream exception");
-        Mockito.doThrow(ioException).when(zipInputStream).closeEntry();
+    Assert.assertSame(ioException, caughtException);
+    Mockito.verify(zipInputStream, Mockito.times(1)).closeEntry();
+    Mockito.verifyNoMoreInteractions(zipInputStream);
+  }
 
-        try {
-            zipEntryInputStream.close();
-            Assert.fail("Should not reach here");
-        } catch (IOException exception) {
-            Assert.assertEquals(ioException.getMessage(), exception.getMessage());
-        }
+  @Test
+  public void markShouldDelegateToZipInputStreamMark() {
+    zipEntryInputStream.mark(7);
 
-        Mockito.verify(zipInputStream, Mockito.times(1)).closeEntry();
-        Mockito.verifyNoMoreInteractions(zipInputStream);
-    }
+    Mockito.verify(zipInputStream, Mockito.times(1)).mark(7);
+    Mockito.verifyNoMoreInteractions(zipInputStream);
+  }
 
+  @Test
+  public void markSupportedShouldDelegateToZipInputStreamMarkSupported() throws IOException {
+    Mockito.doReturn(true).when(zipInputStream).markSupported();
 
-    @Test
-    public void markShouldDelegateToZipInputStreamMark() {
-        zipEntryInputStream.mark(7);
+    boolean result = zipEntryInputStream.markSupported();
 
-        Mockito.verify(zipInputStream, Mockito.times(1)).mark(7);
-        Mockito.verifyNoMoreInteractions(zipInputStream);
-    }
+    Assert.assertTrue(result);
+    Mockito.verify(zipInputStream, Mockito.times(1)).markSupported();
+    Mockito.verifyNoMoreInteractions(zipInputStream);
+  }
 
-    @Test
-    public void markSupportedShouldDelegateToZipInputStreamMarkSupported() throws IOException {
-        Mockito.doReturn(true).when(zipInputStream).markSupported();
+  @Test
+  public void readShouldDelegateToZipInputStreamRead() throws IOException {
+    Mockito.doReturn(7).when(zipInputStream).read();
 
-        boolean result = zipEntryInputStream.markSupported();
-        Assert.assertEquals(true, result);
+    int result = zipEntryInputStream.read();
 
-        Mockito.verify(zipInputStream, Mockito.times(1)).markSupported();
-        Mockito.verifyNoMoreInteractions(zipInputStream);
-    }
+    Assert.assertEquals(7, result);
+    Mockito.verify(zipInputStream, Mockito.times(1)).read();
+    Mockito.verifyNoMoreInteractions(zipInputStream);
+  }
 
+  @Test
+  public void readShouldPassOnExceptionThrownByZipInputStreamRead() throws IOException {
+    IOException ioException = new IOException("Some ZipInputStream exception");
+    Mockito.doThrow(ioException).when(zipInputStream).read();
 
-    @Test
-    public void readShouldDelegateToZipInputStreamRead() throws IOException {
-        Mockito.doReturn(7).when(zipInputStream).read();
+    IOException caughtException = Assert.assertThrows(
+            IOException.class,
+            () -> zipEntryInputStream.read()
+    );
 
-        int result = zipEntryInputStream.read();
-        Assert.assertEquals(7, result);
+    Assert.assertSame(ioException, caughtException);
+    Mockito.verify(zipInputStream, Mockito.times(1)).read();
+    Mockito.verifyNoMoreInteractions(zipInputStream);
+  }
 
-        Mockito.verify(zipInputStream, Mockito.times(1)).read();
-        Mockito.verifyNoMoreInteractions(zipInputStream);
-    }
+  @Test
+  public void readWithArrayShouldDelegateToZipInputStreamReadWithArray() throws IOException {
+    Mockito.doReturn(7).when(zipInputStream).read(Mockito.any(byte[].class));
+    byte[] arrayOfBytes = new byte[32];
 
-    @Test
-    public void readShouldPassOnExceptionThrownByZipInputStreamRead() throws IOException {
-        IOException ioException = new IOException("Some ZipInputStream exception");
-        Mockito.doThrow(ioException).when(zipInputStream).read();
+    int result = zipEntryInputStream.read(arrayOfBytes);
 
-        try {
-            zipEntryInputStream.read();
-            Assert.fail("Should not reach here");
-        } catch (IOException exception) {
-            Assert.assertEquals(ioException.getMessage(), exception.getMessage());
-        }
+    Assert.assertEquals(7, result);
+    Mockito.verify(zipInputStream, Mockito.times(1)).read(arrayOfBytes);
+    Mockito.verifyNoMoreInteractions(zipInputStream);
+  }
 
-        Mockito.verify(zipInputStream, Mockito.times(1)).read();
-        Mockito.verifyNoMoreInteractions(zipInputStream);
-    }
+  @Test
+  public void readWithArrayShouldPassOnExceptionThrownByZipInputStreamReadWithArray() throws IOException {
+    IOException ioException = new IOException("Some ZipInputStream exception");
+    Mockito.doThrow(ioException).when(zipInputStream).read(Mockito.any(byte[].class));
+    byte[] arrayOfBytes = new byte[32];
 
+    IOException caughtException = Assert.assertThrows(
+            IOException.class,
+            () -> zipEntryInputStream.read(arrayOfBytes)
+    );
 
-    @Test
-    public void readWithArrayShouldDelegateToZipInputStreamReadWithArray() throws IOException {
-        Mockito.doReturn(7).when(zipInputStream).read(Mockito.any(byte[].class));
-        byte[] arrayOfBytes = new byte[32];
+    Assert.assertSame(ioException, caughtException);
+    Mockito.verify(zipInputStream, Mockito.times(1)).read(arrayOfBytes);
+    Mockito.verifyNoMoreInteractions(zipInputStream);
+  }
 
-        int result = zipEntryInputStream.read(arrayOfBytes);
-        Assert.assertEquals(7, result);
+  @Test
+  public void readWithArrayAndBoundsShouldDelegateToZipInputStreamReadWithArrayAndBounds() throws IOException {
+    Mockito.doReturn(7).when(zipInputStream).read(Mockito.any(byte[].class), Mockito.anyInt(), Mockito.anyInt());
+    byte[] arrayOfBytes = new byte[32];
 
-        Mockito.verify(zipInputStream, Mockito.times(1)).read(arrayOfBytes);
-        Mockito.verifyNoMoreInteractions(zipInputStream);
-    }
+    int result = zipEntryInputStream.read(arrayOfBytes, 3, 9);
 
-    @Test
-    public void readWithArrayShouldPassOnExceptionThrownByZipInputStreamReadWithArray() throws IOException {
-        IOException ioException = new IOException("Some ZipInputStream exception");
-        Mockito.doThrow(ioException).when(zipInputStream).read(Mockito.any(byte[].class));
-        byte[] arrayOfBytes = new byte[32];
+    Assert.assertEquals(7, result);
+    Mockito.verify(zipInputStream, Mockito.times(1)).read(arrayOfBytes, 3, 9);
+    Mockito.verifyNoMoreInteractions(zipInputStream);
+  }
 
-        try {
-            zipEntryInputStream.read(arrayOfBytes);
-            Assert.fail("Should not reach here");
-        } catch (IOException exception) {
-            Assert.assertEquals(ioException.getMessage(), exception.getMessage());
-        }
+  @Test
+  public void readWithArrayAndBoundsShouldPassOnExceptionThrownByZipInputStreamReadWithArrayAndBounds() throws IOException {
+    IOException ioException = new IOException("Some ZipInputStream exception");
+    Mockito.doThrow(ioException).when(zipInputStream).read(Mockito.any(byte[].class), Mockito.anyInt(), Mockito.anyInt());
+    byte[] arrayOfBytes = new byte[32];
 
-        Mockito.verify(zipInputStream, Mockito.times(1)).read(arrayOfBytes);
-        Mockito.verifyNoMoreInteractions(zipInputStream);
-    }
+    IOException caughtException = Assert.assertThrows(
+            IOException.class,
+            () -> zipEntryInputStream.read(arrayOfBytes, 3, 9)
+    );
 
+    Assert.assertSame(ioException, caughtException);
+    Mockito.verify(zipInputStream, Mockito.times(1)).read(arrayOfBytes, 3, 9);
+    Mockito.verifyNoMoreInteractions(zipInputStream);
+  }
 
-    @Test
-    public void readWithArrayAndBoundsShouldDelegateToZipInputStreamReadWithArrayAndBounds() throws IOException {
-        Mockito.doReturn(7).when(zipInputStream).read(Mockito.any(byte[].class), Mockito.anyInt(), Mockito.anyInt());
-        byte[] arrayOfBytes = new byte[32];
+  @Test
+  public void resetShouldDelegateToZipInputStreamReset() throws IOException {
+    zipEntryInputStream.reset();
 
-        int result = zipEntryInputStream.read(arrayOfBytes, 3, 9);
-        Assert.assertEquals(7, result);
+    Mockito.verify(zipInputStream, Mockito.times(1)).reset();
+    Mockito.verifyNoMoreInteractions(zipInputStream);
+  }
 
-        Mockito.verify(zipInputStream, Mockito.times(1)).read(arrayOfBytes, 3, 9);
-        Mockito.verifyNoMoreInteractions(zipInputStream);
-    }
+  @Test
+  public void resetShouldPassOnExceptionThrownByZipInputStreamReset() throws IOException {
+    IOException ioException = new IOException("Some ZipInputStream exception");
+    Mockito.doThrow(ioException).when(zipInputStream).reset();
 
-    @Test
-    public void readWithArrayAndBoundsShouldPassOnExceptionThrownByZipInputStreamReadWithArrayAndBounds() throws IOException {
-        IOException ioException = new IOException("Some ZipInputStream exception");
-        Mockito.doThrow(ioException).when(zipInputStream).read(Mockito.any(byte[].class), Mockito.anyInt(), Mockito.anyInt());
-        byte[] arrayOfBytes = new byte[32];
+    IOException caughtException = Assert.assertThrows(
+            IOException.class,
+            () -> zipEntryInputStream.reset()
+    );
 
-        try {
-            zipEntryInputStream.read(arrayOfBytes, 3, 9);
-            Assert.fail("Should not reach here");
-        } catch (IOException exception) {
-            Assert.assertEquals(ioException.getMessage(), exception.getMessage());
-        }
+    Assert.assertSame(ioException, caughtException);
+    Mockito.verify(zipInputStream, Mockito.times(1)).reset();
+    Mockito.verifyNoMoreInteractions(zipInputStream);
+  }
 
-        Mockito.verify(zipInputStream, Mockito.times(1)).read(arrayOfBytes, 3, 9);
-        Mockito.verifyNoMoreInteractions(zipInputStream);
-    }
+  @Test
+  public void skipShouldDelegateToZipInputStreamSkip() throws IOException {
+    Mockito.doReturn(9L).when(zipInputStream).skip(Mockito.anyLong());
 
+    long result = zipEntryInputStream.skip(13L);
 
-    @Test
-    public void resetShouldDelegateToZipInputStreamReset() throws IOException {
-        zipEntryInputStream.reset();
+    Assert.assertEquals(9L, result);
+    Mockito.verify(zipInputStream, Mockito.times(1)).skip(13L);
+    Mockito.verifyNoMoreInteractions(zipInputStream);
+  }
 
-        Mockito.verify(zipInputStream, Mockito.times(1)).reset();
-        Mockito.verifyNoMoreInteractions(zipInputStream);
-    }
+  @Test
+  public void skipShouldPassOnExceptionThrownByZipInputStreamSkip() throws IOException {
+    IOException ioException = new IOException("Some ZipInputStream exception");
+    Mockito.doThrow(ioException).when(zipInputStream).skip(13L);
 
-    @Test
-    public void resetShouldPassOnExceptionThrownByZipInputStreamReset() throws IOException {
-        IOException ioException = new IOException("Some ZipInputStream exception");
-        Mockito.doThrow(ioException).when(zipInputStream).reset();
+    IOException caughtException = Assert.assertThrows(
+            IOException.class,
+            () -> zipEntryInputStream.skip(13L)
+    );
 
-        try {
-            zipEntryInputStream.reset();
-            Assert.fail("Should not reach here");
-        } catch (IOException exception) {
-            Assert.assertEquals(ioException.getMessage(), exception.getMessage());
-        }
-
-        Mockito.verify(zipInputStream, Mockito.times(1)).reset();
-        Mockito.verifyNoMoreInteractions(zipInputStream);
-    }
-
-
-    @Test
-    public void skipShouldDelegateToZipInputStreamSkip() throws IOException {
-        Mockito.doReturn(9L).when(zipInputStream).skip(Mockito.anyLong());
-
-        long result = zipEntryInputStream.skip(13L);
-        Assert.assertEquals(9L, result);
-
-        Mockito.verify(zipInputStream, Mockito.times(1)).skip(13L);
-        Mockito.verifyNoMoreInteractions(zipInputStream);
-    }
-
-    @Test
-    public void skipShouldPassOnExceptionThrownByZipInputStreamSkip() throws IOException {
-        IOException ioException = new IOException("Some ZipInputStream exception");
-        Mockito.doThrow(ioException).when(zipInputStream).skip(13L);
-
-        try {
-            zipEntryInputStream.skip(13L);
-            Assert.fail("Should not reach here");
-        } catch (IOException exception) {
-            Assert.assertEquals(ioException.getMessage(), exception.getMessage());
-        }
-
-        Mockito.verify(zipInputStream, Mockito.times(1)).skip(13L);
-        Mockito.verifyNoMoreInteractions(zipInputStream);
-    }
+    Assert.assertSame(ioException, caughtException);
+    Mockito.verify(zipInputStream, Mockito.times(1)).skip(13L);
+    Mockito.verifyNoMoreInteractions(zipInputStream);
+  }
 
 }

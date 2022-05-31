@@ -88,7 +88,7 @@ public class TimestampSignature extends TimemarkSignature {
   private TimeStampToken findTimestampToken() {
     XAdESPaths xAdESPaths = getxPathQueryHolder();
     logger.debug("Finding timestamp token");
-    NodeList timestampNodes = DomUtils.getNodeList(getSignatureElement(), xAdESPaths.getSignatureTimestampsPath());
+    NodeList timestampNodes = DomUtils.getNodeList(getSignatureElement(), xAdESPaths.getSignatureTimestampPath());
     if (timestampNodes.getLength() == 0) {
       logger.warn("Signature timestamp element was not found");
       return null;

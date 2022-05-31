@@ -17,7 +17,11 @@ import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.ObjectIdentifierQualifier;
 import eu.europa.esig.dss.i18n.I18nProvider;
 import eu.europa.esig.dss.i18n.MessageTag;
+import eu.europa.esig.dss.jaxb.object.Message;
 import eu.europa.esig.dss.simplereport.SimpleReport;
+import eu.europa.esig.dss.simplereport.jaxb.XmlDetails;
+import eu.europa.esig.dss.simplereport.jaxb.XmlMessage;
+import eu.europa.esig.dss.simplereport.jaxb.XmlToken;
 import eu.europa.esig.dss.validation.SignaturePolicy;
 import eu.europa.esig.dss.validation.reports.Reports;
 import eu.europa.esig.dss.xades.definition.XAdESPaths;
@@ -49,6 +53,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * Signature validator for Xades signatures.
@@ -57,20 +64,20 @@ public class XadesSignatureValidator implements SignatureValidator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(XadesSignatureValidator.class);
   private static final String XADES_SIGNED_PROPERTIES = "http://uri.etsi.org/01903#SignedProperties";
-  protected XadesSignature signature;
+  protected final XadesSignature signature;
   private transient Reports validationReport;
   private transient SimpleReport simpleReport;
-  private List<DigiDoc4JException> validationErrors = new ArrayList<>();
-  private List<DigiDoc4JException> validationWarnings = new ArrayList<>();
-  private String signatureId;
-  private String signatureUniqueId;
-  protected Configuration configuration;
+  private final List<DigiDoc4JException> validationErrors = new ArrayList<>();
+  private final List<DigiDoc4JException> validationWarnings = new ArrayList<>();
+  private final String signatureId;
+  private final String signatureUniqueId;
+  protected final Configuration configuration;
 
   /**
    * Constructor.
    *
    * @param signature     Signature object for validation
-   * @param configuration configuretion
+   * @param configuration configuration
    */
   public XadesSignatureValidator(XadesSignature signature, Configuration configuration) {
     this.signature = signature;
@@ -88,7 +95,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     this.populateValidationErrors();
     if (configuration.isFullReportNeeded()) {
       FullSimpleReportBuilder detailedReportParser = new FullSimpleReportBuilder(validationReport.getDetailedReport());
-      detailedReportParser.addDetailedReportEexeptions(validationErrors, validationWarnings);
+      detailedReportParser.addDetailedReportExceptions(validationErrors, validationWarnings);
     }
     return this.createValidationResult();
   }
@@ -125,7 +132,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   protected boolean isSignaturePolicyImpliedElementPresented() {
     XAdESPaths xAdESPaths = this.getDssSignature().getXAdESPaths();
     Element signaturePolicyImpliedElement = DomUtils.getElement(this.getDssSignature().getSignatureElement(),
-            String.format("%s%s", xAdESPaths.getSignaturePolicyIdentifier(),
+            String.format("%s%s", xAdESPaths.getSignaturePolicyIdentifierPath(),
                     xAdESPaths.getCurrentSignaturePolicyImplied().replace(".", "")));
     return signaturePolicyImpliedElement != null;
   }
@@ -186,7 +193,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     XAdESPaths xAdESPaths = getDssSignature().getXAdESPaths();
     Element signatureElement = getDssSignature().getSignatureElement();
     String xAdESPrefix = xAdESPaths.getNamespace().getPrefix();
-    Element element = DomUtils.getElement(signatureElement, xAdESPaths.getSignaturePolicyIdentifier());
+    Element element = DomUtils.getElement(signatureElement, xAdESPaths.getSignaturePolicyIdentifierPath());
     Element identifier = DomUtils.getElement(element, "./" + xAdESPrefix + ":SignaturePolicyId/" + xAdESPrefix
             + ":SigPolicyId/" + xAdESPrefix + ":Identifier");
     String qualifier = identifier.getAttribute("Qualifier");
@@ -218,13 +225,16 @@ public class XadesSignatureValidator implements SignatureValidator {
   private void addReportedErrors() {
     LOGGER.debug("Extracting reported errors");
     if (this.simpleReport != null) {
-      for (String errorMessage : this.simpleReport.getErrors(this.signatureUniqueId)) {
-        I18nProvider i18nProvider = new I18nProvider();
-        /*if (this.isRedundantErrorMessage(errorMessage)) {
-          LOGGER.debug("Ignoring redundant error message: " + errorMessage);
-          continue;
-        }*/
-
+      I18nProvider i18nProvider = new I18nProvider();
+      Stream.concat(
+              Stream.concat(
+                      this.simpleReport.getAdESValidationErrors(this.signatureUniqueId).stream(),
+                      this.simpleReport.getQualificationErrors(this.signatureUniqueId).stream()
+              ).map(Message::getValue),
+              this.simpleReport.getSignatureTimestamps(this.signatureUniqueId).stream()
+                      .flatMap(timestamp -> getTokenMessages(timestamp, details -> details.getError().stream()))
+                      .map(XmlMessage::getValue)
+      ).distinct().forEach(errorMessage -> {
         if (errorMessage.contains(i18nProvider.getMessage(MessageTag.BBB_XCV_ISCR_ANS))) {
           this.addValidationError(new CertificateRevokedException(errorMessage));
         } else if (errorMessage.contains(i18nProvider.getMessage(MessageTag.PSV_IPSVC_ANS))) {
@@ -232,16 +242,23 @@ public class XadesSignatureValidator implements SignatureValidator {
         } else {
           this.addValidationError(new DigiDoc4JException(errorMessage, this.signatureId));
         }
-      }
+      });
     }
   }
 
-
   private void addReportedWarnings() {
     if (this.simpleReport != null) {
-      for (String warning : this.simpleReport.getWarnings(this.signatureUniqueId)) {
-        this.validationWarnings.add(new DigiDoc4JException(warning, this.signatureId));
-      }
+      Stream.concat(
+              Stream.concat(
+                      this.simpleReport.getAdESValidationWarnings(this.signatureUniqueId).stream(),
+                      this.simpleReport.getQualificationWarnings(this.signatureUniqueId).stream()
+              ).map(Message::getValue),
+              this.simpleReport.getSignatureTimestamps(this.signatureUniqueId).stream()
+                      .flatMap(timestamp -> getTokenMessages(timestamp, details -> details.getWarning().stream()))
+                      .map(XmlMessage::getValue)
+      ).distinct().forEach(warningMessage -> {
+        this.addValidationWarning(new DigiDoc4JException(warningMessage, this.signatureId));
+      });
     }
   }
 
@@ -294,6 +311,13 @@ public class XadesSignatureValidator implements SignatureValidator {
 
   private boolean isIndicationValid(Indication indication) {
     return Arrays.asList(Indication.PASSED, Indication.TOTAL_PASSED).contains(indication);
+  }
+
+  private static Stream<XmlMessage> getTokenMessages(XmlToken token, Function<XmlDetails, Stream<XmlMessage>> messageExtractor) {
+    return (token != null) ? Stream.concat(
+            Optional.ofNullable(token.getAdESValidationDetails()).map(messageExtractor).orElseGet(Stream::empty),
+            Optional.ofNullable(token.getQualificationDetails()).map(messageExtractor).orElseGet(Stream::empty)
+    ) : Stream.empty();
   }
 
 }

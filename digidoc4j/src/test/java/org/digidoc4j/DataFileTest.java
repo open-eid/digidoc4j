@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j;
 
@@ -88,6 +88,24 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
+  public void testCalculateDigestWithEnumTypeSHA1() {
+    DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
+    Assert.assertArrayEquals(
+            Base64.decodeBase64("OQj17m9Rt2vPXYrry+v/KHpf98Q="),
+            dataFile.calculateDigest(DigestAlgorithm.SHA1)
+    );
+  }
+
+  @Test
+  public void testCalculateDigestWithEnumTypeSHA224() {
+    DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
+    Assert.assertArrayEquals(
+            Base64.decodeBase64("w/fpCafC/Rcn3uKW2ExwxyzTW42KAhfU8eljcQ=="),
+            dataFile.calculateDigest(DigestAlgorithm.SHA224)
+    );
+  }
+
+  @Test
   public void testCalculateDigestWithEnumTypeSHA256() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
     Assert.assertArrayEquals(
@@ -97,11 +115,20 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
-  public void testCalculateDigestWithEnumTypeSHA1() {
+  public void testCalculateDigestWithEnumTypeSHA384() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
     Assert.assertArrayEquals(
-            Base64.decodeBase64("OQj17m9Rt2vPXYrry+v/KHpf98Q="),
-            dataFile.calculateDigest(DigestAlgorithm.SHA1)
+            Base64.decodeBase64("i6PjAerb6Wuzt21+fISlv2SngAxfFfh+ZxrZDhdtwv0x8t8zXAPrtW/mi5aqpFig"),
+            dataFile.calculateDigest(DigestAlgorithm.SHA384)
+    );
+  }
+
+  @Test
+  public void testCalculateDigestWithEnumTypeSHA512() {
+    DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
+    Assert.assertArrayEquals(
+            Base64.decodeBase64("ucUB3sbDkP0cjlo+T0PSLMfICMQm9P6pHq+byFo7Ytw0cG9uiA1QoAPQihQKDsBoInbgFpFZftPvghS3AgsM+A=="),
+            dataFile.calculateDigest(DigestAlgorithm.SHA512)
     );
   }
 
@@ -210,13 +237,6 @@ public class DataFileTest extends AbstractTest {
       DataFile dataFile = new DataFile(stream, "test.txt", "text/plain");
       Assert.assertEquals(19, dataFile.getFileSize());
     }
-  }
-
-  @Test
-  public void testDigestIsCalculatedOnlyOnce() throws Exception {
-    DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
-    byte[] digest = dataFile.calculateDigest();
-    Assert.assertEquals(digest, dataFile.calculateDigest(new URL("http://NonExisting.test")));
   }
 
   /*

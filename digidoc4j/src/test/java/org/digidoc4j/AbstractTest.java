@@ -1,10 +1,21 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j;
 
 import eu.europa.esig.dss.enumerations.ObjectIdentifierQualifier;
 import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.model.MimeType;
 import eu.europa.esig.dss.model.Policy;
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -57,6 +68,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -237,6 +249,41 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     return (T) ContainerBuilder.aContainer(type).build();
   }
 
+  @SuppressWarnings("unchecked")
+  protected <T> T createContainer(DataFile... dataFiles) {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer();
+    Arrays.asList(dataFiles).forEach(containerBuilder::withDataFile);
+    return (T) containerBuilder.build();
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T> T createContainer(Configuration configuration, DataFile... dataFiles) {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer().withConfiguration(configuration);
+    Arrays.asList(dataFiles).forEach(containerBuilder::withDataFile);
+    return (T) containerBuilder.build();
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T> T createContainer(Class<T> clazz, DataFile... dataFiles) {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer();
+    Arrays.asList(dataFiles).forEach(containerBuilder::withDataFile);
+    return (T) containerBuilder.build();
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T> T createContainerBy(Container.DocumentType type, DataFile... dataFiles) {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer(type);
+    Arrays.asList(dataFiles).forEach(containerBuilder::withDataFile);
+    return (T) containerBuilder.build();
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T> T createContainerBy(Container.DocumentType type, Class<T> clazz, DataFile... dataFiles) {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer(type);
+    Arrays.asList(dataFiles).forEach(containerBuilder::withDataFile);
+    return (T) containerBuilder.build();
+  }
+
   protected Container createNonEmptyContainer() {
     return this.createNonEmptyContainerBy(Container.DocumentType.BDOC);
   }
@@ -387,18 +434,18 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     }
   }
 
-  protected String createSignedContainerBy(String extension) {
+  protected String createSignedContainerBy(Container.DocumentType type, String extension) {
     String file = this.getFileBy(extension);
-    Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"), "text/plain");
-    this.createSignatureBy(container, pkcs12SignatureToken);
-    container.save(file);
+    Container container = this.createNonEmptyContainerBy(type, Paths.get("src/test/resources/testFiles/helper-files/test.txt"), "text/plain");
+    SignatureProfile signatureProfile = (type == BDOC) ? SignatureProfile.LT_TM : SignatureProfile.LT;
+    createSignatureBy(container, signatureProfile, pkcs12SignatureToken);
+    container.saveAsFile(file);
     return file;
   }
 
   protected String createNonEmptyLargeContainer(long size) {
     String fileName = this.getFileBy("bdoc");
-    try {
-      RandomAccessFile largeFile = new RandomAccessFile(fileName, "rw");
+    try (RandomAccessFile largeFile = new RandomAccessFile(fileName, "rw")) {
       largeFile.setLength(size);// TODO: create large file correctly
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -429,6 +476,14 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected List<DataFile> createDataFilesToSign() {
     return Collections.singletonList(new DataFile("src/test/resources/testFiles/helper-files/test.txt", "plain/text"));
+  }
+
+  protected DataFile createBinaryDataFile(String fileName, byte[] fileContent) {
+    return new DataFile(fileContent, fileName, MimeType.BINARY.getMimeTypeString());
+  }
+
+  protected DataFile createTextDataFile(String fileName, String fileContent) {
+    return new DataFile(fileContent.getBytes(StandardCharsets.UTF_8), fileName, MimeType.TEXT.getMimeTypeString());
   }
 
   protected void evictTSLCache() {

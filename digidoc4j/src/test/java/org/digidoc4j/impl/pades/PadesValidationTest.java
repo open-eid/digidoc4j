@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl.pades;
 
 import org.digidoc4j.AbstractTest;
@@ -45,11 +55,14 @@ public class PadesValidationTest extends AbstractTest {
             fromExistingFile("src/test/resources/prodFiles/invalid-containers/PadesProfileT.pdf").build();
     SignatureValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
-    TestAssert.assertContainsError("The result of the LTV validation process is not acceptable to continue the process!", result.getErrors());
+    TestAssert.assertContainsErrors(result.getErrors(),
+            "The certificate validation is not conclusive!",
+            "No acceptable revocation data for the certificate!"
+    );
   }
 
   @Test
-  public void testValidPadesContainerWithTwoSignatures() {
+  public void PadesLTAndPadesB_shouldFail() {
     /*
     Given PDF contains two signatures from the same certificate : B and LT
     Only LT signature contains revocation aand somehow it gets included while validating B level signature
@@ -57,7 +70,14 @@ public class PadesValidationTest extends AbstractTest {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.PADES).withConfiguration(Configuration.of(Configuration.Mode.PROD)).
             fromExistingFile("src/test/resources/prodFiles/valid-containers/hellopades-lt-b.pdf").build();
     SignatureValidationResult result = container.validate();
-    Assert.assertTrue(result.isValid());
+    Assert.assertFalse(result.isValid());
+    TestAssert.assertContainsErrors(result.getErrors(),
+            "The certificate validation is not conclusive!",
+            "The current time is not in the validity range of the signer's certificate!",
+            "The best-signature-time is not before the expiration date of the signing certificate!",
+            "The past signature validation is not conclusive!",
+            "The certificate is not related to a granted status!"
+    );
   }
 
   @Test

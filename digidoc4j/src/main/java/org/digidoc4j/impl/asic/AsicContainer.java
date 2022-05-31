@@ -12,26 +12,18 @@ package org.digidoc4j.impl.asic;
 
 import eu.europa.esig.dss.model.DSSDocument;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
-import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureBuilder;
-import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.SignatureToken;
-import org.digidoc4j.SignedInfo;
 import org.digidoc4j.exceptions.DataFileNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.InvalidDataFileException;
-import org.digidoc4j.exceptions.InvalidSignatureException;
-import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.exceptions.TechnicalException;
@@ -57,7 +49,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -550,38 +541,6 @@ public abstract class AsicContainer implements Container {
   }
 
   @Override
-  @Deprecated
-  public void removeSignature(int signatureId) {
-    LOGGER.debug("Removing signature from index " + signatureId);
-    if (signatureId >= 0 && signatureId < signatures.size()) {
-      Signature signature = signatures.get(signatureId);
-      if (signature != null) {
-        removeSignature(signature);
-      }
-    }
-    throw new SignatureNotFoundException(String.format("Signature from index %d not found", signatureId));
-  }
-
-  @Override
-  public void removeDataFile(String fileName) {
-    validateDataFilesRemoval();
-
-    for (DataFile dataFile : dataFiles) {
-      String name = dataFile.getName();
-      if (StringUtils.equals(fileName, name)) {
-        removeDataFileFromContainer(dataFile);
-        dataFilesHaveChanged = true;
-        if (!isNewContainer()) {
-          removeExistingFileFromContainer(AsicManifest.XML_PATH);
-        }
-        LOGGER.info("Data file named '{}' has been removed", fileName);
-        return;
-      }
-    }
-    throw new DataFileNotFoundException(fileName);
-  }
-
-  @Override
   public void removeDataFile(DataFile file) {
     validateDataFilesRemoval();
 
@@ -642,159 +601,6 @@ public abstract class AsicContainer implements Container {
       zipCreator.writeContainerComment(userAgent);
     }
     zipCreator.finalizeZipFile();
-  }
-
-  //=============== Deprecated methods ====================
-
-  @Override
-  @Deprecated
-  public void addRawSignature(byte[] signatureDocument) {
-    LOGGER.info("Adding raw signature");
-    Signature signature = SignatureBuilder.
-        aSignature(this).
-        openAdESSignature(signatureDocument);
-    addSignature(signature);
-  }
-
-  @Override
-  @Deprecated
-  public void addRawSignature(InputStream signatureStream) {
-    try {
-      byte[] bytes = IOUtils.toByteArray(signatureStream);
-      addRawSignature(bytes);
-    } catch (IOException e) {
-      LOGGER.error("Failed to read signature stream: " + e.getMessage());
-      throw new InvalidSignatureException();
-    }
-  }
-
-  @Override
-  @Deprecated
-  public int countDataFiles() {
-    return getDataFiles().size();
-  }
-
-  @Override
-  @Deprecated
-  public int countSignatures() {
-    return getSignatures().size();
-  }
-
-  @Override
-  @Deprecated
-  public DocumentType getDocumentType() {
-    return Container.DocumentType.BDOC;
-  }
-
-  @Override
-  @Deprecated
-  public String getVersion() {
-    return "";
-  }
-
-  @Override
-  @Deprecated
-  public void extendTo(SignatureProfile profile) {
-    extendSignatureProfile(profile);
-  }
-
-  @Override
-  @Deprecated
-  public void save(String path) {
-    saveAsFile(path);
-  }
-
-  @Override
-  @Deprecated
-  public DataFile getDataFile(int index) {
-    return getDataFiles().get(index);
-  }
-
-  @Override
-  @Deprecated
-  public Signature getSignature(int index) {
-    return getSignatures().get(index);
-  }
-
-  /**
-   * Prepare signing method is not supported by ASiC container.
-   *
-   * @param signerCert X509 Certificate to be used for preparing the signature
-   * @return NotSupportedException
-   */
-
-  @Override
-  @Deprecated
-  public SignedInfo prepareSigning(X509Certificate signerCert) {
-    throw new NotSupportedException("Prepare signing method is not supported by Asic container");
-  }
-
-  /**
-   * Getting signature profile method is not supported by ASiC container.
-   *
-   * @return NotSupportedException
-   */
-  @Override
-  @Deprecated
-  public String getSignatureProfile() {
-    throw new NotSupportedException("Getting signature profile method is not supported by Asic container");
-  }
-
-  /**
-   * Setting signature parameters method is not supported by ASiC container
-   *
-   * @param signatureParameters Signature parameters. These are  related to the signing location and signer roles
-   */
-  @Override
-  @Deprecated
-  public void setSignatureParameters(SignatureParameters signatureParameters) {
-    throw new NotSupportedException("Setting signature parameters method is not supported by Asic container");
-  }
-
-  /**
-   * Getting digest algorithm method is not supported by ASiC container.
-   *
-   * @return NotSupportedException.
-   */
-  @Override
-  @Deprecated
-  public DigestAlgorithm getDigestAlgorithm() {
-    throw new NotSupportedException("Getting digest algorithm method is not supported by Asic container");
-  }
-
-  /**
-   * Sign method is not supported by ASiC container.
-   *
-   * @param signatureToken signatureToken implementation
-   * @return NotSupportedException
-   */
-  @Override
-  @Deprecated
-  public Signature sign(SignatureToken signatureToken) {
-    throw new NotSupportedException("Sign method is not supported by Asic container");
-  }
-
-  /**
-   * Sign raw method is not supported by ASiC container.
-   *
-   * @param rawSignature raw signature
-   * @return NotSupportedException
-   */
-  @Override
-  @Deprecated
-  public Signature signRaw(byte[] rawSignature) {
-    throw new NotSupportedException("Sign raw method is not supported by Asic container");
-  }
-
-  /**
-   * Setting signature profile method is not supported by ASiC container.
-   *
-   * @param profile signature profile
-   */
-  @Override
-  @Deprecated
-  public void setSignatureProfile(SignatureProfile profile) {
-    throw new NotSupportedException("Setting signature profile method is not supported by Asic container");
   }
 
   public AsicParseResult getContainerParseResult() {
