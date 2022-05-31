@@ -28,7 +28,7 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
   * **LT** (Long Term) - Signature with **time-stamp** and **OCSP** (both "regular" and AIA OCSP are supported).
   * **LTA** (Long Term Archival) -  signature format has additional **archival time-stamp** to LT profile.
 * **.asice** or **.sce** file is in fact a ZIP container with the signed files, the signatures and the protocol control information and can basically be opened by any program that recognizes the ZIP format.
-* It is recommended not to use special characters in the data file’s name, i.e. it is suggested to use only the characters that are categorized as “unreserved” according to RFC3986 (http://tools.ietf.org/html/rfc3986).
+* It is recommended not to use special characters in the data file’s name, i.e. it is suggested to use only the characters that are categorized as “unreserved” according to RFC3986 (https://datatracker.ietf.org/doc/html/rfc3986).
 
 # BDOC (Estonian specific implementation of Associated Signature Container Extended) container format
 * Has **.bdoc** extension
@@ -40,7 +40,7 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
   * **LT_TM** (Long Term TimeMark) - signature has **time-mark** ensuring long-term provability of the authenticity of the signature.
     * It is based on **XAdES baseline LT** signature format.
 * **.bdoc** file is in fact a ZIP container with the signed files, the signatures and the protocol control information and can basically be opened by any program that recognizes the ZIP format.
-* It is recommended not to use special characters in the data file’s name, i.e. it is suggested to use only the characters that are categorized as “unreserved” according to RFC3986 (http://tools.ietf.org/html/rfc3986).
+* It is recommended not to use special characters in the data file’s name, i.e. it is suggested to use only the characters that are categorized as “unreserved” according to RFC3986 (https://datatracker.ietf.org/doc/html/rfc3986).
 
 # ASiC-S (ASiC-E - Associated Signature Container Simple) container format
 * Has **.asics** or **.scs** extension
@@ -62,17 +62,17 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
 * [Examples](https://github.com/open-eid/digidoc4j/wiki/Examples-of-using-it)
 * [Wiki](https://github.com/open-eid/digidoc4j/wiki)
 * [Architecture of ID-software](http://open-eid.github.io/)
-* [Digital signature formats](https://www.id.ee/en/rubriik/digital-signing/)
-* [BDOC 2.1.2 specification](http://id.ee/wp-content/uploads/2020/06/bdoc-spec212-eng.pdf)
+* [Digital signature formats](http://www.id.ee/index.php?id=36108)
+* [BDOC 2.1.2 specification](https://www.id.ee/wp-content/uploads/2021/06/bdoc-spec212-eng.pdf)
 * [DDOC specification](https://www.id.ee/wp-content/uploads/2020/08/digidoc_format_1.3.pdf)
 
 # Requirements
 * Java **8** (since version 4.0.0-RC.1)
 * Internet access to external verification services
- * OCSP (Online Certificate Status Protocol) - http://ocsp.sk.ee
- * EU TSL (European Commission's Trusted Status List) - https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml
- * All the EU member states' TL servers referred in the EU TSL. Note that this list may change. (e.g. https://sr.riik.ee/tsl/estonian-tsl.xml, https://sede.minetur.gob.es/Prestadores/TSL/TSL.xml, https://www.viestintavirasto.fi/attachments/TSL-Ficora.xml etc.)
- * TSA (Time Stamping Authority) - http://tsa.sk.ee
+* OCSP (Online Certificate Status Protocol) - http://ocsp.sk.ee
+* EU TSL (European Commission's Trusted Status List) - https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml
+* All the EU member states' TL servers referred in the EU TSL. Note that this list may change. (e.g. https://sr.riik.ee/tsl/estonian-tsl.xml, https://sede.minetur.gob.es/Prestadores/TSL/TSL.xml, https://www.viestintavirasto.fi/attachments/TSL-Ficora.xml etc.)
+* TSA (Time Stamping Authority) - http://tsa.sk.ee
 
 ## Maven
 You can use the library as a Maven dependency from the Maven Central (http://mvnrepository.com/artifact/org.digidoc4j/digidoc4j)
@@ -81,7 +81,7 @@ You can use the library as a Maven dependency from the Maven Central (http://mvn
 <dependency>
 	<groupId>org.digidoc4j</groupId>
 	<artifactId>digidoc4j</artifactId>
-	<version>4.x.x</version>
+	<version>5.x.x</version>
 </dependency>
 ```
 
