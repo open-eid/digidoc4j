@@ -23,7 +23,7 @@
     <properties>
         <hamcrest.version>2.2</hamcrest.version>
         <logback-classic.version>1.2.11</logback-classic.version>
-        <jackson.version>2.13.3</jackson.version>
+        <jackson.version>2.13.4.1</jackson.version>
         <junit.version>4.13.2</junit.version>
         <dss.groupId>org.digidoc4j.dss</dss.groupId>
         <dss.version>5.9.d4j.1</dss.version>
