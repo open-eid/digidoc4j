@@ -57,7 +57,7 @@ public class PadesValidationTest extends AbstractTest {
     Assert.assertFalse(result.isValid());
     TestAssert.assertContainsErrors(result.getErrors(),
             "The certificate validation is not conclusive!",
-            "No acceptable revocation data for the certificate!"
+            "No revocation data found for the certificate!"
     );
   }
 

@@ -181,8 +181,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     );
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
             "The certificate validation is not conclusive!",
-            "No revocation data found for the certificate!",
-            "No acceptable revocation data for the certificate!"
+            "No revocation data found for the certificate!"
     );
 
   }

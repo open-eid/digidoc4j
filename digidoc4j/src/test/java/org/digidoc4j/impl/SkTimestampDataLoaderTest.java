@@ -13,7 +13,6 @@ package org.digidoc4j.impl;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import eu.europa.esig.dss.service.http.commons.TimestampDataLoader;
 import org.bouncycastle.tsp.TimeStampRequest;
 import org.bouncycastle.tsp.TimeStampResponse;
 import org.digidoc4j.AbstractTest;
@@ -117,7 +116,7 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
     ServiceAccessListener listener = Mockito.mock(ServiceAccessListener.class);
 
     SkTimestampDataLoader dataLoader = new SkTimestampDataLoader(Configuration.of(TEST));
-    dataLoader.setTimeoutSocket(100);
+    dataLoader.setTimeoutResponse(100);
     dataLoader.setUserAgent(USER_AGENT_STRING);
     String serviceUrl = MOCK_PROXY_URL + instanceRule.port() + "/";
 

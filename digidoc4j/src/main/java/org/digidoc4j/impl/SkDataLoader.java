@@ -13,14 +13,15 @@ package org.digidoc4j.impl;
 import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.utils.Utils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.BufferedHttpEntity;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.BufferedHttpEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ServiceType;
 import org.digidoc4j.exceptions.ConnectionTimedOutException;
@@ -62,25 +63,25 @@ public abstract class SkDataLoader extends CommonsDataLoader {
       throw new TechnicalException("Header <User-Agent> is unset");
     }
     HttpPost httpRequest = null;
-    CloseableHttpResponse httpResponse = null;
-    CloseableHttpClient client = null;
-    try {
+    try (CloseableHttpClient client = getHttpClient(url)) {
       final URI uri = URI.create(url.trim());
       httpRequest = new HttpPost(uri);
       httpRequest.setHeader("User-Agent", this.userAgent);
       ByteArrayInputStream bis = new ByteArrayInputStream(content);
-      HttpEntity httpEntity = new InputStreamEntity(bis, content.length);
+      HttpEntity httpEntity = new InputStreamEntity(bis, ContentType.APPLICATION_JSON);
       HttpEntity requestEntity = new BufferedHttpEntity(httpEntity);
       httpRequest.setEntity(requestEntity);
       if (StringUtils.isNotBlank(this.contentType)) {
         httpRequest.setHeader("Content-Type", this.contentType);
       }
-      client = getHttpClient(url);
-      httpResponse = this.getHttpResponse(client, httpRequest);
-      validateHttpResponse(httpResponse, url);
-      byte[] responseBytes = readHttpResponse(httpResponse);
-      publishExternalServiceAccessEvent(url, true);
-      return responseBytes;
+
+      try(CloseableHttpResponse httpResponse = this.getHttpResponse(client, httpRequest)) {
+        validateHttpResponse(httpResponse, url);
+        byte[] responseBytes = readHttpResponse(httpResponse);
+        EntityUtils.consumeQuietly(httpResponse.getEntity());
+        publishExternalServiceAccessEvent(url, true);
+        return responseBytes;
+      }
     } catch (UnknownHostException e) {
       publishExternalServiceAccessEvent(url, false);
       throw new ServiceUnreachableException(url, getServiceType());
@@ -93,22 +94,11 @@ public abstract class SkDataLoader extends CommonsDataLoader {
     } catch (Exception e) {
       publishExternalServiceAccessEvent(url, false);
       throw new NetworkException("Unable to process <" + getServiceType() + "> POST call for service <" + url + ">", url, getServiceType(), e);
-    } finally {
-      try {
-        if (httpRequest != null) {
-          httpRequest.releaseConnection();
-        }
-        if (httpResponse != null) {
-          EntityUtils.consumeQuietly(httpResponse.getEntity());
-        }
-      } finally {
-        Utils.closeQuietly(client);
-      }
     }
   }
 
   private void validateHttpResponse(CloseableHttpResponse httpResponse, String url) {
-    if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN) {
+    if (httpResponse.getCode() == HttpStatus.SC_FORBIDDEN) {
       throw new ServiceAccessDeniedException(url, getServiceType());
     }
   }

@@ -26,7 +26,6 @@
         <RevocationInfoAccessPresent Level="WARN"/>
         <RevocationDataAvailable Level="FAIL"/>
         <CRLNextUpdatePresent Level="WARN"/>
-        <RevocationDataFreshness Level="FAIL"/>
         <KeyUsage Level="FAIL">
           <Id>nonRepudiation</Id>
         </KeyUsage>
@@ -66,7 +65,6 @@
         <NotExpired Level="FAIL"/>
         <RevocationDataAvailable Level="FAIL"/>
         <CRLNextUpdatePresent Level="WARN"/>
-        <RevocationDataFreshness Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
         <Cryptographic Level="FAIL">
@@ -166,7 +164,6 @@
         <RevocationInfoAccessPresent Level="WARN"/>
         <RevocationDataAvailable Level="FAIL"/>
         <CRLNextUpdatePresent Level="WARN"/>
-        <RevocationDataFreshness Level="FAIL"/>
         <KeyUsage Level="WARN">
           <Id>nonRepudiation</Id>
         </KeyUsage>
@@ -184,7 +181,6 @@
         <NotExpired Level="FAIL"/>
         <RevocationDataAvailable Level="FAIL"/>
         <CRLNextUpdatePresent Level="WARN"/>
-        <RevocationDataFreshness Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
         <Cryptographic/>
@@ -239,7 +235,6 @@
         <NotExpired Level="FAIL"/>
         <RevocationDataAvailable Level="FAIL"/>
         <CRLNextUpdatePresent Level="WARN"/>
-        <RevocationDataFreshness Level="FAIL"/>
         <ExtendedKeyUsage Level="FAIL">
           <Id>timeStamping</Id>
         </ExtendedKeyUsage>
@@ -276,7 +271,6 @@
         <NotExpired Level="FAIL"/>
         <RevocationDataAvailable Level="FAIL"/>
         <CRLNextUpdatePresent Level="WARN"/>
-        <RevocationDataFreshness Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
         <Cryptographic Level="FAIL">
@@ -338,7 +332,6 @@
     </SignedAttributes>
   </Timestamp>
   <Revocation>
-    <RevocationFreshness Level="IGNORE" Unit="DAYS" Value="0"/>
     <UnknownStatus Level="FAIL" />
     <BasicSignatureConstraints>
       <ReferenceDataExistence Level="FAIL"/>
@@ -362,7 +355,7 @@
         <NotExpired Level="FAIL"/>
         <RevocationDataAvailable Level="FAIL"/>
         <CRLNextUpdatePresent Level="WARN"/>
-        <RevocationDataFreshness Level="FAIL"/>
+        <RevocationFreshness Level="IGNORE" Unit="DAYS" Value="0"/>
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
         <Cryptographic Level="WARN">
@@ -395,7 +388,6 @@
         <NotExpired Level="FAIL"/>
         <RevocationDataAvailable Level="FAIL"/>
         <CRLNextUpdatePresent Level="WARN"/>
-        <RevocationDataFreshness Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
         <Cryptographic Level="FAIL">
