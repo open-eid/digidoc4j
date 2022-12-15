@@ -28,6 +28,7 @@ import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.spi.x509.CertificateSource;
 import eu.europa.esig.dss.spi.x509.ListCertificateSource;
+import eu.europa.esig.dss.spi.x509.aia.DefaultAIASource;
 import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import eu.europa.esig.dss.spi.x509.tsp.TSPSource;
 import eu.europa.esig.dss.validation.CertificateVerifier;
@@ -209,7 +210,7 @@ public class XadesSigningDssFacade {
   }
 
   public void setCustomDataLoader(DataLoader dataLoader) {
-    certificateVerifier.setDataLoader(dataLoader);
+    certificateVerifier.setAIASource(new DefaultAIASource(dataLoader));
   }
 
   private void initDefaultXadesParameters() {

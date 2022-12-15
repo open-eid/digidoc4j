@@ -13,6 +13,8 @@ package org.digidoc4j.impl.asic.xades;
 import java.util.List;
 
 import eu.europa.esig.dss.exception.IllegalInputException;
+import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.spi.x509.aia.DefaultAIASource;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
 import org.digidoc4j.exceptions.InvalidSignatureException;
@@ -65,7 +67,8 @@ public class XadesValidationDssFacade {
     logger.debug("Setting trusted cert source to the certificate verifier");
     certificateVerifier.setTrustedCertSources(configuration.getTSL());
     logger.debug("Setting custom data loader to the certificate verifier");
-    certificateVerifier.setDataLoader(new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create());
+    DataLoader dataLoader = new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create();
+    certificateVerifier.setAIASource(new DefaultAIASource(dataLoader));
     logger.debug("Finished creating certificate verifier");
     return certificateVerifier;
   }

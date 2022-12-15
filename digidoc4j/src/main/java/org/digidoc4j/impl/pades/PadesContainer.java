@@ -21,6 +21,8 @@ import eu.europa.esig.dss.pdf.pdfbox.PdfBoxDefaultObjectFactory;
 import eu.europa.esig.dss.simplereport.SimpleReport;
 import eu.europa.esig.dss.simplereport.jaxb.XmlMessage;
 import eu.europa.esig.dss.simplereport.jaxb.XmlTimestamp;
+import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.spi.x509.aia.DefaultAIASource;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.reports.Reports;
@@ -242,7 +244,8 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
     logger.debug("Setting trusted cert source to the certificate verifier");
     certificateVerifier.setTrustedCertSources(configuration.getTSL());
     logger.debug("Setting custom data loader to the certificate verifier");
-    certificateVerifier.setDataLoader(new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create());
+    DataLoader dataLoader = new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create();
+    certificateVerifier.setAIASource(new DefaultAIASource(dataLoader));
     logger.debug("Finished creating certificate verifier");
     return certificateVerifier;
   }

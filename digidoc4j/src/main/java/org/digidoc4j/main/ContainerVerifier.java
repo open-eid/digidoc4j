@@ -13,6 +13,8 @@ package org.digidoc4j.main;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.model.InMemoryDocument;
+import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.spi.x509.aia.DefaultAIASource;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.reports.Reports;
 import org.apache.commons.cli.CommandLine;
@@ -165,7 +167,8 @@ public class ContainerVerifier {
     SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
     verifier.setOcspSource(OCSPSourceBuilder.anOcspSource().withConfiguration(configuration).build());
     verifier.setTrustedCertSources(configuration.getTSL());
-    verifier.setDataLoader(new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create());
+    DataLoader dataLoader = new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create();
+    verifier.setAIASource(new DefaultAIASource(dataLoader));
     validator.setCertificateVerifier(verifier);
     Reports reports = validator.validateDocument();
     if (reportsDir != null) {
