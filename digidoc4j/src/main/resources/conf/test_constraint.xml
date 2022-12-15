@@ -25,6 +25,7 @@
         <AuthorityInfoAccessPresent Level="WARN"/>
         <RevocationInfoAccessPresent Level="WARN"/>
         <RevocationDataAvailable Level="FAIL"/>
+        <AcceptableRevocationDataFound Level="FAIL"/>
         <CRLNextUpdatePresent Level="WARN"/>
         <KeyUsage Level="FAIL">
           <Id>nonRepudiation</Id>
