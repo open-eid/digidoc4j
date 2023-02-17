@@ -91,7 +91,7 @@ public class AsicContainerCreator {
   public void writeManifest(Collection<DataFile> dataFiles, String containerType) {
     logger.debug("Writing asic manifest");
     final AsicManifest manifest = new AsicManifest(containerType);
-    manifest.addFileEntry(dataFiles);
+    manifest.addFileEntries(dataFiles);
     new EntryCallback(new ZipEntry(AsicManifest.XML_PATH)) {
       @Override
       void doWithEntryStream(OutputStream stream) throws IOException {

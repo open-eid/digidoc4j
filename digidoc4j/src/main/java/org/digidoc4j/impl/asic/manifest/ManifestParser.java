@@ -10,26 +10,27 @@
 
 package org.digidoc4j.impl.asic.manifest;
 
+import eu.europa.esig.dss.DomUtils;
+import eu.europa.esig.dss.asic.xades.definition.ManifestAttribute;
+import eu.europa.esig.dss.asic.xades.definition.ManifestElement;
+import eu.europa.esig.dss.asic.xades.definition.ManifestNamespace;
+import eu.europa.esig.dss.model.DSSDocument;
+import org.digidoc4j.exceptions.DuplicateDataFileException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.digidoc4j.exceptions.DuplicateDataFileException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-
-import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.DomUtils;
-
 public class ManifestParser implements Serializable {
 
   private static final Logger logger = LoggerFactory.getLogger(ManifestParser.class);
-  private static final String NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:manifest:1.0";
-  private DSSDocument manifestFile;
+
+  private final DSSDocument manifestFile;
   private Map<String, ManifestEntry> entries;
 
   public ManifestParser(DSSDocument manifestFile) {
@@ -51,13 +52,13 @@ public class ManifestParser implements Serializable {
 
   private void loadFileEntriesFromManifest() {
     Element root = loadManifestXml();
-    Node firstChild = root.getFirstChild();
-    while (firstChild != null) {
-      String nodeName = firstChild.getLocalName();
-      if ("file-entry".equals(nodeName)) {
-        addFileEntry(firstChild);
+    Node childNode = root.getFirstChild();
+    while (childNode != null) {
+      String nodeName = childNode.getLocalName();
+      if (ManifestElement.FILE_ENTRY.isSameTagName(nodeName)) {
+        addFileEntry(childNode);
       }
-      firstChild = firstChild.getNextSibling();
+      childNode = childNode.getNextSibling();
     }
   }
 
@@ -65,10 +66,9 @@ public class ManifestParser implements Serializable {
     return DomUtils.buildDOM(manifestFile).getDocumentElement();
   }
 
-  private void addFileEntry(Node firstChild) {
-    NamedNodeMap attributes = firstChild.getAttributes();
-    String filePath = attributes.getNamedItemNS(NAMESPACE, "full-path").getTextContent();
-    String mimeType = attributes.getNamedItemNS(NAMESPACE, "media-type").getTextContent();
+  private void addFileEntry(Node fileEntry) {
+    String filePath = getNodeAttributeText(fileEntry, ManifestAttribute.FULL_PATH);
+    String mimeType = getNodeAttributeText(fileEntry, ManifestAttribute.MEDIA_TYPE);
     if (!"/".equals(filePath)) {
       validateNotDuplicateFile(filePath);
       entries.put(filePath, new ManifestEntry(filePath, mimeType));
@@ -82,4 +82,11 @@ public class ManifestParser implements Serializable {
       throw digiDoc4JException;
     }
   }
+
+  private static String getNodeAttributeText(Node node, ManifestAttribute attribute) {
+    return node.getAttributes()
+            .getNamedItemNS(ManifestNamespace.NS.getUri(), attribute.getAttributeName())
+            .getTextContent();
+  }
+
 }

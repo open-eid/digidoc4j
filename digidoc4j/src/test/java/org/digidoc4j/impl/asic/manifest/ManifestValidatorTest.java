@@ -8,7 +8,7 @@
 * Version 2.1, February 1999
 */
 
-package org.digidoc4j.impl.bdoc.manifest;
+package org.digidoc4j.impl.asic.manifest;
 
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.FileDocument;
@@ -20,11 +20,6 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.impl.asic.AsicSignatureParser;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
-import org.digidoc4j.impl.asic.manifest.AsicManifest;
-import org.digidoc4j.impl.asic.manifest.ManifestEntry;
-import org.digidoc4j.impl.asic.manifest.ManifestErrorMessage;
-import org.digidoc4j.impl.asic.manifest.ManifestParser;
-import org.digidoc4j.impl.asic.manifest.ManifestValidator;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import org.junit.Assert;
@@ -32,6 +27,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,7 +39,7 @@ public class ManifestValidatorTest {
   private final Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
   @Test
-  public void validateEntries() throws Exception {
+  public void validateEntries() {
     Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
       put("1", new ManifestEntry("1", "a"));
       put("2", new ManifestEntry("2", "b"));
@@ -56,7 +52,7 @@ public class ManifestValidatorTest {
   }
 
   @Test
-  public void validateEntriesUnOrdered() throws Exception {
+  public void validateEntriesUnOrdered() {
     Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
       put("1", new ManifestEntry("1", "a"));
       put("2", new ManifestEntry("2", "b"));
@@ -70,7 +66,7 @@ public class ManifestValidatorTest {
   }
 
   @Test
-  public void validateEntriesNotEqual() throws Exception {
+  public void validateEntriesNotEqual() {
     Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
       put("1", new ManifestEntry("1", "a"));
       put("2", new ManifestEntry("2", "b"));
@@ -89,7 +85,7 @@ public class ManifestValidatorTest {
   }
 
   @Test
-  public void validateEntriesNotEqualValueSwapped() throws Exception {
+  public void validateEntriesNotEqualValueSwapped() {
     Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
       put("1", new ManifestEntry("1", "a"));
       put("2", new ManifestEntry("2", "b"));
@@ -113,7 +109,7 @@ public class ManifestValidatorTest {
   }
 
   @Test
-  public void validateEntriesMissingEntryInSignature() throws Exception {
+  public void validateEntriesMissingEntryInSignature() {
     Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
       put("1", new ManifestEntry("1", "a"));
       put("2", new ManifestEntry("2", "b"));
@@ -132,7 +128,7 @@ public class ManifestValidatorTest {
   }
 
   @Test
-  public void validateEntriesMissingEntryInManifest() throws Exception {
+  public void validateEntriesMissingEntryInManifest() {
     Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
       put("1", new ManifestEntry("1", "a"));
       put("3", new ManifestEntry("3", "c"));
@@ -152,16 +148,16 @@ public class ManifestValidatorTest {
   }
 
   @Test
-  public void validateHealthyContainer() throws Exception {
+  public void validateHealthyContainer() {
     ManifestParser manifestParser = this.createManifest(dataFile("test.txt", "text/plain"));
-    List<DSSDocument> detachedContents = Arrays.asList(detachedContent("test.txt", "text/plain"));
+    List<DSSDocument> detachedContents = Collections.singletonList(detachedContent("test.txt", "text/plain"));
     List<Signature> signatures = this.openSignature("src/test/resources/testFiles/xades/test-bdoc-ts.xml", detachedContents);
     List<ManifestErrorMessage> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
     Assert.assertTrue(errors.isEmpty());
   }
 
   @Test
-  public void container_withDifferentDataFileName_shouldBeInvalid() throws Exception {
+  public void container_withDifferentDataFileName_shouldBeInvalid() {
     ManifestParser manifestParser = this.createManifest(dataFile("test.txt", "text/plain"));
     List<DSSDocument> detachedContents = Arrays.asList(detachedContent("other.txt", "text/plain"), detachedContent("test.txt", "text/plain"));
     List<Signature> signatures = this.openSignature("src/test/resources/testFiles/xades/test-bdoc-ts.xml", detachedContents);
@@ -175,9 +171,9 @@ public class ManifestValidatorTest {
 
 
   @Test
-  public void container_withSpecialDataFileCharacters_shouldBeValid() throws Exception {
+  public void container_withSpecialDataFileCharacters_shouldBeValid() {
     ManifestParser manifestParser = this.createManifest(dataFile("dds_JÜRIÖÖ € žŠ päev.txt", "application/octet-stream"));
-    List<DSSDocument> detachedContents = Arrays.asList(detachedContent("dds_JÜRIÖÖ € žŠ päev.txt", "application/octet-stream"));
+    List<DSSDocument> detachedContents = Collections.singletonList(detachedContent("dds_JÜRIÖÖ € žŠ päev.txt", "application/octet-stream"));
     List<Signature> signatures = this.openSignature("src/test/resources/testFiles/xades/test-bdoc-specia-chars-data-file.xml", detachedContents);
     List<ManifestErrorMessage> errors = new ManifestValidator(manifestParser, detachedContents, signatures).validateDocument();
     Assert.assertTrue(errors.isEmpty());
@@ -207,7 +203,7 @@ public class ManifestValidatorTest {
 
   private ManifestParser createManifest(DataFile... dataFile) {
     AsicManifest asicManifest = new AsicManifest();
-    asicManifest.addFileEntry(Arrays.asList(dataFile));
+    asicManifest.addFileEntries(Arrays.asList(dataFile));
     DSSDocument manifestFile = new InMemoryDocument(asicManifest.getBytes());
     return new ManifestParser(manifestFile);
   }

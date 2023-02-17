@@ -1,18 +1,15 @@
-package org.digidoc4j.impl.bdoc.manifest;
+package org.digidoc4j.impl.asic.manifest;
 
-import java.util.Map;
-
-import org.digidoc4j.impl.asic.manifest.ManifestEntry;
-import org.digidoc4j.impl.asic.manifest.ManifestParser;
+import eu.europa.esig.dss.model.FileDocument;
 import org.junit.Assert;
 import org.junit.Test;
 
-import eu.europa.esig.dss.model.FileDocument;
+import java.util.Map;
 
 public class ManifestParserTest {
 
   @Test
-  public void parseValidManifest() throws Exception {
+  public void parseValidManifest() {
     FileDocument manifestFile = new FileDocument("src/test/resources/testFiles/manifest/valid-manifest.xml");
     ManifestParser parser = new ManifestParser(manifestFile);
     Map<String, ManifestEntry> items = parser.getManifestFileItems();
@@ -23,7 +20,7 @@ public class ManifestParserTest {
   }
 
   @Test
-  public void parseManifestWithInvalidNamespace() throws Exception {
+  public void parseManifestWithInvalidNamespace() {
     FileDocument manifestFile = new FileDocument("src/test/resources/testFiles/manifest/manifest-with-different-namespace.xml");
     ManifestParser parser = new ManifestParser(manifestFile);
     Map<String, ManifestEntry> items = parser.getManifestFileItems();
