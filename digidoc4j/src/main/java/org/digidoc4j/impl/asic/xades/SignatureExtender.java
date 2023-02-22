@@ -10,19 +10,18 @@
 
 package org.digidoc4j.impl.asic.xades;
 
+import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.Policy;
-import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.Constant;
 import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.impl.AiaDataLoaderFactory;
+import org.digidoc4j.impl.AiaSourceFactory;
 import org.digidoc4j.impl.TspDataLoaderFactory;
 import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.utils.PolicyUtils;
@@ -94,7 +93,7 @@ public class SignatureExtender {
     SignatureLevel signatureLevel = getSignatureLevel(profile);
     extendingFacade.setSignatureLevel(signatureLevel);
     setSignaturePolicy(profile);
-    extendingFacade.setCustomDataLoader(new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create());
+    extendingFacade.setAiaSource(new AiaSourceFactory(configuration).create());
   }
 
   private DSSDocument extendSignature(Signature signature, SignatureProfile profile) {
@@ -111,7 +110,7 @@ public class SignatureExtender {
 
   private OnlineTSPSource createTimeStampProviderSource() {
     OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
-    DataLoader loader = new TspDataLoaderFactory(this.configuration, Constant.USER_AGENT_STRING).create();
+    DataLoader loader = new TspDataLoaderFactory(this.configuration).create();
     source.setDataLoader(loader);
     return source;
   }

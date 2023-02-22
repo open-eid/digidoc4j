@@ -23,7 +23,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.AiaDataLoaderFactory;
+import org.digidoc4j.impl.AiaSourceFactory;
 import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.impl.OcspDataLoaderFactory;
@@ -511,7 +511,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected XadesSigningDssFacade createSigningFacade() {
     XadesSigningDssFacade facade = new XadesSigningDssFacade();
-    facade.setCustomDataLoader(new AiaDataLoaderFactory(configuration, USER_AGENT_STRING).create());
+    facade.setAiaSource(new AiaSourceFactory(configuration).create());
     facade.setCertificateSource(this.configuration.getTSL());
     facade.setOcspSource(this.createOCSPSource());
     facade.setTspSource(this.createTSPSource());
@@ -520,13 +520,13 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected CommonOCSPSource createOCSPSource() {
     CommonOCSPSource source = new CommonOCSPSource(this.configuration);
-    DataLoader loader = new OcspDataLoaderFactory(this.configuration, USER_AGENT_STRING).create();
+    DataLoader loader = new OcspDataLoaderFactory(this.configuration).create();
     source.setDataLoader(loader);
     return source;
   }
 
   private OnlineTSPSource createTSPSource() {
-    DataLoader loader = new TspDataLoaderFactory(this.configuration, USER_AGENT_STRING).create();
+    DataLoader loader = new TspDataLoaderFactory(this.configuration).create();
     OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
     source.setDataLoader(loader);
     return source;

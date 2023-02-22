@@ -64,7 +64,7 @@ public class OCSPSourceBuilder {
     } else {
       source = new BDocTMOcspSource(this.configuration, this.signatureValue);
     }
-    DataLoader loader = new OcspDataLoaderFactory(this.configuration, Constant.USER_AGENT_STRING).create();
+    DataLoader loader = new OcspDataLoaderFactory(this.configuration).create();
     source.setDataLoader(loader);
     return source;
   }

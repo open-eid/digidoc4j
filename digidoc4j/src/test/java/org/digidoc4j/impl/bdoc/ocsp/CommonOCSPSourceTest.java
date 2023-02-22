@@ -36,7 +36,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   public void gettingOCSPNonceShouldReturnNull_inCaseOfOlderAiaOcsp() throws Exception {
     this.configuration.setPreferAiaOcsp(true);
     CommonOCSPSource source = new CommonOCSPSource(this.configuration);
-    source.setDataLoader(new OcspDataLoaderFactory(this.configuration, null).create());
+    source.setDataLoader(new OcspDataLoaderFactory(this.configuration).create());
     X509Certificate certificate = this.pkcs12EccSignatureToken.getCertificate();
     source.getAccessLocation(certificate);
     Extension nonce = source.createNonce(certificate);

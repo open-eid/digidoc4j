@@ -11,16 +11,13 @@
 package org.digidoc4j.main;
 
 import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.model.InMemoryDocument;
-import eu.europa.esig.dss.spi.client.http.DataLoader;
-import eu.europa.esig.dss.spi.x509.aia.DefaultAIASource;
+import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.reports.Reports;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.OCSPSourceBuilder;
@@ -33,7 +30,7 @@ import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.ddoc.factory.DigiDocGenFactory;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
-import org.digidoc4j.impl.AiaDataLoaderFactory;
+import org.digidoc4j.impl.AiaSourceFactory;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
 import org.digidoc4j.impl.asic.tsl.TslManager;
 import org.digidoc4j.impl.ddoc.DDocContainer;
@@ -167,8 +164,7 @@ public class ContainerVerifier {
     SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
     verifier.setOcspSource(OCSPSourceBuilder.anOcspSource().withConfiguration(configuration).build());
     verifier.setTrustedCertSources(configuration.getTSL());
-    DataLoader dataLoader = new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create();
-    verifier.setAIASource(new DefaultAIASource(dataLoader));
+    verifier.setAIASource(new AiaSourceFactory(configuration).create());
     validator.setCertificateVerifier(verifier);
     Reports reports = validator.validateDocument();
     if (reportsDir != null) {

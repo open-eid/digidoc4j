@@ -28,6 +28,7 @@ import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.spi.x509.CertificateSource;
 import eu.europa.esig.dss.spi.x509.ListCertificateSource;
+import eu.europa.esig.dss.spi.x509.aia.AIASource;
 import eu.europa.esig.dss.spi.x509.aia.DefaultAIASource;
 import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import eu.europa.esig.dss.spi.x509.tsp.TSPSource;
@@ -209,8 +210,20 @@ public class XadesSigningDssFacade {
     xAdESService.setTspSource(tspSource);
   }
 
+  public void setAiaSource(AIASource aiaSource) {
+    certificateVerifier.setAIASource(aiaSource);
+  }
+
+  /**
+   * Sets custom AIA data loader and wraps it inside {@link DefaultAIASource}.
+   *
+   * @param dataLoader custom AIA data loader
+   *
+   * @deprecated Use {@link #setAiaSource(AIASource)} instead.
+   */
+  @Deprecated
   public void setCustomDataLoader(DataLoader dataLoader) {
-    certificateVerifier.setAIASource(new DefaultAIASource(dataLoader));
+    setAiaSource(new DefaultAIASource(dataLoader));
   }
 
   private void initDefaultXadesParameters() {

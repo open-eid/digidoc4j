@@ -10,26 +10,22 @@
 
 package org.digidoc4j.impl.asic.xades;
 
-import java.util.List;
-
 import eu.europa.esig.dss.exception.IllegalInputException;
-import eu.europa.esig.dss.spi.client.http.DataLoader;
-import eu.europa.esig.dss.spi.x509.aia.DefaultAIASource;
-import org.digidoc4j.Configuration;
-import org.digidoc4j.Constant;
-import org.digidoc4j.exceptions.InvalidSignatureException;
-import org.digidoc4j.impl.AiaDataLoaderFactory;
-import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
-import org.digidoc4j.utils.Helper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.SignaturePolicyProvider;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.xades.validation.XMLDocumentValidator;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.exceptions.InvalidSignatureException;
+import org.digidoc4j.impl.AiaSourceFactory;
+import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
+import org.digidoc4j.utils.Helper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class XadesValidationDssFacade {
 
@@ -66,9 +62,8 @@ public class XadesValidationDssFacade {
     certificateVerifier.setCrlSource(null); //Disable CRL checks
     logger.debug("Setting trusted cert source to the certificate verifier");
     certificateVerifier.setTrustedCertSources(configuration.getTSL());
-    logger.debug("Setting custom data loader to the certificate verifier");
-    DataLoader dataLoader = new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create();
-    certificateVerifier.setAIASource(new DefaultAIASource(dataLoader));
+    logger.debug("Setting custom AIA source to the certificate verifier");
+    certificateVerifier.setAIASource(new AiaSourceFactory(configuration).create());
     logger.debug("Finished creating certificate verifier");
     return certificateVerifier;
   }

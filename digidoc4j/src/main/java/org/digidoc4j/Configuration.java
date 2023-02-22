@@ -200,6 +200,7 @@ public class Configuration implements Serializable {
   private LinkedHashMap<String, Object> configurationFromFile;
   private String configurationInputSourceName;
 
+  private AIASourceFactory aiaSourceFactory;
   private DataLoaderFactory aiaDataLoaderFactory;
   private DataLoaderFactory ocspDataLoaderFactory;
   private DataLoaderFactory tspDataLoaderFactory;
@@ -643,7 +644,12 @@ public class Configuration implements Serializable {
   /**
    * Set a data loader factory that manages the creation of custom data loaders for accessing AIA certificate sources.
    * @param aiaDataLoaderFactory AIA data loader factory.
+   *
+   * @deprecated Prefer to use {@link #setAiaSourceFactory(AIASourceFactory)} and
+   * {@link #getAiaSourceFactory()} instead.
+   * If a custom AIA source factory is configured, then a custom AIA data loader factory has no effect.
    */
+  @Deprecated
   public void setAiaDataLoaderFactory(DataLoaderFactory aiaDataLoaderFactory) {
     this.aiaDataLoaderFactory = aiaDataLoaderFactory;
   }
@@ -651,9 +657,30 @@ public class Configuration implements Serializable {
   /**
    * Returns the currently set AIA data loader factory or <code>null</code> if no custom data loader factory is set.
    * @return AIA data loader factory.
+   *
+   * @deprecated Prefer to use {@link #setAiaSourceFactory(AIASourceFactory)} and
+   * {@link #getAiaSourceFactory()} instead.
+   * If a custom AIA source factory is configured, then a custom AIA data loader factory has no effect.
    */
+  @Deprecated
   public DataLoaderFactory getAiaDataLoaderFactory() {
     return aiaDataLoaderFactory;
+  }
+
+  /**
+   * Set an AIA source factory that manages the creation of custom AIA sources.
+   * @param aiaSourceFactory AIA source factory
+   */
+  public void setAiaSourceFactory(AIASourceFactory aiaSourceFactory) {
+    this.aiaSourceFactory = aiaSourceFactory;
+  }
+
+  /**
+   * Returns the currently set AIA source factory or {@code null} if no custom AIA source factory is set.
+   * @return AIA source factory
+   */
+  public AIASourceFactory getAiaSourceFactory() {
+    return aiaSourceFactory;
   }
 
   /**
