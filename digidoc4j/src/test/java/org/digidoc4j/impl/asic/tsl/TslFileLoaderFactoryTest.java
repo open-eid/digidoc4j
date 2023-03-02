@@ -46,8 +46,14 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
     Assert.assertEquals(MOCK_TIMEOUT_SOCKET, nestedCommonsDataLoader.getTimeoutSocket());
 
     Assert.assertNull(nestedCommonsDataLoader.getProxyConfig());
-    Assert.assertNull(nestedCommonsDataLoader.getSupportedSSLCipherSuites());
-    Assert.assertNull(nestedCommonsDataLoader.getSupportedSSLProtocols());
+    Assert.assertArrayEquals(
+            configuration.getSupportedSslCipherSuites().toArray(new String[0]),
+            nestedCommonsDataLoader.getSupportedSSLCipherSuites()
+    );
+    Assert.assertArrayEquals(
+            configuration.getSupportedSslProtocols().toArray(new String[0]),
+            nestedCommonsDataLoader.getSupportedSSLProtocols()
+    );
   }
 
   @Test
@@ -68,8 +74,14 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
     CommonsDataLoader nestedCommonsDataLoader = (CommonsDataLoader) nestedDataLoader;
 
     Assert.assertNotNull(nestedCommonsDataLoader.getProxyConfig());
-    Assert.assertNull(nestedCommonsDataLoader.getSupportedSSLCipherSuites());
-    Assert.assertNull(nestedCommonsDataLoader.getSupportedSSLProtocols());
+    Assert.assertArrayEquals(
+            configuration.getSupportedSslCipherSuites().toArray(new String[0]),
+            nestedCommonsDataLoader.getSupportedSSLCipherSuites()
+    );
+    Assert.assertArrayEquals(
+            configuration.getSupportedSslProtocols().toArray(new String[0]),
+            nestedCommonsDataLoader.getSupportedSSLProtocols()
+    );
   }
 
   @Test
@@ -89,8 +101,14 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
     Assert.assertTrue("Nested data loader should be of type " + CommonsDataLoader.class.getSimpleName(), nestedDataLoader instanceof CommonsDataLoader);
     CommonsDataLoader nestedCommonsDataLoader = (CommonsDataLoader) nestedDataLoader;
 
-    Assert.assertNotNull(nestedCommonsDataLoader.getSupportedSSLCipherSuites());
-    Assert.assertNotNull(nestedCommonsDataLoader.getSupportedSSLProtocols());
+    Assert.assertArrayEquals(
+            new String[] {"supported_cipher_suite"},
+            nestedCommonsDataLoader.getSupportedSSLCipherSuites()
+    );
+    Assert.assertArrayEquals(
+            new String[] {"supported_ssl_protocol"},
+            nestedCommonsDataLoader.getSupportedSSLProtocols()
+    );
     Assert.assertNull(nestedCommonsDataLoader.getProxyConfig());
   }
 
