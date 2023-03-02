@@ -723,6 +723,16 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>false</filtering>
+            </testResource>
+            <testResource>
+                <directory>src/test/resources-filtered</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
     </build>
 
     <reporting>
