@@ -468,6 +468,7 @@ public abstract class AsicContainer implements Container {
    *
    * @param timeStampToken
    */
+  @Deprecated
   public void setTimeStampToken(DataFile timeStampToken) {
     this.timeStampToken = timeStampToken;
   }
@@ -481,10 +482,13 @@ public abstract class AsicContainer implements Container {
   }
 
   /**
-   * Controlls if timestamp token is defined
+   * Checks if timestamp token is defined
    *
-   * @return true if timestemp token defined
+   * @return {@code true} if timestamp token is defined, otherwise {@code false}
+   *
+   * @deprecated Deprecated for removal
    */
+  @Deprecated
   public boolean isTimestampTokenDefined() {
     return timeStampToken != null;
   }

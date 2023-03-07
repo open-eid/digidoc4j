@@ -199,6 +199,7 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
   }
 
   @Override
+  @Deprecated
   public void setTimeStampToken(DataFile timeStampToken) {
     throw new NotSupportedException("Not for Pades container");
   }

@@ -122,6 +122,7 @@ public class DDocContainer implements Container {
   }
 
   @Override
+  @Deprecated
   public void setTimeStampToken(DataFile timeStampToken) {
     throw new NotSupportedException("Not for DDOC container");
   }

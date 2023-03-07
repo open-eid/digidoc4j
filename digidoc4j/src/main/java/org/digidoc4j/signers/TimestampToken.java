@@ -32,9 +32,10 @@ import java.util.List;
 
 /**
  * Timestamp token for AsicS container
- * <p>
- * Created by Andrei on 7.12.2017.
+ *
+ * @deprecated Deprecated for removal
  */
+@Deprecated
 public final class TimestampToken {
 
   private TimestampToken() {
@@ -46,7 +47,10 @@ public final class TimestampToken {
    * @param digestAlgorithm
    * @param dataFiles
    * @return DataFile timestamp token
+   *
+   * @deprecated Deprecated for removal
    */
+  @Deprecated
   public static DataFile generateTimestampToken(DigestAlgorithm digestAlgorithm,
                                                 List<ContainerBuilder.ContainerDataFile> dataFiles,
                                                 Configuration configuration) {
@@ -70,7 +74,10 @@ public final class TimestampToken {
    * @param digestAlgorithm
    * @param containerDataFile
    * @return DataFile timestamp token
+   *
+   * @deprecated Deprecated for removal
    */
+  @Deprecated
   public static DataFile generateTimestampToken(DigestAlgorithm digestAlgorithm, DataFile containerDataFile) {
     OnlineTSPSource onlineTSPSource = defineOnlineTSPSource(null);
     byte[] digest = containerDataFile.calculateDigest(org.digidoc4j.DigestAlgorithm.getDigestAlgorithmUri(digestAlgorithm));
