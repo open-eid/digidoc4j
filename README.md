@@ -67,7 +67,7 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
 * [DDOC specification](https://www.id.ee/wp-content/uploads/2020/08/digidoc_format_1.3.pdf)
 
 # Requirements
-* Java **8** (since version 4.0.0-RC.1)
+* Java **8** or higher (since version 4.0.0-RC.1)
 * Internet access to external verification services
 * OCSP (Online Certificate Status Protocol) - http://ocsp.sk.ee
 * EU TSL (European Commission's Trusted Status List) - https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml
