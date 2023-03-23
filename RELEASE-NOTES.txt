@@ -1,6 +1,36 @@
 DigiDoc4J Java library release notes
 ------------------------------------
 
+Release 5.1.0
+------------------
+Summary of the major changes since 5.0.0
+------------------------------------------
+* DSS version update to 5.11.1 (sd-dss.5.11.1.d4j.1), previously used DSS 5.9. Check changes in DSS here: https://github.com/esig/dss/releases
+  - identification of timemark signatures was improved in DSS
+* The functionality to add timestamp tokens to ASiC-S containers was deprecated and will be removed in the future
+* Added default TLS configuration for outbound connections in default "digidoc4j.yaml" and "digidoc-test.yaml" files
+  - default TLS protocol: TLSv1.3
+  - supported protocols: TLSv1.2 ja TLSv1.3
+  - configured a set of enabled TLSv1.2 and TLSv1.3 cipher suites
+* Improved META-INF/manifest.xml file creation for ASiC containers
+  - the manifest tag in newly create ASiC containers now has a version attribute with value "1.2"
+* Deprecated input parsing constructors of ASiC container classes - it is encouraged to use ContainerOpener and ContainerBuilder instead
+* API improvements:
+  - added possibility to configure custom AIA sources (via AIA source factories)
+  - deprecated possibility to configure AIA data loaders (via AIA data loader factories)
+* Dependencies update
+
+Known issues
+------------
+* We have noticed a slight increase in TSL loading times due to pivot LOTL support
+* We have noticed a decrease in performance with the introduction of properly accessing AIA certificate resources
+* Opening a container that contains signatures, triggers TSL loading (TSL lazy loading does not work as expected)
+* While upgrading from versions older than 2.1.1 be sure that your integration :
+  - doesn't use Xalan or XercesImpl dependencies
+  - uses a patched Java version (JDK8 or higher)
+    Xalan and XercesImpl were used to patch XML vulnerabilities in older java versions. They should be discarded with higher versions because they override default Java XML security.
+    If it is not possible to remove Xalan, then you can set your system property to override TransformerFactory : System.setProperty("javax.xml.transform.TransformerFactory","com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
+
 Release 5.0.0
 ------------------
 Summary of the major changes since 4.3.0
