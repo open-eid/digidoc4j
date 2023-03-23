@@ -23,8 +23,6 @@ import org.digidoc4j.impl.asic.AsicContainer;
 import org.digidoc4j.impl.asic.AsicContainerCreator;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicSignatureOpener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,10 +32,8 @@ import java.io.OutputStream;
  */
 public class AsicEContainer extends AsicContainer {
 
-  private static final Logger logger = LoggerFactory.getLogger(AsicEContainer.class);
-
   /**
-   * AsicEContainer constructor
+   * AsicEContainer constructor.
    */
   public AsicEContainer() {
     super();
@@ -45,7 +41,7 @@ public class AsicEContainer extends AsicContainer {
   }
 
   /**
-   * AsicEContainer constructor
+   * AsicEContainer constructor.
    *
    * @param configuration configuration
    */
@@ -55,60 +51,84 @@ public class AsicEContainer extends AsicContainer {
   }
 
   /**
-   * AsicEContainer constructor
+   * AsicEContainer constructor.
    *
    * @param containerPath path
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(String)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromExistingFile(String)} instead.
    */
+  @Deprecated
   public AsicEContainer(String containerPath) {
     super(containerPath, Constant.ASICE_CONTAINER_TYPE);
   }
 
   /**
-   * AsicEContainer constructor for subclasses
+   * AsicEContainer constructor for subclasses.
    *
    * @param containerPath path
    * @param containerType type
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(String)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromExistingFile(String)} instead.
    */
+  @Deprecated
   protected AsicEContainer(String containerPath, String containerType) {
     super(containerPath, containerType);
   }
 
   /**
-   * AsicEContainer constructor
+   * AsicEContainer constructor.
    *
    * @param containerPath path
    * @param configuration configuration
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(String, Configuration)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromExistingFile(String)} instead.
    */
+  @Deprecated
   public AsicEContainer(String containerPath, Configuration configuration) {
     super(containerPath, configuration, Constant.ASICE_CONTAINER_TYPE);
   }
 
   /**
-   * AsicEContainer constructor for subclasses
+   * AsicEContainer constructor for subclasses.
    *
    * @param containerPath
    * @param configuration
    * @param containerType
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(String, Configuration)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromExistingFile(String)} instead.
    */
+  @Deprecated
   protected AsicEContainer(String containerPath, Configuration configuration, String containerType) {
     super(containerPath, configuration, containerType);
   }
 
   /**
-   * AsicEContainer constructor
+   * AsicEContainer constructor.
    *
    * @param stream input stream
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(InputStream, Configuration)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromStream(InputStream)} instead.
    */
+  @Deprecated
   public AsicEContainer(InputStream stream) {
     super(stream, Constant.ASICE_CONTAINER_TYPE);
   }
 
   /**
-   * AsicEContainer constructor
+   * AsicEContainer constructor.
    *
    * @param stream input stream
    * @param containerType type
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(InputStream, Configuration)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromStream(InputStream)} instead.
    */
+  @Deprecated
   protected AsicEContainer(InputStream stream, String containerType) {
     super(stream, containerType);
   }
@@ -118,7 +138,11 @@ public class AsicEContainer extends AsicContainer {
    *
    * @param stream input stream
    * @param configuration configuration
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(InputStream, Configuration)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromStream(InputStream)} instead.
    */
+  @Deprecated
   public AsicEContainer(InputStream stream, Configuration configuration) {
     super(stream, configuration, Constant.ASICE_CONTAINER_TYPE);
   }
@@ -129,7 +153,11 @@ public class AsicEContainer extends AsicContainer {
    * @param stream input stream
    * @param configuration configuration
    * @param containerType type
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(InputStream, Configuration)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromStream(InputStream)} instead.
    */
+  @Deprecated
   protected AsicEContainer(InputStream stream, Configuration configuration, String containerType) {
     super(stream, configuration, containerType);
   }
@@ -141,7 +169,7 @@ public class AsicEContainer extends AsicContainer {
    * @param configuration configuration
    */
   public AsicEContainer(AsicParseResult containerParseResult, Configuration configuration) {
-    this(containerParseResult, configuration, Constant.ASICE_CONTAINER_TYPE);
+    super(containerParseResult, configuration, Constant.ASICE_CONTAINER_TYPE);
   }
 
   /**
@@ -150,7 +178,10 @@ public class AsicEContainer extends AsicContainer {
    * @param containerParseResult container parsed result
    * @param configuration configuration
    * @param containerType container type
+   *
+   * @deprecated Deprecated for removal. Use {@link #AsicEContainer(AsicParseResult, Configuration)} instead.
    */
+  @Deprecated
   protected AsicEContainer(AsicParseResult containerParseResult, Configuration configuration, String containerType) {
     super(containerParseResult, configuration, containerType);
   }

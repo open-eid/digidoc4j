@@ -52,6 +52,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -69,24 +70,25 @@ public abstract class AsicContainer implements Container {
   private List<DataFile> newDataFiles = new ArrayList<>();
   private AsicParseResult containerParseResult;
   private boolean dataFilesHaveChanged;
+  @Deprecated
   private String containerType = "";
 
   protected abstract String createUserAgent();
 
   /**
-   * ASicContainer constructor
+   * ASicContainer constructor.
    */
-  public AsicContainer() {
+  protected AsicContainer() {
     this.configuration = Configuration.getInstance();
   }
 
   /**
-   * ASicContainer constructor
+   * ASicContainer constructor.
    *
    * @param configuration configuration
    */
-  public AsicContainer(Configuration configuration) {
-    this.configuration = configuration;
+  protected AsicContainer(Configuration configuration) {
+    this.configuration = Objects.requireNonNull(configuration, "Configuration cannot be null");
   }
 
   /**
@@ -94,7 +96,11 @@ public abstract class AsicContainer implements Container {
    *
    * @param containerPath path
    * @param containerType type
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(String)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromExistingFile(String)} instead.
    */
+  @Deprecated
   public AsicContainer(String containerPath, String containerType) {
     this.configuration = Configuration.getInstance();
     this.containerType = containerType;
@@ -107,7 +113,11 @@ public abstract class AsicContainer implements Container {
    * @param containerPath path
    * @param configuration configuration
    * @param containerType type
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(String, Configuration)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromExistingFile(String)} instead.
    */
+  @Deprecated
   public AsicContainer(String containerPath, Configuration configuration, String containerType) {
     this.configuration = configuration;
     this.containerType = containerType;
@@ -119,7 +129,11 @@ public abstract class AsicContainer implements Container {
    *
    * @param stream        input stream
    * @param containerType type
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(InputStream, Configuration)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromStream(InputStream)} instead.
    */
+  @Deprecated
   public AsicContainer(InputStream stream, String containerType) {
     this.configuration = Configuration.getInstance();
     this.containerType = containerType;
@@ -132,7 +146,11 @@ public abstract class AsicContainer implements Container {
    * @param stream        input stream
    * @param configuration configuration
    * @param containerType type
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(InputStream, Configuration)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromStream(InputStream)} instead.
    */
+  @Deprecated
   public AsicContainer(InputStream stream, Configuration configuration, String containerType) {
     this.configuration = configuration;
     this.containerType = containerType;
@@ -144,8 +162,22 @@ public abstract class AsicContainer implements Container {
    *
    * @param containerParseResult container parsed result
    * @param configuration configuration
-   * @param containerType container type
    */
+  protected AsicContainer(AsicParseResult containerParseResult, Configuration configuration) {
+    this(configuration);
+    this.populateContainerWithParseResult(containerParseResult);
+  }
+
+  /**
+   * ASicContainer constructor
+   *
+   * @param containerParseResult container parsed result
+   * @param configuration configuration
+   * @param containerType container type
+   *
+   * @deprecated Deprecated for removal. Use {@link #AsicContainer(AsicParseResult, Configuration)} instead.
+   */
+  @Deprecated
   public AsicContainer(AsicParseResult containerParseResult, Configuration configuration, String containerType) {
     this.configuration = configuration;
     this.containerType = containerType;
@@ -341,9 +373,13 @@ public abstract class AsicContainer implements Container {
   }
 
   /**
-   * @param containerType
+   * Sets container type.
+   *
+   * @param containerType container type
+   *
+   * @deprecated Deprecated for removal. Use appropriate constructor instead.
    */
-
+  @Deprecated
   public void setType(String containerType) {
     this.containerType = containerType;
   }
@@ -353,11 +389,13 @@ public abstract class AsicContainer implements Container {
     return containerType;
   }
 
+  @Deprecated
   private void openContainer(String containerPath) {
     LOGGER.debug("Opening container from <{}>", containerPath);
     this.populateContainerWithParseResult(new AsicFileContainerParser(containerPath, this.getConfiguration()).read());
   }
 
+  @Deprecated
   private void openContainer(InputStream inputStream) {
     LOGGER.debug("Opening container from stream");
     this.populateContainerWithParseResult(new AsicStreamContainerParser(inputStream, this.getConfiguration()).read());

@@ -45,6 +45,7 @@ import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.TestAssert;
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -1007,13 +1008,17 @@ public class BDocContainerTest extends AbstractTest {
   public void openBDoc_withoutCAConfiguration_shouldNotThrowException() {
     this.configuration = new Configuration(Configuration.Mode.TEST);
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml");
-    BDocContainer container = new BDocContainer("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc", this.configuration);
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc", this.configuration);
+    MatcherAssert.assertThat(container, Matchers.instanceOf(BDocContainer.class));
     Assert.assertTrue(container.validate().isValid());
   }
 
   @Test
   public void timeStampCertStatusDeprecated() {
-    BDocContainer container = new BDocContainer("src/test/resources/testFiles/invalid-containers/invalid-containers-23816_leedu_live_TS_authority.asice", new Configuration(Configuration.Mode.PROD));
+    Container container = ContainerOpener.open(
+            "src/test/resources/testFiles/invalid-containers/invalid-containers-23816_leedu_live_TS_authority.asice",
+            new Configuration(Configuration.Mode.PROD)
+    );
     Assert.assertFalse(container.validate().isValid());
   }
 
