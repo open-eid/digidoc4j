@@ -39,8 +39,8 @@ public class SignatureValidationReportTest {
     signature.setSignedBy("SignedBy");
     signature.setIndication(Indication.TOTAL_PASSED);
     XmlSignatureLevel sigLevel = new XmlSignatureLevel();
-    sigLevel.setValue(SignatureQualification.QES);
-    sigLevel.setDescription(SignatureQualification.QES.getLabel());
+    sigLevel.setValue(SignatureQualification.QESIG);
+    sigLevel.setDescription(SignatureQualification.QESIG.getLabel());
     signature.setSignatureLevel(sigLevel);
     signature.setSubIndication(SubIndication.NO_POE);
     signature.setAdESValidationDetails(new XmlDetails());
@@ -60,8 +60,8 @@ public class SignatureValidationReportTest {
     Assert.assertEquals(today, report.getBestSignatureTime());
     Assert.assertEquals("SignedBy", report.getSignedBy());
     Assert.assertEquals(Indication.TOTAL_PASSED, report.getIndication());
-    Assert.assertEquals("QES", report.getSignatureLevel().getValue().name());
-    Assert.assertEquals("QES?", report.getSignatureLevel().getValue().getReadable());
+    Assert.assertEquals("QESIG", report.getSignatureLevel().getValue().name());
+    Assert.assertEquals("QESig", report.getSignatureLevel().getValue().getReadable());
     Assert.assertEquals(SubIndication.NO_POE, report.getSubIndication());
     Assert.assertThat(report.getErrors(), containsInAnyOrder("AdESError1", "AdESError2", "QError1", "QError2"));
     Assert.assertThat(report.getWarnings(), containsInAnyOrder("AdESWarning1", "AdESWarning2", "QWarning1", "QWarning2"));

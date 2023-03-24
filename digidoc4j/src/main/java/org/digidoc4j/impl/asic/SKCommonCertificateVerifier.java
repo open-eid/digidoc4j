@@ -15,14 +15,14 @@ import eu.europa.esig.dss.alert.StatusAlert;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.model.x509.revocation.crl.CRL;
 import eu.europa.esig.dss.model.x509.revocation.ocsp.OCSP;
-import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.spi.x509.CertificateSource;
 import eu.europa.esig.dss.spi.x509.ListCertificateSource;
 import eu.europa.esig.dss.spi.x509.aia.AIASource;
 import eu.europa.esig.dss.spi.x509.revocation.RevocationSource;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
-import eu.europa.esig.dss.validation.RevocationDataLoadingStrategy;
+import eu.europa.esig.dss.validation.RevocationDataLoadingStrategyFactory;
+import eu.europa.esig.dss.validation.RevocationDataVerifier;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -80,13 +80,33 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   }
 
   @Override
-  public RevocationDataLoadingStrategy getRevocationDataLoadingStrategy() {
-    return this.commonCertificateVerifier.getRevocationDataLoadingStrategy();
+  public RevocationDataLoadingStrategyFactory getRevocationDataLoadingStrategyFactory() {
+    return this.commonCertificateVerifier.getRevocationDataLoadingStrategyFactory();
   }
 
   @Override
-  public void setRevocationDataLoadingStrategy(RevocationDataLoadingStrategy revocationDataLoadingStrategy) {
-    this.commonCertificateVerifier.setRevocationDataLoadingStrategy(revocationDataLoadingStrategy);
+  public void setRevocationDataLoadingStrategyFactory(RevocationDataLoadingStrategyFactory revocationDataLoadingStrategyFactory) {
+    this.commonCertificateVerifier.setRevocationDataLoadingStrategyFactory(revocationDataLoadingStrategyFactory);
+  }
+
+  @Override
+  public RevocationDataVerifier getRevocationDataVerifier() {
+    return this.commonCertificateVerifier.getRevocationDataVerifier();
+  }
+
+  @Override
+  public void setRevocationDataVerifier(RevocationDataVerifier revocationDataVerifier) {
+    this.commonCertificateVerifier.setRevocationDataVerifier(revocationDataVerifier);
+  }
+
+  @Override
+  public boolean isRevocationFallback() {
+    return this.commonCertificateVerifier.isRevocationFallback();
+  }
+
+  @Override
+  public void setRevocationFallback(boolean isRevocationFallback) {
+    this.commonCertificateVerifier.setRevocationFallback(isRevocationFallback);
   }
 
   @Override
@@ -107,12 +127,6 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   @Override
   public void setAdjunctCertSources(ListCertificateSource adjunctListCertificateSource) {
     this.commonCertificateVerifier.setAdjunctCertSources(adjunctListCertificateSource);
-  }
-
-  @Override
-  @Deprecated
-  public void setDataLoader(final DataLoader dataLoader) {
-    this.commonCertificateVerifier.setDataLoader(dataLoader);
   }
 
   @Override
@@ -198,6 +212,16 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   @Override
   public boolean isCheckRevocationForUntrustedChains() {
     return this.commonCertificateVerifier.isCheckRevocationForUntrustedChains();
+  }
+
+  @Override
+  public void setExtractPOEFromUntrustedChains(boolean isExtractPOEFromUntrustedChains) {
+    this.commonCertificateVerifier.setExtractPOEFromUntrustedChains(isExtractPOEFromUntrustedChains);
+  }
+
+  @Override
+  public boolean isExtractPOEFromUntrustedChains() {
+    return this.commonCertificateVerifier.isExtractPOEFromUntrustedChains();
   }
 
   @Override

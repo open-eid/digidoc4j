@@ -10,107 +10,118 @@
 
 package org.digidoc4j.impl.asic.manifest;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.util.Collection;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
+import eu.europa.esig.dss.DomUtils;
+import eu.europa.esig.dss.asic.xades.definition.ManifestAttribute;
+import eu.europa.esig.dss.asic.xades.definition.ManifestElement;
+import eu.europa.esig.dss.asic.xades.definition.ManifestNamespace;
+import eu.europa.esig.dss.model.MimeType;
 import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
-import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSOutput;
-import org.w3c.dom.ls.LSSerializer;
 
-import eu.europa.esig.dss.model.MimeType;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.util.Collection;
 
 /**
- * Represents the META-INF/manifest.xml subdocument
+ * Represents the META-INF/manifest.xml sub-document
  */
 public class AsicManifest {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicManifest.class);
+
   public static final String XML_PATH = "META-INF/manifest.xml";
-  private Document dom;
-  private Element rootElement;
+
+  private final Document dom;
+  private final Element manifestElement;
 
   /**
-   * creates object to create manifest files
+   * Creates an instance of ASiC manifest without specifying container type
+   * (the root file entry mimetype defaults to {@link MimeType#ASICE}).
    */
   public AsicManifest() {
-    generateAsicManifest(null);
+    this(null);
   }
 
   /**
-   * @param containerType type
+   * Creates an instance of ASiC manifest with the specified container type.
+   * Container type {@link Constant#ASICS_CONTAINER_TYPE} sets the root file entry mimetype as
+   * {@link MimeType#ASICS}, any other value makes the root file entry mimetype to default to
+   * {@link MimeType#ASICE}.
+   *
+   * @param containerType the container type
    */
   public AsicManifest(String containerType) {
-    generateAsicManifest(containerType);
-  }
-
-  private void generateAsicManifest(String containerType) {
     logger.debug("Creating new manifest");
-    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    try {
-      DocumentBuilder db = dbf.newDocumentBuilder();
+    dom = DomUtils.buildDOM();
 
-      dom = db.newDocument();
-      rootElement = dom.createElement("manifest:manifest");
-      rootElement.setAttribute("xmlns:manifest", "urn:oasis:names:tc:opendocument:xmlns:manifest:1.0");
+    manifestElement = DomUtils.createElementNS(dom, ManifestNamespace.NS, ManifestElement.MANIFEST);
+    DomUtils.setAttributeNS(manifestElement, ManifestNamespace.NS, ManifestAttribute.VERSION, "1.2");
+    dom.appendChild(manifestElement);
 
-      Element firstChild = dom.createElement("manifest:file-entry");
-      firstChild.setAttribute("manifest:full-path", "/");
-      if (Constant.ASICS_CONTAINER_TYPE.equals(containerType)){
-        firstChild.setAttribute("manifest:media-type", MimeType.ASICS.getMimeTypeString());
-      } else{
-        firstChild.setAttribute("manifest:media-type", MimeType.ASICE.getMimeTypeString());
-      }
-
-      rootElement.appendChild(firstChild);
-
-      dom.appendChild(rootElement);
-
-    } catch (ParserConfigurationException e) {
-      logger.error(e.getMessage());
-      throw new TechnicalException("Error creating manifest", e);
+    Element entryElement = DomUtils.addElement(dom, manifestElement, ManifestNamespace.NS, ManifestElement.FILE_ENTRY);
+    DomUtils.setAttributeNS(entryElement, ManifestNamespace.NS, ManifestAttribute.FULL_PATH, "/");
+    if (Constant.ASICS_CONTAINER_TYPE.equals(containerType)) {
+      DomUtils.setAttributeNS(entryElement, ManifestNamespace.NS, ManifestAttribute.MEDIA_TYPE, MimeType.ASICS.getMimeTypeString());
+    } else {
+      DomUtils.setAttributeNS(entryElement, ManifestNamespace.NS, ManifestAttribute.MEDIA_TYPE, MimeType.ASICE.getMimeTypeString());
     }
   }
 
   /**
-   * adds list of attachments to create manifest file
+   * Adds a list of file entries, representing the specified data files, into this manifest file.
    *
-   * @param dataFiles list of data files
+   * @param dataFiles the list of data files to add file entries for
+   *
+   * @deprecated Use {@link #addFileEntries(Collection)} instead.
    */
+  @Deprecated
   public void addFileEntry(Collection<DataFile> dataFiles) {
-    for (DataFile dataFile : dataFiles) {
-      logger.debug("Adding " + dataFile.getName() + " to manifest");
-      Element childElement;
-      childElement = dom.createElement("manifest:file-entry");
-      childElement.setAttribute("manifest:media-type", dataFile.getMediaType());
-      childElement.setAttribute("manifest:full-path", dataFile.getName());
-      rootElement.appendChild(childElement);
-    }
+    addFileEntries(dataFiles);
   }
 
+  /**
+   * Adds a list of file entries, representing the specified data files, into this manifest file.
+   *
+   * @param dataFiles the list of data files to add file entries for
+   */
+  public void addFileEntries(Collection<DataFile> dataFiles) {
+    dataFiles.forEach(this::addFileEntry);
+  }
+
+  /**
+   * Adds a new file entry, representing the specified data file, into this manifest file.
+   *
+   * @param dataFile the data file to add a new file entry for
+   */
+  public void addFileEntry(DataFile dataFile) {
+    logger.debug("Adding " + dataFile.getName() + " to manifest");
+    Element entryElement = DomUtils.addElement(dom, manifestElement, ManifestNamespace.NS, ManifestElement.FILE_ENTRY);
+    DomUtils.setAttributeNS(entryElement, ManifestNamespace.NS, ManifestAttribute.MEDIA_TYPE, dataFile.getMediaType());
+    DomUtils.setAttributeNS(entryElement, ManifestNamespace.NS, ManifestAttribute.FULL_PATH, dataFile.getName());
+  }
+
+  /**
+   * Returns the bytes of the current state of this manifest file.
+   *
+   * @return the bytes of the current state of this manifest file
+   */
   public byte[] getBytes() {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     writeTo(outputStream);
     return outputStream.toByteArray();
   }
 
+  /**
+   * Writes the bytes of the current state of this manifest file into the specified output stream.
+   *
+   * @param outputStream the output stream to write the bytes of this manifest files into
+   */
   public void writeTo(OutputStream outputStream) {
-    DOMImplementationLS implementation = (DOMImplementationLS) dom.getImplementation();
-    LSOutput lsOutput = implementation.createLSOutput();
-    lsOutput.setByteStream(outputStream);
-    LSSerializer writer = implementation.createLSSerializer();
-    writer.write(dom, lsOutput);
+    DomUtils.writeDocumentTo(dom, outputStream);
   }
 
 }

@@ -166,7 +166,10 @@ public interface Container extends Serializable {
    * Adds timestamp token
    *
    * @param timeStampToken timestamp token
+   *
+   * @deprecated Deprecated for removal
    */
+  @Deprecated
   void setTimeStampToken(DataFile timeStampToken);
 
   /**

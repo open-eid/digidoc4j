@@ -1,9 +1,22 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl;
 
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.DataLoaderFactory;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -14,8 +27,15 @@ public class TspDataLoaderFactoryTest extends AbstractTest {
 
   @Test
   public void testDefaultTspDataLoaderCreatedWhenCustomDataLoaderNotConfigured() {
+    DataLoader dataLoader = new TspDataLoaderFactory(configuration).create();
+    MatcherAssert.assertThat(dataLoader, Matchers.instanceOf(SkTimestampDataLoader.class));
+    Assert.assertEquals(Constant.USER_AGENT_STRING, ((SkTimestampDataLoader) dataLoader).getUserAgent());
+  }
+
+  @Test
+  public void testDefaultTspDataLoaderCreatedWhenCustomDataLoaderNotConfiguredAndCustomUserAgentSpecified() {
     DataLoader dataLoader = new TspDataLoaderFactory(configuration, MOCK_USER_AGENT_VALUE).create();
-    Assert.assertTrue("Data loader should be of type " + SkTimestampDataLoader.class.getSimpleName(), dataLoader instanceof SkTimestampDataLoader);
+    MatcherAssert.assertThat(dataLoader, Matchers.instanceOf(SkTimestampDataLoader.class));
     Assert.assertEquals(MOCK_USER_AGENT_VALUE, ((SkTimestampDataLoader) dataLoader).getUserAgent());
   }
 

@@ -49,7 +49,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
@@ -57,6 +56,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.digidoc4j.test.TestConstants.DEFAULT_SUPPORTED_TLS_CIPHER_SUITES;
+import static org.digidoc4j.test.TestConstants.DEFAULT_SUPPORTED_TLS_PROTOCOLS;
+import static org.digidoc4j.test.TestConstants.DEFAULT_TLS_PROTOCOL;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertFalse;
 
@@ -1040,28 +1042,28 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void defaultSslConfiguration_shouldNotBeSet() {
-    Assert.assertFalse(this.configuration.isSslConfigurationEnabled());
+  public void defaultSslProtocolsAndCiphers_shouldBeSet() {
+    Assert.assertTrue(this.configuration.isSslConfigurationEnabled());
     Assert.assertNull(this.configuration.getSslKeystorePath());
     Assert.assertNull(this.configuration.getSslKeystoreType());
     Assert.assertNull(this.configuration.getSslKeystorePassword());
     Assert.assertNull(this.configuration.getSslTruststorePath());
     Assert.assertNull(this.configuration.getSslTruststoreType());
     Assert.assertNull(this.configuration.getSslTruststorePassword());
-    Assert.assertNull(this.configuration.getSslProtocol());
-    Assert.assertNull(this.configuration.getSupportedSslProtocols());
-    Assert.assertNull(this.configuration.getSupportedSslCipherSuites());
+    Assert.assertEquals(DEFAULT_TLS_PROTOCOL, this.configuration.getSslProtocol());
+    Assert.assertEquals(DEFAULT_SUPPORTED_TLS_PROTOCOLS, this.configuration.getSupportedSslProtocols());
+    Assert.assertEquals(DEFAULT_SUPPORTED_TLS_CIPHER_SUITES, this.configuration.getSupportedSslCipherSuites());
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
-      Assert.assertFalse(this.configuration.isSslConfigurationEnabledFor(connectionType));
+      Assert.assertTrue(this.configuration.isSslConfigurationEnabledFor(connectionType));
       Assert.assertNull(this.configuration.getSslKeystorePathFor(connectionType));
       Assert.assertNull(this.configuration.getSslKeystoreTypeFor(connectionType));
       Assert.assertNull(this.configuration.getSslKeystorePasswordFor(connectionType));
       Assert.assertNull(this.configuration.getSslTruststorePathFor(connectionType));
       Assert.assertNull(this.configuration.getSslTruststoreTypeFor(connectionType));
       Assert.assertNull(this.configuration.getSslTruststorePasswordFor(connectionType));
-      Assert.assertNull(this.configuration.getSslProtocolFor(connectionType));
-      Assert.assertNull(this.configuration.getSupportedSslProtocolsFor(connectionType));
-      Assert.assertNull(this.configuration.getSupportedSslCipherSuitesFor(connectionType));
+      Assert.assertEquals(DEFAULT_TLS_PROTOCOL, this.configuration.getSslProtocolFor(connectionType));
+      Assert.assertEquals(DEFAULT_SUPPORTED_TLS_PROTOCOLS, this.configuration.getSupportedSslProtocolsFor(connectionType));
+      Assert.assertEquals(DEFAULT_SUPPORTED_TLS_CIPHER_SUITES, this.configuration.getSupportedSslCipherSuitesFor(connectionType));
     }
   }
 
@@ -1126,16 +1128,16 @@ public class ConfigurationTest extends AbstractTest {
   @Test
   public void getSslConfigurationFromConfigurationFile_specificParametersSet() {
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_specific_proxy_and_ssl_settings.yaml");
-    Assert.assertFalse(this.configuration.isSslConfigurationEnabled());
+    Assert.assertTrue(this.configuration.isSslConfigurationEnabled());
     Assert.assertNull(this.configuration.getSslKeystorePath());
     Assert.assertNull(this.configuration.getSslKeystoreType());
     Assert.assertNull(this.configuration.getSslKeystorePassword());
     Assert.assertNull(this.configuration.getSslTruststorePath());
     Assert.assertNull(this.configuration.getSslTruststoreType());
     Assert.assertNull(this.configuration.getSslTruststorePassword());
-    Assert.assertNull(this.configuration.getSslProtocol());
-    Assert.assertNull(this.configuration.getSupportedSslProtocols());
-    Assert.assertNull(this.configuration.getSupportedSslCipherSuites());
+    Assert.assertEquals(DEFAULT_TLS_PROTOCOL, this.configuration.getSslProtocol());
+    Assert.assertEquals(DEFAULT_SUPPORTED_TLS_PROTOCOLS, this.configuration.getSupportedSslProtocols());
+    Assert.assertEquals(DEFAULT_SUPPORTED_TLS_CIPHER_SUITES, this.configuration.getSupportedSslCipherSuites());
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Assert.assertTrue(configuration.isSslConfigurationEnabledFor(connectionType));
       Assert.assertEquals(connectionType + "-sslKeystorePath", this.configuration.getSslKeystorePathFor(connectionType));

@@ -145,6 +145,7 @@ public class CustomContainer implements Container {
   }
 
   @Override
+  @Deprecated
   public void setTimeStampToken(DataFile timeStampToken) {
     throw new NotYetImplementedException();
   }

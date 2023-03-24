@@ -116,7 +116,7 @@ public class SkOCSPDataLoaderTest extends AbstractTest {
     ServiceAccessListener listener = Mockito.mock(ServiceAccessListener.class);
 
     SkOCSPDataLoader dataLoader = new SkOCSPDataLoader(Configuration.of(TEST));
-    dataLoader.setTimeoutSocket(100);
+    dataLoader.setTimeoutResponse(100);
     dataLoader.setUserAgent(USER_AGENT_STRING);
     String serviceUrl = MOCK_PROXY_URL + instanceRule.port() + "/";
 

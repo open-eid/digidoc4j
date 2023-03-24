@@ -173,7 +173,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     if (policy != null && !isSignaturePolicyImpliedElementPresented()) {
       String policyIdentifier = Helper.getIdentifier(policy.getIdentifier());
       if (TmSignaturePolicyType.isTmPolicyOid(policyIdentifier)) {
-        String policyUrl = policy.getUrl();
+        String policyUrl = policy.getUri();
         if (StringUtils.equals(policyIdentifier, policyUrl)) {
           // DD4J-730: Starting from DSS version 5.8, the policy URL defaults to the policy identifier OID if the URL is
           //  missing in the signature. Since the BDOC standard requires that the URL is always present, this workaround

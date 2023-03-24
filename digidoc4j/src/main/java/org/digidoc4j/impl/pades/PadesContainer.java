@@ -25,7 +25,6 @@ import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.reports.Reports;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
@@ -35,7 +34,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.exceptions.UntrustedRevocationSourceException;
-import org.digidoc4j.impl.AiaDataLoaderFactory;
+import org.digidoc4j.impl.AiaSourceFactory;
 import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
 import org.digidoc4j.impl.asic.xades.validation.TimestampSignatureValidator;
 import org.slf4j.Logger;
@@ -200,6 +199,7 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
   }
 
   @Override
+  @Deprecated
   public void setTimeStampToken(DataFile timeStampToken) {
     throw new NotSupportedException("Not for Pades container");
   }
@@ -241,8 +241,8 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
     certificateVerifier.setCrlSource(null); //Disable CRL checks
     logger.debug("Setting trusted cert source to the certificate verifier");
     certificateVerifier.setTrustedCertSources(configuration.getTSL());
-    logger.debug("Setting custom data loader to the certificate verifier");
-    certificateVerifier.setDataLoader(new AiaDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create());
+    logger.debug("Setting custom AIA source to the certificate verifier");
+    certificateVerifier.setAIASource(new AiaSourceFactory(configuration).create());
     logger.debug("Finished creating certificate verifier");
     return certificateVerifier;
   }

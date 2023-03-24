@@ -45,6 +45,7 @@ import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.TestAssert;
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -1007,13 +1008,17 @@ public class BDocContainerTest extends AbstractTest {
   public void openBDoc_withoutCAConfiguration_shouldNotThrowException() {
     this.configuration = new Configuration(Configuration.Mode.TEST);
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml");
-    BDocContainer container = new BDocContainer("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc", this.configuration);
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc", this.configuration);
+    MatcherAssert.assertThat(container, Matchers.instanceOf(BDocContainer.class));
     Assert.assertTrue(container.validate().isValid());
   }
 
   @Test
   public void timeStampCertStatusDeprecated() {
-    BDocContainer container = new BDocContainer("src/test/resources/testFiles/invalid-containers/invalid-containers-23816_leedu_live_TS_authority.asice", new Configuration(Configuration.Mode.PROD));
+    Container container = ContainerOpener.open(
+            "src/test/resources/testFiles/invalid-containers/invalid-containers-23816_leedu_live_TS_authority.asice",
+            new Configuration(Configuration.Mode.PROD)
+    );
     Assert.assertFalse(container.validate().isValid());
   }
 
@@ -1041,7 +1046,7 @@ public class BDocContainerTest extends AbstractTest {
     container = ContainerOpener.open(file);
     AsicSignature asicSignature = (AsicSignature) container.getSignatures().get(0);
     SignaturePolicy policyId = asicSignature.getOrigin().getDssSignature().getSignaturePolicy();
-    Assert.assertEquals(spuri, policyId.getUrl());
+    Assert.assertEquals(spuri, policyId.getUri());
     Assert.assertEquals(signatureId, policyId.getIdentifier());
     Assert.assertEquals(digestAlgorithm, policyId.getDigest().getAlgorithm());
     Assert.assertArrayEquals(Base64.decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="), policyId.getDigest().getValue());
@@ -1059,7 +1064,7 @@ public class BDocContainerTest extends AbstractTest {
     container = ContainerOpener.open(file);
     BDocSignature bdocSignature = (BDocSignature) container.getSignatures().get(0);
     SignaturePolicy policyId = bdocSignature.getOrigin().getDssSignature().getSignaturePolicy();
-    Assert.assertEquals("https://www.sk.ee/repository/bdoc-spec21.pdf", policyId.getUrl());
+    Assert.assertEquals("https://www.sk.ee/repository/bdoc-spec21.pdf", policyId.getUri());
     Assert.assertEquals("1.3.6.1.4.1.10015.1000.3.2.1", policyId.getIdentifier());
     Assert.assertEquals(eu.europa.esig.dss.enumerations.DigestAlgorithm.SHA256, policyId.getDigest().getAlgorithm());
     Assert.assertArrayEquals(Base64.decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="), policyId.getDigest().getValue());

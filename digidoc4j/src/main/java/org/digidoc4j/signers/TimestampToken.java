@@ -10,18 +10,15 @@
 
 package org.digidoc4j.signers;
 
-import eu.europa.esig.dss.model.TimestampBinary;
-import eu.europa.esig.dss.spi.DSSASN1Utils;
-import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.model.MimeType;
+import eu.europa.esig.dss.model.TimestampBinary;
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.apache.commons.io.IOUtils;
-import org.bouncycastle.tsp.TimeStampToken;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.Constant;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -35,9 +32,10 @@ import java.util.List;
 
 /**
  * Timestamp token for AsicS container
- * <p>
- * Created by Andrei on 7.12.2017.
+ *
+ * @deprecated Deprecated for removal
  */
+@Deprecated
 public final class TimestampToken {
 
   private TimestampToken() {
@@ -49,7 +47,10 @@ public final class TimestampToken {
    * @param digestAlgorithm
    * @param dataFiles
    * @return DataFile timestamp token
+   *
+   * @deprecated Deprecated for removal
    */
+  @Deprecated
   public static DataFile generateTimestampToken(DigestAlgorithm digestAlgorithm,
                                                 List<ContainerBuilder.ContainerDataFile> dataFiles,
                                                 Configuration configuration) {
@@ -73,7 +74,10 @@ public final class TimestampToken {
    * @param digestAlgorithm
    * @param containerDataFile
    * @return DataFile timestamp token
+   *
+   * @deprecated Deprecated for removal
    */
+  @Deprecated
   public static DataFile generateTimestampToken(DigestAlgorithm digestAlgorithm, DataFile containerDataFile) {
     OnlineTSPSource onlineTSPSource = defineOnlineTSPSource(null);
     byte[] digest = containerDataFile.calculateDigest(org.digidoc4j.DigestAlgorithm.getDigestAlgorithmUri(digestAlgorithm));
@@ -87,7 +91,7 @@ public final class TimestampToken {
       configuration = Configuration.getInstance();
     }
     source.setTspServer(configuration.getTspSource());
-    DataLoader loader = new TspDataLoaderFactory(configuration, Constant.USER_AGENT_STRING).create();
+    DataLoader loader = new TspDataLoaderFactory(configuration).create();
     source.setDataLoader(loader);
     return source;
   }

@@ -805,11 +805,14 @@ public class ValidationTest extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/prodFiles/invalid-containers/bdoc21-ts-ok.bdoc", PROD_CONFIGURATION);
     SignatureValidationResult result = container.validate();
     Assert.assertFalse(result.isValid());
-    TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(result.getErrors(), 9,
+    TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(result.getErrors(), 8,
             "The certificate chain for time-stamp is not trusted, it does not contain a trust anchor.",
             "Signature has an invalid timestamp",
             "The certificate validation is not conclusive!",
             "The certificate is not related to a granted status!",
+            "No revocation data found for the certificate!",
+            "The time-stamp message imprint is not intact!",
+            "Unable to build a certificate chain up to a trusted list!",
             "Manifest file has an entry for file <build.xml> with mimetype <text/xml> but the " +
             "signature file for signature S0 indicates the mimetype is <>"
     );
@@ -917,6 +920,7 @@ public class ValidationTest extends AbstractTest {
   public void container_withExpiredAIAOCSP_LT_shouldBeInvalid() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/esteid2018signerAiaOcspLT.asice");
     ContainerValidationResult validationResult = container.validate();
+    Assert.assertFalse("Signature must not be valid when AIA OCSP expired", validationResult.isValid());
     TestAssert.assertContainsErrors(validationResult.getErrors(),
             "The certificate validation is not conclusive!",
             "No acceptable revocation data for the certificate!",
@@ -928,6 +932,7 @@ public class ValidationTest extends AbstractTest {
   public void container_withExpiredAIAOCSP_LTA_shouldBeInvalid() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/esteid2018signerAiaOcspLTA.asice");
     ContainerValidationResult validationResult = container.validate();
+    Assert.assertFalse("Signature must not be valid when AIA OCSP expired", validationResult.isValid());
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
             "The certificate validation is not conclusive!",
             "No acceptable revocation data for the certificate!",

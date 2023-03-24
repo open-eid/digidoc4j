@@ -43,7 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *   &nbsp;&nbsp; {@link ContainerBuilder#withConfiguration(Configuration) withConfiguration(configuration)}.  // Configuration settings <br/>
  *   &nbsp;&nbsp; {@link ContainerBuilder#withDataFile(String, String) withDataFile("testFiles/legal_contract_1.txt", "text/plain")}.  // Adding a document from a hard drive <br/>
  *   &nbsp;&nbsp; {@link ContainerBuilder#withDataFile(InputStream, String, String) withDataFile(inputStream, "legal_contract_2.txt", "text/plain")}.  // Adding a document from a stream <br/>
- *   &nbsp;&nbsp; {@link ContainerBuilder#withTimeStampToken(DigestAlgorithm digestAlgorithm)}.  // Adding timestamp token in case of ASICS <br/>
+ *   &nbsp;&nbsp; {@link ContainerBuilder#withTimeStampToken(DigestAlgorithm digestAlgorithm)}.  // (DEPRECATED) Adding timestamp token in case of ASICS <br/>
  *   &nbsp;&nbsp; {@link ContainerBuilder#build() build()}; <br/>
  * </code></p>
  * <p>
@@ -209,7 +209,10 @@ public abstract class ContainerBuilder {
    *
    * @param digestAlgorithm
    * @return ContainerBuilder
+   *
+   * @deprecated Deprecated for removal
    */
+  @Deprecated
   public ContainerBuilder withTimeStampToken(DigestAlgorithm digestAlgorithm){
     timeStampToken = TimestampToken.generateTimestampToken(digestAlgorithm, dataFiles, configuration);
     return this;

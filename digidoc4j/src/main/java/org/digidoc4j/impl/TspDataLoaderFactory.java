@@ -1,17 +1,18 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl;
 
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.DataLoaderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +23,12 @@ import org.slf4j.LoggerFactory;
 public class TspDataLoaderFactory implements DataLoaderFactory {
 
   private static final Logger logger = LoggerFactory.getLogger(TspDataLoaderFactory.class);
-  private Configuration configuration;
-  private String userAgent;
+  private final Configuration configuration;
+  private final String userAgent;
+
+  public TspDataLoaderFactory(Configuration configuration) {
+    this(configuration, Constant.USER_AGENT_STRING);
+  }
 
   public TspDataLoaderFactory(Configuration configuration, String userAgent) {
     this.configuration = configuration;

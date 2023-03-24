@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic.asice.bdoc;
 
@@ -17,8 +17,6 @@ import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicSignatureOpener;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
@@ -27,10 +25,8 @@ import java.io.InputStream;
  */
 public class BDocContainer extends AsicEContainer {
 
-  private static final Logger logger = LoggerFactory.getLogger(BDocContainer.class);
-
   /**
-   * BDocContainer constructor
+   * BDocContainer constructor.
    */
   public BDocContainer() {
     super();
@@ -38,7 +34,7 @@ public class BDocContainer extends AsicEContainer {
   }
 
   /**
-   * BDocContainer constructor
+   * BDocContainer constructor.
    *
    * @param configuration configuration
    */
@@ -48,45 +44,61 @@ public class BDocContainer extends AsicEContainer {
   }
 
   /**
-   * BDocContainer constructor
+   * BDocContainer constructor.
    *
    * @param containerPath path
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(String)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromExistingFile(String)} instead.
    */
+  @Deprecated
   public BDocContainer(String containerPath) {
     super(containerPath, Constant.BDOC_CONTAINER_TYPE);
   }
 
   /**
-   * BDocContainer constructor
+   * BDocContainer constructor.
    *
    * @param containerPath path
    * @param configuration configuration
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(String, Configuration)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromExistingFile(String)} instead.
    */
+  @Deprecated
   public BDocContainer(String containerPath, Configuration configuration) {
     super(containerPath, configuration, Constant.BDOC_CONTAINER_TYPE);
   }
 
   /**
-   * BDocContainer constructor
+   * BDocContainer constructor.
    *
    * @param stream input stream
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(InputStream, Configuration)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromStream(InputStream)} instead.
    */
+  @Deprecated
   public BDocContainer(InputStream stream) {
     super(stream, Constant.BDOC_CONTAINER_TYPE);
   }
 
   /**
-   * BDocContainer constructor
+   * BDocContainer constructor.
    *
    * @param stream input stream
    * @param configuration configuration
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(InputStream, Configuration)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromStream(InputStream)} instead.
    */
+  @Deprecated
   public BDocContainer(InputStream stream, Configuration configuration) {
     super(stream, configuration, Constant.BDOC_CONTAINER_TYPE);
   }
 
   /**
-   * BDocContainer constructor
+   * BDocContainer constructor.
    *
    * @param containerParseResult container parsed result
    * @param configuration configuration

@@ -20,8 +20,6 @@ import org.digidoc4j.impl.asic.AsicContainerCreator;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicSignatureOpener;
 import org.digidoc4j.impl.asic.asice.AsicESignatureOpener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,14 +29,17 @@ import java.io.OutputStream;
  */
 public class AsicSContainer extends AsicContainer {
 
-  private static final Logger logger = LoggerFactory.getLogger(AsicSContainer.class);
-
+  /**
+   * AsicSContainer constructor.
+   */
   public AsicSContainer() {
     super();
     setType(Constant.ASICS_CONTAINER_TYPE);
   }
 
   /**
+   * AsicSContainer constructor.
+   *
    * @param configuration configuration
    */
   public AsicSContainer(Configuration configuration) {
@@ -47,37 +48,61 @@ public class AsicSContainer extends AsicContainer {
   }
 
   /**
+   * AsicSContainer constructor.
+   *
    * @param containerPath path
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(String)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromExistingFile(String)} instead.
    */
+  @Deprecated
   public AsicSContainer(String containerPath) {
     super(containerPath, Constant.ASICS_CONTAINER_TYPE);
   }
 
   /**
+   * AsicSContainer constructor.
+   *
    * @param containerPath path
    * @param configuration configuration
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(String, Configuration)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromExistingFile(String)} instead.
    */
+  @Deprecated
   public AsicSContainer(String containerPath, Configuration configuration) {
     super(containerPath, configuration, Constant.ASICS_CONTAINER_TYPE);
   }
 
   /**
+   * AsicSContainer constructor.
+   *
    * @param stream input stream
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(InputStream, Configuration)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromStream(InputStream)} instead.
    */
+  @Deprecated
   public AsicSContainer(InputStream stream) {
     super(stream, Constant.ASICS_CONTAINER_TYPE);
   }
 
   /**
+   * AsicSContainer constructor.
+   *
    * @param stream input stream
    * @param configuration configuration
+   *
+   * @deprecated Deprecated for removal. Use {@link org.digidoc4j.ContainerOpener#open(InputStream, Configuration)} or
+   * {@link org.digidoc4j.ContainerBuilder#fromStream(InputStream)} instead.
    */
+  @Deprecated
   public AsicSContainer(InputStream stream, Configuration configuration) {
     super(stream, configuration, Constant.ASICS_CONTAINER_TYPE);
   }
 
   /**
-   * AsicSContainer constructor
+   * AsicSContainer constructor.
    *
    * @param containerParseResult container parsed result
    * @param configuration configuration
