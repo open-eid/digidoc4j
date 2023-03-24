@@ -45,14 +45,14 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
 # ASiC-S (ASiC-E - Associated Signature Container Simple) container format
 * Has **.asics** or **.scs** extension
 * Container associates one data file with either:
-  - one signature file containing one or more detached digital signature(s) that apply to it; or
+  - one signature file containing one or more XAdES detached digital signature(s) that apply to it; or
   - one time assertion file containing a time assertion that apply to it.
 * This format is used for timestamping the old DDOC containers in order to prove the inviolability of documents.
 
 # DDOC container format
 * Has **.ddoc** extension
 * An old DigiDoc digital signature format
-* Since year 2015 it's recommended not to sign documents in the DDOC format
+* Since year 2015 it's recommended not to sign documents in the DDOC format. DDOC signing support in Digidoc4j was removed in 2018.
 * It is based on XML Advanced Electronic Signatures (**XAdES**) format, corresponding to  profile XAdES-X-L
 * The DigiDoc container includes the source files (the files that were signed) as well as the signatures that are related to the signed file(s)
 * Every signature contains the certificate, validity confirmation and the validity confirmation service certificate.
