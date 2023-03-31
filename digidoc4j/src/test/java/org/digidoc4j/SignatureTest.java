@@ -35,9 +35,13 @@ import java.nio.file.Paths;
 import java.security.cert.CertificateEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class SignatureTest extends AbstractTest {
 
@@ -62,8 +66,11 @@ public class SignatureTest extends AbstractTest {
   public void testTimeStampCreationTimeForBDoc() throws ParseException {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/test.asice");
     Date timeStampCreationTime = container.getSignatures().get(0).getTimeStampCreationTime();
-    SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d yyyy H:m:s", Locale.ENGLISH);
-    Assert.assertEquals(dateFormat.parse("Nov 17 2014 16:11:46"), timeStampCreationTime);
+    Date expectedDate = Date.from(OffsetDateTime.of(
+        LocalDate.of(2014, Month.NOVEMBER, 17),
+        LocalTime.of(16, 11, 46),
+        ZoneOffset.ofHours(2)).toInstant());
+    Assert.assertEquals(expectedDate, timeStampCreationTime);
   }
 
   @Test
