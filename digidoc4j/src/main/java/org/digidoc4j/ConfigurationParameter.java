@@ -54,7 +54,7 @@ public enum ConfigurationParameter {
   useNonce,
   AllowASN1UnsafeInteger,
   PrintValidationReport,
-  IsFullSimpleReportNeeded,
+  @Deprecated IsFullSimpleReportNeeded,
 
   TslHttpProxyHost("TSL_HTTP_PROXY_HOST"),
   TslHttpProxyPort("TSL_HTTP_PROXY_PORT"),

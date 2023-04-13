@@ -519,6 +519,7 @@ public class CommandLineExecutor {
     if (this.context.getCommandLine().hasOption("verify")) {
       ContainerVerifier verifier = new ContainerVerifier(this.context.getCommandLine());
       if (this.context.getCommandLine().hasOption("showerrors")){
+        LOGGER.warn("Option 'err/showerrors' is deprecated; in some cases, it can produce false negative validation results");
         Configuration configuration = container.getConfiguration();
         configuration.setFullReportNeeded(true);
         verifier.verify(container, reports);

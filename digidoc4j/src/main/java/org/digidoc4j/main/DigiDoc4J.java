@@ -218,7 +218,7 @@ public final class DigiDoc4J {
     options.addOption("w", "warnings", false, "show warnings");
     options.addOption("version", "version", false, "show version");
     options.addOption("tst", "timestamp", false, "adds timestamp token to container");
-    options.addOption("err", "showerrors", false, "show container errors");
+    options.addOption("err", "showerrors", false, "show container errors [deprecated]");
     options.addOption("aiaocsp", "aiaocsp", false, "prefer AIA OCSP in case of LT,LTA signature profiles");
     options.addOption(DigiDoc4J.type());
     options.addOption(DigiDoc4J.inputFile());
