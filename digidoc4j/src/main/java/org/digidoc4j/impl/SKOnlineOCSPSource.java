@@ -282,6 +282,10 @@ public abstract class SKOnlineOCSPSource implements OCSPSource {
 
   protected void checkNonce(BasicOCSPResp response, Extension expectedNonceExtension) {
     Extension extension = response.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
+    if (extension == null) {
+      String errorMessage = "The OCSP response was expected to contain nonce extension, but no nonce found";
+      throw CertificateValidationException.of(CertificateValidationStatus.UNTRUSTED, errorMessage);
+    }
     DEROctetString expectedNonce = (DEROctetString) expectedNonceExtension.getExtnValue();
     DEROctetString receivedNonce = (DEROctetString) extension.getExtnValue();
     if (!receivedNonce.equals(expectedNonce)) {
