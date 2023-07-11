@@ -8,7 +8,7 @@
  * Version 2.1, February 1999
  */
 
-package org.digidoc4j.impl.asic.asice;
+package org.digidoc4j.impl.asic.asics;
 
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Container;
@@ -17,25 +17,23 @@ import org.digidoc4j.exceptions.IllegalSignatureProfileException;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.impl.asic.AsicSignatureBuilder;
 
-/**
- * Created by Andrei on 29.11.2017.
- */
-public class AsicESignatureBuilder extends AsicSignatureBuilder {
+public class AsicSSignatureBuilder extends AsicSignatureBuilder {
 
   @Override
   protected SignatureFinalizer createSignatureFinalizer() {
-    return new AsicESignatureFinalizer(container.getDataFiles(), signatureParameters, getConfiguration());
+    return new AsicSSignatureFinalizer(container.getDataFiles(), signatureParameters, getConfiguration());
   }
 
   @Override
   protected void validateSignatureCompatibilityWithContainer() {
-    if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile()) && isAsicEContainer()) {
+    if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile()) && isAsicSContainer()) {
       throw new IllegalSignatureProfileException(
-              "Cannot add BDoc specific (" + signatureParameters.getSignatureProfile() + ") signature to ASiCE container");
+              "Cannot add BDoc specific (" + signatureParameters.getSignatureProfile() + ") signature to ASiCS container");
     }
   }
 
-  private boolean isAsicEContainer() {
-    return container instanceof AsicEContainer && StringUtils.equals(Container.DocumentType.ASICE.name(), container.getType());
+  private boolean isAsicSContainer() {
+    return container instanceof AsicSContainer && StringUtils.equals(Container.DocumentType.ASICS.name(), container.getType());
   }
+
 }

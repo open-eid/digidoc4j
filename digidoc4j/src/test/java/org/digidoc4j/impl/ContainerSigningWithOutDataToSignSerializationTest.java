@@ -29,6 +29,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 import static org.digidoc4j.Container.DocumentType.ASICE;
@@ -45,7 +48,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
 
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
           .withSigningCertificate(pkcs12SignatureToken.getCertificate())
-          .withSignatureProfile(SignatureProfile.LT_TM)
+          .withSignatureProfile(SignatureProfile.LT)
           .buildDataToSign();
 
     ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -75,7 +78,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
     Signature signature = signatureFinalizer.finalizeSignature(signatureValue);
 
     container.addSignature(signature);
-    assertTimemarkSignature(signature);
+    assertTimestampSignature(signature);
     assertValidSignature(signature);
 
     SignatureValidationResult validationResult = container.validate();
@@ -98,7 +101,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
     byte[] signatureParametersSerialized = SerializationUtils.serialize(dataToSign.getSignatureParameters());
     SignatureParameters signatureParameters = SerializationUtils.deserialize(signatureParametersSerialized);
 
-    byte[] signatureValue = this.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
+    byte[] signatureValue = sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
 
     container = ContainerBuilder.aContainer(ASICE)
           .withConfiguration(Configuration.getInstance())
@@ -120,38 +123,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
 
   @Test
   public void signedBDocTwoStepSigning() {
-    Container container = this.openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
-    DataToSign dataToSign = SignatureBuilder.aSignature(container)
-          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
-          .withSignatureProfile(SignatureProfile.LT_TM)
-          .buildDataToSign();
-
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    container.save(output);
-
-    byte[] signatureParametersSerialized = SerializationUtils.serialize(dataToSign.getSignatureParameters());
-    SignatureParameters signatureParameters = SerializationUtils.deserialize(signatureParametersSerialized);
-
-    byte[] signatureValue = this.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
-
-    container = ContainerOpener.open(new ByteArrayInputStream(output.toByteArray()), Configuration.getInstance());
-    assertBDocContainer(container);
-
-    SignatureFinalizer signatureFinalizer = SignatureFinalizerBuilder.aFinalizer(container, signatureParameters);
-    Signature signature = signatureFinalizer.finalizeSignature(signatureValue);
-
-    container.addSignature(signature);
-    assertTimemarkSignature(signature);
-    assertValidSignature(signature);
-
-    SignatureValidationResult validationResult = container.validate();
-    assertTrue(validationResult.isValid());
-    assertEquals(2, container.getSignatures().size());
-  }
-
-  @Test
-  public void signedAsicETwoStepSigning() {
-    Container container = this.openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice.asice"));
+    Container container = openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
           .withSigningCertificate(pkcs12SignatureToken.getCertificate())
           .withSignatureProfile(SignatureProfile.LT)
@@ -163,7 +135,38 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
     byte[] signatureParametersSerialized = SerializationUtils.serialize(dataToSign.getSignatureParameters());
     SignatureParameters signatureParameters = SerializationUtils.deserialize(signatureParametersSerialized);
 
-    byte[] signatureValue = this.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
+    byte[] signatureValue = sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
+
+    container = ContainerOpener.open(new ByteArrayInputStream(output.toByteArray()), Configuration.getInstance());
+    assertBDocContainer(container);
+
+    SignatureFinalizer signatureFinalizer = SignatureFinalizerBuilder.aFinalizer(container, signatureParameters);
+    Signature signature = signatureFinalizer.finalizeSignature(signatureValue);
+
+    container.addSignature(signature);
+    assertTimestampSignature(signature);
+    assertValidSignature(signature);
+
+    SignatureValidationResult validationResult = container.validate();
+    assertTrue(validationResult.isValid());
+    assertEquals(2, container.getSignatures().size());
+  }
+
+  @Test
+  public void signedAsicETwoStepSigning() {
+    Container container = openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice.asice"));
+    DataToSign dataToSign = SignatureBuilder.aSignature(container)
+          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
+          .withSignatureProfile(SignatureProfile.LT)
+          .buildDataToSign();
+
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    container.save(output);
+
+    byte[] signatureParametersSerialized = SerializationUtils.serialize(dataToSign.getSignatureParameters());
+    SignatureParameters signatureParameters = SerializationUtils.deserialize(signatureParametersSerialized);
+
+    byte[] signatureValue = sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
 
     container = ContainerOpener.open(new ByteArrayInputStream(output.toByteArray()), Configuration.getInstance());
     assertAsicEContainer(container);
@@ -182,17 +185,17 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
 
   @Test
   public void twoStepSigningSigningTimeAssertion() throws InterruptedException {
-    Container container = this.openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
+    Container container = openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
 
     // Signature object returned signing dates have milliseconds removed, truncated also from test data
-    long claimedSigningTimeLowerBound = new Date().getTime() / 1000 * 1000;
+    Instant claimedSigningTimeLowerBound = Instant.now().truncatedTo(ChronoUnit.SECONDS);
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
           .withSigningCertificate(pkcs12SignatureToken.getCertificate())
-          .withSignatureProfile(SignatureProfile.LT_TM)
+          .withSignatureProfile(SignatureProfile.LT)
           .buildDataToSign();
-    long claimedSigningTimeUpperBound = new Date().getTime() + 1000;
+    Instant claimedSigningTimeUpperBound = Instant.now();
 
-    byte[] signatureValue = this.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
+    byte[] signatureValue = sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     container.save(out);
@@ -201,17 +204,16 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
     // Artificial delay to make claimed signing time and actual signing time differ
     Thread.sleep(1000);
 
-    long trustedSigningTimeLowerBound = new Date().getTime() / 1000 * 1000;
+    Instant trustedSigningTimeLowerBound = Instant.now().truncatedTo(ChronoUnit.SECONDS);
     Signature signature = SignatureFinalizerBuilder.aFinalizer(container, dataToSign.getSignatureParameters())
            .finalizeSignature(signatureValue);
-    long trustedSigningTimeUpperBound = new Date().getTime() + 1000;
+    Instant trustedSigningTimeUpperBound = Instant.now();
 
-    long trustedSigningTime = signature.getTrustedSigningTime().getTime();
-    assertTrue(trustedSigningTime >= trustedSigningTimeLowerBound);
-    assertTrue(trustedSigningTime <= trustedSigningTimeUpperBound);
+    Date trustedSigningTime = signature.getTrustedSigningTime();
+    assertTimeInBounds(trustedSigningTime, trustedSigningTimeLowerBound, trustedSigningTimeUpperBound, Duration.ofSeconds(5));
 
-    long claimedSigningTime = signature.getClaimedSigningTime().getTime();
-    assertTrue(claimedSigningTime >= claimedSigningTimeLowerBound);
-    assertTrue(claimedSigningTime <= claimedSigningTimeUpperBound);
+    Date claimedSigningTime = signature.getClaimedSigningTime();
+    assertTimeInBounds(claimedSigningTime, claimedSigningTimeLowerBound, claimedSigningTimeUpperBound, Duration.ZERO);
   }
+
 }

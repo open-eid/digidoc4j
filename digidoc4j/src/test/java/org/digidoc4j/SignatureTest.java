@@ -47,8 +47,8 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void findOcspCertificateByHashkey() {
-    Container container = this.openContainerByConfiguration(
-        Paths.get("src/test/resources/testFiles/valid-containers/OCSPRigaTest.asice"), this.configuration);
+    Container container = openContainerByConfiguration(
+        Paths.get("src/test/resources/testFiles/valid-containers/OCSPRigaTest.asice"), configuration);
     Signature signature = container.getSignatures().get(0);
     X509Cert cert = signature.getOCSPCertificate();
     Assert.assertNotNull(cert);
@@ -75,7 +75,7 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testTimeStampCreationTimeForBDocWhereNotOCSP() {
-    Signature signature = this.createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.B_BES,
+    Signature signature = createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.B_BES,
         pkcs12SignatureToken);
     Assert.assertNull(signature.getTimeStampCreationTime());
   }
@@ -112,7 +112,7 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testGetSigningTimeForBDoc() {
-    Signature signature = this.createSignatureBy(Container.DocumentType.BDOC, pkcs12SignatureToken);
+    Signature signature = createSignatureBy(Container.DocumentType.BDOC, pkcs12SignatureToken);
     Assert.assertTrue(DateUtils.isAlmostNow(signature.getClaimedSigningTime()));
   }
 
@@ -160,15 +160,15 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testGetOCSPCertificateForBDoc() throws CertificateEncodingException {
-    Signature signature = this.createSignatureBy(Container.DocumentType.BDOC, pkcs12SignatureToken);
+    Signature signature = createSignatureBy(Container.DocumentType.BDOC, pkcs12SignatureToken);
     byte[] encoded = signature.getOCSPCertificate().getX509Certificate().getEncoded();
     Assert.assertEquals(Certificates.OCSP_CERTIFICATE_2020, Base64.encodeBase64String(encoded));
   }
 
   @Test
   public void testGetProducedAtForDDoc() {
-    this.configuration = Configuration.of(Configuration.Mode.TEST);
-    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
+    configuration = Configuration.of(Configuration.Mode.TEST);
+    ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     Signature signature = container.getSignatures().get(0);
     Assert.assertNotNull(signature.getOCSPResponseCreationTime());
@@ -184,18 +184,18 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testValidationForDDoc() {
-    this.configuration = Configuration.of(Configuration.Mode.TEST);
-    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
+    configuration = Configuration.of(Configuration.Mode.TEST);
+    ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     Assert.assertEquals(0, container.validate().getErrors().size());
   }
 
   @Test
   public void testValidationForBDocDefaultValidation() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
-    TestTSLUtil.addSkTsaCertificateToTsl(this.configuration);
+    configuration = new Configuration(Configuration.Mode.TEST);
+    TestTSLUtil.addSkTsaCertificateToTsl(configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/two_signatures.bdoc",
-        this.configuration);
+        configuration);
     Signature signature = container.getSignatures().get(0);
     Assert.assertEquals(0, signature.validateSignature().getErrors().size());
     signature = container.getSignatures().get(1);
@@ -305,8 +305,8 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void getSignatureXMLForBDOC() throws Exception {
-    Container container = this.createNonEmptyContainer();
-    Signature signature = this.createSignatureBy(container, pkcs12SignatureToken);
+    Container container = createNonEmptyContainer();
+    Signature signature = createSignatureBy(container, pkcs12SignatureToken);
     container.saveAsFile("getSignatureXMLForBDOC.bdoc");
     String signatureFromContainer = Helper.extractSignature("getSignatureXMLForBDOC.bdoc", 0);
     Helper.deleteFile("getSignatureXMLForBDOC.bdoc");
@@ -316,12 +316,12 @@ public class SignatureTest extends AbstractTest {
   @Test
   public void signature_withoutProductionPlace_shouldNotThrowException() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    this.assertProductionPlaceIsNull(container.getSignatures().get(0));
+    assertProductionPlaceIsNull(container.getSignatures().get(0));
   }
 
   @Test
   public void bDocBESSignature_TrustedSigningTime_shouldReturnNull() {
-    Signature signature = this.createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.B_BES,
+    Signature signature = createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.B_BES,
         pkcs12SignatureToken);
     Assert.assertNull(signature.getTrustedSigningTime());
   }
@@ -335,16 +335,18 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void bDocTimeMarkSignature_TrustedSigningTime_shouldReturnOCSPResponseCreationTime() {
-    Signature signature = this.createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.LT_TM,
-        pkcs12SignatureToken);
+    configuration = Configuration.of(Configuration.Mode.TEST);
+    ConfigManagerInitializer.forceInitConfigManager(configuration);
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
+    Signature signature = container.getSignatures().get(0);
     Assert.assertNotNull(signature.getTrustedSigningTime());
     Assert.assertEquals(signature.getOCSPResponseCreationTime(), signature.getTrustedSigningTime());
   }
 
   @Test
   public void dDocTimeMarkSignature_TrustedSigningTime_shouldReturnOCSPResponseCreationTime() {
-    this.configuration = Configuration.of(Configuration.Mode.TEST);
-    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
+    configuration = Configuration.of(Configuration.Mode.TEST);
+    ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     Signature signature = container.getSignatures().get(0);
     Assert.assertNotNull(signature.getTrustedSigningTime());
@@ -353,7 +355,7 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void bDocTimeStampSignature_TrustedSigningTime_shouldReturnTimeStampCreationTime() {
-    Signature signature = this.createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.LT,
+    Signature signature = createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.LT,
         pkcs12SignatureToken);
     Assert.assertNotNull(signature.getTrustedSigningTime());
     Assert.assertEquals(signature.getTimeStampCreationTime(), signature.getTrustedSigningTime());
@@ -361,7 +363,7 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void bDocLTASignature_TrustedSigningTime_shouldReturnTimeStampCreationTime() {
-    Signature signature = this.createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.LTA,
+    Signature signature = createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.LTA,
         pkcs12SignatureToken);
     Assert.assertNotNull(signature.getTrustedSigningTime());
     Assert.assertEquals(signature.getTimeStampCreationTime(), signature.getTrustedSigningTime());
@@ -379,10 +381,10 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void gettingOcspCertificate_whenTslIsNotLoaded() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
+    configuration = new Configuration(Configuration.Mode.TEST);
     TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
-    this.configuration.setTSL(certificateSource);
-    Container container = ContainerBuilder.aContainer().withConfiguration(this.configuration).
+    configuration.setTSL(certificateSource);
+    Container container = ContainerBuilder.aContainer().withConfiguration(configuration).
         fromExistingFile("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc").build();
     Signature signature = container.getSignatures().get(0);
     Assert.assertNotNull(signature.getOCSPCertificate());
@@ -390,19 +392,19 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void certificateContainsNotSupportedTssQcQualifier() {
-    this.configuration = new Configuration(Configuration.Mode.PROD);
-    Container container = this.openContainerByConfiguration(
+    configuration = new Configuration(Configuration.Mode.PROD);
+    Container container = openContainerByConfiguration(
         Paths.get("src/test/resources/prodFiles/invalid-containers/edoc2_lv-eId_sha256.edoc"),
-        this.configuration);
+        configuration);
     Assert.assertFalse(container.validate().isValid());
   }
 
   @Test
   public void signatureReportForTwoSignature() {
-    this.configuration = new Configuration(Configuration.Mode.PROD);
-    Container container = this.openContainerByConfiguration(
+    configuration = new Configuration(Configuration.Mode.PROD);
+    Container container = openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/valid-containers/asics_testing_two_signatures.bdoc"),
-        this.configuration);
+        configuration);
     SignatureValidationResult result = container.validate();
     Assert.assertEquals(Indication.INDETERMINATE, result.getIndication("S0"));
     Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, result.getSubIndication("S0"));
@@ -417,9 +419,9 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void signatureReportForOneSignature() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
-    Container container = this.openContainerByConfiguration(
-        Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"), this.configuration);
+    configuration = new Configuration(Configuration.Mode.TEST);
+    Container container = openContainerByConfiguration(
+        Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"), configuration);
     SignatureValidationResult result = container.validate();
     for (SimpleReport signatureSimpleReport : result.getSimpleReports()) {
       for (String id : signatureSimpleReport.getSignatureIdList()) {
@@ -436,10 +438,10 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void signatureReportNoSignature() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
-    Container container = this.openContainerByConfiguration(
+    configuration = new Configuration(Configuration.Mode.TEST);
+    Container container = openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc"),
-        this.configuration);
+        configuration);
     SignatureValidationResult result = container.validate();
     Assert.assertNull(result.getIndication("S0"));
     Assert.assertNull(result.getSubIndication("S0"));
@@ -451,10 +453,10 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void signatureReportOnlyOneSignatureValid() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
-    Container container = this.openContainerByConfiguration(
+    configuration = new Configuration(Configuration.Mode.TEST);
+    Container container = openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/invalid-containers/two_signatures_one_invalid.bdoc"),
-        this.configuration);
+        configuration);
     SignatureValidationResult result = container.validate();
     //Signature with id "S1" is invalid
     Assert.assertEquals(Indication.INDETERMINATE, result.getIndication("S1"));

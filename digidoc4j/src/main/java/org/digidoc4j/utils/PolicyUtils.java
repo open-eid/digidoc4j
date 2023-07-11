@@ -25,6 +25,7 @@ public final class PolicyUtils {
    *
    * @return Policy
    */
+  @Deprecated
   public static Policy createBDocSignaturePolicy() {
     Policy signaturePolicy = new Policy();
     signaturePolicy.setId("urn:oid:" + TmSignaturePolicyType.BDOC_2_1_0.getOid());

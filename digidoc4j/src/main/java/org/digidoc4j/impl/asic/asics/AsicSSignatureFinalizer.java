@@ -8,7 +8,7 @@
  * Version 2.1, February 1999
  */
 
-package org.digidoc4j.impl.asic.asice;
+package org.digidoc4j.impl.asic.asics;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
@@ -22,17 +22,17 @@ import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import java.util.List;
 
 /**
- * ASiCE signature finalizer for datafiles signing process.
+ * ASiCS signature finalizer for datafiles signing process.
  */
-public class AsicESignatureFinalizer extends AsicSignatureFinalizer {
+final class AsicSSignatureFinalizer extends AsicSignatureFinalizer {
 
-  public AsicESignatureFinalizer(List<DataFile> dataFilesToSign, SignatureParameters signatureParameters, Configuration configuration) {
+  AsicSSignatureFinalizer(List<DataFile> dataFilesToSign, SignatureParameters signatureParameters, Configuration configuration) {
     super(dataFilesToSign, signatureParameters, configuration);
   }
 
   @Override
   protected AsicSignature asAsicSignature(XadesSignatureWrapper signatureWrapper) {
-    return new AsicESignatureOpener(configuration).open(signatureWrapper);
+    return new AsicSSignatureOpener(configuration).open(signatureWrapper);
   }
 
   @Override
@@ -44,4 +44,5 @@ public class AsicESignatureFinalizer extends AsicSignatureFinalizer {
       ));
     }
   }
+
 }

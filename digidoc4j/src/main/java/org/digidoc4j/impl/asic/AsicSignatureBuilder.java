@@ -18,7 +18,6 @@ import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
-import org.digidoc4j.SignatureFinalizerBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
@@ -36,7 +35,7 @@ import java.security.interfaces.ECPublicKey;
 /**
  * Signature builder for Asic container.
  */
-public class AsicSignatureBuilder extends SignatureBuilder {
+public abstract class AsicSignatureBuilder extends SignatureBuilder {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicSignatureBuilder.class);
   private SignatureFinalizer signatureFinalizer;
@@ -80,10 +79,12 @@ public class AsicSignatureBuilder extends SignatureBuilder {
     return container.getConfiguration();
   }
 
+  protected abstract SignatureFinalizer createSignatureFinalizer();
+
   private SignatureFinalizer getSignatureFinalizer() {
     if (signatureFinalizer == null) {
       populateSignatureParameters();
-      this.signatureFinalizer = SignatureFinalizerBuilder.aFinalizer(container, signatureParameters);
+      this.signatureFinalizer = createSignatureFinalizer();
     }
     return signatureFinalizer;
   }
@@ -131,7 +132,6 @@ public class AsicSignatureBuilder extends SignatureBuilder {
     }
   }
 
-  protected void validateSignatureCompatibilityWithContainer() {
-    // Do nothing
-  }
+  protected abstract void validateSignatureCompatibilityWithContainer();
+
 }

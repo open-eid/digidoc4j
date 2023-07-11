@@ -8,7 +8,7 @@
  * Version 2.1, February 1999
  */
 
-package org.digidoc4j.impl.asic.asice;
+package org.digidoc4j.impl.asic.asics;
 
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.asic.AsicSignature;
@@ -17,22 +17,22 @@ import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidator;
 
 /**
-  Class for converting Xades signature to ASiCE signature.
+ * Class for converting XAdES signature to ASiC-S signature.
  */
-public class AsicESignatureOpener extends AsicXadesSignatureOpener {
+public class AsicSSignatureOpener extends AsicXadesSignatureOpener {
 
   /**
-   * Constructor
+   * Creates an instance of ASiC signature opener
    *
    * @param configuration configuration
    */
-  public AsicESignatureOpener(Configuration configuration) {
+  public AsicSSignatureOpener(Configuration configuration) {
     super(configuration);
   }
 
   @Override
   protected AsicSignature createAsicSignature(XadesSignature xadesSignature, XadesSignatureValidator xadesValidator) {
-    return new AsicESignature(xadesSignature, xadesValidator);
+    return new AsicSSignature(xadesSignature, xadesValidator);
   }
 
 }

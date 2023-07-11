@@ -8,7 +8,7 @@
  * Version 2.1, February 1999
  */
 
-package org.digidoc4j.impl.bdoc;
+package org.digidoc4j.impl.asic.xades;
 
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.FileDocument;
@@ -21,10 +21,6 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.asic.AsicSignatureParser;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
-import org.digidoc4j.impl.asic.xades.XadesSignature;
-import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,16 +29,16 @@ import java.io.File;
 import java.util.Collections;
 import java.util.Date;
 
-public class BDocSignatureOpenerTest extends AbstractTest {
+public abstract class AsicXadesSignatureOpenerTest extends AbstractTest {
 
-  private AsicSignatureParser signatureParser;
-  private BDocSignatureOpener signatureOpener;
+  protected abstract AsicXadesSignatureOpener signatureOpener();
+  protected abstract void assertSignatureType(Signature signature);
 
   @Test
   public void openBesSignature() {
-    Signature signature = this.signatureOpener.open(
+    Signature signature = signatureOpener().open(
             constructXadesSignatureWrapper(new FileDocument("src/test/resources/testFiles/xades/test-bes-signature.xml")));
-    Assert.assertTrue(signature instanceof BDocSignature);
+    assertSignatureType(signature);
     Assert.assertEquals(SignatureProfile.B_BES, signature.getProfile());
     Assert.assertEquals("Assert 3", "id-693869a500c60f0dc262f7287f033d5d", signature.getId());
     Assert.assertEquals("Assert 4", "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", signature.getSignatureMethod());
@@ -69,8 +65,9 @@ public class BDocSignatureOpenerTest extends AbstractTest {
   public void openXadesSignature() {
     Date date_2016_29_1_time_19_58_36 = new Date(1454090316000L);
     Date date_2016_29_1_time_19_58_37 = new Date(1454090317000L);
-    Signature signature = this.signatureOpener.open(
+    Signature signature = signatureOpener().open(
             constructXadesSignatureWrapper(new FileDocument("src/test/resources/testFiles/xades/test-bdoc-ts.xml")));
+    assertSignatureType(signature);
     Assert.assertNotNull("Assert 1", signature);
     Assert.assertEquals("Assert 2", "S0", signature.getId());
     Assert.assertEquals("Assert 3", SignatureProfile.LT, signature.getProfile());
@@ -88,8 +85,9 @@ public class BDocSignatureOpenerTest extends AbstractTest {
 
   @Test
   public void serializeBDocSignature() {
-    Signature signature = this.signatureOpener.open(
+    Signature signature = signatureOpener().open(
             constructXadesSignatureWrapper(new FileDocument("src/test/resources/testFiles/xades/test-bdoc-ts.xml")));
+    assertSignatureType(signature);
     String serializedPath = this.getFileBy("ser");
     Helper.serialize(signature, serializedPath);
     signature = Helper.deserializer(serializedPath);
@@ -99,8 +97,9 @@ public class BDocSignatureOpenerTest extends AbstractTest {
   @Test
   public void openXadesSignature_withoutXmlPreamble_shouldBeValid() throws Exception {
     byte[] signatureBytes = FileUtils.readFileToByteArray(new File("src/test/resources/testFiles/xades/bdoc-tm-jdigidoc-mobile-id.xml"));
-    Signature signature = this.signatureOpener.open(
+    Signature signature = signatureOpener().open(
             constructXadesSignatureWrapper(new InMemoryDocument(signatureBytes)));
+    assertSignatureType(signature);
     Assert.assertEquals("S935237", signature.getId());
   }
 
@@ -110,13 +109,12 @@ public class BDocSignatureOpenerTest extends AbstractTest {
 
   @Override
   protected void before() {
-    this.configuration = Configuration.of(Configuration.Mode.TEST);
-    this.signatureOpener = new BDocSignatureOpener(this.configuration);
-    this.signatureParser = new AsicSignatureParser(Collections.singletonList(
-            new FileDocument("src/test/resources/testFiles/helper-files/test.txt")), this.configuration);
+    configuration = Configuration.of(Configuration.Mode.TEST);
   }
 
   private XadesSignatureWrapper constructXadesSignatureWrapper(DSSDocument document) {
+    AsicSignatureParser signatureParser = new AsicSignatureParser(Collections.singletonList(
+            new FileDocument("src/test/resources/testFiles/helper-files/test.txt")), this.configuration);
     XadesSignature signature = signatureParser.parse(document);
     return new XadesSignatureWrapper(signature, document);
   }

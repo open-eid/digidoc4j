@@ -68,8 +68,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -78,6 +81,9 @@ import static org.digidoc4j.Container.DocumentType.ASICE;
 import static org.digidoc4j.Container.DocumentType.ASICS;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 
 /**
  * @author Janar Rahumeel (CGI Estonia)
@@ -437,8 +443,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   protected String createSignedContainerBy(Container.DocumentType type, String extension) {
     String file = this.getFileBy(extension);
     Container container = this.createNonEmptyContainerBy(type, Paths.get("src/test/resources/testFiles/helper-files/test.txt"), "text/plain");
-    SignatureProfile signatureProfile = (type == BDOC) ? SignatureProfile.LT_TM : SignatureProfile.LT;
-    createSignatureBy(container, signatureProfile, pkcs12SignatureToken);
+    createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
     container.saveAsFile(file);
     return file;
   }
@@ -636,6 +641,23 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     } else {
       assertHasNoWarnings(validationResult);
     }
+  }
+
+  protected static void assertTimeInBounds(Date time, Instant lowerBound, Duration maxClockSkew) {
+    assertTimeInBounds(time.toInstant(), lowerBound, maxClockSkew);
+  }
+
+  protected static void assertTimeInBounds(Instant time, Instant lowerBound, Duration maxClockSkew) {
+    assertTimeInBounds(time, lowerBound, Instant.now(), maxClockSkew);
+  }
+
+  protected static void assertTimeInBounds(Date time, Instant lowerBound, Instant upperBound, Duration maxClockSkew) {
+    assertTimeInBounds(time.toInstant(), lowerBound, upperBound, maxClockSkew);
+  }
+
+  protected static void assertTimeInBounds(Instant time, Instant lowerBound, Instant upperBound, Duration maxClockSkew) {
+    assertThat(time, greaterThanOrEqualTo(lowerBound.minus(maxClockSkew)));
+    assertThat(time, lessThanOrEqualTo(upperBound.plus(maxClockSkew)));
   }
 
   protected static void assertHasNoErrors(ValidationResult validationResult) {

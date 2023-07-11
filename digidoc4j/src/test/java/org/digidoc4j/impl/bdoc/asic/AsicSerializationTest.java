@@ -29,10 +29,10 @@ public class AsicSerializationTest extends AbstractTest {
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     assertEquals(0, container.getSignatures().size());
-    container = serializeAndAddSignature(container, SignatureProfile.LT_TM);
+    container = serializeAndAddSignature(container, SignatureProfile.LT);
     assertTrue(container.validate().isValid());
     assertEquals(1, container.getSignatures().size());
-    assertTimemarkSignature(container.getSignatures().get(0));
+    assertTimestampSignature(container.getSignatures().get(0));
     assertBDocContainer(container);
   }
 
@@ -49,20 +49,22 @@ public class AsicSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void asicsContainerSigningWithSerialization() {
-    Container container = this.createEmptyContainerBy(Container.DocumentType.ASICS);
+  public void asiceLtaContainerSigningWithSerialization() {
+    Container container = this.createEmptyContainerBy(Container.DocumentType.ASICE);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     assertEquals(0, container.getSignatures().size());
-    container = serializeAndAddSignature(container, SignatureProfile.LT);
+    container = serializeAndAddSignature(container, SignatureProfile.LTA);
     assertTrue(container.validate().isValid());
-    assertAsicSContainer(container);
+    assertEquals(1, container.getSignatures().size());
+    assertArchiveTimestampSignature(container.getSignatures().get(0));
+    assertAsicEContainer(container);
   }
 
   private Container serializeAndAddSignature(Container container, SignatureProfile signatureProfile) {
     byte[] serializedContainer = SerializationUtils.serialize(container);
 
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
-          .withSigningCertificate(this.pkcs12SignatureToken.getCertificate())
+          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
           .withSignatureProfile(signatureProfile)
           .buildDataToSign();
 
@@ -73,9 +75,7 @@ public class AsicSerializationTest extends AbstractTest {
     Signature signature = dataToSign.finalize(signatureValue);
 
     container = SerializationUtils.deserialize(serializedContainer);
-    if (!container.getType().equalsIgnoreCase(Container.DocumentType.ASICS.name())) {
-      container.addSignature(signature);
-    }
+    container.addSignature(signature);
     return container;
   }
 }

@@ -40,6 +40,11 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.matchesRegex;
+import static org.hamcrest.Matchers.startsWith;
+
 /**
  * Description of tests by their suffix:
  * <p>
@@ -58,209 +63,226 @@ import java.security.cert.X509Certificate;
  */
 public class IncompleteSigningTest extends AbstractTest {
 
-  private static final String VALIDATION_ERROR_MESSAGE = "The certificate validation is not conclusive!";
+  private static final String CERTIFICATE_VALIDATION_EXCEPTION_MESSAGE_REGEX = "OCSP response certificate <C-[A-F0-9]+> match is not found in TSL";
+  private static final String CONTAINER_VALIDATION_ERROR_MESSAGE = "The certificate validation is not conclusive!";
+  private static final String OCSP_REQUEST_FAILED_EXCEPTION_MESSAGE_PART = "OCSP request failed";
+  private static final String TECHNICAL_EXCEPTION_TSP_MESSAGE_PART = "Got error in signing process: Failed to POST URL: http://demo.sk.ee/tsa";
+  private static final String TSL_REFRESH_EXCEPTION_MESSAGE_PART = "Failed to download LoTL";
 
-  @Test(expected = OCSPRequestFailedException.class)
-  public void signatureProfileLtTmShouldFailWhenSigningCertificateIsNotTrustedByTSL() {
-    setUpProdConfigurationWithTestTsaAndOcsp();
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
-  }
-
-  @Test(expected = OCSPRequestFailedException.class)
+  @Test
   public void signatureProfileLtShouldFailWhenSigningCertificateIsNotTrustedByTSL() {
     setUpProdConfigurationWithTestTsaAndOcsp();
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerByConfiguration();
+
+    OCSPRequestFailedException caughtException = assertThrows(
+            OCSPRequestFailedException.class,
+            () -> createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken)
+    );
+
+    assertThat(caughtException.getMessage(), containsString(OCSP_REQUEST_FAILED_EXCEPTION_MESSAGE_PART));
   }
 
-  @Test(expected = OCSPRequestFailedException.class)
+  @Test
   public void signatureProfileLtaShouldFailWhenSigningCertificateIsNotTrustedByTSL() {
     setUpProdConfigurationWithTestTsaAndOcsp();
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LTA, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerByConfiguration();
+
+    OCSPRequestFailedException caughtException = assertThrows(
+            OCSPRequestFailedException.class,
+            () -> createSignatureBy(container, SignatureProfile.LTA, pkcs12SignatureToken)
+    );
+
+    assertThat(caughtException.getMessage(), containsString(OCSP_REQUEST_FAILED_EXCEPTION_MESSAGE_PART));
   }
 
   @Test
   public void signatureProfileBbesShouldNotFailWhenSigningCertificateIsNotTrustedByTSL() {
     setUpProdConfigurationWithTestTsaAndOcsp();
-    Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_BES, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerByConfiguration();
+
+    Signature signature = createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
+
     ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
+    TestAssert.assertContainsErrors(validationResult.getErrors(), CONTAINER_VALIDATION_ERROR_MESSAGE);
   }
 
   @Test
-  public void signatureProfileBepesShouldNotFailWhenSigningCertificateIsNotTrustedByTSL() {
-    setUpProdConfigurationWithTestTsaAndOcsp();
-    Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_EPES, pkcs12SignatureToken);
-    ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
-  }
-
-  @Test(expected = CertificateValidationException.class)
-  public void signatureProfileLtTmShouldFailWhenOcspResponderIsNotTrustedByTSL() {
-    setUpProdConfigurationWithTestTsaAndOcsp();
-    ensureCertificateTrustedByTSL(pkcs12SignatureToken.getCertificate());
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
-  }
-
-  @Test(expected = CertificateValidationException.class)
   public void signatureProfileLtShouldFailWhenOcspResponderIsNotTrustedByTSL() {
     setUpProdConfigurationWithTestTsaAndOcsp();
     ensureCertificateTrustedByTSL(pkcs12SignatureToken.getCertificate());
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerByConfiguration();
+
+    CertificateValidationException caughtException = assertThrows(
+            CertificateValidationException.class,
+            () -> createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken)
+    );
+
+    assertThat(caughtException.getMessage(), matchesRegex(CERTIFICATE_VALIDATION_EXCEPTION_MESSAGE_REGEX));
   }
 
-  @Test(expected = CertificateValidationException.class)
+  @Test
   public void signatureProfileLtaShouldFailWhenOcspResponderIsNotTrustedByTSL() {
     setUpProdConfigurationWithTestTsaAndOcsp();
     ensureCertificateTrustedByTSL(pkcs12SignatureToken.getCertificate());
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LTA, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerByConfiguration();
+
+    CertificateValidationException caughtException = assertThrows(
+            CertificateValidationException.class,
+            () -> createSignatureBy(container, SignatureProfile.LTA, pkcs12SignatureToken)
+    );
+
+    assertThat(caughtException.getMessage(), matchesRegex(CERTIFICATE_VALIDATION_EXCEPTION_MESSAGE_REGEX));
   }
 
   @Test
   public void signatureProfileBbesShouldNotFailWhenOcspResponderIsNotTrustedByTSL() {
     setUpProdConfigurationWithTestTsaAndOcsp();
     ensureCertificateTrustedByTSL(pkcs12SignatureToken.getCertificate());
-    Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_BES, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerByConfiguration();
+
+    Signature signature = createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
+
     ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
+    TestAssert.assertContainsErrors(validationResult.getErrors(), CONTAINER_VALIDATION_ERROR_MESSAGE);
   }
 
   @Test
-  public void signatureProfileBepesShouldNotFailWheOcspResponderIsNotTrustedByTSL() {
-    setUpProdConfigurationWithTestTsaAndOcsp();
-    ensureCertificateTrustedByTSL(pkcs12SignatureToken.getCertificate());
-    Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_EPES, pkcs12SignatureToken);
-    ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
-  }
-
-  @Test(expected = TslRefreshException.class)
-  public void signatureProfileLtTmShouldFailWhenTslCouldNotBeLoadedWithDefaultTslCallback() {
-    setUpTestConfigurationWithEmptyTSL();
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
-  }
-
-  @Test(expected = OCSPRequestFailedException.class)
-  public void signatureProfileLtTmShouldFailWhenTslCouldNotBeLoadedWithCustomTslCallback() {
-    setUpTestConfigurationWithEmptyTSL();
-    configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
-  }
-
-  @Test(expected = TslRefreshException.class)
   public void signatureProfileLtShouldFailWhenTslCouldNotBeLoadedWithDefaultTslCallback() {
     setUpTestConfigurationWithEmptyTSL();
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerByConfiguration();
+
+    TslRefreshException caughtException = assertThrows(
+            TslRefreshException.class,
+            () -> createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken)
+    );
+
+    assertThat(caughtException.getMessage(), startsWith(TSL_REFRESH_EXCEPTION_MESSAGE_PART));
   }
 
-  @Test(expected = OCSPRequestFailedException.class)
+  @Test
   public void signatureProfileLtShouldFailWhenTslCouldNotBeLoadedWithCustomTslCallback() {
     setUpTestConfigurationWithEmptyTSL();
     configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerByConfiguration();
+
+    OCSPRequestFailedException caughtException = assertThrows(
+            OCSPRequestFailedException.class,
+            () -> createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken)
+    );
+
+    assertThat(caughtException.getMessage(), containsString(OCSP_REQUEST_FAILED_EXCEPTION_MESSAGE_PART));
   }
 
-  @Test(expected = TslRefreshException.class)
+  @Test
   public void signatureProfileLtaShouldFailWhenTslCouldNotBeLoadedWithDefaultTslCallback() {
     setUpTestConfigurationWithEmptyTSL();
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LTA, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerByConfiguration();
+
+    TslRefreshException caughtException = assertThrows(
+            TslRefreshException.class,
+            () -> createSignatureBy(container, SignatureProfile.LTA, pkcs12SignatureToken)
+    );
+
+    assertThat(caughtException.getMessage(), startsWith(TSL_REFRESH_EXCEPTION_MESSAGE_PART));
   }
 
-  @Test(expected = OCSPRequestFailedException.class)
+  @Test
   public void signatureProfileLtaShouldFailWhenTslCouldNotBeLoadedWithCustomTslCallback() {
     setUpTestConfigurationWithEmptyTSL();
     configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LTA, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerByConfiguration();
+
+    OCSPRequestFailedException caughtException = assertThrows(
+            OCSPRequestFailedException.class,
+            () -> createSignatureBy(container, SignatureProfile.LTA, pkcs12SignatureToken)
+    );
+
+    assertThat(caughtException.getMessage(), containsString(OCSP_REQUEST_FAILED_EXCEPTION_MESSAGE_PART));
   }
 
   @Test
   public void signatureProfileBbesShouldNotFailWhenTslCouldNotBeLoaded() {
     setUpTestConfigurationWithEmptyTSL();
-    Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_BES, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerByConfiguration();
+
+    Signature signature = createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
+
     ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
+    TestAssert.assertContainsErrors(validationResult.getErrors(), CONTAINER_VALIDATION_ERROR_MESSAGE);
   }
 
   @Test
-  public void signatureProfileBepesShouldNotFailWhenTslCouldNotBeLoaded() {
-    setUpTestConfigurationWithOkTslButFailingDataLoaders();
-    Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_EPES, pkcs12SignatureToken);
-    ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
-  }
-
-  @Test(expected = TslRefreshException.class)
-  public void signatureProfileLtTmShouldFailWhenTslLoadingFailsWithDefaultTslCallback() {
-    setUpTestConfigurationWithFailingTSL();
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
-  }
-
-  @Test(expected = OCSPRequestFailedException.class)
-  public void signatureProfileLtTmShouldFailWhenTslLoadingFailsWithCustomTslCallback() {
-    setUpTestConfigurationWithFailingTSL();
-    configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
-  }
-
-  @Test(expected = TechnicalException.class)
   public void signatureProfileLtShouldFailWhenTslLoadingFails() {
     setUpTestConfigurationWithFailingTSL();
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerByConfiguration();
+
+    TechnicalException caughtException = assertThrows(
+            TechnicalException.class,
+            () -> createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken)
+    );
+
+    assertThat(caughtException.getMessage(), containsString(TECHNICAL_EXCEPTION_TSP_MESSAGE_PART));
   }
 
-  @Test(expected = TechnicalException.class)
+  @Test
   public void signatureProfileLtaShouldFailWhenTslLoadingFails() {
     setUpTestConfigurationWithFailingTSL();
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LTA, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerByConfiguration();
+
+    TechnicalException caughtException = assertThrows(
+            TechnicalException.class,
+            () -> createSignatureBy(container, SignatureProfile.LTA, pkcs12SignatureToken)
+    );
+
+    assertThat(caughtException.getMessage(), containsString(TECHNICAL_EXCEPTION_TSP_MESSAGE_PART));
   }
 
   @Test
   public void signatureProfileBbesShouldNotFailWhenTslLoadingFails() {
     setUpTestConfigurationWithFailingTSL();
-    Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_BES, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerByConfiguration();
+
+    Signature signature = createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
+
     ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
+    TestAssert.assertContainsErrors(validationResult.getErrors(), CONTAINER_VALIDATION_ERROR_MESSAGE);
   }
 
   @Test
-  public void signatureProfileBepesShouldNotFailWhenTslLoadingFails() {
-    setUpTestConfigurationWithFailingTSL();
-    Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_EPES, pkcs12SignatureToken);
-    ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
-  }
-
-  @Test(expected = TechnicalException.class)
-  public void signatureProfileLtTmShouldFailWhenDataLoadersFail() {
-    setUpTestConfigurationWithOkTslButFailingDataLoaders();
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT_TM, pkcs12SignatureToken);
-  }
-
-  @Test(expected = TechnicalException.class)
   public void signatureProfileLtShouldFailWhenDataLoadersFail() {
     setUpTestConfigurationWithOkTslButFailingDataLoaders();
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LT, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerByConfiguration();
+
+    TechnicalException caughtException = assertThrows(
+            TechnicalException.class,
+            () -> createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken)
+    );
+
+    assertThat(caughtException.getMessage(), containsString(TECHNICAL_EXCEPTION_TSP_MESSAGE_PART));
   }
 
-  @Test(expected = TechnicalException.class)
+  @Test
   public void signatureProfileLtaShouldFailWhenDataLoadersFail() {
     setUpTestConfigurationWithOkTslButFailingDataLoaders();
-    createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.LTA, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerByConfiguration();
+
+    TechnicalException caughtException = assertThrows(
+            TechnicalException.class,
+            () -> createSignatureBy(container, SignatureProfile.LTA, pkcs12SignatureToken)
+    );
+
+    assertThat(caughtException.getMessage(), containsString(TECHNICAL_EXCEPTION_TSP_MESSAGE_PART));
   }
 
   @Test
   public void signatureProfileBbesShouldNotFailWhenDataLoadersFail() {
     setUpTestConfigurationWithOkTslButFailingDataLoaders();
-    Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_BES, pkcs12SignatureToken);
-    ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
-  }
+    Container container = createNonEmptyContainerByConfiguration();
 
-  @Test
-  public void signatureProfileBepesShouldNotFailWhenDataLoadersFail() {
-    setUpTestConfigurationWithOkTslButFailingDataLoaders();
-    Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), SignatureProfile.B_EPES, pkcs12SignatureToken);
+    Signature signature = createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
+
     ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    TestAssert.assertContainsErrors(validationResult.getErrors(), VALIDATION_ERROR_MESSAGE);
+    TestAssert.assertContainsErrors(validationResult.getErrors(), CONTAINER_VALIDATION_ERROR_MESSAGE);
   }
 
   /**

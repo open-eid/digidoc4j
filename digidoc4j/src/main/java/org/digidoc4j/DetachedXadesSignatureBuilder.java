@@ -23,7 +23,6 @@ import org.digidoc4j.impl.asic.AsicSignatureFinalizer;
 import org.digidoc4j.utils.CertificateUtils;
 import org.digidoc4j.utils.DigestUtils;
 import org.digidoc4j.utils.Helper;
-import org.digidoc4j.utils.PolicyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,36 +182,29 @@ public class DetachedXadesSignatureBuilder {
   }
 
   /**
-   * Set a signature profile: Time Mark, Time Stamp, Archive Time Stamp or no profile. Default is Time Stamp.
+   * Set a signature profile: Time Stamp, Archive Time Stamp or no profile. Default is Time Stamp.
    *
    * @param signatureProfile signature profile.
    * @return builder for creating a signature.
    */
   public DetachedXadesSignatureBuilder withSignatureProfile(SignatureProfile signatureProfile) {
-    Policy policyDefinedByUser = signatureParameters.getPolicy();
-    if (policyDefinedByUser != null && PolicyUtils.areAllPolicyValuesDefined(policyDefinedByUser)
-        && signatureProfile != SignatureProfile.LT_TM) {
-      logger.debug("policyDefinedByUser:" + policyDefinedByUser.toString());
-      logger.debug("signatureProfile:" + signatureProfile.toString());
-      throw new NotSupportedException("Can't define signature policy if it's not LT_TM signature profile ");
+    if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureProfile)) {
+      throw new NotSupportedException(String.format("Can't create %s signatures", signatureProfile));
     }
     signatureParameters.setSignatureProfile(signatureProfile);
     return this;
   }
 
   /**
-   * Set signature policy parameters. Define signature profile first.
+   * Set signature policy parameters.
+    <p>
+    The default implementation throws {@code NotSupportedException}.
    *
    * @param signaturePolicy with defined parameters.
    * @return SignatureBuilder
    */
   public DetachedXadesSignatureBuilder withOwnSignaturePolicy(Policy signaturePolicy) {
-    if (signatureParameters.getSignatureProfile() != null
-        && signatureParameters.getSignatureProfile() != SignatureProfile.LT_TM) {
-      throw new NotSupportedException("Can't define signature policy if it's not LT_TM signature profile. Define it first. ");
-    }
-    signatureParameters.setPolicy(signaturePolicy);
-    return this;
+    throw new NotSupportedException("Can't define signature policy");
   }
 
   /**
@@ -309,11 +301,7 @@ public class DetachedXadesSignatureBuilder {
   private SignatureFinalizer getSignatureFinalizer() {
     if (signatureFinalizer == null) {
       populateSignatureParameters();
-      if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile())) {
-        signatureFinalizer = SignatureFinalizerBuilder.aFinalizer(dataFiles, signatureParameters, configuration, Container.DocumentType.BDOC);
-      } else {
-        signatureFinalizer = SignatureFinalizerBuilder.aFinalizer(dataFiles, signatureParameters, configuration, Container.DocumentType.ASICE);
-      }
+      signatureFinalizer = SignatureFinalizerBuilder.aFinalizer(dataFiles, signatureParameters, configuration, Container.DocumentType.ASICE);
     }
     return signatureFinalizer;
   }
