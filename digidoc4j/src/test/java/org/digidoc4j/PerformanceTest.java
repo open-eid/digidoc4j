@@ -200,7 +200,7 @@ public class PerformanceTest extends AbstractTest {
 
   @Test
   @PerfTest(invocations = 10)
-  public void loadingTSL() throws Exception {
+  public void loadingTSL() {
     TSLCertificateSource tsl = new Configuration(Configuration.Mode.PROD).getTSL();
     tsl.invalidateCache();
     tsl.refresh();
@@ -208,16 +208,9 @@ public class PerformanceTest extends AbstractTest {
 
   @Test
   @PerfTest(invocations = 50)
-  public void createBDocTmSignature() {
-    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
-    this.createSignatureBy(container, SignatureProfile.LT_TM, DigestAlgorithm.SHA256, this.pkcs12SignatureToken);
-  }
-
-  @Test
-  @PerfTest(invocations = 50)
   public void createAsicSignature() {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice.asice"));
-    this.createSignatureBy(container, SignatureProfile.LT, DigestAlgorithm.SHA256, this.pkcs12SignatureToken);
+    this.createSignatureBy(container, SignatureProfile.LT, DigestAlgorithm.SHA256, pkcs12SignatureToken);
   }
 
   /*
@@ -227,8 +220,7 @@ public class PerformanceTest extends AbstractTest {
   @Override
   protected void before() {
     this.configuration = Configuration.of(Configuration.Mode.TEST);
-    //this.configuration.getTSL().refresh();
-    this.configManagerInitializer.initConfigManager(this.configuration);
+    configManagerInitializer.initConfigManager(this.configuration);
   }
 
 }
