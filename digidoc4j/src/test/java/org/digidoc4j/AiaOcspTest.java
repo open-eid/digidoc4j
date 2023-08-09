@@ -5,6 +5,9 @@ import org.junit.Test;
 
 import java.io.File;
 
+import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.matchesRegex;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -22,8 +25,11 @@ public class AiaOcspTest extends AbstractTest {
                 .withConfiguration(configuration)
                 .build();
         this.createSignatureBy(container, pkcs12SignatureToken);
-        assertTrue(container.validate().isValid());
-        assertEquals("EMAILADDRESS=pki@sk.ee, CN=TEST of SK OCSP RESPONDER 2020, OU=OCSP, O=AS Sertifitseerimiskeskus, C=EE", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
+        assertContainerIsValid(container);
+        assertThat(
+                container.getSignatures().get(0).getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN),
+                matchesRegex("TEST of ESTEID-SK 2015 AIA OCSP RESPONDER 202[3-9][0-1][0-9]")
+        );
     }
 
     @Test

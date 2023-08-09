@@ -11,17 +11,32 @@
 package org.digidoc4j.impl.bdoc;
 
 import eu.europa.esig.dss.model.DSSException;
-import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.client.http.DSSFileLoader;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.Extensions;
+import org.bouncycastle.asn1.x509.KeyPurposeId;
+import org.bouncycastle.asn1.x509.KeyUsage;
+import org.bouncycastle.cert.CertIOException;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.ocsp.BasicOCSPResp;
+import org.bouncycastle.cert.ocsp.BasicOCSPRespBuilder;
+import org.bouncycastle.cert.ocsp.OCSPReq;
+import org.bouncycastle.cert.ocsp.Req;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
+import org.bouncycastle.crypto.params.ECPublicKeyParameters;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.operator.ContentSigner;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.TSLCertificateSource;
+import org.digidoc4j.SignatureToken;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
@@ -31,14 +46,21 @@ import org.digidoc4j.test.MockConfigurableDataLoader;
 import org.digidoc4j.test.MockConfigurableFileLoader;
 import org.digidoc4j.test.MockTSLRefreshCallback;
 import org.digidoc4j.test.TestAssert;
-import org.junit.Assert;
+import org.digidoc4j.test.TestSignatureToken;
+import org.digidoc4j.test.util.TestCertificateUtil;
+import org.digidoc4j.test.util.TestKeyPairUtil;
+import org.digidoc4j.test.util.TestOcspUtil;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.security.cert.X509Certificate;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Security;
+import java.time.Instant;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -48,11 +70,9 @@ import static org.hamcrest.Matchers.startsWith;
 /**
  * Description of tests by their suffix:
  * <p>
- * ...WhenSigningCertificateIsNotTrustedByTSL() - uses PROD configuration in order to get a TSL where signing certificate is not trusted.
- * NB: TSP and OCSP sources are set to demo URLs in order to prevent requests to non-free services!
+ * ...WhenSigningCertificateIsNotTrustedByTSL() - uses TEST configuration and custom signature token that is not trusted by TSL.
  * <p>
- * ...WhenOcspResponderIsNotTrustedByTSL() - uses PROD configuration in order to get a TSL where OCSP responder certificate is not trusted.
- * NB: TSP and OCSP sources are set to demo URLs in order to prevent requests to non-free TSA and get a non-trusted response from OCSP!
+ * ...WhenOcspResponderIsNotTrustedByTSL() - uses TEST configuration and custom OCSP responder that is not trusted by TSL.
  * <p>
  * ...WhenTslCouldNotBeLoaded() - uses TEST configuration with empty SSL truststore in order to prevent TSL from loading.
  * <p>
@@ -69,47 +89,58 @@ public class IncompleteSigningTest extends AbstractTest {
   private static final String TECHNICAL_EXCEPTION_TSP_MESSAGE_PART = "Got error in signing process: Failed to POST URL: http://demo.sk.ee/tsa";
   private static final String TSL_REFRESH_EXCEPTION_MESSAGE_PART = "Failed to download LoTL";
 
+  @BeforeClass
+  public static void setUpStatic() {
+    Security.addProvider(new BouncyCastleProvider());
+  }
+
   @Test
-  public void signatureProfileLtShouldFailWhenSigningCertificateIsNotTrustedByTSL() {
-    setUpProdConfigurationWithTestTsaAndOcsp();
+  public void signatureProfileLtShouldFailWhenSigningCertificateIsNotTrustedByTSL() throws Exception {
+    setUpTestConfiguration();
+    setUpMockedOcspResponder(true);
+    SignatureToken signatureToken = createCustomSignatureToken(false);
     Container container = createNonEmptyContainerByConfiguration();
 
     OCSPRequestFailedException caughtException = assertThrows(
             OCSPRequestFailedException.class,
-            () -> createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken)
+            () -> createSignatureBy(container, SignatureProfile.LT, signatureToken)
     );
 
     assertThat(caughtException.getMessage(), containsString(OCSP_REQUEST_FAILED_EXCEPTION_MESSAGE_PART));
   }
 
   @Test
-  public void signatureProfileLtaShouldFailWhenSigningCertificateIsNotTrustedByTSL() {
-    setUpProdConfigurationWithTestTsaAndOcsp();
+  public void signatureProfileLtaShouldFailWhenSigningCertificateIsNotTrustedByTSL() throws Exception {
+    setUpTestConfiguration();
+    setUpMockedOcspResponder(true);
+    SignatureToken signatureToken = createCustomSignatureToken(false);
     Container container = createNonEmptyContainerByConfiguration();
 
     OCSPRequestFailedException caughtException = assertThrows(
             OCSPRequestFailedException.class,
-            () -> createSignatureBy(container, SignatureProfile.LTA, pkcs12SignatureToken)
+            () -> createSignatureBy(container, SignatureProfile.LTA, signatureToken)
     );
 
     assertThat(caughtException.getMessage(), containsString(OCSP_REQUEST_FAILED_EXCEPTION_MESSAGE_PART));
   }
 
   @Test
-  public void signatureProfileBbesShouldNotFailWhenSigningCertificateIsNotTrustedByTSL() {
-    setUpProdConfigurationWithTestTsaAndOcsp();
+  public void signatureProfileBbesShouldNotFailWhenSigningCertificateIsNotTrustedByTSL() throws Exception {
+    setUpTestConfiguration();
+    SignatureToken signatureToken = createCustomSignatureToken(false);
     Container container = createNonEmptyContainerByConfiguration();
 
-    Signature signature = createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
+    Signature signature = createSignatureBy(container, SignatureProfile.B_BES, signatureToken);
 
     ValidationResult validationResult = reloadSignature(signature, Configuration.Mode.TEST).validateSignature();
-    TestAssert.assertContainsErrors(validationResult.getErrors(), CONTAINER_VALIDATION_ERROR_MESSAGE);
+    TestAssert.assertContainsErrors(validationResult.getErrors(),
+            "The certificate chain for signature is not trusted, it does not contain a trust anchor.");
   }
 
   @Test
-  public void signatureProfileLtShouldFailWhenOcspResponderIsNotTrustedByTSL() {
-    setUpProdConfigurationWithTestTsaAndOcsp();
-    ensureCertificateTrustedByTSL(pkcs12SignatureToken.getCertificate());
+  public void signatureProfileLtShouldFailWhenOcspResponderIsNotTrustedByTSL() throws Exception {
+    setUpTestConfiguration();
+    setUpMockedOcspResponder(false);
     Container container = createNonEmptyContainerByConfiguration();
 
     CertificateValidationException caughtException = assertThrows(
@@ -121,9 +152,9 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileLtaShouldFailWhenOcspResponderIsNotTrustedByTSL() {
-    setUpProdConfigurationWithTestTsaAndOcsp();
-    ensureCertificateTrustedByTSL(pkcs12SignatureToken.getCertificate());
+  public void signatureProfileLtaShouldFailWhenOcspResponderIsNotTrustedByTSL() throws Exception {
+    setUpTestConfiguration();
+    setUpMockedOcspResponder(false);
     Container container = createNonEmptyContainerByConfiguration();
 
     CertificateValidationException caughtException = assertThrows(
@@ -135,9 +166,9 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileBbesShouldNotFailWhenOcspResponderIsNotTrustedByTSL() {
-    setUpProdConfigurationWithTestTsaAndOcsp();
-    ensureCertificateTrustedByTSL(pkcs12SignatureToken.getCertificate());
+  public void signatureProfileBbesShouldNotFailWhenOcspResponderIsNotTrustedByTSL() throws Exception {
+    setUpTestConfiguration();
+    setUpMockedOcspResponder(false);
     Container container = createNonEmptyContainerByConfiguration();
 
     Signature signature = createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
@@ -285,15 +316,8 @@ public class IncompleteSigningTest extends AbstractTest {
     TestAssert.assertContainsErrors(validationResult.getErrors(), CONTAINER_VALIDATION_ERROR_MESSAGE);
   }
 
-  /**
-   * Sets up PROD configuration in order to get TSL without OCSP responder and signer CA certificates.
-   * NB: OCSP and TSP sources are set to demo URLs in order to prevent requests to non-free TSA and/or OCSP!
-   */
-  private void setUpProdConfigurationWithTestTsaAndOcsp() {
-    configuration = Configuration.of(Configuration.Mode.PROD);
-    Configuration testConfiguration = Configuration.of(Configuration.Mode.TEST);
-    configuration.setOcspSource(testConfiguration.getOcspSource());
-    configuration.setTspSource(testConfiguration.getTspSource());
+  private void setUpTestConfiguration() {
+    configuration = Configuration.of(Configuration.Mode.TEST);
   }
 
   private void setUpTestConfigurationWithEmptyTSL() {
@@ -316,18 +340,92 @@ public class IncompleteSigningTest extends AbstractTest {
     configureFailingDataLoaders(configuration);
   }
 
-  private void ensureCertificateTrustedByTSL(X509Certificate certificate) {
-    CertificateToken certificateToken = new CertificateToken(certificate);
-    TSLCertificateSource certificateSource = configuration.getTSL();
-    if (!certificateSource.getBySubject(certificateToken.getIssuer()).isEmpty()) {
-      return;
+  private void setUpMockedOcspResponder(boolean registerResponderInTSL) throws CertIOException {
+    AsymmetricCipherKeyPair issuerKeyPair = TestKeyPairUtil.generateEcKeyPair("secp384r1");
+    PrivateKey issuerPrivateKey = TestKeyPairUtil.toPrivateKey((ECPrivateKeyParameters) issuerKeyPair.getPrivate());
+    PublicKey issuerPublicKey = TestKeyPairUtil.toPublicKey((ECPublicKeyParameters) issuerKeyPair.getPublic());
+
+    ContentSigner certificateSigner = TestCertificateUtil.createCertificateSigner(issuerPrivateKey, "SHA512withECDSA");
+
+    AsymmetricCipherKeyPair responderKeyPair = TestKeyPairUtil.generateEcKeyPair("secp384r1");
+    PrivateKey responderPrivateKey = TestKeyPairUtil.toPrivateKey((ECPrivateKeyParameters) responderKeyPair.getPrivate());
+    PublicKey responderPublicKey = TestKeyPairUtil.toPublicKey((ECPublicKeyParameters) responderKeyPair.getPublic());
+
+    Instant notBefore = Instant.now();
+    Instant notAfter = notBefore.plusSeconds(3600L);
+    X500Name issuerDn = new X500Name("CN=Custom OCSP responder issuer");
+    X500Name responderDn = new X500Name("CN=Custom OCSP responder");
+
+    X509CertificateHolder issuerCert = TestCertificateUtil.createX509v3CertificateBuilder(
+            issuerDn, null, notBefore, notAfter, issuerDn, issuerPublicKey
+    )
+            .addExtension(TestCertificateUtil.createKeyUsageExtension(false, KeyUsage.keyCertSign))
+            .addExtension(TestCertificateUtil.createIdPkixOcspNocheckExtension(false))
+            .build(certificateSigner);
+
+    X509CertificateHolder responderCert = TestCertificateUtil.createX509v3CertificateBuilder(
+            issuerDn, null, notBefore, notAfter, responderDn, responderPublicKey
+    )
+            .addExtension(TestCertificateUtil.createExtendedKeyUsageExtension(false, KeyPurposeId.id_kp_OCSPSigning))
+            .addExtension(TestCertificateUtil.createIdPkixOcspNocheckExtension(false))
+            .build(certificateSigner);
+
+    configuration.setOcspDataLoaderFactory(() -> new MockConfigurableDataLoader().withPoster((url, content) -> {
+      OCSPReq ocspReq = TestOcspUtil.parseOcspRequest(content);
+      BasicOCSPRespBuilder basicOCSPRespBuilder = TestOcspUtil.createBasicOCSPRespBuilder(responderCert);
+      Optional
+              .ofNullable(ocspReq.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce))
+              .map(Extensions::new)
+              .ifPresent(basicOCSPRespBuilder::setResponseExtensions);
+      for (Req req : ocspReq.getRequestList()) {
+        basicOCSPRespBuilder.addResponse(req.getCertID(), org.bouncycastle.cert.ocsp.CertificateStatus.GOOD);
+      }
+      ContentSigner ocspSigner = TestOcspUtil.createOcspSigner(responderPrivateKey, "SHA512withECDSA");
+      BasicOCSPResp basicOCSPResp = TestOcspUtil.buildBasicOCSPResp(basicOCSPRespBuilder, ocspSigner, responderCert);
+      return TestOcspUtil.getOcspResponseBytes(TestOcspUtil.buildSuccessfulOCSPResp(basicOCSPResp));
+    }));
+
+    if (registerResponderInTSL) {
+      configuration.getTSL().addTSLCertificate(TestCertificateUtil.toX509Certificate(issuerCert));
     }
-    addCertificateToTSL(
-            Paths.get("src", "test", "resources", "testFiles", "certs", "TEST_of_ESTEID-SK_2015.pem.crt"),
-            configuration.getTSL()
-    );
-    Assert.assertFalse("Issuer for '" + certificate.getSubjectDN().getName() + "' not found in TSL! Test or test files might be invalid or out-dated!",
-            certificateSource.getBySubject(certificateToken.getIssuer()).isEmpty());
+  }
+
+  private SignatureToken createCustomSignatureToken(boolean registerSignerInTSL) throws CertIOException {
+    AsymmetricCipherKeyPair issuerKeyPair = TestKeyPairUtil.generateEcKeyPair("secp384r1");
+    PrivateKey issuerPrivateKey = TestKeyPairUtil.toPrivateKey((ECPrivateKeyParameters) issuerKeyPair.getPrivate());
+    PublicKey issuerPublicKey = TestKeyPairUtil.toPublicKey((ECPublicKeyParameters) issuerKeyPair.getPublic());
+
+    ContentSigner certificateSigner = TestCertificateUtil.createCertificateSigner(issuerPrivateKey, "SHA512withECDSA");
+
+    AsymmetricCipherKeyPair signerKeyPair = TestKeyPairUtil.generateEcKeyPair("secp384r1");
+    PrivateKey signerPrivateKey = TestKeyPairUtil.toPrivateKey((ECPrivateKeyParameters) signerKeyPair.getPrivate());
+    PublicKey signerPublicKey = TestKeyPairUtil.toPublicKey((ECPublicKeyParameters) signerKeyPair.getPublic());
+
+    Instant notBefore = Instant.now();
+    Instant notAfter = notBefore.plusSeconds(3600L);
+    X500Name issuerDn = new X500Name("CN=Custom signer issuer");
+    X500Name responderDn = new X500Name("CN=Custom signer");
+
+    X509CertificateHolder issuerCert = TestCertificateUtil.createX509v3CertificateBuilder(
+            issuerDn, null, notBefore, notAfter, issuerDn, issuerPublicKey
+    )
+            .addExtension(TestCertificateUtil.createKeyUsageExtension(false, KeyUsage.keyCertSign))
+            .addExtension(TestCertificateUtil.createIdPkixOcspNocheckExtension(false))
+            .build(certificateSigner);
+
+    X509CertificateHolder signerCert = TestCertificateUtil.createX509v3CertificateBuilder(
+            issuerDn, null, notBefore, notAfter, responderDn, signerPublicKey
+    )
+            .addExtension(TestCertificateUtil.createKeyUsageExtension(false, KeyUsage.digitalSignature))
+            .build(certificateSigner);
+
+    SignatureToken signatureToken = new TestSignatureToken(signerPrivateKey, signerCert);
+
+    if (registerSignerInTSL) {
+      configuration.getTSL().addTSLCertificate(TestCertificateUtil.toX509Certificate(issuerCert));
+    }
+
+    return signatureToken;
   }
 
   private Signature reloadSignature(Signature signature, Configuration.Mode mode) {

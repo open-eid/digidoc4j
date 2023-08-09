@@ -20,7 +20,6 @@ import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.BasicOCSPRespBuilder;
 import org.bouncycastle.cert.ocsp.OCSPReq;
-import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.bouncycastle.cert.ocsp.Req;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
@@ -468,7 +467,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
     Mockito.verifyNoMoreInteractions(ocspDataLoader);
 
     byte[] postContent = postContentCaptor.getValue();
-    OCSPReq ocspReq = parseOcspRequest(postContent);
+    OCSPReq ocspReq = TestOcspUtil.parseOcspRequest(postContent);
 
     Extension ocspNonceExtension = ocspReq.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
     if (useNonce) {
@@ -606,7 +605,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
           Pair<PrivateKey, X509CertificateHolder[]> ocspSignerKeyAndCertificateChain,
           X509CertificateHolder... certificatesToPutIntoResponse
   ) {
-    OCSPReq request = parseOcspRequest(ocspRequestBytes);
+    OCSPReq request = TestOcspUtil.parseOcspRequest(ocspRequestBytes);
     BasicOCSPRespBuilder basicOCSPRespBuilder = TestOcspUtil.createBasicOCSPRespBuilder(ocspSignerKeyAndCertificateChain.getValue()[0]);
     responseBuilderConfigurator.accept(request, basicOCSPRespBuilder);
     for (Req req : request.getRequestList()) {
@@ -614,23 +613,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
     }
     ContentSigner ocspSigner = TestOcspUtil.createOcspSigner(ocspSignerKeyAndCertificateChain.getKey(), "SHA512withECDSA");
     BasicOCSPResp basicOCSPResp = TestOcspUtil.buildBasicOCSPResp(basicOCSPRespBuilder, ocspSigner, certificatesToPutIntoResponse);
-    return getOcspResponseBytes(TestOcspUtil.buildSuccessfulOCSPResp(basicOCSPResp));
-  }
-
-  private static OCSPReq parseOcspRequest(byte[] ocspRequestBytes) {
-    try {
-      return new OCSPReq(ocspRequestBytes);
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Invalid OCSP request", e);
-    }
-  }
-
-  private static byte[] getOcspResponseBytes(OCSPResp ocspResponse) {
-    try {
-      return ocspResponse.getEncoded();
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to encode OCSP response", e);
-    }
+    return TestOcspUtil.getOcspResponseBytes(TestOcspUtil.buildSuccessfulOCSPResp(basicOCSPResp));
   }
 
 }

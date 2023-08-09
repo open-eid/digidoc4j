@@ -43,6 +43,9 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.matchesRegex;
+
 public class SignatureTest extends AbstractTest {
 
   @Test
@@ -159,10 +162,20 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testGetOCSPCertificateForBDoc() throws CertificateEncodingException {
-    Signature signature = createSignatureBy(Container.DocumentType.BDOC, pkcs12SignatureToken);
+  public void testGetOCSPCertificateForExistingBDoc() throws CertificateEncodingException {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm-newer.bdoc");
+    Signature signature = container.getSignatures().get(0);
     byte[] encoded = signature.getOCSPCertificate().getX509Certificate().getEncoded();
     Assert.assertEquals(Certificates.OCSP_CERTIFICATE_2020, Base64.encodeBase64String(encoded));
+  }
+
+  @Test
+  public void testGetOCSPCertificateForNewBDoc() {
+    Signature signature = createSignatureBy(Container.DocumentType.BDOC, pkcs12SignatureToken);
+    assertThat(
+            signature.getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN),
+            matchesRegex("TEST of ESTEID-SK 2015 AIA OCSP RESPONDER 202[3-9][0-1][0-9]")
+    );
   }
 
   @Test
