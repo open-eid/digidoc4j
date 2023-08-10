@@ -26,39 +26,39 @@
         <activation.version>1.1.1</activation.version>
         <commons-cli.version>1.5.0</commons-cli.version>
         <commons-collections4.version>4.4</commons-collections4.version>
-        <commons-io.version>2.11.0</commons-io.version>
-        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <commons-io.version>2.13.0</commons-io.version>
+        <commons-lang3.version>3.13.0</commons-lang3.version>
         <contiperf.version>2.4.3</contiperf.version>
         <dss.version>5.11.1.d4j.1</dss.version>
         <hamcrest.version>2.2</hamcrest.version>
         <httpclient5.version>5.2.1</httpclient5.version>
-        <jackson.version>2.14.2</jackson.version>
+        <jackson.version>2.15.2</jackson.version>
         <jaxb.version>2.3.8</jaxb.version><!-- DSS depends on jaxb-runtime 2.3.X -->
         <jaxb-core.version>2.3.0.1</jaxb-core.version>
         <jcabi-matchers.version>1.6.0</jcabi-matchers.version>
-        <json.version>20230227</json.version>
+        <json.version>20230618</json.version>
         <jsonassert.version>1.5.1</jsonassert.version>
         <junit.version>4.13.2</junit.version>
         <junit-toolbox.version>2.4</junit-toolbox.version>
-        <logback-classic.version>1.2.11</logback-classic.version><!-- logback versions 1.3.X cause problems in DD4J command line utility -->
+        <logback-classic.version>1.2.12</logback-classic.version><!-- logback versions 1.3.X cause problems in DD4J command line utility -->
         <mockito.version>4.11.0</mockito.version><!-- Java 8 is not supported since version 5.X.X -->
-        <snakeyaml.version>2.0</snakeyaml.version>
+        <snakeyaml.version>2.1</snakeyaml.version>
         <system-rules.version>1.19.0</system-rules.version>
         <wiremock.version>2.35.0</wiremock.version>
-        <xmlsec.version>2.3.2</xmlsec.version><!-- DSS depends on xmlsec 2.3.X -->
+        <xmlsec.version>2.3.3</xmlsec.version><!-- DSS depends on xmlsec 2.3.X -->
         <xmlunit.version>1.6</xmlunit.version>
 
         <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
-        <maven-assembly-plugin.version>3.5.0</maven-assembly-plugin.version>
-        <maven-deploy-plugin.version>3.1.0</maven-deploy-plugin.version>
-        <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
-        <maven-install-plugin.version>3.1.0</maven-install-plugin.version>
+        <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
+        <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
+        <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+        <maven-install-plugin.version>3.1.1</maven-install-plugin.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
-        <maven-jaxb2-plugin.version>0.15.2</maven-jaxb2-plugin.version>
-        <maven-release-plugin.version>3.0.0-M7</maven-release-plugin.version>
-        <maven-resources-plugin.version>3.3.0</maven-resources-plugin.version>
-        <maven-shade-plugin.version>3.4.1</maven-shade-plugin.version>
+        <maven-jaxb2-plugin.version>0.15.3</maven-jaxb2-plugin.version>
+        <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
+        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+        <maven-shade-plugin.version>3.5.0</maven-shade-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
 
         <dss.util.build>${project.build.directory}/build/util</dss.util.build>
@@ -346,6 +346,12 @@
             <artifactId>wiremock-jre8</artifactId>
             <version>${wiremock.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-fileupload</groupId>
+                    <artifactId>commons-fileupload</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
