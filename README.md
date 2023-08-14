@@ -4,7 +4,7 @@
 DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers of signed documents.
 
 # Features
-* Creating ASiC-E and BDOC containers
+* Creating ASiC-E
 * Validating ASiC-E, BDOC, ASIC-S and DDOC containers
 * Creating and validating detached XadES
 
@@ -34,11 +34,12 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
 * Signatures are stored in **XAdES** format.
 * Supports signature formats: 
   * **LT_TM** (Long Term TimeMark) - signature has **time-mark** ensuring long-term provability of the authenticity of the signature.
+    **LT_TM** signing support in Digidoc4j was removed since version **5.2.0** in relation to [discontinuation of **time-mark**-capable OCSP responders in 2023](https://www.id.ee/en/article/ria-stops-supporting-the-creation-of-the-bdoc-tm-digital-signature-format-in-the-software-it-develops/).
     * It is based on **XAdES baseline LT** signature format.
 * **.bdoc** file is in fact a ZIP container with the signed files, the signatures and the protocol control information and can basically be opened by any program that recognizes the ZIP format.
 * It is recommended not to use special characters in the data file’s name, i.e. it is suggested to use only the characters that are categorized as “unreserved” according to RFC3986 (https://datatracker.ietf.org/doc/html/rfc3986).
 
-# ASiC-S (ASiC-E - Associated Signature Container Simple) container format
+# ASiC-S (Associated Signature Container Simple) container format
 * Has **.asics** or **.scs** extension
 * Container associates one data file with either:
   - one signature file containing one or more XAdES detached digital signature(s) that apply to it; or
@@ -65,10 +66,10 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
 # Requirements
 * Java **8** or higher (since version 4.0.0-RC.1)
 * Internet access to external verification services
-* OCSP (Online Certificate Status Protocol) - http://ocsp.sk.ee
-* EU TSL (European Commission's Trusted Status List) - https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml
-* All the EU member states' TL servers referred in the EU TSL. Note that this list may change. (e.g. https://sr.riik.ee/tsl/estonian-tsl.xml, https://sede.minetur.gob.es/Prestadores/TSL/TSL.xml, https://www.viestintavirasto.fi/attachments/TSL-Ficora.xml etc.)
-* TSA (Time Stamping Authority) - http://tsa.sk.ee
+  * OCSP (Online Certificate Status Protocol) - http://ocsp.sk.ee
+  * EU TSL (European Commission's Trusted Status List) - https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml
+  * All the EU member states' TL servers referred in the EU TSL. Note that this list may change. (e.g. https://sr.riik.ee/tsl/estonian-tsl.xml, https://sede.minetur.gob.es/Prestadores/TSL/TSL.xml, https://www.viestintavirasto.fi/attachments/TSL-Ficora.xml etc.)
+  * TSA (Time Stamping Authority) - http://tsa.sk.ee
 
 ## Maven
 You can use the library as a Maven dependency from the Maven Central (http://mvnrepository.com/artifact/org.digidoc4j/digidoc4j)
