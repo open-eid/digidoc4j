@@ -268,8 +268,8 @@ public final class DigiDoc4J {
 
   private static Option signatureProfile() {
     return OptionBuilder.withArgName("signatureProfile").hasArg()
-        .withDescription("sets signature profile. Profile can be B_BES, LT, LT_TM or LTA").withLongOpt(
-            "profile").create("p");
+            .withDescription("sets signature profile. Profile can be B_BES, LT or LTA")
+            .withLongOpt("profile").create("p");
   }
 
   private static Option encryptionAlgorithm() {
