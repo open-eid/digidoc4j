@@ -9,6 +9,9 @@ Summary of the major changes since 5.1.0
 * Fixed OCSP request nonce encoding (in CommonOCSPSource) on signature creation - OCSP nonce, used in
   "id-pkix-ocsp-nonce" OCSP extension, is now a DER-encoded OCTET STRING, which is encapsulated as another OCTET STRING
   (see https://www.rfc-editor.org/rfc/rfc4366.html#section-3.6 and https://www.rfc-editor.org/rfc/rfc6961.html#section-2.2)
+* Deprecated "full report" configuration flag, as enabling it can produce false negative validation results in some cases:
+  - Deprecated setFullReportNeeded and isFullReport needed methods in Configuration class
+  - Deprecated -err/-showerrors command line option in DigiDoc4J command line utility
 * Updated dependencies
 
 Known issues
