@@ -27,14 +27,17 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
 * It is recommended not to use special characters in the data file’s name, i.e. it is suggested to use only the characters that are categorized as “unreserved” according to RFC3986 (https://datatracker.ietf.org/doc/html/rfc3986).
 
 # BDOC (Estonian specific implementation of Associated Signature Container Extended) container format
+The support for creating BDOC-specific **time-mark** signatures was removed since DigiDoc4j version **5.2.0** in relation to
+[discontinuation of **time-mark**-capable OCSP responders in 2023](https://www.id.ee/en/article/ria-stops-supporting-the-creation-of-the-bdoc-tm-digital-signature-format-in-the-software-it-develops/).
+
 * Has **.bdoc** extension
 * BDOC is a digital signature format developed in 2014 to replace the old, DDOC (DigiDoc) digital signature format.
 * This format has been used as a default digital signature format in Estonia since 2015 until end of 2018.
 * BDOC container is based on **ASiC-E** standard.
 * Signatures are stored in **XAdES** format.
-* Supports signature formats: 
+* Supports signature formats:
   * **LT_TM** (Long Term TimeMark) - signature has **time-mark** ensuring long-term provability of the authenticity of the signature.
-    **LT_TM** signing support in Digidoc4j was removed since version **5.2.0** in relation to [discontinuation of **time-mark**-capable OCSP responders in 2023](https://www.id.ee/en/article/ria-stops-supporting-the-creation-of-the-bdoc-tm-digital-signature-format-in-the-software-it-develops/).
+    **LT_TM** signing support in DigiDoc4j was removed since version **5.2.0**.
     * It is based on **XAdES baseline LT** signature format.
 * **.bdoc** file is in fact a ZIP container with the signed files, the signatures and the protocol control information and can basically be opened by any program that recognizes the ZIP format.
 * It is recommended not to use special characters in the data file’s name, i.e. it is suggested to use only the characters that are categorized as “unreserved” according to RFC3986 (https://datatracker.ietf.org/doc/html/rfc3986).
