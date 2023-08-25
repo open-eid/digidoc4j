@@ -87,7 +87,14 @@ You can use the library as a Maven dependency from the Maven Central (http://mvn
 * © Estonian Information System Authority
 
 ## Support
-Official builds are provided through [releases](https://github.com/open-eid/digidoc4j/releases). If you want support, you need to be using official builds. Contact for assistance by email [help@ria.ee](mailto:help@ria.ee). 
-Additional information can be found in [wiki Q&A](https://github.com/open-eid/digidoc4j/wiki/Questions-&-Answers) and on [ID.ee portal](https://www.id.ee/rubriik/digidoc-teegid/).
+Official builds are provided through [releases](https://github.com/open-eid/digidoc4j/releases).
+If you want support, you need to be using official builds.
+For assistance, contact us by email [help@ria.ee](mailto:help@ria.ee).
+Additional information can be found in [wiki Q&A](https://github.com/open-eid/digidoc4j/wiki/Questions-&-Answers) and
+on [ID.ee portal](https://www.id.ee/en/rubriik/digidoc-libraries/).
 
-Source code is provided on "as is" terms with no warranty (see license for more information). Do not file Github issues with generic support requests.
+For staying up to date with news impacting services and applications that use the DigiDoc4j library,
+[join DigiDoc4j library newsletter](https://www.id.ee/en/article/join-dd4j-library-newsletter/).
+
+Source code is provided on "as is" terms with no warranty (see license for more information).
+Do not file GitHub issues with generic support requests.
