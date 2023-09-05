@@ -20,29 +20,11 @@ import org.mockito.Mockito;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 public class AsicSignatureFinalizerTest extends AbstractTest {
-
-  @Test
-  public void bdocSignatureFinalization() {
-    Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
-    container.addDataFile(new ByteArrayInputStream("something".getBytes(StandardCharsets.UTF_8)), "file name", "text/plain");
-
-    DataToSign dataToSign = SignatureBuilder.aSignature(container)
-          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
-          .withSignatureProfile(SignatureProfile.LT_TM)
-          .buildDataToSign();
-
-    byte[] signatureDigest = sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
-
-    SignatureFinalizer signatureFinalizer = SignatureFinalizerBuilder.aFinalizer(container, dataToSign.getSignatureParameters());
-    Signature signature = signatureFinalizer.finalizeSignature(signatureDigest);
-    assertTimemarkSignature(signature);
-    assertValidSignature(signature);
-  }
 
   @Test
   public void asicESignatureFinalization() {

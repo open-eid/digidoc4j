@@ -12,9 +12,7 @@ package org.digidoc4j;
 
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.SignatureFinalizer;
-import org.digidoc4j.impl.asic.AsicSignatureFinalizer;
 import org.digidoc4j.impl.asic.asice.AsicESignatureFinalizer;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureFinalizer;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -24,63 +22,109 @@ import static org.digidoc4j.Container.DocumentType.ASICE;
 import static org.digidoc4j.Container.DocumentType.ASICS;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertThrows;
 
 public class SignatureFinalizerBuilderTest {
 
   @Test
-  public void bdocFinalizerFromBdocContainer() {
+  public void aFinalizer_WhenBDOCContainerIsProvided_ReturnsAsicESignatureFinalizer() {
     Container container = ContainerBuilder.aContainer(BDOC).build();
-    SignatureFinalizer signatureFinalizer = SignatureFinalizerBuilder.aFinalizer(container, new SignatureParameters());
-    assertTrue(signatureFinalizer instanceof BDocSignatureFinalizer);
+    SignatureParameters signatureParameters = new SignatureParameters();
+
+    SignatureFinalizer result = SignatureFinalizerBuilder.aFinalizer(container, signatureParameters);
+
+    assertThat(result, instanceOf(AsicESignatureFinalizer.class));
   }
 
   @Test
-  public void asiceFinalizerFromAsiceContainer() {
+  public void aFinalizer_WhenASICEContainerIsProvided_ReturnsAsicESignatureFinalizer() {
     Container container = ContainerBuilder.aContainer(ASICE).build();
-    SignatureFinalizer signatureFinalizer = SignatureFinalizerBuilder.aFinalizer(container, new SignatureParameters());
-    assertTrue(signatureFinalizer instanceof AsicESignatureFinalizer);
+    SignatureParameters signatureParameters = new SignatureParameters();
+
+    SignatureFinalizer result = SignatureFinalizerBuilder.aFinalizer(container, signatureParameters);
+
+    assertThat(result, instanceOf(AsicESignatureFinalizer.class));
   }
 
   @Test
-  public void asicFinalizerFromAsicsContainer() {
+  public void aFinalizer_WhenASICSContainerIsProvided_ThrowsNotSupportedException() {
     Container container = ContainerBuilder.aContainer(ASICS).build();
-    SignatureFinalizer signatureFinalizer = SignatureFinalizerBuilder.aFinalizer(container, new SignatureParameters());
-    assertTrue(signatureFinalizer instanceof AsicSignatureFinalizer);
-  }
+    SignatureParameters signatureParameters = new SignatureParameters();
 
-  @Test(expected = NotSupportedException.class)
-  public void finalizerFromContainer_notSupportedContainerType() {
-    Container container = ContainerBuilder.aContainer(DDOC).build();
-    SignatureFinalizerBuilder.aFinalizer(container, new SignatureParameters());
-  }
+    NotSupportedException caughtException = assertThrows(
+            NotSupportedException.class,
+            () -> SignatureFinalizerBuilder.aFinalizer(container, signatureParameters)
+    );
 
-  @Test
-  public void bdocFinalizerFromDataFiles() {
-    SignatureFinalizer signatureFinalizer = buildSignatureFinalizerFromDataFiles(BDOC);
-    assertTrue(signatureFinalizer instanceof BDocSignatureFinalizer);
+    assertThat(caughtException.getMessage(), containsString("Creation of ASiC-S signatures is not supported"));
   }
 
   @Test
-  public void asiceFinalizerFromDataFiles() {
-    SignatureFinalizer signatureFinalizer = buildSignatureFinalizerFromDataFiles(ASICE);
-    assertTrue(signatureFinalizer instanceof AsicESignatureFinalizer);
+  public void aFinalizer_WhenDDOCContainerIsProvided_ThrowsNotSupportedException() {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    SignatureParameters signatureParameters = new SignatureParameters();
+
+    NotSupportedException caughtException = assertThrows(
+            NotSupportedException.class,
+            () -> SignatureFinalizerBuilder.aFinalizer(container, signatureParameters)
+    );
+
+    assertThat(caughtException.getMessage(), containsString("Creation of DDOC signatures is not supported"));
   }
 
   @Test
-  public void asicsFinalizerFromDataFiles() {
-    SignatureFinalizer signatureFinalizer = buildSignatureFinalizerFromDataFiles(ASICS);
-    assertTrue(signatureFinalizer instanceof AsicSignatureFinalizer);
-  }
-
-  @Test(expected = NotSupportedException.class)
-  public void finalizerFromDataFiles_notSupportedContainerType() {
-    SignatureFinalizer signatureFinalizer = buildSignatureFinalizerFromDataFiles(DDOC);
-    assertTrue(signatureFinalizer instanceof BDocSignatureFinalizer);
-  }
-
-  private SignatureFinalizer buildSignatureFinalizerFromDataFiles(Container.DocumentType documentType) {
+  public void aFinalizer_WhenDataFilesAreProvidedAndContainerTypeIsBDOC_ReturnsAsicESignatureFinalizer() {
     List<DataFile> dataFiles = new ArrayList<>();
-    return SignatureFinalizerBuilder.aFinalizer(dataFiles, new SignatureParameters(), new Configuration(), documentType);
+    SignatureParameters signatureParameters = new SignatureParameters();
+    Configuration configuration = Configuration.getInstance();
+
+    SignatureFinalizer result = SignatureFinalizerBuilder
+            .aFinalizer(dataFiles, signatureParameters, configuration, BDOC);
+
+    assertThat(result, instanceOf(AsicESignatureFinalizer.class));
   }
+
+  @Test
+  public void aFinalizer_WhenDataFilesAreProvidedAndContainerTypeIsASICE_ReturnsAsicESignatureFinalizer() {
+    List<DataFile> dataFiles = new ArrayList<>();
+    SignatureParameters signatureParameters = new SignatureParameters();
+    Configuration configuration = Configuration.getInstance();
+
+    SignatureFinalizer result = SignatureFinalizerBuilder
+            .aFinalizer(dataFiles, signatureParameters, configuration, ASICE);
+
+    assertThat(result, instanceOf(AsicESignatureFinalizer.class));
+  }
+
+  @Test
+  public void aFinalizer_WhenDataFilesAreProvidedAndContainerTypeIsASICS_ThrowsNotSupportedException() {
+    List<DataFile> dataFiles = new ArrayList<>();
+    SignatureParameters signatureParameters = new SignatureParameters();
+    Configuration configuration = Configuration.getInstance();
+
+    NotSupportedException caughtException = assertThrows(
+            NotSupportedException.class,
+            () -> SignatureFinalizerBuilder.aFinalizer(dataFiles, signatureParameters, configuration, ASICS)
+    );
+
+    assertThat(caughtException.getMessage(), containsString("Creation of ASiC-S signatures is not supported"));
+  }
+
+  @Test
+  public void aFinalizer_WhenDataFilesAreProvidedAndContainerTypeIsDDOC_ReturnsAsicESignatureFinalizer() {
+    List<DataFile> dataFiles = new ArrayList<>();
+    SignatureParameters signatureParameters = new SignatureParameters();
+    Configuration configuration = Configuration.getInstance();
+
+    NotSupportedException caughtException = assertThrows(
+            NotSupportedException.class,
+            () -> SignatureFinalizerBuilder.aFinalizer(dataFiles, signatureParameters, configuration, DDOC)
+    );
+
+    assertThat(caughtException.getMessage(), containsString("Creation of DDOC signatures is not supported"));
+  }
+
 }

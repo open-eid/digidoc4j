@@ -2,8 +2,12 @@ package org.digidoc4j;
 
 import org.junit.Ignore;
 import org.junit.Test;
+
 import java.io.File;
 
+import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.matchesRegex;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -20,9 +24,12 @@ public class AiaOcspTest extends AbstractTest {
                 .withDataFile(testFile1.getPath(), "text/plain")
                 .withConfiguration(configuration)
                 .build();
-        this.createSignatureBy(container, this.pkcs12SignatureToken);
-        assertTrue(container.validate().isValid());
-        assertEquals("EMAILADDRESS=pki@sk.ee, CN=TEST of SK OCSP RESPONDER 2020, OU=OCSP, O=AS Sertifitseerimiskeskus, C=EE", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
+        this.createSignatureBy(container, pkcs12SignatureToken);
+        assertContainerIsValid(container);
+        assertThat(
+                container.getSignatures().get(0).getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN),
+                matchesRegex("TEST of ESTEID-SK 2015 AIA OCSP RESPONDER 202[3-9][0-1][0-9]")
+        );
     }
 
     @Test
@@ -34,23 +41,9 @@ public class AiaOcspTest extends AbstractTest {
                 .withDataFile(testFile1.getPath(), "text/plain")
                 .withConfiguration(configuration)
                 .build();
-        this.createSignatureBy(container, this.pkcs12SignatureToken);
+        this.createSignatureBy(container, pkcs12SignatureToken);
         assertTrue(container.validate().isValid());
         assertEquals("C=EE, O=SK ID Solutions AS, OU=OCSP, CN=DEMO of ESTEID-SK 2015 AIA OCSP RESPONDER 2018", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
-    }
-
-    @Test
-    public void bdocContainerIgnoresAiaOcsp() {
-        Configuration configuration = new Configuration(Configuration.Mode.TEST);
-        configuration.setPreferAiaOcsp(true);
-        File testFile1 = this.createTemporaryFileBy("testFile.txt", "TEST");
-        Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC)
-                .withDataFile(testFile1.getPath(), "text/plain")
-                .withConfiguration(configuration)
-                .build();
-        this.createSignatureBy(container, SignatureProfile.LT_TM, this.pkcs12SignatureToken);
-        assertTrue(container.validate().isValid());
-        assertEquals("EMAILADDRESS=pki@sk.ee, CN=TEST of SK OCSP RESPONDER 2020, OU=OCSP, O=AS Sertifitseerimiskeskus, C=EE", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
     }
 
     @Test
@@ -62,7 +55,7 @@ public class AiaOcspTest extends AbstractTest {
                 .withDataFile(testFile1.getPath(), "text/plain")
                 .withConfiguration(configuration)
                 .build();
-        this.createSignatureBy(container, this.pkcs12EccSignatureToken);
+        this.createSignatureBy(container, pkcs12EccSignatureToken);
         assertTrue(container.validate().isValid());
         assertEquals("C=EE, O=SK ID Solutions AS, OU=OCSP, CN=DEMO of ESTEID-SK 2015 AIA OCSP RESPONDER 2018", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
     }
@@ -76,7 +69,7 @@ public class AiaOcspTest extends AbstractTest {
                 .withDataFile(testFile1.getPath(), "text/plain")
                 .withConfiguration(configuration)
                 .build();
-        this.createSignatureBy(container, this.pkcs12Esteid2018SignatureToken);
+        this.createSignatureBy(container, pkcs12Esteid2018SignatureToken);
         assertTrue(container.validate().isValid());
         assertEquals("C=EE, O=SK ID Solutions AS, OU=OCSP, CN=DEMO of ESTEID-SK 2018 AIA OCSP RESPONDER 2018", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
     }
@@ -93,7 +86,7 @@ public class AiaOcspTest extends AbstractTest {
                 .withDataFile(testFile1.getPath(), "text/plain")
                 .withConfiguration(configuration)
                 .build();
-        this.createSignatureBy(container, this.pkcs12SignatureToken);
+        this.createSignatureBy(container, pkcs12SignatureToken);
         assertTrue(container.validate().isValid());
         assertEquals("C=EE, O=SK ID Solutions AS, OU=OCSP, CN=DEMO of ESTEID-SK 2015 AIA OCSP RESPONDER 2018", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
     }
@@ -110,7 +103,7 @@ public class AiaOcspTest extends AbstractTest {
                 .withDataFile(testFile1.getPath(), "text/plain")
                 .withConfiguration(configuration)
                 .build();
-        this.createSignatureBy(container, this.pkcs12SignatureToken);
+        this.createSignatureBy(container, pkcs12SignatureToken);
         ValidationResult result = container.validate();
         assertFalse(result.isValid());
         assertTrue(result.getErrors().get(0).getMessage().contains("No revocation data for the certificate"));

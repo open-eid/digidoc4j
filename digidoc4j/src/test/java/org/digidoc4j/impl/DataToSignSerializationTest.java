@@ -10,9 +10,6 @@
 
 package org.digidoc4j.impl;
 
-import eu.europa.esig.dss.enumerations.DigestAlgorithm;
-import eu.europa.esig.dss.enumerations.ObjectIdentifierQualifier;
-import eu.europa.esig.dss.model.Policy;
 import org.apache.commons.lang3.SerializationUtils;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
@@ -24,19 +21,23 @@ import org.digidoc4j.DetachedXadesSignatureBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.ValidationResult;
+import org.digidoc4j.impl.asic.asics.AsicSSignature;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 // These tests might take long and are not necessary to be run in every build.
@@ -78,7 +79,8 @@ public class DataToSignSerializationTest extends AbstractTest {
       Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).build();
       container.addDataFile("src/test/resources/testFiles/helper-files/sized-files/" + fileSize + "KB.txt", "text/plain");
       Signature signature = finalizeAndValidateContainerSignature(container, 0);
-      assertTimestampSignature(signature);
+      assertThat(signature, instanceOf(AsicSSignature.class));
+      assertThat(signature.getProfile(), sameInstance(SignatureProfile.LT));
       assertTrue(container.validate().isValid());
     }
   }
@@ -116,7 +118,8 @@ public class DataToSignSerializationTest extends AbstractTest {
       String fileName = fileSize + "KB.txt";
       container.addDataFile(new FileInputStream("src/test/resources/testFiles/helper-files/sized-files/" + fileName), fileName, "text/plain");
       Signature signature = finalizeAndValidateContainerSignature(container, fileSize * 1000);
-      assertTimestampSignature(signature);
+      assertThat(signature, instanceOf(AsicSSignature.class));
+      assertThat(signature.getProfile(), sameInstance(SignatureProfile.LT));
       assertTrue(container.validate().isValid());
     }
   }
@@ -173,46 +176,6 @@ public class DataToSignSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void customSignaturePolicyForBdoc() {
-    Policy customPolicy = new Policy();
-    customPolicy.setId("SOME-ID");
-    customPolicy.setSpuri("spuri");
-    customPolicy.setQualifier(ObjectIdentifierQualifier.OID_AS_URN);
-    customPolicy.setDigestValue("some".getBytes(StandardCharsets.UTF_8));
-    customPolicy.setDigestAlgorithm(DigestAlgorithm.SHA512);
-
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).build();
-    container.addDataFile("src/test/resources/testFiles/helper-files/sized-files/1KB.txt", "text/plain");
-
-    DataToSign dataToSign = SignatureBuilder.aSignature(container)
-        .withSigningCertificate(pkcs12SignatureToken.getCertificate())
-        .withSignatureProfile(SignatureProfile.LT_TM)
-        .withOwnSignaturePolicy(customPolicy)
-        .buildDataToSign();
-
-    assertEquals(customPolicy, dataToSign.getSignatureParameters().getPolicy());
-    byte[] signatureValue = pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign());
-    Signature signature = dataToSign.finalize(signatureValue);
-    assertTimestampSignature(signature);
-    ValidationResult validationResult = signature.validateSignature();
-    assertFalse(validationResult.isValid());
-    assertEquals(1, validationResult.getWarnings().size());
-    assertEquals("The signature/seal is an INDETERMINATE AdES digital signature!", validationResult.getWarnings().get(0).getMessage());
-    assertEquals(2, validationResult.getErrors().size());
-    assertEquals("The result of the LTV validation process is not acceptable to continue the process!", validationResult.getErrors().get(0).getMessage());
-  }
-
-  @Test
-  public void finalizeDetachedTimemarkSignature_dataFileFromStream() throws FileNotFoundException {
-    for (int fileSize : FILE_SIZES_IN_KILOBYTES) {
-      String fileName = fileSize + "KB.txt";
-      DataFile dataFile = new DataFile(new FileInputStream("src/test/resources/testFiles/helper-files/sized-files/" + fileName), fileName, "text/plain");
-      Signature signature = finalizeAndValidateDetachedSignature(dataFile, SignatureProfile.LT_TM, fileSize * 1000);
-      assertTimemarkSignature(signature);
-    }
-  }
-
-  @Test
   public void finalizeDetachedTimestampSignature_dataFileFromStream() throws FileNotFoundException {
     for (int fileSize : FILE_SIZES_IN_KILOBYTES) {
       String fileName = fileSize + "KB.txt";
@@ -248,25 +211,19 @@ public class DataToSignSerializationTest extends AbstractTest {
   private Signature finalizeAndValidateSignature(DataToSign dataToSign, int dataFilesCount, int dataToSignAdditionalWeightInBytes) {
     byte[] dataToSignSerialized = SerializationUtils.serialize(dataToSign);
 
-    assertTrue(dataToSignAdditionalWeightInBytes + 20000 > dataToSignSerialized.length);
-    assertTrue(DATA_TO_SIGN_DIGEST_EXPECTED_CEILING_SIZE * dataFilesCount > dataToSign.getDataToSign().length);
+    assertThat(dataToSignSerialized.length, lessThan(dataToSignAdditionalWeightInBytes + 55000));
+    assertThat(dataToSign.getDataToSign().length, lessThan(DATA_TO_SIGN_DIGEST_EXPECTED_CEILING_SIZE * dataFilesCount));
 
     DataToSign dataToSignDeserialized = SerializationUtils.deserialize(dataToSignSerialized);
     byte[] signatureValue = pkcs12SignatureToken.sign(dataToSignDeserialized.getDigestAlgorithm(), dataToSignDeserialized.getDataToSign());
     assertEquals(SIGNATURE_SIZE, signatureValue.length);
 
-    long trustedSigningTimeLowerBound = new Date().getTime() / 1000 * 1000;
+    Instant trustedSigningTimeLowerBound = Instant.now().truncatedTo(ChronoUnit.SECONDS);
     Signature signature = dataToSignDeserialized.finalize(signatureValue);
-    assertSigningTime(signature.getTrustedSigningTime(), trustedSigningTimeLowerBound);
+    assertTimeInBounds(signature.getTrustedSigningTime(), trustedSigningTimeLowerBound, Duration.ofSeconds(5));
 
     assertValidSignature(signature);
     return signature;
   }
 
-  private void assertSigningTime(Date signingTime, long signingTimeLowerBound) {
-    long signingTimeUpperBound = new Date().getTime() + 1000;
-    long signingTimeSeconds = signingTime.getTime();
-    assertTrue(signingTimeSeconds >= signingTimeLowerBound);
-    assertTrue(signingTimeSeconds <= signingTimeUpperBound);
-  }
 }

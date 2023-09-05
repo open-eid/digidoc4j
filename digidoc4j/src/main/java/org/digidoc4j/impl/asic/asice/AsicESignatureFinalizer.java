@@ -15,7 +15,9 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.SignatureContainerMatcherValidator;
 import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.exceptions.IllegalSignatureProfileException;
+import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.impl.asic.AsicSignatureFinalizer;
+import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 
 import java.util.List;
 
@@ -29,16 +31,17 @@ public class AsicESignatureFinalizer extends AsicSignatureFinalizer {
   }
 
   @Override
-  protected void setSignaturePolicy() {
-    // Do nothing
+  protected AsicSignature asAsicSignature(XadesSignatureWrapper signatureWrapper) {
+    return new AsicESignatureOpener(configuration).open(signatureWrapper);
   }
 
   @Override
   protected void validateSignatureCompatibility() {
-    super.validateSignatureCompatibility();
     if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile())) {
-      throw new IllegalSignatureProfileException(
-              "Cannot add BDoc specific (" + signatureParameters.getSignatureProfile() + ") signature to ASiCE container");
+      throw new IllegalSignatureProfileException(String.format(
+              "Cannot create BDoc specific (%s) signature",
+              signatureParameters.getSignatureProfile()
+      ));
     }
   }
 }

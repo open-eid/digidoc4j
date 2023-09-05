@@ -21,13 +21,14 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
+import org.digidoc4j.impl.asic.AsicContainer;
 import org.digidoc4j.impl.asic.AsicEntry;
 import org.digidoc4j.impl.asic.AsicParseResult;
+import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainerBuilder;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import org.junit.Test;
 
@@ -50,49 +51,49 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
 
   @Test
   public void signatureRemovalFromBDocContainerThroughoutContainerSavingAndOpening_shouldResultWithCompletelyRemovedSignature() {
-    BDocContainer container = this.createEmptyContainerBy(BDOC);
-    container.addDataFile(mockDataFile());
+    BDocContainer initialContainer = createEmptyContainerBy(BDOC);
+    initialContainer.addDataFile(mockDataFile());
 
-    Signature signature = this.createSignatureBy(container, SignatureProfile.LT_TM, pkcs12SignatureToken);
-    assertSame(1, container.getSignatures().size());
-    assertTrue(container.getSignatures().contains(signature));
-    assertNull(container.getContainerParseResult());
-    assertTrue(container.validate().isValid());
+    Signature signature = createSignatureBy(initialContainer, SignatureProfile.LT, pkcs12SignatureToken);
+    assertSame(1, initialContainer.getSignatures().size());
+    assertTrue(initialContainer.getSignatures().contains(signature));
+    assertNull(initialContainer.getContainerParseResult());
+    assertTrue(initialContainer.validate().isValid());
 
-    InputStream containerStream = container.saveAsStream();
+    InputStream containerStream = initialContainer.saveAsStream();
 
-    container = (BDocContainer) ContainerBuilder.aContainer(BDOC).fromStream(containerStream).build();
-    assertEquals(1, container.getSignatures().size());
-    BDocSignature containerSignature = (BDocSignature) container.getSignatures().get(0);
+    AsicContainer deserializedContainer = (AsicContainer) ContainerBuilder.aContainer(BDOC).fromStream(containerStream).build();
+    assertEquals(1, deserializedContainer.getSignatures().size());
+    AsicSignature containerSignature = (AsicSignature) deserializedContainer.getSignatures().get(0);
     assertEquals(containerSignature.getId(), signature.getId());
-    containerParseResultContainsSignature(container.getContainerParseResult(), containerSignature.getSignatureDocument().getName());
-    ContainerValidationResult validationResult = container.validate();
+    containerParseResultContainsSignature(deserializedContainer.getContainerParseResult(), containerSignature.getSignatureDocument().getName());
+    ContainerValidationResult validationResult = deserializedContainer.validate();
     assertTrue(validationResult.isValid());
     containerValidationResultContainsSignature(validationResult, containerSignature);
 
-    container.removeSignature(containerSignature);
-    assertTrue(container.getSignatures().isEmpty());
-    containerParseResultDoesNotContainSignature(container.getContainerParseResult(), containerSignature.getSignatureDocument().getName());
-    validationResult = container.validate();
+    deserializedContainer.removeSignature(containerSignature);
+    assertTrue(deserializedContainer.getSignatures().isEmpty());
+    containerParseResultDoesNotContainSignature(deserializedContainer.getContainerParseResult(), containerSignature.getSignatureDocument().getName());
+    validationResult = deserializedContainer.validate();
     assertTrue(validationResult.isValid());
     containerValidationResultDoesNotContainSignature(validationResult, containerSignature);
 
-    containerStream = container.saveAsStream();
+    containerStream = deserializedContainer.saveAsStream();
 
-    container = (BDocContainer) ContainerBuilder.aContainer(BDOC).fromStream(containerStream).build();
-    assertTrue(container.getSignatures().isEmpty());
-    containerParseResultDoesNotContainSignature(container.getContainerParseResult(), containerSignature.getSignatureDocument().getName());
-    validationResult = container.validate();
+    deserializedContainer = (AsicContainer) ContainerBuilder.aContainer(BDOC).fromStream(containerStream).build();
+    assertTrue(deserializedContainer.getSignatures().isEmpty());
+    containerParseResultDoesNotContainSignature(deserializedContainer.getContainerParseResult(), containerSignature.getSignatureDocument().getName());
+    validationResult = deserializedContainer.validate();
     assertTrue(validationResult.isValid());
     containerValidationResultDoesNotContainSignature(validationResult, containerSignature);
   }
 
   @Test
   public void signatureRemovalFromASiCEContainerThroughoutContainerSavingAndOpening_shouldResultWithCompletelyRemovedSignature() {
-    AsicEContainer container = this.createEmptyContainerBy(ASICE);
+    AsicEContainer container = createEmptyContainerBy(ASICE);
     container.addDataFile(mockDataFile());
 
-    Signature signature = this.createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
+    Signature signature = createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
     assertSame(1, container.getSignatures().size());
     assertTrue(container.getSignatures().contains(signature));
     assertNull(container.getContainerParseResult());
@@ -128,10 +129,10 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
 
   @Test
   public void addAndRemoveSignatureToNewContainerBeforeSaving_resultsWithCompletelyRemovedSignature() {
-    BDocContainer container = this.createEmptyContainerBy(BDOC);
+    BDocContainer container = createEmptyContainerBy(BDOC);
     container.addDataFile(mockDataFile());
 
-    BDocSignature signature = this.createSignatureBy(container, SignatureProfile.LT_TM, pkcs12SignatureToken);
+    AsicSignature signature = createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
     container.removeSignature(signature);
     assertTrue(container.getSignatures().isEmpty());
     assertNull(container.getContainerParseResult());
@@ -159,11 +160,11 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
 
   @Test
   public void tryingToRemoveNonExistingSignatureFromBDocContainer_shouldThrowAnException() {
-    BDocContainer container = this.createEmptyContainerBy(BDOC);
+    BDocContainer container = createEmptyContainerBy(BDOC);
     container.addDataFile(mockDataFile());
 
-    Signature containerSignature = this.createSignatureBy(container, SignatureProfile.LT_TM, pkcs12SignatureToken);
-    Signature unrelatedSignature = this.createSignatureBy(BDOC, SignatureProfile.LT_TM, pkcs12SignatureToken);
+    Signature containerSignature = createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
+    Signature unrelatedSignature = createSignatureBy(BDOC, SignatureProfile.LT, pkcs12SignatureToken);
 
     assertEquals(1, container.getSignatures().size());
     assertTrue(container.getSignatures().contains(containerSignature));
@@ -180,11 +181,11 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
 
   @Test
   public void tryingToRemoveNonExistingSignatureFromASiCEContainer_shouldThrowAnException() {
-    AsicEContainer container = this.createEmptyContainerBy(ASICE);
+    AsicEContainer container = createEmptyContainerBy(ASICE);
     container.addDataFile(mockDataFile());
 
-    Signature containerSignature = this.createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
-    Signature unrelatedSignature = this.createSignatureBy(ASICE, SignatureProfile.LT, pkcs12SignatureToken);
+    Signature containerSignature = createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
+    Signature unrelatedSignature = createSignatureBy(ASICE, SignatureProfile.LT, pkcs12SignatureToken);
 
     assertEquals(1, container.getSignatures().size());
     assertTrue(container.getSignatures().contains(containerSignature));
@@ -201,12 +202,12 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
 
   @Test
   public void tryingToRemoveNonExistingSignatureByIndexFromBDocContainer_shouldThrowAnException() {
-    BDocContainer container = this.createEmptyContainerBy(BDOC);
+    BDocContainer container = createEmptyContainerBy(BDOC);
     container.addDataFile(mockDataFile());
 
-    Signature signature = this.createSignatureBy(container, SignatureProfile.LT_TM, pkcs12SignatureToken);
+    Signature signature = createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
     Signature nonExistingSignature = SignatureBuilder.aSignature(container)
-            .withSignatureProfile(SignatureProfile.LT_TM)
+            .withSignatureProfile(SignatureProfile.LT)
             .withSignatureToken(pkcs12SignatureToken)
             .withSignatureId("id-non-existing")
             .invokeSigning();
@@ -226,10 +227,10 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
 
   @Test
   public void tryingToRemoveNonExistingSignatureByIndexFromASiCEContainer_shouldThrowAnException() {
-    AsicEContainer container = this.createEmptyContainerBy(ASICE);
+    AsicEContainer container = createEmptyContainerBy(ASICE);
     container.addDataFile(mockDataFile());
 
-    Signature signature = this.createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
+    Signature signature = createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
     Signature nonExistingSignature = SignatureBuilder.aSignature(container)
             .withSignatureProfile(SignatureProfile.LT)
             .withSignatureToken(pkcs12SignatureToken)
@@ -253,7 +254,7 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
   public void dataFileRemovalFromBDocContainerThroughoutContainerSavingAndOpening_shouldResultWithCompletelyRemovedData() {
     DataFile dataFile = mockDataFile();
 
-    BDocContainer container = this.createEmptyContainerBy(BDOC);
+    BDocContainer container = createEmptyContainerBy(BDOC);
     container.addDataFile(dataFile);
     assertTrue(container.getDataFiles().contains(dataFile));
     assertNull(container.getContainerParseResult());
@@ -283,7 +284,7 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
   public void dataFileRemovalFromASiCEContainerThroughoutContainerSavingAndOpening_shouldResultWithCompletelyRemovedData() {
     DataFile dataFile = mockDataFile();
 
-    AsicEContainer container = this.createEmptyContainerBy(ASICE);
+    AsicEContainer container = createEmptyContainerBy(ASICE);
     container.addDataFile(dataFile);
     assertTrue(container.getDataFiles().contains(dataFile));
     assertNull(container.getContainerParseResult());

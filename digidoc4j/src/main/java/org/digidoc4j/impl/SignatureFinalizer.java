@@ -32,7 +32,7 @@ public abstract class SignatureFinalizer implements Serializable {
   protected SignatureParameters signatureParameters;
   protected Configuration configuration;
 
-  public SignatureFinalizer(List<DataFile> dataFiles, SignatureParameters signatureParameters, Configuration configuration) {
+  protected SignatureFinalizer(List<DataFile> dataFiles, SignatureParameters signatureParameters, Configuration configuration) {
     verifyDataFilesNotEmpty(dataFiles);
     this.dataFiles = dataFiles;
     this.signatureParameters = signatureParameters;

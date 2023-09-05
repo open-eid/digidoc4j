@@ -13,24 +13,19 @@ package org.digidoc4j;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.SignatureFinalizer;
-import org.digidoc4j.impl.asic.AsicSignatureFinalizer;
 import org.digidoc4j.impl.asic.asice.AsicESignatureFinalizer;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureFinalizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 import static org.digidoc4j.Container.DocumentType.ASICE;
 import static org.digidoc4j.Container.DocumentType.ASICS;
 import static org.digidoc4j.Container.DocumentType.BDOC;
+import static org.digidoc4j.Container.DocumentType.DDOC;
 
 /**
  * Builder for creating a signature finalizer for finalizing signing process.
  */
 public final class SignatureFinalizerBuilder {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(SignatureFinalizerBuilder.class);
 
   /**
    * Create a new signature finalizer based on a container and signature parameters.
@@ -67,19 +62,15 @@ public final class SignatureFinalizerBuilder {
   }
 
   private static SignatureFinalizer determineFinalizer(List<DataFile> dataFilesToSign, SignatureParameters signatureParameters, Configuration configuration, String documentType) {
-    if (isDocumentOfType(documentType, BDOC.name())) {
-      return new BDocSignatureFinalizer(dataFilesToSign, signatureParameters, configuration);
-    } else if (isDocumentOfType(documentType, ASICE.name())) {
+    if (StringUtils.equalsAnyIgnoreCase(documentType, ASICE.name(), BDOC.name())) {
       return new AsicESignatureFinalizer(dataFilesToSign, signatureParameters, configuration);
-    } else if (isDocumentOfType(documentType, ASICS.name())) {
-      return new AsicSignatureFinalizer(dataFilesToSign, signatureParameters, configuration);
+    } else if (StringUtils.equalsIgnoreCase(documentType, ASICS.name())) {
+      throw new NotSupportedException("Creation of ASiC-S signatures is not supported");
+    } else if (StringUtils.equalsIgnoreCase(documentType, DDOC.name())) {
+      throw new NotSupportedException("Creation of DDOC signatures is not supported");
     } else {
-      LOGGER.error("Unknown document type: {}", documentType);
       throw new NotSupportedException("Unknown document type: " + documentType);
     }
   }
 
-  private static boolean isDocumentOfType(String actualDocumentType, String expectedDocumentType) {
-    return StringUtils.equalsIgnoreCase(expectedDocumentType, actualDocumentType);
-  }
 }

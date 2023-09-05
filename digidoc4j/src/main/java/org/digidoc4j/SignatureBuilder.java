@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j;
 
@@ -17,10 +17,8 @@ import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.impl.asic.AsicSignatureBuilder;
 import org.digidoc4j.impl.asic.asice.AsicESignatureBuilder;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureBuilder;
-import org.digidoc4j.utils.PolicyUtils;
+import org.digidoc4j.impl.asic.asics.AsicSSignatureBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +44,7 @@ import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
  * &nbsp;&nbsp; {@link SignatureBuilder#withCountry(String) withCountry("Val Verde")}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withRoles(String...) withRoles("Manager", "Suspicious Fisherman")}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureDigestAlgorithm(DigestAlgorithm) withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)}. // Digest algorithm is SHA-256 <br/>
- * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureProfile(SignatureProfile) withSignatureProfile(SignatureProfile.LT_TM)}. // Signature profile is Time-Mark <br/>
+ * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureProfile(SignatureProfile) withSignatureProfile(SignatureProfile.LT)}. // Signature profile is Time Stamp <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withSigningCertificate(X509Certificate) withSigningCertificate(x509Certificate)}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureId(String) withSignatureId("1")}. <br/>
  * &nbsp;&nbsp; {@link SignatureBuilder#withSignatureToken(SignatureToken) withSignatureToken(signatureToken)}. // Use signature token <br/>
@@ -89,12 +87,10 @@ public abstract class SignatureBuilder implements Serializable {
   private static SignatureBuilder createBuilder(String containerType) {
     if (isCustomContainerType(containerType)) {
       return createCustomSignatureBuilder(containerType);
-    } else if (isContainerType(containerType, BDOC_CONTAINER_TYPE)) {
-      return new BDocSignatureBuilder();
-    } else if (isContainerType(containerType, ASICE_CONTAINER_TYPE)) {
+    } else if (StringUtils.equalsAnyIgnoreCase(containerType, ASICE_CONTAINER_TYPE, BDOC_CONTAINER_TYPE)) {
       return new AsicESignatureBuilder();
-    } else if (isContainerType(containerType, ASICS_CONTAINER_TYPE)) {
-      return new AsicSignatureBuilder();
+    } else if (StringUtils.equalsIgnoreCase(containerType, ASICS_CONTAINER_TYPE)) {
+      return new AsicSSignatureBuilder();
     } else {
       logger.error("Unknown container type: {}", containerType);
       throw new NotSupportedException("Unknown container type: " + containerType);
@@ -123,10 +119,6 @@ public abstract class SignatureBuilder implements Serializable {
 
   private static boolean isCustomContainerType(String containerType) {
     return customSignatureBuilders.containsKey(containerType);
-  }
-
-  private static boolean isContainerType(String containerType, String ddocContainerType) {
-    return StringUtils.equalsIgnoreCase(ddocContainerType, containerType);
   }
 
   private static SignatureBuilder createCustomSignatureBuilder(String containerType) {
@@ -274,18 +266,14 @@ public abstract class SignatureBuilder implements Serializable {
   }
 
   /**
-   * Set a signature profile: Time Mark, Time Stamp, Archive Time Stamp or no profile. Default is Time Stamp.
+   * Set a signature profile: Time Stamp, Archive Time Stamp or no profile. Default is Time Stamp.
    *
    * @param signatureProfile signature profile.
    * @return builder for creating a signature.
    */
   public SignatureBuilder withSignatureProfile(SignatureProfile signatureProfile) {
-    Policy policyDefinedByUser = signatureParameters.getPolicy();
-    if (policyDefinedByUser != null && PolicyUtils.areAllPolicyValuesDefined(policyDefinedByUser)
-        && signatureProfile != SignatureProfile.LT_TM) {
-      logger.debug("policyDefinedByUser:" + policyDefinedByUser.toString());
-      logger.debug("signatureProfile:" + signatureProfile.toString());
-      throw new NotSupportedException("Can't define signature policy if it's not LT_TM signature profile ");
+    if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureProfile)) {
+      throw new NotSupportedException(String.format("Can't create %s signatures", signatureProfile));
     }
     signatureParameters.setSignatureProfile(signatureProfile);
     return this;
@@ -340,17 +328,14 @@ public abstract class SignatureBuilder implements Serializable {
   }
 
   /**
-   * Set signature policy parameters. Define signature profile first.
+   * Set signature policy parameters.
+   * <p>
+   * The default implementation throws {@code NotSupportedException}.
    *
    * @param signaturePolicy with defined parameters.
    * @return SignatureBuilder
    */
   public SignatureBuilder withOwnSignaturePolicy(Policy signaturePolicy) {
-    if (signatureParameters.getSignatureProfile() != null
-        && signatureParameters.getSignatureProfile() != SignatureProfile.LT_TM) {
-      throw new NotSupportedException("Can't define signature policy if it's not LT_TM signature profile. Define it first. ");
-    }
-    signatureParameters.setPolicy(signaturePolicy);
-    return this;
+    throw new NotSupportedException("Can't define signature policy");
   }
 }

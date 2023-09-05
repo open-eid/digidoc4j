@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic.manifest;
 
@@ -23,7 +23,7 @@ import org.w3c.dom.Node;
 
 import java.io.Serializable;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ManifestParser implements Serializable {
@@ -45,7 +45,7 @@ public class ManifestParser implements Serializable {
     if (!containsManifestFile()) {
       return Collections.emptyMap();
     }
-    entries = new HashMap<>();
+    entries = new LinkedHashMap<>();
     loadFileEntriesFromManifest();
     return entries;
   }

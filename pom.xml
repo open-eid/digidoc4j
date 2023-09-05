@@ -6,7 +6,7 @@
 
     <groupId>org.digidoc4j</groupId>
     <artifactId>digidoc4j-parent</artifactId>
-    <version>5.1.0</version>
+    <version>5.2.0</version>
     <packaging>pom</packaging>
 
     <name>DigiDoc4J parent</name>
@@ -141,8 +141,18 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
-        <slf4j.version>1.7.36</slf4j.version>
-        <bouncycastle.version>1.70</bouncycastle.version>
+
+        <bouncycastle.version>1.70</bouncycastle.version><!-- 1.70 is the latest version of jdk15on -->
+        <commons-codec.version>1.16.0</commons-codec.version>
+        <slf4j.version>1.7.36</slf4j.version><!-- logback-classic 1.2.X requires 1.7.X or earlier -->
+
+        <dependency-check-maven.version>8.3.1</dependency-check-maven.version>
+        <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
+        <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
+        <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
+
         <javadocOpt>none</javadocOpt>
     </properties>
 
@@ -166,7 +176,7 @@
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.15</version>
+                <version>${commons-codec.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -177,7 +187,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.11.0</version>
+                    <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <encoding>${project.build.sourceEncoding}</encoding>
                         <source>${maven.compiler.source}</source>
@@ -187,7 +197,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>${maven-source-plugin.version}</version>
                     <executions>
                         <execution>
                             <id>attach-sources</id>
@@ -201,7 +211,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <version>${maven-javadoc-plugin.version}</version>
                     <configuration>
                         <source>8</source>
                     </configuration>
@@ -224,12 +234,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.0.0-M9</version>
+                    <version>${maven-surefire-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.8</version>
+                    <version>${jacoco-maven-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -320,7 +330,7 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
-                        <version>8.1.2</version>
+                        <version>${dependency-check-maven.version}</version>
                         <configuration>
                             <skipTestScope>false</skipTestScope>
                             <skipDependencyManagement>false</skipDependencyManagement>

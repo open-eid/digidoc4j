@@ -218,7 +218,7 @@ public final class DigiDoc4J {
     options.addOption("w", "warnings", false, "show warnings");
     options.addOption("version", "version", false, "show version");
     options.addOption("tst", "timestamp", false, "adds timestamp token to container");
-    options.addOption("err", "showerrors", false, "show container errors");
+    options.addOption("err", "showerrors", false, "show container errors [deprecated]");
     options.addOption("aiaocsp", "aiaocsp", false, "prefer AIA OCSP in case of LT,LTA signature profiles");
     options.addOption(DigiDoc4J.type());
     options.addOption(DigiDoc4J.inputFile());
@@ -268,8 +268,8 @@ public final class DigiDoc4J {
 
   private static Option signatureProfile() {
     return OptionBuilder.withArgName("signatureProfile").hasArg()
-        .withDescription("sets signature profile. Profile can be B_BES, LT, LT_TM or LTA").withLongOpt(
-            "profile").create("p");
+            .withDescription("sets signature profile. Profile can be B_BES, LT or LTA")
+            .withLongOpt("profile").create("p");
   }
 
   private static Option encryptionAlgorithm() {

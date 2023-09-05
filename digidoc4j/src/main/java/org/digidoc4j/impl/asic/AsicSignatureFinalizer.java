@@ -22,20 +22,18 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.Signature;
-import org.digidoc4j.SignatureContainerMatcherValidator;
 import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.impl.AiaSourceFactory;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.impl.TspDataLoaderFactory;
-import org.digidoc4j.impl.asic.asice.AsicESignatureOpener;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignatureOpener;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
@@ -57,7 +55,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 /**
  * Asic signature finalizer for datafiles signing process.
  */
-public class AsicSignatureFinalizer extends SignatureFinalizer {
+public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
 
   public static final int HEX_MAX_LENGTH = 10;
   protected transient XadesSigningDssFacade facade;
@@ -66,7 +64,7 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
 
   private boolean isLTorLTAProfile = false;
 
-  public AsicSignatureFinalizer(List<DataFile> dataFilesToSign, SignatureParameters signatureParameters, Configuration configuration) {
+  protected AsicSignatureFinalizer(List<DataFile> dataFilesToSign, SignatureParameters signatureParameters, Configuration configuration) {
     super(dataFilesToSign, signatureParameters, configuration);
   }
 
@@ -98,15 +96,8 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
     }
     List<DSSDocument> detachedContents = detachedContentCreator.getDetachedContentList();
     XadesSignatureWrapper signatureWrapper = parseSignatureWrapper(signedDocument, detachedContents);
+    AsicSignature signature = asAsicSignature(signatureWrapper);
 
-    AsicSignature signature;
-    if (SignatureContainerMatcherValidator.isBDocOnlySignature(signatureParameters.getSignatureProfile())) {
-      BDocSignatureOpener signatureOpener = new BDocSignatureOpener(configuration);
-      signature = signatureOpener.open(signatureWrapper);
-    } else {
-      AsicESignatureOpener signatureOpener = new AsicESignatureOpener(configuration);
-      signature = signatureOpener.open(signatureWrapper);
-    }
     validateOcspResponse(signature.getOrigin());
     validateTimestampResponse(signature.getOrigin());
     LOGGER.info("Signing asic successfully completed");
@@ -125,9 +116,9 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
     return dataToSign;
   }
 
-  protected void validateSignatureCompatibility() {
-    // Do nothing
-  }
+  protected abstract AsicSignature asAsicSignature(XadesSignatureWrapper signatureWrapper);
+
+  protected abstract void validateSignatureCompatibility();
 
   private void populateParametersForFinalizingSignature(byte[] signatureValueBytes) {
     initSigningFacade();
@@ -236,16 +227,18 @@ public class AsicSignatureFinalizer extends SignatureFinalizer {
   private void setSignatureProfile(SignatureProfile profile) {
     switch (profile) {
       case B_BES:
-      case B_EPES:
         facade.setSignatureLevel(XAdES_BASELINE_B);
+        break;
+      case LT:
+        isLTorLTAProfile = true;
+        facade.setSignatureLevel(XAdES_BASELINE_LT);
         break;
       case LTA:
         isLTorLTAProfile = true;
         facade.setSignatureLevel(XAdES_BASELINE_LTA);
         break;
       default:
-        isLTorLTAProfile = true;
-        facade.setSignatureLevel(XAdES_BASELINE_LT);
+        throw new NotSupportedException(String.format("%s profile is not supported for ASiC signatures", profile));
     }
   }
 

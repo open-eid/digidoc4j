@@ -15,7 +15,6 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,52 +30,32 @@ import java.util.Date;
 public class SignatureTimeTest extends AbstractTest {
 
   @Test
-  public void signatureProfileLTTMTest() {
-    Instant notBefore = truncatedCurrentTime();
-    Container container = this.createNonEmptyContainer();
-    BDocSignature signature = createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.LT_TM, pkcs12SignatureToken);
-    container.addSignature(signature);
-    assertTimeBetweenNotBeforeAndNow(signature.getClaimedSigningTime(), notBefore, Duration.ofMinutes(1L));
-    assertTimeBetweenNotBeforeAndNow(signature.getTrustedSigningTime(), notBefore, Duration.ofMinutes(1L));
-  }
-
-  @Test
   public void signatureProfileLTTest() {
     Instant notBefore = truncatedCurrentTime();
-    Container container = this.createNonEmptyContainer();
-    AsicESignature signature = createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.LT, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerBy(Container.DocumentType.ASICE);
+    AsicESignature signature = createSignatureBy(Container.DocumentType.ASICE, SignatureProfile.LT, pkcs12SignatureToken);
     container.addSignature(signature);
-    assertTimeBetweenNotBeforeAndNow(signature.getClaimedSigningTime(), notBefore, Duration.ofMinutes(1L));
+    assertTimeBetweenNotBeforeAndNow(signature.getClaimedSigningTime(), notBefore, Duration.ZERO);
     assertTimeBetweenNotBeforeAndNow(signature.getTrustedSigningTime(), notBefore, Duration.ofMinutes(1L));
   }
 
   @Test
   public void signatureProfileLTATest() {
     Instant notBefore = truncatedCurrentTime();
-    Container container = this.createNonEmptyContainer();
-    AsicESignature signature = createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.LTA, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerBy(Container.DocumentType.ASICE);
+    AsicESignature signature = createSignatureBy(Container.DocumentType.ASICE, SignatureProfile.LTA, pkcs12SignatureToken);
     container.addSignature(signature);
-    assertTimeBetweenNotBeforeAndNow(signature.getClaimedSigningTime(), notBefore, Duration.ofMinutes(1L));
+    assertTimeBetweenNotBeforeAndNow(signature.getClaimedSigningTime(), notBefore, Duration.ZERO);
     assertTimeBetweenNotBeforeAndNow(signature.getTrustedSigningTime(), notBefore, Duration.ofMinutes(1L));
   }
 
   @Test
   public void signatureProfileB_BESTest() {
     Instant notBefore = truncatedCurrentTime();
-    Container container = this.createNonEmptyContainer();
-    AsicESignature signature = createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.B_BES, pkcs12SignatureToken);
+    Container container = createNonEmptyContainerBy(Container.DocumentType.ASICE);
+    AsicESignature signature = createSignatureBy(Container.DocumentType.ASICE, SignatureProfile.B_BES, pkcs12SignatureToken);
     container.addSignature(signature);
-    assertTimeBetweenNotBeforeAndNow(signature.getClaimedSigningTime(), notBefore, Duration.ofMinutes(1L));
-    Assert.assertNull(signature.getTrustedSigningTime());
-  }
-
-  @Test
-  public void signatureProfileB_EPESTest() {
-    Instant notBefore = truncatedCurrentTime();
-    Container container = this.createNonEmptyContainer();
-    AsicESignature signature = createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.B_EPES, pkcs12SignatureToken);
-    container.addSignature(signature);
-    assertTimeBetweenNotBeforeAndNow(signature.getClaimedSigningTime(), notBefore, Duration.ofMinutes(1L));
+    assertTimeBetweenNotBeforeAndNow(signature.getClaimedSigningTime(), notBefore, Duration.ZERO);
     Assert.assertNull(signature.getTrustedSigningTime());
   }
 
@@ -86,19 +65,20 @@ public class SignatureTimeTest extends AbstractTest {
 
   @Override
   protected void before() {
-    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    configuration = Configuration.of(Configuration.Mode.TEST);
   }
 
   private static Instant truncatedCurrentTime() {
     return Instant.now().truncatedTo(ChronoUnit.SECONDS);
   }
 
-  private static void assertTimeBetweenNotBeforeAndNow(Date time, Instant notBefore, Duration notAfterSkew) {
+  private static void assertTimeBetweenNotBeforeAndNow(Date time, Instant notBefore, Duration clockSkew) {
     Instant timeAsInstant = time.toInstant();
+    notBefore = notBefore.minus(clockSkew);
     if (timeAsInstant.isBefore(notBefore)) {
       Assert.fail(String.format("Time '%s' is before 'not-before' (%s)", timeAsInstant, notBefore));
     }
-    Instant notAfter = Instant.now().plus(notAfterSkew);
+    Instant notAfter = Instant.now().plus(clockSkew);
     if (timeAsInstant.isAfter(notAfter)) {
       Assert.fail(String.format("Time '%s' is after 'not-after' (%s)", timeAsInstant, notAfter));
     }

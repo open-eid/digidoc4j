@@ -15,8 +15,7 @@ import eu.europa.esig.dss.model.DSSDocument;
 import org.apache.xml.security.signature.Reference;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.asic.asice.AsicESignature;
-import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
+import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -171,12 +170,7 @@ public class ManifestValidator {
 
   private Set<ManifestEntry> getSignatureEntries(Signature signature) {
     Set<ManifestEntry> signatureEntries = new HashSet<>();
-    XadesSignature origin;
-    if (signature.getClass() == BDocSignature.class) {
-      origin = ((BDocSignature) signature).getOrigin();
-    } else {
-      origin = ((AsicESignature) signature).getOrigin();
-    }
+    XadesSignature origin = ((AsicSignature) signature).getOrigin();
     List<Reference> references = origin.getReferences();
     for (Reference reference : references) {
       if (reference.getType().equals("")) {

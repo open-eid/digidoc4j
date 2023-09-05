@@ -1,14 +1,10 @@
 ﻿![EU Regional Development Fund](digidoc4j/src/main/doc/resources/EL_Regionaalarengu_Fond_horisontaalne-vaike.jpg)
 
-# Build status
-
-[![Digidoc4j CI with Maven](https://github.com/open-eid/digidoc4j/actions/workflows/digidoc4j-verify.yml/badge.svg?branch=master)](https://github.com/open-eid/digidoc4j/actions/workflows/digidoc4j-verify.yml)
-
 # DigiDoc4j
 DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers of signed documents.
 
 # Features
-* Creating ASiC-E and BDOC containers
+* Creating ASiC-E
 * Validating ASiC-E, BDOC, ASIC-S and DDOC containers
 * Creating and validating detached XadES
 
@@ -31,18 +27,22 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
 * It is recommended not to use special characters in the data file’s name, i.e. it is suggested to use only the characters that are categorized as “unreserved” according to RFC3986 (https://datatracker.ietf.org/doc/html/rfc3986).
 
 # BDOC (Estonian specific implementation of Associated Signature Container Extended) container format
+The support for creating BDOC-specific **time-mark** signatures was removed since DigiDoc4j version **5.2.0** in relation to
+[discontinuation of **time-mark**-capable OCSP responders in 2023](https://www.id.ee/en/article/ria-stops-supporting-the-creation-of-the-bdoc-tm-digital-signature-format-in-the-software-it-develops/).
+
 * Has **.bdoc** extension
 * BDOC is a digital signature format developed in 2014 to replace the old, DDOC (DigiDoc) digital signature format.
 * This format has been used as a default digital signature format in Estonia since 2015 until end of 2018.
 * BDOC container is based on **ASiC-E** standard.
 * Signatures are stored in **XAdES** format.
-* Supports signature formats: 
+* Supports signature formats:
   * **LT_TM** (Long Term TimeMark) - signature has **time-mark** ensuring long-term provability of the authenticity of the signature.
+    **LT_TM** signing support in DigiDoc4j was removed since version **5.2.0**.
     * It is based on **XAdES baseline LT** signature format.
 * **.bdoc** file is in fact a ZIP container with the signed files, the signatures and the protocol control information and can basically be opened by any program that recognizes the ZIP format.
 * It is recommended not to use special characters in the data file’s name, i.e. it is suggested to use only the characters that are categorized as “unreserved” according to RFC3986 (https://datatracker.ietf.org/doc/html/rfc3986).
 
-# ASiC-S (ASiC-E - Associated Signature Container Simple) container format
+# ASiC-S (Associated Signature Container Simple) container format
 * Has **.asics** or **.scs** extension
 * Container associates one data file with either:
   - one signature file containing one or more XAdES detached digital signature(s) that apply to it; or
@@ -69,10 +69,10 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
 # Requirements
 * Java **8** or higher (since version 4.0.0-RC.1)
 * Internet access to external verification services
-* OCSP (Online Certificate Status Protocol) - http://ocsp.sk.ee
-* EU TSL (European Commission's Trusted Status List) - https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml
-* All the EU member states' TL servers referred in the EU TSL. Note that this list may change. (e.g. https://sr.riik.ee/tsl/estonian-tsl.xml, https://sede.minetur.gob.es/Prestadores/TSL/TSL.xml, https://www.viestintavirasto.fi/attachments/TSL-Ficora.xml etc.)
-* TSA (Time Stamping Authority) - http://tsa.sk.ee
+  * OCSP (Online Certificate Status Protocol) - http://ocsp.sk.ee
+  * EU TSL (European Commission's Trusted Status List) - https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml
+  * All the EU member states' TL servers referred in the EU TSL. Note that this list may change. (e.g. https://sr.riik.ee/tsl/estonian-tsl.xml, https://sede.minetur.gob.es/Prestadores/TSL/TSL.xml, https://www.viestintavirasto.fi/attachments/TSL-Ficora.xml etc.)
+  * TSA (Time Stamping Authority) - http://tsa.sk.ee
 
 ## Maven
 You can use the library as a Maven dependency from the Maven Central (http://mvnrepository.com/artifact/org.digidoc4j/digidoc4j)
@@ -90,7 +90,14 @@ You can use the library as a Maven dependency from the Maven Central (http://mvn
 * © Estonian Information System Authority
 
 ## Support
-Official builds are provided through [releases](https://github.com/open-eid/digidoc4j/releases). If you want support, you need to be using official builds. Contact for assistance by email [help@ria.ee](mailto:help@ria.ee). 
-Additional information can be found in [wiki Q&A](https://github.com/open-eid/digidoc4j/wiki/Questions-&-Answers) and on [ID.ee portal](https://www.id.ee/rubriik/digidoc-teegid/).
+Official builds are provided through [releases](https://github.com/open-eid/digidoc4j/releases).
+If you want support, you need to be using official builds.
+For assistance, contact us by email [help@ria.ee](mailto:help@ria.ee).
+Additional information can be found in [wiki Q&A](https://github.com/open-eid/digidoc4j/wiki/Questions-&-Answers) and
+on [ID.ee portal](https://www.id.ee/en/rubriik/digidoc-libraries/).
 
-Source code is provided on "as is" terms with no warranty (see license for more information). Do not file Github issues with generic support requests.
+For staying up to date with news impacting services and applications that use the DigiDoc4j library,
+[join DigiDoc4j library newsletter](https://www.id.ee/en/article/join-dd4j-library-newsletter/).
+
+Source code is provided on "as is" terms with no warranty (see license for more information).
+Do not file GitHub issues with generic support requests.

@@ -1901,7 +1901,10 @@ public class Configuration implements Serializable {
    * Set flag if full report needed.
    *
    * @param isFullReport needed value.
+   *
+   * @deprecated Deprecated for removal. Enabling this feature can, in some cases, produce false negative validation results.
    */
+  @Deprecated
   public void setFullReportNeeded(boolean isFullReport) {
     this.setConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded, String.valueOf(isFullReport));
   }
@@ -1910,7 +1913,10 @@ public class Configuration implements Serializable {
    * Get flag if full report needed.
    *
    * @return isFullReport needed boolean value.
+   *
+   * @deprecated Deprecated for removal. Enabling this feature can, in some cases, produce false negative validation results.
    */
+  @Deprecated
   public boolean isFullReportNeeded() {
     String isFullSimpleReportNeeded = getConfigurationParameter(ConfigurationParameter.IsFullSimpleReportNeeded);
     return Boolean.parseBoolean(isFullSimpleReportNeeded != null ? isFullSimpleReportNeeded : Constant.Default.FULL_SIMPLE_REPORT);

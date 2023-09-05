@@ -19,7 +19,6 @@ import org.digidoc4j.impl.asic.AsicContainer;
 import org.digidoc4j.impl.asic.AsicContainerCreator;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicSignatureOpener;
-import org.digidoc4j.impl.asic.asice.AsicESignatureOpener;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -123,7 +122,7 @@ public class AsicSContainer extends AsicContainer {
 
   @Override
   protected AsicSignatureOpener getSignatureOpener() {
-    return new AsicESignatureOpener(getConfiguration());
+    return new AsicSSignatureOpener(getConfiguration());
   }
 
   /**

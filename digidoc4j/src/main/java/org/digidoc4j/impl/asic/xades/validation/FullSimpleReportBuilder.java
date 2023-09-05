@@ -15,6 +15,7 @@ import java.util.List;
 /**
  * Created by Andrei on 1.03.2018.
  */
+@Deprecated
 public class FullSimpleReportBuilder {
 
   private static final Logger log = LoggerFactory.getLogger(FullSimpleReportBuilder.class);

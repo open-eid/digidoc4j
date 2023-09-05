@@ -1,5 +1,17 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.test.util;
 
+import org.bouncycastle.asn1.DERNull;
+import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.AccessDescription;
 import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
@@ -81,6 +93,14 @@ public final class TestCertificateUtil {
 
   public static AccessDescription createOcspUrlAccessDescription(String url) {
     return new AccessDescription(AccessDescription.id_ad_ocsp, new GeneralName(GeneralName.uniformResourceIdentifier, url));
+  }
+
+  public static Extension createIdPkixOcspNocheckExtension(boolean critical) {
+    try {
+      return Extension.create(OCSPObjectIdentifiers.id_pkix_ocsp_nocheck, critical, DERNull.INSTANCE);
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to create id-pkix-ocsp-nocheck extension", e);
+    }
   }
 
   public static ContentSigner createCertificateSigner(PrivateKey privateKey, String signatureAlgorithm) {

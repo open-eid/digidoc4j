@@ -24,11 +24,16 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.ServiceUnreachableException;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Date;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.startsWith;
 
 public class BDocSerializationTest extends AbstractTest {
 
@@ -40,8 +45,9 @@ public class BDocSerializationTest extends AbstractTest {
     String serializedDataToSignPath = this.getFileBy("bdoc");
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    DataToSign dataToSign = SignatureBuilder.aSignature(container).
-        withSigningCertificate(pkcs12SignatureToken.getCertificate()).buildDataToSign();
+    DataToSign dataToSign = SignatureBuilder.aSignature(container)
+            .withSigningCertificate(pkcs12SignatureToken.getCertificate())
+            .buildDataToSign();
     this.serialize(container, this.serializedContainerLocation);
     this.serialize(dataToSign, serializedDataToSignPath);
     dataToSign = this.deserializer(serializedDataToSignPath);
@@ -56,20 +62,26 @@ public class BDocSerializationTest extends AbstractTest {
     Assert.assertEquals(1, container.getSignatures().size());
   }
 
-  @Test(expected = ServiceUnreachableException.class)
+  @Test
   public void changeConfigurationAfterDeserializationToInvalidOcspAndThrowConnectionFailureException(){
     String serializedDataToSignPath = this.getFileBy("bdoc");
     Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    DataToSign dataToSign = SignatureBuilder.aSignature(container).
-            withSigningCertificate(pkcs12SignatureToken.getCertificate()).buildDataToSign();
+    DataToSign originalDataToSign = SignatureBuilder.aSignature(container)
+            .withSigningCertificate(pkcs12SignatureToken.getCertificate())
+            .buildDataToSign();
     this.serialize(container, this.serializedContainerLocation);
-    this.serialize(dataToSign, serializedDataToSignPath);
-    dataToSign = this.deserializer(serializedDataToSignPath);
-    dataToSign.getConfiguration().setOcspSource("http://invalid.ocsp.url");
+    this.serialize(originalDataToSign, serializedDataToSignPath);
+    DataToSign deserializedDataToSign = this.deserializer(serializedDataToSignPath);
+    deserializedDataToSign.getConfiguration().setOcspSource("http://invalid.ocsp.url");
+    byte[] signatureValue = this.sign(deserializedDataToSign.getDataToSign(), deserializedDataToSign.getDigestAlgorithm());
 
-    byte[] signatureValue = this.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
-    dataToSign.finalize(signatureValue);
+    ServiceUnreachableException caughtException = assertThrows(
+            ServiceUnreachableException.class,
+            () -> deserializedDataToSign.finalize(signatureValue)
+    );
+
+    assertThat(caughtException.getMessage(), containsString("Failed to connect to OCSP service"));
   }
 
   @Test
@@ -129,8 +141,8 @@ public class BDocSerializationTest extends AbstractTest {
     Container deserializedContainer = this.deserializer(this.serializedContainerLocation);
     Signature signature = deserializedContainer.getSignatures().get(0);
     Assert.assertEquals("", signature.getCity());
-    Assert.assertThat(signature.getSignerRoles(), Matchers.is(Matchers.empty()));
-    Assert.assertTrue(signature.getId().startsWith("id-"));
+    assertThat(signature.getSignerRoles(), empty());
+    assertThat(signature.getId(), startsWith("id-"));
     Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", signature.getSignatureMethod());
   }
 
@@ -264,7 +276,6 @@ public class BDocSerializationTest extends AbstractTest {
 
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
             .withSigningCertificate(pkcs12SignatureToken.getCertificate())
-            .withSignatureProfile(SignatureProfile.LT_TM)
             .buildDataToSign();
 
     byte[] serializedDataToSign = SerializationUtils.serialize(dataToSign);
@@ -272,7 +283,7 @@ public class BDocSerializationTest extends AbstractTest {
 
     byte[] signatureValue = this.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
     Signature signature = dataToSign.finalize(signatureValue);
-    assertTimemarkSignature(signature);
+    assertTimestampSignature(signature);
     assertValidSignature(signature);
 
     container.addSignature(signature);
@@ -280,7 +291,7 @@ public class BDocSerializationTest extends AbstractTest {
     container = ContainerOpener.open(this.containerLocation);
     SignatureValidationResult validationResult = container.validate();
     Assert.assertTrue(validationResult.isValid());
-    Assert.assertEquals(1, container.getSignatures().size());
+    assertThat(container.getSignatures(), hasSize(1));
   }
 
 

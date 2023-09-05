@@ -30,6 +30,7 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.ServiceType;
 import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.exceptions.CertificateValidationException;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +96,12 @@ public class CommonOCSPSource extends SKOnlineOCSPSource {
       return null;
     }
     LOGGER.debug("Creating default OCSP nonce ...");
-    return new Extension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, false, new DEROctetString(Helper.generateRandomBytes(32)));
+    try {
+      byte[] nonceValue = new DEROctetString(Helper.generateRandomBytes(32)).getEncoded();
+      return new Extension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, false, nonceValue);
+    } catch (IOException e) {
+      throw new DigiDoc4JException(e);
+    }
   }
 
   @Override
