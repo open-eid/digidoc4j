@@ -44,7 +44,7 @@
         <mockito.version>4.11.0</mockito.version><!-- Java 8 is not supported since version 5.X.X -->
         <snakeyaml.version>2.1</snakeyaml.version>
         <system-rules.version>1.19.0</system-rules.version>
-        <wiremock.version>2.35.0</wiremock.version>
+        <wiremock.version>2.35.1</wiremock.version>
         <xmlsec.version>2.3.3</xmlsec.version><!-- DSS depends on xmlsec 2.3.X -->
         <xmlunit.version>1.6</xmlunit.version>
 
