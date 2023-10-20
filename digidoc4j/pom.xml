@@ -45,7 +45,7 @@
         <snakeyaml.version>2.1</snakeyaml.version>
         <system-rules.version>1.19.0</system-rules.version>
         <wiremock.version>2.35.0</wiremock.version>
-        <xmlsec.version>2.3.3</xmlsec.version><!-- DSS depends on xmlsec 2.3.X -->
+        <xmlsec.version>2.3.4</xmlsec.version><!-- DSS depends on xmlsec 2.3.X -->
         <xmlunit.version>1.6</xmlunit.version>
 
         <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
