@@ -20,12 +20,14 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.TslRefreshException;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.test.TestAssert;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TslRefreshCallbackInteractionTest extends AbstractTest {
@@ -72,7 +74,7 @@ public class TslRefreshCallbackInteractionTest extends AbstractTest {
     mockEnsureTSLState(true);
     configuration.getTSL().refresh();
 
-    Assert.assertEquals("Exception message", caughtException.getMessage());
+    assertEquals("Exception message", caughtException.getMessage());
     verifyCallbackCalled(2);
   }
 
@@ -109,7 +111,7 @@ public class TslRefreshCallbackInteractionTest extends AbstractTest {
             () -> ContainerOpener.open(ASICE_WITH_TS_SIG)
     );
 
-    Assert.assertEquals("Exception message", caughtException.getMessage());
+    assertEquals("Exception message", caughtException.getMessage());
     verifyCallbackCalled(1);
   }
 
@@ -127,7 +129,7 @@ public class TslRefreshCallbackInteractionTest extends AbstractTest {
             () -> container.validate()
     );
 
-    Assert.assertEquals("Error validating signatures on multiple threads: Exception message", caughtException.getMessage());
+    assertEquals("Error validating signatures on multiple threads: Exception message", caughtException.getMessage());
     verifyCallbackCalled(1);
   }
 
@@ -169,7 +171,7 @@ public class TslRefreshCallbackInteractionTest extends AbstractTest {
             () -> createSignatureBy(container, pkcs12Esteid2018SignatureToken)
     );
 
-    Assert.assertEquals("Exception message", caughtException.getMessage());
+    assertEquals("Exception message", caughtException.getMessage());
     verifyCallbackCalled(1);
   }
 

@@ -14,6 +14,7 @@ import eu.europa.esig.dss.enumerations.ObjectIdentifierQualifier;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.MimeType;
 import eu.europa.esig.dss.model.Policy;
+import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
@@ -66,6 +67,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
@@ -74,7 +76,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 import static org.digidoc4j.Container.DocumentType.ASICE;
@@ -503,15 +504,36 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     return TestTSLUtil.isTslCacheEmpty();
   }
 
-  protected X509Certificate openX509Certificate(Path path) {
-    try {
-      CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-      try (FileInputStream stream = new FileInputStream(path.toFile())) {
-        return (X509Certificate) certificateFactory.generateCertificate(stream);
-      }
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+  protected static X509Certificate openX509Certificate(String path) {
+    return openX509Certificate(Paths.get(path));
+  }
+
+  protected static X509Certificate openX509Certificate(Path path) {
+    try (InputStream in = Files.newInputStream(path)) {
+      return openX509Certificate(in);
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to load certificate from: " + path, e);
     }
+  }
+
+  protected static X509Certificate openX509Certificate(InputStream in) {
+    try {
+      return (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(in);
+    } catch (CertificateException e) {
+      throw new IllegalStateException("Failed to load certificate", e);
+    }
+  }
+
+  protected static CertificateToken openCertificateToken(String path) {
+    return new CertificateToken(openX509Certificate(path));
+  }
+
+  protected static CertificateToken openCertificateToken(Path path) {
+    return new CertificateToken(openX509Certificate(path));
+  }
+
+  protected static CertificateToken openCertificateToken(InputStream in) {
+    return new CertificateToken(openX509Certificate(in));
   }
 
   protected XadesSigningDssFacade createSigningFacade() {
@@ -535,25 +557,6 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
     source.setDataLoader(loader);
     return source;
-  }
-
-  @FunctionalInterface
-  protected interface PotentiallyThrowing<T extends Throwable> {
-    void run() throws T;
-  }
-
-  @SuppressWarnings("unchecked")
-  protected static <T extends Throwable> T assertThrows(Class<T> type, PotentiallyThrowing<T> toTest) {
-    try {
-      toTest.run();
-    } catch (Throwable t) {
-      if (type.isInstance(t)) {
-        return Objects.requireNonNull((T) t, "Caught exception cannot be null");
-      }
-      Assert.fail(String.format("Expected %s, but an %s was thrown: %s", type.getSimpleName(), t.getClass().getSimpleName(), t.getMessage()));
-    }
-    Assert.fail(String.format("Expected %s, but nothing was thrown", type.getSimpleName()));
-    throw new IllegalStateException("Should have not reached here!"); // For compiler
   }
 
   protected void assertBDocContainer(Container container) {

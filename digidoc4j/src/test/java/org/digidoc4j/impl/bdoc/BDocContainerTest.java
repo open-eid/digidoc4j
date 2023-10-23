@@ -45,7 +45,6 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocSignature;
-import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.TestAssert;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -73,6 +72,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertThrows;
 
 public class BDocContainerTest extends AbstractTest {
 
@@ -884,9 +884,10 @@ public class BDocContainerTest extends AbstractTest {
   @Test
   public void signWithECCCertificate() {
     Container container = createNonEmptyContainerBy(Container.DocumentType.BDOC);
-    Signature signature = SignatureBuilder.aSignature(container).
-        withSignatureToken(new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray())).
-        withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA).invokeSigning();
+    Signature signature = SignatureBuilder.aSignature(container)
+            .withSignatureToken(pkcs12EccSignatureToken)
+            .withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA)
+            .invokeSigning();
     container.addSignature(signature);
     Assert.assertEquals(1, container.getSignatures().size());
     Assert.assertTrue(container.validate().isValid());

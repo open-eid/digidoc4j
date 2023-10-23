@@ -40,6 +40,7 @@ import static org.digidoc4j.Container.DocumentType.ASICE;
 import static org.digidoc4j.Container.DocumentType.ASICS;
 import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.digidoc4j.Container.DocumentType.DDOC;
+import static org.junit.Assert.assertThrows;
 
 public class ContainerBuilderTest extends AbstractTest {
 

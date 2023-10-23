@@ -136,7 +136,7 @@ public class DigiDoc4JTest extends AbstractTest {
     String file = this.getFileBy("bdoc");
     String[] parameters = new String[]{"-in", file,
         "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
-        "-pkcs12", "src/test/resources/testFiles/p12/MadDogOY.p12", "test", "-e", "ECDSA"};
+        "-pkcs12", "src/test/resources/testFiles/p12/sign_ECC_from_TEST_of_ESTEIDSK2015.p12", "1234", "-e", "ECDSA"};
     TestDigiDoc4JUtil.call(parameters);
     Assert.assertTrue(ContainerOpener.open(file).validate().isValid());
   }

@@ -1,17 +1,17 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.bdoc.xades;
 
-import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.enumerations.EncryptionAlgorithm;
+import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.model.Policy;
 import eu.europa.esig.dss.model.SignerLocation;
@@ -20,7 +20,6 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
-import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
 import org.junit.Test;
@@ -60,13 +59,12 @@ public class XadesSigningDssFacadeTest extends AbstractTest {
 
   @Test
   public void signDocumentWithECC() throws Exception {
-    PKCS12SignatureToken eccSignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/MadDogOY.p12", "test".toCharArray());
-    X509Certificate signingCert = eccSignatureToken.getCertificate();
+    X509Certificate signingCert = pkcs12EccSignatureToken.getCertificate();
     this.facade.setEncryptionAlgorithm(EncryptionAlgorithm.ECDSA);
     this.facade.setSigningCertificate(signingCert);
     List<DataFile> dataFilesToSign = this.createDataFilesToSign();
     byte[] dataToSign = this.facade.getDataToSign(dataFilesToSign);
-    byte[] signatureValue = eccSignatureToken.sign(DigestAlgorithm.SHA256, dataToSign);
+    byte[] signatureValue = pkcs12EccSignatureToken.sign(DigestAlgorithm.SHA256, dataToSign);
     TestAssert.assertDSSDocumentIsSigned(this.facade.signDocument(signatureValue, dataFilesToSign));
   }
 

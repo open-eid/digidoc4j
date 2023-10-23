@@ -66,6 +66,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertThrows;
 
 /**
  * Description of tests by their suffix:
