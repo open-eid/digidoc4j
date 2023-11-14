@@ -36,7 +36,7 @@
         <jaxb.version>2.3.8</jaxb.version><!-- DSS depends on jaxb-runtime 2.3.X -->
         <jaxb-core.version>2.3.0.1</jaxb-core.version>
         <jcabi-matchers.version>1.6.0</jcabi-matchers.version>
-        <json.version>20230618</json.version>
+        <json.version>20231013</json.version>
         <jsonassert.version>1.5.1</jsonassert.version>
         <junit.version>4.13.2</junit.version>
         <junit-toolbox.version>2.4</junit-toolbox.version>
