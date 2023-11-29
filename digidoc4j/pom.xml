@@ -40,7 +40,7 @@
         <jsonassert.version>1.5.1</jsonassert.version>
         <junit.version>4.13.2</junit.version>
         <junit-toolbox.version>2.4</junit-toolbox.version>
-        <logback-classic.version>1.2.12</logback-classic.version><!-- logback versions 1.3.X cause problems in DD4J command line utility -->
+        <logback-classic.version>1.3.12</logback-classic.version><!-- logback versions 1.3.X cause problems in DD4J command line utility -->
         <mockito.version>4.11.0</mockito.version><!-- Java 8 is not supported since version 5.X.X -->
         <snakeyaml.version>2.1</snakeyaml.version>
         <system-rules.version>1.19.0</system-rules.version>
