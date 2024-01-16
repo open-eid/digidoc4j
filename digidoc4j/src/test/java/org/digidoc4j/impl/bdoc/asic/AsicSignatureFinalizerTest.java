@@ -136,7 +136,7 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
     assertValidSignature(signature);
 
     Mockito.verify(dataLoaderFactory, Mockito.atLeast(1)).create();
-    Mockito.verify(dataLoaderSpy, Mockito.times(1)).get("https://www.sk.ee/upload/files/TEST_of_EE_Certification_Centre_Root_CA.der.crt");
+    Mockito.verify(dataLoaderSpy, Mockito.times(1)).get("http://www.sk.ee/certs/TEST_of_EE_Certification_Centre_Root_CA.der.crt");
     Mockito.verifyNoMoreInteractions(dataLoaderFactory);
   }
 }
