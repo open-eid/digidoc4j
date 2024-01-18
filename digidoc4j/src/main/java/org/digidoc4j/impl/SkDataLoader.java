@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl;
 
@@ -14,11 +14,14 @@ import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.BufferedHttpEntity;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ServiceType;
 import org.digidoc4j.exceptions.ConnectionTimedOutException;
@@ -59,25 +62,35 @@ public abstract class SkDataLoader extends CommonsDataLoader {
     if (StringUtils.isBlank(this.userAgent)) {
       throw new TechnicalException("Header <User-Agent> is unset");
     }
+
     HttpPost httpRequest = null;
-    CloseableHttpResponse httpResponse = null;
     CloseableHttpClient client = null;
     try {
       final URI uri = URI.create(url.trim());
       httpRequest = new HttpPost(uri);
       httpRequest.setHeader("User-Agent", this.userAgent);
-      ByteArrayInputStream bis = new ByteArrayInputStream(content);
-      HttpEntity httpEntity = new InputStreamEntity(bis, content.length, null);
-      HttpEntity requestEntity = new BufferedHttpEntity(httpEntity);
+
+      final ByteArrayInputStream bis = new ByteArrayInputStream(content);
+      final HttpEntity httpEntity = new InputStreamEntity(bis, content.length, null);
+      final HttpEntity requestEntity = new BufferedHttpEntity(httpEntity);
       httpRequest.setEntity(requestEntity);
+
       if (StringUtils.isNotBlank(this.contentType)) {
         httpRequest.setHeader("Content-Type", this.contentType);
       }
+
       client = getHttpClient(url);
-      httpResponse = this.getHttpResponse(client, httpRequest);
-      validateHttpResponse(httpResponse, url);
-      byte[] responseBytes = readHttpResponse(httpResponse);
+
+      final HttpHost targetHost = getHttpHost(httpRequest);
+      final HttpContext localContext = getHttpContext(targetHost);
+      final HttpClientResponseHandler<byte[]> responseHandler = getHttpClientResponseHandler();
+      byte[] responseBytes = client.execute(targetHost, httpRequest, localContext, response -> {
+        validateHttpResponse(response, url);
+        return responseHandler.handleResponse(response);
+      });
+
       publishExternalServiceAccessEvent(url, true);
+
       return responseBytes;
     } catch (UnknownHostException e) {
       publishExternalServiceAccessEvent(url, false);
@@ -92,11 +105,11 @@ public abstract class SkDataLoader extends CommonsDataLoader {
       publishExternalServiceAccessEvent(url, false);
       throw new NetworkException("Unable to process <" + getServiceType() + "> POST call for service <" + url + ">", url, getServiceType(), e);
     } finally {
-      closeQuietly(httpRequest, httpResponse, client);
+      closeQuietly(httpRequest, client);
     }
   }
 
-  private void validateHttpResponse(CloseableHttpResponse httpResponse, String url) {
+  private void validateHttpResponse(ClassicHttpResponse httpResponse, String url) {
     if (httpResponse.getCode() == HttpStatus.SC_FORBIDDEN) {
       throw new ServiceAccessDeniedException(url, getServiceType());
     }
