@@ -1,19 +1,16 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.main;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-
+import eu.europa.esig.dss.enumerations.MimeType;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +19,9 @@ import org.digidoc4j.ContainerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.model.MimeType;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 /**
  * Container executor for batch task e.g. input folder and output folder

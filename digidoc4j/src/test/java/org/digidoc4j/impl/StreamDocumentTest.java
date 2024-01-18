@@ -11,8 +11,9 @@
 package org.digidoc4j.impl;
 
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import eu.europa.esig.dss.enumerations.MimeType;
+import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import eu.europa.esig.dss.model.DSSException;
-import eu.europa.esig.dss.model.MimeType;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.DataFile;
@@ -118,7 +119,7 @@ public class StreamDocumentTest extends AbstractTest {
 
   @Test
   public void setMimeType() throws Exception {
-    this.document.setMimeType(MimeType.XML);
+    this.document.setMimeType(MimeTypeEnum.XML);
     Assert.assertEquals("text/xml", this.document.getMimeType().getMimeTypeString());
   }
 
@@ -187,7 +188,7 @@ public class StreamDocumentTest extends AbstractTest {
       }
 
     };
-    this.document = new StreamDocument(stream, "suur_a.txt", MimeType.TEXT);
+    this.document = new StreamDocument(stream, "suur_a.txt", MimeTypeEnum.TEXT);
     stream.close();
     this.document.openStream();
   }
@@ -214,7 +215,7 @@ public class StreamDocumentTest extends AbstractTest {
   @Override
   protected void before() {
     try (ByteArrayInputStream stream = new ByteArrayInputStream(new byte[]{0x041})) {
-      this.document = new StreamDocument(stream, "suur_a.txt", MimeType.TEXT);
+      this.document = new StreamDocument(stream, "suur_a.txt", MimeTypeEnum.TEXT);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

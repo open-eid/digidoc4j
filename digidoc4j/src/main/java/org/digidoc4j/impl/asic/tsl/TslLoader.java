@@ -144,9 +144,14 @@ public class TslLoader implements Serializable {
 
   private KeyStoreCertificateSource getTrustStore() {
     try (InputStream lotlTrustStoreInputStream = openLotlTrustStoreInputStream()) {
-      return new KeyStoreCertificateSource(lotlTrustStoreInputStream,
+      return new KeyStoreCertificateSource(
+              lotlTrustStoreInputStream,
               configuration.getLotlTruststoreType(),
-              configuration.getLotlTruststorePassword());
+              Optional
+                      .ofNullable(configuration.getLotlTruststorePassword())
+                      .map(String::toCharArray)
+                      .orElse(null)
+      );
     } catch (IOException e) {
       throw new LotlTrustStoreNotFoundException("Unable to retrieve trust-store", e);
     }

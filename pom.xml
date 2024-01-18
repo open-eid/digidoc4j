@@ -142,9 +142,9 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
 
-        <bouncycastle.version>1.70</bouncycastle.version><!-- 1.70 is the latest version of jdk15on -->
+        <bouncycastle.version>1.76</bouncycastle.version><!-- 1.77 causes problems with OCSP response parsing -->
         <commons-codec.version>1.16.0</commons-codec.version>
-        <slf4j.version>1.7.36</slf4j.version><!-- logback-classic 1.2.X requires 1.7.X or earlier -->
+        <slf4j.version>2.0.11</slf4j.version>
 
         <dependency-check-maven.version>8.3.1</dependency-check-maven.version>
         <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
@@ -165,12 +165,12 @@
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpkix-jdk15on</artifactId>
+                <artifactId>bcpkix-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15on</artifactId>
+                <artifactId>bcprov-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>

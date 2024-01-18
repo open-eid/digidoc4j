@@ -59,7 +59,7 @@ public class SignatureValidationReportCreator {
     if (simpleReport.getSignaturesCount() > 1) {
       logger.warn("Simple report contains more than one signature: " + simpleReport.getSignaturesCount());
     }
-    Optional<XmlToken> signatureXmlReport = simpleReport.getSignatureOrTimestamp().stream()
+    Optional<XmlToken> signatureXmlReport = simpleReport.getSignatureOrTimestampOrEvidenceRecord().stream()
             .filter(s -> s instanceof XmlSignature)
             .findFirst();
     if (signatureXmlReport.isPresent()) {

@@ -10,9 +10,9 @@
 
 package org.digidoc4j.impl.bdoc;
 
-import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.validation.SignaturePolicy;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
+import eu.europa.esig.dss.xml.utils.DomUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;

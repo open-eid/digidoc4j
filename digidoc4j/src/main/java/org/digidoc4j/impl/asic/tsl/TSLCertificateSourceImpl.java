@@ -104,7 +104,7 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
     MutableTimeDependentValues<TrustServiceStatusAndInformationExtensions> statusHistoryList = new MutableTimeDependentValues<>();
     statusHistoryList.addOldest(statusAndInformationExtensions);
 
-    TrustProperties trustProperties = new TrustProperties(getFirstSuitableTLInfo().getDSSId(),
+    TrustProperties trustProperties = new TrustProperties(getFirstSuitableTLInfo(),
             trustServiceProviderBuilder.build(), statusHistoryList);
 
     addCertificate(new CertificateToken(certificate), Arrays.asList(trustProperties));

@@ -10,9 +10,9 @@
 
 package org.digidoc4j;
 
+import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import eu.europa.esig.dss.enumerations.ObjectIdentifierQualifier;
 import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.model.MimeType;
 import eu.europa.esig.dss.model.Policy;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
@@ -485,11 +485,11 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected DataFile createBinaryDataFile(String fileName, byte[] fileContent) {
-    return new DataFile(fileContent, fileName, MimeType.BINARY.getMimeTypeString());
+    return new DataFile(fileContent, fileName, MimeTypeEnum.BINARY.getMimeTypeString());
   }
 
   protected DataFile createTextDataFile(String fileName, String fileContent) {
-    return new DataFile(fileContent.getBytes(StandardCharsets.UTF_8), fileName, MimeType.TEXT.getMimeTypeString());
+    return new DataFile(fileContent.getBytes(StandardCharsets.UTF_8), fileName, MimeTypeEnum.TEXT.getMimeTypeString());
   }
 
   protected void evictTSLCache() {

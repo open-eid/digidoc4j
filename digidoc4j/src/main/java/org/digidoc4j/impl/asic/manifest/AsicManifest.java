@@ -1,20 +1,20 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic.manifest;
 
-import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.asic.xades.definition.ManifestAttribute;
 import eu.europa.esig.dss.asic.xades.definition.ManifestElement;
 import eu.europa.esig.dss.asic.xades.definition.ManifestNamespace;
-import eu.europa.esig.dss.model.MimeType;
+import eu.europa.esig.dss.enumerations.MimeTypeEnum;
+import eu.europa.esig.dss.xml.utils.DomUtils;
 import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ public class AsicManifest {
 
   /**
    * Creates an instance of ASiC manifest without specifying container type
-   * (the root file entry mimetype defaults to {@link MimeType#ASICE}).
+   * (the root file entry mimetype defaults to {@link MimeTypeEnum#ASICE}).
    */
   public AsicManifest() {
     this(null);
@@ -49,8 +49,8 @@ public class AsicManifest {
   /**
    * Creates an instance of ASiC manifest with the specified container type.
    * Container type {@link Constant#ASICS_CONTAINER_TYPE} sets the root file entry mimetype as
-   * {@link MimeType#ASICS}, any other value makes the root file entry mimetype to default to
-   * {@link MimeType#ASICE}.
+   * {@link MimeTypeEnum#ASICS}, any other value makes the root file entry mimetype to default to
+   * {@link MimeTypeEnum#ASICE}.
    *
    * @param containerType the container type
    */
@@ -65,9 +65,9 @@ public class AsicManifest {
     Element entryElement = DomUtils.addElement(dom, manifestElement, ManifestNamespace.NS, ManifestElement.FILE_ENTRY);
     DomUtils.setAttributeNS(entryElement, ManifestNamespace.NS, ManifestAttribute.FULL_PATH, "/");
     if (Constant.ASICS_CONTAINER_TYPE.equals(containerType)) {
-      DomUtils.setAttributeNS(entryElement, ManifestNamespace.NS, ManifestAttribute.MEDIA_TYPE, MimeType.ASICS.getMimeTypeString());
+      DomUtils.setAttributeNS(entryElement, ManifestNamespace.NS, ManifestAttribute.MEDIA_TYPE, MimeTypeEnum.ASICS.getMimeTypeString());
     } else {
-      DomUtils.setAttributeNS(entryElement, ManifestNamespace.NS, ManifestAttribute.MEDIA_TYPE, MimeType.ASICE.getMimeTypeString());
+      DomUtils.setAttributeNS(entryElement, ManifestNamespace.NS, ManifestAttribute.MEDIA_TYPE, MimeTypeEnum.ASICE.getMimeTypeString());
     }
   }
 

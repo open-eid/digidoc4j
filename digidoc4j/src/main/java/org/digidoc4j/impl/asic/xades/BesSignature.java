@@ -1,26 +1,22 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic.xades;
 
-import java.security.cert.X509Certificate;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm;
+import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.validation.SignatureProductionPlace;
 import eu.europa.esig.dss.validation.SignerRole;
-import eu.europa.esig.dss.xades.definition.XAdESPaths;
+import eu.europa.esig.dss.xml.utils.DomUtils;
+import eu.europa.esig.xades.definition.XAdESPath;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.xml.security.signature.Reference;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
@@ -31,10 +27,13 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import eu.europa.esig.dss.spi.DSSUtils;
-import eu.europa.esig.dss.DomUtils;
-import eu.europa.esig.dss.validation.SignatureProductionPlace;
-import eu.europa.esig.dss.model.x509.CertificateToken;
+import java.security.cert.X509Certificate;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * BES signature
@@ -45,7 +44,7 @@ public class BesSignature extends DssXadesSignature {
   private final static String XPATH_KEY_INFO_X509_CERTIFICATE = "./ds:KeyInfo/ds:X509Data/ds:X509Certificate";
   private SignatureProductionPlace signerLocation;
   private transient Element signatureElement;
-  private XAdESPaths xAdESPaths; // This variable contains the XAdESPaths adapted to the signature schema.
+  private XAdESPath xAdESPaths; // This variable contains the XAdESPaths adapted to the signature schema.
   private X509Cert signingCertificate;
   private Set<CertificateToken> encapsulatedCertificates;
 
@@ -227,7 +226,7 @@ public class BesSignature extends DssXadesSignature {
     return signatureElement;
   }
 
-  protected XAdESPaths getxPathQueryHolder() {
+  protected XAdESPath getxPathQueryHolder() {
     return xAdESPaths;
   }
 

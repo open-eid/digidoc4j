@@ -10,8 +10,7 @@
 
 package org.digidoc4j.impl.asic.xades;
 
-import eu.europa.esig.dss.DomUtils;
-import eu.europa.esig.dss.asic.common.definition.ASiCNamespace;
+import eu.europa.esig.asic.manifest.definition.ASiCManifestNamespace;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.enumerations.EncryptionAlgorithm;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
@@ -36,6 +35,7 @@ import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XAdESSignatureParameters;
 import eu.europa.esig.dss.xades.signature.XAdESService;
+import eu.europa.esig.dss.xml.utils.DomUtils;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TechnicalException;
@@ -248,7 +248,7 @@ public class XadesSigningDssFacade {
     logger.debug("Surrounding signature document with xades tag");
     Document signatureDom = DomUtils.buildDOM(signedDocument);
     Element signatureElement = signatureDom.getDocumentElement();
-    Document document = XmlDomCreator.createDocument(ASiCNamespace.NS.getUri(), XmlDomCreator.ASICS_NS, signatureElement);
+    Document document = XmlDomCreator.createDocument(ASiCManifestNamespace.NS.getUri(), XmlDomCreator.ASICS_NS, signatureElement);
     byte[] documentBytes = DSSXMLUtils.serializeNode(document);
     return new InMemoryDocument(documentBytes);
   }

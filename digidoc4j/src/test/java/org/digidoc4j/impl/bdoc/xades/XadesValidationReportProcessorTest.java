@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl.bdoc.xades;
 
 import eu.europa.esig.dss.i18n.I18nProvider;
@@ -31,7 +41,7 @@ public class XadesValidationReportProcessorTest {
                 i18nProvider.getMessage(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS1)
         );
         XmlSimpleReport simpleReport = new XmlSimpleReport();
-        simpleReport.getSignatureOrTimestamp().add(signature);
+        simpleReport.getSignatureOrTimestampOrEvidenceRecord().add(signature);
 
         Reports validationReports = Mockito.mock(Reports.class);
         when(validationReports.getSimpleReportJaxb()).thenReturn(simpleReport);
@@ -54,7 +64,7 @@ public class XadesValidationReportProcessorTest {
         );
         mockSignatureTimestamps(signature, timestamp);
         XmlSimpleReport simpleReport = new XmlSimpleReport();
-        simpleReport.getSignatureOrTimestamp().add(signature);
+        simpleReport.getSignatureOrTimestampOrEvidenceRecord().add(signature);
 
         Reports validationReports = Mockito.mock(Reports.class);
         when(validationReports.getSimpleReportJaxb()).thenReturn(simpleReport);
@@ -77,7 +87,7 @@ public class XadesValidationReportProcessorTest {
                 i18nProvider.getMessage(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS2)
         );
         XmlSimpleReport simpleReport = new XmlSimpleReport();
-        simpleReport.getSignatureOrTimestamp().add(signature);
+        simpleReport.getSignatureOrTimestampOrEvidenceRecord().add(signature);
 
         Reports validationReports = Mockito.mock(Reports.class);
         when(validationReports.getSimpleReportJaxb()).thenReturn(simpleReport);
@@ -100,7 +110,7 @@ public class XadesValidationReportProcessorTest {
         );
         mockSignatureTimestamps(signature, timestamp);
         XmlSimpleReport simpleReport = new XmlSimpleReport();
-        simpleReport.getSignatureOrTimestamp().add(signature);
+        simpleReport.getSignatureOrTimestampOrEvidenceRecord().add(signature);
 
         Reports validationReports = Mockito.mock(Reports.class);
         when(validationReports.getSimpleReportJaxb()).thenReturn(simpleReport);
@@ -123,7 +133,7 @@ public class XadesValidationReportProcessorTest {
                 i18nProvider.getMessage(MessageTag.QUAL_CERT_TYPE_AT_CC)
         );
         XmlSimpleReport simpleReport = new XmlSimpleReport();
-        simpleReport.getSignatureOrTimestamp().add(signature);
+        simpleReport.getSignatureOrTimestampOrEvidenceRecord().add(signature);
 
         Reports validationReports = Mockito.mock(Reports.class);
         when(validationReports.getSimpleReportJaxb()).thenReturn(simpleReport);

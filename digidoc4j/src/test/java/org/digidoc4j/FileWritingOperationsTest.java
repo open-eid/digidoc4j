@@ -1,16 +1,16 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j;
 
-import eu.europa.esig.dss.model.MimeType;
+import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import org.digidoc4j.test.RestrictedExternalResourceRule;
 import org.digidoc4j.test.RestrictedExternalResourceRule.FileWritingRestrictedException;
 import org.digidoc4j.test.TestAssert;
@@ -80,7 +80,7 @@ public class FileWritingOperationsTest extends AbstractTest {
   public void creatingLargeDataFile_shouldStoreFileOnDisk() throws Throwable {
     InputStream dataFileInputStream = new ByteArrayInputStream(new byte[]{1, 2, 3});
     try {
-      DataFile dataFile = new LargeDataFile(dataFileInputStream, "stream-file.txt", MimeType.TEXT.getMimeTypeString());
+      DataFile dataFile = new LargeDataFile(dataFileInputStream, "stream-file.txt", MimeTypeEnum.TEXT.getMimeTypeString());
       Assert.assertFalse("Did not create a temporary file", true);
     } catch (Exception e) {
       throw e.getCause();
@@ -118,10 +118,10 @@ public class FileWritingOperationsTest extends AbstractTest {
 
   @Override
   protected Container createNonEmptyContainerBy(Container.DocumentType documentType) {
-    DataFile pathDataFile = new DataFile("src/test/resources/testFiles/helper-files/test.txt", MimeType.TEXT.getMimeTypeString());
-    DataFile byteDataFile = new DataFile(new byte[]{1, 2, 3}, "byte-file.txt", MimeType.TEXT.getMimeTypeString());
+    DataFile pathDataFile = new DataFile("src/test/resources/testFiles/helper-files/test.txt", MimeTypeEnum.TEXT.getMimeTypeString());
+    DataFile byteDataFile = new DataFile(new byte[]{1, 2, 3}, "byte-file.txt", MimeTypeEnum.TEXT.getMimeTypeString());
     InputStream dataFileInputStream = new ByteArrayInputStream(new byte[]{1, 2, 3});
-    DataFile streamDataFile = new DataFile(dataFileInputStream, "stream-file.txt", MimeType.TEXT.getMimeTypeString());
+    DataFile streamDataFile = new DataFile(dataFileInputStream, "stream-file.txt", MimeTypeEnum.TEXT.getMimeTypeString());
     return ContainerBuilder.aContainer(documentType).withDataFile(pathDataFile).withDataFile(byteDataFile).
         withDataFile(streamDataFile).build();
   }
@@ -130,9 +130,9 @@ public class FileWritingOperationsTest extends AbstractTest {
     InputStream dataFileInputStream = new ByteArrayInputStream(new byte[]{1, 2, 3});
     File pdfFile = new File("src/test/resources/testFiles/special-char-files/dds_acrobat.pdf");
     return ContainerBuilder.aContainer(documentType).
-        withDataFile(dataFileInputStream, "test-stream.txt", MimeType.TEXT.getMimeTypeString()).
-        withDataFile("src/test/resources/testFiles/helper-files/test.txt", MimeType.TEXT.getMimeTypeString()).
-        withDataFile(pdfFile, MimeType.PDF.getMimeTypeString()).build();
+        withDataFile(dataFileInputStream, "test-stream.txt", MimeTypeEnum.TEXT.getMimeTypeString()).
+        withDataFile("src/test/resources/testFiles/helper-files/test.txt", MimeTypeEnum.TEXT.getMimeTypeString()).
+        withDataFile(pdfFile, MimeTypeEnum.PDF.getMimeTypeString()).build();
   }
 
 }

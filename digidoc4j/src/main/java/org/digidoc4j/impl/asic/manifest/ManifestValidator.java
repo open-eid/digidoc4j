@@ -10,8 +10,8 @@
 
 package org.digidoc4j.impl.asic.manifest;
 
-import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.xml.utils.DomUtils;
 import org.apache.xml.security.signature.Reference;
 import org.digidoc4j.Signature;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -37,9 +37,9 @@ public class ManifestValidator {
   public static final String MANIFEST_PATH = "META-INF/manifest.xml";
   public static final String MIMETYPE_PATH = "mimetype";
   private static final Logger logger = LoggerFactory.getLogger(ManifestValidator.class);
-  private List<DSSDocument> detachedContents;
-  private ManifestParser manifestParser;
-  private Collection<Signature> signatures;
+  private final List<DSSDocument> detachedContents;
+  private final ManifestParser manifestParser;
+  private final Collection<Signature> signatures;
 
   public ManifestValidator(ManifestParser manifestParser, List<DSSDocument> detachedContents,
                            Collection<Signature> signatures) {
@@ -56,10 +56,10 @@ public class ManifestValidator {
     if (signatureEntries.size() == 0)
       return errorMessages;
 
-    Set<ManifestEntry> one = new HashSet(manifestEntries.values());
-    Set<ManifestEntry> onePrim = new HashSet(manifestEntries.values());
-    Set<ManifestEntry> two = new HashSet(signatureEntries);
-    Set<ManifestEntry> twoPrim = new HashSet();
+    Set<ManifestEntry> one = new HashSet<>(manifestEntries.values());
+    Set<ManifestEntry> onePrim = new HashSet<>(manifestEntries.values());
+    Set<ManifestEntry> two = new HashSet<>(signatureEntries);
+    Set<ManifestEntry> twoPrim = new HashSet<>();
     for (ManifestEntry manifestEntry : signatureEntries) {
       String mimeType = manifestEntry.getMimeType();
       String alterName = manifestEntry.getFileName().replaceAll("\\+", " ");

@@ -10,7 +10,6 @@
 
 package org.digidoc4j.impl.asic.xades.validation;
 
-import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.detailedreport.DetailedReport;
 import eu.europa.esig.dss.diagnostic.DiagnosticData;
 import eu.europa.esig.dss.enumerations.Indication;
@@ -24,8 +23,9 @@ import eu.europa.esig.dss.simplereport.jaxb.XmlMessage;
 import eu.europa.esig.dss.simplereport.jaxb.XmlToken;
 import eu.europa.esig.dss.validation.SignaturePolicy;
 import eu.europa.esig.dss.validation.reports.Reports;
-import eu.europa.esig.dss.xades.definition.XAdESPaths;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
+import eu.europa.esig.dss.xml.utils.DomUtils;
+import eu.europa.esig.xades.definition.XAdESPath;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
@@ -130,7 +130,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   protected boolean isSignaturePolicyImpliedElementPresented() {
-    XAdESPaths xAdESPaths = this.getDssSignature().getXAdESPaths();
+    XAdESPath xAdESPaths = this.getDssSignature().getXAdESPaths();
     Element signaturePolicyImpliedElement = DomUtils.getElement(this.getDssSignature().getSignatureElement(),
             String.format("%s%s", xAdESPaths.getSignaturePolicyIdentifierPath(),
                     xAdESPaths.getCurrentSignaturePolicyImplied().replace(".", "")));
@@ -190,7 +190,7 @@ public class XadesSignatureValidator implements SignatureValidator {
 
   private void addPolicyIdentifierQualifierValidationErrors() {
     LOGGER.debug("Extracting policy identifier qualifier validation errors");
-    XAdESPaths xAdESPaths = getDssSignature().getXAdESPaths();
+    XAdESPath xAdESPaths = getDssSignature().getXAdESPaths();
     Element signatureElement = getDssSignature().getSignatureElement();
     String xAdESPrefix = xAdESPaths.getNamespace().getPrefix();
     Element element = DomUtils.getElement(signatureElement, xAdESPaths.getSignaturePolicyIdentifierPath());
@@ -280,7 +280,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     }
     String timestampId = timestampIdList.get(0);
     DetailedReport detailedReport = this.validationReport.getDetailedReport();
-    return this.isIndicationValid(detailedReport.getTimestampValidationIndication(timestampId));
+    return this.isIndicationValid(detailedReport.getBasicTimestampValidationIndication(timestampId));
   }
 
   private SimpleReport getSimpleReport(Map<String, SimpleReport> simpleReports) {

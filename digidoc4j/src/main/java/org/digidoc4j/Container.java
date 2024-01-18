@@ -16,7 +16,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.List;
 
-import eu.europa.esig.dss.model.MimeType;
+import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 
 /**
  * Offers functionality for handling data files and signatures in a container.
@@ -213,9 +213,9 @@ public interface Container extends Serializable {
     @Override
     public String toString() {
       if (this == BDOC || this == ASICE)
-        return MimeType.ASICE.getMimeTypeString();
+        return MimeTypeEnum.ASICE.getMimeTypeString();
       if (this == ASICS)
-        return MimeType.ASICS.getMimeTypeString();
+        return MimeTypeEnum.ASICS.getMimeTypeString();
       return super.toString();
     }
   }

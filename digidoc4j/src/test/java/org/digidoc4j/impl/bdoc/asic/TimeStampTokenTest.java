@@ -1,9 +1,21 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl.bdoc.asic;
 
 import java.io.FileInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import eu.europa.esig.dss.enumerations.MimeTypeEnum;
+import eu.europa.esig.dss.spi.x509.tsp.TimestampToken;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
@@ -23,10 +35,8 @@ import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemOutRule;
 
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
-import eu.europa.esig.dss.model.MimeType;
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm;
 import eu.europa.esig.dss.utils.Utils;
-import eu.europa.esig.dss.validation.timestamp.TimestampToken;
 import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.TimestampType;
 
@@ -124,9 +134,9 @@ public class TimeStampTokenTest extends AbstractTest {
     assertNotNull(manifestEntry);
     assertNotNull(timestampEntry);
     String mimeTypeContent = this.getFileContent(zipFile.getInputStream(mimeTypeEntry));
-    Assert.assertTrue(mimeTypeContent.contains(MimeType.ASICS.getMimeTypeString()));
+    Assert.assertTrue(mimeTypeContent.contains(MimeTypeEnum.ASICS.getMimeTypeString()));
     String manifestContent = this.getFileContent(zipFile.getInputStream(manifestEntry));
-    Assert.assertTrue(manifestContent.contains(MimeType.ASICS.getMimeTypeString()));
+    Assert.assertTrue(manifestContent.contains(MimeTypeEnum.ASICS.getMimeTypeString()));
     Container container = ContainerOpener.open(fileName);
     SignatureValidationResult validate = container.validate();
     Assert.assertTrue(validate.isValid());
