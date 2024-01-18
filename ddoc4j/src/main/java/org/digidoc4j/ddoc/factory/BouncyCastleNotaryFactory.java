@@ -1,27 +1,39 @@
 package org.digidoc4j.ddoc.factory;
 
-import org.digidoc4j.ddoc.*;
-import org.digidoc4j.ddoc.utils.BouncyCastleNotaryUtil;
-import org.digidoc4j.ddoc.utils.ConfigManager;
-import org.digidoc4j.ddoc.utils.ConvertUtils;
-import org.bouncycastle.asn1.*;
+import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.ocsp.BasicOCSPResponse;
 import org.bouncycastle.asn1.ocsp.ResponderID;
-import org.bouncycastle.asn1.x509.X509Name;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.ocsp.*;
+import org.bouncycastle.cert.ocsp.BasicOCSPResp;
+import org.bouncycastle.cert.ocsp.CertificateID;
+import org.bouncycastle.cert.ocsp.OCSPResp;
+import org.bouncycastle.cert.ocsp.RevokedStatus;
+import org.bouncycastle.cert.ocsp.SingleResp;
+import org.bouncycastle.cert.ocsp.UnknownStatus;
 import org.bouncycastle.operator.ContentVerifier;
 import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.DigestCalculatorProvider;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
+import org.digidoc4j.ddoc.Base64Util;
+import org.digidoc4j.ddoc.CertID;
+import org.digidoc4j.ddoc.CertValue;
+import org.digidoc4j.ddoc.DigiDocException;
+import org.digidoc4j.ddoc.Notary;
 import org.digidoc4j.ddoc.Signature;
+import org.digidoc4j.ddoc.SignedDoc;
+import org.digidoc4j.ddoc.utils.BouncyCastleNotaryUtil;
+import org.digidoc4j.ddoc.utils.ConfigManager;
+import org.digidoc4j.ddoc.utils.ConvertUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.OutputStream;
-import java.security.*;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Provider;
+import java.security.Security;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -321,16 +333,13 @@ public class BouncyCastleNotaryFactory implements NotaryFactory
      * @param basResp
      * @return stringified responder ID
      */
-    private String responderIDtoString(BasicOCSPResp basResp) {
+    static String responderIDtoString(BasicOCSPResp basResp) {
         if(basResp != null) {
             ResponderID respid = basResp.getResponderId().toASN1Primitive();
-            Object o = ((DERTaggedObject)respid.toASN1Primitive()).getObject();
-            if(o instanceof org.bouncycastle.asn1.DEROctetString) {
-                org.bouncycastle.asn1.DEROctetString oc = (org.bouncycastle.asn1.DEROctetString)o;
-                return "byKey: " + SignedDoc.bin2hex(oc.getOctets());
+            if(respid.getKeyHash() != null) {
+                return "byKey: " + SignedDoc.bin2hex(respid.getKeyHash());
             } else {
-                X509Name name = new X509Name((ASN1Sequence)o);
-                return "byName: " + name.toString();
+                return "byName: " + respid.getName().toString();
             }
         }
         else
