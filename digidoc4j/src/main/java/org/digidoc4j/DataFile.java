@@ -23,6 +23,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.StreamDocument;
+import org.digidoc4j.utils.MimeTypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +100,7 @@ public class DataFile implements Serializable {
 
   protected MimeType getMimeType(String mimeType) {
     try {
-      MimeType mimeTypeCode = MimeType.fromMimeTypeString(mimeType);
+      MimeType mimeTypeCode = MimeTypeUtil.fromMimeTypeString(mimeType);
       logger.debug("Mime type: {}", mimeTypeCode);
       return mimeTypeCode;
     } catch (DSSException e) {
