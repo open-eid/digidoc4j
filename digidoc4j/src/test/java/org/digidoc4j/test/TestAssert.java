@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.test;
 
@@ -41,6 +41,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
@@ -130,12 +133,23 @@ public final class TestAssert {
     Assert.fail(stringBuilder.toString());
   }
 
+  public static void assertContainsError(Class<? extends DigiDoc4JException> expectedErrorType, List<DigiDoc4JException> errors) {
+    for (DigiDoc4JException e : errors) {
+      if (expectedErrorType.isInstance(e)) {
+        return;
+      }
+    }
+    Assert.fail(String.format("Expected <%s> was not found", expectedErrorType.getSimpleName()));
+  }
+
   public static void assertSignatureMetadataContainsFileName(Signature signature, String fileName) {
     Assert.assertNotNull(TestAssert.findSignedFile(signature, fileName));
   }
 
   public static void assertContainerIsValid(ContainerValidationResult containerValidationResult) {
-    if (!containerValidationResult.isValid()) {
+    if (containerValidationResult.isValid()) {
+      assertThat(containerValidationResult.getErrors(), empty());
+    } else {
       StringBuilder stringBuilder = new StringBuilder("Container is invalid");
       for (DigiDoc4JException exception : containerValidationResult.getErrors()) {
         stringBuilder.append(System.lineSeparator()).append('\t').append(exception);

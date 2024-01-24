@@ -74,7 +74,8 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   private void testSummaryWithNoLOTLInfos(List<LOTLInfo> lotlInfos) {
-    TLValidationJobSummary summary = new TLValidationJobSummary(lotlInfos, null);
+    TLValidationJobSummary summary = Mockito.mock(TLValidationJobSummary.class);
+    Mockito.doReturn(lotlInfos).when(summary).getLOTLInfos();
 
     TslRefreshException caughtException = Assert.assertThrows(
             TslRefreshException.class,
@@ -82,6 +83,8 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     );
 
     Assert.assertEquals("No TSL refresh info found!", caughtException.getMessage());
+    Mockito.verify(summary).getLOTLInfos();
+    Mockito.verifyNoMoreInteractions(summary);
     Mockito.verifyNoInteractions(configuration);
   }
 

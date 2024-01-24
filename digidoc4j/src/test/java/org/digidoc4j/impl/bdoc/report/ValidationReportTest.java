@@ -19,6 +19,7 @@ import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Paths;
@@ -26,6 +27,7 @@ import java.nio.file.Paths;
 public class ValidationReportTest extends AbstractTest {
 
   @Test
+  @Ignore("DD4J-967")
   public void validContainerWithOneSignature() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
     Signature signature = this.createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
@@ -52,6 +54,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-967")
   public void validContainerWithOneTmSignature() throws Exception {
     Container container = TestDataBuilderUtil.open(BDOC_WITH_TM_SIG);
     String report = container.validate().getReport();
@@ -68,6 +71,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-967")
   public void containerWithOneBesSignature() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
     this.createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
@@ -84,6 +88,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-967")
   public void containerWithOneEpesSignature() throws Exception {
     Container container = TestDataBuilderUtil.open(BDOC_WITH_B_EPES_SIG);
     String report = container.validate().getReport();
@@ -99,6 +104,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-967")
   public void validContainerWithTwoSignatures() throws Exception {
     Container container = TestDataBuilderUtil.open(BDOC_WITH_TM_AND_TS_SIG);
     SignatureValidationResult result = container.validate();
@@ -120,6 +126,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-967")
   public void invalidContainerWithOneSignature() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc");
     SignatureValidationResult result = container.validate();

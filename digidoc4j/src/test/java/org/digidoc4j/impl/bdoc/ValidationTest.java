@@ -168,8 +168,9 @@ public class ValidationTest extends AbstractTest {
         .open("src/test/resources/prodFiles/invalid-containers/filename_mismatch_signature.asice", PROD_CONFIGURATION);
     SignatureValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
-    Assert.assertEquals(7, errors.size());
-    TestAssert.assertContainsError("(Signature ID: S0) - The signature file for signature S0 has an entry for file <0123456789~#%&()=`@{[]}'.txt> with mimetype <application/pdf> but the manifest file does not have an entry for this file", errors);
+    TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(errors, 7,
+            "(Signature ID: S0) - The signature file for signature S0 has an entry for file <0123456789~#%&()=`@{[]}'.txt> with mimetype <application/pdf> but the manifest file does not have an entry for this file"
+    );
   }
 
   @Test
@@ -244,15 +245,12 @@ public class ValidationTest extends AbstractTest {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/filename_mismatch_manifest.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
     SignatureValidationResult validate = container.validate();
-    Assert.assertEquals(2, validate.getErrors().size());
-    Assert.assertEquals(
-        "(Signature ID: S0) - Manifest file has an entry for file <incorrect.txt> with mimetype <text/plain> but "
-            + "the signature file for signature S0 does not have an entry for this file",
-        validate.getErrors().get(0).toString());
-    Assert.assertEquals(
-        "(Signature ID: S0) - The signature file for signature S0 has an entry for file <RELEASE-NOTES.txt> "
-            + "with mimetype <text/plain> but the manifest file does not have an entry for this file",
-        validate.getErrors().get(1).toString());
+    TestAssert.assertContainsExactSetOfErrors(validate.getErrors(),
+            "(Signature ID: S0) - Manifest file has an entry for file <incorrect.txt> with mimetype <text/plain> but "
+                    + "the signature file for signature S0 does not have an entry for this file",
+            "(Signature ID: S0) - The signature file for signature S0 has an entry for file <RELEASE-NOTES.txt> "
+                    + "with mimetype <text/plain> but the manifest file does not have an entry for this file"
+    );
   }
 
   @Test
@@ -274,10 +272,9 @@ public class ValidationTest extends AbstractTest {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/revocation_timestamp_delta_26h.asice", PROD_CONFIGURATION);
     SignatureValidationResult validate = container.validate();
-    Assert.assertEquals(1, validate.getErrors().size());
-    Assert.assertEquals(
-        "(Signature ID: S0) - The difference between the OCSP response time and the signature timestamp is too large",
-        validate.getErrors().get(0).toString());
+    TestAssert.assertContainsExactSetOfErrors(validate.getErrors(),
+            "(Signature ID: S0) - The difference between the OCSP response time and the signature timestamp is too large"
+    );
   }
 
   @Test
@@ -285,18 +282,13 @@ public class ValidationTest extends AbstractTest {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     int delta27Hours = 27 * 60;
     configuration.setRevocationAndTimestampDeltaInMinutes(delta27Hours);
-    SignatureValidationResult result = ContainerOpener
+    ContainerValidationResult result = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/revocation_timestamp_delta_26h.asice", configuration)
         .validate();
-    Assert.assertEquals(0, result.getErrors().size());
-    Assert.assertEquals(2, result.getWarnings().size());
-    TestAssert.assertContainsError(
+    TestAssert.assertContainerIsValid(result);
+    TestAssert.assertContainsExactSetOfErrors(result.getWarnings(),
             "The difference between the OCSP response time and the signature timestamp is in allowable range",
-            result.getWarnings()
-    );
-    TestAssert.assertContainsError(
-            "The authority info access is not present!",
-            result.getWarnings()
+            "The authority info access is not present!"
     );
   }
 
@@ -304,12 +296,11 @@ public class ValidationTest extends AbstractTest {
   public void signatureFileAndManifestFileContainDifferentMimeTypeForFile() {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/mimetype_mismatch.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
-    SignatureValidationResult validate = container.validate();
-    Assert.assertEquals(1, validate.getErrors().size());
-    Assert.assertEquals(
-        "(Signature ID: S0) - Manifest file has an entry for file <RELEASE-NOTES.txt> with mimetype "
-            + "<application/pdf> but the signature file for signature S0 indicates the mimetype is <text/plain>",
-        validate.getErrors().get(0).toString());
+    ContainerValidationResult result = container.validate();
+    TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
+            "(Signature ID: S0) - Manifest file has an entry for file <RELEASE-NOTES.txt> with mimetype "
+                    + "<application/pdf> but the signature file for signature S0 indicates the mimetype is <text/plain>"
+    );
   }
 
   @Test(expected = DuplicateDataFileException.class)
@@ -348,11 +339,9 @@ public class ValidationTest extends AbstractTest {
         "src/test/resources/prodFiles/invalid-containers/extra_file_in_container.asice",
         PROD_CONFIGURATION_WITH_TEST_POLICY);
     SignatureValidationResult result = container.validate();
-    List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(1, errors.size());
-    Assert.assertEquals(
-        "Container contains a file named <AdditionalFile.txt> which is not found in the signature file",
-        errors.get(0).getMessage());
+    TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
+            "Container contains a file named <AdditionalFile.txt> which is not found in the signature file"
+    );
   }
 
   @Test
@@ -392,7 +381,7 @@ public class ValidationTest extends AbstractTest {
     List<DigiDoc4JException> errors = result.getErrors();
     TestAssert.assertContainsExactSetOfErrors(errors,
             "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.4.3",
-            "The certificate is not related to a granted status!",
+            "The certificate is not related to a qualified certificate issuing trust service with valid status!",
             "The current time is not in the validity range of the signer's certificate!",
             "The certificate validation is not conclusive!",
             "The best-signature-time is not before the expiration date of the signing certificate!",
@@ -467,7 +456,7 @@ public class ValidationTest extends AbstractTest {
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "OCSP nonce is invalid",
             "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.2.10.10",
-            "The certificate is not related to a granted status!",
+            "The certificate is not related to a qualified certificate issuing trust service with valid status!",
             "The signature policy is not available!",
             "The reference data object has not been found!",
             "The signature file for signature S0 has an entry for file <META-INF/manifest.xml> with mimetype "
@@ -669,7 +658,7 @@ public class ValidationTest extends AbstractTest {
         PROD_CONFIGURATION)
         .validate();
     Assert.assertFalse(result.isValid());
-    Assert.assertTrue(result.getErrors().get(0) instanceof UntrustedRevocationSourceException);
+    TestAssert.assertContainsError(UntrustedRevocationSourceException.class, result.getErrors());
   }
 
   @Test
@@ -682,12 +671,13 @@ public class ValidationTest extends AbstractTest {
 
   @Test
   public void bDoc_invalidOcspResponse() {
-    try {
-      this.openContainerByConfiguration(Paths.get("src/test/resources/prodFiles/invalid-containers/bdoc21-vigane-ocsp.bdoc"), PROD_CONFIGURATION);
-      Assert.fail("Should not be able to successfully open container!");
-    } catch (DSSException exception) {
-      Assert.assertEquals("Cannot create the token reference. The element with local name [EncapsulatedOCSPValue] must contain an encapsulated base64 token value!", exception.getMessage());
-    }
+    Container container = openContainerByConfiguration(Paths.get("src/test/resources/prodFiles/invalid-containers/bdoc21-vigane-ocsp.bdoc"), PROD_CONFIGURATION);
+    ContainerValidationResult result = container.validate();
+    TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
+            "The certificate validation is not conclusive!",
+            "No revocation data found for the certificate!",
+            "The certificate is not related to a qualified certificate issuing trust service with valid status!"
+    );
   }
 
   @Test
@@ -758,9 +748,7 @@ public class ValidationTest extends AbstractTest {
     Container container = this.createNonEmptyContainerByConfiguration();
     this.createSignatureBy(container, SignatureProfile.LT,
         new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray()));
-    SignatureValidationResult result = container.validate();
-    Assert.assertTrue(result.isValid());
-    Assert.assertEquals(0, result.getErrors().size());
+    TestAssert.assertContainerIsValid(container);
   }
 
   @Test
@@ -812,7 +800,7 @@ public class ValidationTest extends AbstractTest {
             "The certificate chain for time-stamp is not trusted, it does not contain a trust anchor.",
             "Signature has an invalid timestamp",
             "The certificate validation is not conclusive!",
-            "The certificate is not related to a granted status!",
+            "The certificate is not related to a qualified certificate issuing trust service with valid status!",
             "No revocation data found for the certificate!",
             "The time-stamp message imprint is not intact!",
             "Unable to build a certificate chain up to a trusted list!",
@@ -940,8 +928,7 @@ public class ValidationTest extends AbstractTest {
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
             "The certificate validation is not conclusive!",
             "No acceptable revocation data for the certificate!",
-            "The revocation data is not consistent!",
-            "The current time is not in the validity range of the signer's certificate!"
+            "The revocation data is not consistent!"
     );
   }
 

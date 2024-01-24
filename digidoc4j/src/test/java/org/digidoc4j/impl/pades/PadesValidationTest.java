@@ -76,7 +76,7 @@ public class PadesValidationTest extends AbstractTest {
             "The current time is not in the validity range of the signer's certificate!",
             "The best-signature-time is not before the expiration date of the signing certificate!",
             "The past signature validation is not conclusive!",
-            "The certificate is not related to a granted status!"
+            "The certificate is not related to a qualified certificate issuing trust service with valid status!"
     );
   }
 
