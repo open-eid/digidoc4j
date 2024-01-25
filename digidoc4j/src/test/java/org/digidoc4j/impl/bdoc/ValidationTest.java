@@ -64,6 +64,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-978 Lithuanian trusted list is temporarily unusable")
   public void validateProdBDocContainer_isValid() {
     Container container = ContainerBuilder.aContainer().
         fromExistingFile("src/test/resources/prodFiles/valid-containers/Baltic MoU digital signing_EST_LT_LV.bdoc").
@@ -864,6 +865,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-978 Lithuanian trusted list is temporarily unusable")
   public void prodContainerWithSignatureWarningOfTrustedCertificateNotMatchingWithTrustService_warningIsRemoved() {
     Container container = ContainerBuilder.aContainer().
             fromExistingFile("src/test/resources/prodFiles/valid-containers/Baltic MoU digital signing_EST_LT_LV.bdoc").
