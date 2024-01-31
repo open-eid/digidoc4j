@@ -48,6 +48,7 @@ import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -173,19 +174,26 @@ public class XadesSignatureValidator implements SignatureValidator {
     if (policy != null && !isSignaturePolicyImpliedElementPresented()) {
       String policyIdentifier = Helper.getIdentifier(policy.getIdentifier());
       if (TmSignaturePolicyType.isTmPolicyOid(policyIdentifier)) {
-        String policyUrl = policy.getUri();
-        if (StringUtils.equals(policyIdentifier, policyUrl)) {
-          // DD4J-730: Starting from DSS version 5.8, the policy URL defaults to the policy identifier OID if the URL is
-          //  missing in the signature. Since the BDOC standard requires that the URL is always present, this workaround
-          //  is required to identify cases when the URL is missing.
-          // TODO: review the usefulness and correctness of this workaround as soon as DSS is updated!
-          policyUrl = null;
-        }
+        // SignaturePolicy::getUri might not return the actual signature policy SPURI value, but a value copied from the
+        //  signature policy identifier field. Extract the signature policy SPURI from the signature:
+        String policyUrl = getSignaturePolicyUri();
         if (StringUtils.isBlank(policyUrl)) {
           this.addValidationError(new WrongPolicyIdentifierException("Error: The URL in signature policy is empty or not available"));
         }
       }
     }
+  }
+
+  private String getSignaturePolicyUri() {
+    LOGGER.debug("Extracting policy identifier SPURI");
+    final XAdESPath xadesPaths = getDssSignature().getXAdESPaths();
+    return Optional
+            .of(getDssSignature().getSignatureElement())
+            .map(signatureElement -> DomUtils.getElement(signatureElement, xadesPaths.getSignaturePolicyIdentifierPath()))
+            .map(policyIdentifier -> DomUtils.getElement(policyIdentifier, xadesPaths.getCurrentSignaturePolicySPURI()))
+            .map(Node::getTextContent)
+            .map(StringUtils::trim)
+            .orElse(null);
   }
 
   private void addPolicyIdentifierQualifierValidationErrors() {
