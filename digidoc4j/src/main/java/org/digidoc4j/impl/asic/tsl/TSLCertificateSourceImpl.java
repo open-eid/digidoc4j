@@ -10,7 +10,9 @@
 
 package org.digidoc4j.impl.asic.tsl;
 
+import eu.europa.esig.dss.enumerations.AdditionalServiceInformation;
 import eu.europa.esig.dss.enumerations.KeyUsageBit;
+import eu.europa.esig.dss.enumerations.ServiceQualification;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.tsl.Condition;
 import eu.europa.esig.dss.spi.tsl.ConditionForQualifiers;
@@ -25,6 +27,8 @@ import eu.europa.esig.dss.spi.util.MutableTimeDependentValues;
 import eu.europa.esig.dss.tsl.dto.ParsingCacheDTO;
 import eu.europa.esig.dss.tsl.dto.condition.KeyUsageCondition;
 import eu.europa.esig.dss.validation.process.qualification.EIDASUtils;
+import eu.europa.esig.dss.validation.process.qualification.trust.ServiceTypeIdentifier;
+import eu.europa.esig.dss.validation.process.qualification.trust.TrustServiceStatus;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -36,10 +40,8 @@ import org.slf4j.LoggerFactory;
 
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,7 +52,11 @@ import java.util.Optional;
 public class TSLCertificateSourceImpl extends TrustedListsCertificateSource implements TSLCertificateSource {
 
   public static final String OID_TIMESTAMPING = "1.3.6.1.5.5.7.3.8";
-  public static final String FOR_ESIGNATURES = "http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/ForeSignatures";
+  /**
+   * @deprecated Deprecated for removal. Use {@link AdditionalServiceInformation#FOR_ESIGNATURES} instead.
+   */
+  @Deprecated
+  public static final String FOR_ESIGNATURES = AdditionalServiceInformation.FOR_ESIGNATURES.getUri();
   private static final String CUSTOM_LOTL_URL = "user_defined_LOTL";
   private static final String CUSTOM_TL_URL = "user_defined_TL";
 
@@ -68,7 +74,9 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
    * http://uri.etsi.org/TrstSvc/Svctype/Certstatus/OCSP/QC - if certificate contains "OCSPSigning" extended key usage <br/>
    * http://uri.etsi.org/TrstSvc/Svctype/TSA/QTST - if certificate contains "timeStamping" extended key usage
    * http://uri.etsi.org/TrstSvc/Svctype/CA/QC - otherwise <br/>
-   * Qualifier will be http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD with nonRepudiation <br/>
+   * Qualifier will be: <br/>
+   * Certificate's NotBefore pre Eidas -> http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD with nonRepudiation <br/>
+   * Certificate's NotBefore post Eidas -> http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithQSCD with nonRepudiation <br/>
    * ServiceStatus will be: <br/>
    * Certificate's NotBefore pre Eidas -> http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision <br/>
    * Certificate's NotBefore post Eidas -> http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted <br/>
@@ -80,23 +88,27 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
 
     TrustServiceProviderBuilder trustServiceProviderBuilder = new TrustServiceProviderBuilder();
     trustServiceProviderBuilder.setTerritory("EU");
-    trustServiceProviderBuilder.setNames(new HashMap<String, List<String>>() {{
-      put("EN", Arrays.asList(getCN(certificate)));
-    }});
+    trustServiceProviderBuilder.setNames(Collections.singletonMap(
+            "EN", Collections.singletonList(getCN(certificate))
+    ));
 
-    TrustServiceStatusAndInformationExtensions.TrustServiceStatusAndInformationExtensionsBuilder extensionsBuilder = new TrustServiceStatusAndInformationExtensions.
-            TrustServiceStatusAndInformationExtensionsBuilder();
-    extensionsBuilder.setNames(new HashMap<String, List<String>>() {{
-      put("EN", Arrays.asList(getCN(certificate)));
-    }});
+    TrustServiceStatusAndInformationExtensions.TrustServiceStatusAndInformationExtensionsBuilder extensionsBuilder =
+            new TrustServiceStatusAndInformationExtensions.TrustServiceStatusAndInformationExtensionsBuilder();
+    extensionsBuilder.setNames(Collections.singletonMap(
+            "EN", Collections.singletonList(getCN(certificate))
+    ));
 
     extensionsBuilder.setType(getServiceType(certificate));
-    extensionsBuilder.setStatus(getStatus(certificate.getNotBefore()));
+    extensionsBuilder.setStatus(getServiceStatus(certificate.getNotBefore()));
     Condition condition = new KeyUsageCondition(KeyUsageBit.NON_REPUDIATION, true);
 
-    ConditionForQualifiers conditionForQualifiers = new ConditionForQualifiers(condition, Arrays.asList("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD"));
-    extensionsBuilder.setConditionsForQualifiers(Arrays.asList(conditionForQualifiers));
-    extensionsBuilder.setAdditionalServiceInfoUris(Collections.singletonList(FOR_ESIGNATURES));
+    ConditionForQualifiers conditionForQualifiers = new ConditionForQualifiers(condition, Collections.singletonList(
+            getServiceQualification(certificate.getNotBefore())
+    ));
+    extensionsBuilder.setConditionsForQualifiers(Collections.singletonList(conditionForQualifiers));
+    extensionsBuilder.setAdditionalServiceInfoUris(Collections.singletonList(
+            AdditionalServiceInformation.FOR_ESIGNATURES.getUri()
+    ));
     extensionsBuilder.setStartDate(certificate.getNotBefore());
     extensionsBuilder.setEndDate(null);
 
@@ -107,7 +119,7 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
     TrustProperties trustProperties = new TrustProperties(getFirstSuitableTLInfo(),
             trustServiceProviderBuilder.build(), statusHistoryList);
 
-    addCertificate(new CertificateToken(certificate), Arrays.asList(trustProperties));
+    addCertificate(new CertificateToken(certificate), Collections.singletonList(trustProperties));
   }
 
   /**
@@ -124,7 +136,7 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
   @Override
   public TLValidationJobSummary getSummary() {
     if (super.getSummary() == null) {
-      super.setSummary(new TLValidationJobSummary(Arrays.asList(createUserDefinedLOTL()), null));
+      super.setSummary(new TLValidationJobSummary(Collections.singletonList(createUserDefinedLOTL()), null));
     }
     return super.getSummary();
   }
@@ -145,43 +157,51 @@ public class TSLCertificateSourceImpl extends TrustedListsCertificateSource impl
     return this.getSummary().getLOTLInfos().get(0).getTLInfos().get(0);
   }
 
-  private LOTLInfo createUserDefinedLOTL() {
+  private static LOTLInfo createUserDefinedLOTL() {
     ParsingCacheDTO parsingInfoRecord = new ParsingCacheDTO();
     parsingInfoRecord.setVersion(5);
     TLInfo tlInfo = new TLInfo(null, parsingInfoRecord, null, CUSTOM_TL_URL);
     LOTLInfo lotlInfo = new LOTLInfo(null, parsingInfoRecord, null, CUSTOM_LOTL_URL);
-    lotlInfo.setTlInfos(Arrays.asList(tlInfo));
+    lotlInfo.setTlInfos(Collections.singletonList(tlInfo));
     return lotlInfo;
   }
 
-  private String getCN(X509Certificate certificate) {
+  private static String getCN(X509Certificate certificate) {
     X500Name x500name = new X500Name(certificate.getSubjectX500Principal().getName());
     RDN cn = x500name.getRDNs(BCStyle.CN)[0];
     return IETFUtils.valueToString(cn.getFirst().getValue());
   }
 
-  private String getServiceType(X509Certificate certificate) {
+  private static String getServiceType(X509Certificate certificate) {
     try {
       List<String> extendedKeyUsage = certificate.getExtendedKeyUsage();
       if (extendedKeyUsage != null && certificate.getBasicConstraints() == -1) {
         if (extendedKeyUsage.contains(SKOnlineOCSPSource.OID_OCSP_SIGNING)) {
-          return "http://uri.etsi.org/TrstSvc/Svctype/Certstatus/OCSP/QC";
+          return ServiceTypeIdentifier.OCSP_QC.getUri();
         }
         if (extendedKeyUsage.contains(OID_TIMESTAMPING)) {
-          return "http://uri.etsi.org/TrstSvc/Svctype/TSA/QTST";
+          return ServiceTypeIdentifier.TSA_QTST.getUri();
         }
       }
     } catch (CertificateParsingException e) {
       logger.warn("Error decoding extended key usage from certificate <{}>", certificate.getSubjectDN().getName());
     }
-    return "http://uri.etsi.org/TrstSvc/Svctype/CA/QC";
+    return ServiceTypeIdentifier.CA_QC.getUri();
   }
 
-  private String getStatus(Date startDate) {
+  private static String getServiceStatus(Date startDate) {
     if (EIDASUtils.isPostEIDAS(startDate)) {
-      return "http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted";
+      return TrustServiceStatus.GRANTED.getUri();
     } else {
-      return "http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision";
+      return TrustServiceStatus.UNDER_SUPERVISION.getUri();
+    }
+  }
+
+  private static String getServiceQualification(Date startDate) {
+    if (EIDASUtils.isPostEIDAS(startDate)) {
+      return ServiceQualification.QC_WITH_QSCD.getUri();
+    } else {
+      return ServiceQualification.QC_WITH_SSCD.getUri();
     }
   }
 
