@@ -144,7 +144,7 @@
 
         <bouncycastle.version>1.76</bouncycastle.version><!-- 1.77 causes problems with OCSP response parsing -->
         <commons-codec.version>1.16.0</commons-codec.version>
-        <slf4j.version>2.0.11</slf4j.version>
+        <slf4j.version>2.0.12</slf4j.version>
 
         <dependency-check-maven.version>8.3.1</dependency-check-maven.version>
         <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>

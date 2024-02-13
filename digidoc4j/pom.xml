@@ -513,8 +513,6 @@
                                     <zipgroupfileset dir="${dss.util.lib}" includes="**/*.jar" excludes="bcprov-*.jar"/>
                                     <zipgroupfileset dir="${project.build.directory}" includes="**/digidoc4j-*.jar"
                                                      excludes="*-javadoc.jar *-sources.jar"/>
-                                    <zipgroupfileset dir="${project.build.directory}"
-                                                     includes="**/logback-*.jar"/>
                                 </jar>
                                 <jar destfile="${dss.util.build}/digidoc4j-util.jar">
                                     <zipfileset src="${dss.util.build}/temp.jar"
@@ -526,13 +524,19 @@
                                         <attribute name="Implementation-Title" value="Java BDoc/DigiDoc utility"/>
                                         <attribute name="Implementation-Version" value="${project.version}"/>
                                         <attribute name="Main-Class" value="org.digidoc4j.main.DigiDoc4J"/>
-                                        <attribute name="Class-Path" value=". ./bcprov-jdk18on.jar"/>
+                                        <attribute name="Class-Path" value=". ./bcprov-jdk18on.jar ./logback-classic.jar ./logback-core.jar"/>
                                         <attribute name="Multi-Release" value="true"/>
                                     </manifest>
                                 </jar>
                                 <delete file="${dss.util.build}/temp.jar"/>
                                 <copy tofile="${dss.util.build}/bcprov-jdk18on.jar">
                                     <fileset dir="${dss.util.lib}" includes="**/bcprov-jdk18on*.jar"/>
+                                </copy>
+                                <copy tofile="${dss.util.build}/logback-classic.jar">
+                                    <fileset dir="${project.build.directory}" includes="**/logback-classic*.jar"/>
+                                </copy>
+                                <copy tofile="${dss.util.build}/logback-core.jar">
+                                    <fileset dir="${project.build.directory}" includes="**/logback-core*.jar"/>
                                 </copy>
                                 <copy todir="${dss.util.build}/">
                                     <fileset dir="${project.basedir}/src/main/etc" includes="*.xml"/>
