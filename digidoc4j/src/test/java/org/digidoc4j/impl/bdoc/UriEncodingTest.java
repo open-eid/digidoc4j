@@ -73,6 +73,7 @@ public class UriEncodingTest extends AbstractTest {
     );
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
+    assertHasNoWarnings(validationResult);
   }
 
   @Test
@@ -83,6 +84,7 @@ public class UriEncodingTest extends AbstractTest {
     );
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
+    assertHasNoWarnings(validationResult);
   }
 
   @Test
@@ -97,6 +99,9 @@ public class UriEncodingTest extends AbstractTest {
             "The current time is not in the validity range of the signer's certificate!",
             "The certificate validation is not conclusive!"
     );
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+            "The signature/seal is an INDETERMINATE AdES digital signature!"
+    );
   }
 
   @Test
@@ -107,6 +112,7 @@ public class UriEncodingTest extends AbstractTest {
     );
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
+    assertHasNoWarnings(validationResult);
   }
 
   /*

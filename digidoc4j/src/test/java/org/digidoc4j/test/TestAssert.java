@@ -162,8 +162,12 @@ public final class TestAssert {
     assertContainerIsValid(container.validate());
   }
 
+  public static void assertContainerIsInvalid(ContainerValidationResult containerValidationResult) {
+    Assert.assertFalse("Container is valid", containerValidationResult.isValid());
+  }
+
   public static void assertContainerIsInvalid(Container container) {
-    Assert.assertFalse("Container is valid", container.validate().isValid());
+    assertContainerIsInvalid(container.validate());
   }
 
   public static void assertContainerIsOpened(Container container, Container.DocumentType documentType) {

@@ -326,7 +326,9 @@ public class SignatureBuilderTest extends AbstractTest {
     assertTrue(signature.validateSignature().isValid());
     assertThat(signature.getSignatureMethod(), containsString("ecdsa"));
     container.addSignature(signature);
-    assertTrue(container.validate().isValid());
+    ContainerValidationResult validationResult = container.validate();
+    TestAssert.assertContainerIsValid(validationResult);
+    assertHasNoWarnings(validationResult);
   }
 
   @Test

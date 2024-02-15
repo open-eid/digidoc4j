@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 import static org.digidoc4j.main.DigiDoc4J.isWarning;
-import static org.digidoc4j.test.ContainsPattern.containsPattern;
+import static org.digidoc4j.test.matcher.ContainsPattern.containsPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;

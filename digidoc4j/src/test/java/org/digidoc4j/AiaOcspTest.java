@@ -1,5 +1,6 @@
 package org.digidoc4j;
 
+import org.digidoc4j.test.TestAssert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -70,7 +71,9 @@ public class AiaOcspTest extends AbstractTest {
                 .withConfiguration(configuration)
                 .build();
         this.createSignatureBy(container, pkcs12Esteid2018SignatureToken);
-        assertTrue(container.validate().isValid());
+        ContainerValidationResult validationResult = container.validate();
+        TestAssert.assertContainerIsValid(validationResult);
+        assertHasNoWarnings(validationResult);
         assertEquals("C=EE, O=SK ID Solutions AS, OU=OCSP, CN=DEMO of ESTEID-SK 2018 AIA OCSP RESPONDER 2018", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
     }
 

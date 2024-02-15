@@ -44,13 +44,15 @@ public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTes
 
         Assert.assertTrue(validationResult.isValid());
         Assert.assertNotNull(validationResult.getWarnings());
-        Assert.assertEquals(2, validationResult.getWarnings().size());
-        TestAssert.assertContainsError("Data file 'empty-file-2.txt' is empty", validationResult.getWarnings());
-        TestAssert.assertContainsError("Data file 'empty-file-4.txt' is empty", validationResult.getWarnings());
+        TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+                "Data file 'empty-file-2.txt' is empty",
+                "Data file 'empty-file-4.txt' is empty"
+        );
         Assert.assertNotNull(validationResult.getContainerWarnings());
-        Assert.assertEquals(2, validationResult.getContainerWarnings().size());
-        TestAssert.assertContainsError("Data file 'empty-file-2.txt' is empty", validationResult.getContainerWarnings());
-        TestAssert.assertContainsError("Data file 'empty-file-4.txt' is empty", validationResult.getContainerWarnings());
+        TestAssert.assertContainsExactSetOfErrors(validationResult.getContainerWarnings(),
+                "Data file 'empty-file-2.txt' is empty",
+                "Data file 'empty-file-4.txt' is empty"
+        );
     }
 
     @Test
@@ -61,13 +63,15 @@ public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTes
 
         Assert.assertTrue(validationResult.isValid());
         Assert.assertNotNull(validationResult.getWarnings());
-        Assert.assertEquals(2, validationResult.getWarnings().size());
-        TestAssert.assertContainsError("Data file 'empty-file-2.txt' is empty", validationResult.getWarnings());
-        TestAssert.assertContainsError("Data file 'empty-file-4.txt' is empty", validationResult.getWarnings());
+        TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+                "Data file 'empty-file-2.txt' is empty",
+                "Data file 'empty-file-4.txt' is empty"
+        );
         Assert.assertNotNull(validationResult.getContainerWarnings());
-        Assert.assertEquals(2, validationResult.getContainerWarnings().size());
-        TestAssert.assertContainsError("Data file 'empty-file-2.txt' is empty", validationResult.getContainerWarnings());
-        TestAssert.assertContainsError("Data file 'empty-file-4.txt' is empty", validationResult.getContainerWarnings());
+        TestAssert.assertContainsExactSetOfErrors(validationResult.getContainerWarnings(),
+                "Data file 'empty-file-2.txt' is empty",
+                "Data file 'empty-file-4.txt' is empty"
+        );
     }
 
     @Test

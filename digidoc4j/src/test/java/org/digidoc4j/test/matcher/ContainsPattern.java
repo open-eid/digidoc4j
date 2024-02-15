@@ -8,7 +8,7 @@
  * Version 2.1, February 1999
  */
 
-package org.digidoc4j.test;
+package org.digidoc4j.test.matcher;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

@@ -46,13 +46,15 @@ public class EmptyDataFilesBdocContainerTest extends EmptyDataFilesContainerTest
 
         assertTrue(validationResult.isValid());
         assertNotNull(validationResult.getWarnings());
-        assertEquals(2, validationResult.getWarnings().size());
-        TestAssert.assertContainsError("Data file 'empty-file-2.txt' is empty", validationResult.getWarnings());
-        TestAssert.assertContainsError("Data file 'empty-file-4.txt' is empty", validationResult.getWarnings());
+        TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+                "Data file 'empty-file-2.txt' is empty",
+                "Data file 'empty-file-4.txt' is empty"
+        );
         assertNotNull(validationResult.getContainerWarnings());
-        assertEquals(2, validationResult.getContainerWarnings().size());
-        TestAssert.assertContainsError("Data file 'empty-file-2.txt' is empty", validationResult.getContainerWarnings());
-        TestAssert.assertContainsError("Data file 'empty-file-4.txt' is empty", validationResult.getContainerWarnings());
+        TestAssert.assertContainsExactSetOfErrors(validationResult.getContainerWarnings(),
+                "Data file 'empty-file-2.txt' is empty",
+                "Data file 'empty-file-4.txt' is empty"
+        );
     }
 
     @Test

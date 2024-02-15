@@ -51,6 +51,10 @@ import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
+import static org.digidoc4j.test.matcher.IsDigiDoc4JException.digiDoc4JExceptionMessageContainsString;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThrows;
 
 public class ValidationTest extends AbstractTest {
@@ -124,9 +128,10 @@ public class ValidationTest extends AbstractTest {
     this.createSignatureBy(container, pkcs12SignatureToken);
     ContainerValidationResult result = container.validate();
 
-    Assert.assertTrue(result.isValid());
+    TestAssert.assertContainerIsValid(result);
     Assert.assertEquals(1, result.getReports().size());
     Assert.assertEquals("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", result.getReports().get(0).getSignedBy());
+    assertHasNoWarnings(result);
 
     this.createSignatureBy(container, pkcs12Esteid2018SignatureToken);
     result = container.validate();
@@ -135,6 +140,7 @@ public class ValidationTest extends AbstractTest {
     Assert.assertEquals(2, result.getReports().size());
     Assert.assertEquals("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", result.getReports().get(0).getSignedBy());
     Assert.assertEquals("JÕEORG,JAAK-KRISTJAN,38001085718", result.getReports().get(1).getSignedBy());
+    assertHasNoWarnings(result);
   }
 
   @Test(expected = UnsupportedFormatException.class)
@@ -644,8 +650,9 @@ public class ValidationTest extends AbstractTest {
             fromExistingFile("src/test/resources/testFiles/valid-containers/NoAdditionalCertificates_LT.asice").
             withConfiguration(configuration)
             .build();
-    ContainerValidationResult test = container.validate();
-    Assert.assertTrue(test.isValid());
+    ContainerValidationResult result = container.validate();
+    TestAssert.assertContainerIsValid(result);
+    assertHasNoWarnings(result);
   }
 
   @Test
@@ -869,9 +876,10 @@ public class ValidationTest extends AbstractTest {
             withConfiguration(PROD_CONFIGURATION).build();
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
-    Assert.assertTrue(validationResult.getErrors().isEmpty());
     I18nProvider i18nProvider = new I18nProvider();
-    Assert.assertFalse(validationResult.getWarnings().contains(i18nProvider.getMessage(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS2)));
+    assertThat(validationResult.getWarnings(), not(hasItem(
+            digiDoc4JExceptionMessageContainsString(i18nProvider.getMessage(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS1))
+    )));
   }
 
   @Test
@@ -883,10 +891,11 @@ public class ValidationTest extends AbstractTest {
             .build();
     TestTSLUtil.addCertificateFromFileToTsl(configuration, "src/test/resources/testFiles/certs/ESTEID-SK_2007_prod.pem.crt");
     ContainerValidationResult validationResult = container.validate();
-    Assert.assertTrue(validationResult.isValid());
-    Assert.assertTrue(validationResult.getErrors().isEmpty());
+    TestAssert.assertContainerIsValid(validationResult);
     I18nProvider i18nProvider = new I18nProvider();
-    Assert.assertFalse(validationResult.getWarnings().contains(i18nProvider.getMessage(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS2)));
+    assertThat(validationResult.getWarnings(), not(hasItem(
+            digiDoc4JExceptionMessageContainsString(i18nProvider.getMessage(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS2))
+    )));
   }
 
   @Test
@@ -927,6 +936,9 @@ public class ValidationTest extends AbstractTest {
             "No acceptable revocation data for the certificate!",
             "The revocation data is not consistent!"
     );
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+            "The signature/seal is an INDETERMINATE AdES digital signature!"
+    );
   }
 
   @Test
@@ -938,6 +950,9 @@ public class ValidationTest extends AbstractTest {
             "The certificate validation is not conclusive!",
             "No acceptable revocation data for the certificate!",
             "The revocation data is not consistent!"
+    );
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+            "The signature/seal is an INDETERMINATE AdES digital signature!"
     );
   }
 
