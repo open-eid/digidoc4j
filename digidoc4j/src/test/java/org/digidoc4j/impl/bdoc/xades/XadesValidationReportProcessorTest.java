@@ -20,6 +20,7 @@ import eu.europa.esig.dss.simplereport.jaxb.XmlTimestamp;
 import eu.europa.esig.dss.simplereport.jaxb.XmlTimestamps;
 import eu.europa.esig.dss.simplereport.jaxb.XmlToken;
 import eu.europa.esig.dss.validation.reports.Reports;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.impl.asic.xades.XadesValidationReportProcessor;
 import org.digidoc4j.test.matcher.IsSimpleReportXmlMessage;
 import org.hamcrest.Matcher;
@@ -32,6 +33,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInRelativeOrder;
@@ -426,6 +429,193 @@ public class XadesValidationReportProcessorTest {
     assertThat(timestamp.getQualificationDetails().getInfo(), containsInRelativeOrder(
             messageOf(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS1),
             messageOf(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS2)
+    ));
+  }
+
+  @Test
+  public void process_WhenSignatureTimestampContainsTstPoeTimeStatusErrorInQualificationDetails_ErrorRemoved() {
+    XmlTimestamp timestamp = new MockTimestampBuilder()
+            .qualificationDetails(b -> b.errors(
+                    toMessage(MessageTag.QUAL_HAS_QTST_ANS),
+                    toMessage(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+            ))
+            .build();
+    XmlSignature signature = new MockSignatureBuilder()
+            .timestamps(timestamp)
+            .build();
+
+    Reports validationReports = mockReports(signature);
+    assertThat(timestamp.getQualificationDetails().getError(), hasSize(2));
+    assertThat(timestamp.getQualificationDetails().getError(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_QTST_ANS),
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+
+    XadesValidationReportProcessor.process(validationReports);
+
+    assertThat(timestamp.getQualificationDetails().getError(), hasSize(1));
+    assertThat(timestamp.getQualificationDetails().getError(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_QTST_ANS)
+    ));
+  }
+
+  @Test
+  public void process_WhenSignatureTimestampContainsOtherStatusErrorsInQualificationDetails_NoErrorsRemoved() {
+    List<Object> validationTimes = Stream.concat(
+            Stream.of(MessageTag.values())
+                    .filter(mt -> StringUtils.startsWith(mt.getId(), "VT_"))
+                    .filter(mt -> !MessageTag.VT_TST_POE_TIME.equals(mt)),
+            Stream.of("some custom validation time")
+    ).collect(Collectors.toList());
+    XmlTimestamp timestamp = new MockTimestampBuilder()
+            .qualificationDetails(b -> b.errors(
+                    validationTimes.stream()
+                            .map(vt -> toMessage(MessageTag.QUAL_HAS_GRANTED_AT_ANS, vt))
+                            .collect(Collectors.toList())
+            ))
+            .build();
+    XmlSignature signature = new MockSignatureBuilder()
+            .timestamps(timestamp)
+            .build();
+
+    Reports validationReports = mockReports(signature);
+    assertThat(timestamp.getQualificationDetails().getError(), hasSize(validationTimes.size()));
+    assertThat(timestamp.getQualificationDetails().getError(), containsInRelativeOrder(
+            validationTimes.stream()
+                    .map(vt -> messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, vt))
+                    .collect(Collectors.toList())
+    ));
+
+    XadesValidationReportProcessor.process(validationReports);
+
+    assertThat(timestamp.getQualificationDetails().getError(), hasSize(validationTimes.size()));
+    assertThat(timestamp.getQualificationDetails().getError(), containsInRelativeOrder(
+            validationTimes.stream()
+                    .map(vt -> messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, vt))
+                    .collect(Collectors.toList())
+    ));
+  }
+
+  @Test
+  public void process_WhenSignatureOrTimestampContainsTstPoeTimeStatusErrorInAnywhereElseThanTimestampQualificationDetailsAsError_NothingRemoved() {
+    XmlTimestamp timestamp = new MockTimestampBuilder()
+            .adesValidationDetails(b -> b
+                    .errors(toMessage(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME))
+                    .warnings(toMessage(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME))
+                    .infos(toMessage(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME))
+            )
+            .qualificationDetails(b -> b
+                    .warnings(toMessage(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME))
+                    .infos(toMessage(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME))
+            )
+            .build();
+    XmlSignature signature = new MockSignatureBuilder()
+            .adesValidationDetails(b -> b
+                    .errors(toMessage(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME))
+                    .warnings(toMessage(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME))
+                    .infos(toMessage(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME))
+            )
+            .qualificationDetails(b -> b
+                    .errors(toMessage(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME))
+                    .warnings(toMessage(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME))
+                    .infos(toMessage(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME))
+            )
+            .timestamps(timestamp)
+            .build();
+
+    Reports validationReports = mockReports(signature);
+    assertThat(signature.getAdESValidationDetails().getError(), hasSize(1));
+    assertThat(signature.getAdESValidationDetails().getError(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(signature.getAdESValidationDetails().getWarning(), hasSize(1));
+    assertThat(signature.getAdESValidationDetails().getWarning(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(signature.getAdESValidationDetails().getInfo(), hasSize(1));
+    assertThat(signature.getAdESValidationDetails().getInfo(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(signature.getQualificationDetails().getError(), hasSize(1));
+    assertThat(signature.getQualificationDetails().getError(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(signature.getQualificationDetails().getWarning(), hasSize(1));
+    assertThat(signature.getQualificationDetails().getWarning(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(signature.getQualificationDetails().getInfo(), hasSize(1));
+    assertThat(signature.getQualificationDetails().getInfo(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(timestamp.getAdESValidationDetails().getError(), hasSize(1));
+    assertThat(timestamp.getAdESValidationDetails().getError(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(timestamp.getAdESValidationDetails().getWarning(), hasSize(1));
+    assertThat(timestamp.getAdESValidationDetails().getWarning(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(timestamp.getAdESValidationDetails().getInfo(), hasSize(1));
+    assertThat(timestamp.getAdESValidationDetails().getInfo(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(timestamp.getQualificationDetails().getError(), empty());
+    assertThat(timestamp.getQualificationDetails().getWarning(), hasSize(1));
+    assertThat(timestamp.getQualificationDetails().getWarning(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(timestamp.getQualificationDetails().getInfo(), hasSize(1));
+    assertThat(timestamp.getQualificationDetails().getInfo(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+
+    XadesValidationReportProcessor.process(validationReports);
+
+    assertThat(signature.getAdESValidationDetails().getError(), hasSize(1));
+    assertThat(signature.getAdESValidationDetails().getError(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(signature.getAdESValidationDetails().getWarning(), hasSize(1));
+    assertThat(signature.getAdESValidationDetails().getWarning(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(signature.getAdESValidationDetails().getInfo(), hasSize(1));
+    assertThat(signature.getAdESValidationDetails().getInfo(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(signature.getQualificationDetails().getError(), hasSize(1));
+    assertThat(signature.getQualificationDetails().getError(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(signature.getQualificationDetails().getWarning(), hasSize(1));
+    assertThat(signature.getQualificationDetails().getWarning(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(signature.getQualificationDetails().getInfo(), hasSize(1));
+    assertThat(signature.getQualificationDetails().getInfo(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(timestamp.getAdESValidationDetails().getError(), hasSize(1));
+    assertThat(timestamp.getAdESValidationDetails().getError(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(timestamp.getAdESValidationDetails().getWarning(), hasSize(1));
+    assertThat(timestamp.getAdESValidationDetails().getWarning(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(timestamp.getAdESValidationDetails().getInfo(), hasSize(1));
+    assertThat(timestamp.getAdESValidationDetails().getInfo(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(timestamp.getQualificationDetails().getError(), empty());
+    assertThat(timestamp.getQualificationDetails().getWarning(), hasSize(1));
+    assertThat(timestamp.getQualificationDetails().getWarning(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
+    ));
+    assertThat(timestamp.getQualificationDetails().getInfo(), hasSize(1));
+    assertThat(timestamp.getQualificationDetails().getInfo(), containsInRelativeOrder(
+            messageOf(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
     ));
   }
 

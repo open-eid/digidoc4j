@@ -169,7 +169,6 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-986 Now withdrawn timestamping service causes signature error")
   public void signatureFileContainsIncorrectFileName() {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/filename_mismatch_signature.asice", PROD_CONFIGURATION);
@@ -248,7 +247,6 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-986 Now withdrawn timestamping service causes signature error")
   public void manifestFileContainsIncorrectFileName() {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/filename_mismatch_manifest.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
@@ -275,7 +273,6 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-986 Now withdrawn timestamping service causes signature error")
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   public void revocationAndTimeStampDifferenceTooLarge() {
     Container container = ContainerOpener
@@ -287,7 +284,6 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-986 Now withdrawn timestamping service causes signature error")
   public void revocationAndTimeStampDifferenceNotTooLarge() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     int delta27Hours = 27 * 60;
@@ -303,7 +299,6 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-986 Now withdrawn timestamping service causes signature error")
   public void signatureFileAndManifestFileContainDifferentMimeTypeForFile() {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/mimetype_mismatch.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
@@ -345,7 +340,6 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-986 Now withdrawn timestamping service causes signature error")
   public void containerHasFileWhichIsNotInManifestAndNotInSignatureFile() {
     Container container = ContainerOpener.open(
         "src/test/resources/prodFiles/invalid-containers/extra_file_in_container.asice",
@@ -427,7 +421,6 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-986 Now withdrawn timestamping service causes signature error")
   public void noSignedPropRefTS() {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/REF-03_bdoc21-TS-no-signedpropref.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
@@ -451,7 +444,6 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-986 Now withdrawn timestamping service causes signature error")
   public void incorrectSignedPropertiesReference() {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/signed_properties_reference_not_found.asice",
@@ -532,7 +524,6 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-986 Now withdrawn timestamping service causes signature error")
   public void validTSRsa2047_whenASN1UnsafeIntegerAllowed() {
     PROD_CONFIGURATION.setAllowASN1UnsafeInteger(true);
     Assert.assertTrue(PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
