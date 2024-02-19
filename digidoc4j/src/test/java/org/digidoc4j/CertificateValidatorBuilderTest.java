@@ -83,7 +83,9 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
 
   @Test
   public void validate_WhenCertificateIsRevoked_ValidationExceptionWithRevokedStatusIsThrown() {
-    CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(this.configuration).build();
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    configuration.setPreferAiaOcsp(false);
+    CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(configuration).build();
     validator.getCertificateSource().addCertificate(openCertificateToken("src/test/resources/testFiles/certs/TESTofESTEID-SK2011.crt"));
     X509Certificate certificateToTest = openX509Certificate("src/test/resources/testFiles/certs/TESTofStatusRevoked.cer");
 

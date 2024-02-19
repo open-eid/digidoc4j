@@ -1454,14 +1454,14 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void aiaOcspNotPreferredByDefault_defaultTest() {
-    Assert.assertFalse(configuration.isAiaOcspPreferred());
+  public void aiaOcspPreferredByDefault_defaultTest() {
+    Assert.assertTrue(configuration.isAiaOcspPreferred());
   }
 
-    @Test
-    public void aiaOcspNotPreferredByDefault_defaultProd() {
-        Assert.assertFalse(Configuration.of(Configuration.Mode.PROD).isAiaOcspPreferred());
-    }
+  @Test
+  public void aiaOcspPreferredByDefault_defaultProd() {
+    Assert.assertTrue(Configuration.of(Configuration.Mode.PROD).isAiaOcspPreferred());
+  }
 
   @Test
   public void getAiaOcspSourceByCN_defaultTest() {

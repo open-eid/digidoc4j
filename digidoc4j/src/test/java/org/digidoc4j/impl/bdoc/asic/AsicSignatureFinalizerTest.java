@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl.bdoc.asic;
 
 import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
@@ -106,6 +116,7 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
   @Test
   public void testCustomOcspDataLoaderUsedForSigning() {
     configuration = Configuration.of(Configuration.Mode.TEST);
+    configuration.setPreferAiaOcsp(false);
     SkOCSPDataLoader ocspDataLoader = new SkOCSPDataLoader(configuration);
     ocspDataLoader.setUserAgent("custom-user-agent-string");
     DataLoader dataLoaderSpy = Mockito.spy(ocspDataLoader);

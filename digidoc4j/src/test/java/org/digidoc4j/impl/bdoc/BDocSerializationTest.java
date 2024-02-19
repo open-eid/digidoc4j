@@ -74,6 +74,7 @@ public class BDocSerializationTest extends AbstractTest {
     this.serialize(container, this.serializedContainerLocation);
     this.serialize(originalDataToSign, serializedDataToSignPath);
     DataToSign deserializedDataToSign = this.deserializer(serializedDataToSignPath);
+    deserializedDataToSign.getConfiguration().setPreferAiaOcsp(false);
     deserializedDataToSign.getConfiguration().setOcspSource("http://invalid.ocsp.url");
     byte[] signatureValue = this.sign(deserializedDataToSign.getDataToSign(), deserializedDataToSign.getDigestAlgorithm());
 

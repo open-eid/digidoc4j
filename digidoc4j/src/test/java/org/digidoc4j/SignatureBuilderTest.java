@@ -1379,6 +1379,7 @@ public class SignatureBuilderTest extends AbstractTest {
   @Test
   public void invokeSigning_networkExceptionIsNotCaught() {
     Configuration configuration = Configuration.of(TEST);
+    configuration.setPreferAiaOcsp(false);
     configuration.setOcspSource("http://invalid.ocsp.url");
 
     expectedException.expect(ServiceUnreachableException.class);
@@ -1395,6 +1396,7 @@ public class SignatureBuilderTest extends AbstractTest {
   @Test
   public void dataToSignFinalize_networkExceptionIsNotCaught() {
     Configuration configuration = Configuration.of(TEST);
+    configuration.setPreferAiaOcsp(false);
     configuration.setOcspSource("http://invalid.ocsp.url");
 
     expectedException.expect(ServiceUnreachableException.class);

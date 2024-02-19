@@ -414,14 +414,22 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     return this.createSignatureBy(type, null, signatureToken, mode);
   }
 
+  protected <T> T createSignatureBy(Container.DocumentType type, SignatureToken signatureToken, Configuration configuration) {
+    return this.createSignatureBy(type, null, signatureToken, configuration);
+  }
+
   protected <T> T createSignatureBy(Container.DocumentType type, SignatureProfile signatureProfile, SignatureToken signatureToken) {
     return this.createSignatureBy(type, signatureProfile, signatureToken, Configuration.Mode.TEST);
   }
 
-  @SuppressWarnings("unchecked")
   protected <T> T createSignatureBy(Container.DocumentType type, SignatureProfile signatureProfile, SignatureToken signatureToken, Configuration.Mode mode) {
+    return createSignatureBy(type, signatureProfile, signatureToken, Configuration.of(mode));
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T> T createSignatureBy(Container.DocumentType type, SignatureProfile signatureProfile, SignatureToken signatureToken, Configuration configuration) {
     try {
-      SignatureBuilder builder = SignatureBuilder.aSignature(TestDataBuilderUtil.createContainerWithFile(this.testFolder, type, mode));
+      SignatureBuilder builder = SignatureBuilder.aSignature(TestDataBuilderUtil.createContainerWithFile(this.testFolder, type, configuration));
       if (signatureProfile != null) {
         builder.withSignatureProfile(signatureProfile);
       }

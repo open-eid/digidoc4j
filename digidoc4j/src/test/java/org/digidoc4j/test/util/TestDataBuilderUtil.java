@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.test.util;
 
@@ -37,11 +37,19 @@ public class TestDataBuilderUtil {
   }
 
   public static Container createContainerWithFile(TemporaryFolder folder, String containerType, Configuration.Mode mode) throws IOException {
-    return TestDataBuilderUtil.populateContainerBuilderWithFile(ContainerBuilder.aContainer(containerType), folder, mode);
+    return TestDataBuilderUtil.createContainerWithFile(folder, containerType, Configuration.of(mode));
+  }
+
+  public static Container createContainerWithFile(TemporaryFolder folder, String containerType, Configuration configuration) throws IOException {
+    return TestDataBuilderUtil.populateContainerBuilderWithFile(ContainerBuilder.aContainer(containerType), folder, configuration);
   }
 
   public static Container createContainerWithFile(TemporaryFolder folder, Container.DocumentType type, Configuration.Mode mode) throws IOException {
-    return TestDataBuilderUtil.populateContainerBuilderWithFile(ContainerBuilder.aContainer(type), folder, mode);
+    return TestDataBuilderUtil.createContainerWithFile(folder, type, Configuration.of(mode));
+  }
+
+  public static Container createContainerWithFile(TemporaryFolder folder, Container.DocumentType type, Configuration configuration) throws IOException {
+    return TestDataBuilderUtil.populateContainerBuilderWithFile(ContainerBuilder.aContainer(type), folder, configuration);
   }
 
   public static Container createContainerWithFile(String dataFilePath) {
@@ -89,9 +97,9 @@ public class TestDataBuilderUtil {
     return ContainerBuilder.aContainer().fromExistingFile(path).build();
   }
 
-  private static Container populateContainerBuilderWithFile(ContainerBuilder builder, TemporaryFolder testFolder, Configuration.Mode mode) throws IOException {
+  private static Container populateContainerBuilderWithFile(ContainerBuilder builder, TemporaryFolder testFolder, Configuration configuration) throws IOException {
     File testFile = TestDataBuilderUtil.createTestFile(testFolder);
-    return builder.withConfiguration(new Configuration(mode)).withDataFile(testFile.getPath(), "text/plain").build();
+    return builder.withConfiguration(configuration).withDataFile(testFile.getPath(), "text/plain").build();
   }
 
   private static SignatureBuilder prepareDataToSign(Container container) {

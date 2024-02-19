@@ -2167,7 +2167,7 @@ public class Configuration implements Serializable {
       this.setDDoc4JParameter("SIGN_OCSP_REQUESTS", "false");
       setDDoc4JParameter("ALLOWED_OCSP_RESPONDERS_FOR_TM", StringUtils.join(Constant.Test.DEFAULT_OCSP_RESPONDERS, ","));
       this.setConfigurationParameter(ConfigurationParameter.AllowedOcspRespondersForTM, Constant.Test.DEFAULT_OCSP_RESPONDERS);
-      this.setConfigurationParameter(ConfigurationParameter.preferAiaOcsp, "false");
+      this.setConfigurationParameter(ConfigurationParameter.preferAiaOcsp, "true");
       this.loadYamlAiaOCSPs(loadYamlFromResource("defaults/demo_aia_ocsp.yaml"), true);
     } else {
       this.setConfigurationParameter(ConfigurationParameter.TspSource, Constant.Production.TSP_SOURCE);
@@ -2183,7 +2183,7 @@ public class Configuration implements Serializable {
       this.setDDoc4JParameter("SIGN_OCSP_REQUESTS", "false");
       setDDoc4JParameter("ALLOWED_OCSP_RESPONDERS_FOR_TM", StringUtils.join(Constant.Production.DEFAULT_OCSP_RESPONDERS, ","));
       this.setConfigurationParameter(ConfigurationParameter.AllowedOcspRespondersForTM, Constant.Production.DEFAULT_OCSP_RESPONDERS);
-      this.setConfigurationParameter(ConfigurationParameter.preferAiaOcsp, "false");
+      this.setConfigurationParameter(ConfigurationParameter.preferAiaOcsp, "true");
       this.loadYamlAiaOCSPs(loadYamlFromResource("defaults/live_aia_ocsp.yaml"), true);
     }
     LOGGER.debug("{} configuration: {}", this.mode, this.registry);
