@@ -1,16 +1,14 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.main;
-
-import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -21,13 +19,14 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.digidoc4j.Container;
 import org.digidoc4j.Version;
+import org.digidoc4j.ddoc.DigiDocException;
+import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.main.xades.DetachedXadesSignatureExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.digidoc4j.ddoc.DigiDocException;
-import org.digidoc4j.ddoc.SignedDoc;
+import java.util.List;
 
 /**
  * Client commandline tool for DigiDoc4J library.
@@ -219,7 +218,8 @@ public final class DigiDoc4J {
     options.addOption("version", "version", false, "show version");
     options.addOption("tst", "timestamp", false, "adds timestamp token to container");
     options.addOption("err", "showerrors", false, "show container errors [deprecated]");
-    options.addOption("aiaocsp", "aiaocsp", false, "prefer AIA OCSP in case of LT,LTA signature profiles");
+    options.addOption("aiaocsp", "aiaocsp", false, "prefer to use AIA OCSP for signing [deprecated]");
+    options.addOption("noaiaocsp", "noaiaocsp", false, "disable AIA OCSP preference for signing");
     options.addOption(DigiDoc4J.type());
     options.addOption(DigiDoc4J.inputFile());
     options.addOption(DigiDoc4J.inputDir());
