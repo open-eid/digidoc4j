@@ -19,7 +19,6 @@ import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Paths;
@@ -27,7 +26,6 @@ import java.nio.file.Paths;
 public class ValidationReportTest extends AbstractTest {
 
   @Test
-  @Ignore("DD4J-967")
   public void validContainerWithOneSignature() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
     Signature signature = this.createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
@@ -54,7 +52,6 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-967")
   public void validContainerWithOneTmSignature() throws Exception {
     Container container = TestDataBuilderUtil.open(BDOC_WITH_TM_SIG);
     String report = container.validate().getReport();
@@ -71,7 +68,6 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-967")
   public void containerWithOneBesSignature() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
     this.createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
@@ -81,14 +77,13 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature)", report);
     TestAssert.assertXPathHasValue("XAdES-BASELINE-B", "/SimpleReport/Signature/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
-    TestAssert.assertXPathHasValue("TRY_LATER", "/SimpleReport/Signature/SubIndication", report);
+    TestAssert.assertXPathHasValue("CERTIFICATE_CHAIN_GENERAL_FAILURE", "/SimpleReport/Signature/SubIndication", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
     TestAssert.assertXPathHasValue("true", "count(/SimpleReport/Signature/CertificateChain/Certificate) > 1", report);
     TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", "/SimpleReport/Signature/CertificateChain/Certificate[1]/qualifiedName", report);
   }
 
   @Test
-  @Ignore("DD4J-967")
   public void containerWithOneEpesSignature() throws Exception {
     Container container = TestDataBuilderUtil.open(BDOC_WITH_B_EPES_SIG);
     String report = container.validate().getReport();
@@ -97,14 +92,13 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature)", report);
     TestAssert.assertXPathHasValue("XAdES-BASELINE-B-EPES", "/SimpleReport/Signature/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
-    TestAssert.assertXPathHasValue("TRY_LATER", "/SimpleReport/Signature/SubIndication", report);
+    TestAssert.assertXPathHasValue("CERTIFICATE_CHAIN_GENERAL_FAILURE", "/SimpleReport/Signature/SubIndication", report);
     TestAssert.assertXPathHasValue("junit4090904941259216539.tmp", "/SimpleReport/Signature/SignatureScope/@name", report);
     TestAssert.assertXPathHasValue("true", "count(/SimpleReport/Signature/CertificateChain/Certificate) > 1", report);
     TestAssert.assertXPathHasValue("ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865", "/SimpleReport/Signature/CertificateChain/Certificate[1]/qualifiedName", report);
   }
 
   @Test
-  @Ignore("DD4J-967")
   public void validContainerWithTwoSignatures() throws Exception {
     Container container = TestDataBuilderUtil.open(BDOC_WITH_TM_AND_TS_SIG);
     SignatureValidationResult result = container.validate();
@@ -126,7 +120,6 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-967")
   public void invalidContainerWithOneSignature() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc");
     SignatureValidationResult result = container.validate();

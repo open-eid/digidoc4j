@@ -17,7 +17,6 @@ import eu.europa.esig.dss.jaxb.parsers.DateParser;
 import eu.europa.esig.dss.simplereport.jaxb.Adapter3;
 import eu.europa.esig.dss.simplereport.jaxb.Adapter4;
 import eu.europa.esig.dss.simplereport.jaxb.Adapter6;
-import eu.europa.esig.dss.simplereport.jaxb.XmlCertificateChain;
 import eu.europa.esig.dss.simplereport.jaxb.XmlDetails;
 import eu.europa.esig.dss.simplereport.jaxb.XmlMessage;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
@@ -125,7 +124,10 @@ public class SignatureValidationReport implements Serializable {
     report.getSignatureScope().addAll(xmlSignature.getSignatureScope());
     report.setId(xmlSignature.getId());
     report.setSignatureFormat(xmlSignature.getSignatureFormat());
-    report.setCertificateChain(xmlSignature.getCertificateChain());
+    report.setCertificateChain(Optional
+            .ofNullable(xmlSignature.getCertificateChain())
+            .map(XmlCertificateChain::create)
+            .orElse(null));
     return report;
   }
 

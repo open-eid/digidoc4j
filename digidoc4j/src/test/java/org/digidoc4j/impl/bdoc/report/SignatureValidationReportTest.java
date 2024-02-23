@@ -14,24 +14,36 @@ import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.enumerations.SignatureQualification;
 import eu.europa.esig.dss.enumerations.SubIndication;
+import eu.europa.esig.dss.simplereport.jaxb.XmlCertificate;
+import eu.europa.esig.dss.simplereport.jaxb.XmlCertificateChain;
 import eu.europa.esig.dss.simplereport.jaxb.XmlDetails;
 import eu.europa.esig.dss.simplereport.jaxb.XmlMessage;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignatureLevel;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignatureScope;
+import eu.europa.esig.dss.simplereport.jaxb.XmlTimestamp;
+import eu.europa.esig.dss.simplereport.jaxb.XmlTimestamps;
 import org.digidoc4j.impl.asic.report.SignatureValidationReport;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInRelativeOrder;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 public class SignatureValidationReportTest {
 
   @Test
-  public void copyXmlSignatureParameters() {
+  public void create_WhenXmlSignatureParametersArePresent_SignatureValidationReportWithMatchingParametersIsCreated() {
     XmlSignature signature = new XmlSignature();
     Date today = new Date();
     signature.setSigningTime(today);
@@ -44,37 +56,109 @@ public class SignatureValidationReportTest {
     signature.setSignatureLevel(sigLevel);
     signature.setSubIndication(SubIndication.NO_POE);
     signature.setAdESValidationDetails(new XmlDetails());
-    signature.getAdESValidationDetails().getError().addAll(asList(createMessage("AdESError1"), createMessage("AdESError2")));
-    signature.getAdESValidationDetails().getWarning().addAll(asList(createMessage("AdESWarning1"), createMessage("AdESWarning2")));
-    signature.getAdESValidationDetails().getInfo().addAll(asList(createMessage("AdESInfo1"), createMessage("AdESInfo2")));
+    signature.getAdESValidationDetails().getError().addAll(createMessages("AdESError1", "AdESError2"));
+    signature.getAdESValidationDetails().getWarning().addAll(createMessages("AdESWarning1", "AdESWarning2"));
+    signature.getAdESValidationDetails().getInfo().addAll(createMessages("AdESInfo1", "AdESInfo2"));
     signature.setQualificationDetails(new XmlDetails());
-    signature.getQualificationDetails().getError().addAll(asList(createMessage("QError1"), createMessage("QError2")));
-    signature.getQualificationDetails().getWarning().addAll(asList(createMessage("QWarning1"), createMessage("QWarning2")));
-    signature.getQualificationDetails().getInfo().addAll(asList(createMessage("QInfo1"), createMessage("QInfo2")));
+    signature.getQualificationDetails().getError().addAll(createMessages("QError1", "QError2"));
+    signature.getQualificationDetails().getWarning().addAll(createMessages("QWarning1", "QWarning2"));
+    signature.getQualificationDetails().getInfo().addAll(createMessages("QInfo1", "QInfo2"));
     signature.getSignatureScope().add(new XmlSignatureScope());
     signature.setId("123abc");
     signature.setParentId("Parent ID");
+    signature.setTimestamps(new XmlTimestamps());
+    signature.getTimestamps().getTimestamp().add(new XmlTimestamp());
+    signature.getTimestamps().getTimestamp().get(0).setAdESValidationDetails(new XmlDetails());
+    signature.getTimestamps().getTimestamp().get(0).getAdESValidationDetails().getError().add(createMessage("TsAdESError"));
+    signature.getTimestamps().getTimestamp().get(0).getAdESValidationDetails().getWarning().add(createMessage("TsAdESWarning"));
+    signature.getTimestamps().getTimestamp().get(0).getAdESValidationDetails().getInfo().add(createMessage("TsAdESInfo"));
+    signature.getTimestamps().getTimestamp().get(0).setQualificationDetails(new XmlDetails());
+    signature.getTimestamps().getTimestamp().get(0).getQualificationDetails().getError().add(createMessage("TsQError"));
+    signature.getTimestamps().getTimestamp().get(0).getQualificationDetails().getWarning().add(createMessage("TsQWarning"));
+    signature.getTimestamps().getTimestamp().get(0).getQualificationDetails().getInfo().add(createMessage("TsQInfo"));
     signature.setSignatureFormat(SignatureLevel.UNKNOWN);
+    signature.setCertificateChain(new XmlCertificateChain());
+    signature.getCertificateChain().getCertificate().addAll(asList(
+            createCertificate("1234", "QName1"),
+            createCertificate("5678", "QName2")
+    ));
+
     SignatureValidationReport report = SignatureValidationReport.create(signature);
-    Assert.assertEquals(today, report.getSigningTime());
-    Assert.assertEquals(today, report.getBestSignatureTime());
-    Assert.assertEquals("SignedBy", report.getSignedBy());
-    Assert.assertEquals(Indication.TOTAL_PASSED, report.getIndication());
-    Assert.assertEquals("QESIG", report.getSignatureLevel().getValue().name());
-    Assert.assertEquals("QESig", report.getSignatureLevel().getValue().getReadable());
-    Assert.assertEquals(SubIndication.NO_POE, report.getSubIndication());
-    Assert.assertThat(report.getErrors(), containsInAnyOrder("AdESError1", "AdESError2", "QError1", "QError2"));
-    Assert.assertThat(report.getWarnings(), containsInAnyOrder("AdESWarning1", "AdESWarning2", "QWarning1", "QWarning2"));
-    Assert.assertThat(report.getInfos(), containsInAnyOrder("AdESInfo1", "AdESInfo2", "QInfo1", "QInfo2"));
-    Assert.assertEquals(1, report.getSignatureScope().size());
-    Assert.assertEquals("123abc", report.getId());
-    Assert.assertEquals(SignatureLevel.UNKNOWN, report.getSignatureFormat());
+
+    assertThat(report.getSigningTime(), equalTo(today));
+    assertThat(report.getBestSignatureTime(), equalTo(today));
+    assertThat(report.getSignedBy(), equalTo("SignedBy"));
+    assertThat(report.getIndication(), equalTo(Indication.TOTAL_PASSED));
+    assertThat(report.getSignatureLevel(), notNullValue(XmlSignatureLevel.class));
+    assertThat(report.getSignatureLevel().getValue(), equalTo(SignatureQualification.QESIG));
+    assertThat(report.getSignatureLevel().getDescription(), equalTo(SignatureQualification.QESIG.getLabel()));
+    assertThat(report.getSubIndication(), equalTo(SubIndication.NO_POE));
+    assertThat(report.getErrors(), hasSize(6));
+    assertThat(report.getErrors(), containsInRelativeOrder(
+            "AdESError1", "AdESError2", "QError1", "QError2",
+            "TsAdESError", "TsQError"
+    ));
+    assertThat(report.getWarnings(), hasSize(6));
+    assertThat(report.getWarnings(), containsInRelativeOrder(
+            "AdESWarning1", "AdESWarning2", "QWarning1", "QWarning2",
+            "TsAdESWarning", "TsQWarning"
+    ));
+    assertThat(report.getInfos(), hasSize(6));
+    assertThat(report.getInfos(), containsInRelativeOrder(
+            "AdESInfo1", "AdESInfo2", "QInfo1", "QInfo2",
+            "TsAdESInfo", "TsQInfo"
+    ));
+    assertThat(report.getSignatureScope(), hasSize(1));
+    assertThat(report.getId(), equalTo("123abc"));
+    assertThat(report.getSignatureFormat(), equalTo(SignatureLevel.UNKNOWN));
+    assertThat(report.getCertificateChain(), notNullValue(org.digidoc4j.impl.asic.report.XmlCertificateChain.class));
+    assertThat(report.getCertificateChain().getCertificate(), hasSize(2));
+    assertThat(report.getCertificateChain().getCertificate().get(0), notNullValue(org.digidoc4j.impl.asic.report.XmlCertificate.class));
+    assertThat(report.getCertificateChain().getCertificate().get(0).getId(), equalTo("1234"));
+    assertThat(report.getCertificateChain().getCertificate().get(0).getQualifiedName(), equalTo("QName1"));
+    assertThat(report.getCertificateChain().getCertificate().get(1), notNullValue(org.digidoc4j.impl.asic.report.XmlCertificate.class));
+    assertThat(report.getCertificateChain().getCertificate().get(1).getId(), equalTo("5678"));
+    assertThat(report.getCertificateChain().getCertificate().get(1).getQualifiedName(), equalTo("QName2"));
+  }
+
+  @Test
+  public void create_WhenXmlSignatureParametersNotPresent_SignatureValidationReportWithMissingParametersIsCreated() {
+    XmlSignature signature = new XmlSignature();
+
+    SignatureValidationReport report = SignatureValidationReport.create(signature);
+
+    assertThat(report.getSigningTime(), nullValue());
+    assertThat(report.getBestSignatureTime(), nullValue());
+    assertThat(report.getSignedBy(), nullValue());
+    assertThat(report.getIndication(), nullValue());
+    assertThat(report.getSignatureLevel(), nullValue());
+    assertThat(report.getSubIndication(), nullValue());
+    assertThat(report.getErrors(), empty());
+    assertThat(report.getWarnings(), empty());
+    assertThat(report.getInfos(), empty());
+    assertThat(report.getSignatureScope(), empty());
+    assertThat(report.getId(), nullValue());
+    assertThat(report.getSignatureFormat(), nullValue());
+    assertThat(report.getCertificateChain(), nullValue());
   }
 
   private static XmlMessage createMessage(String message) {
     XmlMessage xmlMessage = new XmlMessage();
     xmlMessage.setValue(message);
     return xmlMessage;
+  }
+
+  private static List<XmlMessage> createMessages(String... messages) {
+    return Stream.of(messages)
+            .map(SignatureValidationReportTest::createMessage)
+            .collect(Collectors.toList());
+  }
+
+  private static XmlCertificate createCertificate(String id, String qualifiedName) {
+    XmlCertificate xmlCertificate = new XmlCertificate();
+    xmlCertificate.setId(id);
+    xmlCertificate.setQualifiedName(qualifiedName);
+    return xmlCertificate;
   }
 
 }
