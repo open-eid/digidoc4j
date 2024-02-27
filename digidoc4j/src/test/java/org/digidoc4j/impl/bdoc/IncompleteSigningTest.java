@@ -87,7 +87,7 @@ public class IncompleteSigningTest extends AbstractTest {
   private static final String CERTIFICATE_VALIDATION_EXCEPTION_MESSAGE_REGEX = "OCSP response certificate <C-[A-F0-9]+> match is not found in TSL";
   private static final String CONTAINER_VALIDATION_ERROR_MESSAGE = "The certificate validation is not conclusive!";
   private static final String OCSP_REQUEST_FAILED_EXCEPTION_MESSAGE_PART = "OCSP request failed";
-  private static final String TECHNICAL_EXCEPTION_TSP_MESSAGE_PART = "Got error in signing process: Failed to POST URL: http://demo.sk.ee/tsa";
+  private static final String TECHNICAL_EXCEPTION_TSP_MESSAGE_PART_TEMPLATE = "Got error in signing process: Failed to POST URL: %s";
   private static final String TSL_REFRESH_EXCEPTION_MESSAGE_PART = "Failed to download LoTL";
 
   @BeforeClass
@@ -253,7 +253,9 @@ public class IncompleteSigningTest extends AbstractTest {
             () -> createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken)
     );
 
-    assertThat(caughtException.getMessage(), containsString(TECHNICAL_EXCEPTION_TSP_MESSAGE_PART));
+    assertThat(caughtException.getMessage(), containsString(
+            String.format(TECHNICAL_EXCEPTION_TSP_MESSAGE_PART_TEMPLATE, configuration.getTspSource())
+    ));
   }
 
   @Test
@@ -266,7 +268,9 @@ public class IncompleteSigningTest extends AbstractTest {
             () -> createSignatureBy(container, SignatureProfile.LTA, pkcs12SignatureToken)
     );
 
-    assertThat(caughtException.getMessage(), containsString(TECHNICAL_EXCEPTION_TSP_MESSAGE_PART));
+    assertThat(caughtException.getMessage(), containsString(
+            String.format(TECHNICAL_EXCEPTION_TSP_MESSAGE_PART_TEMPLATE, configuration.getTspSource())
+    ));
   }
 
   @Test
@@ -290,7 +294,9 @@ public class IncompleteSigningTest extends AbstractTest {
             () -> createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken)
     );
 
-    assertThat(caughtException.getMessage(), containsString(TECHNICAL_EXCEPTION_TSP_MESSAGE_PART));
+    assertThat(caughtException.getMessage(), containsString(
+            String.format(TECHNICAL_EXCEPTION_TSP_MESSAGE_PART_TEMPLATE, configuration.getTspSource())
+    ));
   }
 
   @Test
@@ -303,7 +309,9 @@ public class IncompleteSigningTest extends AbstractTest {
             () -> createSignatureBy(container, SignatureProfile.LTA, pkcs12SignatureToken)
     );
 
-    assertThat(caughtException.getMessage(), containsString(TECHNICAL_EXCEPTION_TSP_MESSAGE_PART));
+    assertThat(caughtException.getMessage(), containsString(
+            String.format(TECHNICAL_EXCEPTION_TSP_MESSAGE_PART_TEMPLATE, configuration.getTspSource())
+    ));
   }
 
   @Test
