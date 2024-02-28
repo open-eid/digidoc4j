@@ -14,8 +14,12 @@ import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import org.digidoc4j.test.RestrictedExternalResourceRule;
 import org.digidoc4j.test.RestrictedExternalResourceRule.FileWritingRestrictedException;
 import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.test.util.JreVersionHelper;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,11 +32,36 @@ import java.nio.file.Paths;
 
 public class FileWritingOperationsTest extends AbstractTest {
 
+  /**
+   * {@link RestrictedExternalResourceRule} uses {@code SecurityManager} to achieve its goal.
+   * Since Java 17, Security Manager and its related API-s are deprecated for removal.
+   * Since Java 18, dynamically installing a Security Manager is disabled by default unless the end user has explicitly
+   * opted to allow it.
+   * https://openjdk.org/jeps/411
+   * TODO (DD4J-992): Find an alternative to using Security Manager for limiting filesystem access.
+   */
   @Rule
   public RestrictedExternalResourceRule rule = new RestrictedExternalResourceRule(
           new File(System.getProperty("java.io.tmpdir") + File.separator + "dss-cache-tsl" + File.separator).getPath(),
           new File(System.getProperty("java.io.tmpdir") + File.separator + "temp-tsl-keystore" + File.separator).getPath()
   );
+
+  /**
+   * Checks the JVM version and disables this test class dynamically if it is run on Java 18+.
+   * TODO (DD4J-992): Remove this after an alternative to using Security Manager has been found.
+   */
+  @BeforeClass
+  public static void checkIfShouldExecute() {
+    Integer currentJreMajorVersion = JreVersionHelper.getCurrentMajorVersionIfAvailable();
+    if (currentJreMajorVersion == null) {
+      return; // Do not skip the tests if JVM version could not be determined
+    }
+    Assume.assumeThat(
+            "Only run on JDK 17 or lower",
+            currentJreMajorVersion,
+            Matchers.lessThan(18)
+    );
+  }
 
   @Test(expected = FileWritingRestrictedException.class)
   public void writingToFileIsNotAllowed() throws IOException {
