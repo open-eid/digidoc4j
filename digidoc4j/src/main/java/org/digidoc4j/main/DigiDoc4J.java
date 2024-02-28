@@ -44,6 +44,10 @@ public final class DigiDoc4J {
    * @param args command line arguments
    */
   public static void main(String[] args) {
+    System.exit(executeAndReturnExitStatus(args));
+  }
+
+  static int executeAndReturnExitStatus(String[] args) {
     try {
       if (System.getProperty("digidoc4j.mode") == null) {
         System.setProperty("digidoc4j.mode", "PROD");
@@ -56,7 +60,7 @@ public final class DigiDoc4J {
         DigiDoc4J.logger.error("Utility error (please apply DEBUG level for stacktrace): {}", e.getMessage());
       }
       System.err.print(e.getMessage());
-      System.exit(e.getErrorCode());
+      return e.getErrorCode();
     } catch (Exception e) {
       if (DigiDoc4J.logger.isDebugEnabled()) {
         DigiDoc4J.logger.error("Utility error", e);
@@ -64,10 +68,10 @@ public final class DigiDoc4J {
         DigiDoc4J.logger.error("Utility error (please apply DEBUG level for stacktrace): {}", e.getMessage());
       }
       System.err.print(e.getMessage());
-      System.exit(1);
+      return 1;
     }
     logger.info("Finished running utility method");
-    System.exit(0);
+    return 0;
   }
 
   /**

@@ -10,12 +10,13 @@
 
 package org.digidoc4j.impl.bdoc.asic;
 
-import java.io.FileInputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.MimeTypeEnum;
+import eu.europa.esig.dss.enumerations.SignatureAlgorithm;
+import eu.europa.esig.dss.enumerations.TimestampType;
 import eu.europa.esig.dss.spi.x509.tsp.TimestampToken;
+import eu.europa.esig.dss.utils.Utils;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
@@ -26,7 +27,6 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.TimeStampContainerValidationResult;
 import org.digidoc4j.impl.asic.manifest.ManifestValidator;
 import org.digidoc4j.test.TestAssert;
-import org.digidoc4j.test.util.TestDigiDoc4JUtil;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
@@ -34,12 +34,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemOutRule;
 
-import eu.europa.esig.dss.enumerations.DigestAlgorithm;
-import eu.europa.esig.dss.enumerations.SignatureAlgorithm;
-import eu.europa.esig.dss.utils.Utils;
-import eu.europa.esig.dss.enumerations.Indication;
-import eu.europa.esig.dss.enumerations.TimestampType;
+import java.io.FileInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
+import static org.digidoc4j.main.TestDigiDoc4JUtil.invokeDigiDoc4jAndReturnExitStatus;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -125,7 +125,8 @@ public class TimeStampTokenTest extends AbstractTest {
     String fileName = this.getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-datst", "SHA256", "-tst"};
-    TestDigiDoc4JUtil.call(parameters);
+    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
+    assertEquals(0, caughtExitStatus);
     ZipFile zipFile = new ZipFile(fileName);
     ZipEntry mimeTypeEntry = zipFile.getEntry(ManifestValidator.MIMETYPE_PATH);
     ZipEntry manifestEntry = zipFile.getEntry(ManifestValidator.MANIFEST_PATH);
@@ -148,11 +149,14 @@ public class TimeStampTokenTest extends AbstractTest {
     String fileName = this.getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-datst", "SHA256", "-tst"};
-    TestDigiDoc4JUtil.call(parameters);
+    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
+    assertEquals(0, caughtExitStatus);
+
     parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
         "text/plain", "-datst", "SHA256", "-tst"};
-    TestDigiDoc4JUtil.call(parameters);
-    Assert.assertThat(this.stdOut.getLog(), StringContains.containsString(
+    caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
+    assertEquals(1, caughtExitStatus);
+    assertThat(this.stdOut.getLog(), StringContains.containsString(
         "This container has already timestamp. Should be no signatures in case of timestamped ASiCS container."));
   }
 
@@ -161,11 +165,14 @@ public class TimeStampTokenTest extends AbstractTest {
     String fileName = this.getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-datst", "SHA256", "-tst"};
-    TestDigiDoc4JUtil.call(parameters);
+    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
+    assertEquals(0, caughtExitStatus);
+
     parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
         "text/plain"};
-    TestDigiDoc4JUtil.call(parameters);
-    Assert.assertThat(this.stdOut.getLog(), StringContains.containsString(
+    caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
+    assertEquals(1, caughtExitStatus);
+    assertThat(this.stdOut.getLog(), StringContains.containsString(
         "This container has already timestamp. Should be no signatures in case of timestamped ASiCS container."));
   }
 
@@ -174,11 +181,14 @@ public class TimeStampTokenTest extends AbstractTest {
     String fileName = this.getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-datst", "SHA256", "-tst"};
-    TestDigiDoc4JUtil.call(parameters);
+    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
+    assertEquals(0, caughtExitStatus);
+
     parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
         "text/plain", "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
-    TestDigiDoc4JUtil.call(parameters);
-    Assert.assertThat(this.stdOut.getLog(), StringContains.containsString(
+    caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
+    assertEquals(1, caughtExitStatus);
+    assertThat(this.stdOut.getLog(), StringContains.containsString(
         "This container has already timestamp. Should be no signatures in case of timestamped ASiCS container."));
   }
 
@@ -187,9 +197,9 @@ public class TimeStampTokenTest extends AbstractTest {
     String fileName = this.getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
         "text/plain", "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
-    TestDigiDoc4JUtil.call(parameters);
-    Assert.assertThat(this.stdOut.getLog(), StringContains.containsString("Not supported: Not for ASiC-S container"));
-
+    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
+    assertEquals(1, caughtExitStatus);
+    assertThat(this.stdOut.getLog(), StringContains.containsString("Not supported: Not for ASiC-S container"));
   }
   
   /*
