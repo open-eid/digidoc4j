@@ -68,11 +68,19 @@ The support for creating BDOC-specific **time-mark** signatures was removed sinc
 
 # Requirements
 * Java **8** or higher (since version 4.0.0-RC.1)
-* Internet access to external verification services
-  * OCSP (Online Certificate Status Protocol) - http://ocsp.sk.ee
-  * EU TSL (European Commission's Trusted Status List) - https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml
-  * All the EU member states' TL servers referred in the EU TSL. Note that this list may change. (e.g. https://sr.riik.ee/tsl/estonian-tsl.xml, https://sede.minetur.gob.es/Prestadores/TSL/TSL.xml, https://www.viestintavirasto.fi/attachments/TSL-Ficora.xml etc.)
-  * TSA (Time Stamping Authority) - http://tsa.sk.ee
+* Internet access to external services
+  * OCSP (Online Certificate Status Protocol) - AIA OCSP URL from signer's certificate or default fallback value
+    http://ocsp.sk.ee (for more information, see
+    [here](https://github.com/open-eid/digidoc4j/wiki/Questions-&-Answers#usage-of-aia-ocsp-for-timestamp-based-asic-e-containers-since-release-310))
+  * EU TSL (European Commission's Trusted Status List) - default value https://ec.europa.eu/tools/lotl/eu-lotl.xml (for
+    more information, see [here](https://github.com/open-eid/digidoc4j/wiki/Examples-of-using-it#using-configuration))
+  * All the EU member states' TL servers referred in the EU TSL. Note that this list may change.
+    (e.g. https://sr.riik.ee/tsl/estonian-tsl.xml, https://sedediatid.mineco.gob.es/Prestadores/TSL/TSL.xml, https://dp.trustedlist.fi/fi-tl.xml etc.)
+  * TSA (Time Stamping Authority) - default value http://tsa.sk.ee (for more information, see
+    [here](https://github.com/open-eid/digidoc4j/wiki/Examples-of-using-it#using-configuration))
+  * AIA (Authority Information Access) CA issuers - missing certificates of certificate chains downloaded from the URLs
+    referred to in existing certificates
+  * Signature Policy documents, if applicable (e.g. https://www.sk.ee/repository/bdoc-spec21.pdf)
 
 ## Maven
 You can use the library as a Maven dependency from the Maven Central (http://mvnrepository.com/artifact/org.digidoc4j/digidoc4j)
