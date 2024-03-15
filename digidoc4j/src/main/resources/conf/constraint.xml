@@ -178,6 +178,7 @@
     <SignedAttributes>
       <SigningCertificatePresent Level="FAIL"/>
       <UnicitySigningCertificate Level="WARN"/>
+      <SigningCertificateRefersCertificateChain Level="WARN" />
       <SigningCertificateDigestAlgorithm Level="WARN" />
       <CertDigestPresent Level="FAIL"/>
       <CertDigestMatch Level="FAIL"/>
@@ -291,6 +292,7 @@
     <SignedAttributes>
       <SigningCertificatePresent Level="FAIL"/>
       <UnicitySigningCertificate Level="WARN" />
+      <SigningCertificateRefersCertificateChain Level="WARN" />
       <SigningCertificateDigestAlgorithm Level="WARN" />
       <CertDigestPresent Level="FAIL"/>
       <CertDigestMatch Level="FAIL"/>
@@ -475,6 +477,7 @@
     <SignedAttributes>
       <SigningCertificatePresent Level="WARN"/>
       <UnicitySigningCertificate Level="WARN"/>
+      <SigningCertificateRefersCertificateChain Level="IGNORE" />
       <!-- <SigningCertificateDigestAlgorithm Level="WARN" /> TODO : too strict to enforce now -->
       <CertDigestPresent Level="WARN"/>
       <CertDigestMatch Level="WARN"/>
