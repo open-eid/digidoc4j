@@ -19,10 +19,10 @@
       <SignatureDuplicated Level="FAIL"/>
       <ProspectiveCertificateChain Level="FAIL"/>
       <SignerInformationStore Level="FAIL"/>
-      <ByteRange Level="FAIL" />
+      <ByteRange Level="IGNORE" />
       <ByteRangeCollision Level="WARN" />
-      <PdfSignatureDictionary Level="FAIL" />
-      <PdfPageDifference Level="FAIL" />
+      <PdfSignatureDictionary Level="IGNORE" />
+      <PdfPageDifference Level="IGNORE" />
       <PdfAnnotationOverlap Level="WARN" />
       <PdfVisualDifference Level="WARN" />
       <DocMDP Level="WARN" />
@@ -57,10 +57,10 @@
           <Id>1.3.6.1.5.5.7.1.3</Id> <!-- QCStatements -->
           <!-- policyMappings 2.5.29.33 not supported -->
         </SupportedCriticalExtensions>
-        <ForbiddenExtensions Level="FAIL">
+        <ForbiddenExtensions Level="IGNORE">
           <Id>1.3.6.1.5.5.7.48.1.5</Id> <!-- ocsp_noCheck -->
         </ForbiddenExtensions>
-        <IssuerName Level="FAIL" />
+        <IssuerName Level="IGNORE" />
         <SerialNumberPresent Level="FAIL"/>
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
@@ -96,12 +96,12 @@
         <Signature Level="FAIL"/>
         <NotExpired Level="FAIL"/>
         <RevocationDataAvailable Level="FAIL"/>
-        <AcceptableRevocationDataFound Level="FAIL" />
+        <AcceptableRevocationDataFound Level="IGNORE" />
         <CRLNextUpdatePresent Level="WARN"/>
         <RevocationFreshness Level="IGNORE" Unit="DAYS" Value="0" />
-        <CA Level="FAIL" />
-        <MaxPathLength Level="FAIL" />
-        <KeyUsage Level="FAIL">
+        <CA Level="IGNORE" />
+        <MaxPathLength Level="IGNORE" />
+        <KeyUsage Level="IGNORE">
           <Id>keyCertSign</Id>
         </KeyUsage>
         <PolicyTree Level="WARN" />
@@ -119,10 +119,10 @@
           <Id>1.3.6.1.5.5.7.1.3</Id> <!-- QCStatements -->
           <!-- policyMappings 2.5.29.33 not supported -->
         </SupportedCriticalExtensions>
-        <ForbiddenExtensions Level="FAIL">
+        <ForbiddenExtensions Level="IGNORE">
           <Id>1.3.6.1.5.5.7.48.1.5</Id> <!-- ocsp_noCheck -->
         </ForbiddenExtensions>
-        <IssuerName Level="FAIL" />
+        <IssuerName Level="IGNORE" />
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
         <Cryptographic Level="FAIL">
@@ -323,10 +323,10 @@
       <ReferenceDataIntact Level="FAIL"/>
       <SignatureIntact Level="FAIL"/>
       <ProspectiveCertificateChain Level="FAIL"/>
-      <ByteRange Level="FAIL" />
+      <ByteRange Level="IGNORE" />
       <ByteRangeCollision Level="WARN" />
-      <PdfSignatureDictionary Level="FAIL" />
-      <PdfPageDifference Level="FAIL" />
+      <PdfSignatureDictionary Level="IGNORE" />
+      <PdfPageDifference Level="IGNORE" />
       <PdfAnnotationOverlap Level="WARN" />
       <PdfVisualDifference Level="WARN" />
       <DocMDP Level="WARN" />
@@ -338,7 +338,7 @@
         <Signature Level="FAIL"/>
         <NotExpired Level="FAIL"/>
         <RevocationDataAvailable Level="FAIL"/>
-        <AcceptableRevocationDataFound Level="FAIL" />
+        <AcceptableRevocationDataFound Level="IGNORE" />
         <CRLNextUpdatePresent Level="WARN"/>
         <RevocationFreshness Level="IGNORE" Unit="DAYS" Value="0" />
         <ExtendedKeyUsage Level="FAIL">
@@ -359,10 +359,10 @@
           <Id>1.3.6.1.5.5.7.1.3</Id> <!-- QCStatements -->
           <!-- policyMappings 2.5.29.33 not supported -->
         </SupportedCriticalExtensions>
-        <ForbiddenExtensions Level="FAIL">
+        <ForbiddenExtensions Level="IGNORE">
           <Id>1.3.6.1.5.5.7.48.1.5</Id> <!-- ocsp_noCheck -->
         </ForbiddenExtensions>
-        <IssuerName Level="FAIL" />
+        <IssuerName Level="IGNORE" />
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
         <NotSelfSigned Level="FAIL"/>
@@ -398,9 +398,9 @@
         <AcceptableRevocationDataFound Level="WARN" />
         <CRLNextUpdatePresent Level="WARN"/>
         <RevocationFreshness Level="IGNORE" Unit="DAYS" Value="0" />
-        <CA Level="FAIL" />
-        <MaxPathLength Level="FAIL" />
-        <KeyUsage Level="FAIL">
+        <CA Level="IGNORE" />
+        <MaxPathLength Level="IGNORE" />
+        <KeyUsage Level="IGNORE">
           <Id>keyCertSign</Id>
         </KeyUsage>
         <PolicyTree Level="WARN" />
@@ -418,10 +418,10 @@
           <Id>1.3.6.1.5.5.7.1.3</Id> <!-- QCStatements -->
           <!-- policyMappings 2.5.29.33 not supported -->
         </SupportedCriticalExtensions>
-        <ForbiddenExtensions Level="FAIL">
+        <ForbiddenExtensions Level="IGNORE">
           <Id>1.3.6.1.5.5.7.48.1.5</Id> <!-- ocsp_noCheck -->
         </ForbiddenExtensions>
-        <IssuerName Level="FAIL" />
+        <IssuerName Level="IGNORE" />
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
         <Cryptographic Level="FAIL">
@@ -499,7 +499,7 @@
         <Signature Level="FAIL"/>
         <NotExpired Level="FAIL"/>
         <RevocationDataAvailable Level="FAIL"/>
-        <AcceptableRevocationDataFound Level="FAIL" />
+        <AcceptableRevocationDataFound Level="IGNORE" />
         <CRLNextUpdatePresent Level="WARN"/>
         <RevocationFreshness Level="IGNORE" Unit="DAYS" Value="0"/>
         <PolicyTree Level="WARN" />
@@ -518,7 +518,7 @@
           <Id>1.3.6.1.5.5.7.48.1.5</Id> <!-- ocsp_noCheck -->
           <!-- policyMappings 2.5.29.33 not supported -->
         </SupportedCriticalExtensions>
-        <IssuerName Level="FAIL" />
+        <IssuerName Level="IGNORE" />
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
         <Cryptographic Level="WARN">
@@ -553,9 +553,9 @@
         <AcceptableRevocationDataFound Level="WARN" />
         <CRLNextUpdatePresent Level="WARN"/>
         <RevocationFreshness Level="IGNORE" Unit="DAYS" Value="0" />
-        <CA Level="FAIL" />
-        <MaxPathLength Level="FAIL" />
-        <KeyUsage Level="FAIL">
+        <CA Level="IGNORE" />
+        <MaxPathLength Level="IGNORE" />
+        <KeyUsage Level="IGNORE">
           <Id>keyCertSign</Id>
         </KeyUsage>
         <PolicyTree Level="WARN" />
@@ -573,10 +573,10 @@
           <Id>1.3.6.1.5.5.7.1.3</Id> <!-- QCStatements -->
           <!-- policyMappings 2.5.29.33 not supported -->
         </SupportedCriticalExtensions>
-        <ForbiddenExtensions Level="FAIL">
+        <ForbiddenExtensions Level="IGNORE">
           <Id>1.3.6.1.5.5.7.48.1.5</Id> <!-- ocsp_noCheck -->
         </ForbiddenExtensions>
-        <IssuerName Level="FAIL" />
+        <IssuerName Level="IGNORE" />
         <NotRevoked Level="FAIL"/>
         <NotOnHold Level="FAIL"/>
         <Cryptographic Level="FAIL">
