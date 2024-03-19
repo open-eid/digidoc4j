@@ -104,7 +104,7 @@ public class DataLoaderDecorator {
       proxyProperties.setHost(proxyHost);
       if (isNotBlank(proxyUser) && isNotBlank(proxyPassword)) {
         proxyProperties.setUser(proxyUser);
-        proxyProperties.setPassword(proxyPassword);
+        proxyProperties.setPassword(proxyPassword.toCharArray());
       }
       return proxyProperties;
     } else {
@@ -154,7 +154,7 @@ public class DataLoaderDecorator {
         dataLoader.setSslKeystoreType(sslKeystoreType);
       }
       if (sslKeystorePassword != null) {
-        dataLoader.setSslKeystorePassword(sslKeystorePassword);
+        dataLoader.setSslKeystorePassword(sslKeystorePassword.toCharArray());
       }
     }
   }
@@ -166,7 +166,7 @@ public class DataLoaderDecorator {
         dataLoader.setSslTruststoreType(sslTruststoreType);
       }
       if (sslTruststorePassword != null) {
-        dataLoader.setSslTruststorePassword(sslTruststorePassword);
+        dataLoader.setSslTruststorePassword(sslTruststorePassword.toCharArray());
       }
     }
   }

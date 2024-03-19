@@ -1,21 +1,19 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.signers;
 
-import java.security.KeyStore;
-import java.security.cert.X509Certificate;
-import java.util.List;
-
-import javax.xml.bind.DatatypeConverter;
-
+import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
+import eu.europa.esig.dss.token.PasswordInputCallback;
+import eu.europa.esig.dss.token.PrefilledPasswordCallback;
+import jakarta.xml.bind.DatatypeConverter;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Container;
 import org.digidoc4j.DigestAlgorithm;
@@ -27,9 +25,9 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
-import eu.europa.esig.dss.token.PasswordInputCallback;
-import eu.europa.esig.dss.token.PrefilledPasswordCallback;
+import java.security.KeyStore;
+import java.security.cert.X509Certificate;
+import java.util.List;
 
 /**
  * PKCS#11 module path depends on your operating system and installed smart card or hardware token library.

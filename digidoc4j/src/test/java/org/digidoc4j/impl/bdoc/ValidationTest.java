@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.bdoc;
 
@@ -51,6 +51,12 @@ import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
+import static org.digidoc4j.test.matcher.IsDigiDoc4JException.digiDoc4JExceptionMessageContainsString;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThrows;
+
 public class ValidationTest extends AbstractTest {
 
   public static final Configuration PROD_CONFIGURATION = new Configuration(Configuration.Mode.PROD);
@@ -62,6 +68,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-978 Lithuanian trusted list is temporarily unusable")
   public void validateProdBDocContainer_isValid() {
     Container container = ContainerBuilder.aContainer().
         fromExistingFile("src/test/resources/prodFiles/valid-containers/Baltic MoU digital signing_EST_LT_LV.bdoc").
@@ -121,9 +128,10 @@ public class ValidationTest extends AbstractTest {
     this.createSignatureBy(container, pkcs12SignatureToken);
     ContainerValidationResult result = container.validate();
 
-    Assert.assertTrue(result.isValid());
+    TestAssert.assertContainerIsValid(result);
     Assert.assertEquals(1, result.getReports().size());
     Assert.assertEquals("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", result.getReports().get(0).getSignedBy());
+    assertHasNoWarnings(result);
 
     this.createSignatureBy(container, pkcs12Esteid2018SignatureToken);
     result = container.validate();
@@ -132,6 +140,7 @@ public class ValidationTest extends AbstractTest {
     Assert.assertEquals(2, result.getReports().size());
     Assert.assertEquals("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", result.getReports().get(0).getSignedBy());
     Assert.assertEquals("JÕEORG,JAAK-KRISTJAN,38001085718", result.getReports().get(1).getSignedBy());
+    assertHasNoWarnings(result);
   }
 
   @Test(expected = UnsupportedFormatException.class)
@@ -165,8 +174,9 @@ public class ValidationTest extends AbstractTest {
         .open("src/test/resources/prodFiles/invalid-containers/filename_mismatch_signature.asice", PROD_CONFIGURATION);
     SignatureValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
-    Assert.assertEquals(7, errors.size());
-    TestAssert.assertContainsError("(Signature ID: S0) - The signature file for signature S0 has an entry for file <0123456789~#%&()=`@{[]}'.txt> with mimetype <application/pdf> but the manifest file does not have an entry for this file", errors);
+    TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(errors, 7,
+            "(Signature ID: S0) - The signature file for signature S0 has an entry for file <0123456789~#%&()=`@{[]}'.txt> with mimetype <application/pdf> but the manifest file does not have an entry for this file"
+    );
   }
 
   @Test
@@ -241,15 +251,12 @@ public class ValidationTest extends AbstractTest {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/filename_mismatch_manifest.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
     SignatureValidationResult validate = container.validate();
-    Assert.assertEquals(2, validate.getErrors().size());
-    Assert.assertEquals(
-        "(Signature ID: S0) - Manifest file has an entry for file <incorrect.txt> with mimetype <text/plain> but "
-            + "the signature file for signature S0 does not have an entry for this file",
-        validate.getErrors().get(0).toString());
-    Assert.assertEquals(
-        "(Signature ID: S0) - The signature file for signature S0 has an entry for file <RELEASE-NOTES.txt> "
-            + "with mimetype <text/plain> but the manifest file does not have an entry for this file",
-        validate.getErrors().get(1).toString());
+    TestAssert.assertContainsExactSetOfErrors(validate.getErrors(),
+            "(Signature ID: S0) - Manifest file has an entry for file <incorrect.txt> with mimetype <text/plain> but "
+                    + "the signature file for signature S0 does not have an entry for this file",
+            "(Signature ID: S0) - The signature file for signature S0 has an entry for file <RELEASE-NOTES.txt> "
+                    + "with mimetype <text/plain> but the manifest file does not have an entry for this file"
+    );
   }
 
   @Test
@@ -271,10 +278,9 @@ public class ValidationTest extends AbstractTest {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/revocation_timestamp_delta_26h.asice", PROD_CONFIGURATION);
     SignatureValidationResult validate = container.validate();
-    Assert.assertEquals(1, validate.getErrors().size());
-    Assert.assertEquals(
-        "(Signature ID: S0) - The difference between the OCSP response time and the signature timestamp is too large",
-        validate.getErrors().get(0).toString());
+    TestAssert.assertContainsExactSetOfErrors(validate.getErrors(),
+            "(Signature ID: S0) - The difference between the OCSP response time and the signature timestamp is too large"
+    );
   }
 
   @Test
@@ -282,18 +288,13 @@ public class ValidationTest extends AbstractTest {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     int delta27Hours = 27 * 60;
     configuration.setRevocationAndTimestampDeltaInMinutes(delta27Hours);
-    SignatureValidationResult result = ContainerOpener
+    ContainerValidationResult result = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/revocation_timestamp_delta_26h.asice", configuration)
         .validate();
-    Assert.assertEquals(0, result.getErrors().size());
-    Assert.assertEquals(2, result.getWarnings().size());
-    TestAssert.assertContainsError(
+    TestAssert.assertContainerIsValid(result);
+    TestAssert.assertContainsExactSetOfErrors(result.getWarnings(),
             "The difference between the OCSP response time and the signature timestamp is in allowable range",
-            result.getWarnings()
-    );
-    TestAssert.assertContainsError(
-            "The authority info access is not present!",
-            result.getWarnings()
+            "The authority info access is not present!"
     );
   }
 
@@ -301,12 +302,11 @@ public class ValidationTest extends AbstractTest {
   public void signatureFileAndManifestFileContainDifferentMimeTypeForFile() {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/mimetype_mismatch.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
-    SignatureValidationResult validate = container.validate();
-    Assert.assertEquals(1, validate.getErrors().size());
-    Assert.assertEquals(
-        "(Signature ID: S0) - Manifest file has an entry for file <RELEASE-NOTES.txt> with mimetype "
-            + "<application/pdf> but the signature file for signature S0 indicates the mimetype is <text/plain>",
-        validate.getErrors().get(0).toString());
+    ContainerValidationResult result = container.validate();
+    TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
+            "(Signature ID: S0) - Manifest file has an entry for file <RELEASE-NOTES.txt> with mimetype "
+                    + "<application/pdf> but the signature file for signature S0 indicates the mimetype is <text/plain>"
+    );
   }
 
   @Test(expected = DuplicateDataFileException.class)
@@ -345,11 +345,9 @@ public class ValidationTest extends AbstractTest {
         "src/test/resources/prodFiles/invalid-containers/extra_file_in_container.asice",
         PROD_CONFIGURATION_WITH_TEST_POLICY);
     SignatureValidationResult result = container.validate();
-    List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(1, errors.size());
-    Assert.assertEquals(
-        "Container contains a file named <AdditionalFile.txt> which is not found in the signature file",
-        errors.get(0).getMessage());
+    TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
+            "Container contains a file named <AdditionalFile.txt> which is not found in the signature file"
+    );
   }
 
   @Test
@@ -389,7 +387,7 @@ public class ValidationTest extends AbstractTest {
     List<DigiDoc4JException> errors = result.getErrors();
     TestAssert.assertContainsExactSetOfErrors(errors,
             "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.4.3",
-            "The certificate is not related to a granted status!",
+            "The certificate is not related to a qualified certificate issuing trust service with valid status!",
             "The current time is not in the validity range of the signer's certificate!",
             "The certificate validation is not conclusive!",
             "The best-signature-time is not before the expiration date of the signing certificate!",
@@ -464,7 +462,7 @@ public class ValidationTest extends AbstractTest {
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "OCSP nonce is invalid",
             "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.2.10.10",
-            "The certificate is not related to a granted status!",
+            "The certificate is not related to a qualified certificate issuing trust service with valid status!",
             "The signature policy is not available!",
             "The reference data object has not been found!",
             "The signature file for signature S0 has an entry for file <META-INF/manifest.xml> with mimetype "
@@ -643,8 +641,9 @@ public class ValidationTest extends AbstractTest {
             fromExistingFile("src/test/resources/testFiles/valid-containers/NoAdditionalCertificates_LT.asice").
             withConfiguration(configuration)
             .build();
-    ContainerValidationResult test = container.validate();
-    Assert.assertTrue(test.isValid());
+    ContainerValidationResult result = container.validate();
+    TestAssert.assertContainerIsValid(result);
+    assertHasNoWarnings(result);
   }
 
   @Test
@@ -666,7 +665,7 @@ public class ValidationTest extends AbstractTest {
         PROD_CONFIGURATION)
         .validate();
     Assert.assertFalse(result.isValid());
-    Assert.assertTrue(result.getErrors().get(0) instanceof UntrustedRevocationSourceException);
+    TestAssert.assertContainsError(UntrustedRevocationSourceException.class, result.getErrors());
   }
 
   @Test
@@ -679,12 +678,13 @@ public class ValidationTest extends AbstractTest {
 
   @Test
   public void bDoc_invalidOcspResponse() {
-    try {
-      this.openContainerByConfiguration(Paths.get("src/test/resources/prodFiles/invalid-containers/bdoc21-vigane-ocsp.bdoc"), PROD_CONFIGURATION);
-      Assert.fail("Should not be able to successfully open container!");
-    } catch (DSSException exception) {
-      Assert.assertEquals("Cannot create the token reference. The element with local name [EncapsulatedOCSPValue] must contain an encapsulated base64 token value!", exception.getMessage());
-    }
+    Container container = openContainerByConfiguration(Paths.get("src/test/resources/prodFiles/invalid-containers/bdoc21-vigane-ocsp.bdoc"), PROD_CONFIGURATION);
+    ContainerValidationResult result = container.validate();
+    TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
+            "The certificate validation is not conclusive!",
+            "No revocation data found for the certificate!",
+            "The certificate is not related to a qualified certificate issuing trust service with valid status!"
+    );
   }
 
   @Test
@@ -755,9 +755,7 @@ public class ValidationTest extends AbstractTest {
     Container container = this.createNonEmptyContainerByConfiguration();
     this.createSignatureBy(container, SignatureProfile.LT,
         new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray()));
-    SignatureValidationResult result = container.validate();
-    Assert.assertTrue(result.isValid());
-    Assert.assertEquals(0, result.getErrors().size());
+    TestAssert.assertContainerIsValid(container);
   }
 
   @Test
@@ -809,7 +807,7 @@ public class ValidationTest extends AbstractTest {
             "The certificate chain for time-stamp is not trusted, it does not contain a trust anchor.",
             "Signature has an invalid timestamp",
             "The certificate validation is not conclusive!",
-            "The certificate is not related to a granted status!",
+            "The certificate is not related to a qualified certificate issuing trust service with valid status!",
             "No revocation data found for the certificate!",
             "The time-stamp message imprint is not intact!",
             "Unable to build a certificate chain up to a trusted list!",
@@ -862,15 +860,17 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-978 Lithuanian trusted list is temporarily unusable")
   public void prodContainerWithSignatureWarningOfTrustedCertificateNotMatchingWithTrustService_warningIsRemoved() {
     Container container = ContainerBuilder.aContainer().
             fromExistingFile("src/test/resources/prodFiles/valid-containers/Baltic MoU digital signing_EST_LT_LV.bdoc").
             withConfiguration(PROD_CONFIGURATION).build();
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
-    Assert.assertTrue(validationResult.getErrors().isEmpty());
     I18nProvider i18nProvider = new I18nProvider();
-    Assert.assertFalse(validationResult.getWarnings().contains(i18nProvider.getMessage(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS2)));
+    assertThat(validationResult.getWarnings(), not(hasItem(
+            digiDoc4JExceptionMessageContainsString(i18nProvider.getMessage(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS1))
+    )));
   }
 
   @Test
@@ -882,10 +882,11 @@ public class ValidationTest extends AbstractTest {
             .build();
     TestTSLUtil.addCertificateFromFileToTsl(configuration, "src/test/resources/testFiles/certs/ESTEID-SK_2007_prod.pem.crt");
     ContainerValidationResult validationResult = container.validate();
-    Assert.assertTrue(validationResult.isValid());
-    Assert.assertTrue(validationResult.getErrors().isEmpty());
+    TestAssert.assertContainerIsValid(validationResult);
     I18nProvider i18nProvider = new I18nProvider();
-    Assert.assertFalse(validationResult.getWarnings().contains(i18nProvider.getMessage(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS2)));
+    assertThat(validationResult.getWarnings(), not(hasItem(
+            digiDoc4JExceptionMessageContainsString(i18nProvider.getMessage(MessageTag.QUAL_IS_TRUST_CERT_MATCH_SERVICE_ANS2))
+    )));
   }
 
   @Test
@@ -926,6 +927,9 @@ public class ValidationTest extends AbstractTest {
             "No acceptable revocation data for the certificate!",
             "The revocation data is not consistent!"
     );
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+            "The signature/seal is an INDETERMINATE AdES digital signature!"
+    );
   }
 
   @Test
@@ -936,8 +940,10 @@ public class ValidationTest extends AbstractTest {
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
             "The certificate validation is not conclusive!",
             "No acceptable revocation data for the certificate!",
-            "The revocation data is not consistent!",
-            "The current time is not in the validity range of the signer's certificate!"
+            "The revocation data is not consistent!"
+    );
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+            "The signature/seal is an INDETERMINATE AdES digital signature!"
     );
   }
 

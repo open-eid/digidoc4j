@@ -11,11 +11,11 @@
 package org.digidoc4j;
 
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import eu.europa.esig.dss.enumerations.MimeType;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.model.InMemoryDocument;
-import eu.europa.esig.dss.model.MimeType;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -23,6 +23,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.StreamDocument;
+import org.digidoc4j.utils.MimeTypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +100,7 @@ public class DataFile implements Serializable {
 
   protected MimeType getMimeType(String mimeType) {
     try {
-      MimeType mimeTypeCode = MimeType.fromMimeTypeString(mimeType);
+      MimeType mimeTypeCode = MimeTypeUtil.fromMimeTypeString(mimeType);
       logger.debug("Mime type: {}", mimeTypeCode);
       return mimeTypeCode;
     } catch (DSSException e) {

@@ -25,6 +25,7 @@ import org.junit.Test;
 import static java.lang.Thread.sleep;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertThrows;
 
 public class ExtendingBDocContainerTest extends AbstractTest {
 

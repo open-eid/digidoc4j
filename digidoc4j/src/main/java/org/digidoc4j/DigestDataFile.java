@@ -1,15 +1,14 @@
 package org.digidoc4j;
 
-import java.util.Arrays;
-
+import eu.europa.esig.dss.enumerations.MimeType;
+import eu.europa.esig.dss.model.DigestDocument;
 import org.apache.commons.codec.binary.Base64;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.model.DigestDocument;
-import eu.europa.esig.dss.model.MimeType;
+import java.util.Arrays;
 
 public class DigestDataFile extends DataFile {
 

@@ -34,6 +34,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertThrows;
 
 public class BDocSerializationTest extends AbstractTest {
 
@@ -73,6 +74,7 @@ public class BDocSerializationTest extends AbstractTest {
     this.serialize(container, this.serializedContainerLocation);
     this.serialize(originalDataToSign, serializedDataToSignPath);
     DataToSign deserializedDataToSign = this.deserializer(serializedDataToSignPath);
+    deserializedDataToSign.getConfiguration().setPreferAiaOcsp(false);
     deserializedDataToSign.getConfiguration().setOcspSource("http://invalid.ocsp.url");
     byte[] signatureValue = this.sign(deserializedDataToSign.getDataToSign(), deserializedDataToSign.getDigestAlgorithm());
 

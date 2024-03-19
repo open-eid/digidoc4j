@@ -171,7 +171,9 @@ public class SignatureTest extends AbstractTest {
 
   @Test
   public void testGetOCSPCertificateForNewBDoc() {
-    Signature signature = createSignatureBy(Container.DocumentType.BDOC, pkcs12SignatureToken);
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    configuration.setPreferAiaOcsp(false);
+    Signature signature = createSignatureBy(Container.DocumentType.BDOC, pkcs12SignatureToken, configuration);
     assertThat(
             signature.getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN),
             matchesRegex("TEST of ESTEID-SK 2015 AIA OCSP RESPONDER 202[3-9][0-1][0-9]")

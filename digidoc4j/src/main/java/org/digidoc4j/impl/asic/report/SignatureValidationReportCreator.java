@@ -12,7 +12,6 @@ package org.digidoc4j.impl.asic.report;
 
 import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
-import eu.europa.esig.dss.simplereport.jaxb.XmlCertificate;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSimpleReport;
 import eu.europa.esig.dss.simplereport.jaxb.XmlToken;
@@ -59,7 +58,7 @@ public class SignatureValidationReportCreator {
     if (simpleReport.getSignaturesCount() > 1) {
       logger.warn("Simple report contains more than one signature: " + simpleReport.getSignaturesCount());
     }
-    Optional<XmlToken> signatureXmlReport = simpleReport.getSignatureOrTimestamp().stream()
+    Optional<XmlToken> signatureXmlReport = simpleReport.getSignatureOrTimestampOrEvidenceRecord().stream()
             .filter(s -> s instanceof XmlSignature)
             .findFirst();
     if (signatureXmlReport.isPresent()) {

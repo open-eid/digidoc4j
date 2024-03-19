@@ -1,16 +1,27 @@
-package org.digidoc4j.main.xades;
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+package org.digidoc4j.main.xades;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.digidoc4j.*;
+import org.digidoc4j.Configuration;
+import org.digidoc4j.DetachedXadesSignatureBuilder;
+import org.digidoc4j.DigestAlgorithm;
+import org.digidoc4j.DigestDataFile;
+import org.digidoc4j.Signature;
+import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.SignatureToken;
+import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.main.ExecutionCommand;
 import org.digidoc4j.main.ExecutionOption;
@@ -18,6 +29,12 @@ import org.digidoc4j.signers.PKCS11SignatureToken;
 import org.digidoc4j.signers.PKCS12SignatureToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Executor for managing detached XadES signatures.
@@ -141,8 +158,10 @@ public class DetachedXadesSignatureExecutor {
   }
 
   private void useAiaOcsp(Configuration configuration) {
-    if (this.context.getCommandLine().hasOption("aiaocsp")) {
-      configuration.setPreferAiaOcsp(true);
+    if (this.context.getCommandLine().hasOption("noaiaocsp")) {
+      configuration.setPreferAiaOcsp(false);
+    } else if (this.context.getCommandLine().hasOption("aiaocsp")) {
+      LOGGER.warn("Option 'aiaocsp' is deprecated; preference to use AIA OCSP is enabled by default");
     }
   }
 

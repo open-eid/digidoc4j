@@ -13,11 +13,10 @@ package org.digidoc4j.impl.asic.report;
 import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.enumerations.SubIndication;
-import eu.europa.esig.dss.simplereport.jaxb.Adapter1;
+import eu.europa.esig.dss.jaxb.parsers.DateParser;
 import eu.europa.esig.dss.simplereport.jaxb.Adapter3;
 import eu.europa.esig.dss.simplereport.jaxb.Adapter4;
 import eu.europa.esig.dss.simplereport.jaxb.Adapter6;
-import eu.europa.esig.dss.simplereport.jaxb.XmlCertificateChain;
 import eu.europa.esig.dss.simplereport.jaxb.XmlDetails;
 import eu.europa.esig.dss.simplereport.jaxb.XmlMessage;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
@@ -25,14 +24,14 @@ import eu.europa.esig.dss.simplereport.jaxb.XmlSignatureLevel;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignatureScope;
 import eu.europa.esig.dss.simplereport.jaxb.XmlTimestamps;
 import eu.europa.esig.dss.simplereport.jaxb.XmlToken;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlSchemaType;
+import jakarta.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -83,12 +82,12 @@ public class SignatureValidationReport implements Serializable {
   protected List<String> infos;
 
   @XmlElement(name = "SigningTime", type = String.class)
-  @XmlJavaTypeAdapter(Adapter1.class)
+  @XmlJavaTypeAdapter(DateParser.class)
   @XmlSchemaType(name = "dateTime")
   protected Date signingTime;
 
   @XmlElement(name = "BestSignatureTime", required = true, type = String.class)
-  @XmlJavaTypeAdapter(Adapter1 .class)
+  @XmlJavaTypeAdapter(DateParser.class)
   @XmlSchemaType(name = "dateTime")
   protected Date bestSignatureTime;
 
@@ -125,7 +124,10 @@ public class SignatureValidationReport implements Serializable {
     report.getSignatureScope().addAll(xmlSignature.getSignatureScope());
     report.setId(xmlSignature.getId());
     report.setSignatureFormat(xmlSignature.getSignatureFormat());
-    report.setCertificateChain(xmlSignature.getCertificateChain());
+    report.setCertificateChain(Optional
+            .ofNullable(xmlSignature.getCertificateChain())
+            .map(XmlCertificateChain::create)
+            .orElse(null));
     return report;
   }
 

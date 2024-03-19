@@ -139,11 +139,11 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void loadProdTsl_withPivot300LotlTruststoreAndPivotSupportDisabled_shouldSucceed() {
+  public void loadProdTsl_withPivot336LotlTruststoreAndPivotSupportDisabled_shouldSucceed() {
     this.configuration = new Configuration(Configuration.Mode.PROD);
     // TODO: this might be needed to be updated after the next pivot release
-    //  The used truststore contains the certificates specified in pivot LOTL with sequence number 300
-    configuration.setLotlTruststorePath("prodFiles/truststores/lotl-pivot300-truststore.p12");
+    //  The used truststore contains the certificates specified in pivot LOTL with sequence number 336
+    configuration.setLotlTruststorePath("prodFiles/truststores/lotl-pivot336-truststore.p12");
     configuration.setLotlPivotSupportEnabled(false);
     LOTLInfo tslRepository = this.initTSLAndGetRepository();
     Assert.assertEquals(Indication.TOTAL_PASSED, tslRepository.getValidationCacheInfo().getIndication());
@@ -151,11 +151,11 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void loadProdTsl_withPivot300LotlTruststoreAndPivotSupportEnabled_shouldSucceed() {
+  public void loadProdTsl_withPivot336LotlTruststoreAndPivotSupportEnabled_shouldSucceed() {
     this.configuration = new Configuration(Configuration.Mode.PROD);
     // TODO: this might be needed to be updated after the next pivot release
-    //  The used truststore contains the certificates specified in pivot LOTL with sequence number 300
-    configuration.setLotlTruststorePath("prodFiles/truststores/lotl-pivot300-truststore.p12");
+    //  The used truststore contains the certificates specified in pivot LOTL with sequence number 336
+    configuration.setLotlTruststorePath("prodFiles/truststores/lotl-pivot336-truststore.p12");
     configuration.setLotlPivotSupportEnabled(true);
     LOTLInfo tslRepository = this.initTSLAndGetRepository();
     Assert.assertEquals(Indication.TOTAL_PASSED, tslRepository.getValidationCacheInfo().getIndication());

@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl.bdoc.asic;
 
 import org.digidoc4j.Configuration;
@@ -11,6 +21,8 @@ import org.digidoc4j.impl.asic.EmptyDataFilesContainerTest;
 import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertThrows;
 
 public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTest {
 
@@ -32,13 +44,15 @@ public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTes
 
         Assert.assertTrue(validationResult.isValid());
         Assert.assertNotNull(validationResult.getWarnings());
-        Assert.assertEquals(2, validationResult.getWarnings().size());
-        TestAssert.assertContainsError("Data file 'empty-file-2.txt' is empty", validationResult.getWarnings());
-        TestAssert.assertContainsError("Data file 'empty-file-4.txt' is empty", validationResult.getWarnings());
+        TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+                "Data file 'empty-file-2.txt' is empty",
+                "Data file 'empty-file-4.txt' is empty"
+        );
         Assert.assertNotNull(validationResult.getContainerWarnings());
-        Assert.assertEquals(2, validationResult.getContainerWarnings().size());
-        TestAssert.assertContainsError("Data file 'empty-file-2.txt' is empty", validationResult.getContainerWarnings());
-        TestAssert.assertContainsError("Data file 'empty-file-4.txt' is empty", validationResult.getContainerWarnings());
+        TestAssert.assertContainsExactSetOfErrors(validationResult.getContainerWarnings(),
+                "Data file 'empty-file-2.txt' is empty",
+                "Data file 'empty-file-4.txt' is empty"
+        );
     }
 
     @Test
@@ -49,13 +63,15 @@ public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTes
 
         Assert.assertTrue(validationResult.isValid());
         Assert.assertNotNull(validationResult.getWarnings());
-        Assert.assertEquals(2, validationResult.getWarnings().size());
-        TestAssert.assertContainsError("Data file 'empty-file-2.txt' is empty", validationResult.getWarnings());
-        TestAssert.assertContainsError("Data file 'empty-file-4.txt' is empty", validationResult.getWarnings());
+        TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+                "Data file 'empty-file-2.txt' is empty",
+                "Data file 'empty-file-4.txt' is empty"
+        );
         Assert.assertNotNull(validationResult.getContainerWarnings());
-        Assert.assertEquals(2, validationResult.getContainerWarnings().size());
-        TestAssert.assertContainsError("Data file 'empty-file-2.txt' is empty", validationResult.getContainerWarnings());
-        TestAssert.assertContainsError("Data file 'empty-file-4.txt' is empty", validationResult.getContainerWarnings());
+        TestAssert.assertContainsExactSetOfErrors(validationResult.getContainerWarnings(),
+                "Data file 'empty-file-2.txt' is empty",
+                "Data file 'empty-file-4.txt' is empty"
+        );
     }
 
     @Test

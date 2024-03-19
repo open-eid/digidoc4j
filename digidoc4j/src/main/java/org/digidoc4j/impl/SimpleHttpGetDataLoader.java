@@ -77,7 +77,6 @@ class SimpleHttpGetDataLoader implements DataLoader {
    * @param refresh whether the cached data should be refreshed or not
    * @return {@code byte} array of obtained data
    */
-  @Override
   public byte[] get(String url, boolean refresh) {
     return request(url, refresh);
   }

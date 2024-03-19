@@ -10,8 +10,8 @@
 
 package org.digidoc4j.impl.asic;
 
+import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.model.MimeType;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
@@ -76,9 +76,9 @@ public class AsicContainerCreator {
     logger.debug("Writing asic mime type to asic zip file");
     String mimeTypeString;
     if (Constant.ASICS_CONTAINER_TYPE.equals(containerType)){
-      mimeTypeString = MimeType.ASICS.getMimeTypeString();
+      mimeTypeString = MimeTypeEnum.ASICS.getMimeTypeString();
     } else {
-      mimeTypeString = MimeType.ASICE.getMimeTypeString();
+      mimeTypeString = MimeTypeEnum.ASICE.getMimeTypeString();
     }
     byte[] mimeTypeBytes = mimeTypeString.getBytes(CHARSET);
     new BytesEntryCallback(getAsicMimeTypeZipEntry(mimeTypeBytes), mimeTypeBytes).write();

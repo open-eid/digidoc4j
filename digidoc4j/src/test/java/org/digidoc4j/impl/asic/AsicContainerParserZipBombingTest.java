@@ -3,8 +3,11 @@ package org.digidoc4j.impl.asic;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.exceptions.TechnicalException;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 
 public abstract class AsicContainerParserZipBombingTest extends AbstractTest {
 
@@ -83,11 +86,11 @@ public abstract class AsicContainerParserZipBombingTest extends AbstractTest {
 
     protected static void assertReadSucceeds(int expectedDataFileCount, AsicContainerParser asicContainerParser) {
         AsicParseResult asicParseResult = asicContainerParser.read();
-        Assert.assertNotNull(asicParseResult);
-        Assert.assertNotNull(asicParseResult.getSignatures());
-        Assert.assertEquals(1, asicParseResult.getSignatures().size());
-        Assert.assertNotNull(asicParseResult.getDataFiles());
-        Assert.assertEquals(expectedDataFileCount, asicParseResult.getDataFiles().size());
+        assertNotNull(asicParseResult);
+        assertNotNull(asicParseResult.getSignatures());
+        assertEquals(1, asicParseResult.getSignatures().size());
+        assertNotNull(asicParseResult.getDataFiles());
+        assertEquals(expectedDataFileCount, asicParseResult.getDataFiles().size());
     }
 
     protected static void assertReadThrowsZipBombingException(AsicContainerParser asicContainerParser) {
@@ -95,7 +98,7 @@ public abstract class AsicContainerParserZipBombingTest extends AbstractTest {
                 TechnicalException.class,
                 asicContainerParser::read
         );
-        Assert.assertEquals(
+        assertEquals(
                 "Zip Bomb detected in the ZIP container. Validation is interrupted.",
                 caughtException.getMessage()
         );

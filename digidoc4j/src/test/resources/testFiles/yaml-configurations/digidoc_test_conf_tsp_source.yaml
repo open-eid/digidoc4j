@@ -1,14 +1,14 @@
-TSP_SOURCE: http://demo.sk.ee/tsa
+TSP_SOURCE: http://tsa.demo.sk.ee/tsa
 TSPS:
   - TSP:
     TSP_C: EE
-    TSP_SOURCE: http://demo.sk.ee/tsa
+    TSP_SOURCE: http://tsa.demo.sk.ee/tsa
     TSP_KEYSTORE_PATH: tspkeystorepath
     TSP_KEYSTORE_TYPE: tspkeystoretype
     TSP_KEYSTORE_PASSWORD: tspkeystorepassword
   - TSP:
     TSP_C: LV
-    TSP_SOURCE: http://demo.sk.ee/tsa
+    TSP_SOURCE: http://tsa.demo.sk.ee/tsa
     TSP_KEYSTORE_PATH: tspkeystorepath
     TSP_KEYSTORE_TYPE: tspkeystoretype
     TSP_KEYSTORE_PASSWORD: tspkeystorepassword

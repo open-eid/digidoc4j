@@ -73,6 +73,7 @@ public class UriEncodingTest extends AbstractTest {
     );
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
+    assertHasNoWarnings(validationResult);
   }
 
   @Test
@@ -83,6 +84,7 @@ public class UriEncodingTest extends AbstractTest {
     );
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
+    assertHasNoWarnings(validationResult);
   }
 
   @Test
@@ -93,7 +95,12 @@ public class UriEncodingTest extends AbstractTest {
     );
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
-            "The reference data object has not been found!"
+            "The reference data object has not been found!",
+            "The current time is not in the validity range of the signer's certificate!",
+            "The certificate validation is not conclusive!"
+    );
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+            "The signature/seal is an INDETERMINATE AdES digital signature!"
     );
   }
 
@@ -105,6 +112,7 @@ public class UriEncodingTest extends AbstractTest {
     );
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
+    assertHasNoWarnings(validationResult);
   }
 
   /*

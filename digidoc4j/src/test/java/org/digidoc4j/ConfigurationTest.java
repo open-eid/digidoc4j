@@ -274,12 +274,12 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void TSLIsLoadedAfterSettingNewLOTLLocation() throws Exception {
+  public void tslIsLoadedAfterSettingNewLotlLocation() throws Exception {
     this.configuration.setLotlLocation("https://open-eid.github.io/test-TL/tl-mp-test-EE.xml");
     BDocContainer container = (BDocContainer) ContainerBuilder.aContainer(Container.DocumentType.BDOC)
         .withConfiguration(this.configuration).build();
     container.getConfiguration().getTSL();
-    Assert.assertEquals(25, container.getConfiguration().getTSL().getCertificates().size());
+    Assert.assertEquals(27, container.getConfiguration().getTSL().getCertificates().size());
 
     int tenSeconds = 10000;
     String lotlHost = "10.0.25.57";
@@ -1454,14 +1454,14 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void aiaOcspNotPreferredByDefault_defaultTest() {
-    Assert.assertFalse(configuration.isAiaOcspPreferred());
+  public void aiaOcspPreferredByDefault_defaultTest() {
+    Assert.assertTrue(configuration.isAiaOcspPreferred());
   }
 
-    @Test
-    public void aiaOcspNotPreferredByDefault_defaultProd() {
-        Assert.assertFalse(Configuration.of(Configuration.Mode.PROD).isAiaOcspPreferred());
-    }
+  @Test
+  public void aiaOcspPreferredByDefault_defaultProd() {
+    Assert.assertTrue(Configuration.of(Configuration.Mode.PROD).isAiaOcspPreferred());
+  }
 
   @Test
   public void getAiaOcspSourceByCN_defaultTest() {

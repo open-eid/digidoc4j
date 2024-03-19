@@ -10,7 +10,7 @@
 
 package org.digidoc4j;
 
-import eu.europa.esig.dss.model.MimeType;
+import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.AsicFileContainerParser;
 import org.digidoc4j.impl.asic.AsicParseResult;
@@ -140,7 +140,7 @@ public class ContainerOpener {
   }
 
   private static boolean isAsicSContainer(AsicParseResult parseResult) {
-    return parseResult.getMimeType().equals(MimeType.ASICS.getMimeTypeString());
+    return parseResult.getMimeType().equals(MimeTypeEnum.ASICS.getMimeTypeString());
   }
 
   private static boolean isBDocContainer(AsicParseResult parseResult) {

@@ -62,7 +62,7 @@ public final class Constant {
 
   public static class Test {
 
-    public static final String TSP_SOURCE = "http://demo.sk.ee/tsa";
+    public static final String TSP_SOURCE = "http://tsa.demo.sk.ee/tsa";
     public static final String LOTL_LOCATION = "https://open-eid.github.io/test-TL/tl-mp-test-EE.xml";
     public static final String LOTL_TRUSTSTORE_PATH = "classpath:truststores/test-lotl-truststore.p12";
     public static final String VALIDATION_POLICY = "conf/test_constraint.xml";

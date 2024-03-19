@@ -11,9 +11,9 @@
 package org.digidoc4j.impl;
 
 
+import eu.europa.esig.dss.enumerations.MimeType;
 import eu.europa.esig.dss.model.CommonDocument;
 import eu.europa.esig.dss.model.DSSException;
-import eu.europa.esig.dss.model.MimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -10,11 +10,11 @@
 
 package org.digidoc4j.impl.asic.manifest;
 
-import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.asic.xades.definition.ManifestAttribute;
 import eu.europa.esig.dss.asic.xades.definition.ManifestElement;
 import eu.europa.esig.dss.asic.xades.definition.ManifestNamespace;
 import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.xml.utils.DomUtils;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

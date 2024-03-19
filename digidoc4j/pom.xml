@@ -6,7 +6,7 @@
 
     <artifactId>digidoc4j</artifactId>
     <packaging>jar</packaging>
-    <version>5.2.0</version>
+    <version>5.3.0</version>
 
     <name>DigiDoc4j</name>
     <description>DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers
@@ -17,35 +17,30 @@
     <parent>
         <artifactId>digidoc4j-parent</artifactId>
         <groupId>org.digidoc4j</groupId>
-        <version>5.2.0</version>
+        <version>5.3.0</version>
     </parent>
 
     <properties>
         <dss.groupId>org.digidoc4j.dss</dss.groupId>
 
-        <activation.version>1.1.1</activation.version>
-        <commons-cli.version>1.5.0</commons-cli.version>
+        <commons-cli.version>1.6.0</commons-cli.version>
         <commons-collections4.version>4.4</commons-collections4.version>
-        <commons-io.version>2.13.0</commons-io.version>
-        <commons-lang3.version>3.13.0</commons-lang3.version>
+        <commons-io.version>2.15.1</commons-io.version>
+        <commons-lang3.version>3.14.0</commons-lang3.version>
         <contiperf.version>2.4.3</contiperf.version>
-        <dss.version>5.11.1.d4j.1</dss.version>
+        <dss.version>6.0.d4j.1</dss.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <httpclient5.version>5.2.1</httpclient5.version>
-        <jackson.version>2.15.2</jackson.version>
-        <jaxb.version>2.3.8</jaxb.version><!-- DSS depends on jaxb-runtime 2.3.X -->
-        <jaxb-core.version>2.3.0.1</jaxb-core.version>
-        <jcabi-matchers.version>1.6.0</jcabi-matchers.version>
-        <json.version>20230618</json.version>
-        <jsonassert.version>1.5.1</jsonassert.version>
+        <httpclient5.version>5.3.1</httpclient5.version>
+        <jackson.version>2.16.1</jackson.version>
+        <jaxb.version>3.0.2</jaxb.version><!-- DSS depends on jaxb-runtime 3.0.X -->
         <junit.version>4.13.2</junit.version>
         <junit-toolbox.version>2.4</junit-toolbox.version>
-        <logback-classic.version>1.2.12</logback-classic.version><!-- logback versions 1.3.X cause problems in DD4J command line utility -->
+        <logback-classic.version>1.3.14</logback-classic.version>
         <mockito.version>4.11.0</mockito.version><!-- Java 8 is not supported since version 5.X.X -->
-        <snakeyaml.version>2.1</snakeyaml.version>
+        <snakeyaml.version>2.2</snakeyaml.version>
         <system-rules.version>1.19.0</system-rules.version>
-        <wiremock.version>2.35.0</wiremock.version>
-        <xmlsec.version>2.3.3</xmlsec.version><!-- DSS depends on xmlsec 2.3.X -->
+        <wiremock.version>2.35.2</wiremock.version><!-- Java 8 is not supported since version 3.X.X -->
+        <xmlsec.version>3.0.4</xmlsec.version><!-- DSS depends on xmlsec 3.0.X -->
         <xmlunit.version>1.6</xmlunit.version>
 
         <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
@@ -58,7 +53,7 @@
         <maven-jaxb2-plugin.version>0.15.3</maven-jaxb2-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-        <maven-shade-plugin.version>3.5.0</maven-shade-plugin.version>
+        <maven-shade-plugin.version>3.5.2</maven-shade-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
 
         <dss.util.build>${project.build.directory}/build/util</dss.util.build>
@@ -79,16 +74,16 @@
         <dependency>
             <artifactId>ddoc4j</artifactId>
             <groupId>org.digidoc4j</groupId>
-            <version>5.2.0</version>
+            <version>5.3.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
+            <artifactId>bcpkix-jdk18on</artifactId>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
+            <artifactId>bcprov-jdk18on</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
@@ -260,27 +255,18 @@
             <artifactId>dss-crl-parser-stream</artifactId>
             <version>${dss.version}</version>
         </dependency>
-        <!-- To build successfully with >= Java 9 -->
+
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
             <version>${jaxb.version}</version>
         </dependency>
         <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>${activation.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <version>${jaxb.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-core</artifactId>
-            <version>${jaxb-core.version}</version>
+            <version>${jaxb.version}</version>
         </dependency>
+
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -297,12 +283,6 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-core</artifactId>
             <version>${hamcrest.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.jcabi</groupId>
-            <artifactId>jcabi-matchers</artifactId>
-            <version>${jcabi-matchers.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -348,6 +328,10 @@
             <scope>test</scope>
             <exclusions>
                 <exclusion>
+                    <groupId>com.jayway.jsonpath</groupId>
+                    <artifactId>json-path</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>commons-fileupload</groupId>
                     <artifactId>commons-fileupload</artifactId>
                 </exclusion>
@@ -370,34 +354,6 @@
             <artifactId>jackson-annotations</artifactId>
             <version>${jackson.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.skyscreamer</groupId>
-            <artifactId>jsonassert</artifactId>
-            <version>${jsonassert.version}</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.vaadin.external.google</groupId>
-                    <artifactId>android-json</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>${json.version}</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.jayway.jsonpath</groupId>
-                    <artifactId>json-path</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>net.minidev</groupId>
-                    <artifactId>json-smart</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.googlecode.junit-toolbox</groupId>
@@ -561,8 +517,6 @@
                                     <zipgroupfileset dir="${dss.util.lib}" includes="**/*.jar" excludes="bcprov-*.jar"/>
                                     <zipgroupfileset dir="${project.build.directory}" includes="**/digidoc4j-*.jar"
                                                      excludes="*-javadoc.jar *-sources.jar"/>
-                                    <zipgroupfileset dir="${project.build.directory}"
-                                                     includes="**/logback-*.jar"/>
                                 </jar>
                                 <jar destfile="${dss.util.build}/digidoc4j-util.jar">
                                     <zipfileset src="${dss.util.build}/temp.jar"
@@ -574,13 +528,19 @@
                                         <attribute name="Implementation-Title" value="Java BDoc/DigiDoc utility"/>
                                         <attribute name="Implementation-Version" value="${project.version}"/>
                                         <attribute name="Main-Class" value="org.digidoc4j.main.DigiDoc4J"/>
-                                        <attribute name="Class-Path" value=". ./bcprov-jdk15on.jar"/>
+                                        <attribute name="Class-Path" value=". ./bcprov-jdk18on.jar ./logback-classic.jar ./logback-core.jar"/>
                                         <attribute name="Multi-Release" value="true"/>
                                     </manifest>
                                 </jar>
                                 <delete file="${dss.util.build}/temp.jar"/>
-                                <copy tofile="${dss.util.build}/bcprov-jdk15on.jar">
-                                    <fileset dir="${dss.util.lib}" includes="**/bcprov-jdk15on*.jar"/>
+                                <copy tofile="${dss.util.build}/bcprov-jdk18on.jar">
+                                    <fileset dir="${dss.util.lib}" includes="**/bcprov-jdk18on*.jar"/>
+                                </copy>
+                                <copy tofile="${dss.util.build}/logback-classic.jar">
+                                    <fileset dir="${project.build.directory}" includes="**/logback-classic*.jar"/>
+                                </copy>
+                                <copy tofile="${dss.util.build}/logback-core.jar">
+                                    <fileset dir="${project.build.directory}" includes="**/logback-core*.jar"/>
                                 </copy>
                                 <copy todir="${dss.util.build}/">
                                     <fileset dir="${project.basedir}/src/main/etc" includes="*.xml"/>

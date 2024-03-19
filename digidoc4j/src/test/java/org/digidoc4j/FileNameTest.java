@@ -1,9 +1,19 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j;
 
 import java.io.File;
 import java.io.FileInputStream;
 
-import eu.europa.esig.dss.model.MimeType;
+import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
@@ -16,7 +26,7 @@ public class FileNameTest extends AbstractTest {
     File folder = this.testFolder.newFolder("tmp");
     try (FileInputStream stream = new FileInputStream("src/test/resources/testFiles/special-char-files/dds_acrobat.pdf")) {
       Container container = ContainerBuilder.aContainer().withDataFile(stream,
-          "xxx,%2003:1737,%2031.08.2015.a.pdf", MimeType.PDF.getMimeTypeString())
+          "xxx,%2003:1737,%2031.08.2015.a.pdf", MimeTypeEnum.PDF.getMimeTypeString())
           .usingTempDirectory(folder.getPath()).build();
       String file = this.getFileBy("bdoc");
       container.saveAsFile(file);
@@ -28,7 +38,7 @@ public class FileNameTest extends AbstractTest {
   public void createContainer() throws Exception {
     File folder = this.testFolder.newFolder("tmp");
     try (FileInputStream stream = new FileInputStream("src/test/resources/testFiles/special-char-files/dds_acrobat.pdf")) {
-      Container container = ContainerBuilder.aContainer().withDataFile(stream, "cgi.pdf", MimeType.PDF.getMimeTypeString())
+      Container container = ContainerBuilder.aContainer().withDataFile(stream, "cgi.pdf", MimeTypeEnum.PDF.getMimeTypeString())
           .usingTempDirectory(folder.getPath()).build();
       String file = this.getFileBy("bdoc");
       container.saveAsFile(file);

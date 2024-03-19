@@ -10,7 +10,6 @@
 
 package org.digidoc4j.impl.asic.xades.validation;
 
-import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.detailedreport.DetailedReport;
 import eu.europa.esig.dss.diagnostic.DiagnosticData;
 import eu.europa.esig.dss.enumerations.Indication;
@@ -24,8 +23,9 @@ import eu.europa.esig.dss.simplereport.jaxb.XmlMessage;
 import eu.europa.esig.dss.simplereport.jaxb.XmlToken;
 import eu.europa.esig.dss.validation.SignaturePolicy;
 import eu.europa.esig.dss.validation.reports.Reports;
-import eu.europa.esig.dss.xades.definition.XAdESPaths;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
+import eu.europa.esig.dss.xml.utils.DomUtils;
+import eu.europa.esig.xades.definition.XAdESPath;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
@@ -48,6 +48,7 @@ import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -130,7 +131,7 @@ public class XadesSignatureValidator implements SignatureValidator {
   }
 
   protected boolean isSignaturePolicyImpliedElementPresented() {
-    XAdESPaths xAdESPaths = this.getDssSignature().getXAdESPaths();
+    XAdESPath xAdESPaths = this.getDssSignature().getXAdESPaths();
     Element signaturePolicyImpliedElement = DomUtils.getElement(this.getDssSignature().getSignatureElement(),
             String.format("%s%s", xAdESPaths.getSignaturePolicyIdentifierPath(),
                     xAdESPaths.getCurrentSignaturePolicyImplied().replace(".", "")));
@@ -173,14 +174,9 @@ public class XadesSignatureValidator implements SignatureValidator {
     if (policy != null && !isSignaturePolicyImpliedElementPresented()) {
       String policyIdentifier = Helper.getIdentifier(policy.getIdentifier());
       if (TmSignaturePolicyType.isTmPolicyOid(policyIdentifier)) {
-        String policyUrl = policy.getUri();
-        if (StringUtils.equals(policyIdentifier, policyUrl)) {
-          // DD4J-730: Starting from DSS version 5.8, the policy URL defaults to the policy identifier OID if the URL is
-          //  missing in the signature. Since the BDOC standard requires that the URL is always present, this workaround
-          //  is required to identify cases when the URL is missing.
-          // TODO: review the usefulness and correctness of this workaround as soon as DSS is updated!
-          policyUrl = null;
-        }
+        // SignaturePolicy::getUri might not return the actual signature policy SPURI value, but a value copied from the
+        //  signature policy identifier field. Extract the signature policy SPURI from the signature:
+        String policyUrl = getSignaturePolicyUri();
         if (StringUtils.isBlank(policyUrl)) {
           this.addValidationError(new WrongPolicyIdentifierException("Error: The URL in signature policy is empty or not available"));
         }
@@ -188,9 +184,21 @@ public class XadesSignatureValidator implements SignatureValidator {
     }
   }
 
+  private String getSignaturePolicyUri() {
+    LOGGER.debug("Extracting policy identifier SPURI");
+    final XAdESPath xadesPaths = getDssSignature().getXAdESPaths();
+    return Optional
+            .of(getDssSignature().getSignatureElement())
+            .map(signatureElement -> DomUtils.getElement(signatureElement, xadesPaths.getSignaturePolicyIdentifierPath()))
+            .map(policyIdentifier -> DomUtils.getElement(policyIdentifier, xadesPaths.getCurrentSignaturePolicySPURI()))
+            .map(Node::getTextContent)
+            .map(StringUtils::trim)
+            .orElse(null);
+  }
+
   private void addPolicyIdentifierQualifierValidationErrors() {
     LOGGER.debug("Extracting policy identifier qualifier validation errors");
-    XAdESPaths xAdESPaths = getDssSignature().getXAdESPaths();
+    XAdESPath xAdESPaths = getDssSignature().getXAdESPaths();
     Element signatureElement = getDssSignature().getSignatureElement();
     String xAdESPrefix = xAdESPaths.getNamespace().getPrefix();
     Element element = DomUtils.getElement(signatureElement, xAdESPaths.getSignaturePolicyIdentifierPath());
@@ -280,7 +288,7 @@ public class XadesSignatureValidator implements SignatureValidator {
     }
     String timestampId = timestampIdList.get(0);
     DetailedReport detailedReport = this.validationReport.getDetailedReport();
-    return this.isIndicationValid(detailedReport.getTimestampValidationIndication(timestampId));
+    return this.isIndicationValid(detailedReport.getBasicTimestampValidationIndication(timestampId));
   }
 
   private SimpleReport getSimpleReport(Map<String, SimpleReport> simpleReports) {

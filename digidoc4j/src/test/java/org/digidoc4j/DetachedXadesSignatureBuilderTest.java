@@ -30,6 +30,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertThrows;
 
 public class DetachedXadesSignatureBuilderTest extends AbstractTest {
 

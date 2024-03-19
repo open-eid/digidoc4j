@@ -10,9 +10,10 @@
 
 package org.digidoc4j.impl.asic;
 
+import eu.europa.esig.dss.enumerations.MimeType;
+import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.InMemoryDocument;
-import eu.europa.esig.dss.model.MimeType;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.StringUtils;
@@ -168,7 +169,7 @@ public abstract class AsicContainerParser {
     logger.debug("Extracting timestamp file");
     InputStream zipFileInputStream = getZipEntryInputStream(entry);
     String fileName = entry.getName();
-    timestampToken = new DataFile(zipFileInputStream, fileName, MimeType.TST.getMimeTypeString());
+    timestampToken = new DataFile(zipFileInputStream, fileName, MimeTypeEnum.TST.getMimeTypeString());
   }
 
   private void extractDataFile(ZipEntry entry) {
@@ -238,11 +239,11 @@ public abstract class AsicContainerParser {
   }
 
   private void validateParseResult() {
-    if (!StringUtils.equalsIgnoreCase(MimeType.ASICE.getMimeTypeString(), mimeType)
-            && !StringUtils.equalsIgnoreCase(MimeType.ASICS.getMimeTypeString(), mimeType)) {
-      logger.error("Container mime type is not " + MimeType.ASICE.getMimeTypeString() + " but is " + mimeType);
-      throw new UnsupportedFormatException("Container mime type is not " + MimeType.ASICE.getMimeTypeString()
-              + " OR " + MimeType.ASICS.getMimeTypeString() + " but is " + mimeType);
+    if (!StringUtils.equalsIgnoreCase(MimeTypeEnum.ASICE.getMimeTypeString(), mimeType)
+            && !StringUtils.equalsIgnoreCase(MimeTypeEnum.ASICS.getMimeTypeString(), mimeType)) {
+      logger.error("Container mime type is not " + MimeTypeEnum.ASICE.getMimeTypeString() + " but is " + mimeType);
+      throw new UnsupportedFormatException("Container mime type is not " + MimeTypeEnum.ASICE.getMimeTypeString()
+              + " OR " + MimeTypeEnum.ASICS.getMimeTypeString() + " but is " + mimeType);
     }
     if (!this.signatures.isEmpty() && this.dataFiles.isEmpty()) {
       throw new ContainerWithoutFilesException("The reference data object(s) is not found!");

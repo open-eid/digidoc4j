@@ -31,8 +31,12 @@ import java.util.Date;
 
 public final class TestOcspUtil {
 
+  public static BasicOCSPRespBuilder createBasicOCSPRespBuilder(RespID responderId) {
+    return new BasicOCSPRespBuilder(responderId);
+  }
+
   public static BasicOCSPRespBuilder createBasicOCSPRespBuilder(X500Name responderSubjectDn) {
-    return new BasicOCSPRespBuilder(new RespID(responderSubjectDn));
+    return createBasicOCSPRespBuilder(new RespID(responderSubjectDn));
   }
 
   public static BasicOCSPRespBuilder createBasicOCSPRespBuilder(X509CertificateHolder responderCertificate) {

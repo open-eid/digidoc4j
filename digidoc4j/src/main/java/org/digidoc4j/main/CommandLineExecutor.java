@@ -10,25 +10,14 @@
 
 package org.digidoc4j.main;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
-
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import eu.europa.esig.dss.spi.DSSUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
-import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DataToSign;
 import org.digidoc4j.EncryptionAlgorithm;
@@ -36,6 +25,7 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.DataFileNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.AsicContainer;
@@ -49,8 +39,17 @@ import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.spi.DSSUtils;
-import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
 
 /**
  * Class for managing digidoc4j-util parameters.
@@ -449,9 +448,11 @@ public class CommandLineExecutor {
   }
 
   private void useAiaOcsp(Container container) {
-    if (this.context.getCommandLine().hasOption("aiaocsp")) {
+    if (this.context.getCommandLine().hasOption("noaiaocsp")) {
       Configuration configuration = container.getConfiguration();
-      configuration.setPreferAiaOcsp(true);
+      configuration.setPreferAiaOcsp(false);
+    } else if (this.context.getCommandLine().hasOption("aiaocsp")) {
+      LOGGER.warn("Option 'aiaocsp' is deprecated; preference to use AIA OCSP is enabled by default");
     }
   }
 

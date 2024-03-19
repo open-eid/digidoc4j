@@ -1,19 +1,21 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic.xades;
 
-import java.security.cert.X509Certificate;
-import java.util.Date;
-
-import eu.europa.esig.dss.xades.definition.XAdESPaths;
+import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.spi.x509.tsp.TimestampToken;
+import eu.europa.esig.dss.xades.validation.XAdESSignature;
+import eu.europa.esig.dss.xml.utils.DomUtils;
+import eu.europa.esig.xades.definition.XAdESPath;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.tsp.TimeStampToken;
@@ -27,11 +29,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import eu.europa.esig.dss.model.DSSException;
-import eu.europa.esig.dss.DomUtils;
-import eu.europa.esig.dss.validation.timestamp.TimestampToken;
-import eu.europa.esig.dss.model.x509.CertificateToken;
-import eu.europa.esig.dss.xades.validation.XAdESSignature;
+import java.security.cert.X509Certificate;
+import java.util.Date;
 
 public class TimestampSignature extends TimemarkSignature {
 
@@ -86,7 +85,7 @@ public class TimestampSignature extends TimemarkSignature {
   }
 
   private TimeStampToken findTimestampToken() {
-    XAdESPaths xAdESPaths = getxPathQueryHolder();
+    XAdESPath xAdESPaths = getxPathQueryHolder();
     logger.debug("Finding timestamp token");
     NodeList timestampNodes = DomUtils.getNodeList(getSignatureElement(), xAdESPaths.getSignatureTimestampPath());
     if (timestampNodes.getLength() == 0) {

@@ -21,8 +21,8 @@ import org.digidoc4j.impl.asic.xades.validation.ThreadPoolManager;
  * registering this hook by {@link Runtime#addShutdownHook(Thread)} should be sufficient.
  * <p/>
  * In case of some sort of webapp in a servlet container where there are multiple levels of contexts
- * the recommended way to use it is to register a {@link javax.servlet.ServletContextListener} and call
- * {@link ShutdownHook#run()} method inside {@link javax.servlet.ServletContextListener#contextDestroyed(ServletContextEvent)}
+ * the recommended way to use it is to register a {@link jakarta.servlet.ServletContextListener} and call
+ * {@link ShutdownHook#run()} method inside {@link jakarta.servlet.ServletContextListener#contextDestroyed(ServletContextEvent)}
  * <p/>
  * NB! As the usage method of this hook is dependant on the system/situation and may vary,
  * so in consequence it's still in experimental status

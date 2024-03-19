@@ -16,21 +16,19 @@ import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.main.DigiDoc4J;
 import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.ExpectedSystemExit;
 import org.junit.contrib.java.lang.system.SystemOutRule;
+
+import static org.digidoc4j.main.TestDigiDoc4JUtil.invokeDigiDoc4jAndReturnExitStatus;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by Andrei on 20.11.2017.
  */
 public class PadesValidationTest extends AbstractTest {
-
-  @Rule
-  public final ExpectedSystemExit systemExit = ExpectedSystemExit.none();
 
   @Rule
   public final SystemOutRule stdOut = new SystemOutRule().enableLog();
@@ -76,7 +74,7 @@ public class PadesValidationTest extends AbstractTest {
             "The current time is not in the validity range of the signer's certificate!",
             "The best-signature-time is not before the expiration date of the signing certificate!",
             "The past signature validation is not conclusive!",
-            "The certificate is not related to a granted status!"
+            "The certificate is not related to a qualified certificate issuing trust service with valid status!"
     );
   }
 
@@ -94,8 +92,11 @@ public class PadesValidationTest extends AbstractTest {
 
   @Test
   public void verboseMode() throws Exception {
-    this.systemExit.expectSystemExitWithStatus(1);
-    DigiDoc4J.main(new String[]{"-in", "src/test/resources/testFiles/invalid-containers/hello_signed_INCSAVE_signed_EDITED.pdf", "-verify"});
+    int result = invokeDigiDoc4jAndReturnExitStatus(
+            "-in", "src/test/resources/testFiles/invalid-containers/hello_signed_INCSAVE_signed_EDITED.pdf",
+            "-verify"
+    );
+    assertEquals(1, result);
   }
 
   /*

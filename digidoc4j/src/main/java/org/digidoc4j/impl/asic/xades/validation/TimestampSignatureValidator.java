@@ -10,17 +10,13 @@
 
 package org.digidoc4j.impl.asic.xades.validation;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import eu.europa.esig.dss.diagnostic.DiagnosticData;
 import eu.europa.esig.dss.enumerations.RevocationType;
 import eu.europa.esig.dss.simplereport.SimpleReport;
 import eu.europa.esig.dss.spi.DSSRevocationUtils;
+import eu.europa.esig.dss.spi.x509.tsp.TimestampToken;
 import eu.europa.esig.dss.validation.reports.Reports;
+import eu.europa.esig.dss.xades.validation.XAdESSignature;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.X509Cert;
@@ -33,9 +29,13 @@ import org.digidoc4j.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.validation.timestamp.TimestampToken;
-import eu.europa.esig.dss.diagnostic.DiagnosticData;
-import eu.europa.esig.dss.xades.validation.XAdESSignature;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class TimestampSignatureValidator extends XadesSignatureValidator {
 
@@ -64,7 +64,7 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
     }
     Date timestamp = signatureTimestamps.stream()
             .map(TimestampToken::getGenerationTime)
-            .filter(t -> t != null)
+            .filter(Objects::nonNull)
             .sorted()
             .findFirst()
             .orElse(null);
@@ -82,18 +82,18 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
             .findFirst()
             .orElse(null);
     if (ocspTime == null) {
-      this.log.error("OCSP response production time is before timestamp time");
+      log.error("OCSP response production time is before timestamp time");
       addValidationError(new TimestampAfterOCSPResponseTimeException());
       return;
     }
     int deltaLimit = this.configuration.getRevocationAndTimestampDeltaInMinutes();
     long differenceInMinutes = DateUtils.differenceInMinutes(timestamp, ocspTime);
-    this.log.debug("Difference in minutes: <{}>", differenceInMinutes);
+    log.debug("Difference in minutes: <{}>", differenceInMinutes);
     if (!DateUtils.isInRangeMinutes(timestamp, ocspTime, deltaLimit)) {
-      this.log.error("The difference between the OCSP response production time and the signature timestamp is too large <{} minutes>", differenceInMinutes);
+      log.error("The difference between the OCSP response production time and the signature timestamp is too large <{} minutes>", differenceInMinutes);
       this.addValidationError(new TimestampAndOcspResponseTimeDeltaTooLargeException());
     } else if (this.configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes() < differenceInMinutes && differenceInMinutes < deltaLimit) {
-      this.log.warn("The difference (in minutes) between the OCSP response production time and the signature timestamp is in allowable range (<{}>, allowed maximum <{}>)", differenceInMinutes, deltaLimit);
+      log.warn("The difference (in minutes) between the OCSP response production time and the signature timestamp is in allowable range (<{}>, allowed maximum <{}>)", differenceInMinutes, deltaLimit);
       this.addValidationWarning(new DigiDoc4JException("The difference between the OCSP response time and the signature timestamp is in allowable range"));
     }
   }
@@ -114,9 +114,9 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
       return;
     }
     RevocationType certificateRevocationSource = diagnosticData.getCertificateRevocationSource(certificateId);
-    this.log.debug("Revocation source is <{}>", certificateRevocationSource);
+    log.debug("Revocation source is <{}>", certificateRevocationSource);
     if (RevocationType.CRL.equals(certificateRevocationSource)) {
-      this.log.error("Signing certificate revocation source is CRL instead of OCSP");
+      log.error("Signing certificate revocation source is CRL instead of OCSP");
       this.addValidationError(new UntrustedRevocationSourceException());
     }
   }

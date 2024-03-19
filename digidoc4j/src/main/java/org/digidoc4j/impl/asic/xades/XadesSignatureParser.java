@@ -1,20 +1,20 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic.xades;
 
-import eu.europa.esig.dss.DomUtils;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.validation.SignaturePolicy;
-import eu.europa.esig.dss.xades.definition.XAdESPaths;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
+import eu.europa.esig.dss.xml.utils.DomUtils;
+import eu.europa.esig.xades.definition.XAdESPath;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.impl.asic.TmSignaturePolicyType;
 import org.digidoc4j.utils.Helper;
@@ -95,11 +95,10 @@ public class XadesSignatureParser {
    * is thrown if more than one EncapsulatedTimeStamp elements are encountered in a single SignatureTimeStamp
    * element when parsing a signature.
    *
-   * TODO: remove this solution after migrating to DSS 5.9 where the described case is handled,
-   *  albeit in a different way.
+   * TODO (DD4J-782): remove this solution after it has been verified to be sufficiently handled in DSS.
    */
   private static void assertNoExcessEncapsulatedTimeStamps(final XAdESSignature xadesSignature) {
-    final XAdESPaths xadesPaths = xadesSignature.getXAdESPaths();
+    final XAdESPath xadesPaths = xadesSignature.getXAdESPaths();
 
     final NodeList signatureTimeStamps = DomUtils.getNodeList(xadesSignature.getSignatureElement(), xadesPaths.getSignatureTimestampPath());
     if (signatureTimeStamps == null || signatureTimeStamps.getLength() < 1) {

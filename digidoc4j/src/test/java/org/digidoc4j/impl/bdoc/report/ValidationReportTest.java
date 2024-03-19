@@ -77,7 +77,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature)", report);
     TestAssert.assertXPathHasValue("XAdES-BASELINE-B", "/SimpleReport/Signature/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
-    TestAssert.assertXPathHasValue("TRY_LATER", "/SimpleReport/Signature/SubIndication", report);
+    TestAssert.assertXPathHasValue("CERTIFICATE_CHAIN_GENERAL_FAILURE", "/SimpleReport/Signature/SubIndication", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
     TestAssert.assertXPathHasValue("true", "count(/SimpleReport/Signature/CertificateChain/Certificate) > 1", report);
     TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", "/SimpleReport/Signature/CertificateChain/Certificate[1]/qualifiedName", report);
@@ -92,7 +92,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature)", report);
     TestAssert.assertXPathHasValue("XAdES-BASELINE-B-EPES", "/SimpleReport/Signature/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
-    TestAssert.assertXPathHasValue("TRY_LATER", "/SimpleReport/Signature/SubIndication", report);
+    TestAssert.assertXPathHasValue("CERTIFICATE_CHAIN_GENERAL_FAILURE", "/SimpleReport/Signature/SubIndication", report);
     TestAssert.assertXPathHasValue("junit4090904941259216539.tmp", "/SimpleReport/Signature/SignatureScope/@name", report);
     TestAssert.assertXPathHasValue("true", "count(/SimpleReport/Signature/CertificateChain/Certificate) > 1", report);
     TestAssert.assertXPathHasValue("ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865", "/SimpleReport/Signature/CertificateChain/Certificate[1]/qualifiedName", report);

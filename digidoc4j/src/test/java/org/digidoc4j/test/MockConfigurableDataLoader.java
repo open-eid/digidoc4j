@@ -65,11 +65,6 @@ public class MockConfigurableDataLoader implements DataLoader {
   }
 
   @Override
-  public byte[] get(String url, boolean refresh) throws DSSException {
-    return getter.get(url, refresh);
-  }
-
-  @Override
   public byte[] post(String url, byte[] content) throws DSSException {
     return poster.post(url, content);
   }

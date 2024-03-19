@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl.bdoc;
 
 import org.digidoc4j.Configuration;
@@ -9,8 +19,12 @@ import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.impl.asic.EmptyDataFilesContainerTest;
 import org.digidoc4j.test.TestAssert;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 public class EmptyDataFilesBdocContainerTest extends EmptyDataFilesContainerTest {
 
@@ -30,15 +44,17 @@ public class EmptyDataFilesBdocContainerTest extends EmptyDataFilesContainerTest
 
         ContainerValidationResult validationResult = container.validate();
 
-        Assert.assertTrue(validationResult.isValid());
-        Assert.assertNotNull(validationResult.getWarnings());
-        Assert.assertEquals(2, validationResult.getWarnings().size());
-        TestAssert.assertContainsError("Data file 'empty-file-2.txt' is empty", validationResult.getWarnings());
-        TestAssert.assertContainsError("Data file 'empty-file-4.txt' is empty", validationResult.getWarnings());
-        Assert.assertNotNull(validationResult.getContainerWarnings());
-        Assert.assertEquals(2, validationResult.getContainerWarnings().size());
-        TestAssert.assertContainsError("Data file 'empty-file-2.txt' is empty", validationResult.getContainerWarnings());
-        TestAssert.assertContainsError("Data file 'empty-file-4.txt' is empty", validationResult.getContainerWarnings());
+        assertTrue(validationResult.isValid());
+        assertNotNull(validationResult.getWarnings());
+        TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+                "Data file 'empty-file-2.txt' is empty",
+                "Data file 'empty-file-4.txt' is empty"
+        );
+        assertNotNull(validationResult.getContainerWarnings());
+        TestAssert.assertContainsExactSetOfErrors(validationResult.getContainerWarnings(),
+                "Data file 'empty-file-2.txt' is empty",
+                "Data file 'empty-file-4.txt' is empty"
+        );
     }
 
     @Test
@@ -52,7 +68,7 @@ public class EmptyDataFilesBdocContainerTest extends EmptyDataFilesContainerTest
                         .invokeSigning()
         );
 
-        Assert.assertEquals("Cannot sign empty datafile: empty-file-2.txt", caughtException.getMessage());
+        assertEquals("Cannot sign empty datafile: empty-file-2.txt", caughtException.getMessage());
         TestAssert.assertSuppressed(caughtException, InvalidDataFileException.class, "Cannot sign empty datafile: empty-file-4.txt");
     }
 
@@ -67,14 +83,14 @@ public class EmptyDataFilesBdocContainerTest extends EmptyDataFilesContainerTest
                         .buildDataToSign()
         );
 
-        Assert.assertEquals("Cannot sign empty datafile: empty-file-2.txt", caughtException.getMessage());
+        assertEquals("Cannot sign empty datafile: empty-file-2.txt", caughtException.getMessage());
         TestAssert.assertSuppressed(caughtException, InvalidDataFileException.class, "Cannot sign empty datafile: empty-file-4.txt");
     }
 
     private Container loadSignedContainerWithEmptyDataFiles() {
         Container container = ContainerOpener
                 .open("src/test/resources/testFiles/valid-containers/signed-container-with-empty-datafiles.bdoc", configuration);
-        Assert.assertEquals(Constant.BDOC_CONTAINER_TYPE, container.getType());
+        assertEquals(Constant.BDOC_CONTAINER_TYPE, container.getType());
         return container;
     }
 
