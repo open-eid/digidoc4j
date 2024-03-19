@@ -70,9 +70,9 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   @Test
   public void getValidCertificateOCSPToken() throws CertificateEncodingException {
     CommonOCSPCertificateSource certificateSource = new CommonOCSPCertificateSource();
-    certificateSource.addCertificate(new CertificateToken(openX509Certificate(Paths.get("src/test/resources/testFiles/certs/EE_Certification_Centre_Root_CA.pem.crt"))));
+    certificateSource.addCertificate(new CertificateToken(openX509Certificate(Paths.get("src/test/resources/testFiles/certs/TESTofEECertificationCentreRootCA.crt"))));
 
-    X509Certificate subjectCertificate = openX509Certificate(Paths.get("src/test/resources/testFiles/certs/ESTEID-SK_2011.pem.crt"));
+    X509Certificate subjectCertificate = openX509Certificate(Paths.get("src/test/resources/testFiles/certs/TEST_of_ESTEID-SK_2015.pem.crt"));
     CertificateToken issuerCertificateToken = getIssuerCertificateToken(subjectCertificate, certificateSource);
 
     SKOnlineOCSPSource ocspSource = constructOCSPSource();
