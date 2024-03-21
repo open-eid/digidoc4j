@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import eu.europa.esig.dss.spi.x509.tsp.TimestampToken;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
@@ -17,20 +18,25 @@ import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.List;
+
 import static java.lang.Thread.sleep;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 public class ExtendingBDocContainerTest extends AbstractTest {
 
   private static final String B_EPES_CONTAINER_PATH = "src/test/resources/testFiles/valid-containers/bdoc-with-b-epes-signature.bdoc";
   private static final String LT_TM_CONTAINER_PATH = "src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc";
+  private static final String ASICE_LTA_CONTAINER_PATH = "src/test/resources/testFiles/valid-containers/valid-asice-lta.asice";
 
   private String containerLocation;
 
@@ -70,6 +76,8 @@ public class ExtendingBDocContainerTest extends AbstractTest {
 
     Assert.assertEquals(1, container.getSignatures().size());
     Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
+    List<TimestampToken> archiveTimestamps = getFirstSignatureArchiveTimestamps(container);
+    assertEquals("The signature must contain 1 archive timestamp", 1, archiveTimestamps.size());
   }
 
   @Test
@@ -283,21 +291,39 @@ public class ExtendingBDocContainerTest extends AbstractTest {
 
     Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
     TestAssert.assertContainerIsValid(container);
+    List<TimestampToken> archiveTimestamps = getFirstSignatureArchiveTimestamps(container);
+    assertEquals("The signature must contain 1 archive timestamp", 1, archiveTimestamps.size());
   }
 
   @Test
-  public void extensionNotPossibleWhenSignatureLevelIsSame() {
+  public void testContainerExtensionFromLTAtoLTA() {
+    Container container = ContainerOpener.open(ASICE_LTA_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
+
+    container.extendSignatureProfile(SignatureProfile.LTA);
+
+    TestAssert.assertContainerIsValid(container);
+    Assert.assertEquals(1, container.getSignatures().size());
+    List<TimestampToken> archiveTimestamps = getFirstSignatureArchiveTimestamps(container);
+    assertEquals("The signature must contain 2 archive timestamps", 2, archiveTimestamps.size());
+  }
+
+  private List<TimestampToken> getFirstSignatureArchiveTimestamps(Container container) {
+    return ((AsicESignature) container.getSignatures().get(0)).getOrigin().getDssSignature().getArchiveTimestamps();
+  }
+
+  @Test
+  public void extensionNotPossibleFromLTtoLT() {
     Container container = createNonEmptyContainer();
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
-    createSignatureBy(container, SignatureProfile.LTA, pkcs12SignatureToken);
+    createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
 
     NotSupportedException caughtException = assertThrows(
             NotSupportedException.class,
-            () -> container.extendSignatureProfile(SignatureProfile.LTA)
+            () -> container.extendSignatureProfile(SignatureProfile.LT)
     );
 
     assertThat(caughtException.getMessage(), containsString(
-            "It is not possible to extend LTA signature to LTA"
+            "It is not possible to extend LT signature to LT"
     ));
   }
 

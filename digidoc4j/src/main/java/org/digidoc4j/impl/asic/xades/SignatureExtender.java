@@ -57,7 +57,7 @@ public class SignatureExtender {
     possibleExtensions.put(B_EPES, emptySet());
     possibleExtensions.put(LT, singleton(LTA));
     possibleExtensions.put(LT_TM, emptySet());
-    possibleExtensions.put(LTA, emptySet());
+    possibleExtensions.put(LTA, singleton(LTA));
   }
 
   public SignatureExtender(Configuration configuration, DSSDocument detachedContent) {
