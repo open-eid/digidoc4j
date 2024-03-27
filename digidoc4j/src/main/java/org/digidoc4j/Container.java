@@ -126,12 +126,21 @@ public interface Container extends Serializable {
   void removeSignature(Signature signature);
 
   /**
-   * Extends signature profile to SignatureProfile
+   * Extends profile of all signatures to SignatureProfile
    *
    * @param profile signature profile
    * @see SignatureProfile
    */
   void extendSignatureProfile(SignatureProfile profile);
+
+  /**
+   * Extends profile of selected signatures to SignatureProfile
+   *
+   * @param profile signature profile
+   * @param signaturesToExtend signatures selected for extension
+   * @see SignatureProfile
+   */
+  void extendSignatureProfile(SignatureProfile profile, List<Signature> signaturesToExtend);
 
   /**
    * Saves the container to the specified location.

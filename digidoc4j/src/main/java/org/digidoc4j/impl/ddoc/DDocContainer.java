@@ -104,6 +104,11 @@ public class DDocContainer implements Container {
   }
 
   @Override
+  public void extendSignatureProfile(SignatureProfile profile, List<Signature> signaturesToExtend) {
+    throw new NotSupportedException("Extending signature profile is not supported anymore for DDoc!");
+  }
+
+  @Override
   public File saveAsFile(String fileName) {
     ddoc4jFacade.save(fileName);
     return new File(fileName);

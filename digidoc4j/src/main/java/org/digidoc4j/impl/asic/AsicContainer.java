@@ -305,7 +305,7 @@ public abstract class AsicContainer implements Container {
 
   protected List<Signature> extendAllSignatureProfile(SignatureProfile profile, List<Signature> signatures,
                                                       List<DataFile> dataFiles) {
-    LOGGER.info("Extending all signatures' profile to " + profile.name());
+    LOGGER.info("Extending signatures' profile to " + profile.name());
     DetachedContentCreator detachedContentCreator = null;
     try {
       detachedContentCreator = new DetachedContentCreator().populate(dataFiles);
@@ -316,11 +316,25 @@ public abstract class AsicContainer implements Container {
     List<DSSDocument> detachedContentList = detachedContentCreator.getDetachedContentList();
     SignatureExtender signatureExtender = new SignatureExtender(getConfiguration(), detachedContentList);
     List<DSSDocument> extendedSignatureDocuments = signatureExtender.extend(signatures, profile);
-
     List<XadesSignatureWrapper> parsedSignatures = parseSignaturesWrappers(extendedSignatureDocuments, detachedContentList);
     List<Signature> extendedSignatures = openSignatures(parsedSignatures);
-    LOGGER.debug("Finished extending all signatures");
+    LOGGER.debug("Finished extending signatures");
     return extendedSignatures;
+  }
+
+  private List<Signature> extendSelectedSignatureProfile(SignatureProfile profile, List<Signature> selectedSignatures,
+                                                      List<Signature> allSignatures, List<DataFile> dataFiles) {
+    List<Signature> extendedSignatures = extendAllSignatureProfile(profile, selectedSignatures, dataFiles);
+    List<Signature> signaturesInOriginalOrder = new ArrayList<>(allSignatures);
+    signaturesInOriginalOrder.replaceAll(originalSignature -> {
+      int indexInExtensionList = selectedSignatures.indexOf(originalSignature);
+      if (indexInExtensionList >= 0) {
+        return extendedSignatures.get(indexInExtensionList);
+      } else {
+        return originalSignature;
+      }
+    });
+    return signaturesInOriginalOrder;
   }
 
   private List<XadesSignatureWrapper> parseSignaturesWrappers(List<DSSDocument> signatureDocuments, List<DSSDocument> detachedContent) {
@@ -535,23 +549,60 @@ public abstract class AsicContainer implements Container {
 
   @Override
   public void extendSignatureProfile(SignatureProfile profile) {
-    if (!isNewContainer()) {
-      removeAllExistingSignaturesFromContainer();
-      List<Signature> signatures = extendAllSignaturesProfile(profile, this.signatures, dataFiles);
-      this.signatures = signatures;
-      newSignatures = new ArrayList<>(signatures);
+    if (signatures.isEmpty()) {
+      LOGGER.warn("No signatures to extend");
+      return;
+    }
+    replaceAllSignaturesInContainer(extendAllSignatureProfile(profile, signatures, dataFiles));
+  }
+
+  @Override
+  public void extendSignatureProfile(SignatureProfile profile, List<Signature> signaturesToExtend) {
+    List<Signature> safeSignaturesToExtend = findSafeSignaturesToExtend(signaturesToExtend);
+    if (safeSignaturesToExtend.isEmpty()) {
+      LOGGER.warn("No signatures provided to extend");
+      return;
+    }
+    List<Signature> extendedSignatures = extendSelectedSignaturesProfile(profile, safeSignaturesToExtend, this.signatures, dataFiles);
+    replaceAllSignaturesInContainer(extendedSignatures);
+  }
+
+  private void replaceAllSignaturesInContainer(List<Signature> replacementSignatures) {
+    if (isNewContainer()) {
+      this.signatures = replacementSignatures;
     } else {
-      signatures = extendAllSignaturesProfile(profile, signatures, dataFiles);
+      removeAllExistingSignaturesFromContainer();
+      this.signatures = replacementSignatures;
+      newSignatures = new ArrayList<>(replacementSignatures);
     }
   }
 
-  private List<Signature> extendAllSignaturesProfile(SignatureProfile profile, List<Signature> signatures,
-                                                     List<DataFile> dataFiles) {
+  private List<Signature> findSafeSignaturesToExtend(List<Signature> signaturesToExtend) {
+    List<Signature> safeSignaturesToExtend = new ArrayList<>();
+    for (Signature signatureToExtend : signaturesToExtend) {
+      if (signatureToExtend == null) {
+        LOGGER.warn("Cannot extend null signature");
+        continue;
+      }
+      if (safeSignaturesToExtend.contains(signatureToExtend)) {
+        LOGGER.warn("Skipping duplicate signature with ID '{}'", signatureToExtend.getId());
+        continue;
+      }
+      if (!signatures.contains(signatureToExtend)) {
+        throw new SignatureNotFoundException("Signature not found in container: " + signatureToExtend.getId());
+      }
+      safeSignaturesToExtend.add(signatureToExtend);
+    }
+    return safeSignaturesToExtend;
+  }
+
+  private List<Signature> extendSelectedSignaturesProfile(SignatureProfile profile, List<Signature> selectedSignatures,
+                                                          List<Signature> allSignatures, List<DataFile> dataFiles) {
     List<Signature> extendedSignatures;
     if (Constant.ASICS_CONTAINER_TYPE.equals(getType())) {
-      extendedSignatures = extendAllSignatureProfile(profile, signatures, Arrays.asList(dataFiles.get(0)));
+      extendedSignatures = extendSelectedSignatureProfile(profile, selectedSignatures, allSignatures, Arrays.asList(dataFiles.get(0)));
     } else {
-      extendedSignatures = extendAllSignatureProfile(profile, signatures, dataFiles);
+      extendedSignatures = extendSelectedSignatureProfile(profile, selectedSignatures, allSignatures, dataFiles);
     }
     return extendedSignatures;
   }

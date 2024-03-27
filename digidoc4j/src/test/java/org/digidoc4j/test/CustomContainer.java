@@ -130,6 +130,11 @@ public class CustomContainer implements Container {
   }
 
   @Override
+  public void extendSignatureProfile(SignatureProfile profile, List<Signature> signaturesToExtend) {
+
+  }
+
+  @Override
   public File saveAsFile(String filePath) {
     return null;
   }

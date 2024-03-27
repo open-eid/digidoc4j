@@ -18,25 +18,29 @@ import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.digidoc4j.impl.asic.asice.AsicESignature;
+import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
-public class ExtendingBDocContainerTest extends AbstractTest {
+public class ExtendingAsicContainerTest extends AbstractTest {
 
   private static final String B_EPES_CONTAINER_PATH = "src/test/resources/testFiles/valid-containers/bdoc-with-b-epes-signature.bdoc";
   private static final String LT_TM_CONTAINER_PATH = "src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc";
   private static final String ASICE_LTA_CONTAINER_PATH = "src/test/resources/testFiles/valid-containers/valid-asice-lta.asice";
+  private static final String ASICE_LT_2_SIGNATURES_CONTAINER_PATH = "src/test/resources/testFiles/valid-containers/2_signatures_duplicate_id.asice";
+  private static final String ASICE_LTA_2_SIGNATURES_CONTAINER_PATH = "src/test/resources/testFiles/valid-containers/2_signatures_duplicate_id_lta.asice";
 
   private String containerLocation;
 
@@ -76,7 +80,7 @@ public class ExtendingBDocContainerTest extends AbstractTest {
 
     Assert.assertEquals(1, container.getSignatures().size());
     Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
-    List<TimestampToken> archiveTimestamps = getFirstSignatureArchiveTimestamps(container);
+    List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
     assertEquals("The signature must contain 1 archive timestamp", 1, archiveTimestamps.size());
   }
 
@@ -291,7 +295,7 @@ public class ExtendingBDocContainerTest extends AbstractTest {
 
     Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
     TestAssert.assertContainerIsValid(container);
-    List<TimestampToken> archiveTimestamps = getFirstSignatureArchiveTimestamps(container);
+    List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
     assertEquals("The signature must contain 1 archive timestamp", 1, archiveTimestamps.size());
   }
 
@@ -303,12 +307,58 @@ public class ExtendingBDocContainerTest extends AbstractTest {
 
     TestAssert.assertContainerIsValid(container);
     Assert.assertEquals(1, container.getSignatures().size());
-    List<TimestampToken> archiveTimestamps = getFirstSignatureArchiveTimestamps(container);
+    List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
     assertEquals("The signature must contain 2 archive timestamps", 2, archiveTimestamps.size());
   }
 
-  private List<TimestampToken> getFirstSignatureArchiveTimestamps(Container container) {
-    return ((AsicESignature) container.getSignatures().get(0)).getOrigin().getDssSignature().getArchiveTimestamps();
+  @Test
+  public void testExtendingSelectedSignaturesFromLTtoLTA() {
+    Container container = ContainerOpener.open(ASICE_LT_2_SIGNATURES_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
+    Signature signature1 = container.getSignatures().get(0);
+
+    container.extendSignatureProfile(SignatureProfile.LTA, singletonList(signature1));
+
+    TestAssert.assertContainerIsValid(container);
+    Assert.assertEquals(2, container.getSignatures().size());
+    assertEquals("1st signature's profile must be LTA", SignatureProfile.LTA, container.getSignatures().get(0).getProfile());
+    assertEquals("2nd signature's profile must be LT", SignatureProfile.LT, container.getSignatures().get(1).getProfile());
+    List<TimestampToken> signature1Timestamps = getSignatureArchiveTimestamps(container, 0);
+    assertEquals("The 1st signature must contain 1 archive timestamp", 1, signature1Timestamps.size());
+    List<TimestampToken> signature2Timestamps = getSignatureArchiveTimestamps(container, 1);
+    assertEquals("The 2nd signature must not contain any archive timestamps", 0, signature2Timestamps.size());
+  }
+
+  @Test
+  public void testSelectAllSignaturesForExtendingFromLTtoLTA() {
+    Container container = ContainerOpener.open(ASICE_LT_2_SIGNATURES_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
+    Signature signature1 = container.getSignatures().get(0);
+    Signature signature2 = container.getSignatures().get(1);
+
+    container.extendSignatureProfile(SignatureProfile.LTA, Arrays.asList(signature1, signature2));
+
+    TestAssert.assertContainerIsValid(container);
+    Assert.assertEquals(2, container.getSignatures().size());
+    assertEquals("1st signature's profile must be LTA", SignatureProfile.LTA, container.getSignatures().get(0).getProfile());
+    assertEquals("2nd signature's profile must be LTA", SignatureProfile.LTA, container.getSignatures().get(1).getProfile());
+    List<TimestampToken> signature1Timestamps = getSignatureArchiveTimestamps(container, 0);
+    assertEquals("The 1st signature must contain 1 archive timestamp", 1, signature1Timestamps.size());
+    List<TimestampToken> signature2Timestamps = getSignatureArchiveTimestamps(container, 1);
+    assertEquals("The 2nd signature must contain 1 archive timestamp", 1, signature2Timestamps.size());
+  }
+
+  @Test
+  public void testExtendingSelectedSignaturesFromLTAtoLTA() {
+    Container container = ContainerOpener.open(ASICE_LTA_2_SIGNATURES_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
+    Signature signature2 = container.getSignatures().get(1);
+
+    container.extendSignatureProfile(SignatureProfile.LTA, singletonList(signature2));
+
+    TestAssert.assertContainerIsValid(container);
+    Assert.assertEquals(2, container.getSignatures().size());
+    List<TimestampToken> signature1Timestamps = getSignatureArchiveTimestamps(container, 0);
+    assertEquals("The 1st signature must contain 1 archive timestamp", 1, signature1Timestamps.size());
+    List<TimestampToken> signature2Timestamps = getSignatureArchiveTimestamps(container, 1);
+    assertEquals("The 2nd signature must contain 2 archive timestamps", 2, signature2Timestamps.size());
   }
 
   @Test
@@ -334,6 +384,10 @@ public class ExtendingBDocContainerTest extends AbstractTest {
   @Override
   protected void before() {
      containerLocation = getFileBy("bdoc");
+  }
+
+  private List<TimestampToken> getSignatureArchiveTimestamps(Container container, int signatureIndex) {
+    return ((AsicSignature) container.getSignatures().get(signatureIndex)).getOrigin().getDssSignature().getArchiveTimestamps();
   }
 
 }

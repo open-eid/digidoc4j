@@ -122,6 +122,11 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
   }
 
   @Override
+  public void extendSignatureProfile(SignatureProfile profile, List<Signature> signaturesToExtend) {
+    throw new NotYetImplementedException();
+  }
+
+  @Override
   public File saveAsFile(String filePath) {
     throw new NotYetImplementedException();
   }
