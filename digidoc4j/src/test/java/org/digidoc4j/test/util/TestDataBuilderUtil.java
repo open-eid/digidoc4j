@@ -36,6 +36,10 @@ public class TestDataBuilderUtil {
     return TestDataBuilderUtil.createContainerWithFile(folder, containerType, Configuration.Mode.TEST);
   }
 
+  public static Container createContainerWithFile(TemporaryFolder folder, Container.DocumentType containerType) throws IOException {
+    return TestDataBuilderUtil.createContainerWithFile(folder, containerType, Configuration.Mode.TEST);
+  }
+
   public static Container createContainerWithFile(TemporaryFolder folder, String containerType, Configuration.Mode mode) throws IOException {
     return TestDataBuilderUtil.createContainerWithFile(folder, containerType, Configuration.of(mode));
   }

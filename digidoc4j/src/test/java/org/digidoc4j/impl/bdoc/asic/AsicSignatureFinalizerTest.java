@@ -27,9 +27,6 @@ import org.digidoc4j.impl.SkTimestampDataLoader;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
@@ -37,9 +34,9 @@ import static org.junit.Assert.assertEquals;
 public class AsicSignatureFinalizerTest extends AbstractTest {
 
   @Test
-  public void asicESignatureFinalization() {
+  public void asiceLtSignatureFinalization() {
     Container container = createEmptyContainerBy(Container.DocumentType.ASICE);
-    container.addDataFile(new ByteArrayInputStream("something".getBytes(StandardCharsets.UTF_8)), "file name", "text/plain");
+    container.addDataFile(createTextDataFile("file name", "something"));
 
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
           .withSigningCertificate(pkcs12SignatureToken.getCertificate())
@@ -55,9 +52,27 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
   }
 
   @Test
+  public void asiceLtaSignatureFinalization() {
+    Container container = createEmptyContainerBy(Container.DocumentType.ASICE);
+    container.addDataFile(createTextDataFile("file name", "something"));
+
+    DataToSign dataToSign = SignatureBuilder.aSignature(container)
+          .withSigningCertificate(pkcs12SignatureToken.getCertificate())
+          .withSignatureProfile(SignatureProfile.LTA)
+          .buildDataToSign();
+
+    byte[] signatureDigest = sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
+
+    SignatureFinalizer signatureFinalizer = SignatureFinalizerBuilder.aFinalizer(container, dataToSign.getSignatureParameters());
+    Signature signature = signatureFinalizer.finalizeSignature(signatureDigest);
+    assertArchiveTimestampSignature(signature);
+    assertValidSignature(signature);
+  }
+
+  @Test
   public void signatureFinalizerFieldsEqualToDataToSign() {
     Container container = createEmptyContainerBy(Container.DocumentType.ASICE);
-    container.addDataFile(new ByteArrayInputStream("something".getBytes(StandardCharsets.UTF_8)), "file name", "text/plain");
+    container.addDataFile(createTextDataFile("file name", "something"));
 
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
           .withSigningCertificate(pkcs12SignatureToken.getCertificate())
@@ -73,7 +88,7 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
   @Test
   public void getDataToSignBytesEqualToValueFromDataToSignObject() {
     Container container = createEmptyContainerBy(Container.DocumentType.ASICE);
-    container.addDataFile(new ByteArrayInputStream("something".getBytes(StandardCharsets.UTF_8)), "file name", "text/plain");
+    container.addDataFile(createTextDataFile("file name", "something"));
 
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
           .withSigningCertificate(pkcs12SignatureToken.getCertificate())

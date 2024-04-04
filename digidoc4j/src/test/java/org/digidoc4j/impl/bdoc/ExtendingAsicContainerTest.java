@@ -216,6 +216,20 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
+  public void extendFromLT_TMToLTA_ThrowsException() {
+    Container container = ContainerOpener.open(LT_TM_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
+
+    NotSupportedException caughtException = assertThrows(
+            NotSupportedException.class,
+            () -> container.extendSignatureProfile(SignatureProfile.LTA)
+    );
+
+    assertThat(caughtException.getMessage(), containsString(
+            "It is not possible to extend LT_TM signature to LTA"
+    ));
+  }
+
+  @Test
   public void extendToWhenConfirmationAlreadyExists() {
     Container initialContainer = createNonEmptyContainer();
     createSignatureBy(initialContainer, SignatureProfile.B_BES, pkcs12SignatureToken);

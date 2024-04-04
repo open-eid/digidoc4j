@@ -39,6 +39,9 @@ import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -198,6 +201,18 @@ public final class TestAssert {
     }
   }
 
+  public static void assertTimeBetweenNotBeforeAndNow(Date time, Instant notBefore, Duration clockSkew) {
+    Instant timeAsInstant = time.toInstant();
+    notBefore = notBefore.minus(clockSkew);
+    if (timeAsInstant.isBefore(notBefore)) {
+      Assert.fail(String.format("Time '%s' is before 'not-before' (%s)", timeAsInstant, notBefore));
+    }
+    Instant notAfter = Instant.now().plus(clockSkew);
+    if (timeAsInstant.isAfter(notAfter)) {
+      Assert.fail(String.format("Time '%s' is after 'not-after' (%s)", timeAsInstant, notAfter));
+    }
+  }
+
   /*
    * RESTRICTED METHODS
    */
@@ -244,5 +259,4 @@ public final class TestAssert {
     }
     return false;
   }
-
 }
