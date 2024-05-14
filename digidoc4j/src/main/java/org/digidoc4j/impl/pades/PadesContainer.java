@@ -30,6 +30,7 @@ import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.Timestamp;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
@@ -52,6 +53,7 @@ import java.util.List;
 public class PadesContainer extends PdfBoxDefaultObjectFactory implements Container {
 
   private static final Logger logger = LoggerFactory.getLogger(PadesContainer.class);
+  private static final String NOT_FOR_THIS_CONTAINER = "Not for PAdES container";
 
   public static final String PADES = "PADES";
   private final Configuration configuration;
@@ -204,14 +206,25 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
   }
 
   @Override
-  @Deprecated
-  public void setTimeStampToken(DataFile timeStampToken) {
-    throw new NotSupportedException("Not for Pades container");
+  public void addTimestamp(Timestamp timestamp) {
+    throw new NotSupportedException(NOT_FOR_THIS_CONTAINER);
   }
 
   @Override
+  public void removeTimestamp(Timestamp timestamp) {
+    throw new NotSupportedException(NOT_FOR_THIS_CONTAINER);
+  }
+
+  @Override
+  @Deprecated
+  public void setTimeStampToken(DataFile timeStampToken) {
+    throw new NotSupportedException(NOT_FOR_THIS_CONTAINER);
+  }
+
+  @Override
+  @Deprecated
   public DataFile getTimeStampToken() {
-    throw new NotSupportedException("Not for Pades container");
+    throw new NotSupportedException(NOT_FOR_THIS_CONTAINER);
   }
 
   private static List<DigiDoc4JException> getExceptionsFromMessages(List<Message> exceptionMessages) {

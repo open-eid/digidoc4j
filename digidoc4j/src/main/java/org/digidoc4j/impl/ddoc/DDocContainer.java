@@ -16,6 +16,7 @@ import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.Timestamp;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ import java.util.List;
 public class DDocContainer implements Container {
 
   private static final Logger logger = LoggerFactory.getLogger(DDocContainer.class);
+  private static final String NOT_FOR_THIS_CONTAINER = "Not for DDOC container";
 
   private DDocFacade ddoc4jFacade;
 
@@ -127,14 +129,25 @@ public class DDocContainer implements Container {
   }
 
   @Override
-  @Deprecated
-  public void setTimeStampToken(DataFile timeStampToken) {
-    throw new NotSupportedException("Not for DDOC container");
+  public void addTimestamp(Timestamp timestamp) {
+    throw new NotSupportedException(NOT_FOR_THIS_CONTAINER);
   }
 
   @Override
+  public void removeTimestamp(Timestamp timestamp) {
+    throw new NotSupportedException(NOT_FOR_THIS_CONTAINER);
+  }
+
+  @Override
+  @Deprecated
+  public void setTimeStampToken(DataFile timeStampToken) {
+    throw new NotSupportedException(NOT_FOR_THIS_CONTAINER);
+  }
+
+  @Override
+  @Deprecated
   public DataFile getTimeStampToken() {
-    throw new NotSupportedException("Not for DDOC container");
+    throw new NotSupportedException(NOT_FOR_THIS_CONTAINER);
   }
 
   @Override

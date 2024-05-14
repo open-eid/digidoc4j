@@ -10,13 +10,14 @@
 
 package org.digidoc4j;
 
+import eu.europa.esig.dss.enumerations.MimeTypeEnum;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
-
-import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 
 /**
  * Offers functionality for handling data files and signatures in a container.
@@ -89,6 +90,13 @@ public interface Container extends Serializable {
   void addSignature(Signature signature);
 
   /**
+   * Adds a new timestamp token covering the contents of this container.
+   *
+   * @param timestamp timestamp to add to this container
+   */
+  void addTimestamp(Timestamp timestamp);
+
+  /**
    * Returns all data files in the container.
    *
    * @return list of all the data files in the container.
@@ -110,6 +118,15 @@ public interface Container extends Serializable {
   List<Signature> getSignatures();
 
   /**
+   * Returns the list of timestamp tokens that cover the contents of this container.
+   *
+   * @return list of timestamp tokens in this container
+   */
+  default List<Timestamp> getTimestamps() {
+    return Collections.emptyList();
+  }
+
+  /**
    * Removes the data file from the container.
    * <p>
    * Note:
@@ -124,6 +141,17 @@ public interface Container extends Serializable {
    * @param signature signature to be removed.
    */
   void removeSignature(Signature signature);
+
+  /**
+   * Removes the specified timestamp token from this container.
+   * <p>
+   * Note:
+   * A timestamp token can be removed from a container only if the container does not contain any other timestamp tokens
+   * that cover the timestamp token to be removed.
+   * </p>
+   * @param timestamp timestamp token to remove from this container
+   */
+  void removeTimestamp(Timestamp timestamp);
 
   /**
    * Extends profile of all signatures to SignatureProfile
@@ -176,7 +204,7 @@ public interface Container extends Serializable {
    *
    * @param timeStampToken timestamp token
    *
-   * @deprecated Deprecated for removal
+   * @deprecated Deprecated for removal. Use {@link #addTimestamp(Timestamp)} instead.
    */
   @Deprecated
   void setTimeStampToken(DataFile timeStampToken);
@@ -185,7 +213,9 @@ public interface Container extends Serializable {
    * Returns timestamp token
    *
    * @return TimestampToken
+   * @deprecated Deprecated for removal. Use {@link #getTimestamps()} instead.
    */
+  @Deprecated
   DataFile getTimeStampToken();
 
   /**

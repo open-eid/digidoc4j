@@ -16,6 +16,7 @@ import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.Timestamp;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 
 import java.io.File;
@@ -150,12 +151,23 @@ public class CustomContainer implements Container {
   }
 
   @Override
+  public void addTimestamp(Timestamp timestamp) {
+    throw new NotYetImplementedException();
+  }
+
+  @Override
+  public void removeTimestamp(Timestamp timestamp) {
+    throw new NotYetImplementedException();
+  }
+
+  @Override
   @Deprecated
   public void setTimeStampToken(DataFile timeStampToken) {
     throw new NotYetImplementedException();
   }
 
   @Override
+  @Deprecated
   public DataFile getTimeStampToken() {
     throw new NotYetImplementedException();
   }

@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl.asic;
 
 import java.io.IOException;
@@ -30,8 +40,12 @@ import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 
 /**
- * Created by Andrei on 24.11.2017.
+ * A validator for generating a {@link ContainerValidationResult} based on the contents of an ASiC container containing
+ * a single timestamp token and a single datafile.
+ *
+ * @deprecated Deprecated for removal. TODO (DD4J-1044): describe alternatives to use
  */
+@Deprecated
 public class TimeStampTokenValidator {
 
   private final Logger log = LoggerFactory.getLogger(TimeStampTokenValidator.class);

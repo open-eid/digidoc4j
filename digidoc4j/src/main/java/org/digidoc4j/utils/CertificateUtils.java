@@ -10,6 +10,12 @@
 
 package org.digidoc4j.utils;
 
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.digidoc4j.X509Cert;
+import org.digidoc4j.exceptions.TechnicalException;
+
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 public final class CertificateUtils {
@@ -22,4 +28,20 @@ public final class CertificateUtils {
     String algorithm = certificate.getPublicKey().getAlgorithm();
     return algorithm.equals("EC") || algorithm.equals("ECC");
   }
+
+  public static X509Cert toX509Cert(X509CertificateHolder certificateHolder) {
+    return new X509Cert(toX509Certificate(certificateHolder));
+  }
+
+  public static X509Certificate toX509Certificate(X509CertificateHolder certificateHolder) {
+    try {
+      return new JcaX509CertificateConverter().getCertificate(certificateHolder);
+    } catch (CertificateException e) {
+        throw new TechnicalException("Failed to convert certificate", e);
+    }
+  }
+
+  private CertificateUtils() {
+  }
+
 }

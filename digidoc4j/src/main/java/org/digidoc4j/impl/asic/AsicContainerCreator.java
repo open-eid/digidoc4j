@@ -10,9 +10,11 @@
 
 package org.digidoc4j.impl.asic;
 
+import eu.europa.esig.dss.asic.common.ASiCUtils;
 import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import eu.europa.esig.dss.model.DSSDocument;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
@@ -44,17 +46,15 @@ public class AsicContainerCreator {
   private static final Charset CHARSET = StandardCharsets.UTF_8;
 
   private final ZipOutputStream zipOutputStream;
-  private final OutputStream outputStream;
+  private final Configuration configuration;
   private String zipComment;
-  private Configuration configuration;
 
   /**
-   * @param outputStream stream
-   * @param configuration
+   * @param outputStream output stream
+   * @param configuration configuration
    */
   public AsicContainerCreator(OutputStream outputStream, Configuration configuration) {
     this.configuration = configuration;
-    this.outputStream = outputStream;
     this.zipOutputStream = new ZipOutputStream(outputStream, CHARSET);
   }
 
@@ -71,8 +71,17 @@ public class AsicContainerCreator {
 
   /**
    * @param containerType type
+   * @deprecated Deprecated for removal. Use {@link #writeAsicMimeType(String)} instead.
    */
+  @Deprecated
   public void writeAsiceMimeType(String containerType) {
+    writeAsicMimeType(containerType);
+  }
+
+  /**
+   * @param containerType type
+   */
+  public void writeAsicMimeType(String containerType) {
     logger.debug("Writing asic mime type to asic zip file");
     String mimeTypeString;
     if (Constant.ASICS_CONTAINER_TYPE.equals(containerType)){
@@ -130,10 +139,11 @@ public class AsicContainerCreator {
   /**
    * @param dataFile data file
    */
+  @Deprecated
   public void writeTimestampToken(DataFile dataFile) {
-    logger.debug("Adding signatures to the asic zip container");
-    String signatureFileName = "META-INF/timestamp.tst";
-    new StreamEntryCallback(new ZipEntry(signatureFileName), dataFile.getStream()).write();
+    logger.debug("Adding timestamp token to the asic zip container");
+    String timestampFileName = "META-INF/timestamp.tst";
+    new StreamEntryCallback(new ZipEntry(timestampFileName), dataFile.getStream()).write();
   }
 
   /**
@@ -150,11 +160,21 @@ public class AsicContainerCreator {
             });
   }
 
+  public void writeMetaInfEntry(DSSDocument metaInfEntry) {
+    String entryName = metaInfEntry.getName();
+    if (StringUtils.isBlank(entryName)) {
+      throw new IllegalArgumentException("Unnamed entry");
+    } else if (!StringUtils.startsWith(entryName, ASiCUtils.META_INF_FOLDER)) {
+      entryName = ASiCUtils.META_INF_FOLDER + entryName;
+    }
+    new StreamEntryCallback(new ZipEntry(entryName), metaInfEntry.openStream()).write();
+  }
+
   /**
    * @param comment comment
    */
   public void writeContainerComment(String comment) {
-    logger.debug("Writing container comment: " + comment);
+    logger.debug("Writing container comment: {}", comment);
     zipOutputStream.setComment(comment);
   }
 
@@ -259,7 +279,7 @@ public class AsicContainerCreator {
   }
 
   private static void handleIOException(String message, IOException e) {
-    logger.error(message + ": " + e.getMessage());
+    logger.error("{}: {}", message, e.getMessage());
     throw new TechnicalException(message, e);
   }
 

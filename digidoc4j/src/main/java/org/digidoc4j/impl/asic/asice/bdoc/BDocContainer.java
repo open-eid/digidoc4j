@@ -13,7 +13,9 @@ package org.digidoc4j.impl.asic.asice.bdoc;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
+import org.digidoc4j.Timestamp;
 import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.impl.asic.AsicContainerValidator;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicSignatureOpener;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
@@ -24,6 +26,8 @@ import java.io.InputStream;
  * Offers functionality for handling data files and signatures in a container.
  */
 public class BDocContainer extends AsicEContainer {
+
+  private static final String NOT_FOR_THIS_CONTAINER = "Not for BDOC container";
 
   /**
    * BDocContainer constructor.
@@ -113,7 +117,34 @@ public class BDocContainer extends AsicEContainer {
   }
 
   @Override
-  public DataFile getTimeStampToken() {
-    throw new NotSupportedException("Not for BDOC container");
+  protected AsicContainerValidator getContainerValidator(AsicParseResult containerParseResult, boolean dataFilesHaveChanged) {
+    if (containerParseResult != null) {
+      return new BDocContainerValidator(containerParseResult, getConfiguration(), !dataFilesHaveChanged);
+    } else {
+      return new BDocContainerValidator(getConfiguration());
+    }
   }
+
+  @Override
+  public void addTimestamp(Timestamp timestamp) {
+    throw new NotSupportedException(NOT_FOR_THIS_CONTAINER);
+  }
+
+  @Override
+  public void removeTimestamp(Timestamp timestamp) {
+    throw new NotSupportedException(NOT_FOR_THIS_CONTAINER);
+  }
+
+  @Override
+  @Deprecated
+  public DataFile getTimeStampToken() {
+    throw new NotSupportedException(NOT_FOR_THIS_CONTAINER);
+  }
+
+  @Override
+  @Deprecated
+  public void setTimeStampToken(DataFile timeStampToken) {
+    throw new NotSupportedException(NOT_FOR_THIS_CONTAINER);
+  }
+
 }
