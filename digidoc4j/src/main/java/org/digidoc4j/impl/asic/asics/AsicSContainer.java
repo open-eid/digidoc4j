@@ -33,7 +33,9 @@ import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicSignatureOpener;
 import org.digidoc4j.impl.asic.cades.AsicArchiveManifest;
 import org.digidoc4j.impl.asic.cades.AsicContainerTimestamp;
-import org.digidoc4j.impl.asic.cades.TimestampUtils;
+import org.digidoc4j.impl.asic.cades.CadesTimestamp;
+import org.digidoc4j.impl.asic.cades.ContainerTimestampUtils;
+import org.digidoc4j.impl.asic.cades.ContainerTimestampWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -186,7 +188,7 @@ public class AsicSContainer extends AsicContainer {
       return null;
     } else if (timestamps.size() == 1) {
       DataFile dataFile = new DataFile();
-      dataFile.setDocument(timestamps.get(0).getTimestampDocument());
+      dataFile.setDocument(timestamps.get(0).getCadesTimestamp().getTimestampDocument());
       return dataFile;
     }
     throw new NotSupportedException("Container contains more than 1 timestamp. Use getTimestamps() instead.");
@@ -197,8 +199,11 @@ public class AsicSContainer extends AsicContainer {
   public void setTimeStampToken(DataFile timeStampToken) {
     if (CollectionUtils.size(timestamps) > 1) {
       throw new NotSupportedException("Container contains more than 1 timestamp. Cannot replace any.");
+    } else if (!ContainerTimestampUtils.isTimestampFileName(timeStampToken.getDocument().getName())) {
+      throw new IllegalTimestampException("Invalid timestamp token name: " + timeStampToken.getDocument().getName());
     }
-    AsicSContainerTimestamp timestamp = new AsicSContainerTimestamp(timeStampToken.getDocument());
+    CadesTimestamp cadesTimestamp = new CadesTimestamp(timeStampToken.getDocument());
+    AsicSContainerTimestamp timestamp = new AsicSContainerTimestamp(cadesTimestamp);
     if (CollectionUtils.isNotEmpty(timestamps)) {
       removeTimestamp(timestamps.get(0));
     }
@@ -263,16 +268,16 @@ public class AsicSContainer extends AsicContainer {
             .orElseGet(Collections::emptySet);
 
     for (AsicSContainerTimestamp timestamp : timestamps) {
-      DSSDocument timestampDocument = timestamp.getTimestampDocument();
+      DSSDocument timestampDocument = timestamp.getCadesTimestamp().getTimestampDocument();
       if (!parsedEntryNames.contains(timestampDocument.getName())) {
         zipCreator.writeMetaInfEntry(timestampDocument);
       }
 
-      if (timestamp.getTimestampManifest() == null) {
+      if (timestamp.getArchiveManifest() == null) {
         continue;
       }
 
-      DSSDocument manifestDocument = timestamp.getTimestampManifest().getManifestDocument();
+      DSSDocument manifestDocument = timestamp.getArchiveManifest().getManifestDocument();
       if (!parsedEntryNames.contains(manifestDocument.getName())) {
         zipCreator.writeMetaInfEntry(manifestDocument);
       }
@@ -280,22 +285,27 @@ public class AsicSContainer extends AsicContainer {
   }
 
   private void populateContainerWithParseResult(AsicParseResult parseResult) {
-    if (parseResult.getTimeStampToken() != null) {
-      DSSDocument timestampDocument = parseResult.getTimeStampToken().getDocument();
-      timestamps.add(new AsicSContainerTimestamp(timestampDocument));
+    if (CollectionUtils.isNotEmpty(parseResult.getTimestamps())) {
+      for (ContainerTimestampWrapper timestamp : parseResult.getTimestamps()) {
+        if (timestamp.getArchiveManifest() != null) {
+          timestamps.add(new AsicSContainerTimestamp(timestamp.getCadesTimestamp(), timestamp.getArchiveManifest()));
+        } else {
+          timestamps.add(new AsicSContainerTimestamp(timestamp.getCadesTimestamp()));
+        }
+      }
     }
   }
 
   private void addTimestampToContainer(AsicSContainerTimestamp timestamp) {
-    if (timestamp.getTimestampManifest() != null) {
-      Set<String> referencedObjects = new HashSet<>(timestamp.getTimestampManifest().getNonNullEntryNames());
+    if (timestamp.getArchiveManifest() != null) {
+      Set<String> referencedObjects = new HashSet<>(timestamp.getArchiveManifest().getNonNullEntryNames());
       for (DataFile dataFile : getDataFiles()) {
         if (!referencedObjects.remove(dataFile.getName())) {
           throw new IllegalTimestampException("Cannot add timestamp not covering data file: " + dataFile.getName());
         }
       }
 
-      Set<String> timestampsAndManifests = TimestampUtils.getTimestampAndManifestNames(timestamps);
+      Set<String> timestampsAndManifests = ContainerTimestampUtils.getTimestampAndManifestNames(timestamps);
       Collection<String> intersection = CollectionUtils.intersection(referencedObjects, timestampsAndManifests);
       if (referencedObjects.size() > intersection.size() || timestampsAndManifests.size() > intersection.size()) {
         Collection<String> entriesToRemove = CollectionUtils.subtract(timestampsAndManifests, intersection);
@@ -313,15 +323,15 @@ public class AsicSContainer extends AsicContainer {
   }
 
   private void removeTimestampFromContainer(AsicSContainerTimestamp timestamp) {
-    if (TimestampUtils.isTimestampCoveredByTimestamp(timestamp, timestamps)) {
+    if (ContainerTimestampUtils.isTimestampCoveredByTimestamp(timestamp, timestamps)) {
       throw new RemovingTimestampException();
     }
 
     timestamps.remove(timestamp);
     removeTimestampParsedEntries(timestamp);
     Optional
-            .ofNullable(TimestampUtils.findLastTimestamp(timestamps))
-            .map(AsicContainerTimestamp::getTimestampManifest)
+            .ofNullable(ContainerTimestampUtils.findLastTimestamp(timestamps))
+            .map(AsicContainerTimestamp::getArchiveManifest)
             .map(AsicArchiveManifest::getManifestDocument)
             .ifPresent(md -> renameContainerDocument(md, DEFAULT_TIMESTAMP_MANIFEST));
   }
@@ -329,22 +339,26 @@ public class AsicSContainer extends AsicContainer {
   private void removeTimestampParsedEntries(AsicSContainerTimestamp timestamp) {
     AsicParseResult containerParseResult = getContainerParseResult();
     if (containerParseResult != null) {
-      containerParseResult.removeAsicEntry(timestamp.getTimestampDocument().getName());
-      if (timestamp.getTimestampManifest() != null) {
-        containerParseResult.removeAsicEntry(timestamp.getTimestampManifest().getManifestDocument().getName());
+      String timestampDocumentName = timestamp.getCadesTimestamp().getTimestampDocument().getName();
+      containerParseResult.removeTimestamp(timestampDocumentName);
+      containerParseResult.removeAsicEntry(timestampDocumentName);
+
+      if (timestamp.getArchiveManifest() != null) {
+        String manifestDocumentName = timestamp.getArchiveManifest().getManifestDocument().getName();
+        containerParseResult.removeAsicEntry(manifestDocumentName);
       }
     }
   }
 
   private void renameExistingTimestampManifest(String oldManifestName, String newManifestName) {
-    if (TimestampUtils.isEntryCoveredByTimestamp(oldManifestName, timestamps)) {
+    if (ContainerTimestampUtils.isEntryCoveredByTimestamp(oldManifestName, timestamps)) {
       throw new IllegalTimestampException("Cannot rename a manifest that is covered by a timestamp");
     } else if (!StringUtils.startsWith(newManifestName, ASiCUtils.META_INF_FOLDER)) {
       throw new IllegalTimestampException("Invalid manifest name: " + newManifestName);
     }
 
     DSSDocument documentToRename = timestamps.stream()
-            .map(AsicContainerTimestamp::getTimestampManifest)
+            .map(AsicContainerTimestamp::getArchiveManifest)
             .filter(Objects::nonNull)
             .map(AsicArchiveManifest::getManifestDocument)
             .filter(md -> StringUtils.equals(md.getName(), oldManifestName))

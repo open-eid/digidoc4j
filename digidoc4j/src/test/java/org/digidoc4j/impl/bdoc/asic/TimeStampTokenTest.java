@@ -145,7 +145,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void tstASICSAddTwoSignatures() throws Exception {
+  public void tstASICSAddDataFileAndTimestampTwice() {
     String fileName = this.getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-datst", "SHA256", "-tst"};
@@ -157,11 +157,11 @@ public class TimeStampTokenTest extends AbstractTest {
     caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
     assertEquals(1, caughtExitStatus);
     assertThat(this.stdOut.getLog(), StringContains.containsString(
-        "This container has already timestamp. Should be no signatures in case of timestamped ASiCS container."));
+        "Datafiles cannot be added to an already timestamped container"));
   }
 
   @Test
-  public void tstASICSAddTwoFiles() throws Exception {
+  public void tstASICSAddDataFileAgainAfterTimestamping() {
     String fileName = this.getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-datst", "SHA256", "-tst"};
@@ -173,11 +173,11 @@ public class TimeStampTokenTest extends AbstractTest {
     caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
     assertEquals(1, caughtExitStatus);
     assertThat(this.stdOut.getLog(), StringContains.containsString(
-        "This container has already timestamp. Should be no signatures in case of timestamped ASiCS container."));
+        "Datafiles cannot be added to an already timestamped container"));
   }
 
   @Test
-  public void tstASICSAddPKCS12Signature() throws Exception {
+  public void tstASICSAddPKCS12Signature() {
     String fileName = this.getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-datst", "SHA256", "-tst"};
@@ -189,11 +189,11 @@ public class TimeStampTokenTest extends AbstractTest {
     caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
     assertEquals(1, caughtExitStatus);
     assertThat(this.stdOut.getLog(), StringContains.containsString(
-        "This container has already timestamp. Should be no signatures in case of timestamped ASiCS container."));
+        "Datafiles cannot be added to an already timestamped container"));
   }
 
   @Test
-  public void asicsAddPKCS12Signature() throws Exception {
+  public void asicsAddPKCS12Signature() {
     String fileName = this.getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
         "text/plain", "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};

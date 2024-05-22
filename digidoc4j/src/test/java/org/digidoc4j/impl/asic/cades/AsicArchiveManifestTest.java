@@ -10,12 +10,6 @@
 
 package org.digidoc4j.impl.asic.cades;
 
-import eu.europa.esig.dss.asic.cades.signature.manifest.ASiCEWithCAdESArchiveManifestBuilder;
-import eu.europa.esig.dss.asic.cades.signature.manifest.ASiCWithCAdESSignatureManifestBuilder;
-import eu.europa.esig.dss.asic.common.ASiCContent;
-import eu.europa.esig.dss.enumerations.ASiCContainerType;
-import eu.europa.esig.dss.enumerations.DigestAlgorithm;
-import eu.europa.esig.dss.enumerations.MimeType;
 import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.InMemoryDocument;
@@ -23,22 +17,26 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Set;
 
+import static org.digidoc4j.impl.asic.cades.AsicManifestTestUtils.MANIFEST_NAME;
+import static org.digidoc4j.impl.asic.cades.AsicManifestTestUtils.createAsicDataObjectReferenceXmlElement;
+import static org.digidoc4j.impl.asic.cades.AsicManifestTestUtils.createAsicManifestXmlDocument;
+import static org.digidoc4j.impl.asic.cades.AsicManifestTestUtils.createAsicSigReferenceXmlElement;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 public class AsicArchiveManifestTest {
-
-  private static final String TEST_FILE_CONTENT = "This is a test file.";
-  private static final String TEST_FILE_NAME = "test.txt";
-  private static final MimeType TEST_FILE_MIMETYPE = MimeTypeEnum.TEXT;
 
   @Test
   public void createInstance_WhenWrappedDocumentIsMock_DocumentIsWrappedWithoutParsingIt() {
@@ -52,10 +50,122 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
+  public void getReferencedTimestamp_WhenDocumentIsNotParsable_ThrowsException() {
+    DSSDocument manifestDocument = new InMemoryDocument(
+            "Not XML".getBytes(StandardCharsets.UTF_8),
+            MANIFEST_NAME,
+            MimeTypeEnum.XML
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+
+    TechnicalException caughtException = assertThrows(
+            TechnicalException.class,
+            asicArchiveManifest::getReferencedTimestamp
+    );
+
+    assertThat(caughtException.getMessage(), equalTo("Failed to parse manifest file: ManifestName.xml"));
+  }
+
+  @Test
+  public void getReferencedTimestamp_WhenManifestDoesNotContainSigReference_ReturnsEmptyTimestampReference() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument();
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+
+    AsicArchiveManifest.Reference result = asicArchiveManifest.getReferencedTimestamp();
+
+    assertThat(result, notNullValue());
+    assertThat(result.getName(), nullValue());
+    assertThat(result.getMimeType(), nullValue());
+  }
+
+  @Test
+  public void getReferencedTimestamp_WhenManifestContainsEmptySigReference_ReturnsEmptyTimestampReference() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument(
+            createAsicSigReferenceXmlElement(null, null)
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+
+    AsicArchiveManifest.Reference result = asicArchiveManifest.getReferencedTimestamp();
+
+    assertThat(result, notNullValue());
+    assertThat(result.getName(), nullValue());
+    assertThat(result.getMimeType(), nullValue());
+  }
+
+  @Test
+  public void getReferencedTimestamp_WhenManifestContainsValidSigReference_ReturnsTimestampReferenceWithGivenValues() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument(
+            createAsicSigReferenceXmlElement("custom-mimetype-string", "custom-uri-string")
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+
+    AsicArchiveManifest.Reference result = asicArchiveManifest.getReferencedTimestamp();
+
+    assertThat(result, notNullValue());
+    assertThat(result.getName(), equalTo("custom-uri-string"));
+    assertThat(result.getMimeType(), equalTo("custom-mimetype-string"));
+  }
+
+  @Test
+  public void getReferencedDataObjects_WhenDocumentIsNotParsable_ThrowsException() {
+    DSSDocument manifestDocument = new InMemoryDocument(
+            "Not XML".getBytes(StandardCharsets.UTF_8),
+            MANIFEST_NAME,
+            MimeTypeEnum.XML
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+
+    TechnicalException caughtException = assertThrows(
+            TechnicalException.class,
+            asicArchiveManifest::getReferencedDataObjects
+    );
+
+    assertThat(caughtException.getMessage(), equalTo("Failed to parse manifest file: ManifestName.xml"));
+  }
+
+  @Test
+  public void getReferencedDataObjects_WhenManifestDoesNotContainDataObjectReferences_ReturnsEmptyList() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument();
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+
+    List<AsicArchiveManifest.Reference> result = asicArchiveManifest.getReferencedDataObjects();
+
+    assertThat(result, empty());
+  }
+
+  @Test
+  public void getReferencedDataObjects_WhenManifestContainsValidDataObjectReference_ReturnsListOfOneEquivalentReference() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument(
+            createAsicDataObjectReferenceXmlElement(null, null)
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+
+    List<AsicArchiveManifest.Reference> result = asicArchiveManifest.getReferencedDataObjects();
+
+    assertThat(result, hasSize(1));
+    assertThat(result.get(0).getName(), nullValue());
+    assertThat(result.get(0).getMimeType(), nullValue());
+  }
+
+  @Test
+  public void getReferencedDataObjects_WhenManifestContainsEmptyDataObjectReference_ReturnsListOfOneEmptyReference() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument(
+            createAsicDataObjectReferenceXmlElement("custom-mimetype-string", "custom-uri-string")
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+
+    List<AsicArchiveManifest.Reference> result = asicArchiveManifest.getReferencedDataObjects();
+
+    assertThat(result, hasSize(1));
+    assertThat(result.get(0).getName(), equalTo("custom-uri-string"));
+    assertThat(result.get(0).getMimeType(), equalTo("custom-mimetype-string"));
+  }
+
+  @Test
   public void getNonNullEntryNames_WhenDocumentIsNotParsable_ThrowsException() {
     DSSDocument manifestDocument = new InMemoryDocument(
             "Not XML".getBytes(StandardCharsets.UTF_8),
-            "ManifestName.xml",
+            MANIFEST_NAME,
             MimeTypeEnum.XML
     );
     AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
@@ -69,50 +179,29 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getNonNullEntryNames_WhenDocumentIsNotArchiveManifest_ThrowsException() {
-    DSSDocument manifestDocument = new ASiCWithCAdESSignatureManifestBuilder(
-            createAsicContentWithTestFile(ASiCContainerType.ASiC_E),
-            DigestAlgorithm.SHA256,
-            "signature"
-    ).build();
-    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
-
-    TechnicalException caughtException = assertThrows(
-            TechnicalException.class,
-            asicArchiveManifest::getNonNullEntryNames
-    );
-
-    assertThat(
-            caughtException.getMessage(),
-            equalTo("Not an ASiCArchiveManifest: META-INF/ASiCManifest001.xml")
-    );
-  }
-
-  @Test
-  public void getNonNullEntryNames_WhenDocumentIsArchiveManifest_Returns() {
-    DSSDocument manifestDocument = new ASiCEWithCAdESArchiveManifestBuilder(
-            createAsicContentWithTestFile(ASiCContainerType.ASiC_S),
-            null,
-            DigestAlgorithm.SHA512,
-            "timestamp"
-    ).build();
+  public void getNonNullEntryNames_WhenManifestDoesNotContainDataObjectReferences_ReturnsEmptySet() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument();
     AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
 
     Set<String> result = asicArchiveManifest.getNonNullEntryNames();
 
-    assertThat(result, hasSize(1));
-    assertThat(result, contains(TEST_FILE_NAME));
+    assertThat(result, empty());
   }
 
-  private static ASiCContent createAsicContentWithTestFile(ASiCContainerType containerType) {
-    ASiCContent asicContent = new ASiCContent();
-    asicContent.setContainerType(containerType);
-    asicContent.getSignedDocuments().add(new InMemoryDocument(
-            TEST_FILE_CONTENT.getBytes(StandardCharsets.UTF_8),
-            TEST_FILE_NAME,
-            TEST_FILE_MIMETYPE
-    ));
-    return asicContent;
+  @Test
+  public void getNonNullEntryNames_WhenManifestContainsDataObjectReferences_ReturnsSetOfNonNullReferenceNames() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument(
+            createAsicDataObjectReferenceXmlElement(null, null),
+            createAsicDataObjectReferenceXmlElement("element-2-mimetype", null),
+            createAsicDataObjectReferenceXmlElement(null, "element-3-uri"),
+            createAsicDataObjectReferenceXmlElement("element-4-mimetype", "element-4-uri")
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+
+    Set<String> result = asicArchiveManifest.getNonNullEntryNames();
+
+    assertThat(result, hasSize(2));
+    assertThat(result, containsInAnyOrder("element-3-uri", "element-4-uri"));
   }
 
 }

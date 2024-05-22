@@ -311,9 +311,13 @@ public abstract class AsicContainer implements Container {
   }
 
   protected void validateDataFilesRemoval() {
-    if (isContainerSigned()) {
+    if (CollectionUtils.isNotEmpty(getSignatures())) {
       LOGGER.error("Datafiles cannot be removed from an already signed container");
       throw new RemovingDataFileException();
+    } else if (CollectionUtils.isNotEmpty(getTimestamps())) {
+      String errorMessage = "Datafiles cannot be removed from an already timestamped container";
+      LOGGER.error(errorMessage);
+      throw new RemovingDataFileException(errorMessage);
     }
   }
 
@@ -326,16 +330,16 @@ public abstract class AsicContainer implements Container {
   }
 
   protected void verifyIfAllowedToAddDataFile(String fileName) {
-    if (isContainerSigned()) {
+    if (CollectionUtils.isNotEmpty(getSignatures())) {
       String errorMessage = "Datafiles cannot be added to an already signed container";
+      LOGGER.error(errorMessage);
+      throw new DigiDoc4JException(errorMessage);
+    } else if (CollectionUtils.isNotEmpty(getTimestamps())) {
+      String errorMessage = "Datafiles cannot be added to an already timestamped container";
       LOGGER.error(errorMessage);
       throw new DigiDoc4JException(errorMessage);
     }
     checkForDuplicateDataFile(fileName);
-  }
-
-  private boolean isContainerSigned() {
-    return CollectionUtils.isNotEmpty(getSignatures()) || CollectionUtils.isNotEmpty(getTimestamps());
   }
 
   private void checkForDuplicateDataFile(String fileName) {

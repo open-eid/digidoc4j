@@ -26,6 +26,10 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
 import org.digidoc4j.impl.StreamDocument;
 import org.digidoc4j.impl.UncompressedAsicEntry;
+import org.digidoc4j.impl.asic.cades.AsicArchiveManifest;
+import org.digidoc4j.impl.asic.cades.CadesTimestamp;
+import org.digidoc4j.impl.asic.cades.ContainerTimestampProcessor;
+import org.digidoc4j.impl.asic.cades.ContainerTimestampUtils;
 import org.digidoc4j.impl.asic.manifest.ManifestEntry;
 import org.digidoc4j.impl.asic.manifest.ManifestParser;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
@@ -42,6 +46,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -63,6 +68,7 @@ public abstract class AsicContainerParser {
   private final AsicParseResult parseResult = new AsicParseResult();
   private final List<DSSDocument> signatures = new ArrayList<>();
   private final LinkedHashMap<String, DataFile> dataFiles = new LinkedHashMap<>();
+  private final ContainerTimestampProcessor timestampProcessor = new ContainerTimestampProcessor();
   private final List<DSSDocument> detachedContents = new ArrayList<>();
   private Integer currentSignatureFileIndex;
   private String mimeType;
@@ -74,10 +80,8 @@ public abstract class AsicContainerParser {
   private boolean manifestFound = false;
   private boolean mimeTypeFound = false;
   private final long maxDataFileCachedInBytes;
-  private DataFile timestampToken;
   private final long zipCompressionRatioCheckThreshold;
   private final long zipMaxAllowedCompressionRatio;
-
 
   protected AsicContainerParser(Configuration configuration) {
     this.configuration = configuration;
@@ -95,6 +99,7 @@ public abstract class AsicContainerParser {
   public AsicParseResult read() {
     parseContainer();
     validateParseResult();
+    postProcessTimestamps();
     populateParseResult();
     return parseResult;
   }
@@ -131,8 +136,8 @@ public abstract class AsicContainerParser {
       extractSignature(entry);
     } else if (isDataFile(entryName)) {
       extractDataFile(entry);
-    } else if (isTimeStampToken(entryName)) {
-      extractTimeStamp(entry);
+    } else if (ContainerTimestampUtils.isTimestampFileName(entryName)) {
+      extractTimestamp(entry);
     } else {
       extractAsicEntry(entry);
     }
@@ -165,11 +170,11 @@ public abstract class AsicContainerParser {
     }
   }
 
-  private void extractTimeStamp(ZipEntry entry) {
+  private void extractTimestamp(ZipEntry entry) {
     logger.debug("Extracting timestamp file");
-    InputStream zipFileInputStream = getZipEntryInputStream(entry);
-    String fileName = entry.getName();
-    timestampToken = new DataFile(zipFileInputStream, fileName, MimeTypeEnum.TST.getMimeTypeString());
+    DSSDocument timestampDocument = new InMemoryDocument(getZipEntryInputStream(entry), entry.getName(), MimeTypeEnum.TST);
+    timestampProcessor.addTimestamp(new CadesTimestamp(timestampDocument));
+    extractAsicEntry(entry, timestampDocument);
   }
 
   private void extractDataFile(ZipEntry entry) {
@@ -257,6 +262,31 @@ public abstract class AsicContainerParser {
     }
   }
 
+  private void postProcessTimestamps() {
+    for (AsicEntry asicEntry : asicEntries) {
+      if (ContainerTimestampUtils.isArchiveManifestFileName(asicEntry.getName())) {
+        AsicArchiveManifest archiveManifest = new AsicArchiveManifest(asicEntry.getContent());
+        timestampProcessor.addManifest(archiveManifest, name -> asicEntries.stream()
+                .filter(e -> StringUtils.equals(e.getName(), name))
+                .map(AsicEntry::getContent)
+                .filter(Objects::nonNull)
+                .map(CadesTimestamp::new)
+                .findFirst()
+                .orElse(null));
+      }
+    }
+    try {
+      timestampProcessor.resolveReferenceMimeTypes((name, mimeType) -> asicEntries.stream()
+              .filter(e -> StringUtils.equals(e.getName(), name))
+              .map(AsicEntry::getContent)
+              .filter(Objects::nonNull)
+              .findFirst()
+              .ifPresent(d -> d.setMimeType(mimeType)));
+    } catch (Exception e) {
+      logger.warn("Failed to resolve mimetypes of timestamped entries");
+    }
+  }
+
   private void populateParseResult() {
     Collection<DataFile> files = dataFiles.values();
     parseResult.setDataFiles(new ArrayList<>(files));
@@ -266,7 +296,12 @@ public abstract class AsicContainerParser {
     parseResult.setManifestParser(manifestParser);
     parseResult.setZipFileComment(zipFileComment);
     parseResult.setAsicEntries(asicEntries);
-    parseResult.setTimeStampToken(timestampToken);
+    try {
+      parseResult.setTimestamps(timestampProcessor.getTimestampsInSortedOrder());
+    } catch (Exception e) {
+      logger.warn("Failed to determine timestamp token order; using initial container order");
+      parseResult.setTimestamps(timestampProcessor.getTimestampsInInitialOrder());
+    }
     parseResult.setMimeType(mimeType);
   }
 
@@ -286,10 +321,6 @@ public abstract class AsicContainerParser {
 
   private boolean isDataFile(String entryName) {
     return !entryName.startsWith("META-INF/") && !isMimeType(entryName);
-  }
-
-  private boolean isTimeStampToken(String entryName) {
-    return StringUtils.equalsIgnoreCase(TIMESTAMP_TOKEN, entryName);
   }
 
   private boolean isManifest(String entryName) {

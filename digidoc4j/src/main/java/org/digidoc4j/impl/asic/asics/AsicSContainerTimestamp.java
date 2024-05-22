@@ -10,9 +10,9 @@
 
 package org.digidoc4j.impl.asic.asics;
 
-import eu.europa.esig.dss.model.DSSDocument;
 import org.digidoc4j.impl.asic.cades.AsicArchiveManifest;
 import org.digidoc4j.impl.asic.cades.AsicContainerTimestamp;
+import org.digidoc4j.impl.asic.cades.CadesTimestamp;
 
 /**
  * An implementation of timestamp token that covers the contents of ASiC-S containers.
@@ -22,20 +22,20 @@ public class AsicSContainerTimestamp extends AsicContainerTimestamp {
   /**
    * Creates an ASiC-S timestamp token without ASiCArchiveManifest.
    *
-   * @param timestampDocument timestamp document
+   * @param cadesTimestamp CAdES timestamp
    */
-  public AsicSContainerTimestamp(DSSDocument timestampDocument) {
-    super(timestampDocument, null);
+  public AsicSContainerTimestamp(CadesTimestamp cadesTimestamp) {
+    super(cadesTimestamp, null);
   }
 
   /**
    * Creates an ASiC-S timestamp token with ASiCArchiveManifest.
    *
-   * @param timestampDocument timestamp document
+   * @param timestamp CAdES timestamp
    * @param manifest ASiCArchiveManifest
    */
-  public AsicSContainerTimestamp(DSSDocument timestampDocument, AsicArchiveManifest manifest) {
-    super(timestampDocument, manifest);
+  public AsicSContainerTimestamp(CadesTimestamp timestamp, AsicArchiveManifest manifest) {
+    super(timestamp, manifest);
   }
 
 }

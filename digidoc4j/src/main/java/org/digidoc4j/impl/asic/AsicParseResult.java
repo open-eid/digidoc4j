@@ -1,22 +1,27 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic;
 
 import eu.europa.esig.dss.model.DSSDocument;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.DataFile;
+import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.impl.asic.cades.CadesTimestamp;
+import org.digidoc4j.impl.asic.cades.ContainerTimestampWrapper;
 import org.digidoc4j.impl.asic.manifest.ManifestParser;
 import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,7 +36,7 @@ public class AsicParseResult implements Serializable {
   private String zipFileComment;
   private List<AsicEntry> asicEntries;
   private ManifestParser manifestParser;
-  private DataFile timeStampToken;
+  private List<ContainerTimestampWrapper> timestamps;
   private String mimeType;
 
   /**
@@ -122,12 +127,48 @@ public class AsicParseResult implements Serializable {
     this.manifestParser = manifestParser;
   }
 
-  public void setTimeStampToken(DataFile timeStampToken) {
-    this.timeStampToken = timeStampToken;
+  public List<ContainerTimestampWrapper> getTimestamps() {
+    return timestamps;
   }
 
+  public void setTimestamps(List<ContainerTimestampWrapper> timestamps) {
+    this.timestamps = timestamps;
+  }
+
+  public boolean removeTimestamp(String timestampName) {
+    for (ContainerTimestampWrapper timestamp : timestamps) {
+      if (StringUtils.equals(timestamp.getCadesTimestamp().getTimestampDocument().getName(), timestampName)) {
+        return timestamps.remove(timestamp);
+      }
+    }
+    return false;
+  }
+
+  @Deprecated
+  public void setTimeStampToken(DataFile timeStampToken) {
+    if (timeStampToken != null) {
+      timestamps = new ArrayList<>(1);
+      CadesTimestamp cadesTimestamp = new CadesTimestamp(timeStampToken.getDocument());
+      timestamps.add(new ContainerTimestampWrapper(cadesTimestamp));
+    } else {
+      timestamps = null;
+    }
+  }
+
+  @Deprecated
   public DataFile getTimeStampToken() {
-    return timeStampToken;
+    if (CollectionUtils.isEmpty(timestamps)) {
+      return null;
+    } else if (timestamps.size() == 1) {
+      ContainerTimestampWrapper timestamp = timestamps.get(0);
+      if (timestamp.getArchiveManifest() != null) {
+        throw new NotSupportedException("There is a manifest bound to the timestamp. Use getTimestamps() instead.");
+      }
+      DataFile dataFile = new DataFile();
+      dataFile.setDocument(timestamp.getCadesTimestamp().getTimestampDocument());
+      return dataFile;
+    }
+    throw new NotSupportedException("Parse result contains more than 1 timestamp. Use getTimestamps() instead.");
   }
 
   public void setMimeType(String mimeType) {

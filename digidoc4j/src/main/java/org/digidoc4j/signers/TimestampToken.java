@@ -10,6 +10,7 @@
 
 package org.digidoc4j.signers;
 
+import eu.europa.esig.dss.asic.common.ASiCUtils;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import eu.europa.esig.dss.model.InMemoryDocument;
@@ -100,7 +101,7 @@ public final class TimestampToken {
                                             byte[] digest) {
     DataFile timeStampToken = new DataFile();
     TimestampBinary timestampBinary = onlineTSPSource.getTimeStampResponse(digestAlgorithm, digest);
-    String timestampFilename = "timestamp";
+    String timestampFilename = ASiCUtils.META_INF_FOLDER + ASiCUtils.TIMESTAMP_FILENAME + ASiCUtils.TST_EXTENSION;
     timeStampToken.setDocument(
         new InMemoryDocument(timestampBinary.getBytes(), timestampFilename, MimeTypeEnum.TST));
     timeStampToken.setMediaType(MimeTypeEnum.TST.getMimeTypeString());

@@ -10,20 +10,27 @@
 
 package org.digidoc4j.impl.asic.cades;
 
+import eu.europa.esig.asic.manifest.definition.ASiCManifestAttribute;
+import eu.europa.esig.asic.manifest.definition.ASiCManifestPath;
 import eu.europa.esig.dss.asic.common.validation.ASiCManifestParser;
-import eu.europa.esig.dss.enumerations.ASiCManifestTypeEnum;
 import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.model.ManifestEntry;
-import eu.europa.esig.dss.model.ManifestFile;
+import eu.europa.esig.dss.xml.common.definition.DSSAttribute;
+import eu.europa.esig.dss.xml.utils.DomUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * An entity for handling instances of {@code ASiCArchiveManifest}.
@@ -32,8 +39,16 @@ public class AsicArchiveManifest implements Serializable {
 
   private static final Logger log = LoggerFactory.getLogger(AsicArchiveManifest.class);
 
+  static {
+    // Using DomUtils to parse the elements of ASiCArchiveManifest fails if appropriate namespaces are not registered.
+    // As a workaround, make this dummy usage of ASiCManifestParser statically register all required namespaces for us.
+    ASiCManifestParser.getLinkedManifest(Collections.emptyList(), StringUtils.EMPTY);
+  }
+
   private final DSSDocument manifestDocument;
 
+  private transient Reference referencedTimestamp;
+  private transient List<Reference> referencedDataObjects;
   private transient Set<String> uniqueNonNullEntryNames;
 
   /**
@@ -56,8 +71,36 @@ public class AsicArchiveManifest implements Serializable {
   }
 
   /**
+   * Returns the timestamp token referenced by this manifest file.
+   * Calling this method triggers the parsing process of the manifest if it has not been parsed already.
+   *
+   * @return referenced timestamp token
+   */
+  public Reference getReferencedTimestamp() {
+    if (referencedTimestamp == null) {
+      parseManifestContent();
+    }
+
+    return referencedTimestamp;
+  }
+
+  /**
+   * Returns the list of data objects referenced by this manifest file.
+   * Calling this method triggers the parsing process of the manifest if it has not been parsed already.
+   *
+   * @return list of referenced data objects
+   */
+  public List<Reference> getReferencedDataObjects() {
+    if (referencedDataObjects == null) {
+      parseManifestContent();
+    }
+
+    return referencedDataObjects;
+  }
+
+  /**
    * Returns the set of non-null names of this manifest's entries.
-   * Calling this method triggers parsing process of the manifest if it has not been parsed already.
+   * Calling this method triggers the parsing process of the manifest if it has not been parsed already.
    *
    * @return set of non-null manifest entry names
    */
@@ -71,19 +114,66 @@ public class AsicArchiveManifest implements Serializable {
 
   private void parseManifestContent() {
     log.debug("Parsing ASiCArchiveManifest from manifest document: {}", manifestDocument);
-    ManifestFile manifestFile = ASiCManifestParser.getManifestFile(manifestDocument);
-    if (manifestFile == null) {
-      throw new TechnicalException("Failed to parse manifest file: " + manifestDocument.getName());
-    } else if (manifestFile.getManifestType() != ASiCManifestTypeEnum.ARCHIVE_MANIFEST) {
-      throw new TechnicalException("Not an ASiCArchiveManifest: " + manifestDocument.getName());
-    }
+    Element rootElement = loadManifestRootElement(manifestDocument);
+
+    referencedTimestamp = new Reference(DomUtils.getElement(rootElement, ASiCManifestPath.SIG_REFERENCE_PATH));
+
+    NodeList nodeList = DomUtils.getNodeList(rootElement, ASiCManifestPath.DATA_OBJECT_REFERENCE_PATH);
+    referencedDataObjects = Collections.unmodifiableList(
+            IntStream
+                    .range(0, (nodeList != null) ? nodeList.getLength() : 0)
+                    .mapToObj(nodeList::item)
+                    .filter(Element.class::isInstance)
+                    .map(Element.class::cast)
+                    .map(Reference::new)
+                    .collect(Collectors.toList())
+    );
 
     uniqueNonNullEntryNames = Collections.unmodifiableSet(
-            manifestFile.getEntries().stream()
-                    .map(ManifestEntry::getFileName)
+            referencedDataObjects.stream()
+                    .map(Reference::getName)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet())
     );
+  }
+
+  private static Element loadManifestRootElement(DSSDocument manifestDocument) {
+    try {
+      Document manifestDom = DomUtils.buildDOM(manifestDocument);
+      return DomUtils.getElement(manifestDom, ASiCManifestPath.ASIC_MANIFEST_PATH);
+    } catch (Exception e) {
+      throw new TechnicalException("Failed to parse manifest file: " + manifestDocument.getName(), e);
+    }
+  }
+
+  public static class Reference {
+
+    private final String name;
+    private final String mimeType;
+
+    Reference(Element element) {
+      name = getAttributeIfPresent(element, ASiCManifestAttribute.URI);
+      mimeType = getAttributeIfPresent(element, ASiCManifestAttribute.MIME_TYPE);
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public String getMimeType() {
+      return mimeType;
+    }
+
+  }
+
+  private static String getAttributeIfPresent(Element element, DSSAttribute attribute) {
+    if (element == null || attribute == null) {
+      return null;
+    }
+    String attributeName = attribute.getAttributeName();
+    return element.hasAttribute(attributeName)
+            ? element.getAttribute(attributeName)
+            : null;
   }
 
 }
