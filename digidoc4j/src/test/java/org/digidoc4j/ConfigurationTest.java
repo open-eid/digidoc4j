@@ -381,8 +381,17 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void setTspSource() {
-    this.configuration.setTspSource("tspSource");
-    Assert.assertEquals("tspSource", this.configuration.getTspSource());
+    configuration.setTspSource("tspSource");
+    Assert.assertEquals("tspSource", configuration.getTspSource());
+    Assert.assertEquals("tspSource", configuration.getTspSourceForArchiveTimestamps());
+  }
+
+  @Test
+  public void setTspSourceForArchiveTimestamps() {
+    String tspSource = configuration.getTspSource();
+    configuration.setTspSourceForArchiveTimestamps("tspSourceForArchiveTimestamps");
+    Assert.assertEquals("tspSourceForArchiveTimestamps", configuration.getTspSourceForArchiveTimestamps());
+    Assert.assertEquals(tspSource, configuration.getTspSource());
   }
 
   @Test
@@ -810,9 +819,32 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
+  public void getTspSourceDefaultValuesForProdConfiguration() {
+    Configuration configuration = Configuration.of(Configuration.Mode.PROD);
+    Assert.assertEquals("http://tsa.sk.ee", configuration.getTspSource());
+    Assert.assertEquals("http://tsa.sk.ee", configuration.getTspSourceForArchiveTimestamps());
+  }
+
+  @Test
+  public void getTspSourceDefaultValuesForTestConfiguration() {
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    Assert.assertEquals("http://tsa.demo.sk.ee/tsa", configuration.getTspSource());
+    Assert.assertEquals("http://tsa.demo.sk.ee/tsa", configuration.getTspSourceForArchiveTimestamps());
+  }
+
+  @Test
   public void getTspSourceFromConfigurationFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    Assert.assertEquals("http://tsp.source.test/HttpTspServer", this.configuration.getTspSource());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
+    Assert.assertEquals("http://tsp.source.test/HttpTspServer", configuration.getTspSource());
+    Assert.assertEquals("http://tsp.source.test/HttpTspServer", configuration.getTspSourceForArchiveTimestamps());
+  }
+
+  @Test
+  public void getTspSourceForArchiveTimestampsFromConfigurationFile() {
+    String tspSource = configuration.getTspSource();
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_archive_timestamp.yaml");
+    Assert.assertEquals("http://atsp.source.test", configuration.getTspSourceForArchiveTimestamps());
+    Assert.assertEquals(tspSource, configuration.getTspSource());
   }
 
   @Test
@@ -1263,11 +1295,14 @@ public class ConfigurationTest extends AbstractTest {
     Assert.assertEquals("TEST_DIGIDOC_PKCS12_PASSWD", this.configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificatePassword).get(0));
     Assert.assertEquals("TEST_OCSP_SOURCE", this.configuration.getRegistry().get(ConfigurationParameter.OcspSource).get(0));
     Assert.assertEquals("TEST_TSP_SOURCE", this.configuration.getRegistry().get(ConfigurationParameter.TspSource).get(0));
+    Assert.assertEquals("TEST_TSP_SOURCE_FOR_ARCHIVE_TIMESTAMPS", this.configuration.getRegistry().get(ConfigurationParameter.TspSourceForArchiveTimestamps).get(0));
     Assert.assertEquals("TEST_VALIDATION_POLICY", this.configuration.getRegistry().get(ConfigurationParameter.ValidationPolicy).get(0));
     Assert.assertEquals("TEST_LOTL_LOCATION", this.configuration.getRegistry().get(ConfigurationParameter.LotlLocation).get(0));
     Assert.assertEquals("true", this.configuration.getRegistry().get(ConfigurationParameter.preferAiaOcsp).get(0));
     Assert.assertEquals("73", this.configuration.getRegistry().get(ConfigurationParameter.ZipCompressionRatioCheckThreshold).get(0));
     Assert.assertEquals("37", this.configuration.getRegistry().get(ConfigurationParameter.MaxAllowedZipCompressionRatio).get(0));
+    Assert.assertEquals("SHA384", this.configuration.getRegistry().get(ConfigurationParameter.ArchiveTimestampDigestAlgorithm).get(0));
+    Assert.assertEquals("SHA512", this.configuration.getRegistry().get(ConfigurationParameter.ArchiveTimestampReferenceDigestAlgorithm).get(0));
 
     this.configuration.setLotlLocation("Set LOTL location");
     this.configuration.setTspSource("Set TSP source");
@@ -1277,6 +1312,7 @@ public class ConfigurationTest extends AbstractTest {
     this.configuration.setValidationPolicy("Set validation policy");
     Assert.assertEquals("Set LOTL location", this.configuration.getLotlLocation());
     Assert.assertEquals("Set TSP source", this.configuration.getTspSource());
+    Assert.assertEquals("TEST_TSP_SOURCE_FOR_ARCHIVE_TIMESTAMPS", this.configuration.getTspSourceForArchiveTimestamps());
     Assert.assertEquals("Set OCSP access certificate file name", this.configuration.getOCSPAccessCertificateFileName());
     Assert.assertEquals("Set password", this.configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificatePassword).get(0));
     Assert.assertEquals("Set OCSP source", this.configuration.getOcspSource());
@@ -1704,6 +1740,42 @@ public class ConfigurationTest extends AbstractTest {
   public void testLoadingDataFileDigestAlgorithmFromConf() {
     this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     Assert.assertEquals(DigestAlgorithm.SHA512, this.configuration.getDataFileDigestAlgorithm());
+  }
+
+  @Test
+  public void getArchiveTimestampDigestAlgorithm_WhenDefaultProdConfiguration_ReturnsNull() {
+    Configuration configuration = Configuration.of(Configuration.Mode.PROD);
+    Assert.assertNull(configuration.getArchiveTimestampDigestAlgorithm());
+  }
+
+  @Test
+  public void getArchiveTimestampDigestAlgorithm_WhenDefaultTestConfiguration_ReturnsNull() {
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    Assert.assertNull(configuration.getArchiveTimestampDigestAlgorithm());
+  }
+
+  @Test
+  public void getArchiveTimestampDigestAlgorithm_WhenConfigurationLoadedFromFile_ReturnsLoadedValue() {
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_archive_timestamp.yaml");
+    Assert.assertEquals(DigestAlgorithm.SHA256, configuration.getArchiveTimestampDigestAlgorithm());
+  }
+
+  @Test
+  public void getArchiveTimestampReferenceDigestAlgorithm_WhenDefaultProdConfiguration_ReturnsNull() {
+    Configuration configuration = Configuration.of(Configuration.Mode.PROD);
+    Assert.assertNull(configuration.getArchiveTimestampReferenceDigestAlgorithm());
+  }
+
+  @Test
+  public void getArchiveTimestampReferenceDigestAlgorithm_WhenDefaultTestConfiguration_ReturnsNull() {
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    Assert.assertNull(configuration.getArchiveTimestampReferenceDigestAlgorithm());
+  }
+
+  @Test
+  public void getArchiveTimestampReferenceDigestAlgorithm_WhenConfigurationLoadedFromFile_ReturnsLoadedValue() {
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_archive_timestamp.yaml");
+    Assert.assertEquals(DigestAlgorithm.SHA384, configuration.getArchiveTimestampReferenceDigestAlgorithm());
   }
 
   @Test

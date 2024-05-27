@@ -133,7 +133,11 @@ import static java.util.Arrays.asList;
  * <li>OCSP_SOURCE: Online Certificate Service Protocol source</li>
  * <li>SIGN_OCSP_REQUESTS: Should OCSP requests be signed? Allowed values: true, false</li>
  * <li>TSL_LOCATION: TSL Location - <b>DEPRECATED:</b> use LOTL_LOCATION instead</li>
- * <li>TSP_SOURCE: Time Stamp Protocol source address</li>
+ * <li>TSP_SOURCE: Time Stamp Protocol source address<br>
+ * Default value for PROD mode: {@value Constant.Production#TSP_SOURCE}<br>
+ * Default value for TEST mode: {@value Constant.Test#TSP_SOURCE}</li>
+ * <li>TSP_SOURCE_FOR_ARCHIVE_TIMESTAMPS: Time Stamp Protocol source address for archive timestamps;
+ * falls back to TSP_SOURCE if not specified</li>
  * <li>VALIDATION_POLICY: Validation policy source file</li>
  * <li>LOTL_LOCATION: LOTL (List of Trusted Lists) location</li>
  * <li>LOTL_TRUSTSTORE_PATH: path to the trust-store for LOTL signing certificates</li>
@@ -179,6 +183,11 @@ import static java.util.Arrays.asList;
  * contents of a ZIP-based container allowed to consume before ZIP compression ratio check kicks in</li>
  * <li>MAX_ALLOWED_ZIP_COMPRESSION_RATIO: the maximum ratio of how much are the contents of a ZIP-based container
  * allowed to expand on unpacking before the container is considered harmful.</li>
+ * <li>ARCHIVE_TIMESTAMP_DIGEST_ALGORITHM: default digest algorithm for archive timestamps<br>
+ * Possible values are the names of {@link DigestAlgorithm} enum values</li>
+ * <li>ARCHIVE_TIMESTAMP_REFERENCE_DIGEST_ALGORITHM: default digest algorithm for references for archive timestamps
+ * (e.g. <code>DataObjectReference</code>s in <code>ASiCArchiveManifest.xml</code> files)<br>
+ * Possible values are the names of {@link DigestAlgorithm} enum values</li>
  * </ul>
  */
 public class Configuration implements Serializable {
@@ -727,6 +736,23 @@ public class Configuration implements Serializable {
   }
 
   /**
+   * Returns the TSP source URL string for archive timestamps, if configured, otherwise returns the value of
+   * {@link #getTspSource()}.
+   *
+   * @return TSP source URL string for archive timestamps, or {@link #getTspSource()}
+   *
+   * @see #setTspSourceForArchiveTimestamps(String)
+   * @see #setTspSource(String)
+   * @see #getTspSource()
+   */
+  public String getTspSourceForArchiveTimestamps() {
+    return Optional
+            .ofNullable(getConfigurationParameter(ConfigurationParameter.TspSourceForArchiveTimestamps))
+            .filter(StringUtils::isNotBlank)
+            .orElseGet(this::getTspSource);
+  }
+
+  /**
    * Get the TSP source by country
    *
    * @param country to use tsp source
@@ -867,6 +893,15 @@ public class Configuration implements Serializable {
    */
   public void setTspSource(String tspSource) {
     this.setConfigurationParameter(ConfigurationParameter.TspSource, tspSource);
+  }
+
+  /**
+   * Sets the TSP source URL string to be used for archive timestamps.
+   *
+   * @param tspSource TSP source URL string for archive timestamps
+   */
+  public void setTspSourceForArchiveTimestamps(String tspSource) {
+    this.setConfigurationParameter(ConfigurationParameter.TspSourceForArchiveTimestamps, tspSource);
   }
 
   /**
@@ -1173,6 +1208,44 @@ public class Configuration implements Serializable {
    */
   public void setDataFileDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
     this.setConfigurationParameter(ConfigurationParameter.DataFileDigestAlgorithm, digestAlgorithm.name());
+  }
+
+  /**
+   * Returns the digest algorithm for archive timestamps, if configured.
+   *
+   * @return configured archive timestamp digest algorithm or {@code null}
+   */
+  public DigestAlgorithm getArchiveTimestampDigestAlgorithm() {
+    return DigestAlgorithm.findByAlgorithm(
+            getConfigurationParameter(ConfigurationParameter.ArchiveTimestampDigestAlgorithm));
+  }
+
+  /**
+   * Sets the digest algorithm for archive timestamps.
+   *
+   * @param digestAlgorithm digest algorithm for archive timestamps
+   */
+  public void setArchiveTimestampDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+    setConfigurationParameter(ConfigurationParameter.ArchiveTimestampDigestAlgorithm, digestAlgorithm.name());
+  }
+
+  /**
+   * Returns the reference digest algorithm for archive timestamps, if configured.
+   *
+   * @return configured archive timestamp reference digest algorithm or {@code null}
+   */
+  public DigestAlgorithm getArchiveTimestampReferenceDigestAlgorithm() {
+    return DigestAlgorithm.findByAlgorithm(
+            getConfigurationParameter(ConfigurationParameter.ArchiveTimestampReferenceDigestAlgorithm));
+  }
+
+  /**
+   * Sets the reference digest algorithm for archive timestamps.
+   *
+   * @param digestAlgorithm reference digest algorithm for archive timestamps
+   */
+  public void setArchiveTimestampReferenceDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+    setConfigurationParameter(ConfigurationParameter.ArchiveTimestampReferenceDigestAlgorithm, digestAlgorithm.name());
   }
 
   /**
@@ -2243,6 +2316,7 @@ public class Configuration implements Serializable {
     this.setConfigurationParameterFromFile("TSL_LOCATION", ConfigurationParameter.LotlLocation);
     this.setConfigurationParameterFromFile(ConfigurationParameter.LotlLocation);
     this.setConfigurationParameterFromFile("TSP_SOURCE", ConfigurationParameter.TspSource);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.TspSourceForArchiveTimestamps);
     this.setConfigurationParameterFromFile("VALIDATION_POLICY", ConfigurationParameter.ValidationPolicy);
     this.setConfigurationParameterFromFile("OCSP_SOURCE", ConfigurationParameter.OcspSource);
     this.setConfigurationParameterFromFile("DIGIDOC_PKCS12_CONTAINER",
@@ -2270,6 +2344,8 @@ public class Configuration implements Serializable {
         ConfigurationParameter.SignatureDigestAlgorithm);
     this.setConfigurationParameterFromFile("DATAFILE_DIGEST_ALGORITHM",
             ConfigurationParameter.DataFileDigestAlgorithm);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.ArchiveTimestampDigestAlgorithm);
+    this.setConfigurationParameterFromFile(ConfigurationParameter.ArchiveTimestampReferenceDigestAlgorithm);
     this.setConfigurationParameterFromFile("PRINT_VALIDATION_REPORT", ConfigurationParameter.PrintValidationReport);
     this.setDDoc4JDocConfigurationValue("SIGN_OCSP_REQUESTS", Boolean.toString(this.hasToBeOCSPRequestSigned()));
     this.setDDoc4JDocConfigurationValue("DIGIDOC_PKCS12_CONTAINER", this.getOCSPAccessCertificateFileName());

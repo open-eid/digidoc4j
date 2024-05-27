@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j;
 
 /**
@@ -12,7 +22,10 @@ public enum ConfigurationParameter {
   SignatureProfile,
   SignatureDigestAlgorithm,
   DataFileDigestAlgorithm,
+  ArchiveTimestampDigestAlgorithm("ARCHIVE_TIMESTAMP_DIGEST_ALGORITHM"),
+  ArchiveTimestampReferenceDigestAlgorithm("ARCHIVE_TIMESTAMP_REFERENCE_DIGEST_ALGORITHM"),
   TspSource,
+  TspSourceForArchiveTimestamps("TSP_SOURCE_FOR_ARCHIVE_TIMESTAMPS"),
   LotlLocation("LOTL_LOCATION"),
   LotlTruststorePath("LOTL_TRUSTSTORE_PATH"),
   LotlTruststoreType("LOTL_TRUSTSTORE_TYPE"),
