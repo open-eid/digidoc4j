@@ -57,6 +57,7 @@ public final class Constant {
     public static final SignatureProfile SIGNATURE_PROFILE = SignatureProfile.LT;
     public static final DigestAlgorithm SIGNATURE_DIGEST_ALGORITHM = DigestAlgorithm.SHA256;
     public static final DigestAlgorithm DATAFILE_DIGEST_ALGORITHM = DigestAlgorithm.SHA256;
+    public static final DigestAlgorithm ARCHIVE_TIMESTAMP_DIGEST_ALGORITHM = DigestAlgorithm.SHA512;
     public static final String FULL_SIMPLE_REPORT = "false";
   }
 

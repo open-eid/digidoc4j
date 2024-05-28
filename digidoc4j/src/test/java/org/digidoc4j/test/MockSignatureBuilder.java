@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.test;
 
@@ -33,7 +33,8 @@ public class MockSignatureBuilder extends SignatureBuilder {
 
   @Override
   public DataToSign buildDataToSign() throws SignerCertificateRequiredException, ContainerWithoutFilesException {
-    SignatureFinalizer signatureFinalizer = new SignatureFinalizer(new ArrayList<>(), null, null) {
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    SignatureFinalizer signatureFinalizer = new SignatureFinalizer(new ArrayList<>(), null, configuration) {
       @Override
       public Signature finalizeSignature(byte[] signatureValue) {
         finalizedSignatureValue = signatureValue;

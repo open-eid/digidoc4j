@@ -17,26 +17,20 @@ import org.digidoc4j.DataToSign;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureParameters;
-import org.digidoc4j.exceptions.InvalidDataFileException;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Signature finalizer for datafiles signing process.
  * Used by {@link SignatureBuilder}, by {@link SignatureBuilder} generated {@link DataToSign} and for two step signing (with serialization or local storage).
  */
-public abstract class SignatureFinalizer implements Serializable {
+public abstract class SignatureFinalizer extends AbstractFinalizer {
 
-  protected List<DataFile> dataFiles;
   protected SignatureParameters signatureParameters;
-  protected Configuration configuration;
 
   protected SignatureFinalizer(List<DataFile> dataFiles, SignatureParameters signatureParameters, Configuration configuration) {
-    verifyDataFilesNotEmpty(dataFiles);
-    this.dataFiles = dataFiles;
+    super(configuration, dataFiles);
     this.signatureParameters = signatureParameters;
-    this.configuration = configuration;
   }
 
   /**
@@ -75,20 +69,6 @@ public abstract class SignatureFinalizer implements Serializable {
    */
   public SignatureParameters getSignatureParameters() {
     return signatureParameters;
-  }
-
-  private static void verifyDataFilesNotEmpty(List<DataFile> dataFiles) {
-    dataFiles.stream()
-            .filter(DataFile::isFileEmpty)
-            .map(dataFile -> "Cannot sign empty datafile: " + dataFile.getName())
-            .map(InvalidDataFileException::new)
-            .reduce((e1, e2) -> {
-              e1.addSuppressed(e2);
-              return e1;
-            })
-            .ifPresent(e -> {
-              throw e;
-            });
   }
 
 }
