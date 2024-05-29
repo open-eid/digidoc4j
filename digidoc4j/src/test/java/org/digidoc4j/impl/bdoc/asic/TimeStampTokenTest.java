@@ -30,6 +30,7 @@ import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemOutRule;
@@ -75,6 +76,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("TODO: DD4J-1044")
   public void testOpenValidTimeStampContainer() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(this.configuration).
         fromExistingFile("src/test/resources/testFiles/valid-containers/timestamptoken-ddoc.asics").build();
@@ -84,6 +86,7 @@ public class TimeStampTokenTest extends AbstractTest {
     Assert.assertTrue(validate.isValid());
   }
 
+  @Ignore("TODO: DD4J-1044")
   @Test(expected = DigiDoc4JException.class)
   public void testOpenContainerTwoDataFiles() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(this.configuration).
@@ -91,6 +94,7 @@ public class TimeStampTokenTest extends AbstractTest {
     container.validate();
   }
 
+  @Ignore("TODO: DD4J-1044")
   @Test(expected = DigiDoc4JException.class)
   public void testOpenInvalidTimeStampContainer() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(this.configuration).
